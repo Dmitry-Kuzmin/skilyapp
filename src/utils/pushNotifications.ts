@@ -199,36 +199,15 @@ export async function isPushSubscribed(): Promise<boolean> {
  */
 export async function sendTestNotification(): Promise<void> {
     if (!isPushSupported()) {
-        throw new Error('Push notifications are not supported');
-    }
-
-    const permission = getNotificationPermission();
-    if (permission !== 'granted') {
-        throw new Error('Notification permission not granted');
-    }
-
-    // Показываем локальное уведомление (без сервера)
-    const registration = await navigator.serviceWorker.ready;
-    await registration.showNotification('🎉 Skily Test', {
-        body: 'Уведомления работают! Теперь ты не пропустишь важные события.',
-        icon: '/icon-192.png',
-        badge: '/badge-72.png',
-        image: '/notification-test.png', // Большая картинка
-        vibrate: [200, 100, 200],
-        tag: 'test-notification',
-        requireInteraction: false,
-        actions: [
-            {
-                action: 'open',
-                title: '🚀 Открыть приложение',
+        title: '🚀 Открыть приложение',
             },
-            {
-                action: 'close',
-                title: '✅ Понятно',
+    {
+        action: 'close',
+            title: '✅ Понятно',
             },
         ],
-        data: {
-            url: '/dashboard',
+    data: {
+        url: '/dashboard',
         },
-    });
+});
 }
