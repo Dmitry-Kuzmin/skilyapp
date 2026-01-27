@@ -9,7 +9,7 @@ import { triggerHaptic } from '@/lib/haptics';
 import { toast } from 'sonner';
 import { CyberSwitch } from '../ui/CyberSwitch';
 import { Button } from '@/components/ui/button';
-import { UserContext } from '@/contexts/UserContext';
+import { useUserContext } from '@/contexts/UserContext';
 import {
     isPushSupported,
     isPWAInstalled,
@@ -53,8 +53,8 @@ const SettingRow: React.FC<{
 
 export const NotificationsTab: React.FC = () => {
     const { duelNotifications, toggleDuelNotifications } = useSettingsStore();
-    const userContext = useContext(UserContext);
-    const userId = userContext?.user?.id;
+    const { supabaseUser } = useUserContext();
+    const userId = supabaseUser?.id;
 
     const [pushEnabled, setPushEnabled] = useState(false);
     const [pushSupported, setPushSupported] = useState(false);
@@ -68,11 +68,11 @@ export const NotificationsTab: React.FC = () => {
         setPwaInstalled(isPWAInstalled());
         setPermission(getNotificationPermission());
 
-        // Проверяем подписку
-        if (isPushSupported()) {
+        // Проверяем подписку только если есть userId
+        if (isPushSupported() && userId) {
             isPushSubscribed().then(setPushEnabled);
         }
-    }, []);
+    }, [userId]);
 
     const handleDuelNotifications = () => {
         triggerHaptic('medium');
@@ -82,6 +82,7 @@ export const NotificationsTab: React.FC = () => {
 
     const handlePushToggle = async () => {
         if (!userId) {
+            console.error('Push toggle failed: No Supabase user ID found');
             toast.error('Необходима авторизация');
             return;
         }
