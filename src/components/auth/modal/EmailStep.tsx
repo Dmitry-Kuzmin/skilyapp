@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from '@/components/optimized/Motion';
 import { Loader2, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
