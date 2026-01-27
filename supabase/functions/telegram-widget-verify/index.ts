@@ -106,7 +106,7 @@ serve(async (req) => {
                 last_name: telegramUser.last_name,
                 username: telegramUser.username,
                 photo_url: telegramUser.photo_url,
-                platform: 'telegram_widget',
+                platform: 'telegram',
                 updated_at: new Date().toISOString()
             }, { onConflict: 'telegram_id' });
 

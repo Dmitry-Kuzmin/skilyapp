@@ -315,7 +315,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                     <Pencil className="h-3 w-3 text-muted-foreground shrink-0" />
                   </div>
                   {/* Скрываем технический email для Telegram-пользователей */}
-                  {supabaseUser?.email && !supabaseUser.email.includes('@telegram.skily.app') ? (
+                  {supabaseUser?.email && !supabaseUser.email.startsWith('tg_') && !supabaseUser.email.includes('@telegram.skily.app') ? (
                     <p
                       className="text-xs text-muted-foreground truncate"
                       title={supabaseUser.email}
