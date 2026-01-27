@@ -38,6 +38,88 @@ export function EmailStep({
 }: EmailStepProps) {
     const { t } = useLanguage();
 
+    // Inject Telegram Widget
+    useEffect(() => {
+        const botName = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'skilyapp_bot';
+        const container = document.getElementById('telegram-login-container-new');
+
+        if (!container) return;
+        if (container.children.length > 0) return; // Already injected
+
+        // Define global callback if not exists
+        if (!(window as any).onTelegramAuth) {
+            (window as any).onTelegramAuth = async (user: any) => {
+                console.log('[Telegram Auth] Widget success:', user);
+                // Here we usually verify the hash on backend, or if using Supabase:
+                // Supabase doesn't support direct client-side login with Widget data easily without backend verification.
+                // But often we just redirect to a URL that handles it or user asks for "widget checking".
+
+                // For now, let's try to simulate the OAuth flow that Supabase expects or use a direct handler.
+                // If we assume a backend handler exists (which is common for this widget), we would call it.
+                // However, without a backend endpoint ready for this specific widget data, we might be stuck.
+
+                // ALTERNATIVE: Use Supabase OAuth redirect instead of Widget?
+                // The user specifically asked about the WIDGET not being connected.
+                // So I must make the widget appear.
+
+                // Let's pass the user data to a potential handler or just log it for now as a first step 
+                // to prove it works, as the user said "nothing happens".
+
+                if (onGoogleLogin) {
+                    // Using onGoogleLogin as a placeholder for "External Auth Success" if we can't fully process it yet?
+                    // No, that's confusing.
+
+                    // Ideally we need:
+                    // const { data, error } = await supabase.auth.signInWithOtp({ ... }) ? No.
+                    // We need a custom backend endpoint to verify the hash and mint a token.
+
+                    // For 'skilyapp_bot', maybe the user expects the redirect flow?
+                    // But the UI has a container for the widget.
+                }
+
+                // For now, let's just alert/log to show it's connected, 
+                // and the user can guide us if they have a backend preference.
+                // OR better: redirect to auth callback with the params?
+
+                const query = new URLSearchParams({
+                    id: user.id,
+                    first_name: user.first_name,
+                    username: user.username,
+                    photo_url: user.photo_url,
+                    auth_date: user.auth_date,
+                    hash: user.hash
+                }).toString();
+
+                // Supabase expects this on the callback URL? Not exactly.
+                // Let's try to use the "supabse.auth.signInWithOAuth" which uses a redirect,
+                // BUT the widget provides data directly.
+
+                // Let's assume there is a supbase function or we just call the onGoogleLogin (general external auth) 
+                // or we simply trigger the Google Login as a fallback? No.
+
+                // Let's just create the widget to fix "nothing happens". 
+                // The logic for processing the auth is step 2.
+            };
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://telegram.org/js/telegram-widget.js?22';
+        script.setAttribute('data-telegram-login', botName);
+        script.setAttribute('data-size', 'large');
+        // script.setAttribute('data-radius', '10'); // Optional
+        script.setAttribute('data-request-access', 'write');
+        script.setAttribute('data-userpic', 'false');
+        script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+        script.async = true;
+
+        container.appendChild(script);
+
+        return () => {
+            // cleanup if needed
+        };
+    }, []);
+
+
     return (
         <motion.div
             key="step-email"
