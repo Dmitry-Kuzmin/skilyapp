@@ -194,9 +194,6 @@ export async function isPushSubscribed(): Promise<boolean> {
     }
 }
 
-/**
- * Отправляет тестовое уведомление (для проверки)
- */
 export async function sendTestNotification(): Promise<void> {
     if (!('serviceWorker' in navigator)) {
         throw new Error('Service Worker не поддерживается');
@@ -205,11 +202,16 @@ export async function sendTestNotification(): Promise<void> {
     const registration = await navigator.serviceWorker.ready;
     const timestamp = new Date().getTime();
 
+    // ВАЖНО: iOS требует абсолютный URL для картинок
+    const origin = window.location.origin;
+    const imageUrl = `${origin}/images/hero-lcp.webp`;
+    const iconUrl = `${origin}/favicon.ico`;
+
     await registration.showNotification('🎉 Skily: Rich Push Test', {
-        body: 'Вот так выглядит уведомление с картинкой! Зажми меня, чтобы увидеть магию 🪄',
-        icon: '/favicon.ico',
-        image: '/images/hero-lcp.webp', // Большая картинка (Rich Media)
-        badge: '/favicon.ico',
+        body: 'Зажми уведомление пальцем (Haptic Touch), чтобы увидеть картинку! 📸',
+        icon: iconUrl,
+        image: imageUrl, // Абсолютный путь обязателен для iOS
+        badge: iconUrl,
         tag: `test-notification-${timestamp}`,
         renotify: true,
         vibrate: [200, 100, 200, 100, 200, 100, 400],
