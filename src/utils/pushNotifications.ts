@@ -198,16 +198,26 @@ export async function isPushSubscribed(): Promise<boolean> {
  * Отправляет тестовое уведомление (для проверки)
  */
 export async function sendTestNotification(): Promise<void> {
-    if (!isPushSupported()) {
-        title: '🚀 Открыть приложение',
-            },
-    {
-        action: 'close',
-            title: '✅ Понятно',
-            },
+    if (!('serviceWorker' in navigator)) {
+        throw new Error('Service Worker не поддерживается');
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    const timestamp = new Date().getTime();
+
+    await registration.showNotification('🎉 Skily: Rich Push Test', {
+        body: 'Вот так выглядит уведомление с картинкой! Зажми меня, чтобы увидеть магию 🪄',
+        icon: '/favicon.ico',
+        image: '/images/hero-lcp.webp', // Большая картинка (Rich Media)
+        badge: '/favicon.ico',
+        tag: `test-notification-${timestamp}`,
+        renotify: true,
+        vibrate: [200, 100, 200, 100, 200, 100, 400],
+        requireInteraction: true,
+        actions: [
+            { action: 'open', title: '🔥 Открыть' },
+            { action: 'later', title: '⏰ Позже' }
         ],
-    data: {
-        url: '/dashboard',
-        },
-});
+        data: { url: '/dashboard', timestamp }
+    });
 }
