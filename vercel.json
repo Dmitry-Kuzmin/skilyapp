@@ -1,34 +1,4 @@
 {
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
-    },
-    {
-      "source": "/assets/:path*",
-      "destination": "/assets/:path*"
-    },
-    {
-      "source": "/:file\\.(js|css|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp|json|map|sw\\.js|workbox-.*\\.js)",
-      "destination": "/:file.$1"
-    },
-    {
-      "source": "/blog",
-      "destination": "/blog.html"
-    },
-    {
-      "source": "/article/:slug",
-      "destination": "/article/:slug.html"
-    },
-    {
-      "source": "/",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/((?!api|assets|favicon|manifest|robot\\.txt|sitemap\\.xml|sw\\.js|workbox-.*\\.js|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.ico|.*\\.svg|.*\\.webp|.*\\.mp3|.*\\.wav|.*\\.json).*)",
-      "destination": "/index.html"
-    }
-  ],
   "headers": [
     {
       "source": "/index.html",
@@ -96,9 +66,10 @@
       ]
     }
   ],
-  "functions": {
-    "api/tts.ts": {
-      "maxDuration": 20
+  "rewrites": [
+    {
+      "source": "/((?!assets|favicon|manifest|robot\\.txt|sitemap\\.xml|sw\\.js|workbox-.*\\.js|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.ico|.*\\.svg|.*\\.webp|.*\\.mp3|.*\\.wav|.*\\.json).*)",
+      "destination": "/index.html"
     }
-  }
+  ]
 }

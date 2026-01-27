@@ -186,11 +186,23 @@ export const useTestAudio = (
                     // Timeout for fetch to fallback quicker
                     const timeoutId = setTimeout(() => abortControllerRef.current?.abort(), 5000);
 
+
                     try {
-                        const response = await fetch(
-                            `/api/tts?text=${encodeURIComponent(currentQuestionText)}&lang=${language}`,
-                            { signal: abortControllerRef.current.signal }
-                        );
+                        // Switch to Supabase Edge Function
+                        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+                        const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+                        const url = new URL(`${supabaseUrl}/functions/v1/tts`);
+                        url.searchParams.append('text', currentQuestionText);
+                        url.searchParams.append('lang', language);
+
+                        const response = await fetch(url.toString(), {
+                            headers: {
+                                'Authorization': `Bearer ${anonKey}`,
+                                // 'apikey': anonKey // Usually Supabase Gateway requires Authorization
+                            },
+                            signal: abortControllerRef.current.signal
+                        });
 
                         clearTimeout(timeoutId);
 

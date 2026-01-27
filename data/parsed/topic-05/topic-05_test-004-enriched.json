@@ -1333,29 +1333,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Нет.",
           "es": "No.",
-          "en": "No.",
-          "ru": "Нет."
+          "en": "No."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Да, но только вне населенных пунктов.",
           "es": "Sí, pero únicamente fuera de poblado.",
-          "en": "Yes, but only outside built-up areas.",
-          "ru": "Да, но только вне населенных пунктов."
+          "en": "Yes, but only outside built-up areas."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Да, но только на городских дорогах.",
           "es": "Sí, pero únicamente en vías urbanas.",
-          "en": "Yes, but only on urban roads.",
-          "ru": "Да, но только на городских дорогах."
+          "en": "Yes, but only on urban roads."
         },
         "is_correct": false
       }
@@ -1363,7 +1363,7 @@
     "explanation": {
       "es": "Según el Reglamento General de Circulación, los conductores y pasajeros de cuadriciclos ligeros están exentos de utilizar el casco de protección siempre que el vehículo cuente con una estructura de autoprotección y cinturones de seguridad, y así conste en su tarjeta de inspección técnica (ITV). En este caso, el uso del cinturón de seguridad es obligatorio.",
       "en": "According to the General Circulation Regulations, drivers and passengers of light quadricycles are exempt from wearing a protective helmet provided the vehicle is equipped with a self-protection structure and seat belts, as specified in its technical inspection card (ITV). In such cases, the use of the seat belt is mandatory.",
-      "ru": "🎓 Если легкий квадрицикл оснащен заводской структурой самозащиты и ремнями безопасности, и это подтверждено документами техосмотра (ITV), то надевать шлем не нужно. В такой ситуации обязательным становится использование ремня безопасности. Это исключение действует для транспортных средств, чья конструкция официально признана безопасной для поездок без шлема. 🇷🇺 В Испании наличие ремней и защитного каркаса в документах — решающий фактор для отмены шлема, в то время как в РФ требования к шлемам на подобных ТС часто зависят от типа управления и сертификации. 💡 Есть каркас и ремешок — шлем не давит на висок!"
+      "ru": "🎓 Если легкий квадрицикл оснащен заводской структурой самозащиты и ремнями безопасности, и это подтверждено документами техосмотра (ITV), то надевать шлем не нужно. В такой ситуации обязательным становится использование ремня безопасности. Это исключение действует для транспортных средств, чья конструкция официально признана безопасной для поездок без шлема.💡 Есть каркас и ремешок — шлем не давит на висок!"
     },
     "image_url": "https://teorica.practicavial.com/question/9c3caa47-0c38-46d0-b1ba-962888a07b22-1658256316-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9c3caa47-0c38-46d0-b1ba-962888a07b22-s-1.jpg",

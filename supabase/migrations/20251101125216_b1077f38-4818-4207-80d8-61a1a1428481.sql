@@ -97,6 +97,7 @@ CREATE INDEX idx_duel_questions_duel_id ON public.duel_questions(duel_id);
 CREATE INDEX idx_duel_answers_player_id ON public.duel_answers(player_id);
 CREATE INDEX idx_duel_stats_user_id ON public.duel_stats(user_id);
 CREATE INDEX idx_daily_duel_limits_user_date ON public.daily_duel_limits(user_id, date);
+CREATE INDEX idx_duel_answers_duel_id ON public.duel_answers(duel_id);
 
 -- Enable RLS
 ALTER TABLE public.duels ENABLE ROW LEVEL SECURITY;
@@ -265,9 +266,9 @@ USING (
 );
 
 -- Enable realtime for duels
-ALTER PUBLICATION supabase_realtime ADD TABLE public.duels;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.duel_players;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.duel_answers;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE public.duels;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE public.duel_players;
+-- ALTER PUBLICATION supabase_realtime ADD TABLE public.duel_answers;
 
 -- Trigger for updated_at
 CREATE TRIGGER update_duel_stats_updated_at

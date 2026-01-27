@@ -69,7 +69,7 @@ const CONFIG = {
 // ==========================================
 const VISION_ANALYSIS_PROMPT = `ROLE: Traffic Safety Expert (Spanish DGT).
 TASK: Analyze image components for precise 3D recreation.
-CONSTRAINT: DO NOT reveal correct answer.
+CONSTRAINT: DESCRIBE SIGNS VISUALLY ONLY. DO NOT USE CODES (e.g. say "Red circle with 50", NOT "R-301").
 
 OUTPUT FORMAT: Structured breakdown.
 
@@ -81,7 +81,10 @@ OUTPUT FORMAT: Structured breakdown.
    - Type (Autopista, Conventional, Urban).
    - Lane count & Surface.
    - TEMPORARY: Cones? Yellow markings?
-4. SIGNS: List all visible DGT codes (R-301, P-4, etc). Verify consistency with road.
+4. SIGNS: VISUAL DESCRIPTION ONLY. 
+   - BAD: "P-18 present"
+   - GOOD: "Yellow triangular warning sign with construction worker symbol".
+   - NO TEXT CODES in description.
 5. MARKINGS:
    - Center: Continuous or Dashed? White or Yellow?
    - Arrows/Crosswalks.
@@ -102,18 +105,21 @@ const STYLE_MASTER_PROMPT = `STYLE: Unreleased Unreal Engine 5 rendering. Spanis
 - COMPOSITION: Full-frame, edge-to-edge terrain (NO black voids).
 
 ## SIGNAGE RULES (CRITICAL & STRICT):
-- **NO TEXT CODES**: NEVER, EVER write the sign code (e.g. "R-500", "P-4", "S-28") on the sign or road.
-- **VISUAL ONLY**: If prompt says "End of Restriction (R-500)", draw a **White Circle with Black Diagonal Line**. DO NOT WRITE "R-500".
+- **NO TEXT CODES**: NEVER, EVER write the sign code (e.g. "R-500", "P-18", "S-28") on the sign or road.
+- **NO SUPPLEMENTARY PLATES**: Do NOT draw small rectangular plates (White or Yellow) below the sign with text. The pole must be BARE.
+- **CONSTRUCTION SIGNS (Obras)**: Draw ONLY the **Yellow Triangle with Worker Symbol**. ABOLISH the yellow square plate with "Obras" or "P-18".
+- **VISUAL ONLY**: If prompt says "End of Restriction", draw a **White Circle with Black Diagonal Line**. DO NOT WRITE text.
 - **PURE SYMBOLS**: 
     - "Stop" -> Red Octagon with "STOP" (Allowed).
     - "Yield" -> Red/White Inverted Triangle (No text).
     - "Speed Limit 50" -> Red Circle with "50". 
-    - "R-500" -> White Circle / Grey Lines. NO TEXT.
-- **FAIL CONDITION**: If the image contains text like "R-500", "S-3", the generation is a FAILURE.
+    - "Construction" -> Yellow Triangle with Worker Icon. NO TEXT.
+- **FAIL CONDITION**: If the image contains text like "R-500", "P-18", "Obras", or a text plate, the generation is a FAILURE.
 
 ## NEGATIVE PROMPT (AVOID THESE AT ALL COSTS):
-- **TEXT LABELS**: "R-500", "R-301", "End", "Speed", "Limit", "Zona".
+- **TEXT LABELS**: "R-500", "P-18", "Obras", "R-407a", "End", "Speed", "Limit", "Zona".
 - **FLOATING UI**: White boxes with text, HUD elements, code identifiers.
+- **SIGN CAPTIONS**: Rectangular plates (White/Yellow) attached to sign poles.
 - **AMERICAN MARKINGS**: Double yellow lines (use White).
 - **HALLUCINATED SIGNS**: Do not add random signs not requested.
 - **Watermarks, Captions, Subtitles**.

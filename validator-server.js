@@ -367,7 +367,7 @@ app.get('/api/search', async (req, res) => {
 async function loadQuestionData() {
     const questionsMap = new Map(); // external_id -> question_data
 
-    async function scanEnrichedFiles(dir) {
+    async function scanFiles(dir) {
         try {
             const files = await fs.readdir(dir);
 
@@ -376,23 +376,50 @@ async function loadQuestionData() {
                 const stat = await fs.stat(fullPath);
 
                 if (stat.isDirectory()) {
-                    await scanEnrichedFiles(fullPath);
-                } else if (file.endsWith('-enriched.json')) {
+                    await scanFiles(fullPath);
+                } else if (file.endsWith('.json')) {
+                    // Filter out non-test files if possible, or just try-catch
+                    if (!file.includes('test-') && !file.includes('ticket-')) continue;
+
                     try {
-                        const data = JSON.parse(await fs.readFile(fullPath, 'utf8'));
-                        data.forEach(q => {
+                        const content = await fs.readFile(fullPath, 'utf8');
+                        const data = JSON.parse(content);
+                        const items = Array.isArray(data) ? data : (data.questions || []);
+
+                        items.forEach(q => {
+                            let urlId = null;
+                            if (q.image_url) {
+                                const match = q.image_url.match(/\/question\/([a-f0-9-]{36})/);
+                                if (match) urlId = match[1];
+                            }
+
+                            const entry = {
+                                id: q.id,
+                                externalId: q.external_id,
+                                urlId: urlId,
+                                question_es: q.question?.es || q.question_text || '',
+                                question_ru: q.question?.ru || q.question_text_ru || '',
+                                question_en: q.question?.en || '',
+                                originalUrl: q.image_url || q.schema_url,
+                                sourceFile: file
+                            };
+
+                            // index by external_id (Enriched usually)
                             if (q.external_id) {
-                                questionsMap.set(q.external_id, {
-                                    question_es: q.question?.es || '',
-                                    question_ru: q.question?.ru || '',
-                                    question_en: q.question?.en || '',
-                                    originalUrl: q.image_url || q.schema_url,
-                                    sourceFile: file
-                                });
+                                if (!questionsMap.has(q.external_id)) {
+                                    questionsMap.set(q.external_id, entry);
+                                }
+                            }
+
+                            // index by id (Raw/Fallback)
+                            if (q.id && q.id !== q.external_id) {
+                                if (!questionsMap.has(q.id)) {
+                                    questionsMap.set(q.id, entry);
+                                }
                             }
                         });
                     } catch (e) {
-                        console.error(`Error reading ${file}:`, e.message);
+                        // console.error(`Error reading ${file}:`, e.message);
                     }
                 }
             }
@@ -401,7 +428,7 @@ async function loadQuestionData() {
         }
     }
 
-    await scanEnrichedFiles(CONFIG.parsedDir);
+    await scanFiles(CONFIG.parsedDir);
     return questionsMap;
 }
 
@@ -2768,63 +2795,215 @@ async function getCachedQuestionsMap() {
 // Get all images grouped by topic
 app.get('/api/gallery/images', async (req, res) => {
     try {
+        const { relatedTo } = req.query; // UUID of current question for smart recommendations
+
         const imagesRoot = path.join(process.cwd(), 'data', 'generated-images');
-        const testDirs = await fs.readdir(imagesRoot);
+        const rejectedPoolRoot = path.join(process.cwd(), 'data', 'rejected-pool');
+        const rejectedHistoryRoot = path.join(process.cwd(), 'data', 'rejected-images'); // Automatic archives
+
+        // Read main generated folders
+        const testDirs = await fs.readdir(imagesRoot).catch(() => []);
 
         // Preload questions for search
         const questionsMap = await getCachedQuestionsMap();
-
         const gallery = {};
 
+        // Helper to process directory
+        const processDir = async (rootPath, dirName, topicNameOverride = null, isRejectedSource = false) => {
+            const testDir = path.join(rootPath, dirName);
+            try {
+                const stats = await fs.stat(testDir);
+                if (!stats.isDirectory()) return;
+
+                // Determine Topic Name
+                let topic = topicNameOverride || 'Other';
+
+                if (!topicNameOverride) {
+                    const topicMatch = dirName.match(/^(topic-\d+|essential_test|dgt_test)/);
+                    if (topicMatch) topic = topicMatch[1];
+                }
+
+                if (!gallery[topic]) {
+                    gallery[topic] = { tests: {} };
+                }
+
+                const files = await fs.readdir(testDir);
+                const images = [];
+
+                for (const file of files) {
+                    if (!file.endsWith('.png')) continue;
+
+                    // Extract UUID
+                    const uuidMatch = file.match(/^([a-f0-9-]{36})/);
+                    if (!uuidMatch) continue;
+
+                    const uuid = uuidMatch[1];
+                    const filePath = path.join(testDir, file);
+                    const fileStats = await fs.stat(filePath);
+
+                    const question = questionsMap.get(uuid);
+                    const text = question ?
+                        (question.question_es || '') + ' ' + (question.question_ru || '') :
+                        '';
+
+                    // Determine relative URL
+                    let url = '';
+                    if (rootPath.includes('rejected-pool')) {
+                        url = `/data/rejected-pool/${file}`;
+                    } else if (rootPath.includes('rejected-images')) {
+                        // For rejected-images/testId/file
+                        // We need to serve this path.
+                        // Currently middleware serves 'generated-images'.
+                        // We need to make sure we can serve /data/rejected-images too.
+                        // I will add express.static for this below if needed, but safer to use relative path if the root is served.
+                        // Since 'app.use(express.static('.'))' is on line 93, we can serve /data/rejected-images/...
+                        url = `/data/rejected-images/${dirName}/${file}`;
+                    } else {
+                        url = `/generated-images/${dirName}/${file}`;
+                    }
+
+                    images.push({
+                        uuid,
+                        filename: file,
+                        testId: isRejectedSource ? `rejected (${dirName})` : dirName,
+                        url: url,
+                        size: fileStats.size,
+                        modified: fileStats.mtime,
+                        text: normalizeText(text),
+                        isRejected: isRejectedSource
+                    });
+                }
+
+                if (images.length > 0) {
+                    const testKey = isRejectedSource ? (topicNameOverride || dirName) : dirName;
+
+                    // Merger logic if testKey exists
+                    if (gallery[topic].tests[testKey]) {
+                        gallery[topic].tests[testKey].push(...images);
+                    } else {
+                        gallery[topic].tests[testKey] = images;
+                    }
+                }
+            } catch (e) {
+                // Ignore access errors
+            }
+        };
+
+        // 1. Process Generated Images
         for (const dir of testDirs) {
             if (dir.startsWith('.')) continue;
+            await processDir(imagesRoot, dir);
+        }
 
-            const topicMatch = dir.match(/^(topic-\d+|essential_test|dgt_test|rejected-pool)/);
-            if (!topicMatch) continue;
+        // 2. Process Rejected Pool (Manual Archives)
+        try {
+            await processDir(rejectedPoolRoot, '.', '🗑️ Rejected Pool', true);
+        } catch (e) { }
 
-            const topic = topicMatch[1];
-            if (!gallery[topic]) {
-                gallery[topic] = { tests: {} };
+        // 3. Process Rejected History (Automatic Archives)
+        try {
+            const historyDirs = await fs.readdir(rejectedHistoryRoot).catch(() => []);
+            for (const dir of historyDirs) {
+                if (dir.startsWith('.')) continue;
+                // Add these to a specific topic or mix them?
+                // Let's mix them into '🗑️ Prior Versions'
+                await processDir(rejectedHistoryRoot, dir, '🗑️ Prior Versions', true);
             }
+        } catch (e) { }
 
-            const testDir = path.join(imagesRoot, dir);
-            const stats = await fs.stat(testDir);
-            if (!stats.isDirectory()) continue;
 
-            const files = await fs.readdir(testDir);
-            const images = [];
+        // 4. SMART RECOMMENDATIONS
+        if (relatedTo) {
+            // Extract core UUID (remove table/test prefixes)
+            const parts = relatedTo.split('_');
+            const currentUuid = parts.length > 0 ? parts[parts.length - 1] : relatedTo;
 
-            for (const file of files) {
-                if (!file.endsWith('.png')) continue;
+            const currentQ = questionsMap.get(currentUuid);
 
-                // Extract UUID from filename (before timestamp if present)
-                const uuidMatch = file.match(/^([a-f0-9-]{36})/);
-                if (!uuidMatch) continue;
+            if (currentQ) {
+                const currentText = (currentQ.question_es || '') + ' ' + (currentQ.question_ru || '');
+                const normalizedCurrent = normalizeText(currentText);
 
-                const uuid = uuidMatch[1];
-                const filePath = path.join(testDir, file);
-                const fileStats = await fs.stat(filePath);
+                if (normalizedCurrent.length > 5) { // Relaxed length check
+                    const allImages = [];
+                    Object.values(gallery).forEach(topic => {
+                        Object.values(topic.tests).forEach(imgs => allImages.push(...imgs));
+                    });
 
-                const question = questionsMap.get(uuid);
-                const text = question ?
-                    (question.question_es || '') + ' ' + (question.question_ru || '') :
-                    '';
+                    // 1. Exact UUID matches (Variants)
+                    // Check against current UUID AND (if available) the external ID found in data
+                    const targetIds = new Set([currentUuid]);
+                    if (currentQ.externalId) targetIds.add(currentQ.externalId);
+                    if (currentQ.id) targetIds.add(currentQ.id);
+                    if (currentQ.urlId) targetIds.add(currentQ.urlId);
 
-                images.push({
-                    uuid,
-                    filename: file,
-                    testId: dir,
-                    url: `/generated-images/${dir}/${file}`,
-                    size: fileStats.size,
-                    modified: fileStats.mtime,
-                    // Add text for search
-                    text: normalizeText(text)
+                    const exactMatches = allImages.filter(img => targetIds.has(img.uuid));
+
+                    console.log(`[Gallery] Searching for text: "${normalizedCurrent.substring(0, 50)}..." in ${allImages.length} images`);
+                    console.log(`[Gallery] Target IDs for Exact Match: ${Array.from(targetIds).join(', ')}`);
+
+                    if (allImages.length > 0) {
+                        console.log(`[Gallery] Sample image text: "${(allImages[0].text || '').substring(0, 50)}..."`);
+                    }
+
+                    const fuse = new Fuse(allImages, {
+                        keys: ['text', 'uuid'], // Search in text and UUID
+                        includeScore: true,
+                        threshold: 0.4, // 0.0 = perfect, 1.0 = anything
+                        ignoreLocation: true,
+                        minMatchCharLength: 4,
+                        useExtendedSearch: true
+                    });
+
+                    // Search using current text
+                    const results = fuse.search(normalizedCurrent);
+
+                    const fuzzyMatches = results
+                        .filter(r => r.item.uuid !== currentUuid) // Exclude self/variants (handled above)
+                        .map(r => r.item);
+
+                    console.log(`[Gallery] Matches found: Exact=${exactMatches.length}, Fuzzy=${fuzzyMatches.length}`);
+
+                    // (Fuse already sorts by score, but confirming)
+
+                    const topRecs = [
+                        ...exactMatches.sort((a, b) => b.timestamp - a.timestamp), // Newest variants first
+                        ...fuzzyMatches.slice(0, 50) // Top 50 semantic matches
+                    ];
+
+                    if (topRecs.length > 0) {
+                        gallery['✨ Smart Recommendations'] = {
+                            tests: {
+                                'Best Matches': topRecs
+                            }
+                        };
+                        console.log(`[Gallery] Added '✨ Smart Recommendations' with ${topRecs.length} items`);
+                    } else {
+                        console.log(`[Gallery] No recommendations found`);
+                    }
+                } else {
+                    console.log(`[Gallery] Question text too short for semantic search`);
+                }
+            } else {
+                console.log(`[Gallery] Question ID ${currentUuid} NOT found in questionsMap`);
+                // Fallback: If no question data, but we have images with same UUID (versions), show them
+                const allImages = [];
+                Object.values(gallery).forEach(topic => {
+                    Object.values(topic.tests).forEach(imgs => allImages.push(...imgs));
                 });
-            }
 
-            if (images.length > 0) {
-                gallery[topic].tests[dir] = images;
+                const variants = allImages.filter(img => img.uuid === currentUuid);
+                if (variants.length > 0) {
+                    gallery['✨ Smart Recommendations'] = {
+                        tests: {
+                            'Variants': variants
+                        }
+                    };
+                    console.log(`[Gallery] Added fallback variants: ${variants.length}`);
+                }
             }
+        } else {
+            console.log(`[Gallery] No relatedTo param provided`);
         }
 
         res.json(gallery);
@@ -2838,12 +3017,39 @@ app.get('/api/gallery/images', async (req, res) => {
 app.post('/api/gallery/copy-image', async (req, res) => {
     try {
         const { sourceTestId, sourceFilename, targetTestId, targetUuid } = req.body;
+        console.log(`[Gallery] Copy request:`, { sourceTestId, sourceFilename, targetTestId, targetUuid });
 
         if (!sourceTestId || !sourceFilename || !targetTestId || !targetUuid) {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
-        const sourceFile = path.join(process.cwd(), 'data', 'generated-images', sourceTestId, sourceFilename);
+        let sourceDir = path.join(process.cwd(), 'data', 'generated-images', sourceTestId);
+
+        // Handle Rejected references (sourceTestId like "rejected (.)" or "rejected (topic-01)")
+        if (sourceTestId.startsWith('rejected (')) {
+            const match = sourceTestId.match(/^rejected \((.+)\)$/);
+            console.log(`[Gallery] Regex match result:`, match);
+            if (match) {
+                const inner = match[1];
+                if (inner === '.') {
+                    sourceDir = path.join(process.cwd(), 'data', 'rejected-pool');
+                } else {
+                    sourceDir = path.join(process.cwd(), 'data', 'rejected-images', inner);
+                }
+            }
+        }
+
+        console.log(`[Gallery] Resolved sourceDir: ${sourceDir}`);
+        const sourceFile = path.join(sourceDir, sourceFilename);
+        console.log(`[Gallery] Full source path: ${sourceFile}`);
+
+        try {
+            await fs.access(sourceFile);
+        } catch (err) {
+            console.error(`[Gallery] Source file not found at: ${sourceFile}`);
+            return res.status(404).json({ error: `Source file not found: ${sourceFilename} in ${sourceDir}` });
+        }
+
         const targetDir = path.join(process.cwd(), 'data', 'generated-images', targetTestId);
         await fs.mkdir(targetDir, { recursive: true });
 

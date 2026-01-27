@@ -1,8 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages } from "lucide-react";
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, Settings } from "lucide-react";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,6 +67,12 @@ export function AIExplanationDialog({
   const [input, setInput] = useState("");
   const [smartSuggestions, setSmartSuggestions] = useState<string[]>([]);
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
+
+  // Состояние для отображения сравнения с РФ (по умолчанию включено или берем из localStorage)
+  const [showComparison, setShowComparison] = useState(() => {
+    const saved = localStorage.getItem('ai_show_comparison');
+    return saved !== null ? saved === 'true' : true;
+  });
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const hasAskedRef = useRef(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -508,6 +523,7 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
           topicNumber: topicNumber,
           imageUrl: imageUrl || '',
           country: interfaceLanguage === 'ru' ? 'russia' : 'spain',
+          showComparison: showComparison,
         }),
       });
 
@@ -650,15 +666,44 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
                 AI Помощник DGT
               </span>
             </div>
-            <Button
-              variant="ghost"
-              onClick={handleClose}
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
-              title="Закрыть"
-            >
-              <span className="text-lg">✕</span>
-            </Button>
+            <div className="flex items-center gap-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+                    title="Настройки"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-border/50">
+                  <DropdownMenuLabel>Настройки AI</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem
+                    checked={showComparison}
+                    onCheckedChange={(checked) => {
+                      setShowComparison(checked);
+                      localStorage.setItem('ai_show_comparison', String(checked));
+                      toast.success(checked ? "Сравнение с РФ включено" : "Сравнение с РФ выключено");
+                    }}
+                  >
+                    🔥 Сравнивать с РФ
+                  </DropdownMenuCheckboxItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="ghost"
+                onClick={handleClose}
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+                title="Закрыть"
+              >
+                <span className="text-lg">✕</span>
+              </Button>
+            </div>
           </DialogTitle>
         </DialogHeader>
 

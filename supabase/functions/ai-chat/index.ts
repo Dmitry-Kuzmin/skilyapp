@@ -15,6 +15,7 @@ interface ChatRequest {
   messages: Message[];
   country?: 'spain' | 'russia';
   mode?: 'chat' | 'debrief';
+  showComparison?: boolean;
 }
 
 interface UsageData {
@@ -22,7 +23,7 @@ interface UsageData {
   current_count: number;
 }
 
-const getSystemPrompt = (country: string = 'spain'): string => {
+const getSystemPrompt = (country: string = 'spain', showComparison: boolean = true): string => {
   if (country === 'russia') {
     return `# ROLE & PERSONA
 Ты — Skily 💡, элитный ИИ-инструктор и абсолютный эксперт по ПДД РФ.
@@ -53,20 +54,53 @@ const getSystemPrompt = (country: string = 'spain'): string => {
 Отвечай на русском языке.`;
   }
 
+  // Spain Logic
+  let comparisonLogic = "";
+  if (showComparison) {
+    comparisonLogic = `
+# 🇷🇺 VS 🇪🇸 COMPARISON MODE (ACTIVE)
+Ты ОБЯЗАН сравнивать правила Испании и РФ, если есть отличия.
+1. Если правило отличается от РФ:
+   - Напиши: "⚠️ Внимание! В РФ это <как в РФ>, а здесь <как в Испании>."
+   - Объясни, почему это важно (штраф, опасность).
+2. Если правило такое же:
+   - Напиши: "✅ Как и в РФ, здесь <правило>."
+`;
+  } else {
+    comparisonLogic = `
+# ⛔ NO COMPARISON MODE
+- Ты объясняешь ТОЛЬКО правила Испании (DGT).
+- ЗАПРЕЩЕНО упоминать правила РФ или сравнивать с ними.
+- Концентрируйся только на испанской специфике.
+`;
+  }
+
   return `You are Skily 💡, a friendly AI mentor for the DGT driving exam in Spain.
 Write grammatically correct text.
 Answer ONLY about Spain.
-Short clear answers (2-3 sentences for hints).
-Respond in the SAME LANGUAGE the user writes in.`;
+
+${comparisonLogic}
+
+# TONE & STYLE
+- Friendly, encouraging, professional.
+- Use emojis significantly (🚗, 🇪🇸, ⚠️, ✅).
+- Be concise but clear.
+
+# FORMATTING
+- Use Markdown.
+- Highlight key terms in **bold**.
+- Use lists for readability.
+
+Respond in the SAME LANGUAGE the user writes in (usually Russian).`;
 };
 
-async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', modelName: string = 'gemma2-9b-it'): Promise<Response | null> {
+async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'gemma2-9b-it'): Promise<Response | null> {
   const apiKey = Deno.env.get('GROQ_API_KEY');
   if (!apiKey) return null;
 
   try {
     // 🔥 Если mode === 'debrief', НЕ добавляем system prompt (unified prompt уже в messages)
-    const systemMessage = mode === 'debrief' ? [] : [{ role: 'system', content: getSystemPrompt(country) }];
+    const systemMessage = mode === 'debrief' ? [] : [{ role: 'system', content: getSystemPrompt(country, showComparison) }];
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -85,12 +119,12 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
   } catch { return null; }
 }
 
-async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat'): Promise<Response | null> {
+async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true): Promise<Response | null> {
   const apiKey = Deno.env.get('GEMINI_API_KEY');
   if (!apiKey) return null;
 
   try {
-    let prompt = mode === 'debrief' ? '' : getSystemPrompt(country) + '\n\n';
+    let prompt = mode === 'debrief' ? '' : getSystemPrompt(country, showComparison) + '\n\n';
     messages.forEach(m => prompt += `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n\n`);
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
@@ -120,11 +154,12 @@ Deno.serve(async (req) => {
 
   try {
     const body: ChatRequest = await req.json();
-    const { messages, country = 'spain', mode = 'chat' } = body;
+    const { messages, country = 'spain', mode = 'chat', showComparison = true } = body;
 
     console.log('[AI Chat] Request:', {
       mode,
       country,
+      showComparison,
       messagesCount: messages.length,
       lastMessage: messages[messages.length - 1]?.content?.substring(0, 100) + '...'
     });
@@ -145,7 +180,8 @@ Deno.serve(async (req) => {
 
     // 1️⃣ Приоритет: Gemini 2.0 Flash Experimental
     console.log('[AI Chat] Trying Gemini 2.0 Flash Experimental...');
-    const gemini = await tryGemini(messages, country, mode);
+    const gemini = await tryGemini(messages, country, mode, showComparison);
+
     if (gemini) {
       console.log('[AI Chat] ✅ Gemini success');
       return gemini;
@@ -153,7 +189,7 @@ Deno.serve(async (req) => {
 
     // 2️⃣ Fallback: Groq (если Gemini недоступен)
     console.log('[AI Chat] Gemini failed, trying Groq fallback...');
-    const groq = await tryGroq(messages, country, mode);
+    const groq = await tryGroq(messages, country, mode, showComparison);
     if (groq) {
       console.log('[AI Chat] ✅ Groq success');
       return groq;

@@ -52,6 +52,7 @@ interface DashboardStats {
     first_name?: string | null;
     last_name?: string | null;
     username?: string | null;
+    license_points?: number; // Added field
   };
   stats: {
     tests_completed: number;
@@ -263,7 +264,7 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
     const results = await Promise.allSettled([
       supabase
         .from('profiles')
-        .select('id, rank, xp, coins, boosts, streak_days, settings, first_name, last_name, username, photo_url')
+        .select('id, rank, xp, coins, boosts, license_points, streak_days, settings, first_name, last_name, username, photo_url')
         .eq('id', profileId)
         .maybeSingle(),
 
@@ -354,6 +355,7 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
         last_name: (profile as any).last_name || null,
         username: (profile as any).username || null,
         photo_url: (profile as any).photo_url || null,
+        license_points: (profile as any).license_points ?? 8, // Added mapping
       },
       stats: {
         tests_completed: testsCompleted,

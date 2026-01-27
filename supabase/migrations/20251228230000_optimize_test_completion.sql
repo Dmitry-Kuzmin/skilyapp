@@ -37,12 +37,8 @@ BEGIN
   WHERE id = p_user_id;
 
   v_is_premium := (
-    v_subscription_status = 'lifetime' OR
-    v_premium_forever_purchased_at IS NOT NULL OR
-    (v_subscription_status = 'pro' AND (v_subscription_expires_at IS NULL OR v_subscription_expires_at > NOW())) OR
-    (v_subscription_status = 'active' AND v_subscription_expires_at > NOW()) OR
-    (v_subscription_status = 'trial' AND v_subscription_expires_at > NOW()) OR
-    p_premium_flag
+    (v_subscription_status = 'trial' AND v_subscription_expires_at > NOW())
+    -- REMOVED: p_premium_flag (Security Fix: Do not trust client input for premium status)
   );
 
   -- 2. Расчет мультипликатора длины теста

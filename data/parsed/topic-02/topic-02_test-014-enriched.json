@@ -647,29 +647,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Sí, cuando la circulación en sentido contrario lo permita.",
-          "en": "Yes, when oncoming traffic allows it.",
-          "ru": "Да, если встречное движение это позволяет."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Нет, кроме случаев, когда разворот прямо разрешен.",
           "es": "No, salvo que el cambio de sentido esté expresamente autorizado.",
-          "en": "No, unless the U-turn is expressly authorized.",
-          "ru": "Нет, кроме случаев, когда разворот прямо разрешен."
+          "en": "No, unless the U-turn is expressly authorized."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Да, если встречное движение это позволяет.",
+          "es": "Sí, cuando la circulación en sentido contrario lo permita.",
+          "en": "Yes, when oncoming traffic allows it."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Да, за исключением времени от заката до рассвета, так как видимость снижается.",
           "es": "Sí, excepto entre la puesta y la salida de sol, porque disminuye la visibilidad.",
-          "en": "Yes, except between sunset and sunrise, because visibility decreases.",
-          "ru": "Да, за исключением времени от заката до рассвета, так как видимость снижается."
+          "en": "Yes, except between sunset and sunrise, because visibility decreases."
         },
         "is_correct": false
       }
@@ -677,7 +677,7 @@
     "explanation": {
       "es": "Según el Reglamento General de Circulación, se prohíbe efectuar el cambio de sentido en todos los tramos de vía en que esté prohibido el adelantamiento. Esta norma se aplica por defecto para garantizar la seguridad, dado que la prohibición de adelantar suele implicar falta de visibilidad o condiciones de vía peligrosas. La única excepción válida es que exista una señalización específica que autorice expresamente la maniobra de cambio de sentido en ese punto.",
       "en": "According to the General Traffic Regulations, making a U-turn is prohibited on all road sections where overtaking is prohibited. This rule applies by default to ensure safety, as the prohibition of overtaking usually implies a lack of visibility or dangerous road conditions. The only valid exception is if there is specific signaling that expressly authorizes the U-turn maneuver at that point.",
-      "ru": "🎓 \nДля водителя *Turismo* действует жесткая связка правил: там, где запрещен *Adelantamiento* (обгон), автоматически запрещен и разворот. Это логично, так как запрет на обгон обычно вводится на участках с плохой видимостью или узкой *Calzada*. Единственное исключение — если вы видите специальный дорожный знак, который **прямо разрешает** разворот в этом конкретном месте (например, квадратный синий знак с разворотной стрелкой), даже если обгон там запрещен.\n\n🇷🇺 \nЭто **критическое отличие**, на котором часто ошибаются опытные водители! В РФ знак 3.20 «Обгон запрещен» сам по себе **не запрещает** разворот. В Испании же юридическая норма строже: запрет на обгон автоматически влечет за собой запрет на разворот. Не применяйте здесь российскую логику.\n\n💡 \nНельзя обгонять — нельзя и разворачиваться. (Если только знак не кричит: «А вот развернуться тут можно!»)."
+      "ru": "🎓 Для водителя *Turismo* действует жесткая связка правил: там, где запрещен *Adelantamiento* (обгон), автоматически запрещен и разворот. Это логично, так как запрет на обгон обычно вводится на участках с плохой видимостью или узкой *Calzada*. Единственное исключение — если вы видите специальный дорожный знак, который **прямо разрешает** разворот в этом конкретном месте (например, квадратный синий знак с разворотной стрелкой), даже если обгон там запрещен.\n\n🇷🇺 Это **критическое отличие**, на котором часто ошибаются опытные водители! В РФ знак 3.20 «Обгон запрещен» сам по себе **не запрещает** разворот. В Испании же юридическая норма строже: запрет на обгон автоматически влечет за собой запрет на разворот. Не применяйте здесь российскую логику.\n\n💡 Нельзя обгонять — нельзя и разворачиваться. (Если только знак не кричит: «А вот развернуться тут можно!»)."
     },
     "image_url": "https://teorica.practicavial.com/question/9b42b0ba-d008-4520-8d6c-237bea543a22-1657898382-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/9b42b0ba-d008-4520-8d6c-237bea543a22-s-1.jpg",
@@ -892,29 +892,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "cambiar de carril para permitir la incorporación de otros vehículos a la vía por la que circula.",
-          "en": "change lanes to allow other vehicles to merge onto the road they are traveling on.",
-          "ru": "сменить полосу движения, чтобы позволить другим транспортным средствам выехать на дорогу, по которой он движется."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "способствовать, насколько это возможно, выезду других транспортных средств на дорогу, по которой он движется.",
           "es": "facilitar, en la medida de lo posible, la incorporación de otros vehículos a la vía por la que circula.",
-          "en": "facilitate, to the extent possible, the merging of other vehicles onto the road they are traveling on.",
-          "ru": "способствовать, насколько это возможно, выезду других транспортных средств на дорогу, по которой он движется."
+          "en": "facilitate, to the extent possible, the merging of other vehicles onto the road they are traveling on."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "сменить полосу движения, чтобы позволить другим транспортным средствам выехать на дорогу, по которой он движется.",
+          "es": "cambiar de carril para permitir la incorporación de otros vehículos a la vía por la que circula.",
+          "en": "change lanes to allow other vehicles to merge onto the road they are traveling on."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "уступить дорогу транспортным средствам, выезжающим на дорогу, по которой он движется.",
           "es": "ceder el paso a los vehículos que se incorporan a la vía por la que circula.",
-          "en": "give way to vehicles merging onto the road they are traveling on.",
-          "ru": "уступить дорогу транспортным средствам, выезжающим на дорогу, по которой он движется."
+          "en": "give way to vehicles merging onto the road they are traveling on."
         },
         "is_correct": false
       }
@@ -922,7 +922,7 @@
     "explanation": {
       "es": "Según el Reglamento General de Circulación, los conductores que circulan por una vía tienen prioridad sobre los vehículos que pretenden incorporarse a ella. Sin embargo, existe la obligación legal de facilitar dicha maniobra 'en la medida de lo posible'. Esto puede implicar un cambio de carril o una ligera modificación de la velocidad, siempre que no suponga un riesgo ni obligue a realizar maniobras bruscas. No se debe confundir 'facilitar' con 'ceder el paso' (perder la prioridad) ni con una obligación absoluta de 'cambiar de carril' si las circunstancias del tráfico no lo permiten de forma segura.",
       "en": "According to the General Traffic Regulations, drivers traveling on a road have priority over vehicles attempting to merge onto it. However, there is a legal obligation to facilitate this maneuver 'to the extent possible.' This may involve changing lanes or slightly adjusting speed, provided it does not pose a risk or require abrupt maneuvers. 'Facilitating' should not be confused with 'giving way' (losing priority) nor with an absolute obligation to 'change lanes' if traffic conditions do not safely permit it.",
-      "ru": "1️⃣ 🎓 \nВодитель легкового автомобиля (*Turismo*), движущийся по главной дороге (часто это *Autovía* или *Autopista*), имеет приоритет перед теми, кто въезжает на нее с полосы разгона. Однако ПДД Испании накладывают на вас обязанность **способствовать** (*facilitar*) их въезду.\n\nЭто означает, что если вы видите въезжающий автомобиль, вы должны по возможности:\n— Сменить полосу (*carril*) левее, если она свободна.\n— Или слегка изменить скорость, чтобы создать «окно».\n\nПочему другие ответы неверны?\n— Вы НЕ обязаны **менять полосу** любой ценой (ответ A), если это опасно или соседняя полоса занята.\n— Вы НЕ обязаны **уступать дорогу** (ответ C), то есть останавливаться или резко тормозить. Приоритет сохраняется у вас.\n\n2️⃣ 🇷🇺 \nВ РФ (п. 8.10 ПДД) водитель на полосе разгона обязан уступить дорогу, а водитель на главной просто пользуется преимуществом. Смещение влево в РФ считается «водительским этикетом» или правилом хорошего тона. В Испании же «способствование въезду» — это **юридическая обязанность**, прописанная в регламенте. Инспектор на экзамене может засчитать ошибку, если вы могли безопасно перестроиться для впускающего, но не сделали этого.\n\n3️⃣ 💡 \n— **Facilitar** (Помочь) — да.\n— **Ceder** (Уступить/Сдаться) — нет.\n— Представь, что ты хозяин дома: ты открываешь гостю дверь (помогаешь войти), но не отдаешь ему ключи от дома (не отдаешь приоритет)."
+      "ru": "🎓 Водитель легкового автомобиля (*Turismo*), движущийся по главной дороге (часто это *Autovía* или *Autopista*), имеет приоритет перед теми, кто въезжает на нее с полосы разгона. Однако ПДД Испании накладывают на вас обязанность **способствовать** (*facilitar*) их въезду.\n\nЭто означает, что если вы видите въезжающий автомобиль, вы должны по возможности:\n— Сменить полосу (*carril*) левее, если она свободна.\n— Или слегка изменить скорость, чтобы создать «окно».\n\nПочему другие ответы неверны?\n— Вы НЕ обязаны **менять полосу** любой ценой (ответ A), если это опасно или соседняя полоса занята.\n— Вы НЕ обязаны **уступать дорогу** (ответ C), то есть останавливаться или резко тормозить. Приоритет сохраняется у вас.\n\n🇷🇺 В РФ (п. 8.10 ПДД) водитель на полосе разгона обязан уступить дорогу, а водитель на главной просто пользуется преимуществом. Смещение влево в РФ считается «водительским этикетом» или правилом хорошего тона. В Испании же «способствование въезду» — это **юридическая обязанность**, прописанная в регламенте. Инспектор на экзамене может засчитать ошибку, если вы могли безопасно перестроиться для впускающего, но не сделали этого.\n\n💡 — **Facilitar** (Помочь) — да.\n— **Ceder** (Уступить/Сдаться) — нет.\n— Представь, что ты хозяин дома: ты открываешь гостю дверь (помогаешь войти), но не отдаешь ему ключи от дома (не отдаешь приоритет)."
     },
     "image_url": "https://teorica.practicavial.com/question/f4c538d9-e5e5-4600-84f1-92a0cbe1ac1b-1657799626-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f4c538d9-e5e5-4600-84f1-92a0cbe1ac1b-s-1.jpg",
@@ -941,29 +941,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "No, si lo ha señalizado, tiene preferencia.",
-          "en": "No, if it has signaled, it has preference.",
-          "ru": "Нет, если оно подало сигнал, оно имеет преимущество."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Да, если спустя разумное время оно не начинает маневр, и вы предупредите его звуковыми или световыми сигналами.",
           "es": "Sí, si después de un tiempo prudencial no lo hace y le advierte con las señales acústicas u ópticas.",
-          "en": "Yes, if after a reasonable time it does not do so and you warn it with acoustic or optical signals.",
-          "ru": "Да, если спустя разумное время оно не начинает маневр, и вы предупредите его звуковыми или световыми сигналами."
+          "en": "Yes, if after a reasonable time it does not do so and you warn it with acoustic or optical signals."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Нет, если оно подало сигнал, оно имеет преимущество.",
+          "es": "No, si lo ha señalizado, tiene preferencia.",
+          "en": "No, if it has signaled, it has preference."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Нет, нужно ждать, пока оно закончит маневр или выключит поворотник.",
           "es": "No, tiene que esperar a que termine la maniobra o apague el intermitente.",
-          "en": "No, you have to wait for it to finish the maneuver or turn off the indicator.",
-          "ru": "Нет, нужно ждать, пока оно закончит маневр или выключит поворотник."
+          "en": "No, you have to wait for it to finish the maneuver or turn off the indicator."
         },
         "is_correct": false
       }
@@ -971,7 +971,7 @@
     "explanation": {
       "es": "El conductor que precede tiene preferencia si ha señalizado su propósito de adelantar. Sin embargo, si después de un tiempo prudencial no inicia la maniobra, el vehículo que le sigue puede adelantarle, advirtiéndoselo previamente con señales acústicas u ópticas.",
       "en": "The driver ahead has priority if they have signaled their intention to overtake. However, if after a reasonable time they do not initiate the maneuver, the following vehicle may overtake them, having previously warned them with acoustic or optical signals.",
-      "ru": "🎓 \n\nКогда вы управляете **легковым автомобилем (Turismo)** и видите, что машина впереди включила левый поворотник для **обгона (Adelantamiento)**, она имеет приоритет. Вы обязаны ждать. Однако ПДД Испании не требуют ждать бесконечно. Если водитель впереди включил сигнал, но в течение **разумного времени** так и не начал маневр (забыл выключить, боится или отвлекся), вы имеете право его обогнать.\n\n**Важное условие:** Перед началом своего обгона вы **обязаны** предупредить этого водителя о своих намерениях. Для этого используются:\n1. Кратковременное переключение фар (световой сигнал).\n2. Или звуковой сигнал (вне населенных пунктов).\n\n🇷🇺 \n\nЭто критическое отличие! В РФ (п. 11.2 ПДД) обгон **категорически запрещен**, если транспортное средство впереди подало сигнал левого поворота. Российские правила не содержат оговорки про «разумное время» или возможность «посигналить и поехать». В Испании же, если водитель впереди «мигает, но не едет», закон разрешает вам взять инициативу на себя после предупреждения.\n\n💡 \n\n«Мигает, но спит? Разбуди и обгони!»\nЕсли перед тобой «вечный мигальщик», не стой за ним до старости: посигналь (светом или звуком) и проезжай."
+      "ru": "🎓 Когда вы управляете **легковым автомобилем (Turismo)** и видите, что машина впереди включила левый поворотник для **обгона (Adelantamiento)**, она имеет приоритет. Вы обязаны ждать. Однако ПДД Испании не требуют ждать бесконечно. Если водитель впереди включил сигнал, но в течение **разумного времени** так и не начал маневр (забыл выключить, боится или отвлекся), вы имеете право его обогнать.\n\n**Важное условие:** Перед началом своего обгона вы **обязаны** предупредить этого водителя о своих намерениях. Для этого используются:\n1. Кратковременное переключение фар (световой сигнал).\n2. Или звуковой сигнал (вне населенных пунктов).\n\n🇷🇺 Это критическое отличие! В РФ (п. 11.2 ПДД) обгон **категорически запрещен**, если транспортное средство впереди подало сигнал левого поворота. Российские правила не содержат оговорки про «разумное время» или возможность «посигналить и поехать». В Испании же, если водитель впереди «мигает, но не едет», закон разрешает вам взять инициативу на себя после предупреждения.\n\n💡 «Мигает, но спит? Разбуди и обгони!»\nЕсли перед тобой «вечный мигальщик», не стой за ним до старости: посигналь (светом или звуком) и проезжай."
     },
     "image_url": "https://teorica.practicavial.com/question/52283488-1143-4120-85b1-1b3d5e80ae66-1657804040-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/52283488-1143-4120-85b1-1b3d5e80ae66-s-1.jpg",
