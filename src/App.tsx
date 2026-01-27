@@ -1,5 +1,6 @@
 // Force Reload Trigger: 2025-12-29 23:59:00
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { TelegramProvider } from "@/contexts/TelegramContext";
 import { AdCleanup } from "@/components/AdCleanup";
@@ -629,6 +630,7 @@ const App = () => {
           </BrowserRouter>
         </Suspense>
       </Motion>
+      <Analytics />
     </TelegramProvider>
   );
 };
