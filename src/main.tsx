@@ -324,8 +324,8 @@ if ('serviceWorker' in navigator) {
     // Если нашли и убили SW, перезагружаем страницу, чтобы взять свежий код с сервера
     if (registrations.length > 0) {
       Promise.all(unregisterPromises).then(() => {
-        console.log('🔄 Service Worker killed. Reloading page...');
-        window.location.reload();
+        console.log('🔄 Service Worker killed. Reloading page... SKIPPED to prevent loop');
+        // window.location.reload();
       });
     }
   });
