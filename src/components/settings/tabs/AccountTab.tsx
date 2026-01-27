@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { triggerHaptic } from '@/lib/haptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfileData } from '@/hooks/useProfileData';
+import { cn } from "@/lib/utils";
 
 // Google icon
 const GoogleIcon = () => (
@@ -216,8 +217,89 @@ export const AccountTab: React.FC = () => {
         window.open(getTelegramDeepLink(telegramLinkToken), '_blank');
     };
 
+    // Avatar Upload State
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleAvatarClick = () => {
+        triggerHaptic('light');
+        fileInputRef.current?.click();
+    };
+
+    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (!user?.id) {
+            toast.error('Ошибка: пользователь не найден');
+            return;
+        }
+
+        // Validate file type and size
+        if (!file.type.startsWith('image/')) {
+            toast.error('Пожалуйста, выберите изображение');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            toast.error('Размер изображения не должен превышать 5МБ');
+            return;
+        }
+
+        try {
+            setIsUploading(true);
+            const fileExt = file.name.split('.').pop();
+            const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+
+            // 1. Upload to Supabase Storage
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file, { upsert: true });
+
+            if (uploadError) throw uploadError;
+
+            // 2. Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath);
+
+            // 3. Update Profile
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({
+                    photo_url: publicUrl,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', user.id);
+
+            if (updateError) throw updateError;
+
+            // 4. Update local state and notify
+            toast.success('Аватар обновлен!');
+            refreshProfile(); // Refresh context/hooks
+
+        } catch (error: any) {
+            console.error('Avatar upload error:', error);
+            toast.error('Не удалось загрузить аватар');
+        } finally {
+            setIsUploading(false);
+            // Reset input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
     return (
         <div className="space-y-6">
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleAvatarUpload}
+                className="hidden"
+                accept="image/*"
+                disabled={isUploading}
+            />
             {/* Профиль */}
             <div>
                 <SectionTitle title="Профиль" />
@@ -229,14 +311,22 @@ export const AccountTab: React.FC = () => {
                                 profileId={profileData?.id}
                                 size="xl"
                                 showPremiumGlow={false}
+                                className={isUploading ? "opacity-50" : ""}
                             />
 
+                            {isUploading && (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            )}
+
                             <button
-                                onClick={() => {
-                                    triggerHaptic('light');
-                                    toast.info('Аватары можно менять в магазине скинов');
-                                }}
-                                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-indigo-500 border-2 border-white dark:border-slate-800 flex items-center justify-center hover:bg-indigo-400 transition-all hover:scale-110 shadow-sm"
+                                onClick={handleAvatarClick}
+                                disabled={isUploading}
+                                className={cn(
+                                    "absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-indigo-500 border-2 border-white dark:border-slate-800 flex items-center justify-center hover:bg-indigo-400 transition-all hover:scale-110 shadow-sm",
+                                    isUploading && "opacity-50 cursor-not-allowed"
+                                )}
                             >
                                 <Camera className="w-3.5 h-3.5 text-white" />
                             </button>

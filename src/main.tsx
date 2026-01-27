@@ -309,36 +309,36 @@ if (!rootElement) {
 }
 
 // --------------------------------------------------------
-// ☠️ SERVICE WORKER KILLER
-// Этот код принудительно удаляет старые кэши PWA
-// КРИТИЧНО: Должен быть перед ReactDOM.createRoot для исправления проблем с кэшированием в Telegram
+// ☠️ SERVICE WORKER KILLER - ОТКЛЮЧЕН ДЛЯ PUSH-УВЕДОМЛЕНИЙ
+// ВАЖНО: Теперь используем Service Worker только для Push-уведомлений
+// Кэширование отключено в sw-push.js
 // --------------------------------------------------------
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    const unregisterPromises = [];
-    for (const registration of registrations) {
-      console.log('💀 Killing Service Worker:', registration);
-      unregisterPromises.push(registration.unregister());
-    }
+// if ('serviceWorker' in navigator) {
+//   navigator.serviceWorker.getRegistrations().then((registrations) => {
+//     const unregisterPromises = [];
+//     for (const registration of registrations) {
+//       console.log('💀 Killing Service Worker:', registration);
+//       unregisterPromises.push(registration.unregister());
+//     }
 
-    // Если нашли и убили SW, перезагружаем страницу, чтобы взять свежий код с сервера
-    if (registrations.length > 0) {
-      Promise.all(unregisterPromises).then(() => {
-        console.log('🔄 Service Worker killed. Reloading page... SKIPPED to prevent loop');
-        // window.location.reload();
-      });
-    }
-  });
+//     // Если нашли и убили SW, перезагружаем страницу, чтобы взять свежий код с сервера
+//     if (registrations.length > 0) {
+//       Promise.all(unregisterPromises).then(() => {
+//         console.log('🔄 Service Worker killed. Reloading page... SKIPPED to prevent loop');
+//         // window.location.reload();
+//       });
+//     }
+//   });
 
-  // Очистка кэша хранилища
-  if ('caches' in window) {
-    caches.keys().then((names) => {
-      for (const name of names) {
-        caches.delete(name);
-      }
-    });
-  }
-}
+//   // Очистка кэша хранилища
+//   if ('caches' in window) {
+//     caches.keys().then((names) => {
+//       for (const name of names) {
+//         caches.delete(name);
+//       }
+//     });
+//   }
+// }
 // --------------------------------------------------------
 
 if (import.meta.env.DEV) {

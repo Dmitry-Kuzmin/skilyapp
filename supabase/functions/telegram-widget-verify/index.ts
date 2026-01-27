@@ -57,6 +57,7 @@ serve(async (req) => {
 
     try {
         const { user: telegramUser } = await req.json();
+        console.log("Telegram Auth Data:", JSON.stringify(telegramUser)); // DEBUG LOG
 
         if (!telegramUser || !telegramUser.id || !telegramUser.hash) {
             throw new Error('Invalid Telegram user data');
