@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,9 @@ const HelpCenter = () => {
   // Feedback modal states
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [feedbackHelpful, setFeedbackHelpful] = useState(true);
+
+  // Ref для поля поиска
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Функция для получения переведенного контента с fallback на русский
   const getTranslatedContent = (key: string, fallback: string): string => {
@@ -1149,6 +1152,19 @@ Premium подписка включает все преимущества, оп�
     }, 100);
   };
 
+  // Обработка Cmd+K для фокусировки на поиске
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Обработка hash при загрузке страницы
   useEffect(() => {
     const hash = window.location.hash.slice(1); // Убираем #
@@ -1226,6 +1242,7 @@ Premium подписка включает все преимущества, оп�
               <div className="relative group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors" />
                 <Input
+                  ref={searchInputRef}
                   placeholder={t("help.search")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
