@@ -221,9 +221,9 @@ export const UnifiedSettingsDrawer: React.FC = () => {
         <Dialog open={isOpen} onOpenChange={(open) => !open && closeSettings()}>
             <DialogContent
                 className="max-w-4xl p-0 gap-0 overflow-hidden 
-                           bg-white/80 dark:bg-slate-950/85 
-                           backdrop-blur-2xl
-                           border border-white/20 dark:border-white/10 
+                           bg-white/90 dark:bg-slate-950/90 
+                           backdrop-blur-2xl backdrop-saturate-150
+                           border border-white/20 dark:border-white/15 
                            shadow-2xl dark:shadow-[0_0_100px_-20px_rgba(0,0,0,0.5)]"
                 hideCloseButton
             >

@@ -248,6 +248,14 @@ export const AccountTab: React.FC = () => {
 
         try {
             setIsUploading(true);
+
+            // КРИТИЧНО: Обновляем сессию перед загрузкой, чтобы избежать false-positive 401
+            const { error: sessionError } = await supabase.auth.refreshSession();
+            if (sessionError) {
+                console.warn('Session refresh warning:', sessionError);
+                // Не прерываем, так как сессия может быть все еще валидна
+            }
+
             const fileExt = file.name.split('.').pop();
             const filePath = `${user.id}/${Date.now()}.${fileExt}`;
 
