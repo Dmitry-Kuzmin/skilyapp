@@ -46,7 +46,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
         }
         .toast-progress {
           position: relative;
-          overflow: hidden;
         }
         .toast-progress::after {
           content: '';
@@ -70,8 +69,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
         position={shouldCenter ? "top-center" : "top-right"}
         richColors
         closeButton={true}
-        visibleToasts={5}
-        gap={8} // Чуть уменьшаем отступ для плотности
+        expand={true}
+        visibleToasts={3}
+        gap={4}
         // offset учитывает safe area (островок) на iOS
         offset={isMobile ? 60 : 24}
         containerAriaLabel="Уведомления"
