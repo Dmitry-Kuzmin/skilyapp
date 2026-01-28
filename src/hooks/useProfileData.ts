@@ -15,6 +15,8 @@ interface ProfileData {
   photo_url: string | null;
   equipped_avatar: string | null;
   telegram_id: number | null;
+  preferred_country?: string | null;
+  preferred_license_category?: string | null;
 }
 
 const PROFILE_QUERY_KEY = "profile-data";
@@ -40,7 +42,7 @@ export function useProfileData() {
       // ОДИН запрос вместо множества - получаем все нужные поля сразу
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, coins, xp, streak_days, rank, boosts, first_name, last_name, username, photo_url, equipped_avatar, telegram_id")
+        .select("id, coins, xp, streak_days, rank, boosts, first_name, last_name, username, photo_url, equipped_avatar, telegram_id, preferred_country, preferred_license_category")
         .eq("id", profileId)
         .single();
 
@@ -49,6 +51,14 @@ export function useProfileData() {
           console.warn("[useProfileData] Failed to fetch profile:", error);
         }
         throw error;
+      }
+
+      // Debug: проверяем, что загрузились настройки страны и категории
+      if (import.meta.env.DEV && data) {
+        console.log('[useProfileData] Loaded preferences from DB:', {
+          country: data.preferred_country,
+          category: data.preferred_license_category
+        });
       }
 
       return data as ProfileData;
