@@ -65,6 +65,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
         .group:hover .toast-progress::after {
           animation-play-state: paused;
         }
+        
+        /* КРИТИЧНО: Контроль отступов между уведомлениями */
+        [data-sonner-toaster] li {
+          margin-top: 8px !important;
+        }
+        [data-sonner-toaster] li:first-child {
+          margin-top: 0 !important;
+        }
       `}</style>
       <Sonner
         theme={theme as ToasterProps["theme"]}
@@ -72,13 +80,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
         position={shouldCenter ? "top-center" : "top-right"}
         richColors
         closeButton={true}
-        expand={true}
+        expand={!isMobile}
         visibleToasts={3}
-        gap={4}
+        gap={8}
         offset={16}
         containerAriaLabel="Уведомления"
+        invert={resolvedTheme === 'dark'}
         toastOptions={{
           duration: 4000,
+          unstyled: false,
           classNames: {
             toast:
               "group toast toast-progress group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg pointer-events-auto font-medium",
