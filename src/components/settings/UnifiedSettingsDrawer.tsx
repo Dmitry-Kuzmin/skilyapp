@@ -220,7 +220,7 @@ export const UnifiedSettingsDrawer: React.FC = () => {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && closeSettings()}>
             <DialogContent
-                className="max-w-3xl p-0 gap-0 overflow-hidden bg-white dark:bg-slate-900"
+                className="max-w-4xl p-0 gap-0 overflow-hidden bg-white dark:bg-slate-900"
                 hideCloseButton
             >
                 <DesktopContent />
