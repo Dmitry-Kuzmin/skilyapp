@@ -90,10 +90,27 @@ export function MissionSidebar({
     const loadData = async () => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3030/api/files/tree?country=${selectedCountry}`);
-            if (res.ok) {
-                const data = await res.json();
+            // Parallel load: File Tree + Real DB Status
+            const [treeRes, dbStatus] = await Promise.all([
+                fetch(`http://localhost:3030/api/files/tree?country=${selectedCountry}`),
+                fetchDeployedStatusFromDB(selectedCountry)
+            ]);
+
+            if (treeRes.ok) {
+                const data = await treeRes.json();
                 setStructure(data);
+
+                // Merge DB status into tree data
+                if (dbStatus && dbStatus.size > 0) {
+                    Object.keys(data).forEach(cat => {
+                        data[cat] = data[cat].map((test: any) => ({
+                            ...test,
+                            // Trust DB status if server says false, or fallback to server
+                            deployed: dbStatus.has(test.id) || test.deployed
+                        }));
+                    });
+                    setStructure({ ...data }); // Force update
+                }
 
                 // АРХИТЕКТУРА: Only auto-expand if no saved state exists
                 const keys = Object.keys(data);
@@ -107,6 +124,41 @@ export function MissionSidebar({
             console.error(e);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // NEW: Direct DB check because local server might be out of sync
+    const fetchDeployedStatusFromDB = async (country: string): Promise<Set<string>> => {
+        try {
+            const { supabase } = await import("@/integrations/supabase/client");
+            const ids = new Set<string>();
+
+            if (country === 'russia') {
+                const { data } = await supabase
+                    .from('pdd_russia_questions')
+                    .select('ticket_number'); // Removed distinct, not needed for set
+                if (data) {
+                    data.forEach((r: any) => {
+                        if (r.ticket_number) ids.add(`ticket-${String(r.ticket_number).padStart(2, '0')}`);
+                    });
+                }
+            } else {
+                const { data } = await supabase
+                    .from('tests')
+                    .select('test_number, topics(number)');
+                if (data) {
+                    data.forEach((r: any) => {
+                        const topicNum = r.topics?.number;
+                        if (typeof topicNum === 'number' && r.test_number) {
+                            ids.add(`topic-${String(topicNum).padStart(2, '0')}_test-${String(r.test_number).padStart(3, '0')}`);
+                        }
+                    });
+                }
+            }
+            return ids;
+        } catch (e) {
+            console.warn("Failed to fetch deployed status directly", e);
+            return new Set();
         }
     };
 

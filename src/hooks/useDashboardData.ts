@@ -143,12 +143,13 @@ export function useDashboardData() {
   const profileId = userContext?.profileId ?? null;
   const queryClient = useSafeQueryClient();
 
-  // 🔍 DEBUG: Логируем состояние на входе
+  /* DEBUG LOGS REMOVED FOR PERFORMANCE
   console.log('[useDashboardData] Hook called:', {
     hasUserContext: !!userContext,
     profileId,
     hasQueryClient: !!queryClient
   });
+  */
 
   const {
     data,
@@ -158,21 +159,21 @@ export function useDashboardData() {
   } = useSafeQuery<DashboardData | null>({
     queryKey: [DASHBOARD_QUERY_KEY, profileId],
     queryFn: async () => {
-      console.log('[useDashboardData] 🏃 queryFn started for:', profileId);
+      // console.log('[useDashboardData] 🏃 queryFn started for:', profileId);
       if (!profileId) {
-        console.warn('[useDashboardData] ⚠️ No profileId, returning null');
+        // console.warn('[useDashboardData] ⚠️ No profileId, returning null');
         return null;
       }
 
       // ФИКС 400: Проверяем авторизацию перед любыми RPC вызовами
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        console.warn('[useDashboardData] ⚠️ No active session, skipping RPC calls');
+        // console.warn('[useDashboardData] ⚠️ No active session, skipping RPC calls');
         return null;
       }
 
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
-      console.log('[useDashboardData] 🔗 Calling get_dashboard_super...');
+      // console.log('[useDashboardData] 🔗 Calling get_dashboard_super...');
       try {
         const promise = (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
@@ -180,16 +181,16 @@ export function useDashboardData() {
         const response: any = await Promise.race([promise, timeoutPromise]);
 
         if (!response.error && response.data && !response.data.error) {
-          console.log('[useDashboardData] ✅ get_dashboard_super success');
+          // console.log('[useDashboardData] ✅ get_dashboard_super success');
           return response.data as DashboardData;
         }
-        console.warn('[useDashboardData] ⚠️ get_dashboard_super error or empty:', response.error || response.data?.error);
+        // console.warn('[useDashboardData] ⚠️ get_dashboard_super error or empty:', response.error || response.data?.error);
       } catch (e: any) {
-        console.warn('[useDashboardData] ❌ get_dashboard_super failed:', e.message);
+        // console.warn('[useDashboardData] ❌ get_dashboard_super failed:', e.message);
       }
 
       // Fallback на обычный RPC
-      console.log('[useDashboardData] 🔗 Calling get_dashboard_complete...');
+      // console.log('[useDashboardData] 🔗 Calling get_dashboard_complete...');
       try {
         const promise = (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
@@ -197,16 +198,16 @@ export function useDashboardData() {
         const response: any = await Promise.race([promise, timeoutPromise]);
 
         if (!response.error && response.data && !response.data.error) {
-          console.log('[useDashboardData] ✅ get_dashboard_complete success');
+          // console.log('[useDashboardData] ✅ get_dashboard_complete success');
           return response.data as DashboardData;
         }
-        console.warn('[useDashboardData] ⚠️ get_dashboard_complete error:', response.error);
+        // console.warn('[useDashboardData] ⚠️ get_dashboard_complete error:', response.error);
       } catch (e: any) {
-        console.warn('[useDashboardData] ❌ get_dashboard_complete failed:', e.message);
+        // console.warn('[useDashboardData] ❌ get_dashboard_complete failed:', e.message);
       }
 
       // Окончательный fallback
-      console.log('[useDashboardData] 🔄 Falling back to manual fetch...');
+      // console.log('[useDashboardData] 🔄 Falling back to manual fetch...');
       return await fetchDashboardFallback(profileId);
     },
     enabled: !!profileId,
