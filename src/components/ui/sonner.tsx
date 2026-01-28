@@ -72,7 +72,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
         closeButton={true}
         visibleToasts={5}
         gap={8} // Чуть уменьшаем отступ для плотности
-        offset={isMobile ? 16 : 24}
+        // offset учитывает safe area (островок) на iOS
+        offset={isMobile ? 60 : 24}
         containerAriaLabel="Уведомления"
         toastOptions={{
           duration: 4000,
@@ -84,8 +85,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
               "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
             cancelButton:
               "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
-            closeButton:
-              "group-[.toast]:absolute group-[.toast]:!right-3 group-[.toast]:!top-4 group-[.toast]:!transform-none group-[.toast]:rounded-full group-[.toast]:p-1.5 group-[.toast]:text-muted-foreground group-[.toast]:opacity-70 group-[.toast]:hover:opacity-100 group-[.toast]:hover:bg-accent group-[.toast]:transition-all pointer-events-auto z-[60]",
+            // Убрали кастомные стили closeButton - используем дефолт sonner
           },
         }}
         style={{

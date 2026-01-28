@@ -1,222 +1,200 @@
 [
   {
-    "id": "62e6fe6e-9f8f-4410-adb8-bc807c093e01",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/62e6fe6e-9f8f-4410-adb8-bc807c093e01_1769465652933_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/62e6fe6e-9f8f-4410-adb8-bc807c093e01_original.jpg",
+    "id": "3661f05e-4d8b-4c1d-aad2-a94f044f2c60",
+    "generatedPath": "data/generated-images/topic-05_test-005/3661f05e-4d8b-4c1d-aad2-a94f044f2c60_1769542718329_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/3661f05e-4d8b-4c1d-aad2-a94f044f2c60_original.jpg",
     "question": {
-      "es": "Esta señal, ¿prohíbe la entrada a los camiones?",
-      "en": "Does this sign prohibit entry to trucks?",
-      "ru": "Этот знак запрещает въезд грузовым автомобилям?"
+      "es": "¿Los ocupantes de un cuadriciclo que no cuenta con estructura de autoprotección deben llevar casco?",
+      "en": "Must the occupants of a quadricycle that does not have a self-protection structure wear a helmet?",
+      "ru": "Должны ли водитель и пассажиры квадрицикла, не имеющего защитного корпуса, быть в шлемах?"
     },
-    "timestamp": 1769465704093
+    "timestamp": 1769542793917
   },
   {
-    "id": "584ae84e-93c3-4a09-b366-01145da30b22",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/584ae84e-93c3-4a09-b366-01145da30b22_1769465719096_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/584ae84e-93c3-4a09-b366-01145da30b22_original.jpg",
+    "id": "7ba99108-2969-4353-b91a-125ed5c3bdc7",
+    "generatedPath": "data/generated-images/topic-05_test-005/7ba99108-2969-4353-b91a-125ed5c3bdc7_1769542808920_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/7ba99108-2969-4353-b91a-125ed5c3bdc7_original.jpg",
     "question": {
-      "es": "Esta señal indica la situación de...",
-      "en": "This sign indicates the location of...",
-      "ru": "Этот знак указывает на местонахождение..."
+      "es": "El conductor de un cuadriciclo ligero que dispone de cinturón de seguridad está obligado a utilizarlo...",
+      "en": "The driver of a light quadricycle equipped with a seat belt is obliged to use it...",
+      "ru": "Водитель легкого квадрицикла, оборудованного ремнем безопасности, обязан использовать его..."
     },
-    "timestamp": 1769465766718
+    "timestamp": 1769542846399
   },
   {
-    "id": "d275129e-65af-4c95-92ff-ac5a25e79a8d",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/d275129e-65af-4c95-92ff-ac5a25e79a8d_1769465781723_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/d275129e-65af-4c95-92ff-ac5a25e79a8d_original.jpg",
+    "id": "60541017-dafd-43a5-a47d-900fb0b1ada0",
+    "generatedPath": "data/generated-images/topic-05_test-005/60541017-dafd-43a5-a47d-900fb0b1ada0_1769542861404_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/60541017-dafd-43a5-a47d-900fb0b1ada0_original.jpg",
     "question": {
-      "es": "¿Qué indica esta marca vial?",
-      "en": "What does this road marking indicate?",
-      "ru": "Что означает эта дорожная разметка?"
+      "es": "Si en su motocicleta lleva como pasajero a un menor de edad, este debe...",
+      "en": "If you carry a minor as a passenger on your motorcycle, they must...",
+      "ru": "Если вы перевозите несовершеннолетнего пассажира на мотоцикле, он должен..."
     },
-    "timestamp": 1769465824257
+    "timestamp": 1769542907138
   },
   {
-    "id": "97c1901d-a266-4bf1-aa66-7f93a97c9968",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/97c1901d-a266-4bf1-aa66-7f93a97c9968_1769465839263_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/97c1901d-a266-4bf1-aa66-7f93a97c9968_original.jpg",
+    "id": "504bbec9-4555-45da-a47a-c67a165e959b",
+    "generatedPath": "data/generated-images/topic-05_test-005/504bbec9-4555-45da-a47a-c67a165e959b_1769542922142_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/504bbec9-4555-45da-a47a-c67a165e959b_original.jpg",
     "question": {
-      "es": "En el supuesto en el que existan dos señales del mismo tipo con indicaciones que parezcan estar en contradicción, ¿cuál de ellas tendrá prioridad?",
-      "en": "In the event that there are two signals of the same type with indications that appear to be contradictory, which one takes priority?",
-      "ru": "Если имеются два сигнала одного типа с противоречащими друг другу указаниями, какой из них имеет приоритет?"
+      "es": "En vías urbanas, utilizar el cinturón de seguridad...",
+      "en": "On urban roads, using the seat belt...",
+      "ru": "В населенных пунктах использование ремня безопасности..."
     },
-    "timestamp": 1769465888921
+    "timestamp": 1769542976967
   },
   {
-    "id": "87b6a0ba-f52a-4bf3-a448-c563c0502a7f",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/87b6a0ba-f52a-4bf3-a448-c563c0502a7f_1769465903962_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/87b6a0ba-f52a-4bf3-a448-c563c0502a7f_original.jpg",
+    "id": "3bdb8f73-6079-479e-a89d-54755489ca34",
+    "generatedPath": "data/generated-images/topic-05_test-005/3bdb8f73-6079-479e-a89d-54755489ca34_1769542991971_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/3bdb8f73-6079-479e-a89d-54755489ca34_original.jpg",
     "question": {
-      "es": "¿Qué indica esta señal?",
-      "en": "What does this sign indicate?",
-      "ru": "Что означает этот знак?"
+      "es": "En esta motocicleta dotada de cinturón de seguridad, ¿debe llevar casco?",
+      "en": "On this motorcycle equipped with a seat belt, must you wear a helmet?",
+      "ru": "На этом мотоцикле, оборудованном ремнем безопасности, обязаны ли вы быть в шлеме?"
     },
-    "timestamp": 1769465937820
+    "timestamp": 1769543037350
   },
   {
-    "id": "302adecd-9b48-416a-bd95-34cde57ad674",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/302adecd-9b48-416a-bd95-34cde57ad674_1769465952823_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/302adecd-9b48-416a-bd95-34cde57ad674_original.jpg",
+    "id": "abe6c1ad-878d-4868-8970-2f202fb29776",
+    "generatedPath": "data/generated-images/topic-05_test-005/abe6c1ad-878d-4868-8970-2f202fb29776_1769543052354_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/abe6c1ad-878d-4868-8970-2f202fb29776_original.jpg",
     "question": {
-      "es": "El personal de protección civil, ¿puede impedir el acceso de vehículos al itinerario afectado por una actividad deportiva?",
-      "en": "Can civil protection personnel prevent vehicle access to a route affected by a sporting activity?",
-      "ru": "Может ли персонал гражданской защиты запретить доступ транспортных средств на маршрут, где проводится спортивное мероприятие?"
+      "es": "¿Está permitido que los conductores y pasajeros de motocicletas circulen con el casco de protección desabrochado?",
+      "en": "Are motorcycle drivers and passengers allowed to ride with their protective helmets unbuckled?",
+      "ru": "Разрешено ли водителям и пассажирам мотоциклов движение с расстегнутым защитным шлемом?"
     },
-    "timestamp": 1769466004902
+    "timestamp": 1769543096316
   },
   {
-    "id": "9bad8a0c-d403-44a3-8f85-c5a250f71a61",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/9bad8a0c-d403-44a3-8f85-c5a250f71a61_1769466019922_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/9bad8a0c-d403-44a3-8f85-c5a250f71a61_original.jpg",
+    "id": "72379df4-b71a-4202-9457-0c1f80fff72e",
+    "generatedPath": "data/generated-images/topic-05_test-005/72379df4-b71a-4202-9457-0c1f80fff72e_1769543111321_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/72379df4-b71a-4202-9457-0c1f80fff72e_original.jpg",
     "question": {
-      "es": "En esta situación, a partir del paso del vehículo policial que porta la bandera roja, ¿le está permitido circular con su turismo?",
-      "en": "In this situation, starting from the passing of the police vehicle carrying the red flag, are you allowed to drive your car?",
-      "ru": "В данной ситуации, после проезда полицейского транспортного средства с красным флагом, разрешено ли вам движение на легковом автомобиле?"
+      "es": "En los vehículos no destinados exclusivamente al transporte de mercancías, ¿podrá sobresalir la carga por la parte delantera?",
+      "en": "In vehicles not exclusively intended for the transport of goods, may the load protrude from the front?",
+      "ru": "В транспортных средствах, не предназначенных исключительно для перевозки грузов, может ли груз выступать спереди?"
     },
-    "timestamp": 1769466071031
+    "timestamp": 1769543152379
   },
   {
-    "id": "bfe835ef-54fe-4063-abae-9987a3db87b9",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/bfe835ef-54fe-4063-abae-9987a3db87b9_1769466086036_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/bfe835ef-54fe-4063-abae-9987a3db87b9_original.jpg",
+    "id": "0d9cbe36-37f2-423d-9edc-a2bf5face0db",
+    "generatedPath": "data/generated-images/topic-05_test-005/0d9cbe36-37f2-423d-9edc-a2bf5face0db_1769543167381_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/0d9cbe36-37f2-423d-9edc-a2bf5face0db_original.jpg",
     "question": {
-      "es": "Esta señal preseñaliza una...",
-      "en": "This sign pre-signals a...",
-      "ru": "Этот знак предварительно указывает на..."
+      "es": "Respecto al uso del cinturón de seguridad, el ocupante de un turismo distinto del conductor debe...",
+      "en": "Regarding the use of the seat belt, the occupant of a passenger car other than the driver must...",
+      "ru": "В отношении использования ремня безопасности, пассажир легкового автомобиля должен..."
     },
-    "timestamp": 1769466124631
+    "timestamp": 1769543210992
   },
   {
-    "id": "a690dbdc-e9bd-42ae-a39b-aaf885c85cfb",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/a690dbdc-e9bd-42ae-a39b-aaf885c85cfb_1769466139636_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/a690dbdc-e9bd-42ae-a39b-aaf885c85cfb_original.jpg",
+    "id": "ad54f4d6-d727-4194-934f-eb843f9a8b8f",
+    "generatedPath": "data/generated-images/topic-05_test-005/ad54f4d6-d727-4194-934f-eb843f9a8b8f_1769543225995_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/ad54f4d6-d727-4194-934f-eb843f9a8b8f_original.jpg",
     "question": {
-      "es": "A la vista de la fotografía debe...",
-      "en": "In view of the photograph, you must...",
-      "ru": "Судя по фотографии, вы должны..."
+      "es": "¿Quiénes están obligados a utilizar casco de protección?",
+      "en": "Who is required to wear a protective helmet?",
+      "ru": "Кто обязан использовать защитный шлем?"
     },
-    "timestamp": 1769466189674
+    "timestamp": 1769543275645
   },
   {
-    "id": "b43af35d-92dc-46fc-b4e2-77226f3993e7",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/b43af35d-92dc-46fc-b4e2-77226f3993e7_1769466204675_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/b43af35d-92dc-46fc-b4e2-77226f3993e7_original.jpg",
+    "id": "bca1b7fb-0ddc-44cd-bfd5-664b58912357",
+    "generatedPath": "data/generated-images/topic-05_test-005/bca1b7fb-0ddc-44cd-bfd5-664b58912357_1769543290649_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/bca1b7fb-0ddc-44cd-bfd5-664b58912357_original.jpg",
     "question": {
-      "es": "¿Qué indica esta señal?",
-      "en": "What does this sign indicate?",
-      "ru": "Что означает этот знак?"
+      "es": "La carga transportada en un vehículo, debe estar dispuesta de forma que...",
+      "en": "The load carried in a vehicle must be arranged in such a way that...",
+      "ru": "Груз, перевозимый в транспортном средстве, должен быть размещен таким образом, чтобы..."
     },
-    "timestamp": 1769466243875
+    "timestamp": 1769543332362
   },
   {
-    "id": "e6690d82-9c3d-4f9f-afc1-9209b524b42a",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/e6690d82-9c3d-4f9f-afc1-9209b524b42a_1769466859162_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/e6690d82-9c3d-4f9f-afc1-9209b524b42a_original.jpg",
+    "id": "34a53cdf-8c20-4370-b013-b7e9d282a8c4",
+    "generatedPath": "data/generated-images/topic-05_test-005/34a53cdf-8c20-4370-b013-b7e9d282a8c4_1769543947746_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/34a53cdf-8c20-4370-b013-b7e9d282a8c4_original.jpg",
     "question": {
-      "es": "Esta señal indica fin de...",
-      "en": "This sign indicates the end of...",
-      "ru": "Этот знак указывает на конец..."
+      "es": "En un turismo con cinco plazas autorizadas, incluida la del conductor, ¿está permitido transportar a seis personas?",
+      "en": "In a passenger car (turismo) with five authorized seats, including the driver's, is it permitted to carry six people?",
+      "ru": "В легковом автомобиле (Turismo) с пятью разрешенными местами, включая место водителя, разрешено ли перевозить шесть человек?"
     },
-    "timestamp": 1769466898343
+    "timestamp": 1769543997832
   },
   {
-    "id": "f2d60a8d-e2c1-4717-85a0-09ec5f537f2a",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/f2d60a8d-e2c1-4717-85a0-09ec5f537f2a_1769466913345_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/f2d60a8d-e2c1-4717-85a0-09ec5f537f2a_original.jpg",
+    "id": "5ece8c8c-facd-437e-883d-10af4f08a2c1",
+    "generatedPath": "data/generated-images/topic-05_test-005/5ece8c8c-facd-437e-883d-10af4f08a2c1_1769544012838_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/5ece8c8c-facd-437e-883d-10af4f08a2c1_original.jpg",
     "question": {
-      "es": "¿Puede circular un ciclista por un carril bus que tiene esta señal?",
-      "en": "Can a cyclist circulate in a bus lane that has this sign?",
-      "ru": "Может ли велосипедист двигаться по полосе для автобусов, обозначенной этим знаком?"
+      "es": "¿En una motocicleta, puede sobresalir la carga por el lateral?",
+      "en": "On a motorcycle, can the load protrude from the side?",
+      "ru": "Может ли груз выступать за боковые габариты мотоцикла?"
     },
-    "timestamp": 1769466949424
+    "timestamp": 1769544076417
   },
   {
-    "id": "de63f9d4-48e0-4ccc-b996-5fd8b5190902",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/de63f9d4-48e0-4ccc-b996-5fd8b5190902_1769466964431_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/de63f9d4-48e0-4ccc-b996-5fd8b5190902_original.jpg",
+    "id": "7f071cf4-4b76-4c2a-a06a-a5cf55344ee2",
+    "generatedPath": "data/generated-images/topic-05_test-005/7f071cf4-4b76-4c2a-a06a-a5cf55344ee2_1769544091422_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/7f071cf4-4b76-4c2a-a06a-a5cf55344ee2_original.jpg",
     "question": {
-      "es": "La señal indica peligro por la proximidad de...",
-      "en": "The sign indicates danger due to the proximity of...",
-      "ru": "Этот знак предупреждает об опасности в связи с приближением к..."
+      "es": "En la maniobra de marcha atrás, ¿está obligado el conductor a utilizar el cinturón de seguridad?",
+      "en": "When reversing, is the driver obliged to wear a seat belt?",
+      "ru": "При движении задним ходом обязан ли водитель использовать ремень безопасности?"
     },
-    "timestamp": 1769466997248
+    "timestamp": 1769544138267
   },
   {
-    "id": "dbd56bd7-ea5c-4e3a-a8dd-df1fd6cd406a",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/dbd56bd7-ea5c-4e3a-a8dd-df1fd6cd406a_1769467012257_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/dbd56bd7-ea5c-4e3a-a8dd-df1fd6cd406a_original.jpg",
+    "id": "3c1a9f66-98ef-45aa-b254-f337e1fef5f6",
+    "generatedPath": "data/generated-images/topic-05_test-005/3c1a9f66-98ef-45aa-b254-f337e1fef5f6_1769544153271_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/3c1a9f66-98ef-45aa-b254-f337e1fef5f6_original.jpg",
     "question": {
-      "es": "¿Puede circular una motocicleta por la vía señalizada con esta señal?",
-      "en": "Can a motorcycle drive on the road marked with this sign?",
-      "ru": "Разрешено ли мотоциклу движение по дороге, обозначенной этим знаком?"
+      "es": "¿Qué indica la señal colocada en la parte trasera del vehículo compuesta por una lámina reflectante de color amarillo rodeada de una lámina fluorescente de color rojo?",
+      "en": "What does the signal placed at the rear of the vehicle, consisting of a yellow reflective sheet surrounded by a red fluorescent border, indicate?",
+      "ru": "Что означает знак, установленный сзади транспортного средства, состоящий из желтой световозвращающей пластины с красной флуоресцентной окантовкой?"
     },
-    "timestamp": 1769467060528
+    "timestamp": 1769544208526
   },
   {
-    "id": "c40f9327-028f-4631-9dab-f9216a5604ff",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/c40f9327-028f-4631-9dab-f9216a5604ff_1769467075532_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/c40f9327-028f-4631-9dab-f9216a5604ff_original.jpg",
+    "id": "b2ba5e3e-71eb-473f-a4de-046986c63ca2",
+    "generatedPath": "data/generated-images/topic-05_test-005/b2ba5e3e-71eb-473f-a4de-046986c63ca2_1769544223529_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/b2ba5e3e-71eb-473f-a4de-046986c63ca2_original.jpg",
     "question": {
-      "es": "¿Qué indica esta señal?",
-      "en": "What does this sign indicate?",
-      "ru": "Что означает этот знак?"
+      "es": "Las motocicletas, ciclomotores o vehículos de tres ruedas, ¿pueden arrastrar un remolque o semirremolque?",
+      "en": "Can motorcycles, mopeds, or three-wheeled vehicles pull a trailer or semi-trailer?",
+      "ru": "Могут ли мотоциклы, мопеды или трехколесные транспортные средства буксировать прицеп или полуприцеп?"
     },
-    "timestamp": 1769467124941
+    "timestamp": 1769544280308
   },
   {
-    "id": "b743281f-286f-4e70-afcd-72ec6bd373b4",
-    "generatedPath": "data/generated-images/essential_test-035/b743281f-286f-4e70-afcd-72ec6bd373b4_1769467139945_pro.png",
-    "originalPath": "data/originals/essential_test-035/b743281f-286f-4e70-afcd-72ec6bd373b4_original.jpg",
+    "id": "28c2b6ec-f46d-4f46-b441-eae9dad6c97e",
+    "generatedPath": "data/generated-images/topic-05_test-005/28c2b6ec-f46d-4f46-b441-eae9dad6c97e_1769544295313_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/28c2b6ec-f46d-4f46-b441-eae9dad6c97e_original.jpg",
     "question": {
-      "es": "¿Qué le indica la señal?",
-      "en": "What does this sign indicate?",
-      "ru": "Что означает этот дорожный знак?"
+      "es": "Si su motocicleta cuenta con estructura de autoprotección y cinturón de seguridad, ¿en que vías deberá llevarlo abrochado?",
+      "en": "If your motorcycle has a self-protection structure and a seat belt, on which roads should you wear it fastened?",
+      "ru": "Если ваш мотоцикл оборудован каркасом безопасности и ремнем безопасности, на каких дорогах вы обязаны его пристегивать?"
     },
-    "timestamp": 1769467188710
+    "timestamp": 1769544337356
   },
   {
-    "id": "a2295e2c-a7fa-465a-9a40-36a482c480c6",
-    "generatedPath": "data/generated-images/essential_test-034/a2295e2c-a7fa-465a-9a40-36a482c480c6_1769467203713_pro.png",
-    "originalPath": "data/originals/essential_test-034/a2295e2c-a7fa-465a-9a40-36a482c480c6_original.jpg",
+    "id": "cb16c44b-7d64-4f60-8c04-8c2622b0af45",
+    "generatedPath": "data/generated-images/topic-05_test-005/cb16c44b-7d64-4f60-8c04-8c2622b0af45_1769544352360_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/cb16c44b-7d64-4f60-8c04-8c2622b0af45_original.jpg",
     "question": {
-      "es": "Esta señal indica vía reservada y obligatoria para...",
-      "en": "This sign indicates a path reserved and mandatory for...",
-      "ru": "Этот знак обозначает дорожку, зарезервированную и обязательную для..."
+      "es": "Los dispositivos de retención infantil hay que seleccionarlos fundamentalmente en función...",
+      "en": "Child restraint systems must be selected primarily based on...",
+      "ru": "Детские удерживающие устройства необходимо выбирать в первую очередь в зависимости от..."
     },
-    "timestamp": 1769467241864
+    "timestamp": 1769544402501
   },
   {
-    "id": "41290314-adbd-4192-a7b6-36d09c27327a",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/41290314-adbd-4192-a7b6-36d09c27327a_1769467256864_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/41290314-adbd-4192-a7b6-36d09c27327a_original.jpg",
+    "id": "3e6d5ca3-2204-472c-bf50-23d7844d5247",
+    "generatedPath": "data/generated-images/topic-05_test-005/3e6d5ca3-2204-472c-bf50-23d7844d5247_1769544417504_pro.png",
+    "originalPath": "data/originals/topic-05_test-005/3e6d5ca3-2204-472c-bf50-23d7844d5247_original.jpg",
     "question": {
-      "es": "¿Es obligatorio obedecer esta señal con fondo amarillo?",
-      "en": "Is it mandatory to obey this sign with a yellow background?",
-      "ru": "Обязательно ли подчиняться этому знаку с желтым фоном?"
+      "es": "¿Cuando el casco no tiene pantalla de protección, es conveniente utilizar gafas para protegerse los ojos?",
+      "en": "When the helmet does not have a protective screen, is it advisable to use glasses to protect the eyes?",
+      "ru": "Если шлем не имеет защитного экрана (визора), целесообразно ли использовать очки для защиты глаз?"
     },
-    "timestamp": 1769467302921
-  },
-  {
-    "id": "fb6d3166-7d26-4d08-bc68-875f67cf48f2",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/fb6d3166-7d26-4d08-bc68-875f67cf48f2_1769467317925_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/fb6d3166-7d26-4d08-bc68-875f67cf48f2_original.jpg",
-    "question": {
-      "es": "¿Qué le indica la flecha verde del semáforo?",
-      "en": "What does the green arrow on the traffic light indicate?",
-      "ru": "Что означает зеленая стрелка на светофоре?"
-    },
-    "timestamp": 1769467376055
-  },
-  {
-    "id": "79fda5f3-77a9-47b0-80d6-aded0bbc817c",
-    "generatedPath": "data/generated-images/topic-03_test-003-enriched/79fda5f3-77a9-47b0-80d6-aded0bbc817c_1769467391057_pro.png",
-    "originalPath": "data/originals/topic-03_test-003-enriched/79fda5f3-77a9-47b0-80d6-aded0bbc817c_original.jpg",
-    "question": {
-      "es": "¿Qué indica esta señal situada sobre un refugio?",
-      "en": "What does this sign located on a refuge indicate?",
-      "ru": "Что означает этот знак, установленный на островке безопасности?"
-    },
-    "timestamp": 1769467430340
+    "timestamp": 1769544476517
   }
 ]
