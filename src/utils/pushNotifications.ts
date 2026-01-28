@@ -216,9 +216,10 @@ export async function sendTestNotification(): Promise<void> {
         renotify: true,
         vibrate: [200, 100, 200, 100, 200, 100, 400],
         requireInteraction: true,
+        // iOS лучше работает с простым текстом в кнопках (без emoji)
         actions: [
-            { action: 'open', title: '🔥 Открыть' },
-            { action: 'later', title: '⏰ Позже' }
+            { action: 'open', title: 'Открыть' },
+            { action: 'later', title: 'Позже' }
         ],
         data: { url: '/dashboard', timestamp }
     });

@@ -52,15 +52,15 @@ self.addEventListener('push', (event) => {
             url: data.url || '/',
             ...data.data,
         },
+        // iOS не поддерживает icon в actions, только title
         actions: data.actions || [
             {
                 action: 'open',
-                title: '🚀 Открыть',
-                icon: '/icons/open.png',
+                title: 'Открыть', // Короткий текст для iOS (1-2 слова)
             },
             {
                 action: 'close',
-                title: '❌ Закрыть',
+                title: 'Закрыть',
             },
         ],
     };
