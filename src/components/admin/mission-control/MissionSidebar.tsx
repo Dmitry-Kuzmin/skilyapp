@@ -275,33 +275,64 @@ export function MissionSidebar({
 
                                     {expandedCategories.includes(category) && (
                                         <div className="mt-1 ml-2 pl-2 border-l border-zinc-800/50 space-y-0.5">
-                                            {structure[category].map((test: any) => (
-                                                <button
-                                                    key={test.id}
-                                                    onClick={() => onSelectTest(test.id)}
-                                                    className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50 rounded-md transition-all text-left group"
-                                                >
-                                                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                                                        {test.deployed ? (
-                                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                                                        ) : !test.isEnriched ? (
-                                                            <AlertTriangle className="w-3.5 h-3.5 text-amber-600/70 shrink-0 group-hover:text-amber-500" />
-                                                        ) : test.generated ? (
-                                                            <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                                                        ) : (
-                                                            <FileText className="w-3.5 h-3.5 opacity-50 shrink-0 group-hover:opacity-100 group-hover:text-blue-400" />
-                                                        )}
+                                            {(() => {
+                                                // ФИКС ДУБЛИКАТОВ: Группируем raw и enriched версии
+                                                const uniqueTests = new Map();
 
-                                                        <span className={cn(
-                                                            "truncate",
-                                                            !test.isEnriched && "text-amber-600/70 group-hover:text-amber-500",
-                                                            test.deployed && "text-emerald-500/90"
-                                                        )}>
-                                                            {test.name}
-                                                        </span>
-                                                    </div>
-                                                </button>
-                                            ))}
+                                                structure[category].forEach((test: any) => {
+                                                    // Normalize ID: remove '-enriched' suffix just for grouping check
+                                                    // Note: test.id usually comes from filename.
+                                                    // Let's rely on name matching or ID cleaning.
+                                                    const baseId = test.id.replace(/-enriched$/, '').replace(/_enriched$/, '');
+
+                                                    if (!uniqueTests.has(baseId)) {
+                                                        uniqueTests.set(baseId, { ...test, id: baseId }); // Use baseId as primary
+                                                    } else {
+                                                        // Merge logic: prefer enriched, prefer deployed, prefer generated
+                                                        const existing = uniqueTests.get(baseId);
+                                                        uniqueTests.set(baseId, {
+                                                            ...existing,
+                                                            ...test, // Overwrite with current (if current is enriched, it usually comes later or filtered properly, but let's be safe)
+                                                            id: baseId,
+                                                            // Keep true flags if ANY version has them
+                                                            deployed: existing.deployed || test.deployed,
+                                                            generated: existing.generated || test.generated,
+                                                            isEnriched: existing.isEnriched || test.isEnriched,
+                                                            // Prefer name without '-enriched' usually, but current logic in server removes it from name? 
+                                                            // If name has 'enriched', clean it.
+                                                            name: (test.name.length < existing.name.length && !test.name.includes('enriched')) ? test.name : existing.name
+                                                        });
+                                                    }
+                                                });
+
+                                                return Array.from(uniqueTests.values()).map((test: any) => (
+                                                    <button
+                                                        key={test.id}
+                                                        onClick={() => onSelectTest(test.id)} // Use baseId
+                                                        className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50 rounded-md transition-all text-left group"
+                                                    >
+                                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                            {test.deployed ? (
+                                                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                                                            ) : !test.isEnriched ? (
+                                                                <AlertTriangle className="w-3.5 h-3.5 text-amber-600/70 shrink-0 group-hover:text-amber-500" />
+                                                            ) : test.generated ? (
+                                                                <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                                                            ) : (
+                                                                <FileText className="w-3.5 h-3.5 opacity-50 shrink-0 group-hover:opacity-100 group-hover:text-blue-400" />
+                                                            )}
+
+                                                            <span className={cn(
+                                                                "truncate",
+                                                                !test.isEnriched && "text-amber-600/70 group-hover:text-amber-500",
+                                                                test.deployed && "text-emerald-500/90"
+                                                            )}>
+                                                                {test.name.replace('-enriched', '').replace('enriched', '')}
+                                                            </span>
+                                                        </div>
+                                                    </button>
+                                                ))
+                                            })()}
                                         </div>
                                     )}
                                 </div>
