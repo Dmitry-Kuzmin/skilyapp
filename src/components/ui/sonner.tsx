@@ -73,13 +73,17 @@ const Toaster = ({ ...props }: ToasterProps) => {
         [data-sonner-toaster] li:first-child {
           margin-top: 0 !important;
         }
+        /* ВАЖНО: Восстанавливаем события мыши для самих тостов, так как враппер имеет pointer-events: none */
+        [data-sonner-toaster] {
+          pointer-events: auto !important;
+        }
       `}</style>
       <Sonner
         theme={theme as ToasterProps["theme"]}
         className="toaster group"
         position="top-right"
-        expand={false} // Возвращаем режим стопки (stack) для компактности
-        visibleToasts={5} // Показываем до 5 в стопке
+        expand={true} // Разворачиваем список уведомлений (пользователь просил)
+        visibleToasts={10} // Показываем больше уведомлений
         gap={14} // Комфортный отступ
         richColors
         closeButton
