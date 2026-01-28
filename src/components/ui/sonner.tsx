@@ -16,11 +16,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
   // Центрируем уведомления если это Telegram или мобильное устройство
   const shouldCenter = isTelegram || isMobile;
 
-  // Вычисляем отступ сверху с учетом safe area для Telegram
-  // ИЛИ используем env(safe-area-inset-top) как базу
-  // Добавляем небольшой отступ (16px) для красоты
-  const marginTop = isTelegram
-    ? 'calc(max(var(--tg-content-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px)) + 16px)'
+  // Вычисляем отступ сверху с учетом safe area - ИДЕНТИЧНО Page.tsx
+  // Используем max() для выбора максимального значения из:
+  // 1. --tg-content-safe-area-inset-top (UI Telegram: кнопка назад)
+  // 2. --tg-safe-area-inset-top (системный отступ: notch/Dynamic Island)
+  // 3. env(safe-area-inset-top) (iOS PWA)
+  // 4. 16px минимальный отступ
+  const marginTop = shouldCenter
+    ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 16px)'
     : undefined;
 
   // Используем Portal чтобы избежать проблем с z-index и stacking context (transform, filter и т.д.)
@@ -72,8 +75,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         expand={true}
         visibleToasts={3}
         gap={4}
-        // offset учитывает safe area (островок) на iOS
-        offset={isMobile ? 60 : 24}
+        offset={16}
         containerAriaLabel="Уведомления"
         toastOptions={{
           duration: 4000,
