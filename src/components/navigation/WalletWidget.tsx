@@ -163,31 +163,20 @@ export const WalletWidget = memo(function WalletWidget({ className }: WalletWidg
             )}
             <button
               onClick={handleDuelPassClick}
-              className={getDuelPassButtonClasses("flex items-center gap-1.5 px-2 py-1 w-full")}
+              className={getDuelPassButtonClasses("flex items-center gap-1.5 px-2 py-1")}
               title={duelPassTooltipMobile}
               aria-label={duelPassTooltipMobile}
             >
-              {/* Season Points */}
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-blue-400">S</span>
-                </div>
-                <span className="text-xs font-semibold text-foreground dark:text-white">{duelPassData.xp}</span>
-              </div>
-
-              {/* Разделитель */}
-              <div className="w-px h-4 bg-border/70 dark:bg-white/20" />
-
-              {/* Уровень с прогресс-баром */}
+              {/* Только уровень с прогресс-баром для компактности (как на десктопе) */}
               <div className="flex items-center gap-1.5">
                 <Trophy className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
-                <div className="w-12 h-1 bg-muted rounded-full overflow-hidden dark:bg-white/10">
+                <div className="w-10 h-1 bg-muted rounded-full overflow-hidden dark:bg-white/10">
                   <div
                     className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all"
                     style={{ width: `${Math.max(5, duelPassData.progress)}%` }}
                   />
                 </div>
-                <span className="text-xs font-semibold text-foreground dark:text-white min-w-[18px]">{duelPassData.level}</span>
+                <span className="text-xs font-semibold text-foreground dark:text-white min-w-[14px]">{duelPassData.level}</span>
               </div>
             </button>
           </div>
