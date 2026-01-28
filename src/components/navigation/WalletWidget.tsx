@@ -195,6 +195,17 @@ export const WalletWidget = memo(function WalletWidget({ className }: WalletWidg
               title={duelPassTooltipDesktop}
               aria-label={duelPassTooltipDesktop}
             >
+              {/* Season Points (Desktop Only) */}
+              <div className="flex items-center gap-1 mr-0.5">
+                <div className="w-4 h-4 rounded bg-gradient-to-br from-blue-500/20 to-indigo-500/20 flex items-center justify-center shadow-sm">
+                  <span className="text-[10px] font-bold text-blue-500 dark:text-blue-400">S</span>
+                </div>
+                <span className="text-xs font-semibold text-foreground dark:text-white tabular-nums">{duelPassData.xp}</span>
+              </div>
+
+              {/* Разделитель */}
+              <div className="w-px h-3.5 bg-border/60 mx-1" />
+
               <Trophy className="w-3 h-3 md:w-3.5 md:h-3.5 text-yellow-500" />
               <div className="w-10 md:w-12 h-1 bg-muted rounded-full overflow-hidden">
                 <div
