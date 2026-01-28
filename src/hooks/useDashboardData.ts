@@ -143,13 +143,6 @@ export function useDashboardData() {
   const profileId = userContext?.profileId ?? null;
   const queryClient = useSafeQueryClient();
 
-  /* DEBUG LOGS REMOVED FOR PERFORMANCE
-  console.log('[useDashboardData] Hook called:', {
-    hasUserContext: !!userContext,
-    profileId,
-    hasQueryClient: !!queryClient
-  });
-  */
 
   const {
     data,
@@ -159,9 +152,7 @@ export function useDashboardData() {
   } = useSafeQuery<DashboardData | null>({
     queryKey: [DASHBOARD_QUERY_KEY, profileId],
     queryFn: async () => {
-      // console.log('[useDashboardData] 🏃 queryFn started for:', profileId);
       if (!profileId) {
-        // console.warn('[useDashboardData] ⚠️ No profileId, returning null');
         return null;
       }
 
@@ -173,7 +164,7 @@ export function useDashboardData() {
       }
 
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
-      // console.log('[useDashboardData] 🔗 Calling get_dashboard_super...');
+
       try {
         const promise = (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
@@ -181,7 +172,7 @@ export function useDashboardData() {
         const response: any = await Promise.race([promise, timeoutPromise]);
 
         if (!response.error && response.data && !response.data.error) {
-          // console.log('[useDashboardData] ✅ get_dashboard_super success');
+
           return response.data as DashboardData;
         }
         // console.warn('[useDashboardData] ⚠️ get_dashboard_super error or empty:', response.error || response.data?.error);
@@ -190,7 +181,7 @@ export function useDashboardData() {
       }
 
       // Fallback на обычный RPC
-      // console.log('[useDashboardData] 🔗 Calling get_dashboard_complete...');
+
       try {
         const promise = (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
@@ -198,7 +189,7 @@ export function useDashboardData() {
         const response: any = await Promise.race([promise, timeoutPromise]);
 
         if (!response.error && response.data && !response.data.error) {
-          // console.log('[useDashboardData] ✅ get_dashboard_complete success');
+
           return response.data as DashboardData;
         }
         // console.warn('[useDashboardData] ⚠️ get_dashboard_complete error:', response.error);
@@ -207,7 +198,7 @@ export function useDashboardData() {
       }
 
       // Окончательный fallback
-      // console.log('[useDashboardData] 🔄 Falling back to manual fetch...');
+
       return await fetchDashboardFallback(profileId);
     },
     enabled: !!profileId,
@@ -252,7 +243,7 @@ export function useDashboardData() {
 }
 
 async function fetchDashboardFallback(profileId: string): Promise<DashboardData | null> {
-  console.log('[useDashboardData] 🏃 Starting fallback fetch for:', profileId);
+
 
   try {
     // ФИКС 400: Проверяем что пользователь авторизован перед запросами
@@ -303,17 +294,17 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
 
     const [profileRes, sessionsRes, bonusRes, tasksRes, achievementsRes, definitionsRes] = results;
 
-    console.log('[useDashboardData] 📊 Fallback results:', {
-      profile: profileRes.status,
-      sessions: sessionsRes.status,
-      bonus: bonusRes.status,
-      tasks: tasksRes.status,
-      achievements: achievementsRes.status,
-      definitions: definitionsRes.status
-    });
+    // [useDashboardData] 📊 Fallback results:
+    //   profile: profileRes.status,
+    //   sessions: sessionsRes.status,
+    //   bonus: bonusRes.status,
+    //   tasks: tasksRes.status,
+    //   achievements: achievementsRes.status,
+    //   definitions: definitionsRes.status
+    // });
 
     if (profileRes.status === 'rejected' || (profileRes.value as any).error) {
-      console.error('[useDashboardData] ❌ Profile fetch failed:', (profileRes as any).reason || (profileRes as any).value?.error);
+      // [useDashboardData] ❌ Profile fetch failed:
       throw new Error('Failed to fetch profile');
     }
 
@@ -341,7 +332,7 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
     // Формируем weeklyRewards из definitions
     const weeklyRewards = definitions.filter((d: any) => d.day_number <= 7);
 
-    console.log('[useDashboardData] ✅ Mapping finished successfully');
+
 
     return {
       profile: {

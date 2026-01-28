@@ -280,30 +280,27 @@ export function MissionSidebar({
                                                 const uniqueTests = new Map();
 
                                                 structure[category].forEach((test: any) => {
+                                                    // Normalize ID: remove '-enriched' suffix just for grouping check
+                                                    // Note: test.id usually comes from filename.
+                                                    // Let's rely on name matching or ID cleaning.
                                                     const baseId = test.id.replace(/-enriched$/, '').replace(/_enriched$/, '');
 
                                                     if (!uniqueTests.has(baseId)) {
-                                                        uniqueTests.set(baseId, test); // Keep original object first
+                                                        uniqueTests.set(baseId, { ...test, id: baseId }); // Use baseId as primary
                                                     } else {
+                                                        // Merge logic: prefer enriched, prefer deployed, prefer generated
                                                         const existing = uniqueTests.get(baseId);
-
-                                                        // Determine 'winner' - source of truth for ID and Data
-                                                        let winner = existing;
-                                                        // Prefer enriched version as it has AI data
-                                                        if (test.isEnriched && !existing.isEnriched) winner = test;
-                                                        else if (!test.isEnriched && existing.isEnriched) winner = existing;
-                                                        else {
-                                                            // Fallback: prefer the one with 'enriched' in ID if strictly equal otherwise
-                                                            if (test.id.includes('enriched')) winner = test;
-                                                        }
-
-                                                        // Merge statuses (show green/blue if ANY version has it)
                                                         uniqueTests.set(baseId, {
-                                                            ...winner, // Keeps the ID of the winner (CRITICAL for fetch)
+                                                            ...existing,
+                                                            ...test, // Overwrite with current (if current is enriched, it usually comes later or filtered properly, but let's be safe)
+                                                            id: baseId,
+                                                            // Keep true flags if ANY version has them
                                                             deployed: existing.deployed || test.deployed,
                                                             generated: existing.generated || test.generated,
                                                             isEnriched: existing.isEnriched || test.isEnriched,
-                                                            name: winner.name // Keep original name of winner usually
+                                                            // Prefer name without '-enriched' usually, but current logic in server removes it from name? 
+                                                            // If name has 'enriched', clean it.
+                                                            name: (test.name.length < existing.name.length && !test.name.includes('enriched')) ? test.name : existing.name
                                                         });
                                                     }
                                                 });
@@ -311,7 +308,7 @@ export function MissionSidebar({
                                                 return Array.from(uniqueTests.values()).map((test: any) => (
                                                     <button
                                                         key={test.id}
-                                                        onClick={() => onSelectTest(test.id)}
+                                                        onClick={() => onSelectTest(test.id)} // Use baseId
                                                         className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/50 rounded-md transition-all text-left group"
                                                     >
                                                         <div className="flex items-center gap-2 flex-1 min-w-0">
