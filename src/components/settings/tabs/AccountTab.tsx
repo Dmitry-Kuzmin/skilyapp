@@ -230,8 +230,12 @@ export const AccountTab: React.FC = () => {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        if (!user?.id) {
-            toast.error('Ошибка: пользователь не найден');
+        // КРИТИЧНО: Используем любой доступный ID источника
+        const userId = user?.id || profileData?.id || supabaseUser?.id;
+
+        if (!userId) {
+            toast.error('Ошибка: пользователь не найден (нет ID)');
+            console.error('Avatar upload failed: No user ID found in user, profileData or supabaseUser');
             return;
         }
 
@@ -257,7 +261,7 @@ export const AccountTab: React.FC = () => {
             }
 
             const fileExt = file.name.split('.').pop();
-            const filePath = `${user.id}/${Date.now()}.${fileExt}`;
+            const filePath = `${userId}/${Date.now()}.${fileExt}`;
 
             // 1. Upload to Supabase Storage
             const { error: uploadError } = await supabase.storage
@@ -278,7 +282,7 @@ export const AccountTab: React.FC = () => {
                     photo_url: publicUrl,
                     updated_at: new Date().toISOString()
                 })
-                .eq('id', user.id);
+                .eq('id', userId);
 
             if (updateError) throw updateError;
 
