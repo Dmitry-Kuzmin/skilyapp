@@ -82,8 +82,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
         theme={theme as ToasterProps["theme"]}
         className="toaster group"
         position="top-right"
-        expand={true} // Разворачиваем список уведомлений (пользователь просил)
-        visibleToasts={10} // Показываем больше уведомлений
+        expand={false} // Возвращаем режим стопки (stack) по просьбе пользователя
+        visibleToasts={5} // Ограничиваем количество в стопке
         gap={14} // Комфортный отступ
         richColors
         closeButton
