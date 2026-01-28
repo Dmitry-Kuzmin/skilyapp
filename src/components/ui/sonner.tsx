@@ -77,31 +77,22 @@ const Toaster = ({ ...props }: ToasterProps) => {
       <Sonner
         theme={theme as ToasterProps["theme"]}
         className="toaster group"
-        position={shouldCenter ? "top-center" : "top-right"}
+        position="top-right"
+        expand={false} // Возвращаем режим стопки (stack) для компактности
+        visibleToasts={5} // Показываем до 5 в стопке
+        gap={14} // Комфортный отступ
         richColors
-        closeButton={true}
-        expand={!isMobile}
-        visibleToasts={3}
-        gap={8}
-        offset={16}
-        containerAriaLabel="Уведомления"
-        invert={resolvedTheme === 'dark'}
+        closeButton
+        offset={isMobile ? "calc(env(safe-area-inset-top) + 16px)" : "24px"} // Чуть больше отступ на десктопе
         toastOptions={{
-          duration: 4000,
-          unstyled: false,
           classNames: {
-            toast:
-              "group toast toast-progress group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg pointer-events-auto font-medium",
+            toast: "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg group-[.toaster]:rounded-xl group-[.toaster]:active:scale-95 transition-all duration-200",
             description: "group-[.toast]:text-muted-foreground",
-            actionButton:
-              "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-            cancelButton:
-              "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
-            // Убрали кастомные стили closeButton - используем дефолт sonner
+            actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+            cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            closeButton: "hover:bg-muted/50 focus:ring-0",
           },
-        }}
-        style={{
-          marginTop,
+          // Убрали marginTop, так как он ломал позиционирование. Отступ управляется offset.
         }}
         {...props}
       />
