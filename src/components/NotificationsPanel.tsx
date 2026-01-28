@@ -66,15 +66,15 @@ const NotificationItem = memo(({
         {notification.icon && (
           <div className={cn(
             "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0",
-            notification.is_read 
-              ? 'bg-muted/50' 
+            notification.is_read
+              ? 'bg-muted/50'
               : 'bg-primary/20 shadow-sm'
           )}>
-            <NotificationIcon 
-              iconName={notification.icon} 
+            <NotificationIcon
+              iconName={notification.icon}
               className={cn(
-                notification.is_read 
-                  ? 'text-muted-foreground' 
+                notification.is_read
+                  ? 'text-muted-foreground'
                   : 'text-primary'
               )}
               size={24}
@@ -201,30 +201,30 @@ export function NotificationsPanel({
   // Debug logging (только в dev режиме)
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && window.localStorage?.getItem('debugNotifications') === '1') {
-    console.log('[NotificationsPanel] Component mounted, profileId:', profileId);
-    console.log('[NotificationsPanel] Notifications:', notifications.length, 'Unread:', unreadCount);
-    if (notifications.length > 0) {
-      console.log('[NotificationsPanel] First notification:', notifications[0]);
+      console.log('[NotificationsPanel] Component mounted, profileId:', profileId);
+      console.log('[NotificationsPanel] Notifications:', notifications.length, 'Unread:', unreadCount);
+      if (notifications.length > 0) {
+        console.log('[NotificationsPanel] First notification:', notifications[0]);
       }
     }
   }, [notifications, unreadCount, profileId]);
 
   // Filter notifications by type
-  // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind, reminder)
-  // Show only results (finish, timeout)
+  // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind)
+  // Show only results (finish, timeout) and reminders
   // ВАЖНО: Не скрываем все уведомления - показываем finish, timeout и другие важные
   // КРИТИЧНО: Не фильтруем 'answer' - это уведомления о правильных ответах соперника
   // Фильтруем только 'progress' для неправильных ответов (чтобы не было спама)
-  const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder'];
-  
+  const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind'];
+
   const filteredNotifications = useMemo(() => {
     // First, filter out progress notifications (always hide them)
     const notificationsWithoutProgress = notifications.filter(n => !PROGRESS_NOTIFICATION_TYPES.includes(n.type));
-    
+
     if (filter === 'all') {
       return notificationsWithoutProgress;
     }
-    
+
     const typeMap: Record<string, NotificationFilter> = {
       'finish': 'duels',
       'timeout': 'duels',
@@ -234,18 +234,18 @@ export function NotificationsPanel({
       const category = typeMap[n.type] || 'system';
       return category === filter;
     });
-    
+
     return result;
   }, [notifications, filter]);
 
   // Debug: логируем только в dev режиме при необходимости
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && window.localStorage?.getItem('debugNotifications') === '1') {
-    console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
-      count: filteredNotifications.length,
-      filter,
-      totalNotifications: notifications.length,
-    });
+      console.log('[NotificationsPanel] 🔍 filteredNotifications changed:', {
+        count: filteredNotifications.length,
+        filter,
+        totalNotifications: notifications.length,
+      });
     }
   }, [filteredNotifications, filter, notifications.length]);
 
@@ -275,12 +275,12 @@ export function NotificationsPanel({
   const flatList = useMemo<FlatItem[]>(() => {
     const items: FlatItem[] = [];
     const groups: Record<string, DuelNotification[]> = {};
-    
+
     // Группируем уведомления
     filteredNotifications.forEach(notification => {
       const date = new Date(notification.created_at);
       let groupKey: string;
-      
+
       if (isToday(date)) {
         groupKey = 'Сегодня';
       } else if (isYesterday(date)) {
@@ -292,13 +292,13 @@ export function NotificationsPanel({
       } else {
         groupKey = format(date, 'MMMM yyyy', { locale: ru });
       }
-      
+
       if (!groups[groupKey]) {
         groups[groupKey] = [];
       }
       groups[groupKey].push(notification);
     });
-    
+
     // Создаем плоский список: заголовок группы + уведомления
     Object.entries(groups).forEach(([groupKey, groupNotifications]) => {
       items.push({ type: 'header', label: groupKey, count: groupNotifications.length });
@@ -306,18 +306,18 @@ export function NotificationsPanel({
         items.push({ type: 'notification', data: notification });
       });
     });
-    
+
     return items;
   }, [filteredNotifications]);
 
   // Group notifications by date (для малых списков)
   const groupedNotifications = useMemo(() => {
     const groups: Record<string, DuelNotification[]> = {};
-    
+
     filteredNotifications.forEach(notification => {
       const date = new Date(notification.created_at);
       let groupKey: string;
-      
+
       if (isToday(date)) {
         groupKey = 'Сегодня';
       } else if (isYesterday(date)) {
@@ -329,13 +329,13 @@ export function NotificationsPanel({
       } else {
         groupKey = format(date, 'MMMM yyyy', { locale: ru });
       }
-      
+
       if (!groups[groupKey]) {
         groups[groupKey] = [];
       }
       groups[groupKey].push(notification);
     });
-    
+
     return groups;
   }, [filteredNotifications]);
 
@@ -348,7 +348,7 @@ export function NotificationsPanel({
   const setContainerRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
       parentRef.current = node;
-      
+
       // Используем ResizeObserver для отслеживания реальных размеров
       const resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
@@ -362,9 +362,9 @@ export function NotificationsPanel({
           }
         }
       });
-      
+
       resizeObserver.observe(node);
-      
+
       // Проверяем размеры сразу (на случай, если они уже известны)
       const rect = node.getBoundingClientRect();
       if (rect.height > 0) {
@@ -373,10 +373,10 @@ export function NotificationsPanel({
       if (rect.width > 0) {
         setContainerWidth(rect.width);
       }
-      
+
       // Сохраняем observer для очистки
       (node as any).__resizeObserver = resizeObserver;
-      
+
       // КРИТИЧНО: Возвращаем функцию cleanup для правильного удаления observer
       return () => {
         resizeObserver.disconnect();
@@ -424,7 +424,7 @@ export function NotificationsPanel({
     if (!notification.is_read) {
       markAsRead(notification.id);
     }
-    
+
     // Navigate to duel if duel_id exists
     if (notification.duel_id) {
       navigate(`/games/duel?duelId=${notification.duel_id}`);
@@ -466,8 +466,8 @@ export function NotificationsPanel({
           {trigger ?? defaultTrigger}
         </SheetTrigger>
       )}
-      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-        <SheetHeader className="p-6 pb-4 border-b">
+      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col pt-[env(safe-area-inset-top)]">
+        <SheetHeader className="p-6 pb-4 border-b pt-6">
           <div className="flex items-center justify-between mb-4">
             <SheetTitle className="text-2xl font-bold flex items-center gap-2">
               <Bell className="h-6 w-6" />
@@ -485,7 +485,7 @@ export function NotificationsPanel({
               </Button>
             )}
           </div>
-          
+
           {/* Filters */}
           <Tabs value={filter} onValueChange={(v) => setFilter(v as NotificationFilter)} className="w-full">
             <TabsList className="grid w-full grid-cols-4 h-9">
@@ -510,32 +510,32 @@ export function NotificationsPanel({
 
         {/* ОПТИМИЗАЦИЯ: Убрали ScrollArea, используем обычный div с overflow-y-auto для виртуализации */}
         <div className="flex-1 flex flex-col min-h-0" key={`notifications-${filter}-${filteredNotifications.length}`}>
-            {filteredNotifications.length === 0 ? (
-              <motion.div
-                key="empty"
+          {filteredNotifications.length === 0 ? (
+            <motion.div
+              key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-                className="p-12 text-center space-y-3"
-              >
-                <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
-                  {getFilterIcon(filter)}
-                </div>
-                <p className="text-muted-foreground">
-                  {filter === 'all' 
-                    ? 'Пока нет уведомлений' 
-                    : `Нет уведомлений в категории "${filter}"`}
-                </p>
-                {filter === 'reminders' && (
-                  <Button
-                    onClick={() => setReminderModalOpen(true)}
-                    className="mt-4"
-                    size="sm"
-                  >
-                    <Clock className="w-4 h-4 mr-2" />
-                    Настроить напоминания
-                  </Button>
-                )}
-              </motion.div>
+              className="p-12 text-center space-y-3"
+            >
+              <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center">
+                {getFilterIcon(filter)}
+              </div>
+              <p className="text-muted-foreground">
+                {filter === 'all'
+                  ? 'Пока нет уведомлений'
+                  : `Нет уведомлений в категории "${filter}"`}
+              </p>
+              {filter === 'reminders' && (
+                <Button
+                  onClick={() => setReminderModalOpen(true)}
+                  className="mt-4"
+                  size="sm"
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Настроить напоминания
+                </Button>
+              )}
+            </motion.div>
           ) : flatList.length > 10 ? (
             // ОПТИМИЗАЦИЯ: Виртуализация для больших списков (> 10 элементов)
             // КРИТИЧНО: Контейнер должен иметь фиксированную высоту для работы виртуализации
@@ -557,7 +557,7 @@ export function NotificationsPanel({
                 {containerHeight > 0 && rowVirtualizer.getVirtualItems().length > 0 ? (
                   rowVirtualizer.getVirtualItems().map((virtualItem) => {
                     const item = flatList[virtualItem.index];
-                    
+
                     if (item.type === 'header') {
                       return (
                         <div
@@ -585,7 +585,7 @@ export function NotificationsPanel({
                         </div>
                       );
                     }
-                    
+
                     return (
                       <div
                         key={virtualItem.key}
@@ -623,21 +623,21 @@ export function NotificationsPanel({
           ) : (
             // Для малых списков (< 10) рендерим без виртуализации (простая группировка)
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
-                  <div key={groupKey} className="space-y-3">
-                    <div className="flex items-center gap-2 px-2">
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        {groupKey}
-                      </h3>
-                      <div className="flex-1 h-px bg-border" />
-                      <span className="text-xs text-muted-foreground">
-                        {groupNotifications.length}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
+              {Object.entries(groupedNotifications).map(([groupKey, groupNotifications]) => (
+                <div key={groupKey} className="space-y-3">
+                  <div className="flex items-center gap-2 px-2">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {groupKey}
+                    </h3>
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground">
+                      {groupNotifications.length}
+                    </span>
+                  </div>
+                  <div className="space-y-2">
                     {groupNotifications.map((notification) => (
                       <NotificationItem
-                          key={notification.id}
+                        key={notification.id}
                         notification={notification}
                         isExpanded={expandedNotifications.has(notification.id)}
                         onToggleExpand={toggleNotificationExpansion}
@@ -647,14 +647,14 @@ export function NotificationsPanel({
                         navigate={navigate}
                       />
                     ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-          )}
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </SheetContent>
-      
+
       {/* Reminder Connect Modal - lazy loaded */}
       <Suspense fallback={null}>
         <ReminderConnectModal open={reminderModalOpen} onOpenChange={setReminderModalOpen} />
