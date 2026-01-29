@@ -24,7 +24,7 @@ body {
   padding: 0;
 
   /* Disables pull-to-refresh on mobile (prevents spontaneous reloads) */
-  overscroll-behavior-y: none;
+  /* overscroll-behavior-y: none; */
 
   /* Ensures smooth scrolling inside containers */
   -webkit-overflow-scrolling: touch;
@@ -424,16 +424,26 @@ All colors MUST be HSL.
 
   html {
     overflow-x: hidden;
+    overflow-y: auto;
     width: 100%;
+    /* Ensure height is auto to allow scrolling */
+    height: auto;
   }
 
   body {
     @apply bg-background text-foreground antialiased transition-colors duration-300;
     margin: 0;
     box-sizing: border-box;
-    overflow-x: hidden;
+    /* CRITICAL: Remove overflow-x: hidden from body to prevent Chrome scroll lock */
+    /* overflow-x: hidden; */
+    overflow-y: visible;
+    position: relative;
+    /* Let html handle scrolling */
     width: 100%;
     max-width: 100vw;
+    min-height: 100vh;
+    height: auto;
+    overflow-anchor: none;
 
     /* Отступы от системных UI элементов (Dynamic Island, статус-бар, home indicator) */
     padding-top: var(--app-safe-top);
@@ -494,10 +504,10 @@ All colors MUST be HSL.
       padding-right: env(safe-area-inset-right) !important;
       padding-bottom: env(safe-area-inset-bottom) !important;
     }
-    
+
     /* Убираем верхний отступ если есть header (на десктопе может быть standalone) */
     /* Но у нас header скрыт на mobile, так что это ок */
-    
+
     /* Корректируем нижнее меню для PWA */
     .app-bottom-nav {
       padding-bottom: env(safe-area-inset-bottom) !important;

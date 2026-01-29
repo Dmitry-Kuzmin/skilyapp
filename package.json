@@ -44,7 +44,10 @@
     "find:pdd-missing": "node scripts/find-missing-questions.js",
     "import:pdd-missing": "node scripts/find-and-import-missing-questions.js",
     "generate:images": "node scripts/generate-images-batch.js",
-    "generate:images:test": "node scripts/generate-images-batch.js --dry-run"
+    "generate:images:test": "node scripts/generate-images-batch.js --dry-run",
+    "sync:test": "node scripts/test-sync-one.js",
+    "backup:db": "node scripts/backup-db.js",
+    "sync:all": "node scripts/sync-all-to-db.js"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.0.1",
@@ -123,6 +126,7 @@
     "idb-keyval": "^6.2.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.441.0",
+    "mime-types": "^3.0.2",
     "next-themes": "^0.4.4",
     "puppeteer-core": "^24.32.0",
     "react": "^18.3.1",

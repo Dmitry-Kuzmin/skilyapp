@@ -39,18 +39,18 @@ export const LazyImage = memo(function LazyImage({
 
   useEffect(() => {
     if (!src) return;
-    
+
     // Если изображение критическое (priority), загружаем сразу
     if (priority) {
       const img = new Image();
       img.decoding = 'async';
       img.src = src;
-      
+
       img.onload = () => {
         setIsLoaded(true);
         onLoad?.();
       };
-      
+
       img.onerror = () => {
         setHasError(true);
         onError?.();
@@ -67,13 +67,13 @@ export const LazyImage = memo(function LazyImage({
             const img = new Image();
             img.decoding = 'async'; // Асинхронное декодирование для неблокирующей загрузки
             img.src = src;
-            
+
             img.onload = () => {
               setImageSrc(src);
               setIsLoaded(true);
               onLoad?.();
             };
-            
+
             img.onerror = () => {
               setHasError(true);
               onError?.();
@@ -105,7 +105,7 @@ export const LazyImage = memo(function LazyImage({
       alt={alt}
       decoding="async"
       loading={priority ? 'eager' : 'lazy'}
-      fetchPriority={priority ? 'high' : 'auto'}
+      {...({ fetchpriority: priority ? 'high' : 'auto' } as any)}
       // КРИТИЧНО: width/height для предотвращения CLS
       // Если не указаны в props, используем aspect-ratio через CSS
       width={props.width}

@@ -21,6 +21,7 @@ import { processImageForUpload } from './scripts/utils/image-processor.js';
 import { v5 as uuidv5 } from 'uuid';
 import chokidar from 'chokidar';
 import Fuse from 'fuse.js';
+import crypto from 'crypto';
 
 const NAMESPACE = '1b671a64-40d5-491e-99b0-da01ff1f3341'; // Deterministic Namespace
 
@@ -319,19 +320,27 @@ app.get('/api/search', async (req, res) => {
         if (country === 'russia') {
             console.log(`[SEARCH RU] "${rawQ.substring(0, 30)}..."`);
             const { data: questions, error } = await supabase
-                .from('pdd_russia_questions')
-                .select('id, ticket_number, question_number, question_text, source_id')
-                .or(`question_text.ilike.%${rawQ}%,explanation.ilike.%${rawQ}%`)
+                .from('questions_new')
+                .select('id, metadata, question, source')
+                .eq('source', 'pdd_russia_github')
+                .or(`question->>ru.ilike.%${rawQ}%,explanation->>ru.ilike.%${rawQ}%`) // JSONB ilike
                 .limit(50);
 
-            if (error) throw error;
+            if (error) {
+                console.error('[SEARCH RU ERROR]', error);
+                throw error;
+            }
 
-            return res.json(questions.map(q => ({
-                id: q.source_id || String(q.id),
-                testId: `ticket-${String(q.ticket_number).padStart(2, '0')}`,
-                question_ru: q.question_text,
-                locationCount: 1
-            })));
+            return res.json(questions.map(q => {
+                const ticketStr = q.metadata?.ticket_number;
+                const num = ticketStr ? parseInt(ticketStr.match(/\d+/)?.[0] || '0') : 0;
+                return {
+                    id: q.id,
+                    testId: `ticket-${String(num).padStart(2, '0')}`,
+                    question_ru: q.question?.ru || '',
+                    locationCount: 1
+                };
+            }));
         }
 
         // Spain Logic (existing index based)
@@ -474,11 +483,19 @@ async function buildFileTree(country = 'spain') {
 
             // 2. Get All Deployed Tests
             if (country === 'russia') {
-                const { data: deployedRussia } = await supabase.from('pdd_russia_questions').select('ticket_number');
-                if (deployedRussia) {
-                    deployedRussia.forEach(t => {
-                        if (t.ticket_number) {
-                            deployedTestIds.add(`ticket-${String(t.ticket_number).padStart(2, '0')}`);
+                const { data: qData } = await supabase
+                    .from('questions_new')
+                    .select('metadata')
+                    .eq('source', 'pdd_russia_github');
+
+                if (qData) {
+                    qData.forEach(q => {
+                        const ticketStr = q.metadata?.ticket_number; // "Билет 1"
+                        if (ticketStr) {
+                            const num = parseInt(ticketStr.match(/\d+/)?.[0] || '0');
+                            if (num > 0) {
+                                deployedTestIds.add(`ticket-${String(num).padStart(2, '0')}`); // "ticket-01"
+                            }
                         }
                     });
                 }
@@ -1723,14 +1740,21 @@ app.get('/api/db/question/:id', async (req, res) => {
 
         if (isUuid) {
             // First try questions_new with proper answer_options JOIN
-            const { data, error } = await supabase
-                .from('questions_new')
-                .select('*')
-                .eq('id', queryId) // In questions_new, ID is the UUID
-                .maybeSingle();
+            try {
+                const { data, error } = await supabase
+                    .from('questions_new')
+                    .select('*')
+                    .eq('id', queryId) // In questions_new, ID is the UUID
+                    .maybeSingle();
 
-            if (error) throw error;
-            questionData = data;
+                if (error) {
+                    console.warn('[API /api/db/question] Supabase error, will fallback to JSON:', error.message);
+                } else {
+                    questionData = data;
+                }
+            } catch (dbError) {
+                console.warn('[API /api/db/question] Supabase request failed, falling back to JSON files:', dbError.message);
+            }
         }
 
         // If not found by UUID in new table
@@ -1930,7 +1954,7 @@ app.post('/api/db/update-text', async (req, res) => {
             .update(updateData)
             .eq(table === 'questions' ? 'external_id' : 'id', id);
 
-        if (questionError) throw questionError;
+        if (questionError) { console.warn("[Update Text] Supabase error, will still update local file:", questionError.message); } // Continue to local file update
 
         // 2. Handle answer_options (DB)
         if ((table === 'questions_new' || !table) && answer_options && Array.isArray(answer_options)) {
@@ -2027,236 +2051,314 @@ app.post('/api/db/update-text', async (req, res) => {
 });
 
 // ==========================================
+// 🔄 SYNC ALL: Полная синхронизация JSON → DB
+// ==========================================
+// ==========================================
+// 🔄 SYNC ALL: SMART MASS DEPLOYMENT
+// ==========================================
+app.get('/api/db/sync-all', async (req, res) => {
+    console.log('[Sync All] 🚀 Starting SMART full database sync...');
+
+    // Server-Sent Events headers
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*'
+    });
+
+    const sendProgress = (data) => {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    // Keep-alive
+    const keepAlive = setInterval(() => res.write(': keepalive\n\n'), 15000);
+
+    try {
+        sendProgress({ type: 'info', message: 'Scanning for enriched tests...' });
+
+        const parsedDir = path.join(process.cwd(), 'data', 'parsed');
+        const topics = await fs.readdir(parsedDir);
+        let allTests = [];
+
+        // 1. Discover all tests
+        for (const topic of topics) {
+            if (!topic.startsWith('topic-')) continue;
+            const topicPath = path.join(parsedDir, topic);
+            const files = await fs.readdir(topicPath).catch(() => []);
+
+            for (const file of files) {
+                if (file.endsWith('-enriched.json')) {
+                    // Extract testId: topic-01_test-001
+                    const testId = file.replace('-enriched.json', '');
+                    allTests.push(testId);
+                }
+            }
+        }
+
+        // Sort naturally
+        allTests.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+        sendProgress({ type: 'info', message: `Found ${allTests.length} tests. Starting smart sync...` });
+        console.log(`[Sync All] Found ${allTests.length} tests.`);
+
+        let processed = 0;
+        let totalDeployedQuestions = 0;
+
+        for (const testId of allTests) {
+            sendProgress({ type: 'info', message: `Processing ${testId} (${processed + 1}/${allTests.length})...` });
+
+            try {
+                // Reuse the core deployment logic
+                const result = await deployTestToDb(testId);
+
+                if (result.success) {
+                    totalDeployedQuestions += result.deployed;
+                    const logMsg = `✅ ${testId}: Synced ${result.deployed} / ${result.total} questions.`;
+                    console.log(`[Sync All] ${logMsg}`);
+                    sendProgress({ type: 'log', message: logMsg });
+                } else {
+                    sendProgress({ type: 'error', message: `❌ Failed ${testId}` });
+                }
+            } catch (e) {
+                console.error(`[Sync All] Error processing ${testId}:`, e);
+                sendProgress({ type: 'error', message: `Error ${testId}: ${e.message}` });
+            }
+            processed++;
+        }
+
+        clearInterval(keepAlive);
+        console.log('[Sync All] ✅ Sync completed successfully.');
+
+        sendProgress({
+            type: 'complete',
+            success: true,
+            message: `Smart Sync Complete! Total Questions: ${totalDeployedQuestions}`
+        });
+        res.end();
+
+    } catch (error) {
+        clearInterval(keepAlive);
+        console.error('[Sync All] Fatal error:', error);
+        sendProgress({
+            type: 'error',
+            message: `Fatal error: ${error.message}`
+        });
+        res.end();
+    }
+});
+
+// ==========================================
 // DEPLOY TEST TO SUPABASE (Batch UPSERT)
 // ==========================================
+// ==========================================
+// CORE: DEPLOY TEST FUNCTION (Reusable)
+// ==========================================
+async function deployTestToDb(testId) {
+    console.log(`[Deploy Core] Starting deployment for: ${testId}`);
+
+    // Parse test ID to get file path
+    const parts = testId.split('_');
+    const topic = parts[0];
+    const test = parts.slice(1).join('_');
+
+    const enrichedPath = path.join(process.cwd(), 'data/parsed', topic, `${topic}_${test}-enriched.json`);
+
+    // Read enriched JSON
+    const content = await fs.readFile(enrichedPath, 'utf-8');
+    const questions = JSON.parse(content);
+
+    // Extract test number from testId
+    const testNumberMatch = testId.match(/test-(\d+)/);
+    const testNumber = testNumberMatch ? parseInt(testNumberMatch[1]) : null;
+
+    if (!testNumber) throw new Error('Could not extract test number from testId');
+
+    // Get topic_id from database
+    const topicNumberMatch = testId.match(/topic-(\d+)/);
+    const topicNumber = topicNumberMatch ? parseInt(topicNumberMatch[1]) : null;
+
+    const { data: topicData } = await supabase
+        .from('topics')
+        .select('id, title_ru')
+        .eq('number', topicNumber)
+        .single();
+
+    if (!topicData) throw new Error(`Topic ${topicNumber} not found in database`);
+
+    // Check/Create Test Record
+    const { data: existingTest } = await supabase
+        .from('tests')
+        .select('id, title_ru')
+        .eq('topic_id', topicData.id)
+        .eq('test_number', testNumber)
+        .maybeSingle();
+
+    if (!existingTest) {
+        console.log(`[Deploy Core] Creating test record for test ${testNumber}...`);
+        const { error: testError } = await supabase
+            .from('tests')
+            .insert({
+                topic_id: topicData.id,
+                test_number: testNumber,
+                title_ru: `Тест ${testNumber}: ${topicData.title_ru}`,
+                title_es: `Test ${testNumber}: ${topicData.title_ru}`,
+                title_en: `Test ${testNumber}: ${topicData.title_ru}`,
+                description_ru: `Тест ${testNumber} по теме "${topicData.title_ru}". 30 вопросов из PracticaVial.`,
+                description_es: `Test ${testNumber} sobre "${topicData.title_ru}". 30 preguntas de PracticaVial.`,
+                description_en: `Test ${testNumber}: "${topicData.title_ru}". 30 questions from PracticaVial.`,
+                questions_count: questions.length,
+                min_pass_percent: 80,
+                order_index: testNumber,
+                required_test_id: testNumber > 1 ? null : null,
+                is_unlocked_by_default: testNumber === 1
+            });
+
+        if (testError) throw testError;
+    }
+
+    let deployed = 0;
+    let errors = [];
+
+    for (const q of questions) {
+        try {
+            const questionId = q.external_id || q.id;
+
+            // 1. Upload Image (Smart Logic SAFE MODE)
+            let finalImageUrl = null;
+            try {
+                const generatedDir = path.join(process.cwd(), 'data/generated-images', testId);
+                const files = await fs.readdir(generatedDir).catch(() => []);
+                const localImage = files.find(f => f.startsWith(questionId) && (f.endsWith('.png') || f.endsWith('.jpg')));
+
+                if (localImage) {
+                    const imageBuffer = await fs.readFile(path.join(generatedDir, localImage));
+
+                    // ✨ PROCESS IMAGE
+                    const processedBuffer = await processImageForUpload(imageBuffer, q, testId);
+                    const webpFilename = localImage.replace(/\.(png|jpg|jpeg)$/i, '.webp');
+                    const storagePath = `generated/${testId}/${webpFilename}`;
+
+                    const { error: uploadError } = await supabase.storage
+                        .from('dgt-images')
+                        .upload(storagePath, processedBuffer, {
+                            contentType: 'image/webp',
+                            upsert: true
+                        });
+
+                    if (!uploadError) {
+                        const { data: { publicUrl } } = supabase.storage
+                            .from('dgt-images')
+                            .getPublicUrl(storagePath);
+                        finalImageUrl = publicUrl;
+                    }
+                }
+            } catch (imgErr) {
+                console.warn(`[Deploy Core] Image error for ${questionId}:`, imgErr.message);
+            }
+
+            // ⛔ SAFETY CHECK: If no unique image, SKIP.
+            if (!finalImageUrl) {
+                console.warn(`[Deploy Core] ⛔ SKIP ${questionId}: No unique generated image found (Copyright Safety).`);
+                continue;
+            }
+
+            // 2. Format Answers (STABLE IDs)
+            let answerOptions = [];
+            const getAnswerUUID = (ix) => {
+                const h = crypto.createHash('md5').update(`${questionId}_answer_${ix}`).digest('hex');
+                return `${h.substr(0, 8)}-${h.substr(8, 4)}-${h.substr(12, 4)}-${h.substr(16, 4)}-${h.substr(20, 12)}`;
+            };
+
+            if (Array.isArray(q.answers)) {
+                answerOptions = q.answers.map((a, idx) => ({
+                    id: getAnswerUUID(idx + 1),
+                    question_id: questionId,
+                    position: idx + 1, // Fix position 1-based
+                    text_ru: a.text?.ru || a.text || '',
+                    text_es: a.text?.es || '',
+                    text_en: a.text?.en || '',
+                    is_correct: a.is_correct || false
+                }));
+            } else {
+                // Legacy
+                answerOptions = [
+                    {
+                        question_id: questionId,
+                        position: 1,
+                        text_ru: q.answer_correct_ru || '',
+                        text_es: q.answer_correct_es || '',
+                        text_en: q.answer_correct_en || '',
+                        is_correct: true
+                    },
+                    ...Object.entries(q)
+                        .filter(([key]) => key.startsWith('answer_wrong_'))
+                        .map(([key, value], idx) => ({
+                            question_id: questionId,
+                            position: idx + 2,
+                            text_ru: q[`answer_wrong_${idx + 1}_ru`] || '',
+                            text_es: q[`answer_wrong_${idx + 1}_es`] || '',
+                            text_en: q[`answer_wrong_${idx + 1}_en`] || '',
+                            is_correct: false
+                        }))
+                ];
+            }
+
+            // 3. Upsert Question
+            const { error: qError } = await supabase
+                .from('questions_new')
+                .upsert({
+                    id: questionId,
+                    topic_id: q.topic_id || existingTest?.topic_id || topicData?.id || null,
+                    difficulty: 'easy',
+                    type: 'single',
+                    question_ru: q.question?.ru || q.question_ru || '',
+                    question_es: q.question?.es || q.question_es || '',
+                    question_en: q.question?.en || q.question_en || '',
+                    explanation_ru: q.explanation?.ru || q.explanation_ru || '',
+                    explanation_es: q.explanation?.es || q.explanation_es || '',
+                    explanation_en: q.explanation?.en || q.explanation_en || '',
+                    image_url: finalImageUrl,
+                    source: 'practicavial',
+                    metadata: {
+                        test_id: testId,
+                        original_image: q.image_url || q.schema_url || '',
+                        question_number: q.question_number || 0
+                    }
+                }, { onConflict: 'id' });
+
+            if (qError) throw qError;
+
+            // 4. Upsert Answers (Smart Sync)
+            if (answerOptions.length > 0) {
+                // Delete obsolete answers
+                const newIds = answerOptions.map(a => a.id);
+                // Safe delete using NOT IN logic
+                await supabase.from('answer_options')
+                    .delete()
+                    .eq('question_id', questionId)
+                    .not('id', 'in', `(${newIds.join(',')})`);
+
+                // Upsert current answers
+                await supabase.from('answer_options').upsert(answerOptions);
+            }
+
+            deployed++;
+        } catch (e) {
+            console.error(`[Deploy Core] Error deploying ${q.external_id}:`, e);
+            errors.push({ id: q.external_id, error: e.message });
+        }
+    }
+
+    return { success: true, deployed, total: questions.length, errors };
+}
+
+// API Endpoint
 app.post('/api/db/deploy-test', async (req, res) => {
     try {
         const { testId } = req.body;
-
-        console.log(`[Deploy Test] Starting deployment for: ${testId}`);
-
-        // Parse test ID to get file path
-        const parts = testId.split('_');
-        const topic = parts[0];
-        const test = parts.slice(1).join('_');
-
-        const enrichedPath = path.join(process.cwd(), 'data/parsed', topic, `${topic}_${test}-enriched.json`);
-
-        // Read enriched JSON
-        const content = await fs.readFile(enrichedPath, 'utf-8');
-        const questions = JSON.parse(content);
-
-        // Extract test number from testId (e.g., "topic-01_test-002" -> 2)
-        const testNumberMatch = testId.match(/test-(\d+)/);
-        const testNumber = testNumberMatch ? parseInt(testNumberMatch[1]) : null;
-
-        if (!testNumber) {
-            throw new Error('Could not extract test number from testId');
-        }
-
-        // Get topic_id from database (topic number from testId, e.g., "topic-01" -> 1)
-        const topicNumberMatch = testId.match(/topic-(\d+)/);
-        const topicNumber = topicNumberMatch ? parseInt(topicNumberMatch[1]) : null;
-
-        const { data: topicData } = await supabase
-            .from('topics')
-            .select('id, title_ru')
-            .eq('number', topicNumber)
-            .single();
-
-        if (!topicData) {
-            throw new Error(`Topic ${topicNumber} not found in database`);
-        }
-
-        console.log(`[Deploy Test] Found topic: ${topicData.title_ru} (${topicData.id})`);
-
-        // Check if test record exists in tests table
-        const { data: existingTest } = await supabase
-            .from('tests')
-            .select('id, title_ru')
-            .eq('topic_id', topicData.id)
-            .eq('test_number', testNumber)
-            .maybeSingle();
-
-        if (existingTest) {
-            console.log(`[Deploy Test] Test record exists: ${existingTest.title_ru}`);
-        } else {
-            // Create test record
-            console.log(`[Deploy Test] Creating test record for test ${testNumber}...`);
-
-            const { error: testError } = await supabase
-                .from('tests')
-                .insert({
-                    topic_id: topicData.id,
-                    test_number: testNumber,
-                    title_ru: `Тест ${testNumber}: ${topicData.title_ru}`,
-                    title_es: `Test ${testNumber}: ${topicData.title_ru}`,
-                    title_en: `Test ${testNumber}: ${topicData.title_ru}`,
-                    description_ru: `Тест ${testNumber} по теме "${topicData.title_ru}". 30 вопросов из PracticaVial.`,
-                    description_es: `Test ${testNumber} sobre "${topicData.title_ru}". 30 preguntas de PracticaVial.`,
-                    description_en: `Test ${testNumber}: "${topicData.title_ru}". 30 questions from PracticaVial.`,
-                    source_id_prefix: null,
-                    source_id_start: null,
-                    source_id_end: null,
-                    questions_count: questions.length,
-                    min_pass_percent: 80,
-                    order_index: testNumber,
-                    required_test_id: testNumber > 1 ? null : null, // Can be improved later
-                    is_unlocked_by_default: testNumber === 1
-                });
-
-            if (testError) {
-                console.error('[Deploy Test] Error creating test record:', testError);
-                throw testError;
-            }
-
-            console.log(`[Deploy Test] ✅ Test record created successfully`);
-        }
-
-        let deployed = 0;
-        let errors = [];
-
-        for (const q of questions) {
-            try {
-                const questionId = q.external_id || q.id;
-
-                // 1. Upload Image (if exists locally)
-                let finalImageUrl = q.image_url;
-                try {
-                    // Try to find local generated image
-                    const generatedDir = path.join(process.cwd(), 'data/generated-images', testId);
-                    const files = await fs.readdir(generatedDir).catch(() => []);
-                    const localImage = files.find(f => f.startsWith(questionId) && (f.endsWith('.png') || f.endsWith('.jpg')));
-
-                    if (localImage) {
-                        console.log(`[Deploy Test] Found local image for ${questionId}: ${localImage}`);
-                        const imageBuffer = await fs.readFile(path.join(generatedDir, localImage));
-
-                        // ✨ PROCESS IMAGE (Watermark + Metadata + WebP)
-                        console.log(`[Deploy Test] Processing image (Watermark + SEO)...`);
-                        const processedBuffer = await processImageForUpload(imageBuffer, q, testId);
-
-                        // Change extension to .webp
-                        const webpFilename = localImage.replace(/\.(png|jpg|jpeg)$/i, '.webp');
-
-                        // Upload to Supabase Storage with organized folder structure
-                        const storagePath = `generated/${testId}/${webpFilename}`;
-                        const { data: uploadData, error: uploadError } = await supabase.storage
-                            .from('dgt-images')
-                            .upload(storagePath, processedBuffer, {
-                                contentType: 'image/webp', // Now it's WebP!
-                                upsert: true
-                            });
-
-                        if (uploadError) {
-                            console.warn(`[Deploy Test] Upload warning for ${questionId}:`, uploadError.message);
-                        } else {
-                            // Get public URL using the same structured path
-                            const { data: { publicUrl } } = supabase.storage
-                                .from('dgt-images')
-                                .getPublicUrl(storagePath);
-
-                            finalImageUrl = publicUrl;
-                            console.log(`[Deploy Test] Uploaded processed image: ${publicUrl}`);
-                        }
-                    } else {
-                        console.log(`[Deploy Test] No local image found for ${questionId}, using original URL.`);
-                    }
-                } catch (imgErr) {
-                    console.warn(`[Deploy Test] Image processing error for ${questionId}:`, imgErr.message);
-                }
-
-                // 2. Format Answer Options (Handle both array and legacy properties)
-                let answerOptions = [];
-                if (Array.isArray(q.answers)) {
-                    // Correct structure: answers array
-                    answerOptions = q.answers.map((a, idx) => ({
-                        question_id: questionId,
-                        position: idx,
-                        text_ru: a.text?.ru || '',
-                        text_es: a.text?.es || '',
-                        text_en: a.text?.en || '',
-                        is_correct: a.is_correct
-                    }));
-                } else {
-                    // Legacy structure (flat properties)
-                    answerOptions = [
-                        {
-                            question_id: questionId,
-                            position: 0,
-                            text_ru: q.answer_correct_ru || q.answers?.find(a => a.is_correct)?.text?.ru || '',
-                            text_es: q.answer_correct_es || q.answers?.find(a => a.is_correct)?.text?.es || '',
-                            text_en: q.answer_correct_en || q.answers?.find(a => a.is_correct)?.text?.en || '',
-                            is_correct: true
-                        },
-                        ...Object.entries(q)
-                            .filter(([key]) => key.startsWith('answer_wrong_'))
-                            .map(([key, value], idx) => ({
-                                question_id: questionId,
-                                position: idx + 1,
-                                text_ru: q[`answer_wrong_${idx + 1}_ru`] || '',
-                                text_es: q[`answer_wrong_${idx + 1}_es`] || '',
-                                text_en: q[`answer_wrong_${idx + 1}_en`] || '',
-                                is_correct: false
-                            }))
-                    ];
-                }
-
-                // 3. Upsert Question
-                const { error: qError } = await supabase
-                    .from('questions_new')
-                    .upsert({
-                        id: questionId,
-                        topic_id: q.topic_id || existingTest?.topic_id || topicData?.id || null, // Ensure topic_id is set
-                        difficulty: 'easy',
-                        type: 'single',
-                        question_ru: q.question?.ru || q.question_ru || '',
-                        question_es: q.question?.es || q.question_es || '',
-                        question_en: q.question?.en || q.question_en || '',
-                        explanation_ru: q.explanation?.ru || q.explanation_ru || '',
-                        explanation_es: q.explanation?.es || q.explanation_es || '',
-                        explanation_en: q.explanation?.en || q.explanation_en || '',
-                        image_url: finalImageUrl, // Use the uploaded URL if available
-                        source: 'practicavial',
-                        metadata: {
-                            test_id: testId,
-                            original_image: q.image_url || q.schema_url || '',
-                            question_number: q.question_number || 0
-                        }
-                    }, { onConflict: 'id' });
-
-                if (qError) throw qError;
-
-                // 4. Upsert Answer Options
-                // First delete existing options to avoid duplicates if re-deploying
-                await supabase.from('answer_options').delete().eq('question_id', questionId);
-
-                const { error: aError } = await supabase
-                    .from('answer_options')
-                    .insert(answerOptions.filter(a => a.text_ru || a.text_es));
-
-                if (aError) console.warn(`[Deploy Test] Answer options warning for ${questionId}:`, aError);
-
-                deployed++;
-                console.log(`[Deploy Test] ✅ Deployed question ${questionId}`);
-
-            } catch (e) {
-                console.error(`[Deploy Test] Error deploying ${q.external_id}:`, e);
-                errors.push({ id: q.external_id, error: e.message });
-            }
-        }
-
-
-
-        console.log(`[Deploy Test] Deployment complete: ${deployed}/${questions.length}`);
-
-        res.json({
-            success: true,
-            deployed,
-            total: questions.length,
-            errors: errors.length > 0 ? errors : undefined
-        });
-
+        const result = await deployTestToDb(testId);
+        res.json(result);
     } catch (error) {
         console.error('[Deploy Test] Error:', error);
         res.status(500).json({ error: error.message });

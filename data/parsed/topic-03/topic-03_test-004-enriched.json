@@ -10,29 +10,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Да, всегда.",
           "es": "Si, siempre.",
-          "en": "Yes, always.",
-          "ru": "Да, всегда."
+          "en": "Yes, always."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Нет.",
           "es": "No.",
-          "en": "No.",
-          "ru": "Нет."
+          "en": "No."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Водители — да, пешеходы — нет.",
           "es": "Los conductores sí, los peatones no.",
-          "en": "Drivers yes, pedestrians no.",
-          "ru": "Водители — да, пешеходы — нет."
+          "en": "Drivers yes, pedestrians no."
         },
         "is_correct": false
       }
@@ -60,31 +60,31 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Está permitida la circulación por el arcén.",
-          "en": "Driving on the shoulder is allowed.",
-          "ru": "Движение по обочине разрешено."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Está permitido el estacionamiento en el arcén.",
-          "en": "Parking on the shoulder is allowed.",
-          "ru": "Стоянка на обочине разрешена."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "Обозначает край проезжей части.",
           "es": "Señala el borde de la calzada.",
-          "en": "It marks the edge of the roadway.",
-          "ru": "Обозначает край проезжей части."
+          "en": "It marks the edge of the roadway."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "Движение по обочине разрешено.",
+          "es": "Está permitida la circulación por el arcén.",
+          "en": "Driving on the shoulder is allowed."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Стоянка на обочине разрешена.",
+          "es": "Está permitido el estacionamiento en el arcén.",
+          "en": "Parking on the shoulder is allowed."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
@@ -160,31 +160,31 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "estacionar el vehículo cuando está averiado.",
-          "en": "park the vehicle when it is broken down.",
-          "ru": "припарковать транспортное средство в случае поломки."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "realizar una parada para descansar.",
-          "en": "make a stop to rest.",
-          "ru": "сделать остановку для отдыха."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "Указывает на расположение места, куда можно убрать транспортное средство, чтобы освободить проезд.",
           "es": "Indica la situación de un lugar donde se puede apartar el vehículo a fin de dejar libre el paso.",
-          "en": "Indicates the situation of a place where the vehicle can be moved aside in order to leave the passage free.",
-          "ru": "Указывает на расположение места, куда можно убрать транспортное средство, чтобы освободить проезд."
+          "en": "Indicates the situation of a place where the vehicle can be moved aside in order to leave the passage free."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "припарковать транспортное средство в случае поломки.",
+          "es": "estacionar el vehículo cuando está averiado.",
+          "en": "park the vehicle when it is broken down."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "сделать остановку для отдыха.",
+          "es": "realizar una parada para descansar.",
+          "en": "make a stop to rest."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {

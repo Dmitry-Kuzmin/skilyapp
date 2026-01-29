@@ -1,0 +1,11 @@
+{
+    "mcpServers": {
+        "supabase": {
+            "command": "mcp-server-supabase",
+            "env": {
+                "SUPABASE_URL": "${VITE_SUPABASE_URL}",
+                "SUPABASE_SERVICE_KEY": "${SUPABASE_SERVICE_ROLE_KEY}"
+            }
+        }
+    }
+}

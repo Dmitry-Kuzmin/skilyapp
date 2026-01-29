@@ -1,9 +1,10 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { toast } from 'sonner';
 import { getImageUrl } from '@/utils/imageUtils';
+import { useDuelStore } from '@/store/duelStore';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = import.meta.env.DEV;
@@ -20,85 +21,60 @@ const logWarn = (...args: any[]) => {
 interface UseDuelGameProps {
   duelId: string;
   profileId: string | null;
-  questions: any[];
-  currentIndex: number;
-  timeLeft: number;
-  isAnswered: boolean;
-  combo: number;
-  usedBoosts: string[];
-  eliminatedOptions: string[];
-  isLoadingRef: React.MutableRefObject<boolean>;
-  isFinishingRef: React.MutableRefObject<boolean>;
-  // Setters
-  setQuestions: React.Dispatch<React.SetStateAction<any[]>>;
-  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
-  setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
-  setSelectedAnswer: React.Dispatch<React.SetStateAction<string | null>>;
-  setIsAnswered: React.Dispatch<React.SetStateAction<boolean>>;
-  setMyScore: React.Dispatch<React.SetStateAction<number>>;
-  setCombo: React.Dispatch<React.SetStateAction<number>>;
-  setUsedBoosts: React.Dispatch<React.SetStateAction<string[]>>;
-  setEliminatedOptions: React.Dispatch<React.SetStateAction<string[]>>;
-  setHasFinishedMyQuestions: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsWaitingForOpponent: React.Dispatch<React.SetStateAction<boolean>>;
-  setMyPlayerId: React.Dispatch<React.SetStateAction<string | null>>;
-  setOpponentScore: React.Dispatch<React.SetStateAction<number>>;
-  setMyName: React.Dispatch<React.SetStateAction<string>>;
-  setOpponentName: React.Dispatch<React.SetStateAction<string>>;
-  setMyPhotoUrl: React.Dispatch<React.SetStateAction<string | null>>;
-  setOpponentPhotoUrl: React.Dispatch<React.SetStateAction<string | null>>;
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setTranslationLanguage: React.Dispatch<React.SetStateAction<'ru' | 'en' | null>>;
-  // Functions
+  // Callbacks
+  onWrongAnswer?: () => void;
+  onCorrectAnswer?: () => void;
+  // External fetchers needed because they depend on other hooks/logic not in store
   fetchQuestions: () => Promise<any[]>;
   fetchPlayers: () => Promise<any>;
-  moveToNextQuestion: () => void;
   finishDuel: (callerHasFinished?: boolean) => Promise<void>;
-  // Callbacks
-  onWrongAnswer?: () => void; // Callback для screen shake при неправильном ответе
-  onCorrectAnswer?: () => void; // Callback для визуальных эффектов при правильном ответе
+  moveToNextQuestion: () => void;
 }
 
 export function useDuelGame({
   duelId,
   profileId,
-  questions,
-  currentIndex,
-  timeLeft,
-  isAnswered,
-  combo,
-  usedBoosts,
-  eliminatedOptions,
-  isLoadingRef,
-  isFinishingRef,
-  setQuestions,
-  setCurrentIndex,
-  setTimeLeft,
-  setSelectedAnswer,
-  setIsAnswered,
-  setMyScore,
-  setCombo,
-  setUsedBoosts,
-  setEliminatedOptions,
-  setHasFinishedMyQuestions,
-  setIsWaitingForOpponent,
-  setMyPlayerId,
-  setOpponentScore,
-  setMyName,
-  setOpponentName,
-  setMyPhotoUrl,
-  setOpponentPhotoUrl,
-  setLoading,
-  setTranslationLanguage,
+  finishDuel,
+  moveToNextQuestion,
   fetchQuestions,
   fetchPlayers,
-  moveToNextQuestion,
-  finishDuel,
   onWrongAnswer,
   onCorrectAnswer,
 }: UseDuelGameProps) {
-  // КРИТИЧНО: Отслеживаем загрузку игроков для предотвращения race condition
+  // Access store actions
+  const setQuestions = useDuelStore(state => state.setQuestions);
+  const updateQuestion = useDuelStore(state => state.updateQuestion);
+  const setPlayersData = useDuelStore(state => state.setPlayersData);
+  const setMyScore = useDuelStore(state => state.setMyScore);
+  const setOpponentScore = useDuelStore(state => state.setOpponentScore);
+  const setMyPlayerId = useDuelStore(state => state.setMyPlayerId);
+  const setLoading = useDuelStore(state => state.setLoading);
+  const setTimeLeft = useDuelStore(state => state.setTimeLeft);
+
+  const setSelectedAnswer = useDuelStore(state => state.setAnswer);
+  const setCombo = useDuelStore(state => state.setCombo);
+  const setHasFinishedMyQuestions = useDuelStore(state => state.setFinishedMyQuestions);
+  const setIsWaitingForOpponent = useDuelStore(state => state.setWaitingForOpponent);
+  const setCurrentIndex = useDuelStore(state => state.setCurrentIndex);
+
+  // Access store state needed for logic
+  const questions = useDuelStore(state => state.questions);
+  const currentIndex = useDuelStore(state => state.currentIndex);
+  const isAnswered = useDuelStore(state => state.isAnswered);
+  const timeLeft = useDuelStore(state => state.timeLeft);
+  const combo = useDuelStore(state => state.combo);
+
+  // Refs for tracking async state
   const playersLoadedRef = useRef(false);
+  const isLoadingRef = useRef(false);
+  const isFinishingRef = useRef(false);
+
+  // Sync initialization
+  useEffect(() => {
+    useDuelStore.getState().setDuelId(duelId);
+    useDuelStore.getState().setProfileId(profileId);
+  }, [duelId, profileId]);
+
   // Hydrate questions from localStorage
   const hydrateQuestions = useCallback((questionList: any[]) => {
     log('[useDuelGame] 💧 Hydrating questions:', {
@@ -112,15 +88,11 @@ export function useDuelGame({
     setQuestions(questionList);
 
     const savedState = localStorage.getItem('active_duel_state');
-    if (!savedState) {
-      return;
-    }
+    if (!savedState) return;
 
     try {
       const stored = JSON.parse(savedState);
-      if (stored.duelId !== duelId) {
-        return;
-      }
+      if (stored.duelId !== duelId) return;
 
       if (stored.mode === 'waiting' && (questionList?.length || 0) > 0) {
         log('[useDuelGame] ⏳ Storing from waiting mode - verified questions exist');
@@ -152,74 +124,60 @@ export function useDuelGame({
         return;
       }
 
-      // КРИТИЧНО: Помечаем что игроки загружены
       playersLoadedRef.current = true;
       log('[useDuelGame] ✅ Players loaded:', { count: players.players.length });
 
       setMyPlayerId(players.myPlayerId);
       setMyScore(players.myScore);
       setOpponentScore(players.opponentScore);
-      setMyName(players.myName);
 
-      // Проверяем, является ли соперник ботом
-      const myPlayer = players.players.find((p) => p.user_id === profileId);
-      const opponent = players.players.find((p) => p.user_id !== profileId);
+      const myPlayer = players.players.find((p: any) => p.user_id === profileId);
+      const opponent = players.players.find((p: any) => p.user_id !== profileId);
 
-      // Устанавливаем имя соперника с учетом бота
+      let opponentName = players.opponentName;
+      let opponentPhotoUrl = null;
+
       if (opponent?.is_bot) {
-        // Для бота используем bot_name из данных (приоритет) или name
-        const botName = opponent.bot_name || opponent.name || players.opponentName || 'CyberNinja';
-        setOpponentName(botName);
-        console.log('[useDuelGame] Bot name set:', { bot_name: opponent.bot_name, name: opponent.name, final: botName });
+        opponentName = opponent.bot_name || opponent.name || players.opponentName || 'CyberNinja';
+        opponentPhotoUrl = null; // Bot avatar fallback
+        console.log('[useDuelGame] Bot name set:', { bot_name: opponent.bot_name, name: opponent.name, final: opponentName });
       } else {
-        setOpponentName(players.opponentName);
+        opponentName = players.opponentName;
+        if (opponent?.profiles?.photo_url) {
+          opponentPhotoUrl = getImageUrl(opponent.profiles.photo_url);
+        }
       }
 
-      if (myPlayer?.profiles?.photo_url) {
-        setMyPhotoUrl(getImageUrl(myPlayer.profiles.photo_url));
-      }
+      setPlayersData({
+        myName: players.myName,
+        opponentName: opponentName,
+        myPhotoUrl: myPlayer?.profiles?.photo_url ? getImageUrl(myPlayer.profiles.photo_url) : null,
+        opponentPhotoUrl
+      });
 
-      // Для бота используем null, чтобы показывался fallback с инициалами
-      // Для реального игрока - его фото
-      if (opponent?.is_bot) {
-        // Для бота всегда показываем аватар с инициалами
-        setOpponentPhotoUrl(null);
-      } else if (opponent?.profiles?.photo_url) {
-        setOpponentPhotoUrl(getImageUrl(opponent.profiles.photo_url));
-      } else {
-        // Если у реального игрока нет фото - тоже показываем инициалы
-        setOpponentPhotoUrl(null);
-      }
     } catch (error) {
       logError('[useDuelGame] Error syncing players:', error);
       playersLoadedRef.current = false;
     }
-  }, [fetchPlayers, profileId, setMyPlayerId, setMyScore, setOpponentScore, setMyName, setOpponentName, setMyPhotoUrl, setOpponentPhotoUrl]);
+  }, [fetchPlayers, profileId, setMyPlayerId, setMyScore, setOpponentScore, setPlayersData]);
 
   // Sync questions
   const syncQuestions = useCallback(async () => {
-    // ОПТИМИЗАЦИЯ: Предотвращаем повторные вызовы если уже идет загрузка
     if (isLoadingRef.current) {
       log('[useDuelGame] ⚠️ Questions already loading, skipping sync');
       return;
     }
 
-    // КРИТИЧНО: Проверяем что игроки загружены перед загрузкой вопросов
-    // Это предотвращает race condition когда вопросы загружаются до создания игроков (особенно ботов)
     if (!playersLoadedRef.current) {
       logWarn('[useDuelGame] ⚠️ Players not loaded yet, waiting before loading questions...');
-      // Ждем немного и проверяем снова (игроки должны загрузиться из DuelBattleFullscreen)
-      // НЕ вызываем syncQuestions рекурсивно - просто ждем и продолжаем загрузку
       await new Promise(resolve => setTimeout(resolve, 500));
       if (!playersLoadedRef.current) {
         logWarn('[useDuelGame] ⚠️ Players still not loaded after delay, attempting to load questions anyway');
-        // Пытаемся загрузить вопросы даже если игроки не загружены (fallback)
       }
     }
 
-    // КРИТИЧНО: Retry логика для загрузки вопросов (может быть race condition при создании дуэли)
     const maxRetries = 5;
-    const retryDelay = 1000; // 1 секунда между попытками
+    const retryDelay = 1000;
 
     try {
       isLoadingRef.current = true;
@@ -229,16 +187,14 @@ export function useDuelGame({
       let questionList: any[] | null = null;
       let lastError: any = null;
 
-      // Пытаемся загрузить вопросы с retry
       for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
           questionList = await fetchQuestions();
           if (questionList && questionList.length > 0) {
             log('[useDuelGame] ✅ Questions loaded:', { count: questionList.length, attempt: attempt + 1 });
-            break; // Успешно загрузили, выходим из цикла
+            break;
           }
 
-          // Если вопросы пустые, пробуем еще раз
           if (attempt < maxRetries - 1) {
             logWarn(`[useDuelGame] ⚠️ Questions empty, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -247,14 +203,11 @@ export function useDuelGame({
           lastError = error;
           const isNotFoundError = error?.message?.includes('не найдены') || error?.message?.includes('not found');
 
-          // Если это ошибка "не найдены" и не последняя попытка - ретраим
           if (isNotFoundError && attempt < maxRetries - 1) {
             logWarn(`[useDuelGame] ⚠️ Questions not found, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxRetries})`);
             await new Promise(resolve => setTimeout(resolve, retryDelay));
             continue;
           }
-
-          // Для других ошибок или последней попытки - пробрасываем ошибку
           throw error;
         }
       }
@@ -273,28 +226,30 @@ export function useDuelGame({
       isLoadingRef.current = false;
       setLoading(false);
     }
-  }, [fetchQuestions, hydrateQuestions, duelId, profileId, isLoadingRef, setLoading]);
+  }, [fetchQuestions, hydrateQuestions, duelId, profileId, setLoading, setQuestions]);
 
   // Handle answer submission
   const handleAnswer = useCallback(async (optionId: string) => {
-    // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом клике в игре
     if (!sounds.isUnlocked()) {
       log('[useDuelGame] 🔓 Разблокировка AudioContext при первом ответе');
       sounds.forceUnlock();
     }
-    if (isAnswered) return;
 
-    // Проверяем, что вопросы загружены и текущий вопрос существует
-    if (!questions || questions.length === 0 || !questions[currentIndex]) {
+    // Check if already answered in store or refs
+    if (useDuelStore.getState().isAnswered) return;
+
+    const currentQuestions = useDuelStore.getState().questions;
+    const currentIdx = useDuelStore.getState().currentIndex;
+
+    if (!currentQuestions || currentQuestions.length === 0 || !currentQuestions[currentIdx]) {
       logError('[useDuelGame] Cannot handle answer: questions not loaded or invalid currentIndex');
       toast.error('Вопросы не загружены');
       return;
     }
 
+    // Set answer in store immediately (optimistic UI)
     setSelectedAnswer(optionId);
-    setIsAnswered(true);
 
-    // Обновляем статус активности на "answering"
     if (duelId && profileId) {
       supabase.functions.invoke('duel-manager', {
         body: {
@@ -308,39 +263,35 @@ export function useDuelGame({
       });
     }
 
-    const question = questions[currentIndex];
+    const question = currentQuestions[currentIdx];
 
-    // Проверяем, что вопрос существует и имеет необходимые поля
     if (!question || !question.id) {
-      logError('[useDuelGame] Invalid question:', { question, currentIndex, questionsLength: questions.length });
+      logError('[useDuelGame] Invalid question:', { question, currentIndex: currentIdx });
       toast.error('Ошибка: вопрос не найден');
       return;
     }
 
-    const isCorrect = question.correct_option_ids?.includes(optionId) ?? false;
+    const currentTimeLeft = useDuelStore.getState().timeLeft;
 
+    // Log intent
     log('[useDuelGame] Submitting answer:', {
       questionId: question.id,
       optionId,
-      timeLeft,
-      timeTaken: 60000 - timeLeft,
-      isCorrect
+      timeLeft: currentTimeLeft
     });
 
     try {
-      // Retry логика с экспоненциальной задержкой для submit_answer
       const maxRetries = 3;
       let data: any = null;
       let lastError: any = null;
 
       for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-          // Таймаут 20 секунд на запрос
           const timeoutPromise = new Promise((_, reject) => {
             setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
           });
 
-          const timeTaken = Math.max(0, Math.min(60000, 60000 - timeLeft));
+          const timeTaken = Math.max(0, Math.min(60000, 60000 - currentTimeLeft));
           const requestBody = {
             action: 'submit_answer',
             duel_id: duelId,
@@ -348,34 +299,26 @@ export function useDuelGame({
             duel_question_id: question.id,
             selected_option_id: optionId,
             time_taken_ms: timeTaken,
-            is_timeout: false // В handleAnswer мы всегда передаем не таймаут
+            is_timeout: false
           };
 
           log('[useDuelGame] Request body:', requestBody);
 
-          const invokePromise = supabase.functions.invoke('duel-manager', {
-            body: requestBody,
-          });
-
+          const invokePromise = supabase.functions.invoke('duel-manager', { body: requestBody });
           const result = await Promise.race([invokePromise, timeoutPromise]) as any;
           const { data: resultData, error: resultError } = result;
 
           if (resultError) {
             lastError = resultError;
-
-            // Специальная обработка для 429 (Too Many Requests)
             const isRateLimited = resultError?.status === 429 || resultError?.message?.includes('429');
 
             logWarn(`[useDuelGame] ⚠️ Submit answer attempt ${attempt + 1} failed${isRateLimited ? ' (Rate Limited)' : ''}:`, {
               message: resultError?.message,
               status: resultError?.status,
-              error: resultError,
-              requestBody
+              error: resultError
             });
 
-            // Если это не последняя попытка, ждем перед повтором
             if (attempt < maxRetries - 1) {
-              // Если 429 - ждем дольше (4-10 секунд), иначе стандартный экспоненциальный бэкофф
               const delay = isRateLimited
                 ? (4000 + Math.random() * 3000)
                 : Math.min(1000 * Math.pow(2, attempt), 5000);
@@ -387,7 +330,6 @@ export function useDuelGame({
             throw resultError;
           }
 
-          // Успешно получили ответ
           data = resultData;
           log(`[useDuelGame] ✅ Submit answer successful (attempt ${attempt + 1})`);
           break;
@@ -396,61 +338,39 @@ export function useDuelGame({
           lastError = attemptError;
           logWarn(`[useDuelGame] ⚠️ Submit answer attempt ${attempt + 1} exception:`, attemptError?.message);
 
-          // Если это не последняя попытка, ждем перед повтором
           if (attempt < maxRetries - 1) {
             const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-            log(`[useDuelGame] ⏳ Retrying submit_answer in ${delay}ms...`);
             await new Promise(resolve => setTimeout(resolve, delay));
           } else {
-            // Все попытки не удались - показываем ошибку, но продолжаем игру
             logError('[useDuelGame] ❌ All submit_answer attempts failed, continuing anyway');
             toast.error('Не удалось сохранить ответ, но игра продолжается');
-            // Продолжаем выполнение без данных от сервера
             data = null;
           }
         }
       }
 
-      if (lastError && !data) {
-        // Если все попытки не удались, продолжаем игру без обновления счета
-        logWarn('[useDuelGame] ⚠️ Continuing without server response');
-      }
-
-      // CRITICAL: USE SERVER SCORE AND COMBO - CLIENT NEVER CALCULATES
-      // ============================================================================
       if (data && data.new_score !== undefined) {
         setMyScore(data.new_score);
 
-        // CRITICAL: Always use server-provided combo value, even if it's 0
         const serverCombo = data.combo !== undefined ? data.combo : 0;
         setCombo(serverCombo);
 
-        log('[useDuelGame] Combo updated from server:', {
-          oldCombo: combo,
-          newCombo: serverCombo,
-          serverIsCorrect: data.is_correct,
-          expectedBehavior: data.is_correct ? `Combo should be ${combo + 1}` : 'Combo should be 0'
-        });
-
-
-
-        log('[useDuelGame] Server response:', {
-          serverIsCorrect: data.is_correct,
-          serverCombo,
-          points: data.points_awarded
-        });
-
-        // Play sounds based on SERVER response (not client assumption)
+        // 🔥 CRITICAL FIX: Update question.correct_option_ids based on server response for UI
         const serverIsCorrect = data.is_correct === true;
 
+        updateQuestion(currentIdx, {
+          correct_option_ids: serverIsCorrect ? [optionId] :
+            question.question_snapshot?.answer_options
+              ?.filter((opt: any) => opt.is_correct)
+              ?.map((opt: any) => opt.id) || []
+        });
+
+        log('[useDuelGame] Server response:', { serverIsCorrect, serverCombo, points: data.points_awarded });
 
         if (serverIsCorrect) {
           sounds.correctAnswer();
           haptics.correctAnswer();
-          if (onCorrectAnswer) {
-
-            onCorrectAnswer();
-          }
+          onCorrectAnswer?.();
           if (serverCombo > 1) {
             sounds.combo(serverCombo);
             haptics.combo();
@@ -461,62 +381,31 @@ export function useDuelGame({
         } else {
           sounds.wrongAnswer();
           haptics.wrongAnswer();
-          // 🎯 Screen shake при неправильном ответе
-          if (onWrongAnswer) {
-
-            onWrongAnswer();
-          }
-          // Combo should be 0 after wrong answer
-          if (serverCombo !== 0) {
-            logWarn('[useDuelGame] Warning: Server returned non-zero combo for incorrect answer:', serverCombo);
-          }
+          onWrongAnswer?.();
         }
       } else {
-        // Fallback: reload from DB if server doesn't return score
+        // Fallback
         await syncPlayers();
       }
 
-      // IMPROVED: Check if both players finished before showing waiting screen
-      const isLastQuestion = currentIndex >= questions.length - 1;
-      log('[useDuelGame] Answer submitted:', {
-        currentIndex,
-        questionsLength: questions.length,
-        isLastQuestion,
-        willTransition: !isLastQuestion
-      });
+      const isLastQuestion = currentIdx >= currentQuestions.length - 1;
 
       if (isLastQuestion) {
-        // Prevent duplicate calls
-        if (isFinishingRef.current) {
-          log('[useDuelGame] Already finishing, skipping');
-          return;
-        }
-
+        if (isFinishingRef.current) return;
         isFinishingRef.current = true;
-        log('[useDuelGame] ✅ Last question answered - checking duel status');
 
         setHasFinishedMyQuestions(true);
-
-        // 🆕 CRITICAL FIX: Показываем экран ожидания СРАЗУ, до ответа от finishDuel
-        // Это гарантирует, что polling начнётся даже если сетевой запрос зависнет в Telegram
         setIsWaitingForOpponent(true);
-
-        // Call finishDuel to check if both players finished
-        // 🆕 CRITICAL FIX: Передаём true напрямую, чтобы обойти проблему closure
         finishDuel(true);
       } else {
-        // Normal transition to next question
-        log('[useDuelGame] Transitioning to next question in 1000ms');
         setTimeout(() => {
-          log('[useDuelGame] Executing transition to next question');
           moveToNextQuestion();
         }, 1000);
       }
     } catch (error) {
       logError('[useDuelGame] Error submitting answer:', error);
-      // Даже при ошибке продолжаем игру
       setTimeout(() => {
-        if (currentIndex < questions.length - 1) {
+        if (currentIdx < currentQuestions.length - 1) {
           moveToNextQuestion();
         } else {
           finishDuel(true);
@@ -524,24 +413,19 @@ export function useDuelGame({
       }, 1000);
     }
   }, [
-    isAnswered,
-    questions,
-    currentIndex,
-    timeLeft,
-    combo,
     duelId,
     profileId,
-    setSelectedAnswer,
-    setIsAnswered,
-    setMyScore,
-    setCombo,
-    setHasFinishedMyQuestions,
-    isFinishingRef,
-    syncPlayers,
-    moveToNextQuestion,
-    finishDuel,
     onCorrectAnswer,
     onWrongAnswer,
+    finishDuel,
+    moveToNextQuestion,
+    setMyScore,
+    setCombo,
+    updateQuestion,
+    setSelectedAnswer,
+    setHasFinishedMyQuestions,
+    setIsWaitingForOpponent,
+    syncPlayers
   ]);
 
   return {
@@ -551,4 +435,3 @@ export function useDuelGame({
     handleAnswer,
   };
 }
-

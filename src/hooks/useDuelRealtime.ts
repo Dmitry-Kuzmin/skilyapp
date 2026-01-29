@@ -1152,16 +1152,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       const currentConnectionStatus = connectionStatus;
       const currentProfileId = profileId;
 
-      console.log('[useDuelRealtime] 🔄🔄🔄 POLLING EXECUTION START 🔄🔄🔄:', {
-        duelId: currentDuelId,
-        myPlayerId: currentMyPlayerIdFromRef,
-        cachedMyPlayerId,
-        profileId: currentProfileId,
-        connectionStatus: currentConnectionStatus,
-        platform: window.Telegram?.WebApp?.platform,
-        timestamp: new Date().toISOString(),
-        willExecute: !!(currentDuelId && currentConnectionStatus === 'connected')
-      });
+
 
       // 🆕 CRITICAL FIX: Проверяем статус дуэли перед polling
       // Если дуэль finished, останавливаем polling
@@ -1298,28 +1289,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         }
 
         // КРИТИЧНО: Логируем результат запроса ВСЕГДА (не только если найдены exploits)
-        console.log('[useDuelRealtime] 📊📊📊 Polling result:', {
-          exploitsFound: newExploits?.length || 0,
-          exploits: newExploits?.map(e => ({
-            id: e.id,
-            exploit_type: e.exploit_type,
-            attacker_player_id: e.attacker_player_id,
-            target_player_id: e.target_player_id,
-            is_active: e.is_active,
-            expires_at: e.expires_at,
-            activated_at: e.activated_at
-          })) || [],
-          error: error ? {
-            message: error.message,
-            code: error.code,
-            details: error.details
-          } : null,
-          queryParams: {
-            duelId,
-            currentMyPlayerId,
-            currentTimeISO
-          }
-        });
+
 
         if (error) {
           console.error('[useDuelRealtime] ❌ Polling error:', error);
@@ -1424,13 +1394,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         return;
       }
 
-      console.log('[useDuelRealtime] ⏰⏰⏰ POLLING INTERVAL TRIGGERED ⏰⏰⏰:', {
-        duelId,
-        myPlayerId: myPlayerIdRef.current,
-        profileId,
-        connectionStatus,
-        timestamp: new Date().toISOString()
-      });
+
       pollingWrapper();
     }, 2000);
 

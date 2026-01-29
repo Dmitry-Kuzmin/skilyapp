@@ -68,6 +68,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     fetch: (url, options = {}) => {
       // Логируем только в случае ошибок
       return fetch(url, options).catch((error) => {
+        // Ignore AbortError (common during navigation or strict mode re-renders)
+        if (error.name === 'AbortError' || error.message?.includes('aborted')) {
+          throw error;
+        }
         console.error('[Supabase Client] ❌ Fetch error:', {
           url: typeof url === 'string' ? url : url.toString(),
           error: error.message,

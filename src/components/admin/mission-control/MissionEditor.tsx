@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -10,11 +10,13 @@ import {
     Cloud,
     Loader2,
     FileJson,
-    Database
+    Database,
+    RefreshCw
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { MarkdownText } from "./MarkdownText";
+import { SyncHistoryPanel } from "./SyncHistoryPanel";
 
 interface MissionEditorProps {
     questionId: string;
@@ -25,12 +27,23 @@ interface MissionEditorProps {
 
 type Lang = 'ru' | 'es' | 'en';
 
+interface SyncLogEntry {
+    id: string;
+    timestamp: string;
+    questionId: string;
+    status: 'success' | 'error' | 'warning';
+    message: string;
+}
+
 export function MissionEditor({ questionId, testId, country = 'spain', serverOnline }: MissionEditorProps) {
     const [isEditingExplanation, setIsEditingExplanation] = useState(false);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [syncing, setSyncing] = useState(false);
+    const [syncLogs, setSyncLogs] = useState<SyncLogEntry[]>([]);
     const [data, setData] = useState<any>(null);
     const [lang, setLang] = useState<Lang>(country === 'russia' ? 'ru' : 'ru'); // Default to ru anyway
+    const syncLogsPanelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (questionId) loadQuestionData();
@@ -128,6 +141,86 @@ export function MissionEditor({ questionId, testId, country = 'spain', serverOnl
         }
     };
 
+    const handleSyncAll = async () => {
+        if (!confirm('🔄 Запустить полную синхронизацию всех данных в БД?\n\nЭто обновит ВСЕ вопросы, изображения и метаданные.')) {
+            return;
+        }
+
+        setSyncing(true);
+
+        const toastId = toast.loading("🚀 Запуск синхронизации...", {
+            duration: Infinity
+        });
+
+        try {
+            const eventSource = new EventSource('http://localhost:3030/api/db/sync-all', {
+                withCredentials: false
+            });
+
+            let messageCount = 0;
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    messageCount++;
+
+                    // Показываем только важные сообщения
+                    if (data.type === 'complete') {
+                        eventSource.close();
+                        toast.dismiss(toastId);
+
+                        if (data.success) {
+                            toast.success("✅ Синхронизация завершена!", {
+                                description: data.message,
+                                duration: 5000
+                            });
+                        } else {
+                            toast.error("❌ Синхронизация завершена с ошибками", {
+                                description: data.message,
+                                duration: 5000
+                            });
+                        }
+                        setSyncing(false);
+                    } else if (data.type === 'error') {
+                        toast.error("❌ " + data.message, { duration: 3000 });
+                    } else if (data.type === 'log') {
+                        // Показываем прогресс для ключевых событий
+                        if (data.message.includes('✅') || data.message.includes('[') || data.message.includes('Found')) {
+                            const cleanMessage = data.message
+                                .replace(/\[\d+\/\d+\]/g, '') // удаляем счетчики
+                                .replace(/Processing:/g, '')
+                                .trim();
+
+                            if (cleanMessage.length > 3) {
+                                toast.dismiss(toastId);
+                                toast.loading(cleanMessage, {
+                                    id: toastId,
+                                    duration: Infinity
+                                });
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[SyncAll] Parse error:', e);
+                }
+            };
+
+            eventSource.onerror = (error) => {
+                console.error('[SyncAll] EventSource error:', error);
+                eventSource.close();
+                toast.dismiss(toastId);
+                toast.error("Ошибка подключения к серверу");
+                setSyncing(false);
+            };
+
+        } catch (error) {
+            console.error('[SyncAll] Error:', error);
+            toast.dismiss(toastId);
+            toast.error("Ошибка запуска синхронизации");
+            setSyncing(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -194,6 +287,28 @@ export function MissionEditor({ questionId, testId, country = 'spain', serverOnl
                         </button>
                     ))}
                 </div>
+
+                {/* Sync All Button */}
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 border-purple-500/40 bg-purple-950/20 text-purple-400 hover:bg-purple-900/40 hover:text-purple-300 hover:border-purple-400/60"
+                    onClick={handleSyncAll}
+                    disabled={syncing || !serverOnline}
+                    title="Полная синхронизация всех данных в БД"
+                >
+                    {syncing ? (
+                        <>
+                            <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                            Syncing...
+                        </>
+                    ) : (
+                        <>
+                            <RefreshCw className="w-3.5 h-3.5 mr-2" />
+                            Sync All DB
+                        </>
+                    )}
+                </Button>
 
                 <Button
                     size="sm"

@@ -165,6 +165,17 @@ async function fetchRandomQuestions(
     throw detailsError;
   }
 
+  // 🔍 DEBUG: Check if answer_options are present
+  console.log('[fetchRandomQuestions] 🔍 DEBUG: Checking answer_options...');
+  if (questions && questions.length > 0) {
+    const sampleQ = questions[0];
+    console.log('[fetchRandomQuestions] Sample question ID:', sampleQ.id);
+    console.log('[fetchRandomQuestions] answer_options:', sampleQ.answer_options ? `${sampleQ.answer_options.length} options` : 'NULL or UNDEFINED');
+    if (sampleQ.answer_options && sampleQ.answer_options.length > 0) {
+      console.log('[fetchRandomQuestions] First option:', sampleQ.answer_options[0]);
+    }
+  }
+
   // Restore order from selectedIds (important for seed consistency)
   const questionsMap = new Map((questions || []).map(q => [q.id, q]));
   return selectedIds.map(id => questionsMap.get(id)).filter(q => !!q);
@@ -2371,6 +2382,13 @@ Deno.serve(async (req) => {
             .map((opt: { id: string }) => opt.id),
         }));
 
+        // 🔍 DEBUG: Log correct_option_ids
+        console.log('[start_duel_now] 🔍 DEBUG: Sample duelQuestion:', {
+          question_id: duelQuestions[0]?.question_id,
+          answer_options_count: duelQuestions[0]?.question_snapshot?.answer_options?.length,
+          correct_option_ids: duelQuestions[0]?.correct_option_ids
+        });
+
         const { error: insertError } = await supabase.from('duel_questions').insert(duelQuestions);
         if (insertError) {
           console.error('[start_duel_now] ❌ Error inserting questions:', insertError);
@@ -2924,9 +2942,28 @@ Deno.serve(async (req) => {
           });
         }
 
-        const correctIds = question.correct_option_ids as string[];
+        // 🔥 FIX: Get correct answer from answer_options directly (don't rely on correct_option_ids)
+        const { data: answerOptions, error: optionsError } = await supabase
+          .from('answer_options')
+          .select('id, is_correct')
+          .eq('question_id', question.question_id);
+
+        if (optionsError) {
+          console.error('[submit_answer] Error fetching answer options:', optionsError);
+          throw optionsError;
+        }
+
+        const correctOption = answerOptions?.find(opt => opt.is_correct);
         const isSkipped = !selected_option_id || is_timeout;
-        const isCorrect = !isSkipped && selected_option_id ? correctIds.includes(selected_option_id) : false;
+        const isCorrect = !isSkipped && selected_option_id && correctOption
+          ? selected_option_id === correctOption.id
+          : false;
+
+        console.log('[submit_answer] 🔍 Answer check:', {
+          selected: selected_option_id,
+          correct: correctOption?.id,
+          isCorrect
+        });
 
         // Calculate combo BEFORE this answer (consecutive correct answers from history)
         let combo = 0;
@@ -3146,10 +3183,8 @@ Deno.serve(async (req) => {
 
         // Симулируем ответ бота
         const botSimulation = simulateBotAnswer(botDifficulty, questionDifficulty);
-        const correctIds = question.correct_option_ids as string[];
 
-        // ВАЖНО: Бот ВСЕГДА должен отвечать на вопрос, пропуски запрещены
-        // Выбираем правильный или неправильный ответ
+        // 🔥 FIX: Get correct answer from answer_options directly (same as player)
         const allOptions = (question.question_snapshot as any).answer_options || [];
 
         if (allOptions.length === 0) {
@@ -3159,17 +3194,20 @@ Deno.serve(async (req) => {
           });
         }
 
+        // Find correct option
+        const correctOption = allOptions.find((opt: any) => opt.is_correct);
+        const wrongOptions = allOptions.filter((opt: any) => !opt.is_correct);
+
         let selectedOptionId: string | null = null;
-        if (botSimulation.willBeCorrect && correctIds.length > 0) {
-          // Выбираем случайный правильный ответ (если их несколько)
-          selectedOptionId = correctIds[Math.floor(Math.random() * correctIds.length)];
+        if (botSimulation.willBeCorrect && correctOption) {
+          // Bot answers correctly
+          selectedOptionId = correctOption.id;
         } else {
-          // Выбираем случайный неправильный ответ
-          const wrongOptions = allOptions.filter((opt: { id: string; is_correct: boolean }) => !correctIds.includes(opt.id));
+          // Bot answers incorrectly - choose random wrong option
           if (wrongOptions.length > 0) {
             selectedOptionId = wrongOptions[Math.floor(Math.random() * wrongOptions.length)].id;
           } else {
-            // Если почему-то нет неправильных вариантов, выбираем любой вариант
+            // Fallback: if no wrong options, choose any option
             selectedOptionId = allOptions[Math.floor(Math.random() * allOptions.length)].id;
           }
         }
@@ -3180,8 +3218,15 @@ Deno.serve(async (req) => {
           selectedOptionId = allOptions[Math.floor(Math.random() * allOptions.length)].id;
         }
 
-        const isCorrect = selectedOptionId ? correctIds.includes(selectedOptionId) : false;
+        const isCorrect = selectedOptionId === correctOption?.id;
         const isSkipped = false; // Бот никогда не пропускает вопросы
+
+        console.log('[bot_answer] 🤖 Bot answer:', {
+          selected: selectedOptionId,
+          correct: correctOption?.id,
+          isCorrect,
+          willBeCorrect: botSimulation.willBeCorrect
+        });
 
         // Вычисляем очки (бот не получает комбо бонусы для упрощения)
         const timeLimit = 60000;

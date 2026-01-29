@@ -260,29 +260,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "Указывает, что после его проезда проезжая часть снова открыта для движения.",
           "es": "Indica que a partir de su paso, la calzada queda de nuevo abierta al tráfico.",
-          "en": "Indicates that after their passage, the roadway is reopened to traffic.",
-          "ru": "Указывает, что после его проезда проезжая часть снова открыта для движения."
+          "en": "Indicates that after their passage, the roadway is reopened to traffic."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "Указывает остальным водителям и участникам движения на необходимость соблюдать крайнюю осторожность.",
           "es": "Indica al resto de los conductores y usuarios la necesidad de extremar la precaución.",
-          "en": "Indicates to other drivers and users the need to exercise extreme caution.",
-          "ru": "Указывает остальным водителям и участникам движения на необходимость соблюдать крайнюю осторожность."
+          "en": "Indicates to other drivers and users the need to exercise extreme caution."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "Указывает, что проезжая часть, по которой он движется, временно закрыта для движения.",
           "es": "Indica que la calzada por la que circula queda temporalmente cerrada al tráfico.",
-          "en": "Indicates that the roadway on which they are traveling is temporarily closed to traffic.",
-          "ru": "Указывает, что проезжая часть, по которой он движется, временно закрыта для движения."
+          "en": "Indicates that the roadway on which they are traveling is temporarily closed to traffic."
         },
         "is_correct": false
       }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
+import { useDuelStore } from '@/store/duelStore';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Zap, Flame, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -128,6 +129,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [duelId]);
 
+  // Сброс состояния игры при входе/выходе
+  useEffect(() => {
+    useDuelStore.getState().resetGame();
+    return () => {
+      useDuelStore.getState().resetGame();
+    };
+  }, []);
+
   // 🛡️ Защита от случайного закрытия во время дуэли
   useEffect(() => {
     const tg = getTelegramWebApp();
@@ -211,7 +220,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     });
 
     if (!state.activeExploits || state.activeExploits.length === 0) {
-      setActiveExploits(new Map());
+      if (activeExploits.size > 0) {
+        setActiveExploits(new Map());
+      }
       return;
     }
 
@@ -287,44 +298,53 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // Get safe area insets from Telegram WebApp API
   const safeArea = useSafeArea();
 
-  // ОПТИМИЗАЦИЯ: Используем хук для управления состоянием игры
-  const gameState = useDuelGameState();
-  const {
-    questions,
-    setQuestions,
-    currentIndex,
-    setCurrentIndex,
-    timeLeft,
-    setTimeLeft,
-    selectedAnswer,
-    setSelectedAnswer,
-    isAnswered,
-    setIsAnswered,
-    myScore,
-    setMyScore,
-    opponentScore,
-    setOpponentScore,
-    combo,
-    setCombo,
-    boosts,
-    setBoosts,
-    usedBoosts,
-    setUsedBoosts,
-    eliminatedOptions,
-    setEliminatedOptions,
-    translationLanguage,
-    setTranslationLanguage,
-    loading,
-    setLoading,
-    isLoadingRef,
-    isWaitingForOpponent,
-    setIsWaitingForOpponent,
-    hasFinishedMyQuestions,
-    setHasFinishedMyQuestions,
-    isFinishingRef,
-    isVerifyingRef,
-    hasTransitionedRef,
-  } = gameState;
+  // ОПТИМИЗАЦИЯ: Используем Zustand стор для состояния игры
+  const questions = useDuelStore(state => state.questions);
+  const currentIndex = useDuelStore(state => state.currentIndex);
+  const timeLeft = useDuelStore(state => state.timeLeft);
+  const selectedAnswer = useDuelStore(state => state.selectedAnswer);
+  const isAnswered = useDuelStore(state => state.isAnswered);
+  const myScore = useDuelStore(state => state.myScore);
+  const opponentScore = useDuelStore(state => state.opponentScore);
+  const combo = useDuelStore(state => state.combo);
+  const usedBoosts = useDuelStore(state => state.usedBoosts);
+  const eliminatedOptions = useDuelStore(state => state.eliminatedOptions);
+  const translationLanguage = useDuelStore(state => state.translationLanguage);
+  const setTranslationLanguage = useDuelStore(state => state.setTranslationLanguage);
+  const loading = useDuelStore(state => state.isLoading);
+  const setLoading = useDuelStore(state => state.setLoading);
+  const isWaitingForOpponent = useDuelStore(state => state.isWaitingForOpponent);
+  const setIsWaitingForOpponent = useDuelStore(state => state.setWaitingForOpponent);
+  const hasFinishedMyQuestions = useDuelStore(state => state.hasFinishedMyQuestions);
+
+  const myName = useDuelStore(state => state.myName);
+  const opponentName = useDuelStore(state => state.opponentName);
+  const myPhotoUrl = useDuelStore(state => state.myPhotoUrl);
+  const opponentPhotoUrl = useDuelStore(state => state.opponentPhotoUrl);
+
+  const setQuestions = useDuelStore(state => state.setQuestions);
+  const setCurrentIndex = useDuelStore(state => state.setCurrentIndex);
+  const setTimeLeft = useDuelStore(state => state.setTimeLeft);
+  const setSelectedAnswer = useDuelStore(state => state.setAnswer);
+  const setIsAnswered = useCallback((val: boolean) => val ? null : useDuelStore.getState().resetAnswerState(), []);
+  const setMyScore = useDuelStore(state => state.setMyScore);
+  const setOpponentScore = useDuelStore(state => state.setOpponentScore);
+  const setCombo = useDuelStore(state => state.setCombo);
+  const setUsedBoosts = useCallback((boost: string) => useDuelStore.getState().addUsedBoost(boost), []);
+  const setEliminatedOptions = useDuelStore(state => state.setEliminatedOptions);
+  const setHasFinishedMyQuestions = useDuelStore(state => state.setFinishedMyQuestions);
+  const nextQuestion = useDuelStore(state => state.nextQuestion);
+
+  // Refs needed for logic that wasn't moved to store yet
+  const isLoadingRef = useRef(loading);
+  useEffect(() => { isLoadingRef.current = loading; }, [loading]);
+
+  const isFinishingRef = useRef(false);
+  const isVerifyingRef = useRef(false);
+  const hasTransitionedRef = useRef(false);
+
+  // Boosts inventory is NOT in the store (it's fetched data, not game state)
+  const [boosts, setBoosts] = useState<any[]>([]);
 
   const [toastNotifications, setToastNotifications] = useState<Array<{
     id: string;
@@ -339,10 +359,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     boostName: '',
     boostType: '',
   });
-  const [myName, setMyName] = useState<string>('Ты');
-  const [opponentName, setOpponentName] = useState<string>('Соперник');
-  const [myPhotoUrl, setMyPhotoUrl] = useState<string | null>(null);
-  const [opponentPhotoUrl, setOpponentPhotoUrl] = useState<string | null>(null);
+
   const [opponentActivityStatus, setOpponentActivityStatus] = useState<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
   const previousActivityStatusRef = useRef<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
 
@@ -400,13 +417,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // ОПТИМИЗАЦИЯ: Мемоизируем функцию для перехода к следующему вопросу (должно быть выше useDuelGame)
   const moveToNextQuestion = useCallback(() => {
-    setCurrentIndex(prev => prev + 1);
-    setIsAnswered(false);
-    setSelectedAnswer(null);
-    setTimeLeft(60000);
-    setUsedBoosts([]);
-    setEliminatedOptions([]);
-  }, [setCurrentIndex, setIsAnswered, setSelectedAnswer, setTimeLeft, setUsedBoosts, setEliminatedOptions]);
+    nextQuestion();
+  }, [nextQuestion]);
 
   // 🆕 CRITICAL FIX: Общая функция для создания snapshot результатов дуэли
   // Используется во всех местах, где вызывается onDuelFinished
@@ -665,38 +677,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // 🎯 Visual Effects State
   const [feedbackEffect, setFeedbackEffect] = useState<'correct' | 'wrong' | null>(null);
 
-  // ОПТИМИЗАЦИЯ: Используем хук для логики игры
+  // ОПТИМИЗАЦИЯ: Используем хук для логики игры (состояние теперь в store)
   const { hydrateQuestions, syncPlayers, syncQuestions, handleAnswer } = useDuelGame({
     duelId,
     profileId,
-    questions,
-    currentIndex,
-    timeLeft,
-    isAnswered,
-    combo,
-    usedBoosts,
-    eliminatedOptions,
-    isLoadingRef,
-    isFinishingRef,
-    setQuestions,
-    setCurrentIndex,
-    setTimeLeft,
-    setSelectedAnswer,
-    setIsAnswered,
-    setMyScore,
-    setCombo,
-    setUsedBoosts,
-    setEliminatedOptions,
-    setHasFinishedMyQuestions,
-    setIsWaitingForOpponent,
-    setMyPlayerId,
-    setOpponentScore,
-    setMyName,
-    setOpponentName,
-    setMyPhotoUrl,
-    setOpponentPhotoUrl,
-    setLoading,
-    setTranslationLanguage,
     fetchQuestions,
     fetchPlayers,
     moveToNextQuestion,
@@ -717,32 +701,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     },
   });
 
-  // Загружаем игроков для хука бота (с retry и логированием)
-  const [players, setPlayers] = useState<any[]>([]);
+  // Загружаем игроков для хука бота (состояние теперь в store)
+  const players = useDuelStore(state => state.players);
+  const setPlayers = useDuelStore(state => state.setPlayers);
+
   useEffect(() => {
     const loadPlayers = async () => {
+      // Avoid loading if we already have players to prevent loop
+      if (players.length > 0) return;
+
       console.log('[DuelBattleFullscreen] 🔍 Loading players for bot opponent hook...');
       const playersData = await fetchPlayers();
 
       if (playersData?.players && playersData.players.length > 0) {
-        console.log('[DuelBattleFullscreen] ✅ Players loaded:', playersData.players.map((p: any) => ({
-          id: p.id,
-          is_bot: p.is_bot,
-          bot_name: p.bot_name,
-          name: p.name
-        })));
         setPlayers(playersData.players);
-
-        // Проверяем есть ли бот
-        const botPlayer = playersData.players.find((p: any) => p.is_bot === true);
-        if (botPlayer) {
-          console.log('[DuelBattleFullscreen] 🤖 Bot found in players:', botPlayer.bot_name || botPlayer.name);
-        } else {
-          console.log('[DuelBattleFullscreen] ℹ️ No bot in this duel (PvP mode)');
-        }
       } else {
-        console.log('[DuelBattleFullscreen] ⚠️ No players loaded, retrying in 1s...');
-        // Retry через 1 секунду
         setTimeout(loadPlayers, 1000);
       }
     };
@@ -750,7 +723,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     if (duelId && profileId) {
       loadPlayers();
     }
-  }, [duelId, profileId, fetchPlayers, state.duelStarted]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [duelId, profileId, fetchPlayers]); // Removed state.duelStarted and players from deps
+
+
 
   // 🔄 CRITICAL FIX: Добавляем Polling для перехода к результатам, когда ждём бота
   // Это страховка, если Realtime не сработает или бот закончит позже
@@ -1775,15 +1751,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
 
     // КРИТИЧНО: Детальное логирование условий для отладки (ВСЕГДА, не только в dev)
-    console.log('[DuelBattleFullscreen] ⏱️ Timer setup check:', {
-      questionsLength: questions.length,
-      isAnswered,
-      isWaitingForOpponent,
-      hasFinishedMyQuestions,
-      currentIndex,
-      allConditionsMet: questions.length > 0 && !isAnswered && !isWaitingForOpponent && !hasFinishedMyQuestions,
-      currentIndexValid: currentIndex >= 0 && currentIndex < questions.length
-    });
 
     // Проверяем условия для запуска таймера
     if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions) {
@@ -1815,13 +1782,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     setTimeLeft(TIME_LIMIT_MS);
 
     // КРИТИЧНО: Логируем запуск таймера ВСЕГДА (не только в dev)
-    console.log('[DuelBattleFullscreen] ⏱️✅✅✅ TIMER STARTED ✅✅✅', {
-      questionNumber: currentIndex + 1,
-      totalQuestions: questions.length,
-      endTime: new Date(targetTime).toISOString(),
-      currentTime: new Date().toISOString(),
-      timeLimitMs: TIME_LIMIT_MS
-    });
+
 
     // КРИТИЧНО: Принудительно проверяем exploits при старте таймера (для Telegram Mini App)
     // Это нужно, потому что polling может не запуститься вовремя или потерять контекст
@@ -1898,7 +1859,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         timerIntervalRef.current = null;
       }
     };
-  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, setTimeLeft, refreshExploits]);
+  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, setTimeLeft]);
 
   // Обработчик visibilitychange - мгновенное обновление при возвращении на вкладку
   useEffect(() => {
@@ -2704,17 +2665,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             <div className={`flex items-center gap-1.5 ${isTelegramMobile ? 'w-full justify-center' : ''}`}>
               {(() => {
                 const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-                console.log('[DuelBattleFullscreen] 🎮 Rendering DuelBoostsPanel [v2]:', {
-                  boostsCount: boosts.length,
-                  boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
-                  isTelegram,
-                  platform: isTelegram ? window.Telegram.WebApp.platform : 'browser',
-                  isTelegramMobile,
-                  usedBoosts,
-                  isAnswered,
-                  timestamp: new Date().toISOString(),
-                  codeVersion: '2025-12-15-v2',
-                });
+
                 return (
                   <DuelBoostsPanel
                     boosts={boosts}
@@ -2805,24 +2756,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           false;
 
         // КРИТИЧНО: Детальное логирование ВСЕХ exploits для отладки (ВСЕГДА, не только в dev)
-        console.log('[DuelBattleFullscreen] 🔍 ALL activeExploits check:', {
-          totalExploits: state.activeExploits?.length || 0,
-          allExploitTypes: state.activeExploits?.map(e => ({
-            type: e.type,
-            expiresAt: new Date(e.expiresAt).toISOString(),
-            receivedAt: new Date(e.receivedAt).toISOString(),
-            data: e.data
-          })) || [],
-          screenInjectorFound: !!screenInjector,
-          screenInjectorType: screenInjector?.type,
-          screenInjectorPassed,
-          activeExploitsMapKeys: Array.from(activeExploits.keys()),
-          activeExploitsMapEntries: Array.from(activeExploits.entries()).map(([k, v]) => ({
-            key: k,
-            expiresAt: new Date(v.expiresAt).toISOString(),
-            passed: v.passed
-          }))
-        });
+
+
 
         if (screenInjector) {
           // КРИТИЧНО: Доверяем факту получения, а не времени (для Telegram Mini App)
@@ -2863,73 +2798,70 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
               now: new Date().toISOString()
             });
           }
-        } else {
-          console.warn('[DuelBattleFullscreen] ⚠️ No oil attack (screen_injector/data_leak/oil_spill) found in activeExploits!', {
-            availableTypes: state.activeExploits?.map(e => e.type) || [],
-            activeExploitsCount: state.activeExploits?.length || 0
-          });
-        }
 
-        return (
-          <>
-            {/* Data Leak (Масло) 🛢️ */}
-            {/* КРИТИЧНО: Рендерим для всех возможных типов атаки "Масло" */}
-            {/* ИЗМЕНЕНО: Убрали проверку expiresAt - доверяем факту получения, а не времени */}
-            {screenInjector && !screenInjectorPassed && (
-              <Suspense fallback={null}>
-                <OilSplashAttack
-                  isActive={true}
-                  expiresAt={screenInjector.expiresAt}
-                  exploitId={screenInjector.id}
-                  onCleaned={() => {
-                    console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
 
-                    // КРИТИЧНО: Удаляем exploit из состояния useDuelRealtime
-                    if (screenInjector.id) {
-                      removeExploit(screenInjector.id);
-                    }
+          return (
+            <>
+              {/* Data Leak (Масло) 🛢️ */}
+              {/* КРИТИЧНО: Рендерим для всех возможных типов атаки "Масло" */}
+              {/* ИЗМЕНЕНО: Убрали проверку expiresAt - доверяем факту получения, а не времени */}
+              {screenInjector && !screenInjectorPassed && (
+                <Suspense fallback={null}>
+                  <OilSplashAttack
+                    isActive={true}
+                    expiresAt={screenInjector.expiresAt}
+                    exploitId={screenInjector.id}
+                    onCleaned={() => {
+                      console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
 
-                    // КРИТИЧНО: Обновляем passed статус в локальном Map
-                    setActiveExploits(prev => {
-                      const updated = new Map(prev);
-                      const exploitType = screenInjector.type;
-                      const current = updated.get(exploitType);
-                      if (current) {
-                        updated.set(exploitType, { ...current, passed: true });
-                      } else {
-                        // Fallback: если не нашли по типу, пробуем screen_injector
-                        const fallback = updated.get('screen_injector');
-                        if (fallback) {
-                          updated.set('screen_injector', { ...fallback, passed: true });
+                      // КРИТИЧНО: Удаляем exploit из состояния useDuelRealtime
+                      if (screenInjector.id) {
+                        removeExploit(screenInjector.id);
+                      }
+
+                      // КРИТИЧНО: Обновляем passed статус в локальном Map
+                      setActiveExploits(prev => {
+                        const updated = new Map(prev);
+                        const exploitType = screenInjector.type;
+                        const current = updated.get(exploitType);
+                        if (current) {
+                          updated.set(exploitType, { ...current, passed: true });
+                        } else {
+                          // Fallback: если не нашли по типу, пробуем screen_injector
+                          const fallback = updated.get('screen_injector');
+                          if (fallback) {
+                            updated.set('screen_injector', { ...fallback, passed: true });
+                          }
                         }
-                      }
-                      return updated;
-                    });
-                  }}
-                />
-              </Suspense>
-            )}
+                        return updated;
+                      });
+                    }}
+                  />
+                </Suspense>
+              )}
 
-            {/* Полиция (Police Backdoor) */}
-            {policeRaid && !policePassed && (
-              <Suspense fallback={null}>
-                <PoliceBackdoorAttack
-                  isActive={true}
-                  onUnlock={() => {
-                    setActiveExploits(prev => {
-                      const updated = new Map(prev);
-                      const current = updated.get('police_backdoor');
-                      if (current) {
-                        updated.set('police_backdoor', { ...current, passed: true });
-                      }
-                      return updated;
-                    });
-                  }}
-                />
-              </Suspense>
-            )}
-          </>
-        );
+              {/* Полиция (Police Backdoor) */}
+              {policeRaid && !policePassed && (
+                <Suspense fallback={null}>
+                  <PoliceBackdoorAttack
+                    isActive={true}
+                    onUnlock={() => {
+                      setActiveExploits(prev => {
+                        const updated = new Map(prev);
+                        const current = updated.get('police_backdoor');
+                        if (current) {
+                          updated.set('police_backdoor', { ...current, passed: true });
+                        }
+                        return updated;
+                      });
+                    }}
+                  />
+                </Suspense>
+              )}
+            </>
+          );
+        }
+        return null;
       })()}
 
       {/* Модалка сдачи */}
@@ -2989,6 +2921,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           isReconnecting={isReconnecting}
         />
       </Suspense>
-    </div>
+    </div >
   );
 }
