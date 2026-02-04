@@ -90,27 +90,17 @@ export function MissionSidebar({
     const loadData = async () => {
         setLoading(true);
         try {
-            // Parallel load: File Tree + Real DB Status
-            const [treeRes, dbStatus] = await Promise.all([
-                fetch(`http://localhost:3030/api/files/tree?country=${selectedCountry}`),
-                fetchDeployedStatusFromDB(selectedCountry)
-            ]);
+            // ФИКС: Теперь только загружаем дерево файлов с сервера
+            // Сервер сам корректно определяет deployed статус на основе полноты загрузки
+            const treeRes = await fetch(`http://localhost:3030/api/files/tree?country=${selectedCountry}`);
 
             if (treeRes.ok) {
                 const data = await treeRes.json();
                 setStructure(data);
 
-                // Merge DB status into tree data
-                if (dbStatus && dbStatus.size > 0) {
-                    Object.keys(data).forEach(cat => {
-                        data[cat] = data[cat].map((test: any) => ({
-                            ...test,
-                            // Trust DB status if server says false, or fallback to server
-                            deployed: dbStatus.has(test.id) || test.deployed
-                        }));
-                    });
-                    setStructure({ ...data }); // Force update
-                }
+                // ФИКС: Больше НЕ мержим dbStatus поверх серверных данных
+                // Сервер теперь правильно проверяет полноту загрузки (количество вопросов)
+                // и выставляет deployed = true только если ВСЕ вопросы загружены
 
                 // АРХИТЕКТУРА: Only auto-expand if no saved state exists
                 const keys = Object.keys(data);
@@ -127,40 +117,9 @@ export function MissionSidebar({
         }
     };
 
-    // NEW: Direct DB check because local server might be out of sync
-    const fetchDeployedStatusFromDB = async (country: string): Promise<Set<string>> => {
-        try {
-            const { supabase } = await import("@/integrations/supabase/client");
-            const ids = new Set<string>();
-
-            if (country === 'russia') {
-                const { data } = await supabase
-                    .from('pdd_russia_questions')
-                    .select('ticket_number'); // Removed distinct, not needed for set
-                if (data) {
-                    data.forEach((r: any) => {
-                        if (r.ticket_number) ids.add(`ticket-${String(r.ticket_number).padStart(2, '0')}`);
-                    });
-                }
-            } else {
-                const { data } = await supabase
-                    .from('tests')
-                    .select('test_number, topics(number)');
-                if (data) {
-                    data.forEach((r: any) => {
-                        const topicNum = r.topics?.number;
-                        if (typeof topicNum === 'number' && r.test_number) {
-                            ids.add(`topic-${String(topicNum).padStart(2, '0')}_test-${String(r.test_number).padStart(3, '0')}`);
-                        }
-                    });
-                }
-            }
-            return ids;
-        } catch (e) {
-            console.warn("Failed to fetch deployed status directly", e);
-            return new Set();
-        }
-    };
+    // УДАЛЕНО: fetchDeployedStatusFromDB больше не нужен
+    // Сервер (validator-server.js) теперь корректно проверяет полноту загрузки
+    // путём сравнения количества вопросов в БД с количеством в JSON-файле
 
     const toggleCategory = (cat: string) => {
         setExpandedCategories(prev => {

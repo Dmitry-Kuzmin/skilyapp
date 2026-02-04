@@ -500,19 +500,53 @@ async function buildFileTree(country = 'spain') {
                     });
                 }
             } else { // Spain
-                // Use 'tests' table as source of truth for Spain
-                const { data: deployedSpain } = await supabase.from('tests').select('test_number, topic_id');
-                if (deployedSpain) {
-                    deployedSpain.forEach(t => {
-                        const topicNum = topicIdToNumber[t.topic_id];
-                        if (topicNum !== undefined) {
-                            deployedTestIds.add(`topic-${String(topicNum).padStart(2, '0')}_test-${String(t.test_number).padStart(3, '0')}`);
-                        }
+                console.log('🔍 Fetching questions from DB for Spain (all chunks)...');
+
+                let allDbQuestions = [];
+                let page = 0;
+                const pageSize = 1000;
+                let hasMore = true;
+
+                while (hasMore) {
+                    const from = page * pageSize;
+                    const to = from + pageSize - 1;
+
+                    const { data: chunk, error: qErr } = await supabase
+                        .from('questions_new')
+                        .select('source_id, id')
+                        .eq('country', 'es')
+                        .range(from, to);
+
+                    if (qErr) {
+                        console.error('❌ DB Error fetching chunk:', qErr);
+                        hasMore = false;
+                    } else if (chunk && chunk.length > 0) {
+                        allDbQuestions = allDbQuestions.concat(chunk);
+                        console.log(`  - Chunk ${page + 1}: loaded ${chunk.length} rows`);
+                        if (chunk.length < pageSize) hasMore = false;
+                        page++;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+
+                console.log(`🔍 Total loaded from DB: ${allDbQuestions.length} records`);
+
+                if (allDbQuestions.length > 0) {
+                    // Создаём Set всех загруженных ID (проверяем source_id и id)
+                    let count = 0;
+                    allDbQuestions.forEach(q => {
+                        if (q.source_id) { deployedTestIds.add(q.source_id); count++; }
+                        if (q.id) { deployedTestIds.add(q.id); count++; }
                     });
+                    console.log(`📊 Loaded ${deployedTestIds.size} unique IDs from ${count} records DB for deployment check`);
+                } else {
+                    console.log('⚠️ DB returned no questions');
                 }
             }
         } catch (e) {
-            console.error('Error loading deployed status from Supabase:', e.message);
+            console.error('❌ Error loading deployed status from Supabase:', e);
+            console.error(e.stack);
         }
 
         // Load Generated Status (check folders in data/generated-images)
@@ -542,14 +576,29 @@ async function buildFileTree(country = 'spain') {
 
                         try {
                             const data = JSON.parse(await fs.readFile(fullPath, 'utf8'));
-                            const questionsCount = Array.isArray(data) ? data.length : (data.questions ? data.questions.length : 0);
+                            const questions = Array.isArray(data) ? data : (data.questions || []);
+                            const questionsCount = questions.length;
+
+                            // ФИКС: Для Spain проверяем наличие ВСЕХ external_id из теста в БД
+                            // Собираем все external_id из файла
+                            const externalIds = questions
+                                .map(q => q.external_id || q.id)
+                                .filter(id => id);
+
+                            // Проверяем сколько из них есть в БД
+                            const deployedCount = externalIds.filter(id => deployedTestIds.has(id)).length;
+
+                            const isFullyDeployed = country === 'russia'
+                                ? deployedTestIds.has(testId)
+                                : (deployedCount >= questionsCount && questionsCount > 0);
 
                             testsMap.set(testId, {
                                 id: testId,
                                 name: testId.replace(/_/g, ' ').replace('test-', 'Test '),
                                 questionCount: questionsCount,
+                                dbQuestionCount: deployedCount, // Сколько вопросов найдено в БД
                                 generated: generatedTestFolders.has(testId),
-                                deployed: deployedTestIds.has(testId),
+                                deployed: isFullyDeployed,
                                 filePath: fullPath,
                                 isEnriched: isEnriched
                             });
