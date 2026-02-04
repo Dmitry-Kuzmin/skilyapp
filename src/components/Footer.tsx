@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { Scale, HelpCircle } from "lucide-react";
+import { InstallAppButton } from "@/components/pwa";
 
 export function Footer() {
   const { t } = useLanguage();
@@ -66,6 +67,9 @@ export function Footer() {
                 </button>
               );
             })}
+
+            <div className="hidden sm:block h-4 w-px bg-border/50" />
+            <InstallAppButton className="h-8 text-xs px-3" />
           </div>
 
           {/* Copyright */}
