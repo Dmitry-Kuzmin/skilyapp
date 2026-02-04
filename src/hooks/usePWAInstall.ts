@@ -10,16 +10,31 @@ export const usePWAInstall = () => {
     const [isIOS, setIsIOS] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
     const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+    const [browserType, setBrowserType] = useState<'safari' | 'chrome' | 'other'>('other');
 
     useEffect(() => {
         // 1. Проверяем, запущено ли приложение уже как PWA
-        const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+        // "standalone" for iOS, "display-mode: standalone" for Android
+        const isStandaloneMode =
+            window.matchMedia('(display-mode: standalone)').matches ||
+            (window.navigator as any).standalone === true;
+
         setIsStandalone(isStandaloneMode);
 
-        // 2. Определяем iOS
+        // 2. Определяем iOS и Браузер
         const userAgent = window.navigator.userAgent.toLowerCase();
         const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
         setIsIOS(isIosDevice);
+
+        if (isIosDevice) {
+            if (userAgent.includes('crios')) {
+                setBrowserType('chrome');
+            } else if (userAgent.includes('safari') && !userAgent.includes('crios') && !userAgent.includes('fxios')) {
+                setBrowserType('safari');
+            } else {
+                setBrowserType('other'); // Firefox etc.
+            }
+        }
 
         // 3. Ловим событие установки для Android/Desktop Chrome
         const handleBeforeInstallPrompt = (e: Event) => {
@@ -36,7 +51,7 @@ export const usePWAInstall = () => {
 
     const installApp = async () => {
         if (isIOS) {
-            // Для iOS просто показываем инструкцию
+            // Для iOS показываем инструкцию
             setShowIOSInstructions(true);
         } else if (deferredPrompt) {
             // Для Android вызываем нативное окно
@@ -46,16 +61,18 @@ export const usePWAInstall = () => {
                 setDeferredPrompt(null);
             }
         } else {
-            // Если кнопка нажата, но deferredPrompt нет (например, десктоп без поддержки или уже установлено)
-            // Можно показать простое уведомление или ничего не делать
+            // Fallback (например, десктоп Safari или неизвестный браузер)
             console.log('Installation prompt not available');
+            // Тоже можно показать инструкцию, если это мобилка но без поддержки prompt
+            if (isIOS) setShowIOSInstructions(true);
         }
     };
 
     return {
         isInstalled: isStandalone,
         isIOS,
-        canInstall: !!deferredPrompt || isIOS, // На iOS всегда "можно" попробовать установить через инструкцию
+        browserType,
+        canInstall: !!deferredPrompt || isIOS,
         installApp,
         showIOSInstructions,
         setShowIOSInstructions
