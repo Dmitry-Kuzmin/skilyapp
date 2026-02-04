@@ -4,7 +4,7 @@ import { useDashboardData } from "./useDashboardData";
 
 const supabaseClient = supabase as any;
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = import.meta.env.DEV;
 const logWarn = (...args: any[]) => {
   if (isDev) console.warn(...args);
 };
@@ -121,7 +121,7 @@ const fetchDuelPass = async (
           p_season_id: activeSeason.id,
         }
       );
-      
+
       if (progressResult.error) {
         if (isCorsError(progressResult.error)) {
           logWarn("[useDuelPassData] CORS error loading season progress");
@@ -130,7 +130,7 @@ const fetchDuelPass = async (
         }
         return buildFallbackResult();
       }
-      
+
       progressData = progressResult;
     }
 
@@ -270,10 +270,10 @@ export const useDuelPassData = (profileId?: string | null) => {
     refetchOnMount: false,
   });
 
-    return {
-      ...query,
-      duelPassData: query.data?.duelPassData ?? (enabled ? { ...DEFAULT_DUEL_PASS_DATA } : null),
-      seasonData: query.data?.seasonData ?? null,
-    };
+  return {
+    ...query,
+    duelPassData: query.data?.duelPassData ?? (enabled ? { ...DEFAULT_DUEL_PASS_DATA } : null),
+    seasonData: query.data?.seasonData ?? null,
+  };
 };
 

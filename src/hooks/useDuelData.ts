@@ -394,13 +394,20 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     };
 
     try {
-      const { data, error } = await supabase.functions.invoke("duel-manager", {
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Timeout: Edge Function не ответил за 15 секунд")), 15000);
+      });
+
+      const invokePromise = supabase.functions.invoke("duel-manager", {
         body: {
           action: "get_players",
           duel_id: duelId,
           profile_id: profileId,
         },
       });
+
+      // @ts-ignore
+      const { data, error } = await Promise.race([invokePromise, timeoutPromise]);
 
       if (!error && data?.players?.length) {
         const playersWithProfiles = await enrichPlayersWithProfiles(data.players);

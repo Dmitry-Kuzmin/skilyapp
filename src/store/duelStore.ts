@@ -10,6 +10,18 @@ export interface DuelPlayer {
     isBot: boolean;
 }
 
+export interface ExploitState {
+    expiresAt: number;
+    passed?: boolean;
+    receivedAt?: number;
+}
+
+export interface ActiveExploit {
+    type: string;
+    expiresAt: number;
+    receivedAt: number;
+}
+
 export interface AnswerResult {
     isCorrect: boolean;
     correctOptionId: string; // ID правильного ответа (для подсветки)
@@ -34,6 +46,17 @@ interface DuelState {
     opponentName: string;
     myPhotoUrl: string | null;
     opponentPhotoUrl: string | null;
+    opponentActivityStatus: 'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline';
+    betInfo: {
+        betAmount: number;
+        totalBank: number;
+        isHost: boolean;
+        hostInsurance: boolean;
+        opponentInsurance: boolean;
+        coverageHost: number;
+        coverageOpponent: number;
+    } | null;
+
 
     // --- Gameplay State ---
     currentIndex: number;
@@ -43,12 +66,27 @@ interface DuelState {
     combo: number;
     usedBoosts: string[];
     eliminatedOptions: string[];
+    activeExploits: Map<string, ExploitState>;
+
+    // --- Visual Effects State ---
+    screenShake: boolean;
+    lastAttackTimestamp: number; // To trigger effects
+
 
     // --- Status Flags ---
     isLoading: boolean;
+    isProcessingAnswer: boolean; // Shows loading animation after answer selection
     isWaitingForOpponent: boolean;
     hasFinishedMyQuestions: boolean;
     translationLanguage: 'ru' | 'en' | null;
+
+    // --- Reconnection State ---
+    isReconnecting: boolean;
+    showReconnectionModal: boolean;
+    reconnectAttempt: number;
+    opponentIsConnected: boolean;
+    opponentLastSeen: string | null; // ISO string
+
 
     // --- Actions ---
     setDuelId: (id: string | null) => void;
@@ -66,6 +104,9 @@ interface DuelState {
         myPhotoUrl: string | null;
         opponentPhotoUrl: string | null
     }) => void;
+    setOpponentActivityStatus: (status: 'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline') => void;
+    setBetInfo: (info: DuelState['betInfo']) => void;
+
 
     setCurrentIndex: (index: number) => void;
     nextQuestion: () => void;
@@ -78,11 +119,30 @@ interface DuelState {
     setCombo: (combo: number) => void;
     addUsedBoost: (boostId: string) => void;
     setEliminatedOptions: (options: string[]) => void;
+    setIsAnswered: (isAnswered: boolean) => void;
+    setSelectedAnswer: (answer: string | null) => void;
+    setUsedBoosts: (boosts: string[]) => void;
+    setHasFinishedMyQuestions: (finished: boolean) => void;
 
     setLoading: (loading: boolean) => void;
+    setIsProcessingAnswer: (processing: boolean) => void;
     setWaitingForOpponent: (waiting: boolean) => void;
     setFinishedMyQuestions: (finished: boolean) => void;
     setTranslationLanguage: (lang: 'ru' | 'en' | null) => void;
+
+    // --- New Actions ---
+    syncActiveExploits: (incomingExploits: ActiveExploit[]) => void;
+    cleanupExpiredExploits: () => void;
+    setScreenShake: (shake: boolean) => void;
+
+    setReconnectionState: (state: Partial<{
+        isReconnecting: boolean;
+        showReconnectionModal: boolean;
+        reconnectAttempt: number;
+        opponentIsConnected: boolean;
+        opponentLastSeen: string | null;
+    }>) => void;
+
 
     // Reset logic
     resetGame: () => void;
@@ -101,6 +161,9 @@ const initialState = {
     opponentName: '',
     myPhotoUrl: null,
     opponentPhotoUrl: null,
+    opponentActivityStatus: 'online',
+    betInfo: null,
+
 
     currentIndex: 0,
     timeLeft: 60, // Default turn time
@@ -111,9 +174,21 @@ const initialState = {
     eliminatedOptions: [],
 
     isLoading: true,
+    isProcessingAnswer: false,
     isWaitingForOpponent: false,
     hasFinishedMyQuestions: false,
     translationLanguage: null,
+
+    activeExploits: new Map(),
+    screenShake: false,
+    lastAttackTimestamp: 0,
+
+    isReconnecting: false,
+    showReconnectionModal: false,
+    reconnectAttempt: 0,
+    opponentIsConnected: true,
+    opponentLastSeen: null,
+
 };
 
 export const useDuelStore = create<DuelState>()(
@@ -138,6 +213,9 @@ export const useDuelStore = create<DuelState>()(
             setMyScore: (score) => set({ myScore: score }),
             setOpponentScore: (score) => set({ opponentScore: score }),
             setPlayersData: (data) => set(data),
+            setOpponentActivityStatus: (status) => set({ opponentActivityStatus: status }),
+            setBetInfo: (info) => set({ betInfo: info }),
+
 
             setCurrentIndex: (index) => set({ currentIndex: index }),
 
@@ -174,9 +252,78 @@ export const useDuelStore = create<DuelState>()(
             setEliminatedOptions: (options) => set({ eliminatedOptions: options }),
 
             setLoading: (loading) => set({ isLoading: loading }),
+            setIsProcessingAnswer: (processing) => set({ isProcessingAnswer: processing }),
             setWaitingForOpponent: (waiting) => set({ isWaitingForOpponent: waiting }),
             setFinishedMyQuestions: (finished) => set({ hasFinishedMyQuestions: finished }),
             setTranslationLanguage: (lang) => set({ translationLanguage: lang }),
+            setIsAnswered: (isAnswered) => set({ isAnswered }),
+            setSelectedAnswer: (answer) => set({ selectedAnswer: answer }),
+            setUsedBoosts: (boosts) => set({ usedBoosts: boosts }),
+            setHasFinishedMyQuestions: (finished) => set({ hasFinishedMyQuestions: finished }),
+
+            // --- New Actions Implementation ---
+            syncActiveExploits: (incomingExploits) => set((state) => {
+                if (!incomingExploits || incomingExploits.length === 0) {
+                    if (state.activeExploits.size > 0) {
+                        return { activeExploits: new Map() };
+                    }
+                    return state;
+                }
+
+                const newMap = new Map<string, ExploitState>();
+                let hasNewAttack = false;
+
+                incomingExploits.forEach(exploit => {
+                    const existing = state.activeExploits.get(exploit.type);
+                    const isNew = !existing;
+
+                    newMap.set(exploit.type, {
+                        expiresAt: exploit.expiresAt,
+                        receivedAt: exploit.receivedAt,
+                        passed: existing?.passed || false,
+                    });
+
+                    if (isNew) {
+                        const isAttack = ['screen_injector', 'data_leak', 'oil_spill', 'police_backdoor'].includes(exploit.type);
+                        if (isAttack) hasNewAttack = true;
+                    }
+                });
+
+                // Only update if map changed size or values (simplified check)
+                // Ideally we should do deep check but Map ref change is enough for React
+                return {
+                    activeExploits: newMap,
+                    lastAttackTimestamp: hasNewAttack ? Date.now() : state.lastAttackTimestamp
+                };
+            }),
+
+            cleanupExpiredExploits: () => set((state) => {
+                const now = Date.now();
+                let changed = false;
+                const updated = new Map(state.activeExploits);
+
+                state.activeExploits.forEach((value, key) => {
+                    if (value.expiresAt <= now) {
+                        updated.delete(key);
+                        changed = true;
+                    }
+                });
+
+                return changed ? { activeExploits: updated } : state;
+            }),
+
+            setScreenShake: (shake) => set({ screenShake: shake }),
+
+            setExploitPassed: (type) => set((state) => {
+                const updated = new Map(state.activeExploits);
+                const current = updated.get(type);
+                if (current) {
+                    updated.set(type, { ...current, passed: true });
+                }
+                return { activeExploits: updated };
+            }),
+
+            setReconnectionState: (newState) => set((state) => ({ ...state, ...newState })),
 
             resetGame: () => set(initialState),
         }),

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame, ChevronRight, RefreshCw, ChevronDown } from 'lucide-react';
@@ -56,6 +57,7 @@ const confettiEffects = [
 
 export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }: DuelResultProps) {
   const { profileId } = useUserContext();
+  const queryClient = useQueryClient();
   const { isPremium } = usePremium();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const { clearActiveDuel } = useActiveDuel();
@@ -222,6 +224,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               sp: spData.sp_added || prev.sp,
               xp: xpData.xp_added || prev.xp
             } : null);
+
+            // 🔄 FORCE REFRESH: Invalidate profile data after rewards
+            queryClient.invalidateQueries({ queryKey: ["profile-data"] });
           }
 
           await supabase.functions.invoke('season-challenges-track', {

@@ -1,8 +1,8 @@
-import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Swords, Shield, Zap, Coins, Sparkles, Flame } from 'lucide-react';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndicator';
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 // Функция для генерации инициалов из имени
@@ -64,7 +64,7 @@ interface DuelScoreBoardProps {
   } | null;
   seasonBonusDisplay: number;
   isTelegramMobile: boolean;
-  // 🆕 Пропсы для компактного индикатора статуса подключения
+  // Props for connection status indicator
   opponentIsConnected?: boolean;
   opponentLastSeen?: Date | null;
   combo?: number;
@@ -100,6 +100,9 @@ export const DuelScoreBoard = memo(({
   const myDisplayName = getFirstName(myName);
   const opponentDisplayName = getFirstName(opponentName);
 
+  const [myImgError, setMyImgError] = useState(false);
+  const [opponentImgError, setOpponentImgError] = useState(false);
+
   return (
     <div className={cn(
       "flex items-center gap-2 md:gap-3 min-w-0 flex-wrap",
@@ -114,12 +117,13 @@ export const DuelScoreBoard = memo(({
         } : {}}
       >
         <div className="relative">
-          {myPhotoUrl ? (
+          {myPhotoUrl && !myImgError ? (
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden border-2 border-blue-500/50 shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
               <img
                 src={myPhotoUrl}
                 alt={myName}
                 className="w-full h-full object-cover"
+                onError={() => setMyImgError(true)}
               />
             </div>
           ) : (
@@ -201,25 +205,13 @@ export const DuelScoreBoard = memo(({
           </motion.div>
         </div>
         <div className="relative">
-          {opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') ? (
+          {opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') && !opponentImgError ? (
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden border-2 border-orange-500/50 shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
               <img
                 src={opponentPhotoUrl}
                 alt={opponentName}
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  // Если изображение не загрузилось - скрываем img и показываем fallback
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const parent = target.parentElement;
-                  if (parent) {
-                    parent.innerHTML = `
-                      <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
-                        <span class="text-sm md:text-base font-bold text-white select-none">${getInitials(opponentName)}</span>
-                      </div>
-                    `;
-                  }
-                }}
+                onError={() => setOpponentImgError(true)}
               />
             </div>
           ) : (
@@ -238,9 +230,9 @@ export const DuelScoreBoard = memo(({
             />
           </div>
 
-          {/* 🆕 Компактный индикатор статуса подключения с таймером авто-победы */}
+          {/* Connection status indicator with auto-win timer */}
           <CompactConnectionStatusIndicator
-            lastSeen={opponentLastSeen}
+            lastSeen={opponentLastSeen ? new Date(opponentLastSeen) : null}
             isConnected={opponentIsConnected}
           />
 

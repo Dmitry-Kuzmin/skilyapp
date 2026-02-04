@@ -1,4 +1,4 @@
-import { motion } from "@/components/optimized/Motion";
+import { motion } from 'framer-motion';
 import { Wifi, WifiOff, Brain, Zap, RefreshCw, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -53,10 +53,10 @@ const statusConfig = {
   }
 };
 
-export function OpponentActivityIndicator({ 
-  status, 
+export function OpponentActivityIndicator({
+  status,
   className,
-  showTooltip = true 
+  showTooltip = true
 }: OpponentActivityIndicatorProps) {
   const config = statusConfig[status];
   const Icon = config.icon;

@@ -56,6 +56,7 @@ export function useDuelGame({
   const setHasFinishedMyQuestions = useDuelStore(state => state.setFinishedMyQuestions);
   const setIsWaitingForOpponent = useDuelStore(state => state.setWaitingForOpponent);
   const setCurrentIndex = useDuelStore(state => state.setCurrentIndex);
+  const setIsProcessingAnswer = useDuelStore(state => state.setIsProcessingAnswer);
 
   // Access store state needed for logic
   const questions = useDuelStore(state => state.questions);
@@ -250,6 +251,9 @@ export function useDuelGame({
     // Set answer in store immediately (optimistic UI)
     setSelectedAnswer(optionId);
 
+    // 🆕 Show processing animation
+    setIsProcessingAnswer(true);
+
     if (duelId && profileId) {
       supabase.functions.invoke('duel-manager', {
         body: {
@@ -388,6 +392,9 @@ export function useDuelGame({
         await syncPlayers();
       }
 
+      // 🆕 Hide processing animation
+      setIsProcessingAnswer(false);
+
       const isLastQuestion = currentIdx >= currentQuestions.length - 1;
 
       if (isLastQuestion) {
@@ -404,6 +411,7 @@ export function useDuelGame({
       }
     } catch (error) {
       logError('[useDuelGame] Error submitting answer:', error);
+      setIsProcessingAnswer(false); // 🆕 Hide on error too
       setTimeout(() => {
         if (currentIdx < currentQuestions.length - 1) {
           moveToNextQuestion();
@@ -425,6 +433,7 @@ export function useDuelGame({
     setSelectedAnswer,
     setHasFinishedMyQuestions,
     setIsWaitingForOpponent,
+    setIsProcessingAnswer,
     syncPlayers
   ]);
 

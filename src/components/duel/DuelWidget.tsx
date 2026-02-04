@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, Maximize2, Trophy, Swords } from 'lucide-react';

@@ -46,7 +46,7 @@ export function pushModal(id: string, name?: string): void {
   notifyListeners();
 
   // В dev-режиме предупреждаем о вложенности
-  if (process.env.NODE_ENV === 'development' && modalStack.length > 1) {
+  if (import.meta.env.DEV && modalStack.length > 1) {
     console.warn(
       '[ModalStack] Открыто несколько модалок:',
       modalStack.map(m => m.name || m.id).join(', '),
@@ -119,8 +119,8 @@ export function useModalStack(modalId: string, isOpen: boolean, modalName?: stri
       modalsToClose.forEach(modal => {
         popModal(modal.id);
       });
-      
-      if (process.env.NODE_ENV === 'development') {
+
+      if (import.meta.env.DEV) {
         console.warn(
           '[ModalStack] Закрыты модалки выше текущей:',
           modalsToClose.map(m => m.name || m.id).join(', ')

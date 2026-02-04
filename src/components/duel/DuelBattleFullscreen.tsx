@@ -1,10 +1,17 @@
-import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
+import { DuelLoadingView } from './parts/DuelLoadingView';
+import { DuelWaitingView } from './parts/DuelWaitingView';
+import { DuelOverlays } from './arena/parts/DuelOverlays';
+import { useDuelResultLogic } from './hooks/useDuelResultLogic';
+import { useDuelFinish } from './hooks/useDuelFinish';
+import { useDuelBoostAction } from './hooks/useDuelBoostAction';
+import { useDuelLocalState } from './hooks/useDuelLocalState';
+import { useDuelTimer } from './hooks/useDuelTimer';
+import { useDuelBetting } from './hooks/useDuelBetting';
+import { useDuelOpponentEvents } from './hooks/useDuelOpponentEvents';
+import { useDuelSafety } from './hooks/useDuelSafety';
 import { useDuelStore } from '@/store/duelStore';
-import { motion, AnimatePresence } from "@/components/optimized/Motion";
-import { Zap, Flame, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+import { useDuelData } from '@/hooks/useDuelData';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -14,76 +21,43 @@ import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
-import { DuelEffectsOverlay } from './DuelEffectsOverlay';
-import { BoostFeedback } from './BoostFeedback';
-import { NotificationToast } from '@/components/NotificationToast';
-import { DuelWaitingReplay } from './DuelWaitingReplay';
-import { DuelWidget } from './DuelWidget';
-import Layout from '@/components/Layout';
+import { isTelegramMiniApp as isTelegramMiniAppRaw, getTelegramWebApp as getTelegramWebAppRaw } from '@/lib/telegram';
 import { getImageUrl } from '@/utils/imageUtils';
-import { QuestionProgressBar } from '@/components/QuestionProgressBar';
-import { DuelSettingsMenu } from './DuelSettingsMenu';
-import { Bookmark, BookmarkCheck } from 'lucide-react';
-import { OpponentActivityIndicator } from './OpponentActivityIndicator';
-import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndicator';
-import { useDuelData } from '@/hooks/useDuelData';
-import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
-import { DuelTimer } from './DuelTimer';
-import { DuelScoreBoard } from './DuelScoreBoard';
-import { DuelBoostsPanel } from './DuelBoostsPanel';
-import { DuelQuestionCard } from './DuelQuestionCard';
-import { useDuelGameState } from '@/hooks/useDuelGameState';
+import { toast } from 'sonner';
+import { ArenaHeader } from './arena/parts/ArenaHeader';
+import { ArenaPlayground } from './arena/parts/ArenaPlayground';
+import { AnswerProcessingOverlay } from './overlays/AnswerProcessingOverlay';
 import { useDuelSync } from '@/hooks/useDuelSync';
+import { useDuelLifecycle } from './hooks/useDuelLifecycle';
 import { useDuelSettings } from '@/hooks/useDuelSettings';
 import { useQuestionBookmark } from '@/hooks/useQuestionBookmark';
-import { useDuelTimeout } from '@/hooks/useDuelTimeout';
-import { saveDuelResultSnapshot } from '@/utils/duelResultSnapshot';
+
 import type { DuelResultSnapshot } from '@/features/duel/shared';
 import { useDuelGame } from '@/hooks/useDuelGame';
 import { useBotOpponent } from '@/hooks/useBotOpponent';
-import { lazy, Suspense } from 'react';
-import { useDuelHeartbeat } from '@/hooks/useDuelHeartbeat';
 import { GRACE_PERIOD_MS, UNSTABLE_THRESHOLD_MS, AUTO_WIN_TIMEOUT_MS } from '@/features/duel/shared';
+import { DuelWaitingReplay } from './DuelWaitingReplay';
+import { Button } from '@/components/ui/button';
 
-// 🆕 Lazy loading для модалок (разрывает возможные циклические зависимости)
-// КРИТИЧНО: Все модалки должны быть lazy для предотвращения TDZ ошибок
-const ExitDuelModal = lazy(() => import('./ExitDuelModal').then(m => ({ default: m.ExitDuelModal })));
-const AutoWinTimer = lazy(() => import('./AutoWinTimer').then(m => ({ default: m.AutoWinTimer })));
-const ReconnectionModal = lazy(() => import('./ReconnectionModal').then(m => ({ default: m.ReconnectionModal })));
-
-// КРИТИЧНО: Lazy loading для всех компонентов атак
-// Это предотвращает циклические зависимости и TDZ ошибки при сборке
-const OilSplashAttack = lazy(() => import('./attacks/OilSplashAttack').then(m => ({ default: m.OilSplashAttack })));
-const PoliceBackdoorAttack = lazy(() => import('./attacks/PoliceBackdoorAttack').then(m => ({ default: m.PoliceBackdoorAttack })));
-const InputLagWrapper = lazy(() => import('./attacks/InputLagWrapper').then(m => ({ default: m.InputLagWrapper })));
-const EncryptionFlashlight = lazy(() => import('./attacks/EncryptionFlashlight').then(m => ({ default: m.EncryptionFlashlight })));
-
-// ОПТИМИЗАЦИЯ: Условное логирование только в development
 const isDev = import.meta.env.DEV;
-const log = (...args: any[]) => {
-  if (isDev) console.log(...args);
-};
-const logError = (...args: any[]) => {
-  if (isDev) console.error(...args);
-};
-const logWarn = (...args: any[]) => {
-  if (isDev) console.warn(...args);
-};
 
-const duelRiskMultiplierPreview = (betAmount: number) => {
-  if (!betAmount || betAmount <= 0) return 1;
-  if (betAmount >= 600) return 4;
-  if (betAmount >= 450) return 3;
-  if (betAmount >= 300) return 2.25;
-  if (betAmount >= 200) return 1.75;
-  if (betAmount >= 100) return 1.25;
-  return 1.1;
-};
+// Safe wrappers with UNIQUE names for hoisting and resilience
+function safeIsTelegramMiniApp() {
+  return typeof isTelegramMiniAppRaw === 'function' ? isTelegramMiniAppRaw() : false;
+}
+function safeGetTelegramWebApp() {
+  return typeof getTelegramWebAppRaw === 'function' ? getTelegramWebAppRaw() : null;
+}
 
-const getSeasonBonusDisplay = (betAmount: number) => {
-  return betAmount > 0 ? Math.round(20 * duelRiskMultiplierPreview(betAmount)) : 30;
-};
+console.log('[DuelBattleFullscreen] File version 12 (Answer Processing Overlay) loading...');
+
+
+// ОПТИМИЗАЦИЯ: Условное логирование
+const log = (...args: any[]) => { if (isDev) console.log(...args); };
+const logError = (...args: any[]) => { if (isDev) console.error(...args); };
+const logWarn = (...args: any[]) => { if (isDev) console.warn(...args); };
+
+
 
 interface DuelBattleFullscreenProps {
   duelId: string;
@@ -94,42 +68,70 @@ interface DuelBattleFullscreenProps {
 }
 
 export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, onWidgetExpand }: DuelBattleFullscreenProps) {
-  // КРИТИЧНО: Объявляем ВСЕ хуки и переменные ПЕРЕД их использованием в useEffect
-  // Это предотвращает TDZ (Temporal Dead Zone) ошибки при сборке
+  // 1. Core Hooks (User & Context)
   const { profileId } = useUserContext();
-  const [isWaitingHidden, setIsWaitingHidden] = useState(false);
-  const [showSurrenderModal, setShowSurrenderModal] = useState(false);
   const { activeDuel, saveActiveDuel, updateActiveDuel } = useActiveDuel();
-  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
-  const { state, refreshExploits, removeExploit } = useDuelRealtime(duelId, myPlayerId);
+
+  // 2. Store State & Actions (Consolidated)
+  const {
+    myPlayerId, myName, opponentName, myPhotoUrl, opponentPhotoUrl,
+    questions: storeQuestions, currentIndex: storeCurrentIndex,
+    timeLeft, selectedAnswer, isAnswered, myScore, opponentScore,
+    combo, usedBoosts, eliminatedOptions, translationLanguage,
+    isLoading: loading, isProcessingAnswer, isWaitingForOpponent, hasFinishedMyQuestions,
+    activeExploits, screenShake, opponentIsConnected, opponentLastSeen,
+    lastAttackTimestamp, betInfo, opponentActivityStatus, players,
+    setMyPlayerId, setPlayers, setQuestions, setCurrentIndex, setTimeLeft,
+    setMyScore, setOpponentScore, setCombo, setEliminatedOptions,
+    setFinishedMyQuestions, nextQuestion, setLoading,
+    setWaitingForOpponent, setTranslationLanguage,
+    setIsAnswered, setSelectedAnswer, setUsedBoosts, addUsedBoost, setHasFinishedMyQuestions,
+    syncActiveExploits, cleanupExpiredExploits, setScreenShake,
+    setReconnectionState, setExploitPassed, setBetInfo,
+    setOpponentActivityStatus
+  } = useDuelStore();
+
+  // 4. Logic & Realtime Hooks (Rename state to realtimeState)
+  const { state: realtimeState, refreshExploits, removeExploit } = useDuelRealtime(duelId, myPlayerId);
   const { fetchQuestions, fetchPlayers, fetchBoostInventory, fetchBetInfo } = useDuelData(duelId, profileId);
-  const [duelCode, setDuelCode] = useState<string | null>(null);
 
-  // 🆕 Состояние для активных exploits
-  const [activeExploits, setActiveExploits] = useState<Map<string, { expiresAt: number; passed?: boolean }>>(new Map());
-
-  // 🎯 Screen shake состояние для визуального эффекта при ошибках и атаках
-  const [screenShake, setScreenShake] = useState(false);
-
-  // 🆕 Состояния для переподключения и авто-победы (объявляем ДО useEffect)
-  const [showReconnectionModal, setShowReconnectionModal] = useState(false);
-  const [isReconnecting, setIsReconnecting] = useState(false);
-  const [reconnectAttempt, setReconnectAttempt] = useState(0);
-  const [opponentIsConnected, setOpponentIsConnected] = useState<boolean>(true);
-  const [opponentLastSeen, setOpponentLastSeen] = useState<Date | null>(null);
-  const [showAutoWinTimer, setShowAutoWinTimer] = useState(false);
-  const [autoWinTimeRemaining, setAutoWinTimeRemaining] = useState(60);
-
-  // КРИТИЧНО: Логируем duelId при монтировании для отладки
+  // 5. Debug Log
   useEffect(() => {
     if (duelId) {
-      console.log('[DuelBattleFullscreen] 🔍 DUEL_ID:', duelId);
-      console.log('[DuelBattleFullscreen] 📋 SQL запрос для проверки exploits:');
-      console.log(`SELECT * FROM duel_active_exploits WHERE duel_id = '${duelId}' ORDER BY activated_at DESC LIMIT 5;`);
+      console.log('[DuelBattleFullscreen] DUEL_ID:', duelId);
     }
   }, [duelId]);
 
-  // Сброс состояния игры при входе/выходе
+  // 7. Grouped UI State & Refs
+  const {
+    duelCode, setDuelCode,
+    isWaitingHidden, setIsWaitingHidden,
+    showSurrenderModal, setShowSurrenderModal,
+    boosts, setBoosts,
+    toastNotifications, setToastNotifications,
+    translatePopoverOpen, setTranslatePopoverOpen,
+    boostFeedback, setBoostFeedback,
+    showDuelSettings, setShowDuelSettings,
+    feedbackEffect, setFeedbackEffect,
+    hasTransitionedRef, isFinishingRef, questionEndTimeRef
+  } = useDuelLocalState();
+
+  // 6. Config & Settings
+  const { voiceOver, setVoiceOver, ambientMusic, setAmbientMusic, fontSize, setFontSize } = useDuelSettings();
+  const safeArea = useSafeArea();
+
+  // 7. Callbacks & Derived State
+  // REMOVED redundant setIsAnswered/setUsedBoosts causing collisions
+  const isDuelActive = Boolean(realtimeState?.duelStarted && !realtimeState?.duelFinished);
+
+  // 8. Question Bookmark Logic
+  const { isQuestionBookmarked, bookmarkLoading, toggleBookmark } = useQuestionBookmark({
+    profileId,
+    questions: storeQuestions,
+    currentIndex: storeCurrentIndex,
+  });
+
+  // 9. Initial Reset Effect
   useEffect(() => {
     useDuelStore.getState().resetGame();
     return () => {
@@ -137,275 +139,17 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     };
   }, []);
 
-  // 🛡️ Защита от случайного закрытия во время дуэли
-  useEffect(() => {
-    const tg = getTelegramWebApp();
-    if (!tg || !isTelegramMiniApp()) return;
+  // 10. Lifecycle & Safety
+  useDuelSafety({ duelId, profileId, duelStarted: realtimeState?.duelStarted || false });
 
-    // Включаем подтверждение закрытия при старте дуэли
-    const tgAny = tg as any;
-    if (typeof tgAny.enableClosingConfirmation === 'function') {
-      tgAny.enableClosingConfirmation();
-      log('[DuelBattleFullscreen] 🛡️ Closing confirmation enabled');
-    }
-
-    // Выключаем при размонтировании (выход из дуэли)
-    return () => {
-      if (typeof tgAny.disableClosingConfirmation === 'function') {
-        tgAny.disableClosingConfirmation();
-        log('[DuelBattleFullscreen] 🛡️ Closing confirmation disabled');
-      }
-    };
-  }, []);
-
-  // 🆕 Проверка переподключения при монтировании (если страница была перезагружена)
-  useEffect(() => {
-    if (!duelId || !profileId) return;
-
-    const checkReconnection = async () => {
-      try {
-        // Проверяем, есть ли активная дуэль
-        const { data: duel } = await supabase
-          .from('duels')
-          .select('status')
-          .eq('id', duelId)
-          .single();
-
-        if (duel?.status === 'active') {
-          // Проверяем, был ли игрок отключен
-          const { data: myPlayer } = await supabase
-            .from('duel_players')
-            .select('is_connected, last_heartbeat_at')
-            .eq('duel_id', duelId)
-            .eq('user_id', profileId)
-            .single();
-
-          // Если был отключен или heartbeat старый - показываем модалку
-          if (!myPlayer?.is_connected || !myPlayer?.last_heartbeat_at) {
-            const timeSinceLastHeartbeat = myPlayer?.last_heartbeat_at
-              ? Date.now() - new Date(myPlayer.last_heartbeat_at).getTime()
-              : Infinity;
-
-            // Если прошло больше 10 секунд - показываем модалку
-            if (timeSinceLastHeartbeat > 10000) {
-              setShowReconnectionModal(true);
-            }
-          }
-        }
-      } catch (error) {
-        logError('[DuelBattleFullscreen] Error checking reconnection:', error);
-      }
-    };
-
-    // Небольшая задержка для загрузки данных
-    const timeout = setTimeout(checkReconnection, 1000);
-    return () => clearTimeout(timeout);
-  }, [duelId, profileId]);
-
-  // 🆕 Обработка активных exploits из Realtime
-  useEffect(() => {
-    // КРИТИЧНО: Детальное логирование для отладки в Telegram (ВСЕГДА, не только в dev)
-    console.log('[DuelBattleFullscreen] 🔄 activeExploits update:', {
-      stateActiveExploits: state.activeExploits,
-      stateActiveExploitsLength: state.activeExploits?.length || 0,
-      stateActiveExploitsTypes: state.activeExploits?.map(e => e.type) || [],
-      currentActiveExploits: Array.from(activeExploits.entries()),
-      screenInjector: state.activeExploits?.find(e => e.type === 'screen_injector'),
-      screenInjectorDetails: state.activeExploits?.find(e => e.type === 'screen_injector') ? {
-        type: state.activeExploits.find(e => e.type === 'screen_injector')?.type,
-        expiresAt: state.activeExploits.find(e => e.type === 'screen_injector')?.expiresAt,
-        expiresAtISO: new Date(state.activeExploits.find(e => e.type === 'screen_injector')?.expiresAt || 0).toISOString(),
-        receivedAt: state.activeExploits.find(e => e.type === 'screen_injector')?.receivedAt
-      } : null
-    });
-
-    if (!state.activeExploits || state.activeExploits.length === 0) {
-      if (activeExploits.size > 0) {
-        setActiveExploits(new Map());
-      }
-      return;
-    }
-
-    // КРИТИЧНО: Используем функциональное обновление для сохранения passed статуса
-    setActiveExploits(prev => {
-      const exploitsMap = new Map<string, { expiresAt: number; passed?: boolean }>();
-
-      state.activeExploits.forEach(exploit => {
-        const existing = prev.get(exploit.type);
-        const isNew = !existing;
-
-        exploitsMap.set(exploit.type, {
-          expiresAt: exploit.expiresAt,
-          passed: existing?.passed || false, // Сохраняем passed статус если был
-        });
-
-        // КРИТИЧНО: Логируем добавление нового exploit (ВСЕГДА, не только в dev)
-        if (isNew) {
-          console.log('[DuelBattleFullscreen] ✅ New exploit added to Map:', exploit.type, {
-            expiresAt: new Date(exploit.expiresAt).toISOString(),
-            receivedAt: new Date(exploit.receivedAt).toISOString(),
-            expiresIn: Math.round((exploit.expiresAt - Date.now()) / 1000) + 's'
-          });
-
-          // 🎯 Haptic feedback, звук и screen shake при получении новой атаки
-          const isAttackType = exploit.type === 'screen_injector' ||
-            exploit.type === 'data_leak' ||
-            exploit.type === 'oil_spill' ||
-            exploit.type === 'police_backdoor';
-          if (isAttackType) {
-            haptics.attackReceived();
-            sounds.attackWhoosh();
-            setScreenShake(true);
-            setTimeout(() => setScreenShake(false), 500);
-          }
-        }
-      });
-
-      console.log('[DuelBattleFullscreen] 📊 Final exploits Map:', {
-        mapSize: exploitsMap.size,
-        mapEntries: Array.from(exploitsMap.entries()).map(([type, data]) => ({
-          type,
-          expiresAt: new Date(data.expiresAt).toISOString(),
-          passed: data.passed
-        }))
-      });
-
-      return exploitsMap;
-    });
-  }, [state.activeExploits]);
-
-  // 🆕 Очистка истекших exploits
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      setActiveExploits(prev => {
-        const updated = new Map(prev);
-        let changed = false;
-        prev.forEach((value, key) => {
-          if (value.expiresAt <= now) {
-            updated.delete(key);
-            changed = true;
-          }
-        });
-        return changed ? updated : prev;
-      });
-    }, 1000); // Проверяем каждую секунду
-
-    return () => clearInterval(interval);
-  }, []);
-
-
-  // Get safe area insets from Telegram WebApp API
-  const safeArea = useSafeArea();
-
-  // ОПТИМИЗАЦИЯ: Используем Zustand стор для состояния игры
-  const questions = useDuelStore(state => state.questions);
-  const currentIndex = useDuelStore(state => state.currentIndex);
-  const timeLeft = useDuelStore(state => state.timeLeft);
-  const selectedAnswer = useDuelStore(state => state.selectedAnswer);
-  const isAnswered = useDuelStore(state => state.isAnswered);
-  const myScore = useDuelStore(state => state.myScore);
-  const opponentScore = useDuelStore(state => state.opponentScore);
-  const combo = useDuelStore(state => state.combo);
-  const usedBoosts = useDuelStore(state => state.usedBoosts);
-  const eliminatedOptions = useDuelStore(state => state.eliminatedOptions);
-  const translationLanguage = useDuelStore(state => state.translationLanguage);
-  const setTranslationLanguage = useDuelStore(state => state.setTranslationLanguage);
-  const loading = useDuelStore(state => state.isLoading);
-  const setLoading = useDuelStore(state => state.setLoading);
-  const isWaitingForOpponent = useDuelStore(state => state.isWaitingForOpponent);
-  const setIsWaitingForOpponent = useDuelStore(state => state.setWaitingForOpponent);
-  const hasFinishedMyQuestions = useDuelStore(state => state.hasFinishedMyQuestions);
-
-  const myName = useDuelStore(state => state.myName);
-  const opponentName = useDuelStore(state => state.opponentName);
-  const myPhotoUrl = useDuelStore(state => state.myPhotoUrl);
-  const opponentPhotoUrl = useDuelStore(state => state.opponentPhotoUrl);
-
-  const setQuestions = useDuelStore(state => state.setQuestions);
-  const setCurrentIndex = useDuelStore(state => state.setCurrentIndex);
-  const setTimeLeft = useDuelStore(state => state.setTimeLeft);
-  const setSelectedAnswer = useDuelStore(state => state.setAnswer);
-  const setIsAnswered = useCallback((val: boolean) => val ? null : useDuelStore.getState().resetAnswerState(), []);
-  const setMyScore = useDuelStore(state => state.setMyScore);
-  const setOpponentScore = useDuelStore(state => state.setOpponentScore);
-  const setCombo = useDuelStore(state => state.setCombo);
-  const setUsedBoosts = useCallback((boost: string) => useDuelStore.getState().addUsedBoost(boost), []);
-  const setEliminatedOptions = useDuelStore(state => state.setEliminatedOptions);
-  const setHasFinishedMyQuestions = useDuelStore(state => state.setFinishedMyQuestions);
-  const nextQuestion = useDuelStore(state => state.nextQuestion);
-
-  // Refs needed for logic that wasn't moved to store yet
-  const isLoadingRef = useRef(loading);
-  useEffect(() => { isLoadingRef.current = loading; }, [loading]);
-
-  const isFinishingRef = useRef(false);
-  const isVerifyingRef = useRef(false);
-  const hasTransitionedRef = useRef(false);
-
-  // Boosts inventory is NOT in the store (it's fetched data, not game state)
-  const [boosts, setBoosts] = useState<any[]>([]);
-
-  const [toastNotifications, setToastNotifications] = useState<Array<{
-    id: string;
-    title: string;
-    message: string;
-    icon?: string;
-  }>>([]);
-  const [translatePopoverOpen, setTranslatePopoverOpen] = useState<string | null>(null);
-  // 🆕 Состояние для визуальной обратной связи при использовании буста
-  const [boostFeedback, setBoostFeedback] = useState<{ isActive: boolean; boostName: string; boostType: string }>({
-    isActive: false,
-    boostName: '',
-    boostType: '',
-  });
-
-  const [opponentActivityStatus, setOpponentActivityStatus] = useState<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
-  const previousActivityStatusRef = useRef<'online' | 'thinking' | 'answering' | 'reconnecting' | 'offline'>('online');
-
-  // КРИТИЧНО: Вычисляем isDuelActive с проверкой на существование state
-  const isDuelActive = Boolean(state?.duelStarted && !state?.duelFinished);
-
-  // Settings states
-  const [showDuelSettings, setShowDuelSettings] = useState(false);
-  // ОПТИМИЗАЦИЯ: Используем хук для управления настройками
-  const { voiceOver, setVoiceOver, ambientMusic, setAmbientMusic, fontSize, setFontSize } = useDuelSettings();
-  // ОПТИМИЗАЦИЯ: Используем хук для управления закладками
-  const { isQuestionBookmarked, bookmarkLoading, toggleBookmark } = useQuestionBookmark({
-    profileId,
-    questions,
-    currentIndex,
-  });
-  const [betInfo, setBetInfo] = useState<{
-    betAmount: number;
-    totalBank: number;
-    isHost: boolean;
-    hostInsurance: boolean;
-    opponentInsurance: boolean;
-    coverageHost: number;
-    coverageOpponent: number;
-  } | null>(null);
-  // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних пересчетов
-  const myInsuranceActive = useMemo(() =>
-    betInfo ? (betInfo.isHost ? betInfo.hostInsurance : betInfo.opponentInsurance) : false,
-    [betInfo]
-  );
-  const myCoverageDisplay = useMemo(() =>
-    betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageHost : betInfo.coverageOpponent) || 0) * 100) : 0,
-    [betInfo]
-  );
-  const opponentInsuranceActive = useMemo(() =>
-    betInfo ? (betInfo.isHost ? betInfo.opponentInsurance : betInfo.hostInsurance) : false,
-    [betInfo]
-  );
-  const opponentCoverageDisplay = useMemo(() =>
-    betInfo ? Math.round(((betInfo.isHost ? betInfo.coverageOpponent : betInfo.coverageHost) || 0) * 100) : 0,
-    [betInfo]
-  );
-  const seasonBonusDisplay = useMemo(() =>
-    betInfo ? getSeasonBonusDisplay(betInfo.betAmount) : 0,
-    [betInfo]
-  );
+  // 💰 Betting Logic
+  const {
+    myInsuranceActive,
+    myCoverageDisplay,
+    opponentInsuranceActive,
+    opponentCoverageDisplay,
+    seasonBonusDisplay
+  } = useDuelBetting(betInfo);
 
   // ОПТИМИЗАЦИЯ: Используем хук для синхронизации данных
   const { syncBoostInventory, syncBetInfo } = useDuelSync({
@@ -420,262 +164,28 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     nextQuestion();
   }, [nextQuestion]);
 
-  // 🆕 CRITICAL FIX: Общая функция для создания snapshot результатов дуэли
-  // Используется во всех местах, где вызывается onDuelFinished
-  const createDuelResultSnapshot = useCallback(async (): Promise<DuelResultSnapshot | null> => {
-    try {
-      log('[DuelBattleFullscreen] 📸 Creating snapshot before transition...');
+  // 🔄 LOGIC: Result Snapshots and Transitions
+  const { transitionToResults } = useDuelResultLogic({
+    duelId,
+    profileId,
+    myScore,
+    opponentScore,
+    opponentName,
+    onDuelFinished,
+    players: players
+  });
 
-      // Загружаем необходимые данные для snapshot
-      const [duelResult, playersResult] = await Promise.all([
-        supabase.from('duels').select('*').eq('id', duelId).maybeSingle(),
-        supabase
-          .from('duel_players')
-          .select('*, profiles(id, username, first_name, photo_url)')
-          .eq('duel_id', duelId),
-      ]);
-
-      if (duelResult.data && playersResult.data && playersResult.data.length >= 2) {
-        const players = playersResult.data;
-        const myPlayer = players.find((p: any) => p.user_id === profileId);
-        const opponentPlayer = players.find((p: any) => p.user_id !== profileId);
-
-        if (myPlayer && opponentPlayer) {
-          const myPlayerIdForSnapshot = myPlayer.id;
-          const opponentPlayerId = opponentPlayer.id;
-
-          // Загружаем ответы
-          const [myAnswersResult, opponentAnswersResult] = await Promise.all([
-            supabase
-              .from('duel_answers')
-              .select('*, duel_questions(*)')
-              .eq('duel_id', duelId)
-              .eq('player_id', myPlayerIdForSnapshot)
-              .order('created_at'),
-            supabase
-              .from('duel_answers')
-              .select('*, duel_questions(*)')
-              .eq('duel_id', duelId)
-              .eq('player_id', opponentPlayerId)
-              .order('created_at'),
-          ]);
-
-          const myAnswers = myAnswersResult.data || [];
-          const opponentAnswers = opponentAnswersResult.data || [];
-
-          // Вычисляем результаты
-          const myScoreFinal = myPlayer.score || myScore;
-          const opponentScoreFinal = opponentPlayer.score || opponentScore;
-          const myCorrect = myPlayer.correct_count || 0;
-          const opponentCorrect = opponentPlayer.correct_count || 0;
-          const opponent = opponentPlayer.profiles || {};
-          const duelData = duelResult.data;
-
-          const isWinner = myScoreFinal > opponentScoreFinal;
-          const isDraw = myScoreFinal === opponentScoreFinal;
-
-          let winnings = 0;
-          let insuranceRefund = 0;
-          if (duelData.bet_amount > 0) {
-            if (isWinner) {
-              winnings = duelData.bet_amount * 2;
-            } else if (isDraw) {
-              winnings = duelData.bet_amount;
-            }
-            if (!isWinner && !isDraw && duelData.insurance_used) {
-              insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
-            }
-          }
-
-          // Создаем snapshot
-          const snapshot: DuelResultSnapshot = {
-            duelId,
-            duel: duelData,
-            players,
-            myPlayer,
-            opponentPlayer,
-            myAnswers,
-            opponentAnswers,
-            results: {
-              isWinner,
-              isDraw,
-              myScore: myScoreFinal,
-              opponentScore: opponentScoreFinal,
-              myCorrect,
-              opponentCorrect,
-              opponentName: opponent?.username || opponent?.first_name || opponentName,
-              opponentAvatar: opponent?.photo_url || null,
-              betAmount: duelData.bet_amount || 0,
-              winnings,
-              insuranceRefund,
-              insuranceUsed: duelData.insurance_used || false,
-            },
-            timestamp: Date.now(),
-          };
-
-          saveDuelResultSnapshot(snapshot);
-          log('[DuelBattleFullscreen] ✅ Snapshot created successfully');
-          return snapshot;
-        } else {
-          log('[DuelBattleFullscreen] ⚠️ Could not find players for snapshot');
-          return null;
-        }
-      } else {
-        log('[DuelBattleFullscreen] ⚠️ Could not load duel data for snapshot, will be created by useDuelResults');
-        return null;
-      }
-    } catch (error) {
-      logError('[DuelBattleFullscreen] ❌ Error creating snapshot:', error);
-      // Продолжаем переход даже если snapshot не создан - useDuelResults создаст его
-      return null;
-    }
-  }, [duelId, profileId, myScore, opponentScore, opponentName]);
-
-  // 🆕 Функция для сборки snapshot из данных от сервера (finish_duel response)
-  const createSnapshotFromServerData = useCallback((data: any): DuelResultSnapshot | null => {
-    try {
-      if (!data.duel_data || !data.players_data) return null;
-
-      const players = data.players_data;
-      const myPlayer = players.find((p: any) => p.user_id === profileId);
-      const opponentPlayer = players.find((p: any) => p.user_id !== profileId);
-
-      if (!myPlayer || !opponentPlayer) return null;
-
-      const myScoreFinal = myPlayer.score;
-      const opponentScoreFinal = opponentPlayer.score;
-      const isWinner = myScoreFinal > opponentScoreFinal;
-      const isDraw = myScoreFinal === opponentScoreFinal;
-
-      const duelData = data.duel_data;
-      let winnings = 0;
-      let insuranceRefund = 0;
-
-      if (duelData.bet_amount > 0) {
-        if (isWinner) winnings = duelData.bet_amount * 2;
-        else if (isDraw) winnings = duelData.bet_amount;
-
-        if (!isWinner && !isDraw && (duelData.insurance_used || duelData.host_insurance_enabled)) {
-          insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
-        }
-      }
-
-      const opponentProfile = opponentPlayer.profiles || {};
-
-      return {
-        duelId,
-        duel: duelData,
-        players,
-        myPlayer,
-        opponentPlayer,
-        myAnswers: data.my_answers || [],
-        opponentAnswers: data.opponent_answers || [],
-        results: {
-          isWinner,
-          isDraw,
-          myScore: myScoreFinal,
-          opponentScore: opponentScoreFinal,
-          myCorrect: myPlayer.correct_count || 0,
-          opponentCorrect: opponentPlayer.correct_count || 0,
-          opponentName: opponentProfile.username || opponentProfile.first_name || opponentPlayer.name || 'Соперник',
-          opponentAvatar: opponentProfile.photo_url || null,
-          betAmount: duelData.bet_amount || 0,
-          winnings,
-          insuranceRefund,
-          insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled)
-        },
-        timestamp: Date.now()
-      };
-    } catch (err) {
-      logError('[DuelBattleFullscreen] Error building snapshot from server data:', err);
-      return null;
-    }
-  }, [duelId, profileId]);
-
-  // 🆕 CRITICAL FIX: Обертка для onDuelFinished, которая всегда создает snapshot
-  const transitionToResults = useCallback(async (serverData?: any) => {
-    let snapshot: DuelResultSnapshot | null = null;
-
-    if (serverData && serverData.duel_data) {
-      log('[DuelBattleFullscreen] ⚡ Building snapshot from server response data');
-      snapshot = createSnapshotFromServerData(serverData);
-    }
-
-    if (!snapshot) {
-      log('[DuelBattleFullscreen] 📸 Creating snapshot via standard fetching');
-      snapshot = await createDuelResultSnapshot();
-    }
-
-    log('[DuelBattleFullscreen] 🚀 Transitioning to results with snapshot');
-    onDuelFinished(snapshot || undefined);
-  }, [createDuelResultSnapshot, createSnapshotFromServerData, onDuelFinished]);
-
-  // ОПТИМИЗАЦИЯ: Мемоизируем finishDuel с useCallback (должно быть выше useDuelGame)
-  // 🆕 CRITICAL FIX: Принимаем callerHasFinished как параметр, чтобы обойти проблему closure
-  const finishDuel = useCallback(async (callerHasFinished?: boolean) => {
-    log('[DuelBattleFullscreen] Finishing duel - I completed all questions');
-
-    // IMPROVED: Don't set hasFinishedMyQuestions here - it's already set when showing waiting screen
-    // setHasFinishedMyQuestions(true); // ← REMOVED (already set earlier)
-
-    // IMPROVED: Reduced delay from 500ms to 300ms
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    try {
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: { action: 'finish_duel', duel_id: duelId, profile_id: profileId },
-      });
-
-      if (error) throw error;
-
-      log('[DuelBattleFullscreen] Finish duel response:', {
-        finished: data?.finished,
-        reason: data?.reason,
-        message: data?.message,
-        success: data?.success
-      });
-
-      // CRITICAL FIX: Only transition to results if both players finished
-      // Don't change waiting state if we're already waiting
-      if (data?.finished === true) {
-        log('[DuelBattleFullscreen] ✅ Both players finished, going to results');
-
-        // Hide waiting screen and go to results
-        setIsWaitingForOpponent(false);
-        sounds.victory();
-        toast.success('🏁 Финиш! Подводим итоги...', { duration: 2000 });
-
-        // 🆕 CRITICAL FIX: Используем общую функцию для создания snapshot
-        // Передаем data напрямую в transitionToResults для мгновенного перехода
-        setTimeout(() => {
-          transitionToResults(data);
-        }, 300);
-      } else {
-        // 🆕 CRITICAL FIX: Используем переданный параметр вместо state из closure
-        // Это решает проблему, когда hasFinishedMyQuestions ещё false из-за асинхронности React
-        if (hasActuallyFinished) {
-          log('[DuelBattleFullscreen] ⏳ Opponent still playing - showing waiting screen');
-          setIsWaitingForOpponent(true);
-          // NEW HELPER: Get first name safely
-          const getFirstName = (fullName: string) => fullName.split(' ')[0];
-          toast.info(`⏳ Ждём соперника (${getFirstName(opponentName)})...`, { duration: 3000 });
-        } else {
-          log('[DuelBattleFullscreen] ⚠️ finish_duel returned not finished, but I still have questions. Ignoring.');
-        }
-      }
-    } catch (error) {
-      logError('[DuelBattleFullscreen] ❌ Error finishing duel:', error);
-      toast.error('Ошибка завершения дуэли');
-      // IMPROVED: Keep waiting state - don't reset on error
-      // Player stays on waiting screen, realtime will handle transition when opponent finishes
-      // setIsWaitingForOpponent(false); // ← REMOVED
-      // setHasFinishedMyQuestions(false); // ← REMOVED
-    }
-  }, [duelId, profileId, hasFinishedMyQuestions, setIsWaitingForOpponent, transitionToResults]);
+  // 🔄 LOGIC: Finish Duel Handler
+  const { finishDuel } = useDuelFinish({
+    duelId,
+    profileId,
+    opponentName,
+    setIsWaitingForOpponent: setWaitingForOpponent,
+    transitionToResults
+  });
 
 
-  // 🎯 Visual Effects State
-  const [feedbackEffect, setFeedbackEffect] = useState<'correct' | 'wrong' | null>(null);
+
 
   // ОПТИМИЗАЦИЯ: Используем хук для логики игры (состояние теперь в store)
   const { hydrateQuestions, syncPlayers, syncQuestions, handleAnswer } = useDuelGame({
@@ -701,10 +211,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     },
   });
 
-  // Загружаем игроков для хука бота (состояние теперь в store)
-  const players = useDuelStore(state => state.players);
-  const setPlayers = useDuelStore(state => state.setPlayers);
-
   useEffect(() => {
     const loadPlayers = async () => {
       // Avoid loading if we already have players to prevent loop
@@ -715,6 +221,9 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
       if (playersData?.players && playersData.players.length > 0) {
         setPlayers(playersData.players);
+        if (playersData.myPlayerId) {
+          setMyPlayerId(playersData.myPlayerId);
+        }
       } else {
         setTimeout(loadPlayers, 1000);
       }
@@ -728,41 +237,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
 
 
-  // 🔄 CRITICAL FIX: Добавляем Polling для перехода к результатам, когда ждём бота
-  // Это страховка, если Realtime не сработает или бот закончит позже
-  useEffect(() => {
-    let pollingInterval: NodeJS.Timeout | null = null;
-
-    if (isWaitingForOpponent && duelId && profileId) {
-      const isBotDuel = players.some(p => p.is_bot);
-
-      if (isBotDuel) {
-        log('[DuelBattleFullscreen] 🕒 Starting polling for bot completion...');
-
-        pollingInterval = setInterval(() => {
-          log('[DuelBattleFullscreen] 🔄 Polling: checking if bot finished...');
-          finishDuel(true); // Передаем true, чтобы подтвердить, что мы УЖЕ закончили
-        }, 3000); // Опрашиваем раз в 3 секунды
-      }
-    }
-
-    return () => {
-      if (pollingInterval) {
-        log('[DuelBattleFullscreen] 🛑 Stopping polling');
-        clearInterval(pollingInterval);
-      }
-    };
-  }, [isWaitingForOpponent, duelId, profileId, players, finishDuel]);
-
-  // Подключаем хук для автоматических ответов бота
-  const currentQuestionId = questions[currentIndex]?.id || null;
-  useBotOpponent({
+  // 🤖 Opponent Events & Bot Logic
+  useDuelOpponentEvents({
     duelId,
-    currentQuestionId,
-    currentQuestionIndex: currentIndex,
-    totalQuestions: questions.length,
-    players,
     profileId,
+    state: realtimeState,
+    finishDuel,
+    transitionToResults,
+    myPlayerId
   });
 
   // ОПТИМИЗАЦИЯ: Мемоизируем formatTime
@@ -771,558 +253,40 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     return `${seconds}s`;
   }, []);
 
-  useEffect(() => {
-    if (!duelId || !profileId) {
-      log('[DuelBattleFullscreen] ⚠️ Missing duelId or profileId:', { duelId, profileId });
-      return;
-    }
-
-    log('[DuelBattleFullscreen] 🚀 Component mounted, syncing data...', { duelId, profileId });
-    // КРИТИЧНО: Сначала загружаем игроков, потом вопросы (чтобы избежать race condition)
-    // Особенно важно для дуэлей с ботами - вопросы могут не существовать до создания игроков
-    syncPlayers().then(() => {
-      // После загрузки игроков загружаем вопросы
-      syncQuestions();
-    }).catch((error) => {
-      logError('[DuelBattleFullscreen] Error loading players, retrying questions anyway:', error);
-      // Даже при ошибке загрузки игроков пытаемся загрузить вопросы
-      syncQuestions();
-    });
-    syncBoostInventory();
-    syncBetInfo();
-  }, [duelId, profileId, syncBetInfo, syncBoostInventory, syncPlayers, syncQuestions]);
-
-  // ⚡️ ПРЕДЗАГРУЗКА ИЗОБРАЖЕНИЙ: Загружаем картинку следующего вопроса заранее
-  useEffect(() => {
-    // Получаем следующий вопрос
-    if (!questions || questions.length === 0) return;
-
-    const nextQuestion = questions[currentIndex + 1];
-
-    if (nextQuestion && nextQuestion.question_snapshot?.image_url) {
-      const url = getImageUrl(nextQuestion.question_snapshot.image_url);
-      if (url) {
-        // Создаем невидимый Image объект, браузер сам закеширует его
-        const img = new Image();
-        img.src = url;
-        if (isDev) console.log('[DuelBattleFullscreen] 🖼️ Preloading next image:', url);
-      }
-    }
-  }, [currentIndex, questions]);
-
-  // ОПТИМИЗАЦИЯ: Heartbeat используется только как fallback при отсутствии Realtime
-  // Realtime подписка отслеживает активность в реальном времени через useDuelRealtime
-  // Heartbeat вызывается только если Realtime не работает (каждые 60 секунд)
-  // 🆕 Heartbeat для отслеживания активности (используем новый хук)
-  useDuelHeartbeat({
-    duelId: isDuelActive ? duelId : null,
-    profileId: isDuelActive ? profileId : null,
-    enabled: isDuelActive,
-    interval: 5000, // 5 секунд
+  // 🔄 LIFECYCLE MANAGEMENT
+  // replaces multiple useEffects for initialization, reconnection, and sync
+  // PLACED HERE to ensure all dependencies (syncPlayers, syncQuestions) are initialized
+  useDuelLifecycle({
+    duelId,
+    profileId,
+    state: realtimeState,
+    syncPlayers,
+    syncQuestions,
+    syncBoostInventory,
+    syncBetInfo,
+    setLoading
   });
 
-  // Синхронизация статуса активности из Realtime
-  useEffect(() => {
-    if (state.opponentActivityStatus) {
-      setOpponentActivityStatus(state.opponentActivityStatus);
-    }
-    if (state.opponentLastSeen) {
-      setOpponentLastSeen(state.opponentLastSeen);
-    }
-  }, [state.opponentActivityStatus, state.opponentLastSeen]);
+  // ⚡️ ПРЕДЗАГРУЗКА ИЗОБРАЖЕНИЙ: Загружаем картинку следующего вопроса заранее
+  // Подключаем хук для автоматических ответов бота
+  const currentQuestionId = storeQuestions[storeCurrentIndex]?.id || null;
+  useBotOpponent({
+    duelId,
+    currentQuestionId,
+    currentQuestionIndex: storeCurrentIndex,
+    totalQuestions: storeQuestions.length,
+    players,
+    profileId,
+  });
 
-  // 🆕 Отслеживание статуса оппонента с DEBOUNCE (убирает спам уведомлений)
-  // КРИТИЧНО: Используем debounce для стабильности - не реагируем на кратковременные пропадания сигнала
-  useEffect(() => {
-    if (!isDuelActive || !duelId || !profileId || !myPlayerId) return;
-
-    let debounceTimeout: NodeJS.Timeout | null = null;
-    let lastKnownStatus: { isConnected: boolean; lastSeen: Date | null } | null = null;
-
-    const fetchOpponentStatus = async () => {
-      try {
-        // Получаем данные оппонента из duel_players
-        const { data: players } = await supabase
-          .from('duel_players')
-          .select('id, user_id, is_connected, last_heartbeat_at')
-          .eq('duel_id', duelId);
-
-        if (!players || players.length < 2) return;
-
-        const opponent = players.find((p: any) => p.user_id !== profileId);
-        if (!opponent) return;
-
-        const newIsConnected = opponent.is_connected || false;
-        const newLastSeen = opponent.last_heartbeat_at ? new Date(opponent.last_heartbeat_at) : null;
-
-        // DEBOUNCE: Если статус изменился на "отключен", ждем GRACE_PERIOD_MS перед обновлением
-        if (!newIsConnected && lastKnownStatus?.isConnected) {
-          // Оппонент только что отключился - запускаем debounce
-          if (debounceTimeout) clearTimeout(debounceTimeout);
-
-          debounceTimeout = setTimeout(() => {
-            // Проверяем еще раз - может он уже вернулся
-            fetchOpponentStatus();
-          }, GRACE_PERIOD_MS);
-
-          return; // Не обновляем статус сразу
-        }
-
-        // Если оппонент вернулся или статус стабильный - обновляем сразу
-        if (newIsConnected || !lastKnownStatus) {
-          if (debounceTimeout) {
-            clearTimeout(debounceTimeout);
-            debounceTimeout = null;
-          }
-
-          setOpponentIsConnected(newIsConnected);
-          if (newLastSeen) {
-            setOpponentLastSeen(newLastSeen);
-          }
-        } else {
-          // Оппонент офлайн, но мы уже прошли debounce - обновляем
-          setOpponentIsConnected(newIsConnected);
-          if (newLastSeen) {
-            setOpponentLastSeen(newLastSeen);
-          }
-        }
-
-        lastKnownStatus = { isConnected: newIsConnected, lastSeen: newLastSeen };
-      } catch (error) {
-        logError('[DuelBattleFullscreen] Error fetching opponent status:', error);
-      }
-    };
-
-    // Загружаем сразу
-    fetchOpponentStatus();
-
-    // Обновляем каждые 3 секунды (чаще для более точного таймера)
-    const interval = setInterval(fetchOpponentStatus, 3000);
-
-    return () => {
-      if (debounceTimeout) clearTimeout(debounceTimeout);
-      clearInterval(interval);
-    };
-  }, [isDuelActive, duelId, profileId, myPlayerId]);
-
-  // 🆕 Обработчик авто-победы (объявляем ПЕРЕД useEffect, который его использует)
-  const handleAutoWin = useCallback(async () => {
-    if (!duelId || !profileId) return;
-
-    try {
-      log('[DuelBattleFullscreen] 🏆 Claiming technical win...');
-
-      // КРИТИЧНО: Используем сервисный файл вместо прямого RPC вызова
-      // Это предотвращает циклические зависимости
-      const { claimTechnicalWin } = await import('@/services/duelTechnicalWin');
-      const result = await claimTechnicalWin(duelId, profileId);
-
-      if (!result.success) {
-        logError('[DuelBattleFullscreen] Error claiming technical win:', result.error);
-        toast.error('Ошибка при получении победы', {
-          description: result.error || 'Неизвестная ошибка',
-        });
-        return;
-      }
-
-      log('[DuelBattleFullscreen] ✅ Technical win claimed successfully');
-      toast.success('🏆 Техническая победа!', {
-        description: 'Оппонент отключился',
-        duration: 3000,
-      });
-
-      // Переходим к результатам с snapshot
-      setTimeout(() => {
-        transitionToResults();
-      }, 2000);
-    } catch (error) {
-      logError('[DuelBattleFullscreen] Exception claiming technical win:', error);
-      toast.error('Ошибка при получении победы');
-    }
-  }, [duelId, profileId, onDuelFinished]);
-
-  // 🆕 Auto-Win логика: отслеживание отключения оппонента (БЕЗ блокирующего overlay)
-  // КРИТИЧНО: Игра продолжается, таймер показывается только в компактном индикаторе
-  useEffect(() => {
-    if (!isDuelActive || !opponentLastSeen || opponentIsConnected) {
-      return; // Не блокируем игру
-    }
-
-    const checkAutoWin = () => {
-      const timeSinceLastSeen = Date.now() - opponentLastSeen.getTime();
-
-      // Если прошло больше AUTO_WIN_TIMEOUT_MS - вызываем claim_technical_win
-      if (timeSinceLastSeen >= AUTO_WIN_TIMEOUT_MS) {
-        handleAutoWin();
-      }
-    };
-
-    // Проверяем каждую секунду (таймер обновляется в CompactConnectionStatusIndicator)
-    const interval = setInterval(checkAutoWin, 1000);
-    return () => clearInterval(interval);
-  }, [isDuelActive, opponentLastSeen, opponentIsConnected, handleAutoWin]);
-
-  // Обновление статуса активности при чтении вопроса
-  useEffect(() => {
-    if (!duelId || !profileId || !questions.length || !state.duelStarted) return;
-
-    // Когда показывается новый вопрос - статус "thinking"
-    supabase.functions.invoke('duel-manager', {
-      body: {
-        action: 'update_activity_status',
-        duel_id: duelId,
-        profile_id: profileId,
-        status: 'thinking'
-      }
-    }).catch(error => {
-      logError('[DuelBattleFullscreen] Error updating activity status to thinking:', error);
-    });
-  }, [currentIndex, duelId, profileId, questions.length, state.duelStarted]);
-
-  // Уведомления о смене статуса активности соперника
-  useEffect(() => {
-    if (!opponentName || opponentActivityStatus === previousActivityStatusRef.current) return;
-
-    const statusMessages: Record<string, { title: string; description: string; icon: string; duration: number }> = {
-      online: {
-        title: `${opponentName} вернулся`,
-        description: 'Соперник снова онлайн',
-        icon: '🟢',
-        duration: 2000
-      },
-      thinking: {
-        title: `${opponentName} думает`,
-        description: 'Читает вопрос...',
-        icon: '💭',
-        duration: 1500
-      },
-      answering: {
-        title: `${opponentName} отвечает!`,
-        description: 'Торопится!',
-        icon: '⚡',
-        duration: 2000
-      },
-      reconnecting: {
-        title: `${opponentName} переподключается`,
-        description: 'Проблемы с соединением',
-        icon: '🔄',
-        duration: 3000
-      },
-      offline: {
-        title: `${opponentName} офлайн`,
-        description: 'Потеряно соединение',
-        icon: '⚠️',
-        duration: 3000
-      }
-    };
-
-    const message = statusMessages[opponentActivityStatus];
-    if (message && previousActivityStatusRef.current !== 'online') {
-      toast.info(message.title, {
-        description: message.description,
-        duration: message.duration,
-        icon: message.icon
-      });
-    }
-
-    previousActivityStatusRef.current = opponentActivityStatus;
-  }, [opponentActivityStatus, opponentName]);
-
-  // Детекция переподключения
-  useEffect(() => {
-    if (!opponentLastSeen || opponentActivityStatus !== 'online') return;
-
-    const checkReconnection = () => {
-      if (!opponentLastSeen) return;
-
-      const now = Date.now();
-      const lastSeen = opponentLastSeen.getTime();
-      const timeSinceLastSeen = now - lastSeen;
-
-      // Если был офлайн > 5 секунд и вернулся - это переподключение
-      if (timeSinceLastSeen > 5000 && previousActivityStatusRef.current === 'offline') {
-        setOpponentActivityStatus('reconnecting');
-
-        setTimeout(() => {
-          setOpponentActivityStatus('online');
-        }, 2000);
-      }
-    };
-
-    const interval = setInterval(checkReconnection, 1000);
-    return () => clearInterval(interval);
-  }, [opponentLastSeen, opponentActivityStatus]);
-
-  // Обработка disconnect при закрытии приложения/вкладки
-  useEffect(() => {
-    if (!duelId || !profileId || !state.duelStarted) return;
-
-    const handleBeforeUnload = async () => {
-      // Помечаем игрока как отключенного
-      try {
-        await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'handle_disconnect',
-            duel_id: duelId,
-            profile_id: profileId
-          }
-        });
-      } catch (error) {
-        logError('[DuelBattleFullscreen] Error handling disconnect:', error);
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      // Также вызываем при размонтировании компонента
-      handleBeforeUnload();
-    };
-  }, [duelId, profileId, state.duelStarted]);
-
-  // Обработка timeout если игрок не отвечает > 30 секунд
-  useEffect(() => {
-    if (!state.duelStarted || isAnswered || !questions.length) return;
-
-    const timeoutId = setTimeout(() => {
-      if (!isAnswered && timeLeft < 30000) {
-        // Игрок не ответил за 30 секунд - предупреждение
-        toast.warning('⏰ Поторопись! Осталось 10 секунд!', {
-          duration: 3000,
-          className: "font-bold border-red-500/50 bg-red-500/10 text-red-500"
-        });
-      }
-    }, 30000);
-
-    return () => clearTimeout(timeoutId);
-  }, [currentIndex, state.duelStarted, isAnswered, timeLeft, questions.length]);
-
-  // УБРАНО: Countdown - битва начинается сразу когда дуэль стартовала
-  // Перезагружаем счет после старта дуэли
-  useEffect(() => {
-    if (state.duelStarted && questions.length > 0 && !loading) {
-      log('[DuelBattleFullscreen] Duel started, loading scores...');
-      setTimeout(() => {
-        syncPlayers();
-      }, 500);
-    }
-  }, [state.duelStarted, questions.length, loading]);
-
-  // Update notifications when opponent answers and force score refresh
-  useEffect(() => {
-    if (state.opponentAnswered && state.opponentAnswerData) {
-      log('[DuelBattleFullscreen] Opponent answered:', state.opponentAnswerData);
-
-      const isCorrect = state.opponentAnswerData.is_correct;
-      const points = state.opponentAnswerData.points_awarded || 0;
-
-      // Обновляем счет сразу после ответа соперника
-      // Realtime должен обновить счет автоматически, но на всякий случай обновляем напрямую
-      if (state.opponentScore !== opponentScore) {
-        setOpponentScore(state.opponentScore);
-      }
-
-      // NOTE: Уведомления показываются через useNotifications hook
-      // Не нужно дублировать toast-уведомления здесь, чтобы избежать дублирования
-      // Звук также играется в useNotifications
-    }
-  }, [state.opponentAnswered, state.opponentAnswerData, state.opponentScore, opponentScore, opponentName]);
-
-  // Handle duel completion - CRITICAL: Verify opponent actually finished before transitioning
-  useEffect(() => {
-    if (state.duelFinished && isWaitingForOpponent && !isVerifyingRef.current) {
-      // Realtime hook detected finished status - VERIFY opponent actually completed before transitioning
-      log('[DuelBattleFullscreen] Realtime detected finished status - verifying opponent completed');
-
-      // Prevent multiple simultaneous verifications
-      isVerifyingRef.current = true;
-
-      const verifyAndTransition = async () => {
-        try {
-          // Get opponent's player ID
-          const { data: players } = await supabase
-            .from('duel_players')
-            .select('id, user_id')
-            .eq('duel_id', duelId);
-
-          if (!players || players.length < 2) {
-            log('[DuelBattleFullscreen] Not enough players, ignoring');
-            return;
-          }
-
-          const opponent = players.find((p: any) => p.user_id !== profileId);
-          if (!opponent) {
-            log('[DuelBattleFullscreen] Opponent not found, ignoring');
-            return;
-          }
-
-          // Get required number of questions
-          const { data: duelInfo } = await supabase
-            .from('duels')
-            .select('num_questions')
-            .eq('id', duelId)
-            .single();
-
-          const requiredAnswers = duelInfo?.num_questions || 10;
-
-          // Count opponent's actual answers
-          const { count: opponentAnswers } = await supabase
-            .from('duel_answers')
-            .select('*', { count: 'exact', head: true })
-            .eq('player_id', opponent.id)
-            .eq('duel_id', duelId);
-
-          log('[DuelBattleFullscreen] Verification:', {
-            opponentAnswers: opponentAnswers || 0,
-            required: requiredAnswers,
-            canTransition: (opponentAnswers || 0) >= requiredAnswers
-          });
-
-          // Only transition if opponent really finished
-          if ((opponentAnswers || 0) >= requiredAnswers) {
-            log('[DuelBattleFullscreen] ✅ Opponent finished all questions, transitioning to results');
-            isVerifyingRef.current = false; // Reset before transition
-            sounds.victory();
-            toast.info('🏁 Соперник финишировал! Подводим итоги...', { duration: 3000 });
-            setTimeout(() => {
-              transitionToResults();
-            }, 1000);
-          } else {
-            log('[DuelBattleFullscreen] ⚠️ Status is finished but opponent hasn\'t completed - staying on waiting screen');
-            // Don't transition - stay on waiting screen
-            isVerifyingRef.current = false; // Reset for next check
-          }
-        } catch (error) {
-          logError('[DuelBattleFullscreen] Error verifying opponent completion:', error);
-          // On error, don't transition - better to wait than transition prematurely
-          isVerifyingRef.current = false; // Reset on error
-        }
-      };
-
-      verifyAndTransition();
-    }
-
-    // CRITICAL BACKUP: If we're waiting for opponent and duel is finished, force transition
-    // This ensures transition even if DuelWaitingReplay doesn't detect it
-    if (state.duelFinished && isWaitingForOpponent && hasFinishedMyQuestions) {
-      log('[DuelBattleFullscreen] 🔥 BACKUP: Duel finished while waiting - forcing transition after delay');
-      // Give DuelWaitingReplay time to handle it, but force transition if it doesn't
-      const backupTimer = setTimeout(() => {
-        log('[DuelBattleFullscreen] 🚀 BACKUP: Forcing transition to results');
-        transitionToResults();
-      }, 2000); // 2 second delay - if DuelWaitingReplay didn't transition, we force it
-
-      return () => clearTimeout(backupTimer);
-    }
-  }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, transitionToResults, duelId, profileId]);
-
-  // КРИТИЧНО: Переход к результатам через Realtime подписку (state.duelFinished)
-  // useDuelRealtime уже подписывается на изменения статуса дуэли через Realtime
-  // Это намного эффективнее чем периодические проверки
-  useEffect(() => {
-    if (!isWaitingForOpponent || !hasFinishedMyQuestions) {
-      return;
-    }
-
-    // Используем state.duelFinished из useDuelRealtime (Realtime подписка)
-    if (state.duelFinished && !hasTransitionedRef.current) {
-      log('[DuelBattleFullscreen] ✅✅✅ REALTIME: Duel finished! Transitioning to results');
-      hasTransitionedRef.current = true;
-
-      try {
-        if (sounds?.victory) {
-          sounds.victory();
-        }
-      } catch (soundError) {
-        logWarn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
-      }
-
-      toast.success('🏁 Дуэль завершена!', { duration: 2000 });
-      transitionToResults();
-    }
-  }, [state.duelFinished, isWaitingForOpponent, hasFinishedMyQuestions, transitionToResults]);
-
-  // CRITICAL FALLBACK: Проверка статуса дуэли каждые 3 секунды (если Realtime не сработал)
-  useEffect(() => {
-    if (!isWaitingForOpponent || !hasFinishedMyQuestions || hasTransitionedRef.current) {
-      return;
-    }
-
-    log('[DuelBattleFullscreen] 🔄 Starting fallback status check (every 3 seconds)');
-
-    const checkDuelStatus = async () => {
-      if (hasTransitionedRef.current) {
-        return;
-      }
-
-      try {
-        log('[DuelBattleFullscreen] 🔄 POLLING: Checking duel status via Edge Function...');
-
-        // 🆕 CRITICAL FIX: Используем Edge Function вместо прямого запроса к БД
-        // Telegram Mini App возвращает 406 на прямые запросы к Supabase
-        const { data, error } = await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'get_duel_status',
-            duel_id: duelId,
-            profile_id: profileId
-          },
-        });
-
-        if (error) {
-          logError('[DuelBattleFullscreen] POLLING Error checking duel status:', error);
-          return;
-        }
-
-        if (!data || !data.status) {
-          logWarn('[DuelBattleFullscreen] POLLING No status returned');
-          return;
-        }
-
-        log('[DuelBattleFullscreen] 🔄 POLLING: Duel status =', data.status);
-
-        // КРИТИЧНО: Если статус finished - переходим немедленно
-        if (data.status === 'finished' && !hasTransitionedRef.current) {
-          log('[DuelBattleFullscreen] ✅✅✅ POLLING: Duel status is FINISHED! Transitioning NOW');
-          hasTransitionedRef.current = true;
-
-          try {
-            if (sounds?.victory) {
-              sounds.victory();
-            }
-          } catch (soundError) {
-            logWarn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
-          }
-
-          toast.success('🏁 Дуэль завершена!', { duration: 2000 });
-          transitionToResults();
-        }
-      } catch (error) {
-        logError('[DuelBattleFullscreen] POLLING Error in fallback check:', error);
-      }
-    };
-
-    // Проверяем сразу при монтировании
-    checkDuelStatus();
-
-    // 🆕 CRITICAL FIX: Увеличена частота polling с 3 сек до 1 сек для Telegram Mini App
-    // Telegram может блокировать Realtime, поэтому полагаемся на polling
-    const interval = setInterval(() => {
-      if (!hasTransitionedRef.current) {
-        checkDuelStatus();
-      }
-    }, 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [duelId, isWaitingForOpponent, hasFinishedMyQuestions, transitionToResults]);
 
   // Обработка Telegram BackButton для дуэли
   useEffect(() => {
-    if (!isTelegramMiniApp()) return;
+    // 🛡️ Safe check через обертку
+    const isTG = safeIsTelegramMiniApp();
+    if (!isTG) return;
 
-    const webApp = getTelegramWebApp();
+    const webApp = safeGetTelegramWebApp();
     if (!webApp || !webApp.BackButton) return;
 
     // Показываем BackButton в дуэли
@@ -1345,7 +309,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // Обработка свайпа назад (слева направо) на мобиле
   useEffect(() => {
-    if (!isTelegramMiniApp()) return;
+    const isTG = safeIsTelegramMiniApp();
+    if (!isTG) return;
 
     const EDGE_ZONE_PX = 16;
     const startRef = { x: 0, y: 0, active: false };
@@ -1395,116 +360,26 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     };
   }, []);
 
-  // Sync opponent score from realtime - основной способ обновления счета
-  useEffect(() => {
-    if (typeof state.opponentScore === 'number' && state.opponentScore >= 0 && state.opponentScore !== opponentScore) {
-      log('[DuelBattleFullscreen] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
-      setOpponentScore(state.opponentScore);
-
-      // FALLBACK: Если мы ждем соперника и счет обновился, проверяем статус дуэли
-      // (на случай если Realtime подписка на статус не сработала)
-      // ВАЖНО: Дебаунсим проверку, чтобы не делать лишние запросы
-      if (isWaitingForOpponent && hasFinishedMyQuestions && !hasTransitionedRef.current) {
-        const statusCheckTimeout = setTimeout(async () => {
-          try {
-            const { data: duel } = await supabase
-              .from('duels')
-              .select('status, num_questions')
-              .eq('id', duelId)
-              .single();
-
-            if (duel?.status === 'finished' && !hasTransitionedRef.current) {
-              log('[DuelBattleFullscreen] ✅✅✅ FALLBACK: Duel status is finished! Transitioning to results');
-              hasTransitionedRef.current = true;
-
-              try {
-                if (sounds?.victory) {
-                  sounds.victory();
-                }
-              } catch (soundError) {
-                logWarn('[DuelBattleFullscreen] Error playing victory sound:', soundError);
-              }
-
-              toast.info('🏁 Финиш! Подводим итоги...', { duration: 2000 });
-              transitionToResults();
-            }
-          } catch (error) {
-            logError('[DuelBattleFullscreen] Error in fallback status check:', error);
-          }
-        }, 1000); // Увеличено с 500 до 1000 для дебаунса
-
-        return () => clearTimeout(statusCheckTimeout);
-      }
-    }
-  }, [state.opponentScore, opponentScore, isWaitingForOpponent, hasFinishedMyQuestions, duelId, transitionToResults]);
-
-  // FALLBACK для Telegram WebApp: периодическая проверка счета соперника
-  // Если Realtime не работает, обновляем счет каждые 3 секунды
-  // ВАЖНО: Не обновляем, если realtime активен (проверяем по последнему обновлению state.opponentScore)
-  const lastRealtimeUpdateRef = useRef<number>(0);
-  useEffect(() => {
-    if (typeof state.opponentScore === 'number') {
-      lastRealtimeUpdateRef.current = Date.now();
-    }
-  }, [state.opponentScore]);
-
-  useEffect(() => {
-    if (!duelId || !myPlayerId || !state.duelStarted || isWaitingForOpponent) return;
-
-    // Проверяем счет каждые 3 секунды как fallback (только если realtime неактивен)
-    const scoreCheckInterval = setInterval(async () => {
-      try {
-        // Если realtime обновлялся менее 5 секунд назад - пропускаем fallback
-        const timeSinceRealtimeUpdate = Date.now() - lastRealtimeUpdateRef.current;
-        if (timeSinceRealtimeUpdate < 5000) {
-          return; // Realtime активен, не используем fallback
-        }
-
-        const { data: players, error } = await supabase
-          .from('duel_players')
-          .select('id, score, user_id')
-          .eq('duel_id', duelId);
-
-        if (error) {
-          logError('[DuelBattleFullscreen] Error checking opponent score (fallback):', error);
-          return;
-        }
-
-        if (players && players.length >= 2) {
-          const opponent = players.find((p: any) => p.id !== myPlayerId);
-          if (opponent && typeof opponent.score === 'number' && opponent.score !== opponentScore) {
-            log('[DuelBattleFullscreen] 🔄 Fallback: Updating opponent score:', opponent.score, '(was:', opponentScore, ')');
-            setOpponentScore(opponent.score);
-          }
-        }
-      } catch (error) {
-        logError('[DuelBattleFullscreen] Exception in score check fallback:', error);
-      }
-    }, 3000); // Каждые 3 секунды (увеличено с 2 до 3 для снижения нагрузки)
-
-    return () => clearInterval(scoreCheckInterval);
-  }, [duelId, myPlayerId, state.duelStarted, opponentScore, isWaitingForOpponent]);
-
-  // Sync my score from realtime
+  // Sync opponent score from realtime - основной способ обновления  // Sync my score from realtime
   useEffect(() => {
     // Обновляем только если новое значение является валидным числом
-    if (typeof state.myScore === 'number' && state.myScore >= 0) {
+    if (typeof realtimeState.myScore === 'number' && realtimeState.myScore >= 0) {
       setMyScore(prev => {
         // Если счет меняется
-        if (prev !== state.myScore) {
+        if (prev !== realtimeState.myScore) {
           // Если текущий счет больше 0, а новое значение 0 - это подозрительно
           // Но обновляем, так как realtime - это источник истины
-          if (prev > 0 && state.myScore === 0) {
-            logWarn('[DuelBattleFullscreen] ⚠️ Score reset to 0 via realtime (was:', prev, ', new:', state.myScore, ')');
-          } else if (prev !== state.myScore) {
-            log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', state.myScore, '(was:', prev, ')');
+          if (prev > 0 && realtimeState.myScore === 0) {
+            logWarn('[DuelBattleFullscreen] ⚠️ Score reset to 0 via realtime (was:', prev, ', new:', realtimeState.myScore, ')');
+          } else if (prev !== realtimeState.myScore) {
+            log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', realtimeState.myScore, '(was:', prev, ')');
           }
-          return state.myScore;
+          return realtimeState.myScore;
         }
         return prev;
       });
     }
-  }, [state.myScore]);
+  }, [realtimeState.myScore, setMyScore]);
 
   // УБРАНО: Периодическое обновление счета - теперь используется Realtime через useDuelRealtime
   // useDuelRealtime уже подписывается на изменения duel_players через postgres_changes
@@ -1526,26 +401,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [duelId]);
 
-  // Загружаем данные игроков при монтировании (с задержкой, чтобы игроки успели создаться)
-  useEffect(() => {
-    log('[DuelBattleFullscreen] 🔄 useEffect: Loading scores on mount', { profileId, duelId });
-    if (profileId && duelId) {
-      // Даем время на создание игроков в базе
-      const timer = setTimeout(() => {
-        syncPlayers();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [duelId, profileId]);
 
   // ОПТИМИЗАЦИЯ: Сохраняем состояние активной дуэли с debounce (раз в 2 секунды)
   // Это уменьшает количество операций записи в localStorage и ререндеров
   const saveActiveDuelRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
-    if (!duelId || !profileId || !questions.length || !duelCode) return;
+    if (!duelId || !profileId || !storeQuestions?.length || !duelCode) return;
 
     // Сохраняем состояние только если дуэль активна
-    if (state.duelStarted && !state.duelFinished) {
+    if (realtimeState.duelStarted && !realtimeState.duelFinished) {
       // Очищаем предыдущий таймер
       if (saveActiveDuelRef.current) {
         clearTimeout(saveActiveDuelRef.current);
@@ -1558,10 +422,10 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           duelId,
           duelCode,
           mode: (isWaitingForOpponent ? 'waiting' : 'battle') as "waiting" | "battle",
-          currentIndex: isWaitingForOpponent ? undefined : currentIndex, // Не сохраняем currentIndex в режиме ожидания
+          currentIndex: isWaitingForOpponent ? undefined : storeCurrentIndex, // Не сохраняем currentIndex в режиме ожидания
           myScore,
           opponentScore,
-          totalQuestions: questions.length,
+          totalQuestions: storeQuestions.length,
           myName,
           opponentName,
         };
@@ -1590,11 +454,11 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         clearTimeout(saveActiveDuelRef.current);
       }
     };
-  }, [duelId, duelCode, currentIndex, myScore, opponentScore, questions.length, myName, opponentName, isWaitingForOpponent, state.duelStarted, state.duelFinished, profileId, activeDuel, saveActiveDuel, updateActiveDuel]);
+  }, [duelId, duelCode, storeCurrentIndex, myScore, opponentScore, storeQuestions?.length, myName, opponentName, isWaitingForOpponent, realtimeState.duelStarted, realtimeState.duelFinished, profileId, activeDuel, saveActiveDuel, updateActiveDuel]);
 
   // Перезагружаем когда дуэль началась (игроки должны быть точно созданы)
   useEffect(() => {
-    if (state.duelStarted && duelId && profileId) {
+    if (realtimeState.duelStarted && duelId && profileId) {
       log('[DuelBattleFullscreen] 🔄 useEffect: Duel started, reloading scores', { myPlayerId });
       // Увеличиваем задержку, чтобы гарантировать что игроки созданы
       const timer = setTimeout(() => {
@@ -1602,13 +466,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [state.duelStarted, duelId, profileId]);
+  }, [realtimeState.duelStarted, duelId, profileId]);
 
   // КРИТИЧНО: Обработка завершения дуэли (когда Realtime говорит, что дуэль закончена)
   useEffect(() => {
     // 🆕 CRITICAL FIX: Переходим к результатам только если МЫ ТОЖЕ закончили
     // Если соперник закончил, а мы еще нет - мы НЕ должны блокировать экран
-    if (state.duelFinished && !hasTransitionedRef.current) {
+    if (realtimeState.duelFinished && !hasTransitionedRef.current) {
       if (hasFinishedMyQuestions) {
         log('[DuelBattleFullscreen] 🏁 Realtime: Duel finished and I am finished too. Transitioning...');
         transitionToResults();
@@ -1617,22 +481,25 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         // Мы НЕ ставим setIsWaitingForOpponent(true), так как мы еще играем!
       }
     }
-  }, [state.duelFinished, hasFinishedMyQuestions, transitionToResults]);
+  }, [realtimeState.duelFinished, hasFinishedMyQuestions, transitionToResults]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления safe area (должно быть выше useEffect, который их использует)
   const isTelegramMobile = safeArea.platform === 'ios' || safeArea.platform === 'android';
-  // 🆕 CRITICAL FIX: Определяем именно Telegram Mini App (не просто мобильный браузер)
-  const isInTelegramMiniApp = isTelegramMiniApp();
-  // КРИТИЧНО: Telegram Desktop может иметь платформу 'tdesktop', 'macos', 'windows', 'linux', 'web'
-  // Используем функцию из lib/telegram для правильного определения
+
+  // 🆕 SAFE CHECKS: Определяем Mini App через обертку
+  const isInTelegramMiniApp = safeIsTelegramMiniApp();
+
+  // КРИТИЧНО: Telegram Desktop может иметь различные платформы
   const isTelegramDesktop = !isTelegramMobile && (
     safeArea.platform === 'tdesktop' ||
     safeArea.platform === 'macos' ||
     safeArea.platform === 'windows' ||
     safeArea.platform === 'linux' ||
-    safeArea.platform === 'web' ||
-    safeArea.platform === 'telegram'
+    safeArea.platform === 'web'
   );
+
+  const webApp = safeGetTelegramWebApp();
+  const isTG = isInTelegramMiniApp;
 
   const safeAreaValues = useMemo(() => {
     // Вычисляем общий верхний отступ: системный safe area + отступ от нативной панели Telegram
@@ -1702,13 +569,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     });
   }, [safeArea.platform, safeArea.top, safeArea.contentTop, totalTopPadding, progressBarTop, contentTopPadding, PROGRESS_BAR_HEIGHT, isTelegramMobile]);
 
-  // ОПТИМИЗАЦИЯ: Используем хук для обработки таймаута (должно быть выше useEffect таймера)
-  const { handleTimeout } = useDuelTimeout({
+  // ⏱️ Logic: Timer & Timeout (Encapsulated)
+  const { handleTimeout } = useDuelTimer({
     duelId,
     profileId,
-    questions,
-    currentIndex,
+    questions: storeQuestions,
+    currentIndex: storeCurrentIndex,
     isAnswered,
+    isWaitingForOpponent,
+    hasFinishedMyQuestions,
+    setTimeLeft,
     setMyScore,
     setCombo,
     setIsAnswered,
@@ -1716,665 +586,46 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     isFinishingRef,
     moveToNextQuestion,
     finishDuel,
+    refreshExploits,
+    questionEndTimeRef
   });
-
-  // Timer logic with timestamp fix (endTime pattern) - работает даже при переключении вкладок
-  const questionEndTimeRef = useRef<number | null>(null);
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const prevTimerSecondsRef = useRef<number | null>(null); // Для haptic feedback таймера
-  const currentIndexRef = useRef<number>(-1); // КРИТИЧНО: Ref для отслеживания изменения currentIndex
-  const handleTimeoutRef = useRef(handleTimeout); // КРИТИЧНО: Ref для handleTimeout, чтобы избежать перезапуска
-  const TIME_LIMIT_MS = 60000; // 60 seconds
-
-  // КРИТИЧНО: Обновляем ref при изменении handleTimeout
-  useEffect(() => {
-    handleTimeoutRef.current = handleTimeout;
-  }, [handleTimeout]);
-
-  // КРИТИЧНО: Устанавливаем время окончания при загрузке нового вопроса
-  // Этот useEffect должен выполняться ПЕРВЫМ и устанавливать таймер
-  useEffect(() => {
-    // КРИТИЧНО: Проверяем, действительно ли изменился currentIndex
-    // Если currentIndex не изменился и таймер уже запущен, не перезапускаем его
-    if (currentIndexRef.current === currentIndex && timerIntervalRef.current && questionEndTimeRef.current) {
-      // Таймер уже запущен для этого вопроса, не перезапускаем
-      return;
-    }
-
-    // Обновляем ref текущего индекса
-    currentIndexRef.current = currentIndex;
-
-    // Очищаем предыдущий таймер
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-      timerIntervalRef.current = null;
-    }
-
-    // КРИТИЧНО: Детальное логирование условий для отладки (ВСЕГДА, не только в dev)
-
-    // Проверяем условия для запуска таймера
-    if (!questions.length || isAnswered || isWaitingForOpponent || hasFinishedMyQuestions) {
-      console.warn('[DuelBattleFullscreen] ⚠️ Timer NOT starting - conditions not met:', {
-        noQuestions: !questions.length,
-        isAnswered,
-        isWaitingForOpponent,
-        hasFinishedMyQuestions
-      });
-      questionEndTimeRef.current = null;
-      setTimeLeft(TIME_LIMIT_MS); // Устанавливаем начальное значение даже если таймер не запускается
-      return;
-    }
-
-    // КРИТИЧНО: Убеждаемся, что currentIndex валиден
-    if (currentIndex < 0 || currentIndex >= questions.length) {
-      console.warn('[DuelBattleFullscreen] ⚠️ Timer NOT starting - invalid currentIndex:', {
-        currentIndex,
-        questionsLength: questions.length
-      });
-      questionEndTimeRef.current = null;
-      setTimeLeft(TIME_LIMIT_MS);
-      return;
-    }
-
-    // Устанавливаем время окончания = Сейчас + 60 секунд
-    const targetTime = Date.now() + TIME_LIMIT_MS;
-    questionEndTimeRef.current = targetTime;
-    setTimeLeft(TIME_LIMIT_MS);
-
-    // КРИТИЧНО: Логируем запуск таймера ВСЕГДА (не только в dev)
-
-
-    // КРИТИЧНО: Принудительно проверяем exploits при старте таймера (для Telegram Mini App)
-    // Это нужно, потому что polling может не запуститься вовремя или потерять контекст
-    if (refreshExploits) {
-      console.log('[DuelBattleFullscreen] 🔄🔄🔄 Forcing exploit refresh on timer start 🔄🔄🔄');
-      refreshExploits().catch((error) => {
-        console.error('[DuelBattleFullscreen] ❌ Error refreshing exploits on timer start:', error);
-      });
-    }
-
-    // КРИТИЧНО: Функция обновления таймера (вынесена для переиспользования)
-    const updateTimer = () => {
-      if (!questionEndTimeRef.current) {
-        if (timerIntervalRef.current) {
-          clearInterval(timerIntervalRef.current);
-          timerIntervalRef.current = null;
-        }
-        return;
-      }
-
-      const now = Date.now();
-      const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000; // В миллисекундах
-      const seconds = Math.ceil(secondsRemaining / 1000);
-
-      // 🎯 Haptic feedback для таймера (пульсация каждую секунду при < 5 сек)
-      if (seconds <= 5 && seconds > 0 && seconds !== prevTimerSecondsRef.current) {
-        if (seconds <= 2) {
-          haptics.timerCritical(); // Более интенсивная вибрация в критический момент
-        } else {
-          haptics.timerPulse(); // Пульсация как сердцебиение
-        }
-        prevTimerSecondsRef.current = seconds;
-      }
-
-      if (secondsRemaining <= 0) {
-        // 🛑 Время вышло
-        console.log('[DuelBattleFullscreen] ⏱️⏱️⏱️ TIMER EXPIRED - Calling handleTimeout ⏱️⏱️⏱️', {
-          questionNumber: currentIndex + 1,
-          currentIndex,
-          isAnswered,
-          handleTimeoutExists: !!handleTimeoutRef.current
-        });
-        setTimeLeft(0);
-        questionEndTimeRef.current = null;
-        prevTimerSecondsRef.current = null; // Сбрасываем отслеживание
-        if (timerIntervalRef.current) {
-          clearInterval(timerIntervalRef.current);
-          timerIntervalRef.current = null;
-        }
-        // КРИТИЧНО: Вызываем handleTimeout синхронно, чтобы гарантировать переход к следующему вопросу
-        if (handleTimeoutRef.current) {
-          handleTimeoutRef.current().catch((error: any) => {
-            console.error('[DuelBattleFullscreen] ❌ Error in handleTimeout:', error);
-          });
-        } else {
-          console.error('[DuelBattleFullscreen] ❌ handleTimeoutRef.current is null!');
-        }
-      } else {
-        // ✅ Обновляем UI
-        setTimeLeft(secondsRemaining);
-      }
-    };
-
-    // Запускаем таймер сразу
-    timerIntervalRef.current = setInterval(updateTimer, 250); // Обновляем 4 раза в секунду для плавности
-
-    // КРИТИЧНО: Также обновляем сразу при запуске (на случай если прошло время)
-    updateTimer();
-
-    // Cleanup при размонтировании или изменении зависимостей
-    return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-        timerIntervalRef.current = null;
-      }
-    };
-  }, [currentIndex, questions.length, isAnswered, isWaitingForOpponent, hasFinishedMyQuestions, setTimeLeft]);
-
-  // Обработчик visibilitychange - мгновенное обновление при возвращении на вкладку
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && questionEndTimeRef.current && !isAnswered && !isWaitingForOpponent && !hasFinishedMyQuestions) {
-        // Мгновенный пересчет при возвращении
-        const now = Date.now();
-        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
-
-        log('[DuelBattleFullscreen] 👁️ Tab became visible, recalculating timer. Remaining:', secondsRemaining, 'ms');
-
-        if (secondsRemaining <= 0) {
-          setTimeLeft(0);
-          questionEndTimeRef.current = null;
-          if (timerIntervalRef.current) {
-            clearInterval(timerIntervalRef.current);
-            timerIntervalRef.current = null;
-          }
-          handleTimeout();
-        } else {
-          setTimeLeft(secondsRemaining);
-
-          // КРИТИЧНО: Всегда перезапускаем интервал при возвращении на вкладку
-          // Браузер может замедлить или остановить интервалы в фоновых вкладках
-          // Перезапуск гарантирует, что таймер продолжит работать корректно
-          if (timerIntervalRef.current) {
-            clearInterval(timerIntervalRef.current);
-            timerIntervalRef.current = null;
-          }
-
-          log('[DuelBattleFullscreen] 🔄 Restarting timer interval after tab visibility');
-          timerIntervalRef.current = setInterval(() => {
-            if (!questionEndTimeRef.current) {
-              if (timerIntervalRef.current) {
-                clearInterval(timerIntervalRef.current);
-                timerIntervalRef.current = null;
-              }
-              return;
-            }
-
-            const now = Date.now();
-            const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
-
-            if (secondsRemaining <= 0) {
-              log('[DuelBattleFullscreen] ⏱️ Timer expired for question', currentIndexRef.current + 1);
-              setTimeLeft(0);
-              questionEndTimeRef.current = null;
-              if (timerIntervalRef.current) {
-                clearInterval(timerIntervalRef.current);
-                timerIntervalRef.current = null;
-              }
-              handleTimeout();
-            } else {
-              setTimeLeft(secondsRemaining);
-            }
-          }, 250);
-        }
-      } else if (document.visibilityState === 'hidden') {
-        // При скрытии вкладки логируем, но не останавливаем таймер
-        // Таймер продолжит работать в фоне и обновится при возвращении
-        log('[DuelBattleFullscreen] 👁️ Tab hidden, timer continues in background');
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isAnswered, isWaitingForOpponent, hasFinishedMyQuestions]);
 
   // ОПТИМИЗАЦИЯ: Сброс дополнительных состояний при смене вопроса
   useEffect(() => {
     // НЕ сбрасываем questionEndTimeRef здесь - это делается в основном useEffect выше
     setTranslationLanguage(null);
-  }, [currentIndex]);
+  }, [storeCurrentIndex]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем функцию для сброса usedBoosts
   const setUsedBoostsReset = useCallback(() => {
     setUsedBoosts([]);
   }, [setUsedBoosts]);
 
-  // ОПТИМИЗАЦИЯ: Мемоизируем handleBoostUse с useCallback
-  const handleBoostUse = useCallback(async (boostType: string, language?: 'ru' | 'en') => {
-    // КРИТИЧНО: Логируем начало использования буста
-    console.log('[DuelBattleFullscreen] 🚀🚀🚀 handleBoostUse CALLED 🚀🚀🚀:', {
-      boostType,
-      language,
-      duelId,
-      profileId,
-      currentQuestionId: questions[currentIndex]?.id,
-      timestamp: new Date().toISOString()
-    });
 
-    // КРИТИЧЕСКИ ВАЖНО: разблокируем AudioContext при первом использовании буста
-    if (!sounds.isUnlocked()) {
-      sounds.forceUnlock();
-    }
-
-    if (usedBoosts.includes(boostType) || isAnswered) {
-      console.log('[DuelBattleFullscreen] ⏭️ Boost use skipped:', {
-        boostType,
-        reason: usedBoosts.includes(boostType) ? 'already used' : 'answered',
-        usedBoosts,
-        isAnswered
-      });
-      return;
-    }
-
-    const boost = boosts.find(b => b.boost_type === boostType);
-    if (!boost || boost.quantity <= 0) {
-      console.log('[DuelBattleFullscreen] ⏭️ Boost use skipped: no boost or quantity 0', {
-        boostType,
-        boost,
-        quantity: boost?.quantity
-      });
-      return;
-    }
-
-    // 🆕 Определяем, является ли буст Root Mode exploit (атакой)
-    const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'];
-    const isExploit = rootModeExploits.includes(boostType);
-
-    // 🆕 Названия бустов для отображения
-    const boostNames: Record<string, string> = {
-      screen_injector: 'Data Leak',
-      input_lag: 'Input Lag',
-      gps_spoofing: 'GPS Spoofing',
-      police_backdoor: 'Police Backdoor',
-      firewall: 'Firewall',
-      cryptolocker: 'Cryptolocker',
-      rewind: 'Rewind',
-    };
-
-    // 🆕 Мгновенная визуальная обратная связь (Optimistic UI)
-    if (isExploit) {
-      // Вибрация при нажатии
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      }
-
-      // Показываем Hacking Overlay
-      setBoostFeedback({
-        isActive: true,
-        boostName: boostNames[boostType] || boostType,
-        boostType,
-      });
-
-      // Скрываем overlay через 1.5 секунды
-      setTimeout(() => {
-        setBoostFeedback(prev => ({ ...prev, isActive: false }));
-      }, 1500);
-    }
-
-    setUsedBoosts(prev => [...prev, boostType]);
-
-    try {
-      if (boostType === 'fifty_fifty') {
-        sounds.boostFiftyFifty();
-        const question = questions[currentIndex];
-        const incorrectOptions = (question.question_snapshot.answer_options || [])
-          .filter((opt: any) => !question.correct_option_ids.includes(opt.id))
-          .map((opt: any) => opt.id);
-
-        const toEliminate = incorrectOptions.slice(0, 2);
-        setEliminatedOptions(toEliminate);
-      } else if (boostType === 'time_extend') {
-        sounds.boostTimeExtend();
-        // Обновляем endTime при использовании буста time_extend (+30 секунд)
-        if (questionEndTimeRef.current) {
-          const now = Date.now();
-          const currentRemaining = questionEndTimeRef.current - now;
-          const newEndTime = now + Math.min(currentRemaining + 30000, TIME_LIMIT_MS);
-          questionEndTimeRef.current = newEndTime;
-          setTimeLeft(Math.min(currentRemaining + 30000, TIME_LIMIT_MS));
-        } else {
-          // Если endTime не установлен, просто добавляем время
-          setTimeLeft(prev => Math.min(prev + 30000, TIME_LIMIT_MS));
-        }
-      } else if (boostType === 'hint') {
-        sounds.boostHint();
-        toast.info('💡 Подсказка: обратите внимание на детали!');
-      } else if (boostType === 'skip') {
-        sounds.boostSkip();
-        setIsAnswered(true);
-        setTimeout(() => {
-          if (currentIndex < questions.length - 1) {
-            moveToNextQuestion();
-            setTranslationLanguage(null); // Сбрасываем перевод при переходе к следующему вопросу
-          } else {
-            finishDuel();
-          }
-        }, 500);
-      } else if (boostType === 'translate' && language) {
-        sounds.boostHint();
-        setTranslationLanguage(language);
-        const langName = language === 'ru' ? 'русский' : 'английский';
-        toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 2000 });
-      }
-
-      if (!questions || questions.length === 0 || !questions[currentIndex]) {
-        toast.error('Вопросы не загружены');
-        setBoostFeedback(prev => ({ ...prev, isActive: false }));
-        return;
-      }
-
-      // 🆕 Показываем toast для Root Mode exploits
-      if (isExploit) {
-        const toastId = toast.loading("INITIALIZING EXPLOIT...", {
-          style: {
-            background: '#000',
-            color: '#fff',
-            border: '1px solid #ef4444',
-            fontFamily: 'monospace'
-          }
-        });
-
-        try {
-          // КРИТИЧНО: Обновляем сессию перед вызовом RPC (особенно важно для Telegram Desktop)
-          let currentSession = null;
-          try {
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            currentSession = session;
-
-            if (sessionError) {
-              console.warn('[DuelBattleFullscreen] ⚠️ Session check error (continuing anyway):', {
-                error: sessionError,
-                platform: safeArea.platform,
-                isTelegramDesktop
-              });
-            }
-
-            if (!session) {
-              console.warn('[DuelBattleFullscreen] ⚠️ No active session found!', {
-                platform: safeArea.platform,
-                isTelegramDesktop,
-                profileId
-              });
-            } else {
-              const expiresIn = session.expires_at ? session.expires_at - Date.now() / 1000 : null;
-              console.log('[DuelBattleFullscreen] 📋 Session info:', {
-                hasSession: true,
-                expiresIn: expiresIn ? `${Math.round(expiresIn)}s` : 'unknown',
-                platform: safeArea.platform,
-                isTelegramDesktop
-              });
-
-              // Если сессия истекает в ближайшее время (< 5 минут), обновляем её
-              if (expiresIn !== null && expiresIn < 300) {
-                console.log('[DuelBattleFullscreen] 🔄 Session expiring soon, refreshing...');
-                const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
-                if (refreshError) {
-                  console.warn('[DuelBattleFullscreen] ⚠️ Failed to refresh session (continuing anyway):', refreshError);
-                } else {
-                  console.log('[DuelBattleFullscreen] ✅ Session refreshed successfully', {
-                    newExpiresIn: refreshedSession?.expires_at ? `${Math.round(refreshedSession.expires_at - Date.now() / 1000)}s` : 'unknown'
-                  });
-                }
-              }
-            }
-          } catch (sessionCheckError) {
-            console.warn('[DuelBattleFullscreen] ⚠️ Error checking/refreshing session (continuing anyway):', {
-              error: sessionCheckError,
-              platform: safeArea.platform,
-              isTelegramDesktop
-            });
-          }
-
-          // 🆕 Используем RPC функцию вместо Edge Function для надежности в Telegram Mini Apps
-          console.log('[DuelBattleFullscreen] 🔥🔥🔥 CALLING RPC use_boost_attack 🔥🔥🔥:', {
-            p_duel_id: duelId,
-            p_boost_type: boostType,
-            p_duel_question_id: questions[currentIndex]?.id || null,
-            p_language: language || null,
-            p_profile_id: profileId || null,
-            timestamp: new Date().toISOString(),
-            platform: safeArea.platform,
-            isTelegramDesktop: isTelegramDesktop
-          });
-
-          const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
-            p_duel_id: duelId,
-            p_boost_type: boostType,
-            p_duel_question_id: questions[currentIndex]?.id || null,
-            p_language: language || null,
-            p_profile_id: profileId || null,  // Передаем profileId для надежности
-          });
-
-          console.log('[DuelBattleFullscreen] 📥📥📥 RPC use_boost_attack RESULT 📥📥📥:', {
-            rpcResult,
-            rpcError,
-            success: rpcResult?.success,
-            exploitId: rpcResult?.exploit_id,
-            targetPlayerId: rpcResult?.target_player_id,
-            attackerPlayerId: rpcResult?.attacker_player_id,
-            expiresAt: rpcResult?.expires_at,
-            timestamp: new Date().toISOString()
-          });
-
-          if (rpcError) {
-            // Проверяем сессию для диагностики
-            const { data: { session: errorSession } } = await supabase.auth.getSession();
-            console.error('[DuelBattleFullscreen] ❌❌❌ RPC ERROR ❌❌❌:', {
-              error: rpcError,
-              message: rpcError.message,
-              code: rpcError.code,
-              details: rpcError.details,
-              hint: rpcError.hint,
-              platform: safeArea.platform,
-              isTelegramDesktop,
-              profileId,
-              duelId,
-              boostType,
-              hasSession: !!errorSession,
-              sessionExpiresAt: errorSession?.expires_at,
-              sessionExpiresIn: errorSession?.expires_at ? `${Math.round(errorSession.expires_at - Date.now() / 1000)}s` : 'N/A'
-            });
-            throw rpcError;
-          }
-
-          if (!rpcResult?.success) {
-            console.error('[DuelBattleFullscreen] ❌❌❌ RPC returned success=false ❌❌❌:', {
-              rpcResult,
-              error: rpcResult?.error
-            });
-            throw new Error(rpcResult?.error || 'Failed to use boost');
-          }
-
-          // Успех - обновляем toast
-          if (navigator.vibrate) {
-            navigator.vibrate([100, 50, 100]); // Двойная вибрация "Бзз-Бзз"
-          }
-
-          toast.success("MALWARE UPLOADED", {
-            id: toastId,
-            description: "Атака успешно отправлена сопернику",
-            style: {
-              background: '#020617',
-              color: '#4ade80',
-              border: '1px solid #4ade80',
-              fontFamily: 'monospace'
-            },
-            icon: '💉',
-            duration: 3000,
-          });
-
-          // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
-          setBoosts(prev => prev.map(b =>
-            b.boost_type === boostType
-              ? { ...b, quantity: Math.max(0, b.quantity - 1) }
-              : b
-          ));
-        } catch (error: any) {
-          // Ошибка
-          console.error('[DuelBattleFullscreen] ❌❌❌ BOOST ATTACK ERROR ❌❌❌:', {
-            error,
-            errorMessage: error?.message,
-            errorCode: error?.code,
-            errorDetails: error?.details,
-            errorHint: error?.hint,
-            errorStack: error?.stack,
-            platform: safeArea.platform,
-            isTelegramDesktop,
-            profileId,
-            duelId,
-            boostType
-          });
-
-          // КРИТИЧНО: Пытаемся определить тип ошибки и показать более информативное сообщение
-          let errorDescription = 'Не удалось отправить атаку';
-
-          if (error?.code === 'PGRST301' || error?.message?.includes('JWT')) {
-            errorDescription = 'Ошибка авторизации. Попробуйте перезагрузить страницу.';
-            console.log('[DuelBattleFullscreen] 🔄 Auth error detected, attempting session refresh...');
-            // Пытаемся обновить сессию для следующей попытки
-            try {
-              await supabase.auth.refreshSession();
-            } catch (refreshError) {
-              console.error('[DuelBattleFullscreen] Failed to refresh session:', refreshError);
-            }
-          } else if (error?.message) {
-            errorDescription = error.message.length > 50
-              ? error.message.substring(0, 50) + '...'
-              : error.message;
-          }
-
-          if (navigator.vibrate) {
-            navigator.vibrate(500); // Длинная вибрация ошибки
-          }
-
-          toast.error("UPLOAD FAILED", {
-            id: toastId,
-            description: errorDescription,
-            style: {
-              background: '#7f1d1d',
-              color: '#fca5a5',
-              border: '1px solid #ef4444',
-              fontFamily: 'monospace'
-            }
-          });
-          setBoostFeedback(prev => ({ ...prev, isActive: false }));
-          throw error;
-        }
-      } else {
-        // КРИТИЧНО: Обновляем сессию перед вызовом RPC (особенно важно для Telegram Desktop)
-        try {
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          if (sessionError) {
-            console.warn('[DuelBattleFullscreen] ⚠️ Session check error (Safe Mode, continuing anyway):', sessionError);
-          }
-
-          // Если сессия истекает в ближайшее время (< 5 минут), обновляем её
-          if (session?.expires_at && session.expires_at - Date.now() / 1000 < 300) {
-            console.log('[DuelBattleFullscreen] 🔄 Session expiring soon (Safe Mode), refreshing...');
-            const { error: refreshError } = await supabase.auth.refreshSession();
-            if (refreshError) {
-              console.warn('[DuelBattleFullscreen] ⚠️ Failed to refresh session (Safe Mode, continuing anyway):', refreshError);
-            } else {
-              console.log('[DuelBattleFullscreen] ✅ Session refreshed successfully (Safe Mode)');
-            }
-          }
-        } catch (sessionCheckError) {
-          console.warn('[DuelBattleFullscreen] ⚠️ Error checking/refreshing session (Safe Mode, continuing anyway):', sessionCheckError);
-        }
-
-        // Обычные бусты (Safe Mode) - используем RPC функцию
-        console.log('[DuelBattleFullscreen] 🔥🔥🔥 CALLING RPC use_boost_attack (Safe Mode) 🔥🔥🔥:', {
-          p_duel_id: duelId,
-          p_boost_type: boostType,
-          p_duel_question_id: questions[currentIndex]?.id || null,
-          p_language: language || null,
-          p_profile_id: profileId || null,
-          timestamp: new Date().toISOString(),
-          platform: safeArea.platform,
-          isTelegramDesktop: isTelegramDesktop
-        });
-
-        const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
-          p_duel_id: duelId,
-          p_boost_type: boostType,
-          p_duel_question_id: questions[currentIndex]?.id || null,
-          p_language: language || null,
-          p_profile_id: profileId || null,  // Передаем profileId для надежности
-        });
-
-        console.log('[DuelBattleFullscreen] 📥📥📥 RPC use_boost_attack RESULT (Safe Mode) 📥📥📥:', {
-          rpcResult,
-          rpcError,
-          success: rpcResult?.success,
-          boostEffect: rpcResult?.boost_effect,
-          timestamp: new Date().toISOString()
-        });
-
-        if (rpcError) {
-          console.error('[DuelBattleFullscreen] ❌❌❌ RPC ERROR (Safe Mode) ❌❌❌:', {
-            error: rpcError,
-            message: rpcError.message,
-            code: rpcError.code,
-            details: rpcError.details
-          });
-          throw rpcError;
-        }
-
-        if (!rpcResult?.success) {
-          console.error('[DuelBattleFullscreen] ❌❌❌ RPC returned success=false (Safe Mode) ❌❌❌:', {
-            rpcResult,
-            error: rpcResult?.error
-          });
-          throw new Error(rpcResult?.error || 'Failed to use boost');
-        }
-
-        // Уменьшаем количество буста локально (не синхронизируем с БД - буст уже использован)
-        setBoosts(prev => prev.map(b =>
-          b.boost_type === boostType
-            ? { ...b, quantity: Math.max(0, b.quantity - 1) }
-            : b
-        ));
-      }
-    } catch (error) {
-      logError('Error using boost:', error);
-      setUsedBoosts(prev => prev.filter(b => b !== boostType));
-      // Скрываем overlay при ошибке
-      setBoostFeedback(prev => ({ ...prev, isActive: false }));
-
-      // ВАЖНО: При ошибке НЕ уменьшаем количество буста - он не был использован
-      // Количество остается прежним, так как RPC функция не выполнила уменьшение
-
-      // Определяем isExploit заново для catch блока
-      const rootModeExploits = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'];
-      const isExploitError = rootModeExploits.includes(boostType);
-
-      if (!isExploitError) {
-        toast.error('Не удалось использовать буст');
-      }
-    }
-  }, [
-    usedBoosts,
-    isAnswered,
-    boosts,
-    questions,
-    currentIndex,
+  // 🚀 Logic: Boost Actions
+  const { handleBoostUse } = useDuelBoostAction({
     duelId,
     profileId,
-    setUsedBoosts,
+    questions: storeQuestions,
+    currentIndex: storeCurrentIndex,
+    usedBoosts,
+    boosts,
+    setBoosts,
+    isAnswered,
+    setIsAnswered,
+    setUsedBoosts: addUsedBoost, // Use the proper adder
     setEliminatedOptions,
     setTimeLeft,
     setTranslationLanguage,
-    setIsAnswered,
-    setCurrentIndex,
     setSelectedAnswer,
-    setUsedBoostsReset,
-    setBoosts,
     finishDuel,
     moveToNextQuestion,
+    questionEndTimeRef,
     setBoostFeedback,
-    safeArea, // КРИТИЧНО: Добавлено для логирования и обновления сессии в Telegram Desktop
-    isTelegramDesktop, // КРИТИЧНО: Добавлено для логирования платформы
-  ]);
+    safeArea,
+    isTelegramDesktop,
+    setUsedBoostsReset
+  });
 
   // ============================================================================
   // CRITICAL: WAITING FOR OPPONENT - LIVE REPLAY
@@ -2384,138 +635,69 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // If hidden, DuelWaitingReplay will show widget via portal and return null
   // ============================================================================
   // КРИТИЧНО: Экран ожидания показываем ТОЛЬКО если мы реально ответили на все вопросы
+  // 🔄 UI: Waiting for Opponent
   if (isWaitingForOpponent && hasFinishedMyQuestions) {
     return (
-      <DuelWaitingReplay
+      <DuelWaitingView
+        isWaitingForOpponent={isWaitingForOpponent}
+        hasFinishedMyQuestions={hasFinishedMyQuestions}
+        isWaitingHidden={isWaitingHidden}
+        setIsWaitingHidden={setIsWaitingHidden}
         duelId={duelId}
+        duelCode={duelCode}
+        profileId={profileId}
         myScore={myScore}
-        totalQuestions={questions.length}
+        opponentScore={opponentScore}
+        questionsLength={storeQuestions.length}
+        myName={myName}
+        opponentName={opponentName}
         onDuelFinished={onDuelFinished}
-        onExpand={() => {
-          // When widget expands, restore battle view
-          setIsWaitingHidden(false);
-          // Notify parent to restore battle mode
-          if (onWidgetExpand) {
-            onWidgetExpand();
-          }
-        }}
-        onHide={(hidden) => {
-          setIsWaitingHidden(hidden);
-          if (hidden) {
-            // Сохраняем состояние при сворачивании на экране ожидания
-            if (duelId && duelCode && profileId && questions.length > 0) {
-              const stateToSave = {
-                duelId,
-                duelCode,
-                mode: 'waiting' as const,
-                currentIndex: undefined, // Не сохраняем currentIndex в режиме ожидания
-                myScore,
-                opponentScore,
-                totalQuestions: questions.length,
-                myName,
-                opponentName,
-              };
-
-              // Используем saveActiveDuel если activeDuel еще не существует, иначе updateActiveDuel
-              if (activeDuel) {
-                updateActiveDuel(stateToSave);
-              } else {
-                saveActiveDuel(stateToSave);
-              }
-            }
-            // Notify parent that game is hidden - parent will show menu
-            if (onHide) {
-              onHide();
-            }
-          } else {
-            // Game is expanded again - reset state
-            setIsWaitingHidden(false);
-          }
-        }}
+        onWidgetExpand={onWidgetExpand}
+        onHide={onHide}
+        activeDuel={activeDuel}
+        saveActiveDuel={saveActiveDuel}
+        updateActiveDuel={updateActiveDuel}
       />
     );
   }
 
   // If waiting is hidden but we're not waiting for opponent (shouldn't happen)
-  // Return null so parent can show menu
-  if (isWaitingHidden) {
-    return null;
+  if (isWaitingHidden) return null;
+
+  // 🔄 UI: Loading State
+  // КРИТИЧНО: Исправлено условие показа экрана загрузки, чтобы не блокировать основной UI
+  if (loading || !storeQuestions || storeQuestions.length === 0) {
+    return <DuelLoadingView loading={loading} questionsCount={storeQuestions?.length || 0} />;
   }
 
-  if (loading || questions.length === 0) {
-    log('[DuelBattleFullscreen] 📦 Showing loading screen:', {
-      loading,
-      questionsCount: questions.length,
-      duelId,
-      profileId,
-      duelStarted: state.duelStarted
-    });
-
-    return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
-        <div className="text-center space-y-4">
-          <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-          <p className="text-lg text-muted-foreground">Загрузка вопросов...</p>
-          <p className="text-sm text-muted-foreground/70">
-            {loading ? 'Загрузка данных...' : 'Ожидание вопросов...'}
-          </p>
-        </div>
-      </div>
-    );
+  // 🔄 UI: Error State (Invalid Data)
+  const isInvalidData = !storeQuestions || storeQuestions.length === 0 || storeCurrentIndex < 0 || storeCurrentIndex >= storeQuestions.length;
+  if (isInvalidData) {
+    if (loading) return <DuelLoadingView loading={true} message="Загрузка вопросов..." />;
+    return <DuelLoadingView loading={false} isError={true} onExit={() => setShowSurrenderModal(true)} />;
   }
 
-  // Проверяем валидность вопроса перед рендерингом
-  if (!questions || questions.length === 0 || currentIndex < 0 || currentIndex >= questions.length) {
-    // Если вопросы еще загружаются или индекс невалиден, показываем loading
-    if (loading) {
-      return (
-        <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
-          <div className="text-center space-y-4">
-            <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-            <p className="text-lg text-muted-foreground">Загрузка вопросов...</p>
-          </div>
-        </div>
-      );
-    }
-    // Если не загружается, но вопросов нет - ошибка
-    return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
-        <div className="text-center space-y-4">
-          <p className="text-lg text-destructive">Ошибка загрузки вопроса</p>
-          <Button onClick={() => setShowSurrenderModal(true)}>Выйти</Button>
-        </div>
-      </div>
-    );
-  }
+  const currentQuestion = storeQuestions[storeCurrentIndex];
 
-  const currentQuestion = questions[currentIndex];
-
+  // 🔄 UI: Question Loading State
   if (!currentQuestion || !currentQuestion.question_snapshot) {
-    // Не логируем ошибку если это происходит во время загрузки
     if (!loading) {
       logError('[DuelBattleFullscreen] Invalid question data:', {
-        currentIndex,
-        questionsLength: questions.length,
+        currentIndex: storeCurrentIndex,
+        questionsLength: storeQuestions.length,
         currentQuestion,
         hasSnapshot: !!currentQuestion?.question_snapshot
       });
     }
-    return (
-      <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
-        <div className="text-center space-y-4">
-          <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto" />
-          <p className="text-lg text-muted-foreground">Загрузка вопроса...</p>
-        </div>
-      </div>
-    );
+    return <DuelLoadingView loading={true} message="Загрузка вопроса..." />;
   }
 
-  const progress = ((currentIndex + 1) / questions.length) * 100;
+  const progress = storeQuestions.length > 0 ? ((storeCurrentIndex + 1) / storeQuestions.length) * 100 : 0;
 
   // 🆕 Определяем активные exploits
-  const inputLagExploit = state.activeExploits?.find(e => e.type === 'input_lag');
+  const inputLagExploit = realtimeState.activeExploits?.find(e => e.type === 'input_lag');
   const inputLagActive = !!inputLagExploit && !activeExploits.get('input_lag')?.passed;
-  const cryptolockerExploit = state.activeExploits?.find(e => e.type === 'cryptolocker');
+  const cryptolockerExploit = realtimeState.activeExploits?.find(e => e.type === 'cryptolocker');
   const cryptolockerActive = !!cryptolockerExploit && !activeExploits.get('cryptolocker')?.passed;
 
   // УБРАНО: Countdown экран - сразу начинаем битву без задержки
@@ -2534,393 +716,90 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         touchAction: 'pan-y pinch-zoom'
       }}
     >
-      {/* 🆕 Визуальный индикатор Input Lag */}
-      {inputLagActive && (
-        <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          className="fixed top-4 left-1/2 -translate-x-1/2 z-[9997] 
-                      bg-red-950/90 border border-red-500/50 rounded-lg p-3 
-                      backdrop-blur-xl shadow-2xl"
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-red-400 animate-pulse">🕸️</span>
-            <span className="text-red-300 text-sm font-semibold">
-              СИСТЕМА ПЕРЕГРУЖЕНА! Враг применил Input Lag
-            </span>
-          </div>
-        </motion.div>
-      )}
-      {/* Toast Notifications */}
-      {/* Учитываем отступы для Telegram WebApp: разные для мобильной и десктопной версии */}
-      <div
-        className="fixed z-50 space-y-2 max-w-sm"
-        style={{
-          top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 12 : isTelegramDesktop ? 8 : 16)}px`, // Отступ 12px от верха прогресс-бара для мобильной версии Telegram (уменьшено с 40px)
-          right: `${totalRightPadding + 16}px`
-        }}
-      >
-        <AnimatePresence mode="popLayout">
-          {toastNotifications.map((notif) => (
-            <NotificationToast
-              key={notif.id}
-              {...notif}
-              onClose={() => setToastNotifications(prev => prev.filter(n => n.id !== notif.id))}
-            />
-          ))}
-        </AnimatePresence>
-      </div>
-
-      {/* Unified Progress Bar - переиспользуемый компонент */}
-      {/* 🆕 CRITICAL FIX: Переход на relative позиционирование - элементы идут в естественном потоке */}
-      <div
-        className="relative z-[5] bg-background/95 backdrop-blur-md border-b border-border/30"
-        style={{
-          paddingLeft: `${totalLeftPadding}px`,
-          paddingRight: `${totalRightPadding}px`,
-          paddingTop: isTelegramMobile || isTelegramDesktop ? '4px' : '8px',
-          paddingBottom: isTelegramMobile || isTelegramDesktop ? '4px' : '8px'
-        }}
-      >
-        <div className={`${isInTelegramMiniApp ? 'px-3 md:px-4' : 'px-3 md:px-4'} max-w-7xl mx-auto w-full`}>
-          <QuestionProgressBar
-            currentIndex={currentIndex}
-            totalQuestions={questions.length}
-            onClose={!isTelegramMobile ? () => setShowSurrenderModal(true) : undefined}
-            showClose={!isTelegramMobile}
-            showQuestionMap={false}
-            onToggleBookmark={profileId ? toggleBookmark : undefined}
-            isBookmarked={isQuestionBookmarked}
-            bookmarkLoading={bookmarkLoading}
-            SettingsMenuComponent={
-              <DuelSettingsMenu
-                open={showDuelSettings}
-                onOpenChange={setShowDuelSettings}
-                voiceOver={voiceOver}
-                onVoiceOverChange={setVoiceOver}
-                ambientMusic={ambientMusic}
-                onAmbientMusicChange={setAmbientMusic}
-                fontSize={fontSize}
-                onFontSizeChange={setFontSize}
-              />
-            }
-            customLeftContent={
-              <DuelTimer timeLeft={timeLeft} formatTime={formatTime} />
-            }
-          />
-        </div>
-      </div>
-
-      {/* Main Content */}
-      {/* 🆕 CRITICAL FIX: Естественный поток - элементы идут друг за другом */}
-      <div
-        className={`flex flex-col justify-start flex-1 ${isInTelegramMiniApp ? 'px-3 md:px-4 pb-6' : 'p-3 md:p-4 pb-6'} max-w-7xl mx-auto w-full`}
-        style={{
-          gap: isInTelegramMiniApp ? '8px' : isTelegramMobile ? '4px' : '8px'
-        }}
-      >
-        {/* Header - Scores & Boosts - Premium Design */}
-        {/* 🆕 CRITICAL FIX: Естественный поток - элементы идут друг за другом с фиксированным gap */}
-        <div
-          className={`relative z-20 ${isInTelegramMiniApp
-            ? 'flex flex-col gap-2' // Компактная вертикальная компоновка с фиксированным gap
-            : isTelegramMobile
-              ? 'flex flex-col gap-1' // Нормальный gap для обычных мобиционных браузеров
-              : 'flex items-center justify-between gap-3 flex-wrap'
-            }`}
-        >
-          {/* Scores - Enhanced - Центрированы в мобильной версии Telegram */}
-          {/* 🎯 Visual Feedback Overlay (Portal to body) */}
-          <DuelEffectsOverlay effect={feedbackEffect} />
-
-          {/* Scores & Boosts - Same Row */}
-          <div className={cn(
-            "relative flex overflow-hidden transition-transform duration-100",
-            screenShake && "animate-shake",
-            isTelegramMobile ? "flex-col gap-2" : "items-center justify-between gap-3"
-          )}>
-            <DuelScoreBoard
-              myScore={myScore}
-              opponentScore={opponentScore}
-              myName={myName}
-              opponentName={opponentName}
-              myPhotoUrl={myPhotoUrl}
-              opponentPhotoUrl={opponentPhotoUrl}
-              myInsuranceActive={myInsuranceActive}
-              myCoverageDisplay={myCoverageDisplay}
-              opponentInsuranceActive={opponentInsuranceActive}
-              opponentCoverageDisplay={opponentCoverageDisplay}
-              opponentActivityStatus={opponentActivityStatus}
-              opponentAnswered={state.opponentAnswered}
-              betInfo={betInfo}
-              seasonBonusDisplay={seasonBonusDisplay}
-              isTelegramMobile={isTelegramMobile}
-              opponentIsConnected={opponentIsConnected}
-              opponentLastSeen={opponentLastSeen}
-              combo={combo}
-            />
-
-            {/* Boosts - Premium Compact Design */}
-            <div className={`flex items-center gap-1.5 ${isTelegramMobile ? 'w-full justify-center' : ''}`}>
-              {(() => {
-                const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-
-                return (
-                  <DuelBoostsPanel
-                    boosts={boosts}
-                    usedBoosts={usedBoosts}
-                    isAnswered={isAnswered}
-                    translatePopoverOpen={translatePopoverOpen}
-                    onBoostUse={handleBoostUse}
-                    onTranslatePopoverChange={setTranslatePopoverOpen}
-                  />
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-
-        {/* Question Card */}
-        {/* FIX: Убрали flex-1 чтобы карточка не растягивалась и не создавала лишнее пространство */}
-        <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{
-            opacity: 1,
-            x: screenShake ? [0, -10, 10, -10, 10, 0] : 0,
-            y: screenShake ? [0, -5, 5, -5, 5, 0] : 0,
-          }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{
-            type: "spring",
-            stiffness: 300,
-            damping: 30,
-            ...(screenShake ? { duration: 0.5, ease: "easeOut" } : {})
-          }}
-          className="flex flex-col relative mt-2"
-        >
-          {/* УБРАНО: Блокирующий Auto-Win Timer Overlay - теперь используется компактный индикатор */}
-          <DuelQuestionCard
-            question={currentQuestion}
-            selectedAnswer={selectedAnswer}
-            isAnswered={isAnswered}
-            eliminatedOptions={eliminatedOptions}
-            translationLanguage={translationLanguage}
-            onAnswer={handleAnswer}
-            inputLagActive={!!activeExploits.get('input_lag') && !activeExploits.get('input_lag')?.passed}
-            inputLagDelay={1500}
-            cryptolockerActive={cryptolockerActive}
-          />
-        </motion.div>
-      </div>
-
-      {/* 🆕 Hacking Overlay - визуальная обратная связь при использовании буста */}
-      <BoostFeedback
-        isActive={boostFeedback.isActive}
-        boostName={boostFeedback.boostName}
-        boostType={boostFeedback.boostType}
+      <ArenaHeader
+        currentIndex={storeCurrentIndex}
+        totalQuestions={storeQuestions.length}
+        timeLeft={timeLeft}
+        myScore={myScore}
+        opponentScore={opponentScore}
+        myName={myName}
+        opponentName={opponentName}
+        myPhotoUrl={myPhotoUrl}
+        opponentPhotoUrl={opponentPhotoUrl}
+        myInsuranceActive={myInsuranceActive}
+        myCoverageDisplay={myCoverageDisplay}
+        opponentInsuranceActive={opponentInsuranceActive}
+        opponentCoverageDisplay={opponentCoverageDisplay}
+        seasonBonusDisplay={seasonBonusDisplay}
+        betInfo={betInfo}
+        opponentActivityStatus={opponentActivityStatus}
+        opponentAnswered={realtimeState.opponentAnswered}
+        opponentIsConnected={opponentIsConnected}
+        opponentLastSeen={opponentLastSeen ? new Date(opponentLastSeen) : null}
+        combo={combo}
+        screenShake={screenShake}
+        boosts={boosts}
+        usedBoosts={usedBoosts}
+        isAnswered={isAnswered}
+        translatePopoverOpen={translatePopoverOpen}
+        onBoostUse={handleBoostUse}
+        setTranslatePopoverOpen={setTranslatePopoverOpen}
+        formatTime={formatTime}
+        showDuelSettings={showDuelSettings}
+        setShowDuelSettings={setShowDuelSettings}
+        showSurrenderModal={() => setShowSurrenderModal(true)}
+        voiceOver={voiceOver}
+        setVoiceOver={setVoiceOver}
+        ambientMusic={ambientMusic}
+        setAmbientMusic={setAmbientMusic}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        isTelegramMobile={isTelegramMobile}
+        isTelegramDesktop={isTelegramDesktop}
+        isInTelegramMiniApp={isInTelegramMiniApp}
+        safeArea={safeArea}
+        formatTime={formatTime}
+        onToggleBookmark={profileId ? toggleBookmark : undefined}
+        isQuestionBookmarked={isQuestionBookmarked}
+        bookmarkLoading={bookmarkLoading}
       />
 
-      {/* 🆕 Слой спецэффектов (высокий z-index) */}
-      {(() => {
-        // КРИТИЧНО: Проверяем ВСЕ возможные типы атаки "Масло"
-        // Также фильтруем истекшие exploits (с буфером 5 секунд для компенсации лага)
-        const now = Date.now();
-        const NETWORK_LATENCY_BUFFER_MS = 10000; // 10 секунд буфера
-        const screenInjector = state.activeExploits?.find(e => {
-          const isCorrectType = e.type === 'screen_injector' ||
-            e.type === 'data_leak' ||
-            e.type === 'oil_spill';
-          if (!isCorrectType) return false;
+      {/* Question Card */}
+      <ArenaPlayground
+        currentIndex={storeCurrentIndex}
+        screenShake={screenShake}
+        currentQuestion={currentQuestion}
+        selectedAnswer={selectedAnswer}
+        isAnswered={isAnswered}
+        eliminatedOptions={eliminatedOptions}
+        translationLanguage={translationLanguage}
+        onAnswer={handleAnswer}
+        activeExploits={activeExploits}
+        cryptolockerActive={cryptolockerActive}
+      />
 
-          // Проверяем, не истек ли exploit (с буфером)
-          // КРИТИЧНО: Не скрываем атаку, пока не прошло 10 секунд с моментаexpiresAt
-          const isExpired = e.expiresAt <= now;
-          const expiredBy = now - e.expiresAt;
-          return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
-        });
-        const policeRaid = state.activeExploits?.find(e => {
-          if (e.type !== 'police_backdoor') return false;
-          const isExpired = e.expiresAt <= now;
-          const expiredBy = now - e.expiresAt;
-          return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
-        });
-        const policePassed = activeExploits.get('police_backdoor')?.passed || false;
+      {/* 🆕 Answer Processing Animation */}
+      <AnswerProcessingOverlay isVisible={isProcessingAnswer} />
 
-        // КРИТИЧНО: Проверяем passed статус для всех возможных типов
-        const screenInjectorPassed =
-          activeExploits.get('screen_injector')?.passed ||
-          activeExploits.get('data_leak')?.passed ||
-          activeExploits.get('oil_spill')?.passed ||
-          false;
-
-        // КРИТИЧНО: Детальное логирование ВСЕХ exploits для отладки (ВСЕГДА, не только в dev)
-
-
-
-        if (screenInjector) {
-          // КРИТИЧНО: Доверяем факту получения, а не времени (для Telegram Mini App)
-          // Рендерим атаку, если она есть в состоянии, даже если expiresAt в прошлом
-          // Удаляем только когда запись удалена из состояния или is_active стал false
-          const shouldRender = !screenInjectorPassed;
-          const isExpired = screenInjector.expiresAt <= Date.now();
-          const timeRemaining = screenInjector.expiresAt - Date.now();
-
-          console.log('[DuelBattleFullscreen] 🛢️ Oil Attack (Screen Injector/Data Leak) check:', {
-            screenInjector,
-            screenInjectorType: screenInjector.type,
-            screenInjectorPassed,
-            expiresAt: screenInjector.expiresAt,
-            expiresAtISO: new Date(screenInjector.expiresAt).toISOString(),
-            now: Date.now(),
-            nowISO: new Date().toISOString(),
-            expired: isExpired,
-            timeRemainingMs: timeRemaining,
-            timeRemainingSec: Math.round(timeRemaining / 1000),
-            shouldRender,
-            activeExploitsCount: state.activeExploits?.length || 0,
-            allActiveExploits: state.activeExploits?.map(e => e.type) || [],
-            note: 'Rendering based on state presence, not expiresAt (Telegram latency compensation)'
-          });
-
-          // КРИТИЧНО: Если должен рендериться, но не рендерится - логируем предупреждение
-          if (shouldRender) {
-            console.log('[DuelBattleFullscreen] ✅✅✅ OilSplashAttack SHOULD BE RENDERING NOW! ✅✅✅', {
-              isExpired,
-              timeRemainingSec: Math.round(timeRemaining / 1000),
-              note: isExpired ? 'Rendering expired exploit (latency compensation)' : 'Rendering active exploit'
-            });
-          } else {
-            console.warn('[DuelBattleFullscreen] ⚠️ OilSplashAttack NOT rendering:', {
-              reason: 'already passed',
-              expiresAt: new Date(screenInjector.expiresAt).toISOString(),
-              now: new Date().toISOString()
-            });
-          }
-
-
-          return (
-            <>
-              {/* Data Leak (Масло) 🛢️ */}
-              {/* КРИТИЧНО: Рендерим для всех возможных типов атаки "Масло" */}
-              {/* ИЗМЕНЕНО: Убрали проверку expiresAt - доверяем факту получения, а не времени */}
-              {screenInjector && !screenInjectorPassed && (
-                <Suspense fallback={null}>
-                  <OilSplashAttack
-                    isActive={true}
-                    expiresAt={screenInjector.expiresAt}
-                    exploitId={screenInjector.id}
-                    onCleaned={() => {
-                      console.log('[DuelBattleFullscreen] 🛢️ OilSplashAttack cleaned, exploit type:', screenInjector.type);
-
-                      // КРИТИЧНО: Удаляем exploit из состояния useDuelRealtime
-                      if (screenInjector.id) {
-                        removeExploit(screenInjector.id);
-                      }
-
-                      // КРИТИЧНО: Обновляем passed статус в локальном Map
-                      setActiveExploits(prev => {
-                        const updated = new Map(prev);
-                        const exploitType = screenInjector.type;
-                        const current = updated.get(exploitType);
-                        if (current) {
-                          updated.set(exploitType, { ...current, passed: true });
-                        } else {
-                          // Fallback: если не нашли по типу, пробуем screen_injector
-                          const fallback = updated.get('screen_injector');
-                          if (fallback) {
-                            updated.set('screen_injector', { ...fallback, passed: true });
-                          }
-                        }
-                        return updated;
-                      });
-                    }}
-                  />
-                </Suspense>
-              )}
-
-              {/* Полиция (Police Backdoor) */}
-              {policeRaid && !policePassed && (
-                <Suspense fallback={null}>
-                  <PoliceBackdoorAttack
-                    isActive={true}
-                    onUnlock={() => {
-                      setActiveExploits(prev => {
-                        const updated = new Map(prev);
-                        const current = updated.get('police_backdoor');
-                        if (current) {
-                          updated.set('police_backdoor', { ...current, passed: true });
-                        }
-                        return updated;
-                      });
-                    }}
-                  />
-                </Suspense>
-              )}
-            </>
-          );
-        }
-        return null;
-      })()}
-
-      {/* Модалка сдачи */}
-      <Suspense fallback={null}>
-        <ExitDuelModal
-          open={showSurrenderModal}
-          onOpenChange={setShowSurrenderModal}
-          duelId={duelId}
-          onSurrender={onExit}
-        />
-      </Suspense>
-
-      {/* 🆕 Reconnection Modal */}
-      <Suspense fallback={null}>
-        <ReconnectionModal
-          open={showReconnectionModal}
-          onResume={async () => {
-            setIsReconnecting(true);
-            setReconnectAttempt(prev => prev + 1);
-
-            // Пытаемся восстановить соединение
-            try {
-              // Отправляем heartbeat для обновления статуса
-              await supabase.functions.invoke('duel-manager', {
-                body: {
-                  action: 'heartbeat',
-                  duel_id: duelId,
-                  profile_id: profileId,
-                },
-              });
-
-              // Ждем немного и проверяем статус
-              await new Promise(resolve => setTimeout(resolve, 2000));
-
-              // Проверяем, что дуэль еще активна
-              const { data: duel } = await supabase
-                .from('duels')
-                .select('status')
-                .eq('id', duelId)
-                .single();
-
-              if (duel?.status === 'active') {
-                setShowReconnectionModal(false);
-                setIsReconnecting(false);
-                // Убрано: toast уведомление - статус показывается в индикаторе рядом с аватаром
-              } else {
-                toast.error('Дуэль уже завершена');
-                transitionToResults();
-              }
-            } catch (error) {
-              logError('[DuelBattleFullscreen] Reconnection error:', error);
-              toast.error('Не удалось восстановить соединение');
-              setIsReconnecting(false);
-            }
-          }}
-          onSurrender={onExit}
-          isReconnecting={isReconnecting}
-        />
-      </Suspense>
+      {/* 🆕 Unified Overlays Layer */}
+      <DuelOverlays
+        toastNotifications={toastNotifications}
+        setToastNotifications={setToastNotifications}
+        isTelegramMobile={isTelegramMobile}
+        isTelegramDesktop={isTelegramDesktop}
+        safeArea={safeArea}
+        progressBarTop={progressBarTop}
+        totalRightPadding={totalRightPadding}
+        boostFeedback={boostFeedback}
+        feedbackEffect={feedbackEffect}
+        removeExploit={removeExploit}
+        duelId={duelId}
+        profileId={profileId}
+        showSurrenderModal={showSurrenderModal}
+        setShowSurrenderModal={setShowSurrenderModal}
+        onExit={onExit}
+        transitionToResults={transitionToResults}
+      />
     </div >
   );
 }

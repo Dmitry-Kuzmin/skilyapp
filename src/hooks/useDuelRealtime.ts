@@ -13,11 +13,14 @@ const isDev = import.meta.env.DEV;
 const log = (...args: any[]) => {
   if (isDev) console.log(...args);
 };
-const logError = (...args: any[]) => {
-  if (isDev) console.error(...args);
-};
-const logWarn = (...args: any[]) => {
-  if (isDev) console.warn(...args);
+const logError = (...args: any[]) => { if (import.meta.env.DEV) console.error(...args); };
+const logWarn = (...args: any[]) => { if (import.meta.env.DEV) console.warn(...args); };
+
+// Helper to validate UUID
+const isValidUUID = (id: any): id is string => {
+  if (typeof id !== 'string') return false;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
 };
 
 // 🆕 Helper для debug fetch (только в dev режиме)
@@ -124,13 +127,15 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       hasAllParams: !!(duelId && myPlayerId && profileId),
     });
 
-    if (!duelId || !myPlayerId || !profileId) {
-      logWarn('[useDuelRealtime] ⚠️ Cannot recover exploits: missing parameters', {
-        duelId: !!duelId,
+    const isIdValid = isValidUUID(duelId);
+
+    if (!isIdValid || !myPlayerId || !profileId) {
+      logWarn('[useDuelRealtime] ⚠️ Cannot recover exploits: conditions not met', {
+        duelId: duelId || 'null',
+        isIdValid,
         myPlayerId: !!myPlayerId,
         profileId: !!profileId
       });
-      log('[useDuelRealtime] Cannot recover exploits: missing duelId, myPlayerId or profileId');
       return;
     }
 
@@ -143,8 +148,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       });
       log('[useDuelRealtime] 🔄 Starting exploit recovery...');
 
-      // myPlayerId - это уже ID из duel_players, используем его напрямую
-      const targetPlayerId = myPlayerId;
+      // myPlayerId - это уже ID из duel_players, используем его напрямую (через ref для стабильности)
+      const targetPlayerId = myPlayerIdRef.current || myPlayerId;
 
       // УПРОЩЕННАЯ ЛОГИКА: В дуэли 1 на 1 берем все exploits, где attacker НЕ я
       // КРИТИЧНО: Логируем SQL запрос для отладки
@@ -389,7 +394,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     } catch (error) {
       logError('[useDuelRealtime] Exception in recoverActiveExploits:', error);
     }
-  }, [duelId, myPlayerId, profileId]);
+  }, [duelId, profileId]);
 
   useEffect(() => {
     if (!duelId) return;
@@ -417,6 +422,11 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       profileId,
       timestamp: new Date().toISOString()
     });
+    // 🛡️ SECURITY: Only subscribe if duelId is a valid UUID
+    if (!isValidUUID(duelId)) {
+      console.warn('[useDuelRealtime] ⚠️ Subscription skipped: duelId is not a valid UUID', { duelId });
+      return;
+    }
 
     const duelChannel = supabase.channel(`duel_${duelId}`);
 
@@ -1028,11 +1038,12 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       myPlayerId,
       profileId,
       duelId,
-      allConditionsMet: connectionStatus === 'connected' && myPlayerId && profileId
     });
+    const isIdValid = isValidUUID(duelId);
+    const allConditionsMet = connectionStatus === 'connected' && myPlayerId && profileId && isIdValid;
 
     // ИЗМЕНЕНО: Убрали проверку state.duelStarted - exploits могут быть применены в любой момент
-    if (connectionStatus === 'connected' && myPlayerId && profileId) {
+    if (allConditionsMet) {
       console.log('[useDuelRealtime] ✅✅✅ All conditions met, calling recoverActiveExploits ✅✅✅');
       log('[useDuelRealtime] Connection established, recovering exploits...');
       recoverActiveExploits();
@@ -1041,7 +1052,9 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         connectionStatus,
         duelStarted: state.duelStarted,
         hasMyPlayerId: !!myPlayerId,
-        hasProfileId: !!profileId
+        hasProfileId: !!profileId,
+        isDuelIdValid: isIdValid,
+        duelId: duelId || 'null'
       });
     }
   }, [connectionStatus, myPlayerId, profileId, recoverActiveExploits, duelId]);

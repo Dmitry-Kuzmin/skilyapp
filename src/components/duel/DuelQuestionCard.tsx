@@ -1,4 +1,4 @@
-import { motion } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from 'framer-motion';
 import { memo, lazy, Suspense, useState } from 'react';
 import { getImageUrl } from '@/utils/imageUtils';
 import { Scrambler } from '@/utils/scramble';
@@ -137,7 +137,10 @@ export const DuelQuestionCard = memo(({
               {answerOptions.map((option, idx) => {
                 const isSelected = selectedAnswer === option.id;
                 const isCorrect = question.correct_option_ids.includes(option.id);
-                const showResult = isAnswered;
+                // CRITICAL FIX: Show result colors ONLY when we actually know the correct answers
+                // Wait for server to return correct_option_ids (length > 0)
+                const hasCorrectOptions = question.correct_option_ids && question.correct_option_ids.length > 0;
+                const showResult = isAnswered && hasCorrectOptions;
                 const isEliminated = eliminatedOptions.includes(option.id);
 
                 if (isEliminated && !showResult) {

@@ -1,4 +1,4 @@
-import { motion } from "@/components/optimized/Motion";
+import { motion } from 'framer-motion';
 import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X, Droplets, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { memo } from 'react';
@@ -30,18 +30,17 @@ export const DuelBoostsPanel = memo(({
   // ОПТИМИЗАЦИЯ: Логируем только в dev режиме
   const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'));
   const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-  
+
   // ВАЖНО: Всегда показываем панель бустов, даже если массив пустой
   // Это помогает пользователю видеть, что функционал есть, и упрощает отладку
 
   return (
     <div className="flex items-center gap-1.5 flex-wrap w-full justify-center min-h-[32px]">
       {boosts.length === 0 && (isDev || isTelegram) && (
-        <div className={`text-xs px-2 py-1 border border-dashed rounded ${
-          isTelegram 
-            ? 'text-muted-foreground/70 border-muted-foreground/30 bg-muted/20' 
-            : 'text-muted-foreground/50 border-muted-foreground/20'
-        }`}>
+        <div className={`text-xs px-2 py-1 border border-dashed rounded ${isTelegram
+          ? 'text-muted-foreground/70 border-muted-foreground/30 bg-muted/20'
+          : 'text-muted-foreground/50 border-muted-foreground/20'
+          }`}>
           {isTelegram ? 'Загрузка бустов...' : 'Бусты не загружены (0)'}
         </div>
       )}
@@ -66,7 +65,7 @@ export const DuelBoostsPanel = memo(({
         const BoostIcon = boostConfig.icon;
         const isUsed = usedBoosts.includes(boost.boost_type);
         const isDisabled = isUsed || isAnswered || boost.quantity <= 0;
-        
+
         // Используем иконку из БД, если она есть, иначе fallback на иконку из конфига
         const displayIcon = boost.icon || null;
         const displayName = boost.name_ru || boostConfig.label;
@@ -135,11 +134,10 @@ export const DuelBoostsPanel = memo(({
             disabled={isDisabled}
             whileHover={!isDisabled ? { scale: 1.05 } : {}}
             whileTap={!isDisabled ? { scale: 0.95 } : {}}
-            className={`relative h-8 px-2 flex items-center gap-1 rounded-lg font-bold text-[11px] transition-all shadow-sm border ${
-              isDisabled
-                ? 'bg-muted/30 border-border/40 opacity-40 cursor-not-allowed grayscale'
-                : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
-            }`}
+            className={`relative h-8 px-2 flex items-center gap-1 rounded-lg font-bold text-[11px] transition-all shadow-sm border ${isDisabled
+              ? 'bg-muted/30 border-border/40 opacity-40 cursor-not-allowed grayscale'
+              : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
+              }`}
           >
             {displayIcon ? (
               <span className="text-lg flex items-center justify-center shrink-0 w-4 h-4 leading-none" title={displayName}>
@@ -152,9 +150,8 @@ export const DuelBoostsPanel = memo(({
             {boost.boost_type === 'translate' && !isDisabled && (
               <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 shrink-0 ${translatePopoverOpen === boost.boost_type ? 'rotate-180' : ''}`} />
             )}
-            <div className={`ml-0.5 h-4 px-1 flex items-center justify-center rounded text-white text-[9px] font-bold min-w-[16px] shrink-0 ${
-              isDisabled ? 'bg-white/10' : 'bg-white/30'
-            }`}>
+            <div className={`ml-0.5 h-4 px-1 flex items-center justify-center rounded text-white text-[9px] font-bold min-w-[16px] shrink-0 ${isDisabled ? 'bg-white/10' : 'bg-white/30'
+              }`}>
               {boost.quantity}
             </div>
           </motion.button>

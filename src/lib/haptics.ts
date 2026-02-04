@@ -5,44 +5,54 @@ type HapticType = 'light' | 'medium' | 'heavy' | 'rigid' | 'soft' | 'selection_c
 type NotificationType = 'error' | 'success' | 'warning';
 
 class HapticManager {
-  private enabled: boolean = true;
+  private enabled: boolean = false;
 
   constructor() {
-    // Enable haptics if in Telegram and version >= 6.1
-    const tg = getTelegramWebApp();
-    const version = parseFloat(tg?.version || '0');
-    this.enabled = !!tg && version >= 6.1;
+    this.refreshStatus();
+  }
 
-    if (tg && version < 6.1) {
-      console.log(`[HapticManager] Haptic feedback disabled for version ${version} (requires 6.1+)`);
+  private getSafeWebApp() {
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      return window.Telegram.WebApp;
+    }
+    return null;
+  }
+
+  private refreshStatus() {
+    try {
+      const tg = this.getSafeWebApp();
+      const version = parseFloat(tg?.version || '0');
+      this.enabled = !!tg && version >= 6.1;
+
+      if (tg && version < 6.1 && (window as any).isDev) {
+        console.log(`[HapticManager] Haptic feedback disabled for version ${version} (requires 6.1+)`);
+      }
+    } catch (e) {
+      this.enabled = false;
     }
   }
 
   private trigger(type: HapticType) {
-    if (!this.enabled) return;
-
     try {
-      const tg = getTelegramWebApp();
+      const tg = this.getSafeWebApp();
       const hapticFeedback = (tg as any)?.HapticFeedback;
       if (hapticFeedback?.impactOccurred) {
         hapticFeedback.impactOccurred(type);
       }
     } catch (e) {
-      console.warn('Haptic feedback failed:', e);
+      // Silent fail
     }
   }
 
   private notificationOccurred(type: NotificationType) {
-    if (!this.enabled) return;
-
     try {
-      const tg = getTelegramWebApp();
+      const tg = this.getSafeWebApp();
       const hapticFeedback = (tg as any)?.HapticFeedback;
       if (hapticFeedback?.notificationOccurred) {
         hapticFeedback.notificationOccurred(type);
       }
     } catch (e) {
-      console.warn('Haptic notification failed:', e);
+      // Silent fail
     }
   }
 

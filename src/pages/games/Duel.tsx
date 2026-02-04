@@ -15,22 +15,34 @@ import { DuelResult } from '@/components/duel/DuelResult';
 import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
 import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
-import { useUserContext } from '@/contexts/UserContext';
 import { Card } from '@/components/ui/card';
-import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
+import { Switch } from '@/components/ui/switch';
+import { AnimatePresence, motion } from '@/components/optimized/Motion';
+import { useUserContext } from '@/contexts/UserContext';
+import { isTelegramMiniApp as isTelegramMiniAppRaw, getTelegramWebApp as getTelegramWebAppRaw } from '@/lib/telegram';
 import { cn } from "@/lib/utils";
 import { supabase } from '@/integrations/supabase/client';
 import { dispatchUserEvent } from '@/lib/notification-events';
-import { motion, AnimatePresence } from '@/components/optimized/Motion';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
-
 import { useModal } from '@/hooks/useModal';
-import { Switch } from '@/components/ui/switch';
 import { useLumiToast } from '@/hooks/useLumiToast';
 import { toast } from 'sonner';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { GameMode } from '@/features/duel/shared';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+
+// Safe wrappers with UNIQUE names for hoisting and resilience
+function safeIsTelegramMiniApp() {
+    return typeof isTelegramMiniAppRaw === 'function' ? isTelegramMiniAppRaw() : false;
+}
+function safeGetTelegramWebApp() {
+    return typeof getTelegramWebAppRaw === 'function' ? getTelegramWebAppRaw() : null;
+}
+
+// 🆕 SAFE CHECKS: Определяем Mini App через обертку
+const isInTelegramMiniAppGlobal = safeIsTelegramMiniApp();
+
+console.log('[Duel] 🛡️ File version 8 (Final Robust Wrappers) loading...');
 
 const INSURANCE_RATE = 0.15;
 const COVERAGE_RATE = 0.6;
@@ -58,7 +70,7 @@ export default function Duel() {
     // 🔍 Debug logs for initialization
     useEffect(() => {
         const code = searchParams.get('code');
-        const startParam = getTelegramWebApp()?.initDataUnsafe?.start_param;
+        const startParam = safeGetTelegramWebApp()?.initDataUnsafe?.start_param;
         console.log('[Duel] 🧩 Component Mounted. URL Code:', code, 'StartParam:', startParam);
     }, []);
 
@@ -75,7 +87,7 @@ export default function Duel() {
     const [isBattleHidden, setIsBattleHidden] = useState(false);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
     const [dataLoaded, setDataLoaded] = useState(false);
-    const isTelegramUser = isTelegramMiniApp();
+    const isTelegramUser = safeIsTelegramMiniApp();
 
     // Inline join state
     const [joinCode, setJoinCode] = useState('');
@@ -118,13 +130,18 @@ export default function Duel() {
 
     // 🆕 Telegram BackButton и swipe-back для экрана настройки дуэли (не для battle/results)
     useEffect(() => {
-        // Только для menu режима (экран настройки)
-        if (mode !== 'menu' || !isTelegramMiniApp()) return;
+        const isTG = safeIsTelegramMiniApp();
+        if (!isTG) return;
 
-        const webApp = getTelegramWebApp();
+        const webApp = safeGetTelegramWebApp();
         if (!webApp || !webApp.BackButton) return;
 
-        webApp.BackButton.show();
+        // Показываем кнопку только в режиме меню
+        if (mode === 'menu') {
+            webApp.BackButton.show();
+        } else {
+            webApp.BackButton.hide();
+        }
 
         const handleBack = () => {
             console.log('[Duel] BackButton clicked - navigating to dashboard');
@@ -427,7 +444,8 @@ export default function Duel() {
 
         // 2. Пытаемся достать из Telegram start_param (startapp)
         // Формат может быть: "CODE" (напрямую) или "duel_CODE" (старый формат)
-        const tgStartParam = getTelegramWebApp()?.initDataUnsafe?.start_param;
+        const webApp = safeGetTelegramWebApp();
+        const tgStartParam = webApp?.initDataUnsafe?.start_param;
 
         let code = urlCode;
         if (!code && tgStartParam) {
@@ -1556,7 +1574,7 @@ export default function Duel() {
                                                                                 const newValue = Math.max(0, betAmount - 20);
                                                                                 setBetAmount(newValue);
                                                                                 setBetType(newValue === 0 ? 'none' : 'custom');
-                                                                                getTelegramWebApp()?.HapticFeedback?.impactOccurred('light');
+                                                                                safeGetTelegramWebApp()?.HapticFeedback?.impactOccurred('light');
                                                                             }}
                                                                             disabled={betAmount === 0 || isCreating}
                                                                             className="w-14 h-14 rounded-full bg-white dark:bg-white/10 shadow-sm border border-black/5 dark:border-white/10 flex items-center justify-center text-muted-foreground hover:text-orange-500 transition-colors disabled:opacity-30"
@@ -1615,7 +1633,7 @@ export default function Duel() {
                                                                                 const newValue = Math.min(Math.floor(userCoins / 10) * 10, betAmount + 20);
                                                                                 setBetAmount(newValue);
                                                                                 setBetType('custom');
-                                                                                getTelegramWebApp()?.HapticFeedback?.impactOccurred('medium');
+                                                                                safeGetTelegramWebApp()?.HapticFeedback?.impactOccurred('medium');
                                                                             }}
                                                                             disabled={isCreating} // Allow going up to max coins logic handled in onClick
                                                                             className={cn(
@@ -1645,7 +1663,7 @@ export default function Duel() {
                                                                                         if (valNum <= userCoins) {
                                                                                             setBetAmount(valNum);
                                                                                             setBetType(valNum === 0 ? 'none' : 'fixed');
-                                                                                            getTelegramWebApp()?.HapticFeedback?.impactOccurred(val === 'MAX' ? 'heavy' : 'light');
+                                                                                            safeGetTelegramWebApp()?.HapticFeedback?.impactOccurred(val === 'MAX' ? 'heavy' : 'light');
                                                                                         }
                                                                                     }}
                                                                                     disabled={val !== 'MAX' && typeof val === 'number' && val > userCoins}

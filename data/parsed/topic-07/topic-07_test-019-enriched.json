@@ -1098,33 +1098,33 @@
     "question": {
       "es": "El sueño al volante puede hacer que...",
       "en": "Drowsiness at the wheel can cause the driver to...",
-      "ru": "Сон за рулем может привести к тому, что водитель..."
+      "ru": "Сонливость за рулем может привести к тому, что..."
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
+          "ru": "будет допускать более высокий уровень риска при вождении.",
           "es": "acepte un mayor nivel de riesgo en la conducción.",
-          "en": "accept a higher level of risk while driving.",
-          "ru": "будет допускать более высокий уровень риска при вождении."
+          "en": "accept a higher level of risk while driving."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
+          "ru": "будет допускать более низкий уровень риска при вождении.",
           "es": "acepte un menor nivel de riesgo en la conducción.",
-          "en": "accept a lower level of risk while driving.",
-          "ru": "будет допускать более низкий уровень риска при вождении."
+          "en": "accept a lower level of risk while driving."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
+          "ru": "сократит время реакции.",
           "es": "disminuya el tiempo de reacción.",
-          "en": "decrease reaction time.",
-          "ru": "сократит время реакции."
+          "en": "decrease reaction time."
         },
         "is_correct": false
       }

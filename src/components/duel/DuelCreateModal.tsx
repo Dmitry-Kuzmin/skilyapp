@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from '@/components/optimized/Motion';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { extractErrorFromResponse } from '@/utils/errorMessages';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { cn } from '@/lib/utils';
-import { isTelegramMiniApp } from '@/lib/telegram';
+import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
 
 interface DuelCreateModalProps {
   open: boolean;
@@ -64,7 +64,7 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
   const handleAction = async (action: 'find_match' | 'create_duel') => {
     if (!profileId) return;
     if (betAmount > userCoins) {
-      toast.error(`Недостаточно монет! Баланс: ${userCoins}`);
+      toast.error(`Недостаточно монет! Баланс: ${userCoins} `);
       return;
     }
 
@@ -336,7 +336,7 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
                           <Minus className="w-5 h-5 text-primary" />
                         </Button>
                         <div className="flex-1 h-2 rounded-full bg-primary/10 overflow-hidden">
-                          <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 shadow-[0_0_10px_rgba(79,70,229,0.5)]" animate={{ width: `${(numQuestions / 30) * 100}%` }} transition={{ type: "spring", stiffness: 200, damping: 20 }} />
+                          <motion.div className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 shadow-[0_0_10px_rgba(79,70,229,0.5)]" animate={{ width: `${(numQuestions / 30) * 100}% ` }} transition={{ type: "spring", stiffness: 200, damping: 20 }} />
                         </div>
                         <Button variant="outline" size="icon" onClick={() => setNumQuestions(prev => Math.min(30, prev + 5))} className="rounded-xl h-11 w-11 border-none bg-background shadow-sm active:scale-90 transition-all">
                           <Plus className="w-5 h-5 text-primary" />
@@ -539,14 +539,14 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
                       className="h-18 w-18 rounded-[1.75rem] border-2 flex-shrink-0 hover:bg-primary/5 hover:border-primary transition-all group"
                     >
                       <Share2 className="w-6 h-6 group-hover:scale-110 transition-transform" />
-                    </Button>
+                    </Button >
                   )}
-                </div>
-              </motion.div>
+                </div >
+              </motion.div >
             )}
-          </AnimatePresence>
-        </div>
-      </div>
-    </ResponsiveModal>
+          </AnimatePresence >
+        </div >
+      </div >
+    </ResponsiveModal >
   );
 }

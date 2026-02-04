@@ -1,4 +1,4 @@
-import { motion } from "@/components/optimized/Motion";
+import { motion } from 'framer-motion';
 import { Clock } from 'lucide-react';
 import { memo } from 'react';
 
@@ -12,9 +12,8 @@ export const DuelTimer = memo(({ timeLeft, formatTime }: DuelTimerProps) => {
 
   return (
     <motion.div
-      className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border shrink-0 ${
-        isLowTime ? 'border-destructive' : 'border-border'
-      }`}
+      className={`flex items-center gap-1.5 px-2.5 md:px-3 py-1.5 md:py-2 rounded-full bg-muted/80 backdrop-blur-sm border shrink-0 ${isLowTime ? 'border-destructive' : 'border-border'
+        }`}
       animate={{
         scale: isLowTime ? [1, 1.05, 1] : 1,
         boxShadow: isLowTime
