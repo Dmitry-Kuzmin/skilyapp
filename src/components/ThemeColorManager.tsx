@@ -1,35 +1,65 @@
 import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { useLocation } from 'react-router-dom';
 
 export function ThemeColorManager() {
     const { resolvedTheme } = useTheme();
+    const location = useLocation();
 
     useEffect(() => {
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
 
-        // Define colors
-        const darkColor = '#0f172a'; // Slate 900 (Matches app background)
-        const lightColor = '#ffffff'; // White (Matches light mode background)
+        // Умная детекция цвета фона страницы
+        const detectPageColor = (): string => {
+            // Пробуем взять цвет с body или элемента с классом bg-background
+            const body = document.body;
+            const computedStyle = window.getComputedStyle(body);
+            const bgColor = computedStyle.backgroundColor;
 
-        const color = resolvedTheme === 'dark' ? darkColor : lightColor;
+            // Если нашли реальный цвет (не transparent/rgba(0,0,0,0))
+            if (bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)') {
+                return rgbToHex(bgColor);
+            }
 
-        if (metaThemeColor) {
-            metaThemeColor.setAttribute('content', color);
-        } else {
-            // Create if missing
-            const meta = document.createElement('meta');
-            meta.name = 'theme-color';
-            meta.content = color;
-            document.head.appendChild(meta);
-        }
+            // Fallback на тему
+            return resolvedTheme === 'dark' ? '#09090b' : '#ffffff';
+        };
 
-        // Also update msapplication-TileColor
-        const metaTileColor = document.querySelector('meta[name="msapplication-TileColor"]');
-        if (metaTileColor) {
-            metaTileColor.setAttribute('content', color);
-        }
+        // Конвертация rgb(a) в hex
+        const rgbToHex = (rgb: string): string => {
+            const match = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (match) {
+                const r = parseInt(match[1]);
+                const g = parseInt(match[2]);
+                const b = parseInt(match[3]);
+                return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+            }
+            // Если не смогли распарсить - fallback
+            return resolvedTheme === 'dark' ? '#09090b' : '#ffffff';
+        };
 
-    }, [resolvedTheme]);
+        // Небольшая задержка для рендеринга страницы
+        const timer = setTimeout(() => {
+            const color = detectPageColor();
 
-    return null; // This component doesn't render anything visible
+            if (metaThemeColor) {
+                metaThemeColor.setAttribute('content', color);
+            } else {
+                const meta = document.createElement('meta');
+                meta.name = 'theme-color';
+                meta.content = color;
+                document.head.appendChild(meta);
+            }
+
+            // Also update msapplication-TileColor
+            const metaTileColor = document.querySelector('meta[name="msapplication-TileColor"]');
+            if (metaTileColor) {
+                metaTileColor.setAttribute('content', color);
+            }
+        }, 100); // Даем странице отрендериться
+
+        return () => clearTimeout(timer);
+    }, [resolvedTheme, location.pathname]); // Обновляем при смене роута
+
+    return null;
 }

@@ -706,11 +706,14 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     <div
       className="duel-fullscreen fixed inset-0 bg-background z-50 overflow-y-auto flex flex-col"
       style={{
-        paddingTop: (isInTelegramMiniApp || isTelegramMobile || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
-          // Force robust padding on any mobile-like environment within Telegram context
-          // Includes safe-area-inset-top (standard), tg variants, and a HARD MINIMUM of 88px
+        paddingTop: isInTelegramMiniApp
+          // Telegram Mini App: Robust Telegram-specific safe area (88px minimum for header)
           ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 88px)'
-          : `${totalTopPadding}px`,
+          // Regular mobile browser: Just safe-area-inset-top (notch/island) + small padding
+          : /Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent)
+            ? 'max(env(safe-area-inset-top, 0px), 16px)'
+            // Desktop: use calculated padding
+            : `${totalTopPadding}px`,
         paddingLeft: `${totalLeftPadding}px`,
         paddingRight: `${totalRightPadding}px`,
         paddingBottom: `${totalBottomPadding}px`,
