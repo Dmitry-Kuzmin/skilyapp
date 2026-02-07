@@ -559,7 +559,6 @@ const App = () => {
 
   return (
     <TelegramProvider>
-      <ThemeColorManager />
       <AdCleanup />
       <Toaster />
       <Motion>
@@ -574,6 +573,7 @@ const App = () => {
         <Suspense fallback={null}>
           <BrowserRouter basename={basename}>
             <ScrollToTop />
+            <ThemeColorManager />
             {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
             <Routes>
               <Route path="/" element={<LandingRedirect />} />
