@@ -412,15 +412,20 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
 
       <div className="w-full max-w-2xl mx-auto px-4 py-4 space-y-6 relative z-10">
         <AnimatePresence>
-          {results.isWinner && (
+          {(results.isWinner || (!results.isWinner && !results.isDraw)) && (
             <Confetti
               width={window.innerWidth}
               height={window.innerHeight}
               recycle={false}
-              numberOfPieces={selectedConfettiEffect.numberOfPieces}
-              gravity={selectedConfettiEffect.gravity}
-              colors={selectedConfettiEffect.colors}
-              style={{ position: 'fixed', top: 0, left: 0, zIndex: 50 }}
+              numberOfPieces={results.isWinner ? selectedConfettiEffect.numberOfPieces : 150} // Меньше частиц для проигрыша
+              gravity={results.isWinner ? selectedConfettiEffect.gravity : 0.4} // Быстрее падение (дождь/пепел)
+              colors={results.isWinner
+                ? selectedConfettiEffect.colors
+                : ['#334155', '#475569', '#64748b', '#94a3b8', '#1e293b'] // Серые/сизые тона
+              }
+              // Для проигрыша можно добавить wind, чтобы выглядело как косой дождь
+              wind={results.isWinner ? 0 : 0.05}
+              style={{ position: 'fixed', top: 0, left: 0, zIndex: 50, pointerEvents: 'none' }}
             />
           )}
         </AnimatePresence>
@@ -551,7 +556,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 <AnimatedCounter
                   value={results.myScore}
                   duration={1500}
-                  className="text-6xl font-black bg-gradient-to-b from-blue-600 via-blue-500 to-blue-400 dark:from-blue-400 dark:via-blue-300 dark:to-white bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]"
+                  className={cn(
+                    "font-black bg-gradient-to-b from-blue-600 via-blue-500 to-blue-400 dark:from-blue-400 dark:via-blue-300 dark:to-white bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]",
+                    results.myScore > 999 ? "text-5xl md:text-6xl" : "text-6xl md:text-7xl"
+                  )}
                 />
                 <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Вы</div>
                 <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-200 dark:border-white/10">
@@ -593,7 +601,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 <AnimatedCounter
                   value={results.opponentScore}
                   duration={1500}
-                  className="text-6xl font-black text-slate-600 dark:text-zinc-300 drop-shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_15px_rgba(0,0,0,0.3)]"
+                  className={cn(
+                    "font-black text-slate-600 dark:text-zinc-300 drop-shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_15px_rgba(0,0,0,0.3)]",
+                    results.opponentScore > 999 ? "text-5xl md:text-6xl" : "text-6xl md:text-7xl"
+                  )}
                 />
                 <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-500 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
                 <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-200 dark:border-white/10">
