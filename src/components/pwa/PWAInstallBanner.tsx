@@ -5,17 +5,23 @@ import { IOSInstallInstructions } from './IOSInstallInstructions';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const PWAInstallBanner: React.FC = () => {
-    const { isInstalled, installApp, showIOSInstructions, setShowIOSInstructions, canInstall } = usePWAInstall();
+    const { isInstalled, isPWALikelyInstalled, installApp, showIOSInstructions, setShowIOSInstructions, canInstall } = usePWAInstall();
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        // Если приложение уже установлено (standalone) - не показываем
+        // 1. Если приложение уже установлено (standalone) - не показываем
         if (isInstalled) return;
 
-        // Если устройство не поддерживает установку - не показываем
+        // 2. 🧠 УМНАЯ ПРОВЕРКА: Если PWA скорее всего установлен - не показываем
+        if (isPWALikelyInstalled) {
+            console.log('[PWABanner] ✅ PWA likely installed - hiding banner');
+            return;
+        }
+
+        // 3. Если устройство не поддерживает установку - не показываем
         if (!canInstall) return;
 
-        // Проверяем умные флаги скрытия
+        // 4. Проверяем умные флаги скрытия (dismiss/install initiated)
         const checkSmartMain = () => {
             const now = Date.now();
 
@@ -42,7 +48,7 @@ export const PWAInstallBanner: React.FC = () => {
             const timer = setTimeout(() => setIsVisible(true), 3000);
             return () => clearTimeout(timer);
         }
-    }, [isInstalled, canInstall]);
+    }, [isInstalled, isPWALikelyInstalled, canInstall]);
 
     const handleClose = () => {
         setIsVisible(false);
