@@ -1595,39 +1595,9 @@ Deno.serve(async (req) => {
             }, { onConflict: 'duel_id' });
         }
 
-        // Add host as player using correct user_id (which is profile.id)
-        console.log('[Duel Manager] 🎯 BEFORE INSERT duel_players:', {
-          duel_id: duel.id,
-          user_id: profileId,
-          is_host: true
-        });
-
-        const { data: hostPlayer, error: playerError } = await supabase
-          .from('duel_players')
-          .insert({
-            duel_id: duel.id,
-            user_id: profileId,  // This is profile.id
-            is_host: true,
-          })
-          .select()
-          .single();
-
-        console.log('[Duel Manager] 🎯 AFTER INSERT duel_players:', {
-          success: !playerError,
-          hostPlayer: hostPlayer,
-          error: playerError
-        });
-
-        if (playerError) {
-          console.error('[Duel Manager] ❌ CRITICAL: Error adding host player:', playerError);
-          console.error('[Duel Manager] Error code:', playerError.code);
-          console.error('[Duel Manager] Error message:', playerError.message);
-          console.error('[Duel Manager] Error details:', JSON.stringify(playerError, null, 2));
-          console.error('[Duel Manager] Attempted insert data:', { duel_id: duel.id, user_id: profileId, is_host: true });
-          throw playerError;
-        }
-
-        console.log('[Duel Manager] ✅ SUCCESS: Host player created:', hostPlayer?.id);
+        // ✅ Хост уже добавлен через триггер auto_add_host_to_duel_players
+        // (см. миграцию 20260207_auto_add_host_to_duel_players.sql)
+        console.log('[create_duel] ✅ Host automatically added by trigger');
 
         return new Response(JSON.stringify({ duel, code }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -2115,14 +2085,10 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Добавляем хост
-        await supabase
-          .from('duel_players')
-          .insert({
-            duel_id: duel.id,
-            user_id: profileId,
-            is_host: true,
-          });
+        // ✅ Хост уже добавлен через триггер auto_add_host_to_duel_players
+        // (см. миграцию 20260207_auto_add_host_to_duel_players.sql)
+        console.log('[find_match] Host already added by trigger, proceeding to add bot...');
+
 
         const { data: botPlayer, error: botError } = await supabase
           .from('duel_players')
