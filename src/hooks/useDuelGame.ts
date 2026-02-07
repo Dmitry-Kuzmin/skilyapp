@@ -347,7 +347,8 @@ export function useDuelGame({
             await new Promise(resolve => setTimeout(resolve, delay));
           } else {
             logError('[useDuelGame] ❌ All submit_answer attempts failed, continuing anyway');
-            toast.error('Не удалось сохранить ответ, но игра продолжается');
+            const errorDetails = lastError instanceof Error ? lastError.message : String(lastError);
+            toast.error(`Не удалось сохранить ответ (${errorDetails}), но игра продолжается`);
             data = null;
           }
         }
