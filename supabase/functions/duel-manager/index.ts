@@ -5532,16 +5532,37 @@ Deno.serve(async (req) => {
         }
 
         if (!players || players.length < 2) {
-          console.error('[surrender] Not enough players:', {
+          console.warn('[surrender] ⚠️ Not enough players (force cancelling):', {
             duel_id,
             playersCount: players?.length || 0,
             players: players?.map((p: { id: string; user_id: string }) => ({ id: p.id, user_id: p.user_id }))
           });
+
+          // Если игроков меньше 2, но пользователь хочет сдаться - просто отменяем/удаляем дуэль
+          // или помечаем как cancelled, чтобы не блокировать интерфейс
+          const { error: cancelError } = await supabase
+            .from('duels')
+            .update({ status: 'cancelled', finished_at: new Date().toISOString() })
+            .eq('id', duel_id);
+
+          if (cancelError) {
+            console.error('[surrender] Failed to auto-cancel stuck duel:', cancelError);
+            // Fallback to error if update fails
+            return new Response(JSON.stringify({
+              error: 'Not enough players and failed to cancel',
+              details: `Found ${players?.length || 0} players, expected at least 2`
+            }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+
           return new Response(JSON.stringify({
-            error: 'Not enough players',
-            details: `Found ${players?.length || 0} players, expected at least 2`
+            success: true,
+            message: 'Duel cancelled due to insufficient players',
+            surrendered: true // Client expects this flag
           }), {
-            status: 400,
+            status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
