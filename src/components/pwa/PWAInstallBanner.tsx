@@ -9,20 +9,52 @@ export const PWAInstallBanner: React.FC = () => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
-        // Показываем баннер через 3 секунды после загрузки, если можно установить
-        if (!isInstalled && canInstall) {
-            // Проверяем, не закрывал ли пользователь баннер ранее (в сессии)
-            const wasClosed = sessionStorage.getItem('pwa-banner-closed');
-            if (!wasClosed) {
-                const timer = setTimeout(() => setIsVisible(true), 3000);
-                return () => clearTimeout(timer);
+        // Если приложение уже установлено (standalone) - не показываем
+        if (isInstalled) return;
+
+        // Если устройство не поддерживает установку - не показываем
+        if (!canInstall) return;
+
+        // Проверяем умные флаги скрытия
+        const checkSmartMain = () => {
+            const now = Date.now();
+
+            // 1. Если пользователь нажал "Установить" (считаем, что он уже установил)
+            // Скрываем на 60 дней
+            const installInitiated = localStorage.getItem('pwa-install-initiated');
+            if (installInitiated) {
+                const date = parseInt(installInitiated, 10);
+                if (now - date < 60 * 24 * 60 * 60 * 1000) return false;
             }
+
+            // 2. Если пользователь закрыл баннер крестиком
+            // Скрываем на 14 дней
+            const dismissed = localStorage.getItem('pwa-banner-dismissed');
+            if (dismissed) {
+                const date = parseInt(dismissed, 10);
+                if (now - date < 14 * 24 * 60 * 60 * 1000) return false;
+            }
+
+            return true;
+        };
+
+        if (checkSmartMain()) {
+            const timer = setTimeout(() => setIsVisible(true), 3000);
+            return () => clearTimeout(timer);
         }
     }, [isInstalled, canInstall]);
 
     const handleClose = () => {
         setIsVisible(false);
-        sessionStorage.setItem('pwa-banner-closed', 'true');
+        // Сохраняем дату закрытия для "умного" скрытия (на 14 дней)
+        localStorage.setItem('pwa-banner-dismissed', Date.now().toString());
+    };
+
+    const handleInstallWrapper = () => {
+        // Если пользователь начал процесс установки, считаем что он скорее всего установит
+        // Скрываем баннер надолго (60 дней), чтобы не надоедать
+        localStorage.setItem('pwa-install-initiated', Date.now().toString());
+        installApp();
     };
 
     if (isInstalled) return null;
@@ -51,7 +83,7 @@ export const PWAInstallBanner: React.FC = () => {
 
                             <div className="flex items-center gap-2">
                                 <button
-                                    onClick={installApp}
+                                    onClick={handleInstallWrapper}
                                     className="bg-white text-black text-xs font-bold px-3 py-2 rounded-lg hover:bg-zinc-200 transition-colors"
                                 >
                                     Установить
