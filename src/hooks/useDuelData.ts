@@ -372,14 +372,17 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       const myPlayer = players.find((p) => p.user_id === profileId);
       const opponent = players.find((p) => p.user_id !== profileId);
 
+      // КРИТИЧНО: Используем name из Edge Function (если доступен), так как он уже вычислен на основе профиля
+      // Fallback: берем из profiles, потом из поля name таблицы duel_players
       const myName = myPlayer?.name || myPlayer?.profiles?.first_name || myPlayer?.profiles?.username || "Ты";
 
       // Проверяем, является ли соперник ботом
       let opponentName = "Соперник";
       if (opponent?.is_bot) {
-        // Для бота используем bot_name из данных или генерируем случайное имя
+        // Для бота используем bot_name из данных или поле name (которое было установлено Edge Function или из БД)
         opponentName = opponent?.bot_name || opponent?.name || "CyberNinja";
       } else {
+        // КРИТИЧНО: Для реального игрока используем name из Edge Function (если есть), иначе берем из профиля
         opponentName = opponent?.name || opponent?.profiles?.first_name || opponent?.profiles?.username || "Соперник";
       }
 
@@ -424,12 +427,17 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
       .select("*, profiles(first_name, username, photo_url)")
       .eq("duel_id", duelId);
 
-    // Убеждаемся, что bot_name загружен для ботов
-    console.log('[useDuelData] Loaded players:', data?.map((p: any) => ({
+    // Убеждаемся, что bot_name загружен для ботов и profiles загружены для игроков
+    console.log('[useDuelData] Loaded players (raw):', data?.map((p: any) => ({
       user_id: p.user_id,
       is_bot: p.is_bot,
       bot_name: p.bot_name,
-      name: p.name
+      name: p.name,
+      profiles: p.profiles ? {
+        first_name: p.profiles.first_name,
+        username: p.profiles.username,
+        photo_url: p.profiles.photo_url
+      } : null
     })));
 
     if (!data?.length) {
