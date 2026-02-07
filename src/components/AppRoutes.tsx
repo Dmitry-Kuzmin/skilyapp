@@ -10,10 +10,10 @@ import { PageSkeleton } from "@/components/PageSkeleton";
 
 // Lazy load всех страниц приложения
 const Index = lazy(() => {
-  console.log('[AppRoutes] 📦 Starting to load Index module...');
+
   return import("../pages/Index")
     .then((module) => {
-      console.log('[AppRoutes] ✅ Index module loaded successfully');
+
       return module;
     })
     .catch((error) => {

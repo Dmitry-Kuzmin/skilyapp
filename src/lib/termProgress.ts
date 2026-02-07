@@ -27,14 +27,14 @@ export async function updateTermProgress(
     const cacheKey = `${userId}-${termId}-${isCorrect}`;
     const lastUpdate = updateProgressCache.get(cacheKey);
     const now = Date.now();
-    
+
     if (lastUpdate && (now - lastUpdate) < CACHE_TTL) {
-      console.log(`[updateTermProgress] Skipping duplicate request for ${termId} (cached)`);
+
       return;
     }
-    
+
     updateProgressCache.set(cacheKey, now);
-    
+
     // Очищаем старые записи из кэша (старше 5 секунд)
     if (updateProgressCache.size > 100) {
       for (const [key, timestamp] of updateProgressCache.entries()) {
@@ -43,7 +43,7 @@ export async function updateTermProgress(
         }
       }
     }
-    
+
     // Используем upsert для надежности
     if (isCorrect) {
       // Получаем текущий прогресс
@@ -59,7 +59,7 @@ export async function updateTermProgress(
         const newTimesPracticed = existing.times_practiced + 1;
         // Увеличиваем mastery_level на 10 за каждый правильный ответ, максимум 100
         const newMasteryLevel = Math.min(100, existing.mastery_level + 10);
-        
+
         const { error } = await supabase
           .from('user_term_progress')
           .update({
@@ -73,7 +73,7 @@ export async function updateTermProgress(
         if (error) {
           console.error('Error updating term progress:', error);
         } else {
-          console.log(`✅ Updated term ${termId}: times_practiced=${newTimesPracticed}, mastery=${newMasteryLevel}`);
+
         }
       } else {
         // Создаем новую запись
@@ -90,7 +90,7 @@ export async function updateTermProgress(
         if (error) {
           console.error('Error inserting term progress:', error);
         } else {
-          console.log(`✅ Created term progress for ${termId}: times_practiced=1, mastery=10`);
+
         }
       }
     } else {
@@ -138,8 +138,8 @@ export async function getStudiedTermsCount(userId: string): Promise<number> {
       console.error('Error getting studied terms count:', error);
       throw error;
     }
-    
-    console.log(`[getStudiedTermsCount] User ${userId}: ${count || 0} studied terms (times_practiced >= 3)`);
+
+
     return count || 0;
   } catch (error) {
     console.error('Error getting studied terms count:', error);
@@ -173,7 +173,7 @@ export async function getTermProgressStats(userId: string): Promise<{
       console.error('Error getting user progress:', progressError);
     }
 
-    console.log(`[getTermProgressStats] User ${userId}: ${userProgress?.length || 0} terms with progress, ${allTerms?.length || 0} total terms`);
+
 
     const total = allTerms?.length || 0;
     const progressMap = new Map(
@@ -188,7 +188,7 @@ export async function getTermProgressStats(userId: string): Promise<{
       const userProg = progressMap.get(term.id);
       // Термин считается изученным, если правильно ответил 3 раза
       const isStudied = userProg ? userProg.times_practiced >= 3 : false;
-      const isInProgress = userProg 
+      const isInProgress = userProg
         ? userProg.times_practiced > 0 && !isStudied
         : false;
 

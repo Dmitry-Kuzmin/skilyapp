@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Zap, Trophy, X, Check, Flame, Timer, Clock, ArrowLeft, Sparkles, Star } from "lucide-react";
+import { Zap, Trophy, X, Check, Flame, Timer, Clock, ArrowLeft, Sparkles, Star, Target, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { sounds } from "@/lib/sounds";
@@ -82,7 +82,7 @@ interface RaceSession {
 
 const RaceGame = () => {
   const navigate = useNavigate();
-  
+
   const { profileId } = useUserContext();
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [session, setSession] = useState<RaceSession | null>(null);
@@ -114,7 +114,7 @@ const RaceGame = () => {
   const accumulatedTimeRef = useRef<number>(0); // Отслеживаем накопленное время сверх стартовых 60 секунд
 
   useEffect(() => {
-    console.log("RaceGame component mounted, loading terms...");
+
     loadTerms();
   }, []);
 
@@ -160,10 +160,8 @@ const RaceGame = () => {
         .limit(100);
 
       if (error) {
-        toast({
-          title: "Ошибка",
+        toast.error("Ошибка", {
           description: `Не удалось загрузить термины: ${error.message}`,
-          variant: "destructive",
         });
         return;
       }
@@ -171,20 +169,16 @@ const RaceGame = () => {
       if (data && data.length > 0) {
         const shuffled = [...data].sort(() => Math.random() - 0.5);
         setTerms(shuffled);
-        console.log(`✅ Successfully loaded ${shuffled.length} terms for race game`);
+
       } else {
-        toast({
-          title: "Нет данных",
+        toast.error("Нет данных", {
           description: "В базе нет терминов для игры. Импортируйте данные через админ-панель.",
-          variant: "destructive",
         });
       }
     } catch (err: any) {
       console.error("❌ Unexpected error in loadTerms:", err);
-      toast({
-        title: "Ошибка",
+      toast.error("Ошибка", {
         description: `Произошла неожиданная ошибка: ${err?.message || "Неизвестная ошибка"}`,
-        variant: "destructive",
       });
     }
   };
@@ -223,10 +217,8 @@ const RaceGame = () => {
 
   const startGame = () => {
     if (terms.length < 2) {
-      toast({
-        title: "Недостаточно данных",
+      toast.error("Недостаточно данных", {
         description: "Нужно минимум 2 термина для игры",
-        variant: "destructive",
       });
       return;
     }
@@ -266,7 +258,7 @@ const RaceGame = () => {
     setShowMistakesReview(false);
     lastAnswerTimeRef.current = 0;
     accumulatedTimeRef.current = 0; // Сбрасываем накопленное время при старте игры
-    console.log("Race session started:", session_id);
+
   };
 
   const validateAndProcessAnswer = (chosen: boolean): {
@@ -286,16 +278,12 @@ const RaceGame = () => {
         ...prev,
         suspect_attempts: prev.suspect_attempts + 1,
       }));
-      toast({
-        title: "Слишком быстро!",
+      toast.warning("Слишком быстро!", {
         description: `Отвечайте не быстрее, чем ${GAME_CONFIG.MIN_ANSWER_INTERVAL_MS / 1000}s`,
-        variant: "destructive",
       });
       if (stats.suspect_attempts + 1 >= 3) {
-        toast({
-          title: "Внимание!",
+        toast.warning("Внимание!", {
           description: "Слишком много быстрых ответов. Временное ограничение 5 секунд.",
-          variant: "destructive",
         });
         setTimeout(() => {
           setStats((prev) => ({ ...prev, suspect_attempts: 0 }));
@@ -311,22 +299,22 @@ const RaceGame = () => {
 
     if (is_correct) {
       points_awarded = GAME_CONFIG.BASE_POINTS_PER_CORRECT;
-      
+
       // Проверяем, не достигнут ли лимит накопления времени (30 секунд)
       const currentAccumulatedTime = accumulatedTimeRef.current;
       const maxAccumulation = GAME_CONFIG.MAX_TIME_ACCUMULATION_MS;
-      
+
       if (currentAccumulatedTime >= maxAccumulation) {
         // Лимит накопления достигнут - время не добавляем, только очки
         time_delta_ms = 0;
-        console.log('[RaceGame] Лимит накопления времени достигнут. Время не добавляется, только очки.');
+
       } else {
         // Добавляем базовое время за правильный ответ
         const baseTimeBonus = GAME_CONFIG.TIME_PER_CORRECT_MS;
         const remainingAccumulation = maxAccumulation - currentAccumulatedTime;
         const timeToAdd = Math.min(baseTimeBonus, remainingAccumulation);
         time_delta_ms = timeToAdd;
-        
+
         const newCombo = stats.combo_count + 1;
         const threshold = GAME_CONFIG.COMBO_THRESHOLDS.find((t) => t.count === newCombo);
         if (threshold) {
@@ -335,7 +323,7 @@ const RaceGame = () => {
             time_ms: threshold.bonus_time_ms,
           };
           points_awarded += threshold.bonus_points;
-          
+
           // Добавляем бонусное время от комбо, но не превышаем лимит накопления
           if (currentAccumulatedTime + timeToAdd < maxAccumulation) {
             const comboTimeRemaining = maxAccumulation - (currentAccumulatedTime + timeToAdd);
@@ -363,7 +351,7 @@ const RaceGame = () => {
 
     const { is_correct, points_awarded, time_delta_ms, combo_bonus } = result;
     const currentQuestion = session.current_question;
-    
+
     // Мгновенные звуковые реакции для повышения вовлечения
     // Звуки воспроизводятся сразу при ответе, до обновления состояния
     if (is_correct) {
@@ -398,7 +386,7 @@ const RaceGame = () => {
           question_id: currentQuestion.question_id,
         },
       ]);
-      
+
       // Show correct answer for learning (only on wrong answer)
       setCorrectAnswerInfo({
         term_es: currentQuestion.term.term_es,
@@ -436,7 +424,7 @@ const RaceGame = () => {
     setTimeLeft((prev) => {
       // Вычисляем новое время
       let calculatedTime = prev + time_delta_ms;
-      
+
       // Если добавляем время (правильный ответ), обновляем счетчик накопленного времени
       if (is_correct && time_delta_ms > 0) {
         accumulatedTimeRef.current = Math.min(
@@ -444,23 +432,23 @@ const RaceGame = () => {
           GAME_CONFIG.MAX_TIME_ACCUMULATION_MS
         );
       }
-      
+
       // Ограничиваем снизу нулем (время не может быть отрицательным)
       calculatedTime = Math.max(calculatedTime, 0);
-      
+
       // Ограничиваем сверху максимальным временем (90 секунд = 60 стартовых + 30 накопление)
       const finalTime = Math.min(calculatedTime, GAME_CONFIG.MAX_TIME_MS);
-      
+
       return finalTime;
     });
 
     // Обновляем прогресс термина
     if (profileId && currentQuestion?.term?.id) {
       if (is_correct) {
-        console.log(`[RaceGame] Updating progress for term ${currentQuestion.term.id} (${currentQuestion.term.term_es}) - CORRECT`);
+
         updateTermProgress(profileId, currentQuestion.term.id, true);
       } else {
-        console.log(`[RaceGame] Updating progress for term ${currentQuestion.term.id} (${currentQuestion.term.term_es}) - WRONG`);
+
         updateTermProgress(profileId, currentQuestion.term.id, false);
       }
     } else {
@@ -499,7 +487,7 @@ const RaceGame = () => {
     setIsPaused(false);
     setShowCorrectAnswer(false);
     setCorrectAnswerInfo(null);
-    
+
     // Show mistakes review if there are mistakes
     if (mistakes.length > 0) {
       setIsGameOver(true);
@@ -593,10 +581,10 @@ const RaceGame = () => {
   const timeProgress = session ? ((GAME_CONFIG.START_TIME_MS - timeLeft) / GAME_CONFIG.START_TIME_MS) * 100 : 0;
   const timeProgressPercent = timeProgress; // Percentage of time used
   const timeRemainingPercent = 100 - timeProgressPercent; // Percentage of time remaining
-  const accuracy = stats.total_answered > 0 
-    ? Math.round((stats.correct_count / stats.total_answered) * 100) 
+  const accuracy = stats.total_answered > 0
+    ? Math.round((stats.correct_count / stats.total_answered) * 100)
     : 0;
-  
+
   // Circle progress calculation
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
@@ -621,8 +609,8 @@ const RaceGame = () => {
             animate={{ y: 0 }}
             className={cn(
               "race-game-header fixed left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-b border-primary/20 shadow-lg md:hidden",
-              isTelegramMiniApp() 
-                ? "tg-safe-top-fixed" 
+              isTelegramMiniApp()
+                ? "tg-safe-top-fixed"
                 : "top-0"
             )}
             style={isTelegramMiniApp() ? {
@@ -632,8 +620,8 @@ const RaceGame = () => {
             }}
           >
             <div className="flex items-center justify-between px-3 py-2.5">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => endGame('manual')}
                 className="h-8 w-8 p-0 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all"
@@ -641,7 +629,7 @@ const RaceGame = () => {
                 <X className="w-4 h-4" />
               </Button>
               <div className="flex items-center gap-2">
-                <motion.div 
+                <motion.div
                   className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20"
                   whileHover={{ scale: 1.05 }}
                 >
@@ -653,116 +641,110 @@ const RaceGame = () => {
           </motion.div>
         )}
 
-        {/* Desktop Header */}
-        {(!isGameActive || isGameOver) && (
-          <div className="flex items-center justify-between mb-4 md:mb-8" style={{ paddingTop: '20px' }}>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate("/games")} 
-              className="md:hidden h-9 px-3 rounded-full"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад
-            </Button>
-          </div>
-        )}
-
         {/* Ultra-Modern Start Screen */}
         {!isGameActive && !isGameOver && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="max-w-2xl mx-auto"
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="max-w-md mx-auto w-full px-4 relative"
           >
-            <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-2xl min-h-[60vh] sm:min-h-auto">
-              <div className="p-6 md:p-10 space-y-6 md:space-y-8">
-                {/* Ultra-Modern Header */}
-                <div className="text-center space-y-4">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                    className="mx-auto w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center"
-                  >
-                    <Zap className="w-10 h-10 md:w-12 md:h-12 text-primary" strokeWidth={2} />
-                  </motion.div>
-                  
-                  <div className="space-y-2">
-                    <motion.h1
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className="text-3xl md:text-4xl font-bold text-foreground"
-                    >
-                      Режим "Гонка"
-                    </motion.h1>
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                      className="text-muted-foreground text-base md:text-lg"
-                    >
-                      Проверьте, насколько быстро вы можете переводить термины!
-                    </motion.p>
-                  </div>
-                </div>
+            {/* Mobile Top Navigation - Absolute Positioned */}
+            <div className="absolute -top-12 left-4 md:hidden z-20">
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/games")}
+                className="flex items-center gap-2 text-white/70 hover:text-white px-0 hover:bg-transparent"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="text-base font-medium">Назад</span>
+              </Button>
+            </div>
 
-                {/* Ultra-Modern Rules Card */}
-                <Card className="border border-border/50 bg-card">
-                  <div className="p-4 md:p-6 space-y-3 md:space-y-4">
-                    <div className="flex items-center gap-2 mb-3 md:mb-4">
-                      <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-primary" strokeWidth={2} />
-                      <h3 className="text-lg md:text-xl font-bold text-foreground">Правила игры</h3>
-                    </div>
-                    <div className="grid gap-3 md:gap-4">
-                      {[
-                        { icon: Clock, text: `У вас есть ${GAME_CONFIG.START_TIME_MS / 1000} секунд для проверки максимального количества слов`, color: "secondary" },
-                        { icon: Check, text: `За правильный ответ +${GAME_CONFIG.BASE_POINTS_PER_CORRECT} очко и +${GAME_CONFIG.TIME_PER_CORRECT_MS / 1000} секунды`, color: "success" },
-                        { icon: X, text: `За неправильный ответ вы теряете ${GAME_CONFIG.TIME_PENALTY_INCORRECT_MS / 1000} секунды`, color: "destructive" },
-                        { icon: Timer, text: `Максимум времени: ${GAME_CONFIG.MAX_TIME_MS / 1000} секунд (накопление не более ${GAME_CONFIG.MAX_TIME_ACCUMULATION_MS / 1000} секунд)`, color: "warning" },
-                        { icon: Flame, text: "Серия правильных ответов даёт бонусные очки", color: "orange-500" },
-                      ].map((rule, idx) => (
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 + idx * 0.05 }}
-                          className="flex items-start gap-2.5 md:gap-3"
-                        >
-                          <div className={`p-1.5 md:p-2 rounded-lg bg-${rule.color}/10 border border-${rule.color}/20 flex-shrink-0`}>
-                            <rule.icon className={`w-4 h-4 md:w-5 md:h-5 text-${rule.color}`} strokeWidth={2} />
-                          </div>
-                          <p className="flex-1 pt-0.5 md:pt-1.5 text-xs md:text-sm lg:text-base text-foreground leading-relaxed">{rule.text}</p>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                </Card>
+            <div className="relative overflow-hidden bg-[#0F1115] border border-white/5 shadow-2xl rounded-[2.5rem] mt-4 md:mt-0">
+              {/* Background Ambient Glow */}
+              <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-blue-600/20 via-primary/5 to-transparent opacity-60 pointer-events-none" />
 
-                {/* Ultra-Modern Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate("/games")}
-                    size="lg"
-                    className="flex-1 h-11 md:h-12 border border-border hover:bg-muted/50 text-sm md:text-base"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Отмена
-                  </Button>
+              <div className="relative z-10 p-8 flex flex-col items-center text-center">
+                {/* Hero Icon */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="mb-6 relative"
+                >
+                  <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-[0_10px_40px_-10px_rgba(59,130,246,0.6)]">
+                    <Zap className="w-12 h-12 text-white fill-white" />
+                  </div>
+                  {/* Decorative particles */}
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-yellow-400 rounded-full blur-[8px] opacity-60 animate-pulse" />
+                </motion.div>
+
+                {/* Title */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-2 mb-8"
+                >
+                  <h1 className="text-3xl font-black text-white tracking-tight">
+                    Гонка
+                  </h1>
+                  <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[260px] mx-auto">
+                    Переводите слова на скорость. У вас ровно 1 минута, чтобы показать результат.
+                  </p>
+                </motion.div>
+
+                {/* Stats Row (HUD Style) */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="w-full grid grid-cols-3 gap-2 mb-8"
+                >
+                  <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 border border-white/5">
+                    <Clock className="w-5 h-5 text-blue-400" />
+                    <span className="text-lg font-bold text-white">60с</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Старт</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 border border-white/5">
+                    <Check className="w-5 h-5 text-emerald-400" strokeWidth={3} />
+                    <span className="text-lg font-bold text-emerald-400">+1с</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Бонус</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 p-3 rounded-2xl bg-white/5 border border-white/5">
+                    <X className="w-5 h-5 text-rose-400" strokeWidth={3} />
+                    <span className="text-lg font-bold text-rose-400">-2с</span>
+                    <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Штраф</span>
+                  </div>
+                </motion.div>
+
+                {/* Actions */}
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="w-full space-y-3"
+                >
                   <Button
                     onClick={startGame}
-                    size="lg"
                     disabled={terms.length < 2}
-                    className="flex-1 h-11 md:h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)] text-sm md:text-base font-semibold"
+                    style={{ backgroundColor: 'white', color: 'black' }}
+                    className="w-full h-14 rounded-2xl font-black text-lg shadow-[0_0_30px_-5px_rgba(255,255,255,0.4)] hover:bg-gray-100 transition-all hover:scale-[1.02] active:scale-[0.98] border-0"
                   >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Начать игру
+                    Поехали!
                   </Button>
-                </div>
+
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate("/games")}
+                    className="w-full h-10 rounded-xl text-slate-500 hover:text-white hover:bg-white/5 text-sm font-medium transition-colors hidden md:block" // Hidden on mobile
+                  >
+                    Назад
+                  </Button>
+                </motion.div>
               </div>
-            </Card>
+            </div>
           </motion.div>
         )}
 
@@ -770,461 +752,294 @@ const RaceGame = () => {
         {isGameActive && session?.current_question && (
           <motion.div
             key={stats.total_answered}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="race-game-content space-y-3 md:space-y-6 pb-4 md:pb-0"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-between p-4 pb- safe-area-bottom overflow-hidden bg-[#020617]"
           >
-            {/* Desktop Exit Button - только для web app (не показывается в Telegram Mini App) */}
-            {!isTelegramMiniApp() && (
-              <div className="hidden md:flex absolute top-4 left-4 z-50">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (window.confirm('Вы уверены, что хотите выйти из игры? Ваш прогресс не будет сохранен.')) {
-                      endGame('manual');
-                      navigate('/games');
-                    }
-                  }}
-                  className="h-10 w-10 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all"
-                  title="Выйти из игры"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-            )}
+            {/* ========================================== */}
+            {/* 1. DYNAMIC BACKGROUND (Neumorphism / Glow) */}
+            {/* ========================================== */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute top-[-10%] left-[-10%] w-[80vw] h-[80vw] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
+              <div className="absolute bottom-[-10%] right-[-10%] w-[80vw] h-[80vw] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
+              <div className="absolute top-[40%] left-[50%] transform -translate-x-1/2 w-full h-[300px] bg-white/5 blur-[80px] opacity-20" />
+            </div>
 
-            {/* Premium Circular Timer with Countdown - Fixed positioning */}
-            <div className="pt-16 md:pt-0 flex justify-center relative z-50">
-              <motion.div 
-                className="relative w-28 h-28 md:w-40 md:h-40"
-                animate={
-                  timeLeft <= 10_000 
-                    ? { scale: [1, 1.05, 1] }
-                    : {}
-                }
-                transition={{ duration: 0.5, repeat: timeLeft <= 10_000 ? Infinity : 0 }}
+            {/* ========================================== */}
+            {/* 2. HEADER: Timer & Exit */}
+            {/* ========================================== */}
+            <div className="relative z-20 w-full max-w-3xl flex justify-between items-start pt-[max(env(safe-area-inset-top),20px)] px-2">
+              {/* Exit Button (Small & Transparent) */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  if (window.confirm('Закончить гонку?')) endGame('manual');
+                }}
+                className="text-white/40 hover:text-white hover:bg-white/10 rounded-full w-10 h-10"
               >
-                {/* SVG Circle Progress */}
-                <svg
-                  className="transform -rotate-90 w-full h-full drop-shadow-sm"
-                  viewBox="0 0 100 100"
-                >
-                  {/* Background circle */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r={radius}
-                    stroke="currentColor"
-                    strokeWidth="6"
-                    fill="none"
-                    className="text-muted/20"
-                  />
-                  {/* Progress circle with glow effect */}
-                  <motion.circle
-                    cx="50"
-                    cy="50"
-                    r={radius}
-                    stroke="currentColor"
-                    strokeWidth="6"
-                    fill="none"
-                    strokeLinecap="round"
-                    className={`transition-colors drop-shadow-sm ${
-                      timeLeft <= 10_000 
-                        ? 'text-destructive' 
-                        : timeLeft <= 20_000 
-                        ? 'text-orange-500' 
-                        : 'text-primary'
-                    }`}
-                    strokeDasharray={circumference}
-                    initial={{ strokeDashoffset: circumference }}
-                    animate={{ 
-                      strokeDashoffset: strokeDashoffset,
-                    }}
-                    transition={{ duration: 0.1, ease: "linear" }}
-                  />
-                  {/* Glow effect for low time */}
-                  {timeLeft <= 10_000 && (
+                <X className="w-6 h-6" />
+              </Button>
+
+              {/* CENTER: Premium Neon Timer */}
+              <div className="flex flex-col items-center">
+                <div className="relative w-20 h-20 md:w-24 md:h-24">
+                  {/* Neon Glow Layer */}
+                  {timeLeft <= 10000 && (
+                    <div className="absolute inset-0 rounded-full bg-red-500/30 blur-xl animate-pulse" />
+                  )}
+
+                  <svg className="transform -rotate-90 w-full h-full" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.1)" strokeWidth="6" fill="none" />
                     <motion.circle
                       cx="50"
                       cy="50"
-                      r={radius}
+                      r="45"
                       stroke="currentColor"
-                      strokeWidth="8"
+                      strokeWidth="6"
                       fill="none"
                       strokeLinecap="round"
-                      className="text-destructive/30 blur-sm"
-                      strokeDasharray={circumference}
-                      animate={{ 
-                        strokeDashoffset: strokeDashoffset,
-                        opacity: [0.3, 0.6, 0.3],
-                      }}
-                      transition={{ 
-                        strokeDashoffset: { duration: 0.1, ease: "linear" },
-                        opacity: { duration: 0.5, repeat: Infinity }
-                      }}
+                      className={timeLeft <= 10000 ? 'text-red-500' : 'text-blue-500'}
+                      strokeDasharray={2 * Math.PI * 45}
+                      initial={{ strokeDashoffset: 2 * Math.PI * 45 }}
+                      animate={{ strokeDashoffset: 2 * Math.PI * 45 * (1 - timeLeft / GAME_CONFIG.START_TIME_MS) }}
+                      transition={{ duration: 0.1, ease: 'linear' }}
                     />
-                  )}
-                </svg>
-                
-                {/* Countdown text inside circle */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <motion.div
-                    key={timeLeftSeconds}
-                    initial={{ scale: 0.8, opacity: 0.5 }}
-                    animate={{ 
-                      scale: 1, 
-                      opacity: 1,
-                      ...(timeLeft <= 10_000 ? {
-                        scale: [1, 1.1, 1],
-                      } : {})
-                    }}
-                    transition={{ 
-                      duration: 0.2,
-                      ...(timeLeft <= 10_000 ? {
-                        scale: { duration: 0.3, repeat: Infinity }
-                      } : {})
-                    }}
-                    className={`text-2xl md:text-4xl font-bold transition-colors ${
-                      timeLeft <= 10_000 
-                        ? 'text-destructive' 
-                        : timeLeft <= 20_000 
-                        ? 'text-orange-500' 
-                        : 'text-primary'
-                    }`}
-                  >
-                    {timeLeftSeconds}
-                  </motion.div>
-                  <div className="text-[10px] md:text-sm text-muted-foreground uppercase tracking-wider mt-0.5 font-medium">
-                    сек
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center flex-col">
+                    <span className={`text-xl md:text-2xl font-black ${timeLeft <= 10000 ? 'text-red-400' : 'text-white'}`}>
+                      {Math.ceil(timeLeft / 1000)}
+                    </span>
+                    <span className="text-[9px] uppercase font-bold text-white/30 tracking-widest">сек</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Stats Badge */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                <Trophy className="w-4 h-4 text-yellow-400" />
+                <span className="text-white font-bold">{stats.total_points}</span>
+              </div>
+            </div>
+
+            {/* ========================================== */}
+            {/* 3. CENTER CARD: The Term (Glassmorphism & Swipe) */}
+            {/* ========================================== */}
+            <div className="relative z-10 flex-1 flex flex-col justify-center items-center w-full max-w-2xl px-4 py-8">
+
+              {/* Swipe Hints - visible only when dragging starts? For now just static hint or inferred */}
+              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-4 pointer-events-none opacity-20">
+                <X className="w-12 h-12 text-rose-500 md:hidden" />
+                <Check className="w-12 h-12 text-emerald-500 md:hidden" />
+              </div>
+
+              {/* COMBO & BONUS VISUALIZATION */}
+              <AnimatePresence mode="wait">
+                {/* 1. CONTINUOUS TEAM COMBO COUNTER (Shows on every hit > 1) */}
+                {stats.combo_count > 1 && (
+                  <motion.div
+                    key={stats.combo_count} // Re-trigger animation on change
+                    initial={{ scale: 0.5, opacity: 0, y: 0, rotate: -10 }}
+                    animate={{
+                      scale: stats.combo_count >= 10 ? 1.5 : stats.combo_count >= 5 ? 1.2 : 1,
+                      opacity: 1,
+                      y: -20,
+                      rotate: 0
+                    }}
+                    exit={{ scale: 2, opacity: 0, filter: "blur(10px)" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    className="absolute z-50 top-[15%] pointer-events-none flex flex-col items-center"
+                  >
+                    <div className={`
+                      font-black italic tracking-tighter leading-none
+                      drop-shadow-[0_4px_0_rgba(0,0,0,0.5)]
+                      ${stats.combo_count >= 10
+                        ? "text-6xl text-rose-500 animate-pulse drop-shadow-[0_0_20px_rgba(244,63,94,0.8)]"
+                        : stats.combo_count >= 5
+                          ? "text-5xl text-orange-400 drop-shadow-[0_0_10px_rgba(251,146,60,0.6)]"
+                          : "text-4xl text-yellow-400"
+                      }
+                    `}>
+                      {stats.combo_count}x
+                    </div>
+                    <div className="text-white/80 font-bold uppercase tracking-[0.5em] text-[10px] mt-1">
+                      Combo
+                    </div>
+                    {stats.combo_count >= 5 && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="text-white font-black uppercase text-sm mt-1 bg-rose-500 px-2 py-0.5 rounded rotate-2"
+                      >
+                        {stats.combo_count >= 10 ? "UNSTOPPABLE!" : "ON FIRE!"}
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* 2. BONUS POINTS POPUP (Existing logic for +Points) */}
+                {showBonus && (
+                  <motion.div
+                    key="bonus-popup"
+                    initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, y: -80, scale: 1.5 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute z-50 text-5xl font-black text-emerald-400 drop-shadow-[0_0_25px_rgba(52,211,153,0.8)]"
+                    style={{ top: "30%" }}
+                  >
+                    +{bonusText.match(/\d+/)?.[0]}
+                    <span className="text-sm block text-center text-white/80 font-bold uppercase tracking-widest mt-[-5px]">
+                      Bonus
+                    </span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* THE CARD */}
+              <motion.div
+                className="w-full relative group cursor-grab active:cursor-grabbing"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1, x: 0, rotate: 0 }}
+                key={session.current_question.question_id}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.2}
+                onDragEnd={(e, { offset, velocity }) => {
+                  const swipe = offset.x;
+                  if (swipe < -100 || velocity.x < -500) {
+                    handleAnswer(false);
+                  } else if (swipe > 100 || velocity.x > 500) {
+                    handleAnswer(true);
+                  }
+                }}
+                whileDrag={{ scale: 1.05 }}
+              >
+                {/* Feedback Overlay (Flash on answer) */}
+                <AnimatePresence>
+                  {lastAnswerCorrect !== null && !showCorrectAnswer && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className={`absolute -inset-4 z-20 rounded-[2.5rem] flex items-center justify-center backdrop-blur-[2px] ${lastAnswerCorrect ? 'bg-emerald-500/20' : 'bg-rose-500/20'
+                        }`}
+                    >
+                      <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1.2, opacity: 1 }}
+                        className={`p-6 rounded-full border-4 ${lastAnswerCorrect ? 'border-emerald-400 bg-emerald-500/20 text-emerald-400' : 'border-rose-400 bg-rose-500/20 text-rose-400'}`}
+                      >
+                        {lastAnswerCorrect ? <Check className="w-16 h-16" strokeWidth={4} /> : <X className="w-16 h-16" strokeWidth={4} />}
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Glass Container */}
+                <div className="relative overflow-hidden rounded-[2.5rem] bg-white/5 backdrop-blur-2xl border border-white/10 p-8 md:p-12 text-center shadow-2xl select-none">
+
+                  {/* Wrong Answer Explanation Overlay */}
+                  <AnimatePresence>
+                    {showCorrectAnswer && correctAnswerInfo && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 z-30 bg-[#0F1115]/95 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center"
+                      >
+                        <div className="mb-4 text-rose-500 font-bold uppercase tracking-widest text-sm">Ошибка</div>
+                        <div className="text-4xl font-black text-white mb-2">{correctAnswerInfo.term_es}</div>
+                        <div className="w-12 h-1 bg-white/20 rounded-full my-4" />
+                        <div className="text-2xl font-bold text-emerald-400">{correctAnswerInfo.term_ru}</div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Term Label */}
+                  <div className="mb-6 flex justify-center">
+                    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-blue-200/60">
+                      Испанский
+                    </span>
+                  </div>
+
+                  {/* MAIN TERM (HUGE) */}
+                  <h2 className="text-4xl xs:text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 mb-8 leading-none tracking-tight">
+                    {session.current_question.term.term_es}
+                  </h2>
+
+                  {/* Divider */}
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-6" />
+
+                  {/* Term Label */}
+                  <div className="mb-4 flex justify-center">
+                    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-indigo-200/60">
+                      Русский
+                    </span>
+                  </div>
+
+                  {/* TRANSLATION */}
+                  <h3 className="text-2xl xs:text-3xl md:text-4xl font-bold text-indigo-200 leading-tight">
+                    {session.current_question.translation}
+                  </h3>
+
+                  {/* Question Text */}
+                  <p className="mt-8 text-white/30 text-sm font-medium">Это правильный перевод?</p>
+
+                  {/* Mobile Swipe Hint */}
+                  <p className="md:hidden mt-2 text-white/10 text-[10px] animate-pulse">
+                    ← Свайп влево (Нет) • Свайп вправо (Да) →
+                  </p>
                 </div>
               </motion.div>
             </div>
 
-            {/* Premium Combo Indicator - Modern & Interesting */}
-            <AnimatePresence>
-              {stats.combo_count > 0 && (
-                <motion.div
-                  initial={{ scale: 0, opacity: 0, y: -20 }}
-                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                  exit={{ scale: 0, opacity: 0, y: -20 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="flex justify-center"
-                >
-                  <motion.div
-                    className="relative inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-orange-500/10 border-2 border-orange-500/30 backdrop-blur-sm"
-                    animate={{
-                      boxShadow: [
-                        '0 0 0px rgba(249, 115, 22, 0)',
-                        '0 0 20px rgba(249, 115, 22, 0.3)',
-                        '0 0 0px rgba(249, 115, 22, 0)',
-                      ],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    {/* Animated background pulse */}
-                    <motion.div
-                      className="absolute inset-0 rounded-2xl bg-orange-500/20"
-                      animate={{
-                        scale: [1, 1.1, 1],
-                        opacity: [0.3, 0.5, 0.3],
-                      }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    />
-                    
-                    <div className="relative z-10 flex items-center gap-3">
-                      <motion.div
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 0.5, repeat: Infinity }}
-                      >
-                        <Flame className="w-5 h-5 text-orange-500" strokeWidth={2.5} fill="currentColor" />
-                      </motion.div>
-                      <div className="flex flex-col items-start">
-                        <span className="text-xs font-medium text-orange-600/70 uppercase tracking-wider">
-                          Серия
-                        </span>
-                        <span className="text-lg font-bold text-orange-600 leading-none">
-                          {stats.combo_count}x
-                        </span>
-                      </div>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* ========================================== */}
+            {/* 4. FOOTER BUTTONS (HUGE TAP ZONES) */}
+            {/* ========================================== */}
+            <div className="relative z-20 w-full max-w-3xl grid grid-cols-2 gap-4 px-2 pb-[max(env(safe-area-inset-bottom),20px)]">
+              {/* NO BUTTON */}
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                className="group relative h-20 md:h-24 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg"
+                onClick={() => handleAnswer(false)}
+                disabled={isPaused}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-red-600 transition-all group-hover:scale-105" />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center gap-3">
+                  <X className="w-8 h-8 text-white/90" strokeWidth={3} />
+                  <span className="text-2xl md:text-3xl font-black text-white tracking-wide uppercase">Нет</span>
 
-            {/* Ultra-Modern Question Card - Clean minimal design */}
-            <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-2xl mt-2 md:mt-0">
-
-              {/* Premium Combo Bonus Animation - Modern & Interesting */}
-              <AnimatePresence>
-                {showBonus && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ 
-                      opacity: [0, 1, 1, 0],
-                      scale: [0.5, 1.1, 1, 0.9],
-                      y: [0, -80, -120],
-                    }}
-                    exit={{ opacity: 0, scale: 0 }}
-                    transition={{ duration: 2, ease: [0.4, 0, 0.2, 1] }}
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none"
-                  >
-                    <div className="relative">
-                      {/* Background glow effect */}
-                      <motion.div
-                        className="absolute inset-0 -z-10 rounded-full bg-orange-500/30 blur-2xl"
-                        animate={{
-                          scale: [1, 1.5, 2],
-                          opacity: [0.5, 0.3, 0],
-                        }}
-                        transition={{ duration: 2 }}
-                      />
-                      
-                      {/* Main text container */}
-                      <motion.div
-                        className="relative px-6 py-4 rounded-2xl bg-card border-2 border-orange-500/40 shadow-[0_8px_32px_rgba(249,115,22,0.3)] backdrop-blur-sm"
-                        animate={{
-                          boxShadow: [
-                            '0 8px 32px rgba(249,115,22,0.3)',
-                            '0 12px 40px rgba(249,115,22,0.4)',
-                            '0 8px 32px rgba(249,115,22,0.3)',
-                          ],
-                        }}
-                        transition={{ duration: 0.5, repeat: Infinity }}
-                      >
-                        <div className="flex items-center gap-3">
-                          <motion.div
-                            animate={{ 
-                              rotate: [0, 360],
-                              scale: [1, 1.2, 1],
-                            }}
-                            transition={{ duration: 1, repeat: Infinity }}
-                          >
-                            <Flame className="w-8 h-8 text-orange-500" strokeWidth={2.5} fill="currentColor" />
-                          </motion.div>
-                          <div className="flex flex-col">
-                            <span className="text-xs font-medium text-orange-600/70 uppercase tracking-wider">
-                              Бонус комбо
-                            </span>
-                            <span className="text-2xl md:text-3xl font-bold text-orange-600 leading-none whitespace-nowrap">
-                              +{bonusText.match(/\d+/)?.[0] || ''} очков
-                            </span>
-                          </div>
-                        </div>
-                        
-                        {/* Particles effect */}
-                        {[...Array(6)].map((_, i) => (
-                          <motion.div
-                            key={i}
-                            className="absolute w-2 h-2 rounded-full bg-orange-500/60"
-                            initial={{ 
-                              x: 0, 
-                              y: 0, 
-                              opacity: 1,
-                              scale: 1,
-                            }}
-                            animate={{
-                              x: [0, Math.cos(i * 60 * Math.PI / 180) * 40],
-                              y: [0, Math.sin(i * 60 * Math.PI / 180) * 40],
-                              opacity: [1, 0],
-                              scale: [1, 0],
-                            }}
-                            transition={{ 
-                              duration: 1.5,
-                              delay: 0.2,
-                              ease: "easeOut"
-                            }}
-                          />
-                        ))}
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Ultra-Modern Feedback overlay - Minimal */}
-              <AnimatePresence>
-                {lastAnswerCorrect !== null && !showCorrectAnswer && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className={`absolute inset-0 z-10 flex items-center justify-center backdrop-blur-sm ${
-                      lastAnswerCorrect ? 'bg-success/5' : 'bg-destructive/5'
-                    }`}
-                  >
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: [0, 1.2, 1] }}
-                      exit={{ scale: 0 }}
-                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                      className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg border-2 ${
-                        lastAnswerCorrect 
-                          ? 'bg-success border-success/30 text-success' 
-                          : 'bg-destructive border-destructive/30 text-destructive'
-                      }`}
-                    >
-                      {lastAnswerCorrect ? (
-                        <Check className="w-10 h-10" strokeWidth={3} />
-                      ) : (
-                        <X className="w-10 h-10" strokeWidth={3} />
-                      )}
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Ultra-Modern Correct Answer Display - Minimalist design */}
-              <AnimatePresence>
-                {showCorrectAnswer && correctAnswerInfo && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute inset-0 z-20 flex items-center justify-center bg-background/95 backdrop-blur-md"
-                  >
-                    <motion.div
-                      initial={{ scale: 0.95, y: 20, opacity: 0 }}
-                      animate={{ scale: 1, y: 0, opacity: 1 }}
-                      exit={{ scale: 0.95, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                      className="relative w-full max-w-lg mx-4 p-8 md:p-10 bg-card border border-border/50 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-                    >
-                      {/* Minimalist divider line */}
-                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-destructive rounded-full" />
-                      
-                      <div className="text-center space-y-6">
-                        {/* Status badge - minimal */}
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.1 }}
-                          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-destructive/10 border border-destructive/20"
-                        >
-                          <X className="w-4 h-4 text-destructive" strokeWidth={2.5} />
-                          <span className="text-sm font-semibold text-destructive uppercase tracking-wide">
-                            Неверно
-                          </span>
-                        </motion.div>
-                        
-                        {/* Label */}
-                        <div className="space-y-1">
-                          <div className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
-                            Правильный ответ
-                          </div>
-                        </div>
-                        
-                        {/* Answer content */}
-                        <div className="space-y-4 pt-2">
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-3xl md:text-4xl font-bold text-foreground break-words leading-tight"
-                          >
-                            {correctAnswerInfo.term_es}
-                          </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="text-xl md:text-2xl font-semibold text-success break-words"
-                          >
-                            {correctAnswerInfo.term_ru}
-                          </motion.div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <div className="relative z-10 p-4 md:p-10 space-y-4 md:space-y-8">
-                {/* Spanish Term - Premium Style */}
-                <motion.div
-                  key={`term-${stats.total_answered}`}
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.4, ease: "easeOut" }}
-                  className="space-y-2 md:space-y-3"
-                >
-                  <div className="flex items-center gap-2 text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    <span>Термин</span>
-                  </div>
-                  <div className="text-2xl md:text-4xl font-bold text-foreground break-words leading-tight">
-                    {session.current_question.term.term_es}
-                  </div>
-                </motion.div>
-
-                {/* Divider - Minimal */}
-                <div className="h-px bg-border" />
-
-                {/* Translation - Ultra-Modern Style */}
-                <motion.div
-                  key={`translation-${stats.total_answered}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.1 }}
-                  className="space-y-2 md:space-y-3"
-                >
-                  <div className="flex items-center gap-2 text-[10px] md:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    <span>Перевод</span>
-                  </div>
-                  <div className="text-xl md:text-3xl font-semibold text-foreground break-words leading-relaxed">
-                    {session.current_question.translation}
-                  </div>
-                </motion.div>
-
-                {/* Question */}
-                <div className="text-center pt-2 md:pt-4">
-                  <p className="text-sm md:text-xl font-semibold text-muted-foreground">
-                    Верен ли перевод?
-                  </p>
+                  {/* Keyboard Hint */}
+                  <span className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-black/20 text-white/60 text-sm font-bold border border-white/10 absolute right-4">
+                    ←
+                  </span>
                 </div>
+              </motion.button>
 
-                {/* Ultra-Modern Answer Buttons - Optimized for mobile */}
-                <div className="flex gap-2.5 md:gap-4 pt-2 md:pt-4">
-                  <motion.div
-                    className="flex-1"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                  >
-                    <Button
-                      onClick={() => handleAnswer(false)}
-                      variant="destructive"
-                      size="lg"
-                      className="w-full h-14 md:h-18 text-base md:text-xl font-semibold rounded-xl bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-[0_4px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_6px_16px_rgba(239,68,68,0.35)] transition-all"
-                      disabled={isPaused}
-                    >
-                      <X className="w-4 h-4 md:w-6 md:h-6 mr-2" strokeWidth={2.5} />
-                      Нет
-                    </Button>
-                  </motion.div>
-                  
-                  <motion.div
-                    className="flex-1"
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                  >
-                    <Button
-                      onClick={() => handleAnswer(true)}
-                      size="lg"
-                      className="w-full h-14 md:h-18 text-base md:text-xl font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)] hover:shadow-[0_6px_16px_rgba(139,92,246,0.35)] transition-all"
-                      disabled={isPaused}
-                    >
-                      <Check className="w-4 h-4 md:w-6 md:h-6 mr-2" strokeWidth={2.5} />
-                      Да
-                    </Button>
-                  </motion.div>
+              {/* YES BUTTON */}
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                className="group relative h-20 md:h-24 rounded-2xl md:rounded-3xl overflow-hidden shadow-lg"
+                onClick={() => handleAnswer(true)}
+                disabled={isPaused}
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 transition-all group-hover:scale-105" />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center gap-3">
+                  <Check className="w-8 h-8 text-white/90" strokeWidth={3} />
+                  <span className="text-2xl md:text-3xl font-black text-white tracking-wide uppercase">Да</span>
+
+                  {/* Keyboard Hint */}
+                  <span className="hidden md:flex items-center justify-center w-8 h-8 rounded-lg bg-black/20 text-white/60 text-sm font-bold border border-white/10 absolute left-4">
+                    →
+                  </span>
                 </div>
-              </div>
-            </Card>
+              </motion.button>
+            </div>
+
           </motion.div>
         )}
 
@@ -1304,110 +1119,164 @@ const RaceGame = () => {
         )}
 
         {/* Ultra-Modern Game Over Screen */}
+        {/* Ultra-Modern Game Over Screen RE-DESIGNED */}
         {isGameOver && !showMistakesReview && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="max-w-2xl mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex flex-col items-center justify-center w-full max-w-lg mx-auto z-20 px-4 py-8"
           >
-            <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-2xl">
-              <div className="p-8 md:p-12 text-center space-y-8">
-                {/* Trophy Icon - Minimal */}
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
-                  className="mx-auto w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center"
-                >
-                  <Trophy className="w-10 h-10 md:w-12 md:h-12 text-primary" strokeWidth={2} />
-                </motion.div>
-
-                <div className="space-y-4">
-                  <motion.h2
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-3xl md:text-4xl font-bold text-foreground"
-                  >
-                    Игра окончена!
-                  </motion.h2>
-                  
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 10 }}
-                    className="text-6xl md:text-7xl font-bold text-primary"
-                  >
-                    {stats.total_points}
-                  </motion.div>
-                  
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="text-lg text-muted-foreground"
-                  >
-                    Вы ответили на {stats.total_answered} вопросов
-                  </motion.p>
-                </div>
-
-                {/* Ultra-Modern Stats Grid */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="grid grid-cols-2 gap-3 pt-6 border-t border-border"
-                >
-                  {[
-                    { label: "Правильных", value: stats.correct_count, color: "success", icon: Check },
-                    { label: "Неправильных", value: stats.incorrect_count, color: "destructive", icon: X },
-                    { label: "Точность", value: `${accuracy}%`, color: "primary", icon: Star },
-                    { label: "Макс. комбо", value: `${stats.max_combo}x`, color: "orange-500", icon: Flame },
-                  ].map((stat, idx) => (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 + idx * 0.05 }}
-                      className="p-4 rounded-xl border border-border/50 bg-card"
-                    >
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <stat.icon className={`w-4 h-4 text-${stat.color}`} strokeWidth={2.5} />
-                        <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
-                          {stat.label}
-                        </div>
-                      </div>
-                      <div className={`text-2xl font-bold text-${stat.color} text-center`}>
-                        {stat.value}
-                      </div>
-                    </motion.div>
-                  ))}
-                </motion.div>
-
-                {/* Ultra-Modern Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-6">
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate("/games")}
-                    size="lg"
-                    className="flex-1 h-12 border border-border hover:bg-muted/50"
-                  >
-                    К играм
-                  </Button>
-                </div>
+            {/* 1. TROPHY HERO ELEMENT */}
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
+              className="relative mb-8"
+            >
+              <div className="absolute inset-0 bg-yellow-500/40 blur-[60px] animate-pulse" />
+              <div className="relative w-32 h-32 rounded-full bg-gradient-to-tr from-yellow-400/20 to-orange-500/20 border border-yellow-400/50 backdrop-blur-xl flex items-center justify-center shadow-[0_0_50px_rgba(234,179,8,0.4)] ring-4 ring-yellow-500/10">
+                <Trophy className="w-16 h-16 text-yellow-400 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]" strokeWidth={1.5} />
               </div>
-            </Card>
+              {/* Stars decoration */}
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 -m-4 border border-dashed border-yellow-500/30 rounded-full"
+              />
+            </motion.div>
+
+            {/* 2. TEXT & SCORE */}
+            <div className="text-center space-y-2 mb-10">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-2xl font-bold text-white/80 uppercase tracking-widest"
+              >
+                Гонка завершена
+              </motion.h2>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4, type: "spring" }}
+                className="relative"
+              >
+                <h1 className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 drop-shadow-[0_4px_10px_rgba(234,179,8,0.3)]">
+                  {stats.total_points}
+                </h1>
+                <div className="text-sm font-bold text-yellow-500/80 uppercase tracking-[0.5em] mt-2 border-t border-yellow-500/20 pt-2 inline-block px-8">
+                  Финальный счет
+                </div>
+              </motion.div>
+            </div>
+
+            {/* 3. STATS GRID (Bento Style) */}
+            <div className="grid grid-cols-2 gap-3 w-full mb-10">
+              {/* Accuracy */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="bg-[#1A1D25] border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group"
+              >
+                <div className="absolute top-0 left-0 w-full h-1 bg-blue-500/50" />
+                <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Target className="w-6 h-6 text-blue-400 mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-2xl font-bold text-white">{accuracy}%</span>
+                <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">Точность</span>
+              </motion.div>
+
+              {/* Max Combo */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 }}
+                className="bg-[#1A1D25] border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group"
+              >
+                <div className="absolute top-0 left-0 w-full h-1 bg-orange-500/50" />
+                <div className="absolute inset-0 bg-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Flame className="w-6 h-6 text-orange-400 mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-2xl font-bold text-white">{stats.max_combo}x</span>
+                <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">Макс. серия</span>
+              </motion.div>
+
+              {/* Correct */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="bg-[#1A1D25] border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group"
+              >
+                <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500/50" />
+                <div className="absolute inset-0 bg-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Check className="w-6 h-6 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-2xl font-bold text-white">{stats.correct_count}</span>
+                <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">Правильно</span>
+              </motion.div>
+
+              {/* Mistakes */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="bg-[#1A1D25] border border-white/5 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden group"
+              >
+                <div className="absolute top-0 left-0 w-full h-1 bg-rose-500/50" />
+                <div className="absolute inset-0 bg-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <X className="w-6 h-6 text-rose-400 mb-2 group-hover:scale-110 transition-transform" />
+                <span className="text-2xl font-bold text-white">{stats.incorrect_count}</span>
+                <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">Ошибок</span>
+              </motion.div>
+            </div>
+
+            {/* 4. ACTIONS */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate("/")}
+                className="flex-1 h-14 rounded-xl font-bold text-white bg-white/5 border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Меню</span>
+              </motion.button>
+
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.0 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={startGame}
+                className="flex-1 h-14 rounded-xl font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-900/40 transition-all flex items-center justify-center gap-2"
+              >
+                <RotateCw className="w-5 h-5 animate-[spin_3s_linear_infinite]" />
+                <span>Играть снова</span>
+              </motion.button>
+            </div>
           </motion.div>
         )}
       </div>
     </>
   );
 
-  if (isGameActive && !isGameOver) {
+  // Render Fullscreen for BOTH Active Game and Game Over (and Review)
+  if (isGameActive || isGameOver) {
     return (
-      <div className="race-game-fullscreen-wrapper fixed inset-0 z-[100] bg-background">
-        {content}
+      <div className="race-game-fullscreen-wrapper fixed inset-0 z-[100] bg-[#020617] overflow-y-auto overflow-x-hidden">
+        {/* Dynamic Background (Shared) */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[-10%] left-[-10%] w-[80vw] h-[80vw] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[80vw] h-[80vw] bg-indigo-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
+          <div className="absolute top-[40%] left-[50%] transform -translate-x-1/2 w-full h-[300px] bg-white/5 blur-[80px] opacity-20" />
+        </div>
+
+        {/* Content Wrapper */}
+        <div className="relative z-10 min-h-full flex flex-col">
+          {content}
+        </div>
       </div>
     );
   }

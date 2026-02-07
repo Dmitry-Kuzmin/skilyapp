@@ -25,7 +25,7 @@ class HapticManager {
       this.enabled = !!tg && version >= 6.1;
 
       if (tg && version < 6.1 && (window as any).isDev) {
-        console.log(`[HapticManager] Haptic feedback disabled for version ${version} (requires 6.1+)`);
+
       }
     } catch (e) {
       this.enabled = false;

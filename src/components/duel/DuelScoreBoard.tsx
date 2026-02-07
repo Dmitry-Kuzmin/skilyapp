@@ -105,7 +105,7 @@ export const DuelScoreBoard = memo(({
 
   return (
     <div className={cn(
-      "flex items-center gap-2 md:gap-3 min-w-0 flex-wrap",
+      "flex items-center gap-2 md:gap-3 min-w-0 flex-nowrap",
       isTelegramMobile && "flex-1 justify-center"
     )}>
       {/* My Score */}

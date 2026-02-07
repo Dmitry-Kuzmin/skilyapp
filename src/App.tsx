@@ -10,6 +10,7 @@ import { useSession } from "@/hooks/useSession";
 import { validateEnv } from "@/utils/envValidation";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { StartupCurtain } from "@/components/StartupCurtain";
+import { ThemeColorManager } from "@/components/ThemeColorManager";
 
 // ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены в AppProviders
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
@@ -558,6 +559,7 @@ const App = () => {
 
   return (
     <TelegramProvider>
+      <ThemeColorManager />
       <AdCleanup />
       <Toaster />
       <Motion>

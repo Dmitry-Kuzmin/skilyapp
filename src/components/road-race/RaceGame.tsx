@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { X, Fuel, Gauge, Trophy, Flame, Zap, MapPin, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from 'sonner';
+import { toast } from '@/lib/toast';
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import type { Route, Question, GameStats } from "@/pages/games/RoadRace";
@@ -20,7 +20,7 @@ interface RaceGameProps {
 }
 
 export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, onExit }: RaceGameProps) => {
-  
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [stats, setStats] = useState<GameStats>(initialStats);
@@ -37,7 +37,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
   useEffect(() => {
     let animationFrameId: number;
     let lastUpdate = Date.now();
-    
+
     const updateTime = () => {
       const now = Date.now();
       // Обновляем только если прошло >= 500ms (уменьшаем частоту обновлений)
@@ -50,7 +50,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
       }
       animationFrameId = requestAnimationFrame(updateTime);
     };
-    
+
     animationFrameId = requestAnimationFrame(updateTime);
     return () => cancelAnimationFrame(animationFrameId);
   }, [startTime]);
@@ -87,7 +87,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
               sign.name_es,
               ...(wrongSigns?.map((s) => s.name_es) || []),
             ];
-            
+
             // Shuffle options
             const shuffled = options.sort(() => Math.random() - 0.5);
             const correctIndex = shuffled.indexOf(sign.name_es);
@@ -124,7 +124,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
               term.term_ru,
               ...(wrongTerms?.map((t) => t.term_ru) || []),
             ];
-            
+
             const shuffled = options.sort(() => Math.random() - 0.5);
             const correctIndex = shuffled.indexOf(term.term_ru);
 
@@ -160,9 +160,9 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
             // Sort answer options by position
             const sortedOptions = (q.answer_options || [])
               .sort((a: any, b: any) => a.position - b.position);
-            
+
             const correctIndex = sortedOptions.findIndex((opt: any) => opt.is_correct);
-            
+
             allQuestions.push({
               id: q.id,
               type: "question",
@@ -191,7 +191,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
 
   const calculateSpeed = useCallback((combo: number, isCorrect: boolean) => {
     if (!isCorrect) return Math.max(30, stats.speed - 20);
-    
+
     const baseSpeed = 60;
     const comboBonus = combo * 5;
     return Math.min(150, baseSpeed + comboBonus);
@@ -304,7 +304,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Dynamic Gradient Background */}
-      <div 
+      <div
         className="absolute inset-0 transition-all duration-1000"
         style={{
           background: `linear-gradient(135deg, ${route.gradient_from}15 0%, ${route.gradient_to}15 100%)`,
@@ -353,21 +353,21 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
       {/* Main Content */}
       <div className="relative z-10 p-4 md:p-6 space-y-4 max-w-4xl mx-auto">
         {/* Top Bar */}
-        <motion.div 
+        <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           className="flex items-center justify-between"
         >
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onExit}
             className="bg-background/50 backdrop-blur-sm hover:bg-background/80"
           >
             <X className="w-5 h-5" />
           </Button>
-          
-          <motion.div 
+
+          <motion.div
             className="flex items-center gap-3 bg-background/80 backdrop-blur-md px-6 py-3 rounded-full border border-primary/20 shadow-lg"
             whileHover={{ scale: 1.05 }}
           >
@@ -399,8 +399,8 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
                 </div>
                 <span className="text-muted-foreground">{route.total_distance} km</span>
               </div>
-              <Progress 
-                value={progress} 
+              <Progress
+                value={progress}
                 className="h-3"
                 style={{
                   background: `linear-gradient(90deg, ${route.gradient_from}20, ${route.gradient_to}20)`,
@@ -411,7 +411,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
         </motion.div>
 
         {/* Stats Grid */}
-        <motion.div 
+        <motion.div
           className="grid grid-cols-3 gap-3"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -480,7 +480,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
                 )}
 
                 {/* Question Text */}
-                <motion.h2 
+                <motion.h2
                   className="text-xl md:text-2xl font-bold text-center leading-relaxed"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -495,7 +495,7 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
                     const isCorrect = index === currentQuestion.correctAnswer;
                     const isSelected = index === selectedAnswer;
                     const showResult = showFeedback;
-                    
+
                     return (
                       <motion.div
                         key={index}
@@ -505,24 +505,22 @@ export const RaceGame = ({ route, stats: initialStats, onCheckpoint, onFinish, o
                       >
                         <Button
                           variant="outline"
-                          className={`w-full h-auto py-4 px-6 text-left justify-start text-base md:text-lg transition-all ${
-                            showResult && isCorrect
+                          className={`w-full h-auto py-4 px-6 text-left justify-start text-base md:text-lg transition-all ${showResult && isCorrect
                               ? "bg-success/20 border-success text-success font-semibold"
                               : showResult && isSelected && !isCorrect
-                              ? "bg-destructive/20 border-destructive text-destructive"
-                              : "hover:bg-primary/10 hover:border-primary/50"
-                          }`}
+                                ? "bg-destructive/20 border-destructive text-destructive"
+                                : "hover:bg-primary/10 hover:border-primary/50"
+                            }`}
                           onClick={() => handleAnswerSelect(index)}
                           disabled={showFeedback}
                         >
                           <span className="flex items-center gap-3 w-full">
-                            <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold border-2 ${
-                              showResult && isCorrect
+                            <span className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold border-2 ${showResult && isCorrect
                                 ? "bg-success text-success-foreground border-success"
                                 : showResult && isSelected && !isCorrect
-                                ? "bg-destructive text-destructive-foreground border-destructive"
-                                : "bg-muted border-muted-foreground/20"
-                            }`}>
+                                  ? "bg-destructive text-destructive-foreground border-destructive"
+                                  : "bg-muted border-muted-foreground/20"
+                              }`}>
                               {String.fromCharCode(65 + index)}
                             </span>
                             <span className="flex-1">{option}</span>

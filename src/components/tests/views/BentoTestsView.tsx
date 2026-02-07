@@ -76,7 +76,7 @@ const BentoCard = ({
                 "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500",
                 accentColor
             )} />
-            
+
             {/* Glow effect on hover */}
             <div className={cn(
                 "absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl",
@@ -132,21 +132,21 @@ export const BentoTestsView = memo(function BentoTestsView({
 
     // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
     const isDark = useMemo(() => (resolvedTheme ?? 'dark') !== 'light', [resolvedTheme]);
-    
+
     // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
     const handleCountSelect = useCallback((count: number) => {
         setRandomQuestionCount(count);
         setHasSelectedCount(true);
     }, [setRandomQuestionCount]);
-    
+
     const handleRandomTestStart = useCallback(() => {
         handleStartTest(`/test/practice?count=${randomQuestionCount}`);
     }, [handleStartTest, randomQuestionCount]);
-    
+
     const handleTopicHover = useCallback((topicId: string | null) => {
         setHoveredTopic(topicId);
     }, []);
-    
+
     const handleTopicClickMemo = useCallback((topicId: string) => {
         handleTopicClick(topicId);
     }, [handleTopicClick]);
@@ -189,7 +189,7 @@ export const BentoTestsView = memo(function BentoTestsView({
                         >
                             <div className="h-full flex flex-col justify-between">
                                 <div className="flex items-start justify-between mb-4">
-                                    <motion.div 
+                                    <motion.div
                                         whileHover={{ rotate: 180, scale: 1.1 }}
                                         transition={{ duration: 0.3 }}
                                         className={cn(
@@ -209,9 +209,9 @@ export const BentoTestsView = memo(function BentoTestsView({
 
                                 <div className="space-y-4">
                                     <div>
-                                        <h2 className={cn("text-2xl sm:text-3xl md:text-3xl font-black mb-2 leading-tight bg-gradient-to-r bg-clip-text text-transparent", 
-                                            isDark 
-                                                ? "from-indigo-300 via-purple-300 to-pink-300" 
+                                        <h2 className={cn("text-2xl sm:text-3xl md:text-3xl font-black mb-2 leading-tight bg-gradient-to-r bg-clip-text text-transparent",
+                                            isDark
+                                                ? "from-indigo-300 via-purple-300 to-pink-300"
                                                 : "from-indigo-600 via-purple-600 to-pink-600"
                                         )}>
                                             {t('testsPage.randomTest')}
@@ -239,11 +239,11 @@ export const BentoTestsView = memo(function BentoTestsView({
                                                         className={cn(
                                                             "flex-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl font-bold text-sm md:text-base transition-all",
                                                             randomQuestionCount === count
-                                                                ? (isDark 
-                                                                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50" 
+                                                                ? (isDark
+                                                                    ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50"
                                                                     : "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg")
-                                                                : (isDark 
-                                                                    ? "bg-white/10 text-white hover:bg-white/20 border border-white/10" 
+                                                                : (isDark
+                                                                    ? "bg-white/10 text-white hover:bg-white/20 border border-white/10"
                                                                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200")
                                                         )}
                                                     >
@@ -252,7 +252,7 @@ export const BentoTestsView = memo(function BentoTestsView({
                                                 ))}
                                             </div>
                                         </div>
-                                        
+
                                         {/* Start Button - показываем только после выбора */}
                                         {hasSelectedCount && (
                                             <motion.div
@@ -296,7 +296,7 @@ export const BentoTestsView = memo(function BentoTestsView({
                         >
                             <div className="h-full flex flex-col justify-between">
                                 <div className="flex items-start justify-between">
-                                    <motion.div 
+                                    <motion.div
                                         whileHover={{ rotate: 12, scale: 1.1 }}
                                         className={cn(
                                             "p-2.5 md:p-3 rounded-xl backdrop-blur-sm shadow-md",
@@ -317,7 +317,7 @@ export const BentoTestsView = memo(function BentoTestsView({
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className={cn("text-lg md:text-xl font-black mb-1 bg-gradient-to-r bg-clip-text text-transparent", 
+                                    <h3 className={cn("text-lg md:text-xl font-black mb-1 bg-gradient-to-r bg-clip-text text-transparent",
                                         isDark ? "from-emerald-300 to-teal-300" : "from-emerald-600 to-teal-600"
                                     )}>
                                         {t('testsPage.exam')} DGT
@@ -347,7 +347,7 @@ export const BentoTestsView = memo(function BentoTestsView({
                                         <Zap className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-orange-700")} />
                                     </motion.div>
                                     <div>
-                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
+                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1",
                                             isDark ? "from-orange-300 to-amber-300" : "from-orange-600 to-amber-600"
                                         )}>{t('testsPage.blitz')}</div>
                                         <div className={cn("text-xs leading-tight", isDark ? "text-white/60" : "text-gray-600")}>{t('testsPage.blitzDesc')}</div>
@@ -371,7 +371,7 @@ export const BentoTestsView = memo(function BentoTestsView({
                                         <Flame className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-pink-700")} />
                                     </motion.div>
                                     <div>
-                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
+                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1",
                                             isDark ? "from-pink-300 to-rose-300" : "from-pink-600 to-rose-600"
                                         )}>{t('testsPage.marathon')}</div>
                                         <div className={cn("text-xs leading-tight", isDark ? "text-white/60" : "text-gray-600")}>{t('testsPage.marathonDesc')}</div>
@@ -395,7 +395,7 @@ export const BentoTestsView = memo(function BentoTestsView({
                                         <History className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-purple-700")} />
                                     </motion.div>
                                     <div>
-                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
+                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1",
                                             isDark ? "from-purple-300 to-violet-300" : "from-purple-600 to-violet-600"
                                         )}>{t('testsPage.challengeBank')}</div>
                                         <div className={cn("text-xs leading-tight font-semibold", isDark ? "text-white/80" : "text-gray-700")}>{t('testsPage.challengeBankDesc', { count: challengeBankCount })}</div>
@@ -419,7 +419,7 @@ export const BentoTestsView = memo(function BentoTestsView({
                                         <AlertTriangle className={cn("w-5 h-5 md:w-6 md:h-6", isDark ? "text-white" : "text-slate-700")} />
                                     </motion.div>
                                     <div>
-                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1", 
+                                        <div className={cn("text-base md:text-lg font-black bg-gradient-to-r bg-clip-text text-transparent mb-1",
                                             isDark ? "from-slate-300 to-gray-300" : "from-slate-600 to-gray-600"
                                         )}>{t('testsPage.hardest')}</div>
                                         <div className={cn("text-xs leading-tight font-semibold", isDark ? "text-white/80" : "text-gray-700")}>{t('testsPage.hardestDesc')}</div>
@@ -430,138 +430,8 @@ export const BentoTestsView = memo(function BentoTestsView({
                     </div>
                 </div>
 
-                {/* Topics Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                >
-                    <div className="flex items-center justify-between mb-4 md:mb-6">
-                        <h3 className={cn("text-2xl md:text-3xl font-bold", isDark ? "text-white" : "text-gray-900")}>
-                            {t('testsPage.topicsTitle')}
-                        </h3>
-                        <Badge className={cn(
-                            "text-sm md:text-base px-3 md:px-4 py-1 md:py-2 font-bold",
-                            isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900"
-                        )}>
-                            {topics.length}
-                        </Badge>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                        {topics.map((topic, i) => {
-                            const coverImageUrl = topic.cover_image ? getImageUrl(topic.cover_image, 'test-covers') || topic.cover_image : null;
-                            const hasCoverImage = !!coverImageUrl;
-                            
-                            return (
-                                <motion.div
-                                    key={topic.id}
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: i * 0.03 }}
-                                    whileHover={{ scale: 1.02, y: -4 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleTopicClickMemo(topic.id)}
-                                    className={cn(
-                                        "group relative overflow-hidden rounded-2xl p-4 md:p-5 cursor-pointer border transition-all h-[160px] md:h-[180px]",
-                                        hoveredTopic === topic.id
-                                            ? (isDark ? "border-white/30 shadow-xl" : "border-gray-400 shadow-xl")
-                                            : (isDark ? "border-white/10 hover:border-white/20" : "border-gray-200 hover:border-gray-300")
-                                    )}
-                                    onMouseEnter={() => handleTopicHover(topic.id)}
-                                    onMouseLeave={() => handleTopicHover(null)}
-                                    style={{
-                                        backgroundImage: hasCoverImage ? `url(${coverImageUrl})` : undefined,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                        backgroundRepeat: 'no-repeat',
-                                    }}
-                                >
-                                    {/* Background gradient overlay for readability */}
-                                    <div className={cn(
-                                        "absolute inset-0 transition-all duration-500",
-                                        hasCoverImage
-                                            ? hoveredTopic === topic.id
-                                                ? "bg-gradient-to-br from-black/70 via-black/60 to-black/70"
-                                                : "bg-gradient-to-br from-black/60 via-black/50 to-black/60"
-                                            : hoveredTopic === topic.id
-                                                ? (isDark ? "bg-white/10" : "bg-gray-100")
-                                                : (isDark ? "bg-[#1a1a1d]" : "bg-white")
-                                    )} />
-
-                                    {/* Accent gradient on hover */}
-                                    {!hasCoverImage && (
-                                        <div className={cn(
-                                            "absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 transition-all duration-500",
-                                            hoveredTopic === topic.id && "from-blue-500/20 to-purple-500/20"
-                                        )} />
-                                    )}
-
-                                    {/* Glow effect on hover */}
-                                    <div className={cn(
-                                        "absolute inset-0 opacity-0 group-hover:opacity-30 transition-opacity duration-500 blur-xl",
-                                        hasCoverImage 
-                                            ? "bg-gradient-to-br from-white/20 to-white/10"
-                                            : "bg-gradient-to-br from-blue-500/20 to-purple-500/20"
-                                    )} />
-
-                                    <div className="relative z-10 h-full flex flex-col justify-between">
-                                        <div className="flex items-start justify-between">
-                                            <motion.div
-                                                whileHover={{ rotate: 12, scale: 1.1 }}
-                                                className={cn(
-                                                    "w-11 h-11 md:w-14 md:h-14 rounded-2xl flex items-center justify-center font-black text-lg md:text-xl transition-all shadow-xl",
-                                                    hoveredTopic === topic.id
-                                                        ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white scale-110 ring-2 ring-white/50"
-                                                        : hasCoverImage
-                                                            ? "bg-white/25 backdrop-blur-lg text-white border-2 border-white/40 shadow-lg"
-                                                            : (isDark ? "bg-gradient-to-br from-slate-700 to-slate-800 text-white border border-slate-600" : "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-800 border border-gray-300")
-                                                )}
-                                            >
-                                                {topic.number}
-                                            </motion.div>
-                                            {topic.is_premium && !isPremium && (
-                                                <motion.div
-                                                    animate={{ rotate: [0, 10, -10, 0] }}
-                                                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                                                    className="relative"
-                                                >
-                                                    <Sparkles className={cn("w-5 h-5", "text-amber-400 drop-shadow-lg")} />
-                                                    <div className="absolute inset-0 bg-amber-400/30 blur-md rounded-full" />
-                                                </motion.div>
-                                            )}
-                                        </div>
-                                        
-                                        <div className="space-y-1">
-                                            <div className={cn(
-                                                "font-black text-base md:text-lg line-clamp-2 leading-tight",
-                                                hasCoverImage
-                                                    ? "text-white drop-shadow-lg"
-                                                    : hoveredTopic === topic.id
-                                                        ? (isDark ? "text-white" : "text-gray-900")
-                                                        : (isDark ? "text-white" : "text-gray-900")
-                                            )}>
-                                                {topic.name}
-                                            </div>
-                                            {topic.questions > 0 && (
-                                                <div className={cn(
-                                                    "text-xs md:text-sm font-bold flex items-center gap-1.5",
-                                                    hasCoverImage
-                                                        ? "text-white/90"
-                                                        : (isDark ? "text-white/70" : "text-gray-600")
-                                                )}>
-                                                    <BookOpen className="w-3 h-3" />
-                                                    <span>{topic.questions} {t('testsPage.questions')}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
-                    </div>
-                </motion.div>
             </motion.div>
-        </div>
+        </motion.div>
+        </div >
     );
 });

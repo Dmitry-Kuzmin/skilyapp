@@ -707,7 +707,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       className="duel-fullscreen fixed inset-0 bg-background z-50 overflow-y-auto flex flex-col"
       style={{
         paddingTop: isInTelegramMiniApp
-          ? `${Math.round(safeArea.top > 0 ? safeArea.top + 40 : 60)}px` // Используем raw safeArea.top + 40px для breathing room (комфортный отступ от Telegram header)
+          ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), 88px)'
           : `${totalTopPadding}px`,
         paddingLeft: `${totalLeftPadding}px`,
         paddingRight: `${totalRightPadding}px`,

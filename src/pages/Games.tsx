@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useCountry } from "@/contexts/CountryContext";
 import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2, Hourglass, Snowflake, Timer, Car, AlertTriangle, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -27,6 +29,8 @@ const fallbackPlayers = [
 ];
 
 const Games = () => {
+  const { language } = useLanguage();
+  const { selectedCountry } = useCountry();
   const navigate = useNavigate();
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
@@ -156,6 +160,29 @@ const Games = () => {
     "Средняя": "warning",
     "Сложная": "destructive",
   };
+
+  // Smart Filtering for Games
+  const filteredGames = games.filter(game => {
+    // ID 1: Duel (Universal) - Keep (hide from list as it's featured above)
+    if (game.id === 1) return true;
+
+    // ID 2: Race (Vocabulary Translation)
+    // Logic: Only for SPAIN content, but NOT for Spanish interface users (natives)
+    // They don't need to translate their own language.
+    if (game.id === 2) {
+      const isSpain = selectedCountry?.code === 'es';
+      const isNotSpanishLang = language !== 'es';
+      return isSpain && isNotSpanishLang;
+    }
+
+    // ID 9: Road Race (Marathon) - Seems like DGT/Spain specific content
+    if (game.id === 9) {
+      return selectedCountry?.code === 'es';
+    }
+
+    // Default: Show all other games
+    return true;
+  });
 
   return (
     <>
@@ -427,7 +454,7 @@ const Games = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {games.filter(g => g.id !== 1).map((game, index) => {
+                {filteredGames.filter(g => g.id !== 1).map((game, index) => {
                   const Icon = game.icon;
                   // Race is still featured but smaller than Duel
                   const isFeatured = game.id === 2;

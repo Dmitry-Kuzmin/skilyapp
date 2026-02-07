@@ -5,6 +5,7 @@ import { isTelegramMiniApp } from "@/lib/telegram";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { Scale, HelpCircle } from "lucide-react";
 import { InstallAppButton } from "@/components/pwa";
+import { currentYear } from "@/utils/dateUtils";
 
 export function Footer() {
   const { t } = useLanguage();
@@ -74,7 +75,7 @@ export function Footer() {
 
           {/* Copyright */}
           <p className="text-xs text-muted-foreground/70">
-            ©2025 Skily
+            ©{currentYear} Skily
           </p>
         </div>
       </div>

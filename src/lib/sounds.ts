@@ -42,7 +42,7 @@ class SoundManager {
     if (ctx.state === 'suspended') {
       ctx.resume().then(() => {
         this.unlocked = true;
-        console.log('[SoundManager] AudioContext unlocked');
+
       }).catch((e) => {
         console.warn('[SoundManager] Failed to unlock AudioContext:', e);
       });
@@ -137,7 +137,7 @@ class SoundManager {
     try {
       const frequencies = { high: 1200, medium: 800, low: 600 };
       const freq = frequencies[pitch];
-      
+
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
       const now = audioContext.currentTime;
@@ -168,7 +168,7 @@ class SoundManager {
 
     try {
       const now = audioContext.currentTime;
-      
+
       // Play a pleasant chord
       const frequencies = [523.25, 659.25, 783.99]; // C, E, G
       frequencies.forEach((freq, i) => {
@@ -292,7 +292,7 @@ class SoundManager {
     const baseFreq = 800;
     const volume = 0.1;
     const delay = 50;
-    
+
     for (let i = 0; i < Math.min(comboLevel, 5); i++) {
       setTimeout(() => {
         const freq = baseFreq * (1 + i * 0.15);
@@ -334,23 +334,23 @@ class SoundManager {
     // Звук прилетающей атаки (whoosh)
     const now = this.ensureAudioContext()?.currentTime;
     if (!now) return;
-    
+
     // Создаем эффект "whoosh" - быстрое изменение частоты
     const oscillator = this.audioContext!.createOscillator();
     const gainNode = this.audioContext!.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(this.audioContext!.destination);
-    
+
     // Быстрое изменение частоты от высокого к низкому (whoosh эффект)
     oscillator.frequency.setValueAtTime(1200, now);
     oscillator.frequency.exponentialRampToValueAtTime(400, now + 0.3);
     oscillator.type = 'sawtooth';
-    
+
     gainNode.gain.setValueAtTime(0, now);
     gainNode.gain.linearRampToValueAtTime(0.12, now + 0.05);
     gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-    
+
     oscillator.start(now);
     oscillator.stop(now + 0.3);
   }

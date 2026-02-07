@@ -879,14 +879,14 @@ const Tests = () => {
               </div>
             </div >
 
-            {/* Topics Section (для Испании) или Билеты (для России) */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="space-y-6"
-            >
-              {selectedCountry === 'russia' ? (
+            {/* Билеты (только для России) */}
+            {selectedCountry === 'russia' && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-6"
+              >
                 <div className="relative py-4">
                   <div className="absolute inset-0 flex items-center" aria-hidden="true">
                     <div className="w-full border-t border-slate-200 dark:border-white/10"></div>
@@ -897,183 +897,81 @@ const Tests = () => {
                     </span>
                   </div>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-card border border-border">
-                      <BookOpen className="w-6 h-6 text-indigo-400" />
-                    </div>
-                    {t('testsPage.topicsTitle')}
-                  </h3>
-                  <Badge className="text-sm md:text-base px-3 md:px-4 py-1 md:py-2 font-bold bg-card border border-border">
-                    {topics.length}
-                  </Badge>
-                </div>
-              )}
 
-              {/* Для России: показываем билеты в Cyber-Core Grid */}
-              {
-                selectedCountry === 'russia' ? (
-                  <div className="space-y-8 p-0 sm:p-2">
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6">
-                      {tickets.map((ticket, i) => {
-                        const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
-                        const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
+                <div className="space-y-8 p-0 sm:p-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 sm:gap-6">
+                    {tickets.map((ticket, i) => {
+                      const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
+                      const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
 
-                        const tStatus = ticketsStatus[ticketNumber.toString()];
-                        let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
-                        const progress = tStatus?.score || 0;
-                        const completed = tStatus?.completed || false;
-                        const hasErrors = tStatus?.hasErrors || false;
-                        const isStarted = tStatus?.isStarted || false;
+                      const tStatus = ticketsStatus[ticketNumber.toString()];
+                      let status: 'idle' | 'charging' | 'charged' | 'damaged' = 'idle';
+                      const progress = tStatus?.score || 0;
+                      const completed = tStatus?.completed || false;
+                      const hasErrors = tStatus?.hasErrors || false;
+                      const isStarted = tStatus?.isStarted || false;
 
-                        if (completed || progress >= 100) {
-                          status = 'charged';
-                        } else if (hasErrors && isStarted) {
-                          status = 'damaged';
-                        } else if (isStarted || progress > 0) {
-                          status = 'charging';
-                        }
-
-                        return (
-                          <TicketCore
-                            key={ticket.id}
-                            number={ticketNumber}
-                            progress={progress}
-                            status={status}
-                            hasErrors={hasErrors}
-                            errorCount={tStatus?.errorCount}
-                            isRussia={selectedCountry === 'russia'}
-                            onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
-                          />
-                        );
-                      })}
-                    </div>
-
-                    {/* Legend */}
-                    <div className="flex flex-wrap items-center gap-6 p-6 rounded-[2rem] bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 backdrop-blur-xl shadow-xl relative overflow-hidden">
-                      {/* Ambient glow */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-pink-500/5 opacity-50" />
-                      <div className="absolute top-0 right-0 w-48 h-48 bg-purple-500/20 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
-                      <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 blur-3xl rounded-full translate-y-1/2 -translate-x-1/2" />
-
-                      {/* Content */}
-                      <div className="relative z-10 flex flex-wrap items-center gap-6 w-full">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center">
-                            <Star className="w-5 h-5 text-emerald-400 fill-emerald-400" />
-                          </div>
-                          <span className="text-xs font-black text-emerald-400 uppercase tracking-widest">
-                            {selectedCountry === 'russia' ? 'Сдано' : 'Charged'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center">
-                            <div className="w-5 h-5 rounded-full border-2 border-orange-400 border-t-transparent animate-spin" />
-                          </div>
-                          <span className="text-xs font-black text-orange-400 uppercase tracking-widest">
-                            {selectedCountry === 'russia' ? 'Прохожу' : 'Charging'}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center">
-                            <AlertIcon className="w-5 h-5 text-red-400" />
-                          </div>
-                          <span className="text-xs font-black text-red-400 uppercase tracking-widest">
-                            {selectedCountry === 'russia' ? 'Ошибка' : 'Damaged'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {topics.map((topic, i) => {
-                      const coverImageUrl = topic.cover_image ? getImageUrl(topic.cover_image, 'test-covers') || topic.cover_image : null;
-                      const hasCoverImage = !!coverImageUrl;
+                      if (completed || progress >= 100) {
+                        status = 'charged';
+                      } else if (hasErrors && isStarted) {
+                        status = 'damaged';
+                      } else if (isStarted || progress > 0) {
+                        status = 'charging';
+                      }
 
                       return (
-                        <motion.div
-                          key={topic.id}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: i * 0.03 }}
-                          whileHover={{ scale: 1.02, y: -4 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => handleTopicClick(topic.id)}
-                          className="group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer border border-border bg-card/60 dark:bg-card/40 backdrop-blur-sm hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl transition-all duration-150 h-[180px]"
-                          style={{
-                            backgroundImage: hasCoverImage ? `url(${coverImageUrl})` : undefined,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                          }}
-                        >
-                          {/* Background gradient overlay for readability */}
-                          <div className={`
-                        absolute inset-0 transition-all duration-500
-                        ${hasCoverImage
-                              ? "bg-gradient-to-br from-black/70 via-black/60 to-black/70 group-hover:from-black/60 group-hover:via-black/50 group-hover:to-black/60"
-                              : "bg-card/60 dark:bg-card/40 group-hover:bg-card/80 dark:group-hover:bg-card/60"
-                            }
-                      `} />
-
-                          {/* Accent gradient on hover */}
-                          {!hasCoverImage && (
-                            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 to-purple-500/0 group-hover:from-violet-500/20 group-hover:to-purple-500/20 transition-all duration-500" />
-                          )}
-
-                          <div className="relative z-10 h-full flex flex-col justify-between">
-                            <div className="flex items-start justify-between">
-                              <motion.div
-                                whileHover={{ rotate: 12, scale: 1.1 }}
-                                className={`
-                              w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl transition-all shadow-xl
-                              ${hasCoverImage
-                                    ? "bg-white/25 backdrop-blur-lg text-white border-2 border-white/40"
-                                    : "bg-gradient-to-br from-violet-500/20 to-purple-500/20 text-foreground border border-border"
-                                  }
-                            `}
-                              >
-                                {topic.number}
-                              </motion.div>
-                              {topic.is_premium && !isPremium && (
-                                <motion.div
-                                  animate={{ rotate: [0, 10, -10, 0] }}
-                                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                                  className="relative"
-                                >
-                                  <Sparkles className="w-5 h-5 text-amber-400 drop-shadow-lg" />
-                                  <div className="absolute inset-0 bg-amber-400/30 blur-md rounded-full" />
-                                </motion.div>
-                              )}
-                            </div>
-
-                            <div className="space-y-1">
-                              <div className={`
-                            font-black text-lg line-clamp-2 leading-tight
-                            ${hasCoverImage ? "text-white drop-shadow-lg" : "text-foreground"}
-                          `}>
-                                {topic.name}
-                              </div>
-                              {topic.questions > 0 && (
-                                <div className={`
-                              text-sm font-bold flex items-center gap-1.5
-                              ${hasCoverImage ? "text-white/90" : "text-muted-foreground"}
-                            `}>
-                                  <BookOpen className="w-3 h-3" />
-                                  <span>{topic.questions} {t('testsPage.questions')}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
+                        <TicketCore
+                          key={ticket.id}
+                          number={ticketNumber}
+                          progress={progress}
+                          status={status}
+                          hasErrors={hasErrors}
+                          errorCount={tStatus?.errorCount}
+                          isRussia={selectedCountry === 'russia'}
+                          onClick={() => navigate(`/learn/${selectedCountry}/ticket/${ticketId}`)}
+                        />
                       );
                     })}
                   </div>
-                )
-              }
-            </motion.div >
+
+                  {/* Legend */}
+                  <div className="flex flex-wrap items-center gap-6 p-6 rounded-[2rem] bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 backdrop-blur-xl shadow-xl relative overflow-hidden">
+                    {/* Ambient glow */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-pink-500/5 opacity-50" />
+                    <div className="absolute top-0 right-0 w-48 h-48 bg-purple-500/20 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
+                    <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/20 blur-3xl rounded-full translate-y-1/2 -translate-x-1/2" />
+
+                    {/* Content */}
+                    <div className="relative z-10 flex flex-wrap items-center gap-6 w-full">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center justify-center">
+                          <Star className="w-5 h-5 text-emerald-400 fill-emerald-400" />
+                        </div>
+                        <span className="text-xs font-black text-emerald-400 uppercase tracking-widest">
+                          Сдано
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-orange-500/20 border border-orange-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)] flex items-center justify-center">
+                          <div className="w-5 h-5 rounded-full border-2 border-orange-400 border-t-transparent animate-spin" />
+                        </div>
+                        <span className="text-xs font-black text-orange-400 uppercase tracking-widest">
+                          Прохожу
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center">
+                          <AlertIcon className="w-5 h-5 text-red-400" />
+                        </div>
+                        <span className="text-xs font-black text-red-400 uppercase tracking-widest">
+                          Ошибка
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
           </div >
         </div >
