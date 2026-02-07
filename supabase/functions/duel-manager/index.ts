@@ -927,38 +927,83 @@ Deno.serve(async (req) => {
     }
 
     const { action, profile_id, ...params } = body;
-    console.log('[Duel Manager] 🎯 Action:', action, 'Profile ID:', profile_id);
+    console.log('[Duel Manager] 🎯 Action:', action, 'Profile ID from client:', profile_id);
 
-    let profileId: string | null = profile_id || null;
+    let profileId: string | null = null;
 
-    // If profile_id is not provided, try to get it from auth (fallback for email users)
-    if (!profileId) {
-      console.log('[Duel Manager] No profile_id provided, attempting auth lookup...');
-      const authHeader = req.headers.get('Authorization')!;
-      const { data: { user }, error: authError } = await supabase.auth.getUser(
-        authHeader.replace('Bearer ', '')
-      );
+    // 1. VALIDATE client-provided profile_id (если передан клиентом, проверяем его существование)
+    if (profile_id) {
+      const { data: clientProfile, error: clientProfileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', profile_id)
+        .maybeSingle();
 
-      if (user && !authError) {
-        console.log('[Duel Manager] Authenticated user found:', user.id);
-
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (profile && !profileError) {
-          profileId = profile.id;
-          console.log('[Duel Manager] Profile found via auth:', profileId);
-        }
+      if (clientProfile && !clientProfileError) {
+        profileId = clientProfile.id;
+        console.log('[Duel Manager] ✅ Using validated profile_id from client:', profileId);
+      } else {
+        console.warn('[Duel Manager] ⚠️ Client provided invalid profile_id:', profile_id, 'Error:', clientProfileError);
       }
-    } else {
-      console.log('[Duel Manager] Using profile_id from client:', profileId);
+    }
+
+    // 2. FALLBACK: Auth lookup (для Telegram и Email пользователей)
+    if (!profileId) {
+      console.log('[Duel Manager] No valid profile_id from client, attempting auth lookup...');
+      const authHeader = req.headers.get('Authorization');
+
+      if (authHeader) {
+        const { data: { user }, error: authError } = await supabase.auth.getUser(
+          authHeader.replace('Bearer ', '')
+        );
+
+        if (user && !authError) {
+          console.log('[Duel Manager] 🔐 Authenticated user found:', user.id, 'metadata:', JSON.stringify(user.user_metadata));
+
+          // ПРИОРИТЕТ 1: Поиск по user_id (для Email/Auth пользователей)
+          const { data: authProfile, error: authProfileError } = await supabase
+            .from('profiles')
+            .select('id, user_id, telegram_id')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (authProfile && !authProfileError) {
+            profileId = authProfile.id;
+            console.log('[Duel Manager] ✅ Profile found via user_id:', profileId, 'telegram_id:', authProfile.telegram_id);
+          } else {
+            console.log('[Duel Manager] ⚠️ No profile found via user_id, trying telegram_id...');
+
+            // ПРИОРИТЕТ 2: Поиск по telegram_id (для Telegram Mini App пользователей)
+            const telegramId = user.user_metadata?.telegram_id || user.user_metadata?.sub;
+
+            if (telegramId) {
+              console.log('[Duel Manager] 🔍 Searching by telegram_id:', telegramId);
+              const { data: tgProfile, error: tgProfileError } = await supabase
+                .from('profiles')
+                .select('id, user_id, telegram_id')
+                .eq('telegram_id', parseInt(telegramId))
+                .maybeSingle();
+
+              if (tgProfile && !tgProfileError) {
+                profileId = tgProfile.id;
+                console.log('[Duel Manager] ✅ Profile found via telegram_id:', profileId, 'user_id:', tgProfile.user_id);
+              } else {
+                console.error('[Duel Manager] ❌ No profile found via telegram_id:', telegramId, 'Error:', tgProfileError);
+              }
+            } else {
+              console.warn('[Duel Manager] ⚠️ No telegram_id in user metadata');
+            }
+          }
+        } else {
+          console.error('[Duel Manager] ❌ Auth error:', authError);
+        }
+      } else {
+        console.warn('[Duel Manager] ⚠️ No Authorization header');
+      }
     }
 
     if (!profileId) {
-      console.error('[Duel Manager] Profile not found - neither from client nor auth');
+      console.error('[Duel Manager] ❌ Profile not found after all attempts');
       return new Response(JSON.stringify({ error: 'Profile not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
