@@ -60,7 +60,7 @@ export function DuelOverlays({
             <div
                 className="fixed z-50 space-y-2 max-w-sm pointer-events-none"
                 style={{
-                    top: `${progressBarTop + PROGRESS_BAR_HEIGHT + (isTelegramMobile ? 12 : isTelegramDesktop ? 8 : 16)}px`,
+                    top: `calc(max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 88px) + 20px)`,
                     right: `${totalRightPadding + 16}px`
                 }}
             >

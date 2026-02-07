@@ -87,7 +87,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
         gap={14} // Комфортный отступ
         richColors
         closeButton
-        offset={isMobile ? "calc(env(safe-area-inset-top) + 16px)" : "24px"} // Чуть больше отступ на десктопе
+        offset={shouldCenter
+          ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 16px)'
+          : "24px"} // Чуть больше отступ на десктопе
         toastOptions={{
           classNames: {
             toast: "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg group-[.toaster]:rounded-xl group-[.toaster]:active:scale-95 transition-all duration-200",
