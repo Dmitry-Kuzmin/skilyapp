@@ -3,7 +3,7 @@
  * Uses window.location.href to guarantee navigation
  */
 
-import { DoorOpen, ArrowLeft } from "lucide-react";
+import { DoorOpen } from "lucide-react";
 import {
     AlertDialog,
     AlertDialogContent,
@@ -96,11 +96,10 @@ export const TestExitDialog = ({ open, onOpenChange, language }: TestExitDialogP
                                 "hover:brightness-110",
                                 "active:scale-[0.98]",
                                 "transition-all duration-200",
-                                "flex items-center justify-center gap-2",
+                                "flex items-center justify-center",
                                 "cursor-pointer"
                             )}
                         >
-                            <ArrowLeft className="w-4 h-4" />
                             {t.stay}
                         </button>
 
