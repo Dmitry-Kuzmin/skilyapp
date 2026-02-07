@@ -1596,7 +1596,12 @@ Deno.serve(async (req) => {
         }
 
         // Add host as player using correct user_id (which is profile.id)
-        console.log('[Duel Manager] Creating host player for duel:', duel.id, 'profileId:', profileId);
+        console.log('[Duel Manager] 🎯 BEFORE INSERT duel_players:', {
+          duel_id: duel.id,
+          user_id: profileId,
+          is_host: true
+        });
+
         const { data: hostPlayer, error: playerError } = await supabase
           .from('duel_players')
           .insert({
@@ -1607,13 +1612,22 @@ Deno.serve(async (req) => {
           .select()
           .single();
 
+        console.log('[Duel Manager] 🎯 AFTER INSERT duel_players:', {
+          success: !playerError,
+          hostPlayer: hostPlayer,
+          error: playerError
+        });
+
         if (playerError) {
-          console.error('[Duel Manager] ❌ Error adding host player:', playerError);
+          console.error('[Duel Manager] ❌ CRITICAL: Error adding host player:', playerError);
+          console.error('[Duel Manager] Error code:', playerError.code);
+          console.error('[Duel Manager] Error message:', playerError.message);
           console.error('[Duel Manager] Error details:', JSON.stringify(playerError, null, 2));
+          console.error('[Duel Manager] Attempted insert data:', { duel_id: duel.id, user_id: profileId, is_host: true });
           throw playerError;
         }
 
-        console.log('[Duel Manager] ✅ Host player created:', hostPlayer?.id);
+        console.log('[Duel Manager] ✅ SUCCESS: Host player created:', hostPlayer?.id);
 
         return new Response(JSON.stringify({ duel, code }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
