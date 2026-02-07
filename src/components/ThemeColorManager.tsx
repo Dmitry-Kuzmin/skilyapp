@@ -9,57 +9,36 @@ export function ThemeColorManager() {
     useEffect(() => {
         const metaThemeColor = document.querySelector('meta[name="theme-color"]');
 
-        // Умная детекция цвета фона страницы
-        const detectPageColor = (): string => {
-            // Пробуем взять цвет с body или элемента с классом bg-background
-            const body = document.body;
-            const computedStyle = window.getComputedStyle(body);
-            const bgColor = computedStyle.backgroundColor;
+        // КРИТИЧНО: Фиксированные, проверенные цвета
+        // #09090b - zinc-950, основной фон приложения
+        const DARK_COLOR = '#09090b';   // Matches index.css body background
+        const LIGHT_COLOR = '#ffffff';  // White for light mode
 
-            // Если нашли реальный цвет (не transparent/rgba(0,0,0,0))
-            if (bgColor && bgColor !== 'transparent' && bgColor !== 'rgba(0, 0, 0, 0)') {
-                return rgbToHex(bgColor);
-            }
+        // Определяем цвет на основе темы (без автодетекции, которая глючит)
+        let color = resolvedTheme === 'dark' ? DARK_COLOR : LIGHT_COLOR;
 
-            // Fallback на тему
-            return resolvedTheme === 'dark' ? '#09090b' : '#ffffff';
-        };
+        // Устанавливаем theme-color сразу, синхронно
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', color);
+        } else {
+            const meta = document.createElement('meta');
+            meta.name = 'theme-color';
+            meta.content = color;
+            document.head.appendChild(meta);
+        }
 
-        // Конвертация rgb(a) в hex
-        const rgbToHex = (rgb: string): string => {
-            const match = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-            if (match) {
-                const r = parseInt(match[1]);
-                const g = parseInt(match[2]);
-                const b = parseInt(match[3]);
-                return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
-            }
-            // Если не смогли распарсить - fallback
-            return resolvedTheme === 'dark' ? '#09090b' : '#ffffff';
-        };
+        // Also update msapplication-TileColor для Windows
+        const metaTileColor = document.querySelector('meta[name="msapplication-TileColor"]');
+        if (metaTileColor) {
+            metaTileColor.setAttribute('content', color);
+        }
 
-        // Небольшая задержка для рендеринга страницы
-        const timer = setTimeout(() => {
-            const color = detectPageColor();
+        // DEBUG: Логируем для проверки
+        if (import.meta.env.DEV) {
+            console.log('[ThemeColorManager] Set theme-color:', color, 'for route:', location.pathname);
+        }
 
-            if (metaThemeColor) {
-                metaThemeColor.setAttribute('content', color);
-            } else {
-                const meta = document.createElement('meta');
-                meta.name = 'theme-color';
-                meta.content = color;
-                document.head.appendChild(meta);
-            }
-
-            // Also update msapplication-TileColor
-            const metaTileColor = document.querySelector('meta[name="msapplication-TileColor"]');
-            if (metaTileColor) {
-                metaTileColor.setAttribute('content', color);
-            }
-        }, 100); // Даем странице отрендериться
-
-        return () => clearTimeout(timer);
-    }, [resolvedTheme, location.pathname]); // Обновляем при смене роута
+    }, [resolvedTheme, location.pathname]); // Обновляем при смене темы или роута
 
     return null;
 }
