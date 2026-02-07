@@ -230,20 +230,8 @@ Deno.serve(async (req) => {
 
                 await supabase.from('duel_questions').insert(duelQuestions);
 
-                const { data: hostPlayer } = await supabase
-                    .from('duel_players')
-                    .insert({
-                        duel_id: duel.id,
-                        user_id: profileId,
-                        is_bot: false,
-                        score: 0,
-                        correct_count: 0,
-                        insurance_enabled: hostInsurance.enabled,
-                        insurance_premium: hostInsurance.premium,
-                        insurance_coverage_rate: hostInsurance.coverageRate,
-                    })
-                    .select()
-                    .single();
+                // ✅ Host already added by trigger auto_add_host_to_duel_players
+                console.log('[create_duel] Host automatically added by trigger');
 
                 return new Response(JSON.stringify({ duel, code }), {
                     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -453,33 +441,27 @@ Deno.serve(async (req) => {
                     throw new Error('Failed to create duel questions');
                 }
 
-                // Insert players and verify
-                const { data: insertedPlayers, error: playersError } = await supabase
-                    .from('duel_players')
-                    .insert([
-                        {
-                            duel_id: duel.id,
-                            user_id: profileId,
-                            is_bot: false,
-                            score: 0,
-                            correct_count: 0,
-                        },
-                        {
-                            duel_id: duel.id,
-                            user_id: null,
-                            score: 0,
-                            correct_count: 0,
-                            is_bot: true,
-                            bot_difficulty: botProfile.difficulty,
-                            bot_name: botProfile.name,
-                            name: botProfile.name,
-                        }
-                    ])
-                    .select();
+                // ✅ Host already added by trigger, only insert bot
+                console.log('[find_match] Host added by trigger, inserting bot...');
 
-                if (playersError || !insertedPlayers || insertedPlayers.length !== 2) {
-                    console.error('[find_match] Failed to insert players:', playersError);
-                    throw new Error('Failed to create duel players');
+                const { data: botPlayer, error: botError } = await supabase
+                    .from('duel_players')
+                    .insert({
+                        duel_id: duel.id,
+                        user_id: null,
+                        score: 0,
+                        correct_count: 0,
+                        is_bot: true,
+                        bot_difficulty: botProfile.difficulty,
+                        bot_name: botProfile.name,
+                        name: botProfile.name,
+                    })
+                    .select()
+                    .single();
+
+                if (botError || !botPlayer) {
+                    console.error('[find_match] Failed to insert bot:', botError);
+                    throw new Error('Failed to create bot player');
                 }
 
                 return new Response(JSON.stringify({
