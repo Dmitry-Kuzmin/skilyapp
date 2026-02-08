@@ -7,7 +7,7 @@ import { QuestionImage } from "@/components/test/QuestionImage";
 import { QuestionText } from "@/components/test/QuestionText";
 import { SubmitButton } from "@/components/test/SubmitButton";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
-import { ChevronRight, Keyboard, CornerDownLeft } from "lucide-react";
+import { ChevronRight, Keyboard, CornerDownLeft, Sparkles, Wand2 } from "lucide-react";
 import { getImageUrl } from "@/utils/imageUtils";
 import { useState } from "react";
 
@@ -130,13 +130,12 @@ export const QuestionCard = ({
                                 {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
                                     <button
                                         onClick={handleOpenAIChat}
-                                        className="group h-12 sm:h-14 pl-2 pr-4 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center gap-1.5 transition-all hover:bg-indigo-100 dark:hover:bg-indigo-500/20 active:scale-95 shrink-0 xl:hidden shadow-sm"
+                                        className="group relative h-12 w-12 sm:w-auto sm:h-14 sm:px-5 rounded-2xl bg-zinc-900/50 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 xl:hidden overflow-hidden shadow-lg shadow-purple-500/5"
                                         title="Спросить AI"
                                     >
-                                        <div className="w-8 h-8 relative flex items-center justify-center">
-                                            <LumiCharacter size="sm" mood="happy" animate={true} />
-                                        </div>
-                                        <span className="font-bold text-indigo-600 dark:text-indigo-300 text-sm leading-none">AI</span>
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/20 via-fuchsia-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                        <Sparkles className="w-5 h-5 sm:w-5 sm:h-5 text-purple-400 relative z-10" />
+                                        <span className="font-bold text-purple-200 text-sm hidden sm:inline-block relative z-10 tracking-wide">AI</span>
                                     </button>
                                 )}
 
@@ -227,13 +226,12 @@ export const QuestionCard = ({
                                     {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
                                         <button
                                             onClick={handleOpenAIChat}
-                                            className="group h-12 ml-2 pl-2 pr-4 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center gap-1.5 transition-all hover:bg-indigo-100 dark:hover:bg-indigo-500/20 active:scale-95 shrink-0 xl:hidden shadow-sm"
+                                            className="group relative h-12 ml-2 w-12 sm:w-auto sm:px-4 rounded-xl bg-zinc-900/50 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 xl:hidden overflow-hidden shadow-lg shadow-purple-500/5"
                                             title="Спросить AI"
                                         >
-                                            <div className="w-8 h-8 relative flex items-center justify-center">
-                                                <LumiCharacter size="sm" mood="happy" animate={true} />
-                                            </div>
-                                            <span className="font-bold text-indigo-600 dark:text-indigo-300 text-sm leading-none">AI</span>
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/20 via-fuchsia-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                            <Sparkles className="w-5 h-5 sm:w-5 sm:h-5 text-purple-400 relative z-10" />
+                                            <span className="font-bold text-purple-200 text-sm hidden sm:inline-block relative z-10 tracking-wide">AI</span>
                                         </button>
                                     )}
                                     {isPracticeLikeMode && selectedOption ? (
