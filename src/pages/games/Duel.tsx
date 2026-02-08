@@ -30,6 +30,7 @@ import { toast } from 'sonner';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { GameMode } from '@/features/duel/shared';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { usePDDContext } from '@/contexts/PDDContext';
 
 // Safe wrappers with UNIQUE names for hoisting and resilience
 function safeIsTelegramMiniApp() {
@@ -75,9 +76,20 @@ export default function Duel() {
     }, []);
 
     const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
+    const { selectedCategory } = usePDDContext(); // Get category from context
     const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
     const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = useActiveDuel();
     const { enabled: duelsEnabled, isLoading: flagsLoading } = useFeatureFlag('duels_enabled', true);
+
+    // Map selected category to A_B or C_D for duel manager
+    const licenseCategory: 'A_B' | 'C_D' = (() => {
+        const cat = selectedCategory?.toUpperCase();
+        if (cat === 'C' || cat === 'D' || cat === 'CE' || cat === 'DE' || cat === 'C_D') {
+            return 'C_D';
+        }
+        return 'A_B';
+    })();
+
     const [mode, setMode] = useState<GameMode>('menu');
     const [duelId, setDuelId] = useState<string | null>(null);
     const [duelCode, setDuelCode] = useState<string | null>(null);
@@ -838,6 +850,7 @@ export default function Duel() {
                     insurance_enabled: hostInsuranceEnabled,
                     insurance_rate: hostInsuranceEnabled ? INSURANCE_RATE : 0,
                     insurance_coverage_rate: hostInsuranceEnabled ? COVERAGE_RATE : 0,
+                    license_category: licenseCategory, // Pass category
                 },
             });
 
@@ -917,6 +930,7 @@ export default function Duel() {
                 difficulty: 'mix' as const,
                 bet_amount: betAmountValue,
                 bet_type: betType || 'none',
+                license_category: licenseCategory, // Pass category
             };
 
             // Добавляем insurance поля только если они нужны

@@ -16,6 +16,7 @@ import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { cn } from '@/lib/utils';
 import { isTelegramMiniApp, getTelegramWebApp } from '@/lib/telegram';
+import { usePDDContext } from '@/contexts/PDDContext';
 
 interface DuelCreateModalProps {
   open: boolean;
@@ -26,6 +27,7 @@ interface DuelCreateModalProps {
 
 export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCreated }: DuelCreateModalProps) {
   const { profileId } = useUserContext();
+  const { selectedCategory } = usePDDContext(); // Get category from context
   const [activeTab, setActiveTab] = useState<'random' | 'friend'>(initialTab);
   const [step, setStep] = useState<'config' | 'searching' | 'success'>('config');
 
@@ -38,7 +40,15 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
   const [createdDuelCode, setCreatedDuelCode] = useState<string | null>(null);
   const [createdDuelId, setCreatedDuelId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [licenseCategory, setLicenseCategory] = useState<'A_B' | 'C_D'>('A_B'); // New State
+
+  // Map selected category to A_B or C_D for duel manager
+  const licenseCategory: 'A_B' | 'C_D' = (() => {
+    const cat = selectedCategory?.toUpperCase();
+    if (cat === 'C' || cat === 'D' || cat === 'CE' || cat === 'DE' || cat === 'C_D') {
+      return 'C_D';
+    }
+    return 'A_B';
+  })();
 
   const joinInputRef = useRef<HTMLInputElement>(null);
 
