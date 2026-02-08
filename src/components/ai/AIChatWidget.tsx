@@ -328,24 +328,24 @@ export function AIChatWidget() {
                             {interfaceLanguage === 'ru' ? '¡Привет! Я Skily 💡' : '¡Hola! Soy Skily 💡'}
                         </h3>
 
-                        <p className="text-muted-foreground text-sm max-w-xs mb-6">
+                        <p className="text-muted-foreground text-sm max-w-[85%] mb-6 px-2">
                             {interfaceLanguage === 'ru'
                                 ? 'Нужна подсказка или объяснение? Просто нажми кнопку или задай свой вопрос!'
                                 : '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
                         </p>
 
-                        {/* Action Buttons */}
-                        <div className="flex gap-3 w-full max-w-sm">
+                        {/* Action Buttons - Stack vertically on mobile to fit long text */}
+                        <div className="flex flex-col w-full max-w-sm gap-3 px-2">
                             <Button
                                 variant="outline"
-                                className="flex-1 h-12 text-primary border-primary/30 hover:bg-primary/5"
+                                className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium whitespace-normal"
                                 onClick={() => askAI(interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista')}
                             >
                                 {interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista'}
                             </Button>
                             <Button
                                 variant="outline"
-                                className="flex-1 h-12 text-primary border-primary/30 hover:bg-primary/5"
+                                className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium whitespace-normal"
                                 onClick={() => askAI(interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto')}
                             >
                                 {interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto'}
@@ -356,9 +356,9 @@ export function AIChatWidget() {
 
                 {/* Empty state - если нет контекста вопроса */}
                 {messages.length === 0 && !questionContext && (
-                    <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="flex flex-col items-center justify-center h-full text-center px-4">
                         <LumiCharacter size="lg" />
-                        <p className="text-muted-foreground mt-4">
+                        <p className="text-muted-foreground mt-4 max-w-[80%]">
                             {interfaceLanguage === 'ru' ? 'Задай мне вопрос!' : '¡Pregúntame algo!'}
                         </p>
                     </div>
@@ -373,40 +373,40 @@ export function AIChatWidget() {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
                             className={cn(
-                                "flex",
+                                "flex w-full",
                                 message.role === 'user' ? 'justify-end' : 'justify-start'
                             )}
                         >
                             <Card className={cn(
-                                "max-w-[85%] p-3",
+                                "max-w-[85%] p-3.5 shadow-sm",
                                 message.role === 'user'
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-muted'
+                                    ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm'
+                                    : 'bg-muted/80 backdrop-blur-sm rounded-2xl rounded-tl-sm'
                             )}>
                                 {message.role === 'assistant' ? (
                                     <MarkdownContent>{message.content}</MarkdownContent>
                                 ) : (
-                                    <p className="text-sm">{message.content}</p>
+                                    <p className="text-sm leading-relaxed">{message.content}</p>
                                 )}
 
                                 {/* Feedback buttons for assistant */}
                                 {message.role === 'assistant' && message.content && (
-                                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border/50">
+                                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-black/5 dark:border-white/5">
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className={cn("h-6 w-6", message.rating === 1 && "text-green-500")}
+                                            className={cn("h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10", message.rating === 1 && "text-green-500")}
                                             onClick={() => setMessageRating(message.id, 1)}
                                         >
-                                            <ThumbsUp className="w-3 h-3" />
+                                            <ThumbsUp className="w-3.5 h-3.5" />
                                         </Button>
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className={cn("h-6 w-6", message.rating === -1 && "text-red-500")}
+                                            className={cn("h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10", message.rating === -1 && "text-red-500")}
                                             onClick={() => setMessageRating(message.id, -1)}
                                         >
-                                            <ThumbsDown className="w-3 h-3" />
+                                            <ThumbsDown className="w-3.5 h-3.5" />
                                         </Button>
                                     </div>
                                 )}
@@ -419,13 +419,13 @@ export function AIChatWidget() {
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="flex justify-start"
+                        className="flex justify-start w-full"
                     >
-                        <Card className="p-3 bg-muted">
+                        <Card className="p-3 bg-muted/80 backdrop-blur-sm rounded-2xl rounded-tl-sm">
                             <div className="flex items-center gap-2">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span className="text-sm text-muted-foreground">
-                                    {interfaceLanguage === 'ru' ? 'Думаю...' : 'Pensando...'}
+                                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                                <span className="text-xs font-medium text-muted-foreground">
+                                    {interfaceLanguage === 'ru' ? 'Печатаю...' : 'Escribiendo...'}
                                 </span>
                             </div>
                         </Card>
@@ -445,7 +445,7 @@ export function AIChatWidget() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => askAI(suggestion)}
-                                className="text-xs whitespace-nowrap shrink-0"
+                                className="text-xs whitespace-nowrap shrink-0 rounded-full bg-background/50 backdrop-blur-sm"
                             >
                                 {suggestion}
                             </Button>
@@ -456,21 +456,24 @@ export function AIChatWidget() {
 
             {/* Input */}
             <div
-                className="px-4 py-4 border-t border-border/10 shrink-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md"
+                className="px-3 py-3 border-t border-border/10 shrink-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl z-20"
                 style={{
-                    paddingBottom: isTelegram ? 'calc(var(--tg-content-safe-area-inset-bottom, 0px) + 20px)' : '20px',
-                    paddingTop: '16px'
+                    paddingBottom: isTelegram ? 'calc(var(--tg-content-safe-area-inset-bottom, 20px) + 10px)' : '20px',
+                    paddingTop: '12px'
                 }}
             >
-                <form onSubmit={handleSubmit} className="flex gap-2 max-w-2xl mx-auto w-full">
-                    <Input
-                        ref={inputRef}
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder={interfaceLanguage === 'ru' ? 'Задай вопрос...' : 'Haz tu pregunta...'}
-                        disabled={isLoading}
-                        className="flex-1 h-12 rounded-full px-5 border-border/50 focus:ring-blue-500/20 bg-background/50"
-                    />
+                <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
+                    <div className="flex-1 relative">
+                        <Input
+                            ref={inputRef}
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder={interfaceLanguage === 'ru' ? 'Спроси что-нибудь...' : 'Pregunta algo...'}
+                            disabled={isLoading}
+                            className="w-full min-h-[48px] max-h-[120px] py-3 rounded-[24px] px-5 border-border/50 focus:ring-blue-500/20 bg-muted/50 focus:bg-background transition-all resize-none shadow-sm text-base"
+                        />
+                    </div>
+
                     <Button
                         type="button"
                         onClick={toggleVoiceInput}
@@ -478,22 +481,27 @@ export function AIChatWidget() {
                         size="icon"
                         variant="ghost"
                         className={cn(
-                            "h-12 w-12 shrink-0 rounded-full transition-all active:scale-95",
+                            "h-12 w-12 shrink-0 rounded-full transition-all active:scale-90",
                             isListening
-                                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 animate-pulse"
-                                : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 animate-pulse ring-4 ring-red-500/20"
+                                : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
-                        title="Голосовой ввод"
                     >
                         {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
                     </Button>
+
                     <Button
                         type="submit"
                         disabled={!input.trim() || isLoading}
                         size="icon"
-                        className="h-12 w-12 shrink-0 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+                        className={cn(
+                            "h-12 w-12 shrink-0 rounded-full shadow-lg transition-all active:scale-90",
+                            !input.trim()
+                                ? "bg-muted text-muted-foreground shadow-none opacity-50"
+                                : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20"
+                        )}
                     >
-                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
                     </Button>
                 </form>
             </div>
