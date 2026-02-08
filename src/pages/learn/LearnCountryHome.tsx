@@ -9,12 +9,12 @@ import { usePDDTickets } from '@/hooks/usePDDTickets';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  BookOpen, 
-  Shuffle, 
-  TrendingUp, 
-  Trophy, 
-  ArrowRight, 
+import {
+  BookOpen,
+  Shuffle,
+  TrendingUp,
+  Trophy,
+  ArrowRight,
   Loader2,
   Play,
   FileText,
@@ -24,11 +24,13 @@ import {
 import { motion } from '@/components/optimized/Motion';
 import { cn } from '@/lib/utils';
 import { useUserContext } from '@/contexts/UserContext';
+import { usePDDContext } from '@/contexts/PDDContext';
 
 export function LearnCountryHome() {
   const { country } = useParams<{ country: CountryCode }>();
   const navigate = useNavigate();
   const { profileId } = useUserContext();
+  const { selectedCategory } = usePDDContext();
 
   if (!country || !COUNTRIES_CONFIG[country]?.available) {
     return (
@@ -44,7 +46,7 @@ export function LearnCountryHome() {
   }
 
   const countryData = COUNTRIES_CONFIG[country];
-  const { data: tickets, isLoading: ticketsLoading } = usePDDTickets(country);
+  const { data: tickets, isLoading: ticketsLoading } = usePDDTickets(country, selectedCategory);
 
   // Вычисляем статистику (пока мок, потом из БД)
   const stats = {
@@ -149,9 +151,9 @@ export function LearnCountryHome() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Экзамен - только для России */}
             {country === 'russia' && (
-              <Card 
+              <Card
                 className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-2 border-primary/50 hover:border-primary bg-gradient-to-br from-primary/10 to-primary/5"
-                onClick={() => navigate(`/test/exam-russia`)}
+                onClick={() => navigate(`/test/exam-russia?category=${selectedCategory}`)}
               >
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4">
@@ -170,9 +172,9 @@ export function LearnCountryHome() {
               </Card>
             )}
 
-            <Card 
+            <Card
               className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-2 hover:border-primary/50"
-              onClick={() => navigate(`/learn/${country}/test/random?count=20`)}
+              onClick={() => navigate(`/learn/${country}/test/random?count=20&category=${selectedCategory}`)}
             >
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
@@ -190,7 +192,7 @@ export function LearnCountryHome() {
               </CardContent>
             </Card>
 
-            <Card 
+            <Card
               className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] border-2 hover:border-primary/50"
               onClick={() => navigate(`/learn/${country}/tickets`)}
             >
@@ -243,48 +245,48 @@ export function LearnCountryHome() {
                 // Поддержка обратной совместимости
                 const ticketId = typeof ticket.id === 'number' ? ticket.id : ticket.number;
                 const ticketNumber = ticket.metadata?.ticket_number || ticket.number;
-                
+
                 return (
-                <motion.div
-                  key={ticket.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 * index }}
-                >
-                  <Card
-                    className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
-                    onClick={() => navigate(`/learn/${country}/ticket/${ticketId}`)}
+                  <motion.div
+                    key={ticket.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 * index }}
                   >
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="p-2 rounded-lg bg-primary/10">
-                            <FileText className="w-4 h-4 text-primary" />
+                    <Card
+                      className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02]"
+                      onClick={() => navigate(`/learn/${country}/ticket/${ticketId}`)}
+                    >
+                      <CardContent className="p-5">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              <FileText className="w-4 h-4 text-primary" />
+                            </div>
+                            <span className="font-semibold">
+                              {ticket.title || `Билет ${ticketNumber}`}
+                            </span>
                           </div>
-                          <span className="font-semibold">
-                            {ticket.title || `Билет ${ticketNumber}`}
-                          </span>
+                          {ticket.completed && (
+                            <div className="p-1 rounded-full bg-green-500/10">
+                              <Trophy className="w-3 h-3 text-green-500" />
+                            </div>
+                          )}
                         </div>
-                        {ticket.completed && (
-                          <div className="p-1 rounded-full bg-green-500/10">
-                            <Trophy className="w-3 h-3 text-green-500" />
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {ticket.questions_count} вопросов
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full group-hover:border-primary group-hover:text-primary"
-                      >
-                        <Play className="w-3 h-3 mr-1" />
-                        Начать
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {ticket.questions_count} вопросов
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full group-hover:border-primary group-hover:text-primary"
+                        >
+                          <Play className="w-3 h-3 mr-1" />
+                          Начать
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 );
               })}
             </div>

@@ -6,9 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { CountryCode } from '@/types/pdd';
 import { getPDDStrategy } from '@/core/pdd';
 
-export function usePDDTopics(country: CountryCode) {
+export function usePDDTopics(country: CountryCode, category?: string) {
   return useQuery({
-    queryKey: ['pdd-topics', country],
+    queryKey: ['pdd-topics', country, category],
     queryFn: async () => {
       try {
         if (!country) {
@@ -16,7 +16,7 @@ export function usePDDTopics(country: CountryCode) {
         }
         const strategy = getPDDStrategy(country);
         if (strategy.getTopicsWithCounts) {
-          return await strategy.getTopicsWithCounts(country);
+          return await strategy.getTopicsWithCounts(country, category);
         }
         return [];
       } catch (error) {
@@ -36,15 +36,16 @@ export function usePDDTopics(country: CountryCode) {
 export function usePDDTopicQuestions(
   country: CountryCode,
   topicName: string,
-  count: number = 30
+  count: number = 30,
+  category?: string
 ) {
   return useQuery({
-    queryKey: ['pdd-topic-questions', country, topicName, count],
+    queryKey: ['pdd-topic-questions', country, topicName, count, category],
     queryFn: async () => {
       try {
         const strategy = getPDDStrategy(country);
         if (strategy.getQuestionsByTopic) {
-          return await strategy.getQuestionsByTopic(country, topicName, count);
+          return await strategy.getQuestionsByTopic(country, topicName, count, category);
         }
         return [];
       } catch (error) {

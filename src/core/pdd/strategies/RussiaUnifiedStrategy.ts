@@ -89,7 +89,7 @@ async function fetchAnswersInBatches(
 export class RussiaUnifiedStrategy implements PDDDataStrategy {
     private readonly COUNTRY = 'ru';
 
-    async getTickets(country: CountryCode): Promise<PDDTicketSummary[]> {
+    async getTickets(country: CountryCode, category?: string): Promise<PDDTicketSummary[]> {
         if (country !== 'russia') {
             return [];
         }
@@ -98,15 +98,28 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         const { data, error } = await supabase
             .from('questions_new')
             .select('metadata')
-            .eq('country', this.COUNTRY)
-            .not('metadata->>ticket_category', 'eq', 'C_D'); // Exclude C/D
+            .eq('country', this.COUNTRY);
 
         if (error) throw error;
 
-        // Группируем по билетам
+        // Фильтрация по категории прав
+        const filteredData = data?.filter(q => {
+            const ticketCategory = q.metadata?.ticket_category;
+            const isCD = ticketCategory === 'C_D';
+
+            // Если запрошена категория C/D
+            if (category === 'C' || category === 'D' || category === 'CE' || category === 'DE' || category === 'C_D') {
+                return isCD;
+            }
+
+            // По умолчанию (A, B, M и т.д.) - используем базу A/B (где ticket_category != 'C_D')
+            return !isCD;
+        });
+
+        // Группируем по билетам (используем original_ticket_number если есть)
         const ticketsMap = new Map<number, number>();
-        data?.forEach((q) => {
-            const ticketNumber = q.metadata?.ticket_number;
+        filteredData?.forEach((q) => {
+            const ticketNumber = q.metadata?.original_ticket_number || q.metadata?.ticket_number;
             if (ticketNumber) {
                 const count = ticketsMap.get(ticketNumber) || 0;
                 ticketsMap.set(ticketNumber, count + 1);
@@ -132,19 +145,32 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
 
     async getTicketQuestions(
         country: CountryCode,
-        ticketNumber: number
+        ticketNumber: number,
+        category?: string
     ): Promise<UniversalQuestion[]> {
         if (country !== 'russia') {
             return [];
         }
 
+        // Определяем фильтр категории
+        const isCD = (category === 'C' || category === 'D' || category === 'CE' || category === 'DE' || category === 'C_D');
+
         // Получаем вопросы билета через JSONB фильтр
-        const { data: questions, error: questionsError } = await supabase
+        let query = supabase
             .from('questions_new')
             .select('*')
-            .eq('country', this.COUNTRY)
-            .not('metadata->>ticket_category', 'eq', 'C_D') // Exclude C/D
-            .filter('metadata->>ticket_number', 'eq', ticketNumber.toString());
+            .eq('country', this.COUNTRY);
+
+        if (isCD) {
+            query = query.contains('metadata', { ticket_category: 'C_D', original_ticket_number: ticketNumber });
+        } else {
+            // A/B: ticket_number matches, and ticket_category != 'C_D'
+            query = query
+                .not('metadata->>ticket_category', 'eq', 'C_D')
+                .filter('metadata->>ticket_number', 'eq', ticketNumber.toString());
+        }
+
+        const { data: questions, error: questionsError } = await query;
 
         if (questionsError) throw questionsError;
 
@@ -180,18 +206,29 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
 
     async getRandomQuestions(
         country: CountryCode,
-        count: number
+        count: number,
+        category?: string
     ): Promise<UniversalQuestion[]> {
         if (country !== 'russia') {
             return [];
         }
 
-        // Получаем случайные вопросы России
-        const { data: questions, error: questionsError } = await (supabase as any)
+        // Определяем фильтр категории
+        const isCD = (category === 'C' || category === 'D' || category === 'CE' || category === 'DE' || category === 'C_D');
+
+        let query = (supabase as any)
             .from('questions_new')
             .select('*')
-            .eq('country', this.COUNTRY)
-            .not('metadata->>ticket_category', 'eq', 'C_D') // Exclude C/D
+            .eq('country', this.COUNTRY);
+
+        if (isCD) {
+            query = query.contains('metadata', { ticket_category: 'C_D' });
+        } else {
+            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+        }
+
+        // Получаем случайные вопросы России
+        const { data: questions, error: questionsError } = await query
             .order('id', { ascending: Math.random() > 0.5 }) // Simple randomization fallback
             .limit(count);
 
@@ -222,7 +259,7 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         return result.sort(() => Math.random() - 0.5);
     }
 
-    async getExamQuestions(country: CountryCode): Promise<{
+    async getExamQuestions(country: CountryCode, category?: string): Promise<{
         selectedQuestions: UniversalQuestion[];
         allQuestionsByBlock: Record<number, UniversalQuestion[]>;
     }> {
@@ -233,11 +270,21 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
             };
         }
 
-        // Получаем ВСЕ вопросы России
-        const { data: allQuestions, error: questionsError } = await supabase
+        const isCD = (category === 'C' || category === 'D' || category === 'CE' || category === 'DE' || category === 'C_D');
+
+        let query = supabase
             .from('questions_new')
             .select('*')
             .eq('country', this.COUNTRY);
+
+        if (isCD) {
+            query = query.contains('metadata', { ticket_category: 'C_D' });
+        } else {
+            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+        }
+
+        // Получаем ВСЕ вопросы
+        const { data: allQuestions, error: questionsError } = await query;
 
         if (questionsError) throw questionsError;
 
@@ -324,19 +371,27 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
     async getQuestionsByTopic(
         country: CountryCode,
         topicName: string,
-        count?: number
+        count?: number,
+        category?: string
     ): Promise<UniversalQuestion[]> {
         if (country !== 'russia') {
             return [];
         }
+
+        const isCD = (category === 'C' || category === 'D' || category === 'CE' || category === 'DE' || category === 'C_D');
 
         // Фильтруем по topics в metadata (JSONB array contains)
         let query = supabase
             .from('questions_new')
             .select('*')
             .eq('country', this.COUNTRY)
-            .not('metadata->>ticket_category', 'eq', 'C_D') // Exclude C/D
             .filter('metadata->topics', 'cs', `["${topicName}"]`);
+
+        if (isCD) {
+            query = query.contains('metadata', { ticket_category: 'C_D' });
+        } else {
+            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+        }
 
         if (count) {
             query = query.limit(count);
@@ -374,7 +429,7 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         return result.sort(() => Math.random() - 0.5);
     }
 
-    async getTopicsWithCounts(country: CountryCode): Promise<Array<{
+    async getTopicsWithCounts(country: CountryCode, category?: string): Promise<Array<{
         name: string;
         count: number;
     }>> {
@@ -382,11 +437,21 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
             return [];
         }
 
-        // Получаем все темы из metadata
-        const { data: questions, error } = await supabase
+        const isCD = (category === 'C' || category === 'D' || category === 'CE' || category === 'DE' || category === 'C_D');
+
+        let query = supabase
             .from('questions_new')
             .select('metadata')
             .eq('country', this.COUNTRY);
+
+        if (isCD) {
+            query = query.contains('metadata', { ticket_category: 'C_D' });
+        } else {
+            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+        }
+
+        // Получаем все темы из metadata
+        const { data: questions, error } = await query;
 
         if (error) throw error;
 
@@ -413,15 +478,25 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
             .sort((a, b) => b.count - a.count);
     }
 
-    async getSequentialQuestions(country: CountryCode): Promise<UniversalQuestion[]> {
+    async getSequentialQuestions(country: CountryCode, category?: string): Promise<UniversalQuestion[]> {
         if (country !== 'russia') return [];
 
-        // Получаем ВСЕ вопросы России (800 штук)
-        // Для 800 вопросов лучше использовать стабильную сортировку
-        const { data: questions, error: questionsError } = await supabase
+        const isCD = (category === 'C' || category === 'D' || category === 'CE' || category === 'DE' || category === 'C_D');
+
+        let query = supabase
             .from('questions_new')
             .select('*')
             .eq('country', this.COUNTRY);
+
+        if (isCD) {
+            query = query.contains('metadata', { ticket_category: 'C_D' });
+        } else {
+            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+        }
+
+        // Получаем ВСЕ вопросы России
+        // Для 800 вопросов лучше использовать стабильную сортировку
+        const { data: questions, error: questionsError } = await query;
 
         if (questionsError) throw questionsError;
 

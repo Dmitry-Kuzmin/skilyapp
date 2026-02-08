@@ -127,36 +127,40 @@ export const useTestDataLoader = ({
     );
 
     // PDD Exam questions (Russia) - always call but only use when mode matches
-    const pddExamQuestions = usePDDExamQuestions();
+    const pddExamQuestions = usePDDExamQuestions(category);
 
     // DGT Exam questions (Spain) - for exam mode without specific test
     const dgtExamQuestions = useDGTExamQuestions(questionCount);
 
-    // PDD Ticket questions - positional args: (country, ticketNumber)
+    // PDD Ticket questions - positional args: (country, ticketNumber, category)
     const pddTicketQuestions = usePDDTicketQuestions(
         pddCountry || 'russia',
-        mode === 'pdd-ticket' && ticketNumber ? ticketNumber : 0
+        mode === 'pdd-ticket' && ticketNumber ? ticketNumber : 0,
+        category
     );
 
-    // PDD Topic questions - positional args: (country, topicName, count)
+    // PDD Topic questions - positional args: (country, topicName, count, category)
     const pddTopicQuestions = usePDDTopicQuestions(
         pddCountry || 'russia',
         mode === 'pdd-topic' || mode === 'by-topic' ? topic || '' : '',
-        questionCount
+        questionCount,
+        category
     );
 
     // Nonstop/Marathon/Sequential questions
     const isSequentialRequired = (mode === 'nonstop' || mode === 'marathon' || mode === 'traps') && pddCountry === 'russia';
     const pddSequentialQuestions = usePDDSequentialQuestions(
         pddCountry || 'russia',
-        isSequentialRequired
+        isSequentialRequired,
+        category
     );
 
-    // Random questions - positional args: (country, count)
+    // Random questions - positional args: (country, count, category)
     const isRandomRequired = !isSequentialRequired && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest');
     const pddRandomQuestions = usePDDRandomQuestions(
         pddCountry || 'russia',
-        isRandomRequired && (pddCountry === 'russia' || pddCountry === 'spain') ? questionCount : 0
+        isRandomRequired && (pddCountry === 'russia' || pddCountry === 'spain') ? questionCount : 0,
+        category
     );
 
     // Redemption questions

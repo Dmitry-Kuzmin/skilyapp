@@ -60,15 +60,26 @@ async function fetchRandomQuestions(
 
   // Map country: 'russia'/'ru' -> 'ru', 'spain'/'es' -> 'es', others -> 'es'
   let countryCode = 'es';
+  let internalLicenseCategory = licenseCategory;
+
   const c = country ? country.toLowerCase().trim() : 'spain';
-  if (c === 'russia' || c === 'ru') countryCode = 'ru';
-  else if (c === 'spain' || c === 'es') countryCode = 'es';
-  else countryCode = c; // Если пришло что-то другое, пробуем как есть (например 'uk')
+
+  if (c === 'russia' || c === 'ru') {
+    countryCode = 'ru';
+  } else if (c === 'ru_cd') {
+    countryCode = 'ru';
+    internalLicenseCategory = 'C_D';
+  } else if (c === 'spain' || c === 'es') {
+    countryCode = 'es';
+  } else {
+    countryCode = c;
+  }
+
   query = query.eq('country', countryCode);
 
   // License Category Filtering (Russia only)
   if (countryCode === 'ru') {
-    if (licenseCategory === 'C_D') {
+    if (internalLicenseCategory === 'C_D') {
       query = query.contains('metadata', { ticket_category: 'C_D' });
     } else {
       // A_B (Default): metadata does NOT contain ticket_category: C_D

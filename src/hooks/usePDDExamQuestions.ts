@@ -13,15 +13,15 @@ export interface PDDExamQuestionsResult {
   allQuestionsByBlock: Record<number, import('@/types/pdd').UniversalQuestion[]>;
 }
 
-export function usePDDExamQuestions() {
+export function usePDDExamQuestions(category?: string) {
   const [searchParams] = useSearchParams();
   const country = (searchParams.get('country') || 'russia') as CountryCode;
 
   return useQuery({
-    queryKey: ['pdd-exam-questions', country],
+    queryKey: ['pdd-exam-questions', country, category],
     queryFn: async (): Promise<PDDExamQuestionsResult> => {
       const strategy = getPDDStrategy(country);
-      return strategy.getExamQuestions(country);
+      return strategy.getExamQuestions(country, category);
     },
     enabled: !!country,
     staleTime: 0, // Всегда получаем свежие вопросы для экзамена

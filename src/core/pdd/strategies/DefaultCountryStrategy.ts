@@ -14,7 +14,7 @@ import { getSpainTopicName, getSpainTopicNumber } from '../spainTopics';
 export class DefaultCountryStrategy implements PDDDataStrategy {
   constructor(private countryCode: CountryCode) { }
 
-  async getTickets(country: CountryCode): Promise<PDDTicketSummary[]> {
+  async getTickets(country: CountryCode, category?: string): Promise<PDDTicketSummary[]> {
     if (country !== this.countryCode) {
       return [];
     }
@@ -68,7 +68,8 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
 
   async getTicketQuestions(
     country: CountryCode,
-    ticketNumber: number
+    ticketNumber: number,
+    category?: string
   ): Promise<UniversalQuestion[]> {
     if (country !== this.countryCode) {
       return [];
@@ -135,7 +136,8 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
 
   async getRandomQuestions(
     country: CountryCode,
-    count: number
+    count: number,
+    category?: string
   ): Promise<UniversalQuestion[]> {
     if (country !== this.countryCode) {
       return [];
@@ -214,7 +216,7 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
     }).sort(() => Math.random() - 0.5);
   }
 
-  async getExamQuestions(country: CountryCode): Promise<{
+  async getExamQuestions(country: CountryCode, category?: string): Promise<{
     selectedQuestions: UniversalQuestion[];
     allQuestionsByBlock: Record<number, UniversalQuestion[]>;
   }> {
@@ -241,7 +243,7 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
    * Получить темы с количеством вопросов
    * Работает с таблицей questions_new (metadata->topics)
    */
-  async getTopicsWithCounts(country: CountryCode): Promise<Array<{
+  async getTopicsWithCounts(country: CountryCode, category?: string): Promise<Array<{
     name: string;
     count: number;
   }>> {
@@ -314,7 +316,8 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
   async getQuestionsByTopic(
     country: CountryCode,
     topicName: string,
-    count?: number
+    count?: number,
+    category?: string
   ): Promise<UniversalQuestion[]> {
     if (country !== this.countryCode) {
       return [];
@@ -413,6 +416,12 @@ export class DefaultCountryStrategy implements PDDDataStrategy {
 
     // Перемешиваем
     return result.sort(() => Math.random() - 0.5);
+  }
+
+  async getSequentialQuestions(country: CountryCode, category?: string): Promise<UniversalQuestion[]> {
+    if (country !== this.countryCode) return [];
+    // Fallback to random for now
+    return this.getRandomQuestions(country, 800, category);
   }
 }
 

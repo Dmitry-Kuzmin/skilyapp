@@ -132,7 +132,7 @@ const TestSession = () => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
-  const { selectedCountry } = usePDDContext();
+  const { selectedCountry, selectedCategory } = usePDDContext();
   const isRussia = (countryParam || selectedCountry) === 'russia';
   const { language: userLanguage } = useLanguage();
   const mode = useMemo(() => {
@@ -329,7 +329,7 @@ const TestSession = () => {
     pddCountry: pddCountry || selectedCountry || undefined,
     ticketNumber: ticketNumber || undefined,
     questionCount,
-    category: searchParams.get('category') || 'B',
+    category: searchParams.get('category') || selectedCategory || 'B',
     redemptionData
   });
 

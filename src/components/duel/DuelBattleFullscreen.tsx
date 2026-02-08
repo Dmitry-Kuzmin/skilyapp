@@ -763,7 +763,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         isTelegramDesktop={isTelegramDesktop}
         isInTelegramMiniApp={isInTelegramMiniApp}
         safeArea={safeArea}
-        formatTime={formatTime}
         onToggleBookmark={profileId ? toggleBookmark : undefined}
         isQuestionBookmarked={isQuestionBookmarked}
         bookmarkLoading={bookmarkLoading}

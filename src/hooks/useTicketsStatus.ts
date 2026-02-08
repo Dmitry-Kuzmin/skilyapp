@@ -25,7 +25,7 @@ export type TicketsStatusMap = Record<string, TicketStatus>;
  * - Ошибки из Challenge Bank всё ещё показываются для информирования
  */
 export function useTicketsStatus(profileId: string | null, country: string = 'ru', category?: string) {
-    const { data: tickets = [] } = usePDDTickets(country as any);
+    const { data: tickets = [] } = usePDDTickets(country as any, category);
 
     // 1. Загружаем завершенные сессии из ИЗОЛИРОВАННОЙ таблицы билетов
     const { data: sessions = [] } = useQuery({

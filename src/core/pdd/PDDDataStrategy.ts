@@ -12,14 +12,15 @@ export interface PDDDataStrategy {
   /**
    * Получить список билетов/тем для страны
    */
-  getTickets(country: CountryCode): Promise<PDDTicketSummary[]>;
+  getTickets(country: CountryCode, category?: string): Promise<PDDTicketSummary[]>;
 
   /**
    * Получить вопросы билета/темы
    */
   getTicketQuestions(
     country: CountryCode,
-    ticketNumber: number
+    ticketNumber: number,
+    category?: string
   ): Promise<UniversalQuestion[]>;
 
   /**
@@ -27,13 +28,14 @@ export interface PDDDataStrategy {
    */
   getRandomQuestions(
     country: CountryCode,
-    count: number
+    count: number,
+    category?: string
   ): Promise<UniversalQuestion[]>;
 
   /**
    * Получить вопросы для экзамена (специфичная логика для страны)
    */
-  getExamQuestions(country: CountryCode): Promise<{
+  getExamQuestions(country: CountryCode, category?: string): Promise<{
     selectedQuestions: UniversalQuestion[];
     allQuestionsByBlock: Record<number, UniversalQuestion[]>;
   }>;
@@ -44,15 +46,22 @@ export interface PDDDataStrategy {
   getQuestionsByTopic?(
     country: CountryCode,
     topicName: string,
-    count?: number
+    count?: number,
+    category?: string
   ): Promise<UniversalQuestion[]>;
 
   /**
    * Получить список доступных тем с количеством вопросов
    */
-  getTopicsWithCounts?(country: CountryCode): Promise<Array<{
+  getTopicsWithCounts?(country: CountryCode, category?: string): Promise<Array<{
     name: string;
     count: number;
   }>>;
+
+  /**
+   * Получить последовательные вопросы (все вопросы по порядку)
+   * Для режима "Нон-стоп"
+   */
+  getSequentialQuestions?(country: CountryCode, category?: string): Promise<UniversalQuestion[]>;
 }
 

@@ -192,7 +192,7 @@ const Tests = () => {
 
   // 1. Сначала все хуки данных (React Query)
   const { data: dbTopics = [], isLoading: topicsLoading } = useTopics();
-  const { data: tickets = [], isLoading: ticketsLoading } = usePDDTickets(selectedCountry);
+  const { data: tickets = [], isLoading: ticketsLoading } = usePDDTickets(selectedCountry, selectedCategory);
   const { data: userProgress = [] } = useUserProgress(profileId, selectedCountry, selectedCategory);
   const ticketsStatus = useTicketsStatus(profileId, selectedCountry, selectedCategory);
   const { data: challengeBankCount = 0 } = useChallengeBankCount(profileId, selectedCountry, selectedCategory);
@@ -296,7 +296,7 @@ const Tests = () => {
   };
 
   const handleRandomTestStart = () => {
-    handleStartTest(`/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}`);
+    handleStartTest(`/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`);
   };
 
   const handleBannerClick = () => {
@@ -318,7 +318,7 @@ const Tests = () => {
         color: "primary",
         premium: false,
         difficulty: "Средняя",
-        route: `/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
+        route: `/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`,
         featured: true,
         gradient: "from-indigo-600 via-purple-600 to-pink-600",
       },
@@ -332,7 +332,7 @@ const Tests = () => {
         color: "success",
         premium: false,
         difficulty: "Сложная",
-        route: selectedCountry === 'russia' ? "/test/exam-russia" : "/test/exam",
+        route: selectedCountry === 'russia' ? `/test/exam-russia?category=${selectedCategory}` : "/test/exam",
         featured: false,
         gradient: "from-emerald-600 to-teal-600",
         badge: selectedCountry === 'russia' ? 'Регламент 2025' : undefined,
@@ -345,7 +345,7 @@ const Tests = () => {
         color: "warning",
         premium: false,
         difficulty: "Лёгкая",
-        route: `/test/blitz?count=20&timer=300${selectedCountry === 'russia' ? '&country=russia' : ''}`,
+        route: `/test/blitz?count=20&timer=300${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`,
         gradient: "from-orange-600 to-amber-600",
       },
       {
@@ -356,7 +356,7 @@ const Tests = () => {
         color: "destructive",
         premium: false,
         difficulty: "Сложная",
-        route: selectedCountry === 'russia' ? '/test/marathon?country=russia' : '/test/mastery',
+        route: selectedCountry === 'russia' ? `/test/marathon?country=russia&category=${selectedCategory}` : '/test/mastery',
         gradient: "from-pink-600 to-rose-600",
       },
       {
@@ -369,7 +369,7 @@ const Tests = () => {
         color: challengeBankCount === 0 ? "success" : "orange",
         premium: false,
         difficulty: challengeBankCount === 0 ? "Мастер" : "Средняя",
-        route: challengeBankCount === 0 ? "#" : `/test/challenge-bank${selectedCountry === 'russia' ? '?country=russia' : ''}`,
+        route: challengeBankCount === 0 ? "#" : `/test/challenge-bank${selectedCountry === 'russia' ? '?country=russia' : ''}&category=${selectedCategory}`,
         gradient: challengeBankCount === 0
           ? "from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
           : "from-purple-600 to-violet-600",
@@ -384,7 +384,7 @@ const Tests = () => {
         color: "destructive",
         premium: false,
         difficulty: "Сложная",
-        route: selectedCountry === 'russia' ? '/test/traps?country=russia' : `/test/hardest`,
+        route: selectedCountry === 'russia' ? `/test/traps?country=russia&category=${selectedCategory}` : `/test/hardest`,
         gradient: selectedCountry === 'russia' ? "from-purple-600 to-pink-600" : "from-slate-600 to-gray-600",
         featured: selectedCountry === 'russia',
       },
@@ -411,7 +411,7 @@ const Tests = () => {
           color: "primary",
           premium: false,
           difficulty: "Сложная",
-          route: "/test/nonstop",
+          route: `/test/nonstop?category=${selectedCategory}`,
           gradient: "from-amber-600 to-orange-600",
         },
       ] : []),

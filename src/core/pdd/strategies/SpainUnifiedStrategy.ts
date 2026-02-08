@@ -105,7 +105,7 @@ async function fetchAnswersInBatches(
 export class SpainUnifiedStrategy implements PDDDataStrategy {
     private readonly COUNTRY = 'es';
 
-    async getTickets(country: CountryCode): Promise<PDDTicketSummary[]> {
+    async getTickets(country: CountryCode, category?: string): Promise<PDDTicketSummary[]> {
         if (country !== 'spain') return [];
 
         // В Испании билеты - это темы. Но мы можем вернуть их как "Билеты" для обратной совместимости 
@@ -132,7 +132,8 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
 
     async getTicketQuestions(
         country: CountryCode,
-        ticketNumber: number
+        ticketNumber: number,
+        category?: string
     ): Promise<UniversalQuestion[]> {
         // Spain doesn't use "numbers", it uses topic IDs usually.
         // If ticketNumber is provided, we might treat it as a topic index or similar.
@@ -145,7 +146,8 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
 
     async getRandomQuestions(
         country: CountryCode,
-        count: number
+        count: number,
+        category?: string
     ): Promise<UniversalQuestion[]> {
         if (country !== 'spain') return [];
 
@@ -223,7 +225,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
         });
     }
 
-    async getExamQuestions(country: CountryCode): Promise<{
+    async getExamQuestions(country: CountryCode, category?: string): Promise<{
         selectedQuestions: UniversalQuestion[];
         allQuestionsByBlock: Record<number, UniversalQuestion[]>;
     }> {
@@ -237,7 +239,8 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
     async getQuestionsByTopic(
         country: CountryCode,
         topicId: string,
-        count?: number
+        count?: number,
+        category?: string
     ): Promise<UniversalQuestion[]> {
         if (country !== 'spain') return [];
 
