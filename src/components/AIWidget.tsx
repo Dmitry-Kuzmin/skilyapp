@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Sparkles, Maximize2, Minimize2, Languages, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Send, Sparkles, Maximize2, Minimize2, Languages, ThumbsUp, ThumbsDown, Mic, MicOff, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -32,7 +32,7 @@ interface AIWidgetProps {
   imageUrl?: string | null;
   showTranslation?: boolean;
   onToggleTranslation?: () => void;
-  testLanguage?: 'es' | 'en' | 'ru'; // Язык теста для локализации интерфейса
+  testLanguage?: 'es' | 'en' | 'ru';
 }
 
 export const AIWidget = ({
@@ -54,9 +54,15 @@ export const AIWidget = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false); // Полуразвернут по умолчанию
+  const [isExpanded, setIsExpanded] = useState(false);
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
+
+  // Voice Input State
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
@@ -74,6 +80,40 @@ export const AIWidget = ({
   // Определяем язык интерфейса на основе языка теста
   // Используем язык теста для интерфейса, но если showTranslation активен или testLanguage явный 'ru', используем русский
   const interfaceLanguage = testLanguage === 'ru' || showTranslation ? 'ru' : testLanguage;
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error("Ваш браузер не поддерживает голосовой ввод");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = interfaceLanguage === 'ru' ? 'ru-RU' : 'es-ES';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput((prev) => prev ? `${prev} ${transcript}` : transcript);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
 
   // Показываем explanation из БД при загрузке
   // Используем правильный язык: приоритет showTranslation, затем explanation (уже зависит от testLanguage)
@@ -627,11 +667,35 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="h-7 w-7 xl:h-8 xl:w-8 text-muted-foreground hover:text-foreground shrink-0"
+                className={cn(
+                  "h-7 w-7 xl:h-8 xl:w-8 shrink-0 transition-all",
+                  isListening
+                    ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20 animate-pulse"
+                    : "text-muted-foreground hover:text-blue-500"
+                )}
+                onClick={toggleVoiceInput}
                 disabled={isLoading}
                 title="Голосовой ввод"
               >
-                <Sparkles className="h-3.5 w-3.5 xl:h-4 xl:w-4" />
+                {isListening ? <MicOff className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Mic className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-7 w-7 xl:h-8 xl:w-8 text-muted-foreground hover:text-yellow-500 shrink-0 transition-colors"
+                disabled={isLoading}
+                onClick={() => {
+                  const hintPrompt = interfaceLanguage === 'ru'
+                    ? "Дай мне подсказку к этому вопросу, но не говори правильный ответ напрямую. Помоги мне подумать самостоятельно."
+                    : interfaceLanguage === 'en'
+                      ? "Give me a hint for this question, but don't tell me the correct answer directly. Help me think independently."
+                      : "Dame una pista para esta pregunta, pero no me digas la respuesta correcta directamente. Ayúdame a pensar por mí mismo.";
+                  askAI(hintPrompt);
+                }}
+                title={interfaceLanguage === 'ru' ? "Получить подсказку" : "Obtener pista"}
+              >
+                <Lightbulb className="h-3.5 w-3.5 xl:h-4 xl:w-4" />
               </Button>
               <Button
                 type="submit"
@@ -639,7 +703,11 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
                 disabled={!input.trim() || isLoading}
                 className="h-7 w-7 xl:h-8 xl:w-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white shrink-0 shadow-sm"
               >
-                <Send className="h-3 w-3 xl:h-3.5 xl:w-3.5" />
+                {isLoading ? (
+                  <Sparkles className="h-3 w-3 xl:h-3.5 xl:w-3.5 animate-spin" />
+                ) : (
+                  <Send className="h-3 w-3 xl:h-3.5 xl:w-3.5" />
+                )}
               </Button>
             </div>
           </form>
