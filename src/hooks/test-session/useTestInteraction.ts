@@ -305,25 +305,23 @@ export const useTestInteraction = ({
         }
 
         // --- DEFAULT NAVIGATION ---
-        const isPracticeLikeMode = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'sequential', 'challenge-bank'].includes(mode);
+        const isPracticeLikeMode = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'challenge-bank'].includes(mode);
 
         if (isPracticeLikeMode) {
             // В режиме практики не переходим автоматически, ждем пользователя 
             // (или можно добавить опцию авто-перехода в настройках)
-            // Но оригинальный код использовал selectedOption для блокировки
             // Если мы тут, состояние уже обновлено в сторе.
         } else {
-            // Для экзамена и блица автопереход
+            // Для экзамена, блица и нон-стопа автопереход
             if (!isCorrect && mode === 'exam') {
                 // В обычном экзамене ошибка не блокирует переход, просто записывается
             }
-            if (mode !== 'practice') {
-                setIsTransitioning(true);
-                setTimeout(() => {
-                    setIsTransitioning(false);
-                    nextQuestion();
-                }, 300);
-            }
+            // Автопереход после небольшой задержки (для всех режимов кроме practice-like)
+            setIsTransitioning(true);
+            setTimeout(() => {
+                setIsTransitioning(false);
+                nextQuestion();
+            }, 300);
         }
     };
 
