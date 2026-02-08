@@ -78,8 +78,7 @@ export function ContextSettingsSheet({
     .filter(c => c.available)
     .map(c => ({ code: c.code, data: c }));
 
-  const availableCategories = getLicenseCategoriesForCountry(selectedCountry)
-    .filter(c => c.code === 'B'); // Пока реализована только категория B
+  const availableCategories = getLicenseCategoriesForCountry(selectedCountry);
   const selectedCategoryData = availableCategories.find(c => c.code === selectedCategory);
 
   const handleApply = async () => {
