@@ -100,15 +100,24 @@ export const useAIChatStore = create<AIChatState>()(
 
                 // Если новый контекст — начинаем новую беседу
                 if (context && JSON.stringify(context) !== JSON.stringify(state.questionContext)) {
+                    // Если есть объяснение (пользователь уже ответил), показываем его сразу
+                    const initialMessages: AIChatMessage[] = [];
+                    if (context.explanation && context.explanation.trim()) {
+                        initialMessages.push({
+                            id: generateId(),
+                            role: 'assistant',
+                            content: context.explanation,
+                            timestamp: Date.now(),
+                        });
+                    }
+
                     set({
                         isOpen: true,
                         questionContext: context,
-                        messages: [], // Начинаем с пустых сообщений — покажется welcome screen
+                        messages: initialMessages,
                         smartSuggestions: [],
                         conversationId: generateConversationId(),
                     });
-                    // НЕ добавляем explanation автоматически
-                    // Пользователь увидит welcome screen с кнопками "Подсказка" / "Объяснить"
                 } else {
                     set({ isOpen: true });
                 }
