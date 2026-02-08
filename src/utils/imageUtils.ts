@@ -7,13 +7,25 @@ const preloadPromises = new Map<string, Promise<void>>();
 /**
  * Проверяет поддержку WebP в браузере
  */
+// Кэшируем результат проверки поддержки WebP
+let _isWebPSupported: boolean | undefined;
+
+/**
+ * Проверяет поддержку WebP в браузере (мемоизированная версия)
+ */
 function supportsWebP(): boolean {
   if (typeof window === 'undefined') return false;
+  if (_isWebPSupported !== undefined) return _isWebPSupported;
 
-  const canvas = document.createElement('canvas');
-  canvas.width = 1;
-  canvas.height = 1;
-  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    _isWebPSupported = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+  } catch (e) {
+    _isWebPSupported = false;
+  }
+  return _isWebPSupported;
 }
 
 /**
@@ -77,22 +89,25 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
   // Если это путь к файлу в Supabase Storage, получаем публичный URL
   try {
     // ОПТИМИЗАЦИЯ: Определяем оптимальный размер изображения для устройства
+    // Обновленные настройки качества (2026-02-09): Улучшено качество для High-DPI экранов
     const getOptimalSize = (): { width?: number; height?: number; quality?: number } => {
       if (typeof window === 'undefined') return {};
 
       const width = window.innerWidth;
       const dpr = window.devicePixelRatio || 1;
 
-      // Для мобильных устройств используем меньший размер
+      // Для мобильных устройств (увеличили лимиты для четкости на Retina)
       if (width < 768) {
-        // Мобильные: максимум 800px с учетом DPR
-        return { width: Math.min(800, Math.floor(width * dpr)), quality: 80 };
+        // Мобильные: максимум 1200px (было 800), качество 90 (было 80)
+        // Это обеспечит четкость на iPhone/Pixel с 3x DPR
+        return { width: Math.min(1200, Math.floor(width * dpr)), quality: 90 };
       } else if (width < 1024) {
-        // Планшеты: максимум 1200px
-        return { width: Math.min(1200, Math.floor(width * dpr)), quality: 85 };
-      } else {
-        // Десктоп: максимум 1600px
+        // Планшеты: максимум 1600px (было 1200), качество 90 (было 85)
         return { width: Math.min(1600, Math.floor(width * dpr)), quality: 90 };
+      } else {
+        // Десктоп: максимум 2560px (было 1600), качество 95 (было 90)
+        // Для 4K мониторов и больших экранов
+        return { width: Math.min(2560, Math.floor(width * dpr)), quality: 95 };
       }
     };
 
@@ -121,6 +136,14 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
       if (transformOptions.width) params.set('width', transformOptions.width.toString());
       if (transformOptions.height) params.set('height', transformOptions.height.toString());
       if (transformOptions.quality) params.set('quality', transformOptions.quality.toString());
+
+      // CRITICAL: Используем формат WebP для трансформации, если поддерживается
+      // Это дает лучшее качество при меньшем размере, даже если исходник JPEG
+      if (supportsWebP()) {
+        params.set('format', 'webp');
+        // Для WebP можно использовать чуть более агрессивный ресайз без потери качества, 
+        // но оставим настройки getOptimalSize как есть
+      }
 
       // Добавляем параметры к URL
       finalUrl = `${data.publicUrl}?${params.toString()}`;
