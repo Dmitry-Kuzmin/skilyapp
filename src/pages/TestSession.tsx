@@ -54,7 +54,7 @@ import { QuestionCard } from "@/components/test-session/QuestionCard";
 import { useTestState } from "@/hooks/test-session/useTestState";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
-import { AccountWatermark } from "@/components/anti-abuse/AccountWatermark";
+
 import { useTestSettings } from "@/hooks/test-session/useTestSettings";
 import { useTestAudio } from "@/hooks/test-session/useTestAudio";
 import { useTestAmbientMusic } from "@/hooks/test-session/useTestAmbientMusic";
@@ -1276,7 +1276,7 @@ const TestSession = () => {
           setShowExitConfirm={setShowExitConfirm}
           userLanguage={userLanguage}
         />
-        <AccountWatermark variant="default" />
+
       </TestContentLayout>
     </Layout>
   );
