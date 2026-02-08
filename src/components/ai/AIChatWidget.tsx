@@ -570,7 +570,7 @@ export function AIChatWidget() {
                     onOpenChange={(open) => !open && closeChat()}
                     shouldScaleBackground={false}
                 >
-                    <DrawerContent className="h-[96vh] max-h-[96vh]">
+                    <DrawerContent className="h-[96dvh] max-h-[96dvh]">
                         {chatContent}
                     </DrawerContent>
                 </Drawer>
