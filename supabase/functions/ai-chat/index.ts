@@ -94,7 +94,7 @@ ${comparisonLogic}
 Respond in the SAME LANGUAGE the user writes in (usually Russian).`;
 };
 
-async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'gemma2-9b-it'): Promise<Response | null> {
+async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'llama-3.1-8b-instant'): Promise<Response | null> {
   const apiKey = Deno.env.get('GROQ_API_KEY');
   if (!apiKey) return null;
 
@@ -114,9 +114,16 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
       }),
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[AI Chat] Groq error (${response.status}):`, errorText);
+      return null;
+    }
     return new Response(response.body, { headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' } });
-  } catch { return null; }
+  } catch (err) {
+    console.error('[AI Chat] Groq exception:', err);
+    return null;
+  }
 }
 
 async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true): Promise<Response | null> {
@@ -127,7 +134,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
     let prompt = mode === 'debrief' ? '' : getSystemPrompt(country, showComparison) + '\n\n';
     messages.forEach(m => prompt += `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n\n`);
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -136,13 +143,20 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
       }),
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[AI Chat] Gemini error (${response.status}):`, errorText);
+      return null;
+    }
     const data = await response.json();
     const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Ошибка ИИ.";
     const ssePayload = `data: ${JSON.stringify({ choices: [{ delta: { content: aiText } }] })}\n\ndata: [DONE]\n\n`;
 
     return new Response(ssePayload, { headers: { ...corsHeaders, 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' } });
-  } catch { return null; }
+  } catch (err) {
+    console.error('[AI Chat] Gemini exception:', err);
+    return null;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -178,8 +192,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 1️⃣ Приоритет: Gemini 2.0 Flash Experimental
-    console.log('[AI Chat] Trying Gemini 2.0 Flash Experimental...');
+    // 1️⃣ Приоритет: Gemini 3 Flash Preview
+    console.log('[AI Chat] Trying Gemini 3 Flash Preview...');
     const gemini = await tryGemini(messages, country, mode, showComparison);
 
     if (gemini) {

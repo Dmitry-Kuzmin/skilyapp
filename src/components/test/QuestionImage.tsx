@@ -7,7 +7,7 @@ import { useState, useEffect, memo } from 'react';
 import { getImageUrl, getCachedImageAspectRatio } from '@/utils/imageUtils';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { ZoomIn, X } from 'lucide-react';
+import { ZoomIn, X, Bot } from 'lucide-react';
 import { ThreeDImageViewer } from '@/components/ui/ThreeDImageViewer';
 
 interface QuestionImageProps {
@@ -97,7 +97,21 @@ export const QuestionImage = memo(function QuestionImage({
   }
 
   if (hasError || !imageSrc) {
-    return null;
+    return (
+      <div className={cn(
+        "rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex flex-col items-center justify-center p-8 min-h-[200px]",
+        className
+      )}>
+        <div className="opacity-20 grayscale mb-2 scale-75">
+          <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center">
+            <Bot className="w-6 h-6 text-slate-400" />
+          </div>
+        </div>
+        <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400 dark:text-slate-500">
+          {imageUrl?.toLowerCase().includes('no_image') ? 'Без изображения' : 'Изображение недоступно'}
+        </p>
+      </div>
+    );
   }
 
   return (

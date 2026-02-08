@@ -38,9 +38,10 @@ export interface AIQuestionContext {
 export function generateAIChatPrompt(
     questionContext?: AIQuestionContext,
     country: string = 'russia',
-    studentStats?: AIStudentStats
+    studentStats?: AIStudentStats,
+    language?: string
 ): string {
-    const targetLang = getAIInstructionLanguage(); // Язык ответа (напр. 'Russian')
+    const targetLang = getAIInstructionLanguage(language); // Язык ответа (напр. 'Russian')
 
     // Определяем уровень для тональности
     const isBeginner = !studentStats || studentStats.xp < 1000;
@@ -191,9 +192,10 @@ ${questionContext.isCorrect !== undefined ? `Статус: ${questionContext.isC
 export function generateDebriefPrompt(
     failedQuestions: AIQuestionContext[],
     country: string = 'russia',
-    studentStats?: AIStudentStats
+    studentStats?: AIStudentStats,
+    language?: string
 ): string {
-    const targetLang = getAIInstructionLanguage();
+    const targetLang = getAIInstructionLanguage(language);
     const languageInstruction = getLanguageInstruction(targetLang);
 
     const isSpain = country === 'spain';

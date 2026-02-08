@@ -83,7 +83,8 @@ export function useAIDebriefAnalysis() {
         failedQuestions: FailedQuestion[],
         country: string,
         studentStats?: StudentStats,
-        generatePromptFn?: (questions: FailedQuestion[], country: string, stats?: StudentStats) => string
+        generatePromptFn?: (questions: FailedQuestion[], country: string, stats?: StudentStats, language?: string) => string,
+        language?: string
     ): Promise<AIDiagnosis | null> => {
         try {
             setIsLoading(true);
@@ -114,7 +115,7 @@ export function useAIDebriefAnalysis() {
                 throw new Error('Prompt generator function is required');
             }
 
-            const prompt = generatePromptFn(failedQuestions, country, studentStats);
+            const prompt = generatePromptFn(failedQuestions, country, studentStats, language);
 
             console.log('[useAIDebriefAnalysis] 🚀 Sending AI request...');
             console.log('[useAIDebriefAnalysis] Country:', country);

@@ -8,6 +8,8 @@ import { QuestionText } from "@/components/test/QuestionText";
 import { SubmitButton } from "@/components/test/SubmitButton";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
 import { ChevronRight, Keyboard, CornerDownLeft } from "lucide-react";
+import { getImageUrl } from "@/utils/imageUtils";
+import { useState } from "react";
 
 const fontSizeClasses = [
     "text-base sm:text-lg md:text-xl",
@@ -70,6 +72,8 @@ export const QuestionCard = ({
     nextQuestion,
     isEnterPressed,
 }: QuestionCardProps) => {
+    const imageUrl = getImageUrl(currentQuestion.image_url);
+
     return (
         <Card
             data-testid="question-card"
@@ -80,7 +84,7 @@ export const QuestionCard = ({
             )}
         >
             {/* Layout System */}
-            {currentQuestion.image_url ? (
+            {imageUrl ? (
                 isRussia ? (
                     // Russia Vertical Layout (Image on top)
                     <div className="space-y-6">

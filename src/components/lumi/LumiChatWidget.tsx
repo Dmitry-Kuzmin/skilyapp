@@ -231,8 +231,10 @@ export const LumiChatWidget = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                  className="h-8 w-8 text-muted-foreground hover:text-blue-500 transition-colors"
                   disabled={isLoading}
+                  onClick={() => handleQuickAction("Дай мне подсказку, не раскрывая полный ответ")}
+                  title="Получить подсказку"
                 >
                   <Lightbulb className="h-4 w-4" />
                 </Button>

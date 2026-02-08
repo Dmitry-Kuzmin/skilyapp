@@ -1,0 +1,28 @@
+# Exclude large ROOT data folder (7.4GB)
+/data/
+
+# Other large or unnecessary folders
+/_DELETED_ITEMS/
+/tmp/
+/logs/
+/supabase/
+/.git/
+
+# Development artifacts
+node_modules/
+dist/
+dist-ssr/
+.vercel/
+.idea/
+.vscode/
+
+# Local env files
+.env*
+!.env.example
+
+# Root level images/logs that shouldn't be in build
+/*.png
+/*.jpg
+/*.jpeg
+/*.webp
+/*.log

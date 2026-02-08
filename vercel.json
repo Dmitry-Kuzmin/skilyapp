@@ -68,7 +68,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!assets|favicon|manifest|robot\\.txt|sitemap\\.xml|sw\\.js|workbox-.*\\.js|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.ico|.*\\.svg|.*\\.webp|.*\\.mp3|.*\\.wav|.*\\.json).*)",
+      "source": "/((?!assets|favicon|manifest|robot\\.txt|sitemap\\.xml|sw\\.js|workbox-.*\\.js|.*\\.js|.*\\.map|.*\\.css|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.ico|.*\\.svg|.*\\.webp|.*\\.mp3|.*\\.wav|.*\\.json).*)",
       "destination": "/index.html"
     }
   ]

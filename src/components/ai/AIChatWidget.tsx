@@ -28,6 +28,7 @@ import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { cn } from '@/lib/utils';
 import { generateAIChatPrompt } from '@/lib/aiPrompts';
 import { useProfileData } from '@/hooks/useProfileData';
+import { usePDDContext } from '@/contexts/PDDContext';
 
 // Типизация для markdown рендеринга
 type MarkdownProps = {
@@ -63,6 +64,7 @@ export function AIChatWidget() {
     const isTelegram = isTelegramMiniApp();
     const { t } = useLanguage();
     const { profileData } = useProfileData();
+    const { selectedCountry } = usePDDContext();
 
     // Zustand Store
     const isOpen = useAIChatStore(selectIsOpen);
@@ -124,13 +126,14 @@ export function AIChatWidget() {
                 isCorrect: context.isCorrect,
                 imageUrl: context.imageUrl,
             } : undefined,
-            interfaceLanguage === 'ru' ? 'russia' : 'spain',
+            selectedCountry,
             profileData ? {
                 name: profileData.full_name || 'Студент',
                 xp: profileData.xp || 0,
                 streak: profileData.streak || 0,
                 prevWeakness: null, // TODO: добавить tracking слабых тем
-            } : undefined
+            } : undefined,
+            interfaceLanguage
         );
 
         try {
@@ -154,7 +157,7 @@ export function AIChatWidget() {
                 body: JSON.stringify({
                     messages: allMessages,
                     imageUrl: context?.imageUrl || '',
-                    country: interfaceLanguage === 'ru' ? 'russia' : 'spain',
+                    country: selectedCountry,
                     mode: 'debrief', // 🔥 КРИТИЧНО: отключаем старый system prompt, используем наш unified prompt
                 }),
             });

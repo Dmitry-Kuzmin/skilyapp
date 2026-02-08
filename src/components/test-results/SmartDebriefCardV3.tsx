@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/drawer';
 import { triggerHapticFeedback, isTelegramMiniApp, TelegramContext } from '@/lib/telegram';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { getAIInstructionLanguage, getLanguageInstruction, AILanguage } from '@/utils/aiLanguage';
 import ReactMarkdown from 'react-markdown';
@@ -443,6 +444,7 @@ const SmartDebriefCard = memo(({
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { profileData } = useProfileData();
+  const { language: uiLanguage } = useLanguage();
 
   // 🎣 NEW: AI Debrief Hook with Zustand
   const { performAnalysis: performAIAnalysis, getCachedAnalysis } = useAIDebriefAnalysis();
@@ -578,7 +580,8 @@ const SmartDebriefCard = memo(({
         failedQuestions,
         country,
         studentStats,
-        generateDebriefPrompt
+        generateDebriefPrompt,
+        uiLanguage
       );
 
       if (!result) {

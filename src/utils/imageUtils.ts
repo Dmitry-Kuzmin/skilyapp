@@ -9,7 +9,7 @@ const preloadPromises = new Map<string, Promise<void>>();
  */
 function supportsWebP(): boolean {
   if (typeof window === 'undefined') return false;
-  
+
   const canvas = document.createElement('canvas');
   canvas.width = 1;
   canvas.height = 1;
@@ -35,6 +35,7 @@ function supportsWebP(): boolean {
  */
 export function getImageUrl(imageUrl: string | null | undefined, bucket: string = 'questions', preferWebP: boolean = true): string | null {
   if (!imageUrl) return null;
+  if (imageUrl.toLowerCase().includes('no_image.jpg')) return null;
 
   // Если это уже полный URL, возвращаем как есть
   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
@@ -78,10 +79,10 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
     // ОПТИМИЗАЦИЯ: Определяем оптимальный размер изображения для устройства
     const getOptimalSize = (): { width?: number; height?: number; quality?: number } => {
       if (typeof window === 'undefined') return {};
-      
+
       const width = window.innerWidth;
       const dpr = window.devicePixelRatio || 1;
-      
+
       // Для мобильных устройств используем меньший размер
       if (width < 768) {
         // Мобильные: максимум 800px с учетом DPR
@@ -96,12 +97,12 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
     };
 
     const transformOptions = getOptimalSize();
-    
+
     // Получаем базовый публичный URL
     const { data, error } = supabase.storage
       .from(bucket)
       .getPublicUrl(normalizedPath);
-    
+
     if (error) {
       console.error(`[getImageUrl] Error getting public URL (bucket: ${bucket}, path: ${normalizedPath}):`, error);
       return null;
@@ -120,7 +121,7 @@ export function getImageUrl(imageUrl: string | null | undefined, bucket: string 
       if (transformOptions.width) params.set('width', transformOptions.width.toString());
       if (transformOptions.height) params.set('height', transformOptions.height.toString());
       if (transformOptions.quality) params.set('quality', transformOptions.quality.toString());
-      
+
       // Добавляем параметры к URL
       finalUrl = `${data.publicUrl}?${params.toString()}`;
     }
@@ -177,7 +178,7 @@ export function preloadImage(imageUrl: string | null | undefined, bucket: string
   // Создаем новый Promise для загрузки
   const loadPromise = new Promise<void>((resolve, reject) => {
     const url = getImageUrl(imageUrl, bucket);
-    
+
     if (!url) {
       resolve();
       return;
@@ -194,7 +195,7 @@ export function preloadImage(imageUrl: string | null | undefined, bucket: string
 
     // Загружаем изображение в фоне
     const img = new Image();
-    
+
     img.onload = () => {
       const aspectRatio = img.width / img.height;
       imageCache.set(cacheKey, {
@@ -237,7 +238,7 @@ export function getCachedImageAspectRatio(imageUrl: string | null | undefined, b
 
   const cacheKey = `${bucket}:${imageUrl.trim().replace(/^\/+/, '').replace(/\/+$/, '')}`;
   const cached = imageCache.get(cacheKey);
-  
+
   return cached?.loaded ? cached.aspectRatio : null;
 }
 
