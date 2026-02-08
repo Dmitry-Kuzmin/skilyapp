@@ -277,10 +277,7 @@ export function AIChatWidget() {
         <div className="flex flex-col h-full">
             {/* Header */}
             <div
-                className="flex items-center justify-between px-6 py-4 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10"
-                style={{
-                    paddingTop: isTelegram && isMobile ? 'calc(var(--tg-content-safe-area-inset-top, 0px) + 48px)' : undefined,
-                }}
+                className="flex items-center justify-between px-5 py-3 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10"
             >
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
@@ -294,7 +291,7 @@ export function AIChatWidget() {
                             variant="ghost"
                             size="sm"
                             onClick={toggleTranslation}
-                            className="h-10 px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                            className="h-9 px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400"
                         >
                             <Languages className="w-4 h-4 mr-2" />
                             <span className="text-xs font-bold">{showTranslation ? 'ES' : 'RU'}</span>
@@ -304,7 +301,7 @@ export function AIChatWidget() {
                         variant="ghost"
                         size="icon"
                         onClick={closeChat}
-                        className="h-10 w-10 text-muted-foreground hover:text-foreground hover:bg-muted"
+                        className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted"
                     >
                         <X className="w-5 h-5" />
                     </Button>
@@ -517,7 +514,7 @@ export function AIChatWidget() {
                     onOpenChange={(open) => !open && closeChat()}
                     shouldScaleBackground={false}
                 >
-                    <DrawerContent className="h-[95vh] max-h-[95vh]">
+                    <DrawerContent className="h-[96vh] max-h-[96vh]">
                         {chatContent}
                     </DrawerContent>
                 </Drawer>
