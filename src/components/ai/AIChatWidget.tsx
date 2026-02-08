@@ -93,43 +93,87 @@ export function AIChatWidget() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Voice Input State
-    const [isListening, setIsListening] = useState(false);
-    const recognitionRef = useRef<any>(null);
+    // Voice Input State (Whisper API)
+    const [isRecording, setIsRecording] = useState(false);
+    const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = async () => {
+                const mimeType = mediaRecorder.mimeType;
+                const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
+
+                setIsRecording(false); // UI update immediate
+                setIsProcessingVoice(true); // Show loader
+
+                try {
+                    const formData = new FormData();
+                    formData.append('file', audioBlob, 'voice.webm'); // Name doesn't matter much for Whisper, but ext might
+                    formData.append('language', selectedCountry === 'russia' ? 'ru' : 'es');
+
+                    const { data, error } = await supabase.functions.invoke('speech-to-text', {
+                        body: formData,
+                    });
+
+                    if (error) throw error;
+
+                    if (data?.text) {
+                        const newText = data.text.trim();
+                        // Умное добавление пробела
+                        setInput(prev => {
+                            const trimmed = prev.trim();
+                            if (!trimmed) return newText;
+                            // Если заканчивается на знак препинания, пробел нужен
+                            return `${trimmed} ${newText}`;
+                        });
+                        triggerHapticFeedback('success');
+                    }
+                } catch (err) {
+                    console.error('Voice processing error:', err);
+                    toast.error('Не удалось распознать речь');
+                    triggerHapticFeedback('error');
+                } finally {
+                    setIsProcessingVoice(false);
+                    // Stop all tracks to release mic
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+            triggerHapticFeedback('light');
+        } catch (err) {
+            console.error('Microphone access denied:', err);
+            toast.error('Нет доступа к микрофону');
+        }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+            mediaRecorderRef.current.stop();
+            triggerHapticFeedback('medium');
+        }
+    };
 
     const toggleVoiceInput = () => {
-        if (isListening) {
-            recognitionRef.current?.stop();
-            setIsListening(false);
-            return;
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
         }
-
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            toast.error("Ваш браузер не поддерживает голосовой ввод");
-            return;
-        }
-
-        const recognition = new SpeechRecognition();
-        recognition.lang = selectedCountry === 'russia' ? 'ru-RU' : 'es-ES';
-        recognition.continuous = false;
-        recognition.interimResults = false;
-
-        recognition.onstart = () => setIsListening(true);
-        recognition.onend = () => setIsListening(false);
-        recognition.onerror = (event: any) => {
-            console.error("Speech recognition error", event.error);
-            setIsListening(false);
-            toast.error("Ошибка распознавания речи");
-        };
-
-        recognition.onresult = (event: any) => {
-            const transcript = event.results[0][0].transcript;
-            setInput((prev) => prev ? `${prev} ${transcript}` : transcript);
-        };
-
-        recognitionRef.current = recognition;
-        recognition.start();
     };
 
 
@@ -474,17 +518,29 @@ export function AIChatWidget() {
                     <Button
                         type="button"
                         onClick={toggleVoiceInput}
-                        disabled={isLoading}
+                        disabled={isLoading || isProcessingVoice}
                         size="icon"
                         variant="ghost"
                         className={cn(
-                            "h-12 w-12 shrink-0 rounded-full transition-all active:scale-90",
-                            isListening
-                                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 animate-pulse ring-4 ring-red-500/20"
-                                : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
+                            "h-12 w-12 shrink-0 rounded-full transition-all active:scale-90 relative overflow-hidden",
+                            isRecording
+                                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 ring-4 ring-red-500/20"
+                                : isProcessingVoice
+                                    ? "bg-blue-500/10 text-blue-600 cursor-wait"
+                                    : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
+                        title="Голосовой ввод"
                     >
-                        {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                        {isProcessingVoice ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : isRecording ? (
+                            <>
+                                <span className="absolute inset-0 rounded-full animate-ping bg-white/30 duration-1000"></span>
+                                <MicOff className="w-5 h-5 relative z-10" />
+                            </>
+                        ) : (
+                            <Mic className="w-5 h-5" />
+                        )}
                     </Button>
 
                     <Button
