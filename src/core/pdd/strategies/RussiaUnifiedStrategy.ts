@@ -87,7 +87,7 @@ async function fetchAnswersInBatches(
 }
 
 export class RussiaUnifiedStrategy implements PDDDataStrategy {
-    private readonly COUNTRY = 'ru';
+    protected readonly COUNTRY: CountryCode = 'russia';
 
     async getTickets(country: CountryCode, category?: string): Promise<PDDTicketSummary[]> {
         if (country !== 'russia') {
