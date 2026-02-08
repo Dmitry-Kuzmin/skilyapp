@@ -175,7 +175,7 @@ export const TestQuestionMap = ({
                     relative aspect-square w-full rounded-xl overflow-hidden font-bold transition-all duration-300 group
                     ${isCurrent
                                             ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-background scale-105 shadow-xl z-10"
-                                            : "hover:scale-105 hover:ring-2 hover:ring-white/20 hover:ring-offset-1 hover:ring-offset-background"
+                                            : "hover:scale-105 hover:shadow-lg"
                                         }
                     ${!isAnswered
                                             ? "bg-muted/40 border border-white/5"
@@ -187,14 +187,20 @@ export const TestQuestionMap = ({
                                         }
                   `}
                                 >
-                                    {/* Background Image or Placeholder Pattern */}
+                                    {/* Background Image or Skily Logo */}
                                     {imageUrl ? (
                                         <div
                                             className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                                             style={{ backgroundImage: `url(${imageUrl})` }}
                                         />
                                     ) : (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 opacity-50" />
+                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center">
+                                            <img
+                                                src="/images/skily-logo.png"
+                                                alt="Skily"
+                                                className="w-8 h-8 opacity-40 group-hover:opacity-60 transition-opacity"
+                                            />
+                                        </div>
                                     )}
 
                                     {/* Overlay Gradient for readability */}
@@ -203,7 +209,7 @@ export const TestQuestionMap = ({
                                     {/* Status Color Overlay (Subtle) */}
                                     {isAnswered && (
                                         <div className={`absolute inset-0 opacity-20 ${mode === "exam" ? "bg-blue-500" :
-                                                answer.isCorrect ? "bg-emerald-500" : "bg-red-500"
+                                            answer.isCorrect ? "bg-emerald-500" : "bg-red-500"
                                             }`} />
                                     )}
 
