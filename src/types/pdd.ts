@@ -134,7 +134,7 @@ export interface DGTStats {
 // Общие типы для стран
 // ============================================================================
 
-export type CountryCode = 'russia' | 'spain' | 'ukraine' | 'belarus';
+export type CountryCode = 'russia' | 'russia_cd' | 'spain' | 'ukraine' | 'belarus';
 
 /**
  * Категории прав для России (ГИБДД)
@@ -230,11 +230,29 @@ export const COUNTRIES_CONFIG: Record<CountryCode, CountryData> = {
       { code: 'A1', name: 'A1', nameFull: 'Легкие мотоциклы', icon: '🛵', description: 'Легкие мотоциклы (до 125 см³)' },
       { code: 'B', name: 'B', nameFull: 'Легковые автомобили', icon: '🚗', description: 'Легковые автомобили (до 3.5 т)' },
       { code: 'BE', name: 'BE', nameFull: 'Легковые с прицепом', icon: '🚙', description: 'Легковые с прицепом (более 750 кг)' },
+      { code: 'M', name: 'M', nameFull: 'Мопеды', icon: '🛴', description: 'Мопеды и скутеры' },
+    ],
+  },
+  russia_cd: {
+    code: 'russia_cd',
+    name: 'Россия (C/D)',
+    nameNative: 'Россия (Грузовые)',
+    flag: '🇷🇺',
+    isoCode: 'RU',
+    examRules: {
+      maxErrors: 2,
+      timeLimit: 20 * 60,
+      questionsCount: 20,
+      mode: 'ticket',
+      allowAdditionalQuestions: true,
+      passingScore: 90,
+    },
+    available: true,
+    licenseCategories: [
       { code: 'C', name: 'C', nameFull: 'Грузовые автомобили', icon: '🚚', description: 'Грузовые (более 3.5 т)' },
       { code: 'CE', name: 'CE', nameFull: 'Грузовые с прицепом', icon: '🚛', description: 'Грузовые с прицепом' },
       { code: 'D', name: 'D', nameFull: 'Автобусы', icon: '🚌', description: 'Автобусы (более 8 пассажиров)' },
       { code: 'DE', name: 'DE', nameFull: 'Автобусы с прицепом', icon: '🚎', description: 'Автобусы с прицепом' },
-      { code: 'M', name: 'M', nameFull: 'Мопеды', icon: '🛴', description: 'Мопеды и скутеры' },
     ],
   },
   spain: {

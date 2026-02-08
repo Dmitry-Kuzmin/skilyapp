@@ -98,7 +98,8 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         const { data, error } = await supabase
             .from('questions_new')
             .select('metadata')
-            .eq('country', this.COUNTRY);
+            .eq('country', this.COUNTRY)
+            .not('metadata->>ticket_category', 'eq', 'C_D'); // Exclude C/D
 
         if (error) throw error;
 
@@ -142,6 +143,7 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
             .from('questions_new')
             .select('*')
             .eq('country', this.COUNTRY)
+            .not('metadata->>ticket_category', 'eq', 'C_D') // Exclude C/D
             .filter('metadata->>ticket_number', 'eq', ticketNumber.toString());
 
         if (questionsError) throw questionsError;
@@ -189,6 +191,7 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
             .from('questions_new')
             .select('*')
             .eq('country', this.COUNTRY)
+            .not('metadata->>ticket_category', 'eq', 'C_D') // Exclude C/D
             .order('id', { ascending: Math.random() > 0.5 }) // Simple randomization fallback
             .limit(count);
 
@@ -332,6 +335,7 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
             .from('questions_new')
             .select('*')
             .eq('country', this.COUNTRY)
+            .not('metadata->>ticket_category', 'eq', 'C_D') // Exclude C/D
             .filter('metadata->topics', 'cs', `["${topicName}"]`);
 
         if (count) {

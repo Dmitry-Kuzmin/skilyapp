@@ -38,6 +38,7 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
   const [createdDuelCode, setCreatedDuelCode] = useState<string | null>(null);
   const [createdDuelId, setCreatedDuelId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [licenseCategory, setLicenseCategory] = useState<'A_B' | 'C_D'>('A_B'); // New State
 
   const joinInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,6 +81,7 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
           difficulty: 'mix',
           bet_amount: betAmount,
           bet_type: betAmount > 0 ? 'fixed' : 'none',
+          license_category: licenseCategory, // Pass new param
         },
       });
 
@@ -321,6 +323,33 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
                           )}
                         >
                           MAX
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* License Category Selector (Russia Only for now, but UI shows it regardless?) 
+                        Actually, should check if user country is Russia? 
+                        User explicitly asked for it. I'll add it. */}
+                    <div className="bg-secondary/20 p-4 rounded-[1.5rem] border border-secondary/50 flex items-center justify-between">
+                      <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest pl-2">Категория прав</span>
+                      <div className="flex bg-background rounded-xl p-1 shadow-sm border border-secondary">
+                        <button
+                          onClick={() => setLicenseCategory('A_B')}
+                          className={cn(
+                            "px-4 py-2 rounded-lg text-xs font-black transition-all",
+                            licenseCategory === 'A_B' ? "bg-primary text-white shadow-md" : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          A / B
+                        </button>
+                        <button
+                          onClick={() => setLicenseCategory('C_D')}
+                          className={cn(
+                            "px-4 py-2 rounded-lg text-xs font-black transition-all",
+                            licenseCategory === 'C_D' ? "bg-primary text-white shadow-md" : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          C / D
                         </button>
                       </div>
                     </div>

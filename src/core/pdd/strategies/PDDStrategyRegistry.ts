@@ -6,6 +6,7 @@
 import { CountryCode } from '@/types/pdd';
 import { PDDDataStrategy } from '../PDDDataStrategy';
 import { RussiaUnifiedStrategy } from './RussiaUnifiedStrategy';
+import { RussiaCDStrategy } from './RussiaCDStrategy'; // Import new strategy
 import { SpainUnifiedStrategy } from './SpainUnifiedStrategy';
 // Legacy import kept for fallback if needed:
 // import { RussiaLegacyStrategy } from './RussiaLegacyStrategy';
@@ -26,6 +27,9 @@ class PDDStrategyRegistry {
   constructor() {
     // РФ - unified стратегия (использует questions_new, country='ru')
     this.register('russia', new RussiaUnifiedStrategy());
+
+    // РФ C/D - uses questions_new, country='ru' + category='C_D'
+    this.register('russia_cd', new RussiaCDStrategy());
 
     // Испания - unified стратегия (использует questions_new, country='es')
     this.register('spain', new SpainUnifiedStrategy());
