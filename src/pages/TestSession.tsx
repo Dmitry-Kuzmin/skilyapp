@@ -982,7 +982,7 @@ const TestSession = () => {
   };
 
   if (loading) {
-    return <TestSkeleton mode={mode} />;
+    return <TestSkeleton mode={mode} language={testLanguage} />;
   }
 
   if (questions.length === 0) {

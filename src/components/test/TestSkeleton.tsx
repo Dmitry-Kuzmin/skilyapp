@@ -10,37 +10,73 @@ import { cn } from '@/lib/utils';
 
 interface TestSkeletonProps {
     mode?: 'exam-russia' | 'exam' | 'practice' | 'blitz';
+    language?: 'ru' | 'es' | 'en';
 }
 
-const TIPS = [
-    // 1. Советы по Функционалу
-    "💡 Нажмите на виджет прав, чтобы увидеть детальную статистику прогресса.",
-    "📅 Не теряйте дни! Заходите ежедневно, чтобы копить баллы водителя.",
-    "🐛 Нашли ошибку в вопросе? Используйте кнопку 'Report', мы это ценим!",
-    "🔄 Режим 'Smart Review' собирает ваши ошибки и помогает их исправить.",
-    "🏆 Хотите сдать экзамен? Наберите 12 баллов в профиле, чтобы открыть симулятор.",
+const TIPS_BY_LANG = {
+    ru: [
+        // 1. Советы по Функционалу
+        "💡 Нажмите на виджет прав, чтобы увидеть детальную статистику прогресса.",
+        "📅 Не теряйте дни! Заходите ежедневно, чтобы копить баллы водителя.",
+        "🐛 Нашли ошибку в вопросе? Используйте кнопку 'Report', мы это ценим!",
+        "🔄 Режим 'Smart Review' собирает ваши ошибки и помогает их исправить.",
+        "🏆 Хотите сдать экзамен? Наберите 12 баллов в профиле, чтобы открыть симулятор.",
+        // 2. Мини-факты ПДД
+        "🛑 Знак R-200 (черная полоса) требует полной остановки, даже если шлагбаум открыт.",
+        "🚀 На полосе разгона главное — набрать скорость потока, а не тормозить.",
+        "🛣️ Синий фон знака — это Autopista. Белый — обычная дорога.",
+        "💳 Круглый синий знак с буквой 'Т' — оплата ТОЛЬКО через Telepeaje.",
+        // 3. Мотивация
+        "💪 Ошибки — это нормально. Лучше ошибиться здесь, чем перед инспектором DGT.",
+        "🎓 Каждый пройденный тест приближает вас к правам.",
+        "🔥 Держите серию! 3 дня подряд дают бонус к рейтингу.",
+        "🧠 Алкоголь выводится из организма медленнее во время сна.",
+        "📱 Добавьте Skily на главный экран для быстрого доступа."
+    ],
+    es: [
+        "💡 Tip: Toca el widget del permiso para ver estadísticas detalladas.",
+        "📅 ¡No pierdas días! Entra a diario para acumular puntos de conductor.",
+        "🐛 ¿Encontraste un error? Usa el botón 'Report', ¡lo valoramos mucho!",
+        "🔄 El modo 'Smart Review' recopila tus errores y te ayuda a corregirlos.",
+        "🏆 ¿Quieres aprobar? Consigue 12 puntos en el perfil para desbloquear el simulador.",
+        "🛑 La señal R-200 (franja negra) requiere parada total, aunque la barrera esté abierta.",
+        "🚀 En el carril de aceleración, lo principal es alcanzar la velocidad del flujo, no frenar.",
+        "🛣️ El fondo azul significa Autopista/Autovía. El blanco es carretera convencional.",
+        "💳 Señal redonda azul con 'T' significa pago SOLO con Telepeaje.",
+        "💪 Los errores son normales. Mejor equivocarse aquí que ante la DGT.",
+        "🎓 Cada test completado te acerca a tu permiso.",
+        "🔥 ¡Mantén la racha! 3 días seguidos dan bonificación de rango.",
+        "🧠 El alcohol se elimina más lentamente mientras duermes.",
+        "📱 Añade Skily a tu pantalla de inicio para acceso rápido."
+    ],
+    en: [
+        "💡 Tip: Tap the license widget to see detailed progress stats.",
+        "📅 Don't lose days! Log in daily to accumulate driver points.",
+        "🐛 Found an error? Use the 'Report' button, we appreciate it!",
+        "🔄 'Smart Review' mode collects your mistakes and helps you fix them.",
+        "🏆 Want to pass? Score 12 points in your profile to unlock the simulator.",
+        "🛑 Sign R-200 (black stripe) requires a full stop, even if the barrier is open.",
+        "🚀 In the acceleration lane, the key is to reach traffic speed, not brake.",
+        "🛣️ Blue background means Motorway. White is a conventional road.",
+        "💳 Round blue sign with 'T' means payment ONLY via Telepeaje.",
+        "💪 Mistakes are normal. Better to fail here than before the DGT inspector.",
+        "🎓 Every test completed brings you closer to your license.",
+        "🔥 Keep the streak! 3 days in a row give a rank bonus.",
+        "🧠 Alcohol is eliminated slower while sleeping.",
+        "📱 Add Skily to your home screen for quick access."
+    ]
+};
 
-    // 2. Мини-факты ПДД
-    "🛑 Знак R-200 (черная полоса) требует полной остановки, даже если шлагбаум открыт.",
-    "🚀 На полосе разгона главное — набрать скорость потока, а не тормозить.",
-    "🛣️ Синий фон знака — это Autopista. Белый — обычная дорога.",
-    "💳 Круглый синий знак с буквой 'Т' — оплата ТОЛЬКО через Telepeaje.",
-
-    // 3. Мотивация
-    "💪 Ошибки — это нормально. Лучше ошибиться здесь, чем перед инспектором DGT.",
-    "🎓 Каждый пройденный тест приближает вас к правам.",
-    "🔥 Держите серию! 3 дня подряд дают бонус к рейтингу.",
-    "🧠 Алкоголь выводится из организма медленнее во время сна.",
-    "📱 Добавьте Skily на главный экран для быстрого доступа."
-];
-
-export const TestSkeleton = ({ mode = 'practice' }: TestSkeletonProps) => {
+export const TestSkeleton = ({ mode = 'practice', language = 'es' }: TestSkeletonProps) => {
     const isExamRussia = mode === 'exam-russia';
 
-    // Выбираем случайный совет при маунте (фиксируем, чтобы не дёргался)
+    // Выбираем случайный совет с учетом языка
     const randomTip = useMemo(() => {
-        return TIPS[Math.floor(Math.random() * TIPS.length)];
-    }, []);
+        // Если режим РФ, всегда используем русский, иначе - переданный язык
+        const effectiveLang = isExamRussia ? 'ru' : language;
+        const tips = TIPS_BY_LANG[effectiveLang] || TIPS_BY_LANG.es;
+        return tips[Math.floor(Math.random() * tips.length)];
+    }, [language, isExamRussia]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex flex-col">
