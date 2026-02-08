@@ -97,18 +97,57 @@ export const AIWidget = ({
     const recognition = new SpeechRecognition();
     recognition.lang = interfaceLanguage === 'ru' ? 'ru-RU' : 'es-ES';
     recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.interimResults = true; // Включаем, чтобы видеть процесс
+    recognition.maxAlternatives = 1;
 
-    recognition.onstart = () => setIsListening(true);
+    recognition.onstart = () => {
+      setIsListening(true);
+      // Haptic feedback start
+      triggerHapticFeedback('light');
+    };
+
     recognition.onend = () => setIsListening(false);
+
     recognition.onerror = (event: any) => {
       console.error("Speech recognition error", event.error);
       setIsListening(false);
+      if (event.error === 'not-allowed') {
+        toast.error("Доступ к микрофону запрещен");
+      }
     };
 
+    // Храним текущий ввод до начала диктовки, чтобы корректно добавлять interim результаты
+    let initialInput = input;
+
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInput((prev) => prev ? `${prev} ${transcript}` : transcript);
+      let finalTranscript = '';
+      let interimTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+
+      const transcript = finalTranscript || interimTranscript;
+
+      if (transcript) {
+        // Обновляем инпут: старый текст + пробел + новый текст
+        setInput((prev) => {
+          // Если это interim обновление, мы хотим заменить только последнюю диктуемую часть?
+          // Простой вариант для чата: просто добавляем.
+          // Но с interim это будет дергаться.
+          // Упростим: покажем interim прямо в input.
+          const prefix = initialInput ? initialInput + ' ' : '';
+          return prefix + transcript;
+        });
+
+        if (finalTranscript) {
+          initialInput = initialInput ? initialInput + ' ' + finalTranscript : finalTranscript;
+        }
+      }
     };
 
     recognitionRef.current = recognition;
@@ -659,31 +698,31 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={interfaceLanguage === 'ru' ? t('lumiPlaceholder') : interfaceLanguage === 'en' ? 'Ask your question here...' : 'Haz tu pregunta aquí...'}
-              className="w-full h-10 xl:h-12 pr-16 xl:pr-20 pl-3 xl:pl-4 text-xs xl:text-sm rounded-full border-border/50 focus:border-blue-300 focus:ring-blue-200 bg-background dark:bg-slate-950 dark:border-white/10 dark:text-slate-100 dark:placeholder:text-slate-500"
+              className="w-full h-10 xl:h-12 pr-24 xl:pr-28 pl-3 xl:pl-4 text-xs xl:text-sm rounded-full border-border/50 focus:border-blue-300 focus:ring-blue-200 bg-background dark:bg-slate-950 dark:border-white/10 dark:text-slate-100 dark:placeholder:text-slate-500 transition-all"
               disabled={isLoading}
             />
-            <div className="absolute right-1.5 xl:right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 xl:gap-2">
+            <div className="absolute right-1.5 xl:right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 xl:gap-1">
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
                 className={cn(
-                  "h-7 w-7 xl:h-8 xl:w-8 shrink-0 transition-all",
+                  "h-7 w-7 xl:h-8 xl:w-8 shrink-0 transition-all rounded-full",
                   isListening
-                    ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20 animate-pulse"
-                    : "text-muted-foreground hover:text-blue-500"
+                    ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-500/20 animate-pulse scale-110"
+                    : "text-muted-foreground hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                 )}
                 onClick={toggleVoiceInput}
                 disabled={isLoading}
                 title="Голосовой ввод"
               >
-                {isListening ? <MicOff className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Mic className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
+                {isListening ? <MicOff className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Mic className="h-4 w-4 xl:h-4 xl:w-4" />}
               </Button>
               <Button
                 type="button"
                 size="icon"
                 variant="ghost"
-                className="h-7 w-7 xl:h-8 xl:w-8 text-muted-foreground hover:text-yellow-500 shrink-0 transition-colors"
+                className="h-7 w-7 xl:h-8 xl:w-8 text-muted-foreground hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 shrink-0 transition-colors rounded-full"
                 disabled={isLoading}
                 onClick={() => {
                   const hintPrompt = interfaceLanguage === 'ru'
@@ -695,18 +734,21 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
                 }}
                 title={interfaceLanguage === 'ru' ? "Получить подсказку" : "Obtener pista"}
               >
-                <Lightbulb className="h-3.5 w-3.5 xl:h-4 xl:w-4" />
+                <Lightbulb className="h-4 w-4 xl:h-4 xl:w-4" />
               </Button>
               <Button
                 type="submit"
                 size="icon"
                 disabled={!input.trim() || isLoading}
-                className="h-7 w-7 xl:h-8 xl:w-8 rounded-full bg-blue-600 hover:bg-blue-700 text-white shrink-0 shadow-sm"
+                className={cn(
+                  "h-7 w-7 xl:h-8 xl:w-8 rounded-full shrink-0 shadow-sm transition-all ml-1",
+                  !input.trim() && !isLoading ? "bg-muted text-muted-foreground" : "bg-blue-600 hover:bg-blue-700 text-white hover:scale-105"
+                )}
               >
                 {isLoading ? (
                   <Sparkles className="h-3 w-3 xl:h-3.5 xl:w-3.5 animate-spin" />
                 ) : (
-                  <Send className="h-3 w-3 xl:h-3.5 xl:w-3.5" />
+                  <Send className="h-3.5 w-3.5 xl:h-4 xl:w-4 ml-0.5" />
                 )}
               </Button>
             </div>
