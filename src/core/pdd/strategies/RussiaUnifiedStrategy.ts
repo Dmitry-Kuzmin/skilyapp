@@ -98,7 +98,8 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         const { data, error } = await supabase
             .from('questions_new')
             .select('metadata')
-            .eq('country', this.COUNTRY);
+            .eq('country', this.COUNTRY)
+            .limit(2000);
 
         if (error) throw error;
 
