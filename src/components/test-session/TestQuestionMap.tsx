@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { SkilyBrandLogo } from "../SkilyBrandLogo";
 
 interface TestQuestionMapProps {
     open: boolean;
@@ -194,11 +195,12 @@ export const TestQuestionMap = ({
                                             style={{ backgroundImage: `url(${imageUrl})` }}
                                         />
                                     ) : (
-                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center">
-                                            <img
-                                                src="/images/skily-logo.png"
-                                                alt="Skily"
-                                                className="w-8 h-8 opacity-40 group-hover:opacity-60 transition-opacity"
+                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 flex items-center justify-center p-2">
+                                            <SkilyBrandLogo
+                                                size={32}
+                                                showText={true}
+                                                className="opacity-40 group-hover:opacity-70 transition-opacity scale-75 sm:scale-90"
+                                                variant="color"
                                             />
                                         </div>
                                     )}
