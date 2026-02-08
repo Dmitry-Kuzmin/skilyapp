@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X, Send, Lightbulb, Sparkles, ChevronDown, ChevronUp, ChevronRight } from "lucide-react";
+import { X, Send, Lightbulb, Sparkles, ChevronDown, ChevronUp, ChevronRight, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -8,6 +8,13 @@ import { LumiCharacter } from "./LumiCharacter";
 import { LumiMessage } from "./LumiMessage";
 import { useLumiChat } from "@/hooks/useLumiChat";
 import { usePDDContext } from "@/contexts/PDDContext";
+
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 interface LumiChatWidgetProps {
   onClose?: () => void;
@@ -44,6 +51,43 @@ export const LumiChatWidget = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, isLoading, error, sendMessage } = useLumiChat(selectedCountry);
   const [hasShownExplanation, setHasShownExplanation] = useState(false);
+
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Ваш браузер не поддерживает голосовой ввод");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = selectedCountry === 'russia' ? 'ru-RU' : 'es-ES';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInput((prev) => prev ? `${prev} ${transcript}` : transcript);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+  };
 
   // Показываем приветственное сообщение
   const hasMessages = messages.length > 0;
@@ -228,6 +272,19 @@ export const LumiChatWidget = ({
                 disabled={isLoading}
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    "h-8 w-8 transition-colors",
+                    isListening ? "text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-muted-foreground hover:text-blue-500"
+                  )}
+                  onClick={toggleVoiceInput}
+                  disabled={isLoading}
+                  title="Голосовой ввод"
+                >
+                  {isListening ? <MicOff className="h-4 w-4 animate-pulse" /> : <Mic className="h-4 w-4" />}
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"

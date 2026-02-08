@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, ChevronDown } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, ChevronDown, Mic, MicOff } from 'lucide-react';
 import { LumiCharacter } from '@/components/lumi/LumiCharacter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -92,6 +92,46 @@ export function AIChatWidget() {
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Voice Input State
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef<any>(null);
+
+    const toggleVoiceInput = () => {
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            return;
+        }
+
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            toast.error("Ваш браузер не поддерживает голосовой ввод");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = selectedCountry === 'russia' ? 'ru-RU' : 'es-ES';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = () => setIsListening(true);
+        recognition.onend = () => setIsListening(false);
+        recognition.onerror = (event: any) => {
+            console.error("Speech recognition error", event.error);
+            setIsListening(false);
+            toast.error("Ошибка распознавания речи");
+        };
+
+        recognition.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript;
+            setInput((prev) => prev ? `${prev} ${transcript}` : transcript);
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+    };
+
 
     // Фокус на input при открытии
     useEffect(() => {
@@ -431,6 +471,22 @@ export function AIChatWidget() {
                         disabled={isLoading}
                         className="flex-1 h-12 rounded-full px-5 border-border/50 focus:ring-blue-500/20 bg-background/50"
                     />
+                    <Button
+                        type="button"
+                        onClick={toggleVoiceInput}
+                        disabled={isLoading}
+                        size="icon"
+                        variant="ghost"
+                        className={cn(
+                            "h-12 w-12 shrink-0 rounded-full transition-all active:scale-95",
+                            isListening
+                                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 animate-pulse"
+                                : "bg-muted hover:bg-muted/80 text-muted-foreground"
+                        )}
+                        title="Голосовой ввод"
+                    >
+                        {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                    </Button>
                     <Button
                         type="submit"
                         disabled={!input.trim() || isLoading}
