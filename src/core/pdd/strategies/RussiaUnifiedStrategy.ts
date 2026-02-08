@@ -162,12 +162,15 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
             .eq('country', this.COUNTRY);
 
         if (isCD) {
+            // C/D: используем original_ticket_number (1-40)
             query = query.contains('metadata', { ticket_category: 'C_D', original_ticket_number: ticketNumber });
         } else {
-            // A/B: ticket_number matches, and ticket_category != 'C_D'
+            // A/B: используем ticket_number (1-40) и исключаем C_D
+            // ВАЖНО: ticket_category может быть NULL для старых записей, поэтому проверяем:
+            // где ticket_category = NULL ИЛИ ticket_category != 'C_D'
             query = query
-                .not('metadata->>ticket_category', 'eq', 'C_D')
-                .filter('metadata->>ticket_number', 'eq', ticketNumber.toString());
+                .or(`metadata->>ticket_category.is.null,metadata->>ticket_category.neq.C_D`)
+                .eq('metadata->>ticket_number', ticketNumber.toString());
         }
 
         const { data: questions, error: questionsError } = await query;
@@ -224,7 +227,8 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         if (isCD) {
             query = query.contains('metadata', { ticket_category: 'C_D' });
         } else {
-            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+            // A/B: NULL OR != 'C_D'
+            query = query.or(`metadata->>ticket_category.is.null,metadata->>ticket_category.neq.C_D`);
         }
 
         // Получаем случайные вопросы России
@@ -280,7 +284,8 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         if (isCD) {
             query = query.contains('metadata', { ticket_category: 'C_D' });
         } else {
-            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+            // A/B: NULL OR != 'C_D'
+            query = query.or(`metadata->>ticket_category.is.null,metadata->>ticket_category.neq.C_D`);
         }
 
         // Получаем ВСЕ вопросы
@@ -390,7 +395,8 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         if (isCD) {
             query = query.contains('metadata', { ticket_category: 'C_D' });
         } else {
-            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+            // A/B: NULL OR != 'C_D'
+            query = query.or(`metadata->>ticket_category.is.null,metadata->>ticket_category.neq.C_D`);
         }
 
         if (count) {
@@ -447,7 +453,8 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         if (isCD) {
             query = query.contains('metadata', { ticket_category: 'C_D' });
         } else {
-            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+            // A/B: NULL OR != 'C_D'
+            query = query.or(`metadata->>ticket_category.is.null,metadata->>ticket_category.neq.C_D`);
         }
 
         // Получаем все темы из metadata
@@ -491,7 +498,8 @@ export class RussiaUnifiedStrategy implements PDDDataStrategy {
         if (isCD) {
             query = query.contains('metadata', { ticket_category: 'C_D' });
         } else {
-            query = query.not('metadata->>ticket_category', 'eq', 'C_D');
+            // A/B: NULL OR != 'C_D'
+            query = query.or(`metadata->>ticket_category.is.null,metadata->>ticket_category.neq.C_D`);
         }
 
         // Получаем ВСЕ вопросы России
