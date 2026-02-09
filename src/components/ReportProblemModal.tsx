@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -84,15 +83,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    if (!reportType) {
-      toast.error(language === "es" ? "Selecciona un tipo de problema" : "Выберите тип проблемы");
-      return;
-    }
-
-    if (!description.trim()) {
-      toast.error(language === "es" ? "Describe el problema" : "Опишите проблему");
-      return;
-    }
+    if (!reportType || !description.trim()) return;
 
     setIsSubmitting(true);
 
@@ -128,8 +119,13 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
       // Auto close after success animation
       setTimeout(() => {
         handleClose();
-        toast.success(language === "es" ? "¡Gracias! Reporte enviado." : "Спасибо! Отчет отправлен.");
-      }, 2500); // Slightly longer to show the animation
+        setTimeout(() => {
+          // Reset internal state after close animation
+          setIsSuccess(false);
+          setReportType(null);
+          setDescription("");
+        }, 500);
+      }, 2500);
 
     } catch (error: any) {
       console.error("Error submitting report:", error);
@@ -150,102 +146,85 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
       onOpenChange={onOpenChange}
       title={null}
       description={null}
-      hideCloseButton={true} // Hide default close button to avoid duplicates
-      className="sm:max-w-[600px] p-0 overflow-hidden border-none bg-transparent shadow-none"
-      contentClassName="p-0 overflow-hidden flex flex-col h-full sm:h-auto sm:max-h-[85vh] bg-zinc-950 border border-zinc-800 shadow-2xl rounded-[24px]"
+      hideCloseButton={true}
+      className="sm:max-w-[550px] p-0 overflow-hidden border-none bg-transparent shadow-none"
+      contentClassName="p-0 overflow-hidden flex flex-col h-auto max-h-[85vh] bg-zinc-950 border border-zinc-800 shadow-2xl rounded-[24px]"
     >
-      {/* Background Gradient Mesh - Subtle */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-blue-500/5 pointer-events-none" />
+      {/* Background Gradient Mesh - Very Subtle */}
+      <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-zinc-950 pointer-events-none" />
 
-      {/* Internal Layout Container */}
-      <div className="flex flex-col h-full w-full relative">
-
-        {/* Success Overlay - Full Cover */}
+      <div className="flex flex-col h-full w-full relative min-h-[350px]">
+        {/* Success Overlay */}
         <AnimatePresence>
           {isSuccess && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 bg-zinc-950 flex flex-col items-center justify-center text-center p-6"
+              className="absolute inset-0 z-50 bg-zinc-950 flex flex-col items-center justify-center text-center p-8"
             >
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-500/10 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-50" />
 
               <motion.div
-                initial={{ scale: 0, rotate: -45 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                className="w-24 h-24 rounded-full bg-gradient-to-tr from-orange-500 to-red-600 flex items-center justify-center mb-8 shadow-2xl shadow-orange-500/20"
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6 ring-1 ring-emerald-500/50 shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)]"
               >
-                <CheckCircle2 className="w-10 h-10 text-white stroke-[3]" />
+                <CheckCircle2 className="w-10 h-10 text-emerald-500" />
               </motion.div>
 
-              <motion.h3
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-3xl font-bold text-white mb-3"
-              >
-                {language === "es" ? "¡Reporte enviado!" : "Отчет отправлен!"}
-              </motion.h3>
-
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-zinc-400 max-w-[300px] leading-relaxed"
-              >
+              <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">
+                {language === "es" ? "¡Recibido!" : "Получено!"}
+              </h3>
+              <p className="text-zinc-400 max-w-[280px] text-sm leading-relaxed">
                 {language === "es"
-                  ? "Gracias por ayudarnos a ser mejores. Revisaremos tu reporte lo antes posible."
-                  : "Спасибо, что помогаете нам стать лучше. Мы рассмотрим ваш отчет как можно скорее."}
-              </motion.p>
+                  ? "Tu reporte nos ayuda a mejorar. Gracias."
+                  : "Ваш отчет помогает нам стать лучше. Спасибо."}
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Header */}
         <div className="relative px-6 pt-6 pb-2 shrink-0 z-10 flex items-start justify-between">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-orange-500" />
+          <div>
+            <h2 className="text-lg font-bold text-white flex items-center gap-2 tracking-tight">
               {language === "es" ? "Reportar problema" : "Сообщить о проблеме"}
             </h2>
-            <p className="text-sm text-zinc-400">
-              {language === "es" ? "Describe el error que encontraste" : "Опишите найденную ошибку"}
+            <p className="text-xs text-zinc-500 mt-1 font-medium">
+              {language === "es" ? "¿Qué sucede con esta pregunta?" : "Что не так с этим вопросом?"}
             </p>
           </div>
-
           {!isSubmitting && !isSuccess && (
             <button
               onClick={handleClose}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-900/50 text-zinc-500 hover:bg-zinc-800 hover:text-white transition-all active:scale-95 border border-transparent hover:border-zinc-700"
             >
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        {/* Content */}
-        <div className="relative px-6 py-6 overflow-y-auto custom-scrollbar flex-1 z-10 space-y-6">
+        {/* Scrollable Content */}
+        <div className="relative px-6 py-4 overflow-y-auto custom-scrollbar flex-1 z-10 space-y-6">
 
-          {/* Question Preview */}
+          {/* Context Widget (Optional but helpful) */}
           {questionText && (
-            <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
-              <p className="text-[10px] font-bold text-zinc-500 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-                <HelpCircle className="w-3 h-3" />
-                {language === "es" ? "Contexto" : "Контекст"}
-              </p>
-              <p className="text-sm text-zinc-300 font-medium leading-relaxed">
-                {questionText}
-              </p>
+            <div className="bg-zinc-900/30 rounded-xl p-3 border border-zinc-800/50">
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 pt-0.5">
+                  <HelpCircle className="w-3.5 h-3.5 text-zinc-600" />
+                </div>
+                <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2 italic font-medium">
+                  "{questionText}"
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Report Type Grid */}
+          {/* Step 1: Report Type Grid */}
           <div className="space-y-3">
-            <Label className="text-xs uppercase text-zinc-500 font-bold tracking-wider">
-              {language === "es" ? "Tipo de problema" : "Тип проблемы"}
-            </Label>
             <div className="grid grid-cols-5 gap-2">
               {reportTypes.map((type) => {
                 const Icon = type.icon;
@@ -255,18 +234,18 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
                     key={type.id}
                     onClick={() => setReportType(type.id)}
                     className={cn(
-                      "relative flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all duration-200 group aspect-square",
+                      "relative flex flex-col items-center justify-center gap-2 p-2 h-20 rounded-xl border transition-all duration-300 group",
                       isSelected
-                        ? "bg-white text-zinc-950 border-white shadow-lg scale-[1.02]"
-                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:border-zinc-700 hover:text-zinc-200"
+                        ? "bg-zinc-100 border-zinc-100 shadow-xl shadow-zinc-900/20 translate-y-[-2px]"
+                        : "bg-zinc-900/40 border-zinc-800/50 hover:bg-zinc-800/60 hover:border-zinc-700 hover:translate-y-[-1px]"
                     )}
                   >
-                    <Icon className={cn("w-5 h-5", isSelected ? "text-orange-500 stroke-[2.5]" : "text-current")} />
+                    <Icon className={cn("w-5 h-5 transition-colors", isSelected ? "text-zinc-900" : "text-zinc-500 group-hover:text-zinc-300")} />
                     <span className={cn(
-                      "text-[9px] font-bold leading-none text-center uppercase tracking-wide",
-                      isSelected ? "text-zinc-900" : "text-zinc-500 group-hover:text-zinc-400"
+                      "text-[9px] font-bold leading-none text-center uppercase tracking-wider transition-colors",
+                      isSelected ? "text-zinc-900" : "text-zinc-600 group-hover:text-zinc-400"
                     )}>
-                      {type.label[lang].substring(0, 9)}
+                      {type.label[lang].substring(0, 10)}
                     </span>
                   </button>
                 );
@@ -274,43 +253,73 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
             </div>
           </div>
 
-          {/* Description */}
-          <div className="space-y-3">
-            <Label className="text-xs uppercase text-zinc-500 font-bold tracking-wider">
-              {language === "es" ? "Descripción detallada" : "Подробное описание"} <span className="text-orange-500">*</span>
-            </Label>
-            <div className="relative group">
-              <Textarea
-                placeholder={language === "es" ? "Por favor explica el problema..." : "Пожалуйста, объясните проблему..."}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="min-h-[120px] resize-none bg-zinc-900 border-zinc-800 focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700 rounded-xl text-sm p-4 placeholder:text-zinc-600 text-zinc-200 transition-all"
-              />
-            </div>
-          </div>
-        </div>
+          {/* Step 2: Description (Animated) */}
+          <AnimatePresence>
+            {reportType && (
+              <motion.div
+                initial={{ opacity: 0, height: 0, y: 10 }}
+                animate={{ opacity: 1, height: "auto", y: 0 }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                className="overflow-hidden space-y-4 pt-1 pb-2"
+              >
+                <div className="relative group">
+                  <Textarea
+                    placeholder={language === "es" ? "Describe el error aquí..." : "Опишите ошибку здесь..."}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className={cn(
+                      "min-h-[120px] resize-none rounded-2xl text-sm p-4 pr-4 pb-8 transition-all duration-300 placeholder:text-zinc-600",
+                      "bg-zinc-900/50 border-zinc-700/50 focus:bg-zinc-900 focus:border-orange-500/30 focus:ring-1 focus:ring-orange-500/30 text-zinc-200"
+                    )}
+                  />
+                  {/* Modern Character Counter */}
+                  <div className="absolute bottom-3 right-3 flex items-center gap-2 pointer-events-none">
+                    <motion.div
+                      animate={{ scale: description.length >= 10 ? [1, 1.2, 1] : 1 }}
+                      className={cn(
+                        "h-1.5 w-1.5 rounded-full transition-colors duration-300",
+                        description.length >= 10 ? "bg-emerald-500" : "bg-zinc-700"
+                      )}
+                    />
+                    <span className={cn(
+                      "text-[10px] font-mono leading-none transition-colors duration-300",
+                      description.length >= 10 ? "text-zinc-400" : "text-zinc-600"
+                    )}>
+                      {description.length} / 10
+                    </span>
+                  </div>
+                </div>
 
-        {/* Fixed Footer */}
-        {!isSuccess && (
-          <div className="p-6 pt-2 border-t border-transparent bg-gradient-to-t from-zinc-950 to-transparent z-20">
-            <Button
-              onClick={() => handleSubmit()}
-              disabled={isSubmitting || !reportType || description.trim().length < 10}
-              className={cn(
-                "w-full h-14 rounded-xl text-base font-bold shadow-xl transition-all duration-300",
-                "bg-white text-black hover:bg-zinc-200 border-0",
-                (isSubmitting || !reportType || description.trim().length < 10) && "opacity-30 cursor-not-allowed bg-zinc-800 text-zinc-500"
-              )}
-            >
-              {isSubmitting ? (
-                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-              ) : (
-                <Send className="w-5 h-5 mr-2" />
-              )}
-              {language === "es" ? "Enviar reporte" : "Отправить"}
-            </Button>
-          </div>
-        )}
+                {/* Submit Button */}
+                <div className="">
+                  <Button
+                    onClick={(e) => handleSubmit(e)}
+                    disabled={isSubmitting || description.trim().length < 10}
+                    className={cn(
+                      "w-full h-12 rounded-xl text-sm font-bold tracking-wide shadow-lg transition-all duration-500",
+                      description.trim().length >= 10
+                        ? "bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white shadow-orange-900/20 translate-y-0 opacity-100"
+                        : "bg-zinc-800 text-zinc-600 border border-transparent shadow-none opacity-50 cursor-not-allowed"
+                    )}
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>{language === "es" ? "Enviando..." : "Отправка..."}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Send className={cn("w-4 h-4 transition-transform duration-300", description.trim().length >= 10 ? "translate-x-0" : "-translate-x-1 opacity-0")} />
+                        <span>{language === "es" ? "Enviar Reporte" : "Отправить"}</span>
+                      </div>
+                    )}
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </ResponsiveModal>
   );
