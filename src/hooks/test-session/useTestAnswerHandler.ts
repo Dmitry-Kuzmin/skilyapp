@@ -56,7 +56,6 @@ interface UseTestAnswerHandlerOptions {
     setShowChallengeBankNotification: (show: boolean) => void;
 
     // Timer
-    // Timer
     addPenalty: (minutes: number) => void;
     addTime?: (seconds: number) => void;
 
@@ -339,7 +338,6 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
     };
 }
 
-// Helper function to update Challenge Bank
 // Helper function to update Challenge Bank
 async function handleChallengeBankUpdate(
     questionId: string,

@@ -118,32 +118,44 @@ export const QuestionImage = memo(function QuestionImage({
     <>
       <div
         className={cn(
-          "relative rounded-xl overflow-hidden group/img ring-1 ring-white/5",
+          "relative rounded-xl overflow-hidden group/img ring-1 ring-white/5 select-none",
           className
         )}
-        onClick={() => setIsZoomed(true)}
+        style={{
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+        }}
       >
-        <div className="relative w-full cursor-zoom-in overflow-hidden">
+        <div className="relative w-full overflow-hidden">
           <img
             src={imageSrc}
             alt={alt}
-            className="w-full h-auto object-contain block transition-transform duration-500 group-hover/img:scale-[1.02]"
+            className="w-full h-auto object-contain block transition-transform duration-500 group-hover/img:scale-[1.02] select-none pointer-events-none"
             loading="lazy"
             decoding="async"
+            draggable={false}
             width={imageAspectRatio ? Math.round(800 * imageAspectRatio) : 800}
             height={imageAspectRatio ? 800 : Math.round(800 / (imageAspectRatio || 1.5))}
             style={{
               aspectRatio: imageAspectRatio ? `${imageAspectRatio}` : 'auto',
             }}
+            onContextMenu={(e) => e.preventDefault()}
           />
 
           {/* Dark Gradient Overlay at bottom to blend with text */}
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
 
-          {/* Overlay with Zoom Icon */}
-          <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/5 transition-colors flex items-center justify-center pointer-events-none">
-            <div className="bg-white/90 dark:bg-black/80 p-2 rounded-full opacity-0 group-hover/img:opacity-100 transform translate-y-4 group-hover/img:translate-y-0 transition-all duration-300">
-              <ZoomIn className="w-5 h-5 text-foreground" />
+          {/* Interactive Overlay for Protection & Zoom */}
+          <div
+            className="absolute inset-0 z-10 bg-transparent cursor-zoom-in"
+            onClick={() => setIsZoomed(true)}
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            {/* Zoom Icon with fade effect */}
+            <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/5 transition-colors flex items-center justify-center">
+              <div className="bg-white/90 dark:bg-black/80 p-2 rounded-full opacity-0 group-hover/img:opacity-100 transform translate-y-4 group-hover/img:translate-y-0 transition-all duration-300">
+                <ZoomIn className="w-5 h-5 text-foreground" />
+              </div>
             </div>
           </div>
         </div>

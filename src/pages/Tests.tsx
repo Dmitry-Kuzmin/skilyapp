@@ -1,12 +1,11 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-import {
-    Shuffle, Clock, Zap, Flame, History, AlertTriangle, AlertCircle,
-    Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
-    Star, AlertTriangle as AlertIcon, RotateCcw,
-    CarFront, MapPin, Gauge, Check, Trophy, Bookmark
-  } from "lucide-react";
+  Shuffle, Clock, Zap, Flame, History, AlertTriangle, AlertCircle,
+  Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
+  Star, AlertTriangle as AlertIcon, RotateCcw,
+  CarFront, MapPin, Gauge, Check, Trophy, Bookmark
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { useUserContext } from "@/contexts/UserContext";
