@@ -16,6 +16,7 @@ interface QuestionImageProps {
   compact?: boolean;
   className?: string;
   alt?: string;
+  protectContent?: boolean;
 }
 
 export const QuestionImage = memo(function QuestionImage({
@@ -24,6 +25,7 @@ export const QuestionImage = memo(function QuestionImage({
   compact = false,
   className,
   alt = "Вопрос",
+  protectContent = true,
 }: QuestionImageProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -118,15 +120,17 @@ export const QuestionImage = memo(function QuestionImage({
     <>
       <div
         className={cn(
-          "relative rounded-xl overflow-hidden group/img ring-1 ring-white/5 select-none",
+          "relative rounded-xl overflow-hidden group/img ring-1 ring-white/5 select-none no-callout",
           className
         )}
         style={{
           WebkitUserSelect: 'none',
           WebkitTouchCallout: 'none',
         }}
+        onContextMenu={(e) => e.preventDefault()}
       >
         <div className="relative w-full overflow-hidden">
+          {/* Protected Image Layer */}
           <img
             src={imageSrc}
             alt={alt}
@@ -139,21 +143,43 @@ export const QuestionImage = memo(function QuestionImage({
             style={{
               aspectRatio: imageAspectRatio ? `${imageAspectRatio}` : 'auto',
             }}
-            onContextMenu={(e) => e.preventDefault()}
           />
 
-          {/* Dark Gradient Overlay at bottom to blend with text */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+          {/* Watermark Overlay (Subtle Pattern) */}
+          {protectContent && (
+            <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] z-[5]"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='white' text-anchor='middle' transform='rotate(-45 50 50)'%3ESkily%3C/text%3E%3C/svg%3E")`,
+                backgroundRepeat: 'repeat'
+              }}
+            />
+          )}
 
-          {/* Interactive Overlay for Protection & Zoom */}
+          {/* Bottom Gradient Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none z-[6]" />
+
+          {/* Branding Badge (Corner) */}
+          {protectContent && (
+            <div className="absolute bottom-3 right-3 z-[7] opacity-80 pointer-events-none">
+              <div className="px-2 py-1 bg-black/40 backdrop-blur-md rounded-md border border-white/10 flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                <span className="text-[9px] font-bold text-white/90">Skily</span>
+              </div>
+            </div>
+          )}
+
+          {/* Invisible Interactive Shield (Level 2 Protection) */}
           <div
             className="absolute inset-0 z-10 bg-transparent cursor-zoom-in"
             onClick={() => setIsZoomed(true)}
-            onContextMenu={(e) => e.preventDefault()}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              return false;
+            }}
           >
-            {/* Zoom Icon with fade effect */}
+            {/* Zoom Indicator */}
             <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/5 transition-colors flex items-center justify-center">
-              <div className="bg-white/90 dark:bg-black/80 p-2 rounded-full opacity-0 group-hover/img:opacity-100 transform translate-y-4 group-hover/img:translate-y-0 transition-all duration-300">
+              <div className="bg-white/90 dark:bg-black/80 p-2 rounded-full opacity-0 group-hover/img:opacity-100 transform translate-y-4 group-hover/img:translate-y-0 transition-all duration-300 shadow-lg">
                 <ZoomIn className="w-5 h-5 text-foreground" />
               </div>
             </div>
