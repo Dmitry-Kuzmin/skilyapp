@@ -48,7 +48,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  
+
   const { language } = useLanguage();
   const { profileId } = useUserContext();
   const lang = language === "es" ? "es" : "ru";
@@ -60,8 +60,8 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     if (!description.trim()) {
       toast({
         title: language === "es" ? "Error" : "Ошибка",
-        description: language === "es" 
-          ? "Por favor, describe el problema" 
+        description: language === "es"
+          ? "Por favor, describe el problema"
           : "Пожалуйста, опишите проблему",
         variant: "destructive"
       });
@@ -82,8 +82,8 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
       // Используем profileId из UserContext (работает и для Telegram, и для веба)
       if (!profileId) {
         console.error('[ReportProblemModal] No profileId available');
-        throw new Error(language === "es" 
-          ? "Debes iniciar sesión para enviar un reporte" 
+        throw new Error(language === "es"
+          ? "Debes iniciar sesión para enviar un reporte"
           : "Необходима авторизация для отправки отчета");
       }
 
@@ -112,14 +112,14 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
           reportType,
           isTelegramApp
         });
-        
+
         // More user-friendly error message
         if (reportError.message?.includes('row-level security policy')) {
-          throw new Error(language === "es" 
+          throw new Error(language === "es"
             ? "Error de seguridad: No se pudo crear el reporte. Por favor, intenta de nuevo o contacta al soporte."
             : "Ошибка безопасности: Не удалось создать отчет. Пожалуйста, попробуйте снова или обратитесь в поддержку.");
         }
-        
+
         throw reportError;
       }
 
@@ -199,7 +199,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
         </div>
       }
     >
-      <div className="space-y-4">
+      <div className="space-y-4 pb-6 px-1">
         {isSuccess ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <div className="mb-4 rounded-full bg-emerald-100 p-4 dark:bg-emerald-900/20">

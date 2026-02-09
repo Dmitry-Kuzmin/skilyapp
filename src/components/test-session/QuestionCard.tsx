@@ -7,7 +7,7 @@ import { QuestionImage } from "@/components/test/QuestionImage";
 import { QuestionText } from "@/components/test/QuestionText";
 import { SubmitButton } from "@/components/test/SubmitButton";
 import { LumiCharacter } from "@/components/lumi/LumiCharacter";
-import { ChevronRight, Keyboard, CornerDownLeft, Sparkles, Wand2, Lightbulb } from "lucide-react";
+import { ChevronRight, Keyboard, CornerDownLeft, Sparkles, Wand2, Lightbulb, Flag } from "lucide-react";
 import { getImageUrl } from "@/utils/imageUtils";
 import { useState, useEffect } from "react";
 
@@ -49,6 +49,7 @@ interface QuestionCardProps {
     handleOpenAIChat: () => void;
     nextQuestion: () => void;
     isEnterPressed: boolean;
+    onReportProblem?: () => void;
 }
 
 export const QuestionCard = ({
@@ -71,6 +72,7 @@ export const QuestionCard = ({
     handleOpenAIChat,
     nextQuestion,
     isEnterPressed,
+    onReportProblem,
 }: QuestionCardProps) => {
     const [showHintPulse, setShowHintPulse] = useState(false);
 
@@ -177,6 +179,16 @@ export const QuestionCard = ({
                                             </div>
                                         )}
                                     </div>
+                                )}
+
+                                {onReportProblem && (
+                                    <button
+                                        onClick={onReportProblem}
+                                        className="h-12 w-12 rounded-2xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-zinc-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:border-orange-200 dark:hover:border-orange-500/30 transition-all active:scale-95 shrink-0"
+                                        title={testLanguage === 'ru' ? "Сообщить о проблеме" : "Reportar problema"}
+                                    >
+                                        <Flag className="w-5 h-5" />
+                                    </button>
                                 )}
 
                                 {isPracticeLikeMode && selectedOption ? (
@@ -299,7 +311,17 @@ export const QuestionCard = ({
                                                 </div>
                                             )}
                                         </div>
+                                    
+                                    {onReportProblem && (
+                                        <button
+                                            onClick={onReportProblem}
+                                            className="h-12 w-12 rounded-2xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-zinc-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:border-orange-200 dark:hover:border-orange-500/30 transition-all active:scale-95 shrink-0"
+                                            title={testLanguage === 'ru' ? "Сообщить о проблеме" : "Reportar problema"}
+                                        >
+                                            <Flag className="w-5 h-5" />
+                                        </button>
                                     )}
+
                                     {isPracticeLikeMode && selectedOption ? (
                                         <TooltipProvider>
                                             <Tooltip>
@@ -390,6 +412,16 @@ export const QuestionCard = ({
                                     <LumiCharacter size="sm" mood="happy" animate={true} />
                                 </div>
                                 <span className="font-bold text-indigo-600 dark:text-indigo-300 text-sm leading-none">AI</span>
+                            </button>
+                        )}
+
+                        {onReportProblem && (
+                            <button
+                                onClick={onReportProblem}
+                                className="h-12 w-12 rounded-2xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-zinc-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:border-orange-200 dark:hover:border-orange-500/30 transition-all active:scale-95 shrink-0"
+                                title={testLanguage === 'ru' ? "Сообщить о проблеме" : "Reportar problema"}
+                            >
+                                <Flag className="w-5 h-5" />
                             </button>
                         )}
 
