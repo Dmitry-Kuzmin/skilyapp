@@ -101,7 +101,7 @@ function generateAudio(text: string, voice: string, lang: string): Promise<Uint8
         const requestId = uuidv4().replace(/-/g, '');
         const secMsGec = await generateSecMsGecToken();
 
-        const url = `${WSS_URL}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-130.0.2849.68&ConnectionId=${requestId}`;
+        const url = `${WSS_URL}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-144.0.3719.115&ConnectionId=${requestId}`;
 
         const ws = new WebSocket(url);
         const chunks: Uint8Array[] = [];
@@ -130,20 +130,14 @@ function generateAudio(text: string, voice: string, lang: string): Promise<Uint8
             ws.send(`X-RequestId:${requestId}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${new Date().toString()}\r\nPath:ssml\r\n\r\n${ssml}`);
         };
 
-        ws.onmessage = (event) => {
+        ws.onmessage = async (event) => {
             const data = event.data;
-            if (data instanceof ArrayBuffer || data instanceof Blob) {
-                // Handle binary data
-                // Deno WebSocket might return Blob or ArrayBuffer depending on config, but standard is Blob? 
-                // Actually in Deno standard WebSocket, binaryType defaults to "blob". 
-                // But we can set it to "arraybuffer".
-                // Let's handle both or explicitly set binaryType.
-                // Wait, `WebSocket` in Deno Deploy typically returns Blob.
-
-                // Let's assume Blob and convert.
-                // Wait, Deno's WebSocket implementation aligns with web.
-                // We need to read it.
-                handleBinary(data);
+            if (data instanceof Blob) {
+                const buffer = new Uint8Array(await data.arrayBuffer());
+                handleBinary(buffer);
+            } else if (data instanceof ArrayBuffer) {
+                const buffer = new Uint8Array(data);
+                handleBinary(buffer);
             } else if (typeof data === 'string') {
                 if (data.includes('Path:turn.end')) {
                     ws.close();
@@ -152,14 +146,7 @@ function generateAudio(text: string, voice: string, lang: string): Promise<Uint8
         };
 
         // Helper to process binary data
-        const handleBinary = async (data: any) => {
-            let buffer: Uint8Array;
-            if (data instanceof Blob) {
-                buffer = new Uint8Array(await data.arrayBuffer());
-            } else {
-                buffer = new Uint8Array(data);
-            }
-
+        const handleBinary = (buffer: Uint8Array) => {
             // Search for Path:audio\r\n
             // "Path:audio\r\n" in bytes: 50 61 74 68 3a 61 75 64 69 6f 0d 0a
             const separator = new TextEncoder().encode("Path:audio\r\n");
@@ -189,7 +176,7 @@ function generateAudio(text: string, voice: string, lang: string): Promise<Uint8
             }
         };
 
-        ws.onclose = () => {
+        ws.onclose = (event) => {
             clearTimeout(timeout);
             if (chunks.length > 0) {
                 // Concat all chunks
@@ -202,7 +189,8 @@ function generateAudio(text: string, voice: string, lang: string): Promise<Uint8
                 }
                 resolve(result);
             } else {
-                reject(new Error('No audio received'));
+                console.error('[TTS] WebSocket closed without audio chunks. Code:', event.code, 'Reason:', event.reason);
+                reject(new Error(`No audio received (Code: ${event.code})`));
             }
         };
 
