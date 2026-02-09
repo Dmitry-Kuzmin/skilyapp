@@ -60,6 +60,9 @@ interface TestSessionHeaderProps {
     // Mastery
     masteryRound: number;
 
+    // Report
+    onReportProblem?: () => void;
+
     // Handlers
     handleClose: () => void;
 }
@@ -104,6 +107,7 @@ export const TestSessionHeader = ({
     toggleTranslation,
     showTranslation,
     masteryRound,
+    onReportProblem,
     handleClose,
 }: TestSessionHeaderProps) => {
     return (
@@ -159,6 +163,7 @@ export const TestSessionHeader = ({
                     onOpenSettings={() => setShowTestSettings(true)}
                     onToggleTranslation={toggleTranslation}
                     showTranslation={showTranslation}
+                    onReportProblem={onReportProblem}
                     customLeftContent={
                         <>
                             {/* Timer */}

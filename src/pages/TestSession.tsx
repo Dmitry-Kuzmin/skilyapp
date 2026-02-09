@@ -1143,6 +1143,7 @@ const TestSession = () => {
           showTranslation={showTranslation}
           masteryRound={masteryRound}
           handleClose={handleClose}
+          onReportProblem={() => setShowReportModal(true)}
         />
 
 

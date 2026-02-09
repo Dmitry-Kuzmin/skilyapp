@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles } from 'lucide-react';
+import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { usePDDContext } from '@/contexts/PDDContext';
@@ -41,6 +41,7 @@ interface QuestionProgressBarProps {
   showTranslation?: boolean;
   onToggleSmartVocabulary?: () => void;
   smartVocabularyEnabled?: boolean;
+  onReportProblem?: () => void;
 }
 
 export function QuestionProgressBar({
@@ -65,6 +66,7 @@ export function QuestionProgressBar({
   showTranslation = false,
   onToggleSmartVocabulary,
   smartVocabularyEnabled = false,
+  onReportProblem,
 }: QuestionProgressBarProps) {
   const { t } = useLanguage();
   const { selectedCountry } = usePDDContext();
@@ -207,6 +209,21 @@ export function QuestionProgressBar({
             ) : (
               <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
             )}
+          </button>
+        )}
+
+
+        {/* Report Button - Minimalist Style */}
+        {onReportProblem && (
+          <button
+            onClick={onReportProblem}
+            className={cn(
+              "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl transition-all active:scale-95 backdrop-blur-sm border-2",
+              "bg-background border-border/50 hover:bg-muted/50 shadow-sm dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)] group"
+            )}
+            title="Reportar problema / Сообщить о проблеме"
+          >
+            <Flag className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground group-hover:text-orange-500 transition-colors" />
           </button>
         )}
 

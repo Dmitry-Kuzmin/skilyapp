@@ -184,62 +184,67 @@ export function normalizeTestsCompleted(tests: number): number {
  * (accuracy * 0.6) + (topic_completion * 0.2) + (test_success_rate * 0.1) + (volume_score * 0.1)
  */
 export function calculateReadiness(metrics: ReadinessMetrics): ReadinessResult {
-  const normalizedTests = normalizeTestsCompleted(metrics.testsCompleted);
-
-  // Используем новую формулу, если доступны данные о завершении тем
-  const hasNewMetrics = 'testSuccessRate' in metrics;
-
-  let readinessPercent: number;
-
-  if (hasNewMetrics) {
-    // Новая формула: делаем упор на точность (60%)
-    const testSuccessRate = (metrics as any).testSuccessRate || 0;
-    readinessPercent = (
-      metrics.accuracy * 0.6 +
-      metrics.topicsCovered * 0.2 +
-      testSuccessRate * 0.1 +
-      normalizedTests * 0.1
-    ) * 100;
-  } else {
-    // Старая формула (fallback)
-    // Увеличиваем вес точности до 50%
-    readinessPercent = (
-      metrics.accuracy * 0.5 +
-      normalizedTests * 0.15 +
-      metrics.topicsCovered * 0.2 +
-      metrics.recentPerformance * 0.1 +
-      metrics.activityScore * 0.05
-    ) * 100;
+  // 1. ABSOLUTE ZERO CHECK: No tests = 0% readiness.
+  if (metrics.testsCompleted === 0) {
+    return createReadinessResult(0, metrics);
   }
 
-  // HARD CAPS (Жесткие ограничения)
-  // Нельзя быть готовым на 100% без достаточного объема тестов
+  // 2. BASE PERFORMANCE (Accuracy is king)
+  const accuracyScore = Math.max(0, metrics.accuracy);
+  // Topic coverage helps, but accuracy matters most (80/20 split)
+  const basePerformance = (accuracyScore * 0.8) + (metrics.topicsCovered * 0.2);
 
-  // 1. Если пройдено мало тестов (< 10), макс 40%
-  if (metrics.testsCompleted < 10) {
+  // 3. CONFIDENCE FACTOR (Test Volume)
+  // How much do we trust this result?
+  let confidenceFactor = 0;
+
+  if (metrics.testsCompleted < 3) {
+    // 1-2 tests: Very low confidence. Random chance?
+    // Max 15% confidence. Even 100% accuracy -> 15% readiness.
+    confidenceFactor = 0.15;
+  } else if (metrics.testsCompleted < 10) {
+    // 3-9 tests: Growing confidence.
+    // 0.3 at 3 tests -> 0.6 at 9 tests.
+    const progress = (metrics.testsCompleted - 3) / 7;
+    confidenceFactor = 0.3 + (progress * 0.3);
+  } else if (metrics.testsCompleted < 30) {
+    // 10-29 tests: High confidence.
+    // 0.7 at 10 tests -> 1.0 at 30 tests.
+    const progress = (metrics.testsCompleted - 10) / 20;
+    confidenceFactor = 0.7 + (progress * 0.3);
+  } else {
+    // 30+ tests: Full confidence.
+    confidenceFactor = 1.0;
+  }
+
+  // 4. FINAL CALCULATION
+  let readinessPercent = basePerformance * confidenceFactor * 100;
+
+  // 5. ACTIVITY BONUS (Only for active users with significant history)
+  if (metrics.testsCompleted >= 10 && metrics.activityScore > 0.5) {
+    readinessPercent += 5; // +5% boost for consistency
+  }
+
+  // 6. LOGICAL CAPS
+  // If accuracy is poor (< 60%), readiness cannot exceed 40% regardless of volume.
+  if (metrics.accuracy < 0.6) {
     readinessPercent = Math.min(readinessPercent, 40);
   }
-  // 2. Если пройдено < 30 тестов, макс 80%
-  else if (metrics.testsCompleted < 30) {
-    readinessPercent = Math.min(readinessPercent, 80);
-  }
-
-  // 3. Если точность ниже 90%, нельзя получить > 85% ("Готов")
-  if (metrics.accuracy < 0.9) {
-    readinessPercent = Math.min(readinessPercent, 85);
-  }
-
-  // 4. Если точность ниже 80%, нельзя получить > 60%
+  // If accuracy is mediocre (< 80%), readiness cannot exceed 75% ("Almost Ready").
   if (metrics.accuracy < 0.8) {
-    readinessPercent = Math.min(readinessPercent, 60);
+    readinessPercent = Math.min(readinessPercent, 75);
   }
 
-  const roundedPercent = Math.round(readinessPercent);
-  const status = getReadinessStatus(roundedPercent);
+  return createReadinessResult(readinessPercent, metrics);
+}
+
+function createReadinessResult(percentRaw: number, metrics: ReadinessMetrics): ReadinessResult {
+  const percent = Math.min(100, Math.max(0, Math.round(percentRaw)));
+  const status = getReadinessStatus(percent);
   const recommendations = generateRecommendations(metrics);
 
   return {
-    percent: roundedPercent,
+    percent,
     status: status.status,
     statusText: status.statusText,
     shortText: status.shortText,
