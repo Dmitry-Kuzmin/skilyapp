@@ -199,7 +199,7 @@ export const useTestAudio = (
                         const response = await fetch(url.toString(), {
                             headers: {
                                 'Authorization': `Bearer ${anonKey}`,
-                                // 'apikey': anonKey // Usually Supabase Gateway requires Authorization
+                                'apikey': anonKey
                             },
                             signal: abortControllerRef.current.signal
                         });

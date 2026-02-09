@@ -311,7 +311,8 @@ export const QuestionCard = ({
                                                 </div>
                                             )}
                                         </div>
-                                    
+                                    )}
+
                                     {onReportProblem && (
                                         <button
                                             onClick={onReportProblem}
