@@ -83,7 +83,8 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    if (!reportType || !description.trim()) return;
+    if (!reportType) return;
+    if (reportType === 'other' && !description.trim()) return;
 
     setIsSubmitting(true);
 
@@ -125,7 +126,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
           setReportType(null);
           setDescription("");
         }, 500);
-      }, 2500);
+      }, 2000);
 
     } catch (error: any) {
       console.error("Error submitting report:", error);
@@ -265,40 +266,46 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
               >
                 <div className="relative group">
                   <Textarea
-                    placeholder={language === "es" ? "Describe el error aquí..." : "Опишите ошибку здесь..."}
+                    placeholder={
+                      reportType === 'other'
+                        ? (language === "es" ? "Por favor describe el problema..." : "Пожалуйста, опишите проблему...")
+                        : (language === "es" ? "Añadir detalles (opcional)..." : "Добавить детали (необязательно)...")
+                    }
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className={cn(
-                      "min-h-[120px] resize-none rounded-2xl text-sm p-4 pr-4 pb-8 transition-all duration-300 placeholder:text-zinc-600",
+                      "min-h-[100px] resize-none rounded-2xl text-sm p-4 pr-4 pb-8 transition-all duration-300 placeholder:text-zinc-600",
                       "bg-zinc-900/50 border-zinc-700/50 focus:bg-zinc-900 focus:border-orange-500/30 focus:ring-1 focus:ring-orange-500/30 text-zinc-200"
                     )}
                   />
-                  {/* Modern Character Counter */}
-                  <div className="absolute bottom-3 right-3 flex items-center gap-2 pointer-events-none">
-                    <motion.div
-                      animate={{ scale: description.length >= 10 ? [1, 1.2, 1] : 1 }}
-                      className={cn(
-                        "h-1.5 w-1.5 rounded-full transition-colors duration-300",
-                        description.length >= 10 ? "bg-emerald-500" : "bg-zinc-700"
-                      )}
-                    />
-                    <span className={cn(
-                      "text-[10px] font-mono leading-none transition-colors duration-300",
-                      description.length >= 10 ? "text-zinc-400" : "text-zinc-600"
-                    )}>
-                      {description.length} / 10
-                    </span>
-                  </div>
+                  {/* Modern Character Counter - Only show count if user is typing or if required */}
+                  {(reportType === 'other' || description.length > 0) && (
+                    <div className="absolute bottom-3 right-3 flex items-center gap-2 pointer-events-none">
+                      <motion.div
+                        animate={{
+                          scale: (reportType !== 'other' || description.length >= 5) ? [1, 1.2, 1] : 1,
+                          backgroundColor: (reportType !== 'other' || description.length >= 5) ? "#10b981" : "#3f3f46"
+                        }}
+                        className="h-1.5 w-1.5 rounded-full transition-colors duration-300"
+                      />
+                      <span className={cn(
+                        "text-[10px] font-mono leading-none transition-colors duration-300",
+                        (reportType !== 'other' || description.length >= 5) ? "text-zinc-400" : "text-zinc-600"
+                      )}>
+                        {description.length} {reportType === 'other' ? '/ 5' : ''}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Submit Button */}
                 <div className="">
                   <Button
                     onClick={(e) => handleSubmit(e)}
-                    disabled={isSubmitting || description.trim().length < 10}
+                    disabled={isSubmitting || (reportType === 'other' && description.trim().length < 5)}
                     className={cn(
                       "w-full h-12 rounded-xl text-sm font-bold tracking-wide shadow-lg transition-all duration-500",
-                      description.trim().length >= 10
+                      (reportType !== 'other' || description.trim().length >= 5)
                         ? "bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white shadow-orange-900/20 translate-y-0 opacity-100"
                         : "bg-zinc-800 text-zinc-600 border border-transparent shadow-none opacity-50 cursor-not-allowed"
                     )}
@@ -310,7 +317,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
-                        <Send className={cn("w-4 h-4 transition-transform duration-300", description.trim().length >= 10 ? "translate-x-0" : "-translate-x-1 opacity-0")} />
+                        <Send className={cn("w-4 h-4 transition-transform duration-300", (reportType !== 'other' || description.trim().length >= 5) ? "translate-x-0" : "-translate-x-1 opacity-0")} />
                         <span>{language === "es" ? "Enviar Reporte" : "Отправить"}</span>
                       </div>
                     )}
