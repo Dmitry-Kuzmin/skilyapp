@@ -384,7 +384,7 @@ const Tests = () => {
         color: "secondary",
         premium: false,
         difficulty: "Личная",
-        route: `/test/favorites${selectedCountry === 'russia' ? '?country=russia' : ''}&category=${selectedCategory}`,
+        route: `/tests/favorites${selectedCountry === 'russia' ? '?country=russia' : ''}&category=${selectedCategory}`,
         gradient: "from-violet-600 to-purple-600",
       },
       {

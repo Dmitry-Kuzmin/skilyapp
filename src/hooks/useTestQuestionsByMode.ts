@@ -283,18 +283,12 @@ export function useFavoritesQuestions(
 
       const dbCountry = country === 'russia' ? 'ru' : country === 'spain' ? 'es' : country;
 
-      // 1. Получаем ID вопросов из избранного с фильтром по стране
-      let query = supabase
+      // 1. Получаем ID вопросов из избранного (без join для надежности)
+      const { data: favoriteRelations, error: relError } = await supabase
         .from("user_challenge_questions")
-        .select("question_id, questions_new!inner(country)")
+        .select("question_id")
         .eq("user_id", profileId)
-        .eq("is_favorite", true);
-
-      if (dbCountry) {
-        query = query.eq("questions_new.country", dbCountry);
-      }
-
-      const { data: favoriteRelations, error: relError } = await query
+        .eq("is_favorite", true)
         .order("created_at", { ascending: false })
         .limit(limit);
 
@@ -303,8 +297,8 @@ export function useFavoritesQuestions(
 
       const questionIds = favoriteRelations.map(r => r.question_id);
 
-      // 2. Загружаем полные данные вопросов
-      const { data: questionsData, error: qError } = await supabase
+      // 2. Загружаем полные данные вопросов с фильтром по стране
+      let query = supabase
         .from("questions_new")
         .select(`
           *,
@@ -312,6 +306,12 @@ export function useFavoritesQuestions(
           answer_options (*)
         `)
         .in("id", questionIds);
+
+      if (dbCountry) {
+        query = query.eq("country", dbCountry);
+      }
+
+      const { data: questionsData, error: qError } = await query;
 
       if (qError) throw qError;
       if (!questionsData || questionsData.length === 0) return [];

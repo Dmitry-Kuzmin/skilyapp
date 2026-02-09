@@ -42,49 +42,87 @@ const Favorites = () => {
         try {
             setLoading(true);
 
-            let query = supabase
+            // 1. Get ALL favorites for this user (no complex joins to avoid 400 errors)
+            console.log('[Favorites] Loading bookmarks for profile:', profileId);
+            const { data: relations, error: relError } = await supabase
                 .from('user_challenge_questions')
-                .select(`
-          created_at,
-          updated_at,
-          question_id,
-          questions_new!inner(
-            id, 
-            question_ru, 
-            question_es, 
-            question_en, 
-            image_url, 
-            metadata,
-            topics(title_ru, title_es)
-          )
-        `)
+                .select('question_id, created_at, updated_at')
                 .eq('user_id', profileId)
                 .eq('is_favorite', true)
-                .eq('questions_new.country', dbCountry);
+                .order('created_at', { ascending: false });
 
-            if (selectedCategory && selectedCountry === 'russia') {
-                query = query.filter('questions_new.metadata->>ticket_category', 'ilike', `%${selectedCategory}%`);
+            if (relError) {
+                console.error('[Favorites] Relation error:', relError);
+                throw relError;
             }
 
-            const { data, error } = await query;
+            if (!relations || relations.length === 0) {
+                console.log('[Favorites] No relations found');
+                setQuestions([]);
+                return;
+            }
 
-            if (error) throw error;
+            const questionIds = relations.map(r => r.question_id);
+            const relationMap = new Map(relations.map(r => [r.question_id, r]));
 
-            const mappedQuestions: FavoriteQuestion[] = (data || []).map(q => ({
-                id: q.questions_new.id,
-                question_ru: q.questions_new.question_ru,
-                question_es: q.questions_new.question_es,
-                question_en: q.questions_new.question_en,
-                image_url: q.questions_new.image_url,
-                added_at: q.updated_at || q.created_at,
-                topic_title_ru: q.questions_new.topics?.title_ru || null,
-                topic_title_es: q.questions_new.topics?.title_es || null,
-            }));
+            // 2. Load full question details with filters
+            console.log('[Favorites] Loading details for', questionIds.length, 'questions with country:', dbCountry);
+            let questionsQuery = supabase
+                .from('questions_new')
+                .select(`
+                    id, 
+                    question_ru, 
+                    question_es, 
+                    question_en, 
+                    image_url, 
+                    metadata,
+                    country,
+                    topics(title_ru, title_es)
+                `)
+                .in('id', questionIds);
 
-            // Sort by newest
-            setQuestions(mappedQuestions.sort((a, b) =>
-                new Date(b.added_at).getTime() - new Date(a.added_at).getTime()
-            ));
+            // Apply country and category filters on the questions_new table directly
+            if (dbCountry) {
+                questionsQuery = questionsQuery.eq('country', dbCountry);
+            }
+
+            if (selectedCategory && selectedCountry === 'russia') {
+                questionsQuery = questionsQuery.ilike('metadata->>ticket_category', `%${selectedCategory}%`);
+            }
+
+            const { data: questionsData, error: qError } = await questionsQuery;
+
+            if (qError) {
+                console.error('[Favorites] Details error:', qError);
+                throw qError;
+            }
+
+            if (!questionsData || questionsData.length === 0) {
+                console.log('[Favorites] No filtered questions found');
+                setQuestions([]);
+                return;
+            }
+
+            // 3. Map and Merge
+            const mappedQuestions: FavoriteQuestion[] = questionsData.map((q: any) => {
+                const relation = relationMap.get(q.id);
+                return {
+                    id: q.id,
+                    question_ru: q.question_ru,
+                    question_es: q.question_es,
+                    question_en: q.question_en,
+                    image_url: q.image_url,
+                    added_at: relation ? (relation.updated_at || relation.created_at) : new Date().toISOString(),
+                    topic_title_ru: q.topics?.title_ru || null,
+                    topic_title_es: q.topics?.title_es || null,
+                };
+            });
+
+            // Re-sort by added_at
+            mappedQuestions.sort((a, b) => new Date(b.added_at).getTime() - new Date(a.added_at).getTime());
+
+            console.log('[Favorites] Mapped', mappedQuestions.length, 'questions');
+            setQuestions(mappedQuestions);
 
         } catch (error) {
             console.error('Error loading Favorites:', error);
