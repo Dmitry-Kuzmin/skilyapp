@@ -144,7 +144,7 @@ export const QuestionCard = ({
                             {/* Navigation */}
                             <div className="flex gap-3 items-center mt-6">
                                 {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
-                                    <div className="relative">
+                                    <div className="relative xl:hidden">
                                         <button
                                             onClick={handleOpenAIChat}
                                             className={cn(
@@ -276,7 +276,7 @@ export const QuestionCard = ({
                             <div className="sticky bottom-0 left-0 right-0 z-50 pt-6 pb-4 bg-gradient-to-t from-white via-white/80 dark:from-slate-900/60 dark:via-slate-900/20 to-transparent sm:relative sm:bg-none sm:bg-transparent sm:from-transparent sm:via-transparent sm:to-transparent sm:dark:from-transparent sm:pt-0 sm:mt-8 sm:z-10 sm:backdrop-blur-0">
                                 <div className="flex gap-3 items-center">
                                     {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
-                                        <div className="relative">
+                                        <div className="relative xl:hidden">
                                             <button
                                                 onClick={handleOpenAIChat}
                                                 className={cn(
