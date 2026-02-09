@@ -129,12 +129,11 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
       setTimeout(() => {
         handleClose();
         toast.success(language === "es" ? "¡Gracias! Reporte enviado." : "Спасибо! Отчет отправлен.");
-      }, 2000);
+      }, 2500); // Slightly longer to show the animation
 
     } catch (error: any) {
       console.error("Error submitting report:", error);
       toast.error(language === "es" ? "Error al enviar el reporte" : "Ошибка при отправке отчета");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -149,162 +148,158 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
     <ResponsiveModal
       open={open}
       onOpenChange={onOpenChange}
-      title={null} // We use custom header
+      title={null}
       description={null}
-      className="max-w-md p-0 overflow-hidden border-none bg-transparent shadow-none"
-      contentClassName="p-0 overflow-hidden flex flex-col h-full"
+      hideCloseButton={true} // Hide default close button to avoid duplicates
+      className="sm:max-w-[600px] p-0 overflow-hidden border-none bg-transparent shadow-none"
+      contentClassName="p-0 overflow-hidden flex flex-col h-full sm:h-auto sm:max-h-[85vh] bg-zinc-950 border border-zinc-800 shadow-2xl rounded-[24px]"
     >
-      {/* Background Gradient Mesh */}
+      {/* Background Gradient Mesh - Subtle */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-blue-500/5 pointer-events-none" />
 
       {/* Internal Layout Container */}
-      <div className="flex flex-col h-full w-full">
+      <div className="flex flex-col h-full w-full relative">
+
+        {/* Success Overlay - Full Cover */}
+        <AnimatePresence>
+          {isSuccess && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-50 bg-zinc-950 flex flex-col items-center justify-center text-center p-6"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-500/10 via-transparent to-transparent" />
+
+              <motion.div
+                initial={{ scale: 0, rotate: -45 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
+                className="w-24 h-24 rounded-full bg-gradient-to-tr from-orange-500 to-red-600 flex items-center justify-center mb-8 shadow-2xl shadow-orange-500/20"
+              >
+                <CheckCircle2 className="w-10 h-10 text-white stroke-[3]" />
+              </motion.div>
+
+              <motion.h3
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-3xl font-bold text-white mb-3"
+              >
+                {language === "es" ? "¡Reporte enviado!" : "Отчет отправлен!"}
+              </motion.h3>
+
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-zinc-400 max-w-[300px] leading-relaxed"
+              >
+                {language === "es"
+                  ? "Gracias por ayudarnos a ser mejores. Revisaremos tu reporte lo antes posible."
+                  : "Спасибо, что помогаете нам стать лучше. Мы рассмотрим ваш отчет как можно скорее."}
+              </motion.p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Header */}
         <div className="relative px-6 pt-6 pb-2 shrink-0 z-10 flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="p-1.5 rounded-lg bg-orange-500/10 text-orange-500">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-              <h2 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                {language === "es" ? "Reportar problema" : "Сообщить о проблеме"}
-              </h2>
-            </div>
-            <p className="text-xs text-muted-foreground ml-1">
-              {language === "es" ? "Ayúdanos a mejorar la calidad" : "Помогите нам улучшить качество"}
+          <div className="flex flex-col gap-1">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-orange-500" />
+              {language === "es" ? "Reportar problema" : "Сообщить о проблеме"}
+            </h2>
+            <p className="text-sm text-zinc-400">
+              {language === "es" ? "Describe el error que encontraste" : "Опишите найденную ошибку"}
             </p>
           </div>
 
           {!isSubmitting && !isSuccess && (
             <button
               onClick={handleClose}
-              className="p-2 rounded-full hover:bg-muted/50 transition-colors -mr-2 text-muted-foreground hover:text-foreground"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
         {/* Content */}
-        <div className="relative px-6 py-4 overflow-y-auto custom-scrollbar flex-1 z-10">
-          <AnimatePresence mode="wait">
-            {isSuccess ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="flex flex-col items-center justify-center py-10 text-center h-full min-h-[300px]"
-              >
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                  className="w-24 h-24 rounded-full bg-gradient-to-tr from-emerald-400 to-emerald-600 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/30"
-                >
-                  <CheckCircle2 className="w-12 h-12 text-white" />
-                </motion.div>
-                <h3 className="text-2xl font-bold text-foreground mb-2">
-                  {language === "es" ? "¡Enviado!" : "Отправлено!"}
-                </h3>
-                <p className="text-muted-foreground max-w-[200px] text-sm leading-relaxed">
-                  {language === "es"
-                    ? "Gracias por tu ayuda. Revisaremos tu reporte pronto."
-                    : "Спасибо за вашу помощь. Мы скоро рассмотрим ваш отчет."}
-                </p>
-              </motion.div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-6 pb-20" // Extra padding for footer
-              >
-                {/* Question Preview (Compact) */}
-                {questionText && (
-                  <div className="bg-muted/40 rounded-2xl p-4 border border-border/40 backdrop-blur-sm relative overflow-hidden group">
-                    <div className="absolute top-0 left-0 w-1 h-full bg-orange-500/30 group-hover:bg-orange-500/50 transition-colors" />
-                    <p className="text-[10px] font-bold text-muted-foreground mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                      <HelpCircle className="w-3 h-3" />
-                      {language === "es" ? "Sobre la pregunta" : "О вопросе"}
-                    </p>
-                    <p className="text-sm text-foreground line-clamp-3 font-medium leading-relaxed">
-                      {questionText}
-                    </p>
-                  </div>
-                )}
+        <div className="relative px-6 py-6 overflow-y-auto custom-scrollbar flex-1 z-10 space-y-6">
 
-                {/* Report Type Grid */}
-                <div className="space-y-3">
-                  <Label className="text-xs uppercase text-muted-foreground font-bold tracking-wider ml-1">
-                    {language === "es" ? "Tipo de problema" : "Тип проблемы"}
-                  </Label>
-                  <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                    {reportTypes.map((type) => {
-                      const Icon = type.icon;
-                      const isSelected = reportType === type.id;
-                      return (
-                        <button
-                          key={type.id}
-                          onClick={() => setReportType(type.id)}
-                          className={cn(
-                            "relative flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all duration-300 group overflow-hidden",
-                            isSelected
-                              ? "bg-gradient-to-br from-orange-500 to-red-600 border-transparent shadow-lg shadow-orange-500/25 scale-[1.02]"
-                              : "bg-background/50 border-border/50 hover:bg-muted/50 hover:border-border text-muted-foreground hover:text-foreground hover:shadow-md"
-                          )}
-                        >
-                          <div className={cn(
-                            "p-2 rounded-xl transition-colors duration-300",
-                            isSelected ? "bg-white/20 text-white" : "bg-muted text-muted-foreground group-hover:bg-background group-hover:text-foreground"
-                          )}>
-                            <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                          </div>
-                          <span className={cn(
-                            "text-[10px] sm:text-xs font-semibold leading-none text-center transition-colors",
-                            isSelected ? "text-white" : "text-muted-foreground group-hover:text-foreground"
-                          )}>
-                            {type.label[lang]}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+          {/* Question Preview */}
+          {questionText && (
+            <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
+              <p className="text-[10px] font-bold text-zinc-500 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                <HelpCircle className="w-3 h-3" />
+                {language === "es" ? "Contexto" : "Контекст"}
+              </p>
+              <p className="text-sm text-zinc-300 font-medium leading-relaxed">
+                {questionText}
+              </p>
+            </div>
+          )}
 
-                {/* Description */}
-                <div className="space-y-3">
-                  <Label className="text-xs uppercase text-muted-foreground font-bold tracking-wider ml-1">
-                    {language === "es" ? "Descripción" : "Описание"} <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Textarea
-                      placeholder={language === "es" ? "Describe los detalles..." : "Опишите детали..."}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      className="min-h-[120px] resize-none bg-background/50 border-border/50 focus:border-orange-500/50 focus:ring-orange-500/20 rounded-2xl text-sm p-4 placeholder:text-muted-foreground/50 transition-all shadow-sm focus:shadow-md"
-                    />
-                    <div className="absolute bottom-3 right-3 text-[10px] text-muted-foreground font-medium pointer-events-none bg-background/80 px-1.5 py-0.5 rounded-md backdrop-blur-sm">
-                      {description.length} / 10
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Report Type Grid */}
+          <div className="space-y-3">
+            <Label className="text-xs uppercase text-zinc-500 font-bold tracking-wider">
+              {language === "es" ? "Tipo de problema" : "Тип проблемы"}
+            </Label>
+            <div className="grid grid-cols-5 gap-2">
+              {reportTypes.map((type) => {
+                const Icon = type.icon;
+                const isSelected = reportType === type.id;
+                return (
+                  <button
+                    key={type.id}
+                    onClick={() => setReportType(type.id)}
+                    className={cn(
+                      "relative flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all duration-200 group aspect-square",
+                      isSelected
+                        ? "bg-white text-zinc-950 border-white shadow-lg scale-[1.02]"
+                        : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:border-zinc-700 hover:text-zinc-200"
+                    )}
+                  >
+                    <Icon className={cn("w-5 h-5", isSelected ? "text-orange-500 stroke-[2.5]" : "text-current")} />
+                    <span className={cn(
+                      "text-[9px] font-bold leading-none text-center uppercase tracking-wide",
+                      isSelected ? "text-zinc-900" : "text-zinc-500 group-hover:text-zinc-400"
+                    )}>
+                      {type.label[lang].substring(0, 9)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-3">
+            <Label className="text-xs uppercase text-zinc-500 font-bold tracking-wider">
+              {language === "es" ? "Descripción detallada" : "Подробное описание"} <span className="text-orange-500">*</span>
+            </Label>
+            <div className="relative group">
+              <Textarea
+                placeholder={language === "es" ? "Por favor explica el problema..." : "Пожалуйста, объясните проблему..."}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="min-h-[120px] resize-none bg-zinc-900 border-zinc-800 focus:border-zinc-700 focus:ring-1 focus:ring-zinc-700 rounded-xl text-sm p-4 placeholder:text-zinc-600 text-zinc-200 transition-all"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Fixed Footer */}
         {!isSuccess && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border/10 bg-gradient-to-t from-background via-background/95 to-transparent z-20 backdrop-blur-[2px]">
+          <div className="p-6 pt-2 border-t border-transparent bg-gradient-to-t from-zinc-950 to-transparent z-20">
             <Button
-              onClick={handleSubmit}
+              onClick={() => handleSubmit()}
               disabled={isSubmitting || !reportType || description.trim().length < 10}
               className={cn(
-                "w-full h-12 rounded-2xl text-base font-bold shadow-xl transition-all duration-300 transform",
-                "bg-gradient-to-r from-orange-500 via-red-500 to-orange-500 bg-[length:200%_100%] hover:bg-[100%_0] border-0 text-white",
-                "hover:scale-[1.02] active:scale-[0.98]",
-                (isSubmitting || !reportType || description.trim().length < 10) && "opacity-50 grayscale cursor-not-allowed hover:scale-100 shadow-none"
+                "w-full h-14 rounded-xl text-base font-bold shadow-xl transition-all duration-300",
+                "bg-white text-black hover:bg-zinc-200 border-0",
+                (isSubmitting || !reportType || description.trim().length < 10) && "opacity-30 cursor-not-allowed bg-zinc-800 text-zinc-500"
               )}
             >
               {isSubmitting ? (
