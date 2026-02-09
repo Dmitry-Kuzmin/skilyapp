@@ -1237,6 +1237,7 @@ const TestSession = () => {
             handleOpenAIChat={handleOpenAIChat}
             nextQuestion={nextQuestion}
             isEnterPressed={isEnterPressed}
+            onReportProblem={() => setShowReportModal(true)}
           />
         )}
 
