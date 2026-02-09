@@ -21,13 +21,13 @@ export const useTestBookmarks = ({
 
         try {
             const { data, error } = await supabase.from('user_challenge_questions')
-                .select('id')
+                .select('is_favorite')
                 .eq('user_id', profileId)
                 .eq('question_id', currentQuestionId)
                 .maybeSingle();
 
             if (error && error.code !== 'PGRST116') throw error;
-            setIsBookmarked(!!data);
+            setIsBookmarked(!!data?.is_favorite);
         } catch (error) {
             console.error('[Bookmark] Error checking bookmark:', error);
         }
@@ -48,29 +48,42 @@ export const useTestBookmarks = ({
 
         try {
             setLoading(true);
+
+            const { data: existing, error: fetchError } = await supabase
+                .from('user_challenge_questions')
+                .select('*')
+                .eq('user_id', profileId)
+                .eq('question_id', currentQuestionId)
+                .maybeSingle();
+
+            if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
             if (isBookmarked) {
-                const { error } = await supabase
-                    .from('user_challenge_questions')
-                    .delete()
-                    .eq('user_id', profileId)
-                    .eq('question_id', currentQuestionId);
-
-                if (error) throw error;
-                toast.success("Удалено из закладок");
-                setIsBookmarked(false);
-            } else {
-                const { data: existing, error: checkError } = await supabase
-                    .from('user_challenge_questions')
-                    .select('id')
-                    .eq('user_id', profileId)
-                    .eq('question_id', currentQuestionId)
-                    .maybeSingle();
-
-                if (checkError && checkError.code !== 'PGRST116') throw checkError;
-
                 if (existing) {
-                    toast.success("Вопрос уже в закладках");
-                    setIsBookmarked(true);
+                    const isError = !existing.mastered || existing.times_wrong > 0;
+                    if (isError) {
+                        const { error } = await supabase
+                            .from('user_challenge_questions')
+                            .update({ is_favorite: false })
+                            .eq('id', existing.id);
+                        if (error) throw error;
+                    } else {
+                        const { error } = await supabase
+                            .from('user_challenge_questions')
+                            .delete()
+                            .eq('id', existing.id);
+                        if (error) throw error;
+                    }
+                    toast.success("Удалено из Избранного");
+                    setIsBookmarked(false);
+                }
+            } else {
+                if (existing) {
+                    const { error } = await supabase
+                        .from('user_challenge_questions')
+                        .update({ is_favorite: true })
+                        .eq('id', existing.id);
+                    if (error) throw error;
                 } else {
                     const { error: insertError } = await supabase
                         .from('user_challenge_questions')
@@ -78,13 +91,14 @@ export const useTestBookmarks = ({
                             user_id: profileId,
                             question_id: currentQuestionId,
                             times_wrong: 0,
+                            mastered: true,
+                            is_favorite: true,
                             last_wrong_at: new Date().toISOString(),
                         });
-
                     if (insertError) throw insertError;
-                    toast.success("Добавлено в закладки");
-                    setIsBookmarked(true);
                 }
+                toast.success("Сохранено в Избранное");
+                setIsBookmarked(true);
             }
         } catch (error) {
             console.error('[Bookmark] Error toggling bookmark:', error);

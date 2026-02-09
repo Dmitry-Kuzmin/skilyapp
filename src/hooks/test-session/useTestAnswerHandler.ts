@@ -239,17 +239,24 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
 
             // Save user progress to server (Skip for Russia due to FK constraints)
             if (!isRussia) {
-                // Add to Challenge Bank on first error (not in mastery mode)
-                if (!isCorrect && profileId && mode !== "mastery") {
-                    await handleChallengeBankUpdate(
-                        currentQuestion.id,
-                        profileId,
-                        answers,
-                        isFirstWrongAnswer,
-                        setIsFirstWrongAnswer,
-                        setIsQuestionBookmarked,
-                        setShowChallengeBankNotification
-                    ).catch(err => console.error('[Challenge Bank] Silent error:', err));
+                if (profileId) {
+                    if (!isCorrect && mode !== "mastery") {
+                        // Add to Challenge Bank on error
+                        await handleChallengeBankUpdate(
+                            currentQuestion.id,
+                            profileId,
+                            answers,
+                            isFirstWrongAnswer,
+                            setIsFirstWrongAnswer,
+                            setShowChallengeBankNotification
+                        ).catch(err => console.error('[Challenge Bank] Silent error:', err));
+                    } else if (isCorrect) {
+                        // Mark as mastered if correct (removes from Errors, keeps in Favorites if favorite)
+                        await handleChallengeBankSuccess(
+                            currentQuestion.id,
+                            profileId
+                        ).catch(err => console.error('[Challenge Bank] Silent error:', err));
+                    }
                 }
 
                 // Save user progress to server
@@ -333,21 +340,18 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
 }
 
 // Helper function to update Challenge Bank
+// Helper function to update Challenge Bank
 async function handleChallengeBankUpdate(
     questionId: string,
     profileId: string,
     answers: Answer[],
     isFirstWrongAnswer: boolean,
     setIsFirstWrongAnswer: (isFirst: boolean) => void,
-    setIsQuestionBookmarked: (bookmarked: boolean) => void,
     setShowChallengeBankNotification: (show: boolean) => void
 ): Promise<void> {
     try {
         const wrongAnswersInThisTest = answers.filter(a => !a.isCorrect).length;
         const showNotification = wrongAnswersInThisTest === 0 && isFirstWrongAnswer;
-
-        // Mark bookmark icon as blue
-        setIsQuestionBookmarked(true);
 
         // Show notification only on first wrong answer
         const isNotificationHidden = localStorage.getItem('challenge-bank-notification-hidden') === 'true';
@@ -389,10 +393,34 @@ async function handleChallengeBankUpdate(
                     question_id: questionId,
                     times_wrong: 1,
                     last_wrong_at: new Date().toISOString(),
+                    // is_favorite defaults to false
+                    // mastered defaults to false
                 });
         }
     } catch (error) {
         console.error('[Challenge Bank] Error:', error);
+    }
+}
+
+async function handleChallengeBankSuccess(
+    questionId: string,
+    profileId: string
+): Promise<void> {
+    try {
+        // Mark as mastered (removes from Errors list)
+        // If it was favorite, it stays favorite (is_favorite is untouched).
+        // If it was error, it is resolved.
+        await (supabase as any)
+            .from('user_challenge_questions')
+            .update({
+                mastered: true,
+                updated_at: new Date().toISOString()
+            })
+            .eq('user_id', profileId)
+            .eq('question_id', questionId);
+
+    } catch (error) {
+        console.error('[Challenge Bank] Error marking success:', error);
     }
 }
 

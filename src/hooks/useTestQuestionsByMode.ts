@@ -268,3 +268,62 @@ export function useTestInfo(testId: string | null) {
   });
 }
 
+/**
+ * ОПТИМИЗИРОВАННЫЙ хук для загрузки вопросов из Избранного
+ */
+export function useFavoritesQuestions(
+  profileId: string | null,
+  limit: number = 20,
+  country?: string
+) {
+  return useQuery<QuestionWithOptions[]>({
+    queryKey: ["favorites-questions", profileId, limit, country],
+    queryFn: async () => {
+      if (!profileId) return [];
+
+      const dbCountry = country === 'russia' ? 'ru' : country === 'spain' ? 'es' : country;
+
+      // 1. Получаем ID вопросов из избранного с фильтром по стране
+      let query = supabase
+        .from("user_challenge_questions")
+        .select("question_id, questions_new!inner(country)")
+        .eq("user_id", profileId)
+        .eq("is_favorite", true);
+
+      if (dbCountry) {
+        query = query.eq("questions_new.country", dbCountry);
+      }
+
+      const { data: favoriteRelations, error: relError } = await query
+        .order("created_at", { ascending: false })
+        .limit(limit);
+
+      if (relError) throw relError;
+      if (!favoriteRelations || favoriteRelations.length === 0) return [];
+
+      const questionIds = favoriteRelations.map(r => r.question_id);
+
+      // 2. Загружаем полные данные вопросов
+      const { data: questionsData, error: qError } = await supabase
+        .from("questions_new")
+        .select(`
+          *,
+          topics (title_ru, title_es),
+          answer_options (*)
+        `)
+        .in("id", questionIds);
+
+      if (qError) throw qError;
+      if (!questionsData || questionsData.length === 0) return [];
+
+      // Мапим к универсальному формату
+      return questionsData.map((q: any) => ({
+        ...q,
+        topics: q.topics ? { title_ru: q.topics.title_ru, title_es: q.topics.title_es } : null,
+        answer_options: q.answer_options || []
+      }));
+    },
+    enabled: !!profileId,
+    staleTime: 1 * 60 * 1000,
+  });
+}

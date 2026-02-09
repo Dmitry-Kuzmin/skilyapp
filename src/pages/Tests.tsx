@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Shuffle, Clock, Zap, Flame, History, AlertTriangle, AlertCircle,
-  Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
-  Star, AlertTriangle as AlertIcon, RotateCcw,
-  CarFront, MapPin, Gauge, Check, Trophy
-} from "lucide-react";
+import {
+    Shuffle, Clock, Zap, Flame, History, AlertTriangle, AlertCircle,
+    Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
+    Star, AlertTriangle as AlertIcon, RotateCcw,
+    CarFront, MapPin, Gauge, Check, Trophy, Bookmark
+  } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { useUserContext } from "@/contexts/UserContext";
@@ -13,7 +14,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTopics } from "@/hooks/useTopics";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import { useChallengeBankCount } from "@/hooks/useChallengeBankCount";
+import { useChallengeStats } from "@/hooks/useChallengeStats";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { usePDDTickets } from "@/hooks/usePDDTickets";
 import { usePDDTopics } from "@/hooks/usePDDTopics";
@@ -195,7 +196,7 @@ const Tests = () => {
   const { data: tickets = [], isLoading: ticketsLoading } = usePDDTickets(selectedCountry, selectedCategory);
   const { data: userProgress = [] } = useUserProgress(profileId, selectedCountry, selectedCategory);
   const ticketsStatus = useTicketsStatus(profileId, selectedCountry, selectedCategory);
-  const { data: challengeBankCount = 0 } = useChallengeBankCount(profileId, selectedCountry, selectedCategory);
+  const { data: challengeStats = { errors: 0, favorites: 0 } } = useChallengeStats(profileId, selectedCountry, selectedCategory);
   const { data: pddTopics = [] } = usePDDTopics(selectedCountry);
 
   // 2. Умные рекомендации
@@ -361,18 +362,31 @@ const Tests = () => {
       },
       {
         id: 5,
-        title: challengeBankCount === 0 ? 'Ошибок нет!' : t('testsPage.challengeBank'),
-        description: challengeBankCount === 0
-          ? 'Идеальный результат! Все ошибки разобраны. Так держать!'
-          : t('testsPage.challengeBankDesc', { count: challengeBankCount }),
-        icon: challengeBankCount === 0 ? Trophy : History,
-        color: challengeBankCount === 0 ? "success" : "orange",
+        title: challengeStats.errors === 0 ? (selectedCountry === 'russia' ? 'Ошибок нет!' : 'No errors!') : (selectedCountry === 'russia' ? 'Ошибки' : t('testsPage.challengeBank')),
+        description: challengeStats.errors === 0
+          ? (selectedCountry === 'russia' ? 'Идеальный результат! Все ошибки разобраны.' : 'Perfect! All errors resolved.')
+          : (selectedCountry === 'russia' ? `${challengeStats.errors} вопросов требуют повторения` : t('testsPage.challengeBankDesc', { count: challengeStats.errors })),
+        icon: challengeStats.errors === 0 ? CheckCircle : History,
+        color: challengeStats.errors === 0 ? "success" : "destructive",
         premium: false,
-        difficulty: challengeBankCount === 0 ? "Мастер" : "Средняя",
-        route: challengeBankCount === 0 ? "#" : `/test/challenge-bank${selectedCountry === 'russia' ? '?country=russia' : ''}&category=${selectedCategory}`,
-        gradient: challengeBankCount === 0
+        difficulty: challengeStats.errors === 0 ? "Мастер" : "Важно",
+        route: challengeStats.errors === 0 ? "#" : `/test/challenge-bank${selectedCountry === 'russia' ? '?country=russia' : ''}&category=${selectedCategory}`,
+        gradient: challengeStats.errors === 0
           ? "from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
-          : "from-purple-600 to-violet-600",
+          : "from-rose-600 to-red-600",
+      },
+      {
+        id: 9,
+        title: selectedCountry === 'russia' ? 'Избранное' : 'Favorites',
+        description: selectedCountry === 'russia'
+          ? `${challengeStats.favorites} сохраненных вопросов`
+          : `${challengeStats.favorites} saved questions`,
+        icon: Bookmark,
+        color: "secondary",
+        premium: false,
+        difficulty: "Личная",
+        route: `/test/favorites${selectedCountry === 'russia' ? '?country=russia' : ''}&category=${selectedCategory}`,
+        gradient: "from-violet-600 to-purple-600",
       },
       {
         id: 6,
@@ -418,7 +432,7 @@ const Tests = () => {
     ];
 
     return baseModes;
-  }, [selectedCountry, randomQuestionCount, challengeBankCount, t, nonstopProgress]);
+  }, [selectedCountry, randomQuestionCount, challengeStats, t, nonstopProgress]);
 
   const difficultyColors = {
     "Лёгкая": "success",
@@ -465,7 +479,7 @@ const Tests = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 flex-shrink-0 whitespace-nowrap">
                   <AlertTriangle className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-amber-700 dark:text-amber-100">
-                    {challengeBankCount} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">ошиб.</span>
+                    {challengeStats.errors} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">ошиб.</span>
                   </span>
                 </div>
               </div>

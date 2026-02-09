@@ -150,15 +150,30 @@ const ChallengeBank = () => {
     if (!profileId) return;
 
     try {
-      const { error } = await supabase
+      const { data: existing } = await supabase
         .from('user_challenge_questions')
-        .delete()
+        .select('is_favorite')
         .eq('user_id', profileId)
-        .eq('question_id', questionId);
+        .eq('question_id', questionId)
+        .single();
 
-      if (error) throw error;
+      if (existing?.is_favorite) {
+        const { error } = await supabase
+          .from('user_challenge_questions')
+          .update({ mastered: true })
+          .eq('user_id', profileId)
+          .eq('question_id', questionId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('user_challenge_questions')
+          .delete()
+          .eq('user_id', profileId)
+          .eq('question_id', questionId);
+        if (error) throw error;
+      }
 
-      toast.success("Вопрос удален из банка сложных вопросов");
+      toast.success("Вопрос убран из списка ошибок");
       loadChallengeBank();
     } catch (error) {
       console.error('Error removing question:', error);

@@ -149,10 +149,11 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
       description={null}
       hideCloseButton={true}
       className="sm:max-w-[550px] p-0 overflow-hidden border-none bg-transparent shadow-none"
-      contentClassName="p-0 overflow-hidden flex flex-col h-auto max-h-[85vh] bg-zinc-950 border border-zinc-800 shadow-2xl rounded-[24px]"
+      contentClassName="p-0 overflow-hidden flex flex-col h-auto max-h-[85vh] bg-[#121214] border border-white/10 shadow-[0_40px_80px_-15px_rgba(0,0,0,0.9)] rounded-[32px] ring-1 ring-white/5"
     >
-      {/* Background Gradient Mesh - Very Subtle */}
-      <div className="absolute inset-0 bg-gradient-to-b from-zinc-900/50 to-zinc-950 pointer-events-none" />
+      {/* Background Gradient Mesh - Dynamic Glow */}
+      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-orange-500/5 blur-[120px] pointer-events-none rounded-full" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 blur-[120px] pointer-events-none rounded-full" />
 
       <div className="flex flex-col h-full w-full relative min-h-[350px]">
         {/* Success Overlay */}
@@ -162,7 +163,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 bg-zinc-950 flex flex-col items-center justify-center text-center p-8"
+              className="absolute inset-0 z-50 bg-[#121214] flex flex-col items-center justify-center text-center p-8 backdrop-blur-3xl"
             >
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent opacity-50" />
 
@@ -170,7 +171,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6 ring-1 ring-emerald-500/50 shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)]"
+                className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6 ring-1 ring-emerald-500/30 shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]"
               >
                 <CheckCircle2 className="w-10 h-10 text-emerald-500" />
               </motion.div>
@@ -200,7 +201,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
           {!isSubmitting && !isSuccess && (
             <button
               onClick={handleClose}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-900/50 text-zinc-500 hover:bg-zinc-800 hover:text-white transition-all active:scale-95 border border-transparent hover:border-zinc-700"
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white transition-all active:scale-95 border border-white/5"
             >
               <X className="w-4 h-4" />
             </button>
@@ -212,12 +213,12 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
 
           {/* Context Widget (Optional but helpful) */}
           {questionText && (
-            <div className="bg-zinc-900/30 rounded-xl p-3 border border-zinc-800/50">
+            <div className="bg-zinc-900/40 rounded-xl p-3 border border-white/5 backdrop-blur-sm">
               <div className="flex items-start gap-3">
                 <div className="shrink-0 pt-0.5">
-                  <HelpCircle className="w-3.5 h-3.5 text-zinc-600" />
+                  <HelpCircle className="w-3.5 h-3.5 text-zinc-500" />
                 </div>
-                <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2 italic font-medium">
+                <p className="text-xs text-zinc-300 leading-relaxed line-clamp-2 italic font-medium">
                   "{questionText}"
                 </p>
               </div>
@@ -237,14 +238,14 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
                     className={cn(
                       "relative flex flex-col items-center justify-center gap-2 p-2 h-20 rounded-xl border transition-all duration-300 group",
                       isSelected
-                        ? "bg-zinc-100 border-zinc-100 shadow-xl shadow-zinc-900/20 translate-y-[-2px]"
-                        : "bg-zinc-900/40 border-zinc-800/50 hover:bg-zinc-800/60 hover:border-zinc-700 hover:translate-y-[-1px]"
+                        ? "bg-white border-white shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] translate-y-[-2px] z-10"
+                        : "bg-zinc-900/40 border-white/5 hover:bg-zinc-800/60 hover:border-white/10 hover:translate-y-[-1px]"
                     )}
                   >
-                    <Icon className={cn("w-5 h-5 transition-colors", isSelected ? "text-zinc-900" : "text-zinc-500 group-hover:text-zinc-300")} />
+                    <Icon className={cn("w-5 h-5 transition-colors duration-300", isSelected ? "text-black" : "text-zinc-500 group-hover:text-zinc-300")} />
                     <span className={cn(
-                      "text-[9px] font-bold leading-none text-center uppercase tracking-wider transition-colors",
-                      isSelected ? "text-zinc-900" : "text-zinc-600 group-hover:text-zinc-400"
+                      "text-[9px] font-bold leading-none text-center uppercase tracking-wider transition-colors duration-300",
+                      isSelected ? "text-black" : "text-zinc-600 group-hover:text-zinc-400"
                     )}>
                       {type.label[lang].substring(0, 10)}
                     </span>
@@ -258,9 +259,9 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
           <AnimatePresence>
             {reportType && (
               <motion.div
-                initial={{ opacity: 0, height: 0, y: 10 }}
-                animate={{ opacity: 1, height: "auto", y: 0 }}
-                exit={{ opacity: 0, height: 0 }}
+                initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                animate={{ opacity: 1, height: "auto", scale: 1 }}
+                exit={{ opacity: 0, height: 0, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 className="overflow-hidden space-y-4 pt-1 pb-2"
               >
@@ -275,7 +276,7 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
                     onChange={(e) => setDescription(e.target.value)}
                     className={cn(
                       "min-h-[100px] resize-none rounded-2xl text-sm p-4 pr-4 pb-8 transition-all duration-300 placeholder:text-zinc-600",
-                      "bg-zinc-900/50 border-zinc-700/50 focus:bg-zinc-900 focus:border-orange-500/30 focus:ring-1 focus:ring-orange-500/30 text-zinc-200"
+                      "bg-zinc-900/50 border-white/5 focus:bg-zinc-900 focus:border-white/20 focus:ring-1 focus:ring-white/20 text-zinc-200"
                     )}
                   />
                   {/* Modern Character Counter - Only show count if user is typing or if required */}
@@ -304,10 +305,10 @@ export function ReportProblemModal({ open, onOpenChange, questionId, questionTex
                     onClick={(e) => handleSubmit(e)}
                     disabled={isSubmitting || (reportType === 'other' && description.trim().length < 5)}
                     className={cn(
-                      "w-full h-12 rounded-xl text-sm font-bold tracking-wide shadow-lg transition-all duration-500",
+                      "w-full h-12 rounded-xl text-sm font-bold tracking-wide transition-all duration-500",
                       (reportType !== 'other' || description.trim().length >= 5)
-                        ? "bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-400 hover:to-red-500 text-white shadow-orange-900/20 translate-y-0 opacity-100"
-                        : "bg-zinc-800 text-zinc-600 border border-transparent shadow-none opacity-50 cursor-not-allowed"
+                        ? "bg-white text-black hover:bg-zinc-200 shadow-[0_0_30px_-5px_rgba(255,255,255,0.15)] translate-y-0 opacity-100"
+                        : "bg-zinc-800/50 text-zinc-600 border border-white/5 shadow-none opacity-50 cursor-not-allowed"
                     )}
                   >
                     {isSubmitting ? (

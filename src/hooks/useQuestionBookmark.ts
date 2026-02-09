@@ -13,52 +13,71 @@ export function useQuestionBookmark({ profileId, questions, currentIndex }: UseQ
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
   const checkIfBookmarked = useCallback(async () => {
-    // Используем question_id (ID вопроса из questions_new), а не id (ID записи в duel_questions)
     if (!profileId || !questions.length || !questions[currentIndex]?.question_id) return;
 
     try {
       const { data, error } = await supabase
         .from('user_challenge_questions')
-        .select('id')
+        .select('is_favorite')
         .eq('user_id', profileId)
         .eq('question_id', questions[currentIndex].question_id)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
-      setIsQuestionBookmarked(!!data);
+      setIsQuestionBookmarked(!!data?.is_favorite);
     } catch (error) {
       console.error('[useQuestionBookmark] Error checking bookmark:', error);
     }
   }, [profileId, questions, currentIndex]);
 
   const toggleBookmark = useCallback(async () => {
-    // Используем question_id (ID вопроса из questions_new), а не id (ID записи в duel_questions)
     if (!profileId || !questions.length || !questions[currentIndex]?.question_id) return;
 
     setBookmarkLoading(true);
     const questionId = questions[currentIndex].question_id;
 
     try {
+      const { data: existing, error: fetchError } = await supabase
+        .from('user_challenge_questions')
+        .select('*')
+        .eq('user_id', profileId)
+        .eq('question_id', questionId)
+        .maybeSingle();
+
+      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
       if (isQuestionBookmarked) {
-        const { error } = await supabase
-          .from('user_challenge_questions')
-          .delete()
-          .eq('user_id', profileId)
-          .eq('question_id', questionId);
-
-        if (error) throw error;
-        toast.success("Удалено из закладок");
-        setIsQuestionBookmarked(false);
-      } else {
-        const { data: existing } = await supabase
-          .from('user_challenge_questions')
-          .select('id, times_wrong')
-          .eq('user_id', profileId)
-          .eq('question_id', questionId)
-          .maybeSingle();
-
         if (existing) {
-          toast.success("Вопрос уже в закладках");
+          // Logic: If it's an "Error" (mastered=false or times_wrong>0), keep record but unmark favorite.
+          // If it's "Pure Bookmark" (mastered=true and times_wrong=0), delete record.
+          const isError = !existing.mastered || existing.times_wrong > 0;
+
+          if (isError) {
+            const { error } = await supabase
+              .from('user_challenge_questions')
+              .update({ is_favorite: false })
+              .eq('id', existing.id);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase
+              .from('user_challenge_questions')
+              .delete()
+              .eq('id', existing.id);
+            if (error) throw error;
+          }
+
+          toast.success("Удалено из Избранного");
+          setIsQuestionBookmarked(false);
+        }
+      } else {
+        if (existing) {
+          const { error } = await supabase
+            .from('user_challenge_questions')
+            .update({ is_favorite: true })
+            .eq('id', existing.id);
+
+          if (error) throw error;
+          toast.success("Сохранено в Избранное");
           setIsQuestionBookmarked(true);
         } else {
           const { error: insertError } = await supabase
@@ -67,11 +86,13 @@ export function useQuestionBookmark({ profileId, questions, currentIndex }: UseQ
               user_id: profileId,
               question_id: questionId,
               times_wrong: 0,
+              mastered: true, // Not an error
+              is_favorite: true,
               last_wrong_at: new Date().toISOString(),
             });
 
           if (insertError) throw insertError;
-          toast.success("Добавлено в закладки");
+          toast.success("Сохранено в Избранное");
           setIsQuestionBookmarked(true);
         }
       }

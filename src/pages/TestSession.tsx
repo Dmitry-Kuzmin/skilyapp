@@ -140,6 +140,7 @@ const TestSession = () => {
     if (location.pathname.includes("/learn/") && ticketIdParam) return "pdd-ticket";
     if (location.pathname.includes("/test/sequential")) return "sequential";
     if (location.pathname.includes("/test/challenge-bank")) return "challenge-bank";
+    if (location.pathname.includes("/test/favorites")) return "favorites";
     if (location.pathname.includes("/test/module")) return "module";
     if (location.pathname.includes("/test/dgt")) return "dgt";
     if (location.pathname.includes("/test/exam-russia") || searchParams.get('mode') === 'exam-russia') return "exam-russia";
@@ -351,13 +352,20 @@ const TestSession = () => {
     mode === 'pdd-ticket' ||
     mode === 'exam-russia' ||
     mode === 'sequential' ||
-    mode === 'challenge-bank'
+    mode === 'challenge-bank' ||
+    mode === 'favorites'
   );
 
   const challengeBankQuestions = useMemo(() => ({
     data: mode === 'challenge-bank' ? dataLoader.questions : null,
     isLoading: mode === 'challenge-bank' && dataLoader.isLoading,
     error: mode === 'challenge-bank' ? dataLoader.error : null,
+  }), [mode, dataLoader.questions, dataLoader.isLoading, dataLoader.error]);
+
+  const favoritesQuestions = useMemo(() => ({
+    data: mode === 'favorites' ? dataLoader.questions : null,
+    isLoading: mode === 'favorites' && dataLoader.isLoading,
+    error: mode === 'favorites' ? dataLoader.error : null,
   }), [mode, dataLoader.questions, dataLoader.isLoading, dataLoader.error]);
 
   const redemptionQuestions = useMemo(() => ({

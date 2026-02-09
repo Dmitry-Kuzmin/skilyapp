@@ -73,6 +73,7 @@ const ReferralRedirect = lazy(() => import("../components/ReferralRedirect").the
 const PartnerRedirect = lazy(() => import("../components/PartnerRedirect").then(m => ({ default: m.PartnerRedirect })));
 const SequentialTests = lazy(() => import("../pages/SequentialTests"));
 const ChallengeBank = lazy(() => import("../pages/ChallengeBank"));
+const Favorites = lazy(() => import("../pages/Favorites"));
 const TestSession = lazy(() => import("../pages/TestSession"));
 const TestResults = lazy(() => import("../pages/TestResults"));
 const TopicsMode = lazy(() => import("../pages/TopicsMode"));
@@ -156,6 +157,11 @@ export function AppRoutes() {
       <Route path="/tests/challenge-bank" element={
         <Suspense fallback={<PageSkeleton />}>
           <ChallengeBank />
+        </Suspense>
+      } />
+      <Route path="/tests/favorites" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <Favorites />
         </Suspense>
       } />
       <Route path="/test/by-topics" element={

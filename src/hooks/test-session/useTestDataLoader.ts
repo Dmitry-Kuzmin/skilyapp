@@ -8,6 +8,7 @@ import {
     useDGTQuestions,
     useQuestionsByTopic,
     useTestInfo,
+    useFavoritesQuestions,
 } from "@/hooks/useTestQuestionsByMode";
 import { usePDDExamQuestions } from "@/hooks/usePDDExamQuestions";
 import { useDGTExamQuestions } from "@/hooks/useDGTExamQuestions";
@@ -32,6 +33,7 @@ export type TestMode =
     | 'marathon'
     | 'traps'
     | 'redemption'
+    | 'favorites'
     | 'mastery';
 
 interface UseTestDataLoaderProps {
@@ -95,6 +97,13 @@ export const useTestDataLoader = ({
     const challengeBankQuestions = useChallengeBankQuestions(
         mode === 'challenge-bank' ? profileId : null,
         questionCount,
+        pddCountry || undefined
+    );
+
+    // Favorites questions
+    const favoritesQuestions = useFavoritesQuestions(
+        mode === 'favorites' ? profileId : null,
+        questionCount, // Use same count for now, or fetch all?
         pddCountry || undefined
     );
 
@@ -264,6 +273,14 @@ export const useTestDataLoader = ({
                     isLoading: challengeBankQuestions.isLoading,
                     error: challengeBankQuestions.error as Error | null,
                     testInfo: { id: 'challenge-bank', title: '🏆 Банк сложных вопросов' },
+                };
+
+            case 'favorites':
+                return {
+                    questions: favoritesQuestions.data || [],
+                    isLoading: favoritesQuestions.isLoading,
+                    error: favoritesQuestions.error as Error | null,
+                    testInfo: { id: 'favorites', title: '⭐ Избранное' },
                 };
 
             case 'dgt':
