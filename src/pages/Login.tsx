@@ -1,12 +1,12 @@
 import { AuthModalNew } from "@/components/AuthModalNew";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useUser } from "@/contexts/UserContext"; // Используем контекст, который будет доступен внутри AppProviders
+import { useUserContext } from "@/contexts/UserContext"; // Используем контекст, который будет доступен внутри AppProviders
 import { PageLoader } from "@/components/PageLoader";
 
 export default function Login() {
     const navigate = useNavigate();
-    const { user, isLoading } = useUser();
+    const { user, isLoading } = useUserContext();
 
     // Если пользователь уже авторизован — редирект на дашборд
     useEffect(() => {
