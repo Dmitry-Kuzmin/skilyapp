@@ -252,18 +252,18 @@ const TypewriterText = ({ text, onComplete }: { text: string, onComplete?: () =>
     const [displayedText, setDisplayedText] = useState('');
 
     useEffect(() => {
-        setDisplayedText(''); // Reset initially
-        let i = 0;
+        setDisplayedText(''); // Reset on text change
 
         const timer = setInterval(() => {
-            i++;
-            if (i <= text.length) {
-                setDisplayedText(text.slice(0, i));
-            } else {
+            setDisplayedText((prev) => {
+                if (prev.length < text.length) {
+                    return text.slice(0, prev.length + 1);
+                }
                 clearInterval(timer);
                 onComplete?.();
-            }
-        }, 30); // Typing speed
+                return prev;
+            });
+        }, 25); // Slightly faster for responsiveness
 
         return () => clearInterval(timer);
     }, [text]);
@@ -341,7 +341,7 @@ const MockAIWidget = ({ language, message, isTyping, status }: { language: strin
                                         : "bg-indigo-500/10 border-indigo-500/30 text-indigo-100 shadow-indigo-900/10"
                                 )}>
                                     {/* Fake Typewriter Effect */}
-                                    <TypewriterText text={message.content} />
+                                    <TypewriterText key={message.content} text={message.content} />
                                 </div>
                                 <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-500 pl-2">
                                     <span className="uppercase tracking-wider">AI Analysis</span>
@@ -654,7 +654,7 @@ export const LandingQuizDemo: React.FC<LandingQuizDemoProps> = ({ onRegisterClic
                                 <div>
                                     <p className="text-xs font-bold text-indigo-300 mb-1 uppercase tracking-wider">Skily AI</p>
                                     <div className="text-slate-200 text-sm leading-relaxed">
-                                        <TypewriterText text={aiMessage.content} />
+                                        <TypewriterText key={aiMessage.content} text={aiMessage.content} />
                                     </div>
                                     {/* Mobile Next Button on Error */}
                                     {showResult && aiMessage.mood === 'warning' && (
