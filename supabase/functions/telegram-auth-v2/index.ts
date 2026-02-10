@@ -201,7 +201,8 @@ Deno.serve(async (req) => {
         });
 
         // 3. Формируем email и пароль для Supabase Auth
-        const email = `tg_${telegramUser.id}@telegram.skily.app`;
+        // КРИТИЧНО: Используем единый формат для объединения аккаунтов (Mini App + Widget)
+        const email = `tg_${telegramUser.id}@telegram.auth`;
         const password = `tg_secure_${telegramUser.id}_${BOT_TOKEN.substring(0, 10)}`;
 
         console.log('[telegram-auth-v2] 🔑 Attempting sign in for:', email);

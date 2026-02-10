@@ -95,18 +95,19 @@ serve(async (req) => {
         );
 
         // 1. Check if user exists by telegram_id (stored in user_metadata or profiles)
-        // Actually, we can just use a deterministic email: tg_<id>@skilyapp.com
-        const email = `tg_${telegramUser.id}@skilyapp.com`;
+        // КРИТИЧНО: Используем ЕДИНЫЙ формат для объединения аккаунтов (Mini App + Widget)
+        const email = `tg_${telegramUser.id}@telegram.auth`;
 
         // Upsert the user into Profiles table FIRST (to ensure data is fresh)
+        // ВАЖНО: Мы сохраняем ИМЯ И АВАТАР, которые пришли из виджета
         const { error: profileError } = await supabaseAdmin
             .from('profiles')
             .upsert({
                 telegram_id: telegramUser.id,
                 first_name: telegramUser.first_name,
-                last_name: telegramUser.last_name,
-                username: telegramUser.username,
-                photo_url: telegramUser.photo_url,
+                last_name: telegramUser.last_name || null,
+                username: telegramUser.username || null,
+                photo_url: telegramUser.photo_url || null,
                 platform: 'telegram',
                 updated_at: new Date().toISOString()
             }, { onConflict: 'telegram_id' });
@@ -132,7 +133,10 @@ serve(async (req) => {
             user_metadata: {
                 telegram_id: telegramUser.id,
                 first_name: telegramUser.first_name,
-                username: telegramUser.username
+                full_name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(),
+                avatar_url: telegramUser.photo_url || null,
+                username: telegramUser.username,
+                is_telegram_user: true
             }
         });
 
