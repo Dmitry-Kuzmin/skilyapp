@@ -47,106 +47,106 @@ const DEMO_QUESTIONS_DATA = {
     ru: [
         {
             id: 'ru-q1',
-            question: 'Кому Вы обязаны уступить дорогу при повороте налево?',
-            imageUrl: '/images/pdd_russia/A_B/dd7e958840da9ddd1c102a65d8d5c03f.jpg',
-            illustrationType: 'roundabout', // Fallback
-            illustrationVariant: 'indigo',
+            question: 'Какой максимальный скоростной режим установлен в населенных пунктах с одной полосой для движения в каждом направлении?',
+            imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
+            illustrationType: 'speed',
+            illustrationVariant: 'blue',
             aiAnalysis: {
-                title: 'Разбор перекрестка',
-                text: 'Главная дорога меняет направление. Поскольку вы находитесь на главной и справа помех нет — у вас приоритет перед всеми! Проезжайте первым. 🚦',
-                mood: 'happy'
+                title: 'Анализ скорости',
+                text: 'Многие отвечают 50 км/ч по привычке. Но внимание: если полоса всего одна — закон ограничивает скорость до 30 км/ч ради безопасности пешеходов. 📉',
+                mood: 'warning'
             },
             answers: [
-                { id: '1', text: 'Только автобусу', isCorrect: false },
-                { id: '2', text: 'Только легковому автомобилю', isCorrect: false },
-                { id: '3', text: 'Никому', isCorrect: true },
+                { id: '1', text: '50 км/ч', isCorrect: false },
+                { id: '2', text: '30 км/ч', isCorrect: true },
+                { id: '3', text: '40 км/ч', isCorrect: false },
             ]
         },
         {
             id: 'ru-q2',
-            question: 'По какой траектории Вам разрешается выполнить поворот налево?',
-            imageUrl: '/images/pdd_russia/A_B/e5c4d4989ef9427567d3944a43de239c.jpg',
-            illustrationType: 'speed', // Fallback
-            illustrationVariant: 'blue',
+            question: 'Кто имеет преимущество при въезде на перекресток с круговым движением?',
+            imageUrl: 'https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=800&q=80',
+            illustrationType: 'roundabout',
+            illustrationVariant: 'indigo',
             aiAnalysis: {
-                title: 'Трамвайные пути',
-                text: 'Обратите внимание на знаки движения по полосам (5.15.1). Они ЗАПРЕЩАЮТ выезд на трамвайные пути. Поворачивать можно только по траектории Б. 🚋',
+                title: 'Разбор ситуации',
+                text: 'Ты выбрал "Помеха справа", но на круговом движении приоритет ВСЕГДА у тех, кто уже движется ПО кругу. Это базовое правило круга. 🔄',
                 mood: 'warning'
             },
             answers: [
-                { id: '1', text: 'Только по А', isCorrect: false },
-                { id: '2', text: 'Только по Б', isCorrect: true },
-                { id: '3', text: 'По любой из указанных', isCorrect: false },
+                { id: '1', text: 'Тот, кто въезжает (помеха справа)', isCorrect: false },
+                { id: '2', text: 'Тот, кто уже движется по кругу', isCorrect: true },
+                { id: '3', text: 'Тот, кто движется быстрее', isCorrect: false },
             ]
         },
         {
             id: 'ru-q3',
-            question: 'Кто из водителей нарушил правила стоянки?',
-            imageUrl: '/images/pdd_russia/A_B/456767f8b2e0d39f83d8f9f1b2a378da.jpg',
-            illustrationType: 'horn', // Fallback
+            question: 'Можно ли использовать звуковой сигнал в населенном пункте?',
+            imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
+            illustrationType: 'horn',
             illustrationVariant: 'orange',
             aiAnalysis: {
-                title: 'Правила парковки',
-                text: 'Это "карман", но знака "парковка с табличкой способа постановки" нет. Значит, парковаться можно ТОЛЬКО параллельно краю, как водитель Б. Водитель А нарушил. 🅿️',
+                title: 'Шум в городе',
+                text: 'Сигналить, чтобы поздороваться или поторопить — запрещено. Звук разрешен ТОЛЬКО для предотвращения аварии. 🔇',
                 mood: 'warning'
             },
             answers: [
-                { id: '1', text: 'Оба', isCorrect: false },
-                { id: '2', text: 'Только водитель автомобиля А', isCorrect: true },
-                { id: '3', text: 'Только водитель автомобиля Б', isCorrect: false },
+                { id: '1', text: 'Да, для предупреждения об обгоне', isCorrect: false },
+                { id: '2', text: 'Нет, только для предотвращения ДТП', isCorrect: true },
+                { id: '3', text: 'Запрещено всегда', isCorrect: false },
             ]
         }
     ],
     es: [
         {
             id: 'es-q1',
-            question: 'Si circula con un turismo, ¿qué le está permitido hacer en el arcén de esta autovía?',
-            imageUrl: 'https://images.unsplash.com/photo-1625218827331-f47079cd3655?w=800&q=80', // Car breaking down/shoulder
-            illustrationType: 'horn',
-            illustrationVariant: 'orange',
+            question: '¿En caso de accidente, qué tipo de reposacabezas es más efectivo?',
+            imageUrl: '/images/hero-lcp.webp',
+            illustrationType: 'speed',
+            illustrationVariant: 'blue',
             aiAnalysis: {
-                title: 'Uso del Arcén',
-                text: '¡Cuidado! El arcén es sagrado. Solo se pisa por emergencia (avería o malestar). NUNCA para llamar por teléfono o descansar. 🛑',
-                mood: 'warning'
+                title: 'Seguridad Pasiva',
+                text: 'El reposacabezas activo es un sistema de seguridad pasiva diseñado para reducir el riesgo de lesiones cervicales. Su superioridad técnica reside en su capacidad para actuar de forma proactiva durante una colisión trasera. 🛡️',
+                mood: 'happy'
             },
             answers: [
-                { id: '1', text: 'Parar para hablar por teléfono móvil', isCorrect: false },
-                { id: '2', text: 'Adelantar por la derecha', isCorrect: false },
-                { id: '3', text: 'Inmovilizar el vehículo por emergencia', isCorrect: true },
+                { id: '1', text: 'El reposacabezas activo, que se acopla a la cabeza automáticamente', isCorrect: true },
+                { id: '2', text: 'El reposacabezas activo es tan efectivo como el pasivo', isCorrect: false },
+                { id: '3', text: 'El reposacabezas pasivo', isCorrect: false },
             ]
         },
         {
             id: 'es-q2',
-            question: 'En un turismo, ¿cuántos chalecos reflectantes es obligatorio llevar?',
-            imageUrl: 'https://images.unsplash.com/photo-1617424682054-04de55e9754f?w=800&q=80', // Safety vest concept
-            illustrationType: 'speed',
-            illustrationVariant: 'indigo',
+            question: '¿Quiénes tienen más probabilidad de sufrir un accidente por distracción?',
+            imageUrl: 'https://images.unsplash.com/photo-1516567797550-60f3896fa2bb?w=800&q=80',
+            illustrationType: 'horn',
+            illustrationVariant: 'orange',
             aiAnalysis: {
-                title: 'Equipamiento',
-                text: 'La ley exige llevar UNO obligatoriamente en el habitáculo (para ponértelo ANTES de salir). Recomendable: llevar dos. 🦺',
-                mood: 'happy'
+                title: 'Análisis de Riesgo',
+                text: 'Estadísticamente, los jóvenes de 18 a 25 años son el grupo de mayor riesgo debido a la inexperiencia y al uso del móvil. ¡Mantén la vista en la carretera! 📱🚫',
+                mood: 'warning'
             },
             answers: [
-                { id: '1', text: 'Uno para el conductor y otro para el acompañante', isCorrect: false },
-                { id: '2', text: 'Uno', isCorrect: true },
-                { id: '3', text: 'Uno por cada plaza', isCorrect: false },
+                { id: '1', text: 'Los conductores mayores de 40 años', isCorrect: false },
+                { id: '2', text: 'Los jóvenes de 18 a 25 años', isCorrect: true },
+                { id: '3', text: 'Los conductores profesionales', isCorrect: false },
             ]
         },
         {
             id: 'es-q3',
-            question: 'En un tramo estrecho de gran pendiente, ¿quién debe ceder el paso?',
-            imageUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80', // Winding mountain road
+            question: 'Con lluvia intensa, ¿cómo debes circular?',
+            imageUrl: 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=800&q=80',
             illustrationType: 'roundabout',
-            illustrationVariant: 'blue',
+            illustrationVariant: 'indigo',
             aiAnalysis: {
-                title: 'Prioridad en Pendiente',
-                text: 'Regla de oro en montaña: el que SUBE tiene preferencia (le cuesta más arrancar). El que baja, cede. Salvo que el que sube tenga apartadero. 🏔️',
+                title: 'Conducción Segura',
+                text: 'La lluvia reduce la adherencia y la visibilidad. Debes reducir la velocidad, aumentar la distancia de seguridad y encender las luces para ser visto. 🌧️🚗',
                 mood: 'warning'
             },
             answers: [
-                { id: '1', text: 'El vehículo más ligero', isCorrect: false },
-                { id: '2', text: 'El vehículo que sube', isCorrect: false },
-                { id: '3', text: 'El vehículo que baja', isCorrect: true },
+                { id: '1', text: 'A la misma velocidad que en seco', isCorrect: false },
+                { id: '2', text: 'A velocidad moderada y con las luces encendidas', isCorrect: true },
+                { id: '3', text: 'Detenerse siempre en el arcén', isCorrect: false },
             ]
         }
     ],
