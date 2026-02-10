@@ -47,53 +47,53 @@ const DEMO_QUESTIONS_DATA = {
     ru: [
         {
             id: 'ru-q1',
-            question: 'Какой максимальный скоростной режим установлен в населенных пунктах с одной полосой для движения в каждом направлении?',
-            imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
-            illustrationType: 'speed',
-            illustrationVariant: 'blue',
+            question: 'Разрешен ли обгон (опережение) на перекрестке с круговым движением?',
+            imageUrl: '/images/demo/es/q1.png',
+            illustrationType: 'roundabout',
+            illustrationVariant: 'indigo',
             aiAnalysis: {
-                title: 'Анализ скорости',
-                text: 'Многие отвечают 50 км/ч по привычке. Но внимание: если полоса всего одна — закон ограничивает скорость до 30 км/ч ради безопасности пешеходов. 📉',
-                mood: 'warning'
+                title: 'Правило круга',
+                text: 'Да! Круговое движение — это исключение. Хотя обычно обгон на перекрестках запрещен, на "кольце" можно опережать другие машины, если это безопасно. 🔄',
+                mood: 'happy'
             },
             answers: [
-                { id: '1', text: '50 км/ч', isCorrect: false },
-                { id: '2', text: '30 км/ч', isCorrect: true },
-                { id: '3', text: '40 км/ч', isCorrect: false },
+                { id: '1', text: 'Нет.', isCorrect: false },
+                { id: '2', text: 'Да.', isCorrect: true },
+                { id: '3', text: 'Да, но только по правой полосе.', isCorrect: false },
             ]
         },
         {
             id: 'ru-q2',
-            question: 'Кто имеет преимущество при въезде на перекресток с круговым движением?',
-            imageUrl: 'https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=800&q=80',
-            illustrationType: 'roundabout',
-            illustrationVariant: 'indigo',
+            question: 'Может ли один мотоцикл обогнать другой в этом повороте с ограниченной видимостью?',
+            imageUrl: '/images/demo/es/q2.png',
+            illustrationType: 'speed',
+            illustrationVariant: 'orange',
             aiAnalysis: {
-                title: 'Разбор ситуации',
-                text: 'Ты выбрал "Помеха справа", но на круговом движении приоритет ВСЕГДА у тех, кто уже движется ПО кругу. Это базовое правило круга. 🔄',
-                mood: 'warning'
+                title: 'Точный маневр',
+                text: 'Верно. Мотоциклы узкие, поэтому они могут разъехаться в пределах одной полосы. Главное — не зацепить встречную полосу ("стену смерти")! 🏍️',
+                mood: 'thinking'
             },
             answers: [
-                { id: '1', text: 'Тот, кто въезжает (помеха справа)', isCorrect: false },
-                { id: '2', text: 'Тот, кто уже движется по кругу', isCorrect: true },
-                { id: '3', text: 'Тот, кто движется быстрее', isCorrect: false },
+                { id: '1', text: 'Нет, на поворотах с ограниченной видимостью обгон запрещен всегда.', isCorrect: false },
+                { id: '2', text: 'Нет, так как нужно выезжать на встречку.', isCorrect: false },
+                { id: '3', text: 'Да, если не выезжает на полосу встречного движения.', isCorrect: true },
             ]
         },
         {
             id: 'ru-q3',
-            question: 'Можно ли использовать звуковой сигнал в населенном пункте?',
-            imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
-            illustrationType: 'horn',
-            illustrationVariant: 'orange',
+            question: 'В данной ситуации может ли зеленый автомобиль обогнать белый?',
+            imageUrl: '/images/demo/es/q3.png',
+            illustrationType: 'speed',
+            illustrationVariant: 'blue',
             aiAnalysis: {
-                title: 'Шум в городе',
-                text: 'Сигналить, чтобы поздороваться или поторопить — запрещено. Звук разрешен ТОЛЬКО для предотвращения аварии. 🔇',
-                mood: 'warning'
+                title: 'Встречная угроза',
+                text: 'Стоп! Прерывистая линия разрешает, но встречная машина — нет. Безопасность важнее разметки. Нельзя обгонять, если "встречка" занята. 🚫',
+                mood: 'concerned'
             },
             answers: [
-                { id: '1', text: 'Да, для предупреждения об обгоне', isCorrect: false },
-                { id: '2', text: 'Нет, только для предотвращения ДТП', isCorrect: true },
-                { id: '3', text: 'Запрещено всегда', isCorrect: false },
+                { id: '1', text: 'Нет, потому что смена полосы запрещена.', isCorrect: false },
+                { id: '2', text: 'Нет, так как есть встречные транспортные средства.', isCorrect: true },
+                { id: '3', text: 'Нет, потому что разметка запрещает.', isCorrect: false },
             ]
         }
     ],
@@ -153,53 +153,53 @@ const DEMO_QUESTIONS_DATA = {
     en: [
         {
             id: 'en-q1',
-            question: 'On urban roads with a single lane in each direction, what is the max speed?',
-            imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
-            illustrationType: 'speed',
-            illustrationVariant: 'blue',
+            question: 'Is overtaking permitted in a roundabout?',
+            imageUrl: '/images/demo/es/q1.png',
+            illustrationType: 'roundabout',
+            illustrationVariant: 'indigo',
             aiAnalysis: {
-                title: 'Speed Analysis',
-                text: '50 km/h is the old norm. Watch out! Single lane roads are now capped at 30 km/h for pedestrian safety. 📉',
-                mood: 'warning'
+                title: 'Roundabout Rule',
+                text: 'Yes! Roundabouts are an exception. While generally overtaking is banned at intersections, inside the roundabout you CAN overtake if safe. 🔄',
+                mood: 'happy'
             },
             answers: [
-                { id: '1', text: '50 km/h', isCorrect: false },
-                { id: '2', text: '30 km/h', isCorrect: true },
-                { id: '3', text: '40 km/h', isCorrect: false },
+                { id: '1', text: 'No.', isCorrect: false },
+                { id: '2', text: 'Yes.', isCorrect: true },
+                { id: '3', text: 'Yes, but only on the right lane.', isCorrect: false },
             ]
         },
         {
             id: 'en-q2',
-            question: 'Who has priority at a roundabout?',
-            imageUrl: 'https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=800&q=80',
-            illustrationType: 'roundabout',
-            illustrationVariant: 'indigo',
+            question: 'Can a motorcycle overtake another motorcycle in this curve with reduced visibility?',
+            imageUrl: '/images/demo/es/q2.png',
+            illustrationType: 'speed',
+            illustrationVariant: 'orange',
             aiAnalysis: {
-                title: 'Smart Analysis',
-                text: 'You chose "Entering from right", but priority ALWAYS belongs to those already INSIDE the circle. 🔄',
-                mood: 'warning'
+                title: 'Precision Maneuver',
+                text: 'Correct. Motorcycles are narrow, so they can pass each other within the lane. The key is NEVER invading the opposite lane (the "wall"). 🏍️',
+                mood: 'thinking'
             },
             answers: [
-                { id: '1', text: 'Vehicles entering', isCorrect: false },
-                { id: '2', text: 'Vehicles already inside', isCorrect: true },
-                { id: '3', text: 'Faster vehicles', isCorrect: false },
+                { id: '1', text: 'No, overtaking is always prohibited in blind curves.', isCorrect: false },
+                { id: '2', text: 'No, because it requires invading the opposite lane.', isCorrect: false },
+                { id: '3', text: 'Yes, if it does not invade the opposite direction.', isCorrect: true },
             ]
         },
         {
             id: 'en-q3',
-            question: 'Is it allowed to use the horn in built-up areas?',
-            imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
-            illustrationType: 'horn',
-            illustrationVariant: 'orange',
+            question: 'Under these circumstances, can the green vehicle overtake the white one?',
+            imageUrl: '/images/demo/es/q3.png',
+            illustrationType: 'speed',
+            illustrationVariant: 'blue',
             aiAnalysis: {
-                title: 'Urban Noise',
-                text: 'Honking to say hello or rush others is banned. It is ONLY allowed to prevent an immediate accident. 🔇',
-                mood: 'warning'
+                title: 'Oncoming Danger',
+                text: 'Stop! The broken line permits it, but the oncoming car DOES NOT. Safety overrides paint. Do not overtake if the opposite lane is busy. 🚫',
+                mood: 'concerned'
             },
             answers: [
-                { id: '1', text: 'Yes, for overtaking', isCorrect: false },
-                { id: '2', text: 'No, only to avoid accidents', isCorrect: true },
-                { id: '3', text: 'Never allowed', isCorrect: false },
+                { id: '1', text: 'No, because changing lanes is prohibited.', isCorrect: false },
+                { id: '2', text: 'No, because vehicles are approaching.', isCorrect: true },
+                { id: '3', text: 'No, because the road marking prohibits it.', isCorrect: false },
             ]
         }
     ]
