@@ -32,6 +32,38 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
 
+    // КРИТИЧНО: Автоматическая перезагрузка при ошибке загрузки чанка (Deploy update)
+    // ALIGN WITH INDEX.HTML PROTECTION LOGIC
+    if (
+      error.message.includes('Importing a module script failed') ||
+      error.message.includes('text/html') ||
+      error.name === 'ChunkLoadError'
+    ) {
+      console.error('[ErrorBoundary] Chunk load error detected. Attempting recovery...', error);
+
+      const storageKey = 'module_reload_count';
+      const timeKey = 'module_reload_time';
+
+      const count = parseInt(localStorage.getItem(storageKey) || '0');
+      const lastTime = parseInt(localStorage.getItem(timeKey) || '0');
+      const now = Date.now();
+
+      // Сбрасываем счетчик, если прошло больше 60 секунд
+      const currentCount = (now - lastTime > 60000) ? 0 : count;
+
+      if (currentCount < 3) {
+        localStorage.setItem(storageKey, (currentCount + 1).toString());
+        localStorage.setItem(timeKey, now.toString());
+
+        console.log(`[ErrorBoundary] Reloading page (Attempt ${currentCount + 1}/3)...`);
+        window.location.reload();
+        return;
+      } else {
+        console.error('[ErrorBoundary] Reload limit exceeded. Showing error UI without auto-reload.');
+        // Не вызываем reload(), позволяем React отрисовать Fallback UI ниже
+      }
+    }
+
     // Отправляем ошибку в Rollbar
     import('@/lib/rollbar')
       .then(({ reportError }) => {

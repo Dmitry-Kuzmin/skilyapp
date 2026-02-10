@@ -273,6 +273,40 @@ window.addEventListener('unhandledrejection', (event) => {
     return;
   }
 
+  // КРИТИЧНО: Автоматическая перезагрузка при ошибке загрузки чанка (Deploy update)
+  // Это дублирует логику в ErrorBoundary и index.html, но для промисов вне React
+  if (
+    reasonStr?.includes('Importing a module script failed') ||
+    reasonStr?.includes('text/html') ||
+    reasonStr?.includes('Failed to fetch dynamically imported module')
+  ) {
+    console.error('[CRITICAL] Chunk load error detected in promise. Reloading...');
+
+    // ALIGN WITH INDEX.HTML PROTECTION LOGIC
+    const storageKey = 'module_reload_count';
+    const timeKey = 'module_reload_time';
+
+    const count = parseInt(localStorage.getItem(storageKey) || '0');
+    const lastTime = parseInt(localStorage.getItem(timeKey) || '0');
+    const now = Date.now();
+
+    // Сбрасываем счетчик, если прошло больше 60 секунд
+    const currentCount = (now - lastTime > 60000) ? 0 : count;
+
+    if (currentCount < 3) {
+      localStorage.setItem(storageKey, (currentCount + 1).toString());
+      localStorage.setItem(timeKey, now.toString());
+
+      console.log(`[Main] Reloading page (Attempt ${currentCount + 1}/3)...`);
+      window.location.reload();
+      return;
+    } else {
+      console.error('[Main] Reload limit exceeded. Giving up.');
+      // index.html обработчик покажет UI, если ошибка всплывет туда.
+      // Но здесь мы тоже можем ничего не делать, чтобы не зацикливать.
+    }
+  }
+
   const errorData = {
     reason: event.reason,
     promise: event.promise,
@@ -309,36 +343,27 @@ if (!rootElement) {
 }
 
 // --------------------------------------------------------
-// ☠️ SERVICE WORKER KILLER - ОТКЛЮЧЕН ДЛЯ PUSH-УВЕДОМЛЕНИЙ
-// ВАЖНО: Теперь используем Service Worker только для Push-уведомлений
-// Кэширование отключено в sw-push.js
+// ☠️ SERVICE WORKER KILLER (Monetag & Zombies)
+// ВАЖНО: Убиваем только вредные SW, оставляем sw-push.js
 // --------------------------------------------------------
-// if ('serviceWorker' in navigator) {
-//   navigator.serviceWorker.getRegistrations().then((registrations) => {
-//     const unregisterPromises = [];
-//     for (const registration of registrations) {
-//       console.log('💀 Killing Service Worker:', registration);
-//       unregisterPromises.push(registration.unregister());
-//     }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    for (const registration of registrations) {
+      const scriptURL = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL || '';
 
-//     // Если нашли и убили SW, перезагружаем страницу, чтобы взять свежий код с сервера
-//     if (registrations.length > 0) {
-//       Promise.all(unregisterPromises).then(() => {
-//         console.log('🔄 Service Worker killed. Reloading page... SKIPPED to prevent loop');
-//         // window.location.reload();
-//       });
-//     }
-//   });
+      // Оставляем только наш Push SW
+      if (scriptURL.includes('sw-push.js')) {
+        console.log('[Main] ✅ Keeping Push Service Worker:', scriptURL);
+        continue;
+      }
 
-//   // Очистка кэша хранилища
-//   if ('caches' in window) {
-//     caches.keys().then((names) => {
-//       for (const name of names) {
-//         caches.delete(name);
-//       }
-//     });
-//   }
-// }
+      console.warn('[Main] ☠️ Killing unknown/ad Service Worker:', scriptURL);
+      registration.unregister().then(success => {
+        console.log('[Main] 🗑️ SW Unregistered:', success);
+      });
+    }
+  });
+}
 // --------------------------------------------------------
 
 if (import.meta.env.DEV) {
