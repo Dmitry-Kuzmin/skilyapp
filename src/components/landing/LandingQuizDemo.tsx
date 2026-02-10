@@ -100,53 +100,53 @@ const DEMO_QUESTIONS_DATA = {
     es: [
         {
             id: 'es-q1',
-            question: '¿En caso de accidente, qué tipo de reposacabezas es más efectivo?',
-            imageUrl: '/images/hero-lcp.webp',
-            illustrationType: 'speed',
-            illustrationVariant: 'blue',
+            question: '¿Está permitido adelantar en una glorieta?',
+            imageUrl: '/images/demo/es/q1.png',
+            illustrationType: 'roundabout',
+            illustrationVariant: 'indigo',
             aiAnalysis: {
-                title: 'Seguridad Pasiva',
-                text: 'El reposacabezas activo es un sistema de seguridad pasiva diseñado para reducir el riesgo de lesiones cervicales. Su superioridad técnica reside en su capacidad para actuar de forma proactiva durante una colisión trasera. 🛡️',
+                title: 'Regla de Glorietas',
+                text: '¡Sí! Las glorietas son una excepción. Aunque normalmente está prohibido adelantar en intersecciones, en las glorietas se permite adelantar a otros vehículos si es seguro. 🔄',
                 mood: 'happy'
             },
             answers: [
-                { id: '1', text: 'El reposacabezas activo, que se acopla a la cabeza automáticamente', isCorrect: true },
-                { id: '2', text: 'El reposacabezas activo es tan efectivo como el pasivo', isCorrect: false },
-                { id: '3', text: 'El reposacabezas pasivo', isCorrect: false },
+                { id: '1', text: 'No.', isCorrect: false },
+                { id: '2', text: 'Sí.', isCorrect: true },
+                { id: '3', text: 'Sí, pero solo por el carril derecho.', isCorrect: false },
             ]
         },
         {
             id: 'es-q2',
-            question: '¿Quiénes tienen más probabilidad de sufrir un accidente por distracción?',
-            imageUrl: 'https://images.unsplash.com/photo-1516567797550-60f3896fa2bb?w=800&q=80',
-            illustrationType: 'horn',
+            question: '¿Puede adelantar una motocicleta a otra en esta curva de visibilidad reducida?',
+            imageUrl: '/images/demo/es/q2.png',
+            illustrationType: 'speed',
             illustrationVariant: 'orange',
             aiAnalysis: {
-                title: 'Análisis de Riesgo',
-                text: 'Estadísticamente, los jóvenes de 18 a 25 años son el grupo de mayor riesgo debido a la inexperiencia y al uso del móvil. ¡Mantén la vista en la carretera! 📱🚫',
-                mood: 'warning'
+                title: 'Adelantamiento Preciso',
+                text: 'Correcto. Las motos pueden adelantarse en curvas de poca visibilidad SIEMPRE que no invadan el sentido contrario. Al ser pequeñas, caben en el carril. 🏍️',
+                mood: 'thinking'
             },
             answers: [
-                { id: '1', text: 'Los conductores mayores de 40 años', isCorrect: false },
-                { id: '2', text: 'Los jóvenes de 18 a 25 años', isCorrect: true },
-                { id: '3', text: 'Los conductores profesionales', isCorrect: false },
+                { id: '1', text: 'No, en curvas de visibilidad reducida está prohibido siempre.', isCorrect: false },
+                { id: '2', text: 'No, porque debe invadir el sentido contrario.', isCorrect: false },
+                { id: '3', text: 'Sí, cuando mantiene la separación lateral reglamentaria y no ocupa el sentido contrario.', isCorrect: true },
             ]
         },
         {
             id: 'es-q3',
-            question: 'Con lluvia intensa, ¿cómo debes circular?',
-            imageUrl: 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=800&q=80',
-            illustrationType: 'roundabout',
-            illustrationVariant: 'indigo',
+            question: 'En las circunstancias que se dan en la imagen, el vehículo verde, ¿puede adelantar al vehículo blanco?',
+            imageUrl: '/images/demo/es/q3.png',
+            illustrationType: 'speed',
+            illustrationVariant: 'blue',
             aiAnalysis: {
-                title: 'Conducción Segura',
-                text: 'La lluvia reduce la adherencia y la visibilidad. Debes reducir la velocidad, aumentar la distancia de seguridad y encender las luces para ser visto. 🌧️🚗',
-                mood: 'warning'
+                title: 'Peligro Frontal',
+                text: '¡Alto! Aunque la línea sea discontinua, viene un coche azul de frente. La seguridad es prioritaria sobre la pintura en el suelo. 🚫',
+                mood: 'concerned'
             },
             answers: [
-                { id: '1', text: 'A la misma velocidad que en seco', isCorrect: false },
-                { id: '2', text: 'A velocidad moderada y con las luces encendidas', isCorrect: true },
-                { id: '3', text: 'Detenerse siempre en el arcén', isCorrect: false },
+                { id: '1', text: 'No, porque está prohibido cambiar de carril.', isCorrect: false },
+                { id: '2', text: 'No, porque vienen vehículos en sentido contrario.', isCorrect: true },
+                { id: '3', text: 'No, porque la marca vial prohíbe adelantar.', isCorrect: false },
             ]
         }
     ],
@@ -393,6 +393,11 @@ export const LandingQuizDemo: React.FC<LandingQuizDemoProps> = ({ onRegisterClic
     // AI Mock State
     const [aiMessage, setAiMessage] = useState<any | null>(null);
     const [aiStatus, setAiStatus] = useState<'idle' | 'analyzing' | 'speaking'>('idle');
+    const [imageError, setImageError] = useState(false);
+
+    useEffect(() => {
+        setImageError(false);
+    }, [currentStep]);
 
     const questions = DEMO_QUESTIONS_DATA[language];
     const currentQuestion = questions[currentStep];
@@ -520,11 +525,12 @@ export const LandingQuizDemo: React.FC<LandingQuizDemoProps> = ({ onRegisterClic
                     <div className="flex flex-col lg:flex-row h-full">
                         {/* Illustration Area */}
                         <div className="lg:w-[45%] bg-slate-950 relative min-h-[240px] lg:min-h-[500px] border-r border-white/5 overflow-hidden">
-                            {currentQuestion.imageUrl ? (
+                            {currentQuestion.imageUrl && !imageError ? (
                                 <img
                                     src={currentQuestion.imageUrl}
                                     alt={currentQuestion.question}
                                     className="w-full h-full object-cover"
+                                    onError={() => setImageError(true)}
                                 />
                             ) : (
                                 <QuestionIllustration
