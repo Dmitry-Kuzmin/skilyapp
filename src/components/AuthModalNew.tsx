@@ -58,7 +58,6 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const webApp = useTelegram();
-  const telegramLoading = false; // useTelegram не возвращает loading
   const scrambleRef = useRef<NodeJS.Timeout | null>(null);
 
   const isValidEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
