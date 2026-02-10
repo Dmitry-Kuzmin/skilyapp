@@ -1,6 +1,7 @@
 // Skily Landing Page - Russia Market (ГИБДД)
 import React, { useState, useEffect } from "react";
 import { useIsTouchDevice } from "@/hooks/useIsTouchDevice";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
@@ -157,6 +158,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   loadingPartner = false,
 }) => {
   const isTouchDevice = useIsTouchDevice();
+  const isMobile = useIsMobile();
   const [isStarting, setIsStarting] = useState(false);
   const [isEchoActive, setIsEchoActive] = useState(false);
   const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
@@ -499,6 +501,13 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
 
   const handleStartEngine = () => {
+    // Для мобильных устройств (touch + small screen) редирект на /login
+    if (isMobile) {
+      playEngineSound();
+      setTimeout(() => navigate('/login'), 300);
+      return;
+    }
+
     if (isTouchDevice) {
       playEngineSound();
       setTimeout(() => navigate('/login'), 300); // Небольшая задержка для звука
@@ -516,6 +525,10 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   };
 
   const handleEnter = () => {
+    if (isMobile) {
+      navigate('/login');
+      return;
+    }
     playClickSound();
     onRequestAccess();
   };

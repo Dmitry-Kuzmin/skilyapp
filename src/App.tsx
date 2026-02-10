@@ -594,8 +594,10 @@ const App = () => {
               {/* Login page for mobile - standalone */}
               <Route path="/login" element={
                 <Suspense fallback={null}>
-                  <StartupCurtain />
-                  <Login />
+                  <AppProviders>
+                    <StartupCurtain />
+                    <Login />
+                  </AppProviders>
                 </Suspense>
               } />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}

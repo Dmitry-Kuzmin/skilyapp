@@ -1,5 +1,6 @@
 // Skily Landing Page - Optimized for High Conversions
 import React, { useState, useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
@@ -148,6 +149,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   partnerInfo,
   loadingPartner = false,
 }) => {
+  const isMobile = useIsMobile();
   const [isStarting, setIsStarting] = useState(false);
   const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
 
@@ -448,6 +450,11 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 
 
   const handleStartEngine = () => {
+    if (isMobile) {
+      playEngineSound();
+      setTimeout(() => navigate('/login'), 300);
+      return;
+    }
     if (isStarting) return; // избегаем двойного триггера во время анимации
     setIsStarting(true);
     playEngineSound();
@@ -459,6 +466,10 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   };
 
   const handleEnter = () => {
+    if (isMobile) {
+      navigate('/login');
+      return;
+    }
     playClickSound();
     onRequestAccess();
   };
