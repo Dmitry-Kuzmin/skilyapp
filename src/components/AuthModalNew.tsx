@@ -292,20 +292,33 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
   const handleGoogleLogin = async () => {
     try {
-      // КРИТИЧНО: Используем стандартный редирект для максимальной совместимости на мобильных
-      // Попапы часто блокируются или открываются некорректно во встроенных браузерах (Instagram, Telegram)
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          skipBrowserRedirect: false, // Включаем автоматический редирект
+          skipBrowserRedirect: false,
         }
       });
-
       if (error) throw error;
     } catch (err: any) {
       console.error('Google login error:', err);
       toast.error('Google login failed');
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          skipBrowserRedirect: false,
+        }
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('Apple login error:', err);
+      toast.error('Apple login failed');
     }
   };
 
@@ -372,9 +385,9 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 isValidEmail={isValidEmail}
                 isEmailShaking={isEmailShaking}
                 isPasskeyAvailable={isPasskeyAvailable}
-                telegramLoading={telegramLoading}
                 onContinue={handleEmailSubmit}
                 onGoogleLogin={handleGoogleLogin}
+                onAppleLogin={handleAppleLogin}
                 getPasskeyLabel={getPasskeyLabel}
                 onClose={onClose}
               />
