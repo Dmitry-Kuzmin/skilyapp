@@ -85,182 +85,178 @@ const Landing = () => {
 
       // КРИТИЧНО: НЕ проверяем hasStoredAuth - это может создать бесконечный цикл
       // Index (dashboard) сам проверит реальную авторизацию из Supabase
-      // Если есть реальный Telegram user или initData -> редирект
-      if ((telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') || hasAuth) {
+
+      // АВТО-РЕДИРЕКТ: Только если мы ВНУТРИ Telegram Mini App или имеем реальный initData
+      const isMiniApp = isTelegramMiniApp();
+      const hasRealInitData = webApp?.initData && webApp.initData !== '' && !webApp.initData.startsWith('mock_');
+
+      if (isMiniApp && (telegramUser || hasAuth || hasRealInitData)) {
         if (!hasRedirected) {
-          console.log('[Landing] Telegram user/auth detected, redirecting to dashboard:', telegramUser?.first_name || 'via initData');
+          console.log('[Landing] Telegram Mini App detected, auto-redirecting to dashboard');
           hasRedirected = true;
           navigate('/dashboard', { replace: true });
         }
         return;
       }
 
-      // Б. Если мы точно в Мини-аппе (есть initData) -> редирект на дашборд
-      // UserContext там обработает авторизацию, даже если пользователь еще не найден
-      // КРИТИЧНО: В DEV режиме isTelegramMiniApp() может вернуть true даже без initData
-      // Поэтому проверяем также наличие реального initData
-      const isMiniApp = isTelegramMiniApp();
-      const hasRealInitData = webApp?.initData && webApp.initData !== '' && !webApp.initData.startsWith('mock_');
-
-      if (isMiniApp && hasRealInitData && !hasRedirected) {
-        console.log('[Landing] Telegram Mini App detected with initData, redirecting to dashboard');
-        hasRedirected = true;
-        navigate('/dashboard', { replace: true });
-        return;
-      }
-
-      // В. Если WebApp обнаружен, но initData еще нет -> продолжаем попытки
-      if (hasWebApp && !hasRealInitData && attempts < maxAttempts) {
-        console.log(`[Landing] WebApp detected, waiting for initData (attempt ${attempts}/${maxAttempts})`);
-        timeoutId = setTimeout(checkTelegram, 250);
-        return;
-      }
-
-      // Г. Если WebApp был обнаружен, но таймаут истек -> редирект на дашборд
-      // UserContext там обработает авторизацию, когда initData появится
-      if (webAppDetected && attempts >= maxAttempts && !hasRedirected) {
-        console.log('[Landing] WebApp detected but timeout reached, redirecting to dashboard for auth handling');
-        hasRedirected = true;
-        navigate('/dashboard', { replace: true });
-        return;
-      }
-
-      // Д. Если нет WebApp и прошло достаточно попыток -> показываем Лендинг
-      if (!hasWebApp && attempts >= 3) {
-        console.log('[Landing] No Telegram WebApp detected, showing landing page');
-        setIsCheckingTelegram(false);
-        return;
-      }
-
-      // Е. Продолжаем попытки на случай задержки загрузки
-      if (attempts < maxAttempts && !hasRedirected) {
-        timeoutId = setTimeout(checkTelegram, 250);
-      } else if (!hasRedirected) {
-        // Финальный fallback - показываем лендинг
-        console.log('[Landing] Max attempts reached, showing landing page');
-        setIsCheckingTelegram(false);
-      }
+      // В обычном браузере (Web) НЕ делаем авто-редирект на основе checkTelegramAuth()
+      // Это предотвращает ситуацию, когда пользователя кидает в старую сессию.
+      console.log('[Landing] Web mode: staying on landing page');
+      setIsCheckingTelegram(false);
     };
 
-    // Начинаем проверку сразу
-    checkTelegram();
-
-    return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
-    };
-  }, [navigate, webApp]); // CRITICAL: Removed location.pathname to prevent infinite loop
-
-  useEffect(() => {
-    // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index
-    // Landing просто рендерится на /, а Index на /dashboard редиректит на / если не авторизован
-    // Это предотвращает бесконечный цикл редиректов
-
-    // ОПТИМИЗАЦИЯ: Проверяем коды, но НЕ блокируем рендер лендинга
-    // Лендинг рендерится сразу, а данные загружаются асинхронно когда придут
-
-    // Проверяем партнерский код (приоритет над реферальным)
-    const partnerDataStr = sessionStorage.getItem('partner_code');
-    if (import.meta.env.DEV) console.log('[Landing] Checking partner code from sessionStorage:', partnerDataStr);
-
-    if (partnerDataStr) {
-      try {
-        const partnerData = JSON.parse(partnerDataStr);
-        if (import.meta.env.DEV) console.log('[Landing] Parsed partner data:', partnerData);
-
-        // ОПТИМИЗАЦИЯ: Используем сервисную функцию - Supabase загружается динамически
-        (async () => {
-          setLoadingPartner(true);
-          try {
-            console.log('[Landing] Loading partner info for code:', partnerData.code);
-            const partner = await loadPartnerInfo(partnerData.code);
-
-            if (partner) {
-              console.log('[Landing] Setting partner info:', partner);
-              setPartnerInfo(partner);
-            } else {
-              console.error('[Landing] Partner not found or not active');
-              sessionStorage.removeItem('partner_code');
-            }
-          } catch (error) {
-            console.error('[Landing] Error loading partner:', error);
-            sessionStorage.removeItem('partner_code');
-          } finally {
-            setLoadingPartner(false);
-          }
-        })();
-
-        return; // Не загружаем реферальную информацию, если есть партнерская
-      } catch (error) {
-        console.error('[Landing] Error parsing partner data:', error);
-        sessionStorage.removeItem('partner_code');
-      }
-    }
-
-    // Получаем код из sessionStorage (сохранен при редиректе с /join/:code)
-    const referralCode = sessionStorage.getItem('referral_code');
-
-    if (!referralCode) {
+    // В. Если WebApp обнаружен, но initData еще нет -> продолжаем попытки
+    if (hasWebApp && !hasRealInitData && attempts < maxAttempts) {
+      console.log(`[Landing] WebApp detected, waiting for initData (attempt ${attempts}/${maxAttempts})`);
+      timeoutId = setTimeout(checkTelegram, 250);
       return;
     }
 
-    // ОПТИМИЗАЦИЯ: Используем сервисную функцию - Supabase загружается динамически
-    (async () => {
-      setLoadingReferrer(true);
-      try {
-        const referrer = await loadReferralInfo(referralCode);
+    // Г. Если WebApp был обнаружен, но таймаут истек -> редирект на дашборд
+    // UserContext там обработает авторизацию, когда initData появится
+    if (webAppDetected && attempts >= maxAttempts && !hasRedirected) {
+      console.log('[Landing] WebApp detected but timeout reached, redirecting to dashboard for auth handling');
+      hasRedirected = true;
+      navigate('/dashboard', { replace: true });
+      return;
+    }
 
-        if (referrer) {
-          setReferrerInfo(referrer);
-        } else {
-          console.error('[Landing] Referrer not found');
-          // Удаляем невалидный код
-          sessionStorage.removeItem('referral_code');
+    // Д. Если нет WebApp и прошло достаточно попыток -> показываем Лендинг
+    if (!hasWebApp && attempts >= 3) {
+      console.log('[Landing] No Telegram WebApp detected, showing landing page');
+      setIsCheckingTelegram(false);
+      return;
+    }
+
+    // Е. Продолжаем попытки на случай задержки загрузки
+    if (attempts < maxAttempts && !hasRedirected) {
+      timeoutId = setTimeout(checkTelegram, 250);
+    } else if (!hasRedirected) {
+      // Финальный fallback - показываем лендинг
+      console.log('[Landing] Max attempts reached, showing landing page');
+      setIsCheckingTelegram(false);
+    }
+  };
+
+  // Начинаем проверку сразу
+  checkTelegram();
+
+  return () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  };
+}, [navigate, webApp]); // CRITICAL: Removed location.pathname to prevent infinite loop
+
+useEffect(() => {
+  // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index
+  // Landing просто рендерится на /, а Index на /dashboard редиректит на / если не авторизован
+  // Это предотвращает бесконечный цикл редиректов
+
+  // ОПТИМИЗАЦИЯ: Проверяем коды, но НЕ блокируем рендер лендинга
+  // Лендинг рендерится сразу, а данные загружаются асинхронно когда придут
+
+  // Проверяем партнерский код (приоритет над реферальным)
+  const partnerDataStr = sessionStorage.getItem('partner_code');
+  if (import.meta.env.DEV) console.log('[Landing] Checking partner code from sessionStorage:', partnerDataStr);
+
+  if (partnerDataStr) {
+    try {
+      const partnerData = JSON.parse(partnerDataStr);
+      if (import.meta.env.DEV) console.log('[Landing] Parsed partner data:', partnerData);
+
+      // ОПТИМИЗАЦИЯ: Используем сервисную функцию - Supabase загружается динамически
+      (async () => {
+        setLoadingPartner(true);
+        try {
+          console.log('[Landing] Loading partner info for code:', partnerData.code);
+          const partner = await loadPartnerInfo(partnerData.code);
+
+          if (partner) {
+            console.log('[Landing] Setting partner info:', partner);
+            setPartnerInfo(partner);
+          } else {
+            console.error('[Landing] Partner not found or not active');
+            sessionStorage.removeItem('partner_code');
+          }
+        } catch (error) {
+          console.error('[Landing] Error loading partner:', error);
+          sessionStorage.removeItem('partner_code');
+        } finally {
+          setLoadingPartner(false);
         }
-      } catch (error) {
-        console.error('[Landing] Error loading referrer:', error);
-        sessionStorage.removeItem('referral_code');
-      } finally {
-        setLoadingReferrer(false);
-      }
-    })();
-  }, [location]);
+      })();
 
-  // Если проверка прошла и это обычный браузер -> Рендерим Лендинг
-  const { selectedCountry } = useCountry();
-
-  // КРИТИЧНО: Если идет проверка - показываем лоадер, чтобы избежать мерцания лендинга
-  // Пользователь не должен видеть лендинг, который потом резко исчезнет
-  // UPD: Используем PageLoader, который так же поднимает шторку (StartupCurtain) и показывает красивый спиннер
-  // Это предотвращает "зависание" на HTML скелетоне
-  if (isCheckingTelegram) {
-    return <PageLoader />;
+      return; // Не загружаем реферальную информацию, если есть партнерская
+    } catch (error) {
+      console.error('[Landing] Error parsing partner data:', error);
+      sessionStorage.removeItem('partner_code');
+    }
   }
 
-  // Выбираем лендинг в зависимости от страны
-  const LandingComponent = selectedCountry.code === 'ru' ? LandingRussia : AiStudioLanding;
+  // Получаем код из sessionStorage (сохранен при редиректе с /join/:code)
+  const referralCode = sessionStorage.getItem('referral_code');
 
-  return (
-    <>
-      <StartupCurtain />
-      {partnerInfo && (
-        <Suspense fallback={null}>
-          <PartnerInviteBanner />
-        </Suspense>
-      )}
-      <LandingComponent
-        onRequestAccess={() => setAuthModalOpen(true)}
-        referrerInfo={referrerInfo}
-        loadingReferrer={loadingReferrer}
-        partnerInfo={partnerInfo}
-        loadingPartner={loadingPartner}
-      />
+  if (!referralCode) {
+    return;
+  }
+
+  // ОПТИМИЗАЦИЯ: Используем сервисную функцию - Supabase загружается динамически
+  (async () => {
+    setLoadingReferrer(true);
+    try {
+      const referrer = await loadReferralInfo(referralCode);
+
+      if (referrer) {
+        setReferrerInfo(referrer);
+      } else {
+        console.error('[Landing] Referrer not found');
+        // Удаляем невалидный код
+        sessionStorage.removeItem('referral_code');
+      }
+    } catch (error) {
+      console.error('[Landing] Error loading referrer:', error);
+      sessionStorage.removeItem('referral_code');
+    } finally {
+      setLoadingReferrer(false);
+    }
+  })();
+}, [location]);
+
+// Если проверка прошла и это обычный браузер -> Рендерим Лендинг
+const { selectedCountry } = useCountry();
+
+// КРИТИЧНО: Если идет проверка - показываем лоадер, чтобы избежать мерцания лендинга
+// Пользователь не должен видеть лендинг, который потом резко исчезнет
+// UPD: Используем PageLoader, который так же поднимает шторку (StartupCurtain) и показывает красивый спиннер
+// Это предотвращает "зависание" на HTML скелетоне
+if (isCheckingTelegram) {
+  return <PageLoader />;
+}
+
+// Выбираем лендинг в зависимости от страны
+const LandingComponent = selectedCountry.code === 'ru' ? LandingRussia : AiStudioLanding;
+
+return (
+  <>
+    <StartupCurtain />
+    {partnerInfo && (
       <Suspense fallback={null}>
-        <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+        <PartnerInviteBanner />
       </Suspense>
-    </>
-  );
+    )}
+    <LandingComponent
+      onRequestAccess={() => setAuthModalOpen(true)}
+      referrerInfo={referrerInfo}
+      loadingReferrer={loadingReferrer}
+      partnerInfo={partnerInfo}
+      loadingPartner={loadingPartner}
+    />
+    <Suspense fallback={null}>
+      <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+    </Suspense>
+  </>
+);
 };
 
 export default Landing;

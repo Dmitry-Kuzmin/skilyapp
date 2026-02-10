@@ -53,23 +53,18 @@ export function EmailStep({
         if (!(window as any).onTelegramAuth) {
             (window as any).onTelegramAuth = async (user: any) => {
                 console.log('[Telegram Auth] Widget success:', user);
-
-                // 1. Показываем визуальный фидбек (например, спиннер на кнопке Telegram)
-                // Но так как это глобальный колбек, у нас нет прямого доступа к стейту компонента React "изнутри" этой функции 
-                // (она определяется один раз и замыкания могут быть старыми, хотя useEffect с [] создает ее один раз).
-
-                // Лучший способ - вызвать кастомное событие, которое React компонент поймает
+                // Dispatch custom event to be caught by React
                 const event = new CustomEvent('telegram-login-success', { detail: user });
                 window.dispatchEvent(event);
             };
         }
 
         const script = document.createElement('script');
+        script.id = 'telegram-widget-script';
         script.src = 'https://telegram.org/js/telegram-widget.js?22';
         script.setAttribute('data-telegram-login', botName);
         script.setAttribute('data-size', 'large');
-        script.setAttribute('crossorigin', 'anonymous'); // Safari friendly
-        // script.setAttribute('data-radius', '10'); // Optional
+        script.setAttribute('crossorigin', 'anonymous');
         script.setAttribute('data-request-access', 'write');
         script.setAttribute('data-userpic', 'false');
         script.setAttribute('data-onauth', 'onTelegramAuth(user)');
@@ -77,10 +72,11 @@ export function EmailStep({
 
         container.appendChild(script);
 
-        container.appendChild(script);
-
         return () => {
-            // cleanup if needed
+            // Очистка при размонтировании
+            if (container) {
+                container.innerHTML = '';
+            }
         };
     }, []);
 
@@ -208,18 +204,21 @@ export function EmailStep({
                     >
                         <GoogleIcon />
                     </Button>
-                    <Button
-                        variant="secondary"
-                        disabled={telegramLoading}
-                        className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed font-bold"
-                    >
-                        {telegramLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TelegramIcon />}
+                    <div className="relative h-11">
+                        <Button
+                            variant="secondary"
+                            disabled={true}
+                            className="w-full h-full bg-zinc-900 border-zinc-800 font-bold opacity-50"
+                        >
+                            <TelegramIcon className="mr-2 h-4 w-4" />
+                            Telegram
+                        </Button>
                         <div
                             id="telegram-login-container-new"
-                            className="absolute inset-0 flex items-center justify-center pointer-events-auto z-[100] opacity-[0.01] [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:!opacity-[0.01] [&>iframe]:!pointer-events-auto"
-                            style={{ minHeight: '40px', overflow: 'hidden' }}
+                            className="absolute inset-0 z-10 flex items-center justify-center [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:!max-w-none"
+                            style={{ minHeight: '44px' }}
                         />
-                    </Button>
+                    </div>
                 </div>
             </motion.div>
         </motion.div>
