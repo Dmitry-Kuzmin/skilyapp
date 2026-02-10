@@ -252,13 +252,13 @@ const TypewriterText = ({ text, onComplete }: { text: string, onComplete?: () =>
     const [displayedText, setDisplayedText] = useState('');
 
     useEffect(() => {
+        setDisplayedText(''); // Reset initially
         let i = 0;
-        setDisplayedText(''); // Reset on text change
 
         const timer = setInterval(() => {
-            if (i < text.length) {
-                setDisplayedText((prev) => prev + text.charAt(i));
-                i++;
+            i++;
+            if (i <= text.length) {
+                setDisplayedText(text.slice(0, i));
             } else {
                 clearInterval(timer);
                 onComplete?.();
