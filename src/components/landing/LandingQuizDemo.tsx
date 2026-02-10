@@ -100,53 +100,53 @@ const DEMO_QUESTIONS_DATA = {
     es: [
         {
             id: 'es-q1',
-            question: 'En vías urbanas con un solo carril por sentido, ¿cuál es la velocidad máxima?',
-            imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
-            illustrationType: 'speed',
-            illustrationVariant: 'blue',
+            question: 'Si circula con un turismo, ¿qué le está permitido hacer en el arcén de esta autovía?',
+            imageUrl: 'https://images.unsplash.com/photo-1625218827331-f47079cd3655?w=800&q=80', // Car breaking down/shoulder
+            illustrationType: 'horn',
+            illustrationVariant: 'orange',
             aiAnalysis: {
-                title: 'Análisis de Velocidad',
-                text: 'Muchos dicen 50 km/h por costumbre. ¡Ojo! Si solo hay un carril, la ley limita a 30 km/h por seguridad. 📉',
+                title: 'Uso del Arcén',
+                text: '¡Cuidado! El arcén es sagrado. Solo se pisa por emergencia (avería o malestar). NUNCA para llamar por teléfono o descansar. 🛑',
                 mood: 'warning'
             },
             answers: [
-                { id: '1', text: '50 km/h', isCorrect: false },
-                { id: '2', text: '30 km/h', isCorrect: true },
-                { id: '3', text: '40 km/h', isCorrect: false },
+                { id: '1', text: 'Parar para hablar por teléfono móvil', isCorrect: false },
+                { id: '2', text: 'Adelantar por la derecha', isCorrect: false },
+                { id: '3', text: 'Inmovilizar el vehículo por emergencia', isCorrect: true },
             ]
         },
         {
             id: 'es-q2',
-            question: 'En una intersección de sentido giratorio, ¿quién tiene preferencia de paso?',
-            imageUrl: 'https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=800&q=80',
-            illustrationType: 'roundabout',
+            question: 'En un turismo, ¿cuántos chalecos reflectantes es obligatorio llevar?',
+            imageUrl: 'https://images.unsplash.com/photo-1617424682054-04de55e9754f?w=800&q=80', // Safety vest concept
+            illustrationType: 'speed',
             illustrationVariant: 'indigo',
             aiAnalysis: {
-                title: 'Análisis Inteligente',
-                text: 'Has elegido "El que entra por la derecha", pero en las rotondas la prioridad es de quien ya está DENTRO. ¡Regla de oro! 🔄',
-                mood: 'warning'
+                title: 'Equipamiento',
+                text: 'La ley exige llevar UNO obligatoriamente en el habitáculo (para ponértelo ANTES de salir). Recomendable: llevar dos. 🦺',
+                mood: 'happy'
             },
             answers: [
-                { id: '1', text: 'El que entra por la derecha', isCorrect: false },
-                { id: '2', text: 'El que ya circula dentro', isCorrect: true },
-                { id: '3', text: 'El vehículo más rápido', isCorrect: false },
+                { id: '1', text: 'Uno para el conductor y otro para el acompañante', isCorrect: false },
+                { id: '2', text: 'Uno', isCorrect: true },
+                { id: '3', text: 'Uno por cada plaza', isCorrect: false },
             ]
         },
         {
             id: 'es-q3',
-            question: '¿Está permitido el uso de señales acústicas en poblado?',
-            imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
-            illustrationType: 'horn',
-            illustrationVariant: 'orange',
+            question: 'En un tramo estrecho de gran pendiente, ¿quién debe ceder el paso?',
+            imageUrl: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80', // Winding mountain road
+            illustrationType: 'roundabout',
+            illustrationVariant: 'blue',
             aiAnalysis: {
-                title: 'Ruidos Urbanos',
-                text: 'Pitar para saludar o meter prisa está prohibido. Solo se permite para evitar un accidente inminente. 🔇',
+                title: 'Prioridad en Pendiente',
+                text: 'Regla de oro en montaña: el que SUBE tiene preferencia (le cuesta más arrancar). El que baja, cede. Salvo que el que sube tenga apartadero. 🏔️',
                 mood: 'warning'
             },
             answers: [
-                { id: '1', text: 'Sí, para avisar de adelantamiento', isCorrect: false },
-                { id: '2', text: 'No, solo para evitar accidentes', isCorrect: true },
-                { id: '3', text: 'Prohibido siempre', isCorrect: false },
+                { id: '1', text: 'El vehículo más ligero', isCorrect: false },
+                { id: '2', text: 'El vehículo que sube', isCorrect: false },
+                { id: '3', text: 'El vehículo que baja', isCorrect: true },
             ]
         }
     ],
