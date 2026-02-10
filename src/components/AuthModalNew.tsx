@@ -306,21 +306,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     }
   };
 
-  const handleAppleLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          skipBrowserRedirect: false,
-        }
-      });
-      if (error) throw error;
-    } catch (err: any) {
-      console.error('Apple login error:', err);
-      toast.error('Apple login failed');
-    }
-  };
+  const [telegramLoading, setTelegramLoading] = useState(false);
 
   const getPasskeyLabel = () => {
     // Для обычного пользователя "Passkey" – это непонятный термин.
@@ -385,9 +371,9 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 isValidEmail={isValidEmail}
                 isEmailShaking={isEmailShaking}
                 isPasskeyAvailable={isPasskeyAvailable}
+                telegramLoading={telegramLoading}
                 onContinue={handleEmailSubmit}
                 onGoogleLogin={handleGoogleLogin}
-                onAppleLogin={handleAppleLogin}
                 getPasskeyLabel={getPasskeyLabel}
                 onClose={onClose}
               />

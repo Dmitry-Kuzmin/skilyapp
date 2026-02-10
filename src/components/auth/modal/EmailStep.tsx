@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PasskeyLoginButton } from '@/components/auth/PasskeyLoginButton';
-import { GoogleIcon, TelegramIcon, AppleIcon } from '@/components/icons/SocialIcons';
+import { GoogleIcon, TelegramIcon } from '@/components/icons/SocialIcons';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -18,9 +18,9 @@ interface EmailStepProps {
     isValidEmail: boolean;
     isEmailShaking: boolean;
     isPasskeyAvailable: boolean;
+    telegramLoading: boolean;
     onContinue: (e: React.FormEvent) => void;
     onGoogleLogin: () => void;
-    onAppleLogin: () => void;
     getPasskeyLabel: () => string;
     onClose: () => void;
 }
@@ -33,13 +33,85 @@ export function EmailStep({
     isValidEmail,
     isEmailShaking,
     isPasskeyAvailable,
+    telegramLoading,
     onContinue,
     onGoogleLogin,
-    onAppleLogin,
     getPasskeyLabel,
     onClose
 }: EmailStepProps) {
     const { t } = useLanguage();
+
+    // Inject Telegram Widget
+    useEffect(() => {
+        const botName = import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'skilyapp_bot';
+        const container = document.getElementById('telegram-login-container-new');
+
+        if (!container) return;
+        if (container.children.length > 0) return; // Already injected
+
+        // Define global callback if not exists
+        if (!(window as any).onTelegramAuth) {
+            (window as any).onTelegramAuth = async (user: any) => {
+                console.log('[Telegram Auth] Widget success:', user);
+                // Dispatch custom event to be caught by React
+                const event = new CustomEvent('telegram-login-success', { detail: user });
+                window.dispatchEvent(event);
+            };
+        }
+
+        const script = document.createElement('script');
+        script.id = 'telegram-widget-script';
+        script.src = 'https://telegram.org/js/telegram-widget.js?22';
+        script.setAttribute('data-telegram-login', botName);
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('crossorigin', 'anonymous');
+        script.setAttribute('data-request-access', 'write');
+        script.setAttribute('data-userpic', 'true');
+        script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+        script.async = true;
+
+        container.appendChild(script);
+
+        return () => {
+            // Очистка при размонтировании
+            if (container) {
+                container.innerHTML = '';
+            }
+        };
+    }, []);
+
+    // Handle Telegram Login Success
+    useEffect(() => {
+        const handleTelegramLogin = async (e: any) => {
+            const user = e.detail;
+            console.log('[EmailStep] Received Telegram User:', user);
+
+            const loadingToast = toast.loading('Вход через Telegram...');
+
+            try {
+                // Call our secure Edge Function
+                const { data, error } = await supabase.functions.invoke('telegram-widget-verify', {
+                    body: { user }
+                });
+
+                if (error) throw error;
+                if (!data.success || !data.redirectUrl) throw new Error(data.error || 'Login failed');
+
+                toast.dismiss(loadingToast);
+                toast.success('Успешно! Переходим в приложение...');
+
+                window.location.href = data.redirectUrl;
+
+            } catch (err: any) {
+                console.error('[EmailStep] Telegram login error:', err);
+                toast.dismiss(loadingToast);
+                toast.error('Ошибка входа через Telegram. Попробуйте еще раз.');
+            }
+        };
+
+        window.addEventListener('telegram-login-success', handleTelegramLogin);
+        return () => window.removeEventListener('telegram-login-success', handleTelegramLogin);
+    }, []);
 
     return (
         <motion.div
@@ -127,13 +199,27 @@ export function EmailStep({
                     >
                         <GoogleIcon />
                     </Button>
-                    <Button
-                        variant="secondary"
-                        className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all font-bold group"
-                        onClick={onAppleLogin}
-                    >
-                        <AppleIcon className="text-white group-hover:scale-110 transition-transform" />
-                    </Button>
+                    <div className="relative h-11">
+                        <Button
+                            variant="secondary"
+                            disabled={telegramLoading}
+                            className="w-full h-full bg-zinc-900 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all font-bold group"
+                        >
+                            {telegramLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <div className="flex items-center justify-center gap-2">
+                                    <TelegramIcon className="h-4 w-4" />
+                                    <span>Telegram</span>
+                                </div>
+                            )}
+                        </Button>
+                        <div
+                            id="telegram-login-container-new"
+                            className="absolute inset-0 flex items-center justify-center pointer-events-auto z-[100] opacity-[0.01] [&>iframe]:!w-full [&>iframe]:!h-full [&>iframe]:!opacity-[0.01] [&>iframe]:!pointer-events-auto"
+                            style={{ minHeight: '40px', overflow: 'hidden' }}
+                        />
+                    </div>
                 </div>
             </motion.div>
         </motion.div>
