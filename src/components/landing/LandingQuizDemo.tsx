@@ -47,53 +47,53 @@ const DEMO_QUESTIONS_DATA = {
     ru: [
         {
             id: 'ru-q1',
-            question: 'Какой максимальный скоростной режим установлен в населенных пунктах с одной полосой для движения в каждом направлении?',
-            imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
-            illustrationType: 'speed',
-            illustrationVariant: 'blue',
+            question: 'Кому Вы обязаны уступить дорогу при повороте налево?',
+            imageUrl: '/images/pdd_russia/A_B/dd7e958840da9ddd1c102a65d8d5c03f.jpg',
+            illustrationType: 'roundabout', // Fallback
+            illustrationVariant: 'indigo',
             aiAnalysis: {
-                title: 'Анализ скорости',
-                text: 'Многие отвечают 50 км/ч по привычке. Но внимание: если полоса всего одна — закон ограничивает скорость до 30 км/ч ради безопасности пешеходов. 📉',
-                mood: 'warning'
+                title: 'Разбор перекрестка',
+                text: 'Главная дорога меняет направление. Поскольку вы находитесь на главной и справа помех нет — у вас приоритет перед всеми! Проезжайте первым. 🚦',
+                mood: 'happy'
             },
             answers: [
-                { id: '1', text: '50 км/ч', isCorrect: false },
-                { id: '2', text: '30 км/ч', isCorrect: true },
-                { id: '3', text: '40 км/ч', isCorrect: false },
+                { id: '1', text: 'Только автобусу', isCorrect: false },
+                { id: '2', text: 'Только легковому автомобилю', isCorrect: false },
+                { id: '3', text: 'Никому', isCorrect: true },
             ]
         },
         {
             id: 'ru-q2',
-            question: 'Кто имеет преимущество при въезде на перекресток с круговым движением?',
-            imageUrl: 'https://images.unsplash.com/photo-1533094602577-198d3beab8ea?w=800&q=80',
-            illustrationType: 'roundabout',
-            illustrationVariant: 'indigo',
+            question: 'По какой траектории Вам разрешается выполнить поворот налево?',
+            imageUrl: '/images/pdd_russia/A_B/e5c4d4989ef9427567d3944a43de239c.jpg',
+            illustrationType: 'speed', // Fallback
+            illustrationVariant: 'blue',
             aiAnalysis: {
-                title: 'Разбор ситуации',
-                text: 'Ты выбрал "Помеха справа", но на круговом движении приоритет ВСЕГДА у тех, кто уже движется ПО кругу. Это базовое правило круга. 🔄',
+                title: 'Трамвайные пути',
+                text: 'Обратите внимание на знаки движения по полосам (5.15.1). Они ЗАПРЕЩАЮТ выезд на трамвайные пути. Поворачивать можно только по траектории Б. 🚋',
                 mood: 'warning'
             },
             answers: [
-                { id: '1', text: 'Тот, кто въезжает (помеха справа)', isCorrect: false },
-                { id: '2', text: 'Тот, кто уже движется по кругу', isCorrect: true },
-                { id: '3', text: 'Тот, кто движется быстрее', isCorrect: false },
+                { id: '1', text: 'Только по А', isCorrect: false },
+                { id: '2', text: 'Только по Б', isCorrect: true },
+                { id: '3', text: 'По любой из указанных', isCorrect: false },
             ]
         },
         {
             id: 'ru-q3',
-            question: 'Можно ли использовать звуковой сигнал в населенном пункте?',
-            imageUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&q=80',
-            illustrationType: 'horn',
+            question: 'Кто из водителей нарушил правила стоянки?',
+            imageUrl: '/images/pdd_russia/A_B/456767f8b2e0d39f83d8f9f1b2a378da.jpg',
+            illustrationType: 'horn', // Fallback
             illustrationVariant: 'orange',
             aiAnalysis: {
-                title: 'Шум в городе',
-                text: 'Сигналить, чтобы поздороваться или поторопить — запрещено. Звук разрешен ТОЛЬКО для предотвращения аварии. 🔇',
+                title: 'Правила парковки',
+                text: 'Это "карман", но знака "парковка с табличкой способа постановки" нет. Значит, парковаться можно ТОЛЬКО параллельно краю, как водитель Б. Водитель А нарушил. 🅿️',
                 mood: 'warning'
             },
             answers: [
-                { id: '1', text: 'Да, для предупреждения об обгоне', isCorrect: false },
-                { id: '2', text: 'Нет, только для предотвращения ДТП', isCorrect: true },
-                { id: '3', text: 'Запрещено всегда', isCorrect: false },
+                { id: '1', text: 'Оба', isCorrect: false },
+                { id: '2', text: 'Только водитель автомобиля А', isCorrect: true },
+                { id: '3', text: 'Только водитель автомобиля Б', isCorrect: false },
             ]
         }
     ],
