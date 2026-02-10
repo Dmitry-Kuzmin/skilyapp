@@ -413,34 +413,37 @@ export const LandingQuizDemo: React.FC<LandingQuizDemoProps> = ({ onRegisterClic
         setAiStatus('analyzing');
         setAiMessage(null);
 
+        // Always use the predefined analysis
+        const analysis = currentQuestion.aiAnalysis || { text: 'Analyzing...', mood: 'thinking' };
+
         if (isCorrect) {
             playSuccessSound();
-            setTimeout(() => {
-                setAiStatus('speaking');
-                setAiMessage({
-                    role: 'assistant',
-                    content: language === 'ru' ? 'Ве-ли-ко-леп-но! Правильный ответ. Едем дальше!' : 'Great job! Correct answer. Moving on...',
-                    mood: 'happy'
-                });
-
-                setTimeout(() => {
-                    handleNext();
-                }, 2000); // Auto-next on success
-            }, 800);
         } else {
             playErrorSound();
-            setTimeout(() => {
-                setAiStatus('speaking');
-                // Always use the predefined analysis now
-                const analysis = currentQuestion.aiAnalysis || { text: 'Ошибка.', mood: 'warning' };
-                setAiMessage({
-                    role: 'assistant',
-                    content: analysis.text,
-                    mood: 'warning'
-                });
-            }, 1200);
-            // No auto-next on error, user must click button
         }
+
+        setTimeout(() => {
+            setAiStatus('speaking');
+
+            let messageText = analysis.text;
+
+            // Add celebratory prefix for correct answers
+            if (isCorrect) {
+                const prefix = {
+                    ru: 'Ве-ли-ко-леп-но! Правильный ответ. ',
+                    es: '¡Magnífico! Respuesta correcta. ',
+                    en: 'Great job! Correct answer. '
+                }[language] || '';
+
+                messageText = prefix + messageText;
+            }
+
+            setAiMessage({
+                role: 'assistant',
+                content: messageText,
+                mood: isCorrect ? 'happy' : (analysis.mood as any)
+            });
+        }, 1000);
     };
 
     const handleNext = () => {
