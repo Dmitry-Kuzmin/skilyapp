@@ -7,9 +7,6 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
 // ОПТИМИЗАЦИЯ: animations.css lazy load (не блокирует FCP)
-// Загружаем только когда нужно (при использовании Lumi компонентов)
-// Это уменьшает initial CSS bundle на ~10-20 KB
-// import "./components/lumi/animations.css"; // Lazy loaded when needed
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
 
@@ -19,13 +16,8 @@ if (import.meta.env.DEV) {
     initTelegramMock();
   });
 }
-// ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
-// import { registerSW } from 'virtual:pwa-register';
-// import { initPWAVersionCheck } from "./utils/pwaVersionCheck";
 
 // ОПТИМИЗАЦИЯ: Инициализируем Rollbar ПОСЛЕ первого рендера (не блокируем FCP)
-// ВАЖНО: Ранние ошибки (до загрузки Rollbar) логируются в консоль
-// но могут не попасть в Rollbar - это осознанный trade-off для скорости FCP
 const earlyErrors: Array<{ error: any, context: any }> = [];
 
 // Временный хук для ранних ошибок (до загрузки Rollbar)
@@ -60,10 +52,6 @@ setTimeout(() => {
   });
 }, 0);
 
-// ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
-// КРИТИЧНО: PWA Version Check для автоматического обновления
-// initPWAVersionCheck();
-
 // ОПТИМИЗАЦИЯ: Инициализация Server Time ПОСЛЕ первого рендера (не блокируем FCP)
 setTimeout(() => {
   import('./utils/serverTime').then(({ initServerTime }) => {
@@ -71,12 +59,11 @@ setTimeout(() => {
       console.error('[Main] Failed to init server time:', error);
     });
   });
-}, 100); // Небольшая задержка чтобы React успел отрендерить skeleton
+}, 100);
 
-// КРИТИЧНО: Синхронизация времени при возврате в приложение (защита от смены часового пояса/времени)
+// КРИТИЧНО: Синхронизация времени при возврате в приложение
 if (typeof window !== 'undefined') {
   document.addEventListener('visibilitychange', async () => {
-    // Когда пользователь возвращается в приложение - синхронизируем время
     if (!document.hidden) {
       const { forceSyncServerTime } = await import('@/utils/serverTime');
       forceSyncServerTime().catch((error) => {
@@ -87,7 +74,6 @@ if (typeof window !== 'undefined') {
 }
 
 // КРИТИЧНО: Логирование сразу после импортов для диагностики
-// ВАЖНО: Этот лог появляется только в режиме разработки
 if (import.meta.env.DEV) {
   console.log('[Main] ✅ Script loaded and imports completed', {
     timestamp: new Date().toISOString(),
@@ -101,13 +87,11 @@ if (import.meta.env.DEV) {
 // --------------------------------------------------------
 setTimeout(() => {
   if (import.meta.env.PROD) {
-    // Импортируем динамически чтобы не раздувать главный чанк
     import('@/utils/safeLog').then(({ safeLog, skilyDiagnostic }) => {
       const savedCountryCode = localStorage.getItem('selected_country') || 'es';
       const countryName = savedCountryCode === 'ru' ? 'Russia (RU) 🇷🇺' : 'Spain (ES) 🇪🇸';
       const version = import.meta.env.VITE_APP_VERSION || '1.0.0';
 
-      // 1. The Ultimate Skily Console Easter Egg (Lumi AI Core)
       safeLog('log',
         `%c
        ▄▄▄▄▄▄▄▄▄▄▄
@@ -133,29 +117,18 @@ setTimeout(() => {
 
 Секретный идентификатор сессии: %cLUMI_VISION_2026
 `,
-        // 1. Логотип
         'font-family: monospace; line-height: 1.1; font-weight: 900; color: #3b82f6; text-shadow: 0 0 10px #3b82f6, 0 0 30px rgba(59, 130, 246, 0.5);',
-        // 2. Системный заголовок
         'font-family: sans-serif; font-size: 12px; font-weight: bold; color: #fff; background: linear-gradient(45deg, #3b82f6, #60a5fa); padding: 4px 8px; border-radius: 4px; margin-top: 15px;',
-        // 3. Основной текст
         'font-family: sans-serif; font-size: 12px; line-height: 1.5; color: #a1a1aa; margin-top: 10px;',
-        // 4. Ссылка
         'color: #3b82f6; text-decoration: underline;',
-        // Hint label
         'font-family: sans-serif; font-size: 11px; color: #71717a;',
-        // Hint code
         'font-family: monospace; font-size: 11px; font-weight: bold; color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); padding: 1px 4px; border-radius: 2px;',
-        // Hint end
         'font-family: sans-serif; font-size: 11px; color: #71717a;',
-        // 5. СТОП
         'font-family: sans-serif; font-size: 18px; font-weight: 900; color: #ef4444; margin-top: 30px; display: block;',
-        // 6. Текст предупреждения
         'font-family: sans-serif; font-size: 12px; color: #ef4444; font-weight: bold;',
-        // 7. Секретный код
         'font-family: monospace; font-size: 13px; font-weight: bold; color: #22c55e; background-color: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; margin-top: 10px; display: inline-block;'
       );
 
-      // 2. Technical Info Group (Diagnostics)
       safeLog('groupCollapsed', '%c 🛠 App Diagnostics (Click to expand)', 'color: #64748b; font-weight: normal; font-size: 11px;');
       skilyDiagnostic('🌍 Region', countryName);
       skilyDiagnostic('🆔 Environment', 'Production');
@@ -165,33 +138,21 @@ setTimeout(() => {
       safeLog('groupEnd');
     });
   }
-}, 1500); // 1.5 сек — после очистки консоли React'ом
-// --------------------------------------------------------
+}, 1500);
 
-// КРИТИЧНО: Помечаем, что main.tsx загрузился (для проверки в index.html)
+// КРИТИЧНО: Помечаем, что main.tsx загрузился
 if (typeof window !== 'undefined') {
   window._mainLoaded = true;
 }
 
-// Инициализация Telegram WebApp теперь происходит через TelegramProvider в App.tsx
-// Это гарантирует правильный порядок инициализации и предотвращает множественные вызовы
-
-// ⚠️ ОТКЛЮЧЕНО: Service Worker отключен из-за проблем с кэшированием старого кода
-// КРИТИЧНО: PWA Service Worker регистрируется автоматически через vite-plugin-pwa
-// Это обеспечивает offline-first архитектуру для Telegram Mini App
-// См. vite.config.ts для настроек кэширования
-
 // Инициализация Web Vitals мониторинга
 reportWebVitals((metric) => {
-  // В production можно отправлять метрики на сервер
   if (import.meta.env.PROD) {
     console.log('[Web Vitals]', metric.name, {
       value: metric.value,
       rating: metric.rating,
     });
   }
-
-  // Записываем метрики в performance monitor
   if (performanceMonitor) {
     performanceMonitor.recordMetric(`web-vital-${metric.name}`, metric.value);
   }
@@ -199,20 +160,17 @@ reportWebVitals((metric) => {
 
 // Мониторинг производительности навигации
 if (performanceMonitor && typeof window !== 'undefined') {
-  // Отслеживаем время загрузки страницы
   window.addEventListener('load', () => {
     const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     if (nav) {
       const loadTime = nav.loadEventEnd - nav.fetchStart;
       performanceMonitor.recordMetric('page-load', loadTime);
-
       if (loadTime > 3000) {
         console.warn(`[Performance] Slow page load: ${loadTime.toFixed(2)}ms`);
       }
     }
   });
 
-  // Отслеживаем время перехода между страницами
   let navigationStart = performance.now();
   window.addEventListener('beforeunload', () => {
     navigationStart = performance.now();
@@ -220,7 +178,7 @@ if (performanceMonitor && typeof window !== 'undefined') {
 
   window.addEventListener('load', () => {
     const navigationTime = performance.now() - navigationStart;
-    if (navigationTime > 0 && navigationTime < 10000) { // Игнорируем первичную загрузку
+    if (navigationTime > 0 && navigationTime < 10000) {
       performanceMonitor.recordMetric('navigation-time', navigationTime);
     }
   });
@@ -228,6 +186,33 @@ if (performanceMonitor && typeof window !== 'undefined') {
 
 // ОПТИМИЗАЦИЯ: Обработка ошибок с отправкой в Rollbar после его загрузки
 window.addEventListener('error', (event) => {
+  const errorMsg = String(event.message || event.error || '');
+  const isChunkError =
+    errorMsg.includes('Loading chunk') ||
+    errorMsg.includes('text/html') ||
+    errorMsg.includes('missing') ||
+    (errorMsg.includes('Unexpected token') && (event.filename?.includes('assets/') || errorMsg.includes('<')));
+
+  // КРИТИЧНО: Автоматическая перезагрузка при ошибке загрузки чанка (MIME type mismatch или 404)
+  if (isChunkError) {
+    console.error('[CRITICAL] Chunk load error detected in Global Error. Reloading...', errorMsg);
+    const storageKey = 'module_reload_count';
+    const timeKey = 'module_reload_time';
+    const count = parseInt(localStorage.getItem(storageKey) || '0');
+    const lastTime = parseInt(localStorage.getItem(timeKey) || '0');
+    const now = Date.now();
+
+    // Сбрасываем счетчик, если прошло больше 60 секунд
+    const currentCount = (now - lastTime > 60000) ? 0 : count;
+
+    if (currentCount < 3) {
+      localStorage.setItem(storageKey, (currentCount + 1).toString());
+      localStorage.setItem(timeKey, now.toString());
+      window.location.reload();
+      return;
+    }
+  }
+
   const errorData = {
     message: event.message,
     filename: event.filename,
@@ -261,7 +246,7 @@ window.addEventListener('unhandledrejection', (event) => {
   const reason = event.reason;
   const reasonStr = reason instanceof Error ? reason.message : String(reason);
 
-  // КРИТИЧНО: Игнорируем ошибки Monetag "Failed to verify" и "IDB connection closing"
+  // КРИТИЧНО: Игнорируем ошибки Monetag и IDB
   if (
     reasonStr?.includes('Failed to verify') ||
     reasonStr?.includes('verify') ||
@@ -269,12 +254,11 @@ window.addEventListener('unhandledrejection', (event) => {
     reasonStr?.includes('InvalidStateError')
   ) {
     console.warn('[Unhandled Rejection] Ignored known noise error:', reasonStr);
-    event.preventDefault(); // Предотвращаем вывод в консоль как ошибку
+    event.preventDefault();
     return;
   }
 
-  // КРИТИЧНО: Автоматическая перезагрузка при ошибке загрузки чанка (Deploy update)
-  // Это дублирует логику в ErrorBoundary и index.html, но для промисов вне React
+  // КРИТИЧНО: Автоматическая перезагрузка при ошибке загрузки чанка
   if (
     reasonStr?.includes('Importing a module script failed') ||
     reasonStr?.includes('text/html') ||
@@ -282,28 +266,20 @@ window.addEventListener('unhandledrejection', (event) => {
   ) {
     console.error('[CRITICAL] Chunk load error detected in promise. Reloading...');
 
-    // ALIGN WITH INDEX.HTML PROTECTION LOGIC
     const storageKey = 'module_reload_count';
     const timeKey = 'module_reload_time';
-
     const count = parseInt(localStorage.getItem(storageKey) || '0');
     const lastTime = parseInt(localStorage.getItem(timeKey) || '0');
     const now = Date.now();
 
-    // Сбрасываем счетчик, если прошло больше 60 секунд
     const currentCount = (now - lastTime > 60000) ? 0 : count;
 
     if (currentCount < 3) {
       localStorage.setItem(storageKey, (currentCount + 1).toString());
       localStorage.setItem(timeKey, now.toString());
-
       console.log(`[Main] Reloading page (Attempt ${currentCount + 1}/3)...`);
       window.location.reload();
       return;
-    } else {
-      console.error('[Main] Reload limit exceeded. Giving up.');
-      // index.html обработчик покажет UI, если ошибка всплывет туда.
-      // Но здесь мы тоже можем ничего не делать, чтобы не зацикливать.
     }
   }
 
@@ -325,16 +301,14 @@ window.addEventListener('unhandledrejection', (event) => {
     reason: String(event.reason),
   };
 
-  // Пытаемся отправить в Rollbar асинхронно
   import('./lib/rollbar').then(({ reportError }) => {
     reportError(error, errorContext);
   }).catch(() => {
-    // Rollbar ещё не загрузился - сохраняем для отправки позже
     captureEarlyError(error, errorContext);
   });
 });
 
-// КРИТИЧНО: Проверка существования root элемента перед рендерингом
+// КРИТИЧНО: Проверка существования root элемента
 const rootElement = document.getElementById("root");
 if (!rootElement) {
   console.error('[CRITICAL] Root element not found!');
@@ -343,11 +317,13 @@ if (!rootElement) {
 }
 
 // --------------------------------------------------------
-// ☠️ SERVICE WORKER KILLER (Monetag & Zombies)
-// ВАЖНО: Убиваем только вредные SW, оставляем sw-push.js
+// ☠️ SERVICE WORKER KILLER
 // --------------------------------------------------------
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then((registrations) => {
+    let killed = false;
+    const promises = [];
+
     for (const registration of registrations) {
       const scriptURL = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL || '';
 
@@ -357,9 +333,24 @@ if ('serviceWorker' in navigator) {
         continue;
       }
 
-      console.warn('[Main] ☠️ Killing unknown/ad Service Worker:', scriptURL);
-      registration.unregister().then(success => {
-        console.log('[Main] 🗑️ SW Unregistered:', success);
+      console.warn('[Main] ☠️ Killing stale/ad Service Worker:', scriptURL);
+      const p = registration.unregister().then(success => {
+        if (success) killed = true;
+      });
+      promises.push(p);
+    }
+
+    // Если убили старый SW - перезагружаем страницу
+    if (promises.length > 0) {
+      Promise.all(promises).then(() => {
+        if (killed) {
+          console.log('[Main] 🔄 Stale SW removed. Reloading page...');
+          const lastReload = parseInt(localStorage.getItem('sw_clean_reload') || '0');
+          if (Date.now() - lastReload > 5000) {
+            localStorage.setItem('sw_clean_reload', Date.now().toString());
+            window.location.reload();
+          }
+        }
       });
     }
   });
@@ -399,10 +390,6 @@ try {
     });
   }
 
-  // КРИТИЧНО: Удаляем skeleton из DOM после монтирования React
-  // Это гарантирует что он не мешает взаимодействию и не перекрывает контент
-  // SSG: Отправляем событие для prerender плагина
-  // Это сигнализирует, что React приложение полностью отрендерилось
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('render-event'));
   }
