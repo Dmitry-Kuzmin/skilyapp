@@ -315,18 +315,16 @@ const Favorites = () => {
                         ))}
                     </div>
                 ) : filteredQuestions.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 perspective-1000">
-                        <AnimatePresence mode="popLayout">
-                            {filteredQuestions.map((q, i) => (
-                                <Flashcard
-                                    key={q.id}
-                                    question={q}
-                                    index={i}
-                                    country={selectedCountry || 'spain'}
-                                    onRemove={handleRemoveFavorite}
-                                />
-                            ))}
-                        </AnimatePresence>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredQuestions.map((q, i) => (
+                            <Flashcard
+                                key={q.id}
+                                question={q}
+                                index={i}
+                                country={selectedCountry || 'spain'}
+                                onRemove={handleRemoveFavorite}
+                            />
+                        ))}
                     </div>
                 ) : (
                     <div className="text-center py-20">
@@ -416,22 +414,23 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
     const batteryColor = battery > 70 ? 'bg-emerald-500' : battery > 40 ? 'bg-amber-500' : 'bg-rose-500';
 
     return (
-        <Motion
-            layout
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ delay: index * 0.05 }}
+        <div
             className="group relative h-[450px] w-full cursor-pointer perspective-1000"
             onClick={() => setIsFlipped(!isFlipped)}
+            style={{ perspective: '1000px' }}
         >
             <motion.div
-                className="w-full h-full relative preserve-3d transition-all duration-500"
+                className="w-full h-full relative preserve-3d transition-all duration-500 origin-center"
+                initial={false}
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                style={{ transformStyle: 'preserve-3d' }}
             >
                 {/* --- FRONT SIDE --- */}
-                <div className="absolute inset-0 backface-hidden w-full h-full bg-slate-900 border border-white/10 rounded-[2rem] overflow-hidden flex flex-col shadow-xl hover:shadow-2xl hover:shadow-indigo-500/10 transition-shadow">
+                <div
+                    className="absolute inset-0 backface-hidden w-full h-full bg-slate-900 border border-white/10 rounded-[2rem] overflow-hidden flex flex-col shadow-xl hover:shadow-2xl hover:shadow-indigo-500/10 transition-shadow"
+                    style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                >
 
                     {/* Image Header */}
                     <div className="relative h-48 shrink-0 bg-slate-950">
@@ -486,7 +485,11 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                 {/* --- BACK SIDE (ANSWER) --- */}
                 <div
                     className="absolute inset-0 backface-hidden w-full h-full bg-slate-800 border border-white/10 rounded-[2rem] overflow-hidden flex flex-col p-6 shadow-xl rotate-y-180"
-                    style={{ transform: "rotateY(180deg)" }}
+                    style={{
+                        transform: "rotateY(180deg)",
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden'
+                    }}
                 >
                     <div className="absolute top-3 right-3 z-10">
                         <Button
@@ -536,7 +539,7 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                     </div>
                 </div>
             </motion.div>
-        </Motion>
+        </div>
     );
 };
 
