@@ -581,6 +581,11 @@ const TestSession = () => {
     return (saved === 'en' || saved === 'ru' ? saved : 'es') as 'es' | 'en' | 'ru';
   });
 
+  const effectiveLanguage = useMemo(() => {
+    if (mode === 'blitz') return 'es';
+    return (shouldUsePDD || showTranslation) ? 'ru' : testLanguage;
+  }, [shouldUsePDD, showTranslation, testLanguage, mode]);
+
   // Handler to save language to localStorage when changed
   const handleLanguageChange = (lang: 'es' | 'en' | 'ru') => {
     setTestLanguage(lang);
@@ -1050,10 +1055,6 @@ const TestSession = () => {
   };
 
   // Приоритет: ПДД РФ > Кнопка перевода (showTranslation) > testLanguage (настройки)
-  const effectiveLanguage = useMemo(() => {
-    if (mode === 'blitz') return 'es';
-    return (shouldUsePDD || showTranslation) ? 'ru' : testLanguage;
-  }, [shouldUsePDD, showTranslation, testLanguage, mode]);
   const displayQuestion = getQuestionText(effectiveLanguage);
   const displayTopic = currentQuestion.topics?.title_es || 'Sin tema';
 

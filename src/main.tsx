@@ -87,11 +87,7 @@ if (import.meta.env.DEV) {
 // --------------------------------------------------------
 setTimeout(() => {
   if (import.meta.env.PROD) {
-    import('@/utils/safeLog').then(({ safeLog, skilyDiagnostic }) => {
-      const savedCountryCode = localStorage.getItem('selected_country') || 'es';
-      const countryName = savedCountryCode === 'ru' ? 'Russia (RU) 🇷🇺' : 'Spain (ES) 🇪🇸';
-      const version = import.meta.env.VITE_APP_VERSION || '1.0.0';
-
+    import('@/utils/safeLog').then(({ safeLog }) => {
       safeLog('log',
         `%c
        ▄▄▄▄▄▄▄▄▄▄▄
