@@ -427,7 +427,20 @@ const DailyBonus = () => {
   const isTelegramApp = isTelegramMiniApp();
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-transparent pb-20 relative">
+      {/* Global Smart Background - Grid & Noise */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        {/* Noise Texture */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'url("/noise.svg")' }}
+        />
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+        {/* Subtle Radial Gradient for Depth */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-50" />
+      </div>
+
       {/* Header */}
       <div
         className={cn(
@@ -471,7 +484,7 @@ const DailyBonus = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="container mx-auto px-4 py-6 space-y-6 relative z-1">
         <Card className="p-6">
           {/* Streak Counter */}
           <CompactStreakJewel

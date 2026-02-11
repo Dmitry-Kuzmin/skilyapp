@@ -704,7 +704,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   return (
     <div
-      className="duel-fullscreen fixed inset-0 bg-background z-50 overflow-y-auto flex flex-col"
+      className="duel-fullscreen fixed inset-0 bg-transparent z-50 overflow-y-auto flex flex-col"
       style={{
         paddingTop: isInTelegramMiniApp
           // Telegram Mini App: Robust Telegram-specific safe area (88px minimum for header)
@@ -721,6 +721,18 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         touchAction: 'pan-y pinch-zoom'
       }}
     >
+      {/* Global Smart Background - Grid & Noise (Injected for Fullscreen Mode) */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        {/* Noise Texture */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'url("/noise.svg")' }}
+        />
+        {/* Grid Pattern */}
+
+        {/* Subtle Radial Gradient for Depth */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-50" />
+      </div>
       <ArenaHeader
         currentIndex={storeCurrentIndex}
         totalQuestions={storeQuestions.length}

@@ -68,7 +68,7 @@ export default function Legal() {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-gradient-to-b from-background via-background/95 to-background">
+            <div className="min-h-screen bg-transparent">
                 {/* Header */}
                 <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
                     <div className="container mx-auto px-4 py-4">

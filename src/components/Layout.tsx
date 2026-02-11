@@ -314,7 +314,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           style={{ backgroundImage: 'url("/noise.svg")' }}
         />
         {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+
         {/* Subtle Radial Gradient for Depth */}
         <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-50" />
       </div>

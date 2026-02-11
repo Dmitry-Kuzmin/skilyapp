@@ -1328,7 +1328,7 @@ export default function Duel() {
         <>
             <ToastContainer />
             {mode === 'create' && duelCode ? (
-                <div className="min-h-screen bg-gradient-to-b from-background via-background to-primary/5 flex items-center justify-center p-4">
+                <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
                     <DuelLobby
                         duelId={duelId}
                         duelCode={duelCode}

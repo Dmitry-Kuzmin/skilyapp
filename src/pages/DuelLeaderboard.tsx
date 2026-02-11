@@ -57,7 +57,7 @@ const DuelLeaderboard = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-8 px-4 md:px-8 lg:px-12">
+      <div className="min-h-screen bg-transparent py-8 px-4 md:px-8 lg:px-12">
         <div className="max-w-5xl mx-auto space-y-8">
           <header className="space-y-3 text-center">
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold">
@@ -109,8 +109,8 @@ const DuelLeaderboard = () => {
               <p className="text-2xl font-black">
                 {leaders.length
                   ? `${formatCoins(
-                      Math.max(...leaders.map((l) => l.insurance_refunds))
-                    )} монет`
+                    Math.max(...leaders.map((l) => l.insurance_refunds))
+                  )} монет`
                   : "—"}
               </p>
               <p className="text-sm text-muted-foreground">

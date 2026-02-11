@@ -1099,7 +1099,7 @@ const IntersectionGame = () => {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-background pb-24">
+            <div className="min-h-screen bg-transparent pb-24">
                 {/* Header */}
                 <div className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border">
                     <div className="flex items-center justify-between p-4 max-w-4xl mx-auto">

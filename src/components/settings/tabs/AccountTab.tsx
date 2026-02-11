@@ -99,7 +99,7 @@ export const AccountTab: React.FC = () => {
         supabaseUser?.user_metadata?.avatar_url ||
         supabaseUser?.user_metadata?.picture;
 
-    const firstName = profileData?.first_name || user?.first_name || supabaseUser?.user_metadata?.full_name?.split(' ')[0] || 'Пользователь';
+    const resolvedFirstName = profileData?.first_name || user?.first_name || supabaseUser?.user_metadata?.full_name?.split(' ')[0] || 'Пользователь';
     const lastName = profileData?.last_name || user?.last_name || supabaseUser?.user_metadata?.full_name?.split(' ')[1] || '';
     const username = profileData?.username || user?.username || supabaseUser?.email?.split('@')[0] || 'user';
 
@@ -397,7 +397,7 @@ export const AccountTab: React.FC = () => {
                                 <>
                                     <div className="flex items-center gap-2 group">
                                         <h3 className="font-semibold text-slate-900 dark:text-white truncate">
-                                            {firstName} {lastName}
+                                            {resolvedFirstName} {lastName}
                                         </h3>
                                         <button
                                             onClick={() => {

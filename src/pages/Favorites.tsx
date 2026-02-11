@@ -237,43 +237,72 @@ const Favorites = () => {
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                     <div className="space-y-1">
-                        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-slate-400 -ml-2 hover:text-white">
+                        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-muted-foreground -ml-2 hover:text-foreground">
                             <ArrowLeft className="w-4 h-4 mr-2" /> Назад
                         </Button>
-                        <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-                            <BrainCircuit className="w-10 h-10 text-indigo-500" />
+                        <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
+                            <BrainCircuit className="w-10 h-10 text-primary" />
                             Тренажерный Зал
                         </h1>
-                        <p className="text-slate-400 max-w-md">
+                        <p className="text-muted-foreground max-w-md">
                             Умная система повторений. Тренируй только то, что мозг начинает забывать.
                         </p>
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <div className="text-right hidden md:block">
-                            <div className="text-2xl font-black text-white">{questions.length}</div>
-                            <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Всего карт</div>
+                        {/* START TRAINING BUTTON - MOVED HERE */}
+                        <Button
+                            size="lg"
+                            onClick={() => navigate('/test/favorites')}
+                            className="hidden md:flex h-12 pl-4 pr-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 border border-white/10 items-center gap-3 transition-transform hover:scale-105 active:scale-95"
+                        >
+                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <Play className="w-4 h-4 fill-current text-current ml-0.5" />
+                            </div>
+                            <div className="text-left">
+                                <div className="text-[10px] font-bold opacity-80 uppercase tracking-wider">Тренировка</div>
+                                <div className="text-sm font-black leading-none">Зарядить Память</div>
+                            </div>
+                        </Button>
+
+                        {/* Mobile Floating Button (visible only on small screens) */}
+                        <div className="md:hidden fixed bottom-6 right-6 z-40">
+                            <Button
+                                size="lg"
+                                onClick={() => navigate('/test/favorites')}
+                                className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/40 flex items-center justify-center p-0"
+                            >
+                                <Play className="w-6 h-6 fill-current ml-1" />
+                            </Button>
                         </div>
-                        <div className="h-8 w-[1px] bg-white/10 hidden md:block" />
+
+
+                        <div className="h-8 w-[1px] bg-border hidden md:block" />
+
+                        <div className="text-right hidden md:block">
+                            <div className="text-2xl font-black text-foreground">{questions.length}</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Всего карт</div>
+                        </div>
+                        <div className="h-8 w-[1px] bg-border hidden md:block" />
                         <div className="text-right">
                             <div className={cn("text-2xl font-black", lowBatteryCount > 0 ? "text-rose-500" : "text-emerald-500")}>
                                 {lowBatteryCount}
                             </div>
-                            <div className="text-xs text-slate-500 font-bold uppercase tracking-wider">Требуют заряда</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Требуют заряда</div>
                         </div>
                     </div>
                 </div>
 
                 {/* FILTERS & SEARCH */}
-                <div className="sticky top-20 z-30 bg-slate-950/80 backdrop-blur-xl border border-white/5 rounded-2xl p-2 mb-8 shadow-2xl">
+                <div className="sticky top-20 z-30 bg-background/80 backdrop-blur-xl border border-border rounded-2xl p-2 mb-8 shadow-sm">
                     <div className="flex flex-col sm:flex-row gap-2">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder="Найти вопрос..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-white/5 border-transparent pl-10 h-10 rounded-xl focus:bg-white/10 transition-all text-sm"
+                                className="bg-muted/50 border-transparent pl-10 h-10 rounded-xl focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all text-sm"
                             />
                         </div>
                         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
@@ -311,7 +340,7 @@ const Favorites = () => {
                 {loading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {[...Array(8)].map((_, i) => (
-                            <div key={i} className="aspect-[4/5] bg-slate-900/50 rounded-3xl animate-pulse border border-white/5" />
+                            <div key={i} className="aspect-[4/5] bg-muted/50 rounded-3xl animate-pulse border border-border" />
                         ))}
                     </div>
                 ) : filteredQuestions.length > 0 ? (
@@ -328,18 +357,18 @@ const Favorites = () => {
                     </div>
                 ) : (
                     <div className="text-center py-20">
-                        <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <Search className="w-8 h-8 text-slate-600" />
+                        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Search className="w-8 h-8 text-muted-foreground" />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2">Пусто</h3>
-                        <p className="text-slate-500 max-w-xs mx-auto">
+                        <h3 className="text-xl font-bold text-foreground mb-2">Пусто</h3>
+                        <p className="text-muted-foreground max-w-xs mx-auto">
                             Попробуйте изменить фильтры или добавьте новые вопросы в избранное
                         </p>
                         {(activeFilter !== 'all' || searchQuery) && (
                             <Button
                                 variant="link"
                                 onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
-                                className="mt-4 text-indigo-400"
+                                className="mt-4 text-primary"
                             >
                                 Сбросить фильтры
                             </Button>
@@ -347,26 +376,7 @@ const Favorites = () => {
                     </div>
                 )}
 
-                {/* FAB: ACTION BUTTON */}
-                <Motion
-                    initial={{ y: 100 }}
-                    animate={{ y: 0 }}
-                    className="fixed bottom-6 right-6 z-40"
-                >
-                    <Button
-                        size="lg"
-                        onClick={() => navigate('/test/favorites')}
-                        className="h-16 pl-6 pr-8 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xl shadow-indigo-600/40 border border-white/10 flex items-center gap-4 transition-transform hover:scale-105 active:scale-95"
-                    >
-                        <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                            <Play className="w-5 h-5 fill-white text-white ml-0.5" />
-                        </div>
-                        <div className="text-left">
-                            <div className="text-xs font-bold text-indigo-200 uppercase tracking-wider">Тренировка</div>
-                            <div className="text-base font-black">Зарядить Память</div>
-                        </div>
-                    </Button>
-                </Motion>
+                {/* FAB REMOVED - BUTTON IS NOW IN HEADER */}
 
             </div>
         </Layout>
@@ -381,8 +391,8 @@ const FilterBubble = ({ active, onClick, icon, label, count, alert }: any) => (
         className={cn(
             "flex items-center gap-2 px-4 h-9 rounded-xl text-xs font-bold transition-all whitespace-nowrap border select-none",
             active
-                ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/20"
-                : "bg-slate-900/50 text-slate-400 border-white/5 hover:bg-slate-800 hover:text-slate-200"
+                ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
+                : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
         )}
     >
         {icon}
@@ -390,7 +400,7 @@ const FilterBubble = ({ active, onClick, icon, label, count, alert }: any) => (
         {count !== undefined && (
             <span className={cn(
                 "px-1.5 py-0.5 rounded-md text-[9px] min-w-[18px] text-center ml-1",
-                active ? "bg-white/20 text-white" : "bg-slate-800 text-slate-500",
+                active ? "bg-white/20 text-white" : "bg-background text-muted-foreground shadow-sm",
                 alert && !active && "bg-rose-500/20 text-rose-500"
             )}>
                 {count}
@@ -428,21 +438,21 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
             >
                 {/* --- FRONT SIDE --- */}
                 <div
-                    className="absolute inset-0 backface-hidden w-full h-full bg-slate-900 border border-white/10 rounded-[2rem] overflow-hidden flex flex-col shadow-xl hover:shadow-2xl hover:shadow-indigo-500/10 transition-shadow"
+                    className="absolute inset-0 backface-hidden w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col shadow-lg hover:shadow-xl hover:shadow-primary/5 transition-shadow"
                     style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                 >
 
                     {/* Image Header */}
-                    <div className="relative h-48 shrink-0 bg-slate-950">
+                    <div className="relative h-48 shrink-0 bg-muted">
                         <QuestionImage imageUrl={question.image_url} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
 
                         {/* Overlay Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                         {/* Smart Tags */}
                         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                             {tags.map(tag => (
-                                <div key={tag.id} className={cn("px-2 py-1 rounded-lg backdrop-blur-md bg-slate-900/60 border border-white/10 flex items-center gap-1.5 text-[10px] font-bold text-white shadow-sm")}>
+                                <div key={tag.id} className={cn("px-2 py-1 rounded-lg backdrop-blur-md bg-black/40 border border-white/10 flex items-center gap-1.5 text-[10px] font-bold text-white shadow-sm")}>
                                     {tag.icon} {tag.label}
                                 </div>
                             ))}
@@ -456,22 +466,22 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
 
                     {/* Content */}
                     <div className="p-5 flex flex-col flex-1 justify-between gap-4">
-                        <p className="text-sm md:text-base font-bold text-slate-100 line-clamp-5 leading-relaxed">
+                        <p className="text-sm md:text-base font-bold text-card-foreground line-clamp-5 leading-relaxed">
                             {text}
                         </p>
 
-                        <div className="mt-auto pt-4 border-t border-white/5 space-y-3">
+                        <div className="mt-auto pt-4 border-t border-border/50 space-y-3">
                             {/* Battery Indicator */}
-                            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">
+                            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
                                 <span className="flex items-center gap-1.5">
                                     <Battery className={cn("w-3 h-3", battery > 40 ? "text-emerald-500" : "text-rose-500")} />
                                     Заряд памяти
                                 </span>
                                 <span className={cn(
-                                    battery > 70 ? "text-emerald-400" : battery > 40 ? "text-amber-400" : "text-rose-400"
+                                    battery > 70 ? "text-emerald-500" : battery > 40 ? "text-amber-500" : "text-rose-500"
                                 )}>{battery}%</span>
                             </div>
-                            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${battery}%` }}
@@ -484,7 +494,7 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
 
                 {/* --- BACK SIDE (ANSWER) --- */}
                 <div
-                    className="absolute inset-0 backface-hidden w-full h-full bg-slate-800 border border-white/10 rounded-[2rem] overflow-hidden flex flex-col p-6 shadow-xl rotate-y-180"
+                    className="absolute inset-0 backface-hidden w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col p-6 shadow-xl rotate-y-180"
                     style={{
                         transform: "rotateY(180deg)",
                         backfaceVisibility: 'hidden',
@@ -503,36 +513,41 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                     </div>
 
                     <div className="flex-1 flex flex-col items-center justify-center text-center relative z-0">
+                        {/* QUESTION CONTEXT (ADDED) */}
+                        <p className="text-[10px] leading-tight text-muted-foreground mb-6 line-clamp-2 max-w-full px-4">
+                            {text}
+                        </p>
+
                         {/* Correct Icon */}
-                        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6 ring-1 ring-emerald-500/20">
-                            <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                        <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4 ring-1 ring-emerald-500/20">
+                            <CheckCircle2 className="w-7 h-7 text-emerald-500" />
                         </div>
 
                         <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-3 opacity-80">
                             Правильный ответ
                         </h4>
 
-                        <div className="bg-slate-900/50 rounded-2xl p-4 w-full border border-white/5 mb-6">
-                            <p className="text-sm font-bold text-white leading-relaxed">
+                        <div className="bg-muted/50 rounded-2xl p-4 w-full border border-border/50 mb-4">
+                            <p className="text-sm font-bold text-foreground leading-relaxed">
                                 {answer || "Ответ не найден"}
                             </p>
                         </div>
 
                         {explanation && (
-                            <div className="w-full text-left bg-indigo-500/5 border border-indigo-500/10 rounded-xl p-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <BrainCircuit className="w-3.5 h-3.5 text-indigo-400" />
-                                    <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider">Суть кратко</span>
+                            <div className="w-full text-left bg-primary/5 border border-primary/10 rounded-xl p-3">
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <BrainCircuit className="w-3 h-3 text-primary" />
+                                    <span className="text-[9px] font-bold text-primary/80 uppercase tracking-wider">Суть кратко</span>
                                 </div>
-                                <p className="text-xs text-slate-300 line-clamp-4 leading-relaxed opacity-90">
+                                <p className="text-[11px] text-muted-foreground line-clamp-3 leading-relaxed opacity-90">
                                     {explanation}
                                 </p>
                             </div>
                         )}
                     </div>
 
-                    <div className="mt-auto pt-4 flex justify-center border-t border-white/5">
-                        <div className="text-[10px] text-slate-500 font-medium flex items-center gap-2">
+                    <div className="mt-auto pt-4 flex justify-center border-t border-border/50">
+                        <div className="text-[10px] text-muted-foreground font-medium flex items-center gap-2">
                             <RotateCcw className="w-3 h-3" />
                             Нажми, чтобы перевернуть
                         </div>

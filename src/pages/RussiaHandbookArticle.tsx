@@ -109,7 +109,7 @@ const RussiaHandbookArticle = () => {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen bg-transparent">
                 {/* Compact Sticky Header */}
                 <div className="sticky top-0 md:top-16 z-40 w-full border-b bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
                     <div className="container mx-auto px-4 h-14 flex items-center justify-between gap-4">

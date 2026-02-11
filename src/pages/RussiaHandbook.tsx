@@ -36,7 +36,7 @@ const RussiaHandbook = () => {
 
     return (
         <Layout>
-            <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-secondary/5 pb-20">
+            <div className="min-h-screen bg-transparent pb-20">
                 <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
 
                     {/* Header Section */}

@@ -61,7 +61,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
   const wrapperClasses = cn(
     isEmbedded
       ? "bg-card/80 border border-border/40 rounded-3xl shadow-xl backdrop-blur-md"
-      : "min-h-screen bg-background",
+      : "min-h-screen bg-transparent",
     className
   );
 
@@ -83,7 +83,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
             // Не сбрасываем loading сразу - дадим skeleton показаться минимум 300ms для лучшего UX
             setTimeout(() => {
               if (!abortController.signal.aborted) {
-              setLoading(false);
+                setLoading(false);
               }
             }, 300);
             usedCache = true;
@@ -95,7 +95,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
       }
     }
     loadLearningMap({ silent: usedCache, signal: abortController.signal });
-    
+
     return () => {
       abortController.abort();
     };
@@ -210,8 +210,8 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
           language === "es"
             ? t.description_es
             : language === "en"
-            ? t.description_en
-            : t.description_ru,
+              ? t.description_en
+              : t.description_ru,
         description_es: t.description_es,
         description_en: t.description_en,
         cover_image: t.cover_image,
@@ -240,23 +240,23 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
       if (!silent) {
         setTimeout(() => {
           if (!signal?.aborted) {
-          setLoading(false);
+            setLoading(false);
           }
         }, 500);
       } else {
         if (!signal?.aborted) {
-        setLoading(false);
+          setLoading(false);
         }
       }
       logLearningMap("[LearningMap] Loading complete, loading state:", false);
     } catch (error: any) {
       if (error?.name === 'AbortError') return; // Игнорируем отмененные запросы
       if (import.meta.env.DEV) {
-      console.error("[LearningMap] Error loading learning map:", error);
+        console.error("[LearningMap] Error loading learning map:", error);
       }
       if (!signal?.aborted) {
-      setError(error.message || t("learningMap.errors.generic"));
-      setLoading(false);
+        setError(error.message || t("learningMap.errors.generic"));
+        setLoading(false);
       }
       logLearningMap("[LearningMap] Error state set, loading:", false);
     }
@@ -322,7 +322,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
             isUnlocked: false,
           });
         });
-        
+
         setTopicsProgress(fallbackProgress);
         setLoading(false);
         return;
@@ -400,7 +400,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
       setIsBuildingCurriculum(false);
       return;
     }
-    
+
     setIsBuildingCurriculum(true);
     // Асинхронно строим структуру с проверкой статических материалов
     buildStructuredCurriculumAsync(curriculumBlueprint, topics, topicsProgress, language, t)
@@ -554,162 +554,162 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
   const mapContent = (
     <div className={wrapperClasses}>
       <div className={innerClasses}>
-          <section className="flex flex-col gap-6 lg:gap-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div className="space-y-3 md:max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 w-fit">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {t("learningMap.hero.badge")}
+        <section className="flex flex-col gap-6 lg:gap-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="space-y-3 md:max-w-2xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 w-fit">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">
+                  {t("learningMap.hero.badge")}
+                </span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+                {t("learningMap.hero.title")}
+              </h1>
+              <p className="text-base text-muted-foreground">
+                {t("learningMap.hero.description")}
+              </p>
+            </div>
+
+            <div className="w-full md:max-w-2xl space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-border bg-card px-3 py-4 sm:px-4 sm:py-5 flex items-center gap-3 sm:gap-4 shadow-sm">
+                  <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+                    <div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: `conic-gradient(#38bdf8 ${clampedGlobalPercent}%, rgba(148,163,184,0.2) ${clampedGlobalPercent}% 100%)`,
+                      }}
+                    />
+                    <div className="absolute inset-[6px] rounded-full bg-background border border-white/30 dark:border-white/10" />
+                    <div className="relative z-10 flex items-center justify-center h-full text-lg sm:text-xl md:text-2xl font-semibold text-foreground">
+                      {globalProgressPercent}%
+                    </div>
+                  </div>
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                      {t("learningMap.stats.overallTitle")}
+                    </p>
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
+                      {t("learningMap.stats.overallAverage", { count: topics.length || 0 })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-border bg-card px-3 py-4 sm:px-4 sm:py-5 space-y-2 sm:space-y-3 shadow-sm">
+                  <div className="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                        {t("learningMap.stats.topicProgress")}
+                      </p>
+                      <p className="text-base sm:text-lg font-semibold text-foreground">
+                        {Math.round(topicsCompletionPercent)}%
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 sm:px-4 py-1 text-xs sm:text-sm font-semibold text-primary shrink-0">
+                      {completedTopicsCount}
+                      <span className="text-muted-foreground">/ {topics.length || 0}</span>
+                    </span>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary via-primary/80 to-primary/60 transition-all"
+                      style={{ width: `${topicsCompletionPercent}%` }}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">
+                    <span>{t("learningMap.stats.subtopicsLabel")}</span>
+                    <span className="text-muted-foreground tracking-normal font-semibold">
+                      {subtopicsSummary}
+                    </span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-secondary transition-all"
+                      style={{ width: `${subtopicsPercent}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                size="lg"
+                className="w-full rounded-2xl justify-between gap-2 sm:gap-4 py-3 sm:py-4 px-3 sm:px-4 flex-col sm:flex-row"
+                onClick={() => {
+                  if (nextAction) {
+                    handleSubtopicClick(nextAction.subtopicId);
+                  } else if (structuredCurriculum[0]?.topicId) {
+                    handleTopicClick(structuredCurriculum[0].topicId!);
+                  }
+                }}
+              >
+                <div className="flex flex-col min-w-0 text-left flex-1 w-full sm:w-auto">
+                  <span className="text-xs sm:text-sm font-semibold text-primary-foreground/80">
+                    {nextActionLabel}
+                  </span>
+                  <span className="text-sm sm:text-base font-semibold text-primary-foreground leading-snug line-clamp-2 break-words whitespace-normal">
+                    {nextActionDescription}
                   </span>
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-                  {t("learningMap.hero.title")}
-                </h1>
-                <p className="text-base text-muted-foreground">
-                  {t("learningMap.hero.description")}
-                </p>
-              </div>
-
-              <div className="w-full md:max-w-2xl space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="rounded-2xl border border-border bg-card px-3 py-4 sm:px-4 sm:py-5 flex items-center gap-3 sm:gap-4 shadow-sm">
-                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
-                      <div
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                          background: `conic-gradient(#38bdf8 ${clampedGlobalPercent}%, rgba(148,163,184,0.2) ${clampedGlobalPercent}% 100%)`,
-                        }}
-                      />
-                      <div className="absolute inset-[6px] rounded-full bg-background border border-white/30 dark:border-white/10" />
-                      <div className="relative z-10 flex items-center justify-center h-full text-lg sm:text-xl md:text-2xl font-semibold text-foreground">
-                        {globalProgressPercent}%
-                      </div>
-                    </div>
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-                        {t("learningMap.stats.overallTitle")}
-                      </p>
-                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-                        {t("learningMap.stats.overallAverage", { count: topics.length || 0 })}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-border bg-card px-3 py-4 sm:px-4 sm:py-5 space-y-2 sm:space-y-3 shadow-sm">
-                    <div className="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-                          {t("learningMap.stats.topicProgress")}
-                        </p>
-                        <p className="text-base sm:text-lg font-semibold text-foreground">
-                          {Math.round(topicsCompletionPercent)}%
-                        </p>
-                      </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 sm:px-4 py-1 text-xs sm:text-sm font-semibold text-primary shrink-0">
-                        {completedTopicsCount}
-                        <span className="text-muted-foreground">/ {topics.length || 0}</span>
-                      </span>
-                    </div>
-                    <div className="h-2 rounded-full bg-muted/60 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-primary via-primary/80 to-primary/60 transition-all"
-                        style={{ width: `${topicsCompletionPercent}%` }}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between gap-3 text-xs uppercase tracking-[0.25em] text-muted-foreground">
-                      <span>{t("learningMap.stats.subtopicsLabel")}</span>
-                      <span className="text-muted-foreground tracking-normal font-semibold">
-                        {subtopicsSummary}
-                      </span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-secondary transition-all"
-                        style={{ width: `${subtopicsPercent}%` }}
-                      />
-                    </div>
-                  </div>
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/15 text-primary-foreground shrink-0 self-end sm:self-auto">
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </div>
-
-                <Button
-                  size="lg"
-                  className="w-full rounded-2xl justify-between gap-2 sm:gap-4 py-3 sm:py-4 px-3 sm:px-4 flex-col sm:flex-row"
-                  onClick={() => {
-                    if (nextAction) {
-                      handleSubtopicClick(nextAction.subtopicId);
-                    } else if (structuredCurriculum[0]?.topicId) {
-                      handleTopicClick(structuredCurriculum[0].topicId!);
-                    }
-                  }}
-                >
-                  <div className="flex flex-col min-w-0 text-left flex-1 w-full sm:w-auto">
-                    <span className="text-xs sm:text-sm font-semibold text-primary-foreground/80">
-                      {nextActionLabel}
-                    </span>
-                    <span className="text-sm sm:text-base font-semibold text-primary-foreground leading-snug line-clamp-2 break-words whitespace-normal">
-                      {nextActionDescription}
-                    </span>
-                  </div>
-                  <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/15 text-primary-foreground shrink-0 self-end sm:self-auto">
-                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </div>
-                </Button>
-              </div>
+              </Button>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {loading || isBuildingCurriculum || (topics.length > 0 && structuredCurriculum.length === 0) ? (
-            (loading || isBuildingCurriculum) ? (
-              <div className="space-y-10">
-                {[1, 2, 3].map((i) => (
-                  <Card
-                    key={i}
-                    className="relative overflow-hidden rounded-2xl border border-border bg-card/80 dark:bg-card/90 backdrop-blur-sm px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
-                  >
-                    <div className="relative space-y-3 sm:space-y-4">
-                      <div className="relative rounded-xl overflow-hidden p-2.5 sm:p-3 md:p-4 lg:p-5 flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-start sm:items-center gap-2 sm:gap-3">
-                            <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl flex-shrink-0" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-3 w-20" />
-                              <Skeleton className="h-5 w-full max-w-xs" />
-                            </div>
+        {loading || isBuildingCurriculum || (topics.length > 0 && structuredCurriculum.length === 0) ? (
+          (loading || isBuildingCurriculum) ? (
+            <div className="space-y-10">
+              {[1, 2, 3].map((i) => (
+                <Card
+                  key={i}
+                  className="relative overflow-hidden rounded-2xl border border-border bg-card/80 dark:bg-card/90 backdrop-blur-sm px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
+                >
+                  <div className="relative space-y-3 sm:space-y-4">
+                    <div className="relative rounded-xl overflow-hidden p-2.5 sm:p-3 md:p-4 lg:p-5 flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start sm:items-center gap-2 sm:gap-3">
+                          <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl flex-shrink-0" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-3 w-20" />
+                            <Skeleton className="h-5 w-full max-w-xs" />
                           </div>
-                          <Skeleton className="h-4 w-full max-w-2xl" />
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto">
-                          <Skeleton className="h-16 sm:h-14 w-full sm:w-32 rounded-lg sm:rounded-xl" />
-                          <Skeleton className="h-10 w-full sm:w-24 rounded-lg sm:rounded-xl" />
-                        </div>
+                        <Skeleton className="h-4 w-full max-w-2xl" />
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto">
+                        <Skeleton className="h-16 sm:h-14 w-full sm:w-32 rounded-lg sm:rounded-xl" />
+                        <Skeleton className="h-10 w-full sm:w-24 rounded-lg sm:rounded-xl" />
                       </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-20 text-muted-foreground">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 border border-border mb-4">
-                  <BookOpen className="w-8 h-8 text-muted-foreground/50" />
-                </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {t("learningMap.empty.title")}
-                </h3>
-                <p className="text-muted-foreground max-w-md mx-auto">
-                  {t("learningMap.empty.description")}
-                </p>
-              </div>
-            )
+                  </div>
+                </Card>
+              ))}
+            </div>
           ) : (
-            <CurriculumMatrix
-              topics={structuredCurriculum}
-              onSubtopicClick={handleSubtopicClick}
-              onTopicClick={handleTopicClick}
-              onTrainingTestClick={(topicId) => navigate(`/tests?topic=${topicId}`)}
-              onFinalTestClick={(topicId) => navigate(`/test/module/${topicId}`)}
-            />
-          )}
+            <div className="text-center py-20 text-muted-foreground">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 border border-border mb-4">
+                <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                {t("learningMap.empty.title")}
+              </h3>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                {t("learningMap.empty.description")}
+              </p>
+            </div>
+          )
+        ) : (
+          <CurriculumMatrix
+            topics={structuredCurriculum}
+            onSubtopicClick={handleSubtopicClick}
+            onTopicClick={handleTopicClick}
+            onTrainingTestClick={(topicId) => navigate(`/tests?topic=${topicId}`)}
+            onFinalTestClick={(topicId) => navigate(`/test/module/${topicId}`)}
+          />
+        )}
       </div>
     </div>
   );
@@ -801,8 +801,8 @@ async function buildStructuredCurriculumAsync(
           language === "es"
             ? section.title_es || section.title
             : language === "en"
-            ? section.title_en || section.title
-            : section.title,
+              ? section.title_en || section.title
+              : section.title,
         items: await Promise.all(
           section.items.map(async (item) => {
             const matched = findMatchingSubtopic(
@@ -829,8 +829,8 @@ async function buildStructuredCurriculumAsync(
               matched && language === "es"
                 ? matched.title_es || matched.title_ru || item.title
                 : matched && language === "en"
-                ? matched.title_en || matched.title_ru || item.title
-                : matched?.title_ru || item.title;
+                  ? matched.title_en || matched.title_ru || item.title
+                  : matched?.title_ru || item.title;
 
             return {
               ...item,
@@ -853,8 +853,8 @@ async function buildStructuredCurriculumAsync(
             language === "es"
               ? subtopic.title_es || subtopic.title_ru
               : language === "en"
-              ? subtopic.title_en || subtopic.title_ru
-              : subtopic.title_ru;
+                ? subtopic.title_en || subtopic.title_ru
+                : subtopic.title_ru;
           return {
             code: subtopic.order_index ? subtopic.order_index.toString() : undefined,
             title: localizedTitle,
@@ -875,22 +875,22 @@ async function buildStructuredCurriculumAsync(
         language === "es"
           ? "Pruebas del módulo"
           : language === "en"
-          ? "Module tests"
-          : "Тесты по модулю";
+            ? "Module tests"
+            : "Тесты по модулю";
 
       const trainingTestTitle =
         language === "es"
           ? "Test de entrenamiento por tema"
           : language === "en"
-          ? "Training test by topic"
-          : "Тренировочный тест по теме";
+            ? "Training test by topic"
+            : "Тренировочный тест по теме";
 
       const finalTestTitle =
         language === "es"
           ? "Test final del módulo"
           : language === "en"
-          ? "Final module test"
-          : "Итоговый тест по модулю";
+            ? "Final module test"
+            : "Итоговый тест по модулю";
 
       const testsSection: StructuredCurriculumSection = {
         title: testsSectionTitle,
@@ -969,8 +969,8 @@ function buildStructuredCurriculum(
         language === "es"
           ? section.title_es || section.title
           : language === "en"
-          ? section.title_en || section.title
-          : section.title,
+            ? section.title_en || section.title
+            : section.title,
       items: section.items.map((item) => {
         const matched = findMatchingSubtopic(
           item.title,
@@ -987,8 +987,8 @@ function buildStructuredCurriculum(
           matched && language === "es"
             ? matched.title_es || matched.title_ru || item.title
             : matched && language === "en"
-            ? matched.title_en || matched.title_ru || item.title
-            : matched?.title_ru || item.title;
+              ? matched.title_en || matched.title_ru || item.title
+              : matched?.title_ru || item.title;
 
         return {
           ...item,
@@ -1008,22 +1008,22 @@ function buildStructuredCurriculum(
         language === "es"
           ? "Pruebas del módulo"
           : language === "en"
-          ? "Module tests"
-          : "Тесты по модулю";
+            ? "Module tests"
+            : "Тесты по модулю";
 
       const trainingTestTitle =
         language === "es"
           ? "Test de entrenamiento por tema"
           : language === "en"
-          ? "Training test by topic"
-          : "Тренировочный тест по теме";
+            ? "Training test by topic"
+            : "Тренировочный тест по теме";
 
       const finalTestTitle =
         language === "es"
           ? "Test final del módulo"
           : language === "en"
-          ? "Final module test"
-          : "Итоговый тест по модулю";
+            ? "Final module test"
+            : "Итоговый тест по модулю";
 
       const testsSection: StructuredCurriculumSection = {
         title: testsSectionTitle,
@@ -1051,15 +1051,15 @@ function buildStructuredCurriculum(
       language === "es"
         ? dbTopic?.title_es || topicBlueprint.title_es || topicBlueprint.title
         : language === "en"
-        ? dbTopic?.title_en || topicBlueprint.title_en || topicBlueprint.title
-        : dbTopic?.title_ru || topicBlueprint.title;
+          ? dbTopic?.title_en || topicBlueprint.title_en || topicBlueprint.title
+          : dbTopic?.title_ru || topicBlueprint.title;
 
     const localizedTopicDescription =
       language === "es"
         ? dbTopic?.description_es || topicBlueprint.description_es || topicBlueprint.description
         : language === "en"
-        ? dbTopic?.description_en || topicBlueprint.description_en || topicBlueprint.description
-        : dbTopic?.description_ru || topicBlueprint.description;
+          ? dbTopic?.description_en || topicBlueprint.description_en || topicBlueprint.description
+          : dbTopic?.description_ru || topicBlueprint.description;
 
     return {
       ...topicBlueprint,

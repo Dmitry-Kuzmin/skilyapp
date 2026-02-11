@@ -1434,7 +1434,7 @@ export function DuelWaitingReplay({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-background flex items-center justify-center p-4"
+      className="min-h-screen bg-transparent flex items-center justify-center p-4"
     >
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}

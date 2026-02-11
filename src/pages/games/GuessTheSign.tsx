@@ -49,7 +49,7 @@ export default function GuessTheSign() {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { profileId } = useUserContext();
-  
+
   const [gameState, setGameState] = useState<GameState>("menu");
   const [gameMode, setGameMode] = useState<GameMode>("beginner");
   const [allSigns, setAllSigns] = useState<RoadSign[]>([]);
@@ -64,7 +64,7 @@ export default function GuessTheSign() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [wrongAnswerIds, setWrongAnswerIds] = useState<Set<string>>(new Set());
   const [correctAnswerIds, setCorrectAnswerIds] = useState<Set<string>>(new Set());
-  
+
   // Boosters
   const [boosts, setBoosts] = useState<{ [key: string]: number }>({
     fifty_fifty: 0,
@@ -173,7 +173,7 @@ export default function GuessTheSign() {
     sounds.wrongAnswer();
     haptics.wrongAnswer();
     toast.error("¡Tiempo agotado!");
-    
+
     setTimeout(() => {
       nextQuestion();
     }, 2000);
@@ -186,7 +186,7 @@ export default function GuessTheSign() {
     setIsAnswerRevealed(true);
 
     const isCorrect = optionId === currentQuestion.correctAnswer.id;
-    
+
     // Визуальные эффекты
     if (isCorrect) {
       setCorrectAnswerIds(new Set([optionId]));
@@ -195,15 +195,15 @@ export default function GuessTheSign() {
       setWrongAnswerIds(new Set([optionId]));
       setTimeout(() => setWrongAnswerIds(new Set()), 1000);
     }
-    
+
     if (isCorrect) {
       let points = POINTS_CORRECT;
-      
+
       // Speed bonus for expert mode
       if (gameMode === "expert" && timeLeft > TIME_PER_QUESTION_EXPERT / 2) {
         points += POINTS_SPEED_BONUS;
       }
-      
+
       setScore((prev) => prev + points);
       setCorrectAnswers((prev) => prev + 1);
       sounds.correctAnswer();
@@ -296,12 +296,12 @@ export default function GuessTheSign() {
   const finishGame = async () => {
     setGameState("finished");
     const accuracy = Math.round((correctAnswers / questions.length) * 100);
-    
+
     if (accuracy >= 80) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
     }
-    
+
     sounds.victory();
     haptics.victory();
 
@@ -328,7 +328,7 @@ export default function GuessTheSign() {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+        <div className="min-h-screen flex items-center justify-center bg-transparent">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -349,7 +349,7 @@ export default function GuessTheSign() {
   if (gameState === "menu") {
     return (
       <Layout>
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-12 px-4">
+        <div className="min-h-screen bg-transparent py-12 px-4">
           <div className="max-w-4xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -364,11 +364,11 @@ export default function GuessTheSign() {
               >
                 <Shield className="w-12 h-12 text-primary-foreground" />
               </motion.div>
-              
+
               <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
                 Угадай Знак
               </h1>
-              
+
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Проверь свои знания дорожных знаков в премиум игре с красивым дизайном
               </p>
@@ -451,7 +451,7 @@ export default function GuessTheSign() {
     const accuracy = Math.round((correctAnswers / questions.length) * 100);
     const isPerfect = accuracy === 100;
     const isExcellent = accuracy >= 80;
-    
+
     return (
       <Layout>
         {showConfetti && (
@@ -462,7 +462,7 @@ export default function GuessTheSign() {
             numberOfPieces={200}
           />
         )}
-        <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-12 px-4">
+        <div className="min-h-screen bg-transparent py-12 px-4">
           <div className="max-w-3xl mx-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -477,7 +477,7 @@ export default function GuessTheSign() {
               >
                 <Trophy className="w-16 h-16 text-primary-foreground" />
               </motion.div>
-              
+
               <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-4">
                 Игра завершена!
               </h2>
@@ -493,7 +493,7 @@ export default function GuessTheSign() {
                     <div className="text-sm text-muted-foreground">Очки</div>
                   </Card>
                 </motion.div>
-                
+
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -553,7 +553,7 @@ export default function GuessTheSign() {
                   <RotateCcw className="w-5 h-5 mr-2" />
                   Играть ещё
                 </Button>
-                
+
                 <Button
                   onClick={() => navigate("/games")}
                   variant="outline"
@@ -572,7 +572,7 @@ export default function GuessTheSign() {
   // Playing state
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 py-6 px-4">
+      <div className="min-h-screen bg-transparent py-6 px-4">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="mb-6 space-y-4">
@@ -590,13 +590,13 @@ export default function GuessTheSign() {
                 <Badge className="bg-primary/10 text-primary border-primary/30 text-base px-4 py-2">
                   {currentQuestionIndex + 1} / {questions.length}
                 </Badge>
-                
+
                 {gameMode === "expert" && (
-                  <Badge 
+                  <Badge
                     className={cn(
                       "text-base px-4 py-2 transition-all",
-                      timeLeft <= 5 
-                        ? "bg-destructive text-destructive-foreground animate-pulse" 
+                      timeLeft <= 5
+                        ? "bg-destructive text-destructive-foreground animate-pulse"
                         : "bg-primary/10 text-primary border-primary/30"
                     )}
                   >
@@ -650,7 +650,7 @@ export default function GuessTheSign() {
                         <span className="text-muted-foreground">Нет изображения</span>
                       </div>
                     )}
-                    
+
                     {currentQuestion.sign.sign_number && (
                       <Badge className="mt-4 bg-primary/10 text-primary border-primary/30">
                         {currentQuestion.sign.sign_number}
@@ -740,12 +740,12 @@ export default function GuessTheSign() {
                                   showCorrect
                                     ? "bg-success text-success-foreground border-2 border-success shadow-lg scale-[1.02]"
                                     : showWrong || isWrong
-                                    ? "bg-destructive text-destructive-foreground border-2 border-destructive shadow-lg scale-[1.02]"
-                                    : isCorrectHighlight
-                                    ? "bg-success/20 text-success border-2 border-success/50 shadow-md"
-                                    : isSelected
-                                    ? "bg-primary text-primary-foreground border-2 border-primary shadow-md"
-                                    : "bg-background hover:bg-muted/50 text-foreground border-2 border-border hover:border-primary/50 hover:shadow-md"
+                                      ? "bg-destructive text-destructive-foreground border-2 border-destructive shadow-lg scale-[1.02]"
+                                      : isCorrectHighlight
+                                        ? "bg-success/20 text-success border-2 border-success/50 shadow-md"
+                                        : isSelected
+                                          ? "bg-primary text-primary-foreground border-2 border-primary shadow-md"
+                                          : "bg-background hover:bg-muted/50 text-foreground border-2 border-border hover:border-primary/50 hover:shadow-md"
                                 )}
                               >
                                 {showCorrect && (
