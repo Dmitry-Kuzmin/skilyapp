@@ -94,11 +94,17 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
             {currentQuestion.image_url ? (
                 // Blitz Vertical Layout (Image on top)
                 <div className="space-y-4">
-                    <div className="w-full bg-slate-200/50 dark:bg-black/20 rounded-2xl overflow-hidden min-h-[160px] flex items-center justify-center">
+                    <div className="w-full relative aspect-video bg-slate-900/10 dark:bg-black/40 rounded-2xl overflow-hidden flex items-center justify-center border border-white/5 shadow-inner">
+                        {/* Blurred background for empty sides */}
+                        <div
+                            className="absolute inset-0 z-0 bg-center bg-cover blur-2xl opacity-30 scale-110"
+                            style={{ backgroundImage: `url(${currentQuestion.image_url})` }}
+                        />
+                        {/* Main image */}
                         <img
                             src={currentQuestion.image_url}
                             alt="Question"
-                            className="w-full max-h-[280px] object-contain"
+                            className="relative z-10 w-full h-full object-contain drop-shadow-2xl"
                         />
                     </div>
                     <div className="flex flex-col">
@@ -111,34 +117,20 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
                             </h2>
                         </div>
                         {renderOptions()}
-                        {selectedOption && (
-                            <button
-                                onClick={nextQuestion}
-                                className="mt-4 w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all"
-                            >
-                                Следующий вопрос →
-                            </button>
-                        )}
                     </div>
                 </div>
             ) : (
                 // No image layout for Blitz
-                <div className="space-y-4">
-                    <h2 className={cn(
-                        fontSizeClasses[fontSize],
-                        "font-medium text-slate-900 dark:text-white text-center whitespace-pre-line"
-                    )}>
-                        {displayQuestion}
-                    </h2>
+                <div className="space-y-4 text-center">
+                    <div className="py-2">
+                        <h2 className={cn(
+                            fontSizeClasses[fontSize],
+                            "font-medium text-slate-900 dark:text-white whitespace-pre-line"
+                        )}>
+                            {displayQuestion}
+                        </h2>
+                    </div>
                     {renderOptions()}
-                    {selectedOption && (
-                        <button
-                            onClick={nextQuestion}
-                            className="mt-4 w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all"
-                        >
-                            Следующий вопрос →
-                        </button>
-                    )}
                 </div>
             )}
         </BlitzGameCard>
