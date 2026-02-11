@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Smartphone } from 'lucide-react';
+import { isTelegramMiniApp } from '@/lib/telegram';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { IOSInstallInstructions } from './IOSInstallInstructions';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export const PWAInstallBanner: React.FC = () => {
     const { isInstalled, isPWALikelyInstalled, installApp, showIOSInstructions, setShowIOSInstructions, canInstall } = usePWAInstall();
     const [isVisible, setIsVisible] = useState(false);
+    const isTelegram = isTelegramMiniApp();
 
     useEffect(() => {
         // 1. Если приложение уже установлено (standalone) - не показываем
@@ -81,9 +83,11 @@ export const PWAInstallBanner: React.FC = () => {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h4 className="text-white font-medium text-sm">Установить приложение</h4>
+                                <h4 className="text-white font-medium text-sm">
+                                    {isTelegram ? 'Вынести на главный экран' : 'Установить приложение'}
+                                </h4>
                                 <p className="text-zinc-400 text-xs truncate">
-                                    Быстрее, удобнее и без адресной строки
+                                    {isTelegram ? 'Мгновенный доступ к Skily одним тапом' : 'Быстрее, удобнее и без адресной строки'}
                                 </p>
                             </div>
 

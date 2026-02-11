@@ -1,5 +1,6 @@
 import React from 'react';
 import { Download, Share } from 'lucide-react';
+import { isTelegramMiniApp } from '@/lib/telegram';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { IOSInstallInstructions } from './IOSInstallInstructions';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,8 @@ export const InstallAppButton: React.FC<InstallAppButtonProps> = ({
         setShowIOSInstructions,
         canInstall
     } = usePWAInstall();
+
+    const isTelegram = isTelegramMiniApp();
 
     // Если приложение уже установлено (PWA mode), кнопку/баннер не показываем
     if (isInstalled) {
@@ -45,7 +48,7 @@ export const InstallAppButton: React.FC<InstallAppButtonProps> = ({
             >
                 <Download className="w-4 h-4" />
                 {!minimal && (
-                    <span>Установить приложение</span>
+                    <span>{isTelegram ? 'Добавить на экран' : 'Установить приложение'}</span>
                 )}
             </Button>
 

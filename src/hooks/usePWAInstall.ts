@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { isTelegramMiniApp } from '@/lib/telegram';
 
 interface BeforeInstallPromptEvent extends Event {
     prompt: () => Promise<void>;
@@ -105,6 +106,12 @@ export const usePWAInstall = () => {
     }, []);
 
     const installApp = async () => {
+        if (isTelegramMiniApp()) {
+            // Для Telegram используем специальный deep-link для добавления на экран
+            window.location.href = 'https://t.me/skilyapp_bot/?startapp&addToHomeScreen';
+            return;
+        }
+
         if (isIOS) {
             // Для iOS показываем инструкцию
             setShowIOSInstructions(true);
@@ -130,7 +137,7 @@ export const usePWAInstall = () => {
         isPWALikelyInstalled, // 🆕 Новый флаг - PWA скорее всего установлен
         isIOS,
         browserType,
-        canInstall: !!deferredPrompt || isIOS,
+        canInstall: !!deferredPrompt || isIOS || isTelegramMiniApp(),
         installApp,
         showIOSInstructions,
         setShowIOSInstructions
