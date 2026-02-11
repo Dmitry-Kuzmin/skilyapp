@@ -302,29 +302,18 @@ const App = () => {
 
     // ============================================================================
     // GOLDEN RULES v3.0 - RULE 3: The "Chameleon" Protocol
-    // @see RULES_LAYOUT.md
+    // @see ThemeColorManager.tsx
     // ============================================================================
-    // CRITICAL: Sync Telegram native UI colors with our app theme
-    // These MUST match the background-color in index.css (#09090b = zinc-950)
+    // КРИТИЧНО: Цвета теперь автоматически синхронизируются в ThemeColorManager.tsx
+    // Это обеспечивает плавную смену цветов при навигации между страницами с разным фоном.
+
     try {
-      // Paint the Status Bar (Top) - matches header/body bg
-      if (typeof tg.setHeaderColor === 'function') {
-        tg.setHeaderColor('#09090b');
-        if (import.meta.env.DEV) console.debug('[App] ✅ setHeaderColor(#09090b) called');
-      }
-
-      // Paint the Bottom Area (Home Indicator) - matches page background
-      if (typeof tg.setBackgroundColor === 'function') {
-        tg.setBackgroundColor('#09090b');
-        if (import.meta.env.DEV) console.debug('[App] ✅ setBackgroundColor(#09090b) called');
-      }
-
       // Enable closing confirmation (recommended for better UX)
       if (typeof tg.enableClosingConfirmation === 'function') {
         tg.enableClosingConfirmation();
       }
     } catch (error) {
-      console.warn('[App] Error setting Telegram colors:', error);
+      console.warn('[App] Error enabling closing confirmation:', error);
     }
 
     // ============================================================================

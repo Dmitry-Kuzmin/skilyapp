@@ -6,12 +6,17 @@
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <!-- Theme color для браузерных панелей - темная тема (zinc-950) -->
-  <!-- Force dark theme color for all modes to match app bg (Slate 900) -->
-  <meta name="theme-color" content="#09090b" />
+  <!-- Theme color для браузерных панелей - динамическое определение (Chameleon Protocol) -->
+  <script>
+    (function () {
+      const isLanding = window.location.pathname === '/' || window.location.pathname === '/landing' || !window.location.pathname.startsWith('/dashboard');
+      const color = isLanding ? '#0f172a' : '#09090b';
+      document.write('<meta name="theme-color" content="' + color + '">');
+      document.write('<meta name="msapplication-TileColor" content="' + color + '">');
+    })();
+  </script>
   <!-- Для Safari iOS - черная полупрозрачная строка состояния -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="msapplication-TileColor" content="#09090b" />
 
   <!-- Google Fonts - ОПТИМИЗАЦИЯ: неблокирующая загрузка -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -542,11 +547,15 @@
           try {
             const version = parseFloat(tg.version || '0');
             if (version >= 6.1) {
+              // Динамическое определение начального цвета для предотвращения моргания
+              const isLanding = window.location.pathname === '/' || window.location.pathname === '/landing';
+              const initialColor = isLanding ? '#0f172a' : '#09090b';
+
               if (typeof tg.setHeaderColor === 'function') {
-                tg.setHeaderColor('#09090b');
+                tg.setHeaderColor(initialColor);
               }
               if (typeof tg.setBackgroundColor === 'function') {
-                tg.setBackgroundColor('#09090b');
+                tg.setBackgroundColor(initialColor);
               }
             } else {
               if (window.location.hostname === 'localhost') console.debug('[TG] Colors skipped for v' + version);

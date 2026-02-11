@@ -136,7 +136,10 @@ const TestSession = () => {
   const isRussia = (countryParam || selectedCountry) === 'russia';
   const { language: userLanguage } = useLanguage();
   const mode = useMemo(() => {
-    if (rawMode) return rawMode;
+    // Sanitization: extract only the base mode part before any query markers that might have leaked into path
+    const sanitizedRawMode = rawMode?.split('&')[0]?.split('?')[0];
+
+    if (sanitizedRawMode) return sanitizedRawMode;
     if (location.pathname.includes("/learn/") && ticketIdParam) return "pdd-ticket";
     if (location.pathname.includes("/test/sequential")) return "sequential";
     if (location.pathname.includes("/test/challenge-bank")) return "challenge-bank";

@@ -369,7 +369,7 @@ const Tests = () => {
         color: challengeStats.errors === 0 ? "success" : "destructive",
         premium: false,
         difficulty: challengeStats.errors === 0 ? "Мастер" : "Важно",
-        route: challengeStats.errors === 0 ? "#" : `/test/challenge-bank${selectedCountry === 'russia' ? '?country=russia' : ''}&category=${selectedCategory}`,
+        route: challengeStats.errors === 0 ? "#" : `/test/challenge-bank?category=${selectedCategory}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
         gradient: challengeStats.errors === 0
           ? "from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
           : "from-rose-600 to-red-600",
@@ -384,7 +384,7 @@ const Tests = () => {
         color: "secondary",
         premium: false,
         difficulty: "Личная",
-        route: `/tests/favorites${selectedCountry === 'russia' ? '?country=russia' : ''}&category=${selectedCategory}`,
+        route: `/tests/favorites?category=${selectedCategory}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
         gradient: "from-violet-600 to-purple-600",
       },
       {

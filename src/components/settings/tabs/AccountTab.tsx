@@ -88,16 +88,7 @@ export const AccountTab: React.FC = () => {
         }
     }, [profileData, isEditingName]);
 
-    // КРИТИЧНО: Используем ту же логику что и в ProfileModal
-    const photoUrl =
-        profileData?.photo_url ||
-        user?.photo_url ||
-        supabaseUser?.user_metadata?.avatar_url ||
-        supabaseUser?.user_metadata?.picture;
-
-    const firstName = profileData?.first_name || user?.first_name || supabaseUser?.user_metadata?.full_name?.split(' ')[0] || 'Пользователь';
-    const lastName = profileData?.last_name || user?.last_name || supabaseUser?.user_metadata?.full_name?.split(' ')[1] || '';
-    const username = profileData?.username || user?.username || supabaseUser?.email?.split('@')[0] || 'user';
+    // \u041a\u0420\u0418\u0422\u0418\u0427\u041d\u041e: \u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0432\u0441\u0435\u0445 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043d\u044b\u0445 \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u043e\u0432 \u0447\u0435\u0440\u0435\u0437 identities\n    const identities = supabaseUser?.identities || [];\n    const isGoogleLinked = identities.some(id =\u003e id.provider === 'google');\n    const isTelegramLinked = !!profileData?.telegram_id || identities.some(id =\u003e id.provider === 'telegram');\n\n    const photoUrl =\n        profileData?.photo_url ||\n        user?.photo_url ||\n        supabaseUser?.user_metadata?.avatar_url ||\n        supabaseUser?.user_metadata?.picture;\n\n    const firstName = profileData?.first_name || user?.first_name || supabaseUser?.user_metadata?.full_name?.split(' ')[0] || 'Пользователь';\n    const lastName = profileData?.last_name || user?.last_name || supabaseUser?.user_metadata?.full_name?.split(' ')[1] || '';\n    const username = profileData?.username || user?.username || supabaseUser?.email?.split('@')[0] || 'user';\n\n    // \u041e\u043f\u0440\u0435\u0434\u0435\u043b\u044f\u0435\u043c, \u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u043b\u0438 \u043f\u043e\u0447\u0442\u043а \u0442\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0430\u043a\u043a\u0430\u0443\u043d\u0442\u0430 Telegram\n    const isTechnicalEmail = supabaseUser?.email?.includes('@telegram.auth') || supabaseUser?.email?.includes('@telegram.skily.app');\n    const displayEmail = (!isTechnicalEmail \u0026\u0026 supabaseUser?.email) ? supabaseUser.email : (isGoogleLinked ? identities.find(id =\u003e id.provider === 'google')?.identity_data?.email : null);
 
     const handleLogout = () => {
         triggerHaptic('medium');
@@ -425,9 +416,9 @@ export const AccountTab: React.FC = () => {
                         <SettingRow
                             icon={<MessageSquare className="w-4 h-4 text-sky-500" />}
                             label="Telegram"
-                            description={profileData?.telegram_id ? "Аккаунт успешно привязан" : "Подключи бота для уведомлений"}
+                            description={isTelegramLinked ? "Аккаунт успешно привязан" : "Подключи бота для уведомлений"}
                         >
-                            {profileData?.telegram_id || userContext?.platform === 'telegram' ? (
+                            {isTelegramLinked ? (
                                 <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
                                     <Check className="w-3.5 h-3.5" />
                                     Активно
@@ -446,7 +437,7 @@ export const AccountTab: React.FC = () => {
                         </SettingRow>
 
                         {/* Расширенная карточка привязки Telegram */}
-                        {telegramLinkToken && !profileData?.telegram_id && (
+                        {telegramLinkToken && !isTelegramLinked && (
                             <div className="relative overflow-hidden p-4 rounded-2xl border border-sky-500/20 bg-sky-500/5 mt-2 animate-in fade-in slide-in-from-top-2 duration-300">
                                 <div className="absolute top-0 right-0 p-2">
                                     <button
@@ -503,11 +494,9 @@ export const AccountTab: React.FC = () => {
                     <SettingRow
                         icon={<GoogleIcon />}
                         label="Google"
-                        description={supabaseUser?.app_metadata?.provider === 'google'
-                            ? supabaseUser.email
-                            : "Не подключено"}
+                        description={isGoogleLinked ? "Аккаунт подключен" : "Не подключено"}
                     >
-                        {supabaseUser?.app_metadata?.provider === 'google' ? (
+                        {isGoogleLinked ? (
                             <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
                                 <Check className="w-3.5 h-3.5" />
                                 Активно
@@ -528,19 +517,13 @@ export const AccountTab: React.FC = () => {
                     <SettingRow
                         icon={<Mail className="w-4 h-4 text-blue-500" />}
                         label="Email"
-                        description={
-                            supabaseUser?.email && !supabaseUser.email.includes('@telegram.skily.app')
-                                ? supabaseUser.email
-                                : supabaseUser?.app_metadata?.provider === 'google'
-                                    ? supabaseUser.email
-                                    : "Не подключено"
-                        }
+                        description={displayEmail || "Не подключено"}
                     >
-                        {supabaseUser?.email && !supabaseUser.email.includes('@telegram.skily.app') ? (
+                        {displayEmail ? (
                             <div className="flex flex-col items-end gap-1">
                                 <span className="flex items-center gap-1.5 text-emerald-500 text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full">
                                     <Check className="w-3.5 h-3.5" />
-                                    {supabaseUser.email_confirmed_at ? 'Активно' : 'Ожидание'}
+                                    Активно
                                 </span>
                             </div>
                         ) : (
