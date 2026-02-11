@@ -88,7 +88,25 @@ export const AccountTab: React.FC = () => {
         }
     }, [profileData, isEditingName]);
 
-    // \u041a\u0420\u0418\u0422\u0418\u0427\u041d\u041e: \u041f\u0440\u043e\u0432\u0435\u0440\u043a\u0430 \u0432\u0441\u0435\u0445 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043d\u044b\u0445 \u043f\u0440\u043e\u0432\u0430\u0439\u0434\u0435\u0440\u043e\u0432 \u0447\u0435\u0440\u0435\u0437 identities\n    const identities = supabaseUser?.identities || [];\n    const isGoogleLinked = identities.some(id =\u003e id.provider === 'google');\n    const isTelegramLinked = !!profileData?.telegram_id || identities.some(id =\u003e id.provider === 'telegram');\n\n    const photoUrl =\n        profileData?.photo_url ||\n        user?.photo_url ||\n        supabaseUser?.user_metadata?.avatar_url ||\n        supabaseUser?.user_metadata?.picture;\n\n    const firstName = profileData?.first_name || user?.first_name || supabaseUser?.user_metadata?.full_name?.split(' ')[0] || 'Пользователь';\n    const lastName = profileData?.last_name || user?.last_name || supabaseUser?.user_metadata?.full_name?.split(' ')[1] || '';\n    const username = profileData?.username || user?.username || supabaseUser?.email?.split('@')[0] || 'user';\n\n    // \u041e\u043f\u0440\u0435\u0434\u0435\u043b\u044f\u0435\u043c, \u044f\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u043b\u0438 \u043f\u043e\u0447\u0442\u043а \u0442\u0435\u0445\u043d\u0438\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u0430\u043a\u043a\u0430\u0443\u043d\u0442\u0430 Telegram\n    const isTechnicalEmail = supabaseUser?.email?.includes('@telegram.auth') || supabaseUser?.email?.includes('@telegram.skily.app');\n    const displayEmail = (!isTechnicalEmail \u0026\u0026 supabaseUser?.email) ? supabaseUser.email : (isGoogleLinked ? identities.find(id =\u003e id.provider === 'google')?.identity_data?.email : null);
+    // КРИТИЧНО: Проверка всех подключенных провайдеров через identities
+    const identities = supabaseUser?.identities || [];
+    const isGoogleLinked = identities.some(id => id.provider === 'google');
+    const isTelegramLinked = !!profileData?.telegram_id || identities.some(id => id.provider === 'telegram');
+
+    const photoUrl =
+        profileData?.photo_url ||
+        user?.photo_url ||
+        supabaseUser?.user_metadata?.avatar_url ||
+        supabaseUser?.user_metadata?.picture;
+
+    const firstName = profileData?.first_name || user?.first_name || supabaseUser?.user_metadata?.full_name?.split(' ')[0] || 'Пользователь';
+    const lastName = profileData?.last_name || user?.last_name || supabaseUser?.user_metadata?.full_name?.split(' ')[1] || '';
+    const username = profileData?.username || user?.username || supabaseUser?.email?.split('@')[0] || 'user';
+
+    // Определяем, является ли почта технического аккаунта Telegram
+    const isTechnicalEmail = supabaseUser?.email?.includes('@telegram.auth') || supabaseUser?.email?.includes('@telegram.skily.app');
+    const displayEmail = (!isTechnicalEmail && supabaseUser?.email) ? supabaseUser.email : (isGoogleLinked ? identities.find(id => id.provider === 'google')?.identity_data?.email : null);
+
 
     const handleLogout = () => {
         triggerHaptic('medium');
