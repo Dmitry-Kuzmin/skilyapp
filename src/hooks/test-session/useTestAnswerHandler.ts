@@ -379,6 +379,7 @@ async function handleChallengeBankUpdate(
                     times_wrong: existing.times_wrong + 1,
                     last_wrong_at: new Date().toISOString(),
                     mastered: false,
+                    correct_streak: 0, // Reset streak on error
                     updated_at: new Date().toISOString(),
                 })
                 .eq('id', existing.id);
@@ -391,6 +392,7 @@ async function handleChallengeBankUpdate(
                     question_id: questionId,
                     times_wrong: 1,
                     last_wrong_at: new Date().toISOString(),
+                    correct_streak: 0,
                     // is_favorite defaults to false
                     // mastered defaults to false
                 });
@@ -405,6 +407,18 @@ async function handleChallengeBankSuccess(
     profileId: string
 ): Promise<void> {
     try {
+        // Fetch current streak and favorite status
+        const { data: existing, error: fetchError } = await (supabase as any)
+            .from('user_challenge_questions')
+            .select('id, correct_streak, is_favorite')
+            .eq('user_id', profileId)
+            .eq('question_id', questionId)
+            .maybeSingle();
+
+        if (fetchError) throw fetchError;
+
+        const newStreak = (existing?.correct_streak || 0) + 1;
+
         // Mark as mastered (removes from Errors list)
         // If it was favorite, it stays favorite (is_favorite is untouched).
         // If it was error, it is resolved.
@@ -412,10 +426,35 @@ async function handleChallengeBankSuccess(
             .from('user_challenge_questions')
             .update({
                 mastered: true,
+                correct_streak: newStreak,
                 updated_at: new Date().toISOString()
             })
             .eq('user_id', profileId)
             .eq('question_id', questionId);
+
+        // Interval Learning: If correctly answered 3 times and is in favorites, suggest removal
+        if (existing?.is_favorite && newStreak >= 3) {
+            toast.success("Вопрос освоен!", {
+                description: "Вы ответили правильно 3 раза подряд. Удалить из избранного?",
+                duration: 6000,
+                action: {
+                    label: "Удалить",
+                    onClick: async () => {
+                        const { error: deleteError } = await (supabase as any)
+                            .from('user_challenge_questions')
+                            .update({ is_favorite: false, updated_at: new Date().toISOString() })
+                            .eq('user_id', profileId)
+                            .eq('question_id', questionId);
+
+                        if (deleteError) {
+                            toast.error("Не удалось удалить из избранного");
+                        } else {
+                            toast.success("Удалено из избранного");
+                        }
+                    }
+                }
+            });
+        }
 
     } catch (error) {
         console.error('[Challenge Bank] Error marking success:', error);
