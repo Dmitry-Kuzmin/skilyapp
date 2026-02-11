@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, X, Trophy, Zap, Star } from "lucide-react";
+import { ArrowLeft, Check, X, Trophy, Zap, Star, Brain, Flame, Sparkles, Languages, Gauge, RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import Layout from "@/components/Layout";
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,7 @@ import { haptics } from "@/lib/haptics";
 import Confetti from "react-confetti";
 import { useUserContext } from "@/contexts/UserContext";
 import { updateTermProgress } from "@/lib/termProgress";
+import { cn } from "@/lib/utils";
 
 interface LanguageTerm {
   id: string;
@@ -26,9 +27,9 @@ interface GameQuestion {
   options: string[];
 }
 
-const FourVariantsGame = () => {
+const LexiconGame = () => {
   const navigate = useNavigate();
-  
+
   const { profileId } = useUserContext();
   const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<GameQuestion | null>(null);
@@ -41,62 +42,23 @@ const FourVariantsGame = () => {
   const [totalQuestions] = useState(10);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [wrongAnswers, setWrongAnswers] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [maxStreak, setMaxStreak] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadTerms();
   }, []);
 
-  useEffect(() => {
-    if (terms.length >= 4 && questionNumber < totalQuestions && !isGameOver) {
-      generateQuestion();
-    }
-  }, [terms, questionNumber, isGameOver]);
-
-  const loadTerms = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("language_terms")
-        .select("id, term_es, term_ru")
-        .limit(200);
-
-      if (error) {
-        toast({
-          title: "Ошибка",
-          description: `Не удалось загрузить термины: ${error.message}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (data && data.length >= 4) {
-        const shuffled = [...data].sort(() => Math.random() - 0.5);
-        setTerms(shuffled);
-      } else {
-        toast({
-          title: "Недостаточно данных",
-          description: "Нужно минимум 4 термина для игры",
-          variant: "destructive",
-        });
-      }
-    } catch (err: any) {
-      console.error("Error loading terms:", err);
-      toast({
-        title: "Ошибка",
-        description: `Произошла ошибка: ${err?.message || "Неизвестная ошибка"}`,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const generateQuestion = () => {
-    if (terms.length < 4) return;
+  const generateQuestion = useCallback((allTerms: LanguageTerm[]) => {
+    if (allTerms.length < 4) return;
 
     // Pick random term as correct answer
-    const randomIndex = Math.floor(Math.random() * terms.length);
-    const correctTerm = terms[randomIndex];
+    const randomIndex = Math.floor(Math.random() * allTerms.length);
+    const correctTerm = allTerms[randomIndex];
 
     // Get 3 wrong terms for options
-    const wrongTerms = terms
+    const wrongTerms = allTerms
       .filter((t) => t.id !== correctTerm.id)
       .sort(() => Math.random() - 0.5)
       .slice(0, 3);
@@ -115,6 +77,39 @@ const FourVariantsGame = () => {
     });
     setSelectedAnswer(null);
     setIsCorrect(null);
+  }, []);
+
+  useEffect(() => {
+    if (terms.length >= 4 && questionNumber < totalQuestions && !isGameOver && !currentQuestion) {
+      generateQuestion(terms);
+    }
+  }, [terms, questionNumber, isGameOver, currentQuestion, generateQuestion, totalQuestions]);
+
+  const loadTerms = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("language_terms")
+        .select("id, term_es, term_ru")
+        .limit(200);
+
+      if (error) {
+        toast.error(`Не удалось загрузить термины: ${error.message}`);
+        return;
+      }
+
+      if (data && data.length >= 4) {
+        const shuffled = [...data].sort(() => Math.random() - 0.5);
+        setTerms(shuffled);
+      } else {
+        toast.error("Нужно минимум 4 термина для игры");
+      }
+    } catch (err: any) {
+      console.error("Error loading terms:", err);
+      toast.error(`Произошла ошибка: ${err?.message || "Неизвестная ошибка"}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAnswer = (answer: string) => {
@@ -125,27 +120,26 @@ const FourVariantsGame = () => {
     setIsCorrect(correct);
 
     if (correct) {
-      setScore((prev) => prev + 1);
+      setScore((prev) => prev + (100 + streak * 10)); // Bonus points for streak
       setCorrectAnswers((prev) => prev + 1);
+      setStreak((prev) => {
+        const newStreak = prev + 1;
+        if (newStreak > maxStreak) setMaxStreak(newStreak);
+        return newStreak;
+      });
       sounds.correctAnswer();
       haptics.correctAnswer();
-      toast({
-        title: "Правильно! ✓",
-        description: `+1 очко`,
-      });
+
       // Обновляем прогресс термина
       if (profileId && currentQuestion?.term?.id) {
         updateTermProgress(profileId, currentQuestion.term.id, true);
       }
     } else {
       setWrongAnswers((prev) => prev + 1);
+      setStreak(0);
       sounds.wrongAnswer();
       haptics.wrongAnswer();
-      toast({
-        title: "Неверно ✗",
-        description: `Правильный ответ: ${currentQuestion.correct_answer}`,
-        variant: "destructive",
-      });
+
       // Обновляем прогресс термина (неправильный ответ)
       if (profileId && currentQuestion?.term?.id) {
         updateTermProgress(profileId, currentQuestion.term.id, false);
@@ -158,8 +152,9 @@ const FourVariantsGame = () => {
         endGame();
       } else {
         setQuestionNumber((prev) => prev + 1);
+        setCurrentQuestion(null);
       }
-    }, 2000);
+    }, 1800);
   };
 
   const startGame = () => {
@@ -167,16 +162,19 @@ const FourVariantsGame = () => {
     setQuestionNumber(0);
     setCorrectAnswers(0);
     setWrongAnswers(0);
+    setStreak(0);
+    setMaxStreak(0);
     setIsGameOver(false);
     setSelectedAnswer(null);
     setIsCorrect(null);
     setShowConfetti(false);
-    generateQuestion();
+    setCurrentQuestion(null);
+    generateQuestion(terms);
   };
 
   const endGame = async () => {
     setIsGameOver(true);
-    if (score >= totalQuestions * 0.7) {
+    if (correctAnswers >= totalQuestions * 0.7) {
       sounds.victory();
       haptics.victory();
       setShowConfetti(true);
@@ -184,12 +182,13 @@ const FourVariantsGame = () => {
     }
 
     if (profileId) {
+      const accuracy = Math.round((correctAnswers / totalQuestions) * 100);
       const sessionData = {
         user_id: profileId,
         game_type: "four_variants",
-        score: Math.min(Math.max(0, Math.round((score / totalQuestions) * 100)), 100),
+        score: accuracy,
         total_questions: totalQuestions,
-        duration_seconds: Math.min(Math.max(0, 300), 7200),
+        duration_seconds: 300,
       };
       const { error } = await supabase.from("game_sessions").insert(sessionData);
       if (error) {
@@ -198,9 +197,22 @@ const FourVariantsGame = () => {
     }
   };
 
-  const accuracy = questionNumber > 0 
-    ? Math.round((correctAnswers / questionNumber) * 100) 
-    : 0;
+  const progress = (questionNumber / totalQuestions) * 100;
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="min-h-screen flex items-center justify-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <RotateCw className="w-10 h-10 text-primary opacity-50" />
+          </motion.div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -209,271 +221,283 @@ const FourVariantsGame = () => {
           width={window.innerWidth}
           height={window.innerHeight}
           recycle={false}
-          numberOfPieces={200}
-          gravity={0.3}
+          numberOfPieces={300}
+          gravity={0.2}
+          colors={['#8B5CF6', '#EC4899', '#3B82F6', '#10B981', '#F59E0B']}
         />
       )}
 
-      <div className="container mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate("/games")}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад
-          </Button>
-          {!isGameOver && (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Trophy className="w-5 h-5 text-primary" />
-                <span className="text-xl font-bold text-primary">Счёт: {score}</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Вопрос {questionNumber + 1} / {totalQuestions}
+      <div className="min-h-[calc(100vh-80px)] bg-transparent flex flex-col pt-4 md:pt-8 pb-10">
+        <div className="container max-w-4xl mx-auto px-4 space-y-8 flex-1 flex flex-col">
+
+          {/* Top Navigation & Progress */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/games")}
+                className="rounded-full hover:bg-white/10 text-muted-foreground hover:text-foreground transition-all active:scale-95"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Выход
+              </Button>
+
+              <div className="flex items-center gap-4">
+                <AnimatePresence mode="wait">
+                  {streak >= 2 && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.5, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.5, y: -10 }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-500 font-black shadow-lg shadow-orange-500/10"
+                    >
+                      <Flame className="w-4 h-4 fill-orange-500" />
+                      <span>{streak}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl shadow-xl">
+                  <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-glow" />
+                  <span className="text-xl font-black text-foreground tabular-nums tracking-tighter">
+                    {score}
+                  </span>
+                </div>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Title */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl md:text-4xl font-bold">Четыре варианта</h1>
-          <p className="text-muted-foreground text-base md:text-lg">
-            Выбери правильный перевод термина
-          </p>
-        </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs font-black uppercase tracking-widest text-muted-foreground/60 px-1">
+                <span>Прогресс</span>
+                <span>{questionNumber + 1} / {totalQuestions}</span>
+              </div>
+              <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5 backdrop-blur-sm">
+                <motion.div
+                  className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-[0_0_15px_rgba(139,92,246,0.5)]"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${((questionNumber + (selectedAnswer ? 1 : 0)) / totalQuestions) * 100}%` }}
+                  transition={{ duration: 0.5, ease: "circOut" }}
+                />
+              </div>
+            </div>
+          </div>
 
-        {/* Game Screen */}
-        {!isGameOver && currentQuestion && (
-          <motion.div
-            key={currentQuestion.question_id}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.3 }}
-            className="max-w-2xl mx-auto"
-          >
-            <Card className="relative overflow-hidden border border-border/50 bg-card shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-2xl">
-              <div className="p-4 sm:p-6 md:p-8 lg:p-12 space-y-6 md:space-y-8">
-                {/* Spanish Term */}
-                <div className="text-center space-y-4">
-                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Термин на испанском
+          {/* Game Main Area */}
+          <div className="flex-1 flex flex-col justify-center py-4">
+            <AnimatePresence mode="wait">
+              {!isGameOver && currentQuestion ? (
+                <motion.div
+                  key={currentQuestion.question_id}
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -30, scale: 0.95 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                  className="w-full max-w-2xl mx-auto space-y-10"
+                >
+                  {/* Central Term Card */}
+                  <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+                    <div className="relative flex flex-col items-center justify-center p-10 md:p-16 rounded-[2.5rem] bg-card/40 backdrop-blur-2xl border border-white/10 shadow-2xl">
+                      <div className="mb-6 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">
+                        Termino en español
+                      </div>
+                      <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-center text-foreground tracking-tight leading-none break-words max-w-full drop-shadow-2xl">
+                        {currentQuestion.term.term_es}
+                      </h2>
+                      <div className="mt-8 flex gap-2">
+                        <Sparkles className="w-5 h-5 text-purple-500/40 animate-bounce" />
+                        <Sparkles className="w-5 h-5 text-pink-500/40 animate-bounce delay-150" />
+                        <Sparkles className="w-5 h-5 text-indigo-500/40 animate-bounce delay-300" />
+                      </div>
+                    </div>
                   </div>
-                  <motion.div
-                    key={currentQuestion.term.term_es}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground break-words break-all px-2"
-                  >
-                    {currentQuestion.term.term_es}
-                  </motion.div>
-                </div>
 
-                {/* Divider */}
-                <div className="h-px bg-border" />
+                  {/* Answer Options Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {currentQuestion.options.map((option, index) => {
+                      const isSelected = selectedAnswer === option;
+                      const isCorrectOption = option === currentQuestion.correct_answer;
+                      const showResult = selectedAnswer !== null;
 
-                {/* Options */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {currentQuestion.options.map((option, index) => {
-                    const isSelected = selectedAnswer === option;
-                    const isCorrectOption = option === currentQuestion.correct_answer;
-                    const showResult = selectedAnswer !== null;
-
-                    return (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={!showResult ? { scale: 1.02 } : {}}
-                        whileTap={!showResult ? { scale: 0.98 } : {}}
-                      >
-                        <Button
+                      return (
+                        <motion.button
+                          key={`${currentQuestion.question_id}-${index}`}
+                          initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 + index * 0.05 }}
+                          whileHover={!showResult ? { y: -4, scale: 1.02 } : {}}
+                          whileTap={!showResult ? { scale: 0.98 } : {}}
                           onClick={() => handleAnswer(option)}
-                          disabled={selectedAnswer !== null}
-                          className={`w-full min-h-20 md:min-h-24 h-auto py-4 px-4 text-base md:text-lg font-semibold rounded-xl border-2 transition-all ${
-                            showResult
-                              ? isCorrectOption
-                                ? "bg-success border-success text-success-foreground hover:bg-success"
-                                : isSelected && !isCorrectOption
-                                ? "bg-destructive border-destructive text-destructive-foreground hover:bg-destructive"
-                                : "bg-muted border-border text-muted-foreground opacity-50"
-                              : "bg-card border-border hover:border-primary hover:bg-muted/50"
-                          }`}
+                          disabled={showResult}
+                          className={cn(
+                            "group relative overflow-hidden p-6 rounded-3xl border-2 transition-all duration-300 text-left h-full min-h-[100px] flex items-center shadow-lg",
+                            !showResult && "bg-white/5 border-white/10 hover:border-indigo-500/50 hover:bg-white/10",
+                            showResult && isCorrectOption && "bg-emerald-500/20 border-emerald-500 text-emerald-100 shadow-emerald-500/20 ring-4 ring-emerald-500/10",
+                            showResult && isSelected && !isCorrectOption && "bg-rose-500/20 border-rose-500 text-rose-100 shadow-rose-500/20 ring-4 ring-rose-500/10",
+                            showResult && !isSelected && !isCorrectOption && "opacity-30 border-white/5"
+                          )}
                         >
-                          <div className="flex items-center justify-between w-full gap-2 min-w-0">
-                            <span className="flex-1 text-left break-words whitespace-normal">{option}</span>
-                            {showResult && isCorrectOption && (
-                              <Check className="w-5 h-5 md:w-6 md:h-6 ml-2 flex-shrink-0" />
-                            )}
-                            {showResult && isSelected && !isCorrectOption && (
-                              <X className="w-5 h-5 md:w-6 md:h-6 ml-2 flex-shrink-0" />
-                            )}
+                          <div className="flex items-center justify-between w-full gap-4">
+                            <span className="text-lg md:text-xl font-bold leading-tight flex-1">
+                              {option}
+                            </span>
+                            <div className="flex-shrink-0">
+                              {showResult && isCorrectOption && (
+                                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white animate-in zoom-in-50 duration-300">
+                                  <Check className="w-5 h-5 stroke-[3]" />
+                                </div>
+                              )}
+                              {showResult && isSelected && !isCorrectOption && (
+                                <div className="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white animate-in zoom-in-50 duration-300">
+                                  <X className="w-5 h-5 stroke-[3]" />
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </Button>
+
+                          {/* Inner Shine Effect */}
+                          {!showResult && (
+                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              ) : !isGameOver && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="max-w-2xl mx-auto w-full text-center space-y-10"
+                >
+                  <div className="space-y-6">
+                    <motion.div
+                      animate={{
+                        y: [0, -15, 0],
+                        filter: ["drop-shadow(0 0 0px rgba(139,92,246,0))", "drop-shadow(0 0 30px rgba(139,92,246,0.3))", "drop-shadow(0 0 0px rgba(139,92,246,0))"]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      className="mx-auto w-32 h-32 rounded-[2.5rem] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl relative"
+                    >
+                      <Brain className="w-16 h-16 text-white drop-shadow-lg" />
+                      <Sparkles className="absolute -top-4 -right-4 w-10 h-10 text-yellow-400 animate-pulse" />
+                    </motion.div>
+
+                    <div className="space-y-4">
+                      <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-foreground">
+                        ЛЕКСИКОН
+                      </h1>
+                      <p className="text-xl text-muted-foreground font-medium max-w-md mx-auto leading-relaxed">
+                        Совершенствуй свой словарный запас ПДД терминов для успешного экзамена.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                    <div className="p-4 rounded-3xl bg-white/5 border border-white/10">
+                      <Gauge className="w-6 h-6 text-indigo-400 mx-auto mb-2" />
+                      <div className="text-xs font-black uppercase tracking-tighter text-muted-foreground mb-1">Вопросов</div>
+                      <div className="text-2xl font-black">{totalQuestions}</div>
+                    </div>
+                    <div className="p-4 rounded-3xl bg-white/5 border border-white/10">
+                      <Languages className="w-6 h-6 text-purple-400 mx-auto mb-2" />
+                      <div className="text-xs font-black uppercase tracking-tighter text-muted-foreground mb-1">Сложность</div>
+                      <div className="text-2xl font-black">Medium</div>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={startGame}
+                    className="group relative h-16 px-12 rounded-full font-black text-xl bg-primary text-primary-foreground shadow-[0_15px_35px_rgba(139,92,246,0.4)] hover:shadow-[0_25px_50px_rgba(139,92,246,0.5)] active:scale-95 transition-all duration-300 overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center gap-3">
+                      <Zap className="w-6 h-6 fill-current" />
+                      Начать миссию
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Final Results Screen */}
+            <AnimatePresence>
+              {isGameOver && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-xl"
+                >
+                  <div className="w-full max-w-xl bg-card/60 border border-white/10 p-10 md:p-14 rounded-[3rem] shadow-2xl text-center space-y-10 relative overflow-hidden">
+                    {/* Animated background decoration */}
+                    <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
+                    <div className="absolute bottom-0 right-0 w-64 h-64 bg-pink-500/10 rounded-full blur-[100px] translate-x-1/2 translate-y-1/2" />
+
+                    <div className="relative space-y-4">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1, rotate: [0, -10, 10, 0] }}
+                        transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+                        className="mx-auto w-24 h-24 rounded-3xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-[0_10px_30px_rgba(245,158,11,0.3)]"
+                      >
+                        <Trophy className="w-12 h-12 text-white" />
                       </motion.div>
-                    );
-                  })}
-                </div>
+                      <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
+                        Миссия окончена!
+                      </h2>
+                    </div>
 
-                {/* Feedback */}
-                {selectedAnswer !== null && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`text-center p-4 rounded-xl border-2 ${
-                      isCorrect
-                        ? "bg-success/10 border-success text-success"
-                        : "bg-destructive/10 border-destructive text-destructive"
-                    }`}
-                  >
-                    {isCorrect ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <Check className="w-5 h-5" />
-                        <span className="font-semibold">Правильно!</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-center gap-2">
-                          <X className="w-5 h-5" />
-                          <span className="font-semibold">Неверно</span>
-                        </div>
-                        <div className="text-sm mt-2">
-                          Правильный ответ: <strong>{currentQuestion.correct_answer}</strong>
+                    <div className="relative grid grid-cols-2 gap-6">
+                      <div className="p-6 rounded-[2rem] bg-indigo-500/10 border border-indigo-500/20 text-center">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-3">Точность</div>
+                        <div className="text-4xl md:text-5xl font-black text-foreground tabular-nums tracking-tighter">
+                          {Math.round((correctAnswers / totalQuestions) * 100)}%
                         </div>
                       </div>
-                    )}
-                  </motion.div>
-                )}
-              </div>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Start Screen */}
-        {!currentQuestion && !isGameOver && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-2xl mx-auto"
-          >
-            <Card className="border border-border/50 bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-2xl">
-              <div className="p-8 md:p-12 text-center space-y-6">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                  className="mx-auto w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center"
-                >
-                  <Star className="w-10 h-10 md:w-12 md:h-12 text-primary" strokeWidth={2} />
-                </motion.div>
-
-                <div className="space-y-4">
-                  <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                    Четыре варианта
-                  </h2>
-                  <p className="text-muted-foreground">
-                    Выбери правильный перевод термина из четырех вариантов
-                  </p>
-                </div>
-
-                <div className="space-y-3 pt-4">
-                  <p className="text-sm text-muted-foreground">
-                    В игре {totalQuestions} вопросов
-                  </p>
-                  <Button
-                    onClick={startGame}
-                    size="lg"
-                    disabled={terms.length < 4}
-                    className="w-full md:w-auto px-8 h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)]"
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Начать игру
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Game Over Screen */}
-        {isGameOver && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-2xl mx-auto"
-          >
-            <Card className="border border-border/50 bg-card shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-2xl">
-              <div className="p-8 md:p-12 text-center space-y-8">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                  className="mx-auto w-20 h-20 md:w-24 md:h-24 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center"
-                >
-                  <Trophy className="w-10 h-10 md:w-12 md:h-12 text-primary" strokeWidth={2} />
-                </motion.div>
-
-                <div className="space-y-4">
-                  <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-                    Игра окончена!
-                  </h2>
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2, type: "spring" }}
-                    className="text-6xl md:text-7xl font-bold text-primary"
-                  >
-                    {score} / {totalQuestions}
-                  </motion.div>
-                  <p className="text-lg text-muted-foreground">
-                    Точность: {accuracy}%
-                  </p>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border">
-                  <div className="p-4 rounded-xl border border-border/50 bg-card">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-                      Правильных
+                      <div className="p-6 rounded-[2rem] bg-orange-500/10 border border-orange-500/20 text-center">
+                        <div className="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-3">Max Streak</div>
+                        <div className="text-4xl md:text-5xl font-black text-foreground tabular-nums tracking-tighter">
+                          {maxStreak}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-2xl font-bold text-success">{correctAnswers}</div>
-                  </div>
-                  <div className="p-4 rounded-xl border border-border/50 bg-card">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
-                      Неправильных
-                    </div>
-                    <div className="text-2xl font-bold text-destructive">{wrongAnswers}</div>
-                  </div>
-                </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3 pt-6">
-                  <Button
-                    onClick={startGame}
-                    size="lg"
-                    className="flex-1 h-12 bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_4px_12px_rgba(139,92,246,0.25)]"
-                  >
-                    <Zap className="w-4 h-4 mr-2" />
-                    Играть снова
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate("/games")}
-                    size="lg"
-                    className="flex-1 h-12 border border-border hover:bg-muted/50"
-                  >
-                    К играм
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        )}
+                    <div className="relative p-6 rounded-[2rem] bg-white/5 border border-white/10 flex items-center justify-between px-10">
+                      <div className="text-left">
+                        <div className="text-xs font-bold text-muted-foreground uppercase opacity-60">Всего очков</div>
+                        <div className="text-3xl font-black text-primary drop-shadow-[0_0_15px_rgba(139,92,246,0.3)]">{score}</div>
+                      </div>
+                      <div className="w-px h-10 bg-white/10" />
+                      <div className="text-right text-muted-foreground font-bold">
+                        {correctAnswers} верных
+                      </div>
+                    </div>
+
+                    <div className="relative flex flex-col sm:flex-row gap-4 pt-4">
+                      <Button
+                        onClick={startGame}
+                        className="flex-1 h-14 rounded-full font-black text-lg bg-primary text-primary-foreground shadow-xl hover:shadow-2xl active:scale-95 transition-all"
+                      >
+                        <RotateCw className="w-5 h-5 mr-2" />
+                        Играть снова
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => navigate("/games")}
+                        className="flex-1 h-14 rounded-full font-black text-lg border-2 border-white/10 bg-white/5 hover:bg-white/10"
+                      >
+                        К играм
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </Layout>
   );
 };
 
-export default FourVariantsGame;
-
+export default LexiconGame;
