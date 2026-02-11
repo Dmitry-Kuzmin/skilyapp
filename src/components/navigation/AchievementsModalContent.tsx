@@ -1,46 +1,26 @@
 import { useEffect, useState } from "react";
-import { Sparkles, Trophy, Star, Zap, Target, Award, Crown, CheckCircle2, Lock } from "lucide-react";
+import { Sparkles, Trophy, Star, Zap, Target, Award, Crown, CheckCircle2, Lock, Flag, Camera, BookOpen, Calendar, Users, CheckSquare, Lightbulb } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useUserContext } from "@/contexts/UserContext";
 
 const XP_PER_LEVEL = 225;
 
-const MOCK_ACHIEVEMENT_DEFS = [
-  { id: "leader_of_roads", title: { ru: "Лидер дорог" }, description: { ru: "Занять первое место в рейтинге среди учеников" }, reward: { xp: 200 }, type: "one_time", progress_target: 1, icon: "Trophy", category: "beginner" },
-  { id: "spanish_driver", title: { ru: "Испанский водитель" }, description: { ru: "Пройти финальный тест по ПДД" }, reward: { xp: 150 }, type: "one_time", progress_target: 1, icon: "Flag", category: "master" },
-  { id: "photomodel", title: { ru: "Фотомодель" }, description: { ru: "Добавить фото в профиль" }, reward: { xp: 20 }, type: "one_time", progress_target: 1, icon: "Camera", category: "beginner" },
-  { id: "novice", title: { ru: "Новичок" }, description: { ru: "Завершить первый урок по ПДД" }, reward: { xp: 30 }, type: "one_time", progress_target: 1, icon: "BookOpen", category: "beginner" },
-  { id: "weekend_warrior", title: { ru: "Воин выходного дня" }, description: { ru: "Пройти тест в субботу и воскресенье" }, reward: { xp: 50 }, type: "one_time", progress_target: 2, icon: "Shield", category: "streak" },
-  { id: "enthusiast", title: { ru: "Энтузиаст" }, description: { ru: "Заниматься 3 дня подряд" }, reward: { xp: 40 }, type: "one_time", progress_target: 3, icon: "Calendar", category: "streak" },
-  { id: "social_butterfly", title: { ru: "Душа компании" }, description: { ru: "Пригласить 3 друзей в приложение" }, reward: { xp: 80 }, type: "progressive", progress_target: 3, icon: "Users", category: "learning" },
-  { id: "strategist", title: { ru: "Стратег" }, description: { ru: "Завершить все дополнительные тесты" }, reward: { xp: 120 }, type: "one_time", progress_target: 10, icon: "Target", category: "accuracy" },
-  { id: "true_student", title: { ru: "Настоящий ученик" }, description: { ru: "Завершить 10 дней подряд без пропусков" }, reward: { xp: 200 }, type: "one_time", progress_target: 10, icon: "Calendar", category: "streak" },
-  { id: "flawless_driver", title: { ru: "Безошибочный водитель" }, description: { ru: "Пройти 20 уроков без ошибок" }, reward: { xp: 250 }, type: "progressive", progress_target: 20, icon: "Award", category: "accuracy" },
-  { id: "examiner", title: { ru: "Экзаменатор" }, description: { ru: "Пройти 20 экзаменационных тестов" }, reward: { xp: 200 }, type: "progressive", progress_target: 20, icon: "CheckSquare", category: "games" },
-  { id: "sign_sniper", title: { ru: "Снайпер знаков" }, description: { ru: "Узнать 50 знаков без ошибок" }, reward: { xp: 200 }, type: "progressive", progress_target: 50, icon: "Target", category: "accuracy" },
-  { id: "pdd_genius", title: { ru: "Гений ПДД" }, description: { ru: "Набрать 100% правильных ответов в экзаменационном тесте" }, reward: { xp: 500 }, type: "one_time", progress_target: 100, icon: "Lightbulb", category: "master" },
-  { id: "sign_master", title: { ru: "Знаток знаков" }, description: { ru: "Выучить 100 дорожных знаков" }, reward: { xp: 500 }, type: "progressive", progress_target: 100, icon: "Flag", category: "master" },
-  { id: "pdd_master", title: { ru: "Мастер ПДД" }, description: { ru: "Набрать 4000 очков опыта" }, reward: { xp: 0, badge: "master_pdd" }, type: "one_time", progress_target: 4000, icon: "Crown", category: "master" },
-];
-
-interface AchievementDef {
+interface Achievement {
   id: string;
-  title: { ru: string };
-  description: { ru: string };
-  reward: { xp?: number; coins?: number; badge?: string };
-  type: string;
-  progress_target: number;
-  icon: string;
-  category: string;
-}
-
-interface CombinedAchievement extends AchievementDef {
+  achievement_type: string;
+  title: string;
+  description: string;
   unlocked: boolean;
   progress: number;
+  max_progress: number;
   unlocked_at?: string;
+  category: string;
+  reward_xp?: number;
 }
 
 interface AchievementsModalContentProps {
@@ -56,30 +36,82 @@ const categoryIcons: Record<string, any> = {
   accuracy: Target,
   games: Trophy,
   learning: Award,
+  other: Trophy
+};
+
+const achievementIcons: Record<string, any> = {
+  Trophy: Trophy,
+  Flag: Flag,
+  Camera: Camera,
+  BookOpen: BookOpen,
+  Calendar: Calendar,
+  Users: Users,
+  Target: Target,
+  Award: Award,
+  CheckSquare: CheckSquare,
+  Lightbulb: Lightbulb,
+  Crown: Crown
 };
 
 export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: AchievementsModalContentProps) => {
   const { t } = useLanguage();
-  const [combinedAchievements, setCombinedAchievements] = useState<CombinedAchievement[]>([]);
+  const { profileId } = useUserContext();
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const mockData: CombinedAchievement[] = MOCK_ACHIEVEMENT_DEFS.map((def) => ({
-      ...def,
-      unlocked: Math.random() > 0.6,
-      progress: Math.floor(Math.random() * def.progress_target),
-      unlocked_at: Math.random() > 0.6 ? new Date().toISOString() : undefined,
-    }));
-    mockData[11].progress = 33;
-    mockData[11].unlocked = false;
-    mockData[13].progress = 33;
-    mockData[13].unlocked = false;
-    setCombinedAchievements(mockData);
-    setLoading(false);
-  }, []);
+    async function fetchAchievements() {
+      if (!profileId) return;
 
-  const unlockedCount = combinedAchievements.filter((a) => a.unlocked).length;
-  const totalCount = combinedAchievements.length;
+      try {
+        setLoading(true);
+        // Получаем достижения пользователя
+        const { data: userAchievements, error: achievementsError } = await supabase
+          .from('achievements')
+          .select('*')
+          .eq('user_id', profileId);
+
+        if (achievementsError) throw achievementsError;
+
+        // Если достижений нет, возможно они еще не инициализированы
+        // В реальном приложении мы бы дождались инициализации или показали пустой список
+        if (!userAchievements || userAchievements.length === 0) {
+          setAchievements([]);
+          return;
+        }
+
+        // Получаем определения наград (XP) из achievement_definitions
+        const { data: definitions, error: defError } = await supabase
+          .from('achievement_definitions')
+          .select('id, reward_xp, category, icon');
+
+        if (defError) {
+          console.warn('[Achievements] Could not fetch definitions, using defaults');
+        }
+
+        const combined: Achievement[] = userAchievements.map(ua => {
+          const def = definitions?.find(d => d.id === ua.achievement_type);
+          return {
+            ...ua,
+            category: def?.category || 'other',
+            reward_xp: def?.reward_xp || 50,
+            icon: def?.icon || 'Trophy'
+          };
+        });
+
+        setAchievements(combined);
+      } catch (err) {
+        console.error('[Achievements] Error fetching data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAchievements();
+  }, [profileId]);
+
+  const unlockedCount = achievements.filter((a) => a.unlocked).length;
+  const totalCount = achievements.length;
   const completionPercent = totalCount > 0 ? (unlockedCount / totalCount) * 100 : 0;
 
   if (loading) {
@@ -98,6 +130,28 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
       </div>
     );
   }
+
+  // Если достижений пока нет в базе (например, новый пользователь или ошибка инициализации)
+  if (totalCount === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+        <Trophy className="w-16 h-16 text-muted-foreground/30 animate-pulse" />
+        <div className="space-y-1">
+          <h3 className="text-xl font-bold">{t('achievementsModal.emptyTitle') || "Достижения загружаются"}</h3>
+          <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+            {t('achievementsModal.emptyDesc') || "Начните обучение, и ваши первые достижения появятся здесь в ближайшее время!"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const grouped = achievements.reduce((acc, achievement) => {
+    const cat = achievement.category || "other";
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(achievement);
+    return acc;
+  }, {} as Record<string, Achievement[]>);
 
   return (
     <div className="space-y-6">
@@ -134,24 +188,18 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
       </Card>
 
       <div className="space-y-6">
-        {Object.entries(
-          combinedAchievements.reduce((acc, achievement) => {
-            const cat = achievement.category || "other";
-            if (!acc[cat]) acc[cat] = [];
-            acc[cat].push(achievement);
-            return acc;
-          }, {} as Record<string, CombinedAchievement[]>)
-        ).map(([category, categoryAchievements]) => {
+        {Object.entries(grouped).map(([category, categoryAchievements]) => {
           const Icon = categoryIcons[category] || Trophy;
           const categoryUnlocked = categoryAchievements.filter((a) => a.unlocked).length;
           const categoryPercent = categoryAchievements.length > 0
             ? (categoryUnlocked / categoryAchievements.length) * 100
             : 0;
+
           const sortedAchievements = [...categoryAchievements].sort((a, b) => {
             if (a.unlocked && !b.unlocked) return -1;
             if (!a.unlocked && b.unlocked) return 1;
-            const aPercent = (a.progress / a.progress_target) * 100;
-            const bPercent = (b.progress / b.progress_target) * 100;
+            const aPercent = (a.progress / a.max_progress) * 100;
+            const bPercent = (b.progress / b.max_progress) * 100;
             return bPercent - aPercent;
           });
 
@@ -160,7 +208,7 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-border/30">
                 <div className="flex items-center gap-3">
                   <Icon className="w-5 h-5 text-primary" />
-                  <h3 className="text-lg font-bold capitalize">
+                  <h3 className="text-lg font-bold">
                     {t(`achievementsModal.categories.${category}`)}
                   </h3>
                 </div>
@@ -174,8 +222,12 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                   const isUnlocked = achievement.unlocked;
                   const percent = Math.min(
                     100,
-                    Math.round((achievement.progress / achievement.progress_target) * 100)
+                    Math.round((achievement.progress / achievement.max_progress) * 100)
                   );
+                  // Получаем переведенные данные (тип достижения используется как ключ в ru.ts)
+                  const translatedTitle = t(`achievementsModal.list.${achievement.achievement_type}.title`) || achievement.title;
+                  const translatedDesc = t(`achievementsModal.list.${achievement.achievement_type}.description`) || achievement.description;
+
                   return (
                     <Card
                       key={achievement.id}
@@ -187,7 +239,7 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                       )}
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div>
+                        <div className="z-10">
                           <div className="flex items-center gap-2 mb-1">
                             {isUnlocked ? (
                               <CheckCircle2 className="w-5 h-5 text-primary drop-shadow-lg" />
@@ -195,39 +247,39 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                               <Lock className="w-4 h-4 text-muted-foreground/80" />
                             )}
                             <span className="text-sm font-semibold">
-                              {achievement.title.ru}
+                              {translatedTitle}
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mb-2">
-                            {achievement.description.ru}
+                            {translatedDesc}
                           </p>
                         </div>
                         <div
                           className={cn(
-                            "text-xs font-semibold px-2 py-0.5 rounded-full border",
+                            "text-xs font-semibold px-2 py-0.5 rounded-full border z-10",
                             isUnlocked
                               ? "border-primary/50 bg-primary/15 text-primary"
                               : "border-border/60 text-muted-foreground bg-muted/20"
                           )}
                         >
-                          {isUnlocked ? t('achievementsModal.unlocked') : `+${achievement.reward.xp ?? 0} XP`}
+                          {isUnlocked ? t('achievementsModal.unlocked') : `+${achievement.reward_xp ?? 0} XP`}
                         </div>
                       </div>
                       {!isUnlocked && (
-                        <>
+                        <div className="relative z-10">
                           <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-3">
                             <span>{t('achievementsModal.progressLabel')}</span>
-                            <span>{percent}%</span>
+                            <span>{percent}% ({achievement.progress}/{achievement.max_progress})</span>
                           </div>
                           <Progress value={percent} className="h-1.5 mt-1.5" />
-                        </>
+                        </div>
                       )}
                       {isUnlocked && (
                         <>
-                          <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-70 animate-[pulse_5s_ease-in-out_infinite]" />
-                          <span className="absolute bottom-3 right-3 text-[11px] uppercase tracking-[0.2em] text-primary/70">
-                            PREMIUM
-                          </span>
+                          <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-70" />
+                          <div className="absolute -right-2 -bottom-2 opacity-10">
+                            <Sparkles className="w-16 h-16 text-primary" />
+                          </div>
                         </>
                       )}
                     </Card>
@@ -241,3 +293,4 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
     </div>
   );
 };
+

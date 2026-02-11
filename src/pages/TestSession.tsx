@@ -76,6 +76,7 @@ import { ExtendedQuestion } from "@/types/pddExam";
 
 import { useTestInteraction } from "@/hooks/test-session/useTestInteraction";
 import { useTestCompletion } from "@/hooks/test-session/useTestCompletion";
+import { GameBackground } from "@/components/test-session/GameBackground";
 
 type QuestionData = {
   id: string;
@@ -1108,6 +1109,7 @@ const TestSession = () => {
 
   return (
     <Layout hideNavigation={true}>
+      <GameBackground mode={mode} timeLeft={timeLeft} streak={streak} />
       <TestContentLayout
         mode={mode}
         isTelegramApp={isTelegramApp}
