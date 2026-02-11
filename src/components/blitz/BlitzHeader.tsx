@@ -94,7 +94,7 @@ export const BlitzHeader = memo(({
     return (
         <>
             {/* Edge-to-edge Progress Bar (The Fuse) */}
-            <div className="fixed top-0 left-0 right-0 z-50 h-1.5 bg-slate-800/80">
+            <div className="fixed top-0 left-0 right-0 z-50 h-1.5 bg-slate-200 dark:bg-slate-800/80">
                 <motion.div
                     className="h-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600"
                     style={{ width: `${progressPercent}%` }}
@@ -121,16 +121,17 @@ export const BlitzHeader = memo(({
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute left-0 top-4 w-10 h-10 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50 hover:text-white transition-all z-10"
+                    type="button"
+                    className="absolute left-2 sm:left-4 top-4 w-10 h-10 rounded-full bg-white/20 dark:bg-white/5 backdrop-blur-md border border-white/20 dark:border-white/10 flex items-center justify-center text-slate-900 dark:text-white transition-all z-[60] shadow-lg hover:scale-110 active:scale-95"
                 >
                     <X className="w-5 h-5" />
                 </button>
 
                 {/* Question Counter */}
-                <div className="absolute right-0 top-4 flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 z-10">
-                    <span className="text-lg font-bold text-white tabular-nums">{currentIndex + 1}</span>
-                    <span className="text-white/40">/</span>
-                    <span className="text-sm text-white/50">{totalQuestions}</span>
+                <div className="absolute right-0 top-4 flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-white/5 backdrop-blur-sm border border-slate-200 dark:border-white/10 z-10">
+                    <span className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{currentIndex + 1}</span>
+                    <span className="text-slate-400 dark:text-white/40">/</span>
+                    <span className="text-sm text-slate-500 dark:text-white/50">{totalQuestions}</span>
                 </div>
 
                 {/* The Timer */}
@@ -138,9 +139,9 @@ export const BlitzHeader = memo(({
                     <motion.div
                         className={cn(
                             "text-7xl sm:text-8xl font-black tabular-nums tracking-tight transition-all duration-200",
-                            flashColor === 'green' && "text-emerald-400",
-                            flashColor === 'red' && "text-red-500",
-                            !flashColor && (isCritical ? "text-red-500" : "text-white"),
+                            flashColor === 'green' && "text-emerald-500 dark:text-emerald-400",
+                            flashColor === 'red' && "text-red-600 dark:text-red-500",
+                            !flashColor && (isCritical ? "text-red-600 dark:text-red-500" : "text-slate-900 dark:text-white"),
                             isCritical && "animate-pulse"
                         )}
                         style={{
@@ -222,7 +223,7 @@ export const BlitzHeader = memo(({
                                 <span>{comboInfo.text}</span>
                             </motion.div>
                         ) : (
-                            <div className="text-xs font-medium uppercase tracking-[0.25em] text-white/20">
+                            <div className="text-xs font-medium uppercase tracking-[0.25em] text-slate-400 dark:text-white/20">
                                 Time Attack
                             </div>
                         )}

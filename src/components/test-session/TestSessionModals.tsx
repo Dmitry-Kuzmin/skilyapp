@@ -128,33 +128,30 @@ export const TestSessionModals = memo(function TestSessionModals({
                 )}
             </AnimatePresence>
 
-            {mode === 'exam-russia' && (
+            {(mode === 'blitz' || mode === 'exam-russia') && (
                 <>
-                    <PenaltyAlert
-                        open={showPenaltyAlert}
-                        blockNumber={penaltyBlock || 0}
-                        questionsAdded={russiaExam.state?.extraQuestions.length || 0}
-                        minutesAdded={5}
-                        onContinue={() => {
-                            setShowPenaltyAlert(false);
-                            setPenaltyBlock(null);
-                            setIsAnswerLocked(false);
-
-                            // Переходим к следующему вопросу
-                            setCurrentIndex(russiaExam.progress.current - 1);
-
-                            // selectedOption сбросится автоматически в examStore
-                            setIsTransitioning(true);
-                            setTimeout(() => setIsTransitioning(false), 300);
-                        }}
-                    />
+                    {mode === 'exam-russia' && (
+                        <PenaltyAlert
+                            open={showPenaltyAlert}
+                            blockNumber={penaltyBlock || 0}
+                            questionsAdded={russiaExam.state?.extraQuestions.length || 0}
+                            minutesAdded={5}
+                            onContinue={() => {
+                                setShowPenaltyAlert(false);
+                                setPenaltyBlock(null);
+                                setIsAnswerLocked(false);
+                                setCurrentIndex(russiaExam.progress.current - 1);
+                                setIsTransitioning(true);
+                                setTimeout(() => setIsTransitioning(false), 300);
+                            }}
+                        />
+                    )}
 
                     <ExamFailureModal
                         open={showFailureModal}
                         reason={failureReason}
                         onViewResults={() => {
-                            console.log('ExamFailureModal: Navigating to /tests');
-                            window.location.href = '/tests';
+                            window.location.href = mode === 'blitz' ? '/games' : '/tests';
                         }}
                     />
                 </>

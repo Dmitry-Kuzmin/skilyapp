@@ -47,7 +47,7 @@ export const TestContentLayout = ({
                         ? "px-2 sm:px-4"
                         : "pt-4 pb-2 md:pb-3",
                     // Blitz/Exam mode: minimal padding
-                    (isBlitzMode || isExamMode) && !isTelegramApp && "pt-4 pb-0",
+                    (isBlitzMode || isExamMode) && !isTelegramApp && "pt-4 pb-12",
                     // Tactical Mode for Redemption - Simplified
                     isRedemptionMode && !isTelegramApp && "pt-4"
                 )}

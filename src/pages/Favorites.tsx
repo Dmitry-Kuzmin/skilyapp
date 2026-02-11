@@ -423,12 +423,52 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
     // Battery Color
     const batteryColor = battery > 70 ? 'bg-emerald-500' : battery > 40 ? 'bg-amber-500' : 'bg-rose-500';
 
+    const ImageHeader = (
+        <div className="relative h-44 shrink-0 bg-muted overflow-hidden">
+            <QuestionImage
+                imageUrl={question.image_url}
+                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
+            />
+            {/* Overlay Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+            {/* Smart Tags */}
+            <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+                {tags.map(tag => (
+                    <div key={tag.id} className={cn("px-2 py-1 rounded-lg backdrop-blur-md bg-black/40 border border-white/10 flex items-center gap-1.5 text-[10px] font-bold text-white shadow-sm")}>
+                        {tag.icon} {tag.label}
+                    </div>
+                ))}
+            </div>
+
+            {/* Flip Hint - Moved to bottom right of image */}
+            <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                <RotateCcw className="w-4 h-4 text-white/70" />
+            </div>
+        </div>
+    );
+
     return (
         <div
-            className="group relative h-[450px] w-full cursor-pointer perspective-1000"
+            className="group relative h-[480px] w-full cursor-pointer perspective-1000"
             onClick={() => setIsFlipped(!isFlipped)}
             style={{ perspective: '1000px' }}
         >
+            {/* --- TRASH CAN (FIXED OVERLAY) --- */}
+            <div className="absolute top-4 right-4 z-[60] opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 text-rose-500 hover:text-white hover:bg-rose-500 bg-background/90 backdrop-blur-md border border-border rounded-xl shadow-xl transition-all active:scale-90"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onRemove(question.id);
+                    }}
+                >
+                    <Trash2 className="w-4 h-4" />
+                </Button>
+            </div>
+
             <motion.div
                 className="w-full h-full relative preserve-3d transition-all duration-500 origin-center"
                 initial={false}
@@ -441,37 +481,16 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                     className="absolute inset-0 backface-hidden w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col shadow-lg hover:shadow-xl hover:shadow-primary/5 transition-shadow"
                     style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                 >
+                    {ImageHeader}
 
-                    {/* Image Header */}
-                    <div className="relative h-48 shrink-0 bg-muted">
-                        <QuestionImage imageUrl={question.image_url} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-
-                        {/* Overlay Gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-                        {/* Smart Tags */}
-                        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                            {tags.map(tag => (
-                                <div key={tag.id} className={cn("px-2 py-1 rounded-lg backdrop-blur-md bg-black/40 border border-white/10 flex items-center gap-1.5 text-[10px] font-bold text-white shadow-sm")}>
-                                    {tag.icon} {tag.label}
-                                </div>
-                            ))}
+                    <div className="p-5 flex flex-col flex-1 gap-4 overflow-hidden">
+                        <div className="flex-1 overflow-hidden">
+                            <p className="text-sm md:text-base font-bold text-card-foreground line-clamp-6 leading-relaxed">
+                                {text}
+                            </p>
                         </div>
-
-                        {/* Flip Hint */}
-                        <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <RotateCcw className="w-4 h-4 text-white/70" />
-                        </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-5 flex flex-col flex-1 justify-between gap-4">
-                        <p className="text-sm md:text-base font-bold text-card-foreground line-clamp-5 leading-relaxed">
-                            {text}
-                        </p>
 
                         <div className="mt-auto pt-4 border-t border-border/50 space-y-3">
-                            {/* Battery Indicator */}
                             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
                                 <span className="flex items-center gap-1.5">
                                     <Battery className={cn("w-3 h-3", battery > 40 ? "text-emerald-500" : "text-rose-500")} />
@@ -494,62 +513,54 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
 
                 {/* --- BACK SIDE (ANSWER) --- */}
                 <div
-                    className="absolute inset-0 backface-hidden w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col p-6 shadow-xl rotate-y-180"
+                    className="absolute inset-0 backface-hidden w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col shadow-xl rotate-y-180"
                     style={{
                         transform: "rotateY(180deg)",
                         backfaceVisibility: 'hidden',
                         WebkitBackfaceVisibility: 'hidden'
                     }}
                 >
-                    <div className="absolute top-3 right-3 z-10">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-rose-400 hover:text-rose-300 hover:bg-rose-400/10 rounded-full"
-                            onClick={(e) => { e.stopPropagation(); onRemove(question.id); }}
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
+                    {/* Consistent Image Header on Back */}
+                    <div className="relative h-36 shrink-0 bg-muted overflow-hidden opacity-60 grayscale-[0.3]">
+                        <QuestionImage imageUrl={question.image_url} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
+                        {/* Question Text Context Snapshot */}
+                        <div className="absolute bottom-3 left-4 right-4 text-[10px] font-medium text-muted-foreground line-clamp-1 italic">
+                            {text}
+                        </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col items-center justify-center text-center relative z-0">
-                        {/* QUESTION CONTEXT (ADDED) */}
-                        <p className="text-[10px] leading-tight text-muted-foreground mb-6 line-clamp-2 max-w-full px-4">
-                            {text}
-                        </p>
-
-                        {/* Correct Icon */}
-                        <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4 ring-1 ring-emerald-500/20">
-                            <CheckCircle2 className="w-7 h-7 text-emerald-500" />
-                        </div>
-
-                        <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mb-3 opacity-80">
-                            Правильный ответ
-                        </h4>
-
-                        <div className="bg-muted/50 rounded-2xl p-4 w-full border border-border/50 mb-4">
-                            <p className="text-sm font-bold text-foreground leading-relaxed">
+                    <div className="p-5 flex flex-col flex-1 overflow-hidden">
+                        {/* Status + Answer Section */}
+                        <div className="flex flex-col items-center mb-4">
+                            <div className="flex items-center gap-2 mb-2 p-1.5 px-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">ПРАВИЛЬНЫЙ ОТВЕТ</span>
+                            </div>
+                            <p className="text-sm font-black text-foreground text-center line-clamp-3 px-2">
                                 {answer || "Ответ не найден"}
                             </p>
                         </div>
 
+                        {/* Explanation Section */}
                         {explanation && (
-                            <div className="w-full text-left bg-primary/5 border border-primary/10 rounded-xl p-3">
-                                <div className="flex items-center gap-2 mb-1.5">
-                                    <BrainCircuit className="w-3 h-3 text-primary" />
-                                    <span className="text-[9px] font-bold text-primary/80 uppercase tracking-wider">Суть кратко</span>
+                            <div className="flex-1 flex flex-col bg-muted/30 border border-border/50 rounded-2xl overflow-hidden mb-3">
+                                <div className="px-3 py-2 bg-muted/50 border-b border-border/10 flex items-center gap-2 shrink-0">
+                                    <BrainCircuit className="w-3.5 h-3.5 text-primary" />
+                                    <span className="text-[9px] font-black text-primary uppercase tracking-widest">Суть кратко</span>
                                 </div>
-                                <p className="text-[11px] text-muted-foreground line-clamp-3 leading-relaxed opacity-90">
+                                <div className="p-3 overflow-y-auto text-xs text-muted-foreground leading-relaxed custom-scrollbar">
                                     {explanation}
-                                </p>
+                                </div>
                             </div>
                         )}
-                    </div>
 
-                    <div className="mt-auto pt-4 flex justify-center border-t border-border/50">
-                        <div className="text-[10px] text-muted-foreground font-medium flex items-center gap-2">
-                            <RotateCcw className="w-3 h-3" />
-                            Нажми, чтобы перевернуть
+                        <div className="mt-auto pt-3 flex justify-center border-t border-border/50 opacity-60">
+                            <div className="text-[9px] text-muted-foreground font-black uppercase tracking-widest flex items-center gap-2">
+                                <RotateCcw className="w-3 h-3" />
+                                Нажми, чтобы вернуть
+                            </div>
                         </div>
                     </div>
                 </div>

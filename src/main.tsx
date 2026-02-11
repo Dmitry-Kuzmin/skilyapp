@@ -129,13 +129,6 @@ setTimeout(() => {
         'font-family: monospace; font-size: 13px; font-weight: bold; color: #22c55e; background-color: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; margin-top: 10px; display: inline-block;'
       );
 
-      safeLog('groupCollapsed', '%c 🛠 App Diagnostics (Click to expand)', 'color: #64748b; font-weight: normal; font-size: 11px;');
-      skilyDiagnostic('🌍 Region', countryName);
-      skilyDiagnostic('🆔 Environment', 'Production');
-      skilyDiagnostic('📦 Build', version + ' (Production)');
-      skilyDiagnostic('🎨 Theme', localStorage.getItem('theme') || 'auto');
-      skilyDiagnostic('⏱ Ready in', (performance.now() / 1000).toFixed(2) + 's');
-      safeLog('groupEnd');
     });
   }
 }, 1500);

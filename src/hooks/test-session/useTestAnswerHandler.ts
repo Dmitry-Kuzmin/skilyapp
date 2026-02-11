@@ -3,6 +3,8 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { saveTestProgress, clearTestProgress } from "@/utils/testStorage";
 import { triggerHapticFeedback, isTelegramMiniApp } from '@/lib/telegram';
+import { Zap, Timer } from 'lucide-react';
+import React from 'react';
 import type { QuestionData, Answer } from '@/types/question';
 
 // Types for Russia Exam
@@ -276,11 +278,17 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
                 if (isCorrect) {
                     // Bonus logic
                     if (addTime) addTime(10);
-                    toast.success("+10 сек", { duration: 1000, icon: "⚡️" });
+                    toast.success("+10 сек", {
+                        duration: 1500,
+                        icon: React.createElement(Zap, { className: "w-5 h-5 text-emerald-500 fill-emerald-500/20" })
+                    });
                 } else {
                     // Penalty logic
                     if (addTime) addTime(-10);
-                    toast.error("-10 сек", { duration: 1000, icon: "📉" });
+                    toast.error("-10 сек", {
+                        duration: 1500,
+                        icon: React.createElement(Timer, { className: "w-5 h-5 text-red-500" })
+                    });
                 }
 
                 // Save progress

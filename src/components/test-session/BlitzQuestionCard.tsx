@@ -12,6 +12,7 @@ interface BlitzQuestionCardProps {
     selectOption: (id: string) => void;
     handleAnswer: (id: string) => void;
     nextQuestion: () => void;
+    testLanguage: 'es' | 'ru' | 'en';
 }
 
 const fontSizeClasses = [
@@ -31,7 +32,8 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
     selectedOption,
     selectOption,
     handleAnswer,
-    nextQuestion
+    nextQuestion,
+    testLanguage
 }: BlitzQuestionCardProps) {
     if (!currentQuestion) return null;
 
@@ -56,9 +58,9 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
                         disabled={!!selectedOption}
                         className={cn(
                             "w-full p-4 rounded-xl text-left transition-all duration-200",
-                            "bg-slate-800/80 backdrop-blur border",
-                            !selectedOption && "hover:bg-slate-700/80 hover:border-cyan-500/50 cursor-pointer",
-                            !selectedOption && "border-white/10",
+                            "bg-slate-100 dark:bg-slate-800/80 backdrop-blur border",
+                            !selectedOption && "hover:bg-slate-200 dark:hover:bg-slate-700/80 hover:border-cyan-500/50 cursor-pointer",
+                            !selectedOption && "border-slate-200 dark:border-white/10",
                             isSelected && isCorrect && "border-emerald-500 bg-emerald-500/20",
                             isSelected && !isCorrect && "border-red-500 bg-red-500/20",
                             showResult && !isSelected && isCorrect && "border-emerald-500/50 bg-emerald-500/10",
@@ -76,9 +78,9 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
                             </span>
                             <span className={cn(
                                 "text-base font-medium flex-1",
-                                isSelected ? "text-white" : "text-white/80"
+                                isSelected ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-white/80"
                             )}>
-                                {option.text_ru || option.text_es || option.text_en}
+                                {testLanguage === 'ru' ? option.text_ru : (testLanguage === 'en' ? option.text_en : option.text_es)}
                             </span>
                         </div>
                     </button>
@@ -92,18 +94,18 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
             {currentQuestion.image_url ? (
                 // Blitz Vertical Layout (Image on top)
                 <div className="space-y-4">
-                    <div className="w-full">
+                    <div className="w-full bg-slate-200/50 dark:bg-black/20 rounded-2xl overflow-hidden min-h-[160px] flex items-center justify-center">
                         <img
                             src={currentQuestion.image_url}
                             alt="Question"
-                            className="w-full rounded-2xl object-cover max-h-[280px]"
+                            className="w-full max-h-[280px] object-contain"
                         />
                     </div>
                     <div className="flex flex-col">
                         <div className="mb-4">
                             <h2 className={cn(
                                 fontSizeClasses[fontSize],
-                                "font-medium text-white whitespace-pre-line"
+                                "font-medium text-slate-900 dark:text-white whitespace-pre-line"
                             )}>
                                 {displayQuestion}
                             </h2>
@@ -124,7 +126,7 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
                 <div className="space-y-4">
                     <h2 className={cn(
                         fontSizeClasses[fontSize],
-                        "font-medium text-white text-center whitespace-pre-line"
+                        "font-medium text-slate-900 dark:text-white text-center whitespace-pre-line"
                     )}>
                         {displayQuestion}
                     </h2>

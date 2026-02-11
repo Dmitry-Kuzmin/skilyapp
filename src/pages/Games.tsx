@@ -153,6 +153,18 @@ const Games = () => {
       route: "/games/road-race",
       gradient: "from-blue-600 to-cyan-600",
     },
+    {
+      id: 10,
+      title: "Блиц",
+      description: "Успей ответить на максимум вопросов за 60 секунд. Каждая ошибка — штраф!",
+      icon: Zap,
+      color: "warning",
+      premium: false,
+      difficulty: "Спец",
+      route: "/test/blitz?count=50&timer=60",
+      gradient: "from-orange-500 via-amber-500 to-yellow-500",
+      featured: true,
+    },
   ];
 
   const difficultyColors = {

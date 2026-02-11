@@ -18,14 +18,7 @@
   <!-- Для Safari iOS - черная полупрозрачная строка состояния -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <!-- Google Fonts - ОПТИМИЗАЦИЯ: неблокирующая загрузка -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet" media="print" onload="this.media='all'">
+  <!-- ОПТИМИЗАЦИЯ: Шрифты удалены - переходим на системные шрифты для ускорения загрузки -->
 
   <!-- Favicons -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -406,9 +399,6 @@
         w.loadCSS = loadCSS
       })(typeof global !== "undefined" ? global : this);
   </script>
-
-  <!-- ОПТИМИЗАЦИЯ: Preconnect для шрифтов удалён - используются системные шрифты -->
-  <!-- Если в будущем будут добавлены кастомные шрифты, добавить preload здесь -->
 
   <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
   <!-- КРИТИЧНО: telegram-web-app.js нужен для инициализации, загружаем с defer -->

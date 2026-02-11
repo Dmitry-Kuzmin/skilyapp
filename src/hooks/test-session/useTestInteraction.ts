@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { triggerHapticFeedback } from "@/lib/telegram";
 import { TestMode } from './useTestDataLoader';
+import { Zap, Timer, Clock } from 'lucide-react';
+import React from 'react';
 
 interface UseTestInteractionParams {
     // Context
@@ -240,10 +242,16 @@ export const useTestInteraction = ({
         if (mode === 'blitz') {
             if (isCorrect) {
                 modifyTime(10);
-                toast.success("+10 сек", { duration: 1000, icon: "⚡️" });
+                toast.success("+10 сек", {
+                    duration: 1500,
+                    icon: React.createElement(Zap, { className: "w-5 h-5 text-emerald-500 fill-emerald-500/20" })
+                });
             } else {
                 modifyTime(-10);
-                toast.error("-10 сек", { duration: 1000, icon: "📉" });
+                toast.error("-10 сек", {
+                    duration: 1500,
+                    icon: React.createElement(Timer, { className: "w-5 h-5 text-red-500" })
+                });
                 setBlitzShaking(true);
                 setTimeout(() => setBlitzShaking(false), 300);
             }
