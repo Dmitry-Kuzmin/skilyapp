@@ -247,5 +247,5 @@ export default {
       },
     },
   },
-  plugins: [animate, typography],
+  plugins: [animate, typography, require("tailwindcss-3d")],
 } satisfies Config;
