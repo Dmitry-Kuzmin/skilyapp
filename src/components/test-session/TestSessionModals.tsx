@@ -56,6 +56,7 @@ interface TestSessionModalsProps {
     showExitConfirm: boolean;
     setShowExitConfirm: (show: boolean) => void;
     userLanguage: string;
+    onViewResults?: () => void;
 }
 
 export const TestSessionModals = memo(function TestSessionModals({
@@ -91,7 +92,8 @@ export const TestSessionModals = memo(function TestSessionModals({
     failureReason,
     showExitConfirm,
     setShowExitConfirm,
-    userLanguage
+    userLanguage,
+    onViewResults
 }: TestSessionModalsProps) {
     const navigate = useNavigate();
     return (
@@ -152,13 +154,13 @@ export const TestSessionModals = memo(function TestSessionModals({
                     <ExamFailureModal
                         open={showFailureModal}
                         reason={failureReason}
-                        onViewResults={() => {
+                        onViewResults={onViewResults || (() => {
                             if (mode === 'blitz') {
                                 navigate('/games');
                             } else {
                                 navigate('/tests');
                             }
-                        }}
+                        })}
                     />
                 </>
             )}

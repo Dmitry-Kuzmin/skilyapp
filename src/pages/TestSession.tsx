@@ -378,6 +378,39 @@ const TestSession = () => {
     error: isRedemptionMode ? dataLoader.error : null,
   }), [isRedemptionMode, dataLoader.questions, dataLoader.isLoading, dataLoader.error]);
 
+  const fallbackTestInfo = useMemo(() => ({
+    title: mode === 'exam' ? (isRussia ? "Экзамен ГИБДД" : "Examen DGT") : (mode === 'blitz' ? "Блиц" : "Тренировка"),
+    category: selectedCategory || "B",
+    topic: (mode === 'by-topic' ? (topic || "") : ""),
+    mode: mode
+  }), [mode, selectedCategory, topic, isRussia]);
+
+  const testInfo = useMemo(() => {
+    if (dataLoader.testInfo) return dataLoader.testInfo;
+    return fallbackTestInfo;
+  }, [dataLoader.testInfo, fallbackTestInfo]);
+
+  const onViewResults = useCallback(() => {
+    if (!activeState) {
+      navigate('/tests'); // Fallback
+      return;
+    }
+
+    const timeSpent = activeState.data.timeLimit
+      ? (activeState.data.timeLimit - activeState.data.timeInfo)
+      : activeState.data.timeInfo;
+
+    navigate('/test/results', {
+      state: {
+        questions: questionsState,
+        answers,
+        mode,
+        testInfo,
+        timeSpent
+      }
+    });
+  }, [navigate, activeState, questionsState, answers, mode, testInfo]);
+
   const dgtQuestions = useMemo(() => ({
     data: mode === 'dgt' ? dataLoader.questions : null,
     isLoading: mode === 'dgt' && dataLoader.isLoading,
@@ -538,12 +571,7 @@ const TestSession = () => {
     }));
   }, [mode, universalPDDQuestions, dataLoader.questions]);
 
-  // Derived testInfo
-  const testInfo = useMemo(() => {
-    if (dataLoader.isLoading || !dataLoader.testInfo) return null;
-    return dataLoader.testInfo;
-  }, [dataLoader.testInfo, dataLoader.isLoading]);
-
+  // Derived testInfo merged above
 
   // === MODE EFFECTS (Moved here to have 'questions' available) ===
   const {
@@ -1294,6 +1322,7 @@ const TestSession = () => {
           showExitConfirm={showExitConfirm}
           setShowExitConfirm={setShowExitConfirm}
           userLanguage={userLanguage}
+          onViewResults={onViewResults}
         />
 
       </TestContentLayout>

@@ -137,10 +137,6 @@ export const useTestLifecycle = ({
 
         if (status === 'completed') {
             if (activeState.kind === 'standard') {
-                if (mode === 'blitz') {
-                    navigate('/games');
-                    return;
-                }
                 navigate('/test/results', {
                     state: {
                         questions,
