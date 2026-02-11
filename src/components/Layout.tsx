@@ -306,6 +306,19 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
   return (
     <div className="telegram-app-container">
+      {/* Global Smart Background - Grid & Noise */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+        {/* Noise Texture */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{ backgroundImage: 'url("/noise.svg")' }}
+        />
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+        {/* Subtle Radial Gradient for Depth */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 opacity-50" />
+      </div>
+
       {/* Telegram Navigation Handler */}
       <TelegramNavigation />
       {/* Edge Swipe Back Area (Telegram/Mobile) */}
@@ -444,7 +457,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       <main
         ref={mainContentRef}
         className={cn(
-          "telegram-main-content bg-background",
+          "telegram-main-content bg-transparent relative z-1",
           // CSS в index.css применяет padding-top через:
           // .telegram-mobile-app .telegram-main-content { padding-top: max(...) }
         )}
