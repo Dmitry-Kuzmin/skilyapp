@@ -179,11 +179,12 @@ const TestSession = () => {
   // Получаем количество вопросов из URL
   const countParam = searchParams.get('count');
   const questionCount = countParam ? parseInt(countParam) : (
-    mode === 'nonstop' && selectedCountry === 'russia' ? 800 :
-      mode === 'challenge-bank' ? 20 :
-        30
+    mode === 'blitz' ? 20 :
+      mode === 'nonstop' && selectedCountry === 'russia' ? 800 :
+        mode === 'challenge-bank' ? 20 :
+          30
   );
-  const blitzDuration = parseInt(searchParams.get('timer') || (mode === 'blitz' ? '60' : '300')) || (mode === 'blitz' ? 60 : 300);
+  const blitzDuration = parseInt(searchParams.get('timer') || (mode === 'blitz' ? '300' : '300')) || (mode === 'blitz' ? 300 : 300);
   const initialTimeBudget = mode === "exam" ? 30 * 60 : mode === "blitz" ? blitzDuration : 0;
   const [showTranslation, setShowTranslation] = useState(false);
   const [questionsState, setQuestionsState] = useState<QuestionData[]>([]);

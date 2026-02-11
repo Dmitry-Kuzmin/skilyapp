@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from "@/components/optimized/Motion";
 import { TestQuestionMap } from "@/components/test-session/TestQuestionMap";
 import { ReportProblemModal } from "@/components/ReportProblemModal";
@@ -92,6 +93,7 @@ export const TestSessionModals = memo(function TestSessionModals({
     setShowExitConfirm,
     userLanguage
 }: TestSessionModalsProps) {
+    const navigate = useNavigate();
     return (
         <>
             <TestQuestionMap
@@ -151,7 +153,11 @@ export const TestSessionModals = memo(function TestSessionModals({
                         open={showFailureModal}
                         reason={failureReason}
                         onViewResults={() => {
-                            window.location.href = mode === 'blitz' ? '/games' : '/tests';
+                            if (mode === 'blitz') {
+                                navigate('/games');
+                            } else {
+                                navigate('/tests');
+                            }
                         }}
                     />
                 </>

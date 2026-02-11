@@ -644,6 +644,27 @@ export default function GuessTheSign() {
                         src={currentQuestion.sign.image_url.startsWith('http') ? currentQuestion.sign.image_url : getImageUrl(currentQuestion.sign.image_url, 'road_signs') || currentQuestion.sign.image_url}
                         alt="Road sign"
                         className="w-48 h-48 md:w-64 md:h-64 mx-auto object-contain drop-shadow-lg"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          if (target.src.includes('wikimedia')) {
+                            // Try to use original SVG instead of thumb if thumb fails
+                            const original = target.src.replace(/\/thumb\//, '/').replace(/\/[^\/]+$/, '');
+                            if (original !== target.src) {
+                              target.src = original;
+                              return;
+                            }
+                          }
+                          // Final fallback
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const fallback = document.createElement('div');
+                            fallback.className = "w-48 h-48 md:w-64 md:h-64 mx-auto flex items-center justify-center bg-muted rounded-lg text-muted-foreground";
+                            fallback.innerText = "Изображение недоступно";
+                            parent.appendChild(fallback);
+                          }
+                        }}
                       />
                     ) : (
                       <div className="w-48 h-48 md:w-64 md:h-64 mx-auto flex items-center justify-center bg-muted rounded-lg">
