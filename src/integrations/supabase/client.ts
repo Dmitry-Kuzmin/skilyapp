@@ -94,3 +94,40 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     reconnectAfterMs: (tries: number) => Math.min(tries * 1000, 30000), // Экспоненциальная задержка
   },
 });
+
+// Add the debug helper to the window object
+if (typeof window !== 'undefined') {
+  (window as any).supabase = supabase;
+  console.log('🔧 Supabase client exposed globally as window.supabase for debugging.');
+
+  // 🛠 DEBUG: Выставляем метод для входа через консоль на localhost
+  (window as any).sdadim_auth = async (input: any) => {
+    try {
+      console.log("⏳ Processing auth injection...");
+      let session = input;
+      if (typeof input === 'string') {
+        try {
+          session = JSON.parse(input);
+        } catch (e) {
+          // If not valid JSON, maybe it's the raw value
+          console.warn("Input is not valid JSON, using as is.");
+        }
+      }
+
+      if (!session?.access_token) {
+        throw new Error("Missing access_token in session data. Make sure to copy the entire object.");
+      }
+
+      await supabase.auth.setSession({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token || '',
+      });
+
+      console.log("✅ Session injected! Reloading...");
+      window.location.reload();
+    } catch (e: any) {
+      console.error("❌ Auth injection failed:", e.message || e);
+      alert("Ошибка! Проверь, что вставил правильные данные из консоли продакшна.");
+    }
+  };
+}
