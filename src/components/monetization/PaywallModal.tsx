@@ -183,15 +183,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         const isTelegram = isTelegramMiniApp();
         const webApp = getTelegramWebApp();
 
-        if (isTelegram && webApp) {
-          setSelectedPlanId(null);
-          if ((webApp as any).openLink) {
-            (webApp as any).openLink(paddleCheckoutUrl);
-          } else {
-            window.location.href = paddleCheckoutUrl;
-          }
-          return;
-        }
 
         if (paddleInstance) {
           try {
@@ -586,18 +577,20 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                   <span className="flex items-center gap-1.5"><Lock className="w-3 h-3 text-slate-500" /> Отмена в любой момент</span>
                 </p>
             </motion.div>
+        
           </div>
         </motion.div>
-        </UnifiedModal>
-        <CheckoutModal
-          open={!!selectedPlanId && paymentMethod === 'paddle'}
-          onClose={() => {
-            if (paddle) paddle.Checkout.close();
-            setSelectedPlanId(null);
-          }}
-        >
-          <div id="paddle-checkout-container" className="w-full h-full" />
-        </CheckoutModal>
+      </UnifiedModal>
+
+      <CheckoutModal 
+        open={!!selectedPlanId && paymentMethod === 'paddle'} 
+        onClose={() => {
+          if (paddle) paddle.Checkout.close();
+          setSelectedPlanId(null);
+        }}
+      >
+        <div id="paddle-checkout-container" className="w-full h-full" />
+      </CheckoutModal>
     </>
   );
 }
