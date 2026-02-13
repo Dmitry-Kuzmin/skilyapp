@@ -599,8 +599,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           <div id="paddle-checkout-container" className="w-full h-full" />
         </CheckoutModal>
     </>
-      </>
-      );
+  );
 }
 // Компонент кастомного модального окна для чекаута
 function CheckoutModal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
