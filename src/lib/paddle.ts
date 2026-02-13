@@ -18,7 +18,16 @@ let isInitializing = false;
  */
 export async function getPaddleInstance(): Promise<Paddle | null> {
   // Если уже инициализирован - возвращаем сразу
+  // Если уже инициализирован - обновляем настройки и возвращаем
   if (paddleInstance) {
+    paddleInstance.Update({
+      checkout: {
+        settings: {
+          displayMode: "overlay",
+          theme: "dark",
+        }
+      }
+    });
     return paddleInstance;
   }
 
