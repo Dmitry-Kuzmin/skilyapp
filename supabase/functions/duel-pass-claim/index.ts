@@ -74,9 +74,9 @@ serve(async (req) => {
     // Проверяем, разблокирован ли уровень
     if (level > userLevel) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: "Level not unlocked yet",
-          message: `Уровень ${level} еще не разблокирован. Ваш текущий уровень: ${userLevel}` 
+          message: `Уровень ${level} еще не разблокирован. Ваш текущий уровень: ${userLevel}`
         }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -126,13 +126,18 @@ serve(async (req) => {
       // Теперь выдаем награду (запись уже заблокирована)
       try {
         if (rewardPayload.type === "coins" && rewardPayload.amount) {
-          await supabase.rpc("increment_profile_value", {
+          const { error: rpcError } = await supabase.rpc("increment_profile_value", {
             p_profile_id: user_id,
             p_column: "coins",
             p_amount: rewardPayload.amount,
           });
 
-          await supabase.from("transactions").insert({
+          if (rpcError) {
+            console.error("[duel-pass-claim] RPC error increasing coins:", rpcError);
+            throw rpcError;
+          }
+
+          const { error: txError } = await supabase.from("transactions").insert({
             user_id,
             transaction_type: "coins_earned_daily",
             amount: rewardPayload.amount,
@@ -143,6 +148,11 @@ serve(async (req) => {
               reward_type: isPremiumReward ? "premium" : "free",
             },
           });
+
+          if (txError) {
+            console.error("[duel-pass-claim] Error inserting transaction:", txError);
+            throw txError;
+          }
         } else if (rewardPayload.type === "boost" && rewardPayload.id) {
           const { data: existingBoost } = await supabase
             .from("boost_inventory")
@@ -152,17 +162,21 @@ serve(async (req) => {
             .maybeSingle();
 
           if (existingBoost) {
-            await supabase
+            const { error: updateError } = await supabase
               .from("boost_inventory")
               .update({ quantity: existingBoost.quantity + 1 })
               .eq("user_id", user_id)
               .eq("boost_type", rewardPayload.id);
+
+            if (updateError) throw updateError;
           } else {
-            await supabase.from("boost_inventory").insert({
+            const { error: insertError } = await supabase.from("boost_inventory").insert({
               user_id,
               boost_type: rewardPayload.id,
               quantity: 1,
             });
+
+            if (insertError) throw insertError;
           }
         } else if (rewardPayload.type === "skin" && rewardPayload.id) {
           const { error: skinError } = await supabase.from("user_skins").insert({
@@ -180,7 +194,7 @@ serve(async (req) => {
             console.error("[duel-pass-claim] Error adding skin:", skinError);
           }
 
-          await supabase.from("transactions").insert({
+          const { error: txError } = await supabase.from("transactions").insert({
             user_id,
             transaction_type: "item_received",
             amount: 0,
@@ -192,6 +206,7 @@ serve(async (req) => {
               skin_id: rewardPayload.id,
             },
           });
+          if (txError) throw txError;
         } else if (rewardPayload.type === "badge" && rewardPayload.id) {
           const { error: badgeError } = await supabase.from("user_badges").insert({
             user_id,
@@ -208,7 +223,7 @@ serve(async (req) => {
             console.error("[duel-pass-claim] Error adding badge:", badgeError);
           }
 
-          await supabase.from("transactions").insert({
+          const { error: txError } = await supabase.from("transactions").insert({
             user_id,
             transaction_type: "item_received",
             amount: 0,
@@ -220,6 +235,7 @@ serve(async (req) => {
               badge_id: rewardPayload.id,
             },
           });
+          if (txError) throw txError;
         } else if (rewardPayload.type === "sticker" && rewardPayload.id) {
           const { data: existingSticker } = await supabase
             .from("user_stickers")
@@ -229,13 +245,15 @@ serve(async (req) => {
             .maybeSingle();
 
           if (existingSticker) {
-            await supabase
+            const { error: updateError } = await supabase
               .from("user_stickers")
               .update({ quantity: existingSticker.quantity + (rewardPayload.amount || 1) })
               .eq("user_id", user_id)
               .eq("sticker_id", rewardPayload.id);
+
+            if (updateError) throw updateError;
           } else {
-            await supabase.from("user_stickers").insert({
+            const { error: insertError } = await supabase.from("user_stickers").insert({
               user_id,
               sticker_id: rewardPayload.id,
               quantity: rewardPayload.amount || 1,
@@ -246,9 +264,11 @@ serve(async (req) => {
                 is_premium: isPremiumReward,
               },
             });
+
+            if (insertError) throw insertError;
           }
 
-          await supabase.from("transactions").insert({
+          const { error: txError } = await supabase.from("transactions").insert({
             user_id,
             transaction_type: "item_received",
             amount: 0,
@@ -261,6 +281,7 @@ serve(async (req) => {
               quantity: rewardPayload.amount || 1,
             },
           });
+          if (txError) throw txError;
         }
 
         return {
