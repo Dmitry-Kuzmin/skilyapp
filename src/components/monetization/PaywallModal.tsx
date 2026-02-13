@@ -421,9 +421,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                       variants={itemVariants}
                       whileHover={{ y: -8, scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => handlePurchase(plan.id)}
                       className={cn(
-                        "relative group rounded-[24px] cursor-pointer transition-all duration-500 isolate",
+                        "relative group rounded-[24px] transition-all duration-500 isolate",
                         "z-0 hover:z-10" // Lift up on hover
                       )}
                     >

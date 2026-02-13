@@ -27,9 +27,9 @@ interface StarsPaymentButtonProps {
  * - Курс: 100 монет / 198 звёзд ≈ 0.5 coins/star
  * Округление: Math.round для честной цены
  */
-export function StarsPaymentButton({ 
-  packageKey, 
-  priceCoins, 
+export function StarsPaymentButton({
+  packageKey,
+  priceCoins,
   onSuccess,
   className,
   variant = 'outline',
@@ -37,7 +37,7 @@ export function StarsPaymentButton({
 }: StarsPaymentButtonProps) {
   const { profileId, user, platform } = useUserContext();
   const [loading, setLoading] = useState(false);
-  
+
   // Показывать только в Telegram Mini App
   // Используем isTelegramMiniApp() для более надежного определения (работает на мобильных и десктопе)
   const webApp = getTelegramWebApp();
@@ -52,7 +52,7 @@ export function StarsPaymentButton({
   // Используем price_stars из БД, если доступно (правильный расчет на основе евро)
   // Иначе используем старый расчет на основе coins (для обратной совместимости)
   const [starsAmount, setStarsAmount] = useState<number>(0);
-  
+
   useEffect(() => {
     // Загружаем price_stars из БД
     const loadStarsPrice = async () => {
@@ -63,7 +63,7 @@ export function StarsPaymentButton({
           .eq('package_key', packageKey)
           .eq('is_active', true)
           .single();
-        
+
         if (!error && data) {
           // Используем price_stars если есть, иначе рассчитываем на основе coins
           const stars = data.price_stars || Math.round(data.price_coins / 0.5);
@@ -78,7 +78,7 @@ export function StarsPaymentButton({
         setStarsAmount(Math.round(priceCoins / 0.5));
       }
     };
-    
+
     loadStarsPrice();
   }, [packageKey, priceCoins]);
 
@@ -145,7 +145,7 @@ export function StarsPaymentButton({
             description: "Награды начислены автоматически",
             duration: 5000,
           });
-          
+
           // Вызвать callback успеха
           if (onSuccess) {
             onSuccess();
@@ -188,7 +188,10 @@ export function StarsPaymentButton({
 
   return (
     <Button
-      onClick={handlePurchase}
+      onClick={(e) => {
+        e.stopPropagation();
+        handlePurchase();
+      }}
       disabled={loading}
       className={className}
       variant={variant}
