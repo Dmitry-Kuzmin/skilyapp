@@ -588,7 +588,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             </motion.div>
           </div>
         </motion.div>
-      </UnifiedModal>
+        </UnifiedModal>
         <CheckoutModal
           open={!!selectedPlanId && paymentMethod === 'paddle'}
           onClose={() => {
@@ -598,6 +598,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         >
           <div id="paddle-checkout-container" className="w-full h-full" />
         </CheckoutModal>
+    </>
       </>
       );
 }
