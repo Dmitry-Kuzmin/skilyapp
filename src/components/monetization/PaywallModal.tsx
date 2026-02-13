@@ -585,10 +585,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                   <span className="flex items-center gap-1.5"><Check className="w-3 h-3 text-violet-500" /> Мгновенный доступ</span>
                   <span className="flex items-center gap-1.5"><Lock className="w-3 h-3 text-slate-500" /> Отмена в любой момент</span>
                 </p>
-              </motion.div>
-            </div>
-          </motion.div>
-        </UnifiedModal >
+            </motion.div>
+          </div>
+        </motion.div>
+      </UnifiedModal>
         <CheckoutModal
           open={!!selectedPlanId && paymentMethod === 'paddle'}
           onClose={() => {
