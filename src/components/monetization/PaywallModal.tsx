@@ -132,6 +132,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         }
 
         const partnerCode = localStorage.getItem('partner_code');
+        console.log("[PaywallModal] Invoking paddle-payment...", { catalogKey });
         const { data, error } = await supabase.functions.invoke("paddle-payment", {
           body: {
             user_id: profileId,
@@ -140,23 +141,38 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           },
         });
 
-        if (error || data?.error || !data?.transaction_id) {
-          const errMsg = error?.message || data?.error || (typeof error === 'object' ? JSON.stringify(error) : String(error));
-          console.error("[PaywallModal] Paddle purchase error details:", { error, data, errMsg });
+        console.log("[PaywallModal] Function response (raw):", { data, error });
 
-          if (errMsg.includes('Refresh Token') || errMsg.includes('400')) {
-            toast({ title: "Ошибка запроса", description: "Пожалуйста, обновите страницу. Если ошибка повторится, обратитесь в поддержку.", variant: "destructive" });
+        // ФИКС: Если Supabase вернул строку вместо объекта, парсим её
+        let parsedData = data;
+        if (typeof data === 'string') {
+          try {
+            parsedData = JSON.parse(data);
+            console.log("[PaywallModal] Parsed function data:", parsedData);
+          } catch (e) {
+            console.error("[PaywallModal] Failed to parse data string:", e);
+          }
+        }
+
+        if (error || parsedData?.error || !parsedData?.transaction_id) {
+          const rawError = error?.message || parsedData?.error || (error ? JSON.stringify(error) : null);
+          const errMsg = rawError && rawError !== "null" ? rawError : "Paddle API Error (Check Console)";
+
+          console.error("[PaywallModal] Paddle purchase failure:", { error, data: parsedData, errMsg });
+
+          if (errMsg.includes('Refresh Token')) {
+            toast({ title: "Сессия истекла", description: "Пожалуйста, обновите страницу", variant: "destructive" });
           } else {
-            toast({ title: "Ошибка оплаты (Paddle)", description: errMsg || "Попробуйте позже", variant: "destructive" });
+            toast({ title: "Ошибка оплаты (Paddle)", description: errMsg, variant: "destructive" });
           }
           setSelectedPlanId(null);
           return;
         }
 
-        sessionStorage.setItem('paddle_transaction_id', data.transaction_id);
-        localStorage.setItem('paddle_transaction_id', data.transaction_id);
+        sessionStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
+        localStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
 
-        const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
+        const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${parsedData.transaction_id}`;
         const isTelegram = isTelegramMiniApp();
         const webApp = getTelegramWebApp();
 
