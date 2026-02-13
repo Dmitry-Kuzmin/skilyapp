@@ -53,13 +53,18 @@ export async function getPaddleInstance(): Promise<Paddle | null> {
         return null;
       }
 
+      // Auto-detect environment based on token or explicit env var
+      const environment = (import.meta.env.VITE_PADDLE_ENVIRONMENT === 'production' || clientToken.startsWith('live_'))
+        ? 'production'
+        : 'sandbox';
+
       console.log('[Paddle] Initializing SDK (global)...', {
-        environment: import.meta.env.PROD ? 'production' : 'sandbox',
+        environment,
         hasToken: !!clientToken,
       });
 
       const instance = await initializePaddle({
-        environment: import.meta.env.PROD ? 'production' : 'sandbox',
+        environment: environment as 'production' | 'sandbox',
         token: clientToken,
       });
 

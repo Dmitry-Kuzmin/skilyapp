@@ -12,10 +12,10 @@ export interface PaymentConfig {
   paypalEnabled: boolean;
   /** Включен ли Telegram Stars */
   telegramStarsEnabled: boolean;
-  /** Включен ли Cryptomus */
-  cryptomusEnabled: boolean;
   /** Включен ли Paddle (Merchant of Record, не требует autónomo) */
   paddleEnabled: boolean;
+  /** Включен ли Cryptomus */
+  cryptomusEnabled: boolean;
 }
 
 /**
@@ -27,10 +27,10 @@ export interface PaymentConfig {
  * Paddle - Merchant of Record, не требует autónomo (рекомендуется для веб)
  */
 export const PAYMENT_CONFIG: PaymentConfig = {
-  paypalEnabled: true,  // Можно использовать без autónomo (на начальном этапе)
-  telegramStarsEnabled: true, // Работает без регистрации
-  cryptomusEnabled: true, // Криптоплатежи без регистрации
-  paddleEnabled: true, // Merchant of Record, не требует autónomo (рекомендуется для веб)
+  paypalEnabled: true,
+  telegramStarsEnabled: true,
+  cryptomusEnabled: true,
+  paddleEnabled: true,
 };
 
 /**
@@ -44,15 +44,19 @@ export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobil
     methods.push('telegram_stars');
   }
 
-  // Cryptomus доступен везде (когда включен)
+  // Cryptomus доступен везде (когда включен и токен есть)
   if (PAYMENT_CONFIG.cryptomusEnabled) {
+    // Временно разрешаем без токена для обратной совместимости, 
+    // но в идеале нужно проверять через env
     methods.push('cryptomus');
   }
 
-  // Paddle доступен везде (когда включен)
-  // ВАЖНО: Paddle доступен на всех платформах (web, mobile, telegram)
-  // В Telegram Mini App можно использовать и Paddle, и Stars (пользователь выбирает)
+  // Paddle доступен везде (когда включен и токен есть)
   if (PAYMENT_CONFIG.paddleEnabled) {
+    // ВАЖНО: Мы могли бы проверять isPaddleEnabled() здесь, 
+    // но это может привести к внезапному исчезновению кнопок у пользователя.
+    // Вместо этого мы оставим кнопки, но handlePurchase выдаст ошибку,
+    // если токена нет, ИЛИ мы можем добавить проверку здесь.
     methods.push('paddle');
   }
 
@@ -68,7 +72,19 @@ export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobil
  * Проверить, доступен ли конкретный метод оплаты
  */
 export function isPaymentMethodAvailable(method: PaymentMethod, platform: 'telegram' | 'web' | 'mobile'): boolean {
-  return getAvailablePaymentMethods(platform).includes(method);
+  const methods = getAvailablePaymentMethods(platform);
+  if (!methods.includes(method)) return false;
+
+  // Техническая проверка: есть ли конфиг в env
+  if (method === 'paddle') {
+    return !!import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
+  }
+
+  if (method === 'cryptomus') {
+    return true; // Cryptomus не требует клиентского токена (только серверный)
+  }
+
+  return true;
 }
 
 /**

@@ -141,12 +141,13 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         });
 
         if (error || data?.error || !data?.transaction_id) {
-          console.error("[PaywallModal] Paddle purchase error:", error || data?.error);
+          const errMsg = error?.message || data?.error || (typeof error === 'object' ? JSON.stringify(error) : String(error));
+          console.error("[PaywallModal] Paddle purchase error details:", { error, data, errMsg });
 
-          if (error?.message?.includes('Refresh Token') || error?.status === 400) {
-            toast({ title: "Сессия истекла", description: "Пожалуйста, выйдите и войдите снова", variant: "destructive" });
+          if (errMsg.includes('Refresh Token') || errMsg.includes('400')) {
+            toast({ title: "Ошибка запроса", description: "Пожалуйста, обновите страницу. Если ошибка повторится, обратитесь в поддержку.", variant: "destructive" });
           } else {
-            toast({ title: "Ошибка оплаты (Paddle)", description: (error?.message || data?.error || "Попробуйте позже"), variant: "destructive" });
+            toast({ title: "Ошибка оплаты (Paddle)", description: errMsg || "Попробуйте позже", variant: "destructive" });
           }
           setSelectedPlanId(null);
           return;
