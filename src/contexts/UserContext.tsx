@@ -54,10 +54,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Обновляем ref сразу, чтобы предотвратить параллельные запросы
         lastProcessedUserRef.current = supabaseUser.id;
 
-        // КРИТИЧНО: Всегда запрашиваем актуальный ID из базы при входе, чтобы избежать stale cache
+        // КРИТИЧНО: Всегда запрашиваем актуальный ID и photo_url из базы
         const { data, error } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, photo_url')
           .eq('user_id', supabaseUser.id)
           .maybeSingle();
 
@@ -73,6 +73,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
           lastProcessedUserRef.current = null;
         } else if (isMounted && data && (data as any).id) {
           const actualProfileId = (data as any).id;
+          const photoUrl = (data as any).photo_url;
+
           // Проверяем, изменился ли ID, чтобы избежать лишних ре-рендеров
           if (profileId !== actualProfileId) {
             setProfileId(actualProfileId);
@@ -80,6 +82,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
           }
           localStorage.setItem(`profile_${supabaseUser.id}`, actualProfileId);
           console.log("[UserContext] ✅ Profile ID synced from DB:", actualProfileId);
+
+          // 🔄 SELF-HEALING: Если аватар старый (api.telegram.org) или отсутствует, запускаем синхронизацию
+          // Это исправляет проблему с "протухшими" ссылками на аватарки
+          if (isTelegramMiniApp() && (!photoUrl || photoUrl.includes('api.telegram.org'))) {
+            const initData = window.Telegram?.WebApp?.initData;
+            if (initData && !initData.startsWith('mock_')) {
+              console.log("[UserContext] 🔄 Detected stale/missing avatar, triggering background sync...");
+              // Fire and forget - не блокируем UI
+              supabase.functions.invoke('telegram-auth-v2', { body: { initData } })
+                .then(({ data: res, error: err }) => {
+                  if (!err) console.log("[UserContext] ✅ Avatar sync request sent successfully");
+                  else console.error("[UserContext] Avatar sync request failed", err);
+                })
+                .catch(err => console.error("[UserContext] Avatar sync exception", err));
+            }
+          }
         } else if (isMounted && !data) {
           // КРИТИЧНО: Если профиля нет, создаем его автоматически для веб-пользователя
           console.log("[UserContext] 🐣 Profile not found, creating new one...");

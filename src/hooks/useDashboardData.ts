@@ -171,7 +171,7 @@ export function useDashboardData() {
 
       try {
         const promise = (supabase as any).rpc('get_dashboard_super_v2', { p_user_id: profileId });
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
         const response: any = await Promise.race([promise, timeoutPromise]);
 
@@ -193,7 +193,7 @@ export function useDashboardData() {
 
       try {
         const promise = (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
         const response: any = await Promise.race([promise, timeoutPromise]);
 

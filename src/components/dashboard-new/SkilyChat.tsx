@@ -261,7 +261,7 @@ export const SkilyChat = React.memo(() => {
           isDarkTheme ? "bg-slate-950/40" : "bg-[#F5F8FF]/80"
         )}>
           {/* Subtle noise texture for premium feel */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')] mix-blend-overlay"></div>
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.svg')] mix-blend-overlay"></div>
 
           {/* Chat Area */}
           <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 relative z-10 scroll-smooth min-h-0">

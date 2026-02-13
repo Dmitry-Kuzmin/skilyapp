@@ -74,11 +74,16 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
         const fullName = ([userProfile?.first_name, userProfile?.last_name].filter(Boolean).join(' ') ||
             userProfile?.username ||
-            'DMITRY KUZMIN').toUpperCase();
+            t('common.student') ||
+            'USER').toUpperCase();
 
         const isSuspended = points === 0;
         const isExpert = points >= 12;
         const rankLabel = isSuspended ? t('licenseCard.ranks.suspended') : isExpert ? t('licenseCard.ranks.expert') : t('licenseCard.ranks.novel');
+
+        // Глобальный ID на основе profile_id или telegram_id
+        const globalIdMatch = userProfile?.id?.split('-')[0] ?? '---';
+        const globalId = globalIdMatch === '---' ? '---' : `ID-${globalIdMatch.toUpperCase()}`;
 
         // Custom status styles
         let rankStyle = {
@@ -120,6 +125,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
             progressWidth,
             isSuspended,
             rankLabel,
+            globalId,
             isExpert
         };
     }, [userProfile, selectedCountry, t]);
@@ -379,7 +385,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5 opacity-40">
                     <Users size={10} className="text-zinc-600" />
-                    <span className="text-[8px] font-mono font-bold text-zinc-400">{t('licenseCard.footer.globalId')}: ES-2026</span>
+                    <span className="text-[8px] font-mono font-bold text-zinc-400">{t('licenseCard.footer.globalId')}: {globalId}</span>
                 </div>
             </div>
         </div>
@@ -485,7 +491,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                         <span className={cn(
                             "text-[10px] font-mono font-bold italic",
                             isDarkTheme ? "text-zinc-400" : "text-zinc-500"
-                        )}>{t('licenseCard.footer.globalId')}: ES-2026</span>
+                        )}>{t('licenseCard.footer.globalId')}: {globalId}</span>
                     </div>
                     {isExpert && <Trophy size={16} className="text-yellow-500/40" />}
                 </div>

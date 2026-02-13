@@ -1,0 +1,18 @@
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://yffjnqegeiorunyvcxkn.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUwNDIxNiwiZXhwIjoyMDc4MDgwMjE2fQ.Sfw_uZk-vpBjcfulE-0SJwQr0bhZdRv5RElT89Fe8Nw' // SERVICE KEY
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+async function check() {
+    const { data, error } = await supabase.storage.listBuckets()
+    if (error) {
+        console.error(error)
+    } else {
+        console.log('Buckets:', data.map(b => b.name))
+    }
+}
+
+check()
