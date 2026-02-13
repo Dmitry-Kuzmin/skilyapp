@@ -66,6 +66,13 @@ export async function getPaddleInstance(): Promise<Paddle | null> {
       const instance = await initializePaddle({
         environment: environment as 'production' | 'sandbox',
         token: clientToken,
+        checkout: {
+          settings: {
+            displayMode: "overlay",
+            theme: "dark",
+            locale: "en", // Or detect from navigator
+          }
+        }
       });
 
       paddleInstance = instance;

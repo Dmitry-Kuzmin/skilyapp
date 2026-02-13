@@ -188,10 +188,11 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
         if (paddleInstance) {
           try {
+            console.log("[PaywallModal] Opening Paddle Checkout (Overlay)...", parsedData.transaction_id);
             paddleInstance.Checkout.open({
-              transactionId: data.transaction_id,
+              transactionId: parsedData.transaction_id,
               settings: {
-                displayMode: "overlay",
+                displayMode: "overlay", // Always overlay
                 successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
                 theme: "dark",
                 locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
