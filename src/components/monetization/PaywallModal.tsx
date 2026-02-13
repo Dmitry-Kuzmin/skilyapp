@@ -3,157 +3,205 @@ import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
+import { Loader2, Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock } from "lucide-react";
+import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
+import { PRICING_PLANS } from "@/lib/pricing-config";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Crown } from "lucide-react";
-import { StarsPaymentButton } from "./StarsPaymentButton";
-import { CryptomusPaymentPreview } from "./CryptomusPaymentPreview";
-import { getTelegramWebApp, isTelegramMiniApp } from "@/lib/telegram";
-import { PAYMENT_CONFIG, getAvailablePaymentMethods, isPaymentMethodAvailable } from "@/lib/payment-config";
+import { getPaddleInstance, getPaddleInstanceSync } from "@/lib/paddle";
+import { isPaymentMethodAvailable } from "@/lib/payment-config";
+import { toast } from "@/lib/toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import type { Paddle } from "@paddle/paddle-js";
+
+import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 
 interface PaywallModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-interface PricingPackage {
-  id: string;
-  package_key: string;
-  title_ru: string;
-  description_ru: string;
-  price_coins: number;
-  price_stars: number | null; // Цена в Telegram Stars (только для Telegram Mini App)
-  premium_days: number;
-}
+/**
+ * Маппинг planId (из pricing-config) → catalog_key (для Paddle Edge Function)
+ */
+const PLAN_TO_CATALOG: Record<string, string> = {
+  monthly: 'premium_monthly',
+  quarterly: 'premium_quarterly',
+  biannual: 'premium_biannual',
+  yearly: 'premium_yearly',
+};
 
-const plans = [
-  {
-    key: "premium_monthly",
-    title: "Premium на месяц",
-    price: "€9.99 / мес",
-    description: "Полный доступ ко всем материалам, ускоренные монеты и без рекламы.",
-  },
-  {
-    key: "premium_forever",
-    title: "Premium Forever",
-    price: "€59.99",
-    description: "Пожизненный доступ ко всем функциям. Duel Pass Premium автоматически открывается для каждого сезона.",
-  },
-];
+// Компонент живого фона (Lava Lamp Bubbles)
+const AnimatedBackground = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <motion.div
+      animate={{
+        scale: [1, 1.2, 1],
+        opacity: [0.3, 0.5, 0.3],
+        x: [0, 20, 0],
+        y: [0, -20, 0],
+      }}
+      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      className="absolute -top-24 -left-24 w-96 h-96 bg-violet-600 rounded-full blur-[120px] mix-blend-screen"
+    />
+    <motion.div
+      animate={{
+        scale: [1, 1.1, 1],
+        opacity: [0.2, 0.4, 0.2],
+        x: [0, -30, 0],
+        y: [0, 30, 0],
+      }}
+      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      className="absolute top-1/2 -right-24 w-80 h-80 bg-indigo-500 rounded-full blur-[100px] mix-blend-screen"
+    />
+    <motion.div
+      animate={{
+        scale: [1, 1.3, 1],
+        opacity: [0.2, 0.3, 0.2],
+      }}
+      transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+      className="absolute -bottom-32 left-1/4 w-[500px] h-[500px] bg-fuchsia-600/30 rounded-full blur-[140px] mix-blend-screen"
+    />
+  </div>
+);
+
+// Анимированный список преимуществ
+const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: string, color: string, delay: number }) => (
+  <motion.div
+    initial={{ opacity: 0, x: -20 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ delay, duration: 0.5, ease: "easeOut" }}
+    className="flex items-center gap-3 group"
+  >
+    <div className={cn(
+      "p-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all duration-300 group-hover:bg-white/10 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]",
+      color.replace('text-', 'text-')
+    )}>
+      <Icon className={cn("w-5 h-5 transition-colors", color)} />
+    </div>
+    <span className="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">{text}</span>
+  </motion.div>
+);
 
 export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const { profileId, platform } = useUserContext();
-  const { isPremium, isTrial, daysRemaining, refresh } = usePremium();
-  const [loadingKey, setLoadingKey] = useState<string | null>(null);
-  const [pricingPackages, setPricingPackages] = useState<Record<string, PricingPackage>>({});
-  const [loadingPackages, setLoadingPackages] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const isMobile = useIsMobile();
+  const { language } = useLanguage();
+  const [paddle, setPaddle] = useState<Paddle | null>(null);
 
-  // Состояние для предварительного экрана Cryptomus
-  const [cryptomusPreview, setCryptomusPreview] = useState<{
-    open: boolean;
-    paymentUrl: string;
-    orderId: string;
-    amount: number;
-    currency: string;
-    itemName: string;
-  } | null>(null);
-
-  // Определяем доступные методы оплаты
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
-  const availableMethods = getAvailablePaymentMethods(currentPlatform);
-  const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
-  const showPaypalPayment = isPaymentMethodAvailable('paypal', currentPlatform);
-  const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
-  
-  const webApp = getTelegramWebApp();
+  const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
 
-  // Загрузить цены из БД
   useEffect(() => {
-    if (open) {
-      loadPricingPackages();
-    }
-  }, [open]);
+    if (!open || !showPaddlePayment) return;
+    const existing = getPaddleInstanceSync();
+    if (existing) { setPaddle(existing); return; }
+    getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { });
+  }, [open, showPaddlePayment]);
 
-  const loadPricingPackages = async () => {
-    setLoadingPackages(true);
-    try {
-      const { data, error } = await supabase
-        .from('pricing_packages')
-        .select('id, package_key, title_ru, description_ru, price_coins, price_stars, premium_days')
-        .eq('is_active', true)
-        .in('package_key', ['premium_monthly', 'premium_forever']);
-
-      if (error) {
-        console.error('[PaywallModal] Error loading packages:', error);
-      } else if (data) {
-        const packagesMap: Record<string, PricingPackage> = {};
-        data.forEach(pkg => {
-          packagesMap[pkg.package_key] = pkg;
-        });
-        setPricingPackages(packagesMap);
-      }
-    } catch (error) {
-      console.error('[PaywallModal] Error loading packages:', error);
-    } finally {
-      setLoadingPackages(false);
-    }
-  };
-
-  const handlePurchase = async (catalogKey: string) => {
-    if (!profileId) return;
-    setLoadingKey(catalogKey);
-    try {
-      // Получаем partner_code из localStorage (если пользователь пришел через партнерскую ссылку)
-      const partnerCode = localStorage.getItem('partner_code');
-      
-      // Stripe удален, используем только Telegram Stars или другие методы
-      // TODO: Реализовать покупку Premium через Paddle или Telegram Stars
-      alert("Покупка Premium временно недоступна. Используйте Telegram Stars или свяжитесь с поддержкой.");
+  const handlePurchase = async (planId: string) => {
+    if (!profileId) {
+      toast({ title: "Ошибка", description: "Необходимо войти в аккаунт", variant: "destructive" });
       return;
-      /* 
-      const { data, error } = await supabase.functions.invoke("premium-purchase", {
-        body: { 
-          user_id: profileId, 
+    }
+
+    const catalogKey = PLAN_TO_CATALOG[planId];
+    if (!catalogKey) {
+      toast({ title: "Ошибка", description: "Неизвестный план", variant: "destructive" });
+      return;
+    }
+
+    setSelectedPlanId(planId);
+
+    try {
+      let paddleInstance = paddle || getPaddleInstanceSync();
+      if (!paddleInstance && showPaddlePayment) {
+        paddleInstance = await getPaddleInstance();
+        if (paddleInstance) setPaddle(paddleInstance);
+      }
+
+      const partnerCode = localStorage.getItem('partner_code');
+      const { data, error } = await supabase.functions.invoke("paddle-payment", {
+        body: {
+          user_id: profileId,
           catalog_key: catalogKey,
           ...(partnerCode ? { partner_code: partnerCode } : {}),
         },
       });
-      
-      console.log("[PaywallModal] Response:", { data, error });
-      
-      if (error) {
-        console.error("[PaywallModal] purchase error", error);
-        
-        // Попробуем получить детали ошибки из response
-        let errorDetails = error.message || "Неизвестная ошибка";
-        
-        // Если есть context, попробуем получить детали
-        if (error.context) {
-          try {
-            const errorBody = await error.context.json?.();
-            if (errorBody?.error) {
-              errorDetails = errorBody.error;
-            }
-          } catch (e) {
-            // Игнорируем ошибку парсинга
-          }
-        }
-        
-        alert(`Ошибка при создании покупки:\n\n${errorDetails}`);
-        throw error;
-      }
-      
-      if (data?.error) {
-        console.error("[PaywallModal] Error in response", data.error);
-        alert(`Ошибка: ${data.error}\n\nПроверьте настройки секретов в Supabase Dashboard → Edge Functions → Settings`);
+
+      if (error || data?.error || !data?.transaction_id) {
+        console.error("[PaywallModal] Purchase error:", error || data?.error);
+        toast({ title: "Ошибка оплаты", description: (error?.message || data?.error || "Попробуйте позже"), variant: "destructive" });
+        setSelectedPlanId(null);
         return;
       }
-      
-      if (data?.url) {
-        // TODO: Реализовать редирект на страницу оплаты (Paddle или Telegram Stars)
-        console.log("[PaywallModal] Purchase URL:", data.url);
-        */
-    } finally {
-      setLoadingKey(null);
+
+      sessionStorage.setItem('paddle_transaction_id', data.transaction_id);
+      localStorage.setItem('paddle_transaction_id', data.transaction_id);
+
+      const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
+      const isTelegram = isTelegramMiniApp();
+      const webApp = getTelegramWebApp();
+
+      if (isTelegram && webApp) {
+        setSelectedPlanId(null);
+        if ((webApp as any).openLink) {
+          (webApp as any).openLink(paddleCheckoutUrl);
+        } else {
+          window.location.href = paddleCheckoutUrl;
+        }
+        return;
+      }
+
+      if (paddleInstance) {
+        try {
+          paddleInstance.Checkout.open({
+            transactionId: data.transaction_id,
+            settings: {
+              displayMode: "overlay",
+              successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
+              theme: "dark",
+              locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
+            },
+          });
+          setSelectedPlanId(null);
+        } catch {
+          setSelectedPlanId(null);
+          window.location.href = paddleCheckoutUrl;
+        }
+      } else {
+        setSelectedPlanId(null);
+        window.location.href = paddleCheckoutUrl;
+      }
+    } catch (err: any) {
+      console.error("[PaywallModal] Error:", err);
+      toast({ title: "Ошибка", description: err?.message || "Попробуйте позже", variant: "destructive" });
+      setSelectedPlanId(null);
+    }
+  };
+
+  // Варианты анимации для контейнера
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { type: "spring", stiffness: 300, damping: 24 }
     }
   };
 
@@ -161,209 +209,293 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     <UnifiedModal
       open={open}
       onOpenChange={onOpenChange}
-      title="Получить Premium"
       showTitleBar={false}
-      className="sm:max-w-lg"
-      loading={loadingPackages && Object.keys(pricingPackages).length === 0}
-      skeletonVariant="shop"
+      className={cn(
+        "sm:max-w-[950px] p-0 overflow-hidden border-0",
+        !isMobile && "bg-transparent shadow-none"
+      )}
+      contentClassName="p-0 bg-transparent border-0"
     >
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 text-lg font-semibold">
-            <Crown className="w-5 h-5 text-yellow-500" />
-            Получи Premium
-        </div>
-          {isPremium && (
-            <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
-              Premium активен. Осталось {daysRemaining} д.
-            </div>
-          )}
-          {isTrial && !isPremium && (
-            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
-              Бесплатный триал активен. Осталось {daysRemaining} д.
-            </div>
-          )}
-
-          <ul className="text-sm space-y-1">
-            <li>• Полный доступ ко всем курсам и тестам</li>
-            <li>• +50% монет за обучение</li>
-            <li>• Без рекламы и мгновенные подсказки</li>
-            <li>• Ежемесячный бонус монет и эксклюзивные скины</li>
-          </ul>
-
-          <div className="grid gap-3">
-            {plans.map((plan) => {
-              const pkg = pricingPackages[plan.key];
-              const priceCoins = pkg?.price_coins || 0;
-              const priceStars = pkg?.price_stars || null;
-              
-              // Определяем, находимся ли в Telegram Mini App
-              const isTelegram = isTelegramMiniApp();
-              
-              // Форматируем цену в зависимости от платформы
-              const displayPrice = (() => {
-                if (isTelegram && priceStars) {
-                  // В Telegram Mini App показываем цену в Stars
-                  return `${priceStars} ⭐`;
-                } else {
-                  // На Web показываем цену в EUR (из статического массива plans)
-                  return plan.price;
-                }
-              })();
-
-              return (
-                <div key={plan.key} className="rounded-xl border p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-base font-semibold">{plan.title}</h3>
-                      <p className="text-sm text-muted-foreground">{plan.description}</p>
-                    </div>
-                    <span className="text-sm font-medium">{displayPrice}</span>
-                  </div>
-                  
-                  {/* Кнопки оплаты */}
-                  <div className="flex flex-col gap-2">
-                    {/* Telegram Stars (приоритетный метод в Telegram) */}
-                    {showStarsPayment && priceCoins > 0 && (
-                      <StarsPaymentButton
-                        packageKey={plan.key}
-                        priceCoins={priceCoins}
-                        onSuccess={() => {
-                          refresh(); // Обновить статус Premium
-                          onOpenChange(false);
-                        }}
-                        variant="default"
-                        size="default"
-                        className="w-full"
-                      />
-                    )}
-                    
-                    
-                    {/* Cryptomus (криптоплатежи) */}
-                    {showCryptomusPayment && (
-                      <Button
-                        className="w-full"
-                        onClick={async () => {
-                          if (!profileId) return;
-                          setLoadingKey(plan.key);
-                          try {
-                            const { data, error } = await supabase.functions.invoke("cryptomus-payment", {
-                              body: { user_id: profileId, catalog_key: plan.key },
-                            });
-                            
-                            if (error) {
-                              console.error("[PaywallModal] Cryptomus error", error);
-                              alert(`Ошибка: ${error.message || 'Не удалось создать платеж'}\n\nПроверьте настройки Cryptomus в Supabase Dashboard → Edge Functions → Settings`);
-                              return;
-                            }
-                            
-                            if (data?.error) {
-                              console.error("[PaywallModal] Cryptomus error in response", data.error);
-                              alert(`Ошибка: ${data.error}`);
-                              return;
-                            }
-                            
-                            if (data?.url && data?.orderId) {
-                              // Показываем предварительный экран вместо прямого редиректа
-                              const packageInfo = pricingPackages[plan.key];
-                              let amount = 0;
-                              
-                              if (packageInfo?.price_coins) {
-                                amount = packageInfo.price_coins / 100;
-                              } else {
-                                // Парсим цену из строки типа "€9.99 / мес"
-                                const priceMatch = plan.price.match(/[\d.]+/);
-                                amount = priceMatch ? parseFloat(priceMatch[0]) : 0;
-                              }
-                              
-                              // Убеждаемся, что amount - число
-                              amount = Number(amount) || 0;
-                              
-                              setCryptomusPreview({
-                                open: true,
-                                paymentUrl: data.url,
-                                orderId: data.orderId,
-                                amount: amount,
-                                currency: 'EUR',
-                                itemName: plan.title,
-                              });
-                            } else {
-                              alert("Не удалось получить ссылку на оплату");
-                            }
-                          } catch (err: any) {
-                            console.error("[PaywallModal] Cryptomus error", err);
-                            alert(`Ошибка: ${err?.message || JSON.stringify(err)}`);
-                          } finally {
-                            setLoadingKey(null);
-                          }
-                        }}
-                        disabled={loadingKey === plan.key || !profileId}
-                        variant="outline"
-                      >
-                        {loadingKey === plan.key ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Создаём платёж...
-                          </>
-                        ) : (
-                          "Оплатить криптовалютой"
-                        )}
-                      </Button>
-                    )}
-                    
-                    {/* PayPal (альтернатива для веб) */}
-                    {showPaypalPayment && !showStarsPayment && !showCryptomusPayment && (
-                      <Button
-                        className="w-full"
-                        onClick={() => {
-                          // TODO: Реализовать PayPal интеграцию
-                          alert('PayPal интеграция в разработке. Пока используйте Telegram Stars в Telegram Mini App или Cryptomus.');
-                        }}
-                        disabled={loadingKey === plan.key || !profileId}
-                        variant="outline"
-                      >
-                        Оплатить через PayPal
-                      </Button>
-                    )}
-                    
-                    {/* Сообщение если нет доступных методов */}
-                    {availableMethods.length === 0 && (
-                      <div className="text-sm text-muted-foreground text-center py-2">
-                        Методы оплаты временно недоступны
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        
-        {/* Предварительный экран Cryptomus */}
-        {cryptomusPreview && (
-          <CryptomusPaymentPreview
-            open={cryptomusPreview.open}
-            onOpenChange={(open) => {
-              if (!open) {
-                setCryptomusPreview(null);
-              }
-            }}
-            paymentUrl={cryptomusPreview.paymentUrl}
-            orderId={cryptomusPreview.orderId}
-            amount={cryptomusPreview.amount}
-            currency={cryptomusPreview.currency}
-            itemName={cryptomusPreview.itemName}
-            onPaymentComplete={() => {
-              // Обновляем статус Premium после успешной оплаты
-              refresh();
-              onOpenChange(false);
-            }}
-            onCancel={() => {
-              setLoadingKey(null);
-            }}
-          />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className={cn(
+          "relative overflow-hidden flex flex-col md:flex-row bg-white dark:bg-slate-950 rounded-[32px] shadow-2xl",
+          "min-h-[85vh] md:min-h-[650px] md:max-h-[85vh]"
         )}
-    </UnifiedModal>
+      >
+
+        {/* LEFTSIDE (PREMIUM DARK) */}
+        <div className="relative w-full md:w-[42%] bg-[#080B16] text-white p-6 md:p-10 flex flex-col justify-between overflow-hidden z-10">
+          {/* Animated BG */}
+          <AnimatedBackground />
+
+          {/* Content with Delay */}
+          <div className="relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-2 mb-8 bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg shadow-violet-900/20"
+            >
+              <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-pulse" />
+              <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-amber-100">Premium Access</span>
+            </motion.div>
+
+            <motion.h2
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-4xl md:text-5xl font-black mb-6 leading-[0.95] tracking-tight"
+            >
+              Сдай экзамен <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-300 to-indigo-400 animate-gradient-x">
+                с первого раза
+              </span>
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-slate-400 text-sm md:text-base mb-10 leading-relaxed max-w-[90%]"
+            >
+              Разблокируй <span className="text-white font-semibold">AI-технологии</span> обучения и получи unfair advantage перед другими кандидатами.
+            </motion.p>
+
+            <div className="space-y-5 mb-8">
+              <BenefitItem icon={Zap} text="AI-Помощник с мгновенными объяснениями" color="text-amber-400" delay={0.5} />
+              <BenefitItem icon={ShieldCheck} text="Гарантия сдачи (Smart Score)" color="text-emerald-400" delay={0.6} />
+              <BenefitItem icon={Trophy} text="Premium-турниры и x2 опыт" color="text-violet-400" delay={0.7} />
+              <BenefitItem icon={Sparkles} text="Без рекламы, полная концентрация" color="text-sky-400" delay={0.8} />
+            </div>
+          </div>
+
+          {/* Social Proof */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="relative z-10 hidden md:flex items-center gap-4 pt-8 border-t border-white/5"
+          >
+            <div className="flex -space-x-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className={`w-9 h-9 rounded-full border-2 border-[#080B16] bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white shadow-lg z-${30 - i * 10}`}>
+                  <span className="opacity-50">👤</span>
+                </div>
+              ))}
+              <div className="w-9 h-9 rounded-full border-2 border-[#080B16] bg-violet-600 flex items-center justify-center text-[10px] font-bold text-white shadow-lg z-0">
+                +50k
+              </div>
+            </div>
+            <div>
+              <div className="flex text-amber-400 text-[10px] gap-0.5 mb-1">
+                <Star className="w-3 h-3 fill-current" />
+                <Star className="w-3 h-3 fill-current" />
+                <Star className="w-3 h-3 fill-current" />
+                <Star className="w-3 h-3 fill-current" />
+                <Star className="w-3 h-3 fill-current" />
+              </div>
+              <p className="text-[11px] font-medium text-slate-400">Доверяют 50,000+ учеников</p>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* RIGHTSIDE (PLANS) */}
+        <div className="flex-1 bg-[#F8FAFC] dark:bg-[#0F121E] p-4 md:p-8 md:pl-10 flex flex-col overflow-y-auto relative">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/5 rounded-full blur-[80px] pointer-events-none" />
+
+          <div className="flex-1 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex justify-between items-end mb-6"
+            >
+              <div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white">Выберите план</h3>
+                <p className="text-sm text-slate-500 font-medium">Инвестиция в ваши водительские права</p>
+              </div>
+              {/* Optional: Currency switcher or info */}
+            </motion.div>
+
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            >
+              {PRICING_PLANS.map((plan) => {
+                const isPopular = plan.popular;
+                const isBestValue = plan.savings === '50%';
+
+                return (
+                  <motion.div
+                    key={plan.id}
+                    variants={itemVariants}
+                    whileHover={{ y: -8, scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handlePurchase(plan.id)}
+                    className={cn(
+                      "relative group rounded-[24px] cursor-pointer transition-all duration-500 isolate",
+                      "z-0 hover:z-10" // Lift up on hover
+                    )}
+                  >
+                    {/* Intense Glow Shadow for Popular */}
+                    {isPopular && (
+                      <div className="absolute inset-0 -z-10 rounded-[24px] bg-violet-600/0 group-hover:bg-violet-600/40 blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100" />
+                    )}
+
+                    {/* Standard Shadow for others */}
+                    {!isPopular && (
+                      <div className="absolute inset-0 -z-10 rounded-[24px] bg-black/5 group-hover:bg-black/10 blur-xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
+                    )}
+
+                    <div className={cn(
+                      "relative h-full p-6 rounded-[24px] border flex flex-col transition-all duration-300 overflow-hidden",
+                      isPopular
+                        ? "border-transparent bg-[#1E1B2E] text-white shadow-2xl shadow-violet-900/20 group-hover:shadow-[0_0_60px_-15px_rgba(139,92,246,0.5)]"
+                        : "bg-white dark:bg-[#151926] border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 shadow-sm group-hover:shadow-xl dark:shadow-black/50"
+                    )}>
+
+                      {/* Softher, Sleeker Shimmer (Блик) */}
+                      {isPopular && (
+                        <div className="absolute inset-0 overflow-hidden rounded-[24px] pointer-events-none mix-blend-overlay">
+                          <motion.div
+                            animate={{ x: ["-100%", "200%"] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 0.5 }}
+                            className="absolute top-0 bottom-0 w-[40%] -skew-x-[25deg] bg-gradient-to-r from-transparent via-white/10 to-transparent blur-md"
+                          />
+                        </div>
+                      )}
+
+                      {/* Header Row: Badges */}
+                      <div className="flex flex-wrap justify-between items-start gap-2 mb-5 min-h-[28px]">
+                        {isPopular ? (
+                          <Badge className="bg-gradient-to-r from-violet-600 to-fuchsia-600 border-0 shadow-[0_4px_12px_rgba(124,58,237,0.3)] text-[10px] py-1 px-3 tracking-wider font-bold animate-pulse hover:scale-105 transition-transform">
+                            🔥 MOST POPULAR
+                          </Badge>
+                        ) : isBestValue ? (
+                          <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border-0 font-bold text-[10px] py-1 px-3 hover:scale-105 transition-transform">
+                            👑 BEST VALUE
+                          </Badge>
+                        ) : (
+                          <div /> // spacer
+                        )}
+
+                        {plan.savings && (
+                          <div className={cn(
+                            "text-[10px] font-bold px-3 py-1 rounded-full border transform transition-transform group-hover:scale-110",
+                            isPopular
+                              ? "bg-white/10 text-white border-white/10 backdrop-blur-sm"
+                              : "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+                          )}>
+                            SAVE {plan.savings}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Plan Title & Price */}
+                      <div className="mb-6 relative">
+                        <h4 className={cn(
+                          "text-xs font-bold uppercase tracking-widest mb-2 transition-colors",
+                          isPopular ? "text-violet-200 opacity-80 group-hover:text-white group-hover:opacity-100" : "text-slate-400 group-hover:text-violet-500"
+                        )}>
+                          {plan.title}
+                        </h4>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className={cn(
+                            "text-4xl font-black tracking-tighter transition-all duration-300",
+                            isPopular ? "text-white group-hover:scale-105 origin-left shadow-black drop-shadow-lg" : "text-slate-900 dark:text-white group-hover:scale-105 origin-left"
+                          )}>
+                            {plan.price}
+                          </span>
+                        </div>
+                        {plan.pricePerMonth && (
+                          <p className={cn("text-[11px] font-semibold mt-1.5 transition-colors", isPopular ? "text-violet-200" : "text-slate-500 dark:text-slate-400")}>
+                            {plan.pricePerMonth} / месяц
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Visual Divider */}
+                      <div className={cn(
+                        "h-px w-full mb-5 transition-colors duration-300",
+                        isPopular ? "bg-white/10 group-hover:bg-white/20" : "bg-slate-100 dark:bg-slate-800 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30"
+                      )} />
+
+                      {/* Action Button */}
+                      <div className="mt-auto">
+                        {isTelegramMiniApp() ? (
+                          <div className="space-y-2">
+                            <StarsPaymentButton
+                              packageKey={PLAN_TO_CATALOG[plan.id]}
+                              priceCoins={0}
+                              className={cn(
+                                "w-full font-bold h-12 rounded-xl transition-all duration-300 shadow-lg",
+                                isPopular
+                                  ? "bg-white text-slate-900 hover:bg-slate-100 shadow-black/20"
+                                  : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white"
+                              )}
+                            />
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handlePurchase(plan.id); }}
+                              className="w-full text-[10px] text-muted-foreground hover:text-violet-500 transition-colors uppercase tracking-widest font-bold text-center"
+                            >
+                              Оплатить картой / Криптой
+                            </button>
+                          </div>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            onClick={(e) => { e.stopPropagation(); handlePurchase(plan.id); }}
+                            className={cn(
+                              "w-full font-bold h-12 rounded-xl transition-all duration-300 relative overflow-hidden group/btn",
+                              isPopular
+                                ? "bg-white text-slate-900 hover:bg-white hover:text-violet-700 shadow-lg shadow-black/20"
+                                : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-violet-50 hover:border-violet-200 hover:text-violet-700 dark:bg-slate-800 dark:border-slate-700 dark:text-white dark:hover:bg-violet-900/30 dark:hover:border-violet-500/30"
+                            )}
+                          >
+                            {selectedPlanId === plan.id ? (
+                              <Loader2 className="w-5 h-5 animate-spin text-current" />
+                            ) : (
+                              <span className="relative z-10 flex items-center justify-center gap-2">
+                                Выбрать
+                                <motion.div
+                                  animate={{ x: [0, 4, 0] }}
+                                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }}
+                                >
+                                  {isPopular ? <Sparkles className="w-4 h-4" /> : <span className="text-lg leading-none">→</span>}
+                                </motion.div>
+                              </span>
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          </div>
+
+          {/* Footer Trust */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800/50 text-center"
+          >
+            <p className="text-[10px] font-medium text-slate-400 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3 text-emerald-500" /> Гарантия безопасности</span>
+              <span className="flex items-center gap-1.5"><Check className="w-3 h-3 text-violet-500" /> Мгновенный доступ</span>
+              <span className="flex items-center gap-1.5"><Lock className="w-3 h-3 text-slate-500" /> Отмена в любой момент</span>
+            </p>
+          </motion.div>
+        </div>
+      </motion.div>
+    </UnifiedModal >
   );
 }
-
-

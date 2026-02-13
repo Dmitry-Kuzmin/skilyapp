@@ -3,7 +3,6 @@
  */
 
 export { AccountTab } from './AccountTab';
-export { SecurityTab } from './SecurityTab';
 export { GeneralTab } from './GeneralTab';
 export { CockpitTab } from './CockpitTab';
 export { NotificationsTab } from './NotificationsTab';

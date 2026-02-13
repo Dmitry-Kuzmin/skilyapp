@@ -7,10 +7,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Fingerprint, Smartphone, Laptop, Trash2, Plus, Loader2, AlertCircle, X } from 'lucide-react';
+import { Fingerprint, Smartphone, Laptop, Trash2, Plus, Loader2, AlertCircle, X, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/lib/toast';
+import { useToast } from '@/hooks/use-toast';
+import { useTheme } from 'next-themes';
 import {
   registerPasskey,
   listPasskeys,
@@ -19,16 +20,7 @@ import {
   isPlatformAuthenticatorAvailable,
   type PasskeyCredential,
 } from '@/lib/passkey';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+// AlertDialog removed — inline confirm used instead to avoid nested modal conflict
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale/ru';
@@ -54,16 +46,19 @@ function getAutoDeviceName(): string {
   return 'Устройство';
 }
 
-export function PasskeyManager() {
+export function PasskeyManager({ hideHeader = false }: { hideHeader?: boolean }) {
   const [passkeys, setPasskeys] = useState<PasskeyCredential[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRegistering, setIsRegistering] = useState(false);
   const [deviceName, setDeviceName] = useState('');
   const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PasskeyCredential | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
   const { toast } = useToast();
+  const { resolvedTheme } = useTheme();
+  const isDarkTheme = resolvedTheme === 'dark';
 
   // Проверка поддержки
   useEffect(() => {
@@ -121,30 +116,62 @@ export function PasskeyManager() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+    setIsDeleting(true);
     triggerHaptic('medium');
-    const result = await deletePasskey(deleteTarget.id);
 
-    if (result.success) {
-      toast.success('Passkey удалён', {
-        description: `Устройство "${deleteTarget.device_name || 'Без названия'}" удалено`,
+    try {
+      const result = await deletePasskey(deleteTarget.id);
+
+      if (result.success) {
+        toast.success('Passkey удалён', {
+          description: `Устройство "${deleteTarget.device_name || 'Без названия'}" удалено`,
+        });
+        setPasskeys((prev) => prev.filter((p) => p.id !== deleteTarget.id));
+        setDeleteTarget(null);
+      } else {
+        toast.error('Ошибка удаления', {
+          description: result.error || 'Не удалось удалить Passkey',
+        });
+      }
+    } catch (err) {
+      console.error('[PasskeyManager] Delete error:', err);
+      toast.error('Ошибка', {
+        description: 'Произошла ошибка при удалении ключа',
       });
-      setPasskeys((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-    } else {
-      toast.error('Ошибка удаления', {
-        description: result.error || 'Не удалось удалить Passkey',
-      });
+    } finally {
+      setIsDeleting(false);
     }
-    setDeleteTarget(null);
   };
 
   const getDeviceIcon = (transports: string[] | null) => {
     if (!transports || transports.includes('internal')) {
-      return <Fingerprint className="w-5 h-5 text-sky-400 group-hover:scale-110 transition-transform" />;
+      return (
+        <div className={cn(
+          "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm border",
+          isDarkTheme ? "bg-indigo-500/10 border-indigo-500/20" : "bg-indigo-50 border-indigo-100"
+        )}>
+          <Fingerprint className={cn("w-5 h-5", isDarkTheme ? "text-indigo-400" : "text-indigo-600")} />
+        </div>
+      );
     }
     if (transports.includes('usb')) {
-      return <Laptop className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />;
+      return (
+        <div className={cn(
+          "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm border",
+          isDarkTheme ? "bg-amber-500/10 border-amber-500/20" : "bg-amber-50 border-amber-100"
+        )}>
+          <Laptop className={cn("w-5 h-5", isDarkTheme ? "text-amber-400" : "text-amber-600")} />
+        </div>
+      );
     }
-    return <Smartphone className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />;
+    return (
+      <div className={cn(
+        "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 shadow-sm border",
+        isDarkTheme ? "bg-emerald-500/10 border-emerald-500/20" : "bg-emerald-50 border-emerald-100"
+      )}>
+        <Smartphone className={cn("w-5 h-5", isDarkTheme ? "text-emerald-400" : "text-emerald-600")} />
+      </div>
+    );
   };
 
   const formatDate = (date: string | null) => {
@@ -154,12 +181,15 @@ export function PasskeyManager() {
 
   if (!isSupported) {
     return (
-      <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5 backdrop-blur-sm">
+      <div className={cn(
+        "rounded-2xl border p-5 backdrop-blur-sm transition-all",
+        isDarkTheme ? "border-amber-500/20 bg-amber-500/5" : "border-amber-200 bg-amber-50"
+      )}>
         <div className="flex items-start gap-4">
           <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-white tracking-tight">Passkeys не поддерживаются</h3>
-            <p className="text-[11px] text-zinc-500 font-medium leading-tight">
+            <h3 className={cn("text-sm font-bold tracking-tight", isDarkTheme ? "text-white" : "text-slate-900")}>Passkeys не поддерживаются</h3>
+            <p className={cn("text-[11px] font-medium leading-tight", isDarkTheme ? "text-zinc-500" : "text-slate-500")}>
               Ваш браузер не поддерживает современную биометрию. Используйте Safari, Chrome или Edge.
             </p>
           </div>
@@ -170,37 +200,73 @@ export function PasskeyManager() {
 
   return (
     <div className="space-y-6">
-      {/* Header Area */}
       <div className="flex items-center justify-between px-1">
-        <div className="space-y-0.5">
-          <h3 className="text-lg font-black tracking-tight text-white italic">
-            Passkeys
-          </h3>
-          <p className="text-[11px] text-zinc-500 font-medium">
-            Вход без пароля через биометрию
-          </p>
-        </div>
+        {!hideHeader && (
+          <div className="space-y-0.5">
+            <h3 className={cn("text-lg font-black tracking-tight italic", isDarkTheme ? "text-white" : "text-slate-900")}>
+              Passkeys
+            </h3>
+            <p className={cn("text-[11px] font-medium", isDarkTheme ? "text-zinc-500" : "text-slate-500")}>
+              Вход без пароля через биометрию
+            </p>
+          </div>
+        )}
 
-        <AnimatePresence>
-          {!showRegisterForm && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-            >
+        <div className={cn("flex items-center gap-2", hideHeader && "w-full justify-between")}>
+          {hideHeader && (
+            <div className="flex items-center gap-2">
+              <ShieldCheck className={cn("w-4 h-4", isDarkTheme ? "text-indigo-400" : "text-indigo-600")} />
+              <span className={cn("text-sm font-bold tracking-tight", isDarkTheme ? "text-white" : "text-slate-800")}>Passkeys</span>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            {!showRegisterForm && (
               <Button
                 onClick={() => {
                   triggerHaptic('light');
-                  setShowRegisterForm(true);
+                  loadPasskeys();
                 }}
-                className="h-10 px-5 bg-white text-black hover:bg-zinc-200 font-black text-[11px] uppercase tracking-wider rounded-xl shadow-xl shadow-white/5"
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "w-10 h-10 rounded-xl transition-all",
+                  isDarkTheme
+                    ? "bg-white/5 border border-white/5 text-zinc-400 hover:text-white"
+                    : "bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900"
+                )}
+                disabled={isLoading}
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Добавить
+                <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
               </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            )}
+
+            <AnimatePresence>
+              {!showRegisterForm && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                >
+                  <Button
+                    onClick={() => {
+                      triggerHaptic('light');
+                      setShowRegisterForm(true);
+                    }}
+                    className={cn(
+                      "h-10 px-5 font-black text-[11px] uppercase tracking-wider rounded-xl shadow-lg transition-all active:scale-95",
+                      isDarkTheme
+                        ? "bg-white text-black hover:bg-zinc-200 shadow-white/5"
+                        : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-500/20"
+                    )}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Добавить
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
 
       {/* Registration Deck */}
@@ -210,14 +276,20 @@ export function PasskeyManager() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="group relative overflow-hidden rounded-3xl border border-white/5 bg-zinc-900/40 p-6 backdrop-blur-2xl shadow-2xl"
+            className={cn(
+              "group relative overflow-hidden rounded-3xl border p-6 backdrop-blur-2xl shadow-2xl transition-all",
+              isDarkTheme ? "bg-zinc-900/40 border-white/5" : "bg-white border-indigo-100/50"
+            )}
           >
             {/* Ambient Shadow glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-sky-500/5 to-transparent opacity-50 pointer-events-none" />
+            <div className={cn(
+              "absolute inset-0 opacity-50 pointer-events-none transition-opacity",
+              isDarkTheme ? "bg-gradient-to-br from-indigo-500/5 to-transparent" : "bg-gradient-to-br from-indigo-500/[0.03] to-transparent"
+            )} />
 
             <div className="relative z-10 space-y-5">
               <div className="space-y-2">
-                <label className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1">
+                <label className={cn("text-[9px] font-black uppercase tracking-[0.25em] ml-1", isDarkTheme ? "text-zinc-500" : "text-slate-400")}>
                   Название устройства
                 </label>
                 <Input
@@ -226,7 +298,12 @@ export function PasskeyManager() {
                   value={deviceName}
                   onChange={(e) => setDeviceName(e.target.value)}
                   maxLength={50}
-                  className="h-14 bg-zinc-950/80 border-white/5 focus:border-sky-500/50 rounded-2xl text-white text-center font-medium placeholder:text-zinc-700 transition-all"
+                  className={cn(
+                    "h-14 rounded-2xl text-center font-bold placeholder:font-medium transition-all text-sm",
+                    isDarkTheme
+                      ? "bg-zinc-950/80 border-white/5 focus:border-indigo-500/50 text-white placeholder:text-zinc-700"
+                      : "bg-slate-50 border-slate-200 focus:border-indigo-400 focus:bg-white text-slate-900 placeholder:text-slate-400"
+                  )}
                   disabled={isRegistering}
                 />
               </div>
@@ -236,8 +313,8 @@ export function PasskeyManager() {
                   onClick={handleRegister}
                   disabled={isRegistering || (deviceName === '' && !isRegistering)}
                   className={cn(
-                    "flex-1 h-12 rounded-2xl font-black text-sm transition-all shadow-lg",
-                    "bg-gradient-to-r from-sky-400 to-blue-500 text-white shadow-sky-500/20 hover:shadow-sky-500/40 hover:scale-[1.02] active:scale-[0.98]",
+                    "flex-1 h-12 rounded-2xl font-black text-sm transition-all shadow-lg active:scale-[0.98]",
+                    "bg-gradient-to-r from-indigo-500 to-blue-600 text-white shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:scale-[1.02]",
                     "disabled:opacity-50 disabled:grayscale disabled:scale-100"
                   )}
                 >
@@ -258,14 +335,19 @@ export function PasskeyManager() {
                     setDeviceName('');
                   }}
                   variant="ghost"
-                  className="px-6 h-12 bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-2xl font-bold text-sm"
+                  className={cn(
+                    "px-6 h-12 rounded-2xl font-bold text-sm transition-all",
+                    isDarkTheme
+                      ? "bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                      : "bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-200"
+                  )}
                   disabled={isRegistering}
                 >
                   Отмена
                 </Button>
               </div>
 
-              <p className="text-[10px] text-center text-zinc-600 font-medium px-4">
+              <p className={cn("text-[10px] text-center font-medium px-4", isDarkTheme ? "text-zinc-600" : "text-slate-400")}>
                 Название опционально. После нажатия браузер запросит Face ID, Touch ID или Windows Hello
               </p>
             </div>
@@ -277,26 +359,34 @@ export function PasskeyManager() {
       <div className="space-y-3">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-12 space-y-4">
-            <Loader2 className="w-8 h-8 animate-spin text-sky-500/50" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-700 transition-pulse animate-pulse">Считывание ключей...</span>
+            <Loader2 className={cn("w-8 h-8 animate-spin", isDarkTheme ? "text-indigo-500/50" : "text-indigo-600/50")} />
+            <span className={cn("text-[10px] font-black uppercase tracking-widest transition-pulse animate-pulse", isDarkTheme ? "text-zinc-700" : "text-slate-400")}>
+              Считывание ключей...
+            </span>
           </div>
         ) : passkeys.length === 0 ? (
           !showRegisterForm && (
-            <div className="rounded-3xl border border-white/5 bg-zinc-900/20 p-12 text-center space-y-4 backdrop-blur-sm">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-zinc-900 border border-white/5 shadow-inner">
-                <Fingerprint className="w-8 h-8 text-zinc-700" />
+            <div className={cn(
+              "rounded-3xl border p-12 text-center space-y-4 backdrop-blur-sm transition-all",
+              isDarkTheme ? "border-white/5 bg-zinc-900/20" : "border-indigo-100/50 bg-indigo-50/30"
+            )}>
+              <div className={cn(
+                "inline-flex items-center justify-center w-16 h-16 rounded-3xl border shadow-inner transition-colors",
+                isDarkTheme ? "bg-zinc-900 border-white/5" : "bg-white border-indigo-100"
+              )}>
+                <Fingerprint className={cn("w-8 h-8", isDarkTheme ? "text-zinc-700" : "text-indigo-200")} />
               </div>
               <div className="space-y-1">
-                <h4 className="font-bold text-zinc-400 italic">Нет активных ключей</h4>
-                <p className="text-[11px] text-zinc-600 font-medium">
+                <h4 className={cn("font-bold italic tracking-tight", isDarkTheme ? "text-zinc-400" : "text-slate-500")}>Нет активных ключей</h4>
+                <p className={cn("text-[11px] font-medium", isDarkTheme ? "text-zinc-600" : "text-slate-400")}>
                   Добавьте устройство для сверхбыстрого входа
                 </p>
               </div>
             </div>
           )
         ) : (
-          <div className="space-y-2">
-            <label className="text-[9px] font-black uppercase tracking-[0.25em] text-zinc-600 px-1">
+          <div className="space-y-4">
+            <label className={cn("text-[9px] font-black uppercase tracking-[0.25em] px-1", isDarkTheme ? "text-zinc-600" : "text-slate-400")}>
               Твои ключи доступа
             </label>
             <div className="grid gap-2">
@@ -304,19 +394,25 @@ export function PasskeyManager() {
                 <motion.div
                   layout
                   key={passkey.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="group flex items-center justify-between p-4 rounded-2xl bg-zinc-900/30 border border-white/5 hover:bg-zinc-900/50 transition-all duration-300"
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className={cn(
+                    "group flex items-center justify-between p-4 rounded-3xl border transition-all duration-300 relative overflow-hidden",
+                    isDarkTheme
+                      ? "bg-slate-900/40 border-white/5 hover:border-indigo-500/30 hover:bg-slate-900/60"
+                      : "bg-white border-slate-100 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-500/[0.03]"
+                  )}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-zinc-950 border border-white/5 shadow-xl group-hover:border-sky-500/30 transition-colors">
-                      {getDeviceIcon(passkey.transports)}
-                    </div>
+                  <div className="flex items-center gap-4 relative z-10">
+                    {getDeviceIcon(passkey.transports)}
                     <div>
-                      <h4 className="text-sm font-black text-white italic tracking-tight uppercase">
+                      <h4 className={cn(
+                        "text-sm font-black italic tracking-tight uppercase",
+                        isDarkTheme ? "text-white" : "text-slate-900"
+                      )}>
                         {passkey.device_name || 'Generic Device'}
                       </h4>
-                      <p className="text-[10px] text-zinc-500 font-medium">
+                      <p className={cn("text-[10px] font-bold tracking-tight", isDarkTheme ? "text-zinc-500" : "text-slate-400")}>
                         {passkey.last_used_at ? (
                           <>Активен {formatDate(passkey.last_used_at)}</>
                         ) : (
@@ -333,7 +429,12 @@ export function PasskeyManager() {
                     }}
                     variant="ghost"
                     size="icon"
-                    className="w-10 h-10 rounded-xl bg-zinc-950/50 border border-white/5 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+                    className={cn(
+                      "w-10 h-10 rounded-2xl transition-all relative z-10",
+                      isDarkTheme
+                        ? "bg-zinc-950/50 border border-white/5 opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30"
+                        : "bg-slate-50 border border-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 hover:border-red-100 md:opacity-0 md:group-hover:opacity-100"
+                    )}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -344,37 +445,69 @@ export function PasskeyManager() {
         )}
       </div>
 
-      {/* Delete Dialog - Premium UI */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-3xl overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500/40 to-red-500/0" />
+      {/* Delete Confirmation — Inline (без Portal, чтобы не конфликтовать с Drawer) */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className={cn(
+              "relative overflow-hidden rounded-3xl border p-5 backdrop-blur-xl shadow-2xl transition-all",
+              isDarkTheme ? "border-red-500/20 bg-zinc-950/80" : "border-red-200 bg-white shadow-red-500/5"
+            )}
+          >
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500/0 via-red-500/40 to-red-500/0" />
 
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-black text-white italic tracking-tighter flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                <Trash2 className="w-5 h-5 text-red-500" />
+            <div className="space-y-5">
+              <div className="flex items-start gap-4">
+                <div className={cn(
+                  "w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border transition-colors",
+                  isDarkTheme ? "bg-red-500/10 border-red-500/20" : "bg-red-50 border-red-100"
+                )}>
+                  <Trash2 className="w-6 h-6 text-red-500" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className={cn("text-base font-black tracking-tight", isDarkTheme ? "text-white" : "text-slate-900")}>
+                    Удалить ключ?
+                  </h4>
+                  <p className={cn("text-xs font-medium leading-relaxed", isDarkTheme ? "text-zinc-400" : "text-slate-500")}>
+                    Устройство <span className={cn("font-bold", isDarkTheme ? "text-white" : "text-slate-900")}>"{deleteTarget.device_name || 'Без названия'}"</span> потеряет доступ к аккаунту. Это действие нельзя отменить.
+                  </p>
+                </div>
               </div>
-              Удалить ключ?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-zinc-400 font-medium leading-relaxed pt-2">
-              Вы собираетесь отозвать доступ для устройства <span className="text-white font-bold">"{deleteTarget?.device_name}"</span>.
-              Для входа с этого девайса потребуется пароль.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
 
-          <AlertDialogFooter className="mt-8 gap-3 sm:gap-0">
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-2xl h-12 font-bold px-6">
-              Отмена
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-500 hover:bg-red-600 text-white rounded-2xl h-12 font-black px-6 shadow-lg shadow-red-500/20"
-            >
-              Удалить доступ
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <div className="flex items-center gap-3 justify-end pt-2">
+                <Button
+                  onClick={() => setDeleteTarget(null)}
+                  variant="ghost"
+                  disabled={isDeleting}
+                  className={cn(
+                    "h-10 px-6 rounded-2xl font-bold transition-all",
+                    isDarkTheme ? "text-zinc-400 hover:text-white hover:bg-zinc-800" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                  )}
+                >
+                  Отмена
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="h-10 px-8 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-black shadow-lg shadow-red-500/20 min-w-[140px] transition-all active:scale-95"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Удаление...
+                    </>
+                  ) : (
+                    'Да, удалить'
+                  )}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

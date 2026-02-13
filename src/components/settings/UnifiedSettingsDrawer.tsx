@@ -11,7 +11,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { X, Settings, User, Shield, Gauge, Bell, Sparkles, Database, Info } from 'lucide-react';
+import { X, Settings, User, Gauge, Bell, Sparkles, Database, Info } from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { triggerHaptic } from '@/lib/haptics';
@@ -20,7 +20,6 @@ import { cn } from '@/lib/utils';
 // === TABS ===
 import {
     AccountTab,
-    SecurityTab,
     GeneralTab,
     CockpitTab,
     NotificationsTab,
@@ -30,7 +29,7 @@ import {
 } from './tabs';
 
 // === TYPES ===
-type SettingsSection = 'account' | 'security' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about';
+type SettingsSection = 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about';
 
 interface NavItem {
     id: SettingsSection;
@@ -42,7 +41,6 @@ interface NavItem {
 // === NAVIGATION ===
 const navItems: NavItem[] = [
     { id: 'account', label: 'Аккаунт', icon: <User className="w-4 h-4" />, description: 'Профиль и связи' },
-    { id: 'security', label: 'Настройки', icon: <Shield className="w-4 h-4" />, description: 'Passkeys и вход' },
     { id: 'general', label: 'Основные', icon: <Settings className="w-4 h-4" />, description: 'Язык и тема' },
     { id: 'cockpit', label: 'Кокпит', icon: <Gauge className="w-4 h-4" />, description: 'Звук и вибрация' },
     { id: 'notifications', label: 'Уведомления', icon: <Bell className="w-4 h-4" />, description: 'Push-уведомления' },
@@ -70,7 +68,6 @@ export const UnifiedSettingsDrawer: React.FC = () => {
     const renderContent = () => {
         switch (activeTab) {
             case 'account': return <AccountTab />;
-            case 'security': return <SecurityTab />;
             case 'general': return <GeneralTab />;
             case 'cockpit': return <CockpitTab />;
             case 'notifications': return <NotificationsTab />;

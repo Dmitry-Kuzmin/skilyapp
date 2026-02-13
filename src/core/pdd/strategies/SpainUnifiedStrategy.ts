@@ -195,18 +195,25 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
 
         const selectedIds = shuffled.slice(0, count);
 
-        // 3. Fetch full details for selected IDs
-        const { data: questions, error: questionsError } = await (supabase as any)
-            .from('questions_new')
-            .select('*')
-            .in('id', selectedIds);
+        // 3. Fetch full details for selected IDs in batches
+        const batchSize = 100;
+        const questions: any[] = [];
 
-        if (questionsError) {
-            console.error('[SpainUnifiedStrategy] Error fetching random questions:', questionsError);
-            throw questionsError;
+        for (let i = 0; i < selectedIds.length; i += batchSize) {
+            const batch = selectedIds.slice(i, i + batchSize);
+            const { data: batchQuestions, error: questionsError } = await (supabase as any)
+                .from('questions_new')
+                .select('*')
+                .in('id', batch);
+
+            if (questionsError) {
+                console.error('[SpainUnifiedStrategy] Error fetching questions batch:', questionsError);
+                throw questionsError;
+            }
+            if (batchQuestions) questions.push(...batchQuestions);
         }
 
-        if (!questions || questions.length === 0) return [];
+        if (questions.length === 0) return [];
 
         // 4. Fetch answers
         const questionIds = questions.map((q: any) => q.id);

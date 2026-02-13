@@ -4,7 +4,7 @@ import {
   Shuffle, Clock, Zap, Flame, History, AlertTriangle, AlertCircle,
   Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
   Star, AlertTriangle as AlertIcon, RotateCcw,
-  CarFront, MapPin, Gauge, Check, Trophy, Bookmark
+  CarFront, MapPin, Gauge, Check, Trophy, Bookmark, Lock
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
@@ -25,6 +25,7 @@ import { getImageUrl } from "@/utils/imageUtils";
 import { loadTestProgress } from "@/utils/testStorage";
 import { cn } from "@/lib/utils";
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
+import { useDashboardData } from "@/hooks/useDashboardData";
 
 // --- Types ---
 type Topic = {
@@ -189,6 +190,8 @@ const Tests = () => {
   const { isPremium } = usePremium();
   const { language, t } = useLanguage();
   const { selectedCountry, selectedCategory } = usePDDContext();
+  const { data: dashboardData } = useDashboardData();
+  const licensePoints = dashboardData?.profile?.license_points ?? 8;
 
   // 1. Сначала все хуки данных (React Query)
   const { data: dbTopics = [], isLoading: topicsLoading } = useTopics();
@@ -336,6 +339,7 @@ const Tests = () => {
         featured: false,
         gradient: "from-emerald-600 to-teal-600",
         badge: selectedCountry === 'russia' ? 'Регламент 2025' : undefined,
+        isLocked: selectedCountry !== 'russia' && licensePoints < 10,
       },
       {
         id: 3,
@@ -431,7 +435,7 @@ const Tests = () => {
     ];
 
     return baseModes;
-  }, [selectedCountry, randomQuestionCount, challengeStats, t, nonstopProgress]);
+  }, [selectedCountry, randomQuestionCount, challengeStats, t, nonstopProgress, licensePoints]);
 
   const difficultyColors = {
     "Лёгкая": "success",
@@ -789,9 +793,9 @@ const Tests = () => {
                         "relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group",
                         "bg-white dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-white/5",
                         "transition-all duration-300 shadow-lg dark:shadow-xl",
-                        "hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-2xl",
-                        theme.border,
-                        theme.shadow
+                        !mode.isLocked && "hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-2xl",
+                        mode.isLocked ? "opacity-75 grayscale-[0.5]" : theme.border,
+                        !mode.isLocked && theme.shadow
                       )}
                       style={{
                         pointerEvents: 'auto',
@@ -801,6 +805,12 @@ const Tests = () => {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
+
+                        if (mode.isLocked) {
+                          // Locked by gating system
+                          return;
+                        }
+
                         if (mode.premium && !isPremium) {
                           // Handle premium
                         } else if (mode.route) {
@@ -838,15 +848,22 @@ const Tests = () => {
                           {/* Icon Container - Dashboard Style */}
                           <div className={cn(
                             "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-500 mb-4",
-                            "group-hover:scale-110 group-hover:rotate-3",
-                            theme.iconBg
+                            !mode.isLocked && "group-hover:scale-110 group-hover:rotate-3",
+                            mode.isLocked ? "bg-slate-100 dark:bg-slate-800/50 border-slate-200 dark:border-white/10" : theme.iconBg
                           )}>
-                            <Icon className={cn("w-7 h-7", theme.icon)} />
+                            {mode.isLocked ? (
+                              <Lock className="w-7 h-7 text-slate-400 dark:text-slate-500" />
+                            ) : (
+                              <Icon className={cn("w-7 h-7", theme.icon)} />
+                            )}
                           </div>
 
                           <div className="flex flex-col items-end gap-2">
-                            <Badge variant="outline" className={cn("bg-transparent border-current uppercase text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full", theme.badge)}>
-                              {mode.difficulty}
+                            <Badge variant="outline" className={cn(
+                              "bg-transparent border-current uppercase text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full",
+                              mode.isLocked ? "text-slate-400 dark:text-slate-500 border-slate-300 dark:border-white/20" : theme.badge
+                            )}>
+                              {mode.isLocked ? (language === 'ru' ? 'ЗАБЛОКИРОВАНО' : 'BLOQUEADO') : mode.difficulty}
                             </Badge>
                             {mode.badge && (
                               <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">
@@ -857,11 +874,18 @@ const Tests = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <h3 className={cn("text-xl font-black text-slate-900 dark:text-white tracking-tight transition-colors", theme.titleHover)}>
+                          <h3 className={cn(
+                            "text-xl font-black text-slate-900 dark:text-white tracking-tight transition-colors",
+                            theme.titleHover,
+                            mode.isLocked && "text-slate-400 dark:text-slate-500"
+                          )}>
                             {mode.title}
                           </h3>
                           <p className="text-slate-600 dark:text-slate-400 font-medium text-sm leading-relaxed line-clamp-2">
-                            {mode.description}
+                            {mode.isLocked
+                              ? (language === 'ru' ? `Набери 10 баллов, чтобы открыть доступ к экзамену (у тебя ${licensePoints}/10)` : `Consigue 10 puntos para desbloquear el examen (tienes ${licensePoints}/10)`)
+                              : mode.description
+                            }
                           </p>
                         </div>
 

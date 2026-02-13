@@ -162,6 +162,39 @@ export const en = {
     level: "Level",
     streak: "Daily Streak",
   },
+  licenseCard: {
+    ranks: {
+      suspended: "SUSPENDED",
+      expert: "EXPERT",
+      novel: "NOVEL",
+    },
+    suspended: {
+      title: "LICENSE SUSPENDED",
+      recoverButton: "RECOVER POINTS",
+    },
+    stats: {
+      streak: "d Streak",
+      readiness: "% Readiness",
+    },
+    trend: {
+      active: "⚡ ACTIVE (+1/D)",
+      decaying: "⚠️ DECAYING (-1/D)",
+      activeShort: "+1/D",
+      decayingShort: "-1/D",
+    },
+    gating: {
+      examLocked: "Exam Locked",
+      needPoints: "Need {{points}} points for access",
+      unlockGoal: "Reach 10 points to unlock the exam",
+    },
+    footer: {
+      classification: "Classification",
+      classType: "Class B Unified",
+      sync: "Synchronization",
+      completed: "COMPLETED",
+      globalId: "Global ID",
+    }
+  },
 
   // Tests Page
   practiceTests: "Practice Tests",

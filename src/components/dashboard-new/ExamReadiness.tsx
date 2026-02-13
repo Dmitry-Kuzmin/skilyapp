@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playClickSound } from '@/services/audioService';
-import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap } from 'lucide-react';
+import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap, Lock } from 'lucide-react';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { motion } from "@/components/optimized/Motion";
 import { getReadinessStatus } from '@/utils/examReadiness';
@@ -9,6 +9,7 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsPanel } from './AnalyticsPanel';
 import { useTheme } from 'next-themes';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface ExamReadinessProps {
   averageScore: number;
@@ -18,6 +19,7 @@ interface ExamReadinessProps {
   description?: string;
   status?: 'start' | 'progress' | 'near' | 'ready' | 'legend';
   profileId?: string | null;
+  licensePoints?: number;
   onStartTest?: () => void;
   onExpandedChange?: (expanded: boolean) => void;
 }
@@ -31,10 +33,11 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   description,
   status,
   profileId,
+  licensePoints = 8,
   onStartTest,
   onExpandedChange
 }) => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const navigate = useNavigate();
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
@@ -355,26 +358,6 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
           </div>
         </div>
 
-        {/* Кнопка или текст для нового пользователя */}
-        <div className="relative z-10 w-full flex flex-col gap-2">
-          {hasNoData ? (
-            <button
-              onClick={handleStartTest}
-              className={`w-full py-3 px-4 rounded-xl ${isDarkTheme ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-600 hover:bg-indigo-700'} text-white text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20`}
-            >
-              Пройти первый тест
-            </button>
-          ) : (
-            <>
-              <p className={`text-xs ${textTertiaryClass} text-center mt-2`}>
-                {statusInfo.label}
-              </p>
-              <p className={`text-xs ${textTertiaryClass} text-center`}>
-                Пройдено тестов: {testsCompleted}
-              </p>
-            </>
-          )}
-        </div>
       </div>
 
       {/* Levels Panel - плавное появление с Split View */}

@@ -1,6 +1,17 @@
 import React, { useMemo } from 'react';
-import { Flame, ShieldCheck, Zap, MoreHorizontal } from 'lucide-react';
+import {
+    User,
+    Flame,
+    Activity,
+    TrendingUp,
+    TrendingDown,
+    AlertTriangle,
+    Users,
+    Trophy
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 
 interface LicenseCardProps {
     userProfile?: {
@@ -24,280 +35,468 @@ interface LicenseCardProps {
     hasClaimedToday: boolean;
     onClaimReward: () => void;
     onStartQuiz: () => void;
+    onRecoverPoints?: () => void;
     t: (key: string) => string;
+    licenseHistory?: Array<{
+        points: number;
+        recorded_at: string;
+    }>;
 }
 
+/**
+ * 💳 Digital Driver ID: v4 "Data-Dense Minimal"
+ * Features: Sparkline points history, ultra-clean fintech layout, zero noise.
+ */
 export const LicenseCard: React.FC<LicenseCardProps> = ({
     userProfile,
     stats,
+    isDarkTheme,
     selectedCountry,
     hasClaimedToday,
-    onClaimReward,
+    onRecoverPoints,
+    t,
+    licenseHistory
 }) => {
-    // 1. Process Data & Styles
-    const { points, percentage, rankStyle, isDanger, fullName, photoUrl, licenseId } = useMemo(() => {
+    // 1. Data Processing
+    const {
+        points,
+        rankStyle,
+        fullName,
+        photoUrl,
+        progressWidth,
+        isSuspended,
+        rankLabel,
+        isExpert
+    } = useMemo(() => {
         const points = userProfile?.license_points ?? 8;
-        const maxVisualPoints = 12;
-        const percentage = Math.min((points / maxVisualPoints) * 100, 100);
+        const maxPoints = 15;
+        const progressWidth = Math.min((points / maxPoints) * 100, 100);
 
-        const fullName = [userProfile?.first_name, userProfile?.last_name].filter(Boolean).join(' ') ||
+        const fullName = ([userProfile?.first_name, userProfile?.last_name].filter(Boolean).join(' ') ||
             userProfile?.username ||
-            'DRIVER ID';
+            'DMITRY KUZMIN').toUpperCase();
 
-        const isDanger = points <= 4;
-        const currentYear = new Date().getFullYear();
-        const licenseId = `${selectedCountry.toUpperCase()}-${currentYear}-${userProfile?.id?.substring(0, 4).toUpperCase() || '####'}`;
+        const isSuspended = points === 0;
+        const isExpert = points >= 12;
+        const rankLabel = isSuspended ? t('licenseCard.ranks.suspended') : isExpert ? t('licenseCard.ranks.expert') : t('licenseCard.ranks.novel');
 
+        // Custom status styles
         let rankStyle = {
-            name: 'NOVEL',
-            label: 'L',
-            color: 'text-emerald-400',
-            bg: 'bg-emerald-500/20',
-            border: 'border-emerald-500/50',
-            glow: 'shadow-emerald-500/40',
-            gradient: 'from-emerald-500/20 via-emerald-500/5 to-transparent',
-            accent: '#10b981'
+            accent: '#10B981', // Emerald
+            glow: 'shadow-[0_20px_40px_-20px_rgba(16,185,129,0.3)]',
+            bg: 'bg-emerald-500/10',
+            text: 'text-emerald-500',
+            pointsColor: 'text-emerald-400'
         };
 
-        if (points >= 12) {
+        if (isSuspended) {
             rankStyle = {
-                name: 'LEGEND',
-                label: 'S',
-                color: 'text-amber-400',
-                bg: 'bg-amber-500/20',
-                border: 'border-amber-500/50',
-                glow: 'shadow-amber-500/50',
-                gradient: 'from-amber-500/20 via-amber-500/5 to-transparent',
-                accent: '#fbbf24'
+                accent: '#EF4444',
+                glow: 'shadow-[0_20px_50px_-10px_rgba(239,68,68,0.4)]',
+                bg: 'bg-red-500/10',
+                text: 'text-red-500',
+                pointsColor: 'text-red-500'
             };
-        } else if (points >= 8) {
+        } else if (isExpert) {
             rankStyle = {
-                name: 'PRO',
-                label: 'C',
-                color: 'text-yellow-400',
-                bg: 'bg-yellow-500/20',
-                border: 'border-yellow-500/50',
-                glow: 'shadow-yellow-500/40',
-                gradient: 'from-yellow-500/20 via-yellow-500/5 to-transparent',
-                accent: '#facc15'
+                accent: '#EAB308', // Gold
+                glow: 'shadow-[0_20px_40px_-20px_rgba(234,179,8,0.25)]',
+                bg: 'bg-yellow-500/10',
+                text: 'text-yellow-500',
+                pointsColor: 'text-emerald-400'
             };
-        } else if (isDanger) {
+        } else {
             rankStyle = {
-                name: 'PELIGRO',
-                label: '!',
-                color: 'text-red-500',
-                bg: 'bg-red-500/20',
-                border: 'border-red-500/50',
-                glow: 'shadow-red-500/50',
-                gradient: 'from-red-500/20 via-red-500/5 to-transparent',
-                accent: '#ef4444'
+                ...rankStyle,
+                pointsColor: 'text-yellow-400'
             };
         }
 
         return {
             points,
-            percentage,
             rankStyle,
-            isDanger,
             fullName,
             photoUrl: userProfile?.photo_url,
-            licenseId
+            progressWidth,
+            isSuspended,
+            rankLabel,
+            isExpert
         };
-    }, [userProfile, selectedCountry]);
+    }, [userProfile, selectedCountry, t]);
 
+    const displayPoints = points < 10 ? `0${points} ` : points;
 
-    // --- MOBILE COMPACT V2 ---
-    const MobileWidget = (
-        <div className="relative w-full h-[90px] bg-[#09090b] rounded-[24px] border border-white/5 overflow-hidden flex items-center p-3 shadow-2xl">
-            {/* Minimal Background Decor */}
-            <div className={cn("absolute inset-0 bg-gradient-to-r opacity-10 pointer-events-none", rankStyle.gradient)}></div>
+    // --- SPARKLINE (SVG) ---
 
-            {/* Left: Avatar with badge */}
-            <div className="relative flex-shrink-0 mr-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white/10 shadow-lg relative z-10">
-                    {photoUrl ? (
-                        <img src={photoUrl} alt="Avatar" className="w-full h-full object-cover" />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-slate-900 text-xl grayscale">👤</div>
-                    )}
-                </div>
-                <div className={cn(
-                    "absolute -bottom-1 -right-1 w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-black border-2 border-[#09090b] z-20 shadow-xl",
-                    rankStyle.bg, rankStyle.color, "bg-slate-900"
-                )}>
-                    {rankStyle.label}
-                </div>
+    // --- REAL SPARKLINE DATA ---
+    const sparklinePoints = useMemo(() => {
+        if (licenseHistory && licenseHistory.length > 0) {
+            // Take the last 10 points and sort by date ascending
+            const history = [...licenseHistory]
+                .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime())
+                .slice(-10)
+                .map(h => h.points);
+
+            // If we have less than 10 points, pad with the first available point
+            if (history.length < 10) {
+                const firstPoint = history[0];
+                const padding = Array(10 - history.length).fill(firstPoint);
+                return [...padding, ...history];
+            }
+            return history;
+        }
+
+        // Fallback: For new users without history, show a steady flat line at current points
+        // level instead of artificial fluctuations.
+        const base = points || 8;
+        return Array(10).fill(base);
+    }, [licenseHistory, points]);
+
+    const svgPath = useMemo(() => {
+        const width = 600;
+        const height = 120;
+        const step = width / (sparklinePoints.length - 1);
+        const max = 15;
+
+        const coords = sparklinePoints.map((p, i) => ({
+            x: i * step,
+            y: height - (p / max) * height * 0.7 - 20
+        }));
+
+        // Grid lines Y-positions
+        const gridLines = [max, max * 0.5, 0].map(val => height - (val / max) * height * 0.7 - 20);
+
+        const d = coords.map((p, i) => (i === 0 ? `M ${p.x} ${p.y} ` : `L ${p.x} ${p.y} `)).join(' ');
+        const area = `${d} L ${width} ${height} L 0 ${height} Z`;
+
+        return { line: d, area, coords, gridLines };
+    }, [sparklinePoints]);
+
+    const RecoveryOverlay = isSuspended && (
+        <div className="absolute inset-0 z-[60] bg-[#0F1014]/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
+            <AlertTriangle size={40} className="text-red-500 mb-4" />
+            <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{t('licenseCard.suspended.title')}</h3>
+            <button
+                onClick={onRecoverPoints}
+                className="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs tracking-widest uppercase transition-all active:scale-95 shadow-xl shadow-red-900/40"
+            >
+                {t('licenseCard.suspended.recoverButton')}
+            </button>
+        </div>
+    );
+
+    const IdentityDisplay = (
+        <div className="flex items-center gap-5">
+            <div className={cn(
+                "w-14 h-14 rounded-2xl overflow-hidden border shrink-0",
+                isDarkTheme ? "border-white/10 bg-zinc-900" : "border-zinc-200 bg-zinc-50"
+            )}>
+                {photoUrl ? (
+                    <img src={photoUrl} alt="Avatar" className="w-full h-full object-cover grayscale-[0.1]" />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-zinc-500">
+                        <User size={24} />
+                    </div>
+                )}
             </div>
-
-            {/* Center: Name + Info */}
-            <div className="flex-1 min-w-0">
-                <h4 className="text-white font-black text-lg truncate tracking-tight">{fullName}</h4>
-                <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] font-medium text-slate-500 uppercase tracking-widest leading-none">
-                        {points < 12 ? `До PRO: ${12 - points} баллов` : 'MAX LEVEL reached'}
-                    </span>
-                    <div className={cn("flex items-center gap-1 opacity-80", hasClaimedToday ? "text-orange-500" : "text-slate-600")}>
-                        <Flame size={10} className={hasClaimedToday ? "fill-current" : ""} />
-                        <span className="text-[10px] font-mono font-bold">{stats.currentStreak}</span>
+            <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-3">
+                    <h3 className={cn(
+                        "text-lg font-black tracking-widest uppercase truncate",
+                        isDarkTheme ? "text-white" : "text-zinc-900"
+                    )}>{fullName}</h3>
+                    <div className={cn(
+                        "px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase shadow-sm",
+                        rankStyle.bg, rankStyle.text
+                    )}>
+                        {rankLabel}
                     </div>
                 </div>
-            </div>
-
-            {/* Right: Large Points */}
-            <div className="flex flex-col items-center justify-center px-2 flex-shrink-0">
-                <div className={cn("text-4xl font-black italic leading-none drop-shadow-xl", rankStyle.color)}>
-                    {points}
+                <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
+                    <div className="flex items-center gap-1.5">
+                        <Flame size={12} className={cn(hasClaimedToday ? "text-orange-500" : "opacity-30")} />
+                        <span>{stats.currentStreak}{t('licenseCard.stats.streak')}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <Activity size={12} className="text-blue-500" />
+                        <span>{stats.accuracy || 18}{t('licenseCard.stats.readiness')}</span>
+                    </div>
                 </div>
-                <span className="text-[8px] font-black opacity-40 uppercase tracking-[0.2em] mt-1">PUNTOS</span>
             </div>
         </div>
     );
 
-    // --- DESKTOP CYBER-CARD (3 Zones) ---
-    const DesktopCard = (
-        <div className={cn(
-            "relative w-full h-full min-h-[320px] rounded-[40px] overflow-hidden flex transition-all duration-700 select-none",
-            "bg-slate-950 border border-white/10 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] group/card"
-        )}>
-            {/* 1. LAYERED BACKGROUND AESTHETICS */}
-            <div className="absolute inset-0 pointer-events-none">
-                {/* Topo Lines / Grid Mix */}
-                <div className="absolute inset-0 opacity-[0.05] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] invert mix-blend-overlay"></div>
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
-
-                {/* Hologram - Subtle recurring logo or pattern */}
-                <div className="absolute top-8 right-8 w-24 h-24 border-2 border-white/5 rounded-full flex items-center justify-center opacity-20 transform rotate-12 transition-transform group-hover/card:rotate-45 duration-1000">
-                    <Zap size={40} className="text-white fill-white/10" />
-                </div>
-
-                {/* Corner Glows */}
-                <div className={cn("absolute -top-24 -left-24 w-96 h-96 rounded-full blur-[100px] opacity-10 transition-colors duration-1000", rankStyle.bg)}></div>
-                <div className={cn("absolute -bottom-24 -right-24 w-80 h-80 rounded-full blur-[120px] opacity-10 transition-colors duration-1000", rankStyle.bg)}></div>
+    const PointsDisplay = (
+        <div className="flex flex-col items-end">
+            <div className="flex items-baseline gap-1.5">
+                <span className={cn(
+                    "text-6xl font-extralight font-mono tracking-tighter leading-none transition-colors duration-1000",
+                    rankStyle.pointsColor
+                )}>
+                    {displayPoints}
+                </span>
+                <span className={cn(
+                    "text-xl font-extralight font-mono leading-none",
+                    isDarkTheme ? "text-zinc-700" : "text-zinc-300"
+                )}>/ 15</span>
+            </div>
+            <div className={cn(
+                "w-24 h-[1px] mt-2 rounded-full overflow-hidden",
+                isDarkTheme ? "bg-zinc-800" : "bg-zinc-100"
+            )}>
+                <div className={cn(
+                    "h-full transition-all duration-1000",
+                    isDarkTheme ? "bg-white/40" : "bg-indigo-600/40"
+                )} style={{ width: `${progressWidth}% ` }} />
             </div>
 
-            {/* 2. ZONE 1: PHOTO ID (LEFT) */}
-            <section className="relative z-10 w-[240px] border-r border-white/5 p-8 flex flex-col items-center justify-center gap-6 bg-white/[0.02] backdrop-blur-sm">
-                <div className="relative group/photo">
-                    {/* Frame */}
-                    <div className={cn(
-                        "w-40 h-52 rounded-[28px] overflow-hidden border-2 shadow-2xl relative z-10 transition-all duration-500",
-                        rankStyle.border, "bg-slate-900"
-                    )}>
-                        {photoUrl ? (
-                            <img src={photoUrl} alt="User" className="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-500" />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-slate-900 text-6xl opacity-30">🙂</div>
-                        )}
-                        {/* Scanline Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-white/5 pointer-events-none opacity-20"></div>
-                    </div>
-                    {/* Dynamic shadow glow */}
-                    <div className={cn("absolute inset-0 rounded-[28px] blur-2xl opacity-40 transition-all duration-500 group-hover/photo:opacity-60", rankStyle.bg)}></div>
-                </div>
-
-                <div className="flex flex-col items-center gap-1">
-                    <span className="text-[10px] font-mono font-bold tracking-[0.25em] text-slate-500 uppercase">Document ID</span>
-                    <span className="text-xs font-mono font-black text-slate-300 tracking-wider bg-white/5 px-3 py-1 rounded-md border border-white/5">
-                        {licenseId}
-                    </span>
-                </div>
-            </section>
-
-            {/* 3. ZONE 2: INFO (CENTER) */}
-            <section className="relative z-10 flex-1 p-10 flex flex-col justify-center gap-8">
-                <div className="space-y-4">
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Pilot Classification</span>
-                        <h3 className="text-4xl font-black text-white tracking-tighter uppercase leading-none break-words max-w-sm drop-shadow-md">
-                            {fullName}
-                        </h3>
-                    </div>
-
-                    {/* Rank Plate */}
-                    <div className={cn(
-                        "inline-flex items-center gap-3 px-4 py-2 rounded-xl border-2 backdrop-blur-md shadow-lg transition-all",
-                        rankStyle.border, rankStyle.bg, rankStyle.glow
-                    )}>
-                        <div className={cn("w-2 h-2 rounded-full bg-current animate-ping", rankStyle.color)}></div>
-                        <span className={cn("text-sm font-black tracking-[0.3em] uppercase", rankStyle.color)}>
-                            RANK: {rankStyle.name}
+            {/* SMART STATUS: DYNAMIC TREND indicator */}
+            <div className="flex items-center gap-1.5 mt-2 transition-all duration-1000">
+                {stats.currentStreak > 0 ? (
+                    <>
+                        <TrendingUp size={10} className="text-emerald-500" />
+                        <span className="text-[9px] font-black text-emerald-500/80 uppercase tracking-widest">
+                            {t('licenseCard.trend.active')}
                         </span>
-                    </div>
-                </div>
+                    </>
+                ) : (
+                    <>
+                        <TrendingDown size={10} className="text-orange-500" />
+                        <span className="text-[9px] font-black text-orange-400/80 uppercase tracking-widest">
+                            {t('licenseCard.trend.decaying')}
+                        </span>
+                    </>
+                )}
+            </div>
+        </div>
+    );
 
-                {/* Streak & Additional stats */}
-                <div className="flex items-center gap-8">
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Training Streak</span>
-                        <button
-                            onClick={onClaimReward}
-                            className={cn(
-                                "flex items-center gap-3 px-4 py-2 rounded-xl border bg-slate-900/50 backdrop-blur-sm transition-all hover:scale-105 active:scale-95 group/streak",
-                                hasClaimedToday ? "border-orange-500/50" : "border-slate-800 hover:border-orange-500/30"
+    // --- MOBILE VERSION ---
+    const MobileWidget = (
+        <div className={cn(
+            "relative w-full rounded-[32px] border flex flex-col overflow-hidden transition-all duration-700",
+            isDarkTheme
+                ? "bg-[#0F1014] border-white/5"
+                : "bg-white border-zinc-200/80 shadow-[0_20px_45px_rgba(0,0,0,0.06)]",
+            rankStyle.glow,
+            isSuspended && "border-red-500/30"
+        )}>
+            {RecoveryOverlay}
+
+            {/* SPARKLINE BACKGROUND: FILLED AREA VERSION */}
+            <div className="absolute inset-0 z-0 opacity-[0.25] pointer-events-none mt-4 overflow-hidden">
+                <svg width="100%" height="100%" viewBox="0 0 600 120" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="chartGradientDense" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={rankStyle.accent} stopOpacity="0.6" />
+                            <stop offset="70%" stopColor={rankStyle.accent} stopOpacity="0.1" />
+                            <stop offset="100%" stopColor={rankStyle.accent} stopOpacity="0" />
+                        </linearGradient>
+                    </defs>
+
+                    {/* Area Fill - Full visible background */}
+                    <path d={svgPath.area} fill="url(#chartGradientDense)" />
+
+                    {/* Main sharp line on top of fill */}
+                    <path
+                        d={svgPath.line}
+                        fill="none"
+                        stroke={rankStyle.accent}
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        opacity="0.8"
+                    />
+
+                    {/* Today Point Pulse */}
+                    <circle
+                        cx={svgPath.coords[svgPath.coords.length - 1].x}
+                        cy={svgPath.coords[svgPath.coords.length - 1].y}
+                        r="3"
+                        fill={rankStyle.accent}
+                        className="animate-pulse"
+                    />
+                </svg>
+            </div>
+
+            <div className="relative z-10 p-6 flex flex-col gap-6">
+                <div className="flex justify-between items-start">
+                    {IdentityDisplay}
+                    <div className="flex flex-col items-end">
+                        <div className="flex items-baseline gap-1">
+                            <span className={cn(
+                                "text-4xl font-extralight font-mono leading-none tracking-tighter",
+                                rankStyle.pointsColor
                             )}>
-                            <Flame size={18} className={cn("transition-all", hasClaimedToday ? "fill-orange-500 text-orange-500" : "text-slate-500 group-hover/streak:text-orange-400")} />
-                            <span className={cn("text-lg font-mono font-black", hasClaimedToday ? "text-orange-500" : "text-slate-300")}>
-                                {stats.currentStreak} <span className="text-xs opacity-50 uppercase tracking-normal">days</span>
+                                {displayPoints}
                             </span>
-                        </button>
-                    </div>
+                            <span className={cn(
+                                "text-lg font-extralight font-mono",
+                                isDarkTheme ? "text-zinc-700" : "text-zinc-300"
+                            )}>/15</span>
+                        </div>
 
-                    {/* Progress Micro-indicator */}
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Compliance</span>
-                        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/50 border border-slate-800">
-                            <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map(i => (
-                                    <div key={i} className={cn("w-1.5 h-3 rounded-full transition-all", i <= Math.ceil(points / 3) ? rankStyle.color.replace('text-', 'bg-') : "bg-slate-800")}></div>
-                                ))}
-                            </div>
-                            <ShieldCheck size={14} className="text-slate-500" />
+                        {/* Mobile TREND indicator */}
+                        <div className="flex items-center gap-1 mt-1">
+                            {stats.currentStreak > 0 ? (
+                                <>
+                                    <TrendingUp size={10} className="text-emerald-500" />
+                                    <span className="text-[8px] font-black text-emerald-500/70 uppercase tracking-widest">
+                                        {t('licenseCard.trend.activeShort')}
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <TrendingDown size={10} className="text-orange-500" />
+                                    <span className="text-[8px] font-black text-orange-500/70 uppercase tracking-widest">
+                                        {t('licenseCard.trend.decayingShort')}
+                                    </span>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
-            </section>
 
-            {/* 4. ZONE 3: PUNTOS (RIGHT) */}
-            <section className="relative z-10 w-[220px] bg-white/[0.01] border-l border-white/5 p-10 flex flex-col items-center justify-center">
-                {/* Decorative Points Container */}
-                <div className="relative flex flex-col items-center group/points">
-                    {/* HUGE NUMBER */}
+                <div className={cn(
+                    "w-full h-[1px] rounded-full overflow-hidden",
+                    isDarkTheme ? "bg-zinc-800" : "bg-zinc-100"
+                )}>
                     <div className={cn(
-                        "text-[140px] font-black italic tracking-tighter leading-none transition-all duration-700 select-none drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]",
-                        rankStyle.color
-                    )} style={{ textShadow: `0 0 60px ${rankStyle.accent}40` }}>
-                        {points}
-                    </div>
-                    <span className="text-lg font-black tracking-[0.5em] text-slate-400 uppercase mt-[-10px] ml-[0.5em]">PUNTOS</span>
+                        "h-full transition-all duration-1000",
+                        isDarkTheme ? "bg-white/40" : "bg-indigo-600/40"
+                    )} style={{ width: `${progressWidth}% ` }} />
+                </div>
+            </div>
 
-                    {/* Vertical scale "Battery style" */}
-                    <div className="absolute -left-12 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-40">
-                        {[...Array(6)].map((_, i) => (
-                            <div key={i} className={cn(
-                                "w-2 h-6 rounded-full",
-                                (5 - i) <= (points / 2.5) ? rankStyle.color.replace('text-', 'bg-') : "bg-slate-800"
-                            )}></div>
-                        ))}
+            {/* MOBILE FOOTER */}
+            <div className={cn(
+                "relative z-10 h-10 border-t px-6 flex items-center justify-between",
+                isDarkTheme ? "border-white/[0.03] bg-white/[0.01]" : "border-zinc-100 bg-zinc-50/30"
+            )}>
+                <div className="flex items-center gap-4">
+                    <span className="text-[8px] font-black text-emerald-500/60 uppercase tracking-widest">{t('licenseCard.footer.sync')}</span>
+                    <span className="text-[10px] font-mono font-bold text-zinc-400">{t('licenseCard.footer.completed')}</span>
+                </div>
+                <div className="flex items-center gap-1.5 opacity-40">
+                    <Users size={10} className="text-zinc-600" />
+                    <span className="text-[8px] font-mono font-bold text-zinc-400">{t('licenseCard.footer.globalId')}: ES-2026</span>
+                </div>
+            </div>
+        </div>
+    );
+
+    // --- DESKTOP VERSION ---
+    const DesktopCard = (
+        <div className={cn(
+            "relative w-full h-full min-h-[240px] rounded-[40px] border flex flex-col justify-between overflow-hidden transition-all duration-700",
+            isDarkTheme
+                ? "bg-[#0F1014] border-white/5"
+                : "bg-white border-zinc-200/80 shadow-[0_20px_45px_rgba(0,0,0,0.06)]",
+            rankStyle.glow,
+            isSuspended && "border-red-500/30"
+        )}>
+            {RecoveryOverlay}
+
+            {/* SPARKLINE BACKGROUND: HIGH-TECH VERSION */}
+            <div className="absolute inset-0 z-0 opacity-[0.3] pointer-events-none mt-8 overflow-hidden">
+                <svg width="100%" height="100%" viewBox="0 0 600 120" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="chartGradientDenseDesk" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={rankStyle.accent} stopOpacity="0.4" />
+                            <stop offset="100%" stopColor={rankStyle.accent} stopOpacity="0" />
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="2" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+
+                    {/* Horizontal Grid Lines */}
+                    {svgPath.gridLines.map((y, i) => (
+                        <line
+                            key={i}
+                            x1="0" y1={y} x2="600" y2={y}
+                            stroke="white"
+                            strokeWidth="1"
+                            strokeDasharray="4 12"
+                            opacity="0.2"
+                        />
+                    ))}
+
+                    {/* Area Fill */}
+                    <path d={svgPath.area} fill="url(#chartGradientDenseDesk)" />
+
+                    {/* Main stroke */}
+                    <path
+                        d={svgPath.line}
+                        fill="none"
+                        stroke={rankStyle.accent}
+                        strokeWidth="1"
+                        opacity="0.6"
+                    />
+
+                    {/* All Data Points */}
+                    {svgPath.coords.map((p, i) => (
+                        <circle
+                            key={i}
+                            cx={p.x} cy={p.y} r="2"
+                            fill={rankStyle.accent}
+                            opacity={i === svgPath.coords.length - 1 ? 1 : 0.4}
+                        />
+                    ))}
+
+                    {/* Pulse Effect for current day */}
+                    <circle
+                        cx={svgPath.coords[svgPath.coords.length - 1].x}
+                        cy={svgPath.coords[svgPath.coords.length - 1].y}
+                        r="5"
+                        fill={rankStyle.accent}
+                        className="animate-pulse opacity-30"
+                    />
+                </svg>
+            </div>
+
+            <div className="relative z-10 px-8 pt-8 flex items-start justify-between gap-4">
+                {IdentityDisplay}
+                {PointsDisplay}
+            </div>
+
+            <div className={cn(
+                "relative z-10 h-16 border-t px-8 flex items-center justify-between",
+                isDarkTheme ? "border-white/[0.03] bg-white/[0.01]" : "border-zinc-100 bg-zinc-50/30"
+            )}>
+                <div className="flex items-center gap-8">
+                    <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-0.5">{t('licenseCard.footer.classification')}</span>
+                        <span className="text-[10px] font-mono font-bold text-zinc-400">{t('licenseCard.footer.classType')}</span>
+                    </div>
+                    <div className="w-px h-6 bg-zinc-800" />
+                    <div className="flex flex-col">
+                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-0.5">{t('licenseCard.footer.sync')}</span>
+                        <span className="text-[10px] font-mono font-bold text-zinc-300">{t('licenseCard.footer.completed')}</span>
                     </div>
                 </div>
-
-                {/* Official Stamp Decor */}
-                <div className="absolute bottom-10 flex items-center gap-2 opacity-30">
-                    <span className="text-[9px] font-black uppercase tracking-[0.3em] whitespace-nowrap">Official Digital ID</span>
-                    <MoreHorizontal size={10} />
+                <div className="flex items-center gap-6">
+                    <div className={cn(
+                        "flex items-center gap-2 px-3 py-1.5 rounded-xl border",
+                        isDarkTheme ? "border-white/5 bg-zinc-900/50" : "border-zinc-200 bg-white shadow-sm"
+                    )}>
+                        <Users size={12} className="text-zinc-600" />
+                        <span className={cn(
+                            "text-[10px] font-mono font-bold italic",
+                            isDarkTheme ? "text-zinc-400" : "text-zinc-500"
+                        )}>{t('licenseCard.footer.globalId')}: ES-2026</span>
+                    </div>
+                    {isExpert && <Trophy size={16} className="text-yellow-500/40" />}
                 </div>
-            </section>
+            </div>
         </div>
     );
 
     return (
         <div className="w-full h-full">
-            <div className="block sm:hidden">
-                {MobileWidget}
-            </div>
-            <div className="hidden sm:block h-full">
-                {DesktopCard}
-            </div>
+            <div className="sm:hidden">{MobileWidget}</div>
+            <div className="hidden sm:block h-full">{DesktopCard}</div>
         </div>
     );
 };

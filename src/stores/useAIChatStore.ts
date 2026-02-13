@@ -29,7 +29,8 @@ export type QuestionContext = {
     explanationEn?: string | null;
     topic?: string;
     imageUrl?: string | null;
-    testLanguage?: 'es' | 'en';
+    testLanguage?: 'es' | 'en' | 'ru';
+    country?: 'spain' | 'russia';
 };
 
 interface AIChatState {

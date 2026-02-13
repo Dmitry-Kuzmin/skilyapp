@@ -161,6 +161,39 @@ export const es = {
     level: "Nivel",
     streak: "Racha de días",
   },
+  licenseCard: {
+    ranks: {
+      suspended: "SUSPENDIDO",
+      expert: "EXPERTO",
+      novel: "NOVEL",
+    },
+    suspended: {
+      title: "LICENCIA SUSPENDIDA",
+      recoverButton: "RECUPERAR PUNTOS",
+    },
+    stats: {
+      streak: "d Racha",
+      readiness: "% Preparación",
+    },
+    trend: {
+      active: "⚡ ACTIVO (+1/D)",
+      decaying: "⚠️ DETERIORO (-1/D)",
+      activeShort: "+1/D",
+      decayingShort: "-1/D",
+    },
+    gating: {
+      examLocked: "Examen bloqueado",
+      needPoints: "Necesitas {{points}} puntos para el acceso",
+      unlockGoal: "Consigue 10 puntos para desbloquear el examen",
+    },
+    footer: {
+      classification: "Clasificación",
+      classType: "Clase B Unificado",
+      sync: "Sincronización",
+      completed: "COMPLETADA",
+      globalId: "Global ID",
+    }
+  },
   online: "En línea",
   xpProgress: "XP hasta siguiente nivel",
 

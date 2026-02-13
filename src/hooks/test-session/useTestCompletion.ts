@@ -325,7 +325,7 @@ export const useTestCompletion = ({
                     };
                 } else {
                     // ONLINE call
-                    const { data, error } = await supabase.functions.invoke('process-test-result', {
+                    const { data, error } = await supabase.functions.invoke('complete-test-and-award', {
                         body: {
                             user_id: profileId,
                             session_id: sessionId,

@@ -84,6 +84,7 @@ const DailyBonus = lazy(() => import("../pages/DailyBonus"));
 const DGTTestsSimple = lazy(() => import("../pages/DGTTestsSimple"));
 // Terms, Privacy, SubscriptionTerms, RefundPolicy moved to Legal.tsx or redirects
 const About = lazy(() => import("../pages/About"));
+const Features = lazy(() => import("../pages/Features"));
 const Pricing = lazy(() => import("../pages/Pricing"));
 // RefundPolicy logic deprecated in favor of Legal Hub redirects
 // const RefundPolicy = ... (removed)
@@ -374,6 +375,11 @@ export function AppRoutes() {
       <Route path="/about" element={
         <Suspense fallback={<PageSkeleton />}>
           <About />
+        </Suspense>
+      } />
+      <Route path="/features" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <Features />
         </Suspense>
       } />
       <Route path="/pricing" element={

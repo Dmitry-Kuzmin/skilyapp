@@ -35,6 +35,7 @@ ALTER TABLE test_sessions ENABLE ROW LEVEL SECURITY;
 
 -- 1. ЧТЕНИЕ: Пользователь видит только свои сессии (для истории/дебага)
 -- Оптимизированная версия: сравниваем напрямую через profiles.user_id
+DROP POLICY IF EXISTS "Users can view own test sessions" ON test_sessions;
 CREATE POLICY "Users can view own test sessions"
   ON test_sessions FOR SELECT
   USING (

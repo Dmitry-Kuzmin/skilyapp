@@ -162,6 +162,39 @@ export const ru = {
     level: "Уровень",
     streak: "Серия дней",
   },
+  licenseCard: {
+    ranks: {
+      suspended: "ЛИШЁН",
+      expert: "ЭКСПЕРТ",
+      novel: "НОВИЧОК",
+    },
+    suspended: {
+      title: "ЛИЦЕНЗИЯ ПРИОСТАНОВЛЕНА",
+      recoverButton: "ВОССТАНОВИТЬ БАЛЛЫ",
+    },
+    stats: {
+      streak: "д Стрик",
+      readiness: "% Готовность",
+    },
+    trend: {
+      active: "⚡ АКТИВЕН (+1/д)",
+      decaying: "⚠️ СНИЖЕНИЕ (-1/д)",
+      activeShort: "+1/д",
+      decayingShort: "-1/д",
+    },
+    gating: {
+      examLocked: "Экзамен закрыт",
+      needPoints: "Нужно {{points}} баллов для допуска",
+      unlockGoal: "Набери 10 баллов, чтобы открыть доступ к экзамену",
+    },
+    footer: {
+      classification: "Классификация",
+      classType: "Класс B Единый",
+      sync: "Синхронизация",
+      completed: "ЗАВЕРШЕНА",
+      globalId: "Global ID",
+    }
+  },
 
   // Other
   version: "v1.0.0 © 2025 Sdadim",

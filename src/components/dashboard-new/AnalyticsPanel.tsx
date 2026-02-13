@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from "@/components/optimized/Motion";
 import { AlertCircle, TrendingUp, Activity, Brain, Calendar, Target, Zap, Clock } from 'lucide-react';
 import type { TrendData, CriticalPoint } from '@/utils/analytics';
+import { useTheme } from 'next-themes';
+import { cn } from '@/lib/utils';
 
 interface AnalyticsPanelProps {
   trend: TrendData | null;
@@ -26,11 +28,19 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   loading = false,
   showHeader = true,
 }) => {
+  const { resolvedTheme } = useTheme();
+  const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
+
   if (loading || !trend || !consistency || !timeToPass) {
     return (
-      <div className="flex-1 bg-slate-900/50 backdrop-blur-xl rounded-2xl p-4 border border-slate-700/50">
+      <div className={cn(
+        "flex-1 backdrop-blur-xl rounded-2xl p-4 border transition-colors duration-500",
+        isDarkTheme ? "bg-slate-900/50 border-slate-700/50" : "bg-white border-slate-200"
+      )}>
         <div className="h-full flex items-center justify-center">
-          <div className="text-slate-500 text-sm">Загрузка аналитики...</div>
+          <div className={isDarkTheme ? "text-slate-500" : "text-slate-400"}>
+            Загрузка аналитики...
+          </div>
         </div>
       </div>
     );
@@ -41,12 +51,18 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   };
 
   return (
-    <div className="flex-1 bg-slate-900/50 backdrop-blur-xl rounded-2xl p-4 border border-slate-700/50 overflow-y-auto">
+    <div className={cn(
+      "flex-1 backdrop-blur-xl rounded-2xl p-4 border overflow-y-auto transition-colors duration-500",
+      isDarkTheme ? "bg-slate-900/50 border-slate-700/50" : "bg-white border-slate-100"
+    )}>
       <div className="space-y-4">
         {/* Header - опциональный */}
         {showHeader && (
           <div className="mb-4">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-1">
+            <h3 className={cn(
+              "text-xs font-bold uppercase tracking-wider mb-1",
+              isDarkTheme ? "text-white" : "text-slate-900"
+            )}>
               TELEMETRÍA AVANZADA
             </h3>
           </div>
@@ -57,19 +73,31 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-red-950/30 backdrop-blur-sm rounded-xl p-3 border border-red-500/20"
+            className={cn(
+              "backdrop-blur-sm rounded-xl p-3 border",
+              isDarkTheme ? "bg-red-950/30 border-red-500/20" : "bg-red-50 border-red-100/50"
+            )}
           >
             <div className="flex items-center gap-2 mb-2">
               <Target size={14} className="text-red-400" />
-              <span className="text-xs font-bold text-white uppercase">PUNTO CRÍTICO</span>
+              <span className={cn(
+                "text-xs font-bold uppercase",
+                isDarkTheme ? "text-white" : "text-slate-900"
+              )}>PUNTO CRÍTICO</span>
             </div>
-            <div className="text-sm font-bold text-white mb-1">{criticalPoint.topic_title}</div>
-            <div className="h-1.5 bg-red-950/50 rounded-full overflow-hidden mb-1">
+            <div className={cn(
+              "text-sm font-bold mb-1",
+              isDarkTheme ? "text-white" : "text-slate-900"
+            )}>{criticalPoint.topic_title}</div>
+            <div className={cn(
+              "h-1.5 rounded-full overflow-hidden mb-1",
+              isDarkTheme ? "bg-red-950/50" : "bg-red-100"
+            )}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${criticalPoint.error_rate}%` }}
                 transition={{ duration: 0.8 }}
-                className="h-full bg-gradient-to-r from-red-500 to-pink-500"
+                className="h-full bg-gradient-to-r from-red-500 to-pink-500 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
               />
             </div>
             <div className="text-[10px] text-red-400">
@@ -83,31 +111,41 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-3 border border-slate-700/50"
+          className={cn(
+            "backdrop-blur-sm rounded-xl p-3 border transition-colors",
+            isDarkTheme ? "bg-slate-800/50 border-slate-700/50" : "bg-slate-50 border-slate-200/50"
+          )}
         >
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <TrendingUp
                 size={14}
-                className={trend.trend === 'positive' ? 'text-emerald-400' : trend.trend === 'negative' ? 'text-red-400' : 'text-slate-400'}
+                className={trend.trend === 'positive' ? 'text-emerald-400' : trend.trend === 'negative' ? 'text-red-400' : (isDarkTheme ? 'text-slate-400' : 'text-slate-500')}
               />
-              <span className="text-xs font-bold text-white uppercase">Tendencia</span>
+              <span className={cn(
+                "text-xs font-bold uppercase",
+                isDarkTheme ? "text-white" : "text-slate-900"
+              )}>Tendencia</span>
             </div>
             <span
-              className={`text-xs font-bold px-2 py-0.5 rounded ${
+              className={cn(
+                "text-xs font-bold px-2 py-0.5 rounded",
                 trend.trend === 'positive'
-                  ? 'bg-emerald-500/20 text-emerald-400'
+                  ? (isDarkTheme ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-600')
                   : trend.trend === 'negative'
-                  ? 'bg-red-500/20 text-red-400'
-                  : 'bg-slate-500/20 text-slate-400'
-              }`}
+                    ? (isDarkTheme ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-600')
+                    : (isDarkTheme ? 'bg-slate-500/20 text-slate-400' : 'bg-slate-200 text-slate-500')
+              )}
             >
               {trend.trend === 'positive' ? 'Positiva' : trend.trend === 'negative' ? 'Negativa' : 'Estable'}
             </span>
           </div>
-          
+
           {/* Simple Trend Graph */}
-          <div className="h-16 bg-slate-900/50 rounded-lg p-2 relative overflow-hidden">
+          <div className={cn(
+            "h-16 rounded-lg p-2 relative overflow-hidden transition-colors",
+            isDarkTheme ? "bg-slate-900/50" : "bg-white border border-slate-100 shadow-sm"
+          )}>
             {trend.points.length > 0 && (
               <svg className="w-full h-full" viewBox={`0 0 ${trend.points.length * 20} 60`} preserveAspectRatio="none">
                 {/* Trend line */}
@@ -150,7 +188,10 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-3 border border-slate-700/50"
+          className={cn(
+            "backdrop-blur-sm rounded-xl p-3 border transition-colors",
+            isDarkTheme ? "bg-slate-800/50 border-slate-700/50" : "bg-slate-50 border-slate-200/50"
+          )}
         >
           <div className="flex items-center gap-2 mb-2">
             <Activity
@@ -159,38 +200,45 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
                 consistency.level === 'high'
                   ? 'text-emerald-400'
                   : consistency.level === 'medium'
-                  ? 'text-yellow-400'
-                  : 'text-red-400'
+                    ? 'text-yellow-400'
+                    : 'text-red-400'
               }
             />
-            <span className="text-xs font-bold text-white uppercase">Estabilidad</span>
+            <span className={cn(
+              "text-xs font-bold uppercase",
+              isDarkTheme ? "text-white" : "text-slate-900"
+            )}>Estabilidad</span>
           </div>
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-2xl font-bold text-white">{consistency.score}%</span>
+            <span className={cn(
+              "text-2xl font-bold",
+              isDarkTheme ? "text-white" : "text-slate-900"
+            )}>{consistency.score}%</span>
             <span
-              className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
-                consistency.level === 'high'
+              className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${consistency.level === 'high'
                   ? 'bg-emerald-500/20 text-emerald-400'
                   : consistency.level === 'medium'
-                  ? 'bg-yellow-500/20 text-yellow-400'
-                  : 'bg-red-500/20 text-red-400'
-              }`}
+                    ? 'bg-yellow-500/20 text-yellow-400'
+                    : 'bg-red-500/20 text-red-400'
+                }`}
             >
               {consistency.level === 'high' ? 'Alta' : consistency.level === 'medium' ? 'Media' : 'Baja'}
             </span>
           </div>
-          <div className="h-1.5 bg-slate-900/50 rounded-full overflow-hidden">
+          <div className={cn(
+            "h-1.5 rounded-full overflow-hidden transition-colors",
+            isDarkTheme ? "bg-slate-900/50" : "bg-slate-200"
+          )}>
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${consistency.score}%` }}
               transition={{ duration: 0.8 }}
-              className={`h-full ${
-                consistency.level === 'high'
+              className={`h-full ${consistency.level === 'high'
                   ? 'bg-gradient-to-r from-emerald-500 to-emerald-400'
                   : consistency.level === 'medium'
-                  ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
-                  : 'bg-gradient-to-r from-red-500 to-red-400'
-              }`}
+                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
+                    : 'bg-gradient-to-r from-red-500 to-red-400'
+                }`}
             />
           </div>
         </motion.div>
@@ -222,7 +270,10 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-3 border border-slate-700/50"
+            className={cn(
+              "backdrop-blur-sm rounded-xl p-3 border transition-colors",
+              isDarkTheme ? "bg-slate-800/50 border-slate-700/50" : "bg-slate-50 border-slate-200/50"
+            )}
           >
             <div className="flex items-center gap-2 mb-2">
               <Brain
@@ -231,28 +282,36 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
                   focusBattery.level === 'high'
                     ? 'text-emerald-400'
                     : focusBattery.level === 'medium'
-                    ? 'text-yellow-400'
-                    : 'text-red-400'
+                      ? 'text-yellow-400'
+                      : 'text-red-400'
                 }
               />
-              <span className="text-xs font-bold text-white uppercase">Focus Battery</span>
+              <span className={cn(
+                "text-xs font-bold uppercase",
+                isDarkTheme ? "text-white" : "text-slate-900"
+              )}>Focus Battery</span>
             </div>
             <div className="flex items-center gap-2 mb-2">
-              <div className="flex-1 h-2 bg-slate-900/50 rounded-full overflow-hidden">
+              <div className={cn(
+                "flex-1 h-2 rounded-full overflow-hidden transition-colors",
+                isDarkTheme ? "bg-slate-900/50" : "bg-slate-200"
+              )}>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${focusBattery.charge}%` }}
                   transition={{ duration: 0.8 }}
-                  className={`h-full ${
-                    focusBattery.level === 'high'
+                  className={`h-full ${focusBattery.level === 'high'
                       ? 'bg-gradient-to-r from-emerald-500 to-emerald-400'
                       : focusBattery.level === 'medium'
-                      ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
-                      : 'bg-gradient-to-r from-red-500 to-red-400'
-                  }`}
+                        ? 'bg-gradient-to-r from-yellow-500 to-yellow-400'
+                        : 'bg-gradient-to-r from-red-500 to-red-400'
+                    }`}
                 />
               </div>
-              <span className="text-xs font-bold text-white">{focusBattery.charge}%</span>
+              <span className={cn(
+                "text-xs font-bold",
+                isDarkTheme ? "text-white" : "text-slate-900"
+              )}>{focusBattery.charge}%</span>
             </div>
             <div className="text-[10px] text-slate-400">{focusBattery.message}</div>
           </motion.div>
@@ -264,12 +323,18 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-3 border border-slate-700/50"
+            className={cn(
+              "backdrop-blur-sm rounded-xl p-3 border transition-colors",
+              isDarkTheme ? "bg-slate-800/50 border-slate-700/50" : "bg-slate-50 border-slate-200/50"
+            )}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Calendar size={14} className="text-white" />
-                <span className="text-xs font-bold text-white uppercase">ACTIVIDAD NEURONAL</span>
+                <Calendar size={14} className={isDarkTheme ? "text-white" : "text-slate-600"} />
+                <span className={cn(
+                  "text-xs font-bold uppercase",
+                  isDarkTheme ? "text-white" : "text-slate-900"
+                )}>ACTIVIDAD NEURONAL</span>
               </div>
               <span className="text-[9px] text-slate-500">ÚLTIMOS 30 DÍAS</span>
             </div>
@@ -280,17 +345,16 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 + index * 0.01 }}
-                  className={`aspect-square rounded ${
-                    day.level === 0
+                  className={`aspect-square rounded ${day.level === 0
                       ? 'bg-slate-800/30'
                       : day.level === 1
-                      ? 'bg-emerald-900/50'
-                      : day.level === 2
-                      ? 'bg-emerald-800/60'
-                      : day.level === 3
-                      ? 'bg-emerald-700/70'
-                      : 'bg-emerald-600/80'
-                  } border border-slate-700/30`}
+                        ? 'bg-emerald-900/50'
+                        : day.level === 2
+                          ? 'bg-emerald-800/60'
+                          : day.level === 3
+                            ? 'bg-emerald-700/70'
+                            : 'bg-emerald-600/80'
+                    } border border-slate-700/30`}
                   title={`${formatDate(day.date)}: ${day.count} тестов`}
                 />
               ))}

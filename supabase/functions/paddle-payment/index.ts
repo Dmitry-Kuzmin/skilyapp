@@ -22,7 +22,7 @@ interface CatalogEntry {
 const PaymentRequestSchema = z.object({
   user_id: z.string().uuid("user_id must be a valid UUID"),
   catalog_key: z.enum([
-    'premium_monthly', 'premium_yearly', 'duel_pass_season',
+    'premium_monthly', 'premium_quarterly', 'premium_biannual', 'premium_yearly', 'duel_pass_season',
     'coins_pack_100', 'coins_pack_500', 'coins_pack_1200', 'coins_pack_3000'
   ], { errorMap: () => ({ message: "Invalid catalog_key" }) }),
 });
@@ -36,17 +36,21 @@ interface PaddleTransactionData {
 }
 
 const PADDLE_PRICE_IDS: Record<string, string> = {
-  premium_monthly: 'pri_01kbbcfnxmtpn1yttmafj86vbc',
+  premium_monthly: 'pri_01kha32dnw7e9k41g217wfpyx4',
+  premium_quarterly: 'pri_01kha34fejn9e8kh8cx3hamxsv',
+  premium_biannual: 'pri_01kha35t5rajard43tkv7p193h',
   premium_yearly: 'pri_01kc92macq42tk8e8pbp46qp2y',
   duel_pass_season: 'pri_01kc92sf64bd1dps62zhaeb1r5',
   coins_pack_100: 'pri_01kc92twnhc57syz7j0rs9z7vx',
-  coins_pack_500: 'pri_01kc92q7jccd8f7m05c81cgce4',
-  coins_pack_1200: 'pri_01kc92wq23nez03n9n5da92khz',
-  coins_pack_3000: 'pri_01kc92ygzjxz2bmztasvj37ygt',
+  coins_pack_500: 'pri_01kha3n97f0kk5rkxezvxpdfqs',
+  coins_pack_1200: 'pri_01kha3pdmed2v1nyw2jj7572hk',
+  coins_pack_3000: 'pri_01kha3qmrt07s5b8p390t6n1sn',
 };
 
 const CATALOG: Record<string, CatalogEntry> = {
   premium_monthly: { name: "Premium Monthly", amountCents: 999, currency: "eur", dbType: "premium", dbItemId: "premium_monthly", description: "Monthly Premium access" },
+  premium_quarterly: { name: "Premium Quarterly", amountCents: 2499, currency: "eur", dbType: "premium", dbItemId: "premium_quarterly", description: "3 Months Premium access" },
+  premium_biannual: { name: "Premium Biannual", amountCents: 3999, currency: "eur", dbType: "premium", dbItemId: "premium_biannual", description: "6 Months Premium access" },
   premium_yearly: { name: "Premium Yearly", amountCents: 5999, currency: "eur", dbType: "premium", dbItemId: "premium_yearly", description: "Yearly Premium access" },
   duel_pass_season: { name: "Duel Pass", amountCents: 499, currency: "eur", dbType: "duel_pass", dbItemId: "duel_pass_season", description: "Premium Duel Pass" },
   coins_pack_100: { name: "100 монет", amountCents: 299, currency: "eur", dbType: "coins_pack", dbItemId: "pack_100", description: "100 монет", metadata: { coins: 100 } },

@@ -14,7 +14,7 @@ export type LanguageCode = 'ru' | 'en' | 'es';
 export interface SettingsState {
     // === Modal State ===
     isOpen: boolean;
-    activeTab: 'general' | 'cockpit' | 'account';
+    activeTab: 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about';
 
     // === General Settings ===
     language: LanguageCode;
@@ -36,9 +36,9 @@ export interface SettingsState {
 
 export interface SettingsActions {
     // Modal controls
-    openSettings: (tab?: 'general' | 'cockpit' | 'account') => void;
+    openSettings: (tab?: 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about') => void;
     closeSettings: () => void;
-    setActiveTab: (tab: 'general' | 'cockpit' | 'account') => void;
+    setActiveTab: (tab: 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about') => void;
 
     // General settings
     setLanguage: (lang: LanguageCode) => void;

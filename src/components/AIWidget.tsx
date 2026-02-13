@@ -33,6 +33,7 @@ interface AIWidgetProps {
   showTranslation?: boolean;
   onToggleTranslation?: () => void;
   testLanguage?: 'es' | 'en' | 'ru';
+  country?: 'spain' | 'russia';
 }
 
 export const AIWidget = ({
@@ -49,6 +50,7 @@ export const AIWidget = ({
   showTranslation = false,
   onToggleTranslation,
   testLanguage = 'es',
+  country = 'spain',
 }: AIWidgetProps) => {
   const { enabled: aiEnabled } = useFeatureFlag('ai_chat_enabled', true);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -332,21 +334,21 @@ Escenarios:
 Siempre recuerda: la meta no es solo aprobar, sino conducir con seguridad.
 `;
 
-    // Выбираем промпт в зависимости от языка теста
-    const systemPrompt = testLanguage === 'ru' || showTranslation
+    // Выбираем промпт в зависимости от СТРАНЫ (не языка UI)
+    const systemPrompt = country === 'russia'
       ? getRussiaSystemPrompt()
       : getSpainSystemPrompt();
 
     const context = `
 ${systemPrompt}
 
-# Информация о текущем вопросе:
-Вопрос: ${question}
-Правильный ответ: ${correctAnswer}
-${userAnswer ? `Ответ пользователя: ${userAnswer}` : ''}
-Результат: ${isCorrect ? 'ПРАВИЛЬНО ✅' : 'НЕПРАВИЛЬНО ❌'}
-${topic ? `Тема: ${topic}` : ''}
-${explanation ? `\nОфициальное объяснение из базы: ${explanation}` : ''}
+# ${interfaceLanguage === 'ru' ? 'Информация о текущем вопросе' : interfaceLanguage === 'en' ? 'Current Question Info' : 'Información sobre la pregunta actual'}:
+${interfaceLanguage === 'ru' ? 'Вопрос' : interfaceLanguage === 'en' ? 'Question' : 'Pregunta'}: ${question}
+${interfaceLanguage === 'ru' ? 'Правильный ответ' : interfaceLanguage === 'en' ? 'Correct Answer' : 'Respuesta correcta'}: ${correctAnswer}
+${userAnswer ? `${interfaceLanguage === 'ru' ? 'Ответ пользователя' : interfaceLanguage === 'en' ? 'User Answer' : 'Respuesta del usuario'}: ${userAnswer}` : ''}
+${interfaceLanguage === 'ru' ? 'Результат' : interfaceLanguage === 'en' ? 'Result' : 'Resultado'}: ${isCorrect ? (interfaceLanguage === 'ru' ? 'ПРАВИЛЬНО ✅' : 'CORRECTO ✅') : (interfaceLanguage === 'ru' ? 'НЕПРАВИЛЬНО ❌' : 'INCORRECTO ❌')}
+${topic ? `${interfaceLanguage === 'ru' ? 'Тема' : interfaceLanguage === 'en' ? 'Topic' : 'Tema'}: ${topic}` : ''}
+${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объяснение из базы' : interfaceLanguage === 'en' ? 'Official Explanation' : 'Explicación oficial'}: ${explanation}` : ''}
 `;
 
     const newMessages: Message[] = [
@@ -370,7 +372,8 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
             { role: "system", content: context },
             ...newMessages
           ],
-          country: testLanguage === 'ru' ? 'russia' : 'spain',
+          country,
+          language: interfaceLanguage,
         }),
       });
 
@@ -437,7 +440,7 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
         const updated = [...prev];
         updated[updated.length - 1] = {
           role: "assistant",
-          content: "Произошла ошибка. Попробуйте ещё раз.",
+          content: interfaceLanguage === 'ru' ? "Произошла ошибка. Попробуйте ещё раз." : interfaceLanguage === 'en' ? "An error occurred. Please try again." : "Ocurrió un error. Por favor, inténtalo de nuevo.",
         };
         return updated;
       });
@@ -474,13 +477,13 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
 
       // Используем правильный API для sonner
       if (rating === 1) {
-        toast.success("Спасибо за отзыв!", {
-          description: "Ваш лайк помогает улучшить ответы",
+        toast.success(interfaceLanguage === 'ru' ? "Спасибо за отзыв!" : "¡Gracias por tu comentario!", {
+          description: interfaceLanguage === 'ru' ? "Ваш лайк помогает улучшить ответы" : "Tu me gusta ayuda a mejorar las respuestas",
           duration: 2000,
         });
       } else {
-        toast.info("Спасибо за обратную связь!", {
-          description: "Мы учтем ваше мнение",
+        toast.info(interfaceLanguage === 'ru' ? "Спасибо за обратную связь!" : "¡Gracias por tus comentarios!", {
+          description: interfaceLanguage === 'ru' ? "Мы учтем ваше мнение" : "Tendremos en cuenta tu opinión",
           duration: 2000,
         });
       }
@@ -536,17 +539,25 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
         </div>
 
         {/* Messages Area - фиксированная высота с скроллом */}
-        <div className="flex-1 overflow-y-auto p-4 xl:p-5 space-y-3 xl:space-y-4 scroll-smooth min-h-0 dark:bg-slate-800/50">
+        <div className={cn(
+          "flex-1 overflow-y-auto p-4 xl:p-5 space-y-4 xl:space-y-6 scroll-smooth min-h-0 relative transition-colors duration-500",
+          "bg-[#F8FAFF] dark:bg-slate-900/40"
+        )}>
+          {/* Subtle noise texture */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')] mix-blend-overlay"></div>
+
           {messages.length === 0 ? (
             <div className="space-y-4 xl:space-y-5">
               {/* Welcome Message */}
               <div className="text-foreground dark:text-slate-200 text-xs xl:text-sm leading-relaxed whitespace-pre-line">
                 <p>
                   {interfaceLanguage === 'ru'
-                    ? 'Привет! Я Скили — твой эксперт по ПДД РФ 🚗\n\nМоя задача не просто дать ответ, а научить тебя думать как водитель. Задавай вопросы, и я помогу разобраться в логике правил!'
+                    ? (country === 'russia'
+                      ? 'Привет! Я Скили — твой эксперт по ПДД РФ 🚗\n\nМоя задача не просто дать ответ, а научить тебя думать как водитель. Задавай вопросы, и я помогу разобраться в логике правил!'
+                      : 'Привет! Я Скили — твой эксперт по правилам вождения в Испании (DGT) 🚗\n\nМоя задача не просто дать ответ, а научить тебя думать как водитель. Задавай вопросы, и я помогу разобраться в логике правил!')
                     : interfaceLanguage === 'en'
-                      ? 'Need a hint or a quick explanation? Just press the button or ask your question, and I\'ll help on the spot. Ready when you are!'
-                      : '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
+                      ? 'Hello! I am Skily — your driving instructor expert for Spain (DGT). My goal is not just to give you an answer, but to teach you how to think like a safe driver. Ask me anything about the rules!'
+                      : '¡Hola! Soy Skily: tu instructor experto en el reglamento de la DGT de España. Mi misión no es solo darte la respuesta, sino enseñarte a pensar como un conductor seguro. ¡Pregúntame lo que necesites!'}
                 </p>
               </div>
 
@@ -597,22 +608,25 @@ ${explanation ? `\nОфициальное объяснение из базы: ${
             messages.map((message, index) => (
               <div key={index}>
                 {message.role === "user" && (
-                  <div className="flex justify-end">
-                    <div className="max-w-[85%] xl:max-w-[80%] bg-blue-600 dark:bg-blue-500 text-white rounded-xl xl:rounded-2xl px-3 xl:px-4 py-2 xl:py-2.5 shadow-sm">
-                      <div className="text-xs xl:text-sm leading-relaxed break-words">
+                  <div className="flex justify-end animate-in fade-in slide-in-from-right-2 duration-300">
+                    <div className="max-w-[85%] xl:max-w-[80%] bg-indigo-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 shadow-md shadow-indigo-500/10">
+                      <div className="text-xs xl:text-sm font-medium leading-relaxed break-words">
                         {message.content}
                       </div>
                     </div>
                   </div>
                 )}
                 {message.role === "assistant" && (
-                  <div className="flex gap-2 xl:gap-3 items-start">
-                    <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 flex-shrink-0">
+                  <div className="flex gap-2 xl:gap-3 items-start animate-in fade-in slide-in-from-left-2 duration-300">
+                    <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 flex-shrink-0 drop-shadow-lg">
                       <LumiCharacter size="sm" mood="happy" className="scale-75" />
                     </div>
                     <div className="flex-1 min-w-0 mt-0.5 xl:mt-1">
                       {message.content ? (
-                        <div className="text-xs xl:text-sm leading-relaxed text-foreground dark:text-slate-200 prose prose-sm max-w-none dark:prose-invert prose-p:my-1.5 xl:prose-p:my-2">
+                        <div className={cn(
+                          "max-w-[90%] p-4 rounded-2xl rounded-tl-none text-xs xl:text-sm leading-relaxed transition-all prose prose-sm dark:prose-invert prose-p:my-1.5 xl:prose-p:my-2",
+                          "bg-white dark:bg-slate-800/90 backdrop-blur-md border border-indigo-100/30 dark:border-white/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-black/20"
+                        )}>
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {message.content}
                           </ReactMarkdown>

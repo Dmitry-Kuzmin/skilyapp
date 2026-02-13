@@ -5,6 +5,7 @@ import { usePDDContext } from '@/contexts/PDDContext';
 import { usePDDTickets } from '@/hooks/usePDDTickets';
 import { useTopics } from '@/hooks/useTopics';
 import { useNavigate } from 'react-router-dom';
+import { useDashboardData } from '@/hooks/useDashboardData';
 import { COUNTRIES_CONFIG } from '@/types/pdd';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
 import { useModalRoute } from '@/hooks/useModalRoute';
 import { useSettingsStore } from '@/store/settingsStore';
+import { toast } from '@/lib/toast';
+import { supabase } from '@/integrations/supabase/client';
+import { RehabilitationTest } from './RehabilitationTest';
+import { AnimatePresence } from 'framer-motion';
 
 interface DashboardProps {
   stats: {
@@ -65,6 +70,10 @@ interface DashboardProps {
     id?: string;
     license_points?: number; // Added field
   };
+  licenseHistory?: Array<{
+    points: number;
+    recorded_at: string;
+  }>;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -76,7 +85,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   profileId,
   isClaiming = false,
   readinessStatus,
-  userProfile
+  userProfile,
+  licenseHistory
 }) => {
   const stats = { ...initialStats, userProfile }; // Merge for convenience
   const { language, t } = useLanguage();
@@ -98,10 +108,66 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setExamReadinessExpanded(expanded);
   }, []);
 
+  const [showRehabTest, setShowRehabTest] = useState(false);
+
   const handleStartQuiz = useCallback(() => {
-    playSuccessSound(); // Start engine sound effect ideally
+    const points = userProfile?.license_points || 8;
+
+    // GATING: License suspended if 0 points
+    if (points === 0) {
+      toast({
+        title: language === 'ru' ? 'Лицензия аннулирована' : 'Licencia suspendida',
+        description: language === 'ru' ? 'Запишитесь на курс переподготовки для восстановления' : 'Debes realizar el curso de recuperación',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // QUALIFICATION: Need 10 points for Exam
+    // Note: In Dashboard.tsx 'onStartQuiz' usually opens the PRACTICE/EXAM selector or starts practice.
+    // If it's the EXAM button specifically (handled in children or this component), we apply the 10 point rule.
+    // However, since handleStartQuiz is the main entry, we let them enter practice but might block EXAM later.
+    // For now, let's keep it simple: 0 = blocked, others can enter. 
+    // BUT the user asked for "qualification system", so let's check if we should block START if < 10.
+    // Actually, Dashboard start usually means "Test Selector".
+
+    playSuccessSound();
     onStartQuiz();
-  }, [onStartQuiz]);
+  }, [onStartQuiz, userProfile?.license_points, language]);
+
+  const handleRecoverPoints = useCallback(() => {
+    playClickSound();
+    setShowRehabTest(true);
+  }, []);
+
+  // NEW: Helper to refresh dashboard data after point changes
+  const { refresh } = useDashboardData();
+
+  const handleRehabComplete = async () => {
+    try {
+      const { error } = await supabase.rpc('process_license_event', {
+        p_user_id: profileId,
+        p_event_type: 'rehabilitation_pass'
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: language === 'ru' ? 'Курс завершен!' : '¡Curso completado!',
+        description: language === 'ru' ? 'Ваши баллы восстановлены (+6). Готовьтесь к экзамену!' : 'Tus puntos han sido recuperados (+6). ¡Prepárate para el examen!',
+      });
+
+      setShowRehabTest(false);
+      refresh(true); // Force refresh dashboard data
+    } catch (e: any) {
+      console.error('Rehab failed:', e);
+      toast({
+        title: 'Error',
+        description: e.message,
+        variant: 'destructive',
+      });
+    }
+  };
 
   const handleStatClick = useCallback((statType: 'xp' | 'tests' | 'coins') => {
     playClickSound();
@@ -154,7 +220,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
               hasClaimedToday={hasClaimedToday}
               onClaimReward={onClaimReward}
               onStartQuiz={handleStartQuiz}
+              onRecoverPoints={handleRecoverPoints}
               t={t}
+              licenseHistory={licenseHistory}
             />
           </div>
 
@@ -174,6 +242,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 shortText={readinessStatus?.shortText}
                 description={readinessStatus?.description}
                 profileId={profileId}
+                licensePoints={userProfile?.license_points || 8}
                 onStartTest={handleStartQuiz}
                 onExpandedChange={handleExamReadinessExpanded}
               />
@@ -204,10 +273,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      {/* Duel Pass Season Modal */}
       <Suspense fallback={null}>
         <DuelPassSeasonModalWrapper />
       </Suspense>
+
+      <AnimatePresence>
+        {showRehabTest && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <RehabilitationTest
+              language={language}
+              onComplete={handleRehabComplete}
+              onCancel={() => setShowRehabTest(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

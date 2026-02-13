@@ -1,3 +1,4 @@
+import { PRICING_PLANS } from "@/lib/pricing-config";
 import { useState, useEffect, useRef, useContext, useMemo, useCallback } from 'react';
 import { ResponsiveModal, ModalSkeleton } from '@/components/ui/responsive-modal';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -32,6 +33,7 @@ import type { Paddle } from '@paddle/paddle-js';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useModalStore } from '@/store/modalStore';
 
 const supabaseClient = supabase as any;
 
@@ -1542,178 +1544,177 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
               value="premium"
               className="p-3 md:p-4 space-y-4 mt-2 md:mt-3"
             >
-              <div className="space-y-4">
-                {/* Premium Header */}
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 p-5 md:p-6">
-                  {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full blur-xl translate-y-1/2 -translate-x-1/2" />
-
-                  <div className="relative flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                        <Crown className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white">{t('boostShop.premium.title')}</h3>
-                        <p className="text-sm text-white/70">{t('boostShop.premium.subtitle') || 'Получи максимум от обучения'}</p>
-                      </div>
-                    </div>
-                    {isPremium && (
-                      <Badge className="bg-white/20 text-white border-0 backdrop-blur-sm px-3 py-1">
-                        <Check className="w-3 h-3 mr-1" />
-                        {t('boostShop.premium.activeBadge')}
-                      </Badge>
-                    )}
+              <div className="space-y-6">
+                {/* HERO BANNER: Ultra-Premium Lava Lamp Style */}
+                <div className="relative overflow-hidden rounded-[24px] bg-[#0F121E] border border-white/5 shadow-2xl">
+                  {/* Animated Background */}
+                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <motion.div
+                      animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3], x: [0, 20, 0] }}
+                      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute -top-24 -left-24 w-96 h-96 bg-violet-600 rounded-full blur-[100px] mix-blend-screen"
+                    />
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.5, 0.2], x: [0, -30, 0] }}
+                      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                      className="absolute top-1/2 -right-24 w-80 h-80 bg-indigo-500 rounded-full blur-[80px] mix-blend-screen"
+                    />
                   </div>
 
-                  {/* Benefits Grid */}
-                  <div className="relative grid grid-cols-2 gap-2 mt-5">
-                    {[
-                      { icon: '∞', text: t('boostShop.premium.benefits.unlimitedTests') },
-                      { icon: '💰', text: t('boostShop.premium.benefits.bonusCoins') },
-                      { icon: '🏆', text: t('boostShop.premium.benefits.duelPassRewards') },
-                      { icon: '💡', text: t('boostShop.premium.benefits.instantHints') },
-                    ].map((benefit, i) => (
-                      <div key={i} className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-                        <span className="text-lg">{benefit.icon}</span>
-                        <span className="text-xs text-white font-medium">{benefit.text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Pricing Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Monthly */}
-                  <div className={cn(
-                    "relative p-4 rounded-xl border-2 transition-all duration-200",
-                    "bg-card hover:shadow-lg",
-                    isPremium ? "border-muted opacity-60" : "border-border hover:border-violet-500/50"
-                  )}>
-                    <div className="space-y-3">
+                  <div className="relative z-10 p-6 sm:p-8">
+                    <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
                       <div>
-                        <p className="text-xs font-medium text-muted-foreground">{t('boostShop.premium.monthlyLabel')}</p>
-                        <div className="flex items-baseline gap-1 mt-1">
-                          <span className="text-2xl font-bold">€9.99</span>
-                          <span className="text-xs text-muted-foreground">/мес</span>
-                        </div>
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="inline-flex items-center gap-2 mb-3 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20"
+                        >
+                          <Crown className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
+                          <span className="text-[10px] font-bold tracking-widest uppercase text-white">Premium Status</span>
+                        </motion.div>
+                        <h3 className="text-3xl font-black text-white mb-2 tracking-tight">
+                          Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">подписка</span>
+                        </h3>
+                        <p className="text-slate-300 text-sm max-w-md leading-relaxed">
+                          Максимальное ускорение обучения. AI-наставник, отключение рекламы и доступ ко всем тестам.
+                        </p>
                       </div>
-                      <Button
-                        size="sm"
-                        variant={isPremium ? "outline" : "default"}
-                        className="w-full"
-                        onClick={() => setPaywallOpen(true)}
-                        disabled={isPremium}
-                      >
-                        {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                      </Button>
-                    </div>
-                  </div>
 
-                  {/* Yearly - Popular */}
-                  <div className={cn(
-                    "relative p-4 rounded-xl border-2 transition-all duration-200",
-                    isPremium
-                      ? "border-muted bg-card opacity-60"
-                      : "border-violet-500 bg-gradient-to-br from-violet-500/10 to-purple-500/10 shadow-lg scale-[1.02]"
-                  )}>
-                    {!isPremium && (
-                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0 shadow-md text-[10px] px-2.5">
-                          {t('boostShop.premium.popularBadge') || 'Популярно'}
-                        </Badge>
+                      {/* Features Grid inside Banner */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full sm:w-auto">
+                        {[
+                          { icon: Zap, text: "X2 Монеты", color: "text-amber-400" },
+                          { icon: Crown, text: "Duel Pass+", color: "text-fuchsia-400" },
+                          { icon: Sparkles, text: "Без рекламы", color: "text-sky-400" },
+                          { icon: Trophy, text: "Турниры", color: "text-emerald-400" }
+                        ].map((item, i) => (
+                          <div key={i} className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-lg backdrop-blur-sm">
+                            <item.icon className={cn("w-4 h-4", item.color)} />
+                            <span className="text-xs font-bold text-slate-200">{item.text}</span>
+                          </div>
+                        ))}
                       </div>
-                    )}
-                    <div className="space-y-3 pt-1">
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground">{t('boostShop.premium.yearlyLabel') || 'Год'}</p>
-                        <div className="flex items-baseline gap-1 mt-1">
-                          <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 dark:from-violet-400 dark:to-purple-400 bg-clip-text text-transparent">€59.99</span>
-                          <span className="text-xs text-muted-foreground">{t('boostShop.premium.yearlySuffix')}</span>
-                        </div>
-                        <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">{t('boostShop.premium.savingsLabel')}</p>
-                      </div>
-                      <Button
-                        size="sm"
-                        className={cn(
-                          "w-full",
-                          !isPremium && "bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600 text-white shadow-md"
-                        )}
-                        onClick={() => setPaywallOpen(true)}
-                        disabled={isPremium}
-                      >
-                        {isPremium ? t('boostShop.buttons.active') : t('boostShop.buttons.select')}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Lifetime - Best - КОРОЛЕВСКИЙ */}
-                  <div className={cn(
-                    "relative p-4 rounded-xl border-2 transition-all duration-200",
-                    isPremium
-                      ? "border-muted bg-card opacity-60"
-                      : "border-amber-400 bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15 shadow-[0_0_30px_rgba(245,158,11,0.2)] hover:shadow-[0_0_40px_rgba(245,158,11,0.3)]"
-                  )}>
-                    {/* Корона на фоне */}
-                    {!isPremium && (
-                      <div className="absolute top-2 right-2 text-3xl opacity-20">👑</div>
-                    )}
-                    {!isPremium && (
-                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                        <Badge className="bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400 text-black border-0 shadow-lg shadow-amber-500/50 text-[10px] px-2.5 font-bold">
-                          👑 {t('boostShop.premium.bestBadge')}
-                        </Badge>
-                      </div>
-                    )}
-                    <div className="space-y-3 pt-1">
-                      <div>
-                        <p className="text-xs font-medium text-muted-foreground">{t('boostShop.premium.lifetimeLabel')}</p>
-                        <div className="flex items-baseline gap-1 mt-1">
-                          <span className="text-2xl font-black bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 bg-clip-text text-transparent drop-shadow-sm">€99.99</span>
-                        </div>
-                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 font-medium">{t('boostShop.premium.lifetimeSuffix')}</p>
-                      </div>
-                      <Button
-                        size="sm"
-                        className={cn(
-                          "w-full font-bold",
-                          !isPremium && "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-400 hover:brightness-110 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] border-0"
-                        )}
-                        onClick={() => setPaywallOpen(true)}
-                        disabled={isPremium}
-                      >
-                        {isPremium ? t('boostShop.buttons.active') : <>👑 {t('boostShop.buttons.select')}</>}
-                      </Button>
                     </div>
                   </div>
                 </div>
 
-                {/* Duel Pass Card - изумрудный */}
-                <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-5">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30 shrink-0">
-                      <Trophy className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-foreground">{t('boostShop.duelPass.title')}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{t('boostShop.duelPass.subtitle') || 'Соревнуйся и получай награды'}</p>
-                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{t('boostShop.duelPass.description')}</p>
-                    </div>
-                  </div>
-                  <Button
-                    className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30"
-                    onClick={() => {
-                      toast({
-                        title: t('boostShop.duelPass.toastTitle'),
-                        description: t('boostShop.duelPass.toastDescription'),
-                      });
-                    }}
-                  >
-                    <Trophy className="w-4 h-4 mr-2" />
-                    {t('boostShop.duelPass.button')}
-                  </Button>
+                {/* PRICING GRID: The Shiny New Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {PRICING_PLANS.map((plan) => {
+                    const isPopular = plan.popular;
+                    const isBestValue = plan.savings === '50%';
+
+                    return (
+                      <motion.div
+                        key={plan.id}
+                        whileHover={{ y: -5, scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="group relative cursor-pointer"
+                        onClick={() => setPaywallOpen(true)}
+                      >
+                        {/* Shadow Glow */}
+                        <div className={cn(
+                          "absolute inset-0 rounded-[20px] blur-xl transition-opacity duration-500 -z-10",
+                          isPopular ? "bg-violet-600/30 opacity-60 group-hover:opacity-100" : "bg-black/5 opacity-0 group-hover:opacity-100 dark:bg-black/40"
+                        )} />
+
+                        <div className={cn(
+                          "relative h-full p-5 rounded-[20px] border flex flex-col transition-all duration-300 overflow-hidden",
+                          isPopular
+                            ? "bg-[#1E1B2E] border-violet-500/30 text-white"
+                            : "bg-card border-border hover:border-violet-300 dark:hover:border-violet-700"
+                        )}>
+                          {/* Shimmer for Popular */}
+                          {isPopular && (
+                            <div className="absolute inset-0 overflow-hidden rounded-[20px] pointer-events-none mix-blend-overlay">
+                              <motion.div
+                                animate={{ x: ["-100%", "200%"] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 0.5 }}
+                                className="absolute top-0 bottom-0 w-[40%] -skew-x-[25deg] bg-gradient-to-r from-transparent via-white/10 to-transparent blur-md"
+                              />
+                            </div>
+                          )}
+
+                          {/* Header */}
+                          <div className="flex justify-between items-start mb-4">
+                            {isPopular ? (
+                              <Badge className="bg-gradient-to-r from-violet-600 to-fuchsia-600 border-0 text-[10px] font-bold px-2.5 py-0.5 animate-pulse shadow-lg shadow-violet-500/20">
+                                🔥 POPULAR
+                              </Badge>
+                            ) : isBestValue ? (
+                              <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border-0 font-bold text-[10px] px-2.5 py-0.5">
+                                👑 BEST VALUE
+                              </Badge>
+                            ) : <div />}
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1">
+                            <h4 className={cn("text-xs font-bold uppercase tracking-widest mb-1", isPopular ? "text-violet-200" : "text-muted-foreground")}>
+                              {plan.title}
+                            </h4>
+                            <div className="flex items-baseline gap-1 mb-1">
+                              <span className={cn("text-3xl font-black", isPopular ? "text-white" : "text-foreground")}>
+                                {plan.price}
+                              </span>
+                            </div>
+                            <p className={cn("text-[10px] font-semibold", isPopular ? "text-violet-300" : "text-violet-600 dark:text-violet-400")}>
+                              {plan.pricePerMonth} / месяц
+                            </p>
+                          </div>
+
+                          {/* Action */}
+                          <div className="mt-4 pt-4 border-t border-dashed border-white/10 dark:border-slate-800">
+                            <Button
+                              variant="ghost"
+                              className={cn(
+                                "w-full font-bold h-9 rounded-lg transition-colors",
+                                isPopular
+                                  ? "bg-white text-slate-900 hover:bg-slate-100"
+                                  : "bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                              )}
+                            >
+                              {isPremium ? "Активен" : "Выбрать"}
+                            </Button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </div>
+
+                {/* DUEL PASS CARD: Matching Aesthetic */}
+                <motion.div
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#064e3b] to-[#042f2e] border border-emerald-500/30 p-1"
+                >
+                  {/* Background Shine */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent" />
+
+                  <div className="relative bg-[#022c22]/80 backdrop-blur-xl rounded-[20px] p-5 flex flex-col sm:flex-row items-center gap-5">
+                    <div className="relative w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30 shrink-0">
+                      <Trophy className="w-7 h-7 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                    </div>
+
+                    <div className="flex-1 text-center sm:text-left">
+                      <h3 className="text-lg font-black text-white">Duel Pass</h3>
+                      <p className="text-xs text-emerald-200/80 mt-1 max-w-sm mx-auto sm:mx-0">
+                        Открывайте сундуки, получайте эксклюзивные скины и соревнуйтесь в сезоне.
+                      </p>
+                    </div>
+
+                    <Button
+                      className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold border-0 shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] w-full sm:w-auto px-6 h-10 rounded-xl"
+                      onClick={() => {
+                        onOpenChange(false);
+                        setTimeout(() => useModalStore.getState().openModal('DUEL_PASS'), 150);
+                      }}
+                    >
+                      Открыть
+                    </Button>
+                  </div>
+                </motion.div>
               </div>
             </TabsContent>
 

@@ -18,6 +18,7 @@ import { triggerHaptic } from '@/lib/haptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfileData } from '@/hooks/useProfileData';
 import { cn } from "@/lib/utils";
+import { PasskeyManager } from '@/components/auth/PasskeyManager';
 
 // Google icon
 const GoogleIcon = () => (
@@ -555,6 +556,13 @@ export const AccountTab: React.FC = () => {
                             </Button>
                         )}
                     </SettingRow>
+
+                    <Separator className="my-4 bg-slate-200 dark:bg-slate-700/50" />
+
+                    {/* Passkeys */}
+                    <div className="pt-2">
+                        <PasskeyManager hideHeader={true} />
+                    </div>
                 </div>
             </div>
 

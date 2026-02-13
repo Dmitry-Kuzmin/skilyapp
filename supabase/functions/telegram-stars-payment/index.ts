@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,17 +13,6 @@ const corsHeaders = {
 // - С учетом комиссии Telegram (30%): €2.99 / 0.7 ≈ €4.27 → 198 звёзд
 // - Курс: 100 монет / 198 звёзд ≈ 0.5 coins/star
 // Используем упрощенный курс: 1 Star = 0.5 coins (1 coin = 2 stars)
-const EXCHANGE_RATE_COINS_TO_STARS = 0.5;
-
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-// Курс конвертации: 1 Star = 0.5 coins (или 1 coin = 2 stars)
 const EXCHANGE_RATE_COINS_TO_STARS = 0.5;
 
 interface CreateInvoiceParams {

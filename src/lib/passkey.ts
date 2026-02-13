@@ -44,7 +44,7 @@ export function isPasskeySupported(): boolean {
  */
 export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
   if (!isPasskeySupported()) return false;
-  
+
   try {
     return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
   } catch {
@@ -57,7 +57,7 @@ export async function isPlatformAuthenticatorAvailable(): Promise<boolean> {
  */
 export async function isConditionalMediationAvailable(): Promise<boolean> {
   if (!isPasskeySupported()) return false;
-  
+
   try {
     return await PublicKeyCredential.isConditionalMediationAvailable?.() || false;
   } catch {
@@ -187,7 +187,7 @@ export async function registerPasskey(
     };
   } catch (error: any) {
     console.error('[Passkey] Registration error:', error);
-    
+
     // Обрабатываем типичные ошибки
     if (error.name === 'NotAllowedError') {
       return { success: false, error: 'Регистрация отменена пользователем' };
@@ -195,7 +195,7 @@ export async function registerPasskey(
     if (error.name === 'InvalidStateError') {
       return { success: false, error: 'Этот Passkey уже зарегистрирован' };
     }
-    
+
     return { success: false, error: error.message || 'Неизвестная ошибка' };
   }
 }
@@ -295,12 +295,12 @@ export async function loginWithPasskey(): Promise<{
     return { success: true };
   } catch (error: any) {
     console.error('[Passkey] Login error:', error);
-    
+
     // Обрабатываем типичные ошибки
     if (error.name === 'NotAllowedError') {
       return { success: false, error: 'Вход отменён пользователем' };
     }
-    
+
     return { success: false, error: error.message || 'Неизвестная ошибка' };
   }
 }
@@ -344,14 +344,33 @@ export async function deletePasskey(credentialId: string): Promise<{
   error?: string;
 }> {
   try {
-    const { error } = await supabase
+    console.log('[Passkey] Deleting credential:', credentialId);
+
+    // Проверяем авторизацию
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.error('[Passkey] No active session for delete');
+      return { success: false, error: 'Требуется авторизация' };
+    }
+
+    console.log('[Passkey] Session user:', session.user.id);
+
+    const { error, count } = await supabase
       .from('passkey_credentials')
-      .delete()
+      .delete({ count: 'exact' })
       .eq('id', credentialId);
 
     if (error) {
       console.error('[Passkey] Delete error:', error);
-      return { success: false, error: 'Не удалось удалить Passkey' };
+      return { success: false, error: `Ошибка: ${error.message}` };
+    }
+
+    console.log('[Passkey] Delete result — rows affected:', count);
+
+    // Supabase может вернуть success даже если RLS заблокировал удаление (0 row affected)
+    if (count === 0) {
+      console.warn('[Passkey] No rows deleted — possible RLS restriction');
+      return { success: false, error: 'Ключ не найден или нет прав на удаление' };
     }
 
     return { success: true };

@@ -788,6 +788,7 @@ const TestSession = () => {
         ? russiaExam.currentQuestion.image
         : currentQuestion.image_url,
       testLanguage,
+      country: isRussia ? 'russia' : 'spain',
     });
   };
 

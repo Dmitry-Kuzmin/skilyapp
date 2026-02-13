@@ -1149,93 +1149,77 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
-      <section className="relative z-10 px-6 py-20 pb-32 max-w-[1400px] mx-auto">
+      <section className="relative z-10 px-6 py-20 pb-32 max-w-[1500px] mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">{copy.pricing.title}</h2>
           <p className="text-slate-400">{copy.pricing.description}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
-          <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem]">
-            <h3 className="font-bold text-xl text-slate-300 mb-2">{copy.pricing.plans.cadet.title}</h3>
-            <div className="text-3xl font-black text-white mb-6">{copy.pricing.plans.cadet.price}</div>
-            <ul className="space-y-3 mb-8 text-sm text-slate-400">
-              {copy.pricing.plans.cadet.features.map((feature) => (
-                <li key={feature} className="flex gap-2">
-                  <CheckCircle2 size={16} /> {feature}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={handleEnter}
-              className="w-full py-3 rounded-xl border border-slate-700 font-bold text-slate-300 hover:bg-slate-800 transition-colors relative"
-            >
-              {copy.pricing.plans.cadet.cta}
-              {referrerInfo && (
-                <span className="ml-2 text-amber-400 inline-flex items-center gap-1">
-                  +50 <Coins className="h-4 w-4 inline" />
-                </span>
-              )}
-            </button>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-y-10 gap-x-4 items-stretch pt-12">
+          {Object.entries(copy.pricing.plans).map(([key, plan]) => {
+            const isPremium = key !== 'cadet';
+            const isHighlighted = key === 'biannual';
 
-          <div className="bg-indigo-900/20 border border-indigo-500/30 p-8 rounded-[2rem] relative">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-              {copy.pricing.plans.monthly.badge}
-            </div>
-            <h3 className="font-bold text-xl text-indigo-300 mb-2">{copy.pricing.plans.monthly.title}</h3>
-            <div className="flex items-baseline gap-1 mb-6">
-              <span className="text-3xl font-black text-white">{copy.pricing.plans.monthly.price}</span>
-              <span className="text-slate-400 text-sm">{copy.pricing.plans.monthly.note}</span>
-            </div>
-            <ul className="space-y-3 mb-8 text-sm text-indigo-100/80">
-              {copy.pricing.plans.monthly.features.map((feature) => (
-                <li key={feature} className="flex gap-2">
-                  <CheckCircle2 size={16} /> {feature}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={handleEnter}
-              className="w-full py-3 rounded-xl bg-indigo-600 font-bold text-white hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/20 relative"
-            >
-              {copy.pricing.plans.monthly.cta}
-              {referrerInfo && (
-                <span className="ml-2 text-amber-300 inline-flex items-center gap-1">
-                  +50 <Coins className="h-4 w-4 inline" />
-                </span>
-              )}
-            </button>
-          </div>
+            return (
+              <div
+                key={key}
+                className={cn(
+                  "flex flex-col p-6 rounded-[2rem] transition-all duration-300 relative group",
+                  !isPremium ? "bg-slate-900 border border-slate-800" :
+                    isHighlighted ? "bg-indigo-900/40 border-2 border-indigo-500 shadow-[0_0_50px_-15px_rgba(99,102,241,0.5)] scale-[1.03] z-10" :
+                      "bg-[#11141D] border border-white/5 hover:border-white/10"
+                )}
+              >
+                {plan.badge && (
+                  <div className={cn(
+                    "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest",
+                    isHighlighted ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30" : "bg-slate-800 text-slate-400"
+                  )}>
+                    {plan.badge}
+                  </div>
+                )}
 
-          <div className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-[2rem]">
-            <div className="inline-block bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-0.5 rounded mb-2">
-              {copy.pricing.plans.yearly.badge}
-            </div>
-            <h3 className="font-bold text-xl text-purple-300 mb-2">{copy.pricing.plans.yearly.title}</h3>
-            <div className="flex items-baseline gap-1 mb-6">
-              <span className="text-3xl font-black text-white">{copy.pricing.plans.yearly.price}</span>
-              <span className="text-slate-400 text-sm">{copy.pricing.plans.yearly.note}</span>
-            </div>
-            <ul className="space-y-3 mb-8 text-sm text-purple-100/80">
-              {copy.pricing.plans.yearly.features.map((feature) => (
-                <li key={feature} className="flex gap-2">
-                  <CheckCircle2 size={16} /> {feature}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={handleEnter}
-              className="w-full py-3 rounded-xl bg-purple-600 font-bold text-white hover:bg-purple-500 transition-colors shadow-lg shadow-purple-500/20 relative"
-            >
-              {copy.pricing.plans.yearly.cta}
-              {referrerInfo && (
-                <span className="ml-2 text-amber-300 inline-flex items-center gap-1">
-                  +50 <Coins className="h-4 w-4 inline" />
-                </span>
-              )}
-            </button>
-          </div>
+                <h3 className={cn(
+                  "font-black text-lg mb-2",
+                  isPremium ? "text-indigo-300" : "text-slate-400"
+                )}>
+                  {plan.title}
+                </h3>
+
+                <div className="flex items-baseline gap-1 mb-6">
+                  <span className="text-2xl font-black text-white">{plan.price}</span>
+                  {plan.note && <span className="text-slate-500 text-xs font-medium">{plan.note}</span>}
+                </div>
+
+                <ul className="space-y-3 mb-8 text-xs flex-grow">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex gap-2 text-slate-300">
+                      <CheckCircle2 size={14} className={cn("shrink-0", isPremium ? "text-indigo-400" : "text-slate-600")} />
+                      <span className="leading-snug">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={handleEnter}
+                  className={cn(
+                    "w-full py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 relative overflow-hidden group/btn",
+                    !isPremium ? "border border-slate-700 text-slate-300 hover:bg-slate-800" :
+                      isHighlighted ? "bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/20" :
+                        "bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-600/20"
+                  )}
+                >
+                  <span className="relative z-10">{plan.cta}</span>
+                  {referrerInfo && (
+                    <span className="ml-2 text-amber-300 inline-flex items-center gap-1 relative z-10">
+                      +50 <Coins className="h-3 w-3 inline" />
+                    </span>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       </section>
 

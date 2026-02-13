@@ -242,6 +242,7 @@ export function AIChatWidget() {
                     messages: allMessages,
                     imageUrl: context?.imageUrl || '',
                     country: selectedCountry,
+                    language: interfaceLanguage,
                     mode: 'debrief', // 🔥 КРИТИЧНО: отключаем старый system prompt, используем наш unified prompt
                 }),
             });
@@ -353,7 +354,13 @@ export function AIChatWidget() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            <div className={cn(
+                "flex-1 overflow-y-auto px-4 py-4 space-y-4 relative transition-colors duration-500",
+                "bg-[#F5F8FF]/80 dark:bg-slate-900/40"
+            )}>
+                {/* Noise texture */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')] mix-blend-overlay"></div>
+
                 {/* Welcome Screen - если нет сообщений и есть контекст вопроса */}
                 {messages.length === 0 && questionContext && (
                     <motion.div
@@ -366,7 +373,7 @@ export function AIChatWidget() {
 
                         {/* Greeting */}
                         <h3 className="text-xl font-bold mt-4 mb-2">
-                            {interfaceLanguage === 'ru' ? '¡Привет! Я Skily 💡' : '¡Hola! Soy Skily 💡'}
+                            {interfaceLanguage === 'ru' ? 'Привет! Я Skily 💡' : '¡Hola! Soy Skily 💡'}
                         </h3>
 
                         <p className="text-muted-foreground text-sm max-w-[85%] mb-6 px-2">
@@ -414,20 +421,20 @@ export function AIChatWidget() {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.2 }}
                             className={cn(
-                                "flex w-full",
+                                "flex w-full relative z-10",
                                 message.role === 'user' ? 'justify-end' : 'justify-start'
                             )}
                         >
                             <Card className={cn(
-                                "max-w-[85%] p-3.5 shadow-sm",
+                                "max-w-[85%] p-4 shadow-md transition-all",
                                 message.role === 'user'
-                                    ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm'
-                                    : 'bg-muted/80 backdrop-blur-sm rounded-2xl rounded-tl-sm'
+                                    ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none border-transparent'
+                                    : 'bg-white/95 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl rounded-tl-none border-indigo-100/50 dark:border-white/5 text-slate-800 dark:text-slate-200'
                             )}>
                                 {message.role === 'assistant' ? (
                                     <MarkdownContent>{message.content}</MarkdownContent>
                                 ) : (
-                                    <p className="text-sm leading-relaxed">{message.content}</p>
+                                    <p className="text-sm font-medium tracking-tight leading-relaxed">{message.content}</p>
                                 )}
 
                                 {/* Feedback buttons for assistant */}

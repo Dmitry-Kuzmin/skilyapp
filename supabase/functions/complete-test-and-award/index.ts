@@ -88,7 +88,7 @@ serve(async (req) => {
     }
 
     // ============================================
-    // ВЫЗОВ ОПТИМИЗИРОВАННОГО RPC
+    // ВЫЗОВ ОПТИМИЗИРОВАННОГО RPC ДЛЯ НАГРАД
     // ============================================
     const { data: rewardData, error: rpcError } = await supabase.rpc('process_test_completion', {
       p_user_id: user_id,
@@ -112,6 +112,38 @@ serve(async (req) => {
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // ============================================
+    // ВЫЗОВ СИСТЕМЫ КВАЛИФИКАЦИИ (LICENSE POINTS)
+    // ============================================
+    // Определяем тип события для системы баллов
+    let licenseEvent: string | null = null;
+    const mode = (body as any).mode || 'practice';
+
+    if (mode === 'exam' || mode === 'exam-russia') {
+      licenseEvent = score >= 90 ? 'exam_pass' : 'exam_fail';
+    } else if (score === 100 && questions_count >= 10) {
+      licenseEvent = 'topic_perfect';
+    } else if (mode === 'marathon' && score >= 90) {
+      licenseEvent = 'marathon_completed';
+    }
+
+    if (licenseEvent) {
+      console.log(`[complete-test-and-award] 🛡️ Triggering license event: ${licenseEvent}`);
+      const { data: licenseData, error: licenseError } = await supabase.rpc('process_license_event', {
+        p_user_id: user_id,
+        p_event_type: licenseEvent
+      });
+
+      if (licenseError) {
+        console.error('[complete-test-and-award] ⚠️ License event failed:', licenseError);
+      } else {
+        // Мягко расширяем rewardData информацией о баллах
+        if (rewardData) {
+          (rewardData as any).license_update = licenseData;
+        }
+      }
     }
 
     console.log('[complete-test-and-award] ✅ SUCCESS:', rewardData);

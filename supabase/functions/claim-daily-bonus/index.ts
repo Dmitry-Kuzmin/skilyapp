@@ -133,6 +133,19 @@ serve(async (req) => {
     // Async call to season-sp
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // NEW: Handle daily license points (Qualification System)
+    try {
+      console.log('[claim-daily-bonus] 🛡️ Triggering daily_login license event');
+      await supabase.rpc('process_license_event', {
+        p_user_id: user_id,
+        p_event_type: 'daily_login'
+      });
+    } catch (licenseError) {
+      console.error('[claim-daily-bonus] ⚠️ License event failed:', licenseError);
+      // We don't fail the whole request if license points fail
+    }
+
     fetch(`${supabaseUrl}/functions/v1/season-sp`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseKey}` },

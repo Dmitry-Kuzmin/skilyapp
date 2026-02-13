@@ -6,10 +6,66 @@ import { playClickSound, playNotificationSound, playTabSwitchSound } from '@/ser
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { AISphere } from '@/components/ai/AISphere';
+import { useTheme } from 'next-themes';
+import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
+
+// Типизация для markdown рендеринга
+type MarkdownProps = {
+  children: string;
+  className?: string;
+  isDarkTheme: boolean;
+};
+
+const MarkdownContent: React.FC<MarkdownProps> = ({ children, className, isDarkTheme }) => (
+  <div className={cn(
+    "text-sm sm:text-base leading-relaxed tracking-tight",
+    isDarkTheme ? "text-slate-200" : "text-slate-700",
+    className
+  )}>
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+        ul: ({ children }) => <ul className="list-disc pl-5 mb-3 space-y-1">{children}</ul>,
+        ol: ({ children }) => <ol className="list-decimal pl-5 mb-3 space-y-1">{children}</ol>,
+        li: ({ children }) => <li className="pl-1">{children}</li>,
+        strong: ({ children }) => (
+          <span className={cn(
+            "font-extrabold px-1.5 py-0.5 rounded-md mx-0.5",
+            isDarkTheme
+              ? "text-indigo-300 bg-indigo-500/20"
+              : "text-indigo-700 bg-indigo-500/[0.08]"
+          )}>{children}</span>
+        ),
+        em: ({ children }) => (
+          <span className={cn(
+            "font-bold not-italic decoration-indigo-500/30 underline-offset-4 decoration-2",
+            isDarkTheme ? "text-white" : "text-slate-900"
+          )}>{children}</span>
+        ),
+        code: ({ children }) => (
+          <code className={cn(
+            "px-1.5 py-0.5 rounded font-mono text-[0.8em]",
+            isDarkTheme ? "bg-slate-800 text-indigo-300" : "bg-slate-100 text-indigo-600"
+          )}>{children}</code>
+        ),
+        a: ({ href, children }) => (
+          <a href={href} target="_blank" rel="noopener noreferrer" className="text-indigo-500 hover:text-indigo-400 underline underline-offset-4 decoration-1 font-medium transition-colors">
+            {children}
+          </a>
+        ),
+      }}
+    >
+      {children}
+    </ReactMarkdown>
+  </div>
+);
 
 export const SkilyChat = React.memo(() => {
   const { t } = useLanguage();
   const { selectedCountry } = usePDDContext();
+  const { resolvedTheme } = useTheme();
+  const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
   const { messages, isLoading, sendMessage, clearMessages } = useLumiChat(selectedCountry);
@@ -109,7 +165,13 @@ export const SkilyChat = React.memo(() => {
       {/* COMPACT WIDGET */}
       <div
         onClick={handleExpand}
-        className={`h-full bg-slate-800/80 backdrop-blur-md rounded-[2.5rem] p-8 shadow-lg border border-slate-700 flex flex-col justify-between group hover:border-slate-600 transition-all cursor-pointer relative overflow-hidden ${isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+        className={cn(
+          "h-full rounded-[2.5rem] p-8 shadow-lg border flex flex-col justify-between group transition-all cursor-pointer relative overflow-hidden",
+          isDarkTheme
+            ? "bg-slate-800/80 backdrop-blur-md border-slate-700 hover:border-slate-600"
+            : "bg-white border-slate-200/80 hover:border-slate-300 shadow-[0_20px_45px_rgba(0,0,0,0.06)]",
+          isExpanded ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
@@ -119,8 +181,14 @@ export const SkilyChat = React.memo(() => {
           </div>
 
           <div className="text-center">
-            <h3 className="font-bold text-white text-xl tracking-tight">{t('skilyChat.title')}</h3>
-            <p className="text-xs text-slate-400 mt-2 font-medium">{t('skilyChat.subtitle')}</p>
+            <h3 className={cn(
+              "font-bold text-xl tracking-tight",
+              isDarkTheme ? "text-white" : "text-slate-900"
+            )}>{t('skilyChat.title')}</h3>
+            <p className={cn(
+              "text-xs mt-2 font-medium",
+              isDarkTheme ? "text-slate-400" : "text-slate-500"
+            )}>{t('skilyChat.subtitle')}</p>
           </div>
         </div>
 
@@ -143,18 +211,33 @@ export const SkilyChat = React.memo(() => {
         open={isExpanded}
         onOpenChange={setIsExpanded}
         hideCloseButton={true}
-        className="bg-slate-900 border-slate-800 p-0 overflow-hidden"
-        contentClassName="bg-slate-900 text-slate-200 p-0 flex flex-col h-full"
+        className={cn(
+          "p-0 overflow-hidden",
+          isDarkTheme ? "bg-slate-900 border-slate-800" : "bg-white border-slate-200"
+        )}
+        contentClassName={cn(
+          "p-0 flex flex-col h-full",
+          isDarkTheme ? "bg-slate-900 text-slate-200" : "bg-white text-slate-800"
+        )}
         fullscreen={false} // Let it adapt height, usually 90-95% on mobile via drawer
         headerContent={
-          <div className="h-14 sm:h-16 md:h-20 border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 bg-slate-900/95 backdrop-blur z-20 flex-shrink-0 w-full">
+          <div className={cn(
+            "h-14 sm:h-16 md:h-20 border-b flex items-center justify-between px-4 sm:px-6 backdrop-blur z-20 flex-shrink-0 w-full transition-colors",
+            isDarkTheme ? "border-slate-800 bg-slate-900/95" : "border-slate-100 bg-white/95"
+          )}>
             <div className="flex items-center gap-3">
               <AISphere size="sm" className="flex-shrink-0 scale-75 sm:scale-100" />
               <div className="min-w-0">
-                <h2 className="text-sm sm:text-lg font-bold text-white truncate">{t('skilyChat.neuralCore')}</h2>
+                <h2 className={cn(
+                  "text-sm sm:text-lg font-bold truncate",
+                  isDarkTheme ? "text-white" : "text-slate-900"
+                )}>{t('skilyChat.neuralCore')}</h2>
                 <div className="flex items-center gap-2">
                   <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isLoading ? 'bg-pink-500 animate-pulse' : 'bg-emerald-500'}`}></div>
-                  <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  <span className={cn(
+                    "text-[9px] sm:text-[10px] font-bold uppercase tracking-widest",
+                    isDarkTheme ? "text-slate-400" : "text-slate-500"
+                  )}>
                     {isLoading ? t('skilyChat.processing') : t('skilyChat.online')}
                   </span>
                 </div>
@@ -163,27 +246,50 @@ export const SkilyChat = React.memo(() => {
 
             <button
               onClick={() => setIsExpanded(false)}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              className={cn(
+                "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors",
+                isDarkTheme ? "bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900"
+              )}
             >
               <Minimize2 size={18} className="sm:w-5 sm:h-5" />
             </button>
           </div>
         }
       >
-        <div className="flex flex-col h-full min-h-0 bg-slate-950/50">
+        <div className={cn(
+          "flex flex-col h-full min-h-0 transition-colors duration-500 relative",
+          isDarkTheme ? "bg-slate-950/40" : "bg-[#F5F8FF]/80"
+        )}>
+          {/* Subtle noise texture for premium feel */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')] mix-blend-overlay"></div>
+
           {/* Chat Area */}
-          <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 relative z-10 scroll-smooth min-h-0">
+          <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 relative z-10 scroll-smooth min-h-0">
             {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full py-4 opacity-100">
-                <div className="scale-75 sm:scale-100 mb-4 transition-transform">
+              <div className="flex flex-col items-center justify-center h-full py-4 space-y-6">
+                <div className="scale-90 sm:scale-110 mb-2 transition-transform drop-shadow-2xl">
                   <AISphere size="lg" />
                 </div>
-                <p className="text-lg sm:text-2xl md:text-3xl font-bold text-white mb-2 text-center px-4 leading-tight">{t('skilyChat.ready')}</p>
-                <p className="text-xs sm:text-sm md:text-base text-slate-400 text-center max-w-xs sm:max-w-md px-4 leading-relaxed">
-                  {t('skilyChat.description')}
-                </p>
-                <div className="mt-6 p-2 sm:p-3 rounded-lg bg-slate-900/50 border border-slate-800/50">
-                  <p className="text-[10px] sm:text-xs text-slate-500 font-mono text-center">
+                <div className="space-y-3 max-w-sm sm:max-w-md">
+                  <p className={cn(
+                    "text-xl sm:text-3xl font-black mb-2 text-center px-4 leading-none tracking-tight",
+                    isDarkTheme ? "text-white" : "text-slate-900"
+                  )}>{t('skilyChat.ready')}</p>
+                  <p className={cn(
+                    "text-sm sm:text-base text-center px-4 leading-relaxed font-medium",
+                    isDarkTheme ? "text-slate-400" : "text-slate-500"
+                  )}>
+                    {t('skilyChat.description')}
+                  </p>
+                </div>
+                <div className={cn(
+                  "p-2.5 sm:p-3 rounded-2xl border backdrop-blur-md transition-all",
+                  isDarkTheme ? "bg-slate-900/40 border-slate-800/40" : "bg-white/60 border-indigo-100/50 shadow-sm"
+                )}>
+                  <p className={cn(
+                    "text-[10px] sm:text-xs font-mono font-bold tracking-widest text-center uppercase",
+                    isDarkTheme ? "text-indigo-400/60" : "text-indigo-500/60"
+                  )}>
                     {t('skilyChat.modelInfo')}
                   </p>
                 </div>
@@ -191,19 +297,30 @@ export const SkilyChat = React.memo(() => {
             )}
 
             {messages.map((msg, index) => (
-              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[85%] sm:max-w-[75%] p-3 sm:p-5 rounded-2xl text-sm sm:text-base shadow-sm leading-relaxed ${msg.role === 'user'
-                  ? 'bg-indigo-600 text-white rounded-tr-none'
-                  : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-tl-none'
-                  }`}>
-                  {msg.content}
+              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                <div className={cn(
+                  "max-w-[90%] sm:max-w-[80%] p-4 sm:p-5 rounded-3xl text-sm sm:text-base shadow-sm leading-relaxed transition-all",
+                  msg.role === 'user'
+                    ? 'bg-indigo-600 text-white rounded-tr-none shadow-indigo-500/20'
+                    : isDarkTheme
+                      ? 'bg-slate-800/90 backdrop-blur-md text-slate-200 border border-slate-700/50 rounded-tl-none shadow-black/20'
+                      : 'bg-white/95 backdrop-blur-md text-slate-800 border border-indigo-100/50 rounded-tl-none shadow-[0_10px_30px_rgba(0,0,0,0.04)]'
+                )}>
+                  {msg.role === 'assistant' ? (
+                    <MarkdownContent isDarkTheme={isDarkTheme}>{msg.content}</MarkdownContent>
+                  ) : (
+                    <span className="font-medium tracking-tight prose-sm">{msg.content}</span>
+                  )}
                 </div>
               </div>
             ))}
 
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-slate-800 px-4 py-3 rounded-2xl rounded-tl-none border border-slate-700 shadow-sm flex items-center gap-2 text-indigo-400 font-medium">
+                <div className={cn(
+                  "px-4 py-3 rounded-2xl rounded-tl-none border shadow-sm flex items-center gap-2 font-medium transition-colors",
+                  isDarkTheme ? "bg-slate-800 text-indigo-400 border-slate-700" : "bg-indigo-50 text-indigo-600 border-indigo-100"
+                )}>
                   <Loader2 size={16} className="animate-spin flex-shrink-0" />
                   <span className="text-xs sm:text-sm">{t('skilyChat.analyzing')}</span>
                 </div>
@@ -212,7 +329,10 @@ export const SkilyChat = React.memo(() => {
           </div>
 
           {/* Input */}
-          <div className="p-3 sm:p-4 md:p-6 bg-slate-900 border-t border-slate-800 relative z-20 flex-shrink-0 mt-auto">
+          <div className={cn(
+            "p-3 sm:p-4 md:p-6 border-t relative z-20 flex-shrink-0 mt-auto transition-colors",
+            isDarkTheme ? "bg-slate-900 border-slate-800" : "bg-white border-slate-100"
+          )}>
             <div className="relative flex items-center">
               <input
                 autoFocus
@@ -221,7 +341,12 @@ export const SkilyChat = React.memo(() => {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder={t('skilyChat.inputPlaceholder')}
-                className="w-full h-12 sm:h-14 md:h-16 pl-4 sm:pl-5 md:pl-6 pr-16 sm:pr-18 md:pr-20 bg-slate-800 border border-slate-700 focus:border-indigo-500 focus:bg-slate-800 focus:ring-2 sm:focus:ring-4 focus:ring-indigo-500/10 rounded-xl font-medium text-white text-sm sm:text-base md:text-lg transition-all outline-none placeholder:text-slate-500"
+                className={cn(
+                  "w-full h-12 sm:h-14 md:h-16 pl-4 sm:pl-5 md:pl-6 pr-16 sm:pr-18 md:pr-20 border focus:ring-2 sm:focus:ring-4 rounded-xl font-medium text-sm sm:text-base md:text-lg transition-all outline-none transition-colors",
+                  isDarkTheme
+                    ? "bg-slate-800 border-slate-700 focus:border-indigo-500 focus:bg-slate-800 focus:ring-indigo-500/10 text-white placeholder:text-slate-500"
+                    : "bg-slate-50 border-slate-200 focus:border-indigo-400 focus:bg-white focus:ring-indigo-500/5 text-slate-900 placeholder:text-slate-400"
+                )}
               />
               <div className="absolute right-1.5 sm:right-2">
                 <button

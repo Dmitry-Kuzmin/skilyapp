@@ -37,46 +37,50 @@ export function Footer() {
 
   return (
     <footer
-      className="border-t border-border/50 bg-background/95 backdrop-blur-xl pb-4 md:pb-6 mb-[140px] md:mb-0"
+      className="border-t border-border/40 bg-background/80 backdrop-blur-xl pb-10 md:pb-8 mb-[140px] md:mb-0"
       style={{ position: 'static' }}
     >
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          {/* Logo/Brand */}
-          <button
-            type="button"
-            onClick={() => navigate("/dashboard")}
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg px-1 py-1 transition-opacity hover:opacity-90"
-            style={{ overflow: 'visible', position: 'relative', zIndex: 1 }}
-          >
-            <LandingLogo variant="bold" showText={true} className="scale-75" />
-          </button>
+      <div className="container mx-auto px-6 pt-10 pb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          {/* Logo & Copyright (Left/Center on mobile) */}
+          <div className="flex flex-col items-center md:items-start gap-4 order-2 md:order-1">
+            <button
+              type="button"
+              onClick={() => navigate("/dashboard")}
+              className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg transition-all hover:scale-105 active:scale-95"
+            >
+              <LandingLogo variant="bold" showText={true} className="scale-90" />
+            </button>
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground/50">
+              ©{currentYear} Skily · First Class AI EdTech
+            </p>
+          </div>
 
-          {/* Minimalist Links */}
-          <div className="flex items-center gap-4">
+          {/* Center: Install Action (Always centered) */}
+          <div className="flex justify-center order-1 md:order-2">
+            <InstallAppButton
+              className="bg-secondary/50 hover:bg-secondary border border-border/50 text-foreground h-9 px-5 rounded-full shadow-none group transition-all hover:border-primary/30"
+              minimal={false}
+            />
+          </div>
+
+          {/* Right: Nav Links */}
+          <div className="flex items-center justify-center md:justify-end gap-6 order-3">
             {footerLinks.map((link) => {
               const Icon = link.icon;
               return (
                 <button
                   key={link.to}
                   type="button"
-                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground hover:text-primary transition-all hover:translate-y-[-1px] group"
                   onClick={() => navigate(link.to)}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-primary transition-colors" />
                   <span>{link.label}</span>
                 </button>
               );
             })}
-
-            <div className="hidden sm:block h-4 w-px bg-border/50" />
-            <InstallAppButton className="h-8 text-xs px-3" />
           </div>
-
-          {/* Copyright */}
-          <p className="text-xs text-muted-foreground/70">
-            ©{currentYear} Skily
-          </p>
         </div>
       </div>
     </footer>

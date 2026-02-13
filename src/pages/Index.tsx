@@ -236,11 +236,13 @@ const DashboardContent = memo(function DashboardContent() {
   return (
     <>
       {showWelcome && !hasError && (
-        <WelcomeOverlay
-          onComplete={handleWelcomeComplete}
-          isLoading={loading}
-          isPremium={isPremium}
-        />
+        <Suspense fallback={null}>
+          <WelcomeOverlay
+            onComplete={handleWelcomeComplete}
+            isLoading={loading}
+            isPremium={isPremium}
+          />
+        </Suspense>
       )}
       <Suspense fallback={<PageLoader />}>
         <Layout hideNavigation={showWelcome}>
@@ -287,6 +289,7 @@ const DashboardContent = memo(function DashboardContent() {
                   onGetPremium={() => setPaywallOpen(true)}
                   profileId={profileId}
                   userProfile={dashboardData.profile}
+                  licenseHistory={dashboardData.license_history}
                   readinessStatus={readiness ? {
                     status: readiness.status,
                     statusText: readiness.statusText,
@@ -315,35 +318,45 @@ const Index = memo(function Index() {
   const isAuthenticated = userContext?.isAuthenticated ?? false;
   const isLoading = userContext?.isLoading ?? true;
   const navigate = useNavigate();
+  const [redirecting, setRedirecting] = useState(false);
 
   // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
-  // НО: НЕ редиректим если мы в Telegram Mini App - там авторизация может появиться позже
-  // Это предотвращает бесконечный цикл редиректов между Landing и Index
   useEffect(() => {
-    // Проверяем, что мы не в Telegram Mini App
     const isInTelegram = typeof window !== 'undefined' &&
       window.Telegram?.WebApp &&
       window.Telegram.WebApp.initData &&
       window.Telegram.WebApp.initData !== '' &&
       !window.Telegram.WebApp.initData.startsWith('mock_');
 
-    // Редиректим только если НЕ в Telegram Mini App
     if (!isLoading && userContext && !isAuthenticated && !isInTelegram) {
-      // КРИТИЧНО: Проверяем, что мы не на главной странице, чтобы избежать бесконечного цикла
-      if (window.location.pathname !== '/') {
-        navigate('/', { replace: true });
-      }
+      console.log('[Index] Not authenticated, redirecting to landing...');
+      setRedirecting(true);
+      navigate('/', { replace: true });
     }
   }, [isLoading, userContext, isAuthenticated, navigate]);
+
+  // SAFETY NET: Если загрузка авторизации висит дольше 5 секунд — принудительно редиректим
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const timer = setTimeout(() => {
+      console.warn('[Index] ⚠️ Auth loading timeout (5s), force redirect to landing');
+      if (typeof window !== 'undefined') {
+        window.location.replace('/');
+      }
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
   // Показываем loader пока идет загрузка авторизации
   if (isLoading || !userContext) {
     return <PageLoader />;
   }
 
-  // Проверяем авторизацию
-  if (!isAuthenticated) {
-    return <PageLoader />;
+  // Если не авторизован — показываем null (редирект уже запущен)
+  if (!isAuthenticated || redirecting) {
+    return null;
   }
 
   return (

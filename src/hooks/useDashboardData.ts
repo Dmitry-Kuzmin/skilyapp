@@ -125,6 +125,10 @@ interface DashboardStats {
     updated_at: string;
   } | null;
   unread_notifications_count?: number;
+  license_history?: Array<{
+    points: number;
+    recorded_at: string;
+  }>;
 }
 
 interface DashboardData extends DashboardStats {
@@ -166,16 +170,21 @@ export function useDashboardData() {
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
 
       try {
-        const promise = (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
+        const promise = (supabase as any).rpc('get_dashboard_super_v2', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 5000));
 
         const response: any = await Promise.race([promise, timeoutPromise]);
 
         if (!response.error && response.data && !response.data.error) {
-
           return response.data as DashboardData;
         }
-        // console.warn('[useDashboardData] ⚠️ get_dashboard_super error or empty:', response.error || response.data?.error);
+        // Fallback to v1 if v2 is not yet deployed
+        const promiseV1 = (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
+        const responseV1: any = await Promise.race([promiseV1, timeoutPromise]);
+
+        if (!responseV1.error && responseV1.data && !responseV1.data.error) {
+          return responseV1.data as DashboardData;
+        }
       } catch (e: any) {
         // console.warn('[useDashboardData] ❌ get_dashboard_super failed:', e.message);
       }

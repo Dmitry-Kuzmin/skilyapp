@@ -23,7 +23,7 @@ interface CatalogEntry {
 const PaymentRequestSchema = z.object({
   user_id: z.string().uuid("user_id must be a valid UUID"),
   catalog_key: z.enum([
-    'premium_monthly', 'premium_yearly', 'duel_pass_season',
+    'premium_monthly', 'premium_quarterly', 'premium_biannual', 'premium_yearly', 'duel_pass_season',
     'coins_pack_100', 'coins_pack_500', 'coins_pack_1200', 'coins_pack_3000'
   ], { errorMap: () => ({ message: "Invalid catalog_key" }) }),
 });
@@ -37,6 +37,8 @@ interface CryptomusResponse {
 
 const CATALOG: Record<string, CatalogEntry> = {
   premium_monthly: { name: "Premium Monthly", amountCents: 999, currency: "eur", dbType: "premium", dbItemId: "premium_monthly", description: "Monthly Premium" },
+  premium_quarterly: { name: "Premium Quarterly", amountCents: 2499, currency: "eur", dbType: "premium", dbItemId: "premium_quarterly", description: "3 Months Premium access" },
+  premium_biannual: { name: "Premium Biannual", amountCents: 3999, currency: "eur", dbType: "premium", dbItemId: "premium_biannual", description: "6 Months Premium access" },
   premium_yearly: { name: "Premium Yearly", amountCents: 5999, currency: "eur", dbType: "premium", dbItemId: "premium_yearly", description: "Yearly Premium" },
   duel_pass_season: { name: "Duel Pass", amountCents: 499, currency: "eur", dbType: "duel_pass", dbItemId: "duel_pass_season", description: "Premium Duel Pass" },
   coins_pack_100: { name: "100 монет", amountCents: 299, currency: "eur", dbType: "coins_pack", dbItemId: "pack_100", description: "100 монет", metadata: { coins: 100 } },
@@ -99,70 +101,69 @@ serve(async (req) => {
         { status: 429, headers: { ...corsHeaders, 'Retry-After': '60' } }
       );
     }
-  }
 
     const entry = CATALOG[catalog_key];
-  if (!entry) {
-    return new Response(JSON.stringify({ error: "Invalid catalog_key" }), { status: 400, headers: corsHeaders });
-  }
+    if (!entry) {
+      return new Response(JSON.stringify({ error: "Invalid catalog_key" }), { status: 400, headers: corsHeaders });
+    }
 
-  const amountUsd = ((entry.amountCents / 100) * 1.08).toFixed(2);
-  const orderId = `order_${user_id}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const amountUsd = ((entry.amountCents / 100) * 1.08).toFixed(2);
+    const orderId = `order_${user_id}_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
-  const payload = {
-    amount: amountUsd,
-    currency: "USD",
-    order_id: orderId,
-    url_return: successUrl,
-    url_callback: `${supabaseUrl}/functions/v1/cryptomus-webhook`,
-    is_payment_multiple: false,
-    lifetime: 7200,
-    to_currency: "USDT",
-    additional_data: JSON.stringify({
+    const payload = {
+      amount: amountUsd,
+      currency: "USD",
+      order_id: orderId,
+      url_return: successUrl,
+      url_callback: `${supabaseUrl}/functions/v1/cryptomus-webhook`,
+      is_payment_multiple: false,
+      lifetime: 7200,
+      to_currency: "USDT",
+      additional_data: JSON.stringify({
+        user_id,
+        catalog_key,
+        db_type: entry.dbType,
+        db_item_id: entry.dbItemId,
+        ...entry.metadata,
+      }),
+    };
+
+    const payloadString = JSON.stringify(payload);
+    const signature = createSignature(payloadString, cryptomusPaymentKey);
+
+    const cryptomusResponse = await fetch("https://api.cryptomus.com/v1/payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "merchant": cryptomusMerchantId, "sign": signature },
+      body: payloadString,
+    });
+
+    if (!cryptomusResponse.ok) {
+      const errorText = await cryptomusResponse.text();
+      console.error("[cryptomus-payment] API error:", errorText);
+      return new Response(JSON.stringify({ error: "Cryptomus API failed" }), { status: 500, headers: corsHeaders });
+    }
+
+    const cryptomusData: CryptomusResponse = await cryptomusResponse.json();
+
+    if (!cryptomusData.result?.url) {
+      return new Response(JSON.stringify({ error: "Invalid Cryptomus response" }), { status: 500, headers: corsHeaders });
+    }
+
+    await supabase.from("purchases").insert({
       user_id,
-      catalog_key,
-      db_type: entry.dbType,
-      db_item_id: entry.dbItemId,
-      ...entry.metadata,
-    }),
-  };
+      item_type: entry.dbType,
+      item_id: entry.dbItemId,
+      price: entry.amountCents / 100,
+      currency: entry.currency.toUpperCase(),
+      cryptomus_order_id: orderId,
+      cryptomus_payment_id: cryptomusData.result.uuid || null,
+      status: "pending",
+      metadata: { ...entry.metadata, cryptomus_data: cryptomusData.result },
+    });
 
-  const payloadString = JSON.stringify(payload);
-  const signature = createSignature(payloadString, cryptomusPaymentKey);
-
-  const cryptomusResponse = await fetch("https://api.cryptomus.com/v1/payment", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "merchant": cryptomusMerchantId, "sign": signature },
-    body: payloadString,
-  });
-
-  if (!cryptomusResponse.ok) {
-    const errorText = await cryptomusResponse.text();
-    console.error("[cryptomus-payment] API error:", errorText);
-    return new Response(JSON.stringify({ error: "Cryptomus API failed" }), { status: 500, headers: corsHeaders });
+    return new Response(JSON.stringify({ success: true, url: cryptomusData.result.url, orderId }), { headers: corsHeaders });
+  } catch (error: any) {
+    console.error("[cryptomus-payment] Error:", error);
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
   }
-
-  const cryptomusData: CryptomusResponse = await cryptomusResponse.json();
-
-  if (!cryptomusData.result?.url) {
-    return new Response(JSON.stringify({ error: "Invalid Cryptomus response" }), { status: 500, headers: corsHeaders });
-  }
-
-  await supabase.from("purchases").insert({
-    user_id,
-    item_type: entry.dbType,
-    item_id: entry.dbItemId,
-    price: entry.amountCents / 100,
-    currency: entry.currency.toUpperCase(),
-    cryptomus_order_id: orderId,
-    cryptomus_payment_id: cryptomusData.result.uuid || null,
-    status: "pending",
-    metadata: { ...entry.metadata, cryptomus_data: cryptomusData.result },
-  });
-
-  return new Response(JSON.stringify({ success: true, url: cryptomusData.result.url, orderId }), { headers: corsHeaders });
-} catch (error: any) {
-  console.error("[cryptomus-payment] Error:", error);
-  return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
-}
 });

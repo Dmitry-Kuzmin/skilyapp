@@ -90,7 +90,23 @@ export interface LandingCopy {
         title: string;
         price: string;
         note: string;
-        badge: string;
+        badge?: string;
+        features: string[];
+        cta: string;
+      };
+      quarterly: {
+        title: string;
+        price: string;
+        note: string;
+        badge?: string;
+        features: string[];
+        cta: string;
+      };
+      biannual: {
+        title: string;
+        price: string;
+        note: string;
+        badge?: string;
         features: string[];
         cta: string;
       };
@@ -98,7 +114,7 @@ export interface LandingCopy {
         title: string;
         price: string;
         note: string;
-        badge: string;
+        badge?: string;
         features: string[];
         cta: string;
       };
@@ -271,16 +287,32 @@ export const landingTranslations: Record<Language, LandingCopy> = {
           title: "Pro mensual",
           price: "€9.99",
           note: "/mes",
-          badge: "Popular",
+          badge: "FLEXIBLE",
           features: ["Tests ilimitados", "Skily AI completo", "Sin publicidad"],
           cta: "Suscribirse",
+        },
+        quarterly: {
+          title: "Pro trimestral",
+          price: "€24.99",
+          note: "/3 meses",
+          badge: "AHORRA 17%",
+          features: ["Todo lo de Mensual", "Acceso por 90 días", "Soporte prioritario"],
+          cta: "Elegir plan",
+        },
+        biannual: {
+          title: "Pro semestral",
+          price: "€39.99",
+          note: "/6 meses",
+          badge: "AHORRA 33%",
+          features: ["Todo lo de Trimestral", "Acceso por 180 días", "Pack de inicio AI"],
+          cta: "Elegir plan",
         },
         yearly: {
           title: "Pro anual",
           price: "€59.99",
           note: "/año",
-          badge: "-50% OFF",
-          features: ["Todo lo de mensual", "2 meses gratis", "Prioridad en duelos"],
+          badge: "MEJOR VALOR",
+          features: ["Todo lo anterior", "2 meses gratis", "Estatus Gold"],
           cta: "Ahorrar ahora",
         },
       },
@@ -449,16 +481,32 @@ export const landingTranslations: Record<Language, LandingCopy> = {
           title: "Pro monthly",
           price: "€9.99",
           note: "/month",
-          badge: "Popular",
+          badge: "FLEXIBLE",
           features: ["Unlimited tests", "Full Skily AI", "Ad-free experience"],
           cta: "Subscribe",
+        },
+        quarterly: {
+          title: "Pro quarterly",
+          price: "€24.99",
+          note: "/3 months",
+          badge: "SAVE 17%",
+          features: ["Everything in Monthly", "90 days access", "Priority support"],
+          cta: "Get started",
+        },
+        biannual: {
+          title: "Pro biannual",
+          price: "€39.99",
+          note: "/6 months",
+          badge: "SAVE 33%",
+          features: ["Everything in Quarterly", "180 days access", "AI Starter Pack"],
+          cta: "Get started",
         },
         yearly: {
           title: "Pro yearly",
           price: "€59.99",
           note: "/year",
-          badge: "-50% OFF",
-          features: ["Everything in monthly", "2 free months", "Duel priority"],
+          badge: "BEST VALUE",
+          features: ["Everything above", "2 free months", "Gold status"],
           cta: "Save now",
         },
       },
@@ -627,16 +675,32 @@ export const landingTranslations: Record<Language, LandingCopy> = {
           title: "Pro (месяц)",
           price: "€9.99",
           note: "/мес",
-          badge: "Популярно",
+          badge: "ГИБКИЙ",
           features: ["Безлимитные тесты", "Полный Skily AI", "Без рекламы"],
           cta: "Оформить",
+        },
+        quarterly: {
+          title: "Pro (3 месяца)",
+          price: "€24.99",
+          note: "/3 мес",
+          badge: "ВЫГОДНО",
+          features: ["Всё из тарифа на месяц", "Экономия 17%", "Приоритетная поддержка"],
+          cta: "Выбрать",
+        },
+        biannual: {
+          title: "Pro (6 месяцев)",
+          price: "€39.99",
+          note: "/6 мес",
+          badge: "ХИТ",
+          features: ["Всё из тарифа 3 месяца", "Экономия 33%", "AI Пакет в подарок"],
+          cta: "Выбрать",
         },
         yearly: {
           title: "Pro (год)",
           price: "€59.99",
           note: "/год",
-          badge: "-50% OFF",
-          features: ["Все из Pro (месяц)", "2 месяца в подарок", "Приоритет в дуэлях"],
+          badge: "ЛУЧШАЯ ЦЕНА",
+          features: ["Все функции Premium", "2 месяца в подарок", "Золотой статус"],
           cta: "Сэкономить",
         },
       },
