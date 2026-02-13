@@ -3,7 +3,7 @@ import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
-import { Loader2, Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock } from "lucide-react";
+import { Loader2, Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, CreditCard, Bitcoin } from "lucide-react";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { PRICING_PLANS } from "@/lib/pricing-config";
 import { Badge } from "@/components/ui/badge";
@@ -95,6 +95,11 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
+  const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
+
+  const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus'>(
+    showPaddlePayment ? 'paddle' : 'cryptomus'
+  );
 
   useEffect(() => {
     if (!open || !showPaddlePayment) return;
@@ -105,7 +110,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
   const handlePurchase = async (planId: string) => {
     if (!profileId) {
-      toast({ title: "Ошибка", description: "Необходимо войти в аккаунт", variant: "destructive" });
+      toast({ title: "Ошибка", description: "Необходимо войти в аккаунт. Если вы вошли, попробуйте перезайти.", variant: "destructive" });
       return;
     }
 
@@ -118,68 +123,96 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     setSelectedPlanId(planId);
 
     try {
-      let paddleInstance = paddle || getPaddleInstanceSync();
-      if (!paddleInstance && showPaddlePayment) {
-        paddleInstance = await getPaddleInstance();
-        if (paddleInstance) setPaddle(paddleInstance);
-      }
+      if (paymentMethod === 'paddle') {
+        let paddleInstance = paddle || getPaddleInstanceSync();
+        if (!paddleInstance && showPaddlePayment) {
+          paddleInstance = await getPaddleInstance();
+          if (paddleInstance) setPaddle(paddleInstance);
+        }
 
-      const partnerCode = localStorage.getItem('partner_code');
-      const { data, error } = await supabase.functions.invoke("paddle-payment", {
-        body: {
-          user_id: profileId,
-          catalog_key: catalogKey,
-          ...(partnerCode ? { partner_code: partnerCode } : {}),
-        },
-      });
+        const partnerCode = localStorage.getItem('partner_code');
+        const { data, error } = await supabase.functions.invoke("paddle-payment", {
+          body: {
+            user_id: profileId,
+            catalog_key: catalogKey,
+            ...(partnerCode ? { partner_code: partnerCode } : {}),
+          },
+        });
 
-      if (error || data?.error || !data?.transaction_id) {
-        console.error("[PaywallModal] Purchase error:", error || data?.error);
-        toast({ title: "Ошибка оплаты", description: (error?.message || data?.error || "Попробуйте позже"), variant: "destructive" });
-        setSelectedPlanId(null);
-        return;
-      }
+        if (error || data?.error || !data?.transaction_id) {
+          console.error("[PaywallModal] Paddle purchase error:", error || data?.error);
 
-      sessionStorage.setItem('paddle_transaction_id', data.transaction_id);
-      localStorage.setItem('paddle_transaction_id', data.transaction_id);
+          if (error?.message?.includes('Refresh Token') || error?.status === 400) {
+            toast({ title: "Сессия истекла", description: "Пожалуйста, выйдите и войдите снова", variant: "destructive" });
+          } else {
+            toast({ title: "Ошибка оплаты (Paddle)", description: (error?.message || data?.error || "Попробуйте позже"), variant: "destructive" });
+          }
+          setSelectedPlanId(null);
+          return;
+        }
 
-      const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
-      const isTelegram = isTelegramMiniApp();
-      const webApp = getTelegramWebApp();
+        sessionStorage.setItem('paddle_transaction_id', data.transaction_id);
+        localStorage.setItem('paddle_transaction_id', data.transaction_id);
 
-      if (isTelegram && webApp) {
-        setSelectedPlanId(null);
-        if ((webApp as any).openLink) {
-          (webApp as any).openLink(paddleCheckoutUrl);
+        const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
+        const isTelegram = isTelegramMiniApp();
+        const webApp = getTelegramWebApp();
+
+        if (isTelegram && webApp) {
+          setSelectedPlanId(null);
+          if ((webApp as any).openLink) {
+            (webApp as any).openLink(paddleCheckoutUrl);
+          } else {
+            window.location.href = paddleCheckoutUrl;
+          }
+          return;
+        }
+
+        if (paddleInstance) {
+          try {
+            paddleInstance.Checkout.open({
+              transactionId: data.transaction_id,
+              settings: {
+                displayMode: "overlay",
+                successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
+                theme: "dark",
+                locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
+              },
+            });
+            setSelectedPlanId(null);
+          } catch {
+            setSelectedPlanId(null);
+            window.location.href = paddleCheckoutUrl;
+          }
         } else {
+          setSelectedPlanId(null);
           window.location.href = paddleCheckoutUrl;
         }
-        return;
-      }
+      } else if (paymentMethod === 'cryptomus') {
+        const { data, error } = await supabase.functions.invoke("cryptomus-payment", {
+          body: {
+            user_id: profileId,
+            catalog_key: catalogKey,
+          },
+        });
 
-      if (paddleInstance) {
-        try {
-          paddleInstance.Checkout.open({
-            transactionId: data.transaction_id,
-            settings: {
-              displayMode: "overlay",
-              successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
-              theme: "dark",
-              locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
-            },
+        if (error || data?.error || !data?.url) {
+          console.error("[PaywallModal] Cryptomus purchase error:", error || data?.error);
+          toast({
+            title: "Ошибка оплаты (Cryptomus)",
+            description: (error?.message || data?.error || "Попробуйте позже"),
+            variant: "destructive"
           });
           setSelectedPlanId(null);
-        } catch {
-          setSelectedPlanId(null);
-          window.location.href = paddleCheckoutUrl;
+          return;
         }
-      } else {
-        setSelectedPlanId(null);
-        window.location.href = paddleCheckoutUrl;
+
+        // Перенаправляем на страницу оплаты Cryptomus
+        window.location.href = data.url;
       }
     } catch (err: any) {
-      console.error("[PaywallModal] Error:", err);
-      toast({ title: "Ошибка", description: err?.message || "Попробуйте позже", variant: "destructive" });
+      console.error("[PaywallModal] Global error:", err);
+      toast({ title: "Ошибка", description: err?.message || "Непредвиденная ошибка. Попробуйте позже.", variant: "destructive" });
       setSelectedPlanId(null);
     }
   };
@@ -312,13 +345,44 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="flex justify-between items-end mb-6"
+              className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4"
             >
               <div>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white">Выберите план</h3>
                 <p className="text-sm text-slate-500 font-medium">Инвестиция в ваши водительские права</p>
               </div>
-              {/* Optional: Currency switcher or info */}
+
+              {/* Payment Method Selector */}
+              <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+                {showPaddlePayment && (
+                  <button
+                    onClick={() => setPaymentMethod('paddle')}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                      paymentMethod === 'paddle'
+                        ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                        : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    )}
+                  >
+                    <CreditCard className="w-3.5 h-3.5" />
+                    <span>Карта</span>
+                  </button>
+                )}
+                {showCryptomusPayment && (
+                  <button
+                    onClick={() => setPaymentMethod('cryptomus')}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                      paymentMethod === 'cryptomus'
+                        ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                        : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                    )}
+                  >
+                    <Bitcoin className="w-3.5 h-3.5" />
+                    <span>Крипта</span>
+                  </button>
+                )}
+              </div>
             </motion.div>
 
             <motion.div
