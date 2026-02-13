@@ -22,7 +22,7 @@ interface CatalogEntry {
 const PaymentRequestSchema = z.object({
   user_id: z.string().uuid("user_id must be a valid UUID"),
   catalog_key: z.enum([
-    'premium_monthly', 'premium_quarterly', 'premium_biannual', 'premium_yearly', 'duel_pass_season',
+    'premium_monthly', 'premium_quarterly', 'premium_biannual', 'premium_yearly', 'premium_lifetime', 'duel_pass_season',
     'coins_pack_100', 'coins_pack_500', 'coins_pack_1200', 'coins_pack_3000'
   ], { errorMap: () => ({ message: "Invalid catalog_key" }) }),
 });
@@ -40,6 +40,7 @@ const PADDLE_PRICE_IDS: Record<string, string> = {
   premium_quarterly: 'pri_01kha34fejn9e8kh8cx3hamxsv',
   premium_biannual: 'pri_01kha35t5rajard43tkv7p193h',
   premium_yearly: 'pri_01kc92macq42tk8e8pbp46qp2y',
+  premium_lifetime: 'pri_01kha3v1a8j4e6k8hamxsvpt19', // New Price ID for Lifetime
   duel_pass_season: 'pri_01kc92sf64bd1dps62zhaeb1r5',
   coins_pack_100: 'pri_01kc92twnhc57syz7j0rs9z7vx',
   coins_pack_500: 'pri_01kha3n97f0kk5rkxezvxpdfqs',
@@ -52,6 +53,7 @@ const CATALOG: Record<string, CatalogEntry> = {
   premium_quarterly: { name: "Premium Quarterly", amountCents: 2499, currency: "eur", dbType: "premium", dbItemId: "premium_quarterly", description: "3 Months Premium access" },
   premium_biannual: { name: "Premium Biannual", amountCents: 3999, currency: "eur", dbType: "premium", dbItemId: "premium_biannual", description: "6 Months Premium access" },
   premium_yearly: { name: "Premium Yearly", amountCents: 5999, currency: "eur", dbType: "premium", dbItemId: "premium_yearly", description: "Yearly Premium access" },
+  premium_lifetime: { name: "Premium Lifetime", amountCents: 9999, currency: "eur", dbType: "premium", dbItemId: "premium_lifetime", description: "Lifetime Premium access" },
   duel_pass_season: { name: "Duel Pass", amountCents: 499, currency: "eur", dbType: "duel_pass", dbItemId: "duel_pass_season", description: "Premium Duel Pass" },
   coins_pack_100: { name: "100 монет", amountCents: 299, currency: "eur", dbType: "coins_pack", dbItemId: "pack_100", description: "100 монет", metadata: { coins: 100 } },
   coins_pack_500: { name: "500 монет", amountCents: 999, currency: "eur", dbType: "coins_pack", dbItemId: "pack_500", description: "550 монет", metadata: { coins: 550 } },

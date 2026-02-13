@@ -32,6 +32,7 @@ const PLAN_TO_CATALOG: Record<string, string> = {
   quarterly: 'premium_quarterly',
   biannual: 'premium_biannual',
   yearly: 'premium_yearly',
+  lifetime: 'premium_lifetime',
 };
 
 // Компонент живого фона (Lava Lamp Bubbles)
