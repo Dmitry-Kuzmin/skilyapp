@@ -14,21 +14,52 @@ function bufToHex(buf: ArrayBuffer): string {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function getTelegramProfilePhoto(telegramId: number): Promise<string | null> {
+async function syncTelegramProfilePhoto(supabaseAdmin: any, telegramId: number): Promise<string | null> {
     try {
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUserProfilePhotos?user_id=${telegramId}&limit=1`);
         const data = await response.json();
         if (!data.ok || !data.result?.photos?.[0]?.[0]) return null;
+
         const photos = data.result.photos[0];
         const fileId = photos[photos.length - 1].file_id;
+
         const fileResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`);
         const fileData = await fileResponse.json();
         if (!fileData.ok || !fileData.result?.file_path) return null;
-        return `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`;
+
+        const telegramImageUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`;
+
+        // Download image content
+        const imageResponse = await fetch(telegramImageUrl);
+        if (!imageResponse.ok) return null;
+        const imageBlob = await imageResponse.blob();
+
+        // Upload to Supabase Storage
+        const fileName = `${telegramId}.jpg`;
+        const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+            .from('avatars')
+            .upload(fileName, imageBlob, {
+                contentType: 'image/jpeg',
+                upsert: true
+            });
+
+        if (uploadError) {
+            console.error('Storage upload error:', uploadError);
+            return telegramImageUrl; // Fallback to TG URL if upload fails
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabaseAdmin.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+
+        return publicUrl;
     } catch (e) {
+        console.error('syncTelegramProfilePhoto error:', e);
         return null;
     }
 }
+
 
 async function validateTelegramData(initData: string): Promise<Record<string, unknown>> {
     const urlParams = new URLSearchParams(initData);
@@ -51,9 +82,10 @@ Deno.serve(async (req) => {
     try {
         const { initData } = await req.json();
         const telegramUser = await validateTelegramData(initData);
-        let photoUrl = await getTelegramProfilePhoto(telegramUser.id);
 
         const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        let photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id);
+
 
         // Унификация
         const { data: existingProf } = await supabaseAdmin.from('profiles').select('user_id').eq('telegram_id', telegramUser.id).maybeSingle();
@@ -88,8 +120,8 @@ Deno.serve(async (req) => {
         const { data: sessionData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
 
-        // Sync profile
-        await supabaseAdmin.from('profiles').upsert({
+        // Sync profile and get it back to return the ID
+        const { data: profileData, error: profileError } = await supabaseAdmin.from('profiles').upsert({
             user_id: sessionData.user.id,
             telegram_id: telegramUser.id,
             first_name: telegramUser.first_name,
@@ -97,9 +129,14 @@ Deno.serve(async (req) => {
             username: telegramUser.username || null,
             photo_url: photoUrl,
             updated_at: new Date().toISOString()
-        }, { onConflict: 'telegram_id' });
+        }, { onConflict: 'telegram_id' }).select('id').single();
 
-        return new Response(JSON.stringify({ session: sessionData.session, user: sessionData.user }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        return new Response(JSON.stringify({
+            session: sessionData.session,
+            user: sessionData.user,
+            profile_id: profileData?.id
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
 
     } catch (err) {
         return new Response(JSON.stringify({ error: err.message }), { status: 401, headers: corsHeaders });

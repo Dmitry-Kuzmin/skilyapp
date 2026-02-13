@@ -31,8 +31,14 @@ export interface Database {
           assistant_last_interaction: string
           settings: Json | null
           active_country: string | null
+          photo_url: string | null
+          language_code: string | null
+          is_telegram_premium: boolean | null
+          subscription_status: string | null
+          premium_forever_purchased_at: string | null
           created_at: string | null
           updated_at: string | null
+
         }
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;

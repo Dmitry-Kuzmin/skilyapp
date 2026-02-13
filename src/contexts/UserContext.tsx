@@ -395,20 +395,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
               if (sessionError) {
                 console.error('[UserContext] setSession error:', sessionError);
+                // Если ошибка связана с невалидным токеном (400), пробуем войти заново без сессии
+                if (sessionError.message.includes('refresh_token_not_found') || sessionError.status === 400) {
+                  console.warn('[UserContext] Invalid session detected, clearing storage and falling back...');
+                  localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+                  login(telegramUser).catch(err => console.error('[UserContext] Fallback login failed:', err));
+                }
               } else {
                 console.log("[UserContext] 🎉 Supabase session set successfully!");
                 setSession(authData.session);
                 setSupabaseUser(authData.user);
 
-                // Обновляем profileId если есть
-                if (authData.user?.id) {
-                  const cachedProfileId = localStorage.getItem(`profile_${telegramUser.id}`);
-                  if (cachedProfileId) {
-                    setProfileId(cachedProfileId);
-                    setGlobalProfileId(cachedProfileId);
-                  }
+                // 🚀 NEW: Устанавливаем profileId напрямую из ответа функции
+                // Это устраняет задержку и ошибки при первой покупке
+                if (authData.profile_id) {
+                  console.log("[UserContext] Set profileId from auth function:", authData.profile_id);
+                  setProfileId(authData.profile_id);
+                  setGlobalProfileId(authData.profile_id);
+                  localStorage.setItem(`profile_${telegramUser.id}`, authData.profile_id);
                 }
               }
+
             } else {
               console.warn('[UserContext] telegram-auth-v2 returned no session');
               // Fallback to old login method
