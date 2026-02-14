@@ -294,11 +294,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
         (window.Telegram?.WebApp?.initDataUnsafe?.user?.id === 123456789 &&
           window.Telegram?.WebApp?.initDataUnsafe?.user?.username === 'test_user');
 
+      /* 
       if (isMockTelegram) {
         console.log("[UserContext] Mock Telegram detected, skipping initialization");
         setIsLoading(false);
         return;
       }
+      */
 
       // АРХИТЕКТУРА: Используем TelegramProvider (Singleton) вместо прямого вызова initTelegram()
       // WebApp уже инициализирован через TelegramProvider, просто получаем пользователя

@@ -28,8 +28,6 @@ interface AppProvidersProps {
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-  console.log('[AppProviders] 🚀 AppProviders component rendering');
-
   // Слушаем Auth события для отправки уведомлений о критичных изменениях
   useAuthEventListener();
 
@@ -154,7 +152,9 @@ export function AppProviders({ children }: AppProvidersProps) {
               {/* Global Settings Drawer (Zustand controlled) */}
               <GlobalSettingsManager />
               {(() => {
-                console.log('[AppProviders] Rendering children (AppRoutes)');
+                if (import.meta.env.DEV) {
+                  console.debug('[AppProviders] 🚀 Rendering children:', !!children);
+                }
                 return children;
               })()}
             </PDDProvider>

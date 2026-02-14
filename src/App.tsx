@@ -283,13 +283,6 @@ const LandingRedirect = () => {
 };
 
 const App = () => {
-  if (import.meta.env.DEV) {
-    console.log('[App] 🚀 App component rendering started', {
-      timestamp: new Date().toISOString(),
-      pathname: typeof window !== 'undefined' ? window.location.pathname : 'unknown',
-    });
-  }
-
   // КРИТИЧНО: Проверяем Telegram WebApp только если мы действительно в Telegram Mini App
   // В браузере window.Telegram может быть моком или заглушкой
   if (typeof window !== 'undefined' && window.Telegram?.WebApp && isTelegramMiniApp()) {

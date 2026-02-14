@@ -66,8 +66,13 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
         progressWidth,
         isSuspended,
         rankLabel,
-        isExpert
+        isExpert,
+        globalId
     } = useMemo(() => {
+        // Log to verify memo is running
+        if (import.meta.env.DEV) {
+            console.log('[LicenseCard] 💎 recalculating memo', { profileId: userProfile?.id });
+        }
         const points = userProfile?.license_points ?? 8;
         const maxPoints = 15;
         const progressWidth = Math.min((points / maxPoints) * 100, 100);

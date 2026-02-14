@@ -351,11 +351,13 @@ const Index = memo(function Index() {
 
   // Показываем loader пока идет загрузка авторизации
   if (isLoading || !userContext) {
+    if (import.meta.env.DEV) console.debug('[Index] Loading auth...', { isLoading, hasContext: !!userContext });
     return <PageLoader />;
   }
 
   // Если не авторизован — показываем null (редирект уже запущен)
   if (!isAuthenticated || redirecting) {
+    if (import.meta.env.DEV) console.debug('[Index] Not auth or redirecting', { isAuthenticated, redirecting });
     return null;
   }
 
