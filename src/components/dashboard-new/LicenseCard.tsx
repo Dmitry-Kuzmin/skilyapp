@@ -29,6 +29,7 @@ interface LicenseCardProps {
         level?: number;
         currentStreak: number;
         accuracy?: number;
+        averageScore?: number;
     };
     isDarkTheme: boolean;
     selectedCountry: 'es' | 'ru' | 'sk';
@@ -138,6 +139,12 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
     const displayPoints = points < 10 ? `0${points} ` : points;
 
+    const readinessScore = useMemo(() => {
+        // Safe mapping to prevent 150% issues
+        const raw = stats.averageScore || stats.accuracy || 0;
+        return Math.min(100, Math.max(0, Math.round(Number(raw))));
+    }, [stats.averageScore, stats.accuracy]);
+
     // --- SPARKLINE (SVG) ---
 
     // --- REAL SPARKLINE DATA ---
@@ -231,7 +238,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                     </div>
                     <div className="flex items-center gap-1.5">
                         <Activity size={12} className="text-blue-500" />
-                        <span>{stats.accuracy || 18}{t('licenseCard.stats.readiness')}</span>
+                        <span>{readinessScore}{t('licenseCard.stats.readiness')}</span>
                     </div>
                 </div>
             </div>
@@ -281,11 +288,16 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 )}
             </div>
 
-            {/* Hint for point progression - Helping Dima */}
+            {/* Redesigned Hint: More integrated into the card flow */}
             {!isSuspended && points >= 8 && points < 10 && (
-                <div className="mt-4 flex items-start gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 max-w-[180px] animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    <Sparkles size={14} className="text-indigo-400 mt-0.5 shrink-0" />
-                    <span className="text-[9px] leading-tight font-medium text-indigo-300/90 text-right">
+                <div className="mt-4 flex flex-col items-end gap-1.5 animate-in fade-in slide-in-from-right-2 duration-700">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+                        <Sparkles size={10} className="text-indigo-400" />
+                        <span className="text-[9px] font-bold text-indigo-300 uppercase tracking-tight">
+                            {t('licenseCard.gating.examLocked')}
+                        </span>
+                    </div>
+                    <span className="text-[9px] leading-tight font-medium text-white/40 text-right max-w-[140px]">
                         {t('licenseCard.gating.unlockGoal')}
                     </span>
                 </div>
@@ -391,11 +403,16 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                 {/* Mobile Hint for point progression */}
                 {!isSuspended && points >= 8 && points < 10 && (
-                    <div className="mt-0 flex items-center gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 animate-in fade-in slide-in-from-bottom-1 duration-500">
-                        <Sparkles size={14} className="text-indigo-400 shrink-0" />
-                        <span className="text-[10px] leading-tight font-medium text-indigo-300/90">
-                            {t('licenseCard.gating.unlockGoal')}
-                        </span>
+                    <div className="mt-2 flex items-center justify-between p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                        <div className="flex flex-col gap-0.5">
+                            <span className="text-[10px] font-black text-indigo-300 uppercase leading-none">
+                                {t('licenseCard.gating.examLocked')}
+                            </span>
+                            <span className="text-[9px] font-medium text-white/40 leading-tight">
+                                {t('licenseCard.gating.unlockGoal')}
+                            </span>
+                        </div>
+                        <Sparkles size={14} className="text-indigo-400 opacity-50" />
                     </div>
                 )}
             </div>

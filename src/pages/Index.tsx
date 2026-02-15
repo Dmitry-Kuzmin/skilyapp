@@ -219,11 +219,11 @@ const DashboardContent = memo(function DashboardContent() {
   }, [navigate]);
 
   // Show Welcome Overlay
-  const readinessPercent = readiness?.percent || 0;
+  const readinessPercent = Math.min(100, readiness?.percent || 0);
   const accuracy = metrics?.accuracy
-    ? Math.round(metrics.accuracy * 100)
-    : (dashboardData?.stats.accuracy || 0);
-  const averageScore = readinessPercent || accuracy;
+    ? Math.min(100, Math.round(metrics.accuracy * 100))
+    : Math.min(100, (dashboardData?.stats.accuracy || 0));
+  const averageScore = Math.min(100, readinessPercent || accuracy);
 
 
 

@@ -75,7 +75,7 @@ BEGIN
     s.correct_qs + COALESCE(p.correct_count, 0) as correct_answers,
     CASE 
       WHEN (s.total_qs + COALESCE(p.answered_count, 0)) > 0 
-      THEN ROUND((s.correct_qs + COALESCE(p.correct_count, 0))::NUMERIC / (s.total_qs + COALESCE(p.answered_count, 0)) * 100, 1)
+      THEN LEAST(100, ROUND((s.correct_qs + COALESCE(p.correct_count, 0))::NUMERIC / (s.total_qs + COALESCE(p.answered_count, 0)) * 100, 1))
       ELSE 0 
     END as accuracy,
     COALESCE(rs.recent_performance, 0) as recent_performance
