@@ -645,7 +645,7 @@
           "Готовим трассы...",
           "Калибруем ИИ...",
           "Skily AI приветствует вас..."
-        ];  // Simple language check based on browser
+        ];
         var isEs = navigator.language.startsWith('es');
         if (isEs) {
           phrases = [
@@ -654,32 +654,32 @@
             "Sincronizando progreso...",
             "Preparando pistas...",
             "Calibrando IA...",
-            I te da la bienvenida..."
+            "Skily AI te da la bienvenida..."
           ];
         }
 
         var el = document.querySelector('.skeleton-text-main');
         var i = 0;
         if (el) {
-          ntent = phrases[0];
-          l(function () {
-                      ) % phrases.length;
-          ent = phrases[i];
+          el.textContent = phrases[0];
+          setInterval(function () {
+            i = (i + 1) % phrases.length;
+            el.textContent = phrases[i];
+          }, 2500);
         }
-      }
-      }) ();
+      })();
     </script>
   </div>
 
   <!-- PWA Service Worker управляется через vite-plugin-pwa -->
   <!-- НЕ удаляем SW вручную - это блокирует offline режим -->
   <script>
-    on() {
+    (function () {
       'use strict';
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-02-15-14:50';
+      const APP_VERSION = '2026-02-15-15:00';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
