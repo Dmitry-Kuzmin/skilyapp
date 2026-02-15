@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { crypto } from "https://deno.land/std@0.177.0/crypto/mod.ts";
+import { syncTelegramProfilePhoto } from '../_shared/telegram-utils.ts';
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -26,23 +27,6 @@ async function verifyTelegramHash(data: any, botToken: string): Promise<boolean>
     return hexSignature === hash;
 }
 
-async function getTelegramProfilePhoto(telegramId: number, botToken: string): Promise<string | null> {
-    try {
-        const response = await fetch(`https://api.telegram.org/bot${botToken}/getUserProfilePhotos?user_id=${telegramId}&limit=1`);
-        const data = await response.json();
-        if (!data.ok || !data.result?.photos?.[0]?.[0]) return null;
-        const photos = data.result.photos[0];
-        const fileId = photos[photos.length - 1].file_id;
-        const fileResponse = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`);
-        const fileData = await fileResponse.json();
-        if (!fileData.ok || !fileData.result?.file_path) return null;
-        return `https://api.telegram.org/file/bot${botToken}/${fileData.result.file_path}`;
-    } catch (e) {
-        console.error('Photo fetch error:', e);
-        return null;
-    }
-}
-
 serve(async (req) => {
     if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -55,13 +39,11 @@ serve(async (req) => {
 
         if (!(await verifyTelegramHash(telegramUser, botToken))) throw new Error('Hash mismatch');
 
-        let photoUrl = telegramUser.photo_url;
-        if (!photoUrl) {
-            console.log("Fetching photo via Bot API for ID:", telegramUser.id);
-            photoUrl = await getTelegramProfilePhoto(telegramUser.id, botToken);
-        }
-
         const supabaseAdmin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+
+        // Sync photo to Supabase Storage - ALWAYS, to avoid broken TG links
+        console.log("Syncing photo to storage for ID:", telegramUser.id);
+        const photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id as number, botToken);
 
         // 1. Unification: Проверяем, не привязан ли этот Telegram уже к какому-то реальному аккаунту
         const { data: existingProfile } = await supabaseAdmin

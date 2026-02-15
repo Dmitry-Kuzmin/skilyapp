@@ -1,5 +1,6 @@
 // telegram-auth-v2: Обмен Telegram initData на полноценную Supabase сессию
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { syncTelegramProfilePhoto } from '../_shared/telegram-utils.ts';
 
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -13,53 +14,6 @@ const corsHeaders = {
 function bufToHex(buf: ArrayBuffer): string {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
-
-async function syncTelegramProfilePhoto(supabaseAdmin: any, telegramId: number): Promise<string | null> {
-    try {
-        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUserProfilePhotos?user_id=${telegramId}&limit=1`);
-        const data = await response.json();
-        if (!data.ok || !data.result?.photos?.[0]?.[0]) return null;
-
-        const photos = data.result.photos[0];
-        const fileId = photos[photos.length - 1].file_id;
-
-        const fileResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${fileId}`);
-        const fileData = await fileResponse.json();
-        if (!fileData.ok || !fileData.result?.file_path) return null;
-
-        const telegramImageUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${fileData.result.file_path}`;
-
-        // Download image content
-        const imageResponse = await fetch(telegramImageUrl);
-        if (!imageResponse.ok) return null;
-        const imageBlob = await imageResponse.blob();
-
-        // Upload to Supabase Storage
-        const fileName = `${telegramId}.jpg`;
-        const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
-            .from('avatars')
-            .upload(fileName, imageBlob, {
-                contentType: 'image/jpeg',
-                upsert: true
-            });
-
-        if (uploadError) {
-            console.error('Storage upload error:', uploadError);
-            return telegramImageUrl; // Fallback to TG URL if upload fails
-        }
-
-        // Get public URL
-        const { data: { publicUrl } } = supabaseAdmin.storage
-            .from('avatars')
-            .getPublicUrl(fileName);
-
-        return publicUrl;
-    } catch (e) {
-        console.error('syncTelegramProfilePhoto error:', e);
-        return null;
-    }
-}
-
 
 async function validateTelegramData(initData: string): Promise<Record<string, unknown>> {
     const urlParams = new URLSearchParams(initData);
@@ -84,7 +38,7 @@ Deno.serve(async (req) => {
         const telegramUser = await validateTelegramData(initData);
 
         const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-        let photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id);
+        let photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id as number, BOT_TOKEN);
 
 
         // Унификация

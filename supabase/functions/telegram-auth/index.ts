@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { syncTelegramProfilePhoto } from '../_shared/telegram-utils.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,13 +35,13 @@ serve(async (req) => {
 
     const { user, platform = 'telegram', referred_by_code } = requestBody;
 
-    console.log('[Telegram Auth] Processing user:', { 
-      userId: user?.id, 
+    console.log('[Telegram Auth] Processing user:', {
+      userId: user?.id,
       firstName: user?.first_name,
       lastName: user?.last_name,
       username: user?.username,
       platform,
-      referredByCode: referred_by_code 
+      referredByCode: referred_by_code
     });
 
     if (!user || !user.id) {
@@ -51,7 +52,8 @@ serve(async (req) => {
       );
     }
 
-    console.log('[Telegram Auth] Upserting profile for telegram_id:', user.id);
+    const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')!;
+    const photoUrl = await syncTelegramProfilePhoto(supabase, user.id as number, botToken);
 
     // Upsert user profile with automatic settings initialization
     const { data: profile, error: upsertError } = await supabase
@@ -61,7 +63,7 @@ serve(async (req) => {
         first_name: user.first_name,
         last_name: user.last_name || null,
         username: user.username || null,
-        photo_url: user.photo_url || null,
+        photo_url: photoUrl,
         language_code: user.language_code || null,
         is_premium: user.is_premium || false,
         platform: platform,
@@ -99,7 +101,7 @@ serve(async (req) => {
       platform: profile.platform,
       hasReferralCode: !!profile.referral_code
     });
-    
+
     // Log link history once
     try {
       const { data: existingLink } = await supabase
@@ -139,27 +141,27 @@ serve(async (req) => {
     if (!profile.referral_code) {
       console.log('[Telegram Auth] Generating referral code for profile:', profile.id);
       const { data: codeResult, error: codeError } = await supabase.rpc('generate_referral_code');
-      
+
       if (!codeError && codeResult) {
         await supabase
           .from('profiles')
           .update({ referral_code: codeResult })
           .eq('id', profile.id);
-        
+
         profile.referral_code = codeResult;
         console.log('[Telegram Auth] Referral code generated:', codeResult);
       }
     }
-    
+
     // Handle referral if code provided and user is new (or hasn't been referred yet)
     if (referred_by_code && !profile.referred_by) {
       console.log('[Telegram Auth] Processing referral with code:', referred_by_code);
-      
+
       const { data: referralResult, error: referralError } = await supabase.rpc('create_referral', {
         p_referrer_code: referred_by_code,
         p_referred_id: profile.id
       });
-      
+
       if (referralError) {
         console.error('[Telegram Auth] Referral error:', referralError);
       } else if (referralResult && referralResult.length > 0) {
@@ -169,7 +171,7 @@ serve(async (req) => {
           message: result.message,
           referredBonus: result.referred_bonus
         });
-        
+
         if (result.success && result.result_referrer_id) {
           // Reload profile to get updated coins
           const { data: updatedProfile } = await supabase
@@ -177,12 +179,12 @@ serve(async (req) => {
             .select('*')
             .eq('id', profile.id)
             .single();
-          
+
           if (updatedProfile) {
             Object.assign(profile, updatedProfile);
             console.log('[Telegram Auth] Profile updated with referral bonus. New coins:', profile.coins);
           }
-          
+
           // Send notification to referrer
           const referredName = profile.first_name || profile.username || 'Новый пользователь';
           const { data: notificationId, error: notifError } = await supabase.rpc('send_referral_notification', {
@@ -191,7 +193,7 @@ serve(async (req) => {
             p_bonus_amount: result.referred_bonus,
             p_notification_type: 'referral_joined'
           });
-          
+
           if (notifError) {
             console.error('[Telegram Auth] Error sending referral notification:', notifError);
           } else {
@@ -212,8 +214,8 @@ serve(async (req) => {
     console.log('[Telegram Auth] Sending success response with profile ID:', profile.id);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         profile,
         token,
       }),

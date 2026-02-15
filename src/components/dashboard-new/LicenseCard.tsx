@@ -204,14 +204,21 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
         </div>
     );
 
+    const [imageError, setImageError] = useState(false);
+
     const IdentityDisplay = (
         <div className="flex items-center gap-5">
             <div className={cn(
                 "w-14 h-14 rounded-2xl overflow-hidden border shrink-0",
                 isDarkTheme ? "border-white/10 bg-zinc-900" : "border-zinc-200 bg-zinc-50"
             )}>
-                {photoUrl ? (
-                    <img src={photoUrl} alt="Avatar" className="w-full h-full object-cover grayscale-[0.1]" />
+                {photoUrl && !imageError ? (
+                    <img
+                        src={photoUrl}
+                        alt="Avatar"
+                        className="w-full h-full object-cover grayscale-[0.1]"
+                        onError={() => setImageError(true)}
+                    />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-zinc-500">
                         <User size={24} />
@@ -238,7 +245,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                     </div>
                     <div className="flex items-center gap-1.5">
                         <Activity size={12} className="text-blue-500" />
-                        <span>{readinessScore}{t('licenseCard.stats.readiness')}</span>
+                        <span>{readinessScore !== 0 ? readinessScore : 0}{t('licenseCard.stats.readiness')}</span>
                     </div>
                 </div>
             </div>
