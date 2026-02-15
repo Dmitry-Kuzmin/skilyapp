@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
         const telegramUser = await validateTelegramData(initData);
 
         const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-        let photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id as number, BOT_TOKEN);
+        let photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id as number, BOT_TOKEN, telegramUser.photo_url as string);
 
 
         // Унификация
@@ -74,8 +74,10 @@ Deno.serve(async (req) => {
         const { data: sessionData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({ email, password });
         if (signInError) throw signInError;
 
-        // Sync profile and get it back to return the ID
-        const { data: profileData, error: profileError } = await supabaseAdmin.from('profiles').upsert({
+        // 5. Синхронизируем профиль (Upsert с приоритетом существующего профиля)
+        console.log(`[telegram-auth-v2] Syncing profile for user ${sessionData.user.id}`);
+
+        const profilePayload = {
             user_id: sessionData.user.id,
             telegram_id: telegramUser.id,
             first_name: telegramUser.first_name,
@@ -83,12 +85,68 @@ Deno.serve(async (req) => {
             username: telegramUser.username || null,
             photo_url: photoUrl,
             updated_at: new Date().toISOString()
-        }, { onConflict: 'telegram_id' }).select('id').single();
+        };
+
+        // Сначала пробуем найти по telegram_id
+        const { data: profByTg } = await supabaseAdmin.from('profiles').select('id, user_id').eq('telegram_id', telegramUser.id).maybeSingle();
+
+        let finalProfileId: string;
+
+        if (profByTg) {
+            console.log(`[telegram-auth-v2] Found existing profile by telegram_id: ${profByTg.id}`);
+            const { data: updatedProf, error: updateError } = await supabaseAdmin
+                .from('profiles')
+                .update(profilePayload)
+                .eq('id', profByTg.id)
+                .select('id')
+                .single();
+
+            if (updateError) {
+                console.error('[telegram-auth-v2] Update by telegram_id error:', updateError);
+                throw updateError;
+            }
+            finalProfileId = updatedProf.id;
+        } else {
+            // Пробуем найти по user_id (мог создаться триггером)
+            const { data: profByUid } = await supabaseAdmin.from('profiles').select('id').eq('user_id', sessionData.user.id).maybeSingle();
+
+            if (profByUid) {
+                console.log(`[telegram-auth-v2] Found existing profile by user_id: ${profByUid.id}`);
+                const { data: updatedProf, error: updateError } = await supabaseAdmin
+                    .from('profiles')
+                    .update(profilePayload)
+                    .eq('id', profByUid.id)
+                    .select('id')
+                    .single();
+
+                if (updateError) {
+                    console.error('[telegram-auth-v2] Update by user_id error:', updateError);
+                    throw updateError;
+                }
+                finalProfileId = updatedProf.id;
+            } else {
+                // Если вообще ничего нет - вставляем
+                console.log(`[telegram-auth-v2] Creating brand new profile`);
+                const { data: insertedProf, error: insertError } = await supabaseAdmin
+                    .from('profiles')
+                    .insert(profilePayload)
+                    .select('id')
+                    .single();
+
+                if (insertError) {
+                    console.error('[telegram-auth-v2] Insert profile error:', insertError);
+                    throw insertError;
+                }
+                finalProfileId = insertedProf.id;
+            }
+        }
+
+        console.log(`[telegram-auth-v2] Profile sync complete: ${finalProfileId}`);
 
         return new Response(JSON.stringify({
             session: sessionData.session,
             user: sessionData.user,
-            profile_id: profileData?.id
+            profile_id: finalProfileId
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
 

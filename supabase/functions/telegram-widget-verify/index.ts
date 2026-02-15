@@ -43,7 +43,7 @@ serve(async (req) => {
 
         // Sync photo to Supabase Storage - ALWAYS, to avoid broken TG links
         console.log("Syncing photo to storage for ID:", telegramUser.id);
-        const photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id as number, botToken);
+        const photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id as number, botToken, telegramUser.photo_url);
 
         // 1. Unification: Проверяем, не привязан ли этот Telegram уже к какому-то реальному аккаунту
         const { data: existingProfile } = await supabaseAdmin

@@ -53,33 +53,54 @@ serve(async (req) => {
     }
 
     const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')!;
-    const photoUrl = await syncTelegramProfilePhoto(supabase, user.id as number, botToken);
+    const photoUrl = await syncTelegramProfilePhoto(supabase, user.id as number, botToken, user.photo_url);
 
-    // Upsert user profile with automatic settings initialization
-    const { data: profile, error: upsertError } = await supabase
+    const profilePayload = {
+      telegram_id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name || null,
+      username: user.username || null,
+      photo_url: photoUrl,
+      language_code: user.language_code || null,
+      is_premium: user.is_premium || false,
+      platform: platform,
+      last_login: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      settings: {
+        theme: 'light',
+        language: user.language_code || 'en',
+        notifications: true
+      }
+    };
+
+    // Сначала ищем по telegram_id
+    let { data: profile, error: upsertError } = await supabase
       .from('profiles')
-      .upsert({
-        telegram_id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name || null,
-        username: user.username || null,
-        photo_url: photoUrl,
-        language_code: user.language_code || null,
-        is_premium: user.is_premium || false,
-        platform: platform,
-        last_login: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        settings: {
-          theme: 'light',
-          language: user.language_code || 'en',
-          notifications: true
-        }
-      }, {
-        onConflict: 'telegram_id',
-        ignoreDuplicates: false
-      })
-      .select()
-      .single();
+      .select('*')
+      .eq('telegram_id', user.id)
+      .maybeSingle();
+
+    if (profile) {
+      const { data: updatedProf, error: updateError } = await supabase
+        .from('profiles')
+        .update(profilePayload)
+        .eq('id', profile.id)
+        .select()
+        .single();
+
+      profile = updatedProf;
+      upsertError = updateError;
+    } else {
+      // Иначе вставляем (триггер handle_new_user здесь не должен мешать, так как telegram-auth не создает auth.users напрямую)
+      const { data: insertedProf, error: insertError } = await supabase
+        .from('profiles')
+        .insert(profilePayload)
+        .select()
+        .single();
+
+      profile = insertedProf;
+      upsertError = insertError;
+    }
 
     if (upsertError) {
       console.error('[Telegram Auth] Upsert error:', {
