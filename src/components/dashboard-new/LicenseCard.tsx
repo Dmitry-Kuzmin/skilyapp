@@ -12,6 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import { Sparkles } from 'lucide-react';
 
 interface LicenseCardProps {
     userProfile?: {
@@ -282,16 +283,12 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
             {/* Hint for point progression - Helping Dima */}
             {!isSuspended && points >= 8 && points < 10 && (
-                <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-4 flex items-start gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 max-w-[180px]"
-                >
+                <div className="mt-4 flex items-start gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 max-w-[180px] animate-in fade-in slide-in-from-bottom-2 duration-500">
                     <Sparkles size={14} className="text-indigo-400 mt-0.5 shrink-0" />
                     <span className="text-[9px] leading-tight font-medium text-indigo-300/90 text-right">
                         {t('licenseCard.gating.unlockGoal')}
                     </span>
-                </motion.div>
+                </div>
             )}
         </div>
     );
@@ -394,16 +391,12 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                 {/* Mobile Hint for point progression */}
                 {!isSuspended && points >= 8 && points < 10 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-0 flex items-center gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20"
-                    >
+                    <div className="mt-0 flex items-center gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 animate-in fade-in slide-in-from-bottom-1 duration-500">
                         <Sparkles size={14} className="text-indigo-400 shrink-0" />
                         <span className="text-[10px] leading-tight font-medium text-indigo-300/90">
                             {t('licenseCard.gating.unlockGoal')}
                         </span>
-                    </motion.div>
+                    </div>
                 )}
             </div>
 

@@ -1,9 +1,10 @@
 -- Update Super RPC to include license points history
 -- This will provide real data for the LicenseCard chart
 
--- КРИТИЧНО: Удаляем старую версию, так как мы меняем тип возвращаемого значения (с JSON на JSONB или наоборот в будущем)
--- или просто чтобы избежать конфликтов сигнатур
-DROP FUNCTION IF EXISTS public.get_dashboard_super_v2(UUID);
+-- КРИТИЧНО: Удаляем старую версию с каскадным удалением зависимостей (если есть)
+-- Сигнатура должна точно совпадать с той, что в базе
+DROP FUNCTION IF EXISTS public.get_dashboard_super_v2(uuid) CASCADE;
+DROP FUNCTION IF EXISTS get_dashboard_super_v2(uuid) CASCADE;
 
 CREATE OR REPLACE FUNCTION public.get_dashboard_super_v2(p_user_id UUID)
 RETURNS JSON
