@@ -41,8 +41,7 @@ Deno.serve(async (req) => {
         let photoUrl = await syncTelegramProfilePhoto(supabaseAdmin, telegramUser.id as number, BOT_TOKEN, telegramUser.photo_url as string);
 
 
-        // Унификация
-        const { data: existingProf } = await supabaseAdmin.from('profiles').select('user_id').eq('telegram_id', telegramUser.id).maybeSingle();
+        const { data: existingProf } = await supabaseAdmin.from('profiles').select('user_id, photo_url').eq('telegram_id', telegramUser.id).maybeSingle();
         let email = `tg_${telegramUser.id}@telegram.auth`;
 
         if (existingProf?.user_id) {
@@ -56,7 +55,7 @@ Deno.serve(async (req) => {
             email,
             password,
             email_confirm: true,
-            user_metadata: { telegram_id: telegramUser.id, full_name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(), avatar_url: photoUrl, is_telegram_user: true }
+            user_metadata: { telegram_id: telegramUser.id, full_name: `${telegramUser.first_name} ${telegramUser.last_name || ''}`.trim(), avatar_url: photoUrl || telegramUser.photo_url, is_telegram_user: true }
         });
 
         let user = authData?.user;
@@ -77,15 +76,30 @@ Deno.serve(async (req) => {
         // 5. Синхронизируем профиль (Upsert с приоритетом существующего профиля)
         console.log(`[telegram-auth-v2] Syncing profile for user ${sessionData.user.id}`);
 
-        const profilePayload = {
+        // Определяем финальный URL фото:
+        // 1. Загруженный в Storage (photoUrl)
+        // 2. Исходный из Telegram (telegramUser.photo_url)
+        // 3. Существующий в профиле (не перезаписываем NULL-ом)
+        let finalPhotoUrl = photoUrl;
+        if (!finalPhotoUrl && telegramUser.photo_url) {
+            console.log(`[telegram-auth-v2] Storage sync failed, falling back to raw Telegram URL`);
+            finalPhotoUrl = telegramUser.photo_url as string;
+        }
+
+        const profilePayload: any = {
             user_id: sessionData.user.id,
             telegram_id: telegramUser.id,
             first_name: telegramUser.first_name,
             last_name: telegramUser.last_name || null,
             username: telegramUser.username || null,
-            photo_url: photoUrl,
             updated_at: new Date().toISOString()
         };
+
+        // Обновляем фото только если нашли новое, иначе оставляем как есть (не шлем поле совсем)
+        // Но если у профиля фото нет, а у нас есть хоть какое-то - шлем
+        if (finalPhotoUrl) {
+            profilePayload.photo_url = finalPhotoUrl;
+        }
 
         // Сначала пробуем найти по telegram_id
         const { data: profByTg } = await supabaseAdmin.from('profiles').select('id, user_id').eq('telegram_id', telegramUser.id).maybeSingle();
@@ -127,6 +141,15 @@ Deno.serve(async (req) => {
             } else {
                 // Если вообще ничего нет - вставляем
                 console.log(`[telegram-auth-v2] Creating brand new profile`);
+
+                // Для нового профиля точно нужен фото URL если он есть
+                if (finalPhotoUrl && !profilePayload.photo_url) {
+                    profilePayload.photo_url = finalPhotoUrl;
+                }
+                // Настройки по умолчанию
+                profilePayload.settings = { theme: "light", language: "ru", notifications: true };
+                profilePayload.platform = 'telegram';
+
                 const { data: insertedProf, error: insertError } = await supabaseAdmin
                     .from('profiles')
                     .insert(profilePayload)
