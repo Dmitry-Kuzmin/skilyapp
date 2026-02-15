@@ -16,6 +16,11 @@ DECLARE
   v_partner RECORD;
   v_result JSON;
 BEGIN
+  -- 0. Автоматическая обработка ежедневного захода (Qualification System)
+  -- Это гарантирует, что баллы в карточке обновляются сразу при входе, 
+  -- даже если пользователь не нажал "Забрать бонус"
+  PERFORM process_license_event(p_user_id, 'daily_login');
+
   -- 1. Профиль пользователя (расширенный)
   SELECT 
     id, rank, xp, coins, boosts, streak_days, settings,

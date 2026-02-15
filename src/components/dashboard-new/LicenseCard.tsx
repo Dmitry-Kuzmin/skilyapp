@@ -279,6 +279,20 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                     </>
                 )}
             </div>
+
+            {/* Hint for point progression - Helping Dima */}
+            {!isSuspended && points >= 8 && points < 10 && (
+                <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 flex items-start gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 max-w-[180px]"
+                >
+                    <Sparkles size={14} className="text-indigo-400 mt-0.5 shrink-0" />
+                    <span className="text-[9px] leading-tight font-medium text-indigo-300/90 text-right">
+                        {t('licenseCard.gating.unlockGoal')}
+                    </span>
+                </motion.div>
+            )}
         </div>
     );
 
@@ -377,6 +391,20 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                         isDarkTheme ? "bg-white/40" : "bg-indigo-600/40"
                     )} style={{ width: `${progressWidth}% ` }} />
                 </div>
+
+                {/* Mobile Hint for point progression */}
+                {!isSuspended && points >= 8 && points < 10 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-0 flex items-center gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20"
+                    >
+                        <Sparkles size={14} className="text-indigo-400 shrink-0" />
+                        <span className="text-[10px] leading-tight font-medium text-indigo-300/90">
+                            {t('licenseCard.gating.unlockGoal')}
+                        </span>
+                    </motion.div>
+                )}
             </div>
 
             {/* MOBILE FOOTER */}

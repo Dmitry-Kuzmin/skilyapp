@@ -19,7 +19,16 @@ BEGIN
 
     -- Define rules
     CASE p_event_type
-        WHEN 'daily_login' THEN v_points_delta := 1; -- We'll keep it simple: 1 point per day
+        WHEN 'daily_login' THEN 
+            -- Check if already processed today to avoid double points
+            IF EXISTS (
+                SELECT 1 FROM user_license_points_history 
+                WHERE user_id = p_user_id AND recorded_at = CURRENT_DATE
+            ) THEN
+                v_points_delta := 0;
+            ELSE
+                v_points_delta := 1;
+            END IF;
         WHEN 'topic_perfect' THEN v_points_delta := 1;
         WHEN 'marathon_completed' THEN v_points_delta := 2;
         WHEN 'exam_pass' THEN v_points_delta := 1;
@@ -43,8 +52,13 @@ BEGIN
 
     -- CAP for passive growth: Daily login can't take you past 8 (Learner cap)
     -- This forces users to DO TESTS to reach 10 (Exam unlock)
-    IF p_event_type = 'daily_login' AND v_new_points > 8 THEN
+    -- FIXED: Only cap if we are actually increasing points via daily_login
+    IF p_event_type = 'daily_login' AND v_current_points < 8 AND v_new_points > 8 THEN
         v_new_points := 8;
+    ELSIF p_event_type = 'daily_login' AND v_current_points >= 8 THEN
+        -- Don't add points via daily_login if already at 8 or more, 
+        -- but DON'T reduce points either!
+        v_new_points := v_current_points;
     END IF;
 
     -- Update profile
