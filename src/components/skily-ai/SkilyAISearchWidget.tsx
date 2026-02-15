@@ -3,9 +3,9 @@ import { Send, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { LumiCharacter } from "./LumiCharacter";
-import { LumiMessage } from "./LumiMessage";
-import { useLumiChat } from "@/hooks/useLumiChat";
+import { SkilyAICharacter } from "./SkilyAICharacter";
+import { SkilyAIMessage } from "./SkilyAIMessage";
+import { useSkilyAIChat } from "@/hooks/useSkilyAIChat";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { cn } from "@/lib/utils";
 
@@ -23,13 +23,13 @@ const placeholders = [
   "Расскажи про дорожные знаки приоритета",
 ];
 
-export const LumiSearchWidget = () => {
+export const SkilyAISearchWidget = () => {
   const { selectedCountry } = usePDDContext();
   const [input, setInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, error, sendMessage, clearMessages } = useLumiChat(selectedCountry);
+  const { messages, isLoading, error, sendMessage, clearMessages } = useSkilyAIChat(selectedCountry);
 
   // Rotate placeholders
   useEffect(() => {
@@ -81,7 +81,7 @@ export const LumiSearchWidget = () => {
         {/* Header with Skily */}
         <div className="flex items-start gap-4 mb-4">
           <div className="flex-shrink-0">
-            <LumiCharacter size="lg" mood="happy" />
+            <SkilyAICharacter size="lg" mood="happy" />
           </div>
 
           <div className="flex-1 space-y-2">
@@ -133,7 +133,7 @@ export const LumiSearchWidget = () => {
             {messages.map((msg, idx) => (
               <div key={idx}>
                 {msg.role === "assistant" ? (
-                  <LumiMessage
+                  <SkilyAIMessage
                     content={msg.content}
                     mood={idx === messages.length - 1 && isLoading ? "thinking" : "idle"}
                     showAvatar={false}

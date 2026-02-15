@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Maximize2, Minimize2, ArrowRight, Loader2 } from 'lucide-react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
-import { useLumiChat } from '@/hooks/useLumiChat';
+import { useSkilyAIChat } from '@/hooks/useSkilyAIChat';
 import { playClickSound, playNotificationSound, playTabSwitchSound } from '@/services/audioService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePDDContext } from '@/contexts/PDDContext';
@@ -68,7 +68,7 @@ export const SkilyChat = React.memo(() => {
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
-  const { messages, isLoading, sendMessage, clearMessages } = useLumiChat(selectedCountry);
+  const { messages, isLoading, sendMessage, clearMessages } = useSkilyAIChat(selectedCountry);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Блокировка скролла body при открытом попапе

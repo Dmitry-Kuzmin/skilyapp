@@ -103,7 +103,7 @@ export const ProductSlide: React.FC = () => {
                     <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 hover:border-emerald-500/50 transition-all duration-300">
                         <Zap className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
                         <div className="text-xs font-bold text-white">AI-объяснения</div>
-                        <div className="text-[10px] text-slate-400 mt-1">Lumi AI</div>
+                        <div className="text-[10px] text-slate-400 mt-1">Skily AI</div>
                     </div>
                 </div>
             </div>

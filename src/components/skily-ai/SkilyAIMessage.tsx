@@ -1,28 +1,28 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { LumiCharacter, LumiMood } from "./LumiCharacter";
+import { SkilyAICharacter, SkilyAIMood } from "./SkilyAICharacter";
 import ReactMarkdown from "react-markdown";
 
-interface LumiMessageProps {
+interface SkilyAIMessageProps {
   content: string;
-  mood?: LumiMood;
+  mood?: SkilyAIMood;
   showAvatar?: boolean;
   className?: string;
   isStreaming?: boolean;
 }
 
-export const LumiMessage = ({
+export const SkilyAIMessage = ({
   content,
   mood = "idle",
   showAvatar = true,
   className,
   isStreaming = false
-}: LumiMessageProps) => {
+}: SkilyAIMessageProps) => {
   return (
     <div className={cn("flex gap-3 items-start animate-message-appear", className)}>
       {showAvatar && (
         <div className="flex-shrink-0 mt-1">
-          <LumiCharacter size="sm" mood={mood} />
+          <SkilyAICharacter size="sm" mood={mood} />
         </div>
       )}
 

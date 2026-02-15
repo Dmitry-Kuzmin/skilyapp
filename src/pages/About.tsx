@@ -331,11 +331,7 @@ const Footer = React.memo(({ copy }: { copy: any }) => {
               }
             </p>
             <div className="flex items-center gap-4 text-slate-500">
-              {['Instagram', 'Twitter', 'LinkedIn'].map((social) => (
-                <button key={social} className="hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
-                  {social}
-                </button>
-              ))}
+              {/* Social links removed */}
             </div>
           </div>
 
@@ -392,9 +388,7 @@ const Footer = React.memo(({ copy }: { copy: any }) => {
         <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
           <p>{copy.footer.note}</p>
           <div className="flex items-center gap-2">
-            <span>Made with</span>
-            <Heart size={12} className="text-red-500 fill-red-500/20" />
-            <span>in Barcelona</span>
+            {/* Made with text removed */}
           </div>
         </div>
       </div>

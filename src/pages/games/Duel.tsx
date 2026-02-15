@@ -25,7 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { dispatchUserEvent } from '@/lib/notification-events';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useModal } from '@/hooks/useModal';
-import { useLumiToast } from '@/hooks/useLumiToast';
+import { useSkilyAIToast } from '@/hooks/useSkilyAIToast';
 import { toast } from 'sonner';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { GameMode } from '@/features/duel/shared';
@@ -77,7 +77,7 @@ export default function Duel() {
 
     const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();
     const { selectedCategory } = usePDDContext(); // Get category from context
-    const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useLumiToast();
+    const { showDuelJoinError, showDuelJoinSuccess, showDuelNotification, ToastContainer } = useSkilyAIToast();
     const { activeDuel, saveActiveDuel, clearActiveDuel, updateActiveDuel, isChecking } = useActiveDuel();
     const { enabled: duelsEnabled, isLoading: flagsLoading } = useFeatureFlag('duels_enabled', true);
 

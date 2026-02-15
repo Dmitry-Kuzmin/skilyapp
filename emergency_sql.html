@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SQL Exec</title>
+</head>
+
+<body>
+    <div id="status">Executing...</div>
+    <script>
+        const sql = `
+-- 1. Исправляем триггер handle_new_user для УМНОГО связывания telegram_id и user_id
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+DECLARE
+  v_telegram_id BIGINT;
+  v_profile_exists BOOLEAN;
+BEGIN
+  -- Извлекаем telegram_id из метаданных
+  v_telegram_id := CASE
+    WHEN NEW.raw_user_meta_data->>'telegram_id' IS NOT NULL 
+      THEN (NEW.raw_user_meta_data->>'telegram_id')::BIGINT
+    WHEN NEW.raw_user_meta_data->>'sub' IS NOT NULL 
+      AND (NEW.raw_user_meta_data->>'sub')::TEXT ~ '^\d+$'
+      THEN (NEW.raw_user_meta_data->>'sub')::BIGINT
+    ELSE NULL
+  END;
+
+  -- Логируем
+  RAISE NOTICE '[handle_new_user] Start for user_id=% (tg=%)', NEW.id, v_telegram_id;
+
+  -- Пытаемся обновить существующий профиль по telegram_id
+  IF v_telegram_id IS NOT NULL THEN
+    UPDATE public.profiles 
+    SET 
+      user_id = NEW.id,
+      first_name = COALESCE(profiles.first_name, NEW.raw_user_meta_data->>'first_name', split_part(NEW.email, '@', 1)),
+      last_name = COALESCE(profiles.last_name, NEW.raw_user_meta_data->>'last_name'),
+      photo_url = COALESCE(profiles.photo_url, NEW.raw_user_meta_data->>'photo_url', NEW.raw_user_meta_data->>'avatar_url'),
+      platform = 'telegram',
+      updated_at = now()
+    WHERE telegram_id = v_telegram_id;
+    
+    GET DIAGNOSTICS v_profile_exists = ROW_COUNT;
+    IF v_profile_exists THEN
+       RAISE NOTICE '[handle_new_user] Linked existing profile(tg=%) to user_id=%', v_telegram_id, NEW.id;
+    END IF;
+  ELSE
+    v_profile_exists := FALSE;
+  END IF;
+
+  -- Если профиль не был обновлен (не существовал или нет tg_id), создаем новый
+  IF NOT v_profile_exists THEN
+    INSERT INTO public.profiles (
+      user_id,
+      telegram_id,
+      first_name,
+      last_name,
+      photo_url,
+      settings,
+      platform
+    )
+    VALUES (
+      NEW.id,
+      v_telegram_id,
+      COALESCE(
+        NEW.raw_user_meta_data->>'first_name', 
+        NEW.raw_user_meta_data->>'given_name',
+        split_part(NEW.email, '@', 1)
+      ),
+      COALESCE(
+        NEW.raw_user_meta_data->>'last_name',
+        NEW.raw_user_meta_data->>'family_name'
+      ),
+      COALESCE(
+        NEW.raw_user_meta_data->>'avatar_url',
+        NEW.raw_user_meta_data->>'photo_url'
+      ),
+      '{"theme": "light", "language": "ru", "notifications": true}'::jsonb,
+      CASE WHEN v_telegram_id IS NOT NULL THEN 'telegram' ELSE 'web' END
+    )
+    ON CONFLICT (user_id) DO UPDATE SET
+      telegram_id = COALESCE(profiles.telegram_id, EXCLUDED.telegram_id),
+      photo_url = COALESCE(profiles.photo_url, EXCLUDED.photo_url);
+    
+    RAISE NOTICE '[handle_new_user] Created new profile for user_id=% (tg=%)', NEW.id, v_telegram_id;
+  END IF;
+
+  RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+  RAISE WARNING '[handle_new_user] ERROR for user_id %: %', NEW.id, SQLERRM;
+  RETURN NEW;
+END;
+$function$;
+
+-- 2. Обратная привязка (Backfill)
+DO $$
+DECLARE
+  r RECORD;
+BEGIN
+  FOR r IN 
+    SELECT id, (raw_user_meta_data->>'telegram_id')::BIGINT as tg_id 
+    FROM auth.users 
+    WHERE raw_user_meta_data->>'telegram_id' IS NOT NULL
+  LOOP
+    UPDATE public.profiles 
+    SET user_id = r.id 
+    WHERE telegram_id = r.tg_id AND user_id IS NULL;
+  END LOOP;
+END $$;
+        `;
+
+        async function run() {
+            try {
+                const response = await fetch('https://yffjnqegeiorunyvcxkn.supabase.co/rest/v1/rpc/exec_sql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUwNDIxNiwiZXhwIjoyMDc4MDgwMjE2fQ.Sfw_uZk-vpBjcfulE-0SJwQr0bhZdRv5RElT89Fe8Nw',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUwNDIxNiwiZXhwIjoyMDc4MDgwMjE2fQ.Sfw_uZk-vpBjcfulE-0SJwQr0bhZdRv5RElT89Fe8Nw'
+                    },
+                    body: JSON.stringify({ query: sql })
+                });
+
+                if (response.ok) {
+                    document.getElementById('status').innerText = '✅ SUCCESS';
+                } else {
+                    const err = await response.text();
+                    document.getElementById('status').innerText = '❌ ERROR: ' + err;
+                }
+            } catch (e) {
+                document.getElementById('status').innerText = '❌ EXCEPTION: ' + e.message;
+            }
+        }
+
+        run();
+    </script>
+</body>
+
+</html>

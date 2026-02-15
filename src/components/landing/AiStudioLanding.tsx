@@ -58,43 +58,43 @@ const DEMO_VARIANTS = {
   ru: [
     {
       title: 'Мы научили AI думать как экзаменатор DGT',
-      text: 'Мы "скормили" нейросети 5000 страниц дорожных кодексов. Lumi AI знает каждый нюанс правил лучше любого профессора и объяснит его тебе за 2 секунды.'
+      text: 'Мы "скормили" нейросети 5000 страниц дорожных кодексов. Skily AI знает каждый нюанс правил лучше любого профессора и объяснит его тебе за 2 секунды.'
     },
     {
       title: 'Лучше, чем инструктор. И вот почему',
-      text: 'Живой учитель может устать. Lumi AI доступен 24/7, имеет бесконечное терпение и переводит сложные термины на твой язык мгновенно.'
+      text: 'Живой учитель может устать. Skily AI доступен 24/7, имеет бесконечное терпение и переводит сложные термины на твой язык мгновенно.'
     },
     {
       title: 'Твой эксперт по ПДД',
-      text: 'Забудь про сухие формулировки. Ошибайся сколько хочешь — Lumi AI не осудит, а покажет, как избежать ошибки в будущем. Простым языком.'
+      text: 'Забудь про сухие формулировки. Ошибайся сколько хочешь — Skily AI не осудит, а покажет, как избежать ошибки в будущем. Простым языком.'
     }
   ],
   es: [
     {
       title: 'Hemos enseñado a la IA a pensar como un examinador',
-      text: 'Hemos alimentado la red neuronal con 5000 páginas de códigos de tráfico. Lumi AI conoce cada matiz mejor que cualquier profesor y te lo explicará en 2 segundos.'
+      text: 'Hemos alimentado la red neuronal con 5000 páginas de códigos de tráfico. Skily AI conoce cada matiz mejor que cualquier profesor y te lo explicará en 2 segundos.'
     },
     {
       title: 'Mejor que un instructor. He aquí por qué',
-      text: 'Un profesor humano puede cansarse. Lumi AI está disponible 24/7, tiene paciencia infinita y traduce términos complejos a tu idioma al instante.'
+      text: 'Un profesor humano puede cansarse. Skily AI está disponible 24/7, tiene paciencia infinita y traduce términos complejos a tu idioma al instante.'
     },
     {
       title: 'Tu experto de bolsillo en normas de tráfico',
-      text: 'Olvida las formulaciones secas. Comete tantos errores como quieras: Lumi AI no te juzgará, sino que te mostrará cómo evitarlos en el futuro.'
+      text: 'Olvida las formulaciones secas. Comete tantos errores como quieras: Skily AI no te juzgará, sino que te mostrará cómo evitarlos en el futuro.'
     }
   ],
   en: [
     {
       title: 'We taught AI to think like a DGT examiner',
-      text: 'We fed the neural network 5000 pages of traffic codes. Lumi AI knows every nuance better than any professor and will explain it to you in 2 seconds.'
+      text: 'We fed the network 5000 pages of traffic codes. Skily AI knows every nuance better than any professor and will explain it to you in 2 seconds.'
     },
     {
       title: 'Better than an instructor. Here is why',
-      text: 'A human teacher can get tired. Lumi AI is available 24/7, has infinite patience, and translates complex terms into your language instantly.'
+      text: 'A human teacher can get tired. Skily AI is available 24/7, has infinite patience, and translates complex terms into your language instantly.'
     },
     {
       title: 'Your pocket traffic rules expert',
-      text: 'Forget dry formulations. Make as many mistakes as you want — Lumi AI won\'t judge, but will show you how to avoid them in the future.'
+      text: 'Forget dry formulations. Make as many mistakes as you want — Skily AI won\'t judge, but will show you how to avoid them in the future.'
     }
   ]
 };
@@ -249,7 +249,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           questions: [
             {
               q: 'Я плохо знаю язык. Как мне сдать?',
-              a: 'Lumi AI переводит сложные термины и объясняет логику ПДД на вашем родном языке. Вы учитесь понимать дорожные ситуации, а не просто зубрить непонятный текст.',
+              a: 'Skily AI переводит сложные термины и объясняет логику ПДД на вашем родном языке. Вы учитесь понимать дорожные ситуации, а не просто зубрить непонятный текст.',
               icon: Languages
             },
             {
@@ -303,7 +303,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           questions: [
             {
               q: 'Mi nivel de idioma es bajo. ¿Podré aprobar?',
-              a: 'Lumi AI traduce términos complejos y explica la lógica en tu idioma nativo. Aprendes a entender el tráfico, no a memorizar textos.',
+              a: 'Skily AI traduce términos complejos y explica la lógica en tu idioma nativo. Aprendes a entender el tráfico, no a memorizar textos.',
               icon: Languages
             },
             {
@@ -357,7 +357,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           questions: [
             {
               q: 'My language skills are poor. Can I pass?',
-              a: 'Yes. Lumi AI translates complex terms and explains logic in your native language. You learn to understand traffic, not just memorize text.',
+              a: 'Yes. Skily AI translates complex terms and explains logic in your native language. You learn to understand traffic, not just memorize text.',
               icon: Languages
             },
             {
@@ -1341,11 +1341,9 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
               </p>
               <div className="flex items-center gap-4 text-slate-500">
                 {/* Social placeholders - can be real links later */}
-                {['Instagram', 'Twitter', 'LinkedIn'].map((social) => (
-                  <button key={social} className="hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
-                    {social}
-                  </button>
-                ))}
+                <div className="flex items-center gap-4 text-slate-500">
+                  {/* Social links removed */}
+                </div>
               </div>
             </div>
 
@@ -1425,9 +1423,9 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
             <p>{copy.footer.note}</p>
             <div className="flex items-center gap-2">
-              <span>Made with</span>
-              <Heart size={12} className="text-red-500 fill-red-500/20" />
-              <span>in Barcelona</span>
+              <div className="flex items-center gap-2">
+                {/* Made with text removed */}
+              </div>
             </div>
           </div>
         </div>

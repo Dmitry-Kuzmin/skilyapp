@@ -1,7 +1,7 @@
 /**
  * Technology Slide
  * 
- * Слайд 2: Lumi AI Engine - автоматическая локализация за 72 часа
+ * Слайд 2: Skily AI Engine - автоматическая локализация за 72 часа
  */
 
 import React from 'react';
@@ -16,7 +16,7 @@ export const TechnologySlide: React.FC = () => {
                     <Brain className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-3xl font-black text-white mb-2">
-                    Lumi AI Engine
+                    Skily AI Engine
                 </h3>
                 <p className="text-lg text-slate-300">
                     Ваша локальная база ПДД + Наш интеллект = <span className="text-violet-400 font-bold">Безупречный продукт</span> за 72 часа

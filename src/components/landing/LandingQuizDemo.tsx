@@ -5,7 +5,7 @@ import { playClickSound, playSuccessSound, playErrorSound, playLevelUpSound } fr
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LumiCharacter } from "@/components/lumi/LumiCharacter";
+import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 
 interface LandingQuizDemoProps {
     onRegisterClick: () => void;
@@ -294,7 +294,7 @@ const MockAIWidget = ({ language, message, isTyping, status }: { language: strin
             {/* Header */}
             <div className="p-5 border-b border-white/5 flex items-center shrink-0 gap-3 relative z-10 bg-slate-900/20">
                 <div className="w-10 h-10 flex items-center justify-center shrink-0">
-                    <LumiCharacter
+                    <SkilyAICharacter
                         size="sm"
                         mood={status === 'analyzing' ? 'thinking' : message?.mood === 'warning' ? 'concerned' : 'happy'}
                         className="scale-100 drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]"
@@ -649,7 +649,7 @@ export const LandingQuizDemo: React.FC<LandingQuizDemoProps> = ({ onRegisterClic
                             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
                             <div className="flex gap-4">
                                 <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-slate-900 rounded-full border border-slate-700">
-                                    <LumiCharacter size="sm" mood={aiMessage.mood} />
+                                    <SkilyAICharacter size="sm" mood={aiMessage.mood} />
                                 </div>
                                 <div>
                                     <p className="text-xs font-bold text-indigo-300 mb-1 uppercase tracking-wider">Skily AI</p>

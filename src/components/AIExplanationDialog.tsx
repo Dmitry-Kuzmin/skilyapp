@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, Settings } from "lucide-react";
-import { LumiCharacter } from "@/components/lumi/LumiCharacter";
+import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -714,7 +714,7 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
             <div className="space-y-5">
               <div className="flex gap-3">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 mt-0.5 shadow-md">
-                  <LumiCharacter size="sm" mood="happy" className="scale-50" />
+                  <SkilyAICharacter size="sm" mood="happy" className="scale-50" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm leading-relaxed text-foreground">
@@ -788,7 +788,7 @@ ${imageUrl ? `\n📷 К вопросу есть изображение доро�
                   <div className="space-y-2">
                     <div className="flex gap-3">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex-shrink-0 mt-0.5 shadow-md">
-                        <LumiCharacter size="sm" mood={index === 0 ? "happy" : "encouraging"} className="scale-50" />
+                        <SkilyAICharacter size="sm" mood={index === 0 ? "happy" : "encouraging"} className="scale-50" />
                       </div>
                       <div className="flex-1 min-w-0">
                         {message.content ? (

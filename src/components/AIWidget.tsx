@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { LumiCharacter } from "@/components/lumi/LumiCharacter";
+import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -526,7 +526,7 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
           </Button>
           <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
             <div className="w-8 h-8 xl:w-10 xl:h-10 flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-105">
-              <LumiCharacter size="sm" mood="happy" className="scale-75" />
+              <SkilyAICharacter size="sm" mood="happy" className="scale-75" />
             </div>
             <div className="min-w-0">
               <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate">
@@ -619,7 +619,7 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
                 {message.role === "assistant" && (
                   <div className="flex gap-2 xl:gap-3 items-start animate-in fade-in slide-in-from-left-2 duration-300">
                     <div className="flex items-center justify-center w-8 h-8 xl:w-10 xl:h-10 flex-shrink-0 drop-shadow-lg">
-                      <LumiCharacter size="sm" mood="happy" className="scale-75" />
+                      <SkilyAICharacter size="sm" mood="happy" className="scale-75" />
                     </div>
                     <div className="flex-1 min-w-0 mt-0.5 xl:mt-1">
                       {message.content ? (

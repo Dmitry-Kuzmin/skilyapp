@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
-import { LumiChatWidget } from "./LumiChatWidget";
+import { SkilyAIChatWidget } from "./SkilyAIChatWidget";
 import { cn } from "@/lib/utils";
 
-interface LumiMobileSheetProps {
+interface SkilyAIMobileSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   context?: string;
@@ -13,7 +13,7 @@ interface LumiMobileSheetProps {
   showExplanation?: boolean;
 }
 
-export const LumiMobileSheet = ({
+export const SkilyAIMobileSheet = ({
   open,
   onOpenChange,
   context,
@@ -21,7 +21,7 @@ export const LumiMobileSheet = ({
   lastAnswerCorrect,
   questionExplanation = null,
   showExplanation = false
-}: LumiMobileSheetProps) => {
+}: SkilyAIMobileSheetProps) => {
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -42,14 +42,14 @@ export const LumiMobileSheet = ({
 
   const handleTouchEnd = () => {
     if (!isDragging) return;
-    
+
     const dragDistance = dragCurrentY - dragStartY;
-    
+
     // Если свайп вниз больше 100px - закрываем
     if (dragDistance > 100) {
       onOpenChange(false);
     }
-    
+
     setIsDragging(false);
     setDragStartY(0);
     setDragCurrentY(0);
@@ -62,7 +62,7 @@ export const LumiMobileSheet = ({
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className={cn(
           "fixed inset-0 bg-black/60 z-50 transition-opacity duration-300",
           open ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -103,7 +103,7 @@ export const LumiMobileSheet = ({
 
           {/* Chat Content */}
           <div className="flex-1 overflow-hidden">
-            <LumiChatWidget
+            <SkilyAIChatWidget
               context={context}
               initialMessage={initialMessage}
               lastAnswerCorrect={lastAnswerCorrect}

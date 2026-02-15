@@ -158,8 +158,8 @@ export const InfiniteMarquee = React.memo(() => {
             name: "Andrei K.",
             country: "Ukraine 🇺🇦 → Valencia",
             text: language === 'ru'
-                ? "В автошколе Валенсии на меня смотрели как на инопланетянина, когда я не понимал разницу между 'detención' и 'parada'. Lumi AI перевел всё на человеческий русский за секунду. Без него я бы до сих пор сидел над тем учебником."
-                : "At Valencia driving school they looked at me like an alien when I didn't understand 'detención' vs 'parada'. Lumi AI translated everything to human language in seconds. Without it I'd still be stuck with that textbook.",
+                ? "В автошколе Валенсии на меня смотрели как на инопланетянина, когда я не понимал разницу между 'detención' и 'parada'. Skily AI перевел всё на человеческий русский за секунду. Без него я бы до сих пор сидел над тем учебником."
+                : "At Valencia driving school they looked at me like an alien when I didn't understand 'detención' vs 'parada'. Skily AI translated everything to human language in seconds. Without it I'd still be stuck with that textbook.",
             metric: language === 'ru' ? "🌍 Испанский: А2 · 🧠 100%" : "🌍 Spanish: A2 · 🧠 100%",
             badge: language === 'ru' ? "Языковой барьер сломан" : "Language barrier broken",
             date: language === 'ru' ? "5 дней назад" : "5 days ago",

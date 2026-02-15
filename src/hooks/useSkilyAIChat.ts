@@ -7,7 +7,7 @@ export type ChatMessage = {
   content: string;
 };
 
-export const useLumiChat = (country: CountryCode = 'spain') => {
+export const useSkilyAIChat = (country: CountryCode = 'spain') => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export const useLumiChat = (country: CountryCode = 'spain') => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             messages: messagesToSend,
             country: country // Передаем страну для выбора правильного системного промпта
           }),
@@ -75,10 +75,10 @@ export const useLumiChat = (country: CountryCode = 'spain') => {
             try {
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content;
-              
+
               if (content) {
                 assistantContent += content;
-                
+
                 // Обновляем последнее сообщение
                 setMessages(prev => {
                   const updated = [...prev];
@@ -98,7 +98,7 @@ export const useLumiChat = (country: CountryCode = 'spain') => {
     } catch (err) {
       console.error("Error in Skily chat:", err);
       setError("Не удалось получить ответ. Попробуй еще раз!");
-      
+
       // Удаляем пустое сообщение ассистента при ошибке
       setMessages(prev => prev.filter((_, idx) => idx !== prev.length - 1));
     } finally {

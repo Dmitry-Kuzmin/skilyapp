@@ -1,30 +1,30 @@
 import { useState, useCallback } from 'react';
-import { LumiToast, LumiToastProps } from '@/components/lumi/LumiToast';
+import { SkilyAIToast, SkilyAIToastProps } from '@/components/skily-ai/SkilyAIToast';
 import { getDuelJoinErrorMessage, getDuelJoinSuccessMessage, getDuelNotificationMessage, DuelNotificationMessage } from '@/utils/duelNotifications';
 import { extractErrorFromResponse } from '@/utils/errorMessages';
 
-export function useLumiToast() {
-  const [toasts, setToasts] = useState<LumiToastProps[]>([]);
+export function useSkilyAIToast() {
+  const [toasts, setToasts] = useState<SkilyAIToastProps[]>([]);
 
-  const showToast = useCallback((props: Omit<LumiToastProps, 'id' | 'onClose'>) => {
+  const showToast = useCallback((props: Omit<SkilyAIToastProps, 'id' | 'onClose'>) => {
     const id = Math.random().toString(36).substring(7);
-    const toast: LumiToastProps = {
+    const toast: SkilyAIToastProps = {
       ...props,
       id,
       onClose: () => {
         setToasts(prev => prev.filter(t => t.id !== id));
       },
     };
-    
+
     setToasts(prev => [...prev, toast]);
-    
+
     // Auto remove after duration
     if (props.duration !== 0) {
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.id !== id));
       }, props.duration || 5000);
     }
-    
+
     return id;
   }, []);
 
@@ -96,7 +96,7 @@ export function useLumiToast() {
   const ToastContainer = () => (
     <>
       {toasts.map(toast => (
-        <LumiToast key={toast.id} {...toast} />
+        <SkilyAIToast key={toast.id} {...toast} />
       ))}
     </>
   );

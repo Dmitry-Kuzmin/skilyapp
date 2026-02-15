@@ -101,19 +101,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
         } else if (isMounted && !data) {
           // КРИТИЧНО: Если профиля нет, создаем его автоматически для веб-пользователя
           console.log("[UserContext] 🐣 Profile not found, creating new one...");
+          // Используем upsert, чтобы избежать ошибок уникальности
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
-            .insert([
-              {
-                user_id: supabaseUser.id,
-                telegram_id: supabaseUser.user_metadata?.telegram_id ? Number(supabaseUser.user_metadata.telegram_id) : null,
-                first_name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'User',
-                photo_url: supabaseUser.user_metadata?.avatar_url || null,
-                platform: supabaseUser.user_metadata?.is_telegram_user ? 'telegram' : 'web',
-                coins: 500,
-                xp: 0
-              }
-            ])
+            .upsert({
+              user_id: supabaseUser.id,
+              telegram_id: supabaseUser.user_metadata?.telegram_id ? Number(supabaseUser.user_metadata.telegram_id) : null,
+              first_name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'User',
+              photo_url: supabaseUser.user_metadata?.avatar_url || null,
+              platform: supabaseUser.user_metadata?.is_telegram_user ? 'telegram' : 'web',
+              coins: 500,
+              xp: 0
+            }, {
+              onConflict: 'user_id',
+              ignoreDuplicates: false
+            })
             .select('id')
             .single();
 
@@ -124,8 +126,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
             localStorage.setItem(`profile_${supabaseUser.id}`, newProfile.id);
           } else {
             console.error("[UserContext] ❌ Failed to create profile:", createError);
-            // Сбрасываем ref при ошибке
-            lastProcessedUserRef.current = null;
+
+            // EMERGENCY RECOVERY: Если upsert не вернул ID, пробуем финальный SELECT
+            // Это спасет от бесконечных скелетонов
+            const { data: finalRetry } = await supabase
+              .from('profiles')
+              .select('id')
+              .eq('user_id', supabaseUser.id)
+              .maybeSingle();
+
+            if (finalRetry) {
+              setProfileId(finalRetry.id);
+              setGlobalProfileId(finalRetry.id);
+            } else {
+              lastProcessedUserRef.current = null;
+            }
           }
         }
       } else if (user) {

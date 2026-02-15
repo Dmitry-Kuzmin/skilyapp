@@ -52,7 +52,7 @@ import { TestContentLayout } from "@/components/test-session/TestContentLayout";
 import { TestSessionHeader } from "@/components/test-session/TestSessionHeader";
 import { QuestionCard } from "@/components/test-session/QuestionCard";
 import { useTestState } from "@/hooks/test-session/useTestState";
-import { LumiCharacter } from "@/components/lumi/LumiCharacter";
+import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 
 import { useTestSettings } from "@/hooks/test-session/useTestSettings";

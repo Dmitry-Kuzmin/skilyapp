@@ -148,7 +148,7 @@ export const PartnershipExpansionPortal: React.FC<PartnershipExpansionPortalProp
                             {
                                 icon: Brain,
                                 title: 'AI-локализация',
-                                desc: 'Lumi AI переводит и адаптирует любую базу ПДД на 15+ языков за 72 часа',
+                                desc: 'Skily AI переводит и адаптирует любую базу ПДД на 15+ языков за 72 часа',
                                 gradient: 'from-violet-500/10 to-purple-500/10',
                                 border: 'border-violet-500/20'
                             },

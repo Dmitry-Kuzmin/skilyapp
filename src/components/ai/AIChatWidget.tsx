@@ -10,7 +10,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, ChevronDown, Mic, MicOff } from 'lucide-react';
-import { LumiCharacter } from '@/components/lumi/LumiCharacter';
+import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -369,7 +369,7 @@ export function AIChatWidget() {
                         className="flex flex-col items-center text-center py-8 px-4"
                     >
                         {/* Lumi Character */}
-                        <LumiCharacter size="lg" />
+                        <SkilyAICharacter size="lg" />
 
                         {/* Greeting */}
                         <h3 className="text-xl font-bold mt-4 mb-2">
@@ -405,7 +405,7 @@ export function AIChatWidget() {
                 {/* Empty state - если нет контекста вопроса */}
                 {messages.length === 0 && !questionContext && (
                     <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                        <LumiCharacter size="lg" />
+                        <SkilyAICharacter size="lg" />
                         <p className="text-muted-foreground mt-4 max-w-[80%]">
                             {interfaceLanguage === 'ru' ? 'Задай мне вопрос!' : '¡Pregúntame algo!'}
                         </p>

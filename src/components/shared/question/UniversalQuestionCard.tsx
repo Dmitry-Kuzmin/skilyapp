@@ -10,7 +10,7 @@ import { QuestionCard } from '@/components/test/QuestionCard';
 import { QuestionImage } from '@/components/test/QuestionImage';
 import { QuestionText } from '@/components/test/QuestionText';
 import { AnswerButton } from '@/components/test/AnswerButton';
-import { LumiCharacter } from '@/components/lumi/LumiCharacter';
+import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 import { cn } from '@/lib/utils';
 
 export type QuestionMode = 'exam' | 'practice' | 'duel' | 'learning' | 'exam-russia';
@@ -173,7 +173,7 @@ export function UniversalQuestionCard({
                   className="group flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300"
                 >
                   <div className="relative w-6 h-6 shrink-0">
-                    <LumiCharacter size="sm" mood="happy" animate={false} className="relative z-10" />
+                    <SkilyAICharacter size="sm" mood="happy" animate={false} className="relative z-10" />
                   </div>
                   <span className="text-sm font-semibold">Спросить Skily</span>
                 </button>

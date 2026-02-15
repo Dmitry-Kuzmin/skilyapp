@@ -202,7 +202,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       },
     },
     aiSection: {
-      title: "Skily & Lumi AI™",
+      title: "Skily & Skily AI™",
       poweredBy: "Impulsado por Gemini/Groq",
       description:
         "Un copiloto técnico y una mentora emocional que explican tus fallos en español y ruso.",
@@ -396,7 +396,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       },
     },
     aiSection: {
-      title: "Skily & Lumi AI™",
+      title: "Skily & Skily AI™",
       poweredBy: "Powered by Gemini/Groq",
       description:
         "A technical coach plus an emotional mentor that break down your mistakes in English and Russian.",
@@ -590,7 +590,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       },
     },
     aiSection: {
-      title: "Skily & Lumi AI™",
+      title: "Skily & Skily AI™",
       poweredBy: "На базе Gemini/Groq",
       description:
         "Технический тренер и эмоциональный наставник, которые объяснят ошибку на русском и испанском.",

@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { LumiCharacter } from "./LumiCharacter";
-import { LumiMessage } from "./LumiMessage";
-import { useLumiChat } from "@/hooks/useLumiChat";
+import { SkilyAICharacter } from "./SkilyAICharacter";
+import { SkilyAIMessage } from "./SkilyAIMessage";
+import { useSkilyAIChat } from "@/hooks/useSkilyAIChat";
 import { usePDDContext } from "@/contexts/PDDContext";
 
 declare global {
@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-interface LumiChatWidgetProps {
+interface SkilyAIChatWidgetProps {
   onClose?: () => void;
   context?: string; // Контекст текущего вопроса/теста
   quickActions?: Array<{ label: string; message: string }>;
@@ -34,7 +34,7 @@ const defaultQuickActions = [
   { label: "Как запомнить?", message: "Как лучше запомнить это правило?" },
 ];
 
-export const LumiChatWidget = ({
+export const SkilyAIChatWidget = ({
   onClose,
   context,
   quickActions = defaultQuickActions,
@@ -44,12 +44,12 @@ export const LumiChatWidget = ({
   lastAnswerCorrect = null,
   questionExplanation = null,
   showExplanation = false,
-}: LumiChatWidgetProps) => {
+}: SkilyAIChatWidgetProps) => {
   const { selectedCountry } = usePDDContext();
   const [input, setInput] = useState("");
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, isLoading, error, sendMessage } = useLumiChat(selectedCountry);
+  const { messages, isLoading, error, sendMessage } = useSkilyAIChat(selectedCountry);
   const [hasShownExplanation, setHasShownExplanation] = useState(false);
 
   const [isListening, setIsListening] = useState(false);
@@ -141,7 +141,7 @@ export const LumiChatWidget = ({
       <div className="flex items-center justify-between px-4 py-3 bg-card border-b border-border/50">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
-            <LumiCharacter size="sm" mood="happy" animate className="scale-50" />
+            <SkilyAICharacter size="sm" mood="happy" animate className="scale-50" />
           </div>
           <div>
             <h3 className="font-bold text-sm text-foreground">Привет! Я Skily 💡</h3>
@@ -168,7 +168,7 @@ export const LumiChatWidget = ({
             {/* Объяснение из БД (экономит токены AI!) */}
             {showExplanation && questionExplanation && !hasMessages && (
               <div className="space-y-4 py-4">
-                <LumiMessage
+                <SkilyAIMessage
                   content={`**Объяснение:**\n\n${questionExplanation}`}
                   mood="idle"
                   showAvatar={true}
@@ -191,7 +191,7 @@ export const LumiChatWidget = ({
                 <div className="bg-muted/30 dark:bg-slate-800/30 rounded-2xl p-5 border border-border shadow-sm">
                   <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
-                      <LumiCharacter size="lg" mood="happy" />
+                      <SkilyAICharacter size="lg" mood="happy" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-foreground mb-1">
@@ -218,7 +218,7 @@ export const LumiChatWidget = ({
             {messages.map((msg, idx) => (
               <div key={idx}>
                 {msg.role === "assistant" ? (
-                  <LumiMessage
+                  <SkilyAIMessage
                     content={msg.content}
                     mood={idx === messages.length - 1 && isLoading ? "thinking" : "idle"}
                     isStreaming={idx === messages.length - 1 && isLoading}

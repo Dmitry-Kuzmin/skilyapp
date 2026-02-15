@@ -22,7 +22,7 @@ const content = {
         cta: "Попробовать бесплатно",
         ctaSub: "Карта не нужна • Бесплатный доступ навсегда",
         sections: {
-            ai: { title: "Lumi AI", sub: "Искусственный интеллект, который объясняет ПДД как лучший инструктор" },
+            ai: { title: "Skily AI", sub: "Искусственный интеллект, который объясняет ПДД как лучший инструктор" },
             tests: { title: "Умные тесты", sub: "9 режимов тестирования для каждого стиля обучения" },
             games: { title: "Игровая зона", sub: "Учёба через вовлечение, а не зубрёжку" },
             duels: { title: "PvP Дуэли", sub: "Сражайся с реальными игроками за рейтинг и награды" },
@@ -41,7 +41,7 @@ const content = {
         cta: "Probar gratis",
         ctaSub: "Sin tarjeta • Acceso gratuito para siempre",
         sections: {
-            ai: { title: "Lumi AI", sub: "IA que explica las normas como el mejor instructor" },
+            ai: { title: "Skily AI", sub: "IA que explica las normas como el mejor instructor" },
             tests: { title: "Tests inteligentes", sub: "9 modos de test para cada estilo de aprendizaje" },
             games: { title: "Zona de juego", sub: "Aprender jugando, no memorizando" },
             duels: { title: "Duelos PvP", sub: "Lucha contra jugadores reales por ranking y premios" },
@@ -60,7 +60,7 @@ const content = {
         cta: "Try for free",
         ctaSub: "No card needed • Free access forever",
         sections: {
-            ai: { title: "Lumi AI", sub: "Artificial intelligence that explains traffic rules like the best instructor" },
+            ai: { title: "Skily AI", sub: "Artificial intelligence that explains traffic rules like the best instructor" },
             tests: { title: "Smart Tests", sub: "9 test modes for every learning style" },
             games: { title: "Game Zone", sub: "Learning through engagement, not memorization" },
             duels: { title: "PvP Duels", sub: "Fight real players for ranking and rewards" },
@@ -291,9 +291,7 @@ const Footer = React.memo(() => {
                 <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
                     <p>© {new Date().getFullYear()} Skily. All rights reserved.</p>
                     <div className="flex items-center gap-2">
-                        <span>Made with</span>
-                        <Heart size={12} className="text-red-500 fill-red-500/20" />
-                        <span>in Barcelona</span>
+                        {/* Made with text removed */}
                     </div>
                 </div>
             </div>
@@ -400,7 +398,7 @@ export default function Features() {
                                                     <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
                                                         <Sparkles className="w-3 h-3 text-white" />
                                                     </div>
-                                                    <span className="text-xs font-bold text-blue-400">Lumi AI</span>
+                                                    <span className="text-xs font-bold text-blue-400">Skily AI</span>
                                                 </div>
                                                 <p className="text-sm text-slate-300 leading-relaxed">
                                                     {language === 'ru'

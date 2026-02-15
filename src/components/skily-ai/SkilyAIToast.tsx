@@ -1,16 +1,16 @@
 import React from 'react';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
-import { LumiCharacter, LumiMood } from './LumiCharacter';
+import { SkilyAICharacter, SkilyAIMood } from './SkilyAICharacter';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useSafeArea } from '@/hooks/useSafeArea';
 
-export interface LumiToastProps {
+export interface SkilyAIToastProps {
   id: string;
   title: string;
   description?: string;
-  mood?: LumiMood;
+  mood?: SkilyAIMood;
   variant?: 'default' | 'success' | 'error' | 'warning' | 'info';
   duration?: number;
   onClose: () => void;
@@ -53,7 +53,7 @@ const variantStyles = {
   },
 };
 
-export function LumiToast({
+export function SkilyAIToast({
   id,
   title,
   description,
@@ -62,20 +62,20 @@ export function LumiToast({
   duration = 5000,
   onClose,
   action,
-}: LumiToastProps) {
+}: SkilyAIToastProps) {
   const safeArea = useSafeArea();
   const styles = variantStyles[variant];
-  
+
   // Определяем mood на основе variant если не указан
-  const finalMood: LumiMood = mood || (
+  const finalMood: SkilyAIMood = mood || (
     variant === 'success' ? 'happy' :
-    variant === 'error' ? 'thinking' :
-    variant === 'warning' ? 'encouraging' :
-    'idle'
+      variant === 'error' ? 'thinking' :
+        variant === 'warning' ? 'encouraging' :
+          'idle'
   );
 
   // Вычисляем отступ сверху с учетом safe area для Telegram
-  const topOffset = safeArea.platform === 'telegram' 
+  const topOffset = safeArea.platform === 'telegram'
     ? safeArea.top + safeArea.contentTop + 16
     : 16;
 
@@ -100,7 +100,7 @@ export function LumiToast({
     >
       {/* Glow effect */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
-      
+
       <div className="relative z-10 p-4">
         <div className="flex items-start gap-3">
           {/* Lumi Character */}
@@ -110,7 +110,7 @@ export function LumiToast({
             transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
             className="flex-shrink-0"
           >
-            <LumiCharacter size="sm" mood={finalMood} animate />
+            <SkilyAICharacter size="sm" mood={finalMood} animate />
           </motion.div>
 
           {/* Content */}
@@ -123,7 +123,7 @@ export function LumiToast({
                 {description}
               </p>
             )}
-            
+
             {/* Action button */}
             {action && (
               <div className="pt-2">

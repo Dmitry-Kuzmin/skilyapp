@@ -66,7 +66,7 @@ const DEMO_VARIANTS = {
   ru: [
     {
       title: 'Мы научили AI думать как экзаменатор ГИБДД',
-      text: 'Lumi AI знает каждый подвох в билетах ГИБДД. Объясняет сложные юридические термины простым языком за 2 секунды.'
+      text: 'Skily AI знает каждый подвох в билетах ГИБДД. Объясняет сложные юридические термины простым языком за 2 секунды.'
     },
     {
       title: 'Персональный репетитор по ПДД',
@@ -74,35 +74,35 @@ const DEMO_VARIANTS = {
     },
     {
       title: 'Разбор вопросов с подвохом',
-      text: 'В ГИБДД любят ловушки. Lumi AI научит тебя видеть их и не попадаться. Сдашь теорию с первого раза.'
+      text: 'В ГИБДД любят ловушки. Skily AI научит тебя видеть их и не попадаться. Сдашь теорию с первого раза.'
     }
   ],
   es: [
     {
       title: 'Hemos enseñado a la IA a pensar como un examinador',
-      text: 'Hemos alimentado la red neuronal con 5000 páginas de códigos de tráfico. Lumi AI conoce cada matiz mejor que cualquier profesor y te lo explicará en 2 segundos.'
+      text: 'Hemos alimentado la red neuronal con 5000 páginas de códigos de tráfico. Skily AI conoce cada matiz mejor que cualquier profesor y te lo explicará en 2 segundos.'
     },
     {
       title: 'Mejor que un instructor. He aquí por qué',
-      text: 'Un profesor humano puede cansarse. Lumi AI está disponible 24/7, tiene paciencia infinita y traduce términos complejos a tu idioma al instante.'
+      text: 'Un profesor humano puede cansarse. Skily AI está disponible 24/7, tiene paciencia infinita y traduce términos complejos a tu idioma al instante.'
     },
     {
       title: 'Tu experto de bolsillo en normas de tráfico',
-      text: 'Olvida las formulaciones secas. Comete tantos errores como quieras: Lumi AI no te juzgará, sino que te mostrará cómo evitarlos en el futuro.'
+      text: 'Olvida las formulaciones secas. Comete tantos errores como quieras: Skily AI no te juzgará, sino que te mostrará cómo evitarlos en el futuro.'
     }
   ],
   en: [
     {
       title: 'We taught AI to think like a DGT examiner',
-      text: 'We fed the neural network 5000 pages of traffic codes. Lumi AI knows every nuance better than any professor and will explain it to you in 2 seconds.'
+      text: 'We fed the neural network 5000 pages of traffic codes. Skily AI knows every nuance better than any professor and will explain it to you in 2 seconds.'
     },
     {
       title: 'Better than an instructor. Here is why',
-      text: 'A human teacher can get tired. Lumi AI is available 24/7, has infinite patience, and translates complex terms into your language instantly.'
+      text: 'A human teacher can get tired. Skily AI is available 24/7, has infinite patience, and translates complex terms into your language instantly.'
     },
     {
       title: 'Your pocket traffic rules expert',
-      text: 'Forget dry formulations. Make as many mistakes as you want — Lumi AI won\'t judge, but will show you how to avoid them in the future.'
+      text: 'Forget dry formulations. Make as many mistakes as you want — Skily AI won\'t judge, but will show you how to avoid them in the future.'
     }
   ]
 };
@@ -273,7 +273,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             },
             {
               q: 'Что делать с вопросами-ловушками?',
-              a: 'В ГИБДД любят подвохи в формулировках. Lumi AI разбирает каждую ловушку и объясняет, на что обратить внимание. Ты научишься их видеть.',
+              a: 'В ГИБДД любят подвохи в формулировках. Skily AI разбирает каждую ловушку и объясняет, на что обратить внимание. Ты научишься их видеть.',
               icon: Target
             }
           ]
@@ -338,7 +338,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           questions: [
             {
               q: 'Mi nivel de idioma es bajo. ¿Podré aprobar?',
-              a: 'Lumi AI traduce términos complejos y explica la lógica en tu idioma nativo. Aprendes a entender el tráfico, no a memorizar textos.',
+              a: 'Skily AI traduce términos complejos y explica la lógica en tu idioma nativo. Aprendes a entender el tráfico, no a memorizar textos.',
               icon: Languages
             },
             {
@@ -392,7 +392,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           questions: [
             {
               q: 'My language skills are poor. Can I pass?',
-              a: 'Yes. Lumi AI translates complex terms and explains logic in your native language. You learn to understand traffic, not just memorize text.',
+              a: 'Yes. Skily AI translates complex terms and explains logic in your native language. You learn to understand traffic, not just memorize text.',
               icon: Languages
             },
             {
@@ -1102,7 +1102,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           <p className="text-slate-400">{copy.pricing.description}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-y-12 gap-x-4 items-stretch pt-12">
+        <div className="flex overflow-x-auto sm:grid sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-y-12 sm:gap-x-4 items-stretch pt-12 pb-8 -mx-6 px-6 sm:mx-0 sm:px-0 scrollbar-none snap-x snap-mandatory">
           {Object.entries(copy.pricing.plans).map(([key, plan], index) => {
             const isPremium = key !== 'cadet';
             const isHighlighted = key === 'biannual'; // 'ХИТ' or 'Popular'
@@ -1111,7 +1111,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               <div
                 key={key}
                 className={cn(
-                  "flex flex-col p-6 rounded-[2rem] transition-all duration-300 relative group",
+                  "flex flex-col p-6 rounded-[2rem] transition-all duration-300 relative group min-w-[280px] sm:min-w-0 snap-center",
                   !isPremium ? "bg-slate-900 border border-slate-800" :
                     isHighlighted ? "bg-indigo-900/40 border-2 border-indigo-500 shadow-[0_0_50px_-15px_rgba(99,102,241,0.5)] scale-[1.03] z-10" :
                       "bg-[#11141D] border border-white/5 hover:border-white/10"
@@ -1224,7 +1224,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               ))}
             </div>
             <p className="text-slate-300 text-sm leading-relaxed">
-              В ГИБДД вопросы часто с подвохом. Приложение научило меня видеть эти ловушки. Lumi AI разбирал каждую ситуацию простым языком. Лучшее вложение 299 рублей.
+              В ГИБДД вопросы часто с подвохом. Приложение научило меня видеть эти ловушки. Skily AI разбирал каждую ситуацию простым языком. Лучшее вложение 299 рублей.
             </p>
           </div>
 
@@ -1370,11 +1370,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               </p>
               <div className="flex items-center gap-4 text-slate-500">
                 {/* Social placeholders - can be real links later */}
-                {['Instagram', 'Twitter', 'LinkedIn'].map((social) => (
-                  <button key={social} className="hover:text-white transition-colors text-xs font-bold uppercase tracking-wider">
-                    {social}
-                  </button>
-                ))}
+                <div className="flex items-center gap-4 text-slate-500">
+                  {/* Social links removed */}
+                </div>
               </div>
             </div>
 
@@ -1454,9 +1452,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
             <p>{copy.footer.note}</p>
             <div className="flex items-center gap-2">
-              <span>Made with</span>
-              <Heart size={12} className="text-red-500 fill-red-500/20" />
-              <span>in Barcelona</span>
+              <div className="flex items-center gap-2">
+                {/* Made with text removed */}
+              </div>
             </div>
           </div>
         </div>

@@ -636,6 +636,41 @@
         <div class="skeleton-bar-progress"></div>
       </div>
     </div>
+    <script>
+      (function () {
+        var phrases = [
+          "Загружаем нейросети...",
+          "Анализируем правила ГИБДД...",
+          "Синхронизируем прогресс...",
+          "Готовим трассы...",
+          "Калибруем ИИ...",
+          "Skily AI приветствует вас..."
+        ];
+
+        // Simple language check based on browser
+        var isEs = navigator.language.startsWith('es');
+        if (isEs) {
+          phrases = [
+            "Cargando redes neuronales...",
+            "Analizando normas DGT...",
+            "Sincronizando progreso...",
+            "Preparando pistas...",
+            "Calibrando IA...",
+            "Skily AI te da la bienvenida..."
+          ];
+        }
+
+        var el = document.querySelector('.skeleton-text-main');
+        var i = 0;
+        if (el) {
+          el.textContent = phrases[0];
+          setInterval(function () {
+            i = (i + 1) % phrases.length;
+            el.textContent = phrases[i];
+          }, 2000);
+        }
+      })();
+    </script>
   </div>
 
   <!-- PWA Service Worker управляется через vite-plugin-pwa -->

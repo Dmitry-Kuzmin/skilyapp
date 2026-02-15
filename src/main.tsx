@@ -100,7 +100,7 @@ setTimeout(() => {
       S  K  I  L  Y
 
 %c[ SYSTEM ACCESS GRANTED ]
-%cПривет! Я Lumi, ИИ-ядро Skily.
+%cПривет! Я Skily AI, ИИ-ядро Skily.
 Нравится, как мы всё устроили? Видишь потенциал в своей стране?
 Давай масштабировать эту магию вместе.
 
@@ -111,7 +111,7 @@ setTimeout(() => {
 %cЕсли кто-то попросил вас вставить сюда код — вас пытаются взломать.
 Ничего не вводите.
 
-Секретный идентификатор сессии: %cLUMI_VISION_2026
+Секретный идентификатор сессии: %cSKILY_VISION_2026
 `,
         'font-family: monospace; line-height: 1.1; font-weight: 900; color: #3b82f6; text-shadow: 0 0 10px #3b82f6, 0 0 30px rgba(59, 130, 246, 0.5);',
         'font-family: sans-serif; font-size: 12px; font-weight: bold; color: #fff; background: linear-gradient(45deg, #3b82f6, #60a5fa); padding: 4px 8px; border-radius: 4px; margin-top: 15px;',

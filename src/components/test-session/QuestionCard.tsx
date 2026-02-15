@@ -6,7 +6,7 @@ import { AnswerOptionsList } from "./AnswerOptionsList";
 import { QuestionImage } from "@/components/test/QuestionImage";
 import { QuestionText } from "@/components/test/QuestionText";
 import { SubmitButton } from "@/components/test/SubmitButton";
-import { LumiCharacter } from "@/components/lumi/LumiCharacter";
+import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 import { ChevronRight, Keyboard, CornerDownLeft, Sparkles, Wand2, Lightbulb, Flag } from "lucide-react";
 import { getImageUrl } from "@/utils/imageUtils";
 import { useState, useEffect } from "react";
@@ -410,7 +410,7 @@ export const QuestionCard = ({
                                 title="Спросить AI"
                             >
                                 <div className="w-8 h-8 relative flex items-center justify-center">
-                                    <LumiCharacter size="sm" mood="happy" animate={true} />
+                                    <SkilyAICharacter size="sm" mood="happy" animate={true} />
                                 </div>
                                 <span className="font-bold text-indigo-600 dark:text-indigo-300 text-sm leading-none">AI</span>
                             </button>

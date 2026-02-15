@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { LumiCharacter } from "@/components/lumi/LumiCharacter";
+import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 import { Crown, Coins, Sparkles, Gift, Zap } from "lucide-react";
 import { motion } from "@/components/optimized/Motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -57,11 +57,11 @@ export function PremiumRewardUpsell({
 
       setLoading(true);
       try {
-        const tableName = 
+        const tableName =
           reward.premium_reward.type === "skin" ? "skin_definitions" :
-          reward.premium_reward.type === "badge" ? "badge_definitions" :
-          reward.premium_reward.type === "sticker" ? "sticker_definitions" :
-          reward.premium_reward.type === "boost" ? "boost_definitions" : null;
+            reward.premium_reward.type === "badge" ? "badge_definitions" :
+              reward.premium_reward.type === "sticker" ? "sticker_definitions" :
+                reward.premium_reward.type === "boost" ? "boost_definitions" : null;
 
         if (!tableName) {
           setRewardData(null);
@@ -94,7 +94,7 @@ export function PremiumRewardUpsell({
       <DialogContent className="max-w-md overflow-hidden p-0 border-2 border-yellow-500/30">
         {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 via-orange-500/10 to-amber-500/10" />
-        
+
         <div className="relative z-10 p-6 space-y-4">
           {/* Header with Lumi */}
           <DialogHeader className="space-y-3">
@@ -104,7 +104,7 @@ export function PremiumRewardUpsell({
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.1, type: "spring" }}
               >
-                <LumiCharacter size="lg" mood="encouraging" animate />
+                <SkilyAICharacter size="lg" mood="encouraging" animate />
               </motion.div>
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
@@ -160,7 +160,7 @@ export function PremiumRewardUpsell({
                       {rewardData.name_ru?.charAt(0) || "S"}
                     </div>
                   )}
-                  
+
                   {reward.premium_reward.type === "badge" && (
                     <div
                       className="w-24 h-24 rounded-full flex items-center justify-center text-5xl shadow-2xl"
@@ -176,19 +176,19 @@ export function PremiumRewardUpsell({
                       {!rewardData.metadata?.icon && "🏆"}
                     </div>
                   )}
-                  
+
                   {reward.premium_reward.type === "sticker" && (
                     <div className="w-24 h-24 rounded-xl flex items-center justify-center text-6xl bg-muted/30 shadow-2xl">
                       {rewardData.metadata?.emoji || "😊"}
                     </div>
                   )}
-                  
+
                   {reward.premium_reward.type === "boost" && (
                     <div className="w-24 h-24 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-500 shadow-2xl">
                       <Zap className="w-12 h-12 text-white" />
                     </div>
                   )}
-                  
+
                   {/* Name and description */}
                   <div className="text-center space-y-1">
                     <h3 className="text-2xl font-black text-yellow-700 dark:text-yellow-500">
@@ -202,15 +202,14 @@ export function PremiumRewardUpsell({
                     {/* Rarity badge */}
                     {rewardData.rarity && (
                       <div className="flex items-center justify-center gap-1 pt-1">
-                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          rewardData.rarity === "legendary" ? "bg-yellow-500/20 text-yellow-700 border border-yellow-500/30" :
-                          rewardData.rarity === "epic" ? "bg-blue-500/20 text-blue-700 border border-blue-500/30" :
-                          rewardData.rarity === "rare" ? "bg-blue-500/20 text-blue-700 border border-blue-500/30" :
-                          "bg-gray-500/20 text-gray-700 border border-gray-500/30"
-                        }`}>
+                        <div className={`px-2 py-0.5 rounded-full text-xs font-semibold ${rewardData.rarity === "legendary" ? "bg-yellow-500/20 text-yellow-700 border border-yellow-500/30" :
+                            rewardData.rarity === "epic" ? "bg-blue-500/20 text-blue-700 border border-blue-500/30" :
+                              rewardData.rarity === "rare" ? "bg-blue-500/20 text-blue-700 border border-blue-500/30" :
+                                "bg-gray-500/20 text-gray-700 border border-gray-500/30"
+                          }`}>
                           {rewardData.rarity === "legendary" ? "Легендарный" :
-                           rewardData.rarity === "epic" ? "Эпический" :
-                           rewardData.rarity === "rare" ? "Редкий" : "Обычный"}
+                            rewardData.rarity === "epic" ? "Эпический" :
+                              rewardData.rarity === "rare" ? "Редкий" : "Обычный"}
                         </div>
                       </div>
                     )}
@@ -244,7 +243,7 @@ export function PremiumRewardUpsell({
             className="bg-card/50 rounded-lg p-3 border border-border/50"
           >
             <div className="flex items-start gap-2">
-              <LumiCharacter size="sm" mood="happy" className="flex-shrink-0" />
+              <SkilyAICharacter size="sm" mood="happy" className="flex-shrink-0" />
               <p className="text-sm text-muted-foreground leading-relaxed">
                 С Premium подпиской вы получаете <strong className="text-foreground">эксклюзивные награды</strong> на каждом уровне и <strong className="text-foreground">+20% к Season Points</strong>!
               </p>
