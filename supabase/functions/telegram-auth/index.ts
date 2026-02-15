@@ -55,12 +55,21 @@ serve(async (req) => {
     const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')!;
     const photoUrl = await syncTelegramProfilePhoto(supabase, user.id as number, botToken, user.photo_url);
 
-    const profilePayload = {
+    // Определяем финальный URL фото:
+    // 1. Загруженный в Storage (photoUrl)
+    // 2. Исходный из Telegram (user.photo_url)
+    // 3. Если ничего нет - null
+    let finalPhotoUrl = photoUrl;
+    if (!finalPhotoUrl && user.photo_url) {
+      console.log(`[telegram-auth] Storage sync failed, falling back to raw Telegram URL`);
+      finalPhotoUrl = user.photo_url;
+    }
+
+    const profilePayload: any = {
       telegram_id: user.id,
       first_name: user.first_name,
       last_name: user.last_name || null,
       username: user.username || null,
-      photo_url: photoUrl,
       language_code: user.language_code || null,
       is_premium: user.is_premium || false,
       platform: platform,
@@ -72,6 +81,12 @@ serve(async (req) => {
         notifications: true
       }
     };
+
+    // Обновляем фото только если нашли новое, иначе оставляем как есть
+    if (finalPhotoUrl) {
+      profilePayload.photo_url = finalPhotoUrl;
+    }
+
 
     // Сначала ищем по telegram_id
     let { data: profile, error: upsertError } = await supabase

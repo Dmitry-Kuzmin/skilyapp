@@ -10,6 +10,12 @@ import "./index.css";
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
 
+// КРИТИЧНО: Помечаем, что main.tsx загрузился (как можно раньше!)
+if (typeof window !== 'undefined') {
+  window._mainLoaded = true;
+  console.log('[Main] 🚀 Flag _mainLoaded set (TOP)');
+}
+
 // Initialize Telegram Mock for localhost development
 if (import.meta.env.DEV) {
   import('./utils/telegramMock').then(({ initTelegramMock }) => {
@@ -129,10 +135,8 @@ setTimeout(() => {
   }
 }, 1500);
 
-// КРИТИЧНО: Помечаем, что main.tsx загрузился
-if (typeof window !== 'undefined') {
-  window._mainLoaded = true;
-}
+
+
 
 // Инициализация Web Vitals мониторинга
 reportWebVitals((metric) => {

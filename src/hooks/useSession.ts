@@ -13,21 +13,30 @@ export function useSession() {
     const initSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
-        
+
         if (error) {
           // Фильтруем ошибку "Refresh Token Not Found" - это норма для чистого браузера
-          if (error.message?.includes('Refresh Token') || 
-              error.message?.includes('refresh_token_not_found')) {
-            // Это нормальное поведение - пользователь просто не авторизован
+          if (error.message?.includes('Refresh Token') ||
+            error.message?.includes('refresh_token_not_found') ||
+            (error as any).status === 400) {
+
+            // Если это 400 ошибка, значит токен в localStorage протух окончательно
+            if ((error as any).status === 400) {
+              console.warn('[useSession] 🚨 Invalid refresh token (400), clearing auth storage...');
+              localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+              // Можно не перезагружать, Supabase клиент сам обновит состояние
+            }
+
             if (import.meta.env.DEV) {
               console.debug('[useSession] Session expired or missing, require login');
             }
             return;
           }
-          
+
           // Логируем только реальные ошибки
           console.error('[useSession] Auth error:', error);
         } else if (data?.session) {
+
           if (import.meta.env.DEV) {
             console.debug('[useSession] Session restored:', {
               userId: data.session.user.id,
