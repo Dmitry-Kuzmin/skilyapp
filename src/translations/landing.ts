@@ -225,7 +225,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       traditional: "Métodos tradicionales",
       skily: "Skilyapp",
       rows: [
-        { feature: "Coste Total", traditional: "€400+", skily: "€19", skilyDesc: "Pago único. Sin sorpresas." },
+        { feature: "Coste Total", traditional: "€400+", skily: "€4.99", skilyDesc: "/mes (facturado anualmente)" },
         {
           feature: "Método",
           traditional: "Libros estáticos",
@@ -419,7 +419,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       traditional: "Paper-based methods",
       skily: "Skilyapp",
       rows: [
-        { feature: "Total Cost", traditional: "€400+", skily: "€19", skilyDesc: "One-time payment." },
+        { feature: "Total Cost", traditional: "€400+", skily: "€4.99", skilyDesc: "/mo (billed yearly)" },
         {
           feature: "Method",
           traditional: "Boring Lectures",
@@ -613,7 +613,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       traditional: "Традиционные методы",
       skily: "Skilyapp",
       rows: [
-        { feature: "Бюджет", traditional: "€400+", skily: "€19", skilyDesc: "Платишь один раз." },
+        { feature: "Бюджет", traditional: "€400+", skily: "€4.99", skilyDesc: "/мес (при оплате за год)" },
         {
           feature: "Метод",
           traditional: "Скучные лекции",
