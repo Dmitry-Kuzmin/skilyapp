@@ -106,8 +106,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
             .insert([
               {
                 user_id: supabaseUser.id,
+                telegram_id: supabaseUser.user_metadata?.telegram_id ? Number(supabaseUser.user_metadata.telegram_id) : null,
                 first_name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'User',
-                platform: 'web',
+                photo_url: supabaseUser.user_metadata?.avatar_url || null,
+                platform: supabaseUser.user_metadata?.is_telegram_user ? 'telegram' : 'web',
                 coins: 500,
                 xp: 0
               }
