@@ -71,7 +71,6 @@ serve(async (req) => {
       last_name: user.last_name || null,
       username: user.username || null,
       language_code: user.language_code || null,
-      is_premium: user.is_premium || false,
       platform: platform,
       last_login: new Date().toISOString(),
       updated_at: new Date().toISOString(),

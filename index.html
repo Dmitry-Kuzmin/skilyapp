@@ -679,7 +679,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-02-15-15:00';
+      const APP_VERSION = '2026-02-16-11:00';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
@@ -770,37 +770,37 @@
         url.searchParams.set('_v', Date.now());
         url.searchParams.set('_clear_cache', '1');
         window.location.replace(url.toString());
+        return;
       }
-    }
 
-    // Отслеживаем ошибки загрузки модулей
-    window.addEventListener('error', function (e) {
-      if (e.filename && (e.filename.includes('main') || e.filename.includes('react-vendor'))) {
-        console.error('[HTML] ❌ Module load error:', {
-          message: e.message,
-          filename: e.filename,
-          lineno: e.lineno,
-          colno: e.colno,
-          error: e.error,
-        });
-      }
-    }, true);
+      // Отслеживаем ошибки загрузки модулей
+      window.addEventListener('error', function (e) {
+        if (e.filename && (e.filename.includes('main') || e.filename.includes('react-vendor'))) {
+          console.error('[HTML] ❌ Module load error:', {
+            message: e.message,
+            filename: e.filename,
+            lineno: e.lineno,
+            colno: e.colno,
+            error: e.error,
+          });
+        }
+      }, true);
 
-    // 🛡️ ХАРДВОРК: Таймер загрузки основного модуля
-    // Если за 15 секунд приложение не просигнализировало о загрузке - пробуем восстановить
-    setTimeout(function () {
-      if (!window._mainLoaded) {
-        console.error('[HTML] Main module not loaded after 15s, forcing cache clear...');
+      // 🛡️ ХАРДВОРК: Таймер загрузки основного модуля
+      // Если за 15 секунд приложение не просигнализировало о загрузке - пробуем восстановить
+      setTimeout(function () {
+        if (!window._mainLoaded) {
+          console.error('[HTML] Main module not loaded after 15s, forcing cache clear...');
 
-        // Удаляем токен, так как 400 error refresh_token часто блокирует загрузку
-        localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+          // Удаляем токен, так как 400 error refresh_token часто блокирует загрузку
+          localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
 
-        const url = new URL(window.location.href);
-        url.searchParams.set('_force_reload', Date.now());
-        window.location.replace(url.toString());
-      }
-    }, 15000);
-    }) ();
+          const url = new URL(window.location.href);
+          url.searchParams.set('_force_reload', Date.now());
+          window.location.replace(url.toString());
+        }
+      }, 15000);
+    })();
 
   </script>
   <!-- КРИТИЧНО: Основной скрипт приложения - должен загружаться первым -->
