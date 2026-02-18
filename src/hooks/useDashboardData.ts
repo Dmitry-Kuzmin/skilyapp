@@ -160,54 +160,66 @@ export function useDashboardData() {
         return null;
       }
 
-      // ФИКС 400: Проверяем авторизацию перед любыми RPC вызовами
+      // ФИКС 400/500: Пытаемся получить сессию, но не блокируем если есть profileId
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        // console.warn('[useDashboardData] ⚠️ No active session, skipping RPC calls');
+
+      // Если есть profileId, мы можем делать RPC вызовы даже без сессии (SECURITY DEFINER + ANON grant)
+      // Это критично для Fallback-авторизации в TMA
+      if (!session && !profileId) {
         return null;
       }
 
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
 
       try {
+        console.log('[useDashboardData] 🚀 Calling get_dashboard_super_v2 for:', profileId);
         const promise = (supabase as any).rpc('get_dashboard_super_v2', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
         const response: any = await Promise.race([promise, timeoutPromise]);
 
+        if (response.error) {
+          console.error('[useDashboardData] ❌ get_dashboard_super_v2 RPC Error:', response.error);
+        } else if (response.data?.error) {
+          console.error('[useDashboardData] ❌ get_dashboard_super_v2 Data Error:', response.data.error);
+        }
+
         if (!response.error && response.data && !response.data.error) {
+          console.log('[useDashboardData] ✅ get_dashboard_super_v2 success');
           return response.data as DashboardData;
         }
-        // Fallback to v1 if v2 is not yet deployed
+
+        // Fallback to v1 if v2 is not yet deployed or fails
+        console.log('[useDashboardData] 🔄 Falling back to get_dashboard_super...');
         const promiseV1 = (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
         const responseV1: any = await Promise.race([promiseV1, timeoutPromise]);
 
         if (!responseV1.error && responseV1.data && !responseV1.data.error) {
+          console.log('[useDashboardData] ✅ get_dashboard_super success');
           return responseV1.data as DashboardData;
         }
       } catch (e: any) {
-        // console.warn('[useDashboardData] ❌ get_dashboard_super failed:', e.message);
+        console.error('[useDashboardData] ❌ RPC Exception:', e.message);
       }
 
       // Fallback на обычный RPC
-
       try {
+        console.log('[useDashboardData] 🔄 Falling back to get_dashboard_complete...');
         const promise = (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
         const response: any = await Promise.race([promise, timeoutPromise]);
 
         if (!response.error && response.data && !response.data.error) {
-
+          console.log('[useDashboardData] ✅ get_dashboard_complete success');
           return response.data as DashboardData;
         }
-        // console.warn('[useDashboardData] ⚠️ get_dashboard_complete error:', response.error);
       } catch (e: any) {
-        // console.warn('[useDashboardData] ❌ get_dashboard_complete failed:', e.message);
+        console.error('[useDashboardData] ❌ get_dashboard_complete exception:', e.message);
       }
 
       // Окончательный fallback
-
+      console.log('[useDashboardData] ⚠️ All RPCs failed, using fetchDashboardFallback');
       return await fetchDashboardFallback(profileId);
     },
     enabled: !!profileId,
@@ -255,12 +267,8 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
 
 
   try {
-    // ФИКС 400: Проверяем что пользователь авторизован перед запросами
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      console.warn('[fetchDashboardFallback] ⚠️ No active session, aborting fallback');
-      return null;
-    }
+    // В TELEGRAM MINI APP мы можем быть без сессии (anon), но с profileId
+    // РЛС политики должны это поддерживать (select profiles viewable by everyone)
 
     const results = await Promise.allSettled([
       supabase

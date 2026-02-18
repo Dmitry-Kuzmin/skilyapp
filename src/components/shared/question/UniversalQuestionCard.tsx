@@ -26,6 +26,7 @@ interface UniversalQuestionCardProps {
     text: string;
     isCorrect: boolean;
   }>;
+  country?: 'russia' | 'spain';
 
   // Состояние
   selectedAnswerId?: string | null;
@@ -77,6 +78,7 @@ export function UniversalQuestionCard({
   className,
   header,
   footer,
+  country = 'russia',
   children,
 }: UniversalQuestionCardProps) {
   // Определяем стиль в зависимости от режима
@@ -106,6 +108,7 @@ export function UniversalQuestionCard({
               imageUrl={image}
               aspectRatio={imageAspectRatio}
               compact={isCompact}
+              country={country}
             />
           </div>
         )}

@@ -105,7 +105,11 @@ export const QuestionCard = ({
                     // Russia Vertical Layout (Image on top)
                     <div className="space-y-6">
                         <div className="w-full">
-                            <QuestionImage imageUrl={currentQuestion.image_url} className="w-full h-auto max-h-[350px] md:max-h-[450px] object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm" />
+                            <QuestionImage
+                                imageUrl={currentQuestion.image_url}
+                                country={isRussia ? 'russia' : 'spain'}
+                                className="w-full h-auto max-h-[350px] md:max-h-[450px] object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm"
+                            />
                         </div>
                         <div className="flex flex-col mt-6">
                             {/* Question Card - Swiss Design */}
@@ -244,6 +248,7 @@ export const QuestionCard = ({
                         <div className="w-full lg:sticky lg:top-6 lg:self-start">
                             <QuestionImage
                                 imageUrl={currentQuestion.image_url}
+                                country={isRussia ? 'russia' : 'spain'}
                                 className="w-full h-auto object-cover rounded-[2rem] border border-border/50 shadow-md hover:shadow-xl transition-all duration-500 bg-zinc-900/5 dark:bg-zinc-100/5 group-hover:scale-[1.02]"
                             />
                         </div>

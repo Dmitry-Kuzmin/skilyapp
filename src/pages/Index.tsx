@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense, useCallback, useContext, memo } from "react";
+import { Loader2 } from "lucide-react";
 import { UserContext, useUserContext } from "@/contexts/UserContext";
 // ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
 // Supabase будет загружаться только когда нужен (в handleClaimBonus)
@@ -253,6 +254,14 @@ const DashboardContent = memo(function DashboardContent() {
                   <div>
                     <h2 className="text-2xl font-bold mb-2 text-indigo-400">Ошибка инициализации</h2>
                     <p className="text-slate-400 text-sm">{error?.message || 'Не удалось загрузить данные профиля. Попробуйте обновить страницу.'}</p>
+                    {import.meta.env.DEV && (
+                      <div className="mt-4 p-3 bg-red-900/20 rounded-xl text-left overflow-auto max-h-40">
+                        <code className="text-[10px] text-red-400 whitespace-pre-wrap">
+                          Debug: profileId={profileId || 'NULL'}
+                          {JSON.stringify(error, null, 2)}
+                        </code>
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-3 justify-center">
                     <button
@@ -301,6 +310,13 @@ const DashboardContent = memo(function DashboardContent() {
                   <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
                 </Suspense>
               </>
+            ) : !profileId ? (
+              <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
+                <p className="text-slate-400 animate-pulse font-medium">Ожидание авторизации...</p>
+                <p className="text-[10px] text-slate-600">Если загрузка висит долго — проверьте интернет соединение</p>
+                <button onClick={() => window.location.reload()} className="text-xs text-indigo-400 underline mt-4">Обновить страницу</button>
+              </div>
             ) : (
               <DashboardSkeleton />
             )}

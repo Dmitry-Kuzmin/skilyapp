@@ -417,12 +417,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
             if (authError) {
               console.error('[UserContext] telegram-auth-v2 error:', authError);
+              toast.error('Сбой быстрой авторизации', { description: 'Пробуем обычный вход...' });
               // Fallback to old login method
               login(telegramUser).catch(err => {
                 console.error('[UserContext] Fallback login failed:', err);
               });
             } else if (authData?.session) {
               console.log("[UserContext] ✅ Got Supabase session from Telegram auth!");
+
+              toast.success('Авторизация успешна!', { duration: 1500 });
 
               // ФУНДАМЕНТАЛЬНЫЙ МОМЕНТ: Устанавливаем сессию в Supabase клиент
               const { error: sessionError } = await supabase.auth.setSession({
@@ -548,6 +551,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error('[UserContext] Backend error:', error);
+        toast.error('Ошибка авторизации', { description: 'Не удалось сохранить профиль' });
         throw error;
       }
 

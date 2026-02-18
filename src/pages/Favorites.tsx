@@ -427,6 +427,7 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
         <div className="relative h-44 shrink-0 bg-muted overflow-hidden">
             <QuestionImage
                 imageUrl={question.image_url}
+                country={isRus ? 'russia' : 'spain'}
                 className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
             />
             {/* Overlay Gradient */}
@@ -522,7 +523,7 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                 >
                     {/* Consistent Image Header on Back */}
                     <div className="relative h-36 shrink-0 bg-muted overflow-hidden opacity-60 grayscale-[0.3]">
-                        <QuestionImage imageUrl={question.image_url} className="w-full h-full object-cover" />
+                        <QuestionImage imageUrl={question.image_url} country={isRus ? 'russia' : 'spain'} className="w-full h-full object-cover" />
                         <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
 
                         {/* Question Text Context Snapshot */}

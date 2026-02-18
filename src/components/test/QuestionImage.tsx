@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { ZoomIn, X, Bot } from 'lucide-react';
 import { ThreeDImageViewer } from '@/components/ui/ThreeDImageViewer';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface QuestionImageProps {
   imageUrl: string | null;
@@ -17,6 +18,7 @@ interface QuestionImageProps {
   className?: string;
   alt?: string;
   protectContent?: boolean;
+  country?: 'russia' | 'spain';
 }
 
 export const QuestionImage = memo(function QuestionImage({
@@ -26,12 +28,16 @@ export const QuestionImage = memo(function QuestionImage({
   className,
   alt = "Вопрос",
   protectContent = true,
+  country = 'russia',
 }: QuestionImageProps) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [imageAspectRatio, setImageAspectRatio] = useState<number | null>(initialAspectRatio);
   const [isZoomed, setIsZoomed] = useState(false);
+  const { language } = useLanguage();
+  const isSpanish = language === 'es';
+  const isSpain = country === 'spain';
 
   useEffect(() => {
     if (!imageUrl) {
@@ -146,7 +152,7 @@ export const QuestionImage = memo(function QuestionImage({
           />
 
           {/* Watermark Overlay (Subtle Pattern) */}
-          {protectContent && (
+          {protectContent && !isSpanish && !isSpain && (
             <div className="absolute inset-0 pointer-events-none opacity-[0.03] dark:opacity-[0.05] z-[5]"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50' y='50' font-family='Arial' font-size='12' fill='white' text-anchor='middle' transform='rotate(-45 50 50)'%3ESkily%3C/text%3E%3C/svg%3E")`,
@@ -159,7 +165,7 @@ export const QuestionImage = memo(function QuestionImage({
           <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-black/30 to-transparent pointer-events-none z-[6]" />
 
           {/* Branding Badge (Corner) */}
-          {protectContent && (
+          {protectContent && !isSpanish && !isSpain && (
             <div className="absolute bottom-3 right-3 z-[7] opacity-80 pointer-events-none">
               <div className="px-2 py-1 bg-black/40 backdrop-blur-md rounded-md border border-white/10 flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
