@@ -8,7 +8,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Loader2, Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, Rocket, type LucideIcon } from "lucide-react";
+import { Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, Rocket, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";

@@ -581,6 +581,8 @@ export const en = {
   },
   achievementsModal: {
     title: "Achievements",
+    emptyTitle: "No achievements yet",
+    emptyDesc: "Start learning and your first achievements will appear here!",
     description: "Track your progress and unlock rewards — all in one window",
     totalXP: "Total XP",
     xpToNextLevel: "To next level: {{xp}} XP",

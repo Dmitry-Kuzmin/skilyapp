@@ -19,7 +19,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
   const { openModal } = useModalRoute('duel-pass-season');
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
-  
+
   // ОПТИМИЗАЦИЯ: Используем кэшированные данные
   const { data: duelPassData, loading } = useDuelPassInfo();
 
@@ -53,7 +53,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
 
   if (loading) {
     return (
-      <div className={`${className} ${containerClass} rounded-[2.5rem] p-6 shadow-lg border backdrop-blur-sm animate-pulse`}>
+      <div className={`${className} ${containerClass} rounded-3xl xl:rounded-[2.5rem] p-4 md:p-5 xl:p-6 shadow-lg border backdrop-blur-sm animate-pulse`}>
         <div className="flex items-center justify-between">
           <div className={`h-4 w-32 ${isDarkTheme ? 'bg-slate-700' : 'bg-slate-200'} rounded`}></div>
           <div className={`h-6 w-6 ${isDarkTheme ? 'bg-slate-700' : 'bg-slate-200'} rounded-full`}></div>
@@ -71,7 +71,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
   return (
     <div
       onClick={handleClick}
-      className={`${className} ${containerClass} rounded-[2.5rem] p-6 shadow-lg border flex flex-col gap-4 backdrop-blur-sm cursor-pointer transition-all duration-300 group`}
+      className={`${className} ${containerClass} rounded-3xl xl:rounded-[2.5rem] p-4 md:p-5 xl:p-6 shadow-lg border flex flex-col gap-4 backdrop-blur-sm cursor-pointer transition-all duration-300 group`}
     >
       {/* Header */}
       <div className="flex items-center justify-between">

@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Loader2, Target, BarChart2, Settings } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Target, BarChart2, Settings } from 'lucide-react';
 import { ContextSwitcher } from '@/components/shared';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { usePDDTickets } from '@/hooks/usePDDTickets';
@@ -207,10 +207,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
 
         {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-up">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-5 xl:gap-6 animate-slide-up">
 
           {/* 1. HERO CARD (LICENSE STYLE - PREMIUM) */}
-          <div className="md:col-span-2 lg:col-span-2 lg:row-span-2 h-full">
+          <div className="md:col-span-2 xl:col-span-2 xl:row-span-2 h-full">
             <LicenseCard
               userProfile={userProfile}
               stats={stats}
@@ -230,8 +230,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className={cn(
             "transition-all duration-500 ease-in-out",
             examReadinessExpanded
-              ? 'md:col-span-2 lg:col-span-2 lg:row-span-2'
-              : 'md:col-span-1 lg:col-span-1 lg:row-span-2'
+              ? 'md:col-span-2 xl:col-span-2 xl:row-span-2'
+              : 'md:col-span-1 xl:col-span-1 xl:row-span-2'
           )}>
             <Suspense fallback={<ComponentSkeleton />}>
               <ExamReadiness
@@ -250,21 +250,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           {/* 3. SKILY CHAT (Col: 1, Row: 2) */}
-          <div className="col-span-1 md:col-span-1 lg:col-span-1 lg:row-span-2">
+          <div className="col-span-1 md:col-span-1 xl:col-span-1 xl:row-span-2">
             <Suspense fallback={<ComponentSkeleton />}>
               <SkilyChat />
             </Suspense>
           </div>
 
           {/* 4. PREMIUM CARD */}
-          <div className="md:col-span-1 lg:col-span-1">
+          <div className="md:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <PremiumCard onGetPremium={onGetPremium} />
             </Suspense>
           </div>
 
           {/* 5. DUEL PASS INFO */}
-          <div className="md:col-span-1 lg:col-span-1">
+          <div className="md:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <DuelPassInfo />
             </Suspense>

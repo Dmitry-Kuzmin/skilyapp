@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
-  Swords, X, Loader2, CheckCircle2, Hash, Zap, Sparkles,
+  Swords, X, CheckCircle2, Hash, Zap, Sparkles,
   Copy, Check, Users, Search, Coins, Minus, Plus, Share2,
   ArrowRight, Shield, Activity, Globe
 } from 'lucide-react';
@@ -395,7 +395,10 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
                       <AnimatePresence mode="wait">
                         {isProcessing ? (
                           <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3">
-                            <Loader2 className="w-6 h-6 animate-spin" />
+                            <svg className="w-6 h-6 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
                             <span>ЗАВИСАНИЕ...</span>
                           </motion.div>
                         ) : (
@@ -452,7 +455,10 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
                               disabled={isJoining}
                               className="w-full h-16 rounded-[1.5rem] bg-indigo-500 text-white font-black text-base shadow-xl shadow-indigo-500/20 hover:bg-indigo-600 transition-all"
                             >
-                              {isJoining ? <Loader2 className="w-5 h-5 animate-spin" /> : <div className="flex items-center gap-2"><span>ПОДКЛЮЧИТЬСЯ К СЕССИИ</span><ArrowRight className="w-5 h-5" /></div>}
+                              {isJoining ? <svg className="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg> : <div className="flex items-center gap-2"><span>ПОДКЛЮЧИТЬСЯ К СЕССИИ</span><ArrowRight className="w-5 h-5" /></div>}
                             </Button>
                           </motion.div>
                         )}
@@ -474,7 +480,10 @@ export function DuelCreateModal({ open, onClose, initialTab = 'random', onDuelCr
                         disabled={isProcessing}
                         className="w-full h-14 rounded-2xl border-2 border-indigo-500/20 hover:bg-indigo-500/5 hover:border-indigo-500 text-indigo-600 dark:text-indigo-400 font-black transition-all relative z-10 shadow-sm"
                       >
-                        {isProcessing ? <Loader2 className="animate-spin w-5 h-5" /> : <div className="flex items-center justify-center gap-2"><Sparkles className="w-5 h-5" /><span>СГЕНЕРИРОВАТЬ КЛЮЧ</span></div>}
+                        {isProcessing ? <svg className="animate-spin w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg> : <div className="flex items-center justify-center gap-2"><Sparkles className="w-5 h-5" /><span>СГЕНЕРИРОВАТЬ КЛЮЧ</span></div>}
                       </Button>
                     </div>
                   </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import { usePremium } from "@/hooks/usePremium";
@@ -32,7 +32,7 @@ export default function PaymentSuccess() {
         // Получаем параметры из URL
         let orderId = searchParams.get('order_id'); // Cryptomus
         let paddleTransactionId = searchParams.get('transaction_id'); // Paddle
-        
+
         console.log('[PaymentSuccess] Page loaded:', {
           orderId,
           paddleTransactionId,
@@ -40,13 +40,13 @@ export default function PaymentSuccess() {
           url: window.location.href,
           searchParams: Object.fromEntries(searchParams.entries())
         });
-        
+
         // Если transaction_id или order_id нет в URL, пытаемся найти альтернативными способами
         if (!orderId && !paddleTransactionId) {
           console.warn('[PaymentSuccess] ⚠️ No order_id or transaction_id in URL, trying alternatives...');
-          
+
           // Способ 1: Проверяем sessionStorage и localStorage
-          const storedPaddleTransactionId = sessionStorage.getItem('paddle_transaction_id') 
+          const storedPaddleTransactionId = sessionStorage.getItem('paddle_transaction_id')
             || localStorage.getItem('paddle_transaction_id');
           if (storedPaddleTransactionId) {
             console.log('[PaymentSuccess] Found paddle_transaction_id in storage:', storedPaddleTransactionId);
@@ -54,12 +54,12 @@ export default function PaymentSuccess() {
             sessionStorage.removeItem('paddle_transaction_id');
             localStorage.removeItem('paddle_transaction_id');
           }
-          
+
           // Способ 2: Если есть profileId, ищем последнюю pending покупку за последние 10 минут
           if (!orderId && !paddleTransactionId && profileId) {
             console.log('[PaymentSuccess] Searching for recent pending purchase...');
             const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-            
+
             const { data: recentPurchases } = await supabase
               .from('purchases')
               .select('cryptomus_order_id, paddle_transaction_id, created_at, status')
@@ -68,11 +68,11 @@ export default function PaymentSuccess() {
               .gte('created_at', tenMinutesAgo)
               .order('created_at', { ascending: false })
               .limit(1);
-            
+
             if (recentPurchases && recentPurchases.length > 0) {
               const recentPurchase = recentPurchases[0];
               console.log('[PaymentSuccess] Found recent purchase:', recentPurchase);
-              
+
               // Приоритет: Paddle transaction_id, затем Cryptomus order_id
               if (recentPurchase.paddle_transaction_id) {
                 paddleTransactionId = recentPurchase.paddle_transaction_id;
@@ -84,7 +84,7 @@ export default function PaymentSuccess() {
             }
           }
         }
-        
+
         if (!orderId && !paddleTransactionId) {
           console.error('[PaymentSuccess] ❌ No order_id or transaction_id found');
           // Если нет ID платежа, возможно пользователь просто вернулся без оплаты
@@ -109,14 +109,14 @@ export default function PaymentSuccess() {
         // Проверяем статус покупки в БД (Paddle или Cryptomus)
         let purchase;
         let purchaseError;
-        
+
         if (paddleTransactionId) {
           // Paddle платеж
           const result = await supabase
             .from('purchases')
             .select('*')
             .eq('paddle_transaction_id', paddleTransactionId)
-          .single();
+            .single();
           purchase = result.data;
           purchaseError = result.error;
         } else if (orderId) {
@@ -178,26 +178,26 @@ export default function PaymentSuccess() {
         // Если покупка уже обработана (completed), проверяем что монеты начислены
         if (purchase?.status === 'completed') {
           console.log('[PaymentSuccess] Purchase already processed');
-          
+
           // Если это покупка монет, проверяем что монеты действительно начислены
           if (purchase.item_type === 'coins_pack') {
-            const coins = typeof purchase.metadata?.coins === 'string' 
-              ? parseInt(purchase.metadata.coins, 10) 
+            const coins = typeof purchase.metadata?.coins === 'string'
+              ? parseInt(purchase.metadata.coins, 10)
               : Number(purchase.metadata?.coins || 0);
-            
+
             // Проверяем текущий баланс пользователя
             const { data: profile } = await supabase
               .from('profiles')
               .select('coins')
               .eq('id', profileId)
               .single();
-            
+
             console.log('[PaymentSuccess] User coins:', profile?.coins, 'Expected coins from purchase:', coins);
-            
+
             // Проверяем транзакцию (Paddle, Cryptomus или Telegram Stars)
             let transactionType = 'coins_purchase_paddle'; // По умолчанию
             let transactionKey: Record<string, string> = {};
-            
+
             if (purchase.paddle_transaction_id) {
               transactionType = 'coins_purchase_paddle';
               transactionKey = { 'metadata->>transaction_id': paddleTransactionId };
@@ -208,7 +208,7 @@ export default function PaymentSuccess() {
               transactionType = 'coins_purchase_telegram_stars';
               transactionKey = { 'metadata->>payment_id': purchase.id };
             }
-            
+
             const { data: transaction } = await supabase
               .from('transactions')
               .select('*')
@@ -216,17 +216,17 @@ export default function PaymentSuccess() {
               .eq('transaction_type', transactionType)
               .match(transactionKey)
               .single();
-            
+
             if (!transaction) {
               console.warn('[PaymentSuccess] ⚠️ Transaction not found, but purchase is completed. Trying to process manually...');
-              
+
               // Пытаемся обработать вручную
               const { data: processData, error: processError } = await supabase.functions.invoke('process-purchase', {
                 body: {
                   user_id: profileId,
                 },
               });
-              
+
               if (processError || !processData?.success) {
                 console.error('[PaymentSuccess] ❌ Failed to process manually:', processError || processData);
                 toast.error('Ошибка начисления монет', {
@@ -246,12 +246,12 @@ export default function PaymentSuccess() {
               setCoinsAdded(coins);
             }
           }
-          
+
           setProcessing(false);
-          
+
           // Обновляем Premium статус
           refresh();
-          
+
           // Если открыто в попапе, отправляем сообщение родительскому окну
           if (isPopup) {
             window.opener?.postMessage({ type: 'PAYMENT_SUCCESS' }, window.location.origin);
@@ -292,16 +292,16 @@ export default function PaymentSuccess() {
               return;
             }
           }
-          
+
           // Если покупка не найдена или статус неизвестен - ждем webhook
           console.log('[PaymentSuccess] Cryptomus payment - waiting for webhook or checking status...');
           refresh();
           setProcessing(false);
           return;
         }
-        
+
         console.log('[PaymentSuccess] Calling process-purchase function for pending purchase');
-        
+
         const { data, error } = await supabase.functions.invoke('process-purchase', {
           body: {
             user_id: profileId,
@@ -321,7 +321,7 @@ export default function PaymentSuccess() {
 
         if (data?.success) {
           console.log('[PaymentSuccess] ✅ Purchase processed successfully:', data);
-          
+
           // Если это покупка монет, показываем количество
           if (data.coins_added) {
             setCoinsAdded(data.coins_added);
@@ -333,10 +333,10 @@ export default function PaymentSuccess() {
               duration: 5000,
             });
           }
-          
+
           // Обновляем Premium статус
           refresh();
-          
+
           // Если открыто в попапе, отправляем сообщение родительскому окну
           if (isPopup) {
             window.opener?.postMessage({ type: 'PAYMENT_SUCCESS' }, window.location.origin);
@@ -376,7 +376,7 @@ export default function PaymentSuccess() {
           setProcessing(false);
         }
       }, 2000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [searchParams, profileId, refresh, isPopup]);
@@ -390,17 +390,20 @@ export default function PaymentSuccess() {
               <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <h1 className="text-3xl font-bold">Оплата успешна! 🎉</h1>
             {processing ? (
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <svg className="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
                 <p className="text-lg">Обработка покупки...</p>
               </div>
             ) : (
               <p className="text-muted-foreground text-lg">
-                {coinsAdded 
+                {coinsAdded
                   ? `✅ Начислено ${coinsAdded} монет на ваш баланс!`
                   : 'Спасибо за покупку! Ваш Premium доступ активирован.'}
               </p>

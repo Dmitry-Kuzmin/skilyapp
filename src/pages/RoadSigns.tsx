@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Search, Loader2, X } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import Layout from "@/components/Layout";
+import { PageLoader } from "@/components/PageLoader";
 
 interface RoadSign {
   id: string;
@@ -27,17 +28,17 @@ export default function RoadSigns() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
-  
+
   // ОПТИМИЗАЦИЯ: useTransition для неблокирующих обновлений UI
   const [isPending, startTransition] = useTransition();
-  
+
   // ОПТИМИЗАЦИЯ: useDeferredValue для отложенных обновлений поиска
   const deferredSearchTerm = useDeferredValue(searchTerm);
 
   useEffect(() => {
     const abortController = new AbortController();
     fetchSigns(abortController.signal);
-    
+
     return () => {
       abortController.abort();
     };
@@ -62,7 +63,7 @@ export default function RoadSigns() {
         .select('*')
         .order('name_es')
         .abortSignal(signal);
-      
+
       if (signsError) {
         if (signsError.name === 'AbortError') return; // Игнорируем отмененные запросы
         throw signsError;
@@ -98,11 +99,11 @@ export default function RoadSigns() {
     } catch (error: any) {
       if (error?.name === 'AbortError') return; // Игнорируем отмененные запросы
       if (import.meta.env.DEV) {
-      console.error('Error fetching road signs:', error);
+        console.error('Error fetching road signs:', error);
       }
     } finally {
       if (!signal?.aborted) {
-      setLoading(false);
+        setLoading(false);
       }
     }
   };
@@ -123,7 +124,7 @@ export default function RoadSigns() {
     const filtered = signs
       .map(sign => {
         // Type filter
-    const matchesType = selectedType === "all" || sign.sign_type === selectedType;
+        const matchesType = selectedType === "all" || sign.sign_type === selectedType;
         if (!matchesType) return null;
 
         // If no search term, return sign with score 0
@@ -140,7 +141,7 @@ export default function RoadSigns() {
         const descRu = (sign.description_ru || "").toLowerCase();
 
         // Check if all search words match
-        const allWordsMatch = searchWords.every(word => 
+        const allWordsMatch = searchWords.every(word =>
           nameEs.includes(word) ||
           nameRu.includes(word) ||
           signNumber.includes(word) ||
@@ -158,10 +159,10 @@ export default function RoadSigns() {
           else if (nameEs.startsWith(word) || nameRu.startsWith(word)) score += 50;
           // Contains word in name
           else if (nameEs.includes(word) || nameRu.includes(word)) score += 30;
-          
+
           // Match in sign number
           if (signNumber.includes(word)) score += 20;
-          
+
           // Match in description
           if (descEs.includes(word)) score += 10;
           if (descRu.includes(word)) score += 10;
@@ -181,129 +182,127 @@ export default function RoadSigns() {
   if (loading) {
     return (
       <Layout>
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
+        <PageLoader />
       </Layout>
     );
   }
 
   return (
     <Layout>
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
-      <div className="container mx-auto px-4 py-12">
-        {/* Premium Header */}
-        <div className="text-center mb-12 space-y-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl gradient-primary shadow-primary mb-4 animate-pulse-slow">
-            <Search className="w-10 h-10 text-primary-foreground" />
-          </div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-            Señales de Tráfico
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Aprende todas las señales de tráfico en España con explicaciones en español y ruso
-          </p>
-          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-            <span className="px-3 py-1 rounded-full bg-primary/10 text-primary font-medium">
-              {filteredSigns.length} {deferredSearchTerm || selectedType !== "all" ? "señales encontradas" : "señales disponibles"}
-              {isPending && <span className="ml-2 text-xs opacity-70">(buscando...)</span>}
-            </span>
-            {(deferredSearchTerm || selectedType !== "all") && (
-              <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground font-medium">
-                de {signs.length} total
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="mb-8 space-y-6 max-w-4xl mx-auto">
-          <div className="relative group">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors" />
-            <Input
-              placeholder="Buscar por nombre, número o descripción..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-12 h-14 text-lg border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
-            />
-            {searchTerm && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 rounded-lg hover:bg-muted"
-                onClick={() => setSearchTerm("")}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-
-          <Tabs value={selectedType} onValueChange={(value) => {
-            startTransition(() => {
-              setSelectedType(value);
-            });
-          }} className="w-full">
-            <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
-              <TabsList className="w-full md:w-auto h-auto p-2 bg-card/50 backdrop-blur-sm border-2 border-border/50 rounded-xl shadow-sm inline-flex min-w-max md:min-w-0">
-              <TabsTrigger 
-                value="all" 
-                  className="rounded-lg px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-all duration-300 bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:!bg-gradient-primary data-[state=active]:!text-foreground data-[state=active]:!shadow-primary data-[state=active]:!font-bold whitespace-nowrap flex-shrink-0"
-              >
-                Todas
-              </TabsTrigger>
-              {signTypes.map(type => (
-                <TabsTrigger 
-                  key={type} 
-                  value={type}
-                    className="capitalize rounded-lg px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-all duration-300 bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:!bg-gradient-primary data-[state=active]:!text-foreground data-[state=active]:!shadow-primary data-[state=active]:!font-bold whitespace-nowrap flex-shrink-0"
-                >
-                  {type}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
+        <div className="container mx-auto px-4 py-12">
+          {/* Premium Header */}
+          <div className="text-center mb-12 space-y-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl gradient-primary shadow-primary mb-4 animate-pulse-slow">
+              <Search className="w-10 h-10 text-primary-foreground" />
             </div>
-          </Tabs>
-        </div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+              Señales de Tráfico
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Aprende todas las señales de tráfico en España con explicaciones en español y ruso
+            </p>
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                {filteredSigns.length} {deferredSearchTerm || selectedType !== "all" ? "señales encontradas" : "señales disponibles"}
+                {isPending && <span className="ml-2 text-xs opacity-70">(buscando...)</span>}
+              </span>
+              {(deferredSearchTerm || selectedType !== "all") && (
+                <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground font-medium">
+                  de {signs.length} total
+                </span>
+              )}
+            </div>
+          </div>
 
-        {/* Signs Grid */}
-        {/* ОПТИМИЗАЦИЯ: Ограничиваем рендеринг для больших списков (> 50 элементов) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {filteredSigns.length > 50 ? (
-            // Для больших списков рендерим только первые 50 + видимые элементы
-            filteredSigns.slice(0, 50).map((sign, index) => (
-              <div
-                key={sign.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
-              >
-                <RoadSignCard sign={sign} />
+          {/* Search and Filters */}
+          <div className="mb-8 space-y-6 max-w-4xl mx-auto">
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors" />
+              <Input
+                placeholder="Buscar por nombre, número o descripción..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 pr-12 h-14 text-lg border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 rounded-lg hover:bg-muted"
+                  onClick={() => setSearchTerm("")}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+
+            <Tabs value={selectedType} onValueChange={(value) => {
+              startTransition(() => {
+                setSelectedType(value);
+              });
+            }} className="w-full">
+              <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
+                <TabsList className="w-full md:w-auto h-auto p-2 bg-card/50 backdrop-blur-sm border-2 border-border/50 rounded-xl shadow-sm inline-flex min-w-max md:min-w-0">
+                  <TabsTrigger
+                    value="all"
+                    className="rounded-lg px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-all duration-300 bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:!bg-gradient-primary data-[state=active]:!text-foreground data-[state=active]:!shadow-primary data-[state=active]:!font-bold whitespace-nowrap flex-shrink-0"
+                  >
+                    Todas
+                  </TabsTrigger>
+                  {signTypes.map(type => (
+                    <TabsTrigger
+                      key={type}
+                      value={type}
+                      className="capitalize rounded-lg px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-all duration-300 bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:!bg-gradient-primary data-[state=active]:!text-foreground data-[state=active]:!shadow-primary data-[state=active]:!font-bold whitespace-nowrap flex-shrink-0"
+                    >
+                      {type}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
               </div>
-            ))
-          ) : (
-            filteredSigns.map((sign, index) => (
-              <div
-                key={sign.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
-              >
-                <RoadSignCard sign={sign} />
+            </Tabs>
+          </div>
+
+          {/* Signs Grid */}
+          {/* ОПТИМИЗАЦИЯ: Ограничиваем рендеринг для больших списков (> 50 элементов) */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {filteredSigns.length > 50 ? (
+              // Для больших списков рендерим только первые 50 + видимые элементы
+              filteredSigns.slice(0, 50).map((sign, index) => (
+                <div
+                  key={sign.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
+                >
+                  <RoadSignCard sign={sign} />
+                </div>
+              ))
+            ) : (
+              filteredSigns.map((sign, index) => (
+                <div
+                  key={sign.id}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
+                >
+                  <RoadSignCard sign={sign} />
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Empty State */}
+          {filteredSigns.length === 0 && (
+            <div className="text-center py-20">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+                <Search className="w-8 h-8 text-muted-foreground" />
               </div>
-            ))
+              <h3 className="text-xl font-semibold mb-2">No se encontraron señales</h3>
+              <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+            </div>
           )}
         </div>
-
-        {/* Empty State */}
-        {filteredSigns.length === 0 && (
-          <div className="text-center py-20">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
-              <Search className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">No se encontraron señales</h3>
-            <p className="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
-          </div>
-        )}
       </div>
-    </div>
     </Layout>
   );
 }

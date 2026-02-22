@@ -258,26 +258,142 @@
       font-family: 'Outfit', sans-serif;
       font-size: 0.75rem;
       font-weight: 600;
-      letter-spacing: 0.4em;
-      color: #818cf8;
+      letter-spacing: 0.3em;
+      color: rgba(255, 255, 255, 0.9);
       text-transform: uppercase;
-      opacity: 0.6;
-      animation: breathe 2s ease-in-out infinite;
+      margin-top: 1rem;
+      text-align: center;
+      filter: blur(0.3px);
     }
 
-    .skeleton-bar-container {
-      width: 120px;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 1px;
-      overflow: hidden;
+    .skeleton-text-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
     }
 
-    .skeleton-bar-progress {
-      width: 40%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, #6366f1, transparent);
-      animation: progress-slide 1.5s ease-in-out infinite;
+    .skeleton-divider {
+      height: 1px;
+      width: 3rem;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+      margin-bottom: 0.5rem;
+    }
+
+    .cyber-ring-container {
+      position: relative;
+      width: 16rem;
+      height: 16rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cyber-ring-1 {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-top-color: #6366f1;
+      animation: spin-normal 4s linear infinite;
+    }
+
+    .cyber-ring-2 {
+      position: absolute;
+      inset: 1.5rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom-color: #a855f7;
+      animation: spin-reverse 2.5s linear infinite;
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+    }
+
+    .cyber-ring-3 {
+      position: absolute;
+      inset: 3rem;
+      border-radius: 50%;
+      outline: 1px dashed rgba(255, 255, 255, 0.1);
+      animation: spin-normal 10s linear infinite;
+    }
+
+    .ambient-glow-1 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60vw;
+      height: 60vw;
+      max-width: 800px;
+      max-height: 800px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+    }
+
+    .ambient-glow-2 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40vw;
+      height: 40vw;
+      max-width: 500px;
+      max-height: 500px;
+      background: rgba(168, 85, 247, 0.1);
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .bottom-cyber {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0.3;
+    }
+
+    .bottom-dots {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      animation: pulse-dot 1s ease-in-out infinite;
+    }
+
+    .dot:nth-child(1) {
+      background: #6366f1;
+      animation-delay: 0ms;
+    }
+
+    .dot:nth-child(2) {
+      background: #a855f7;
+      animation-delay: 200ms;
+    }
+
+    .dot:nth-child(3) {
+      background: #6366f1;
+      animation-delay: 400ms;
+    }
+
+    .bottom-text {
+      font-size: 9px;
+      font-family: monospace;
+      letter-spacing: 0.5em;
+      color: rgba(255, 255, 255, 0.5);
     }
 
     @keyframes pulse-glow {
@@ -294,27 +410,37 @@
       }
     }
 
-    @keyframes breathe {
-
-      0%,
-      100% {
-        opacity: 0.4;
-        transform: translateY(0);
+    @keyframes spin-normal {
+      0% {
+        transform: rotate(0deg);
       }
 
-      50% {
-        opacity: 0.7;
-        transform: translateY(-2px);
+      100% {
+        transform: rotate(360deg);
       }
     }
 
-    @keyframes progress-slide {
+    @keyframes spin-reverse {
       0% {
-        transform: translateX(-100%);
+        transform: rotate(360deg);
       }
 
       100% {
-        transform: translateX(250%);
+        transform: rotate(0deg);
+      }
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.5;
+      }
+
+      50% {
+        transform: scale(1.5);
+        opacity: 1;
       }
     }
 
@@ -629,36 +755,63 @@
   <!-- SKELETON LOADER - показывается мгновенно пока загружается React -->
   <!-- Убирается автоматически через CSS когда #root заполняется -->
   <div class="app-skeleton">
-    <div class="skeleton-logo-container">
-      <div class="skeleton-logo-glow"></div>
-      <div class="skeleton-text-main">System Loading</div>
-      <div class="skeleton-bar-container">
-        <div class="skeleton-bar-progress"></div>
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <div class="cyber-ring-container">
+      <div class="cyber-ring-1"></div>
+      <div class="cyber-ring-2"></div>
+      <div class="cyber-ring-3"></div>
+
+      <div
+        style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+        <div class="skeleton-text-sub">SKILY SYSTEM</div>
+        <div class="skeleton-divider"></div>
+        <div class="skeleton-text-main" id="skily-status">ИНИЦИАЛИЗАЦИЯ...</div>
       </div>
     </div>
+
+    <div class="bottom-cyber">
+      <div class="bottom-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="bottom-text">S K I L Y V 2 . 0</div>
+    </div>
+
     <script>
       (function () {
         var phrases = [
-          "Загружаем нейросети...",
-          "Анализируем правила ГИБДД...",
-          "Синхронизируем прогресс...",
-          "Готовим трассы...",
-          "Калибруем ИИ...",
-          "Skily AI приветствует вас..."
+          "ИНИЦИАЛИЗАЦИЯ...",
+          "ПОДКЛЮЧЕНИЕ СЕРВЕРОВ...",
+          "СИНХРОНИЗАЦИЯ ПРОГРЕССА...",
+          "ПРОВЕРКА ВЕРСИИ...",
+          "ЗАПУСК ЯДРА..."
         ];
         var isEs = navigator.language.startsWith('es');
         if (isEs) {
           phrases = [
-            "Cargando redes neuronales...",
-            "Analizando normas DGT...",
-            "Sincronizando progreso...",
-            "Preparando pistas...",
-            "Calibrando IA...",
-            "Skily AI te da la bienvenida..."
+            "INICIALIZANDO...",
+            "CONECTANDO SERVIDORES...",
+            "SINCRONIZANDO PROGRESO...",
+            "VERIFICANDO VERSIÓN...",
+            "INICIANDO NÚCLEO..."
           ];
         }
 
-        var el = document.querySelector('.skeleton-text-main');
+        var isEn = navigator.language.startsWith('en');
+        if (isEn) {
+          phrases = [
+            "INITIALIZING...",
+            "CONNECTING SERVERS...",
+            "SYNCHRONIZING PROGRESS...",
+            "CHECKING VERSION...",
+            "STARTING CORE..."
+          ];
+        }
+
+        var el = document.getElementById('skily-status');
         var i = 0;
         if (el) {
           el.textContent = phrases[0];
@@ -679,7 +832,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-02-16-11:35';
+      const APP_VERSION = '2026-02-22-21:33';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)

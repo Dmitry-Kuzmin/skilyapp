@@ -34,6 +34,7 @@ BEGIN
         WHEN 'exam_pass' THEN v_points_delta := 1;
         WHEN 'exam_fail' THEN v_points_delta := -2;
         WHEN 'critical_error' THEN v_points_delta := -2; -- E.g., running a red light in simulation
+        WHEN 'inactivity_decay' THEN v_points_delta := -1; -- NEW: Regular decay for not studying
         WHEN 'rehabilitation_pass' THEN 
             -- Special case: restore to 6 points from 0
             v_new_points := 6;
@@ -47,16 +48,16 @@ BEGIN
         v_new_points := v_current_points + v_points_delta;
     END IF;
 
-    -- Clamping
+    -- Clamping (Total min 0, max 15)
     v_new_points := GREATEST(0, LEAST(15, v_new_points));
 
-    -- CAP for passive growth: Daily login can't take you past 8 (Learner cap)
-    -- This forces users to DO TESTS to reach 10 (Exam unlock)
-    -- FIXED: Only cap if we are actually increasing points via daily_login
-    IF p_event_type = 'daily_login' AND v_current_points < 8 AND v_new_points > 8 THEN
-        v_new_points := 8;
-    ELSIF p_event_type = 'daily_login' AND v_current_points >= 8 THEN
-        -- Don't add points via daily_login if already at 8 or more, 
+    -- CAP for passive growth: Daily login can now take you to 10 (Exam unlock)
+    -- This allows active users to eventually unlock exams just by visiting,
+    -- but they still need tests to reach 15 (Expert).
+    IF p_event_type = 'daily_login' AND v_current_points < 10 AND v_new_points > 10 THEN
+        v_new_points := 10;
+    ELSIF p_event_type = 'daily_login' AND v_current_points >= 10 THEN
+        -- Don't add points via daily_login if already at 10 or more, 
         -- but DON'T reduce points either!
         v_new_points := v_current_points;
     END IF;

@@ -186,7 +186,7 @@ export function MissionSidebar({
 
                                             <div className="flex-1 min-w-0 z-10 py-0.5">
                                                 <div className="text-xs font-medium leading-relaxed break-words whitespace-pre-wrap opacity-90">
-                                                    {q.question_ru || "Нет текста..."}
+                                                    {q.question_ru || q.question_es || "Нет текста..."}
                                                 </div>
                                             </div>
 

@@ -179,9 +179,9 @@ export function useDashboardData() {
         const response: any = await Promise.race([promise, timeoutPromise]);
 
         if (response.error) {
-          console.error('[useDashboardData] ❌ get_dashboard_super_v2 RPC Error:', response.error);
+          console.warn('[useDashboardData] ⚠️ get_dashboard_super_v2 not available yet, falling back...');
         } else if (response.data?.error) {
-          console.error('[useDashboardData] ❌ get_dashboard_super_v2 Data Error:', response.data.error);
+          console.warn('[useDashboardData] ⚠️ get_dashboard_super_v2 returned error:', response.data.error);
         }
 
         if (!response.error && response.data && !response.data.error) {

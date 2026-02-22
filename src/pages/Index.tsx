@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense, useCallback, useContext, memo } from "react";
-import { Loader2 } from "lucide-react";
 import { UserContext, useUserContext } from "@/contexts/UserContext";
 // ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
 // Supabase будет загружаться только когда нужен (в handleClaimBonus)
@@ -15,19 +14,12 @@ import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
 // ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
 // Все эти компоненты тянут Supabase/Radix, поэтому Layout не должен быть в initial bundle
-const Layout = lazy(() => import("@/components/Layout").then(m => ({ default: m.default })));
 import { PageLoader } from "@/components/PageLoader";
-
-// КРИТИЧНО: Dashboard НЕ lazy load, так как содержит LCP элемент (hero section)
-// Lazy loading Dashboard ухудшает LCP, так как hero section появляется поздно
-// Вместо этого оптимизируем сам Dashboard компонент (framer-motion уже lazy внутри)
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
-
-// ОПТИМИЗАЦИЯ: Lazy load некритичных компонентов (не нужны для первого рендера)
+import { StartupCurtain } from "@/components/StartupCurtain";
+const Layout = lazy(() => import("@/components/Layout").then(m => ({ default: m.default })));
 const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal").then(m => ({ default: m.PaywallModal })));
 const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOverlay").then(m => ({ default: m.WelcomeOverlay })));
-
-import { StartupCurtain } from "@/components/StartupCurtain";
 
 // Внутренний компонент для авторизованных пользователей
 // ОПТИМИЗАЦИЯ: Мемоизирован для предотвращения лишних ре-рендеров
@@ -310,13 +302,6 @@ const DashboardContent = memo(function DashboardContent() {
                   <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
                 </Suspense>
               </>
-            ) : !profileId ? (
-              <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
-                <p className="text-slate-400 animate-pulse font-medium">Ожидание авторизации...</p>
-                <p className="text-[10px] text-slate-600">Если загрузка висит долго — проверьте интернет соединение</p>
-                <button onClick={() => window.location.reload()} className="text-xs text-indigo-400 underline mt-4">Обновить страницу</button>
-              </div>
             ) : (
               <DashboardSkeleton />
             )}

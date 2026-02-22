@@ -77,6 +77,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
         [data-sonner-toaster] {
           pointer-events: auto !important;
         }
+        /* КРИТИЧНО: Глобальный отступ для островка/челки iPhone */
+        [data-sonner-toaster][data-y-position="top"] {
+           top: ${shouldCenter ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 48px), 48px)' : '24px'} !important;
+        }
       `}</style>
       <Sonner
         theme={theme as ToasterProps["theme"]}
@@ -87,18 +91,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
         gap={14} // Комфортный отступ
         richColors
         closeButton
-        offset={shouldCenter
-          ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 16px)'
-          : "24px"} // Чуть больше отступ на десктопе
+        offset={shouldCenter ? "16px" : "24px"} // Теперь отступ от края экрана задается через top, а offset - это внутренний отступ
         toastOptions={{
           classNames: {
             toast: "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg group-[.toaster]:rounded-xl group-[.toaster]:active:scale-95 transition-all duration-200",
-            description: "group-[.toast]:text-muted-foreground",
+            description: "group-[.toast]:text-muted-foreground whitespace-pre-line",
             actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
             cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
             closeButton: "hover:bg-muted/50 focus:ring-0",
           },
-          // Убрали marginTop, так как он ломал позиционирование. Отступ управляется offset.
         }}
         {...props}
       />

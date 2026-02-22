@@ -23,12 +23,33 @@ DECLARE
   v_season_progress RECORD;
   v_result JSON;
 BEGIN
-  -- 0. Автоматическая обработка ежедневного захода (Qualification System)
+  -- 0. Автоматическая обработка баллов (Qualification System)
   -- КРИТИЧНО: Используем EXCEPTION блок, чтобы ошибка в Qualification не роняла весь Dashboard
+  DECLARE
+    v_last_record_date DATE;
+    v_days_missed INTEGER;
   BEGIN
+    -- Находим дату последней записи в истории баллов
+    SELECT MAX(recorded_at) INTO v_last_record_date 
+    FROM public.user_license_points_history 
+    WHERE user_id = p_user_id;
+
+    -- Логика списания (Decay):
+    -- Если пользователь пропустил 2 и более дней (последний раз был позавчера или раньше)
+    IF v_last_record_date IS NOT NULL AND (CURRENT_DATE - v_last_record_date) >= 2 THEN
+        v_days_missed := (CURRENT_DATE - v_last_record_date) - 1;
+        -- Списываем не более 3 баллов за один раз (защита от долгого отсутствия)
+        v_days_missed := LEAST(v_days_missed, 3); 
+        
+        FOR i IN 1..v_days_missed LOOP
+            PERFORM process_license_event(p_user_id, 'inactivity_decay');
+        END LOOP;
+    END IF;
+
+    -- Автоматическая обработка ежедневного захода (+1 балл)
     PERFORM process_license_event(p_user_id, 'daily_login');
   EXCEPTION WHEN OTHERS THEN
-    RAISE WARNING '[get_dashboard_super_v2] process_license_event failed: %', SQLERRM;
+    RAISE WARNING '[get_dashboard_super_v2] license processing failed: %', SQLERRM;
   END;
 
   -- 1. Профиль пользователя (расширенный)

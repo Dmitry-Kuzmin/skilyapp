@@ -938,22 +938,57 @@ app.post('/api/generate/start', async (req, res) => {
 // Get full details for a single question from local JSON data
 app.get('/api/question/details/:id', async (req, res) => {
     try {
-        const { id } = req.params; // e.g. topic-01_test-017_q-1
-        const parts = id.split('_');
-        if (parts.length < 2) throw new Error('Invalid ID format');
+        const { id } = req.params; // e.g. topic-01_test-017_q-1 or dgt_test-003_q-1
 
-        const topic = parts[0];
-        const testMatch = id.match(/test-\d+/);
-        const test = testMatch ? testMatch[0] : null;
+        // Extract testId from question id (everything before _q-N or the last segment)
+        // Examples: "topic-01_test-017_q-1" → testId = "topic-01_test-017"
+        //           "dgt_test-003_some-uuid" → testId = "dgt_test-003"
+        const testMatch = id.match(/(.+?)_(?:q-\d+|[a-f0-9-]{20,})$/);
+        const testId = testMatch ? testMatch[1] : id.split('_').slice(0, -1).join('_');
 
-        if (!topic || !test) throw new Error('Could not parse topic/test from ID');
+        // Robust file lookup (same as /api/test/:testId/questions)
+        const parsedBaseDir = path.join(process.cwd(), 'data', 'parsed');
+        let resolvedFilePath = null;
 
-        const filePath = path.join(process.cwd(), 'data', 'parsed', topic, `${topic}_${test}-enriched.json`);
-        const content = await fs.readFile(filePath, 'utf-8');
-        const data = JSON.parse(content);
+        // Strategy 1: Legacy format
+        const legacyParts = testId.split('_');
+        if (legacyParts.length >= 2) {
+            const legacyTopic = legacyParts[0];
+            const legacyTestMatch = testId.match(/test-\d+/);
+            const legacyTest = legacyTestMatch ? legacyTestMatch[0] : null;
+            if (legacyTopic && legacyTest) {
+                const enrichedPath = path.join(parsedBaseDir, legacyTopic, `${legacyTopic}_${legacyTest}-enriched.json`);
+                const rawPath = path.join(parsedBaseDir, legacyTopic, `${legacyTopic}_${legacyTest}.json`);
+                try { await fs.access(enrichedPath); resolvedFilePath = enrichedPath; } catch {
+                    try { await fs.access(rawPath); resolvedFilePath = rawPath; } catch { }
+                }
+            }
+        }
+
+        // Strategy 2: Scan all subdirectories
+        if (!resolvedFilePath) {
+            const categories = await fs.readdir(parsedBaseDir);
+            for (const category of categories) {
+                if (category === 'russia' || category.startsWith('.')) continue;
+                const categoryPath = path.join(parsedBaseDir, category);
+                const stat = await fs.stat(categoryPath);
+                if (!stat.isDirectory()) continue;
+                const enrichedPath = path.join(categoryPath, `${testId}-enriched.json`);
+                const rawPath = path.join(categoryPath, `${testId}.json`);
+                try { await fs.access(enrichedPath); resolvedFilePath = enrichedPath; break; } catch {
+                    try { await fs.access(rawPath); resolvedFilePath = rawPath; break; } catch { }
+                }
+            }
+        }
+
+        if (!resolvedFilePath) throw new Error(`Test file not found for question "${id}"`);
+
+        const content = await fs.readFile(resolvedFilePath, 'utf-8');
+        const parsed = JSON.parse(content);
+        const data = Array.isArray(parsed) ? { questions: parsed } : parsed;
 
         // Find the specific question
-        const question = data.questions.find(q => q.external_id === id);
+        const question = (data.questions || []).find(q => q.external_id === id || q.id === id);
         if (!question) throw new Error('Question not found in local JSON');
 
         // Look for generated image in standard folder
@@ -1388,42 +1423,78 @@ app.get('/api/test/:testId/questions', async (req, res) => {
             });
         }
 
-        // Spain Logic (existing)
-        const parts = testId.split('_');
-        if (parts.length < 2) throw new Error('Invalid test ID format');
-
-        const topic = parts[0];
-        const testMatch = testId.match(/test-\d+/);
-        const test = testMatch ? testMatch[0] : null;
-
-        if (!topic || !test) throw new Error('Could not parse topic/test from ID');
-
-        const parsedTopicDir = path.join(process.cwd(), 'data', 'parsed', topic);
-        const enrichedPath = path.join(parsedTopicDir, `${topic}_${test}-enriched.json`);
-        const rawPath = path.join(parsedTopicDir, `${topic}_${test}.json`);
-
-        let questions = [];
+        // Spain Logic — robust file lookup
+        // Instead of parsing testId by '_', we scan data/parsed to find the actual file.
+        // This supports any naming convention: topic-01_test-001, dgt_test-003, essential_test-001, etc.
+        const parsedBaseDir = path.join(process.cwd(), 'data', 'parsed');
+        let resolvedFilePath = null;
         let isEnriched = false;
+        let questions = [];
 
-        // Try enriched first
-        try {
-            const content = await fs.readFile(enrichedPath, 'utf-8');
-            questions = JSON.parse(content);
-            isEnriched = true;
-        } catch (e) {
-            // Fallback to raw
-            try {
-                const content = await fs.readFile(rawPath, 'utf-8');
-                questions = JSON.parse(content);
-                isEnriched = false;
-            } catch (err) {
-                throw new Error('Test file not found (checked enriched and raw)');
+        // Strategy 1: Try legacy format (topic-XX_test-YYY → data/parsed/topic-XX/)
+        const legacyParts = testId.split('_');
+        if (legacyParts.length >= 2) {
+            const legacyTopic = legacyParts[0];
+            const legacyTestMatch = testId.match(/test-\d+/);
+            const legacyTest = legacyTestMatch ? legacyTestMatch[0] : null;
+
+            if (legacyTopic && legacyTest) {
+                const legacyDir = path.join(parsedBaseDir, legacyTopic);
+                const enrichedPath = path.join(legacyDir, `${legacyTopic}_${legacyTest}-enriched.json`);
+                const rawPath = path.join(legacyDir, `${legacyTopic}_${legacyTest}.json`);
+
+                try {
+                    await fs.access(enrichedPath);
+                    resolvedFilePath = enrichedPath;
+                    isEnriched = true;
+                } catch {
+                    try {
+                        await fs.access(rawPath);
+                        resolvedFilePath = rawPath;
+                    } catch { /* not found in legacy format */ }
+                }
             }
         }
 
-        if (!Array.isArray(questions)) {
-            throw new Error('Invalid JSON structure - expected array');
+        // Strategy 2: Scan all subdirectories for matching file (handles dgt_test, essential_test, etc.)
+        if (!resolvedFilePath) {
+            try {
+                const categories = await fs.readdir(parsedBaseDir);
+                for (const category of categories) {
+                    if (category === 'russia' || category.startsWith('.')) continue;
+                    const categoryPath = path.join(parsedBaseDir, category);
+                    const stat = await fs.stat(categoryPath);
+                    if (!stat.isDirectory()) continue;
+
+                    const enrichedPath = path.join(categoryPath, `${testId}-enriched.json`);
+                    const rawPath = path.join(categoryPath, `${testId}.json`);
+
+                    try {
+                        await fs.access(enrichedPath);
+                        resolvedFilePath = enrichedPath;
+                        isEnriched = true;
+                        break;
+                    } catch {
+                        try {
+                            await fs.access(rawPath);
+                            resolvedFilePath = rawPath;
+                            break;
+                        } catch { /* not in this category */ }
+                    }
+                }
+            } catch (scanErr) {
+                console.error('[questions] Error scanning parsed dir:', scanErr.message);
+            }
         }
+
+        if (!resolvedFilePath) {
+            throw new Error(`Test file not found for "${testId}" (checked enriched and raw in all categories)`);
+        }
+
+        // Read the resolved file
+        const content = await fs.readFile(resolvedFilePath, 'utf-8');
+        const parsed = JSON.parse(content);
+        questions = Array.isArray(parsed) ? parsed : (parsed.questions || []);
 
         // Return list of questions with status
         const questionsList = await Promise.all(questions.map(async (q, index) => {
@@ -1859,79 +1930,102 @@ app.get('/api/db/question/:id', async (req, res) => {
         // Fallback: Read from local JSON files if not in DB
         if (!questionData) {
             try {
-                // Parse testId from identifier (e.g. topic-02_test-003_UUID)
+                // Strategy 1: Legacy format (topic-XX_test-YYY_UUID)
                 const testIdMatch = id.match(/(topic-[^_]+)_test-([^_]+)/);
+                let pathsToCheck = [];
+
                 if (testIdMatch) {
                     const topic = testIdMatch[1];
                     const testName = `${topic}_test-${testIdMatch[2]}`;
-                    const paths = [
+                    pathsToCheck = [
                         path.join(process.cwd(), 'data', 'parsed', topic, `${testName}-enriched.json`),
                         path.join(process.cwd(), 'data', 'parsed', topic, `${testName}.json`),
-                        // Try data/topic/file
                         path.join(process.cwd(), 'data', topic, `${testName}-enriched.json`),
                         path.join(process.cwd(), 'data', topic, `${testName}.json`),
-                        // Try root data/file
                         path.join(process.cwd(), 'data', `${testName}-enriched.json`),
                         path.join(process.cwd(), 'data', `${testName}.json`)
                     ];
+                }
 
-                    for (const p of paths) {
-                        try {
-                            const content = await fs.readFile(p, 'utf8');
-                            const json = JSON.parse(content);
-                            const questions = Array.isArray(json) ? json : json.questions;
+                // Strategy 2: Universal scan (dgt_test-XXX_UUID, essential_test-XXX_UUID, etc.)
+                if (pathsToCheck.length === 0 || !testIdMatch) {
+                    // Extract testId: everything before the last UUID segment
+                    const uuidPart = id.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i);
+                    const testId = uuidPart ? id.slice(0, -(uuidPart[1].length + 1)) : id;
 
-                            // Find by UUID or ID (with generation if missing)
-                            const q = questions?.find((item, index) => {
-                                let itemId = item.external_id || item.id;
+                    const parsedBaseDir = path.join(process.cwd(), 'data', 'parsed');
+                    try {
+                        const categories = await fs.readdir(parsedBaseDir);
+                        for (const category of categories) {
+                            if (category === 'russia' || category.startsWith('.')) continue;
+                            const categoryPath = path.join(parsedBaseDir, category);
+                            const stat = await fs.stat(categoryPath);
+                            if (!stat.isDirectory()) continue;
 
-                                if (!itemId && item.image_url) {
-                                    const match = item.image_url.match(/\/question\/([a-f0-9-]{36})/);
-                                    if (match) itemId = match[1];
-                                }
+                            pathsToCheck.push(
+                                path.join(categoryPath, `${testId}-enriched.json`),
+                                path.join(categoryPath, `${testId}.json`)
+                            );
+                        }
+                    } catch { /* ignore scan errors */ }
+                }
 
-                                if (!itemId) {
-                                    if (item.question_number) {
-                                        itemId = uuidv5(`${testName}_q-${item.question_number}`, NAMESPACE);
-                                    } else {
-                                        itemId = `${testName}_q${index + 1}`;
-                                    }
-                                }
+                for (const p of pathsToCheck) {
+                    try {
+                        const content = await fs.readFile(p, 'utf8');
+                        const json = JSON.parse(content);
+                        const questions = Array.isArray(json) ? json : json.questions;
 
-                                // 1. Direct match (UUID vs UUID)
-                                if (String(itemId) === String(queryId)) return true;
+                        // Find by UUID or ID (with generation if missing)
+                        const q = questions?.find((item, index) => {
+                            let itemId = item.external_id || item.id;
 
-                                // 2. Composite match (UUID in file vs Composite Query)
-                                // If queryId includes the testName, we check if it ends with the itemId
-                                if (queryId.includes(testName) && queryId.endsWith(itemId)) return true;
-
-                                return false;
-                            });
-
-                            if (q) {
-                                // CRITICAL FIX: Ensure the returned question has the Composite ID
-                                // The frontend relies on parsing "topic-XX_test-YY_UUID" to know the test context.
-                                // The raw 'q' object only has the bare UUID.
-                                // We overwrite/set 'id' to the queryId (which is the Composite ID we successfully matched against).
-                                const questionWithCompositeId = {
-                                    ...q,
-                                    id: queryId // This ensures MissionImageControl can split(testId_uuid) correctly
-                                };
-
-                                return res.json({
-                                    question: questionWithCompositeId,
-                                    source: 'file',
-                                    sourceFile: p,
-                                    // Mock answer_options structure for frontend compatibility
-                                    answer_options: q.answers?.map((a, idx) => ({
-                                        id: idx + 1,
-                                        text: a.text,
-                                        is_correct: a.is_correct
-                                    }))
-                                });
+                            if (!itemId && item.image_url) {
+                                const match = item.image_url.match(/\/question\/([a-f0-9-]{36})/);
+                                if (match) itemId = match[1];
                             }
-                        } catch (e) { } // Ignore file read errors
-                    }
+
+                            if (!itemId) {
+                                if (item.question_number) {
+                                    itemId = uuidv5(`${testName}_q-${item.question_number}`, NAMESPACE);
+                                } else {
+                                    itemId = `${testName}_q${index + 1}`;
+                                }
+                            }
+
+                            // 1. Direct match (UUID vs UUID)
+                            if (String(itemId) === String(queryId)) return true;
+
+                            // 2. Composite match (UUID in file vs Composite Query)
+                            // If queryId includes the testName, we check if it ends with the itemId
+                            if (queryId.includes(testName) && queryId.endsWith(itemId)) return true;
+
+                            return false;
+                        });
+
+                        if (q) {
+                            // CRITICAL FIX: Ensure the returned question has the Composite ID
+                            // The frontend relies on parsing "topic-XX_test-YY_UUID" to know the test context.
+                            // The raw 'q' object only has the bare UUID.
+                            // We overwrite/set 'id' to the queryId (which is the Composite ID we successfully matched against).
+                            const questionWithCompositeId = {
+                                ...q,
+                                id: queryId // This ensures MissionImageControl can split(testId_uuid) correctly
+                            };
+
+                            return res.json({
+                                question: questionWithCompositeId,
+                                source: 'file',
+                                sourceFile: p,
+                                // Mock answer_options structure for frontend compatibility
+                                answer_options: q.answers?.map((a, idx) => ({
+                                    id: idx + 1,
+                                    text: a.text,
+                                    is_correct: a.is_correct
+                                }))
+                            });
+                        }
+                    } catch (e) { } // Ignore file read errors
                 }
             } catch (e) {
                 console.warn('File fallback error:', e);
@@ -2783,37 +2877,50 @@ app.get('/api/question/:questionId/full', async (req, res) => {
             return res.json({ question: mapped });
         }
 
-        // Spain Logic (existing)
+        // Spain Logic — scan ALL subdirectories (not just topic-*)
         const parts = questionId.split('_');
         const uuid = parts[parts.length - 1];
 
         console.log(`[API] Searching for question UUID: ${uuid} (from ${questionId})`);
 
-        // Parse question ID to find file - find all enriched.json files and search
         const parsedDir = path.join(process.cwd(), 'data', 'parsed');
-        const topics = await fs.readdir(parsedDir);
+        const categories = await fs.readdir(parsedDir);
 
-        for (const topic of topics) {
-            if (!topic.startsWith('topic-')) continue;
+        for (const category of categories) {
+            if (category === 'russia' || category.startsWith('.')) continue;
 
-            const topicPath = path.join(parsedDir, topic);
-            const files = await fs.readdir(topicPath);
+            const categoryPath = path.join(parsedDir, category);
+            const stat = await fs.stat(categoryPath);
+            if (!stat.isDirectory()) continue;
 
-            for (const file of files) {
-                if (!file.endsWith('-enriched.json')) continue;
+            const files = await fs.readdir(categoryPath);
 
-                const filePath = path.join(topicPath, file);
-                const content = await fs.readFile(filePath, 'utf-8');
-                const questions = JSON.parse(content);
+            // Sort: enriched files first for priority
+            const sortedFiles = files
+                .filter(f => f.endsWith('.json'))
+                .sort((a, b) => {
+                    const aEnriched = a.includes('-enriched') ? 0 : 1;
+                    const bEnriched = b.includes('-enriched') ? 0 : 1;
+                    return aEnriched - bEnriched;
+                });
 
-                if (!Array.isArray(questions)) continue;
+            for (const file of sortedFiles) {
+                const filePath = path.join(categoryPath, file);
+                try {
+                    const content = await fs.readFile(filePath, 'utf-8');
+                    const parsed = JSON.parse(content);
+                    const questions = Array.isArray(parsed) ? parsed : (parsed.questions || []);
 
-                const question = questions.find(q => q.external_id === uuid || q.id === uuid);
+                    const question = questions.find(q =>
+                        q.external_id === uuid || q.id === uuid ||
+                        q.external_id === questionId || q.id === questionId
+                    );
 
-                if (question) {
-                    console.log(`[API] ✅ Found question in ${file}`);
-                    return res.json({ question });
-                }
+                    if (question) {
+                        console.log(`[API] ✅ Found question in ${file}`);
+                        return res.json({ question });
+                    }
+                } catch (e) { /* skip unreadable files */ }
             }
         }
 
@@ -3217,6 +3324,52 @@ app.post('/api/gallery/copy-image', async (req, res) => {
         });
     } catch (e) {
         console.error('[Gallery] Copy error:', e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+// ==========================================
+// API: IMAGE PROXY (bypass CORS for external sources like practicavial.com)
+// ==========================================
+app.get('/api/proxy-image', async (req, res) => {
+    const imageUrl = req.query.url;
+    if (!imageUrl) return res.status(400).json({ error: 'Missing url parameter' });
+
+    const allowed = ['teorica.practicavial.com', 'teorica.practicatest.com', 'practicavial.com', 'practicatest.com'];
+    try {
+        const parsed = new URL(imageUrl);
+        if (!allowed.some(d => parsed.hostname.endsWith(d))) {
+            return res.status(403).json({ error: 'Domain not allowed' });
+        }
+    } catch {
+        return res.status(400).json({ error: 'Invalid URL' });
+    }
+
+    try {
+        const response = await fetch(imageUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9,es;q=0.8',
+                'Referer': 'https://teorica.practicavial.com/',
+                'Sec-Fetch-Dest': 'image',
+                'Sec-Fetch-Mode': 'no-cors',
+                'Sec-Fetch-Site': 'same-origin',
+                'Sec-CH-UA': '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+                'Sec-CH-UA-Mobile': '?0',
+                'Sec-CH-UA-Platform': '"macOS"'
+            }
+        });
+        if (!response.ok) return res.status(response.status).json({ error: `Upstream ${response.status}` });
+
+        const contentType = response.headers.get('content-type') || 'image/jpeg';
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+
+        const buffer = await response.arrayBuffer();
+        res.send(Buffer.from(buffer));
+    } catch (e) {
+        console.error('[proxy-image] Error:', e.message);
         res.status(500).json({ error: e.message });
     }
 });

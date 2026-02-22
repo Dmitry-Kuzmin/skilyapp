@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
-import { Loader2, Info, Trophy, Coins, Sparkles } from "lucide-react";
+import { Info, Trophy, Coins, Sparkles } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -66,13 +66,13 @@ export function DuelPassProgress() {
       const { error, data } = await supabase.functions.invoke("duel-pass-claim", {
         body: { user_id: profileId, level, is_premium: isPremium },
       });
-      
+
       // Проверяем, есть ли ошибка в ответе
       if (error) {
         // Пытаемся извлечь сообщение из ошибки
         let errorMessage = "Попробуйте позже";
         let is409 = false;
-        
+
         // Проверяем различные форматы ошибок от Supabase Functions
         if (error.message) {
           errorMessage = error.message;
@@ -90,24 +90,24 @@ export function DuelPassProgress() {
             errorMessage = error;
           }
         }
-        
+
         // Проверяем статус ошибки
         if (error.status === 409 || error.statusCode === 409 || error.context?.status === 409) {
           is409 = true;
         }
-        
+
         // Специальная обработка для ошибки 409 (уже получено)
         if (is409 || errorMessage.includes("already claimed") || errorMessage.includes("уже получена") || errorMessage.includes("409")) {
           errorMessage = "Эта награда уже была получена";
           setClaimedRewards(prev => new Set([...prev, level]));
         }
-        
+
         toast.error("Ошибка при получении награды", {
           description: errorMessage,
         });
         return;
       }
-      
+
       if (data) {
         // Обновляем данные профиля после получения награды
         const { data: profileData } = await supabase
@@ -118,22 +118,22 @@ export function DuelPassProgress() {
         if (profileData) {
           setProfile(profileData);
         }
-        
+
         // Отмечаем награду как полученную
         setClaimedRewards(prev => new Set([...prev, level]));
-        
+
         // Показываем уведомление об успешном получении награды
         const reward = rewards.find(r => r.level === level);
         if (reward) {
           const rewardData = isPremium ? reward.premium_reward : reward.free_reward;
-          const rewardText = rewardData.type === 'coins' 
+          const rewardText = rewardData.type === 'coins'
             ? `${rewardData.amount || 0} монет`
             : rewardData.type;
           toast.success(`Награда получена!`, {
             description: `Уровень ${level}: ${rewardText}`,
           });
         }
-        
+
         // Перезагружаем данные для обновления списка наград
         const { data: claimedData } = await supabase
           .from("user_claimed_rewards")
@@ -152,10 +152,10 @@ export function DuelPassProgress() {
       }
     } catch (err: any) {
       console.error("[DuelPassProgress] claim error", err);
-      
+
       let errorMessage = "Попробуйте позже";
       let is409 = false;
-      
+
       // Проверяем различные форматы ошибок
       if (err.message) {
         errorMessage = err.message;
@@ -166,18 +166,18 @@ export function DuelPassProgress() {
       } else if (typeof err === 'string') {
         errorMessage = err;
       }
-      
+
       // Проверяем статус ошибки
       if (err.status === 409 || err.statusCode === 409 || err.context?.status === 409) {
         is409 = true;
       }
-      
+
       // Специальная обработка для ошибки 409
       if (is409 || errorMessage.includes("already claimed") || errorMessage.includes("уже получена") || errorMessage.includes("409")) {
         errorMessage = "Эта награда уже была получена";
         setClaimedRewards(prev => new Set([...prev, level]));
       }
-      
+
       toast.error("Ошибка при получении награды", {
         description: errorMessage,
       });
@@ -189,39 +189,42 @@ export function DuelPassProgress() {
   if (loading || !profile) {
     return (
       <div className="flex items-center justify-center p-6">
-        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        <svg className="w-5 h-5 animate-spin text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
       </div>
     );
   }
 
   const totalLevels = rewards.length || 10;
-  
+
   // Находим текущий и следующий уровни
   const currentLevelReward = rewards.find(r => r.level === profile.duel_pass_level);
   const nextLevelReward = rewards.find(r => r.level === profile.duel_pass_level + 1);
-  
+
   // XP для текущего уровня (накопительное значение из БД)
   const currentLevelXP = currentLevelReward?.xp_required || 0;
   // XP для следующего уровня (накопительное значение из БД)
   const nextLevelXP = nextLevelReward?.xp_required || (rewards[rewards.length - 1]?.xp_required || 3000);
-  
+
   // XP до следующего уровня
   const xpToNextLevel = Math.max(0, nextLevelXP - profile.duel_pass_xp);
-  
+
   // XP, накопленные в текущем уровне (от начала текущего уровня)
-  const prevLevelXP = profile.duel_pass_level > 1 
+  const prevLevelXP = profile.duel_pass_level > 1
     ? (rewards.find(r => r.level === profile.duel_pass_level - 1)?.xp_required || 0)
     : 0;
   const xpInCurrentLevel = profile.duel_pass_xp - prevLevelXP;
-  
+
   // XP, необходимые для перехода на следующий уровень
   const xpNeededForNextLevel = nextLevelXP - currentLevelXP;
-  
+
   // Процент прогресса внутри текущего уровня
   const levelProgressPercent = xpNeededForNextLevel > 0 && profile.duel_pass_level < totalLevels
     ? Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100)
     : profile.duel_pass_level >= totalLevels ? 100 : 0;
-  
+
   // Общий процент прогресса по всему Duel Pass
   const totalXPNeeded = rewards[rewards.length - 1]?.xp_required || 3000;
   const progressPercent = Math.min((profile.duel_pass_xp / totalXPNeeded) * 100, 100);
@@ -245,7 +248,7 @@ export function DuelPassProgress() {
                   <div className="space-y-2">
                     <p className="font-semibold">Что такое Duel Pass?</p>
                     <p className="text-sm">
-                      Это система наград за активность! Занимайтесь обучением, проходите тесты и получайте XP. 
+                      Это система наград за активность! Занимайтесь обучением, проходите тесты и получайте XP.
                       За каждый уровень вы получаете награды: монеты, скины и другие бонусы.
                     </p>
                     <p className="text-xs text-muted-foreground pt-2 border-t">
@@ -260,7 +263,7 @@ export function DuelPassProgress() {
             {progressPercent.toFixed(0)}%
           </Badge>
         </div>
-        
+
         {/* Current progress */}
         <div className="space-y-1">
           <div className="flex items-center justify-between text-sm">
@@ -300,19 +303,18 @@ export function DuelPassProgress() {
             const isCurrentLevel = profile.duel_pass_level === reward.level;
             const isLocked = profile.duel_pass_level < reward.level;
             const isClaimed = claimedRewards.has(reward.level);
-            
+
             return (
               <div
                 key={reward.level}
-                className={`rounded-xl border p-3 transition-all ${
-                  isClaimed
+                className={`rounded-xl border p-3 transition-all ${isClaimed
                     ? "border-green-500 bg-green-100/50 dark:bg-green-900/30"
-                    : unlocked 
-                    ? "border-green-300 bg-green-50/50 dark:bg-green-950/20" 
-                    : isCurrentLevel
-                    ? "border-primary/30 bg-primary/5"
-                    : "border-muted bg-muted/30 opacity-60"
-                }`}
+                    : unlocked
+                      ? "border-green-300 bg-green-50/50 dark:bg-green-950/20"
+                      : isCurrentLevel
+                        ? "border-primary/30 bg-primary/5"
+                        : "border-muted bg-muted/30 opacity-60"
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 space-y-1">
@@ -328,7 +330,7 @@ export function DuelPassProgress() {
                         <Badge variant="secondary" className="text-xs">Заблокировано</Badge>
                       )}
                     </div>
-                    
+
                     {/* Free reward */}
                     <div className="flex items-center gap-1.5 text-xs">
                       <span className="text-muted-foreground">Бесплатно:</span>
@@ -341,7 +343,7 @@ export function DuelPassProgress() {
                         <span className="font-medium">{reward.free_reward.type}</span>
                       )}
                     </div>
-                    
+
                     {/* Premium reward */}
                     {isPremium && reward.premium_reward && (
                       <div className="flex items-center gap-1.5 text-xs">
@@ -359,7 +361,7 @@ export function DuelPassProgress() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Claim button */}
                   {unlocked && !isClaimed && (
                     <Button
@@ -369,7 +371,10 @@ export function DuelPassProgress() {
                       className="ml-3 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90"
                     >
                       {claimingLevel === reward.level ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <svg className="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                       ) : (
                         "Забрать"
                       )}

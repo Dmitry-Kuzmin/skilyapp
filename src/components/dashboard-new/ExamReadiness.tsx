@@ -279,7 +279,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     : 'bg-gradient-to-b from-indigo-500/10 to-transparent';
 
   return (
-    <div className={`h-full ${containerClass} backdrop-blur-md rounded-[2.5rem] p-8 shadow-lg border flex flex-col relative overflow-hidden group transition-all duration-500 ${showLevels ? 'items-start justify-start' : 'items-center justify-center'
+    <div className={`h-full ${containerClass} backdrop-blur-md rounded-3xl xl:rounded-[2.5rem] p-5 md:p-6 xl:p-8 shadow-lg border flex flex-col relative overflow-hidden group transition-all duration-500 ${showLevels ? 'items-start justify-start' : 'items-center justify-center'
       }`}>
       {/* Hover overlay effect */}
       <div className={`absolute inset-0 ${hoverOverlayClass} opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`}></div>

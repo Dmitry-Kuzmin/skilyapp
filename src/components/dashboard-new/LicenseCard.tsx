@@ -256,7 +256,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
         <div className="flex flex-col items-end">
             <div className="flex items-baseline gap-1.5">
                 <span className={cn(
-                    "text-6xl font-extralight font-mono tracking-tighter leading-none transition-colors duration-1000",
+                    "text-4xl xl:text-6xl font-extralight font-mono tracking-tighter leading-none transition-colors duration-1000",
                     rankStyle.pointsColor
                 )}>
                     {displayPoints}
@@ -278,7 +278,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
             {/* SMART STATUS: DYNAMIC TREND indicator */}
             <div className="flex items-center gap-1.5 mt-2 transition-all duration-1000">
-                {stats.currentStreak > 0 ? (
+                {(stats.currentStreak > 0 || hasClaimedToday) ? (
                     <>
                         <TrendingUp size={10} className="text-emerald-500" />
                         <span className="text-[9px] font-black text-emerald-500/80 uppercase tracking-widest">
@@ -379,7 +379,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                         {/* Mobile TREND indicator */}
                         <div className="flex items-center gap-1 mt-1">
-                            {stats.currentStreak > 0 ? (
+                            {(stats.currentStreak > 0 || hasClaimedToday) ? (
                                 <>
                                     <TrendingUp size={10} className="text-emerald-500" />
                                     <span className="text-[8px] font-black text-emerald-500/70 uppercase tracking-widest">
@@ -444,7 +444,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     // --- DESKTOP VERSION ---
     const DesktopCard = (
         <div className={cn(
-            "relative w-full h-full min-h-[240px] rounded-[40px] border flex flex-col justify-between overflow-hidden transition-all duration-700",
+            "relative w-full h-full min-h-[240px] rounded-3xl xl:rounded-[40px] border flex flex-col justify-between overflow-hidden transition-all duration-700",
             isDarkTheme
                 ? "bg-[#0F1014] border-white/5"
                 : "bg-white border-zinc-200/80 shadow-[0_20px_45px_rgba(0,0,0,0.06)]",
@@ -512,13 +512,13 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 </svg>
             </div>
 
-            <div className="relative z-10 px-8 pt-8 flex items-start justify-between gap-4">
+            <div className="relative z-10 px-5 pt-5 xl:px-8 xl:pt-8 flex items-start justify-between gap-4">
                 {IdentityDisplay}
                 {PointsDisplay}
             </div>
 
             <div className={cn(
-                "relative z-10 h-16 border-t px-8 flex items-center justify-between",
+                "relative z-10 h-14 xl:h-16 border-t px-5 xl:px-8 flex items-center justify-between",
                 isDarkTheme ? "border-white/[0.03] bg-white/[0.01]" : "border-zinc-100 bg-zinc-50/30"
             )}>
                 <div className="flex items-center gap-8">
@@ -551,8 +551,8 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
     return (
         <div className="w-full h-full">
-            <div className="sm:hidden">{MobileWidget}</div>
-            <div className="hidden sm:block h-full">{DesktopCard}</div>
+            <div className="md:hidden">{MobileWidget}</div>
+            <div className="hidden md:block h-full">{DesktopCard}</div>
         </div>
     );
 };

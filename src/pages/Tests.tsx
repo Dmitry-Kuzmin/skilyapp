@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Shuffle, Clock, Zap, Flame, History, AlertTriangle, AlertCircle,
+  Shuffle, Clock, Flame, History, AlertTriangle, AlertCircle,
   Target, TrendingUp, Crown, BookOpen, Gamepad2, Play, ArrowRight, Sparkles, CheckCircle,
   Star, AlertTriangle as AlertIcon, RotateCcw,
   CarFront, MapPin, Gauge, Check, Trophy, Bookmark, Lock
@@ -341,17 +341,7 @@ const Tests = () => {
         badge: selectedCountry === 'russia' ? 'Регламент 2025' : undefined,
         isLocked: selectedCountry !== 'russia' && licensePoints < 10,
       },
-      {
-        id: 3,
-        title: t('testsPage.blitz'),
-        description: t('testsPage.blitzDesc'),
-        icon: Zap,
-        color: "warning",
-        premium: false,
-        difficulty: "Лёгкая",
-        route: `/test/blitz?count=20&timer=300${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`,
-        gradient: "from-orange-600 to-amber-600",
-      },
+
       {
         id: 4,
         title: t('testsPage.marathon'),

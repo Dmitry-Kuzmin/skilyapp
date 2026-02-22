@@ -582,6 +582,8 @@ export const es = {
   },
   achievementsModal: {
     title: "Logros",
+    emptyTitle: "Sin logros",
+    emptyDesc: "¡Empieza a aprender y tus primeros logros aparecerán aquí!",
     description: "Rastrea tu progreso y desbloquea recompensas — todo en una ventana",
     totalXP: "Experiencia total",
     xpToNextLevel: "Hasta el siguiente nivel: {{xp}} XP",

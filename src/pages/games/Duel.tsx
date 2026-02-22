@@ -5,7 +5,7 @@ import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Loader2, Copy, Check, Hash, Minus, Plus, ArrowLeft, X, Coins, DollarSign, Gift, Users, Clock, Share2, Search, Shield } from 'lucide-react';
+import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Copy, Check, Hash, Minus, Plus, ArrowLeft, X, Coins, DollarSign, Gift, Users, Clock, Share2, Search, Shield } from 'lucide-react';
 import { extractErrorFromResponse } from '@/utils/errorMessages';
 import { DuelLobby } from '@/components/duel/DuelLobby';
 import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
@@ -1288,7 +1288,10 @@ export default function Duel() {
         return (
             <Layout>
                 <div className="flex items-center justify-center min-h-screen">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <svg className="w-8 h-8 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                 </div>
             </Layout>
         );
@@ -1725,7 +1728,10 @@ export default function Duel() {
 
                                                                         {isFindingMatch ? (
                                                                             <>
-                                                                                <Loader2 className="mr-2 h-4 w-4 animate-spin relative z-10" />
+                                                                                <svg className="mr-2 h-4 w-4 animate-spin relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                                </svg>
                                                                                 <span className="hidden sm:inline relative z-10">Поиск соперника...</span>
                                                                                 <span className="sm:hidden relative z-10">Поиск...</span>
                                                                             </>
@@ -1747,7 +1753,10 @@ export default function Duel() {
                                                                     >
                                                                         {isCreating ? (
                                                                             <>
-                                                                                <Loader2 className="mr-2 h-4 w-4 animate-spin relative z-10" />
+                                                                                <svg className="mr-2 h-4 w-4 animate-spin relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                                </svg>
                                                                                 <span className="hidden sm:inline relative z-10">Создание...</span>
                                                                                 <span className="sm:hidden relative z-10">Создание</span>
                                                                             </>
@@ -2079,7 +2088,10 @@ export default function Duel() {
                                                                                 animate={{ opacity: 1, scale: 1 }}
                                                                                 className="absolute right-4 sm:right-5 top-1/2 -translate-y-1/2"
                                                                             >
-                                                                                <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-amber-600 dark:text-amber-400" />
+                                                                                <svg className="h-5 w-5 sm:h-6 sm:w-6 animate-spin text-amber-600 dark:text-amber-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                                </svg>
                                                                             </motion.div>
                                                                         )}
                                                                     </div>
@@ -2226,7 +2238,10 @@ export default function Duel() {
 
                                                                     {isJoining ? (
                                                                         <>
-                                                                            <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin relative z-10" />
+                                                                            <svg className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                            </svg>
                                                                             <span className="hidden sm:inline relative z-10">Присоединение...</span>
                                                                             <span className="sm:hidden relative z-10">Присоединение</span>
                                                                         </>

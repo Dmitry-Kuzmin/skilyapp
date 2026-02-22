@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Search, Loader2, X } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import Layout from "@/components/Layout";
-
+import { PageLoader } from "@/components/PageLoader";
 interface LanguageTerm {
   id: string;
   term_es: string;
@@ -160,9 +160,7 @@ export default function Dictionary() {
   if (loading) {
     return (
       <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-8 h-8 animate-spin" />
-        </div>
+        <PageLoader />
       </Layout>
     );
   }

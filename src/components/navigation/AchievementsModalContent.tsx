@@ -65,41 +65,18 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
 
       try {
         setLoading(true);
-        // Получаем достижения пользователя
-        const { data: userAchievements, error: achievementsError } = await supabase
-          .from('achievements')
-          .select('*')
-          .eq('user_id', profileId);
 
-        if (achievementsError) throw achievementsError;
+        const { data, error } = await supabase.rpc('get_user_achievements', {
+          p_user_id: profileId,
+        });
 
-        // Если достижений нет, возможно они еще не инициализированы
-        // В реальном приложении мы бы дождались инициализации или показали пустой список
-        if (!userAchievements || userAchievements.length === 0) {
+        if (error) {
+          console.error('[Achievements] Error fetching achievements from RPC:', error);
           setAchievements([]);
           return;
         }
 
-        // Получаем определения наград (XP) из achievement_definitions
-        const { data: definitions, error: defError } = await supabase
-          .from('achievement_definitions')
-          .select('id, reward_xp, category, icon');
-
-        if (defError) {
-          console.warn('[Achievements] Could not fetch definitions, using defaults');
-        }
-
-        const combined: Achievement[] = userAchievements.map(ua => {
-          const def = definitions?.find(d => d.id === ua.achievement_type);
-          return {
-            ...ua,
-            category: def?.category || 'other',
-            reward_xp: def?.reward_xp || 50,
-            icon: def?.icon || 'Trophy'
-          };
-        });
-
-        setAchievements(combined);
+        setAchievements(data as Achievement[]);
       } catch (err) {
         console.error('[Achievements] Error fetching data:', err);
       } finally {

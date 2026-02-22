@@ -69,11 +69,23 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
         const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
         // Helper to ensure URLs point to the backend (port 3030) if they are local
+        // External URLs from CORS-blocked domains are proxied through the server
         const fixUrl = (url: string | null | undefined) => {
             if (!url) return "";
-            if (url.startsWith('http')) return url;
 
             const baseUrl = 'http://localhost:3030';
+
+            // Proxy external images that are CORS-blocked
+            if (url.startsWith('http')) {
+                try {
+                    const parsed = new URL(url);
+                    const blockedDomains = ['teorica.practicavial.com', 'teorica.practicatest.com', 'practicavial.com', 'practicatest.com'];
+                    if (blockedDomains.some(d => parsed.hostname.endsWith(d))) {
+                        return `${baseUrl}/api/proxy-image?url=${encodeURIComponent(url)}`;
+                    }
+                } catch { /* not a valid URL, continue */ }
+                return url;
+            }
 
             // Handle local validator paths
             if (url.startsWith('candidates/') || url.startsWith('/candidates/')) {
@@ -408,8 +420,20 @@ export const MissionImageControl = forwardRef<MissionImageControlHandle, Mission
                                     src={fixUrl(originalUrl)}
                                     className="w-full h-full object-contain cursor-zoom-in"
                                     onClick={() => setZoomedImage(fixUrl(originalUrl))}
-                                // onError={(e) => { e.currentTarget.style.opacity = '0.3'; }} 
+                                    onError={(e) => {
+                                        const target = e.currentTarget;
+                                        target.style.display = 'none';
+                                        const fallback = target.nextElementSibling as HTMLElement;
+                                        if (fallback) fallback.style.display = 'flex';
+                                    }}
                                 />
+                                <div className="hidden items-center justify-center h-full flex-col gap-1 text-zinc-600 text-[10px] px-4 text-center">
+                                    <ImageIcon className="w-5 h-5 opacity-30" />
+                                    <span>Оригинал недоступен (защита Cloudflare)</span>
+                                    <a href={originalUrl} target="_blank" rel="noopener" className="text-blue-500/60 hover:text-blue-400 underline truncate max-w-full">
+                                        Открыть в браузере →
+                                    </a>
+                                </div>
                             </>
                         ) : (
                             <div className="flex items-center justify-center h-full text-zinc-700 text-xs">No Original</div>

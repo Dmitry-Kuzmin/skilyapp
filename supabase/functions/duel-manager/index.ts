@@ -2,46 +2,26 @@ import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
 import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
 import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
+import {
+  mulberry32,
+  fisherYatesShuffle,
+  getDeterministicBotName,
+  generateBotProfile,
+  generateDuelCode,
+  createDuelSchema,
+  joinDuelSchema,
+  findMatchSchema,
+  submitAnswerSchema,
+  getResultsSchema,
+  useBoostSchema
+} from '../_shared/duel-helpers.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Input validation schemas
-const createDuelSchema = z.object({
-  num_questions: z.number().int().min(5).max(30),
-  categories: z.array(z.string().uuid()).max(10).nullable().optional(),
-  difficulty: z.enum(['easy', 'medium', 'hard', 'mix']).optional(),
-  bet_amount: z.number().int().min(0).max(10000).optional().default(0),
-  bet_type: z.enum(['none', 'fixed', 'custom']).optional().default('none'),
-  insurance_enabled: z.boolean().optional(),
-  insurance_rate: z.number().min(0).max(1).optional(),
-  insurance_coverage_rate: z.number().min(0).max(1).optional(),
-  security_context: z.object({
-    ip_hash: z.string().max(255).optional(),
-    device_hash: z.string().max(255).optional()
-  }).optional(),
-  license_category: z.enum(['A_B', 'C_D']).optional().default('A_B')
-});
-
-// ... (joinDuelSchema unchanged) ...
-
-const findMatchSchema = z.object({
-  num_questions: z.number().int().min(5).max(30),
-  categories: z.array(z.string().uuid()).max(10).nullable().optional(),
-  difficulty: z.enum(['easy', 'medium', 'hard', 'mix']).optional(),
-  bet_amount: z.number().int().min(0).max(10000).optional().default(0),
-  bet_type: z.enum(['none', 'fixed', 'custom']).optional().default('none'),
-  insurance_enabled: z.boolean().optional(),
-  insurance_rate: z.number().min(0).max(1).optional(),
-  insurance_coverage_rate: z.number().min(0).max(1).optional(),
-  security_context: z.object({
-    ip_hash: z.string().max(255).optional(),
-    device_hash: z.string().max(255).optional()
-  }).optional(),
-  license_category: z.enum(['A_B', 'C_D']).optional().default('A_B')
-});
+// Schemas imported from duel-helpers.ts
 
 // ... (helpers) ...
 
@@ -119,9 +99,9 @@ async function fetchRandomQuestions(
 
   if (!ids || ids.length === 0) return [];
 
-  console.log(`[fetchRandomQuestions] Found ${ids.length} potential questions for country=${countryCode}, diff=${difficulty}, cat=${licenseCategory}`);
+  console.log(`[fetchRandomQuestions] Found ${ids.length} potential questions for country = ${countryCode}, diff = ${difficulty}, cat = ${licenseCategory} `);
   const t2 = Date.now();
-  console.log(`[fetchRandomQuestions] ⏱️ ID fetch took ${t2 - t1}ms`);
+  console.log(`[fetchRandomQuestions] ⏱️ ID fetch took ${t2 - t1} ms`);
 
   // Shuffle IDs
   const rng = mulberry32(seed);
@@ -130,20 +110,20 @@ async function fetchRandomQuestions(
 
   console.log(`[fetchRandomQuestions] Selected ${selectedIds.length} IDs`);
   const t3 = Date.now();
-  console.log(`[fetchRandomQuestions] ⏱️ Shuffle took ${t3 - t2}ms`);
+  console.log(`[fetchRandomQuestions] ⏱️ Shuffle took ${t3 - t2} ms`);
 
   // Fetch details with options
   const { data: questions, error: detailsError } = await supabase
     .from('questions_new')
     .select(`
-      id, question_ru, question_es, question_en, image_url, difficulty,
-      answer_options (id, text_ru, text_es, text_en, is_correct, position)
+id, question_ru, question_es, question_en, image_url, difficulty,
+  answer_options(id, text_ru, text_es, text_en, is_correct, position)
     `)
     .in('id', selectedIds);
 
   const t4 = Date.now();
-  console.log(`[fetchRandomQuestions] ⏱️ Details fetch took ${t4 - t3}ms`);
-  console.log(`[fetchRandomQuestions] ⏱️ Total fetch time ${t4 - t1}ms`);
+  console.log(`[fetchRandomQuestions] ⏱️ Details fetch took ${t4 - t3} ms`);
+  console.log(`[fetchRandomQuestions] ⏱️ Total fetch time ${t4 - t1} ms`);
 
   if (detailsError) {
     console.error('[fetchRandomQuestions] Error fetching details:', detailsError);
@@ -244,7 +224,7 @@ async function settleBetPayout({
   isDraw: boolean;
 }) {
   const supabase = supabaseClient;
-  console.log(`[settleBetPayout] ℹ️ Payout calculation skipped in Edge Function. Trigger will handle it. Duel: ${duelId}`);
+  console.log(`[settleBetPayout] ℹ️ Payout calculation skipped in Edge Function.Trigger will handle it.Duel: ${duelId} `);
 
   // Мы возвращаем 0/null для всех выплат, так как они произойдут в базе асинхронно
   // Фронтенд увидит актуальный баланс при следующем обновлении дашборда
@@ -296,21 +276,21 @@ async function sendDuelCompletionNotification({
   if (isDraw) {
     emoji = '🤝';
     title = 'Ничья!';
-    resultText = `Вы с ${opponentName} сыграли вничью.\nСчёт: ${myScore} — ${opponentScore}`;
+    resultText = `Вы с ${opponentName} сыграли вничью.\nСчёт: ${myScore} — ${opponentScore} `;
   } else if (isWinner) {
     emoji = '🏆';
     title = 'Ты победил!';
-    resultText = `Ты победил ${opponentName}!\nСчёт: ${myScore} — ${opponentScore}`;
+    resultText = `Ты победил ${opponentName} !\nСчёт: ${myScore} — ${opponentScore} `;
     if (coinsWon > 0) {
       resultText += `\n💰 +${coinsWon} монет`;
     }
   } else {
     emoji = '😔';
     title = 'Поражение';
-    resultText = `${opponentName} оказался сильнее.\nСчёт: ${myScore} — ${opponentScore}`;
+    resultText = `${opponentName} оказался сильнее.\nСчёт: ${myScore} — ${opponentScore} `;
   }
 
-  const message = `${emoji} <b>${title}</b>\n\n${resultText}\n\n🆔 Код битвы: <code>${duelCode}</code>`;
+  const message = `${emoji} <b>${title} </b>\n\n${resultText}\n\n🆔 Код битвы: <code>${duelCode}</code > `;
 
   const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
 

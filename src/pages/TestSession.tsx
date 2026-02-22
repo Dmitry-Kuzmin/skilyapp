@@ -63,7 +63,7 @@ import { BlitzQuestionCard } from "@/components/test-session/BlitzQuestionCard";
 import { TestSkeleton } from "@/components/test/TestSkeleton";
 import { SubmitButton } from "@/components/test/SubmitButton";
 import { UniversalQuestionCard } from "@/components/shared/question/UniversalQuestionCard";
-import { getCachedImageAspectRatio } from "@/utils/imageUtils";
+import { getCachedImageAspectRatio, getImageUrl } from "@/utils/imageUtils";
 import { checkOnlineStatus } from "@/hooks/useOnlineStatus";
 import { trackOfflineAction } from "@/utils/offlineAnalytics";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
@@ -339,8 +339,11 @@ const TestSession = () => {
     redemptionData
   });
 
+  // Preload first image logic
+  const [firstImageLoaded, setFirstImageLoaded] = useState(false);
+
   // Derived loading state
-  const loading = dataLoader.isLoading;
+  // We will compute the final loading state combining dataLoader and image preloading below
 
   const isOnline = useOnlineStatus();
   const [pendingSync, setPendingSync] = useState(false);
@@ -573,6 +576,39 @@ const TestSession = () => {
   }, [mode, universalPDDQuestions, dataLoader.questions]);
 
   // Derived testInfo merged above
+
+  // === IMAGE PRELOADING ===
+  const firstImageUrl = questions[0]?.image_url;
+
+  useEffect(() => {
+    if (dataLoader.isLoading || questions.length === 0) {
+      setFirstImageLoaded(false);
+      return;
+    }
+
+    if (!firstImageUrl) {
+      setFirstImageLoaded(true);
+      return;
+    }
+
+    const url = getImageUrl(firstImageUrl);
+    if (!url) {
+      setFirstImageLoaded(true);
+      return;
+    }
+
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => {
+      setFirstImageLoaded(true);
+    };
+    img.onerror = () => {
+      setFirstImageLoaded(true);
+    };
+    img.src = url;
+  }, [dataLoader.isLoading, questions.length, firstImageUrl]);
+
+  const loading = dataLoader.isLoading || (!firstImageLoaded && questions.length > 0 && !!firstImageUrl);
 
   // === MODE EFFECTS (Moved here to have 'questions' available) ===
   const {

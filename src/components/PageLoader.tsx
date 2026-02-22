@@ -1,30 +1,64 @@
 import { StartupCurtain } from "@/components/StartupCurtain";
 
 export const PageLoader = () => (
-  <div className="fixed inset-0 z-[9999] bg-[#0f172a] flex flex-col items-center justify-center animate-in fade-in duration-500">
+  <div className="fixed inset-0 z-[9999] bg-[#09090b] flex flex-col items-center justify-center">
     <StartupCurtain />
-    <div className="relative flex flex-col items-center gap-6">
-      {/* Ambient Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-indigo-600/10 rounded-full blur-[80px] pointer-events-none animate-pulse"></div>
 
-      <div className="relative flex flex-col items-center gap-4">
-        <div className="text-indigo-400 text-[10px] font-mono tracking-[0.4em] uppercase animate-pulse">
-          Initializing System
+    {/* Эффект сетки - такой же как в index.html */}
+    <div className="absolute inset-0 opacity-[0.1]" style={{
+      backgroundImage: `linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px), 
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px)`,
+      backgroundSize: '40px 40px'
+    }}></div>
+
+    {/* Радиальный градиент по центру */}
+    <div className="absolute inset-0" style={{
+      background: 'radial-gradient(circle at center, transparent 0%, #09090b 80%)'
+    }}></div>
+
+    <div className="relative z-10 flex flex-col items-center gap-12">
+      <div className="relative flex flex-col items-center justify-center w-40 h-40">
+        {/* Внутреннее свечение */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] rounded-full" style={{
+          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0) 70%)',
+          animation: 'pulse-glow 2s ease-in-out infinite'
+        }}></div>
+
+        {/* Логотип */}
+        <div className="font-['Outfit',sans-serif] text-2xl font-black tracking-widest text-white relative z-10 
+                      drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] flex gap-1">
+          SKILY
         </div>
 
-        {/* Progress bar style loader */}
-        <div className="w-32 h-[1px] bg-white/5 relative overflow-hidden rounded-full">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-500 to-transparent w-full animate-[progress-scan_1.5s_ease-in-out_infinite]"></div>
-        </div>
+        {/* Круги загрузки вокруг логотипа */}
+        <div className="absolute inset-0 rounded-full border border-white/5 animate-[spin_4s_linear_infinite]"
+          style={{ borderTopColor: 'rgba(99, 102, 241, 0.5)', borderRightColor: 'rgba(99, 102, 241, 0.2)' }}></div>
+        <div className="absolute inset-2 rounded-full border border-white/5 animate-[spin_3s_linear_infinite_reverse]"
+          style={{ borderBottomColor: 'rgba(168, 85, 247, 0.5)', borderLeftColor: 'rgba(168, 85, 247, 0.2)' }}></div>
+        <div className="absolute inset-4 rounded-full border border-dashed border-white/10 animate-[spin_5s_linear_infinite]"
+          style={{ borderTopColor: 'rgba(255, 255, 255, 0.3)' }}></div>
       </div>
 
-      <style>{`
-        @keyframes progress-scan {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
+      <div className="flex flex-col items-center gap-4">
+        <div className="font-['Outfit',sans-serif] text-[10px] font-bold tracking-[0.4em] text-white/50 uppercase animate-pulse">
+          ИНИЦИАЛИЗАЦИЯ СИСТЕМЫ
+        </div>
+        <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden relative">
+          <div className="absolute top-0 left-0 h-full w-1/3 bg-gradient-to-r from-transparent via-indigo-500 to-transparent animate-[progress-scan_1.5s_ease-in-out_infinite]"></div>
+        </div>
+      </div>
     </div>
+
+    <style>{`
+      @keyframes pulse-glow {
+        0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+      }
+      @keyframes progress-scan {
+        0% { left: -33%; }
+        100% { left: 100%; }
+      }
+    `}</style>
   </div>
 );
 

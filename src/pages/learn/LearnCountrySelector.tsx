@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePDDCountryDetection } from '@/hooks/usePDDCountryDetection';
 import { COUNTRIES_CONFIG, CountryCode } from '@/types/pdd';
 import Layout from '@/components/Layout';
+import { PageLoader } from '@/components/PageLoader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Globe, Sparkles, Loader2, CheckCircle2, ArrowRight, Zap, Shield, Clock, Target } from 'lucide-react';
@@ -24,7 +25,7 @@ export function LearnCountrySelector() {
   // SEAMLESS UX: Проверяем preselected_country из лендинга
   useEffect(() => {
     const preselectedCountry = localStorage.getItem('preselected_country') as CountryCode | null;
-    
+
     if (preselectedCountry && COUNTRIES_CONFIG[preselectedCountry]?.available) {
       // Страна уже выбрана на лендинге - пропускаем экран выбора
       console.log('[LearnCountrySelector] Preselected country found, redirecting:', preselectedCountry);
@@ -36,7 +37,7 @@ export function LearnCountrySelector() {
       navigate(`/learn/${preselectedCountry}`, { replace: true });
       return;
     }
-    
+
     setIsCheckingPreselected(false);
   }, [navigate, saveCountryChoice]);
 
@@ -47,16 +48,10 @@ export function LearnCountrySelector() {
     navigate(`/learn/${countryId}`);
   };
 
-  // Показываем загрузку пока проверяем preselected_country
   if (isCheckingPreselected) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[60vh]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground">Загрузка...</p>
-          </div>
-        </div>
+        <PageLoader />
       </Layout>
     );
   }
@@ -136,7 +131,7 @@ export function LearnCountrySelector() {
               <Zap className="w-7 h-7 text-primary" />
             </motion.div>
           </motion.div>
-          
+
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -145,7 +140,7 @@ export function LearnCountrySelector() {
           >
             Выберите страну для изучения правил дорожного движения
           </motion.p>
-          
+
           {/* Индикатор определения */}
           {!loading && detection.detectedBy && (
             <motion.div
@@ -229,7 +224,7 @@ export function LearnCountrySelector() {
                     key={country.code}
                     initial={{ opacity: 0, y: 30, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ 
+                    transition={{
                       delay: index * 0.1,
                       type: "spring",
                       stiffness: 100,
@@ -257,12 +252,12 @@ export function LearnCountrySelector() {
                           ? 'bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 opacity-100'
                           : 'bg-gradient-to-br from-background via-background to-primary/5 opacity-0 group-hover:opacity-100'
                       )} />
-                      
+
                       {/* Glassmorphism эффект */}
                       <div className="relative backdrop-blur-xl bg-background/80 border-2 rounded-2xl overflow-hidden"
                         style={{
-                          borderColor: isRecommended 
-                            ? 'rgba(var(--primary), 0.5)' 
+                          borderColor: isRecommended
+                            ? 'rgba(var(--primary), 0.5)'
                             : 'rgba(var(--border), 0.5)',
                           boxShadow: isRecommended
                             ? '0 0 40px rgba(var(--primary), 0.2), inset 0 0 40px rgba(var(--primary), 0.05)'
@@ -277,10 +272,10 @@ export function LearnCountrySelector() {
                               x: ['-100%', '100%'],
                             }}
                             transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "linear",
-            }}
+                              duration: 3,
+                              repeat: Infinity,
+                              ease: "linear",
+                            }}
                           />
                         )}
 
@@ -299,11 +294,11 @@ export function LearnCountrySelector() {
                                   {isRecommended && (
                                     <motion.div
                                       className="absolute -top-2 -right-2"
-                                      animate={{ 
+                                      animate={{
                                         scale: [1, 1.2, 1],
                                         rotate: [0, 10, -10, 0]
                                       }}
-                                      transition={{ 
+                                      transition={{
                                         duration: 2,
                                         repeat: Infinity,
                                         ease: "easeInOut"
@@ -350,7 +345,7 @@ export function LearnCountrySelector() {
                                     </motion.div>
                                   )}
                                 </div>
-                                
+
                                 <p className="text-base text-muted-foreground mb-4 font-medium">
                                   {country.nameNative}
                                 </p>
@@ -366,7 +361,7 @@ export function LearnCountrySelector() {
                                       {country.examRules.questionsCount} вопросов
                                     </span>
                                   </motion.div>
-                                  
+
                                   <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/5 border border-red-500/10"
@@ -376,7 +371,7 @@ export function LearnCountrySelector() {
                                       {country.examRules.maxErrors} ошибки
                                     </span>
                                   </motion.div>
-                                  
+
                                   <motion.div
                                     whileHover={{ scale: 1.05 }}
                                     className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-500/5 border border-blue-500/10"

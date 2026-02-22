@@ -21,7 +21,8 @@ export const createDuelSchema = z.object({
     security_context: z.object({
         ip_hash: z.string().max(255).optional(),
         device_hash: z.string().max(255).optional()
-    }).optional()
+    }).optional(),
+    license_category: z.enum(['A_B', 'C_D']).optional().default('A_B')
 });
 
 export const joinDuelSchema = z.object({
@@ -48,6 +49,27 @@ export const findMatchSchema = z.object({
         ip_hash: z.string().max(255).optional(),
         device_hash: z.string().max(255).optional()
     }).optional()
+});
+
+export const submitAnswerSchema = z.object({
+    duel_id: z.string().uuid(),
+    duel_question_id: z.string().uuid(),
+    selected_option_id: z.string().uuid().nullable().optional(),
+    time_taken_ms: z.number().int().min(0).max(60000),
+    latency_ms: z.number().int().min(0).max(10000).optional(),
+    boost_used: z.string().optional().nullable(),
+    is_timeout: z.boolean().optional().default(false)
+});
+
+export const getResultsSchema = z.object({
+    duel_id: z.string().uuid(),
+    profile_id: z.string().uuid().optional()
+});
+
+export const useBoostSchema = z.object({
+    duel_id: z.string().uuid(),
+    duel_question_id: z.string().uuid(),
+    boost_type: z.string()
 });
 
 // ===== RANDOM NUMBER GENERATION =====

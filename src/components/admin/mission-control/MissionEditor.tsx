@@ -49,6 +49,13 @@ export function MissionEditor({ questionId, testId, country = 'spain', serverOnl
         if (questionId) loadQuestionData();
     }, [questionId, country]);
 
+    // Auto-switch to best available lang when data loads
+    useEffect(() => {
+        if (data && !data[`question_${lang}`] && data.question_es) {
+            setLang('es');
+        }
+    }, [data?.question_ru, data?.question_es]);
+
     const loadQuestionData = async () => {
         setLoading(true);
         try {
