@@ -167,6 +167,7 @@ export const AchievementsModalContent = ({
       // Инвалидируем все кэши профиля точечно
       queryClient.invalidateQueries({ queryKey: ['profile-data'] });
       queryClient.invalidateQueries({ queryKey: ['avatar-data'] });
+      queryClient.invalidateQueries({ queryKey: ['user-avatar-data'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
 
       // Обновляем список достижений через 1 сек (чтобы БД обработала)

@@ -300,6 +300,7 @@ export const AccountTab: React.FC = () => {
 
             queryClient.invalidateQueries({ queryKey: ['profile-data'] });
             queryClient.invalidateQueries({ queryKey: ['avatar-data'] });
+            queryClient.invalidateQueries({ queryKey: ['user-avatar-data'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
 
         } catch (error: any) {
