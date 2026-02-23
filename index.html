@@ -782,34 +782,45 @@
 
     <script>
       (function () {
-        var phrases = [
-          "ИНИЦИАЛИЗАЦИЯ...",
-          "ПОДКЛЮЧЕНИЕ СЕРВЕРОВ...",
-          "СИНХРОНИЗАЦИЯ ПРОГРЕССА...",
-          "ПРОВЕРКА ВЕРСИИ...",
-          "ЗАПУСК ЯДРА..."
+        var basePhrases = [
+          "ИНИЦИАЛИЗАЦИЯ СИСТЕМ ДОСТУПА...",
+          "А ВЫ ЗНАЛИ? В ДУЭЛЯХ МОЖНО ЗАБРАТЬ МОНЕТЫ У СОПЕРНИКА...",
+          "СОВЕТ: ПРИГЛАШАЙТЕ ДРУЗЕЙ И ЗАРАБАТЫВАЙТЕ НА ИХ УСПЕХАХ...",
+          "СИНХРОНИЗАЦИЯ... СЕЗОННЫЙ PASS СКРЫВАЕТ УНИКАЛЬНЫЕ СТИКЕРЫ...",
+          "ПАРТНЕРСКАЯ СЕТЬ: СТРОЙТЕ СВОЮ АВТОШКОЛЬНУЮ ИМПЕРИЮ...",
+          "ЗАГРУЗКА ЯДРА... НЕ ПОНЯЛИ ВОПРОС? ИИ РАЗБЕРЕТ ЕГО...",
+          "ОТКРЫТИЕ КАНАЛОВ... ГОНОЧНЫЕ ТУРНИРЫ ПРОВЕРЯТ ВАШИ РЕФЛЕКСЫ..."
         ];
+
         var isEs = navigator.language.startsWith('es');
         if (isEs) {
-          phrases = [
-            "INICIALIZANDO...",
-            "CONECTANDO SERVIDORES...",
-            "SINCRONIZANDO PROGRESO...",
-            "VERIFICANDO VERSIÓN...",
-            "INICIANDO NÚCLEO..."
+          basePhrases = [
+            "INICIALIZANDO SISTEMAS...",
+            "¿SABÍAS QUE? PUEDES ROBAR MONEDAS EN LOS DUELOS...",
+            "CONSEJO: INVITA AMIGOS Y GANA CON SUS LOGROS...",
+            "SINCRONIZANDO... EL PASS DE TEMPORADA OCULTA STICKERS ÚNICOS...",
+            "RED DE AFILIADOS: CONSTRUYE TU PROPIO IMPERIO...",
+            "CARGANDO NÚCLEO... ¿NO ENTIENDES UNA PREGUNTA? LA IA TE LA EXPLICA...",
+            "ABRIENDO CANALES... LAS CARRERAS PONDRÁN A PRUEBA TUS REFLEJOS..."
           ];
         }
 
         var isEn = navigator.language.startsWith('en');
         if (isEn) {
-          phrases = [
-            "INITIALIZING...",
-            "CONNECTING SERVERS...",
-            "SYNCHRONIZING PROGRESS...",
-            "CHECKING VERSION...",
-            "STARTING CORE..."
+          basePhrases = [
+            "INITIALIZING SYSTEMS...",
+            "DID YOU KNOW? YOU CAN STEAL COINS IN DUELS...",
+            "TIP: INVITE FRIENDS AND EARN FROM THEIR PROGRESS...",
+            "SYNCHRONIZING... THE SEASON PASS HIDES UNIQUE STICKERS...",
+            "AFFILIATE NETWORK: BUILD YOUR OWN EMPIRE...",
+            "LOADING CORE... STUCK ON A QUESTION? AI WILL EXPLAIN IT...",
+            "OPENING CHANNELS... RACE TOURNAMENTS WILL TEST YOUR REFLEXES..."
           ];
         }
+
+        // КРИТИЧНО: Чтобы фразы шли в случайном порядке, но начинались всегда с первого (инициализация)
+        var tips = basePhrases.slice(1).sort(function () { return Math.random() - 0.5; });
+        var phrases = [basePhrases[0]].concat(tips);
 
         var el = document.getElementById('skily-status');
         var i = 0;
@@ -817,8 +828,14 @@
           el.textContent = phrases[0];
           setInterval(function () {
             i = (i + 1) % phrases.length;
-            el.textContent = phrases[i];
-          }, 2500);
+            // Добавляем эффект печатающего текста при смене, для большей загадочности
+            el.style.opacity = '0';
+            setTimeout(function () {
+              el.textContent = phrases[i];
+              el.style.opacity = '1';
+              el.style.transition = 'opacity 0.5s ease-in';
+            }, 300);
+          }, 3500); // Чуть дольше, чтобы успеть прочитать
         }
       })();
     </script>
@@ -832,7 +849,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-02-22-21:33';
+      const APP_VERSION = '2026-02-23-11:14';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
