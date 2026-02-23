@@ -115,29 +115,45 @@ export const AchievementsModalContent = ({
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Пожалуйста, выберите изображение');
-      return;
-    }
+    let fileToUpload = file;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Размер файла не должен превышать 5МБ');
-      return;
-    }
+    // ПОДДЕРЖКА HEIC (iPhone): Конвертируем в JPEG, так как браузеры и Supabase не любят HEIC
+    const isHeic = file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic');
 
     const toastId = 'avatar-upload';
-    toast.loading('Загружаем аватар...', { id: toastId });
+    toast.loading(isHeic ? 'Конвертируем HEIC в JPEG...' : 'Загружаем аватар...', { id: toastId });
 
     try {
       setIsUploading(true);
 
-      const fileExt = file.name.split('.').pop() || 'jpg';
+      if (isHeic) {
+        try {
+          const heic2any = (await import('heic2any')).default;
+          const convertedBlob = await heic2any({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.8
+          });
+
+          const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+          fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+            type: 'image/jpeg'
+          });
+          console.log('[AvatarUpload] HEIC converted to JPEG successfully');
+          toast.loading('Загружаем сконвертированное фото...', { id: toastId });
+        } catch (convErr) {
+          console.error('[AvatarUpload] HEIC conversion failed:', convErr);
+          throw new Error('Не удалось сконвертировать HEIC. Попробуйте JPG или PNG.');
+        }
+      }
+
       // КРИТИЧНО: Папка = auth.uid() — именно это проверяет RLS политика в Supabase
+      const fileExt = fileToUpload.name.split('.').pop() || 'jpg';
       const filePath = `${supabaseUser.id}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, { upsert: true, contentType: file.type });
+        .upload(filePath, fileToUpload, { upsert: true, contentType: fileToUpload.type });
 
       if (uploadError) {
         console.error('[AvatarUpload] Storage error:', uploadError);

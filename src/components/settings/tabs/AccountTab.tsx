@@ -249,32 +249,48 @@ export const AccountTab: React.FC = () => {
             return;
         }
 
-        if (!file.type.startsWith('image/')) {
-            toast.error('Пожалуйста, выберите изображение');
-            return;
-        }
+        let fileToUpload = file;
 
-        if (file.size > 5 * 1024 * 1024) {
-            toast.error('Размер изображения не должен превышать 5МБ');
-            return;
-        }
+        // ПОДДЕРЖКА HEIC (iPhone): Конвертируем в JPEG, так как браузеры и Supabase не любят HEIC
+        const isHeic = file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic');
 
         const toastId = 'avatar-upload-tab';
-        toast.loading('Загружаем аватар...', { id: toastId });
+        toast.loading(isHeic ? 'Конвертируем HEIC в JPEG...' : 'Загружаем аватар...', { id: toastId });
 
         try {
             setIsUploading(true);
 
+            if (isHeic) {
+                try {
+                    const heic2any = (await import('heic2any')).default;
+                    const convertedBlob = await heic2any({
+                        blob: file,
+                        toType: 'image/jpeg',
+                        quality: 0.8
+                    });
+
+                    const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                    fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                        type: 'image/jpeg'
+                    });
+                    console.log('[AvatarUpload] HEIC converted to JPEG successfully');
+                    toast.loading('Загружаем сконвертированное фото...', { id: toastId });
+                } catch (convErr) {
+                    console.error('[AvatarUpload] HEIC conversion failed:', convErr);
+                    throw new Error('Не удалось сконвертировать HEIC. Попробуйте JPG или PNG.');
+                }
+            }
+
             // КРИТИЧНО: Папка должна называться как auth.uid()
-            const fileExt = file.name.split('.').pop() || 'jpg';
+            const fileExt = fileToUpload.name.split('.').pop() || 'jpg';
             const filePath = `${supabaseUser.id}/${Date.now()}.${fileExt}`;
 
             // 1. Upload to Supabase Storage - БЕЗ refreshSession (он ломает токены)
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
-                .upload(filePath, file, {
+                .upload(filePath, fileToUpload, {
                     upsert: true,
-                    contentType: file.type
+                    contentType: fileToUpload.type
                 });
 
             if (uploadError) throw uploadError;
