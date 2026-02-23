@@ -1864,21 +1864,13 @@ Deno.serve(async (req) => {
             });
           }
 
-          // Добавляем хост
+          // ✅ Хост (matchedOpponent) уже добавлен через триггер auto_add_host_to_duel_players
+          // Нам нужно добавить только присоединившегося игрока (profileId)
           await supabase
             .from('duel_players')
             .insert({
               duel_id: duel.id,
               user_id: profileId,
-              is_host: true,
-            });
-
-          // Добавляем соперника
-          await supabase
-            .from('duel_players')
-            .insert({
-              duel_id: duel.id,
-              user_id: matchedOpponent.profile_id,
               is_host: false,
             });
 

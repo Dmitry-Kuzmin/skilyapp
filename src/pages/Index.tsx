@@ -356,9 +356,36 @@ const Index = memo(function Index() {
     return <PageLoader />;
   }
 
-  // Если не авторизован — показываем null (редирект уже запущен)
-  if (!isAuthenticated || redirecting) {
-    if (import.meta.env.DEV) console.debug('[Index] Not auth or redirecting', { isAuthenticated, redirecting });
+  // Если не авторизован и не был запущен редирект (например, сбой авторизации внутри Telegram)
+  if (!isAuthenticated && !redirecting && !isLoading) {
+    if (import.meta.env.DEV) console.debug('[Index] Auth failed in Telegram, showing error state');
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-white bg-zinc-950 p-6 text-center font-sans">
+        <StartupCurtain />
+        <div className="w-16 h-16 bg-red-500/10 text-red-500 flex items-center justify-center rounded-2xl mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        </div>
+        <h2 className="text-2xl font-black uppercase tracking-tight mb-2">Ошибка доступа</h2>
+        <p className="text-zinc-400 mb-8 max-w-sm">
+          Не удалось верифицировать вашу сессию. Авторизация отклонена сервером или сессия устарела.
+        </p>
+        <button
+          onClick={() => {
+            // Очищаем токен локально на всякий случай
+            localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+            window.location.reload();
+          }}
+          className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all rounded-xl font-bold uppercase tracking-widest text-xs"
+        >
+          Перезагрузить
+        </button>
+      </div>
+    );
+  }
+
+  // Если редирект запущен - оставляем null, Landing отрисует шторку
+  if (redirecting) {
+    if (import.meta.env.DEV) console.debug('[Index] Redirecting to landing...');
     return null;
   }
 

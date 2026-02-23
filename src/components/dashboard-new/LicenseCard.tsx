@@ -1,18 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import {
-    User,
-    Flame,
-    Activity,
-    TrendingUp,
-    TrendingDown,
-    AlertTriangle,
-    Users,
-    Trophy
-} from 'lucide-react';
+import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from 'react-i18next';
-import { Sparkles } from 'lucide-react';
 
 interface LicenseCardProps {
     userProfile?: {
@@ -45,10 +33,66 @@ interface LicenseCardProps {
     }>;
 }
 
-/**
- * 💳 Digital Driver ID: v4 "Data-Dense Minimal"
- * Features: Sparkline points history, ultra-clean fintech layout, zero noise.
- */
+const T_MAP = {
+    es: {
+        bg: "from-pink-500/10 via-purple-500/10 to-indigo-500/10 bg-[length:200%_200%] animate-gradient-x",
+        lightBg: "bg-gradient-to-br from-pink-200 via-purple-100 to-indigo-100",
+        header: "ESPAÑA",
+        docType: "PERMISO DE CONDUCCIÓN",
+        fields: {
+            name: "1. 2. APELLIDOS Y NOMBRE",
+            dob: "3. FECHA Y LUGAR DE NAC.",
+            dobVal: "10.05.1995 • MADRID",
+            issue: "4a. FECHA DE EXP. • 4b. VÁL. HASTA",
+            issueVal: "01.01.2024 • 01.01.2034",
+            issuer: "4c. EXPEDIDO POR",
+            issuerVal: "JEFATURA DE TRÁFICO",
+            id: "4d. 5. NÚMERO / ID",
+            cat: "9. CAT.",
+            streak: "RACHA 🔥",
+            pointsLabel: "12. PUNTOS",
+        }
+    },
+    ru: {
+        bg: "from-blue-500/10 via-red-500/10 to-white/5",
+        lightBg: "bg-gradient-to-br from-blue-100 via-white to-red-100",
+        header: "РОССИЯ",
+        docType: "ВОДИТЕЛЬСКОЕ УДОСТОВЕРЕНИЕ",
+        fields: {
+            name: "1. 2. ФАМИЛИЯ ИМЯ",
+            dob: "3. ДАТА И МЕСТО РОЖДЕНИЯ",
+            dobVal: "10.05.1995 • МОСКВА",
+            issue: "4a. ДАТА ВЫДАЧИ • 4b. ДЕЙСТВИТЕЛЬНО ДО",
+            issueVal: "01.01.2024 • 01.01.2034",
+            issuer: "4c. ВЫДАНО МАДИ/ГИБДД",
+            issuerVal: "ГУ ОБДД МВД РОССИИ",
+            id: "4d. 5. УДОСТОВЕРЕНИЕ №",
+            cat: "9. КАТ.",
+            streak: "СТРИК 🔥",
+            pointsLabel: "12. ШТРАФНЫЕ БАЛЛЫ",
+        }
+    },
+    sk: {
+        bg: "from-blue-500/10 via-red-500/10 to-white/5",
+        lightBg: "bg-gradient-to-br from-blue-100 via-white to-red-100",
+        header: "SLOVENSKO",
+        docType: "VODIČSKÝ PREUKAZ",
+        fields: {
+            name: "1. 2. PRIEZVISKO A MENO",
+            dob: "3. DÁTUM A MIESTO NARODENIA",
+            dobVal: "10.05.1995 • BRATISLAVA",
+            issue: "4a. DÁTUM VYDANIA • 4b. PLATNÉ DO",
+            issueVal: "01.01.2024 • 01.01.2034",
+            issuer: "4c. VYDANÉ",
+            issuerVal: "POLÍCIA SR",
+            id: "4d. 5. ČÍSLO PREUKAZU",
+            cat: "9. SKUP.",
+            streak: "SÉRIA 🔥",
+            pointsLabel: "12. BODY",
+        }
+    }
+};
+
 export const LicenseCard: React.FC<LicenseCardProps> = ({
     userProfile,
     stats,
@@ -56,503 +100,308 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     selectedCountry,
     hasClaimedToday,
     onRecoverPoints,
-    t,
-    licenseHistory
+    t
 }) => {
-    // 1. Data Processing
     const {
         points,
         rankStyle,
         fullName,
         photoUrl,
-        progressWidth,
         isSuspended,
         rankLabel,
         isExpert,
-        globalId
+        globalId,
+        countryCode,
+        localeConfig
     } = useMemo(() => {
-        // Log to verify memo is running
-        if (import.meta.env.DEV) {
-            console.log('[LicenseCard] 💎 recalculating memo', { profileId: userProfile?.id });
-        }
         const points = userProfile?.license_points ?? 8;
-        const maxPoints = 15;
-        const progressWidth = Math.min((points / maxPoints) * 100, 100);
 
-        const fullName = ([userProfile?.first_name, userProfile?.last_name].filter(Boolean).join(' ') ||
+        const rawName = ([userProfile?.first_name, userProfile?.last_name].filter(Boolean).join(' ') ||
             userProfile?.username ||
             t('common.student') ||
             'USER').toUpperCase();
 
+        const fullName = rawName;
         const isSuspended = points === 0;
         const isExpert = points >= 12;
         const rankLabel = isSuspended ? t('licenseCard.ranks.suspended') : isExpert ? t('licenseCard.ranks.expert') : t('licenseCard.ranks.novel');
 
-        // Глобальный ID на основе profile_id или telegram_id
         const globalIdMatch = userProfile?.id?.split('-')[0] ?? '---';
         const globalId = globalIdMatch === '---' ? '---' : `ID-${globalIdMatch.toUpperCase()}`;
 
-        // Custom status styles
         let rankStyle = {
             accent: '#10B981', // Emerald
-            glow: 'shadow-[0_20px_40px_-20px_rgba(16,185,129,0.3)]',
             bg: 'bg-emerald-500/10',
-            text: 'text-emerald-500',
-            pointsColor: 'text-emerald-400'
+            text: 'text-emerald-500 dark:text-emerald-400',
+            badge: 'bg-emerald-500 text-white',
+            border: 'border-emerald-500'
         };
 
         if (isSuspended) {
             rankStyle = {
                 accent: '#EF4444',
-                glow: 'shadow-[0_20px_50px_-10px_rgba(239,68,68,0.4)]',
                 bg: 'bg-red-500/10',
                 text: 'text-red-500',
-                pointsColor: 'text-red-500'
+                badge: 'bg-red-500 text-white',
+                border: 'border-red-500'
             };
         } else if (isExpert) {
             rankStyle = {
                 accent: '#EAB308', // Gold
-                glow: 'shadow-[0_20px_40px_-20px_rgba(234,179,8,0.25)]',
                 bg: 'bg-yellow-500/10',
-                text: 'text-yellow-500',
-                pointsColor: 'text-emerald-400'
+                text: 'text-yellow-600 dark:text-yellow-500',
+                badge: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white',
+                border: 'border-yellow-500'
             };
-        } else {
+        } else if (points < 8) {
             rankStyle = {
                 ...rankStyle,
-                pointsColor: 'text-yellow-400'
+                text: 'text-orange-500',
+                badge: 'bg-orange-500 text-white',
+                border: 'border-orange-500'
             };
         }
+
+        const countryCode = selectedCountry === 'es' ? 'E' : selectedCountry === 'sk' ? 'SK' : 'RUS';
+        const localeConfig = T_MAP[selectedCountry] || T_MAP['es'];
 
         return {
             points,
             rankStyle,
             fullName,
             photoUrl: userProfile?.photo_url,
-            progressWidth,
             isSuspended,
             rankLabel,
             globalId,
-            isExpert
+            isExpert,
+            countryCode,
+            localeConfig
         };
     }, [userProfile, selectedCountry, t]);
 
-    const displayPoints = points < 10 ? `0${points} ` : points;
-
-    const readinessScore = useMemo(() => {
-        // Safe mapping to prevent 150% issues
-        const raw = stats.averageScore || stats.accuracy || 0;
-        return Math.min(100, Math.max(0, Math.round(Number(raw))));
-    }, [stats.averageScore, stats.accuracy]);
-
-    // --- SPARKLINE (SVG) ---
-
-    // --- REAL SPARKLINE DATA ---
-    const sparklinePoints = useMemo(() => {
-        if (licenseHistory && licenseHistory.length > 0) {
-            // Take the last 10 points and sort by date ascending
-            const history = [...licenseHistory]
-                .sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime())
-                .slice(-10)
-                .map(h => h.points);
-
-            // If we have less than 10 points, pad with the first available point
-            if (history.length < 10) {
-                const firstPoint = history[0];
-                const padding = Array(10 - history.length).fill(firstPoint);
-                return [...padding, ...history];
-            }
-            return history;
-        }
-
-        // Fallback: For new users without history, show a steady flat line at current points
-        // level instead of artificial fluctuations.
-        const base = points || 8;
-        return Array(10).fill(base);
-    }, [licenseHistory, points]);
-
-    const svgPath = useMemo(() => {
-        const width = 600;
-        const height = 120;
-        const step = width / (sparklinePoints.length - 1);
-        const max = 15;
-
-        const coords = sparklinePoints.map((p, i) => ({
-            x: i * step,
-            y: height - (p / max) * height * 0.7 - 20
-        }));
-
-        // Grid lines Y-positions
-        const gridLines = [max, max * 0.5, 0].map(val => height - (val / max) * height * 0.7 - 20);
-
-        const d = coords.map((p, i) => (i === 0 ? `M ${p.x} ${p.y} ` : `L ${p.x} ${p.y} `)).join(' ');
-        const area = `${d} L ${width} ${height} L 0 ${height} Z`;
-
-        return { line: d, area, coords, gridLines };
-    }, [sparklinePoints]);
+    const [imageError, setImageError] = useState(false);
 
     const RecoveryOverlay = isSuspended && (
-        <div className="absolute inset-0 z-[60] bg-[#0F1014]/95 backdrop-blur-xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
-            <AlertTriangle size={40} className="text-red-500 mb-4" />
-            <h3 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{t('licenseCard.suspended.title')}</h3>
+        <div className="absolute inset-0 z-[60] bg-[#0F1014]/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-700 rounded-[28px] md:rounded-[36px]">
+            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle size={40} className="text-red-500 animate-pulse" />
+            </div>
+            <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-4 translate-y-2">{t('licenseCard.suspended.title')}</h3>
             <button
                 onClick={onRecoverPoints}
-                className="bg-white text-black px-8 py-3 rounded-2xl font-black text-xs tracking-widest uppercase transition-all active:scale-95 shadow-xl shadow-red-900/40"
+                className="bg-white text-black px-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(239,68,68,0.3)] mt-2"
             >
                 {t('licenseCard.suspended.recoverButton')}
             </button>
         </div>
     );
 
-    const [imageError, setImageError] = useState(false);
-
-    const IdentityDisplay = (
-        <div className="flex items-center gap-5">
-            <div className={cn(
-                "w-14 h-14 rounded-2xl overflow-hidden border shrink-0",
-                isDarkTheme ? "border-white/10 bg-zinc-900" : "border-zinc-200 bg-zinc-50"
+    const Field = ({ label, value, valueClassName, highlight }: { label: string, value: React.ReactNode, valueClassName?: string, highlight?: boolean }) => (
+        <div className="flex flex-col min-w-0 group/field">
+            <span className={cn(
+                "text-[7px] sm:text-[8px] md:text-[9px] font-bold tracking-tight mb-0.5",
+                isDarkTheme ? "text-indigo-200/50" : "text-black/40"
             )}>
-                {photoUrl && !imageError ? (
-                    <img
-                        src={photoUrl}
-                        alt="Avatar"
-                        className="w-full h-full object-cover grayscale-[0.1]"
-                        onError={() => setImageError(true)}
-                    />
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-zinc-500">
-                        <User size={24} />
-                    </div>
-                )}
-            </div>
-            <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-3">
-                    <h3 className={cn(
-                        "text-lg font-black tracking-widest uppercase truncate",
-                        isDarkTheme ? "text-white" : "text-zinc-900"
-                    )}>{fullName}</h3>
-                    <div className={cn(
-                        "px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase shadow-sm",
-                        rankStyle.bg, rankStyle.text
-                    )}>
-                        {rankLabel}
-                    </div>
-                </div>
-                <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
-                    <div className="flex items-center gap-1.5">
-                        <Flame size={12} className={cn(hasClaimedToday ? "text-orange-500" : "opacity-30")} />
-                        <span>{stats.currentStreak}{t('licenseCard.stats.streak')}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <Activity size={12} className="text-blue-500" />
-                        <span>{readinessScore !== 0 ? readinessScore : 0}{t('licenseCard.stats.readiness')}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-
-    const PointsDisplay = (
-        <div className="flex flex-col items-end">
-            <div className="flex items-baseline gap-1.5">
-                <span className={cn(
-                    "text-4xl xl:text-6xl font-extralight font-mono tracking-tighter leading-none transition-colors duration-1000",
-                    rankStyle.pointsColor
-                )}>
-                    {displayPoints}
-                </span>
-                <span className={cn(
-                    "text-xl font-extralight font-mono leading-none",
-                    isDarkTheme ? "text-zinc-700" : "text-zinc-300"
-                )}>/ 15</span>
-            </div>
-            <div className={cn(
-                "w-24 h-[1px] mt-2 rounded-full overflow-hidden",
-                isDarkTheme ? "bg-zinc-800" : "bg-zinc-100"
-            )}>
-                <div className={cn(
-                    "h-full transition-all duration-1000",
-                    isDarkTheme ? "bg-white/40" : "bg-indigo-600/40"
-                )} style={{ width: `${progressWidth}% ` }} />
-            </div>
-
-            {/* SMART STATUS: DYNAMIC TREND indicator */}
-            <div className="flex items-center gap-1.5 mt-2 transition-all duration-1000">
-                {(stats.currentStreak > 0 || hasClaimedToday) ? (
-                    <>
-                        <TrendingUp size={10} className="text-emerald-500" />
-                        <span className="text-[9px] font-black text-emerald-500/80 uppercase tracking-widest">
-                            {t('licenseCard.trend.active')}
-                        </span>
-                    </>
-                ) : (
-                    <>
-                        <TrendingDown size={10} className="text-orange-500" />
-                        <span className="text-[9px] font-black text-orange-400/80 uppercase tracking-widest">
-                            {t('licenseCard.trend.decaying')}
-                        </span>
-                    </>
-                )}
-            </div>
-
-            {/* Redesigned Hint: More integrated into the card flow */}
-            {!isSuspended && points >= 8 && points < 10 && (
-                <div className="mt-4 flex flex-col items-end gap-1.5 animate-in fade-in slide-in-from-right-2 duration-700">
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
-                        <Sparkles size={10} className="text-indigo-400" />
-                        <span className="text-[9px] font-bold text-indigo-300 uppercase tracking-tight">
-                            {t('licenseCard.gating.examLocked')}
-                        </span>
-                    </div>
-                    <span className="text-[9px] leading-tight font-medium text-white/40 text-right max-w-[140px]">
-                        {t('licenseCard.gating.unlockGoal')}
-                    </span>
-                </div>
-            )}
-        </div>
-    );
-
-    // --- MOBILE VERSION ---
-    const MobileWidget = (
-        <div className={cn(
-            "relative w-full rounded-[32px] border flex flex-col overflow-hidden transition-all duration-700",
-            isDarkTheme
-                ? "bg-[#0F1014] border-white/5"
-                : "bg-white border-zinc-200/80 shadow-[0_20px_45px_rgba(0,0,0,0.06)]",
-            rankStyle.glow,
-            isSuspended && "border-red-500/30"
-        )}>
-            {RecoveryOverlay}
-
-            {/* SPARKLINE BACKGROUND: FILLED AREA VERSION */}
-            <div className="absolute inset-0 z-0 opacity-[0.25] pointer-events-none mt-4 overflow-hidden">
-                <svg width="100%" height="100%" viewBox="0 0 600 120" preserveAspectRatio="none">
-                    <defs>
-                        <linearGradient id="chartGradientDense" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={rankStyle.accent} stopOpacity="0.6" />
-                            <stop offset="70%" stopColor={rankStyle.accent} stopOpacity="0.1" />
-                            <stop offset="100%" stopColor={rankStyle.accent} stopOpacity="0" />
-                        </linearGradient>
-                    </defs>
-
-                    {/* Area Fill - Full visible background */}
-                    <path d={svgPath.area} fill="url(#chartGradientDense)" />
-
-                    {/* Main sharp line on top of fill */}
-                    <path
-                        d={svgPath.line}
-                        fill="none"
-                        stroke={rankStyle.accent}
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        opacity="0.8"
-                    />
-
-                    {/* Today Point Pulse */}
-                    <circle
-                        cx={svgPath.coords[svgPath.coords.length - 1].x}
-                        cy={svgPath.coords[svgPath.coords.length - 1].y}
-                        r="3"
-                        fill={rankStyle.accent}
-                        className="animate-pulse"
-                    />
-                </svg>
-            </div>
-
-            <div className="relative z-10 p-6 flex flex-col gap-6">
-                <div className="flex justify-between items-start">
-                    {IdentityDisplay}
-                    <div className="flex flex-col items-end">
-                        <div className="flex items-baseline gap-1">
-                            <span className={cn(
-                                "text-4xl font-extralight font-mono leading-none tracking-tighter",
-                                rankStyle.pointsColor
-                            )}>
-                                {displayPoints}
-                            </span>
-                            <span className={cn(
-                                "text-lg font-extralight font-mono",
-                                isDarkTheme ? "text-zinc-700" : "text-zinc-300"
-                            )}>/15</span>
-                        </div>
-
-                        {/* Mobile TREND indicator */}
-                        <div className="flex items-center gap-1 mt-1">
-                            {(stats.currentStreak > 0 || hasClaimedToday) ? (
-                                <>
-                                    <TrendingUp size={10} className="text-emerald-500" />
-                                    <span className="text-[8px] font-black text-emerald-500/70 uppercase tracking-widest">
-                                        {t('licenseCard.trend.activeShort')}
-                                    </span>
-                                </>
-                            ) : (
-                                <>
-                                    <TrendingDown size={10} className="text-orange-500" />
-                                    <span className="text-[8px] font-black text-orange-500/70 uppercase tracking-widest">
-                                        {t('licenseCard.trend.decayingShort')}
-                                    </span>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-
-                <div className={cn(
-                    "w-full h-[1px] rounded-full overflow-hidden",
-                    isDarkTheme ? "bg-zinc-800" : "bg-zinc-100"
-                )}>
-                    <div className={cn(
-                        "h-full transition-all duration-1000",
-                        isDarkTheme ? "bg-white/40" : "bg-indigo-600/40"
-                    )} style={{ width: `${progressWidth}% ` }} />
-                </div>
-
-                {/* Mobile Hint for point progression */}
-                {!isSuspended && points >= 8 && points < 10 && (
-                    <div className="mt-2 flex items-center justify-between p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-[10px] font-black text-indigo-300 uppercase leading-none">
-                                {t('licenseCard.gating.examLocked')}
-                            </span>
-                            <span className="text-[9px] font-medium text-white/40 leading-tight">
-                                {t('licenseCard.gating.unlockGoal')}
-                            </span>
-                        </div>
-                        <Sparkles size={14} className="text-indigo-400 opacity-50" />
-                    </div>
-                )}
-            </div>
-
-            {/* MOBILE FOOTER */}
-            <div className={cn(
-                "relative z-10 h-10 border-t px-6 flex items-center justify-between",
-                isDarkTheme ? "border-white/[0.03] bg-white/[0.01]" : "border-zinc-100 bg-zinc-50/30"
-            )}>
-                <div className="flex items-center gap-4">
-                    <span className="text-[8px] font-black text-emerald-500/60 uppercase tracking-widest">{t('licenseCard.footer.sync')}</span>
-                    <span className="text-[10px] font-mono font-bold text-zinc-400">{t('licenseCard.footer.completed')}</span>
-                </div>
-                <div className="flex items-center gap-1.5 opacity-40">
-                    <Users size={10} className="text-zinc-600" />
-                    <span className="text-[8px] font-mono font-bold text-zinc-400">{t('licenseCard.footer.globalId')}: {globalId}</span>
-                </div>
-            </div>
-        </div>
-    );
-
-    // --- DESKTOP VERSION ---
-    const DesktopCard = (
-        <div className={cn(
-            "relative w-full h-full min-h-[240px] rounded-3xl xl:rounded-[40px] border flex flex-col justify-between overflow-hidden transition-all duration-700",
-            isDarkTheme
-                ? "bg-[#0F1014] border-white/5"
-                : "bg-white border-zinc-200/80 shadow-[0_20px_45px_rgba(0,0,0,0.06)]",
-            rankStyle.glow,
-            isSuspended && "border-red-500/30"
-        )}>
-            {RecoveryOverlay}
-
-            {/* SPARKLINE BACKGROUND: HIGH-TECH VERSION */}
-            <div className="absolute inset-0 z-0 opacity-[0.3] pointer-events-none mt-8 overflow-hidden">
-                <svg width="100%" height="100%" viewBox="0 0 600 120" preserveAspectRatio="none">
-                    <defs>
-                        <linearGradient id="chartGradientDenseDesk" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={rankStyle.accent} stopOpacity="0.4" />
-                            <stop offset="100%" stopColor={rankStyle.accent} stopOpacity="0" />
-                        </linearGradient>
-                        <filter id="glow">
-                            <feGaussianBlur stdDeviation="2" result="blur" />
-                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                        </filter>
-                    </defs>
-
-                    {/* Horizontal Grid Lines */}
-                    {svgPath.gridLines.map((y, i) => (
-                        <line
-                            key={i}
-                            x1="0" y1={y} x2="600" y2={y}
-                            stroke="white"
-                            strokeWidth="1"
-                            strokeDasharray="4 12"
-                            opacity="0.2"
-                        />
-                    ))}
-
-                    {/* Area Fill */}
-                    <path d={svgPath.area} fill="url(#chartGradientDenseDesk)" />
-
-                    {/* Main stroke */}
-                    <path
-                        d={svgPath.line}
-                        fill="none"
-                        stroke={rankStyle.accent}
-                        strokeWidth="1"
-                        opacity="0.6"
-                    />
-
-                    {/* All Data Points */}
-                    {svgPath.coords.map((p, i) => (
-                        <circle
-                            key={i}
-                            cx={p.x} cy={p.y} r="2"
-                            fill={rankStyle.accent}
-                            opacity={i === svgPath.coords.length - 1 ? 1 : 0.4}
-                        />
-                    ))}
-
-                    {/* Pulse Effect for current day */}
-                    <circle
-                        cx={svgPath.coords[svgPath.coords.length - 1].x}
-                        cy={svgPath.coords[svgPath.coords.length - 1].y}
-                        r="5"
-                        fill={rankStyle.accent}
-                        className="animate-pulse opacity-30"
-                    />
-                </svg>
-            </div>
-
-            <div className="relative z-10 px-5 pt-5 xl:px-8 xl:pt-8 flex items-start justify-between gap-4">
-                {IdentityDisplay}
-                {PointsDisplay}
-            </div>
-
-            <div className={cn(
-                "relative z-10 h-14 xl:h-16 border-t px-5 xl:px-8 flex items-center justify-between",
-                isDarkTheme ? "border-white/[0.03] bg-white/[0.01]" : "border-zinc-100 bg-zinc-50/30"
-            )}>
-                <div className="flex items-center gap-8">
-                    <div className="flex flex-col">
-                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-0.5">{t('licenseCard.footer.classification')}</span>
-                        <span className="text-[10px] font-mono font-bold text-zinc-400">{t('licenseCard.footer.classType')}</span>
-                    </div>
-                    <div className="w-px h-6 bg-zinc-800" />
-                    <div className="flex flex-col">
-                        <span className="text-[8px] font-black text-zinc-600 uppercase tracking-widest mb-0.5">{t('licenseCard.footer.sync')}</span>
-                        <span className="text-[10px] font-mono font-bold text-zinc-300">{t('licenseCard.footer.completed')}</span>
-                    </div>
-                </div>
-                <div className="flex items-center gap-6">
-                    <div className={cn(
-                        "flex items-center gap-2 px-3 py-1.5 rounded-xl border",
-                        isDarkTheme ? "border-white/5 bg-zinc-900/50" : "border-zinc-200 bg-white shadow-sm"
-                    )}>
-                        <Users size={12} className="text-zinc-600" />
-                        <span className={cn(
-                            "text-[10px] font-mono font-bold italic",
-                            isDarkTheme ? "text-zinc-400" : "text-zinc-500"
-                        )}>{t('licenseCard.footer.globalId')}: {globalId}</span>
-                    </div>
-                    {isExpert && <Trophy size={16} className="text-yellow-500/40" />}
-                </div>
-            </div>
+                {label}
+            </span>
+            <span className={cn(
+                "text-xs sm:text-[13px] md:text-sm font-black truncate leading-tight tracking-tight",
+                isDarkTheme ? "text-zinc-50" : "text-slate-900",
+                highlight && (isDarkTheme ? "text-indigo-400 group-hover/field:text-indigo-300 transition-colors" : "text-indigo-600"),
+                valueClassName
+            )} title={typeof value === 'string' ? value : undefined}>
+                {value}
+            </span>
         </div>
     );
 
     return (
-        <div className="w-full h-full">
-            <div className="md:hidden">{MobileWidget}</div>
-            <div className="hidden md:block h-full">{DesktopCard}</div>
+        <div className="w-full h-full relative group perspective-[2000px]">
+            {/* The 3D Glassmorphism License Card */}
+            <div className={cn(
+                "w-full h-full relative z-10 rounded-[28px] md:rounded-[36px] overflow-hidden border transition-all duration-700 flex flex-col shadow-2xl backdrop-blur-3xl",
+                isDarkTheme
+                    ? "bg-zinc-950/80 border-white/5"
+                    : "bg-white/90 border-zinc-200 shadow-indigo-900/10"
+            )}>
+
+                {/* Spanish EU Pink Gradient Background / Dark Theme Accent */}
+                <div className={cn(
+                    "absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-overlay",
+                    isDarkTheme ? "bg-gradient-to-br from-indigo-500/10 via-fuchsia-500/5 to-cyan-500/10" : localeConfig.lightBg
+                )} />
+
+                {/* Guilloche / Security Pattern */}
+                <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+                    style={{
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                    }}
+                />
+
+                {RecoveryOverlay}
+
+                {/* Official Header */}
+                <div className={cn(
+                    "relative z-10 flex flex-row items-center px-4 md:px-6 py-3 md:py-4 border-b",
+                    isDarkTheme ? "border-white/10 bg-white/[0.01]" : "border-indigo-900/10 bg-indigo-50/50"
+                )}>
+                    {/* EU Flag Icon */}
+                    <div className="relative flex items-center justify-center w-8 h-6 md:w-10 md:h-7 bg-[#003399] rounded-[4px] md:rounded-md overflow-hidden shrink-0 shadow-inner mr-3 md:mr-4 border-2 border-transparent">
+                        <div className="absolute inset-0 flex items-center justify-center mix-blend-screen opacity-100">
+                            <svg viewBox="0 0 100 100" className="w-[120%] h-[120%] text-yellow-400 fill-current opacity-50"><path d="M50 8l5 15h16l-13 10 5 15-13-10-13 10 5-15-13-10h16z" /><path d="M50 18l5 15h16l-13 10 5 15-13-10-13 10 5-15-13-10h16z" transform="rotate(30 50 50)" /><path d="M50 18l5 15h16l-13 10 5 15-13-10-13 10 5-15-13-10h16z" transform="rotate(60 50 50)" /><path d="M50 18l5 15h16l-13 10 5 15-13-10-13 10 5-15-13-10h16z" transform="rotate(90 50 50)" /><path d="M50 18l5 15h16l-13 10 5 15-13-10-13 10 5-15-13-10h16z" transform="rotate(120 50 50)" /></svg>
+                        </div>
+                        <span className="relative z-10 text-white font-black text-xs md:text-sm tracking-tighter drop-shadow-md">
+                            {countryCode}
+                        </span>
+                    </div>
+
+                    <div className="flex flex-col flex-1 truncate">
+                        <span className={cn(
+                            "text-[8px] md:text-[9px] font-black tracking-widest uppercase mb-[1px]",
+                            isDarkTheme ? "text-indigo-300/80" : "text-indigo-600/80"
+                        )}>
+                            {localeConfig.header}
+                        </span>
+                        <h2 className={cn(
+                            "text-xs md:text-sm font-black uppercase tracking-tight truncate",
+                            isDarkTheme ? "text-zinc-100" : "text-indigo-950"
+                        )}>
+                            {localeConfig.docType}
+                        </h2>
+                    </div>
+
+                    {/* Laser Hologram Shield */}
+                    <div className="shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-cyan-400/20 via-fuchsia-500/20 to-yellow-400/20 backdrop-blur-md border border-white/20 flex items-center justify-center relative overflow-hidden group/holo">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover/holo:animate-[shimmer_1.5s_infinite]" />
+                        <ShieldCheck size={18} className={isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-indigo-500"} />
+                    </div>
+                </div>
+
+                {/* Content Section */}
+                <div className="flex-1 p-4 md:p-6 flex flex-row gap-4 md:gap-6 z-10 relative mt-1 md:mt-2">
+
+                    {/* User Photo Area */}
+                    <div className="flex flex-col gap-2 shrink-0">
+                        <div className={cn(
+                            "w-20 h-28 sm:w-24 sm:h-[136px] md:w-28 md:h-40 rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
+                            isDarkTheme ? "border-white/10 bg-black/40" : "border-slate-200/80 bg-slate-50"
+                        )}>
+                            {/* Face Recognition Guides */}
+                            <div className="absolute top-2 left-2 w-2 h-2 border-t-2 border-l-2 border-indigo-500/50 rounded-tl-sm z-20" />
+                            <div className="absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-indigo-500/50 rounded-tr-sm z-20" />
+                            <div className="absolute bottom-2 left-2 w-2 h-2 border-b-2 border-l-2 border-indigo-500/50 rounded-bl-sm z-20" />
+                            <div className="absolute bottom-2 right-2 w-2 h-2 border-b-2 border-r-2 border-indigo-500/50 rounded-br-sm z-20" />
+
+                            {photoUrl && !imageError ? (
+                                <img
+                                    src={photoUrl}
+                                    alt="Driver Photo Component"
+                                    className="w-full h-full object-cover grayscale-[0.3] contrast-125 brightness-110"
+                                    onError={() => setImageError(true)}
+                                />
+                            ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400">
+                                    <Camera size={28} className="opacity-50 mb-2" />
+                                </div>
+                            )}
+
+                            {/* Watermark Ghost Face */}
+                            {photoUrl && !imageError && (
+                                <div className="absolute bottom-2 -right-4 w-12 h-16 opacity-30 mix-blend-overlay overflow-hidden rounded transform -rotate-12 blur-[1px]">
+                                    <img src={photoUrl} className="w-full h-full object-cover contrast-150 grayscale" />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Information Fields */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <div className="grid grid-cols-1 gap-y-3 md:gap-y-4">
+                            <Field label={localeConfig.fields.name} value={fullName} />
+
+                            <div className="hidden sm:block">
+                                <Field label={localeConfig.fields.dob} value={localeConfig.fields.dobVal} />
+                            </div>
+
+                            <Field
+                                label={localeConfig.fields.issue}
+                                value={localeConfig.fields.issueVal}
+                            />
+
+                            <div className="grid grid-cols-2 gap-3 md:gap-4">
+                                <Field label={localeConfig.fields.issuer} value={localeConfig.fields.issuerVal} />
+                                <Field label={localeConfig.fields.id} value={<span className="font-mono">{globalId}</span>} highlight />
+                            </div>
+                        </div>
+
+                        {/* Bottom Row inside details */}
+                        <div className="mt-4 md:mt-auto pt-4 border-t border-white/10 dark:border-white/5 flex items-end justify-between gap-3">
+                            <div className="flex items-center gap-4">
+                                {/* Categories */}
+                                <div className="flex flex-col">
+                                    <span className={cn(
+                                        "text-[7px] sm:text-[9px] font-bold tracking-tight mb-1",
+                                        isDarkTheme ? "text-indigo-200/50" : "text-black/40"
+                                    )}>{localeConfig.fields.cat}</span>
+                                    <div className={cn(
+                                        "w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center border-2 font-black text-sm sm:text-base shadow-lg",
+                                        isDarkTheme ? "bg-zinc-900 border-zinc-700 text-white" : "bg-white border-zinc-200 text-slate-800"
+                                    )}>
+                                        B
+                                    </div>
+                                </div>
+
+                                {/* Streak */}
+                                <div className="flex flex-col ml-1">
+                                    <span className={cn(
+                                        "text-[7px] sm:text-[9px] font-bold tracking-tight mb-1",
+                                        isDarkTheme ? "text-indigo-200/50" : "text-black/40"
+                                    )}>{localeConfig.fields.streak}</span>
+                                    <div className="flex items-center gap-1.5 h-8 sm:h-10 px-3 border border-white/5 rounded-xl bg-white/5 backdrop-blur-md">
+                                        <span className={cn("text-xs sm:text-sm font-black", isDarkTheme ? "text-zinc-100" : "text-slate-800")}>
+                                            {stats.currentStreak}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Modern Points Indicator */}
+                            <div className={cn(
+                                "flex flex-col items-end px-4 py-2 sm:px-5 sm:py-3 rounded-2xl shrink-0 border-2 relative overflow-hidden shadow-2xl transition-all duration-500",
+                                rankStyle.border,
+                                isDarkTheme ? "bg-zinc-950/90" : "bg-white"
+                            )}>
+                                <div className={cn("absolute inset-0 opacity-[0.08]", rankStyle.bg)} />
+                                <span className={cn("text-[7px] sm:text-[8px] font-bold tracking-widest uppercase mb-0.5 relative z-10", rankStyle.text)}>
+                                    {localeConfig.fields.pointsLabel}
+                                </span>
+                                <div className="flex items-baseline gap-1 relative z-10">
+                                    <span className={cn("text-2xl sm:text-3xl font-black leading-none drop-shadow-md", rankStyle.text)}>
+                                        {points}
+                                    </span>
+                                    <span className={cn("text-xs sm:text-sm font-black opacity-40", rankStyle.text)}>
+                                        / 15
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Beautiful Neon Edge line bounding the bottom */}
+                <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/20">
+                    <div
+                        className={cn("h-full transition-all duration-1000", rankStyle.badge)}
+                        style={{ width: `${Math.min((points / 15) * 100, 100)}%` }}
+                    />
+                </div>
+            </div>
+
+            {/* Ambient Background Glow matching the rank */}
+            <div className={cn(
+                "absolute -inset-2 z-0 opacity-20 blur-2xl rounded-[40px] transition-all duration-1000",
+                rankStyle.bg
+            )} />
         </div>
     );
 };
