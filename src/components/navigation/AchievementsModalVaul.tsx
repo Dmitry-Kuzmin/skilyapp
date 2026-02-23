@@ -45,23 +45,25 @@ export function AchievementsModalVaul({
   }, []);
 
   const header = (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-8 pt-6 pb-4 border-b border-white/10 relative">
-      <div className="flex flex-col gap-1 pr-12">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-8 sm:pr-16 pt-6 pb-4 border-b border-white/10 relative">
+      <div className="flex flex-col gap-1 pr-4 sm:pr-0">
         <h2 className="text-xl font-bold text-foreground leading-tight">{title}</h2>
         {description && (
           <p className="text-sm text-muted-foreground line-clamp-1">{description}</p>
         )}
       </div>
 
-      <div className="flex shrink-0">
-        <AchievementsHeader
-          xp={xp}
-          level={level}
-          unlockedCount={stats.unlockedCount}
-          totalCount={stats.totalCount}
-          completionPercent={stats.completionPercent}
-          isCompact={true}
-        />
+      <div className="flex shrink-0 w-full sm:w-auto overflow-hidden">
+        <div className="w-full">
+          <AchievementsHeader
+            xp={xp}
+            level={level}
+            unlockedCount={stats.unlockedCount}
+            totalCount={stats.totalCount}
+            completionPercent={stats.completionPercent}
+            isCompact={true}
+          />
+        </div>
       </div>
     </div>
   );
