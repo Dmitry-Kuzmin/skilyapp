@@ -260,7 +260,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                             onClick={() => setIsPointsModalOpen(false)}
                             className="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-2xl font-bold text-[10px] md:text-xs tracking-widest uppercase transition-all hover:scale-105 active:scale-95 border border-white/10"
                         >
-                            {t('common.close') || 'Понятно'}
+                            {t('common.close').toUpperCase() === 'COMMON.CLOSE' ? 'ПОНЯТНО' : t('common.close')}
                         </button>
                     </div>
                 )}
@@ -295,29 +295,11 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                         </h2>
                     </div>
 
-                    {/* Interactive Points Indicator (Top Right) */}
-                    <button
-                        onClick={() => setIsPointsModalOpen(true)}
-                        className={cn(
-                            "shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full flex flex-col items-center justify-center relative overflow-hidden group/points border-[3px] transition-all hover:scale-110 hover:rotate-3 active:scale-95 shadow-lg cursor-pointer ml-3",
-                            rankStyle.border,
-                            isDarkTheme ? "bg-zinc-950/80" : "bg-white"
-                        )}>
-                        <div className={cn("absolute inset-0 opacity-20 group-hover/points:opacity-40 transition-opacity", rankStyle.bg)} />
-
-                        {/* Shimmering highlight for interactiveness */}
-                        <div className="absolute inset-[-4px] rounded-full border border-transparent bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover/points:animate-[shimmer_1.5s_infinite] opacity-50" />
-
-                        <span className={cn("text-lg md:text-xl font-black leading-none relative z-10", rankStyle.text)}>
-                            {points}
-                        </span>
-                        <div className="flex items-center gap-0.5 mt-0.5 relative z-10">
-                            <span className={cn("text-[6px] md:text-[7px] font-bold tracking-widest uppercase opacity-70", rankStyle.text)}>
-                                PTS
-                            </span>
-                            <Info size={8} className={cn("opacity-70", rankStyle.text)} />
-                        </div>
-                    </button>
+                    {/* Laser Hologram Shield */}
+                    <div className="shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-cyan-400/20 via-fuchsia-500/20 to-yellow-400/20 backdrop-blur-md border border-white/20 flex items-center justify-center relative overflow-hidden group/holo ml-auto">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover/holo:animate-[shimmer_1.5s_infinite]" />
+                        <ShieldCheck size={18} className={isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-indigo-500"} />
+                    </div>
                 </div>
 
                 {/* Content Section */}
@@ -400,6 +382,30 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Interactive Large Points Indicator */}
+                            <button
+                                onClick={() => setIsPointsModalOpen(true)}
+                                className={cn(
+                                    "shrink-0 w-16 h-16 md:w-[72px] md:h-[72px] rounded-full flex flex-col items-center justify-center relative overflow-hidden group/points border-[4px] transition-all duration-300 hover:scale-[1.05] active:scale-95 shadow-2xl cursor-pointer ml-auto translate-y-1 md:translate-y-2 translate-x-1 md:translate-x-2",
+                                    rankStyle.border,
+                                    isDarkTheme ? "bg-zinc-950/90" : "bg-white"
+                                )}>
+                                <div className={cn("absolute inset-0 opacity-[0.15] group-hover/points:opacity-30 transition-opacity", rankStyle.bg)} />
+
+                                {/* Shimmering highlight for interactiveness */}
+                                <div className="absolute inset-[-4px] rounded-full border border-transparent bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover/points:animate-[shimmer_1.5s_infinite] opacity-50" />
+
+                                <span className={cn("text-2xl md:text-3xl font-black leading-none relative z-10", rankStyle.text)}>
+                                    {points}
+                                </span>
+                                <div className="flex items-center gap-0.5 mt-0.5 relative z-10">
+                                    <span className={cn("text-[7px] md:text-[8px] font-bold tracking-widest uppercase opacity-70", rankStyle.text)}>
+                                        PTS
+                                    </span>
+                                    <Info size={10} className={cn("opacity-70", rankStyle.text)} />
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
