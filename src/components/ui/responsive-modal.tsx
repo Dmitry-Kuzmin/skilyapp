@@ -97,22 +97,22 @@ export function ResponsiveModal({
           }}
         >
           <div className="flex-1 flex flex-col w-full bg-background/95 backdrop-blur-xl overflow-hidden rounded-t-[32px]">
-            {/* Header */}
-            {headerContent && (
-              <div className="shrink-0">
-                {headerContent}
-              </div>
-            )}
-
+            {/* Header Tray */}
             {title && (
-              <DrawerHeader className="text-left shrink-0 border-b border-white/10 pb-3 px-8">
-                <DrawerTitle className="text-foreground">{title}</DrawerTitle>
+              <DrawerHeader className="text-left shrink-0 pb-2 px-8">
+                <DrawerTitle className="text-foreground text-xl font-bold">{title}</DrawerTitle>
                 {description && (
                   <DrawerDescription className="text-muted-foreground">
                     {description}
                   </DrawerDescription>
                 )}
               </DrawerHeader>
+            )}
+
+            {headerContent && (
+              <div className="shrink-0">
+                {headerContent}
+              </div>
             )}
 
             {/* Scrollable content */}
@@ -152,23 +152,27 @@ export function ResponsiveModal({
           "shadow-[0_8px_40px_rgba(0,0,0,0.2)]",
           className
         )}
-        hideCloseButton={hideCloseButton || !!headerContent}
+        hideCloseButton={hideCloseButton}
         preventClose={preventClose}
       >
-        {headerContent ? (
-          <div className="shrink-0 relative">
-            {headerContent}
-          </div>
-        ) : title ? (
-          <DialogHeader className="shrink-0 px-8 pt-5 pb-4 border-b border-white/10">
-            <DialogTitle className="text-foreground">{title}</DialogTitle>
+        {title && (
+          <DialogHeader className={cn(
+            "shrink-0 px-8 pt-6 relative",
+            !headerContent && "pb-4 border-b border-white/10"
+          )}>
+            <DialogTitle className="text-xl font-bold text-foreground">{title}</DialogTitle>
             {description && (
               <DialogDescription className="text-muted-foreground">
                 {description}
               </DialogDescription>
             )}
           </DialogHeader>
-        ) : null}
+        )}
+        {headerContent && (
+          <div className="shrink-0 relative z-10">
+            {headerContent}
+          </div>
+        )}
         <div
           className={cn(
             "flex-1 overflow-y-auto min-h-0",
