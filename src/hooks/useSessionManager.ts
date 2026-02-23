@@ -32,7 +32,7 @@ export function useSessionManager() {
   const loadSavedToken = useCallback(() => {
     const storageKey = getStorageKey();
     if (!storageKey) return null;
-    
+
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
@@ -57,7 +57,7 @@ export function useSessionManager() {
   const saveToken = useCallback((token: string) => {
     const storageKey = getStorageKey();
     if (!storageKey) return;
-    
+
     try {
       localStorage.setItem(storageKey, JSON.stringify({
         token,
@@ -96,7 +96,7 @@ export function useSessionManager() {
   // Создаем или обновляем сессию
   const createSession = useCallback(async () => {
     if (!profileId || !deviceInfo || !isRegistered) return;
-    
+
     // Предотвращаем повторную инициализацию
     if (hasInitializedRef.current && sessionTokenRef.current) {
       return;
@@ -128,16 +128,16 @@ export function useSessionManager() {
     // КРИТИЧНО: Fire-and-Forget - не блокируем UI ожиданием ответа
     // Сессия создается в фоне, пользователь видит интерфейс мгновенно
     hasInitializedRef.current = true; // Помечаем как инициализированную сразу
-    
+
     supabase.functions.invoke('manage-session', {
-        body: {
-          action: 'create',
-          user_id: profileId,
-          device_fingerprint: deviceInfo.fingerprint,
-          session_token: token,
-          user_agent: deviceInfo.userAgent,
-          platform: deviceInfo.platform,
-        },
+      body: {
+        action: 'create',
+        user_id: profileId,
+        device_fingerprint: deviceInfo.fingerprint,
+        session_token: token,
+        user_agent: deviceInfo.userAgent,
+        platform: deviceInfo.platform,
+      },
     }).then(({ data, error }) => {
       if (error) {
         console.warn('[SessionManager] Ошибка создания сессии (продолжаем работу):', error);
@@ -149,14 +149,15 @@ export function useSessionManager() {
       // 2. И это действительно новый токен (не восстановленный)
       // 3. И закрытые сессии были с ДРУГОГО устройства (не с того же)
       if (
-        data?.previous_sessions_closed > 0 && 
-        isNewToken && 
+        data?.previous_sessions_closed > 0 &&
+        isNewToken &&
         !data?.closed_same_device
       ) {
         // Закрыты сессии с другого устройства - показываем уведомление
         toast.info('Вход выполнен с нового устройства', {
           description: 'Предыдущая сессия была завершена',
           duration: 5000,
+          id: 'new-session-started',
         });
       }
     }).catch((err) => {
@@ -171,11 +172,11 @@ export function useSessionManager() {
 
     // Отправляем в фоне, не ждем ответа
     supabase.functions.invoke('manage-session', {
-        body: {
-          action: 'update',
-          user_id: profileId,
-          session_token: sessionTokenRef.current,
-        },
+      body: {
+        action: 'update',
+        user_id: profileId,
+        session_token: sessionTokenRef.current,
+      },
     }).catch((err) => {
       console.error('[SessionManager] Ошибка обновления сессии:', err);
     });
@@ -204,8 +205,9 @@ export function useSessionManager() {
         toast.warning('Сессия завершена', {
           description: 'Вход выполнен с другого устройства',
           duration: 5000,
+          id: 'session-terminated',
         });
-        
+
         // КРИТИЧНО: Используем navigate вместо reload - это предотвращает спонтанные перезагрузки
         // Перенаправляем на страницу авторизации
         navigate('/');

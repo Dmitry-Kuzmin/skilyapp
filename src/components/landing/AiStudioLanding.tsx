@@ -9,7 +9,7 @@ import {
   Smartphone,
   Crown,
   Car,
-  Infinity,
+  Infinity as InfinityIcon,
   Globe,
   Bike,
   Bus,
@@ -102,17 +102,17 @@ const DEMO_VARIANTS = {
 const FEATURE_PILLS = {
   ru: [
     { icon: Zap, text: 'Мгновенный ответ', color: 'text-yellow-400' },
-    { icon: Infinity, text: 'Бесконечное терпение', color: 'text-blue-400' },
+    { icon: InfinityIcon, text: 'Бесконечное терпение', color: 'text-blue-400' },
     { icon: Globe, text: 'Понятный язык', color: 'text-emerald-400' }
   ],
   es: [
     { icon: Zap, text: 'Respuesta instantánea', color: 'text-yellow-400' },
-    { icon: Infinity, text: 'Paciencia infinita', color: 'text-blue-400' },
+    { icon: InfinityIcon, text: 'Paciencia infinita', color: 'text-blue-400' },
     { icon: Globe, text: 'Traducción nativa', color: 'text-emerald-400' }
   ],
   en: [
     { icon: Zap, text: 'Instant Answer', color: 'text-yellow-400' },
-    { icon: Infinity, text: 'Infinite Patience', color: 'text-blue-400' },
+    { icon: InfinityIcon, text: 'Infinite Patience', color: 'text-blue-400' },
     { icon: Globe, text: 'Native Translation', color: 'text-emerald-400' }
   ]
 };
@@ -394,7 +394,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
     if (referrerInfo) {
       setAvatarError(false);
     }
-  }, [referrerInfo?.photo_url]);
+  }, [referrerInfo?.photo_url, referrerInfo]);
   const navigate = useNavigate();
   const copy = landingTranslations[language];
 
@@ -446,7 +446,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
       ></div>
       <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none z-0"></div>
 
-      <nav className="relative z-[100] px-4 md:px-10 py-4 md:py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
+      <nav className="relative z-[100] px-4 md:px-10 pt-[max(1rem,env(safe-area-inset-top))] pb-4 md:pb-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
         {/* Left Side: Brand + Location */}
         <div className="flex items-center gap-0 md:gap-4" style={{ overflow: 'visible', position: 'relative' }}>
           <LandingLogo theme="dark" variant="bold" className="scale-75 md:scale-90 origin-left -mr-5 md:mr-0" />

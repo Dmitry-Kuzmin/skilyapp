@@ -1,18 +1,6 @@
--- Add bot_name and name columns to duel_players table
--- These columns are used by the duel-manager Edge Function to store bot names
--- Fixes error: "Could not find the 'bot_name' column of 'duel_players' in the schema cache"
-
--- Add bot_name column (nullable, only for bots)
-ALTER TABLE public.duel_players 
-ADD COLUMN IF NOT EXISTS bot_name TEXT;
-
--- Add name column (nullable, for compatibility)
-ALTER TABLE public.duel_players 
-ADD COLUMN IF NOT EXISTS name TEXT;
-
--- Add comment explaining the columns
-COMMENT ON COLUMN public.duel_players.bot_name IS 'Name of the bot player (only set when is_bot = true)';
-COMMENT ON COLUMN public.duel_players.name IS 'Display name of the player (for compatibility, can be used for both bots and users)';
+-- ========================================================
+-- ФУНКЦИЯ ПОЛУЧЕНИЯ ДОСТИЖЕНИЙ ПОЛЬЗОВАТЕЛЯ
+-- ========================================================
 -- Функция для получения всех достижений пользователя одним запросом
 -- Объединяет achievement_definitions с личным прогрессом пользователя
 CREATE OR REPLACE FUNCTION public.get_user_achievements(p_user_id UUID)
@@ -27,7 +15,7 @@ BEGIN
         jsonb_build_object(
             'id', COALESCE(a.id::TEXT, 'virtual-' || ad.id),
             'achievement_type', ad.id,
-            'title', COALESCE(a.title, ad.title_ru),
+            'title', COALESCE(a.title, ad.title_ru), -- actually translation will override this anyway
             'description', COALESCE(a.description, ad.description_ru),
             'unlocked', COALESCE(a.unlocked, false),
             'progress', COALESCE(a.progress, 0),
@@ -40,8 +28,7 @@ BEGIN
     )
     INTO v_result
     FROM public.achievement_definitions ad
-    LEFT JOIN public.achievements a 
-        ON ad.id = a.achievement_type AND a.user_id = p_user_id
+    LEFT JOIN public.achievements a ON ad.id = a.achievement_type AND a.user_id = p_user_id
     WHERE ad.is_active = true;
 
     RETURN COALESCE(v_result, '[]'::JSONB);

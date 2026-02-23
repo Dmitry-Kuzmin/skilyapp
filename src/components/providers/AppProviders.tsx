@@ -22,6 +22,16 @@ import { preloadPaddle } from "@/lib/paddle";
 import { useIdleInitialization } from "@/hooks/useIdleInitialization";
 import { GlobalSettingsManager } from "@/components/settings";
 import { Motion } from "@/components/optimized/Motion";
+import { useSessionManager } from "@/hooks/useSessionManager";
+
+/**
+ * Глобальный обработчик сессий.
+ * Должен находиться внутри UserProvider.
+ */
+const SessionHandler = () => {
+  useSessionManager();
+  return null;
+};
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -146,6 +156,7 @@ export function AppProviders({ children }: AppProvidersProps) {
       <TooltipProvider>
 
         <UserProvider>
+          <SessionHandler />
           <NotificationProvider>
             <PDDProvider>
               <ReconnectHandler />

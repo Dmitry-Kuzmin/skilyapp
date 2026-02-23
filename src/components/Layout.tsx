@@ -21,7 +21,6 @@ import { WalletWidget } from "./navigation/WalletWidget";
 import { AchievementsWidget } from "./navigation/AchievementsWidget";
 import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
-import { useSessionManager } from "@/hooks/useSessionManager";
 import { supabase } from "@/integrations/supabase/client";
 import { ReferralModal } from "./ReferralModal";
 import { EdgeSwipeBack } from "./navigation/EdgeSwipeBack";
@@ -136,8 +135,6 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
     glassThreshold: 10,
   });
 
-  // Управление сессиями (только 1 активная сессия одновременно)
-  useSessionManager();
 
 
   // Ensure the startup curtain is lifted when the layout mounts

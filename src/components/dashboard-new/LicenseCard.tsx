@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info } from 'lucide-react';
+import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LicenseCardProps {
@@ -254,28 +254,6 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                 {RecoveryOverlay}
 
-                {/* Points Info Modal */}
-                {isPointsModalOpen && (
-                    <div className="absolute inset-0 z-[70] bg-[#0F1014]/90 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-300 rounded-[28px] md:rounded-[36px]">
-                        <div className={cn("w-16 h-16 md:w-20 md:h-20 rounded-full flex flex-col items-center justify-center mb-4 border-4 shadow-2xl space-y-1", rankStyle.border, rankStyle.bg)}>
-                            <span className={cn("text-2xl md:text-3xl font-black leading-none", rankStyle.text)}>{points}</span>
-                            <span className={cn("text-[8px] md:text-[10px] font-black opacity-60", rankStyle.text)}>/ 15</span>
-                        </div>
-                        <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter mb-2">{localeConfig.fields.pointsLabel}</h3>
-                        <p className="text-xs md:text-sm text-zinc-300 font-medium leading-relaxed max-w-sm mb-6">
-                            {countryCode === 'RUS'
-                                ? 'Штрафные баллы отражают вашу готовность. Избегайте частых ошибок в билетах, иначе права могут быть приостановлены (при достижении 0).'
-                                : 'Баллы квалификации показывают ваш уровень. Ошибки в тестах могут привести к лишению, поэтому будьте внимательны.'}
-                        </p>
-                        <button
-                            onClick={() => setIsPointsModalOpen(false)}
-                            className="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-2xl font-bold text-[10px] md:text-xs tracking-widest uppercase transition-all hover:scale-105 active:scale-95 border border-white/10"
-                        >
-                            {t('common.close').toUpperCase() === 'COMMON.CLOSE' ? 'ПОНЯТНО' : t('common.close')}
-                        </button>
-                    </div>
-                )}
-
                 {/* Official Header */}
                 <div className={cn(
                     "relative z-10 flex flex-row items-center px-4 md:px-6 py-2 md:py-3 border-b",
@@ -369,24 +347,46 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                 <button
                                     onClick={() => setIsPointsModalOpen(true)}
                                     className={cn(
-                                        "w-[64px] h-[64px] md:w-[90px] md:h-[90px] rounded-full flex flex-col items-center justify-center relative overflow-hidden group/points border-[5px] md:border-[6px] transition-all duration-300 hover:scale-[1.05] active:scale-95 shadow-[0_10px_30px_rgba(0,0,0,0.3)] cursor-pointer drop-shadow-2xl",
-                                        rankStyle.border,
-                                        isDarkTheme ? "bg-zinc-950/90" : "bg-white"
+                                        "w-[54px] h-[54px] md:w-[72px] md:h-[72px] rounded-full flex flex-col items-center justify-center relative group/points transition-all duration-500 hover:scale-[1.05] active:scale-95 cursor-pointer animate-in zoom-in-50 fade-in duration-1000",
+                                        isDarkTheme ? "bg-zinc-950/40" : "bg-white/20"
                                     )}>
-                                    <div className={cn("absolute inset-0 opacity-[0.25] group-hover/points:opacity-40 transition-opacity", rankStyle.bg)} />
 
-                                    {/* Shimmering highlight for interactiveness */}
-                                    <div className="absolute inset-[-4px] rounded-full border border-transparent bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover/points:animate-[shimmer_1.5s_infinite] opacity-50" />
+                                    {/* Radial Progress Circle */}
+                                    <svg className="absolute inset-0 w-full h-full -rotate-90 transform z-0" viewBox="0 0 100 100">
+                                        <circle
+                                            cx="50" cy="50" r="46"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            className={cn("opacity-[0.1]", rankStyle.text)}
+                                        />
+                                        <circle
+                                            cx="50" cy="50" r="46"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="3.5"
+                                            strokeDasharray={2 * Math.PI * 46}
+                                            strokeDashoffset={2 * Math.PI * 46 * (1 - Math.min(points / 15, 1))}
+                                            strokeLinecap="round"
+                                            className={cn("transition-all duration-[1500ms] cubic-bezier(0.4, 0, 0.2, 1)", rankStyle.text)}
+                                            style={{ filter: `drop-shadow(0 0 3px ${rankStyle.accent})` }}
+                                        />
+                                    </svg>
 
-                                    <span className={cn("text-2xl md:text-[38px] font-black leading-none relative z-10", rankStyle.text)}>
-                                        {points}
-                                    </span>
-                                    <div className="flex items-center gap-0.5 mt-0 md:mt-1 relative z-10">
-                                        <span className={cn("text-[8px] md:text-[10px] font-black tracking-[0.1em] uppercase opacity-90", rankStyle.text)}>
-                                            PUNTOS
+                                    <div className="flex flex-col items-center justify-center relative z-30">
+                                        <span className={cn("text-lg md:text-2xl font-black leading-none tracking-tighter", rankStyle.text)}>
+                                            {points}
                                         </span>
+                                        <div className="flex flex-col items-center mt-0.5">
+                                            <span className={cn("text-[6px] md:text-[8px] font-black tracking-[0.1em] uppercase opacity-60", rankStyle.text)}>
+                                                PUNTOS
+                                            </span>
+                                        </div>
                                     </div>
-                                    <Info size={10} className={cn("absolute bottom-1.5 opacity-60", rankStyle.text)} />
+
+                                    <div className={cn("absolute bottom-1 md:bottom-1.5 opacity-20 group-hover:opacity-100 transition-opacity", rankStyle.text)}>
+                                        <HelpCircle size={7} className="md:w-2.5 md:h-2.5" />
+                                    </div>
                                 </button>
                             </div>
                         </div>
@@ -401,37 +401,78 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                         isDarkTheme ? "text-indigo-200/50" : "text-black/40"
                                     )}>{localeConfig.fields.cat}</span>
                                     <div className={cn(
-                                        "w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center border-2 font-black text-sm sm:text-base shadow-lg",
-                                        isDarkTheme ? "bg-zinc-900 border-zinc-700 text-white" : "bg-white border-zinc-200 text-slate-800"
+                                        "px-2 py-0.5 rounded-md border text-[10px] font-black",
+                                        isDarkTheme ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border-indigo-200 text-indigo-700"
                                     )}>
                                         B
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Streak */}
-                                <div className="flex flex-col ml-1">
-                                    <span className={cn(
-                                        "text-[7px] sm:text-[9px] font-bold tracking-tight mb-1",
-                                        isDarkTheme ? "text-indigo-200/50" : "text-black/40"
-                                    )}>{localeConfig.fields.streak}</span>
-                                    <div className="flex items-center gap-1.5 h-8 sm:h-10 px-3 border border-white/5 rounded-xl bg-white/5 backdrop-blur-md">
-                                        <span className={cn("text-xs sm:text-sm font-black", isDarkTheme ? "text-zinc-100" : "text-slate-800")}>
-                                            {stats.currentStreak}
-                                        </span>
-                                    </div>
+                            {/* Verification Sign */}
+                            <div className="flex flex-col items-center justify-center opacity-40 grayscale">
+                                <span className={cn(
+                                    "text-[6px] font-bold uppercase mb-1",
+                                    isDarkTheme ? "text-white" : "text-black"
+                                )}>VERIFIED</span>
+                                <div className="w-8 h-8 rounded-full border-2 border-dashed border-current flex items-center justify-center">
+                                    <CheckCircle2 size={12} />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Beautiful Neon Edge line bounding the bottom */}
-                <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-black/20">
+                {/* Bottom Neon Edge Line */}
+                <div className="absolute bottom-0 left-0 h-[2px] w-full bg-white/5 overflow-hidden">
                     <div
-                        className={cn("h-full transition-all duration-1000", rankStyle.badge)}
-                        style={{ width: `${Math.min((points / 15) * 100, 100)}%` }}
+                        className={cn("h-full transition-all duration-[2000ms] shadow-[0_0_10px_2px_rgba(255,255,255,0.3)]", rankStyle.badge.split(' ')[0])}
+                        style={{ width: `${(points / 15) * 100}%` }}
                     />
                 </div>
+
+                {/* Points Info Modal - Improved backdrop and stacking */}
+                {isPointsModalOpen && (
+                    <div className="absolute inset-0 z-[100] flex items-center justify-center animate-in fade-in duration-300 rounded-[28px] md:rounded-[36px] overflow-hidden">
+                        {/* Internal backdrop to ensure card content is completely hidden */}
+                        <div className="absolute inset-0 bg-zinc-950/90 backdrop-blur-2xl" />
+
+                        <div className="w-full max-w-[280px] md:max-w-sm space-y-4 relative z-10 p-4 md:p-6 text-center animate-in zoom-in-95 duration-400">
+                            <div className="relative inline-block">
+                                <div className={cn("w-14 h-14 md:w-16 md:h-16 rounded-full flex flex-col items-center justify-center border-2 shadow-2xl relative z-20", rankStyle.border, rankStyle.bg)}>
+                                    <span className={cn("text-xl md:text-2xl font-black leading-none", rankStyle.text)}>{points}</span>
+                                    <span className={cn("text-[8px] md:text-[9px] font-black opacity-40", rankStyle.text)}>MAX 15</span>
+                                </div>
+                                <div className={cn("absolute -inset-3 blur-xl opacity-20", rankStyle.bg)} />
+                            </div>
+
+                            <div className="space-y-1">
+                                <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tighter">{localeConfig.fields.pointsLabel}</h3>
+                                <div className={cn("inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider", points >= 10 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20")}>
+                                    {points >= 10 ? <ShieldCheck size={10} /> : <AlertTriangle size={10} />}
+                                    {points >= 10 ? "Допуск открыт" : "Нужно 10 баллов"}
+                                </div>
+                            </div>
+
+                            <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2 text-left">
+                                <div className="flex items-center justify-between text-[9px] uppercase tracking-widest font-black text-zinc-500">
+                                    <span>Как это работает</span>
+                                    <Zap size={9} className="text-amber-500" />
+                                </div>
+                                <p className="text-[10px] md:text-[11px] text-zinc-400 leading-relaxed">
+                                    <span className="text-emerald-400">+1</span> за вход и победы. <span className="text-rose-400">-1</span> за ошибки и пропуск 48ч. Наберите <span className="text-zinc-200">10 баллов</span> для сдачи экзамена.
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => setIsPointsModalOpen(false)}
+                                className="w-full bg-white text-black py-2.5 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all hover:bg-zinc-200 active:scale-[0.95]"
+                            >
+                                {t('common.close').toUpperCase() === 'COMMON.CLOSE' ? 'ОК' : t('common.close')}
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Ambient Background Glow matching the rank */}

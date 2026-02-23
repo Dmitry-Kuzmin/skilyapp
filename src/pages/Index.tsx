@@ -369,16 +369,43 @@ const Index = memo(function Index() {
         <p className="text-zinc-400 mb-8 max-w-sm">
           Не удалось верифицировать вашу сессию. Авторизация отклонена сервером или сессия устарела.
         </p>
-        <button
-          onClick={() => {
-            // Очищаем токен локально на всякий случай
-            localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
-            window.location.reload();
-          }}
-          className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all rounded-xl font-bold uppercase tracking-widest text-xs"
-        >
-          Перезагрузить
-        </button>
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <button
+            onClick={() => {
+              window.location.reload();
+            }}
+            className="w-full px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all rounded-xl font-bold uppercase tracking-widest text-xs"
+          >
+            Попробовать снова
+          </button>
+          <button
+            onClick={async () => {
+              // НОЯБРЬСКАЯ ЗАЩИТА: Полная очистка всего, что может мешать
+              console.log("[Index] Nuclear session reset...");
+              localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+              localStorage.removeItem('telegram_token');
+              localStorage.removeItem('puzzle_user');
+
+              // Очищаем куки
+              document.cookie.split(";").forEach((c) => {
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+              });
+
+              // Пытаемся выйти через Supabase если клиент жив
+              try {
+                const { supabase } = await import("@/integrations/supabase/client");
+                await supabase.auth.signOut();
+              } catch (e) {
+                console.warn("Supabase signOut failed, continuing with reload");
+              }
+
+              window.location.replace('/');
+            }}
+            className="w-full px-8 py-3 bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition-all rounded-xl font-bold uppercase tracking-widest text-xs text-zinc-400"
+          >
+            Сбросить сессию и выйти
+          </button>
+        </div>
       </div>
     );
   }

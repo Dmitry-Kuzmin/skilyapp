@@ -480,6 +480,37 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 </button>
               </div>
             </div>
+
+            {/* Logout / Reset */}
+            <div className="pt-2 flex items-center justify-between gap-2 opacity-60 hover:opacity-100 transition-opacity">
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-red-500 transition-colors p-1"
+              >
+                <LogOut className="h-3 w-3" />
+                {t('logout') || 'Выйти'}
+              </button>
+
+              <button
+                onClick={() => {
+                  if (confirm('Это полностью сбросит кэш и настройки приложения. Помогает при ошибках входа. Продолжить?')) {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    // Clear cookies
+                    document.cookie.split(";").forEach((c) => {
+                      document.cookie = c
+                        .replace(/^ +/, "")
+                        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                    });
+                    window.location.href = '/';
+                  }
+                }}
+                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-orange-500 transition-colors p-1"
+              >
+                <Zap className="h-3 w-3" />
+                Nuclear Reset
+              </button>
+            </div>
           </div>
         </PopoverContent>
       </Popover>

@@ -10,7 +10,7 @@ import {
   Smartphone,
   Crown,
   Car,
-  Infinity,
+  Infinity as InfinityIcon,
   Globe,
   Bike,
   Bus,
@@ -110,17 +110,17 @@ const DEMO_VARIANTS = {
 const FEATURE_PILLS = {
   ru: [
     { icon: Zap, text: 'Без зубрежки', color: 'text-yellow-400' },
-    { icon: Infinity, text: 'Разбор ловушек', color: 'text-blue-400' },
+    { icon: InfinityIcon, text: 'Разбор ловушек', color: 'text-blue-400' },
     { icon: Globe, text: 'Простым языком', color: 'text-emerald-400' }
   ],
   es: [
     { icon: Zap, text: 'Respuesta instantánea', color: 'text-yellow-400' },
-    { icon: Infinity, text: 'Paciencia infinita', color: 'text-blue-400' },
+    { icon: InfinityIcon, text: 'Paciencia infinita', color: 'text-blue-400' },
     { icon: Globe, text: 'Traducción nativa', color: 'text-emerald-400' }
   ],
   en: [
     { icon: Zap, text: 'Instant Answer', color: 'text-yellow-400' },
-    { icon: Infinity, text: 'Infinite Patience', color: 'text-blue-400' },
+    { icon: InfinityIcon, text: 'Infinite Patience', color: 'text-blue-400' },
     { icon: Globe, text: 'Native Translation', color: 'text-emerald-400' }
   ]
 };
@@ -498,7 +498,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         }}
       ></div>
 
-      <nav className="relative z-[100] px-4 md:px-10 py-4 md:py-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
+      <nav className="relative z-[100] px-6 md:px-12 pt-[max(2rem,env(safe-area-inset-top))] pb-4 md:pb-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
         {/* Left Side: Brand + Location */}
         <div className="flex items-center gap-0 md:gap-4" style={{ overflow: 'visible', position: 'relative' }}>
           <LandingLogo

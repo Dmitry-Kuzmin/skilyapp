@@ -207,7 +207,7 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                 dismissible={true}
                 dismissibleThreshold={0.2} // Легкое закрытие - 20% свайпа достаточно
             >
-                <DrawerContent className="h-[92dvh] max-h-[92dvh] p-0 overflow-hidden">
+                <DrawerContent className="h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-white/10">
                     <MobileContent />
                 </DrawerContent>
             </Drawer>
@@ -218,9 +218,8 @@ export const UnifiedSettingsDrawer: React.FC = () => {
         <Dialog open={isOpen} onOpenChange={(open) => !open && closeSettings()}>
             <DialogContent
                 className="max-w-4xl p-0 gap-0 overflow-hidden 
-                           bg-white/90 dark:bg-slate-950/90 
-                           backdrop-blur-2xl backdrop-saturate-150
-                           border border-white/20 dark:border-white/15 
+                           bg-white dark:bg-[#0f172a] 
+                           border border-slate-200 dark:border-white/10 
                            shadow-2xl dark:shadow-[0_0_100px_-20px_rgba(0,0,0,0.5)]"
                 hideCloseButton
             >
