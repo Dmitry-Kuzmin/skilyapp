@@ -153,12 +153,23 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 badge: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white',
                 border: 'border-yellow-500'
             };
-        } else if (points < 8) {
+        } else if (points < 10 && points >= 5) {
             rankStyle = {
                 ...rankStyle,
-                text: 'text-orange-500',
-                badge: 'bg-orange-500 text-white',
-                border: 'border-orange-500'
+                accent: '#EAB308',
+                bg: 'bg-yellow-500/10',
+                text: 'text-yellow-600 dark:text-yellow-500',
+                badge: 'bg-gradient-to-r from-yellow-400 to-yellow-600 text-white',
+                border: 'border-yellow-500'
+            };
+        } else if (points < 5) {
+            rankStyle = {
+                ...rankStyle,
+                accent: '#F43F5E',
+                bg: 'bg-rose-500/10',
+                text: 'text-rose-500',
+                badge: 'bg-rose-500 text-white',
+                border: 'border-rose-500'
             };
         }
 
@@ -358,7 +369,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                 <button
                                     onClick={() => setIsPointsModalOpen(true)}
                                     className={cn(
-                                        "w-[60px] h-[60px] md:w-[84px] md:h-[84px] rounded-full flex flex-col items-center justify-center relative overflow-hidden group/points border-[4px] transition-all duration-300 hover:scale-[1.05] active:scale-95 shadow-[0_10px_30px_rgba(0,0,0,0.3)] cursor-pointer drop-shadow-2xl",
+                                        "w-[64px] h-[64px] md:w-[90px] md:h-[90px] rounded-full flex flex-col items-center justify-center relative overflow-hidden group/points border-[5px] md:border-[6px] transition-all duration-300 hover:scale-[1.05] active:scale-95 shadow-[0_10px_30px_rgba(0,0,0,0.3)] cursor-pointer drop-shadow-2xl",
                                         rankStyle.border,
                                         isDarkTheme ? "bg-zinc-950/90" : "bg-white"
                                     )}>
@@ -367,15 +378,15 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     {/* Shimmering highlight for interactiveness */}
                                     <div className="absolute inset-[-4px] rounded-full border border-transparent bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover/points:animate-[shimmer_1.5s_infinite] opacity-50" />
 
-                                    <span className={cn("text-2xl md:text-[34px] font-black leading-none relative z-10", rankStyle.text)}>
+                                    <span className={cn("text-2xl md:text-[38px] font-black leading-none relative z-10", rankStyle.text)}>
                                         {points}
                                     </span>
-                                    <div className="flex items-center gap-0.5 mt-[2px] md:mt-1 relative z-10">
-                                        <span className={cn("text-[7px] md:text-[9px] font-black tracking-[0.15em] uppercase opacity-80", rankStyle.text)}>
-                                            PTS
+                                    <div className="flex items-center gap-0.5 mt-0 md:mt-1 relative z-10">
+                                        <span className={cn("text-[8px] md:text-[10px] font-black tracking-[0.1em] uppercase opacity-90", rankStyle.text)}>
+                                            PUNTOS
                                         </span>
-                                        <Info size={10} className={cn("opacity-80", rankStyle.text)} />
                                     </div>
+                                    <Info size={10} className={cn("absolute bottom-1.5 opacity-60", rankStyle.text)} />
                                 </button>
                             </div>
                         </div>
