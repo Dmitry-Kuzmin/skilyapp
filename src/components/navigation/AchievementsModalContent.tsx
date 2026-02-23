@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Sparkles, Trophy, Star, Zap, Target, Award, Crown, CheckCircle2, Lock, Flag, Camera, BookOpen, Calendar, Users, CheckSquare, Lightbulb } from "lucide-react";
+import { Sparkles, Trophy, Star, Zap, Target, Award, Crown, CheckCircle2, Lock, Flag, Camera, BookOpen, Calendar, Users, CheckSquare, Lightbulb, LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,6 +9,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 
 const XP_PER_LEVEL = 225;
+
+const CARD_PALETTES = [
+  { border: 'border-indigo-500/50', bg: 'from-indigo-500/20 via-indigo-500/5', shadow: 'shadow-[0_8px_30px_rgba(99,102,241,0.2)]', text: 'text-indigo-400', tag: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300' },
+  { border: 'border-emerald-500/50', bg: 'from-emerald-500/20 via-emerald-500/5', shadow: 'shadow-[0_8px_30px_rgba(16,185,129,0.2)]', text: 'text-emerald-400', tag: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300' },
+  { border: 'border-rose-500/50', bg: 'from-rose-500/20 via-rose-500/5', shadow: 'shadow-[0_8px_30px_rgba(244,63,110,0.2)]', text: 'text-rose-400', tag: 'bg-rose-500/15 border-rose-500/30 text-rose-300' },
+  { border: 'border-amber-500/50', bg: 'from-amber-500/20 via-amber-500/5', shadow: 'shadow-[0_8px_30px_rgba(245,158,11,0.2)]', text: 'text-amber-400', tag: 'bg-amber-500/15 border-amber-500/30 text-amber-300' },
+  { border: 'border-cyan-500/50', bg: 'from-cyan-500/20 via-cyan-500/5', shadow: 'shadow-[0_8px_30px_rgba(6,182,212,0.2)]', text: 'text-cyan-400', tag: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300' },
+  { border: 'border-fuchsia-500/50', bg: 'from-fuchsia-500/20 via-fuchsia-500/5', shadow: 'shadow-[0_8px_30px_rgba(217,70,239,0.2)]', text: 'text-fuchsia-400', tag: 'bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-300' }
+];
 
 interface Achievement {
   id: string;
@@ -29,7 +38,7 @@ interface AchievementsModalContentProps {
   xpToNextLevel: number;
 }
 
-const categoryIcons: Record<string, any> = {
+const categoryIcons: Record<string, LucideIcon> = {
   beginner: Star,
   master: Crown,
   streak: Zap,
@@ -39,7 +48,7 @@ const categoryIcons: Record<string, any> = {
   other: Trophy
 };
 
-const achievementIcons: Record<string, any> = {
+const achievementIcons: Record<string, LucideIcon> = {
   Trophy: Trophy,
   Flag: Flag,
   Camera: Camera,
@@ -194,8 +203,8 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                   <span className="font-semibold text-primary">{Math.round(categoryPercent)}%</span>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {sortedAchievements.map((achievement) => {
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {sortedAchievements.map((achievement, index) => {
                   const isUnlocked = achievement.unlocked;
                   const percent = Math.min(
                     100,
@@ -204,58 +213,77 @@ export const AchievementsModalContent = ({ xp, level, xpToNextLevel }: Achieveme
                   // Получаем переведенные данные (тип достижения используется как ключ в ru.ts)
                   const translatedTitle = t(`achievementsModal.list.${achievement.achievement_type}.title`) || achievement.title;
                   const translatedDesc = t(`achievementsModal.list.${achievement.achievement_type}.description`) || achievement.description;
+                  const palette = CARD_PALETTES[index % CARD_PALETTES.length];
 
                   return (
                     <Card
                       key={achievement.id}
                       className={cn(
-                        "p-4 border relative overflow-hidden transition-all",
+                        "p-5 rounded-2xl border relative overflow-hidden transition-all duration-500 h-full flex flex-col justify-between",
                         isUnlocked
-                          ? "border-primary/50 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent shadow-[0_10px_30px_rgba(79,70,229,0.25)]"
-                          : "border-border/50 bg-card/60 backdrop-blur-sm opacity-80"
+                          ? `${palette.border} bg-gradient-to-br ${palette.bg} to-transparent ${palette.shadow} hover:-translate-y-1 hover:scale-[1.02] cursor-pointer`
+                          : "border-border/40 bg-card/40 backdrop-blur-sm opacity-80 grayscale-[0.2]"
                       )}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="z-10">
-                          <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div className="z-10 flex-1">
+                          <div className="flex items-center gap-2 mb-2">
                             {isUnlocked ? (
-                              <CheckCircle2 className="w-5 h-5 text-primary drop-shadow-lg" />
+                              <div className={cn("p-1.5 rounded-full border border-white/10 shrink-0", palette.tag)}>
+                                <CheckCircle2 className="w-5 h-5 drop-shadow-md" />
+                              </div>
                             ) : (
-                              <Lock className="w-4 h-4 text-muted-foreground/80" />
+                              <div className="p-1.5 rounded-full bg-muted/50 border border-white/5 shrink-0">
+                                <Lock className="w-4 h-4 text-muted-foreground/60" />
+                              </div>
                             )}
-                            <span className="text-sm font-semibold">
+                            <span className={cn(
+                              "text-[15px] font-black tracking-tight leading-tight",
+                              isUnlocked ? "text-white" : "text-muted-foreground"
+                            )}>
                               {translatedTitle}
                             </span>
                           </div>
-                          <p className="text-xs text-muted-foreground mb-2">
+                          <p className="text-xs text-muted-foreground/90 font-medium leading-relaxed">
                             {translatedDesc}
                           </p>
                         </div>
-                        <div
-                          className={cn(
-                            "text-xs font-semibold px-2 py-0.5 rounded-full border z-10",
-                            isUnlocked
-                              ? "border-primary/50 bg-primary/15 text-primary"
-                              : "border-border/60 text-muted-foreground bg-muted/20"
-                          )}
-                        >
-                          {isUnlocked ? t('achievementsModal.unlocked') : `+${achievement.reward_xp ?? 0} XP`}
-                        </div>
                       </div>
-                      {!isUnlocked && (
-                        <div className="relative z-10">
-                          <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-3">
-                            <span>{t('achievementsModal.progressLabel')}</span>
-                            <span>{percent}% ({achievement.progress}/{achievement.max_progress})</span>
+
+                      <div className="mt-auto pt-4 relative z-10">
+                        {isUnlocked ? (
+                          <div
+                            className={cn(
+                              "text-[11px] font-bold px-3 py-1.5 rounded-xl border w-fit shadow-inner",
+                              palette.tag
+                            )}
+                          >
+                            Активировано
                           </div>
-                          <Progress value={percent} className="h-1.5 mt-1.5" />
-                        </div>
-                      )}
+                        ) : (
+                          <>
+                            <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground mb-1.5">
+                              <span className="uppercase tracking-wider">{t('achievementsModal.progressLabel')}</span>
+                              <span className="tabular-nums font-mono">{percent}%</span>
+                            </div>
+                            <Progress value={percent} className="h-2 rounded-full bg-muted/50" />
+                            <div className="flex justify-between items-center mt-3 pt-3 border-t border-white/5">
+                              <span className="text-[10px] uppercase font-bold text-muted-foreground/70">Награда</span>
+                              <div className="text-[11px] font-bold px-2 py-1 rounded-md bg-muted/30 text-muted-foreground border border-white/5">
+                                +{achievement.reward_xp ?? 0} XP
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
                       {isUnlocked && (
                         <>
-                          <div className="absolute inset-0 pointer-events-none bg-gradient-to-r from-primary/10 via-transparent to-transparent opacity-70" />
-                          <div className="absolute -right-2 -bottom-2 opacity-10">
-                            <Sparkles className="w-16 h-16 text-primary" />
+                          {/* Ambient abstract glows for unlocked cards */}
+                          <div className={cn("absolute -top-10 -right-10 w-32 h-32 blur-[40px] opacity-30 pointer-events-none rounded-full bg-gradient-to-r", palette.bg)} />
+                          <div className="absolute inset-0 pointer-events-none bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
+                          <div className={cn("absolute -right-3 -bottom-3 opacity-10 drop-shadow-2xl transform rotate-12 scale-110", palette.text)}>
+                            <Sparkles className="w-24 h-24" />
                           </div>
                         </>
                       )}

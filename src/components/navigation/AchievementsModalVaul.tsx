@@ -32,7 +32,7 @@ export function AchievementsModalVaul({
       onOpenChange={onClose}
       title={title}
       description={description}
-      className="max-w-2xl"
+      className="max-w-5xl"
       contentClassName="p-0" // Контент сам управляет отступами
     >
       <div className="p-4 sm:p-6">

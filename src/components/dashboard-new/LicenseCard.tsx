@@ -267,7 +267,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                 {/* Official Header */}
                 <div className={cn(
-                    "relative z-10 flex flex-row items-center px-4 md:px-6 py-3 md:py-4 border-b",
+                    "relative z-10 flex flex-row items-center px-4 md:px-6 py-2 md:py-3 border-b",
                     isDarkTheme ? "border-white/10 bg-white/[0.01]" : "border-indigo-900/10 bg-indigo-50/50"
                 )}>
                     {/* EU Flag Icon */}
@@ -303,12 +303,12 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 </div>
 
                 {/* Content Section */}
-                <div className="flex-1 p-4 md:p-6 flex flex-row gap-4 md:gap-6 z-10 relative mt-1 md:mt-2">
+                <div className="flex-1 p-3 md:p-5 flex flex-row gap-3 md:gap-5 z-10 relative mt-0 md:mt-1">
 
                     {/* User Photo Area */}
                     <div className="flex flex-col gap-2 shrink-0">
                         <div className={cn(
-                            "w-20 h-28 sm:w-24 sm:h-[136px] md:w-28 md:h-40 rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
+                            "w-20 h-28 sm:w-24 sm:h-[120px] md:w-[100px] md:h-[136px] rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
                             isDarkTheme ? "border-white/10 bg-black/40" : "border-slate-200/80 bg-slate-50"
                         )}>
                             {/* Face Recognition Guides */}
@@ -334,26 +334,54 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                     {/* Information Fields */}
                     <div className="flex-1 min-w-0 flex flex-col justify-between">
-                        <div className="grid grid-cols-1 gap-y-3 md:gap-y-4">
-                            <Field label={localeConfig.fields.name} value={fullName} />
+                        <div className="flex flex-row justify-between gap-2">
+                            <div className="grid grid-cols-1 gap-y-2 md:gap-y-3">
+                                <Field label={localeConfig.fields.name} value={fullName} />
 
-                            <div className="hidden sm:block">
-                                <Field label={localeConfig.fields.dob} value={localeConfig.fields.dobVal} />
+                                <div className="hidden sm:block">
+                                    <Field label={localeConfig.fields.dob} value={localeConfig.fields.dobVal} />
+                                </div>
+
+                                <Field
+                                    label={localeConfig.fields.issue}
+                                    value={localeConfig.fields.issueVal}
+                                />
+
+                                <div className="grid grid-cols-2 gap-3 md:gap-4">
+                                    <Field label={localeConfig.fields.issuer} value={localeConfig.fields.issuerVal} />
+                                    <Field label={localeConfig.fields.id} value={<span className="font-mono">{globalId}</span>} highlight />
+                                </div>
                             </div>
 
-                            <Field
-                                label={localeConfig.fields.issue}
-                                value={localeConfig.fields.issueVal}
-                            />
+                            {/* Interactive Large Points Indicator */}
+                            <div className="flex items-center justify-center shrink-0 pr-1 md:pr-4">
+                                <button
+                                    onClick={() => setIsPointsModalOpen(true)}
+                                    className={cn(
+                                        "w-[60px] h-[60px] md:w-[84px] md:h-[84px] rounded-full flex flex-col items-center justify-center relative overflow-hidden group/points border-[4px] transition-all duration-300 hover:scale-[1.05] active:scale-95 shadow-[0_10px_30px_rgba(0,0,0,0.3)] cursor-pointer drop-shadow-2xl",
+                                        rankStyle.border,
+                                        isDarkTheme ? "bg-zinc-950/90" : "bg-white"
+                                    )}>
+                                    <div className={cn("absolute inset-0 opacity-[0.25] group-hover/points:opacity-40 transition-opacity", rankStyle.bg)} />
 
-                            <div className="grid grid-cols-2 gap-3 md:gap-4">
-                                <Field label={localeConfig.fields.issuer} value={localeConfig.fields.issuerVal} />
-                                <Field label={localeConfig.fields.id} value={<span className="font-mono">{globalId}</span>} highlight />
+                                    {/* Shimmering highlight for interactiveness */}
+                                    <div className="absolute inset-[-4px] rounded-full border border-transparent bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover/points:animate-[shimmer_1.5s_infinite] opacity-50" />
+
+                                    <span className={cn("text-2xl md:text-[34px] font-black leading-none relative z-10", rankStyle.text)}>
+                                        {points}
+                                    </span>
+                                    <div className="flex items-center gap-0.5 mt-[2px] md:mt-1 relative z-10">
+                                        <span className={cn("text-[7px] md:text-[9px] font-black tracking-[0.15em] uppercase opacity-80", rankStyle.text)}>
+                                            PTS
+                                        </span>
+                                        <Info size={10} className={cn("opacity-80", rankStyle.text)} />
+                                    </div>
+                                </button>
                             </div>
                         </div>
 
                         {/* Bottom Row inside details */}
-                        <div className="mt-4 md:mt-auto pt-4 border-t border-white/10 dark:border-white/5 flex items-end justify-between gap-3">
+                        <div className="mt-3 md:mt-auto pt-3 border-t border-white/10 dark:border-white/5 flex items-end justify-between gap-3">
                             <div className="flex items-center gap-4">
                                 {/* Categories */}
                                 <div className="flex flex-col">
@@ -382,30 +410,6 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Interactive Large Points Indicator */}
-                            <button
-                                onClick={() => setIsPointsModalOpen(true)}
-                                className={cn(
-                                    "shrink-0 w-16 h-16 md:w-[72px] md:h-[72px] rounded-full flex flex-col items-center justify-center relative overflow-hidden group/points border-[4px] transition-all duration-300 hover:scale-[1.05] active:scale-95 shadow-2xl cursor-pointer ml-auto translate-y-1 md:translate-y-2 translate-x-1 md:translate-x-2",
-                                    rankStyle.border,
-                                    isDarkTheme ? "bg-zinc-950/90" : "bg-white"
-                                )}>
-                                <div className={cn("absolute inset-0 opacity-[0.15] group-hover/points:opacity-30 transition-opacity", rankStyle.bg)} />
-
-                                {/* Shimmering highlight for interactiveness */}
-                                <div className="absolute inset-[-4px] rounded-full border border-transparent bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover/points:animate-[shimmer_1.5s_infinite] opacity-50" />
-
-                                <span className={cn("text-2xl md:text-3xl font-black leading-none relative z-10", rankStyle.text)}>
-                                    {points}
-                                </span>
-                                <div className="flex items-center gap-0.5 mt-0.5 relative z-10">
-                                    <span className={cn("text-[7px] md:text-[8px] font-bold tracking-widest uppercase opacity-70", rankStyle.text)}>
-                                        PTS
-                                    </span>
-                                    <Info size={10} className={cn("opacity-70", rankStyle.text)} />
-                                </div>
-                            </button>
                         </div>
                     </div>
                 </div>
