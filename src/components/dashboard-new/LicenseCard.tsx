@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera } from 'lucide-react';
+import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LicenseCardProps {
@@ -162,8 +162,10 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
             };
         }
 
-        const countryCode = selectedCountry === 'es' ? 'E' : selectedCountry === 'sk' ? 'SK' : 'RUS';
-        const localeConfig = T_MAP[selectedCountry] || T_MAP['es'];
+        const normCountry = (selectedCountry || 'es').toLowerCase();
+        const effectiveCountry = normCountry === 'spain' || normCountry === 'es' ? 'es' : normCountry === 'slovakia' || normCountry === 'sk' ? 'sk' : 'ru';
+        const countryCode = effectiveCountry === 'es' ? 'E' : effectiveCountry === 'sk' ? 'SK' : 'RUS';
+        const localeConfig = T_MAP[effectiveCountry as keyof typeof T_MAP] || T_MAP['es'];
 
         return {
             points,
@@ -180,6 +182,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     }, [userProfile, selectedCountry, t]);
 
     const [imageError, setImageError] = useState(false);
+    const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
 
     const RecoveryOverlay = isSuspended && (
         <div className="absolute inset-0 z-[60] bg-[#0F1014]/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-700 rounded-[28px] md:rounded-[36px]">
@@ -240,6 +243,28 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                 {RecoveryOverlay}
 
+                {/* Points Info Modal */}
+                {isPointsModalOpen && (
+                    <div className="absolute inset-0 z-[70] bg-[#0F1014]/90 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-300 rounded-[28px] md:rounded-[36px]">
+                        <div className={cn("w-16 h-16 md:w-20 md:h-20 rounded-full flex flex-col items-center justify-center mb-4 border-4 shadow-2xl space-y-1", rankStyle.border, rankStyle.bg)}>
+                            <span className={cn("text-2xl md:text-3xl font-black leading-none", rankStyle.text)}>{points}</span>
+                            <span className={cn("text-[8px] md:text-[10px] font-black opacity-60", rankStyle.text)}>/ 15</span>
+                        </div>
+                        <h3 className="text-lg md:text-xl font-black text-white uppercase tracking-tighter mb-2">{localeConfig.fields.pointsLabel}</h3>
+                        <p className="text-xs md:text-sm text-zinc-300 font-medium leading-relaxed max-w-sm mb-6">
+                            {countryCode === 'RUS'
+                                ? 'Штрафные баллы отражают вашу готовность. Избегайте частых ошибок в билетах, иначе права могут быть приостановлены (при достижении 0).'
+                                : 'Баллы квалификации показывают ваш уровень. Ошибки в тестах могут привести к лишению, поэтому будьте внимательны.'}
+                        </p>
+                        <button
+                            onClick={() => setIsPointsModalOpen(false)}
+                            className="bg-white/10 hover:bg-white/20 text-white px-6 py-2.5 rounded-2xl font-bold text-[10px] md:text-xs tracking-widest uppercase transition-all hover:scale-105 active:scale-95 border border-white/10"
+                        >
+                            {t('common.close') || 'Понятно'}
+                        </button>
+                    </div>
+                )}
+
                 {/* Official Header */}
                 <div className={cn(
                     "relative z-10 flex flex-row items-center px-4 md:px-6 py-3 md:py-4 border-b",
@@ -270,11 +295,29 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                         </h2>
                     </div>
 
-                    {/* Laser Hologram Shield */}
-                    <div className="shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-cyan-400/20 via-fuchsia-500/20 to-yellow-400/20 backdrop-blur-md border border-white/20 flex items-center justify-center relative overflow-hidden group/holo">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover/holo:animate-[shimmer_1.5s_infinite]" />
-                        <ShieldCheck size={18} className={isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-indigo-500"} />
-                    </div>
+                    {/* Interactive Points Indicator (Top Right) */}
+                    <button
+                        onClick={() => setIsPointsModalOpen(true)}
+                        className={cn(
+                            "shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full flex flex-col items-center justify-center relative overflow-hidden group/points border-[3px] transition-all hover:scale-110 hover:rotate-3 active:scale-95 shadow-lg cursor-pointer ml-3",
+                            rankStyle.border,
+                            isDarkTheme ? "bg-zinc-950/80" : "bg-white"
+                        )}>
+                        <div className={cn("absolute inset-0 opacity-20 group-hover/points:opacity-40 transition-opacity", rankStyle.bg)} />
+
+                        {/* Shimmering highlight for interactiveness */}
+                        <div className="absolute inset-[-4px] rounded-full border border-transparent bg-gradient-to-tr from-transparent via-white/40 to-transparent -translate-x-full group-hover/points:animate-[shimmer_1.5s_infinite] opacity-50" />
+
+                        <span className={cn("text-lg md:text-xl font-black leading-none relative z-10", rankStyle.text)}>
+                            {points}
+                        </span>
+                        <div className="flex items-center gap-0.5 mt-0.5 relative z-10">
+                            <span className={cn("text-[6px] md:text-[7px] font-bold tracking-widest uppercase opacity-70", rankStyle.text)}>
+                                PTS
+                            </span>
+                            <Info size={8} className={cn("opacity-70", rankStyle.text)} />
+                        </div>
+                    </button>
                 </div>
 
                 {/* Content Section */}
@@ -296,19 +339,12 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                 <img
                                     src={photoUrl}
                                     alt="Driver Photo Component"
-                                    className="w-full h-full object-cover grayscale-[0.3] contrast-125 brightness-110"
+                                    className="w-full h-full object-cover transition-all"
                                     onError={() => setImageError(true)}
                                 />
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400">
                                     <Camera size={28} className="opacity-50 mb-2" />
-                                </div>
-                            )}
-
-                            {/* Watermark Ghost Face */}
-                            {photoUrl && !imageError && (
-                                <div className="absolute bottom-2 -right-4 w-12 h-16 opacity-30 mix-blend-overlay overflow-hidden rounded transform -rotate-12 blur-[1px]">
-                                    <img src={photoUrl} className="w-full h-full object-cover contrast-150 grayscale" />
                                 </div>
                             )}
                         </div>
@@ -362,26 +398,6 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                             {stats.currentStreak}
                                         </span>
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Modern Points Indicator */}
-                            <div className={cn(
-                                "flex flex-col items-end px-4 py-2 sm:px-5 sm:py-3 rounded-2xl shrink-0 border-2 relative overflow-hidden shadow-2xl transition-all duration-500",
-                                rankStyle.border,
-                                isDarkTheme ? "bg-zinc-950/90" : "bg-white"
-                            )}>
-                                <div className={cn("absolute inset-0 opacity-[0.08]", rankStyle.bg)} />
-                                <span className={cn("text-[7px] sm:text-[8px] font-bold tracking-widest uppercase mb-0.5 relative z-10", rankStyle.text)}>
-                                    {localeConfig.fields.pointsLabel}
-                                </span>
-                                <div className="flex items-baseline gap-1 relative z-10">
-                                    <span className={cn("text-2xl sm:text-3xl font-black leading-none drop-shadow-md", rankStyle.text)}>
-                                        {points}
-                                    </span>
-                                    <span className={cn("text-xs sm:text-sm font-black opacity-40", rankStyle.text)}>
-                                        / 15
-                                    </span>
                                 </div>
                             </div>
                         </div>
