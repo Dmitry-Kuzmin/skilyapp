@@ -128,22 +128,37 @@ export const AchievementsModalContent = ({
 
       if (isHeic) {
         try {
-          const heic2any = (await import('heic2any')).default;
+          // Используем динамический импорт и проверяем доступность
+          const heic2anyModule = await import('heic2any');
+          const heic2any = (heic2anyModule as any).default || heic2anyModule;
+
+          console.log('[AvatarUpload] Starting HEIC conversion for file:', file.name, 'size:', file.size);
+
           const convertedBlob = await heic2any({
             blob: file,
             toType: 'image/jpeg',
-            quality: 0.8
+            quality: 0.7 // Повышаем стабильность
           });
 
           const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+
+          if (!blob || blob.size === 0) {
+            throw new Error('Конвертация вернула пустой файл');
+          }
+
           fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
             type: 'image/jpeg'
           });
-          console.log('[AvatarUpload] HEIC converted to JPEG successfully');
+
+          console.log('[AvatarUpload] HEIC converted successfully. New size:', fileToUpload.size);
           toast.loading('Загружаем сконвертированное фото...', { id: toastId });
-        } catch (convErr) {
+        } catch (convErr: any) {
           console.error('[AvatarUpload] HEIC conversion failed:', convErr);
-          throw new Error('Не удалось сконвертировать HEIC. Попробуйте JPG или PNG.');
+          const errorMsg = convErr.message || '';
+          if (errorMsg.includes('format not supported') || errorMsg.includes('ERR_LIBHEIF')) {
+            throw new Error('Ваш iPhone использует формат, который сложно обработать. Сделайте скриншот фото и загрузите его.');
+          }
+          throw new Error('Не удалось подготовить фото. Попробуйте JPG или PNG.');
         }
       }
 

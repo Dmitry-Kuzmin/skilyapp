@@ -262,22 +262,39 @@ export const AccountTab: React.FC = () => {
 
             if (isHeic) {
                 try {
-                    const heic2any = (await import('heic2any')).default;
+                    // Используем динамический импорт и проверяем доступность
+                    const heic2anyModule = await import('heic2any');
+                    const heic2any = (heic2anyModule as any).default || heic2anyModule;
+
+                    console.log('[AvatarUpload] Starting HEIC conversion for file:', file.name, 'size:', file.size);
+
                     const convertedBlob = await heic2any({
                         blob: file,
                         toType: 'image/jpeg',
-                        quality: 0.8
+                        quality: 0.7 // Немного снижаем качество для стабильности и скорости
                     });
 
                     const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+
+                    // Проверка на корректность созданного блоба
+                    if (!blob || blob.size === 0) {
+                        throw new Error('Конвертация вернула пустой файл');
+                    }
+
                     fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
                         type: 'image/jpeg'
                     });
-                    console.log('[AvatarUpload] HEIC converted to JPEG successfully');
+
+                    console.log('[AvatarUpload] HEIC converted successfully. New size:', fileToUpload.size);
                     toast.loading('Загружаем сконвертированное фото...', { id: toastId });
-                } catch (convErr) {
+                } catch (convErr: any) {
                     console.error('[AvatarUpload] HEIC conversion failed:', convErr);
-                    throw new Error('Не удалось сконвертировать HEIC. Попробуйте JPG или PNG.');
+                    // Если ошибка специфична для библиотеки, даем понятный ответ
+                    const errorMsg = convErr.message || '';
+                    if (errorMsg.includes('format not supported') || errorMsg.includes('ERR_LIBHEIF')) {
+                        throw new Error('Ваше устройство использует новый формат HEIC, который сложно обработать. Попробуйте сделать скриншот фото и загрузить его.');
+                    }
+                    throw new Error(`Ошибка конвертации: ${convErr.message || 'неизвестная ошибка'}`);
                 }
             }
 

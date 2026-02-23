@@ -122,6 +122,7 @@
     "framer-motion": "^11.3.19",
     "fuse.js": "^7.1.0",
     "google-auth-library": "^10.5.0",
+    "heic-convert": "^2.1.0",
     "heic2any": "^0.0.4",
     "idb": "^8.0.3",
     "idb-keyval": "^6.2.2",
