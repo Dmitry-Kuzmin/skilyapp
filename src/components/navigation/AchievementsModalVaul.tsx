@@ -45,23 +45,33 @@ export function AchievementsModalVaul({
   }, []);
 
   const header = (
-    <AchievementsHeader
-      xp={xp}
-      level={level}
-      unlockedCount={stats.unlockedCount}
-      totalCount={stats.totalCount}
-      completionPercent={stats.completionPercent}
-    />
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-8 pt-6 pb-4 border-b border-white/10 relative">
+      <div className="flex flex-col gap-1 pr-12">
+        <h2 className="text-xl font-bold text-foreground leading-tight">{title}</h2>
+        {description && (
+          <p className="text-sm text-muted-foreground line-clamp-1">{description}</p>
+        )}
+      </div>
+
+      <div className="flex shrink-0">
+        <AchievementsHeader
+          xp={xp}
+          level={level}
+          unlockedCount={stats.unlockedCount}
+          totalCount={stats.totalCount}
+          completionPercent={stats.completionPercent}
+          isCompact={true}
+        />
+      </div>
+    </div>
   );
 
   return (
     <ResponsiveModal
       open={open}
       onOpenChange={onClose}
-      title={title}
-      description={description}
       className="max-w-5xl"
-      contentClassName="p-0" // Контент сам управляет отступами
+      contentClassName="p-0"
       headerContent={header}
     >
       <div className="p-4 sm:p-6">

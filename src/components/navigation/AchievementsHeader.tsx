@@ -1,6 +1,7 @@
 import React from "react";
 import { Zap, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface AchievementsHeaderProps {
     xp: number;
@@ -8,6 +9,7 @@ interface AchievementsHeaderProps {
     unlockedCount: number;
     totalCount: number;
     completionPercent: number;
+    isCompact?: boolean;
 }
 
 const XP_PER_LEVEL = 225;
@@ -17,11 +19,18 @@ export const AchievementsHeader = ({
     level,
     unlockedCount,
     totalCount,
-    completionPercent
+    completionPercent,
+    isCompact = false
 }: AchievementsHeaderProps) => {
     return (
-        <div className="flex flex-col sm:flex-row gap-3 p-3 sm:px-8 sm:pt-6 sm:pb-2">
-            <div className="flex-1 flex items-center justify-between gap-4 p-3 rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-xl">
+        <div className={cn(
+            "flex flex-col sm:flex-row gap-3",
+            isCompact ? "p-0" : "p-3 sm:px-8 sm:pt-6 sm:pb-2"
+        )}>
+            <div className={cn(
+                "flex-1 flex items-center justify-between gap-4 p-3 rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-xl",
+                isCompact && "sm:min-w-[180px]"
+            )}>
                 <div className="z-10 flex items-center gap-3">
                     <div className="p-2 rounded-xl bg-primary/20 text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)] group-hover:scale-110 transition-transform duration-500">
                         <Zap size={16} className="fill-primary" />
