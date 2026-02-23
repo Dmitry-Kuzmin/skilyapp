@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Sparkles, Trophy, Star, Zap, Target, Award, Crown, CheckCircle2, Lock, Flag, Camera, BookOpen, Calendar, Users, CheckSquare, Lightbulb, LucideIcon, ChevronRight } from "lucide-react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { Trophy, Star, Zap, Target, Award, Crown, CheckCircle2, Lock, LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from 'react-confetti';
@@ -87,22 +87,31 @@ export const AchievementsModalContent = ({
 }: AchievementsModalContentProps) => {
   const { t } = useLanguage();
   const { width, height } = useWindowSize();
-  const { profileId, refreshProfile } = useUserContext();
+  // ПРАВИЛО ХУКОВ: Все хуки вызываем только здесь, на верхнем уровне компонента
+  const { profileId, supabaseUser } = useUserContext();
+  const queryClient = useQueryClient();
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  // Photo upload state
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  /**
+   * ЖЕЛЕЗНАЯ ЛОГИКА загрузки аватара:
+   * 1. Все переменные берём из замыкания — хуки вызываются только на верхнем уровне
+   * 2. Не используем refreshProfile — он вызывает перезапрос сессии → SIGNED_OUT
+   * 3. Вместо этого точечно инвалидируем React Query кэш — без触затрагивания auth
+   * 4. Используем supabaseUser.id (auth.uid()) для папки в Storage согласно RLS
+   */
+  const handleAvatarUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    const { profileId, refreshProfile, supabaseUser } = useUserContext();
 
-    if (!file || !profileId || !supabaseUser?.id) {
-      console.warn('[AvatarUpload] Missing requirements:', { file: !!file, profileId: !!profileId, userId: !!supabaseUser?.id });
+    if (!file) return;
+
+    if (!profileId || !supabaseUser?.id) {
+      console.warn('[AvatarUpload] Not ready:', { profileId: !!profileId, userId: !!supabaseUser?.id });
+      toast.error('Профиль не загружен, попробуйте позже');
       return;
     }
 
@@ -112,57 +121,65 @@ export const AchievementsModalContent = ({
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Размер изображения не должен превышать 5МБ');
+      toast.error('Размер файла не должен превышать 5МБ');
       return;
     }
 
+    const toastId = 'avatar-upload';
+    toast.loading('Загружаем аватар...', { id: toastId });
+
     try {
       setIsUploading(true);
-      const fileExt = file.name.split('.').pop();
-      // КРИТИЧНО: Используем supabaseUser.id (auth.uid()) для папки, 
-      // так как RLS политика привязана именно к auth.uid()
-      const userId = supabaseUser.id;
-      const filePath = `${userId}/${Date.now()}.${fileExt}`;
 
-      console.log('[AvatarUpload] Uploading to:', filePath);
+      const fileExt = file.name.split('.').pop() || 'jpg';
+      // КРИТИЧНО: Папка = auth.uid() — именно это проверяет RLS политика в Supabase
+      const filePath = `${supabaseUser.id}/${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, {
-          upsert: true,
-          contentType: file.type // Явно указываем тип
-        });
+        .upload(filePath, file, { upsert: true, contentType: file.type });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('[AvatarUpload] Storage error:', uploadError);
+        throw new Error(uploadError.message);
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
+      // Обновляем профиль в базе — без auth операций
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ photo_url: publicUrl, updated_at: new Date().toISOString() })
         .eq('id', profileId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('[AvatarUpload] DB update error:', updateError);
+        throw new Error(updateError.message);
+      }
 
-      toast.success('Аватар обновлен!');
+      toast.success('Аватар обновлён!', { id: toastId });
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
-      refreshProfile?.();
 
-      setTimeout(() => {
-        fetchAchievements();
-      }, 1000);
+      // БЕЗОПАСНОЕ обновление UI через React Query — НЕ трогает auth сессию
+      // Инвалидируем все кэши профиля точечно
+      queryClient.invalidateQueries({ queryKey: ['profile-data'] });
+      queryClient.invalidateQueries({ queryKey: ['avatar-data'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
+
+      // Обновляем список достижений через 1 сек (чтобы БД обработала)
+      setTimeout(() => fetchAchievements(), 1000);
 
     } catch (error: any) {
-      console.error('Avatar upload error:', error);
-      toast.error(`Не удалось загрузить аватар: ${error.message || 'Ошибка сети'}`);
+      console.error('[AvatarUpload] Error:', error);
+      toast.error(`Ошибка: ${error.message || 'Не удалось загрузить аватар'}`, { id: toastId });
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
-  };
+  }, [profileId, supabaseUser, queryClient]);
 
   const fetchAchievements = async () => {
     if (!profileId) return;
