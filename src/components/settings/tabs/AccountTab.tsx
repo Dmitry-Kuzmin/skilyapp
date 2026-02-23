@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useProfileData } from '@/hooks/useProfileData';
 import { cn } from "@/lib/utils";
 import { PasskeyManager } from '@/components/auth/PasskeyManager';
+import { useQueryClient } from "@tanstack/react-query";
 
 // Google icon
 const GoogleIcon = () => (
@@ -64,6 +65,7 @@ const SettingRow: React.FC<{
 export const AccountTab: React.FC = () => {
     const { closeSettings, userLevel } = useSettingsStore();
     const userContext = useContext(UserContext);
+    const queryClient = useQueryClient();
     const { profileData, refresh: refreshProfile } = useProfileData();
 
     const user = userContext?.user;
@@ -240,43 +242,40 @@ export const AccountTab: React.FC = () => {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        // КРИТИЧНО: Используем любой доступный ID источника
-        const userId = user?.id || profileData?.id || supabaseUser?.id;
-
-        if (!userId) {
-            toast.error('Ошибка: пользователь не найден (нет ID)');
-            console.error('Avatar upload failed: No user ID found in user, profileData or supabaseUser');
+        // КРИТИЧНО: Используем supabaseUser.id для Storage (RLS) и profileData.id для DB
+        if (!supabaseUser?.id || !profileData?.id) {
+            toast.error('Ошибка: данные пользователя не загружены');
+            console.error('Avatar upload failed: Missing IDs', { supabaseUserId: !!supabaseUser?.id, profileId: !!profileData?.id });
             return;
         }
 
-        // Validate file type and size
         if (!file.type.startsWith('image/')) {
             toast.error('Пожалуйста, выберите изображение');
             return;
         }
 
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        if (file.size > 5 * 1024 * 1024) {
             toast.error('Размер изображения не должен превышать 5МБ');
             return;
         }
 
+        const toastId = 'avatar-upload-tab';
+        toast.loading('Загружаем аватар...', { id: toastId });
+
         try {
             setIsUploading(true);
 
-            // КРИТИЧНО: Обновляем сессию перед загрузкой, чтобы избежать false-positive 401
-            const { error: sessionError } = await supabase.auth.refreshSession();
-            if (sessionError) {
-                console.warn('Session refresh warning:', sessionError);
-                // Не прерываем, так как сессия может быть все еще валидна
-            }
+            // КРИТИЧНО: Папка должна называться как auth.uid()
+            const fileExt = file.name.split('.').pop() || 'jpg';
+            const filePath = `${supabaseUser.id}/${Date.now()}.${fileExt}`;
 
-            const fileExt = file.name.split('.').pop();
-            const filePath = `${userId}/${Date.now()}.${fileExt}`;
-
-            // 1. Upload to Supabase Storage
+            // 1. Upload to Supabase Storage - БЕЗ refreshSession (он ломает токены)
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
-                .upload(filePath, file, { upsert: true });
+                .upload(filePath, file, {
+                    upsert: true,
+                    contentType: file.type
+                });
 
             if (uploadError) throw uploadError;
 
@@ -285,27 +284,29 @@ export const AccountTab: React.FC = () => {
                 .from('avatars')
                 .getPublicUrl(filePath);
 
-            // 3. Update Profile
+            // 3. Update Profile - используем profileData.id (UUID из таблицы profiles)
             const { error: updateError } = await supabase
                 .from('profiles')
                 .update({
                     photo_url: publicUrl,
                     updated_at: new Date().toISOString()
                 })
-                .eq('id', userId);
+                .eq('id', profileData.id);
 
             if (updateError) throw updateError;
 
-            // 4. Update local state and notify
-            toast.success('Аватар обновлен!');
-            refreshProfile(); // Refresh context/hooks
+            // 4. БЕЗОПАСНОЕ обновление UI через React Query (не трогает auth)
+            toast.success('Аватар обновлён!', { id: toastId });
+
+            queryClient.invalidateQueries({ queryKey: ['profile-data'] });
+            queryClient.invalidateQueries({ queryKey: ['avatar-data'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
 
         } catch (error: any) {
             console.error('Avatar upload error:', error);
-            toast.error('Не удалось загрузить аватар');
+            toast.error(`Не удалось загрузить аватар: ${error.message || 'Ошибка сети'}`, { id: toastId });
         } finally {
             setIsUploading(false);
-            // Reset input
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }

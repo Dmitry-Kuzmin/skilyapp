@@ -97,11 +97,6 @@ export function ResponsiveModal({
           }}
         >
           <div className="flex-1 flex flex-col w-full bg-background/95 backdrop-blur-xl overflow-hidden rounded-t-[32px]">
-            {/* Полоска-ручка */}
-            {!hideHandle && (
-              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-zinc-700/50 mt-3 mb-2" />
-            )}
-
             {/* Header */}
             {headerContent && (
               <div className="shrink-0">
