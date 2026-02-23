@@ -17,17 +17,24 @@ interface ProfileData {
   telegram_id: number | null;
   preferred_country?: string | null;
   preferred_license_category?: string | null;
+  subscription_status?: string | null;
+  premium_forever_purchased_at?: string | null;
+  settings?: any;
+  created_at?: string;
+  updated_at?: string;
 }
 
-const PROFILE_QUERY_KEY = "profile-data";
+export const PROFILE_QUERY_KEY = "profile-data";
+export const USER_AVATAR_QUERY_KEY = "user-avatar-data"; // Для совместимости с аватарами/скинами
 
 /**
  * ОПТИМИЗИРОВАННЫЙ хук для получения данных профиля
  * Объединяет все запросы к профилю в один запрос с полным select
  * Все компоненты используют один и тот же кэш
  */
-export function useProfileData() {
-  const { profileId } = useUserContext();
+export function useProfileData(id?: string | null) {
+  const { profileId: contextProfileId } = useUserContext();
+  const profileId = id !== undefined ? id : contextProfileId;
   const queryClient = useQueryClient();
 
   const {
@@ -42,7 +49,12 @@ export function useProfileData() {
       // ОДИН запрос вместо множества - получаем все нужные поля сразу
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, coins, xp, streak_days, rank, boosts, first_name, last_name, username, photo_url, equipped_avatar, telegram_id, preferred_country, preferred_license_category")
+        .select(`
+          id, coins, xp, streak_days, rank, boosts, first_name, last_name, 
+          username, photo_url, equipped_avatar, telegram_id, 
+          preferred_country, preferred_license_category,
+          subscription_status, premium_forever_purchased_at, settings
+        `)
         .eq("id", profileId)
         .single();
 
@@ -79,7 +91,9 @@ export function useProfileData() {
 
   // Функция для инвалидации кэша (полезно после изменения баланса)
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEY, profileId] });
+    // Единая инвалидация через основной ключ профиля
+    queryClient.invalidateQueries({ queryKey: [PROFILE_QUERY_KEY] });
+    queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
   };
 
   return {
@@ -93,6 +107,37 @@ export function useProfileData() {
     streakDays: profileData?.streak_days ?? 0,
     rank: profileData?.rank ?? null,
     boosts: profileData?.boosts ?? 0,
+    isPremium: profileData?.subscription_status === 'pro' ||
+      profileData?.subscription_status === 'lifetime' ||
+      !!profileData?.premium_forever_purchased_at ||
+      (profileData?.settings as any)?.subscription_type === 'lifetime'
   };
+}
+
+/**
+ * Хук для получения активного скина пользователя
+ * Использует отдельный кэш, так как скины запрашиваются только в аватарах
+ */
+export function useUserSkins(profileId: string | null) {
+  return useQuery({
+    queryKey: ['user-skins', profileId],
+    queryFn: async () => {
+      if (!profileId) return null;
+      const { data, error } = await supabase
+        .from('user_skins')
+        .select(`
+          is_active,
+          skin_definitions (*)
+        `)
+        .eq('user_id', profileId)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data?.skin_definitions || null;
+    },
+    enabled: !!profileId,
+    staleTime: 10 * 60 * 1000, // Скины меняются редко
+  });
 }
 

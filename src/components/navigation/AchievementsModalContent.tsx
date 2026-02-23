@@ -180,10 +180,8 @@ export const AchievementsModalContent = ({
       setTimeout(() => setShowConfetti(false), 3000);
 
       // БЕЗОПАСНОЕ обновление UI через React Query — НЕ трогает auth сессию
-      // Инвалидируем все кэши профиля точечно
+      // Единая инвалидация через основной ключ профиля
       queryClient.invalidateQueries({ queryKey: ['profile-data'] });
-      queryClient.invalidateQueries({ queryKey: ['avatar-data'] });
-      queryClient.invalidateQueries({ queryKey: ['user-avatar-data'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
 
       // Обновляем список достижений через 1 сек (чтобы БД обработала)

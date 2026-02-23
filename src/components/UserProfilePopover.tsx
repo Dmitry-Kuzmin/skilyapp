@@ -93,38 +93,7 @@ interface UserProfilePopoverProps {
   onOpenNotifications?: () => void;
 }
 
-// ОПТИМИЗАЦИЯ: React Query hook для аватара с глобальным кэшем
-const useAvatarData = (profileId: string | null) => {
-  return useQuery({
-    queryKey: ['avatar-data', profileId],
-    queryFn: async () => {
-      if (!profileId) return null;
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          photo_url, 
-          first_name, 
-          last_name, 
-          username, 
-          subscription_status, 
-          premium_forever_purchased_at,
-          settings
-        `)
-        .eq('id', profileId)
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!profileId,
-    staleTime: 5 * 60 * 1000, // 5 минут - аватар редко меняется
-    gcTime: 30 * 60 * 1000, // 30 минут в памяти
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
-};
 
 export const UserProfilePopover = memo(function UserProfilePopover({ notificationsApi, onOpenNotifications }: UserProfilePopoverProps) {
   const { user, profileId, logout, supabaseUser, platform } = useUserContext();
@@ -144,7 +113,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления для предотвращения лишних ре-рендеров
   const hasUnreadNotifications = useMemo(() => unreadCount > 0, [unreadCount]);
 
-  const { data: profile, isLoading: loading } = useAvatarData(profileId);
+  const { profileData: profile, loading } = useProfileData();
   const showSkeleton = loading && !profile;
 
   // КРИТИЧНО: Расширенная проверка премиума для надежности

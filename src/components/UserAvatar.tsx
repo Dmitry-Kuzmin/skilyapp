@@ -1,10 +1,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "@/components/optimized/Motion";
+import { useProfileData, useUserSkins } from "@/hooks/useProfileData";
 
 interface UserAvatarProps {
     profileId: string | null;
@@ -16,44 +15,6 @@ interface UserAvatarProps {
     onClick?: () => void;
 }
 
-/**
- * ОПТИМИЗИРОВАННЫЙ хук для загрузки данных аватара и активного скина
- */
-export const useUserAvatarData = (profileId: string | null) => {
-    return useQuery({
-        queryKey: ['user-avatar-data', profileId],
-        queryFn: async () => {
-            if (!profileId) return null;
-
-            const [profileResult, skinResult] = await Promise.all([
-                supabase
-                    .from('profiles')
-                    .select('photo_url, first_name, last_name, username, subscription_status, premium_forever_purchased_at, settings')
-                    .eq('id', profileId)
-                    .single(),
-                supabase
-                    .from('user_skins')
-                    .select(`
-                        is_active,
-                        skin_definitions (*)
-                    `)
-                    .eq('user_id', profileId)
-                    .eq('is_active', true)
-                    .maybeSingle()
-            ]);
-
-            if (profileResult.error) throw profileResult.error;
-
-            return {
-                profile: profileResult.data,
-                activeSkin: skinResult.data?.skin_definitions || null
-            };
-        },
-        enabled: !!profileId,
-        staleTime: 5 * 60 * 1000,
-    });
-};
-
 export function UserAvatar({
     profileId,
     className,
@@ -63,18 +24,18 @@ export function UserAvatar({
     showPremiumGlow = true,
     onClick
 }: UserAvatarProps) {
-    const { data, isLoading } = useUserAvatarData(profileId);
+    const { profileData: profile, loading: isLoading } = useProfileData(profileId);
+    const { data: activeSkinData } = useUserSkins(profileId);
 
-    const profile = data?.profile;
-    const activeSkin = previewSkin || data?.activeSkin;
+    const activeSkin = previewSkin || activeSkinData;
 
-    // Проверка премиума
+    // Проверка премиума через унифицированный геттер
     const isProfilePremium = useMemo(() => {
         if (!profile) return false;
-        if (profile.subscription_status === 'pro' || profile.subscription_status === 'lifetime') return true;
-        if (profile.premium_forever_purchased_at) return true;
-        if ((profile.settings as any)?.subscription_type === 'lifetime') return true;
-        return false;
+        return profile.subscription_status === 'pro' ||
+            profile.subscription_status === 'lifetime' ||
+            !!profile.premium_forever_purchased_at ||
+            (profile.settings as any)?.subscription_type === 'lifetime';
     }, [profile]);
 
     const sizeClasses = {
