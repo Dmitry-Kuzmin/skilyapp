@@ -128,37 +128,56 @@ export const AchievementsModalContent = ({
 
       if (isHeic) {
         try {
-          // Используем динамический импорт и проверяем доступность
-          const heic2anyModule = await import('heic2any');
-          const heic2any = (heic2anyModule as any).default || heic2anyModule;
+          // Попытка 1: heic2any
+          try {
+            const heic2anyModule = await import('heic2any');
+            const heic2any = (heic2anyModule as any).default || heic2anyModule;
 
-          console.log('[AvatarUpload] Starting HEIC conversion for file:', file.name, 'size:', file.size);
+            console.log('[AvatarUpload] Attempting heic2any conversion...');
+            const convertedBlob = await heic2any({
+              blob: file,
+              toType: 'image/jpeg',
+              quality: 0.8
+            });
 
-          const convertedBlob = await heic2any({
-            blob: file,
-            toType: 'image/jpeg',
-            quality: 0.7 // Повышаем стабильность
-          });
-
-          const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-
-          if (!blob || blob.size === 0) {
-            throw new Error('Конвертация вернула пустой файл');
+            const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+            if (blob && blob.size > 0) {
+              fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
+            } else {
+              throw new Error('Empty blob');
+            }
+          } catch (libErr) {
+            console.warn('[AvatarUpload] heic2any failed, trying native Safari fallback:', libErr);
+            // Попытка 2: Native Safari via Canvas
+            fileToUpload = await new Promise((resolve, reject) => {
+              const url = URL.createObjectURL(file);
+              const img = new Image();
+              img.onload = () => {
+                URL.revokeObjectURL(url);
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return reject('Canvas error');
+                ctx.drawImage(img, 0, 0);
+                canvas.toBlob((blob) => {
+                  if (blob) resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
+                  else reject('Blob error');
+                }, 'image/jpeg', 0.9);
+              };
+              img.onerror = () => {
+                URL.revokeObjectURL(url);
+                reject('Native load error');
+              };
+              img.src = url;
+              setTimeout(() => reject('Timeout'), 5000);
+            }) as File;
           }
 
-          fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
-            type: 'image/jpeg'
-          });
-
-          console.log('[AvatarUpload] HEIC converted successfully. New size:', fileToUpload.size);
-          toast.loading('Загружаем сконвертированное фото...', { id: toastId });
+          toast.loading('Загружаем подготовленное фото...', { id: toastId });
         } catch (convErr: any) {
           console.error('[AvatarUpload] HEIC conversion failed:', convErr);
-          const errorMsg = convErr.message || '';
-          if (errorMsg.includes('format not supported') || errorMsg.includes('ERR_LIBHEIF')) {
-            throw new Error('Ваш iPhone использует формат, который сложно обработать. Сделайте скриншот фото и загрузите его.');
-          }
-          throw new Error('Не удалось подготовить фото. Попробуйте JPG или PNG.');
+          throw new Error('Не удалось подготовить фото. Попробуйте сделать скриншот фото и загрузить его.');
         }
       }
 

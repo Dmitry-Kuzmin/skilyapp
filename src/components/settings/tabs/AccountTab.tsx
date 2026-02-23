@@ -262,39 +262,68 @@ export const AccountTab: React.FC = () => {
 
             if (isHeic) {
                 try {
-                    // Используем динамический импорт и проверяем доступность
-                    const heic2anyModule = await import('heic2any');
-                    const heic2any = (heic2anyModule as any).default || heic2anyModule;
+                    // Попытка 1: Используем heic2any
+                    try {
+                        const heic2anyModule = await import('heic2any');
+                        const heic2any = (heic2anyModule as any).default || heic2anyModule;
 
-                    console.log('[AvatarUpload] Starting HEIC conversion for file:', file.name, 'size:', file.size);
+                        console.log('[AvatarUpload] Attempting heic2any conversion...');
+                        const convertedBlob = await heic2any({
+                            blob: file,
+                            toType: 'image/jpeg',
+                            quality: 0.8
+                        });
 
-                    const convertedBlob = await heic2any({
-                        blob: file,
-                        toType: 'image/jpeg',
-                        quality: 0.7 // Немного снижаем качество для стабильности и скорости
-                    });
+                        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                        if (blob && blob.size > 0) {
+                            fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
+                            console.log('[AvatarUpload] heic2any success');
+                        } else {
+                            throw new Error('Empty blob from heic2any');
+                        }
+                    } catch (libErr) {
+                        console.warn('[AvatarUpload] heic2any failed, trying native Safari fallback:', libErr);
 
-                    const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                        // Попытка 2: Нативный Safari Fallback (через Canvas)
+                        // Safari умеет рисовать HEIC на канвас напрямую
+                        fileToUpload = await new Promise((resolve, reject) => {
+                            const url = URL.createObjectURL(file);
+                            const img = new Image();
+                            img.onload = () => {
+                                URL.revokeObjectURL(url);
+                                const canvas = document.createElement('canvas');
+                                canvas.width = img.naturalWidth;
+                                canvas.height = img.naturalHeight;
+                                const ctx = canvas.getContext('2d');
+                                if (!ctx) {
+                                    reject(new Error('Canvas context not available'));
+                                    return;
+                                }
+                                ctx.drawImage(img, 0, 0);
+                                canvas.toBlob((blob) => {
+                                    if (blob) {
+                                        resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
+                                    } else {
+                                        reject(new Error('Canvas toBlob failed'));
+                                    }
+                                }, 'image/jpeg', 0.9);
+                            };
+                            img.onerror = () => {
+                                URL.revokeObjectURL(url);
+                                reject(new Error('Native rendering failed'));
+                            };
+                            img.src = url;
 
-                    // Проверка на корректность созданного блоба
-                    if (!blob || blob.size === 0) {
-                        throw new Error('Конвертация вернула пустой файл');
+                            // Таймаут на загрузку нативного рендеринга
+                            setTimeout(() => reject(new Error('Timeout')), 5000);
+                        }) as File;
+                        console.log('[AvatarUpload] Native Safari conversion success');
                     }
 
-                    fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
-                        type: 'image/jpeg'
-                    });
-
-                    console.log('[AvatarUpload] HEIC converted successfully. New size:', fileToUpload.size);
-                    toast.loading('Загружаем сконвертированное фото...', { id: toastId });
+                    toast.loading('Загружаем подготовленное фото...', { id: toastId });
                 } catch (convErr: any) {
-                    console.error('[AvatarUpload] HEIC conversion failed:', convErr);
-                    // Если ошибка специфична для библиотеки, даем понятный ответ
-                    const errorMsg = convErr.message || '';
-                    if (errorMsg.includes('format not supported') || errorMsg.includes('ERR_LIBHEIF')) {
-                        throw new Error('Ваше устройство использует новый формат HEIC, который сложно обработать. Попробуйте сделать скриншот фото и загрузить его.');
-                    }
-                    throw new Error(`Ошибка конвертации: ${convErr.message || 'неизвестная ошибка'}`);
+                    console.error('[AvatarUpload] All HEIC conversion attempts failed:', convErr);
+                    throw new Error('Ваш формат фото слишком новый для обработки. Сделайте скриншот этого фото и загрузите его — это сработает мгновенно!');
                 }
             }
 
