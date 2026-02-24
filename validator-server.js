@@ -87,7 +87,7 @@ app.use((req, res, next) => {
 
 // Route for the dashboard (BEFORE static files to prevent index.html override)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard-v2.html'));
+    res.sendFile(path.join(__dirname, 'validator-dashboard.html'));
 });
 
 // Serve static files AFTER routes and MIME middleware

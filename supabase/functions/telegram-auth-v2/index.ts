@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
         // 5. Синхронизируем профиль
         console.log(`[telegram-auth-v2] Syncing profile for user ${sessionData.user.id}`);
 
-        let finalPhotoUrl = photoUrl || (telegramUser as any).photo_url;
+        const finalPhotoUrl = photoUrl || (telegramUser as any).photo_url;
 
         const profilePayload: any = {
             user_id: sessionData.user.id,

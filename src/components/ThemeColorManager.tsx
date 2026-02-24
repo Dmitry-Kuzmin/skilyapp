@@ -17,7 +17,7 @@ export function ThemeColorManager() {
             if (!color) return;
 
             // 1. Обновляем <meta name="theme-color">
-            let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
             if (metaThemeColor) {
                 metaThemeColor.setAttribute('content', color);
             } else {

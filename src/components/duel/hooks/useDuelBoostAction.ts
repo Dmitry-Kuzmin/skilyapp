@@ -12,7 +12,7 @@ import { isTelegramMiniApp as isTelegramMiniAppRaw, getTelegramWebApp as getTele
 function safeIsTelegramMiniApp() {
     return typeof isTelegramMiniAppRaw === 'function' ? isTelegramMiniAppRaw() : false;
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 function safeGetTelegramWebApp() {
     return typeof getTelegramWebAppRaw === 'function' ? getTelegramWebAppRaw() : null;
 }

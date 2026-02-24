@@ -225,6 +225,10 @@ export default {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(100%)" },
         },
+        "fadeInUp": {
+          "from": { opacity: "0", transform: "translateY(1rem)" },
+          "to": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -244,6 +248,7 @@ export default {
         "ambient-pulse": "ambient-pulse 5s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "border-beam": "border-beam 3s linear infinite",
+        "fade-in-up": "fadeInUp 0.5s ease-out both",
       },
     },
   },

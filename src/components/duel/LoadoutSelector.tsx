@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon, Play, Trash2, Video } from 'lucide-react';
+import { Lock, Coins, Crown, Zap, Check, X, Plus, Cpu, Search, Shield, Hexagon, Play, Trash2, Video, ShoppingBag } from 'lucide-react';
 import { RewardedAdModal } from '@/components/monetization/RewardedAdModal';
 import { PaywallModal } from '@/components/monetization/PaywallModal';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,11 +13,71 @@ import { usePremium } from '@/hooks/usePremium';
 import { useTheme } from 'next-themes';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useModal } from '@/hooks/useModal';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const LABELS = {
+  ru: {
+    title: "БОЕВЫЕ МОДУЛИ",
+    subtitle: "Выберите до 3-х бустов",
+    slot: "СЛОТ",
+    overclock: "ОВЕРКЛОК",
+    oneMatch: "1 МАТЧ",
+    watchAd: "РЕКЛАМА",
+    buy: "КУПИТЬ",
+    or: "ИЛИ",
+    premium: "PREMIUM",
+    getPremium: "ПОЛУЧИТЬ",
+    add: "ДОБАВИТЬ",
+    locked: "ЗАКРЫТО",
+    unequip: "СНЯТЬ",
+    inventoryEmpty: "Инвентарь пуст",
+    goShop: "Перейти в Магазин"
+  },
+  en: {
+    title: "BATTLE MODULES",
+    subtitle: "Select up to 3 boosts",
+    slot: "SLOT",
+    overclock: "OVERCLOCK",
+    oneMatch: "1 MATCH",
+    watchAd: "WATCH AD",
+    buy: "BUY",
+    or: "OR",
+    premium: "PREMIUM",
+    getPremium: "GET PREMIUM",
+    add: "ADD",
+    locked: "LOCKED",
+    unequip: "UNEQUIP",
+    inventoryEmpty: "Inventory is empty",
+    goShop: "Go to Black Market"
+  },
+  es: {
+    title: "MÓDULOS DE COMBATE",
+    subtitle: "Elige hasta 3 mejoras",
+    slot: "SLOT",
+    overclock: "OVERCLOCK",
+    oneMatch: "1 PARTIDA",
+    watchAd: "VER ANUNCIO",
+    buy: "COMPRAR",
+    or: "O",
+    premium: "PREMIUM",
+    getPremium: "OBTENER",
+    add: "AÑADIR",
+    locked: "BLOQUEADO",
+    unequip: "QUITAR",
+    inventoryEmpty: "Inventario vacío",
+    goShop: "Ir al Mercado Negro"
+  }
+};
 
 interface Boost {
   type: string;
   name_ru: string;
+  name_en: string;
   name_es: string;
+  description_ru: string;
+  description_en: string;
+  description_es: string;
   icon: string;
   mode: 'safe' | 'root';
   category: 'utility' | 'exploit' | 'defense';
@@ -55,7 +115,10 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
   const [selectedSlotIndex, setSelectedSlotIndex] = useState<number | null>(null);
   const [showOverclockModal, setShowOverclockModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const { language } = useLanguage();
+  const l = LABELS[language] || LABELS.en;
   const isClosingRef = useRef(false);
+  const { openModal: openBoostShop } = useModal('BOOST_SHOP');
 
   // Загрузка данных
   useEffect(() => {
@@ -78,7 +141,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         // Загружаем доступные бусты (только Root Mode для дуэлей)
         const { data: boosts } = await supabase
           .from('boost_definitions')
-          .select('type, name_ru, name_es, icon, mode, category, target_type')
+          .select('type, name_ru, name_en, name_es, description_ru, description_en, description_es, icon, mode, category, target_type')
           .eq('mode', 'root')
           .order('cost_coins', { ascending: true });
 
@@ -94,18 +157,18 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           if (rpcError) {
             console.warn('[LoadoutSelector] RPC failed, trying direct query:', rpcError);
             // Fallback: прямой запрос
-        const { data: currentLoadout } = await supabase
-          .from('user_loadouts')
-          .select('slot_1_boost_type, slot_2_boost_type, slot_3_boost_type')
-          .eq('user_id', profileId)
-          .maybeSingle();
+            const { data: currentLoadout } = await supabase
+              .from('user_loadouts')
+              .select('slot_1_boost_type, slot_2_boost_type, slot_3_boost_type')
+              .eq('user_id', profileId)
+              .maybeSingle();
 
-        if (currentLoadout) {
-          setLoadout({
-            slot_1_boost_type: currentLoadout.slot_1_boost_type,
-            slot_2_boost_type: currentLoadout.slot_2_boost_type,
-            slot_3_boost_type: currentLoadout.slot_3_boost_type,
-          });
+            if (currentLoadout) {
+              setLoadout({
+                slot_1_boost_type: currentLoadout.slot_1_boost_type,
+                slot_2_boost_type: currentLoadout.slot_2_boost_type,
+                slot_3_boost_type: currentLoadout.slot_3_boost_type,
+              });
             }
           } else if (rpcData && rpcData.length > 0) {
             const currentLoadout = rpcData[0];
@@ -115,7 +178,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
               slot_3_boost_type: currentLoadout.slot_3_boost_type,
             });
             console.log('[LoadoutSelector] ✅ Loadout loaded via RPC:', currentLoadout);
-        } else {
+          } else {
             // Loadout не существует - это нормально, оставляем пустым
             console.log('[LoadoutSelector] No loadout found, starting with empty slots');
           }
@@ -161,7 +224,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       setUnlockingSlot(true);
       try {
         console.log('[LoadoutSelector] Unlocking slot 2, profileId:', profileId, 'coins:', userCoins);
-        
+
         const { data, error } = await supabase.functions.invoke('coins-spend', {
           body: {
             user_id: profileId,
@@ -175,7 +238,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         if (error) {
           // Пытаемся извлечь сообщение об ошибке из ответа
           let errorMessage = error.message || 'Ошибка разблокировки слота';
-          
+
           // Если есть context, пытаемся распарсить JSON ответ
           if (error.context) {
             try {
@@ -187,13 +250,13 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
               console.warn('[LoadoutSelector] Could not parse error context:', e);
             }
           }
-          
+
           // Проверяем специфичные ошибки
           if (errorMessage.includes('Insufficient balance')) {
             toast.error(`Недостаточно монет. Нужно ${SLOT_UNLOCK_COST} монет`);
             return;
           }
-          
+
           throw new Error(errorMessage);
         }
 
@@ -287,23 +350,23 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         console.error('[LoadoutSelector] Error saving loadout via RPC:', rpcError);
         // Fallback: пробуем через прямой запрос
         const { error: directError } = await supabase
-        .from('user_loadouts')
-        .upsert({
-          user_id: profileId,
-          ...newLoadout,
-        }, {
-          onConflict: 'user_id',
-        });
-        
+          .from('user_loadouts')
+          .upsert({
+            user_id: profileId,
+            ...newLoadout,
+          }, {
+            onConflict: 'user_id',
+          });
+
         if (directError) {
           console.error('[LoadoutSelector] Error saving loadout via direct query:', directError);
           toast.error('Ошибка сохранения снаряжения');
           return;
         }
       }
-      
+
       console.log('[LoadoutSelector] ✅ Loadout saved successfully:', newLoadout);
-      
+
       // Уведомляем родительский компонент об изменении loadout
       if (onLoadoutChange) {
         onLoadoutChange(newLoadout);
@@ -337,239 +400,254 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
   return (
     <>
-    <Card className="p-6 relative overflow-visible pb-12 rounded-xl border border-zinc-200/50 dark:border-white/10 backdrop-blur-xl bg-white/80 dark:bg-zinc-900/80"
-      style={{
-        background: isDark 
-          ? 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%)'
-          : 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0.7) 100%)',
-        boxShadow: isDark
-          ? 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 40px -10px rgba(0, 0, 0, 0.5)'
-          : 'inset 0 1px 0 0 rgba(0, 0, 0, 0.05), 0 10px 40px -10px rgba(0, 0, 0, 0.1)',
-      }}
-    >
-      {/* Noise Texture Overlay */}
-      <div 
-        className="absolute inset-0 rounded-xl opacity-[0.015] mix-blend-overlay pointer-events-none"
+      <Card className="p-6 relative overflow-hidden pb-12 rounded-xl border border-zinc-200/50 dark:border-white/10 backdrop-blur-xl bg-white/80 dark:bg-zinc-900/80"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'repeat'
-        }}
-      />
-      <div className="relative z-10 space-y-5">
-        {/* Заголовок - Премиум типографика */}
-        <div className="flex items-start justify-between relative">
-          <div className="space-y-1 relative z-10">
-            <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2 tracking-tight">
-              <Zap className="w-5 h-5 text-indigo-500 dark:text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
-              <span className="font-mono tracking-wider">RAM LOADOUT</span>
-            </h3>
-            <p className="text-xs font-mono text-zinc-600 dark:text-zinc-400 tracking-wider uppercase">
-              Select up to 3 boosts
-            </p>
-          </div>
-          
-          {/* Декоративный текст-призрак */}
-          <div className="absolute top-0 right-0 text-[8px] font-mono text-zinc-300/30 dark:text-white/5 tracking-widest">
-            V.2.0
-          </div>
-        </div>
-
-        {/* Слоты - Премиум дизайн */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full">
-          {/* Слот 1 - Базовый */}
-          <SlotCard
-            slotNumber={1}
-            isUnlocked={true}
-            selectedBoost={getBoostByType(loadout.slot_1_boost_type)}
-            onSlotClick={() => {
-              if (process.env.NODE_ENV === 'development') {
-                console.log('[LoadoutSelector] Slot 1 clicked, setting selectedSlotIndex to 0');
-              }
-              setSelectedSlotIndex(0);
-            }}
-            onClear={() => handleSelectBoost(1, null)}
-          />
-
-          {/* Слот 2 - Платный */}
-          <SlotCard
-            slotNumber={2}
-            isUnlocked={ramSlotsUnlocked >= 2 || tempSlotUnlocked === 2}
-            isPremium={false}
-            unlockCost={SLOT_UNLOCK_COST}
-            userCoins={userCoins}
-            isUnlocking={unlockingSlot}
-            onUnlock={() => handleUnlockSlot(2)}
-            onOverclockClick={() => {
-              // Открываем модалку рекламы для OVERCLOCK
-              setShowOverclockModal(true);
-            }}
-            onSlotUnlocked={() => {
-              // Временная разблокировка через рекламу (только на эту сессию)
-              setTempSlotUnlocked(2);
-            }}
-            selectedBoost={getBoostByType(loadout.slot_2_boost_type)}
-            onSlotClick={() => {
-              if (ramSlotsUnlocked >= 2 || tempSlotUnlocked === 2) {
-                setSelectedSlotIndex(1);
-              }
-            }}
-            onClear={() => handleSelectBoost(2, null)}
-          />
-
-          {/* Слот 3 - Premium */}
-          <SlotCard
-            slotNumber={3}
-            isUnlocked={ramSlotsUnlocked >= 3}
-            isPremium={true}
-            userHasPremium={isPremium}
-            onUnlock={() => handleUnlockSlot(3)}
-            onPremiumClick={() => setShowPremiumModal(true)}
-            selectedBoost={getBoostByType(loadout.slot_3_boost_type)}
-            onSlotClick={() => {
-              if (ramSlotsUnlocked >= 3) {
-                setSelectedSlotIndex(2);
-              }
-            }}
-            onClear={() => handleSelectBoost(3, null)}
-          />
-        </div>
-      </div>
-
-      {/* Bottom Sheet для выбора буста */}
-      <Sheet 
-        open={selectedSlotIndex !== null} 
-        onOpenChange={(open) => {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('[LoadoutSelector] Sheet onOpenChange:', open, 'selectedSlotIndex:', selectedSlotIndex, 'isClosingRef:', isClosingRef.current);
-          }
-          // Защита от множественных вызовов
-          if (!open && !isClosingRef.current && selectedSlotIndex !== null) {
-            isClosingRef.current = true;
-            setSelectedSlotIndex(null);
-            // Сбрасываем флаг через небольшую задержку
-            setTimeout(() => {
-              isClosingRef.current = false;
-            }, 300);
-          }
+          background: isDark
+            ? 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(0, 0, 0, 0.4) 100%)'
+            : 'radial-gradient(120% 120% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0.7) 100%)',
+          boxShadow: isDark
+            ? 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 10px 40px -10px rgba(0, 0, 0, 0.5)'
+            : 'inset 0 1px 0 0 rgba(0, 0, 0, 0.05), 0 10px 40px -10px rgba(0, 0, 0, 0.1)',
         }}
       >
-        <SheetContent 
-          side="bottom" 
-          className="bg-white/95 dark:bg-black/95 border-t border-zinc-200/50 dark:border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl"
+        {/* Noise Texture Overlay */}
+        <div
+          className="absolute inset-0 rounded-xl opacity-[0.015] mix-blend-overlay pointer-events-none"
           style={{
-            boxShadow: isDark 
-              ? '0 -10px 40px -10px rgba(0, 0, 0, 0.8)'
-              : '0 -10px 40px -10px rgba(0, 0, 0, 0.15)',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'repeat'
+          }}
+        />
+        <div className="relative z-10 space-y-5">
+          {/* Заголовок - Премиум типографика */}
+          <div className="flex items-start justify-between relative">
+            <div className="space-y-1 relative z-10">
+              <h3 className="text-lg font-black text-zinc-900 dark:text-white flex items-center gap-2 tracking-tight">
+                <Zap className="w-5 h-5 text-indigo-500 dark:text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+                <span className="font-mono tracking-wider uppercase">{l.title}</span>
+              </h3>
+              <p className="text-[10px] font-mono text-zinc-600 dark:text-zinc-400 tracking-wider uppercase">
+                {l.subtitle}
+              </p>
+            </div>
+
+            {/* Декоративный текст-призрак */}
+            <div className="absolute top-0 right-0 text-[8px] font-mono text-zinc-300/30 dark:text-white/5 tracking-widest">
+              V.2.0
+            </div>
+          </div>
+
+          {/* Слоты - Премиум дизайн */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 w-full">
+            {/* Слот 1 - Базовый */}
+            <SlotCard
+              slotNumber={1}
+              isUnlocked={true}
+              selectedBoost={getBoostByType(loadout.slot_1_boost_type)}
+              l={l}
+              onSlotClick={() => {
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('[LoadoutSelector] Slot 1 clicked, setting selectedSlotIndex to 0');
+                }
+                setSelectedSlotIndex(0);
+              }}
+              onClear={() => handleSelectBoost(1, null)}
+              onShopClick={() => openBoostShop({ initialTab: 'boosts' })}
+            />
+
+            {/* Слот 2 - Платный */}
+            <SlotCard
+              slotNumber={2}
+              isUnlocked={ramSlotsUnlocked >= 2 || tempSlotUnlocked === 2}
+              isPremium={false}
+              unlockCost={SLOT_UNLOCK_COST}
+              l={l}
+              userCoins={userCoins}
+              isUnlocking={unlockingSlot}
+              onUnlock={() => handleUnlockSlot(2)}
+              onOverclockClick={() => {
+                // Открываем модалку рекламы для OVERCLOCK
+                setShowOverclockModal(true);
+              }}
+              onSlotUnlocked={() => {
+                // Временная разблокировка через рекламу (только на эту сессию)
+                setTempSlotUnlocked(2);
+              }}
+              selectedBoost={getBoostByType(loadout.slot_2_boost_type)}
+              onSlotClick={() => {
+                if (ramSlotsUnlocked >= 2 || tempSlotUnlocked === 2) {
+                  setSelectedSlotIndex(1);
+                }
+              }}
+              onClear={() => handleSelectBoost(2, null)}
+              onShopClick={() => openBoostShop({ initialTab: 'boosts' })}
+            />
+
+            {/* Слот 3 - Premium */}
+            <SlotCard
+              slotNumber={3}
+              isUnlocked={ramSlotsUnlocked >= 3}
+              isPremium={true}
+              userHasPremium={isPremium}
+              l={l}
+              onUnlock={() => handleUnlockSlot(3)}
+              onPremiumClick={() => setShowPremiumModal(true)}
+              selectedBoost={getBoostByType(loadout.slot_3_boost_type)}
+              onSlotClick={() => {
+                if (ramSlotsUnlocked >= 3) {
+                  setSelectedSlotIndex(2);
+                }
+              }}
+              onClear={() => handleSelectBoost(3, null)}
+              onShopClick={() => openBoostShop({ initialTab: 'boosts' })}
+            />
+          </div>
+        </div>
+
+        {/* Bottom Sheet для выбора буста */}
+        <Sheet
+          open={selectedSlotIndex !== null}
+          onOpenChange={(open) => {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[LoadoutSelector] Sheet onOpenChange:', open, 'selectedSlotIndex:', selectedSlotIndex, 'isClosingRef:', isClosingRef.current);
+            }
+            // Защита от множественных вызовов
+            if (!open && !isClosingRef.current && selectedSlotIndex !== null) {
+              isClosingRef.current = true;
+              setSelectedSlotIndex(null);
+              // Сбрасываем флаг через небольшую задержку
+              setTimeout(() => {
+                isClosingRef.current = false;
+              }, 300);
+            }
           }}
         >
-          {/* Noise Texture для Sheet */}
-          <div 
-            className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+          <SheetContent
+            side="bottom"
+            className="bg-white/95 dark:bg-black/95 border-t border-zinc-200/50 dark:border-white/20 rounded-t-3xl max-h-[70vh] flex flex-col p-0 backdrop-blur-xl"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-              backgroundRepeat: 'repeat'
+              boxShadow: isDark
+                ? '0 -10px 40px -10px rgba(0, 0, 0, 0.8)'
+                : '0 -10px 40px -10px rgba(0, 0, 0, 0.15)',
             }}
-          />
-          
-          {/* Декоративные линии сверху */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
-          
-          <SheetHeader className="px-4 pt-4 pb-3 border-b border-zinc-200/50 dark:border-white/10 relative z-10 flex items-center justify-between">
-            <SheetTitle className="font-mono text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">
-              SELECT MODULE [SLOT {selectedSlotIndex !== null ? selectedSlotIndex + 1 : ''}]
-            </SheetTitle>
-            {/* Кнопка очистки в заголовке */}
+          >
+            {/* Noise Texture для Sheet */}
+            <div
+              className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'repeat'
+              }}
+            />
+
+            {/* Декоративные линии сверху */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
+
+            <SheetHeader className="px-4 pt-4 pb-3 border-b border-zinc-200/50 dark:border-white/10 relative z-10 flex items-center justify-between">
+              <SheetTitle className="font-mono text-sm font-bold text-indigo-600 dark:text-indigo-400 tracking-wider">
+                SELECT MODULE [SLOT {selectedSlotIndex !== null ? selectedSlotIndex + 1 : ''}]
+              </SheetTitle>
+              {/* Кнопка очистки в заголовке */}
+              {selectedSlotIndex !== null && (
+                <button
+                  onClick={() => {
+                    const slotNumber = (selectedSlotIndex + 1) as 1 | 2 | 3;
+                    handleSelectBoost(slotNumber, null);
+                    isClosingRef.current = true;
+                    setSelectedSlotIndex(null);
+                    setTimeout(() => {
+                      isClosingRef.current = false;
+                    }, 300);
+                  }}
+                  className="text-xs font-mono text-zinc-500/70 dark:text-white/30 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1.5"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{l.unequip}</span>
+                </button>
+              )}
+            </SheetHeader>
+
             {selectedSlotIndex !== null && (
-              <button
-                onClick={() => {
-                  const slotNumber = (selectedSlotIndex + 1) as 1 | 2 | 3;
-                  handleSelectBoost(slotNumber, null);
+              <BoostSelectSheetContent
+                availableBoosts={availableBoosts}
+                selectedBoost={getBoostByType(
+                  selectedSlotIndex === 0 ? loadout.slot_1_boost_type :
+                    selectedSlotIndex === 1 ? loadout.slot_2_boost_type :
+                      loadout.slot_3_boost_type
+                )}
+                isDark={isDark}
+                onSelectBoost={(boostType) => {
+                  // Закрываем Sheet перед обновлением
                   isClosingRef.current = true;
+                  handleSelectBoost((selectedSlotIndex + 1) as 1 | 2 | 3, boostType);
                   setSelectedSlotIndex(null);
                   setTimeout(() => {
                     isClosingRef.current = false;
                   }, 300);
                 }}
-                className="text-xs font-mono text-zinc-500/70 dark:text-white/30 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1.5"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">UNEQUIP</span>
-              </button>
+              />
             )}
-          </SheetHeader>
-          
-          {selectedSlotIndex !== null && (
-            <BoostSelectSheetContent
-              availableBoosts={availableBoosts}
-              selectedBoost={getBoostByType(
-                selectedSlotIndex === 0 ? loadout.slot_1_boost_type :
-                selectedSlotIndex === 1 ? loadout.slot_2_boost_type :
-                loadout.slot_3_boost_type
-              )}
-              isDark={isDark}
-              onSelectBoost={(boostType) => {
-                // Закрываем Sheet перед обновлением
-                isClosingRef.current = true;
-                handleSelectBoost((selectedSlotIndex + 1) as 1 | 2 | 3, boostType);
-                setSelectedSlotIndex(null);
-                setTimeout(() => {
-                  isClosingRef.current = false;
-                }, 300);
-              }}
-            />
-          )}
-        </SheetContent>
-      </Sheet>
+          </SheetContent>
+        </Sheet>
 
-      {/* Модалка Premium */}
-      <PaywallModal
-        open={showPremiumModal}
-        onOpenChange={setShowPremiumModal}
-      />
+        {/* Модалка Premium */}
+        <PaywallModal
+          open={showPremiumModal}
+          onOpenChange={setShowPremiumModal}
+        />
 
-      {/* Модалка рекламы для OVERCLOCK */}
-      <RewardedAdModal
-        open={showOverclockModal}
-        onOpenChange={setShowOverclockModal}
-        rewardType="coins"
-        rewardAmount={0}
-        onRewardClaimed={async () => {
-          if (!profileId) return;
-          
-          try {
-            const { data, error } = await supabase.functions.invoke('ad-reward', {
-              body: {
-                user_id: profileId,
-                reward_type: 'slot_unlock',
-                metadata: { slot_number: 2 },
-              }
-            });
-
-            if (error) {
-              console.error('[LoadoutSelector] Edge Function error:', error);
-              throw error;
-            }
-
-            console.log('[LoadoutSelector] Edge Function response:', data);
-
-            if (data?.success && data?.client_action === 'unlock_temp_slot') {
-              setTempSlotUnlocked(2);
+        {/* Модалка рекламы для OVERCLOCK */}
+        <RewardedAdModal
+          open={showOverclockModal}
+          onOpenChange={setShowOverclockModal}
+          rewardType="slot_unlock"
+          inlineOverlay={true}
+          secondaryAction={{
+            text: `Открыть навсегда за ${SLOT_UNLOCK_COST}`,
+            subtext: "Слот останется открытым для всех будущих игр",
+            icon: <Coins className="w-4 h-4 text-amber-500" />,
+            onClick: () => {
               setShowOverclockModal(false);
-              toast.success('Слот 2 разблокирован на эту дуэль!');
-            } else {
-              console.error('[LoadoutSelector] Unexpected response:', data);
-              toast.error('Неожиданный ответ от сервера');
+              handleUnlockSlot(2);
             }
-          } catch (err: any) {
-            console.error('[LoadoutSelector] Error claiming reward:', err);
-            const errorMessage = err.message || err.error || 'Не удалось разблокировать слот';
-            toast.error(errorMessage);
-          }
-        }}
-        title="OVERCLOCKING"
-        description="Посмотри рекламу и разблокируй слот на эту дуэль. Временный root-доступ..."
-      />
-    </Card>
+          }}
+          onRewardClaimed={async () => {
+            if (!profileId) return;
+
+            try {
+              const { data, error } = await supabase.functions.invoke('ad-reward', {
+                body: {
+                  user_id: profileId,
+                  reward_type: 'slot_unlock',
+                  metadata: { slot_number: 2 },
+                }
+              });
+
+              if (error) {
+                console.error('[LoadoutSelector] Edge Function error:', error);
+                throw error;
+              }
+
+              console.log('[LoadoutSelector] Edge Function response:', data);
+
+              if (data?.success && data?.client_action === 'unlock_temp_slot') {
+                setTempSlotUnlocked(2);
+                setShowOverclockModal(false);
+                toast.success('Слот 2 разблокирован на эту дуэль!');
+              } else {
+                console.error('[LoadoutSelector] Unexpected response:', data);
+                toast.error('Неожиданный ответ от сервера');
+              }
+            } catch (err: any) {
+              console.error('[LoadoutSelector] Error claiming reward:', err);
+              const errorMessage = err.message || err.error || 'Не удалось разблокировать слот';
+              toast.error(errorMessage);
+            }
+          }}
+          title="OVERCLOCKING"
+          description="Посмотри рекламу и разблокируй слот на эту дуэль. Временный root-доступ..."
+        />
+      </Card>
     </>
   );
 };
@@ -589,6 +667,8 @@ interface SlotCardProps {
   selectedBoost: Boost | null;
   onSlotClick: () => void;
   onClear: () => void;
+  onShopClick?: () => void;
+  l: any;
 }
 
 const SlotCard: React.FC<SlotCardProps> = ({
@@ -606,6 +686,8 @@ const SlotCard: React.FC<SlotCardProps> = ({
   selectedBoost,
   onSlotClick,
   onClear,
+  onShopClick,
+  l,
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovering, setIsHovering] = useState(false);
@@ -656,7 +738,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
   // Обработчик клика для всего слота
   const handleSlotClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (isUnlocked) {
       // Разблокированный слот - открываем выбор буста
       if (process.env.NODE_ENV === 'development') {
@@ -685,25 +767,25 @@ const SlotCard: React.FC<SlotCardProps> = ({
         onMouseLeave={() => setIsHovering(false)}
         onClick={handleSlotClick}
         className={cn(
-          "relative aspect-[3/4] min-h-[140px] rounded-xl border transition-all duration-300",
+          "relative aspect-[3/4.8] min-h-[160px] rounded-xl border transition-all duration-300",
           "backdrop-blur-[12px] flex flex-col overflow-hidden",
-          "cursor-pointer p-2 sm:p-3",
+          "cursor-pointer p-1.5 sm:p-3",
           // Слот с бустом - эффект вставленного модуля
           selectedBoost
             ? cn(
-                "bg-white/90 dark:bg-zinc-900/80 border-2",
-                categoryColors?.border || "border-indigo-500/50 dark:border-indigo-500/50",
-                "shadow-[inset_0_2px_8px_rgba(0,0,0,0.1),inset_0_-2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.6),inset_0_-2px_8px_rgba(0,0,0,0.4)]"
-              )
+              "bg-white/90 dark:bg-zinc-900/80 border-2",
+              categoryColors?.border || "border-indigo-500/50 dark:border-indigo-500/50",
+              "shadow-[inset_0_2px_8px_rgba(0,0,0,0.1),inset_0_-2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.6),inset_0_-2px_8px_rgba(0,0,0,0.4)]"
+            )
             : // Пустой разблокированный слот - синяя рамка
             isUnlocked
-            ? "bg-zinc-50/80 dark:bg-zinc-950/60 border border-blue-500/40 dark:border-blue-500/30 hover:border-blue-500/60 dark:hover:border-blue-500/50 hover:bg-zinc-100/90 dark:hover:bg-zinc-950/80"
-            : // Заблокированный слот
-            isPremium
-            ? "bg-zinc-100/60 dark:bg-zinc-950/40 border border-amber-500/40 dark:border-amber-500/30 opacity-70 hover:opacity-90"
-            : canOverclock
-            ? "bg-orange-50/50 dark:bg-orange-500/5 border border-orange-500/40 dark:border-orange-500/30 hover:border-orange-500/60 dark:hover:border-orange-500/50 hover:bg-orange-100/70 dark:hover:bg-orange-500/10"
-            : "bg-zinc-100/60 dark:bg-zinc-950/40 border border-zinc-300/50 dark:border-white/5 opacity-70"
+              ? "bg-zinc-50/80 dark:bg-zinc-950/60 border border-blue-500/40 dark:border-blue-500/30 hover:border-blue-500/60 dark:hover:border-blue-500/50 hover:bg-zinc-100/90 dark:hover:bg-zinc-950/80"
+              : // Заблокированный слот
+              isPremium
+                ? "bg-zinc-100/60 dark:bg-zinc-950/40 border border-amber-500/40 dark:border-amber-500/30 opacity-70 hover:opacity-90"
+                : canOverclock
+                  ? "bg-orange-50/50 dark:bg-orange-500/5 border border-orange-500/40 dark:border-orange-500/30 hover:border-orange-500/60 dark:hover:border-orange-500/50 hover:bg-orange-100/70 dark:hover:bg-orange-500/10"
+                  : "bg-zinc-100/60 dark:bg-zinc-950/40 border border-zinc-300/50 dark:border-white/5 opacity-70"
         )}
         style={{
           boxShadow: selectedBoost
@@ -714,7 +796,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
         whileTap={isUnlocked || canOverclock || (isPremium && !userHasPremium) ? { scale: 0.98 } : {}}
       >
         {/* Noise texture для слота */}
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
@@ -735,11 +817,25 @@ const SlotCard: React.FC<SlotCardProps> = ({
         {/* Top Label - Минималистичный заголовок */}
         <div className="flex items-center justify-between z-10 flex-shrink-0 mb-2">
           <span className="text-[8px] font-mono text-zinc-500/60 dark:text-white/20 uppercase tracking-wider">
-            SLOT {slotNumber}
+            {l.slot} {slotNumber}
           </span>
-          {isPremium && (
-            <Crown className="w-3 h-3 text-amber-500/70 dark:text-amber-400/60" />
-          )}
+          <div className="flex items-center gap-1.5">
+            {onShopClick && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShopClick();
+                }}
+                className="hover:text-indigo-500 transition-colors"
+                title="Black Market"
+              >
+                <ShoppingBag className="w-3 h-3 text-zinc-400 dark:text-white/40" />
+              </button>
+            )}
+            {isPremium && (
+              <Crown className="w-3 h-3 text-amber-500/70 dark:text-amber-400/60" />
+            )}
+          </div>
         </div>
 
         {/* Main Content - Минималистичный центр */}
@@ -747,25 +843,25 @@ const SlotCard: React.FC<SlotCardProps> = ({
           {isUnlocked ? (
             selectedBoost ? (
               // === СЛОТ С БУСТОМ: Иконка + название ===
-              <motion.div 
+              <motion.div
                 className="relative group flex flex-col items-center justify-center"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
                 {/* Иконка буста */}
-                <motion.span 
+                <motion.span
                   className={cn(
                     "text-4xl sm:text-5xl mb-2",
                     categoryColors?.text || "text-white"
                   )}
-                  animate={{ 
+                  animate={{
                     scale: [1, 1.05, 1],
                   }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity, 
-                    repeatDelay: 2 
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatDelay: 2
                   }}
                   style={{
                     filter: `drop-shadow(0 0 10px ${categoryColors?.glow || 'rgba(99, 102, 241, 0.8)'})`
@@ -773,13 +869,16 @@ const SlotCard: React.FC<SlotCardProps> = ({
                 >
                   {selectedBoost.icon}
                 </motion.span>
-                
+
                 {/* Название буста */}
                 <span className={cn(
                   "text-[10px] sm:text-xs font-bold text-center px-2 truncate w-full leading-tight",
                   categoryColors?.text || "text-zinc-900 dark:text-white"
                 )}>
-                  {selectedBoost.name_ru}
+                  {language === 'ru' ? selectedBoost.name_ru : language === 'es' ? selectedBoost.name_es : (selectedBoost.name_en || selectedBoost.name_ru)}
+                </span>
+                <span className="text-[8px] text-zinc-500 dark:text-zinc-400 text-center px-1 line-clamp-2 mt-0.5 leading-[1.1] opacity-60 group-hover:opacity-100 transition-opacity">
+                  {language === 'ru' ? selectedBoost.description_ru : language === 'es' ? selectedBoost.description_es : (selectedBoost.description_en || selectedBoost.description_ru)}
                 </span>
 
                 {/* Кнопка удаления - стильная в правом верхнем углу */}
@@ -798,7 +897,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
             ) : (
               // === ПУСТОЙ СЛОТ: Просто "+" и "ADD" ===
               <div className="flex flex-col items-center gap-2">
-                <motion.span 
+                <motion.span
                   className="text-5xl sm:text-6xl font-light text-blue-500 dark:text-blue-400"
                   animate={{
                     scale: [1, 1.1, 1],
@@ -813,7 +912,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   +
                 </motion.span>
                 <span className="text-[10px] font-mono tracking-wider text-blue-500/70 dark:text-blue-400/60 uppercase">
-                  ADD
+                  {l.add}
                 </span>
               </div>
             )
@@ -821,7 +920,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
             // === OVERCLOCK: Компактный Layout - OVERCLOCK сверху, две кнопки внизу ===
             <div className="flex flex-col h-full w-full">
               {/* Верхняя часть - OVERCLOCK */}
-              <div className="flex-1 flex flex-col items-center justify-center gap-1.5 relative">
+              <div className="flex-1 flex flex-col items-center justify-center gap-1 relative">
                 <motion.div
                   animate={{
                     scale: [1, 1.1, 1],
@@ -833,45 +932,44 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   }}
                   className="relative"
                 >
-                  <Play className="w-7 h-7 sm:w-9 sm:h-9 text-orange-500 dark:text-orange-400 fill-orange-500 dark:fill-orange-400" />
-                  {/* Иконка видео в углу */}
-                  <Video className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 sm:w-3 sm:h-3 text-orange-600 dark:text-orange-500 bg-orange-400/30 dark:bg-orange-400/20 rounded-full p-0.5 border border-orange-500/50 dark:border-orange-500/40" />
+                  <Play className="w-5 h-5 sm:w-7 sm:h-7 text-orange-500 dark:text-orange-400 fill-orange-500 dark:fill-orange-400" />
+                  <Video className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 text-orange-600 dark:text-orange-500 bg-orange-400/30 dark:bg-orange-400/20 rounded-full p-0.5 border border-orange-500/50 dark:border-orange-500/40" />
                 </motion.div>
-                <span className="text-[9px] font-bold text-orange-500 dark:text-orange-400 uppercase tracking-wider">
-                  OVERCLOCK
+                <span className="text-[7px] sm:text-[8px] font-bold text-orange-500 dark:text-orange-400 uppercase tracking-wider">
+                  {l.overclock}
                 </span>
-                <span className="text-[7px] text-orange-600/70 dark:text-orange-500/60 font-mono">
-                  1 MATCH
+                <span className="text-[6px] sm:text-[7px] text-orange-600/70 dark:text-orange-500/60 font-mono">
+                  {l.oneMatch}
                 </span>
               </div>
-              
+
               {/* Нижняя часть - Две кнопки с разделителем "or" */}
-              <div className="flex-shrink-0 flex flex-col gap-1.5 pt-2">
+              <div className="flex-shrink-0 flex flex-col gap-1 pt-1">
                 {/* Кнопка рекламы - верхняя */}
                 <motion.button
                   onClick={(e) => {
                     e.stopPropagation();
                     if (onOverclockClick) onOverclockClick();
                   }}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-orange-500/40 to-orange-400/40 dark:from-orange-500/30 dark:to-orange-400/30 border-2 border-orange-500/70 dark:border-orange-500/60 shadow-[0_0_10px_rgba(251,146,60,0.3)] dark:shadow-[0_0_10px_rgba(251,146,60,0.4)] whitespace-nowrap min-h-[38px] touch-manipulation"
+                  className="flex items-center justify-center gap-1 px-2 py-1 rounded-lg bg-gradient-to-r from-orange-500/40 to-orange-400/40 dark:from-orange-500/30 dark:to-orange-400/30 border-2 border-orange-500/70 dark:border-orange-500/60 shadow-[0_0_10px_rgba(251,146,60,0.2)] whitespace-nowrap min-h-[28px] touch-manipulation"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Video className="w-3.5 h-3.5 text-orange-600 dark:text-orange-300 flex-shrink-0" />
-                  <span className="text-[9px] text-orange-700 dark:text-orange-200 font-bold uppercase tracking-tight leading-none">
-                    WATCH AD
+                  <Video className="w-3 h-3 text-orange-600 dark:text-orange-300 flex-shrink-0" />
+                  <span className="text-[8px] text-orange-700 dark:text-orange-200 font-bold uppercase tracking-tight leading-none">
+                    {l.watchAd}
                   </span>
                 </motion.button>
-                
+
                 {/* Разделитель "or" - более заметный */}
-                <div className="flex items-center justify-center gap-2 py-1">
+                <div className="flex items-center justify-center gap-2 py-0.5">
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-zinc-300/50 dark:via-white/20 to-transparent" />
-                  <span className="text-[9px] text-zinc-600 dark:text-zinc-300 font-semibold uppercase tracking-wider px-2">
-                    or
+                  <span className="text-[8px] text-zinc-600 dark:text-zinc-300 font-bold uppercase tracking-wider px-1">
+                    {l.or}
                   </span>
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-zinc-300/50 dark:via-white/20 to-transparent" />
                 </div>
-                
+
                 {/* Кнопка покупки - нижняя */}
                 <button
                   onClick={(e) => {
@@ -880,9 +978,9 @@ const SlotCard: React.FC<SlotCardProps> = ({
                   }}
                   disabled={!canUnlock || isUnlocking}
                   className={cn(
-                    "flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border-2 transition-all whitespace-nowrap min-h-[38px] touch-manipulation",
+                    "flex items-center justify-center gap-1 px-2 py-1 rounded-lg border-2 transition-all whitespace-nowrap min-h-[28px] touch-manipulation",
                     canUnlock && !isUnlocking
-                      ? "bg-gradient-to-r from-yellow-500/40 to-amber-500/40 dark:from-yellow-500/30 dark:to-amber-500/30 border-yellow-500/70 dark:border-yellow-500/60 text-yellow-800 dark:text-yellow-200 shadow-[0_0_10px_rgba(234,179,8,0.3)] dark:shadow-[0_0_10px_rgba(234,179,8,0.4)] hover:from-yellow-500/50 hover:to-amber-500/50 dark:hover:from-yellow-500/40 dark:hover:to-amber-500/40 active:scale-95"
+                      ? "bg-gradient-to-r from-yellow-500/40 to-amber-500/40 dark:from-yellow-500/30 dark:to-amber-500/30 border-yellow-500/70 dark:border-yellow-500/60 text-yellow-800 dark:text-yellow-200 shadow-[0_0_10px_rgba(234,179,8,0.2)] hover:from-yellow-500/50 hover:to-amber-500/50 active:scale-95"
                       : "bg-zinc-200/50 dark:bg-zinc-800/50 border-zinc-300/50 dark:border-zinc-700/50 text-zinc-400 dark:text-zinc-500 cursor-not-allowed"
                   )}
                 >
@@ -897,9 +995,9 @@ const SlotCard: React.FC<SlotCardProps> = ({
                     </>
                   ) : (
                     <>
-                      <Coins className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="text-[9px] font-bold uppercase tracking-tight leading-none">
-                        UNLOCK {unlockCost}
+                      <Coins className="w-3 h-3 flex-shrink-0" />
+                      <span className="text-[8px] font-bold uppercase tracking-tight leading-none">
+                        {l.buy}: {unlockCost}
                       </span>
                     </>
                   )}
@@ -922,17 +1020,17 @@ const SlotCard: React.FC<SlotCardProps> = ({
                 <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-500 dark:text-amber-400" />
               </motion.div>
               <span className="text-[10px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wider">
-                PREMIUM
+                {l.premium}
               </span>
               {!userHasPremium && (
-                <motion.div 
+                <motion.div
                   className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/30 to-yellow-500/30 dark:from-amber-500/20 dark:to-yellow-500/20 border border-amber-500/50 dark:border-amber-500/40 shadow-[0_0_8px_rgba(251,191,36,0.2)] dark:shadow-[0_0_8px_rgba(251,191,36,0.3)] whitespace-nowrap"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <Crown className="w-2.5 h-2.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                   <span className="text-[8px] text-amber-700 dark:text-amber-300 font-bold uppercase tracking-tight leading-tight">
-                    GET PREMIUM
+                    {l.getPremium}
                   </span>
                 </motion.div>
               )}
@@ -951,6 +1049,8 @@ interface BoostSelectSheetContentProps {
   selectedBoost: Boost | null;
   isDark: boolean;
   onSelectBoost: (boostType: string | null) => void;
+  language: string;
+  l: any;
 }
 
 const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
@@ -958,6 +1058,8 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
   selectedBoost,
   isDark,
   onSelectBoost,
+  language,
+  l,
 }) => {
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -994,8 +1096,8 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
             <div className="p-3 rounded-full bg-zinc-100/80 dark:bg-zinc-900/50 border border-zinc-200/50 dark:border-white/10 mb-3">
               <Shield className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
             </div>
-            <p className="text-sm text-zinc-600 dark:text-zinc-500 mb-2">Инвентарь пуст</p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-600 font-mono">Go to Black Market</p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-500 mb-2">{l.inventoryEmpty}</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-600 font-mono">{l.goShop}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
@@ -1003,7 +1105,7 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
               const colors = getCategoryColor(boost.category);
               const isSelected = selectedBoost?.type === boost.type;
               const categoryLabel = boost.category === 'exploit' ? 'ATK' : boost.category === 'defense' ? 'DEF' : 'UTL';
-              
+
               return (
                 <motion.button
                   key={boost.type}
@@ -1025,7 +1127,7 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                   }}
                 >
                   {/* Цветная вертикальная полоска слева */}
-                  <div 
+                  <div
                     className={cn(
                       "absolute left-0 top-0 bottom-0 w-0.5",
                       colors.borderLeft
@@ -1034,7 +1136,7 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
 
                   {/* Иконка */}
                   <div className="flex items-center justify-center relative z-10">
-                    <span 
+                    <span
                       className={cn(
                         "text-3xl",
                         colors.icon
@@ -1053,7 +1155,11 @@ const BoostSelectSheetContent: React.FC<BoostSelectSheetContentProps> = ({
                       "text-xs font-bold truncate leading-tight",
                       isSelected ? "text-zinc-900 dark:text-white" : "text-zinc-700 dark:text-zinc-200"
                     )}>
-                      {boost.name_ru}
+                      {language === 'ru' ? boost.name_ru : language === 'es' ? boost.name_es : (boost.name_en || boost.name_ru)}
+                    </div>
+                    {/* Описание буста */}
+                    <div className="mt-1 text-[9px] leading-[1.1] text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                      {language === 'ru' ? boost.description_ru : language === 'es' ? boost.description_es : (boost.description_en || boost.description_ru)}
                     </div>
                   </div>
 

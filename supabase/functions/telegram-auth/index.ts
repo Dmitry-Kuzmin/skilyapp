@@ -41,7 +41,7 @@ serve(async (req) => {
       console.warn('[Telegram Auth] TELEGRAM_BOT_TOKEN missing, skipping photo sync');
     }
 
-    let finalPhotoUrl = photoUrl || user.photo_url;
+    const finalPhotoUrl = photoUrl || user.photo_url;
 
     const profilePayload: any = {
       telegram_id: user.id,

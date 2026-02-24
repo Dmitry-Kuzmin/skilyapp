@@ -7,10 +7,11 @@ import { initMonetag, showMonetagRewardedVideo } from '@/lib/monetag';
 /**
  * Типы наград за просмотр рекламы
  */
-export type RewardType = 
+export type RewardType =
   | 'coins'           // Монеты
   | 'restore_streak'  // Восстановление streak
-  | 'test_attempt';   // Дополнительная попытка теста
+  | 'test_attempt'    // Дополнительная попытка теста
+  | 'slot_unlock';    // Разблокировка слота
 
 export interface RewardConfig {
   type: RewardType;
@@ -100,7 +101,7 @@ export function useRewardedAd() {
 
     try {
       let rewarded: boolean;
-      
+
       // В Telegram Mini App используем только AdsGram
       if (isTelegramMiniApp()) {
         rewarded = await showAdsGramRewardedVideo();
@@ -108,15 +109,15 @@ export function useRewardedAd() {
         // В веб-версии используем Monetag Native Banner
         rewarded = await showMonetagRewardedVideo();
       }
-      
+
       setLoading(false);
       return rewarded;
     } catch (err: any) {
       console.error('[useRewardedAd] Error showing ad:', err);
-      
+
       // Обработка специфических ошибок
       let errorMessage = err.message || 'Не удалось показать рекламу';
-      
+
       // AdBlock ошибка (Monetag)
       if (err.isAdBlockError || err.message?.includes('AdBlock')) {
         errorMessage = 'AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.';
@@ -125,7 +126,7 @@ export function useRewardedAd() {
       else if (err.message?.includes('not allowed') || err.message?.includes('NotAllowedError') || err.name === 'NotAllowedError') {
         errorMessage = 'Браузер заблокировал автовоспроизведение. Пожалуйста, нажмите на кнопку еще раз после взаимодействия со страницей.';
       }
-      
+
       setError(errorMessage);
       setLoading(false);
       throw err;

@@ -48,10 +48,33 @@ export default defineConfig(({ mode }) => {
         ".ngrok-free.app",
         ".ngrok.app",
         "unlogical-despairful-stuart.ngrok-free.dev",
-        ".trycloudflare.com", // Cloudflare Tunnel
-        ".cfargotunnel.com", // Cloudflare Tunnel (named tunnels)
-        ".loca.lt", // Localtunnel (короткие URL)
+        ".trycloudflare.com",
+        ".cfargotunnel.com",
+        ".loca.lt",
       ],
+      // ОПТИМИЗАЦИЯ: Уменьшаем нагрузку от HMR overlay
+      hmr: {
+        overlay: false, // Отключаем всплывающий поверх ошибок в dev (у нас есть Type Check в IDE)
+      },
+      // ОПТИМИЗАЦИЯ: Исключаем группы файлов из file watcher
+      watch: {
+        ignored: [
+          '**/supabase/**',
+          '**/dist/**',
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/coverage/**',
+          '**/*.sql',
+        ],
+      },
+      // ОПТИМИЗАЦИЯ: Предварительный прогрев ключевых страниц (уменьшает TTFR при первом открытии)
+      warmup: {
+        clientFiles: [
+          './src/pages/Index.tsx',
+          './src/pages/games/Duel.tsx',
+          './src/App.tsx',
+        ],
+      },
     },
     plugins,
     resolve: {
@@ -214,8 +237,8 @@ export default defineConfig(({ mode }) => {
         },
       },
       chunkSizeWarningLimit: 1000,
-      // ОПТИМИЗАЦИЯ: Показываем сжатый размер для анализа
-      reportCompressedSize: true,
+      // ОПТИМИЗАЦИЯ: reportCompressedSize только в production (в dev тормозит HMR)
+      reportCompressedSize: mode === 'production',
       // ОПТИМИЗАЦИЯ: CSS code splitting для уменьшения initial CSS
       // Vite автоматически разделяет CSS на отдельные файлы для каждого chunk
       // Это уменьшает размер initial CSS bundle

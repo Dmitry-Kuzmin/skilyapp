@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -13,7 +12,20 @@ import { performanceMonitor } from "./utils/performance";
 // КРИТИЧНО: Помечаем, что main.tsx загрузился (как можно раньше!)
 if (typeof window !== 'undefined') {
   window._mainLoaded = true;
-  console.log('[Main] 🚀 Flag _mainLoaded set (TOP)');
+}
+
+// ОПТИМИЗАЦИЯ DEV: Дросселируем console.log чтобы 1925 логов не фризили JS-поток
+// В production они дропаются esbuild'ом, в dev — throttle 50ms
+if (import.meta.env.DEV) {
+  const origLog = console.log.bind(console);
+  let _lastLog = 0;
+  console.log = (...args: unknown[]) => {
+    const now = performance.now();
+    if (now - _lastLog > 50) {
+      _lastLog = now;
+      origLog(...args);
+    }
+  };
 }
 
 // Initialize Telegram Mock for localhost development
@@ -79,14 +91,6 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// КРИТИЧНО: Логирование сразу после импортов для диагностики
-if (import.meta.env.DEV) {
-  console.log('[Main] ✅ Script loaded and imports completed', {
-    timestamp: new Date().toISOString(),
-    location: window.location.href,
-    readyState: document.readyState,
-  });
-}
 
 // --------------------------------------------------------
 // 🥚 EASTER EGGS & SECURITY (Production Only)
@@ -364,24 +368,17 @@ try {
   });
 
   root.render(
-    <StrictMode>
-      <ErrorBoundary>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <LanguageProvider>
-            <CountryProvider>
-              <App />
-            </CountryProvider>
-          </LanguageProvider>
-        </ThemeProvider>
-      </ErrorBoundary>
-    </StrictMode>
+    <ErrorBoundary>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <LanguageProvider>
+          <CountryProvider>
+            <App />
+          </CountryProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 
-  if (import.meta.env.DEV) {
-    console.log('[Main] ✅✅✅ React app rendered successfully ✅✅✅', {
-      timestamp: new Date().toISOString(),
-    });
-  }
 
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event('render-event'));

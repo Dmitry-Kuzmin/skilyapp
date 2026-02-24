@@ -1721,6 +1721,18 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* How to Play fade-in animation (lightweight CSS, no framer-motion) */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Custom Animations for Game Hub */
 @keyframes gridMove {
   0% {

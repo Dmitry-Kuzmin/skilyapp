@@ -111,7 +111,7 @@ async function checkDatabaseStatus() {
       console.log('   ⚠️  Не могу проверить функции через RPC');
     } else {
       console.log(`   ✅ Найдено функций: ${functions?.length || 0}`);
-      const importantFunctions = ['get_user_profile_id', 'has_role', 'modify_boost_inventory'];
+      const importantFunctions = ['get_user_profile_id', 'has_role', 'modify_boost_inventory', 'get_dashboard_super_v2'];
       if (functions && functions.length > 0) {
         importantFunctions.forEach(func => {
           const found = functions.find(f => f.routine_name === func);
@@ -126,7 +126,7 @@ async function checkDatabaseStatus() {
   // 4. Проверка данных в основных таблицах
   console.log('\n📦 4. Проверка данных в таблицах:');
   const tablesToCheck = ['profiles', 'topics', 'questions_new', 'user_progress'];
-  
+
   for (const table of tablesToCheck) {
     try {
       const { count, error } = await supabase

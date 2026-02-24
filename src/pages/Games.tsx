@@ -12,9 +12,8 @@ import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { TermProgressModal } from "@/components/TermProgressModal";
-import { DuelCreateModal } from "@/components/duel/DuelCreateModal";
+
 import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
-import { useModal } from "@/hooks/useModal";
 import { isTelegramMiniApp } from "@/lib/telegram";
 import { motion } from "@/components/optimized/Motion";
 import { useGamesStats, useOnlinePlayers } from "@/hooks/useGamesData";
@@ -37,30 +36,18 @@ const Games = () => {
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
-  const [isDuelModalOpen, setIsDuelModalOpen] = useState(false);
-  const [duelInitialTab, setDuelInitialTab] = useState<'random' | 'friend'>('random');
-  const { openModal: openBoostShop } = useModal('BOOST_SHOP');
   const { enabled: duelsEnabled } = useFeatureFlag('duels_enabled', true);
   const { isAuthenticated } = useUserContext();
   const isTelegramUser = isTelegramMiniApp();
 
-  const handleActionClick = useCallback((action: () => void) => {
+  const handleDuelClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!isAuthenticated && !isTelegramUser) {
       setIsAuthModalOpen(true);
       return;
     }
-    action();
-  }, [isAuthenticated, isTelegramUser]);
-
-  const openDuelModal = useCallback((mode: 'random' | 'friend') => {
-    setDuelInitialTab(mode);
-    setIsDuelModalOpen(true);
-  }, []);
-
-  const handleDuelCreated = useCallback((id: string, code: string) => {
-    navigate(`/games/duel?duelId=${id}`);
-    setIsDuelModalOpen(false);
-  }, [navigate]);
+    navigate('/games/duel');
+  }, [isAuthenticated, isTelegramUser, navigate]);
 
   // ОПТИМИЗАЦИЯ: Используем React Query hooks вместо useState + useEffect
   const { data: stats, isLoading: isLoadingStats } = useGamesStats(profileId);
@@ -343,37 +330,22 @@ const Games = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-6 items-center">
-                      {/* Split Action Buttons - Random & Friend */}
+                      {/* Single CTA Button → /games/duel */}
                       {duelsEnabled ? (
-                        <div className="flex gap-3">
-                          {/* Primary: Быстрый бой (Random Match) */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleActionClick(() => openDuelModal('random'));
-                            }}
-                            className="group relative h-14 sm:h-16 px-6 sm:px-8 rounded-full font-black text-sm sm:text-base bg-white text-indigo-600 shadow-[0_10px_30px_rgba(255,255,255,0.3)] hover:shadow-[0_20px_40px_rgba(255,255,255,0.4)] hover:scale-105 active:scale-95 cursor-pointer transition-all duration-300 flex items-center gap-2 sm:gap-3 overflow-hidden flex-grow"
-                          >
-                            <Zap className="w-5 h-5 sm:w-6 sm:h-6" />
-                            <span className="hidden sm:inline">Быстрый бой</span>
-                            <span className="sm:hidden">Быстрый</span>
-                            {/* Shimmer */}
-                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
-                          </button>
-
-                          {/* Secondary: С другом (Friend Duel) */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleActionClick(() => openDuelModal('friend'));
-                            }}
-                            className="group relative h-14 sm:h-16 px-5 sm:px-6 rounded-full font-bold text-sm sm:text-base bg-white/20 backdrop-blur-sm text-white border-2 border-white/50 hover:bg-white/30 hover:border-white/70 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-300 flex items-center gap-2 overflow-hidden"
-                          >
-                            <Users className="w-5 h-5" />
-                            <span className="hidden sm:inline">С другом</span>
-                            <span className="sm:hidden">Друг</span>
-                          </button>
-                        </div>
+                        <button
+                          onClick={handleDuelClick}
+                          className="group relative h-14 sm:h-16 px-8 sm:px-10 rounded-full font-black text-sm sm:text-base bg-white text-indigo-600 shadow-[0_10px_30px_rgba(255,255,255,0.35)] hover:shadow-[0_20px_50px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 cursor-pointer transition-all duration-300 flex items-center gap-3 overflow-hidden"
+                        >
+                          <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-indigo-100/60 to-transparent pointer-events-none" />
+                          <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 ring-4 ring-white/30 pointer-events-none" />
+                          <Swords className="w-5 h-5 sm:w-6 sm:h-6 relative z-10" />
+                          <span className="relative z-10">Вступить в арену</span>
+                          <div className="relative z-10 flex items-center gap-1 ml-1 opacity-60">
+                            <div className="w-1 h-1 rounded-full bg-indigo-400" />
+                            <div className="w-1 h-1 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0.1s' }} />
+                            <div className="w-1 h-1 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
+                          </div>
+                        </button>
                       ) : (
                         <button
                           disabled
@@ -625,12 +597,7 @@ const Games = () => {
         onClose={() => setIsProgressModalOpen(false)}
       />
 
-      <DuelCreateModal
-        open={isDuelModalOpen}
-        onClose={() => setIsDuelModalOpen(false)}
-        initialTab={duelInitialTab}
-        onDuelCreated={handleDuelCreated}
-      />
+
 
       <AuthModal
         open={isAuthModalOpen}

@@ -46,6 +46,7 @@ const localeMap: Record<Language, string> = {
 interface BoostShopModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialTab?: 'boosts' | 'coins' | 'premium' | 'history';
 }
 
 interface Boost {
@@ -74,7 +75,7 @@ interface Transaction {
   metadata?: any;
 }
 
-export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
+export function BoostShopModal({ open, onOpenChange, initialTab }: BoostShopModalProps) {
   // БЕЗОПАСНОЕ использование UserContext - может быть undefined если модалка открыта вне UserProvider
   const userContext = useContext(UserContext);
 
@@ -166,7 +167,13 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
-  const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>('boosts');
+  const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>(initialTab || 'boosts');
+
+  useEffect(() => {
+    if (open && initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [open, initialTab]);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
 
@@ -768,30 +775,30 @@ export function BoostShopModal({ open, onOpenChange }: BoostShopModalProps) {
       localStorage.setItem('paddle_transaction_id', data.transaction_id);
 
       // КРИТИЧНО: В Telegram WebView overlay работает плохо, используем прямой редирект
-      // В веб-версии используем overlay для лучшего UX
+      // В веб-версии используем overlay через Paddle JS SDK
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
 
-      // Формируем URL чекаута с параметрами для темной темы (если поддерживается)
-      const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
+      // PADDLE BILLING v2: правильный формат URL - через дефолтную Payment Link + _ptxn параметр
+      // НЕ используем /transaction/ путь напрямую — он требует одобренный домен в Paddle Dashboard
+      // Правильный формат: https://checkout.paddle.com/checkout/custom-checkout?_ptxn=txn_xxx
+      // Либо через Payment Link: https://buy.paddle.com/product/xxx?_ptxn=txn_xxx
+      // Самый надёжный — overlay через SDK (для веба) или openCheckoutOverlay
+      const paddleCheckoutUrl = `https://checkout.paddle.com/checkout/custom-checkout?_ptxn=${data.transaction_id}`;
 
-      // В Telegram всегда используем прямой редирект через openLink
-      // Это откроет чекаут в системном браузере, где он будет выглядеть лучше
+      // В Telegram — открываем через системный браузер
       if (isTelegram && webApp) {
-        console.log("[BoostShop] Opening Paddle checkout in Telegram (system browser):", {
+        console.log("[BoostShop] Opening Paddle checkout in Telegram:", {
           transactionId: data.transaction_id,
           url: paddleCheckoutUrl
         });
 
         setPurchaseLoading(null);
 
-        // Используем openLink для открытия в системном браузере
-        // Это обеспечит лучший UX и корректное отображение чекаута
         if ((webApp as any).openLink) {
           (webApp as any).openLink(paddleCheckoutUrl);
         } else {
-          // Fallback: прямой редирект (менее предпочтительно)
-          window.location.href = paddleCheckoutUrl;
+          window.open(paddleCheckoutUrl, '_blank');
         }
         return;
       }
