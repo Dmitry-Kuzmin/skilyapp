@@ -23,6 +23,7 @@ import { PartnerLinkGenerator } from "@/components/partner/PartnerLinkGenerator"
 import { PartnerBalancePayouts } from "@/components/partner/PartnerBalancePayouts";
 import { AutoschoolStudentsProgress } from "@/components/partner/AutoschoolStudentsProgress";
 import { PartnerHandbook } from "@/components/partner/PartnerHandbook";
+import { PageLoader } from "@/components/PageLoader";
 
 interface PartnerData {
   id: string;
@@ -59,7 +60,7 @@ export default function ModernPartnerDashboard() {
     if (!supabaseUser) return;
 
     setLoading(true);
-    
+
     try {
       const { data: partnerData, error: partnerError } = await supabase
         .from("partners")
@@ -80,13 +81,13 @@ export default function ModernPartnerDashboard() {
 
       if (partnerData) {
         setPartner(partnerData);
-        
+
         // Загружаем реальные данные из воронки конверсий
         const { data: stats, error: statsError } = await supabase.rpc('get_partner_funnel_stats', {
           p_partner_id: partnerData.id,
           p_days: 30
         });
-        
+
         if (!statsError && stats && stats.length > 0) {
           setFunnelStats({
             clicks: Number(stats[0].clicks) || 0,
@@ -114,11 +115,11 @@ export default function ModernPartnerDashboard() {
       navigate("/partners");
       return;
     }
-    
+
     if (!supabaseUser) return;
-    
+
     loadDashboardData();
-    
+
     // Обновляем данные каждые 60 секунд, только если страница видима
     const interval = setInterval(() => {
       if (isAuthenticated && supabaseUser && document.visibilityState === 'visible') {
@@ -130,13 +131,7 @@ export default function ModernPartnerDashboard() {
   }, [isAuthenticated, supabaseUser, loadDashboardData, navigate]);
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-          <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full" />
-        </div>
-      </Layout>
-    );
+    return <PageLoader />;
   }
 
   // Партнер считается одобренным, если:
@@ -144,7 +139,7 @@ export default function ModernPartnerDashboard() {
   // 2. есть partner_code (код генерируется только для одобренных партнеров)
   // 3. registration_status === null или undefined (старые партнеры без явного статуса, но с кодом)
   const isApproved = partner && (
-    partner.registration_status === "approved" || 
+    partner.registration_status === "approved" ||
     (partner.partner_code && partner.partner_code.trim() !== "") ||
     (partner.registration_status === null && partner.partner_code)
   );
@@ -229,7 +224,7 @@ export default function ModernPartnerDashboard() {
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-          
+
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {statCards.map((stat, index) => {
@@ -269,14 +264,14 @@ export default function ModernPartnerDashboard() {
               {/* Показываем табы если партнер одобрен (по той же логике, что и доступ к дашборду) */}
               {isApproved && (
                 <>
-                  <TabsTrigger 
+                  <TabsTrigger
                     value="funnel"
                     className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                   >
                     <BarChart3 className="h-4 w-4 mr-1.5" />
                     Аналитика
                   </TabsTrigger>
-                  <TabsTrigger 
+                  <TabsTrigger
                     value="link-generator"
                     className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                   >
@@ -284,7 +279,7 @@ export default function ModernPartnerDashboard() {
                     Ссылки
                   </TabsTrigger>
                   {partner.partner_type === "revenue_share" && (
-                    <TabsTrigger 
+                    <TabsTrigger
                       value="balance"
                       className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                     >
@@ -293,7 +288,7 @@ export default function ModernPartnerDashboard() {
                     </TabsTrigger>
                   )}
                   {partner.partner_type === "autoschool" && (
-                    <TabsTrigger 
+                    <TabsTrigger
                       value="students"
                       className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                     >
@@ -301,14 +296,14 @@ export default function ModernPartnerDashboard() {
                       Студенты
                     </TabsTrigger>
                   )}
-                  <TabsTrigger 
+                  <TabsTrigger
                     value="materials"
                     className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                   >
                     <Download className="h-4 w-4 mr-1.5" />
                     Материалы
                   </TabsTrigger>
-                  <TabsTrigger 
+                  <TabsTrigger
                     value="handbook"
                     className="data-[state=active]:bg-zinc-800 data-[state=active]:text-white text-zinc-400 px-3 py-2 text-sm font-medium rounded-md transition-all"
                   >

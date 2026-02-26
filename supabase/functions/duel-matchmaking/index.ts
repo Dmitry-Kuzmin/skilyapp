@@ -230,8 +230,46 @@ Deno.serve(async (req) => {
 
                 await supabase.from('duel_questions').insert(duelQuestions);
 
+                // Запись транзакций для ставки и страховки
+                if (bet_amount > 0) {
+                    try {
+                        const txData = [];
+                        txData.push({
+                            duel_id: duel.id,
+                            user_id: profileId,
+                            amount: -bet_amount,
+                            transaction_type: 'bet'
+                        });
+                        if (hostInsurance.enabled && (hostInsurance.premium || 0) > 0) {
+                            txData.push({
+                                duel_id: duel.id,
+                                user_id: profileId,
+                                amount: -hostInsurance.premium,
+                                transaction_type: 'insurance_premium'
+                            });
+                        }
+                        await supabase.from('duel_transactions').insert(txData);
+                        console.log(`[create_duel] Transactions saved for user ${profileId} in duel ${duel.id}`);
+                    } catch (txErr) {
+                        console.error('[create_duel] Failed to save transactions', txErr);
+                    }
+                }
+
                 // ✅ Host already added by trigger auto_add_host_to_duel_players
-                console.log('[create_duel] Host automatically added by trigger');
+                // Но нам нужно обновить его данными страховки
+                if (hostInsurance.enabled) {
+                    await supabase
+                        .from('duel_players')
+                        .update({
+                            insurance_enabled: hostInsurance.enabled,
+                            insurance_premium: hostInsurance.premium,
+                            insurance_coverage_rate: hostInsurance.coverageRate,
+                        })
+                        .eq('duel_id', duel.id)
+                        .eq('user_id', profileId);
+                }
+
+                console.log('[create_duel] Host automatically added by trigger and updated with insurance');
 
                 return new Response(JSON.stringify({ duel, code }), {
                     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -312,6 +350,31 @@ Deno.serve(async (req) => {
                     .update({ status: 'active', started_at: new Date().toISOString() })
                     .eq('id', duel.id);
 
+                // Запись транзакций для ставки и страховки присоединившегося игрока
+                if (duel.bet_amount > 0) {
+                    try {
+                        const txData = [];
+                        txData.push({
+                            duel_id: duel.id,
+                            user_id: profileId,
+                            amount: -duel.bet_amount,
+                            transaction_type: 'bet'
+                        });
+                        if (joinerInsurance.enabled && (joinerInsurance.premium || 0) > 0) {
+                            txData.push({
+                                duel_id: duel.id,
+                                user_id: profileId,
+                                amount: -joinerInsurance.premium,
+                                transaction_type: 'insurance_premium'
+                            });
+                        }
+                        await supabase.from('duel_transactions').insert(txData);
+                        console.log(`[join_duel] Transactions saved for user ${profileId} in duel ${duel.id}`);
+                    } catch (txErr) {
+                        console.error('[join_duel] Failed to save transactions', txErr);
+                    }
+                }
+
                 return new Response(JSON.stringify({
                     duel,
                     player,
@@ -349,6 +412,31 @@ Deno.serve(async (req) => {
 
                 const playerCountry = playerProfile.preferred_country || 'spain';
 
+                // Рассчитываем страховку хоста
+                const hostInsurance = bet_amount > 0 ? getInsuranceConfig(bet_amount, {
+                    enabled: insurance_enabled,
+                    rate: insurance_rate,
+                    coverageRate: insurance_coverage_rate
+                }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
+
+                // Списываем монеты если есть ставка
+                if (bet_amount > 0) {
+                    const requiredCoins = bet_amount + (hostInsurance.premium || 0);
+                    if ((playerProfile.coins || 0) < requiredCoins) {
+                        return new Response(JSON.stringify({
+                            error: `Insufficient coins. You need ${requiredCoins} coins but only have ${playerProfile.coins || 0}`
+                        }), {
+                            status: 400,
+                            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                        });
+                    }
+                    await supabase.rpc('increment_profile_value', {
+                        p_profile_id: profileId,
+                        p_column: 'coins',
+                        p_amount: -(requiredCoins)
+                    });
+                }
+
                 const queueData: Record<string, any> = {
                     profile_id: profileId,
                     num_questions,
@@ -366,7 +454,7 @@ Deno.serve(async (req) => {
 
                 await supabase.from('duel_matchmaking_queue').insert(queueData);
 
-                // Try to find a match for ~5 seconds
+                // Ищем реального оппонента ~5 секунд
                 let matchedOpponent = null;
                 const searchTimeout = 5000;
                 const searchStart = Date.now();
@@ -387,14 +475,14 @@ Deno.serve(async (req) => {
                     await new Promise(r => setTimeout(r, 1000));
                 }
 
-                // If no match, create bot duel
+                // Создаём бот-дуэль
                 const botProfile = generateBotProfile(playerProfile.duel_pass_level || 1, playerProfile.win_streak || 0);
 
                 const code = generateDuelCode();
                 const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
                 const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-                const { data: duel } = await supabase
+                const { data: duel, error: duelError } = await supabase
                     .from('duels')
                     .insert({
                         code,
@@ -403,8 +491,8 @@ Deno.serve(async (req) => {
                         categories,
                         difficulty,
                         question_seed: questionSeed,
-                        bet_amount: 0, // Bot duels are always free
-                        bet_type: 'none',
+                        bet_amount: bet_amount,
+                        bet_type: bet_amount > 0 ? bet_type : 'none',
                         expires_at: expiresAt,
                         country: playerCountry,
                         status: 'active',
@@ -412,6 +500,19 @@ Deno.serve(async (req) => {
                     })
                     .select()
                     .single();
+
+                if (duelError || !duel) {
+                    // Возвращаем монеты если дуэль не создалась
+                    if (bet_amount > 0) {
+                        const requiredCoins = bet_amount + (hostInsurance.premium || 0);
+                        await supabase.rpc('increment_profile_value', {
+                            p_profile_id: profileId,
+                            p_column: 'coins',
+                            p_amount: requiredCoins
+                        });
+                    }
+                    throw duelError || new Error('Failed to create duel');
+                }
 
                 const questions = await fetchRandomQuestions(
                     supabase,
@@ -430,7 +531,6 @@ Deno.serve(async (req) => {
                     correct_option_ids: q.correct_option_id ? [q.correct_option_id] : [],
                 }));
 
-                // Insert questions and verify
                 const { data: insertedQuestions, error: questionsError } = await supabase
                     .from('duel_questions')
                     .insert(duelQuestions)
@@ -441,8 +541,46 @@ Deno.serve(async (req) => {
                     throw new Error('Failed to create duel questions');
                 }
 
-                // ✅ Host already added by trigger, only insert bot
-                console.log('[find_match] Host added by trigger, inserting bot...');
+                // Запись транзакций для ставки и страховки хоста (бота)
+                if (bet_amount > 0) {
+                    try {
+                        const txData = [];
+                        txData.push({
+                            duel_id: duel.id,
+                            user_id: profileId,
+                            amount: -bet_amount,
+                            transaction_type: 'bet'
+                        });
+                        if (hostInsurance.enabled && (hostInsurance.premium || 0) > 0) {
+                            txData.push({
+                                duel_id: duel.id,
+                                user_id: profileId,
+                                amount: -hostInsurance.premium,
+                                transaction_type: 'insurance_premium'
+                            });
+                        }
+                        await supabase.from('duel_transactions').insert(txData);
+                        console.log(`[find_match] Transactions saved for user ${profileId} in duel ${duel.id}`);
+                    } catch (txErr) {
+                        console.error('[find_match] Failed to save transactions', txErr);
+                    }
+                }
+
+                // Обновляем запись хоста в duel_players (добавляем страховку)
+                // Хост уже добавлен триггером auto_add_host_to_duel_players
+                if (hostInsurance.enabled) {
+                    await supabase
+                        .from('duel_players')
+                        .update({
+                            insurance_enabled: hostInsurance.enabled,
+                            insurance_premium: hostInsurance.premium,
+                            insurance_coverage_rate: hostInsurance.coverageRate,
+                        })
+                        .eq('duel_id', duel.id)
+                        .eq('user_id', profileId);
+                }
+
+                console.log('[find_match] Inserting bot player...');
 
                 const { data: botPlayer, error: botError } = await supabase
                     .from('duel_players')

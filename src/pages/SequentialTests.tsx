@@ -9,13 +9,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUserContext } from "@/contexts/UserContext";
 import { useSequentialTests } from "@/hooks/useSequentialTests";
-import { 
-  Lock, 
-  Unlock, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  Play, 
+import {
+  Lock,
+  Unlock,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Play,
   Eye,
   ArrowRight,
   BookOpen,
@@ -30,6 +30,7 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { PageLoader } from "@/components/PageLoader";
 
 type Test = {
   id: string;
@@ -78,12 +79,12 @@ const SequentialTests = () => {
 
   const initializeUserProgress = async () => {
     if (!profileId) return;
-    
+
     try {
       const { error } = await supabase.rpc('initialize_user_test_progress', {
         p_user_id: profileId
       });
-      
+
       if (error) {
         console.error('Error initializing user progress:', error);
       }
@@ -104,7 +105,7 @@ const SequentialTests = () => {
     setSelectedTest(test);
     setShowPreview(true);
     setLoadingPreview(true);
-    
+
     try {
       const { data, error } = await supabase.rpc('get_test_questions', {
         p_test_id: test.id
@@ -198,10 +199,10 @@ const SequentialTests = () => {
   const getTopicProgress = (topicTests: Test[]) => {
     const totalTests = topicTests.length;
     const passedTests = topicTests.filter(t => t.progress?.status === 'passed').length;
-    const unlockedTests = topicTests.filter(t => 
+    const unlockedTests = topicTests.filter(t =>
       t.progress && t.progress.status !== 'locked'
     ).length;
-    
+
     return {
       total: totalTests,
       passed: passedTests,
@@ -221,22 +222,14 @@ const SequentialTests = () => {
   }, {} as Record<number, Test[]>);
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-muted-foreground">Загрузка тестов...</div>
-          </div>
-        </div>
-      </Layout>
-    );
+    return <PageLoader />;
   }
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-6 sm:py-8">
         {/* Заголовок с улучшенным дизайном */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
@@ -263,7 +256,7 @@ const SequentialTests = () => {
               .map(([topicNumber, topicTests], topicIndex) => {
                 const topicProgress = getTopicProgress(topicTests);
                 const isTopicComplete = topicProgress.passed === topicProgress.total;
-                
+
                 return (
                   <motion.div
                     key={topicNumber}
@@ -278,8 +271,8 @@ const SequentialTests = () => {
                         <div className="flex items-center gap-3">
                           <div className={cn(
                             "p-2 rounded-lg",
-                            isTopicComplete 
-                              ? "bg-green-500/20 border-2 border-green-500/30" 
+                            isTopicComplete
+                              ? "bg-green-500/20 border-2 border-green-500/30"
                               : "bg-primary/20 border-2 border-primary/30"
                           )}>
                             <BookOpen className={cn(
@@ -299,21 +292,21 @@ const SequentialTests = () => {
                             </p>
                           </div>
                         </div>
-                        
+
                         {/* Прогресс-бар темы */}
                         <div className="flex-1 max-w-xs">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-medium">Прогресс темы</span>
                             <span className="text-sm font-bold text-primary">{topicProgress.percentage}%</span>
                           </div>
-                          <Progress 
-                            value={topicProgress.percentage} 
+                          <Progress
+                            value={topicProgress.percentage}
                             className="h-3"
                           />
                         </div>
                       </div>
                     </Card>
-                    
+
                     {/* Карточки тестов */}
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       <AnimatePresence>
@@ -330,8 +323,8 @@ const SequentialTests = () => {
                               className={cn(
                                 "p-5 h-full transition-all duration-300 cursor-pointer",
                                 "border-2 hover:border-primary/50",
-                                test.progress?.status === 'locked' 
-                                  ? "opacity-60 bg-muted/30 border-dashed" 
+                                test.progress?.status === 'locked'
+                                  ? "opacity-60 bg-muted/30 border-dashed"
                                   : "hover:shadow-xl shadow-md",
                                 test.progress?.status === 'passed' && "border-green-500/30 bg-green-500/5",
                                 test.progress?.status === 'unlocked' && "border-blue-500/30 bg-blue-500/5 ring-2 ring-blue-500/20",
@@ -384,7 +377,7 @@ const SequentialTests = () => {
                                     <span className="text-lg font-bold">{test.min_pass_percent}%</span>
                                   </div>
                                 </div>
-                                
+
                                 {/* Прогресс и статистика */}
                                 {test.progress && test.progress.status !== 'locked' && (
                                   <div className="space-y-2 pt-2 border-t border-border/50">
@@ -419,8 +412,8 @@ const SequentialTests = () => {
                                           <span className="text-xs text-muted-foreground">Прогресс прохождения</span>
                                           <span className="text-xs font-bold">{getProgressPercentage(test)}%</span>
                                         </div>
-                                        <Progress 
-                                          value={getProgressPercentage(test)} 
+                                        <Progress
+                                          value={getProgressPercentage(test)}
                                           className="h-2"
                                         />
                                       </div>
@@ -513,7 +506,7 @@ const SequentialTests = () => {
               </Badge>
             </DialogDescription>
           </DialogHeader>
-          
+
           <ScrollArea className="max-h-[60vh] pr-4">
             {loadingPreview ? (
               <div className="flex flex-col items-center justify-center py-12">

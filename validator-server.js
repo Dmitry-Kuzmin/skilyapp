@@ -138,8 +138,8 @@ async function serveImageWithFallback(req, res, next) {
                     .toBuffer();
 
                 res.setHeader('Content-Type', 'image/png');
-                res.setHeader('Cache-Control', 'public, max-age=31536000');
-                return res.send(buffer);
+                res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+                return res.send(buffer); buffer = null;
             }
         }
         res.sendFile(targetPath);
@@ -270,8 +270,8 @@ async function buildSearchIndex() {
     console.log(`✅ Search Index Ready: ${index.length} questions. (Unique IDs tracked: ${Object.keys(GLOBAL_QUESTION_LOCATIONS).length})`);
 }
 
-// Start building on launch
-buildSearchIndex();
+// Start building on launch - DELAYED to avoid startup spike
+setTimeout(buildSearchIndex, 5000);
 
 // АРХИТЕКТУРА: File Watcher for Auto-Rebuild
 let rebuildDebounceTimer = null;
@@ -894,7 +894,7 @@ app.post('/api/generate/start', async (req, res) => {
             args.push('--limit=' + limit);
         }
 
-        generationProcess = spawn('node', args, {
+        generationProcess = spawn('node', ['--expose-gc', ...args], {
             cwd: process.cwd()
         });
 
@@ -3040,12 +3040,19 @@ app.get('/api/debug/check-missing/:topic/:test', async (req, res) => {
 // ==========================================
 
 // Get all images grouped by topic
-// Cache for questions map
+// Cache for questions map (Map instead of Array for memory efficiency)
 let _questionsMapCache = null;
 async function getCachedQuestionsMap() {
-    if (!_questionsMapCache) {
-        console.log('🔄 Loading questions map for gallery...');
+    if (!_questionsMapCache || _questionsMapCache.size === 0) {
+        console.log('🔄 Loading questions map for gallery (Lazy)...');
         _questionsMapCache = await loadQuestionData();
+
+        // Auto-clear cache after 5 minutes of inactivity to free memory
+        if (global.galleryCacheTimer) clearTimeout(global.galleryCacheTimer);
+        global.galleryCacheTimer = setTimeout(() => {
+            console.log('🧹 Clearing gallery questions cache to free memory...');
+            _questionsMapCache = null;
+        }, 5 * 60 * 1000);
     }
     return _questionsMapCache;
 }
@@ -3376,6 +3383,8 @@ app.get('/api/proxy-image', async (req, res) => {
 
 // START SERVER
 app.listen(PORT, async () => {
+    if (global.gc) { setInterval(() => { console.log("🧹 Manual GC run..."); global.gc(); }, 10 * 60 * 1000); }
+
     console.log(`
 ============================================================
 🚀 VALIDATOR SERVER STARTED

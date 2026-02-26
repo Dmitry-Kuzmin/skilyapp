@@ -24,6 +24,7 @@ import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageLoader } from "@/components/PageLoader";
 
 interface SecurityMetrics {
   totalUsers: number;
@@ -47,7 +48,7 @@ interface ActivityLog {
 }
 
 export function AdminSecurityMonitoring() {
-  
+
   const [metrics, setMetrics] = useState<SecurityMetrics>({
     totalUsers: 0,
     activeUsers24h: 0,
@@ -66,7 +67,7 @@ export function AdminSecurityMonitoring() {
   useEffect(() => {
     fetchSecurityMetrics();
     fetchActivityLogs();
-    
+
     // Auto-refresh every 30 seconds
     const interval = setInterval(() => {
       fetchSecurityMetrics();
@@ -214,22 +215,7 @@ export function AdminSecurityMonitoring() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center space-y-4"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto"
-          />
-          <p className="text-muted-foreground">Загрузка метрик безопасности...</p>
-        </motion.div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (
@@ -521,7 +507,7 @@ export function AdminSecurityMonitoring() {
                     <div>
                       <p className="font-semibold text-sm">Настройте логирование в Supabase</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Перейдите в Supabase Dashboard → Logs для детального мониторинга API запросов, 
+                        Перейдите в Supabase Dashboard → Logs для детального мониторинга API запросов,
                         авторизации и работы с базой данных.
                       </p>
                     </div>
@@ -546,7 +532,7 @@ export function AdminSecurityMonitoring() {
                     <div>
                       <p className="font-semibold text-sm">Регулярно проверяйте метрики</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Рекомендуется проверять метрики безопасности еженедельно и настраивать алерты 
+                        Рекомендуется проверять метрики безопасности еженедельно и настраивать алерты
                         при обнаружении подозрительной активности.
                       </p>
                     </div>

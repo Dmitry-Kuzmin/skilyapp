@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { calculateTopicProgress, calculateOverallProgress } from "@/utils/learningMap";
 import { cn } from "@/lib/utils";
-import { TopicDetailSkeleton } from "@/components/learning-map/TopicDetailSkeleton";
+import { PageLoader } from "@/components/PageLoader";
 import { FlashCardsModal } from "@/components/FlashCardsModal";
 
 const TopicDetail = () => {
@@ -114,11 +114,7 @@ const TopicDetail = () => {
   };
 
   if (loading) {
-    return (
-      <Layout>
-        <TopicDetailSkeleton />
-      </Layout>
-    );
+    return <PageLoader />;
   }
 
   if (!topic) {
@@ -223,8 +219,8 @@ const TopicDetail = () => {
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Подтемы</h2>
             <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setFlashcardsOpen(true)}
                 className="gap-2"
               >

@@ -355,6 +355,27 @@ class SoundManager {
     oscillator.stop(now + 0.3);
   }
 
+  // Aliases for compatibility
+  flip() {
+    this.playClick(1000, 0.1);
+  }
+
+  success() {
+    this.playSuccess(0.15);
+  }
+
+  error() {
+    this.playError(0.1);
+  }
+
+  boost5050() {
+    this.boostFiftyFifty();
+  }
+
+  boostTimeFreeze() {
+    this.boostFreeze();
+  }
+
   // Enable/disable sounds
   setEnabled(enabled: boolean) {
     this.enabled = enabled;

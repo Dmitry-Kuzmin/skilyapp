@@ -4,7 +4,7 @@ import { RoadSignCard } from "@/components/RoadSignCard";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Search, Loader2, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import Layout from "@/components/Layout";
 import { PageLoader } from "@/components/PageLoader";
@@ -180,11 +180,7 @@ export default function RoadSigns() {
   const signTypes = [...new Set(signs.map(s => s.sign_type))];
 
   if (loading) {
-    return (
-      <Layout>
-        <PageLoader />
-      </Layout>
-    );
+    return <PageLoader />;
   }
 
   return (

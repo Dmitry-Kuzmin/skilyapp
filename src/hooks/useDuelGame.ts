@@ -218,6 +218,17 @@ export function useDuelGame({
       }
 
       hydrateQuestions(questionList);
+
+      // ⚡️ ПРЕДЗАГРУЗКА ИЗОБРАЖЕНИЯ ПЕРВОГО ВОПРОСА
+      // Чтобы не было "черной полосы" в начале дуэли, ждем загрузки картинки
+      const firstQuestion = questionList[0];
+      const imageUrl = firstQuestion?.question_snapshot?.image_url;
+      if (imageUrl) {
+        log('[useDuelGame] 🖼️ Waiting for first question image to preload...');
+        const { preloadImage } = await import('@/utils/imageUtils');
+        await preloadImage(imageUrl);
+        log('[useDuelGame] ✅ First image preloaded');
+      }
     } catch (error) {
       logError('[useDuelGame] Failed to load questions after retries:', error);
       toast.error(`Ошибка загрузки вопросов: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`, {

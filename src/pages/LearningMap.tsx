@@ -24,7 +24,7 @@ import {
 import { calculateTopicProgress } from "@/utils/learningMap";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { hasStaticMaterial } from "@/utils/staticMaterials";
-import { LearningMapSkeleton } from "@/components/learning-map/LearningMapSkeleton";
+import { PageLoader } from "@/components/PageLoader";
 
 const isLearningMapDebug =
   import.meta.env.DEV && import.meta.env.VITE_DEBUG_LEARNING_MAP === "true";
@@ -512,7 +512,7 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
         </div>
       );
     }
-    return renderWithLayout(<LearningMapSkeleton />);
+    return renderWithLayout(<PageLoader />);
   }
 
   if (error) {

@@ -7,7 +7,7 @@ import { Checkpoint } from "@/components/road-race/Checkpoint";
 import { Results } from "@/components/road-race/Results";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
-import { Loader2 } from "lucide-react";
+import { PageLoader } from "@/components/PageLoader";
 
 type GameState = "menu" | "game" | "checkpoint" | "results";
 
@@ -54,7 +54,7 @@ export interface GameStats {
 
 const RoadRace = () => {
   const navigate = useNavigate();
-  
+
   const [gameState, setGameState] = useState<GameState>("menu");
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [routes, setRoutes] = useState<Route[]>([]);
@@ -84,15 +84,15 @@ const RoadRace = () => {
         .order("difficulty", { ascending: true });
 
       if (error) throw error;
-      
+
       // Transform the data to match the Route interface
       const transformedRoutes: Route[] = (data || []).map(route => ({
         ...route,
-        question_mix: typeof route.question_mix === 'string' 
+        question_mix: typeof route.question_mix === 'string'
           ? JSON.parse(route.question_mix)
           : route.question_mix as { signs: number; terms: number; questions: number },
       }));
-      
+
       setRoutes(transformedRoutes);
     } catch (error: any) {
       toast({
@@ -142,13 +142,7 @@ const RoadRace = () => {
   };
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      </Layout>
-    );
+    return <PageLoader />;
   }
 
   return (

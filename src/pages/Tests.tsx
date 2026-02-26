@@ -26,6 +26,7 @@ import { loadTestProgress } from "@/utils/testStorage";
 import { cn } from "@/lib/utils";
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { useDashboardData } from "@/hooks/useDashboardData";
+import { PageLoader } from "@/components/PageLoader";
 
 // --- Types ---
 type Topic = {
@@ -432,6 +433,10 @@ const Tests = () => {
     "Средняя": "warning",
     "Сложная": "destructive",
   };
+
+  if (topicsLoading || ticketsLoading) {
+    return <PageLoader />;
+  }
 
   return (
     <>

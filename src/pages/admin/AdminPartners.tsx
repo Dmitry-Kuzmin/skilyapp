@@ -45,6 +45,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { MotionDiv as motion } from "@/components/optimized/Motion";
+import { PageLoader } from "@/components/PageLoader";
 
 interface Partner {
   id: string;
@@ -195,12 +196,12 @@ export function AdminPartners() {
 
     // Учитываем случаи, когда registration_status может быть null/undefined (старые партнеры)
     const partnerStatus = partner.registration_status || null;
-    const matchesStatus = 
-      statusFilter === "all" || 
+    const matchesStatus =
+      statusFilter === "all" ||
       (statusFilter === "pending" && (partnerStatus === "pending" || partnerStatus === null)) ||
       (statusFilter === "approved" && partnerStatus === "approved") ||
       (statusFilter === "rejected" && partnerStatus === "rejected");
-    
+
     const matchesType = typeFilter === "all" || partner.partner_type === typeFilter;
 
     return matchesSearch && matchesStatus && matchesType;
@@ -218,10 +219,10 @@ export function AdminPartners() {
     activationRate:
       partners.reduce((sum, p) => sum + p.total_keys_issued, 0) > 0
         ? Math.round(
-            (partners.reduce((sum, p) => sum + p.total_keys_activated, 0) /
-              partners.reduce((sum, p) => sum + p.total_keys_issued, 0)) *
-              100
-          )
+          (partners.reduce((sum, p) => sum + p.total_keys_activated, 0) /
+            partners.reduce((sum, p) => sum + p.total_keys_issued, 0)) *
+          100
+        )
         : 0,
   };
 
@@ -328,11 +329,7 @@ export function AdminPartners() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (
@@ -551,15 +548,15 @@ export function AdminPartners() {
                       partner.registration_status === "approved"
                         ? "default"
                         : partner.registration_status === "pending" || !partner.registration_status
-                        ? "secondary"
-                        : "destructive"
+                          ? "secondary"
+                          : "destructive"
                     }
                   >
                     {partner.registration_status === "pending" || !partner.registration_status
                       ? "На модерации"
                       : partner.registration_status === "approved"
-                      ? "Одобрено"
-                      : "Отклонено"}
+                        ? "Одобрено"
+                        : "Отклонено"}
                   </Badge>
                   <Badge variant={partner.status === "active" ? "default" : "outline"}>
                     {partner.status}
@@ -756,16 +753,16 @@ export function AdminPartners() {
                     selectedPartner.registration_status === "approved"
                       ? "default"
                       : selectedPartner.registration_status === "pending" || !selectedPartner.registration_status
-                      ? "secondary"
-                      : "destructive"
+                        ? "secondary"
+                        : "destructive"
                   }
                   className="text-sm"
                 >
                   {selectedPartner.registration_status === "pending" || !selectedPartner.registration_status
                     ? "На модерации"
                     : selectedPartner.registration_status === "approved"
-                    ? "Одобрено"
-                    : "Отклонено"}
+                      ? "Одобрено"
+                      : "Отклонено"}
                 </Badge>
                 <Badge variant={selectedPartner.status === "active" ? "default" : "outline"}>
                   {selectedPartner.status}
@@ -955,10 +952,10 @@ export function AdminPartners() {
                       <p className="text-2xl font-bold">
                         {selectedPartner.total_keys_issued > 0
                           ? Math.round(
-                              (selectedPartner.total_keys_activated /
-                                selectedPartner.total_keys_issued) *
-                                100
-                            )
+                            (selectedPartner.total_keys_activated /
+                              selectedPartner.total_keys_issued) *
+                            100
+                          )
                           : 0}
                         %
                       </p>
@@ -1000,17 +997,17 @@ export function AdminPartners() {
                                   key.status === "activated"
                                     ? "default"
                                     : key.status === "expired"
-                                    ? "destructive"
-                                    : "secondary"
+                                      ? "destructive"
+                                      : "secondary"
                                 }
                               >
                                 {key.status === "issued"
                                   ? "Выдан"
                                   : key.status === "activated"
-                                  ? "Активирован"
-                                  : key.status === "expired"
-                                  ? "Истек"
-                                  : "Отозван"}
+                                    ? "Активирован"
+                                    : key.status === "expired"
+                                      ? "Истек"
+                                      : "Отозван"}
                               </Badge>
                               {key.activated_at && (
                                 <span className="text-xs text-muted-foreground">

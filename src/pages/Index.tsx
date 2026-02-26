@@ -7,14 +7,13 @@ import { toast } from 'sonner';
 import Landing from "./Landing";
 import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
-import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton";
+import { PageLoader } from "@/components/PageLoader";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
 // ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
 // Все эти компоненты тянут Supabase/Radix, поэтому Layout не должен быть в initial bundle
-import { PageLoader } from "@/components/PageLoader";
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
 import { StartupCurtain } from "@/components/StartupCurtain";
 const Layout = lazy(() => import("@/components/Layout").then(m => ({ default: m.default })));
@@ -239,7 +238,7 @@ const DashboardContent = memo(function DashboardContent() {
       )}
       <Suspense fallback={<PageLoader />}>
         <Layout hideNavigation={showWelcome}>
-          <div className={`w-full pb-6 ${(showWelcome && !hasError) || loading ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+          <div className={`w-full pb-6 ${(showWelcome && !hasError) || (loading && !!dashboardData) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
             {hasError ? (
               <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-[2.5rem] border border-slate-800/50">
                 <div className="text-center max-w-md space-y-6">
@@ -303,7 +302,7 @@ const DashboardContent = memo(function DashboardContent() {
                 </Suspense>
               </>
             ) : (
-              <DashboardSkeleton />
+              <PageLoader />
             )}
           </div>
         </Layout>

@@ -12,6 +12,7 @@ import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import { useLanguage } from "@/contexts/LanguageContext";
 import Layout from "@/components/Layout";
+import { PageLoader } from "@/components/PageLoader";
 import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 import Confetti from "react-confetti";
@@ -326,24 +327,7 @@ export default function GuessTheSign() {
   };
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center bg-transparent">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center space-y-4"
-          >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              className="w-16 h-16 mx-auto border-4 border-primary border-t-transparent rounded-full"
-            />
-            <p className="text-lg text-muted-foreground">Загрузка знаков...</p>
-          </motion.div>
-        </div>
-      </Layout>
-    );
+    return <PageLoader />;
   }
 
   if (gameState === "menu") {

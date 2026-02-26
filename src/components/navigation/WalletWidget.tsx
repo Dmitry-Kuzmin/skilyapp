@@ -70,10 +70,10 @@ export const WalletWidget = memo(function WalletWidget({ className }: WalletWidg
     setDuelPassModalOpen(true);
   }, []);
 
-  const handleCoinsClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCoinsClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    openBoostShop();
+    openBoostShop({ initialTab: 'coins' });
   }, [openBoostShop]);
 
   const RewardBubble = ({ variant }: { variant: "mobile" | "desktop" }) => (

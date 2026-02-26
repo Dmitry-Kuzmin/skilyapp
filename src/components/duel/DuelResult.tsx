@@ -163,6 +163,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   const rewardsAppliedRef = useRef(false);
   const notificationSentRef = useRef(false);
   const counterAnimationCompleteRef = useRef(false);
+  const [showBotProposal, setShowBotProposal] = useState(false);
 
   // Обновляем состояние при загрузке данных
   useEffect(() => {
@@ -259,6 +260,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
       haptics.defeat();
     }
   }, [results]);
+
+  // 🤖 BOT REMATCH LOGIC: Если соперник бот, предлагаем реванш через 3.5 секунды
+  useEffect(() => {
+    if (results && duelResultsData?.opponentPlayer?.is_bot && !showBotProposal) {
+      const timer = setTimeout(() => {
+        setShowBotProposal(true);
+        sounds.notificationPop(); // Звук уведомления
+        haptics.boostActivated(); // 'medium' вибрация
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [results, duelResultsData, showBotProposal]);
 
   // Вибрация при завершении анимации счетчика (через 1.5 секунды после появления результатов)
   useEffect(() => {
@@ -799,6 +812,64 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             </div>
           </motion.div>
         )}
+
+        {/* Bot Rematch Proposal Overlay - Slide-in from bottom */}
+        <AnimatePresence>
+          {showBotProposal && (
+            <motion.div
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              className="fixed bottom-24 left-4 right-4 z-50 pointer-events-none"
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="pointer-events-auto max-w-sm mx-auto bg-gradient-to-br from-indigo-600/95 to-purple-600/95 backdrop-blur-xl rounded-3xl p-5 shadow-[0_20px_50px_rgba(79,70,229,0.5)] border border-white/20 relative overflow-hidden"
+              >
+                {/* Background Sparkles */}
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                  <Sparkles className="absolute top-2 right-4 w-4 h-4 text-white animate-pulse" />
+                  <Sparkles className="absolute bottom-4 left-6 w-3 h-3 text-white animate-pulse" style={{ animationDelay: '1s' }} />
+                </div>
+
+                <div className="flex items-center gap-4 relative z-10">
+                  <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center border border-white/30 shadow-inner">
+                    <span className="text-3xl">🤖</span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-white font-black text-lg leading-tight uppercase tracking-tight">Реванш?</div>
+                    <div className="text-white/80 text-xs font-medium italic">
+                      {results.isWinner
+                        ? `"${results.opponentName}": Это было случайно! Давай еще раз?`
+                        : `"${results.opponentName}": Повезло тебе! Хочешь отыграться?`
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-5 relative z-10">
+                  <Button
+                    onClick={() => {
+                      setShowBotProposal(false);
+                      onRematch();
+                    }}
+                    className="bg-white text-indigo-700 hover:bg-white/90 font-black rounded-xl border-0 h-10 shadow-lg"
+                  >
+                    ПРИНЯТЬ
+                  </Button>
+                  <Button
+                    onClick={() => setShowBotProposal(false)}
+                    variant="ghost"
+                    className="text-white hover:bg-white/10 font-bold rounded-xl h-10"
+                  >
+                    НЕТ, СПАСИБО
+                  </Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Questions Review */}
         {myAnswers.length > 0 && (

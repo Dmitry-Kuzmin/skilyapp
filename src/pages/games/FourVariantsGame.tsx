@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, X, Trophy, Zap, Star, Brain, Flame, Sparkles, Languages, Gauge, RotateCw } from "lucide-react";
+import { ArrowLeft, Check, X, Trophy, Zap, Star, Brain, Flame, Sparkles, Languages, Gauge } from "lucide-react";
+import { PageLoader } from "@/components/PageLoader";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import Layout from "@/components/Layout";
@@ -200,18 +201,7 @@ const LexiconGame = () => {
   const progress = (questionNumber / totalQuestions) * 100;
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          >
-            <RotateCw className="w-10 h-10 text-primary opacity-50" />
-          </motion.div>
-        </div>
-      </Layout>
-    );
+    return <PageLoader />;
   }
 
   return (

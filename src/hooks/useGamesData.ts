@@ -66,9 +66,18 @@ export const useGamesStats = (profileId: string | null) => {
       // Вычисляем средний результат
       let averageResult = 0;
       if (avgResult.data && avgResult.data.length > 0) {
-        const totalCorrect = avgResult.data.reduce((sum, session) => sum + (session.score || 0), 0);
-        const totalQuestions = avgResult.data.reduce((sum, session) => sum + (session.total_questions || 0), 0);
-        averageResult = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+        // Учитываем только игры, где счет - это количество правильных ответов (<= total_questions)
+        const validSessions = avgResult.data.filter(s => s.score !== null && s.total_questions !== null && s.score <= s.total_questions);
+
+        if (validSessions.length > 0) {
+          const totalCorrect = validSessions.reduce((sum, session) => sum + (session.score || 0), 0);
+          const totalQuestions = validSessions.reduce((sum, session) => sum + (session.total_questions || 0), 0);
+          averageResult = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+        } else {
+          // Если все сессии были на очки (score > total_questions), как во флэш-картах или гонке, берем просто 100% если они играли или 0
+          averageResult = avgResult.data.length > 0 ? 100 : 0; // Or better, just don't count them towards % correct
+        }
+        averageResult = Math.min(100, Math.max(0, averageResult));
       }
 
       return { gamesPlayed, studiedTerms, averageResult };

@@ -576,6 +576,8 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
                       loadout.slot_3_boost_type
                 )}
                 isDark={isDark}
+                language={language}
+                l={l}
                 onSelectBoost={(boostType) => {
                   // Закрываем Sheet перед обновлением
                   isClosingRef.current = true;
@@ -691,6 +693,7 @@ const SlotCard: React.FC<SlotCardProps> = ({
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovering, setIsHovering] = useState(false);
+  const { language } = useLanguage();
 
   const canUnlock = isPremium
     ? userHasPremium

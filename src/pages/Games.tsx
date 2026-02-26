@@ -19,6 +19,7 @@ import { motion } from "@/components/optimized/Motion";
 import { useGamesStats, useOnlinePlayers } from "@/hooks/useGamesData";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { cn } from "@/lib/utils";
+import { OnlinePlayers } from "@/components/shared/OnlinePlayers";
 
 // Fallback игроки для отображения, пока загружаются реальные
 const fallbackPlayers = [
@@ -358,38 +359,7 @@ const Games = () => {
 
                       {duelsEnabled && (
                         <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
-                          <div className="flex -space-x-3">
-                            {(onlinePlayers.length ? onlinePlayers : fallbackPlayers).map((player) => {
-                              const isRealUser = player.id && !player.id.startsWith('fallback-');
-
-                              if (isRealUser) {
-                                return (
-                                  <UserAvatar
-                                    key={player.id}
-                                    profileId={player.id}
-                                    size="sm"
-                                    className="-ml-3 first:ml-0 border-2 border-indigo-400/70"
-                                    showPremiumGlow={false}
-                                  />
-                                );
-                              }
-
-                              return (
-                                <Avatar
-                                  key={player.id}
-                                  className="w-9 h-9 border-2 border-indigo-400/70 shadow-sm shadow-indigo-500/20 bg-card -ml-3 first:ml-0"
-                                >
-                                  <AvatarFallback className="bg-gradient-to-br from-indigo-400/30 to-purple-400/30 text-white text-xs font-bold">
-                                    {player.initials}
-                                  </AvatarFallback>
-                                </Avatar>
-                              );
-                            })}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-white font-bold text-sm leading-none">{onlineCount}+</span>
-                            <span className="text-indigo-200 text-[10px] font-bold uppercase tracking-wider">Онлайн</span>
-                          </div>
+                          <OnlinePlayers baseCount={1240} />
                         </div>
                       )}
                     </div>

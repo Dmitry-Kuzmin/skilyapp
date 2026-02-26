@@ -225,7 +225,7 @@
     .app-skeleton {
       position: fixed;
       inset: 0;
-      background: #09090b;
+      background: #06080F;
       z-index: 9999;
       display: flex;
       flex-direction: column;
@@ -255,15 +255,22 @@
     }
 
     .skeleton-text-main {
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.3em;
-      color: rgba(255, 255, 255, 0.9);
-      text-transform: uppercase;
-      margin-top: 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
       text-align: center;
-      filter: blur(0.3px);
+      max-width: 24rem;
+      line-height: 1.6;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    }
+
+    .skeleton-logo-text {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      color: #ffffff;
+      text-transform: uppercase;
+      filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
     }
 
     .skeleton-text-sub {
@@ -752,93 +759,8 @@
 
   <div id="root" vaul-drawer-wrapper></div>
 
-  <!-- SKELETON LOADER - показывается мгновенно пока загружается React -->
-  <!-- Убирается автоматически через CSS когда #root заполняется -->
   <div class="app-skeleton">
-    <div class="ambient-glow-1"></div>
-    <div class="ambient-glow-2"></div>
-
-    <div class="cyber-ring-container">
-      <div class="cyber-ring-1"></div>
-      <div class="cyber-ring-2"></div>
-      <div class="cyber-ring-3"></div>
-
-      <div
-        style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
-        <div class="skeleton-text-sub">SKILY SYSTEM</div>
-        <div class="skeleton-divider"></div>
-        <div class="skeleton-text-main" id="skily-status">ИНИЦИАЛИЗАЦИЯ...</div>
-      </div>
-    </div>
-
-    <div class="bottom-cyber">
-      <div class="bottom-dots">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </div>
-      <div class="bottom-text">S K I L Y V 2 . 0</div>
-    </div>
-
-    <script>
-      (function () {
-        var basePhrases = [
-          "ИНИЦИАЛИЗАЦИЯ СИСТЕМ ДОСТУПА...",
-          "А ВЫ ЗНАЛИ? В ДУЭЛЯХ МОЖНО ЗАБРАТЬ МОНЕТЫ У СОПЕРНИКА...",
-          "СОВЕТ: ПРИГЛАШАЙТЕ ДРУЗЕЙ И ЗАРАБАТЫВАЙТЕ НА ИХ УСПЕХАХ...",
-          "СИНХРОНИЗАЦИЯ... СЕЗОННЫЙ PASS СКРЫВАЕТ УНИКАЛЬНЫЕ СТИКЕРЫ...",
-          "ПАРТНЕРСКАЯ СЕТЬ: СТРОЙТЕ СВОЮ АВТОШКОЛЬНУЮ ИМПЕРИЮ...",
-          "ЗАГРУЗКА ЯДРА... НЕ ПОНЯЛИ ВОПРОС? ИИ РАЗБЕРЕТ ЕГО...",
-          "ОТКРЫТИЕ КАНАЛОВ... ГОНОЧНЫЕ ТУРНИРЫ ПРОВЕРЯТ ВАШИ РЕФЛЕКСЫ..."
-        ];
-
-        var isEs = navigator.language.startsWith('es');
-        if (isEs) {
-          basePhrases = [
-            "INICIALIZANDO SISTEMAS...",
-            "¿SABÍAS QUE? PUEDES ROBAR MONEDAS EN LOS DUELOS...",
-            "CONSEJO: INVITA AMIGOS Y GANA CON SUS LOGROS...",
-            "SINCRONIZANDO... EL PASS DE TEMPORADA OCULTA STICKERS ÚNICOS...",
-            "RED DE AFILIADOS: CONSTRUYE TU PROPIO IMPERIO...",
-            "CARGANDO NÚCLEO... ¿NO ENTIENDES UNA PREGUNTA? LA IA TE LA EXPLICA...",
-            "ABRIENDO CANALES... LAS CARRERAS PONDRÁN A PRUEBA TUS REFLEJOS..."
-          ];
-        }
-
-        var isEn = navigator.language.startsWith('en');
-        if (isEn) {
-          basePhrases = [
-            "INITIALIZING SYSTEMS...",
-            "DID YOU KNOW? YOU CAN STEAL COINS IN DUELS...",
-            "TIP: INVITE FRIENDS AND EARN FROM THEIR PROGRESS...",
-            "SYNCHRONIZING... THE SEASON PASS HIDES UNIQUE STICKERS...",
-            "AFFILIATE NETWORK: BUILD YOUR OWN EMPIRE...",
-            "LOADING CORE... STUCK ON A QUESTION? AI WILL EXPLAIN IT...",
-            "OPENING CHANNELS... RACE TOURNAMENTS WILL TEST YOUR REFLEXES..."
-          ];
-        }
-
-        // КРИТИЧНО: Чтобы фразы шли в случайном порядке, но начинались всегда с первого (инициализация)
-        var tips = basePhrases.slice(1).sort(function () { return Math.random() - 0.5; });
-        var phrases = [basePhrases[0]].concat(tips);
-
-        var el = document.getElementById('skily-status');
-        var i = 0;
-        if (el) {
-          el.textContent = phrases[0];
-          setInterval(function () {
-            i = (i + 1) % phrases.length;
-            // Добавляем эффект печатающего текста при смене, для большей загадочности
-            el.style.opacity = '0';
-            setTimeout(function () {
-              el.textContent = phrases[i];
-              el.style.opacity = '1';
-              el.style.transition = 'opacity 0.5s ease-in';
-            }, 300);
-          }, 3500); // Чуть дольше, чтобы успеть прочитать
-        }
-      })();
-    </script>
+    <!-- Только черный фон для мгновенного появления. Весь UI теперь в React PageLoader -->
   </div>
 
   <!-- PWA Service Worker управляется через vite-plugin-pwa -->
@@ -849,7 +771,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-02-23-12:45';
+      const APP_VERSION = '2026-02-25-19:29';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)

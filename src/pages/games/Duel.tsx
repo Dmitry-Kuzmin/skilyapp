@@ -5,14 +5,14 @@ import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Copy, Check, Hash, Minus, Plus, ArrowLeft, X, Coins, DollarSign, Gift, Users, Clock, Share2, Search, Shield } from 'lucide-react';
+import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Copy, Check, Hash, Minus, Plus, ArrowLeft, ChevronRight, X, Coins, DollarSign, Gift, Users, Clock, Share2, Search, Shield } from 'lucide-react';
 import { extractErrorFromResponse } from '@/utils/errorMessages';
 import { DuelLobby } from '@/components/duel/DuelLobby';
 import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
 import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
 import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
 import { DuelResult } from '@/components/duel/DuelResult';
-import { DuelSkeleton } from '@/components/duel/DuelSkeleton';
+import { PageLoader } from '@/components/PageLoader';
 import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
 import { Card } from '@/components/ui/card';
@@ -31,6 +31,8 @@ import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { GameMode } from '@/features/duel/shared';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { usePDDContext } from '@/contexts/PDDContext';
+
+import { OnlinePlayers } from '@/components/shared/OnlinePlayers';
 
 // Safe wrappers with UNIQUE names for hoisting and resilience
 function safeIsTelegramMiniApp() {
@@ -1302,8 +1304,8 @@ export default function Duel() {
 
     // Убрали отдельный экран ошибки - теперь блокируем кнопку в Games.tsx
 
-    if (isInitialLoading || (!dataLoaded && !isTelegramUser)) {
-        return <DuelSkeleton />;
+    if (isInitialLoading || (!dataLoaded && !isTelegramUser) || isLoadingProfile) {
+        return <PageLoader />;
     }
 
     // Fullscreen modes - no Layout/Footer
@@ -1351,18 +1353,6 @@ export default function Duel() {
                         "container mx-auto px-3 sm:px-4 max-w-[1370px]",
                         mode === 'result' ? "pt-0 pb-6" : "py-4 sm:py-6"
                     )}>
-                        {isLoadingProfile && (
-                            <Card className="max-w-2xl mx-auto p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6">
-                                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
-                                    <Swords className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                                </div>
-                                <div className="space-y-2">
-                                    <h2 className="text-xl sm:text-2xl font-bold">Загрузка профиля...</h2>
-                                    <p className="text-sm sm:text-base text-muted-foreground">Пожалуйста, подождите</p>
-                                </div>
-                            </Card>
-                        )}
-
                         {!isLoadingProfile && !isAuthenticated && !isTelegramUser && (
                             <Card className="max-w-2xl mx-auto p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                                 <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
@@ -1386,152 +1376,148 @@ export default function Duel() {
                         {!isLoadingProfile && (isAuthenticated || isTelegramUser) && mode === 'menu' && (
                             <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-in pb-8">
 
-                                {/* Hero Section - Premium */}
+                                {/* 🏆 NEW PREMIUM UNIFIED HERO BLOCK (Stats + Quick Actions) */}
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="relative overflow-hidden rounded-3xl border px-4 py-6 md:px-10 md:py-12 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-600 border-violet-500/30 shadow-[0_0_60px_rgba(139,92,246,0.5)]"
+                                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                                    className="relative overflow-hidden rounded-[40px] border border-white/[0.05] bg-[#0b0d14] shadow-2xl mb-8"
                                 >
-                                    {/* Noise texture */}
-                                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }} />
+                                    {/* Abstract background elements */}
+                                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -z-10" />
+                                    <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-500/5 rounded-full blur-[100px] -z-10" />
+                                    <div className="absolute inset-0 opacity-[0.02] bg-[url('/noise.svg')] pointer-events-none" />
 
-                                    {/* Glow effect */}
-                                    <div className="absolute top-0 right-0 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl -z-10" />
+                                    <div className="p-6 sm:p-10 md:p-12 space-y-10">
+                                        {/* HEADER ROW: Title & Description + Stats */}
+                                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                                            {/* Title & Desc */}
+                                            <div className="space-y-4">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-indigo-500/20 border border-primary/30 flex items-center justify-center shadow-lg backdrop-blur-xl">
+                                                        <Swords className="w-7 h-7 text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Дуэль</h1>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                            <span className="text-xs font-black uppercase tracking-widest text-emerald-500/80">Live Multiplayer</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p className="text-slate-400 text-base sm:text-lg max-w-md font-medium leading-relaxed">
+                                                    Сразись с соперниками по всей стране, заработай рейтинг и монеты
+                                                </p>
+                                            </div>
 
-                                    <div className="relative z-10">
-                                        {/* Icon + Title */}
-                                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6 md:gap-4 md:mb-8">
-                                            <motion.div
-                                                whileHover={{ scale: 1.05, rotate: 5 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                className="p-2.5 md:p-4 rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30 shadow-xl"
-                                            >
-                                                <Swords className="w-7 h-7 md:w-10 md:h-10 text-white" />
-                                            </motion.div>
-                                            <div>
-                                                <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">Дуэль</h1>
-                                                <p className="text-sm md:text-lg text-white/90 font-medium mt-1">Сразись с соперником за монеты</p>
+                                            {/* Stats Cards (Compact) */}
+                                            <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:min-w-[450px]">
+                                                {[
+                                                    { label: 'Всего', val: dataLoaded ? duelStats.totalDuels : '—', icon: Hash, color: 'text-slate-400' },
+                                                    { label: 'Побед', val: dataLoaded ? duelStats.wins : '—', icon: Trophy, color: 'text-yellow-500' },
+                                                    { label: 'Монет', val: userCoins, icon: Coins, color: 'text-amber-500' }
+                                                ].map((stat, i) => (
+                                                    <div key={i} className="group relative flex flex-col p-4 rounded-3xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-300">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <stat.icon size={12} className={stat.color} />
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{stat.label}</span>
+                                                        </div>
+                                                        <div className="text-xl sm:text-2xl font-black text-white">
+                                                            {stat.val}
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
 
-                                        {/* User stats */}
-                                        <div className="grid grid-cols-3 gap-2 md:gap-4">
-                                            {/* Total Duels */}
-                                            <motion.div
-                                                whileHover={{ scale: 1.02 }}
-                                                className="p-3 md:p-6 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
-                                            >
-                                                <div className="flex flex-col items-center gap-1 md:flex-row md:items-center md:gap-2 mb-1.5 md:mb-2">
-                                                    <Swords className="w-4 h-4 md:w-5 md:h-5 text-white/70" />
-                                                    <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left whitespace-nowrap">Всего</span>
-                                                </div>
-                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">
-                                                    {dataLoaded ? duelStats.totalDuels : '—'}
-                                                </div>
-                                            </motion.div>
+                                        {/* SELECTION ROW: Big Buttons (only if no mode selected) */}
+                                        <AnimatePresence mode="wait">
+                                            {duelMode === null && !createdCode && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, scale: 0.95 }}
+                                                    transition={{ duration: 0.4 }}
+                                                    className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6"
+                                                >
+                                                    {/* BUTTON: RANDOM BATTLE */}
+                                                    <button
+                                                        onClick={() => handleActionClick(() => setDuelMode('random'))}
+                                                        className="group relative flex flex-col justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-left"
+                                                    >
+                                                        {/* Flare */}
+                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                                            {/* Wins */}
-                                            <motion.div
-                                                whileHover={{ scale: 1.02 }}
-                                                className="p-3 md:p-6 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
-                                            >
-                                                <div className="flex flex-col items-center gap-1 md:flex-row md:items-center md:gap-2 mb-1.5 md:mb-2">
-                                                    <Trophy className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
-                                                    <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left">Побед</span>
-                                                </div>
-                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">
-                                                    {dataLoaded ? duelStats.wins : '—'}
-                                                </div>
-                                            </motion.div>
+                                                        <div className="absolute -top-6 -right-6 text-primary/5 group-hover:text-primary/10 transition-colors duration-500 pointer-events-none">
+                                                            <Search className="w-40 h-40 transform rotate-[15deg] group-hover:scale-110 transition-transform duration-500" strokeWidth={1.5} />
+                                                        </div>
 
-                                            {/* Coins Balance */}
-                                            <motion.div
-                                                whileHover={{ scale: 1.02 }}
-                                                className="p-3 md:p-6 rounded-xl md:rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300"
-                                            >
-                                                <div className="flex flex-col items-center gap-1 md:flex-row md:items-center md:gap-2 mb-1.5 md:mb-2">
-                                                    <Coins className="w-4 h-4 md:w-5 md:h-5 text-amber-300" />
-                                                    <span className="text-xs md:text-sm text-white/70 font-medium text-center md:text-left">Монет</span>
-                                                </div>
-                                                <div className="text-2xl md:text-4xl font-black text-white text-center md:text-left">{userCoins}</div>
-                                            </motion.div>
-                                        </div>
+                                                        <div className="relative z-10 space-y-4">
+                                                            <div className="flex items-start gap-4">
+                                                                <div className="w-12 h-12 flex-shrink-0 mt-1 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
+                                                                    <Search className="w-6 h-6 text-white" />
+                                                                </div>
+                                                                <div className="space-y-1">
+                                                                    <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">Случайный бой</h3>
+                                                                    <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px]">
+                                                                        Мгновенный подбор равного по силе врага
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="relative z-10 flex items-center justify-between mt-6">
+                                                            <OnlinePlayers
+                                                                baseCount={1240}
+                                                                className="w-full flex-row-reverse"
+                                                            />
+                                                        </div>
+                                                    </button>
+
+                                                    {/* BUTTON: PLAY WITH FRIEND */}
+                                                    <button
+                                                        onClick={() => handleActionClick(() => setDuelMode('friend'))}
+                                                        className="group relative flex flex-col justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-amber-500/40 hover:bg-amber-500/[0.02] transition-all duration-500 overflow-hidden text-left"
+                                                    >
+                                                        {/* Flare */}
+                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                                                        <div className="absolute -top-6 -right-6 text-amber-500/5 group-hover:text-amber-500/10 transition-colors duration-500 pointer-events-none">
+                                                            <Users className="w-40 h-40 transform rotate-[-10deg] group-hover:scale-110 transition-transform duration-500" strokeWidth={1.5} />
+                                                        </div>
+
+                                                        <div className="relative z-10 space-y-4">
+                                                            <div className="flex items-start gap-4">
+                                                                <div className="w-12 h-12 flex-shrink-0 mt-1 rounded-2xl bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300">
+                                                                    <Users className="w-6 h-6 text-white" />
+                                                                </div>
+                                                                <div className="space-y-1">
+                                                                    <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">Игра с другом</h3>
+                                                                    <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px]">
+                                                                        Создай комнату и пригласи товарища по коду
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="relative z-10 mt-6">
+                                                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 group-hover:border-amber-500/30 group-hover:bg-amber-500/10 transition-all">
+                                                                <span className="text-[11px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                                                                    Создать лобби <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+
                                     </div>
                                 </motion.div>
 
-                                {/* ═══ Выбор режима дуэли / Форма дуэли ═══ */}
+                                {/* — Поиск и Лобби — */}
                                 <AnimatePresence mode="wait">
-                                    {/* — Баннер выбора режима — */}
-                                    {duelMode === null && !createdCode && (
-                                        <motion.div
-                                            key="mode-picker"
-                                            initial={{ opacity: 0, y: 16 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -10 }}
-                                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                                        >
-                                            {/* Объединенный блок выбора режима */}
-                                            <div className="animate-fade-in-up mb-20 sm:mb-28">
-                                                <div className="p-8 sm:p-12 bg-[#0b0d14] dark:bg-[#0b0d14] border border-white/[0.03] rounded-[32px] shadow-2xl relative overflow-hidden">
-                                                    <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10 mb-12">
-                                                        <div className="space-y-4 text-left">
-                                                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-3">
-                                                                <span className="text-[10px] font-black uppercase tracking-widest text-primary">Режимы игры</span>
-                                                            </div>
-                                                            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Готов к битве?</h2>
-                                                            <p className="text-slate-400 text-sm sm:text-lg font-medium max-w-lg leading-relaxed">
-                                                                Выбери формат сражения и докажи свое превосходство в знаниях
-                                                            </p>
-                                                        </div>
-                                                    </div>
 
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 relative z-10">
-                                                        {/* Случайный соперник */}
-                                                        <button
-                                                            onClick={() => handleActionClick(() => setDuelMode('random'))}
-                                                            className="group relative flex flex-col justify-between text-left p-6 sm:p-7 min-h-[160px] rounded-[24px] bg-[#151921] border border-white/[0.02] hover:bg-[#1a202b] hover:border-white/[0.05] transition-all duration-300 shadow-lg touch-manipulation"
-                                                        >
-                                                            <div className="w-11 h-11 rounded-[14px] bg-[#6d48e5] flex items-center justify-center shadow-lg shadow-[#6d48e5]/20 group-hover:scale-110 transition-transform duration-300">
-                                                                <Search className="w-5 h-5 text-white" />
-                                                            </div>
-
-                                                            <div className="mt-8 space-y-1">
-                                                                <h3 className="text-xl font-bold text-white">Случайный соперник</h3>
-                                                                <div className="flex items-center gap-2 mt-2">
-                                                                    <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
-                                                                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                                                                        онлайн поиск
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </button>
-
-                                                        {/* С другом по коду */}
-                                                        <button
-                                                            onClick={() => handleActionClick(() => setDuelMode('friend'))}
-                                                            className="group relative flex flex-col justify-between text-left p-6 sm:p-7 min-h-[160px] rounded-[24px] bg-[#151921] border border-white/[0.02] hover:bg-[#1a202b] hover:border-white/[0.05] transition-all duration-300 shadow-lg touch-manipulation"
-                                                        >
-                                                            <div className="w-11 h-11 rounded-[14px] bg-[#ff7a00] flex items-center justify-center shadow-lg shadow-[#ff7a00]/20 group-hover:scale-110 transition-transform duration-300">
-                                                                <Users className="w-5 h-5 text-white" />
-                                                            </div>
-
-                                                            <div className="mt-8 space-y-1">
-                                                                <h3 className="text-xl font-bold text-white">Игра с другом</h3>
-                                                                <div className="flex items-center gap-2 mt-2">
-                                                                    <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                                                                        # доступ по коду
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                        </motion.div>
-                                    )}
 
                                     {/* — Случайный соперник — */}
                                     {(duelMode === 'random' || duelMode === 'friend' || createdCode) && (
@@ -1583,23 +1569,9 @@ export default function Duel() {
                                                                 </div>
                                                             </div>
 
-                                                            <div className="flex items-start sm:items-center gap-4 sm:gap-6 pt-2">
-                                                                <motion.div
-                                                                    whileHover={{ scale: 1.05, rotate: -2 }}
-                                                                    className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-[22px] bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-2xl shadow-violet-900/40 flex-shrink-0 ring-1 ring-white/20"
-                                                                >
-                                                                    <Swords className="h-8 w-8 sm:h-10 sm:w-10 text-white relative z-10" />
-                                                                </motion.div>
-                                                                <div className="min-w-0 flex-1">
-                                                                    <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                                                                        {duelMode === 'random' ? 'Битва с соперником' : 'Игра с другом'}
-                                                                    </h3>
-                                                                    <p className="text-sm sm:text-lg text-slate-400 font-medium leading-relaxed mt-2">
-                                                                        {duelMode === 'random'
-                                                                            ? 'Найдем достойного врага для проверки твоих знаний'
-                                                                            : 'Создай свою секретную комнату и кидай вызов'}
-                                                                    </p>
-                                                                </div>
+                                                            <div className="flex items-center justify-between pt-2">
+                                                                {/* Title is now in Hero block, only showing mode badge here */}
+                                                                <div />
                                                             </div>
 
                                                             {!createdCode ? (
@@ -1849,39 +1821,41 @@ export default function Duel() {
                                                                             transition={{ delay: 0.8 }}
                                                                             className="w-full space-y-3"
                                                                         >
-                                                                            <Button
-                                                                                size="lg"
-                                                                                onClick={() => handleActionClick(() => handleFindMatch())}
-                                                                                disabled={isFindingMatch || isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
-                                                                                variant="outline"
-                                                                                className="w-full h-12 text-sm sm:text-base font-black rounded-2xl border-2 border-violet-500/50 hover:border-violet-500 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
-                                                                            >
-                                                                                {/* Shine effect on hover */}
-                                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                                                            {duelMode === 'random' && (
+                                                                                <Button
+                                                                                    size="lg"
+                                                                                    onClick={() => handleActionClick(() => handleFindMatch())}
+                                                                                    disabled={isFindingMatch || isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
+                                                                                    variant="outline"
+                                                                                    className="w-full h-12 text-sm sm:text-base font-black rounded-2xl border-2 border-violet-500/50 hover:border-violet-500 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
+                                                                                >
+                                                                                    {/* Shine effect on hover */}
+                                                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
-                                                                                {isFindingMatch ? (
-                                                                                    <>
-                                                                                        <svg className="mr-2 h-4 w-4 animate-spin relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                                        </svg>
-                                                                                        <span className="hidden sm:inline relative z-10">Поиск соперника...</span>
-                                                                                        <span className="sm:hidden relative z-10">Поиск...</span>
-                                                                                    </>
-                                                                                ) : (
-                                                                                    <>
-                                                                                        <Search className="mr-2 h-4 w-4 relative z-10" />
-                                                                                        <span className="relative z-10">
-                                                                                            {betAmount > 0
-                                                                                                ? hostTotalStake > userCoins
-                                                                                                    ? `Недостаточно: ${hostTotalStake}`
-                                                                                                    : `Найти игру за ${hostTotalStake}`
-                                                                                                : 'Найти игру'}
-                                                                                        </span>
-                                                                                        {betAmount > 0 && <Coins size={14} className={cn("ml-1.5 relative z-10", hostTotalStake > userCoins ? "text-zinc-500" : "text-amber-500")} />}
-                                                                                    </>
-                                                                                )}
-                                                                            </Button>
+                                                                                    {isFindingMatch ? (
+                                                                                        <>
+                                                                                            <svg className="mr-2 h-4 w-4 animate-spin relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                                            </svg>
+                                                                                            <span className="hidden sm:inline relative z-10">Поиск соперника...</span>
+                                                                                            <span className="sm:hidden relative z-10">Поиск...</span>
+                                                                                        </>
+                                                                                    ) : (
+                                                                                        <>
+                                                                                            <Search className="mr-2 h-4 w-4 relative z-10" />
+                                                                                            <span className="relative z-10">
+                                                                                                {betAmount > 0
+                                                                                                    ? hostTotalStake > userCoins
+                                                                                                        ? `Недостаточно: ${hostTotalStake}`
+                                                                                                        : `Найти игру за ${hostTotalStake}`
+                                                                                                    : 'Найти игру'}
+                                                                                            </span>
+                                                                                            {betAmount > 0 && <Coins size={14} className={cn("ml-1.5 relative z-10", hostTotalStake > userCoins ? "text-zinc-500" : "text-amber-500")} />}
+                                                                                        </>
+                                                                                    )}
+                                                                                </Button>
+                                                                            )}
 
                                                                             {/* Create button */}
                                                                             {duelMode !== 'random' && (

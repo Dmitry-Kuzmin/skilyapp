@@ -1,6 +1,7 @@
 import React from 'react';
 
 export const DashboardSkeleton = React.memo(() => {
+  // Force HMR recompile for tailwind
   return (
     <div className="min-h-screen bg-[#0f172a] p-6 md:p-10 font-sans pb-24 text-white selection:bg-indigo-500/30">
       <div className="max-w-[1370px] mx-auto space-y-6">

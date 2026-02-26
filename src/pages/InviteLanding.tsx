@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { haptics } from '@/lib/haptics';
+import { PageLoader } from '@/components/PageLoader';
 
 interface UserStats {
   first_name: string;
@@ -181,14 +182,7 @@ export default function InviteLanding() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-indigo-50 dark:from-pink-950/20 dark:via-blue-950/20 dark:to-indigo-950/20 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-8 text-center">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-muted-foreground">Загрузка...</p>
-        </Card>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!userStats) {

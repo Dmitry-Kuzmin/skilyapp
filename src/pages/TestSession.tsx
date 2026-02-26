@@ -60,7 +60,7 @@ import { useTestAudio } from "@/hooks/test-session/useTestAudio";
 import { useTestAmbientMusic } from "@/hooks/test-session/useTestAmbientMusic";
 import { useTestDataLoader, type TestMode } from "@/hooks/test-session/useTestDataLoader";
 import { BlitzQuestionCard } from "@/components/test-session/BlitzQuestionCard";
-import { TestSkeleton } from "@/components/test/TestSkeleton";
+import { PageLoader } from "@/components/PageLoader";
 import { SubmitButton } from "@/components/test/SubmitButton";
 import { UniversalQuestionCard } from "@/components/shared/question/UniversalQuestionCard";
 import { getCachedImageAspectRatio, getImageUrl } from "@/utils/imageUtils";
@@ -1065,7 +1065,7 @@ const TestSession = () => {
   };
 
   if (loading) {
-    return <TestSkeleton mode={mode} language={testLanguage} />;
+    return <PageLoader />;
   }
 
   if (questions.length === 0) {

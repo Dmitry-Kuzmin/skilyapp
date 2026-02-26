@@ -460,263 +460,60 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
   const fetchBoostInventory = useCallback(async (): Promise<BoostInventoryItem[]> => {
     if (!profileId) return [];
 
-    // КРИТИЧНО: НЕ используем кэш для бустов, так как они зависят от loadout,
-    // который может измениться в любой момент (пользователь может выбрать другие бусты)
-    // Кэш может вызывать проблемы в Telegram Mini App, показывая старые данные
-    // const cache = getCacheEntry();
-    // if (cache.boosts) {
-    //   return cache.boosts;
-    // }
-
-    // Загружаем loadout пользователя через RPC функцию (обходит RLS)
-    console.log('[useDuelData] 🔍 Loading loadout via RPC:', {
-      profileId,
-      profileIdType: typeof profileId,
-      timestamp: new Date().toISOString(),
-    });
-
-    let loadout: { slot_1_boost_type: string | null; slot_2_boost_type: string | null; slot_3_boost_type: string | null } | null = null;
-    let loadoutError: any = null;
+    console.log('[useDuelData] 🚀 Loading combined boost data via RPC [get_duel_boost_data]');
 
     try {
-      const { data: rpcData, error: rpcError } = await supabase
-        .rpc('get_user_loadout', { p_user_id: profileId });
+      const { data, error } = await supabase.rpc('get_duel_boost_data', { p_user_id: profileId });
 
-      if (rpcError) {
-        console.warn('[useDuelData] ⚠️ RPC function failed, trying direct query:', {
-          rpcError,
-          code: rpcError.code,
-          message: rpcError.message,
-        });
-        loadoutError = rpcError;
-      } else {
-        // RPC возвращает массив, берем первый элемент или null
-        console.log('[useDuelData] 🔍 RPC raw response:', {
-          rpcData,
-          rpcDataLength: rpcData?.length,
-          rpcDataType: Array.isArray(rpcData) ? 'array' : typeof rpcData,
-          firstElement: rpcData?.[0],
-        });
-        loadout = rpcData && rpcData.length > 0 ? rpcData[0] : null;
-        console.log('[useDuelData] ✅ Loadout loaded via RPC:', {
-          loadout,
-          hasLoadout: !!loadout,
-          slot1: loadout?.slot_1_boost_type,
-          slot2: loadout?.slot_2_boost_type,
-          slot3: loadout?.slot_3_boost_type,
-        });
-      }
-    } catch (rpcException) {
-      console.warn('[useDuelData] ⚠️ RPC exception, trying direct query:', rpcException);
-      loadoutError = rpcException;
-    }
-
-    // Fallback: прямой запрос (если RPC не работает)
-    if (loadoutError && !loadout) {
-      console.log('[useDuelData] 🔄 Trying direct query as fallback...');
-      const { data: directData, error: directError } = await supabase
-        .from("user_loadouts")
-        .select("slot_1_boost_type, slot_2_boost_type, slot_3_boost_type")
-        .eq("user_id", profileId)
-        .maybeSingle();
-
-      if (directError) {
-        console.warn('[useDuelData] ⚠️ Error loading loadout (both RPC and direct failed, continuing without loadout):', {
-          rpcError: loadoutError,
-          directError,
-          code: directError.code,
-          message: directError.message,
-          profileId,
-          hint: directError.code === 'PGRST116'
-            ? 'Loadout does not exist - this is OK, will show all boosts'
-            : 'This might be an RLS policy issue. Check if migrations are applied.'
-        });
-        // Продолжаем без loadout - покажем все бусты из инвентаря
-        loadout = null;
-      } else {
-        loadout = directData;
-        console.log('[useDuelData] ✅ Loadout loaded via direct query:', loadout);
-      }
-    }
-
-    // КРИТИЧНО: Доверяем данным из базы - если в слоте есть буст, значит пользователь имел право его туда положить
-    // (купил слот, посмотрел рекламу, имеет Premium и т.д.)
-    // Валидацию "можно ли сохранять в этот слот" делает только LoadoutSelector, а не игра
-    // Это решает проблему с временной разблокировкой через рекламу
-
-    // Формируем список выбранных бустов из loadout (просто берем все не-null слоты)
-    const loadoutBoosts: string[] = [];
-    if (loadout) {
-      // Если в базе есть запись в слоте, значит пользователь имел право её туда положить
-      if (loadout.slot_1_boost_type) {
-        loadoutBoosts.push(loadout.slot_1_boost_type);
-      }
-      if (loadout.slot_2_boost_type) {
-        loadoutBoosts.push(loadout.slot_2_boost_type);
-      }
-      if (loadout.slot_3_boost_type) {
-        loadoutBoosts.push(loadout.slot_3_boost_type);
-      }
-    }
-
-    console.log('[useDuelData] 📋 Loadout processing:', {
-      hasLoadout: !!loadout,
-      loadout,
-      loadoutBoosts,
-      loadoutBoostsLength: loadoutBoosts.length,
-      willFilter: loadoutBoosts.length > 0,
-      willShowAll: loadoutBoosts.length === 0,
-      note: loadoutBoosts.length === 0
-        ? 'No boosts selected in loadout - will show all boosts'
-        : `Showing ${loadoutBoosts.length} boost(s) from loadout (trusting DB data)`,
-    });
-
-    // Загружаем все бусты из инвентаря
-    // КРИТИЧНО: Используем RPC функцию, которая обходит RLS через SECURITY DEFINER
-    console.log('[useDuelData] 🔍 Loading boost inventory via RPC:', {
-      profileId,
-      profileIdType: typeof profileId,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Пробуем сначала через RPC функцию (обходит RLS)
-    let boosts: BoostInventoryItem[] = [];
-    let error: any = null;
-
-    try {
-      const { data: rpcData, error: rpcError } = await supabase
-        .rpc('get_user_boost_inventory', { p_user_id: profileId });
-
-      if (rpcError) {
-        console.warn('[useDuelData] ⚠️ RPC function failed, trying direct query:', {
-          rpcError,
-          code: rpcError.code,
-          message: rpcError.message,
-        });
-        error = rpcError;
-      } else {
-        boosts = (rpcData || []).map((item: any) => ({
-          boost_type: item.boost_type,
-          quantity: item.quantity,
-        }));
-        console.log('[useDuelData] ✅ Boosts loaded via RPC:', {
-          count: boosts.length,
-          boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
-        });
-      }
-    } catch (rpcException) {
-      console.warn('[useDuelData] ⚠️ RPC exception, trying direct query:', rpcException);
-      error = rpcException;
-    }
-
-    // Fallback: прямой запрос (если RPC не работает)
-    if (error || boosts.length === 0) {
-      console.log('[useDuelData] 🔄 Trying direct query as fallback...');
-      const { data: directData, error: directError } = await supabase
-        .from("boost_inventory")
-        .select("boost_type, quantity")
-        .eq("user_id", profileId);
-
-      if (directError) {
-        console.error('[useDuelData] ❌ Error loading boost inventory (both RPC and direct failed):', {
-          rpcError: error,
-          directError,
-          code: directError.code,
-          message: directError.message,
-          details: directError.details,
-          hint: directError.hint,
-          profileId,
-          profileIdType: typeof profileId,
-          timestamp: new Date().toISOString(),
-          hint2: 'This might be an RLS policy issue. Check if migrations 20251215000005 and 20251215000006 are applied.',
-          hint3: 'Check if profileId matches profiles.id and if auth.uid() matches profiles.user_id',
-        });
-        // НЕ выбрасываем ошибку - возвращаем пустой массив, чтобы игра продолжалась
-        // Бусты просто не будут отображаться
+      if (error) {
+        console.warn('[useDuelData] ⚠️ Optimized RPC failed:', error);
+        // Minimal fallback: if RPC fails, we return empty list to not block the game
         return [];
       }
 
-      if (directData && directData.length > 0) {
-        boosts = directData;
-        console.log('[useDuelData] ✅ Boosts loaded via direct query:', {
-          count: boosts.length,
-          boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
-        });
-      }
-    }
-    console.log('[useDuelData] ✅ All boosts from inventory:', {
-      count: boosts.length,
-      boosts: boosts.map(b => ({ type: b.boost_type, quantity: b.quantity })),
-      profileId,
-      timestamp: new Date().toISOString(),
-    });
+      const { loadout, inventory, definitions } = data as {
+        loadout: { slot_1: string; slot_2: string; slot_3: string } | null;
+        inventory: { boost_type: string; quantity: number }[];
+        definitions: { type: string; icon: string | null; name_ru: string | null }[];
+      };
 
-    if (boosts.length === 0) {
-      console.warn('[useDuelData] ⚠️ Boost inventory is empty. This might mean:');
-      console.warn('  1. User has no boosts purchased');
-      console.warn('  2. RLS policy is blocking access (check migrations)');
-      console.warn('  3. Boosts are stored under different user_id');
-    }
-
-    // Если есть выбранные бусты в loadout, показываем их (даже если количество 0)
-    // Если loadout пустой (все null) или не существует, показываем все бусты
-    if (loadoutBoosts.length > 0) {
-      console.log('[useDuelData] Filtering by loadout. Looking for:', loadoutBoosts);
-      console.log('[useDuelData] Available boost types in inventory:', boosts.map(b => b.boost_type));
-
-      // Загружаем определения бустов для получения иконок и названий
-      const { data: boostDefinitions } = await supabase
-        .from("boost_definitions")
-        .select("type, icon, name_ru")
-        .in("type", loadoutBoosts);
-
+      // Map definitions for quick lookup
       const definitionsMap = new Map(
-        (boostDefinitions || []).map(b => [b.type, { icon: b.icon, name_ru: b.name_ru }])
+        (definitions || []).map(b => [b.type, { icon: b.icon, name_ru: b.name_ru }])
       );
 
-      // Создаем мапу для быстрого поиска количества бустов
-      const boostsMap = new Map(boosts.map(b => [b.boost_type, b.quantity]));
+      // Create inventory map
+      const inventoryMap = new Map((inventory || []).map(b => [b.boost_type, b.quantity]));
 
-      // Формируем список бустов из loadout (даже если их нет в инвентаре - показываем с количеством 0)
-      const filteredBoosts = loadoutBoosts.map(boostType => {
-        const definition = definitionsMap.get(boostType);
-        return {
-          boost_type: boostType,
-          quantity: boostsMap.get(boostType) || 0,
-          icon: definition?.icon || null,
-          name_ru: definition?.name_ru || boostType
-        };
-      });
+      // Extract loadout types
+      const loadoutBoosts = [loadout?.slot_1, loadout?.slot_2, loadout?.slot_3].filter(Boolean) as string[];
 
-      boosts = filteredBoosts;
-      console.log('[useDuelData] Filtered boosts by loadout:', boosts.map(b => ({ type: b.boost_type, quantity: b.quantity, icon: b.icon })));
-    } else {
-      // Если loadout пустой, загружаем определения для всех бустов из инвентаря
-      if (boosts.length > 0) {
-        const { data: boostDefinitions } = await supabase
-          .from("boost_definitions")
-          .select("type, icon, name_ru")
-          .in("type", boosts.map(b => b.boost_type));
-
-        const definitionsMap = new Map(
-          (boostDefinitions || []).map(b => [b.type, { icon: b.icon, name_ru: b.name_ru }])
-        );
-
-        boosts = boosts.map(b => {
-          const definition = definitionsMap.get(b.boost_type);
+      if (loadoutBoosts.length > 0) {
+        // Show ONLY loadout boosts (trusting the selection)
+        return loadoutBoosts.map(type => {
+          const def = definitionsMap.get(type);
+          return {
+            boost_type: type,
+            quantity: inventoryMap.get(type) || 0,
+            icon: def?.icon || null,
+            name_ru: def?.name_ru || type
+          };
+        });
+      } else {
+        // No loadout? Then show all inventory items (fallback or new user)
+        return (inventory || []).map(b => {
+          const def = definitionsMap.get(b.boost_type);
           return {
             ...b,
-            icon: definition?.icon || null,
-            name_ru: definition?.name_ru || b.boost_type
+            icon: def?.icon || null,
+            name_ru: def?.name_ru || b.boost_type
           };
         });
       }
-      console.log('[useDuelData] No loadout selected, showing all boosts');
+    } catch (e) {
+      console.error('[useDuelData] ❌ Error in optimized boost fetch:', e);
+      return [];
     }
-
-    // КРИТИЧНО: НЕ сохраняем в кэш, так как loadout может измениться
-    // cache.boosts = boosts;
-    return boosts;
   }, [profileId]);
 
   const fetchBetInfo = useCallback(async (): Promise<BetInfo | null> => {

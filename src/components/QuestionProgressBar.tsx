@@ -126,9 +126,10 @@ export function QuestionProgressBar({
               </span>
             </button>
           ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-background/80 backdrop-blur-md shadow-sm border border-border/30 shrink-0">
-              <span className="font-bold text-foreground text-sm">
-                {currentIndex + 1}<span className="text-muted-foreground text-xs">/{totalQuestions}</span>
+            <div className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted/20 backdrop-blur-md border border-border/10 shrink-0">
+              <span className="font-bold text-foreground text-sm flex items-center gap-0.5">
+                {currentIndex + 1}
+                <span className="text-muted-foreground/60 text-xs font-semibold">/{totalQuestions}</span>
               </span>
             </div>
           )}
@@ -148,7 +149,9 @@ export function QuestionProgressBar({
         {/* Horizontal Progress Bar with visual indicators */}
         <div className={cn(
           "flex-1 rounded-full shadow-inner border min-w-[60px] relative overflow-hidden transition-all duration-300",
-          layout === 'focus' ? "h-4 sm:h-5 border-border/50 bg-muted/30" : (isRussia ? "h-3 sm:h-3.5 bg-slate-200/50 dark:bg-slate-800/50 border-slate-300/50 dark:border-slate-700/50" : "h-3 sm:h-3.5 bg-muted/50 border-border/30")
+          layout === 'focus'
+            ? "h-2 sm:h-2.5 bg-muted/20 border-border/10"
+            : (isRussia ? "h-3 sm:h-3.5 bg-slate-200/50 dark:bg-slate-800/50 border-slate-300/50 dark:border-slate-700/50" : "h-2 sm:h-2.5 bg-muted/20 border-border/10")
         )}>
           {/* Progress fill */}
           <motion.div

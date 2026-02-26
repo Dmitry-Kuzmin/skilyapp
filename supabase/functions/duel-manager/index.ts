@@ -1509,8 +1509,6 @@ Deno.serve(async (req) => {
             question_seed: questionSeed,
             bet_amount,
             bet_type,
-            bet_amount,
-            bet_type,
             expires_at: expiresAt, // 24 часа до истечения
             country: duelCountry,
           })
@@ -4471,15 +4469,82 @@ Deno.serve(async (req) => {
               .select('id, user_id, score, correct_count, is_bot, bot_name, name, profiles(id, username, first_name, photo_url)')
               .eq('duel_id', duel_id);
 
-            // Обновляем статус дуэли на finished
-            await supabase
+            // 🏆 РАСЧЕТ ПОБЕДИТЕЛЯ ДЛЯ БОТА
+            const player1 = updatedPlayers?.find((p: any) => p.user_id === profile_id); // Реальный игрок
+            const player2 = updatedPlayers?.find((p: any) => p.id !== player1?.id); // Бот
+
+            const score1 = player1?.score || 0;
+            const score2 = player2?.score || 0;
+            const isDraw = score1 === score2;
+
+            // ИСПРАВЛЕНИЕ: winner_id должен быть user_id победителя.
+            // Если победил бот — у него нет user_id, поэтому winner_id = null (ничья для триггера не выходит).
+            // Используем player_id бота как маркер: нет user_id → null, но is_draw = false.
+            // Триггер уже умеет пропускать ботов, поэтому нам важен только реальный игрок.
+            const humanWon = !isDraw && score1 > score2;
+            const winnerId = isDraw ? null : (humanWon ? player1.user_id : null);
+
+            console.log('[finish_duel] 🤖 Bot Game Results:', { score1, score2, isDraw, humanWon, winnerId });
+
+            // Обновляем статус дуэли на finished с результатами
+            const { error: botFinishError } = await supabase
               .from('duels')
               .update({
                 status: 'finished',
-                finished_at: new Date().toISOString()
+                finished_at: new Date().toISOString(),
+                winner_id: winnerId,
+                is_draw: isDraw
               })
               .eq('id', duel_id)
               .eq('status', 'active');
+
+            if (botFinishError) {
+              console.error('[finish_duel] ❌ Error finishing bot duel:', botFinishError);
+            }
+
+            // 🎁 ЯВНОЕ НАЧИСЛЕНИЕ XP для реального игрока (страховка от сбоя триггера)
+            // Триггер handle_duel_payout_atomic должен сработать автоматически,
+            // но для бот-игр добавляем явный вызов для надёжности
+            if (player1?.user_id) {
+              let xpToAward = 0;
+              if (isDraw) {
+                xpToAward = 15; // Ничья
+              } else if (humanWon) {
+                xpToAward = 50; // Победа над ботом
+              } else {
+                xpToAward = 5; // Поражение — за участие
+              }
+
+              console.log(`[finish_duel] 🎁 Bot game: awarding ${xpToAward} XP to player ${player1.user_id} (humanWon: ${humanWon}, isDraw: ${isDraw})`);
+
+              // Начисляем XP через дельту (триггер обработает основную логику)
+              // Этот блок служит fallback — если триггер уже сработал, это будет дублем.
+              // Поэтому используем idempotent-флаг через duel_transactions
+              const { data: existingXpTx } = await supabase
+                .from('duel_transactions')
+                .select('id')
+                .eq('duel_id', duel_id)
+                .eq('user_id', player1.user_id)
+                .in('transaction_type', ['win_payout', 'base_payout', 'refund', 'insurance_payout'])
+                .limit(1);
+
+              if (!existingXpTx || existingXpTx.length === 0) {
+                // Триггер ещё не отработал — начисляем XP вручную через increment_profile_value
+                console.log('[finish_duel] 🔄 Trigger not fired yet, manually awarding XP...');
+                const { error: xpError } = await supabase.rpc('increment_profile_value', {
+                  p_profile_id: player1.user_id,
+                  p_column: 'xp',
+                  p_amount: xpToAward
+                });
+                if (xpError) {
+                  console.error('[finish_duel] ❌ Failed to award XP manually:', xpError);
+                } else {
+                  console.log(`[finish_duel] ✅ Manually awarded ${xpToAward} XP to ${player1.user_id}`);
+                }
+              } else {
+                console.log('[finish_duel] ✅ Trigger already fired, skipping manual XP award');
+              }
+            }
 
             console.log('[finish_duel] ✅ BOT GAME COMPLETED');
 
@@ -4496,6 +4561,7 @@ Deno.serve(async (req) => {
             });
           }
         }
+
 
         // CRITICAL FIX: Увеличена задержка с 200ms до 500ms для надёжности
         // Это гарантирует, что последний ответ точно записан в БД перед подсчётом
@@ -5598,8 +5664,10 @@ Deno.serve(async (req) => {
         // Завершаем дуэль - оппонент побеждает
         const opponentScore = opponentPlayer.score || 0;
         const surrenderingScore = surrenderingPlayer.score || 0;
-        const isDraw = opponentScore === surrenderingScore;
-        const winnerUserId = isDraw ? null : opponentPlayer.user_id;
+        // При сдаче это всегда победа оппонента, даже если очки равны (например 0-0)
+        // Это предотвращает возврат ставки (draw refund)
+        const isDraw = false;
+        const winnerUserId = opponentPlayer ? opponentPlayer.user_id : null;
 
         console.log('[surrender] Calculating results:', {
           opponentScore,
@@ -5613,7 +5681,9 @@ Deno.serve(async (req) => {
           .from('duels')
           .update({
             status: 'finished',
-            finished_at: new Date().toISOString()
+            finished_at: new Date().toISOString(),
+            winner_id: winnerUserId,
+            is_draw: isDraw
           })
           .eq('id', duel_id);
 

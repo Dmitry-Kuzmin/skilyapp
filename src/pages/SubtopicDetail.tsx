@@ -11,7 +11,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { loadStaticMaterialBySubtopicId, loadStaticMaterialByStaticId } from "@/utils/staticMaterials";
-import { SubtopicDetailSkeleton } from "@/components/learning-map/SubtopicDetailSkeleton";
+import { PageLoader } from "@/components/PageLoader";
 import { useSubtopic, useSubtopicsByTopic } from "@/hooks/useSubtopic";
 
 const SubtopicDetail = () => {
@@ -311,11 +311,7 @@ const SubtopicDetail = () => {
   };
 
   if (loading) {
-    return (
-      <Layout>
-        <SubtopicDetailSkeleton />
-      </Layout>
-    );
+    return <PageLoader />;
   }
 
   if (!subtopic) {

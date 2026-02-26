@@ -114,7 +114,6 @@ export const TestSessionHeader = ({
         <div
             className={cn(
                 "sticky z-40 transition-all duration-300",
-                mode !== 'blitz' && "bg-background/95 backdrop-blur-xl",
                 !isTelegramApp && "top-0",
                 mode === 'exam-russia' ? "-mx-4 px-4 py-4 border-b border-border/50" :
                     mode === 'blitz' ? "py-0" : "py-1 sm:py-2"
