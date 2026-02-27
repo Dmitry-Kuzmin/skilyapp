@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2, Activity, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import PuntosIndicator from './PuntosIndicator3D';
 
 interface LicenseCardProps {
     userProfile?: {
@@ -31,6 +33,7 @@ interface LicenseCardProps {
         points: number;
         recorded_at: string;
     }>;
+    animatePoints?: boolean;
 }
 
 const T_MAP = {
@@ -100,7 +103,9 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     selectedCountry,
     hasClaimedToday,
     onRecoverPoints,
-    t
+    animatePoints = false,
+    t,
+    licenseHistory = []
 }) => {
     const {
         points,
@@ -292,9 +297,9 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 </div>
 
                 {/* Content Section */}
-                <div className="flex-1 p-3 md:p-5 flex flex-row gap-3 md:gap-5 z-10 relative mt-0 md:mt-1">
+                <div className="flex-1 p-3 md:p-5 flex flex-row gap-4 md:gap-6 z-10 relative mt-0 md:mt-1">
 
-                    {/* User Photo Area */}
+                    {/* Left Side: User Photo Area */}
                     <div className="flex flex-col gap-2 shrink-0">
                         <div className={cn(
                             "w-20 h-28 sm:w-24 sm:h-[120px] md:w-[100px] md:h-[136px] rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
@@ -321,10 +326,11 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                         </div>
                     </div>
 
-                    {/* Information Fields */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-between">
-                        <div className="flex flex-row justify-between gap-2">
-                            <div className="grid grid-cols-1 gap-y-2 md:gap-y-3">
+                    {/* Right Side: Info + Meta Data Stack */}
+                    <div className="flex-1 min-w-0 flex flex-col">
+                        {/* Information Fields & Points Indicator Cluster */}
+                        <div className="flex-1 min-w-0 flex flex-row items-center justify-between gap-4 md:gap-6 overflow-hidden">
+                            <div className="grid grid-cols-1 gap-y-1 md:gap-y-2 flex-1 min-w-0 max-w-[65%] sm:max-w-none">
                                 <Field label={localeConfig.fields.name} value={fullName} />
 
                                 <div className="hidden sm:block">
@@ -336,63 +342,27 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     value={localeConfig.fields.issueVal}
                                 />
 
-                                <div className="grid grid-cols-2 gap-3 md:gap-4">
+                                <div className="grid grid-cols-2 gap-2 md:gap-4">
                                     <Field label={localeConfig.fields.issuer} value={localeConfig.fields.issuerVal} />
                                     <Field label={localeConfig.fields.id} value={<span className="font-mono">{globalId}</span>} highlight />
                                 </div>
                             </div>
 
-                            {/* Interactive Large Points Indicator */}
-                            <div className="flex items-center justify-center shrink-0 pr-1 md:pr-4">
-                                <button
+                            {/* Interactive Points Indicator - Perfectly placed in the cluster */}
+                            <div className="flex items-center justify-center shrink-0 z-20 pr-1 md:pr-4">
+                                <div
                                     onClick={() => setIsPointsModalOpen(true)}
-                                    className={cn(
-                                        "w-[54px] h-[54px] md:w-[72px] md:h-[72px] rounded-full flex flex-col items-center justify-center relative group/points transition-all duration-500 hover:scale-[1.05] active:scale-95 cursor-pointer animate-in zoom-in-50 fade-in duration-1000",
-                                        isDarkTheme ? "bg-zinc-950/40" : "bg-white/20"
-                                    )}>
-
-                                    {/* Radial Progress Circle */}
-                                    <svg className="absolute inset-0 w-full h-full -rotate-90 transform z-0" viewBox="0 0 100 100">
-                                        <circle
-                                            cx="50" cy="50" r="46"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            className={cn("opacity-[0.1]", rankStyle.text)}
-                                        />
-                                        <circle
-                                            cx="50" cy="50" r="46"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="3.5"
-                                            strokeDasharray={2 * Math.PI * 46}
-                                            strokeDashoffset={2 * Math.PI * 46 * (1 - Math.min(points / 15, 1))}
-                                            strokeLinecap="round"
-                                            className={cn("transition-all duration-[1500ms] cubic-bezier(0.4, 0, 0.2, 1)", rankStyle.text)}
-                                            style={{ filter: `drop-shadow(0 0 3px ${rankStyle.accent})` }}
-                                        />
-                                    </svg>
-
-                                    <div className="flex flex-col items-center justify-center relative z-30">
-                                        <span className={cn("text-lg md:text-2xl font-black leading-none tracking-tighter", rankStyle.text)}>
-                                            {points}
-                                        </span>
-                                        <div className="flex flex-col items-center mt-0.5">
-                                            <span className={cn("text-[6px] md:text-[8px] font-black tracking-[0.1em] uppercase opacity-60", rankStyle.text)}>
-                                                PUNTOS
-                                            </span>
-                                        </div>
+                                    className="cursor-pointer transition-transform active:scale-95 w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] md:w-[110px] md:h-[110px] flex items-center justify-center overflow-visible"
+                                >
+                                    <div className="scale-[0.28] sm:scale-[0.38] md:scale-[0.55] origin-center shrink-0">
+                                        <PuntosIndicator currentPoints={points} />
                                     </div>
-
-                                    <div className={cn("absolute bottom-1 md:bottom-1.5 opacity-20 group-hover:opacity-100 transition-opacity", rankStyle.text)}>
-                                        <HelpCircle size={7} className="md:w-2.5 md:h-2.5" />
-                                    </div>
-                                </button>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Bottom Row inside details */}
-                        <div className="mt-3 md:mt-auto pt-3 border-t border-white/10 dark:border-white/5 flex items-end justify-between gap-3">
+                        {/* Bottom Meta Row (Categories & Verification) */}
+                        <div className="mt-auto pt-2 border-t border-white/10 dark:border-white/5 flex items-end justify-between gap-3">
                             <div className="flex items-center gap-4">
                                 {/* Categories */}
                                 <div className="flex flex-col">
@@ -401,7 +371,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                         isDarkTheme ? "text-indigo-200/50" : "text-black/40"
                                     )}>{localeConfig.fields.cat}</span>
                                     <div className={cn(
-                                        "px-2 py-0.5 rounded-md border text-[10px] font-black",
+                                        "px-2 py-0.5 rounded-md border text-[10px] font-black leading-none",
                                         isDarkTheme ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border-indigo-200 text-indigo-700"
                                     )}>
                                         B
@@ -409,71 +379,177 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                 </div>
                             </div>
 
-                            {/* Verification Sign */}
-                            <div className="flex flex-col items-center justify-center opacity-40 grayscale">
+                            {/* Verification Sign - Official & Premium badge */}
+                            <div className={cn(
+                                "flex flex-col items-center justify-center transition-all duration-500 pb-0.5",
+                                isExpert ? "opacity-100" : "opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-60"
+                            )}>
                                 <span className={cn(
-                                    "text-[6px] font-bold uppercase mb-1",
-                                    isDarkTheme ? "text-white" : "text-black"
-                                )}>VERIFIED</span>
-                                <div className="w-8 h-8 rounded-full border-2 border-dashed border-current flex items-center justify-center">
-                                    <CheckCircle2 size={12} />
+                                    "text-[6px] font-black uppercase mb-1 tracking-[0.2em] leading-none",
+                                    isExpert ? "text-amber-500 drop-shadow-[0_0_5px_rgba(245,158,11,0.5)]" : (isDarkTheme ? "text-white" : "text-black")
+                                )}>
+                                    {isExpert ? "PREMIUM UNIT" : "VERIFIED"}
+                                </span>
+                                <div className={cn(
+                                    "w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-dashed flex items-center justify-center transition-transform group-hover:rotate-12",
+                                    isExpert ? "border-amber-500 bg-amber-500/10 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]" : "border-current"
+                                )}>
+                                    <CheckCircle2 size={12} className={isExpert ? "animate-pulse" : ""} />
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Bottom Neon Edge Line */}
-                <div className="absolute bottom-0 left-0 h-[2px] w-full bg-white/5 overflow-hidden">
+                {/* Bottom Neon Edge Line - Now INSIDE the overflow-hidden container */}
+                <div className="absolute bottom-0 left-0 h-[2px] w-full bg-white/5 overflow-hidden z-20">
                     <div
                         className={cn("h-full transition-all duration-[2000ms] shadow-[0_0_10px_2px_rgba(255,255,255,0.3)]", rankStyle.badge.split(' ')[0])}
                         style={{ width: `${(points / 15) * 100}%` }}
                     />
                 </div>
+            </div>
 
-                {/* Points Info Modal - Improved backdrop and stacking */}
-                {isPointsModalOpen && (
-                    <div className="absolute inset-0 z-[100] flex items-center justify-center animate-in fade-in duration-300 rounded-[28px] md:rounded-[36px] overflow-hidden">
-                        {/* Internal backdrop to ensure card content is completely hidden */}
-                        <div className="absolute inset-0 bg-zinc-950/90 backdrop-blur-2xl" />
+            {/* Points Info Modal - Ultra Premium Glass Overlay */}
+            {isPointsModalOpen && (
+                <div className="absolute inset-0 z-[100] flex items-center justify-center animate-in fade-in duration-300 rounded-[24px] md:rounded-[32px] overflow-hidden">
+                    {/* High-quality deep backdrop - Solid for maximum focus */}
+                    <div className={cn(
+                        "absolute inset-0 backdrop-blur-3xl",
+                        isDarkTheme ? "bg-zinc-950 shadow-inner" : "bg-white"
+                    )} />
 
-                        <div className="w-full max-w-[280px] md:max-w-sm space-y-4 relative z-10 p-4 md:p-6 text-center animate-in zoom-in-95 duration-400">
-                            <div className="relative inline-block">
-                                <div className={cn("w-14 h-14 md:w-16 md:h-16 rounded-full flex flex-col items-center justify-center border-2 shadow-2xl relative z-20", rankStyle.border, rankStyle.bg)}>
-                                    <span className={cn("text-xl md:text-2xl font-black leading-none", rankStyle.text)}>{points}</span>
-                                    <span className={cn("text-[8px] md:text-[9px] font-black opacity-40", rankStyle.text)}>MAX 15</span>
-                                </div>
-                                <div className={cn("absolute -inset-3 blur-xl opacity-20", rankStyle.bg)} />
-                            </div>
+                    {/* Content Container - Balanced Bento Layout */}
+                    <div className="w-full h-full p-4 md:p-6 lg:p-8 flex flex-col gap-3 md:gap-4 relative z-10 animate-in zoom-in-95 duration-400 overflow-y-auto no-scrollbar">
 
+                        {/* 0. Laconic Close Button */}
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setIsPointsModalOpen(false); }}
+                            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors z-[60] border border-white/5"
+                        >
+                            <X size={16} className="text-white/40" />
+                        </button>
+
+                        {/* 1. Top Section: Points Summary */}
+                        <div className="flex items-center justify-between flex-shrink-0 bg-white/[0.02] p-4 md:p-5 rounded-3xl border border-white/5">
                             <div className="space-y-1">
-                                <h3 className="text-base md:text-lg font-black text-white uppercase tracking-tighter">{localeConfig.fields.pointsLabel}</h3>
-                                <div className={cn("inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider", points >= 10 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20")}>
-                                    {points >= 10 ? <ShieldCheck size={10} /> : <AlertTriangle size={10} />}
-                                    {points >= 10 ? "Допуск открыт" : "Нужно 10 баллов"}
+                                <h3 className="text-xs md:text-sm font-black text-white/90 uppercase tracking-[0.15em]">{localeConfig.fields.pointsLabel}</h3>
+                                <div className={cn(
+                                    "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-black uppercase tracking-[0.05em] border shadow-md",
+                                    points >= 10
+                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                        : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                                )}>
+                                    {points >= 10 ? <ShieldCheck size={12} className="animate-pulse" /> : <AlertTriangle size={12} />}
+                                    {points >= 10 ? "Допуск к экзамену открыт" : "Для экзамена нужно 10"}
                                 </div>
                             </div>
 
-                            <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2 text-left">
-                                <div className="flex items-center justify-between text-[9px] uppercase tracking-widest font-black text-zinc-500">
-                                    <span>Как это работает</span>
-                                    <Zap size={9} className="text-amber-500" />
+                            <div className="relative shrink-0 flex items-center justify-center w-12 h-12 md:w-16 md:h-16">
+                                <div className="scale-[0.2] md:scale-[0.28] origin-center absolute pointer-events-none">
+                                    <PuntosIndicator currentPoints={points} />
                                 </div>
-                                <p className="text-[10px] md:text-[11px] text-zinc-400 leading-relaxed">
-                                    <span className="text-emerald-400">+1</span> за вход и победы. <span className="text-rose-400">-1</span> за ошибки и пропуск 48ч. Наберите <span className="text-zinc-200">10 баллов</span> для сдачи экзамена.
-                                </p>
+                            </div>
+                        </div>
+
+                        {/* 2. Middle Section: Dynamic Graph & Key Stats */}
+                        <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4 min-h-0 overflow-hidden">
+
+                            {/* Left: Main Graph (3/5 width) */}
+                            <div className="md:col-span-3 flex flex-col gap-2 p-3 md:p-4 rounded-2xl bg-white/[0.02] border border-white/5 shadow-xl transition-all hover:bg-white/[0.04]">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest">Аналитика недели</span>
+                                    <Activity size={12} className="text-indigo-400/60" />
+                                </div>
+                                <div className="flex-1 w-full min-h-[70px] relative overflow-visible mt-1">
+                                    {licenseHistory && licenseHistory.length > 1 ? (
+                                        <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${(licenseHistory.length - 1) * 20} 40`} preserveAspectRatio="none">
+                                            <defs>
+                                                <linearGradient id="modalPointsGradientBal" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                    <stop offset="0%" stopColor={rankStyle.accent} stopOpacity="0.3" />
+                                                    <stop offset="100%" stopColor={rankStyle.accent} stopOpacity="0" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path
+                                                d={`M 0 40 ${licenseHistory.map((p: any, i: number) => `L ${i * 20} ${40 - (p.points / 15) * 30}`).join(' ')} L ${(licenseHistory.length - 1) * 20} 40 Z`}
+                                                fill="url(#modalPointsGradientBal)"
+                                            />
+                                            <path
+                                                d={licenseHistory.map((p: any, i: number) => `${i === 0 ? 'M' : 'L'} ${i * 20} ${40 - (p.points / 15) * 30}`).join(' ')}
+                                                fill="none"
+                                                stroke={rankStyle.accent}
+                                                strokeWidth="2.5"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                className="drop-shadow-[0_0_8px_currentColor]"
+                                            />
+                                            {licenseHistory.map((p: any, i: number) => (
+                                                <circle key={i} cx={i * 20} cy={40 - (p.points / 15) * 30} r="1.5" fill="white" className="drop-shadow-[0_0_2px_white]" />
+                                            ))}
+                                        </svg>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center opacity-10">
+                                            <Activity size={18} />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex flex-col">
+                                            <span className="text-[6px] font-bold text-zinc-500 uppercase">Stability</span>
+                                            <span className="text-[10px] font-black text-white">{stats.accuracy || 85}%</span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[6px] font-bold text-zinc-500 uppercase">Efficiency</span>
+                                            <div className="flex items-center gap-1">
+                                                <Zap size={8} className="text-amber-500" />
+                                                <span className="text-[10px] font-black text-amber-500">+{stats.currentStreak || 0}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className="text-[7px] font-black text-zinc-600 uppercase">Adaptive Sync</span>
+                                </div>
                             </div>
 
-                            <button
-                                onClick={() => setIsPointsModalOpen(false)}
-                                className="w-full bg-white text-black py-2.5 rounded-xl font-black text-[10px] tracking-widest uppercase transition-all hover:bg-zinc-200 active:scale-[0.95]"
-                            >
-                                {t('common.close').toUpperCase() === 'COMMON.CLOSE' ? 'ОК' : t('common.close')}
-                            </button>
+                            {/* Right: Rules Mechanic (2/5 width) */}
+                            <div className="md:col-span-2 flex flex-col gap-2">
+                                <div className="flex-1 p-3 md:p-4 rounded-2xl bg-white/[0.02] border border-white/5 shadow-lg flex flex-col justify-center gap-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                                            <span className="text-emerald-400 text-xs font-black">+1</span>
+                                        </div>
+                                        <div className="space-y-0 text-left">
+                                            <h4 className="text-[8px] font-black text-emerald-400 uppercase tracking-widest leading-none mb-0.5">Прогресс</h4>
+                                            <p className="text-[9px] text-zinc-400 leading-tight font-medium">Вход, победы, чистые тесты.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+                                            <span className="text-rose-400 text-xs font-black">-1</span>
+                                        </div>
+                                        <div className="space-y-0 text-left">
+                                            <h4 className="text-[8px] font-black text-rose-400 uppercase tracking-widest leading-none mb-0.5">Штраф</h4>
+                                            <p className="text-[9px] text-zinc-400 leading-tight font-medium">Ошибки, простой более 48ч.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-1 p-2 rounded-xl bg-white/5 border border-white/5 text-center flex justify-between">
+                                        <div className="flex flex-col items-start gap-0">
+                                            <span className="text-[6px] font-black text-zinc-500 uppercase">SAFE RANGE</span>
+                                            <span className="text-[9px] font-black text-white">0-15</span>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-0">
+                                            <span className="text-[6px] font-black text-zinc-500 uppercase">MIN EXAM</span>
+                                            <span className="text-[9px] font-black text-emerald-400">10 pts</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Ambient Background Glow matching the rank */}
             <div className={cn(

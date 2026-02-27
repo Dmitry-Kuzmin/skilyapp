@@ -91,7 +91,7 @@ export type DuelStatus = 'not_started' | 'player_left' | 'opponent_left' | 'tech
 /**
  * Режим игры в дуэли
  */
-export type GameMode = 'menu' | 'create' | 'join' | 'waiting' | 'battle' | 'result';
+export type GameMode = 'menu' | 'create' | 'join' | 'waiting' | 'battle' | 'result' | 'finding';
 
 /**
  * Результат вызова claim_technical_win

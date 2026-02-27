@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { useDuelStore } from '@/store/duelStore';
-import { DuelQuestion } from '@/features/duel/shared';
+import { DuelQuestion } from '@/types/duel';
 
 // Safe wrappers with UNIQUE names for hoisting and resilience
 // We need these imports or re-definitions here as hook needs them
@@ -12,7 +12,7 @@ import { isTelegramMiniApp as isTelegramMiniAppRaw, getTelegramWebApp as getTele
 function safeIsTelegramMiniApp() {
     return typeof isTelegramMiniAppRaw === 'function' ? isTelegramMiniAppRaw() : false;
 }
- 
+
 function safeGetTelegramWebApp() {
     return typeof getTelegramWebAppRaw === 'function' ? getTelegramWebAppRaw() : null;
 }
@@ -109,6 +109,8 @@ export function useDuelBoostAction({
                 boostName: exploitNames[boostType] || boostType.toUpperCase(),
                 boostType: boostType
             });
+            // Hide feedback after 2 seconds for exploits
+            setTimeout(() => setBoostFeedback(prev => ({ ...prev, isActive: false })), 2000);
             if (navigator.vibrate) navigator.vibrate(50);
         } else {
             // For standard boosts
@@ -239,6 +241,7 @@ export function useDuelBoostAction({
 
                 // RPC CALL
                 console.log('[handleBoostUse] 🔥 Calling RPC use_boost_attack:', { duelId, boostType });
+                // @ts-ignore
                 const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
                     p_duel_id: duelId,
                     p_boost_type: boostType,
@@ -248,7 +251,8 @@ export function useDuelBoostAction({
                 });
 
                 if (rpcError) throw rpcError;
-                if (!rpcResult?.success) throw new Error(rpcResult?.error || 'Failed to use boost');
+                const result = rpcResult as any;
+                if (!result?.success) throw new Error(result?.error || 'Failed to use boost');
 
                 // Success Feedback
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
@@ -310,6 +314,7 @@ export function useDuelBoostAction({
             // Yes, standard boosts also consume quantity on server.
 
             try {
+                // @ts-ignore
                 const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
                     p_duel_id: duelId,
                     p_boost_type: boostType,
@@ -319,7 +324,8 @@ export function useDuelBoostAction({
                 });
 
                 if (rpcError) throw rpcError;
-                if (!rpcResult?.success) throw new Error(rpcResult?.error || 'Failed to use boost');
+                const result = rpcResult as any;
+                if (!result?.success) throw new Error(result?.error || 'Failed to use boost');
 
                 // Update local quantity
                 setBoosts((prev: any[]) => prev.map((b: any) =>

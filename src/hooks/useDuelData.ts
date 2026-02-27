@@ -369,8 +369,8 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
     }
 
     const buildResult = (players: any[]) => {
-      const myPlayer = players.find((p) => p.user_id === profileId);
-      const opponent = players.find((p) => p.user_id !== profileId);
+      const myPlayer = players.find((p) => String(p.user_id) === String(profileId));
+      const opponent = players.find((p) => String(p.user_id) !== String(profileId));
 
       // КРИТИЧНО: Используем name из Edge Function (если доступен), так как он уже вычислен на основе профиля
       // Fallback: берем из profiles, потом из поля name таблицы duel_players

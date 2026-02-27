@@ -20,20 +20,20 @@ const calculateBotThinkingTime = (difficulty: string = 'medium'): number => {
 
   switch (difficulty) {
     case 'easy':
-      min = 6000;
-      max = 15000;
+      min = 5000;
+      max = 12000;
       break;
     case 'medium':
-      min = 4000;
-      max = 10000;
-      break;
-    case 'hard':
       min = 3000;
       max = 8000;
       break;
-    case 'insane':
+    case 'hard':
       min = 2000;
-      max = 5000;
+      max = 6000;
+      break;
+    case 'insane':
+      min = 1000;
+      max = 4000;
       break;
   }
 
@@ -165,10 +165,10 @@ export function useBotOpponent({
           .eq('duel_id', duelId)
           .eq('player_id', botPlayerRef.current.id);
 
-        const answeredIds = new Set((aData || []).map(a => a.duel_question_id));
+        const answeredIds = new Set(((aData as any[]) || []).map(a => a.duel_question_id));
 
         // 3. Находим первый неотвеченный вопрос по порядку
-        const nextQ = qData.find(q =>
+        const nextQ = (qData as any[]).find(q =>
           !answeredIds.has(q.id) &&
           !processedQuestions.current.has(q.id) &&
           !activeTimers.current.has(q.id)
@@ -248,12 +248,14 @@ export function useBotOpponent({
     // Easy: 0% (не используют бусты)
     // Medium: 15% каждые 25 секунд (реже чем раньше)
     // Hard/Insane: 25% каждые 25 секунд
-    let attackChance = 0;
-    if (botDifficulty === 'medium') {
-      attackChance = 0.15; // 15% (было 20%)
-    } else if (botDifficulty === 'hard' || botDifficulty === 'insane') {
-      attackChance = 0.25; // 25% (было 40%)
-    }
+    const attackChances = {
+      easy: 0.15,   // 15% (было 0)
+      medium: 0.35, // 35% (было 25%)
+      hard: 0.50,   // 50% (было 40%)
+      insane: 0.60, // 60%
+    };
+    const diff = (botDifficulty as string) || 'medium';
+    let attackChance = attackChances[diff as keyof typeof attackChances] || 0.35;
 
     // Easy боты не используют бусты
     if (attackChance === 0) {
@@ -270,9 +272,9 @@ export function useBotOpponent({
         return;
       }
 
-      // Проверяем не слишком ли часто (минимум 20 секунд между проверками — было 8)
+      // Проверяем не слишком ли часто (минимум 8 секунд между проверками — было 12)
       const now = Date.now();
-      if (now - lastBoostCheckRef.current < 20000) {
+      if (now - lastBoostCheckRef.current < 8000) {
         return;
       }
       lastBoostCheckRef.current = now;
@@ -313,11 +315,27 @@ export function useBotOpponent({
       }
     };
 
-    // 🔥 CRITICAL FIX: Проверяем каждые 25 секунд (было 12)
-    boostCheckIntervalRef.current = setInterval(checkBoost, 25000);
+    const boostIntervals = {
+      easy: 15000,   // 15 seconds
+      medium: 10000, // 10 seconds (было 12)
+      hard: 8000,    // 8 seconds
+      insane: 6000,  // 6 seconds
+    };
+    const boostInterval = boostIntervals[diff as keyof typeof boostIntervals] || 10000;
 
-    // 🔥 CRITICAL FIX: Первая проверка через 15 секунд после загрузки вопроса (было 5)
-    const initialTimer = setTimeout(checkBoost, 15000);
+    // 🔥 КРИТИЧНО: Проверяем каждые X секунд
+    boostCheckIntervalRef.current = setInterval(checkBoost, boostInterval);
+
+    const initialDelay = {
+      easy: 8000,   // 8 seconds
+      medium: 4000, // 4 seconds
+      hard: 2000,   // 2 seconds
+      insane: 1500, // 1.5 seconds
+    };
+    const initialTimerDelay = initialDelay[diff as keyof typeof initialDelay] || 4000;
+
+    // 🔥 КРИТИЧНО: Первая проверка через X секунд после загрузки вопроса
+    const initialTimer = setTimeout(checkBoost, initialTimerDelay);
 
     return () => {
       if (boostCheckIntervalRef.current) {

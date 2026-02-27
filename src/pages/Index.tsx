@@ -44,6 +44,9 @@ const DashboardContent = memo(function DashboardContent() {
     return true;
   });
 
+  // Эффект анимации баллов при первом входе
+  const [shouldAnimatePoints, setShouldAnimatePoints] = useState(showWelcome);
+
   // Get dashboard data with caching
   const { data: dashboardData, loading, error, refresh: refreshDashboard, invalidateCache } = useDashboardData();
 
@@ -211,11 +214,11 @@ const DashboardContent = memo(function DashboardContent() {
   }, [navigate]);
 
   // Show Welcome Overlay
-  const readinessPercent = Math.min(100, readiness?.percent || 0);
-  const accuracy = metrics?.accuracy
+  const readinessPercent = readiness?.percent !== undefined ? Math.min(100, readiness.percent) : undefined;
+  const accuracy = metrics?.accuracy !== undefined
     ? Math.min(100, Math.round(metrics.accuracy * 100))
     : Math.min(100, (dashboardData?.stats.accuracy || 0));
-  const averageScore = Math.min(100, readinessPercent || accuracy);
+  const averageScore = Math.min(100, readinessPercent !== undefined ? readinessPercent : accuracy);
 
 
 
@@ -290,6 +293,7 @@ const DashboardContent = memo(function DashboardContent() {
                   profileId={profileId}
                   userProfile={dashboardData.profile}
                   licenseHistory={dashboardData.license_history}
+                  animatePoints={shouldAnimatePoints}
                   readinessStatus={readiness ? {
                     status: readiness.status,
                     statusText: readiness.statusText,

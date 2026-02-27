@@ -205,9 +205,9 @@ Deno.serve(async (req) => {
                     supabase,
                     num_questions,
                     profile.preferred_country || 'spain',
+                    questionSeed,
                     categories,
-                    difficulty,
-                    questionSeed
+                    difficulty
                 );
 
                 if (questions.length < num_questions) {
@@ -270,6 +270,50 @@ Deno.serve(async (req) => {
                 }
 
                 console.log('[create_duel] Host automatically added by trigger and updated with insurance');
+
+                // Если это реванш, уведомляем соперника из предыдущей дуэли
+                if (rematch_from_duel_id) {
+                    try {
+                        console.log(`[create_duel] Handling rematch from duel ${rematch_from_duel_id}`);
+                        // Находим другого игрока из предыдущей дуэли
+                        const { data: oldPlayers, error: oldPlayersError } = await supabase
+                            .from('duel_players')
+                            .select('user_id')
+                            .eq('duel_id', rematch_from_duel_id)
+                            .neq('user_id', profileId);
+
+                        if (!oldPlayersError && oldPlayers && oldPlayers.length > 0) {
+                            const opponentUserId = oldPlayers[0].user_id;
+
+                            if (opponentUserId) {
+                                // Создаем уведомление для соперника
+                                // Линк к старой дуэли, чтобы он увидел это на экране результатов
+                                const { error: notifyError } = await supabase.from('duel_notifications').insert({
+                                    user_id: opponentUserId,
+                                    duel_id: rematch_from_duel_id,
+                                    type: 'rematch_proposed',
+                                    title: 'Запрос реванша',
+                                    message: `Ваш соперник предлагает реванш! Ставка: ${bet_amount} монет.`,
+                                    metadata: {
+                                        new_duel_id: duel.id,
+                                        new_duel_code: code,
+                                        bet_amount: bet_amount,
+                                        num_questions: num_questions,
+                                        initiator_id: profileId
+                                    }
+                                });
+
+                                if (notifyError) {
+                                    console.error('[create_duel] Error inserting rematch notification:', notifyError);
+                                } else {
+                                    console.log(`[create_duel] Rematch notification sent to opponent ${opponentUserId}`);
+                                }
+                            }
+                        }
+                    } catch (notifyErr) {
+                        console.error('[create_duel] Failed to handle rematch notification:', notifyErr);
+                    }
+                }
 
                 return new Response(JSON.stringify({ duel, code }), {
                     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -454,17 +498,16 @@ Deno.serve(async (req) => {
 
                 await supabase.from('duel_matchmaking_queue').insert(queueData);
 
-                // Ищем реального оппонента ~5 секунд
+                // Ищем реального оппонента ~5 секунд (или пропускаем если immediate_bot)
                 let matchedOpponent = null;
-                const searchTimeout = 5000;
+                const searchTimeout = (params.immediate_bot) ? 0 : 5000;
                 const searchStart = Date.now();
 
                 while (Date.now() - searchStart < searchTimeout) {
                     const { data: queueEntries } = await supabase.rpc('find_matchmaking_opponent', {
                         p_profile_id: profileId,
                         p_bet_amount: bet_amount,
-                        p_difficulty: difficulty || 'mix',
-                        p_country: playerCountry
+                        p_difficulty: difficulty || 'mix'
                     });
 
                     if (queueEntries && queueEntries.length > 0) {
@@ -475,8 +518,75 @@ Deno.serve(async (req) => {
                     await new Promise(r => setTimeout(r, 1000));
                 }
 
+                // --- REAL OPPONENT MATCHED ---
+                if (matchedOpponent) {
+                    console.log(`[find_match] ✅ Match found! Joining duel: ${matchedOpponent.duel_id}`);
+
+                    const { data: duel, error: duelError } = await supabase
+                        .from('duels')
+                        .select('*')
+                        .eq('id', matchedOpponent.duel_id)
+                        .single();
+
+                    if (duelError || !duel) {
+                        console.error('[find_match] Error fetching matched duel:', duelError);
+                        // Fallback to bot if duel fetch fails
+                    } else {
+                        // Join the matched duel
+                        const joinerInsurance = duel.bet_amount > 0 ? getInsuranceConfig(duel.bet_amount, {
+                            enabled: insurance_enabled,
+                            rate: insurance_rate,
+                            coverageRate: insurance_coverage_rate
+                        }) : { enabled: false, rate: 0, coverageRate: 0, premium: 0 };
+
+                        const { data: player, error: playerError } = await supabase
+                            .from('duel_players')
+                            .insert({
+                                duel_id: duel.id,
+                                user_id: profileId,
+                                is_bot: false,
+                                insurance_enabled: joinerInsurance.enabled,
+                                insurance_premium: joinerInsurance.premium,
+                                insurance_coverage_rate: joinerInsurance.coverageRate,
+                            })
+                            .select()
+                            .single();
+
+                        if (!playerError) {
+                            // Update duel status
+                            await supabase
+                                .from('duels')
+                                .update({ status: 'active', started_at: new Date().toISOString() })
+                                .eq('id', duel.id);
+
+                            // Remove from queue
+                            await supabase.rpc('mark_matchmaking_matched', {
+                                p_queue_id: matchedOpponent.id
+                            });
+
+                            return new Response(JSON.stringify({
+                                duel,
+                                player,
+                                auto_started: true,
+                                code: duel.code,
+                                opponent_type: 'human'
+                            }), {
+                                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                            });
+                        }
+                    }
+                }
+
+                // --- BOT FALLBACK (Default) ---
                 // Создаём бот-дуэль
-                const botProfile = generateBotProfile(playerProfile.duel_pass_level || 1, playerProfile.win_streak || 0);
+                let botProfile;
+                if (params.rematch_bot_name) {
+                    // Используем того же самого бота для реванша
+                    botProfile = generateBotProfile(playerProfile.duel_pass_level || 1, playerProfile.win_streak || 0);
+                    botProfile.name = params.rematch_bot_name;
+                } else {
+                    botProfile = generateBotProfile(playerProfile.duel_pass_level || 1, playerProfile.win_streak || 0);
+                }
 
                 const code = generateDuelCode();
                 const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);

@@ -6,6 +6,9 @@ interface DuelPlayer {
   user_id: string;
   score: number;
   correct_count: number;
+  is_bot: boolean;
+  bot_name?: string | null;
+  bot_difficulty?: string | null;
   profiles?: {
     id: string;
     username: string | null;
@@ -32,6 +35,9 @@ export function useDuelPlayers(duelId: string | null) {
           user_id,
           score,
           correct_count,
+          is_bot,
+          bot_name,
+          bot_difficulty,
           profiles (id, username, first_name, photo_url)
         `)
         .eq("duel_id", duelId);

@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame, ChevronRight, RefreshCw, ChevronDown } from 'lucide-react';
+import { Trophy, RotateCcw, Home, Share2, Sparkles, Target, Zap, Award, TrendingUp, Coins, CheckCircle2, XCircle, Shield, Star, Gift, Flame, ChevronRight, RefreshCw, ChevronDown, Swords } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
@@ -21,6 +21,8 @@ import { DataLaunderingButton } from './DataLaunderingButton';
 import { useVignetteBanner } from '@/hooks/useVignetteBanner';
 import { useInterstitialBanner } from '@/hooks/useInterstitialBanner';
 import { usePremium } from '@/hooks/usePremium';
+import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCardV3";
+import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { DuelResultSnapshot } from '@/features/duel/shared';
@@ -32,7 +34,7 @@ const isDev = import.meta.env.DEV;
 
 interface DuelResultProps {
   duelId: string;
-  onRematch: () => void;
+  onRematch: (isBotRematch: boolean, opponentData: { id: string, name: string, isBot: boolean }) => void;
   onBackToMenu: () => void;
   // 🆕 CRITICAL FIX: Передача данных напрямую из памяти (минуя localStorage)
   // Это решает race condition на мобильных устройствах
@@ -54,6 +56,37 @@ const confettiEffects = [
   // Эффект 6: Многоцветный взрыв
   { numberOfPieces: 400, gravity: 0.4, colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'] },
 ];
+
+const winPhrases = [
+  "Да это было слишком легко! Давай еще раз?",
+  "Повторим? Мне понравилось выигрывать!",
+  "Сдаешься? Или попробуешь отыграться?",
+  "Чистая победа! Хочешь матч-реванш?",
+  "Я сегодня в ударе! Рискнешь еще раз?",
+];
+
+const losePhrases = [
+  "Это была разминка! Требую матча-реванша!",
+  "Неплохо, но я могу лучше. Ещё разок?",
+  "Повезло тебе... Давай переиграем!",
+  "Я просто поддавался. Давай по-серьезному!",
+  "Один-один? Или боишься?",
+];
+
+const getFallbackAvatar = (name: string) => {
+  if (!name) return `https://i.pravatar.cc/150?u=fallback`;
+  const lowerName = name.toLowerCase().trim();
+  const isFemale = lowerName.endsWith('a') || lowerName.endsWith('я') || lowerName.endsWith('и') || lowerName.endsWith('ah') || lowerName === 'chloe' || lowerName === 'zoe';
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const femaleIds = [1, 5, 9, 10, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 35, 36, 38, 39, 40, 41, 42, 43, 44, 45, 47, 48, 49];
+  const maleIds = [3, 4, 6, 7, 8, 11, 12, 13, 14, 15, 17, 18, 33, 37, 46, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67];
+  const ids = isFemale ? femaleIds : maleIds;
+  const index = Math.abs(hash) % ids.length;
+  return `https://i.pravatar.cc/150?img=${ids[index]}`;
+};
 
 export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }: DuelResultProps) {
   const { profileId } = useUserContext();
@@ -164,6 +197,15 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   const notificationSentRef = useRef(false);
   const counterAnimationCompleteRef = useRef(false);
   const [showBotProposal, setShowBotProposal] = useState(false);
+  const [rematchProposalCount, setRematchProposalCount] = useState(0);
+
+  // 🔘 Random phrase for bot rematch
+  const proposalPhrase = useMemo(() => {
+    if (!results) return "";
+    const phrases = results.isWinner ? losePhrases : winPhrases;
+    const index = (duelId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % phrases.length;
+    return phrases[index];
+  }, [results, duelId]);
 
   // Обновляем состояние при загрузке данных
   useEffect(() => {
@@ -263,15 +305,16 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
 
   // 🤖 BOT REMATCH LOGIC: Если соперник бот, предлагаем реванш через 3.5 секунды
   useEffect(() => {
-    if (results && duelResultsData?.opponentPlayer?.is_bot && !showBotProposal) {
+    if (results && duelResultsData?.opponentPlayer?.is_bot && !showBotProposal && rematchProposalCount < 2) {
       const timer = setTimeout(() => {
         setShowBotProposal(true);
+        setRematchProposalCount(prev => prev + 1);
         sounds.notificationPop(); // Звук уведомления
         haptics.boostActivated(); // 'medium' вибрация
       }, 3500);
       return () => clearTimeout(timer);
     }
-  }, [results, duelResultsData, showBotProposal]);
+  }, [results, duelResultsData, showBotProposal, rematchProposalCount]);
 
   // Вибрация при завершении анимации счетчика (через 1.5 секунды после появления результатов)
   useEffect(() => {
@@ -421,23 +464,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   }
 
   return (
-    <div className="relative w-full z-10 bg-background overflow-x-hidden pt-0 pb-24">
+    <div className="relative w-full z-10 bg-transparent overflow-x-hidden pt-0 pb-24">
 
       <div className="w-full max-w-2xl mx-auto px-4 py-4 space-y-6 relative z-10">
         <AnimatePresence>
-          {(results.isWinner || (!results.isWinner && !results.isDraw)) && (
+          {results.isWinner && (
             <Confetti
               width={window.innerWidth}
               height={window.innerHeight}
               recycle={false}
-              numberOfPieces={results.isWinner ? selectedConfettiEffect.numberOfPieces : 150} // Меньше частиц для проигрыша
-              gravity={results.isWinner ? selectedConfettiEffect.gravity : 0.4} // Быстрее падение (дождь/пепел)
-              colors={results.isWinner
-                ? selectedConfettiEffect.colors
-                : ['#334155', '#475569', '#64748b', '#94a3b8', '#1e293b'] // Серые/сизые тона
-              }
-              // Для проигрыша можно добавить wind, чтобы выглядело как косой дождь
-              wind={results.isWinner ? 0 : 0.05}
+              numberOfPieces={selectedConfettiEffect.numberOfPieces}
+              gravity={selectedConfettiEffect.gravity}
+              colors={selectedConfettiEffect.colors}
               style={{ position: 'fixed', top: 0, left: 0, zIndex: 50, pointerEvents: 'none' }}
             />
           )}
@@ -558,7 +596,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-indigo-500/30 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             {/* Premium Glass Card - улучшено для светлой темы */}
-            <div className="relative overflow-hidden bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-[32px] p-6 border border-slate-200 dark:border-white/10 shadow-xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            <div className="relative overflow-hidden bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/5 dark:border-white/[0.03]">
               {/* Inner glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
@@ -575,7 +613,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                   )}
                 />
                 <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Вы</div>
-                <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-200 dark:border-white/10">
+                <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2">
                   <CheckCircle2 className="w-4 h-4 text-green-500 dark:text-green-400" />
                   <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">{results.myCorrect}/{totalQuestions}</span>
                 </div>
@@ -593,7 +631,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             {/* Premium Glass Card - улучшено для светлой темы */}
-            <div className="relative overflow-hidden bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-[32px] p-6 border border-slate-200 dark:border-white/10 shadow-xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            <div className="relative overflow-hidden bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/5 dark:border-white/[0.03]">
               {/* Inner glow */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
@@ -620,7 +658,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                   )}
                 />
                 <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-500 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
-                <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2 border border-slate-200 dark:border-white/10">
+                <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2">
                   <Target className="w-4 h-4 text-orange-500 dark:text-orange-400" />
                   <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">{results.opponentCorrect}/{totalQuestions}</span>
                 </div>
@@ -635,7 +673,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             initial={{ y: 30, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="relative overflow-hidden rounded-[32px] border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl p-6 shadow-xl dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            className="relative overflow-hidden rounded-[32px] bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl p-6 border border-white/5 dark:border-white/[0.03]"
           >
             {/* Animated background gradient */}
             <motion.div
@@ -670,49 +708,10 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                {/* Season Points */}
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-200 dark:border-blue-500/30 text-center space-y-2 overflow-hidden group"
-                >
-                  {/* Hover glow */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  {/* Rotating glow orb */}
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"
-                  />
-
-                  {/* Sparkle effect on icon */}
-                  <div className="relative z-10">
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.8, 1, 0.8],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0 flex items-center justify-center"
-                    >
-                      <div className="w-8 h-8 bg-blue-500/20 rounded-full blur-md" />
-                    </motion.div>
-                    <Star className="relative z-10 w-8 h-8 text-blue-400 mx-auto fill-blue-500/20 drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
-                  </div>
-
-                  <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Season Points</div>
-                  <AnimatedCounter
-                    value={rewards.sp}
-                    duration={1500}
-                    prefix="+"
-                    className="relative z-10 text-3xl font-black bg-gradient-to-br from-blue-400 to-blue-300 bg-clip-text text-transparent"
-                  />
-                </motion.div>
-
                 {/* XP */}
                 <motion.div
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-indigo-200 dark:border-indigo-500/30 text-center space-y-2 overflow-hidden group"
+                  className="relative col-span-1 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 text-center space-y-2 overflow-hidden group"
                 >
                   {/* Hover glow */}
                   <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -726,25 +725,35 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
 
                   {/* Sparkle effect on icon */}
                   <div className="relative z-10">
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.8, 1, 0.8],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                      className="absolute inset-0 flex items-center justify-center"
-                    >
-                      <div className="w-8 h-8 bg-indigo-500/20 rounded-full blur-md" />
-                    </motion.div>
                     <Zap className="relative z-10 w-8 h-8 text-indigo-400 mx-auto fill-indigo-500/20 drop-shadow-[0_0_15px_rgba(129,140,248,0.6)]" />
                   </div>
 
-                  <div className="relative z-10 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Опыт</div>
+                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Опыт</div>
                   <AnimatedCounter
                     value={rewards.xp}
                     duration={1500}
                     prefix="+"
-                    className="relative z-10 text-3xl font-black bg-gradient-to-br from-indigo-400 to-indigo-300 bg-clip-text text-transparent"
+                    className="relative z-10 text-2xl font-black bg-gradient-to-br from-indigo-400 to-indigo-300 bg-clip-text text-transparent"
+                  />
+                </motion.div>
+
+                {/* Season Points (SP) */}
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="relative col-span-1 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 text-center space-y-2 overflow-hidden group"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  <div className="relative z-10">
+                    <Trophy className="w-8 h-8 text-amber-500 mx-auto fill-amber-500/20 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]" />
+                  </div>
+
+                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Season Points</div>
+                  <AnimatedCounter
+                    value={rewards.sp}
+                    duration={1500}
+                    prefix="+"
+                    className="relative z-10 text-2xl font-black bg-gradient-to-br from-amber-400 to-yellow-300 bg-clip-text text-transparent"
                   />
                 </motion.div>
               </div>
@@ -758,9 +767,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="bg-card/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-border/50 dark:border-white/10 overflow-hidden shadow-lg"
+            className="bg-card/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden shadow-lg"
           >
-            <div className="p-4 border-b border-border/50 dark:border-white/10 bg-muted/30 dark:bg-white/5 flex items-center gap-2">
+            <div className="p-4 bg-muted/30 dark:bg-white/5 flex items-center gap-2">
               <Coins className="w-5 h-5 text-amber-500 dark:text-amber-400" />
               <h3 className="font-bold text-foreground">Ставка</h3>
             </div>
@@ -775,7 +784,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                   <motion.div
                     initial={{ scale: 0.95 }}
                     animate={{ scale: 1 }}
-                    className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3 border border-green-500/30 dark:border-green-500/30"
+                    className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3"
                   >
                     <span className="font-bold text-green-600 dark:text-green-400">Выигрыш:</span>
                     <span className="font-black text-2xl text-green-600 dark:text-green-400">+{results.winnings}</span>
@@ -797,14 +806,14 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               )}
 
               {!results.isWinner && !results.isDraw && (
-                <div className="flex justify-between items-center bg-red-500/10 rounded-xl p-3 border border-red-500/30 dark:border-red-500/20">
+                <div className="flex justify-between items-center bg-red-500/10 rounded-xl p-3">
                   <span className="font-bold text-red-600 dark:text-red-400">Проигрыш:</span>
                   <span className="font-black text-2xl text-red-600 dark:text-red-400">-{results.betAmount}</span>
                 </div>
               )}
 
               {results.isDraw && (
-                <div className="flex justify-between items-center bg-blue-500/10 rounded-xl p-3 border border-blue-500/30 dark:border-blue-500/20">
+                <div className="flex justify-between items-center bg-blue-500/10 rounded-xl p-3">
                   <span className="font-bold text-blue-600 dark:text-blue-400">Возврат:</span>
                   <span className="font-black text-2xl text-blue-600 dark:text-blue-400">+{results.betAmount}</span>
                 </div>
@@ -813,60 +822,88 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           </motion.div>
         )}
 
-        {/* Bot Rematch Proposal Overlay - Slide-in from bottom */}
+        {/* Bot Rematch Proposal - Ultra-Premium Top-Right Notification */}
         <AnimatePresence>
           {showBotProposal && (
             <motion.div
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
-              className="fixed bottom-24 left-4 right-4 z-50 pointer-events-none"
+              initial={{ y: -100, opacity: 0, scale: 0.8 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -100, opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+              className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] pointer-events-none w-[360px] max-w-[calc(100vw-32px)]"
             >
-              <motion.div
-                animate={{ y: [0, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="pointer-events-auto max-w-sm mx-auto bg-gradient-to-br from-indigo-600/95 to-purple-600/95 backdrop-blur-xl rounded-3xl p-5 shadow-[0_20px_50px_rgba(79,70,229,0.5)] border border-white/20 relative overflow-hidden"
+              <div
+                className="pointer-events-auto bg-slate-900/90 dark:bg-slate-950/95 backdrop-blur-3xl rounded-[2rem] p-5 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group"
               >
-                {/* Background Sparkles */}
-                <div className="absolute inset-0 opacity-20 pointer-events-none">
-                  <Sparkles className="absolute top-2 right-4 w-4 h-4 text-white animate-pulse" />
-                  <Sparkles className="absolute bottom-4 left-6 w-3 h-3 text-white animate-pulse" style={{ animationDelay: '1s' }} />
-                </div>
+                {/* Animated Gradient Background Glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 opacity-60" />
 
-                <div className="flex items-center gap-4 relative z-10">
-                  <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center border border-white/30 shadow-inner">
-                    <span className="text-3xl">🤖</span>
+                {/* Animated Edge Shine */}
+                <motion.div
+                  animate={{ opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                  className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent"
+                />
+
+                <div className="flex items-start gap-4 relative z-10">
+                  <div className="relative shrink-0">
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      className="relative w-14 h-14"
+                    >
+                      <div className="absolute inset-0 bg-indigo-500 rounded-2xl blur-md opacity-20 animate-pulse" />
+                      <img
+                        src={results.opponentAvatar || getFallbackAvatar(results.opponentName)}
+                        className="w-full h-full rounded-2xl object-cover border-2 border-white/20 shadow-xl relative z-10"
+                        alt={results.opponentName}
+                      />
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900 z-20" />
+                    </motion.div>
                   </div>
-                  <div className="flex-1">
-                    <div className="text-white font-black text-lg leading-tight uppercase tracking-tight">Реванш?</div>
-                    <div className="text-white/80 text-xs font-medium italic">
-                      {results.isWinner
-                        ? `"${results.opponentName}": Это было случайно! Давай еще раз?`
-                        : `"${results.opponentName}": Повезло тебе! Хочешь отыграться?`
-                      }
+
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Swords className="w-3.5 h-3.5 text-indigo-400" />
+                        <span className="text-white font-black text-xs uppercase tracking-widest opacity-60">Реванш</span>
+                      </div>
+                      <Sparkles className="w-3.5 h-3.5 text-yellow-400/50 animate-spin-slow" />
                     </div>
+                    <p className="text-white font-bold text-sm leading-tight pr-2 line-clamp-3">
+                      <span className="text-indigo-400">{results.opponentName}:</span> "{proposalPhrase}"
+                    </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mt-5 relative z-10">
+                <div className="flex gap-2.5 mt-5 relative z-10">
                   <Button
                     onClick={() => {
                       setShowBotProposal(false);
-                      onRematch();
+                      onRematch(true, { name: results.opponentName, isBot: true });
                     }}
-                    className="bg-white text-indigo-700 hover:bg-white/90 font-black rounded-xl border-0 h-10 shadow-lg"
+                    className="flex-[2] bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl h-10 shadow-lg shadow-indigo-500/20 border-0 active:scale-95 transition-all text-xs tracking-wider"
                   >
                     ПРИНЯТЬ
                   </Button>
                   <Button
                     onClick={() => setShowBotProposal(false)}
                     variant="ghost"
-                    className="text-white hover:bg-white/10 font-bold rounded-xl h-10"
+                    className="flex-1 text-slate-400 hover:text-white hover:bg-white/5 font-bold rounded-xl h-10 active:scale-95 transition-all text-xs"
                   >
-                    НЕТ, СПАСИБО
+                    НЕТ
                   </Button>
                 </div>
-              </motion.div>
+
+                {/* Progress Indicators */}
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
+                  <motion.div
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 8, ease: "linear" }}
+                    onAnimationComplete={() => setShowBotProposal(false)}
+                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                  />
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -877,11 +914,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.7 }}
-            className="bg-card/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl border border-border/50 dark:border-white/10 overflow-hidden shadow-lg"
+            className="bg-card/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden shadow-lg"
           >
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="questions" className="border-none">
-                <AccordionTrigger className="px-5 py-4 hover:no-underline bg-muted/30 dark:bg-white/5 border-b border-border/50 dark:border-white/10">
+                <AccordionTrigger className="px-5 py-4 hover:no-underline bg-muted/30 dark:bg-white/5">
                   <div className="flex items-center gap-3">
                     <div className="p-2 bg-indigo-500/20 rounded-lg">
                       <Trophy className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
@@ -934,6 +971,33 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           </motion.div>
         )}
 
+        {/* AI Smart Debrief — Анализ ошибок */}
+        {results && myAnswers.filter(a => !a.is_correct).length > 0 && (
+          <div className="mt-4">
+            <SmartDebriefCard
+              failedQuestions={myAnswers
+                .filter(a => !a.is_correct)
+                .map(ans => {
+                  const q = ans.duel_questions;
+                  const snapshot = q?.question_snapshot;
+                  const correctOption = snapshot?.answer_options?.find((opt: any) => opt.is_correct);
+                  const selectedOption = snapshot?.answer_options?.find((opt: any) => opt.id === ans.selected_option_id);
+
+                  return {
+                    questionId: ans.question_id,
+                    questionText: snapshot?.question_ru || q?.question_ru || 'Вопрос',
+                    userAnswer: selectedOption?.text_ru || 'Нет ответа',
+                    correctAnswer: correctOption?.text_ru || 'Неизвестно',
+                    topic: snapshot?.topics?.title_ru || 'Общая тема',
+                    explanation: snapshot?.explanation_ru || q?.explanation_ru || '',
+                    imageUrl: snapshot?.image_url || q?.image_url || null,
+                  };
+                })}
+              country="spain" // Или динамически
+            />
+          </div>
+        )}
+
         {/* Action Buttons - Premium with Shine Effect */}
         <motion.div
           initial={{ y: 30, opacity: 0 }}
@@ -980,7 +1044,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 console.log('[DuelResult] 🧹 Cleaning up activeDuel on rematch');
                 clearActiveDuel();
                 clearDuelResultSnapshot();
-                onRematch();
+                onRematch(results.isBot, { id: results.opponentId, name: results.opponentName, isBot: results.isBot });
               }}
               size="lg"
               className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
@@ -1010,8 +1074,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 }, 100);
               }}
               size="lg"
-              variant="outline"
-              className="border-slate-300 dark:border-white/20 bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-zinc-200 font-bold h-14 rounded-2xl backdrop-blur-sm shadow-sm"
+              variant="ghost"
+              className="bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-zinc-200 font-bold h-14 rounded-2xl backdrop-blur-sm shadow-sm"
             >
               <Home className="w-5 h-5 mr-2" />
               В меню

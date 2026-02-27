@@ -187,8 +187,8 @@ const Games = () => {
   return (
     <>
       <Layout>
-        <div className="min-h-screen bg-transparent p-6 md:p-10 font-sans pb-6 text-foreground">
-          <div className="max-w-[1370px] mx-auto space-y-8">
+        <div className="min-h-screen bg-transparent px-3 py-6 md:px-10 md:py-10 font-sans pb-6 text-foreground">
+          <div className="max-w-[1370px] mx-auto space-y-6 md:space-y-8">
 
             {/* Page Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
@@ -236,10 +236,10 @@ const Games = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 className={cn(
-                  "relative w-full overflow-hidden rounded-[2rem] shadow-2xl group border",
+                  "relative w-full overflow-hidden rounded-[1.5rem] md:rounded-[2rem] shadow-2xl group",
                   duelsEnabled
-                    ? "cursor-pointer border-white/10 rounded-[2.5rem]"
-                    : "cursor-not-allowed rounded-[2rem] bg-gradient-to-br from-cyan-900 via-blue-900 to-slate-900 border-cyan-500/30 shadow-[0_0_40px_rgba(8,145,178,0.2)]"
+                    ? "cursor-pointer rounded-[2rem] md:rounded-[2.5rem]"
+                    : "cursor-not-allowed rounded-[1.5rem] md:rounded-[2rem] bg-gradient-to-br from-cyan-900 via-blue-900 to-slate-900 shadow-[0_0_40px_rgba(8,145,178,0.2)]"
                 )}
                 style={duelsEnabled ? {
                   background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
@@ -293,7 +293,7 @@ const Games = () => {
                   </div>
                 )}
 
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 md:p-12 items-center">
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 p-6 md:p-12 items-center">
                   {/* Left Content */}
                   <div className="space-y-8">
                     <div className="space-y-4">
@@ -313,7 +313,7 @@ const Games = () => {
                         )}>Главный режим</span>
                       </div>
                       <h2 className={cn(
-                        "text-5xl md:text-7xl font-black tracking-tight leading-[0.9] drop-shadow-lg",
+                        "text-4xl md:text-7xl font-black tracking-tight leading-[0.9] drop-shadow-lg",
                         duelsEnabled ? "text-white" : "text-cyan-100"
                       )}>
                         ДУЭЛЬ
@@ -358,7 +358,7 @@ const Games = () => {
                       )}
 
                       {duelsEnabled && (
-                        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10">
+                        <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm">
                           <OnlinePlayers baseCount={1240} />
                         </div>
                       )}
@@ -480,7 +480,7 @@ const Games = () => {
                       transition={{ delay: index * 0.05 + 0.2, duration: 0.4 }}
                       className={`
                         ${isFeatured ? 'md:col-span-2' : 'col-span-1'}
-                        relative overflow-hidden rounded-[2rem] p-6 md:p-8 cursor-pointer group
+                        relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 cursor-pointer group
                         bg-card/60 dark:bg-card/40 backdrop-blur-sm border border-border
                         ${theme.border} hover:bg-card/80 dark:hover:bg-card/60
                         shadow-lg hover:shadow-xl ${theme.shadow}
@@ -563,15 +563,15 @@ const Games = () => {
       />
 
       <TermProgressModal
-        isOpen={isProgressModalOpen}
-        onClose={() => setIsProgressModalOpen(false)}
+        open={isProgressModalOpen}
+        onOpenChange={setIsProgressModalOpen}
       />
 
 
 
       <AuthModal
         open={isAuthModalOpen}
-        onOpenChange={setIsAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   );

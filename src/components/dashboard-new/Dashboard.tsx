@@ -74,6 +74,7 @@ interface DashboardProps {
     points: number;
     recorded_at: string;
   }>;
+  animatePoints?: boolean;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -86,7 +87,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isClaiming = false,
   readinessStatus,
   userProfile,
-  licenseHistory
+  licenseHistory,
+  animatePoints = false
 }) => {
   const stats = { ...initialStats, userProfile }; // Merge for convenience
   const { language, t } = useLanguage();
@@ -223,6 +225,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               onRecoverPoints={handleRecoverPoints}
               t={t}
               licenseHistory={licenseHistory}
+              animatePoints={animatePoints}
             />
           </div>
 

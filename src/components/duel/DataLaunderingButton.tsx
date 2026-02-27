@@ -161,59 +161,63 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
         className={cn("relative group", className)}
       >
         <Button
           onClick={handleWatchAd}
           disabled={loading || winnings === 0 || isOnCooldown}
           className={cn(
-            "w-full h-auto p-0 overflow-hidden rounded-2xl transition-all duration-300",
-            "bg-gradient-to-br from-violet-600/90 via-indigo-600/90 to-blue-600/90 dark:from-violet-500/80 dark:via-indigo-500/80 dark:to-blue-500/80",
-            "hover:shadow-[0_0_30px_rgba(99,102,241,0.4)] border-0",
-            "disabled:opacity-60 disabled:grayscale-[0.5] disabled:hover:shadow-none"
+            "w-full h-auto p-0 overflow-hidden rounded-[2rem] transition-all duration-500",
+            "bg-white/10 dark:bg-white/[0.03] backdrop-blur-xl",
+            "border border-white/20 dark:border-white/[0.05]",
+            "hover:bg-white/20 dark:hover:bg-white/[0.08]",
+            "hover:shadow-[0_0_32px_rgba(99,102,241,0.2)]",
+            "disabled:opacity-40 disabled:grayscale-[0.5] disabled:hover:shadow-none"
           )}
         >
-          {/* Animated Background Shine */}
+          {/* Subtle Glow Effect */}
+          {!isOnCooldown && (
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          )}
+
+          {/* Animated Background Shine - Refined */}
           {!isOnCooldown && (
             <motion.div
               animate={{ x: ['-200%', '200%'] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 z-0"
+              transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent z-0"
             />
           )}
 
-          {/* Glass Overlay */}
-          <div className="absolute inset-0 bg-white/10 dark:bg-black/10 backdrop-blur-[2px] z-0" />
-
           {/* Noise Texture */}
-          <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-0" style={{ backgroundImage: 'url("/noise.svg")' }} />
+          <div className="absolute inset-0 opacity-[0.02] pointer-events-none z-0" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
-          <div className="relative z-10 w-full p-4 flex items-center justify-between gap-4">
+          <div className="relative z-10 w-full p-5 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className={cn(
-                "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500",
-                isOnCooldown ? "bg-white/10" : "bg-white/20 shadow-[0_0_15px_white/20]"
+                "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500",
+                isOnCooldown ? "bg-black/10 dark:bg-white/5" : "bg-gradient-to-br from-violet-500 to-indigo-600 shadow-[0_8px_16px_rgba(99,102,241,0.3)]"
               )}>
                 {isOnCooldown ? (
-                  <Clock className="text-white/70 w-6 h-6" />
+                  <Clock className="text-slate-400 dark:text-zinc-500 w-6 h-6" />
                 ) : (
                   <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    animate={{ scale: [1, 1.1, 1], rotate: [0, -5, 5, 0] }}
+                    transition={{ duration: 3, repeat: Infinity }}
                   >
-                    <Video className="text-white w-7 h-7 drop-shadow-[0_0_8px_white/50]" />
+                    <Video className="text-white w-6 h-6" />
                   </motion.div>
                 )}
               </div>
 
               <div className="text-left">
-                <div className="text-white font-black tracking-tighter text-lg leading-none mb-1 flex items-center gap-2">
+                <div className="text-slate-900 dark:text-white font-black tracking-tight text-lg leading-none mb-1 flex items-center gap-2">
                   X2 ВЫИГРЫШ
-                  {!isOnCooldown && <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />}
+                  {!isOnCooldown && <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />}
                 </div>
-                <div className="text-white/80 text-[11px] font-bold uppercase tracking-wider">
+                <div className="text-slate-500 dark:text-zinc-400 text-[10px] font-bold uppercase tracking-wider">
                   {isOnCooldown ? (
                     <span className="flex items-center gap-1.5">
                       <Lock className="w-3 h-3" /> Перезагрузка {timeUntilAvailable}
@@ -227,13 +231,16 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
 
             <div className="flex flex-col items-end">
               <div className="flex items-center gap-1.5">
-                <span className="text-white font-black text-2xl tracking-tighter">
+                <span className="text-blue-600 dark:text-blue-400 font-black text-2xl tracking-tighter">
                   +{winnings}
                 </span>
-                <Coins className="w-5 h-5 text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.5)]" />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-yellow-400 blur-sm opacity-30" />
+                  <Coins className="w-5 h-5 text-yellow-500 dark:text-yellow-400 relative z-10" />
+                </div>
               </div>
-              <div className="text-[10px] text-white/60 font-black uppercase tracking-widest bg-black/20 px-2 py-0.5 rounded-full mt-1">
-                Watch Ad
+              <div className="text-[10px] text-slate-400 dark:text-white/40 font-bold uppercase tracking-widest bg-slate-100 dark:bg-black/40 px-3 py-1 rounded-full mt-1 border border-black/5 dark:border-white/5">
+                WATCH AD
               </div>
             </div>
           </div>

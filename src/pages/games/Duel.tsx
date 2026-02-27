@@ -130,13 +130,17 @@ export default function Duel() {
     const [duelStats, setDuelStats] = useState({ totalDuels: 0, wins: 0 });
     const { openModal: openBoostShop } = useModal('BOOST_SHOP');
     const lowCoinsPromptedRef = useRef(false);
-    const [hostInsuranceEnabled, setHostInsuranceEnabled] = useState(false);
-    const [joinInsuranceEnabled, setJoinInsuranceEnabled] = useState(false);
+    const [hostInsuranceEnabled, setHostInsuranceEnabled] = useState(true);
+    const [joinInsuranceEnabled, setJoinInsuranceEnabled] = useState(true);
     const hostInsurancePremium = hostInsuranceEnabled && betAmount > 0 ? getInsurancePremium(betAmount) : 0;
     const hostTotalStake = betAmount + hostInsurancePremium;
     const joinPreviewBet = duelPreview?.bet_amount || 0;
     const joinInsurancePremiumValue = joinInsuranceEnabled && joinPreviewBet > 0 ? getInsurancePremium(joinPreviewBet) : 0;
     const joinTotalRequired = joinPreviewBet > 0 ? joinPreviewBet + joinInsurancePremiumValue : joinPreviewBet;
+
+    const [rematchOpponent, setRematchOpponent] = useState<{ id?: string; name?: string; isBot?: boolean } | null>(null);
+    const [showRematchSetup, setShowRematchSetup] = useState(false);
+    const [rematchInsuranceEnabled, setRematchInsuranceEnabled] = useState(true); // Страховка активна по умолчанию
 
     // Use realtime hook when duel is created
     const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
@@ -291,6 +295,7 @@ export default function Duel() {
         debugFetch({ location: 'Duel.tsx:174', message: 'Setting mode to battle', data: { activeDuelId, previousMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
         // #endregion
         setMode('battle');
+        setRematchOpponent(null);
 
         // Multiple retries for Telegram reliability
         const retries = [50, 150, 300];
@@ -487,10 +492,8 @@ export default function Duel() {
             // Сразу ставим флаг, чтобы не зациклиться
             hasAutoJoinedRef.current = true;
 
-            // Даем задержку для стабильности
-            setTimeout(() => {
-                handleInlineJoin(code);
-            }, 800);
+            // Вызываем присоединение без искусственной задержки
+            handleInlineJoin(code);
         }
     }, [searchParams, dataLoaded, profileId, isChecking]); // Убрал mode из зависимостей чтобы избежать цикла
 
@@ -654,6 +657,7 @@ export default function Duel() {
         setMode('menu');
         setDuelId(null);
         setDuelCode(null);
+        setRematchOpponent(null);
         setIsBattleHidden(false);
         setJoinCode('');
         setCreatedCode(null);
@@ -900,14 +904,33 @@ export default function Duel() {
         }
     };
 
-    const handleFindMatch = async () => {
+    const handleFindMatch = async (immediateBot = false, argRematchOpponent?: { id?: string; name?: string; isBot?: boolean }, argInsuranceEnabled?: boolean) => {
         if (!dataLoaded || !profileId) {
             console.warn('[Duel] Cannot find match: dataLoaded=', dataLoaded, 'profileId=', profileId);
             return;
         }
         if (isFindingMatch) return;
 
+        console.log('[Duel] 🔍 handleFindMatch initiated:', { immediateBot, argRematchOpponent, rematchOpponent });
+
+        // Сбрасываем старые идентификаторы перед началом нового поиска
+        setCreatedCode(null);
+        setDuelId(null);
+        setDuelCode(null);
+        setJoinCode('');
+
+        // Используем либо переданного оппонента, либо сохраненного в стейте (для реванша с настройками)
+        const activeRematchOpponent = argRematchOpponent || rematchOpponent;
+        const isActuallyRematch = !!activeRematchOpponent;
+
         setIsFindingMatch(true);
+        setMode('finding');
+
+        console.log('[Duel] 🚀 Finding match with params:', {
+            isActuallyRematch,
+            opponentName: activeRematchOpponent?.name,
+            immediate_bot: immediateBot || (isActuallyRematch && activeRematchOpponent?.isBot)
+        });
 
         try {
             // Валидация и подготовка данных
@@ -936,10 +959,14 @@ export default function Duel() {
                 bet_amount: betAmountValue,
                 bet_type: betType || 'none',
                 license_category: licenseCategory, // Pass category
+                immediate_bot: immediateBot || (isActuallyRematch && activeRematchOpponent?.isBot), // Флаг для мгновенного создания бота при реванше
+                rematch_opponent_id: activeRematchOpponent?.id,
+                rematch_bot_name: activeRematchOpponent?.isBot ? activeRematchOpponent.name : undefined,
             };
 
-            // Добавляем insurance поля только если они нужны
-            if (hostInsuranceEnabled && betAmountValue > 0) {
+            // Страховка: если передан argInsuranceEnabled — используем его напрямую, иначе из стейта
+            const effectiveInsurance = argInsuranceEnabled !== undefined ? argInsuranceEnabled : hostInsuranceEnabled;
+            if (effectiveInsurance && betAmountValue > 0) {
                 requestBody.insurance_enabled = true;
                 requestBody.insurance_rate = INSURANCE_RATE;
                 requestBody.insurance_coverage_rate = COVERAGE_RATE;
@@ -996,18 +1023,55 @@ export default function Duel() {
             setDuelId(data.duel.id);
             setDuelCode(data.duel.code);
 
+            console.log('[Duel] 📦 Match found data:', {
+                auto_started: data.auto_started,
+                opponent_type: data.opponent_type,
+                bot_name: data.bot_name,
+                duel_id: data.duel.id
+            });
+
             // Если автозапуск произошел - сразу переходим к битве
             if (data.auto_started) {
-                handleDuelStarted(data.duel.id);
-                toast.success(data.opponent_type === 'bot' ? `Соперник ${data.bot_name || 'найден'}!` : 'Соперник найден!');
+                if (activeRematchOpponent && data.opponent_type === 'bot') {
+                    // Премиальная задержка для ощущения "вызова"
+                    toast.loading(`Вызываем ${activeRematchOpponent.name || data.bot_name || 'соперника'} на реванш...`, { id: 'rematch-bot-loading' });
+
+                    setTimeout(() => {
+                        toast.success(`${activeRematchOpponent.name || data.bot_name || 'Соперник'} принял ваш вызов!`, {
+                            id: 'rematch-bot-loading',
+                            icon: '⚔️'
+                        });
+
+                        setTimeout(() => {
+                            handleDuelStarted(data.duel.id);
+                        }, 1000);
+                    }, 1800);
+                } else {
+                    handleDuelStarted(data.duel.id);
+                    toast.success(data.opponent_type === 'bot' ? `Соперник ${data.bot_name || 'найден'}!` : 'Соперник найден!');
+                }
             } else {
-                // Fallback: переходим в лобби (не должно происходить, так как автозапуск всегда true)
-                setCreatedCode(data.duel.code);
-                setConnectionStatus('checking');
-                setWaitTime(0);
-                toast.success('Соперник найден!');
+                // FALLBACK: Если не автозапуск (например, нашли реального игрока, но нужно ждать подтверждения)
+                if (isActuallyRematch) {
+                    console.log('[Duel] 🔄 Rematch fallback: forcing battle start for bot or showing error');
+                    if (data.opponent_type === 'bot') {
+                        handleDuelStarted(data.duel.id);
+                    } else {
+                        // Для людей - переходим в лобби
+                        setCreatedCode(data.duel.code);
+                        setMode('create');
+                    }
+                } else {
+                    setCreatedCode(data.duel.code);
+                    setMode('create');
+                    setConnectionStatus('checking');
+                    setWaitTime(0);
+                    toast.success('Соперник найден!');
+                }
             }
         } catch (error: any) {
+            setIsFindingMatch(false);
+            setMode('menu'); // Возвращаемся в меню при ошибке поиска
             console.error('[Duel] ❌ Error finding match:', error);
 
             // Пытаемся извлечь детали ошибки из ответа Edge Function
@@ -1442,7 +1506,10 @@ export default function Duel() {
                                                 >
                                                     {/* BUTTON: RANDOM BATTLE */}
                                                     <button
-                                                        onClick={() => handleActionClick(() => setDuelMode('random'))}
+                                                        onClick={() => handleActionClick(() => {
+                                                            setRematchOpponent(null);
+                                                            setDuelMode('random');
+                                                        })}
                                                         className="group relative flex flex-col justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-left"
                                                     >
                                                         {/* Flare */}
@@ -1476,7 +1543,10 @@ export default function Duel() {
 
                                                     {/* BUTTON: PLAY WITH FRIEND */}
                                                     <button
-                                                        onClick={() => handleActionClick(() => setDuelMode('friend'))}
+                                                        onClick={() => handleActionClick(() => {
+                                                            setRematchOpponent(null);
+                                                            setDuelMode('friend');
+                                                        })}
                                                         className="group relative flex flex-col justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-amber-500/40 hover:bg-amber-500/[0.02] transition-all duration-500 overflow-hidden text-left"
                                                     >
                                                         {/* Flare */}
@@ -1550,7 +1620,11 @@ export default function Duel() {
                                                             {/* Встроенная кнопка назад и идентификатор режима */}
                                                             <div className="flex items-center justify-between">
                                                                 <button
-                                                                    onClick={() => setDuelMode(null)}
+                                                                    onClick={() => {
+                                                                        console.log('[Duel] 🔙 Back to menu from setup, clearing rematch data');
+                                                                        setDuelMode(null);
+                                                                        setRematchOpponent(null);
+                                                                    }}
                                                                     className="group/back flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all active:scale-95 shadow-lg backdrop-blur-md"
                                                                 >
                                                                     <ArrowLeft size={18} className="text-slate-400 group-hover/back:text-white transition-colors" />
@@ -1564,7 +1638,7 @@ export default function Duel() {
                                                                         <Users size={14} className="text-amber-400" />
                                                                     )}
                                                                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
-                                                                        {duelMode === 'random' ? 'RANDOM MATCH' : 'PRIVATE DUEL'}
+                                                                        {rematchOpponent ? 'REMATCH' : duelMode === 'random' ? 'RANDOM MATCH' : 'PRIVATE DUEL'}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -1743,31 +1817,39 @@ export default function Duel() {
                                                                                 className={cn(
                                                                                     "relative z-10 flex items-center justify-between p-3 rounded-2xl border transition-all duration-300",
                                                                                     hostInsuranceEnabled
-                                                                                        ? "bg-blue-500/10 border-blue-500/30"
+                                                                                        ? "bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
                                                                                         : "bg-black/5 border-transparent"
                                                                                 )}
                                                                             >
                                                                                 <div className="flex items-center gap-3">
                                                                                     <div className={cn(
-                                                                                        "p-2 rounded-xl transition-colors",
-                                                                                        hostInsuranceEnabled ? "bg-blue-500 text-white" : "bg-white/10 text-muted-foreground"
+                                                                                        "p-2 rounded-xl transition-colors relative",
+                                                                                        hostInsuranceEnabled ? "bg-emerald-500 text-white" : "bg-white/10 text-muted-foreground"
                                                                                     )}>
                                                                                         <Shield size={14} />
+                                                                                        {hostInsuranceEnabled && (
+                                                                                            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-white rounded-full border border-emerald-500 animate-pulse" />
+                                                                                        )}
                                                                                     </div>
                                                                                     <div className="flex flex-col">
-                                                                                        <span className="text-[10px] font-black uppercase tracking-wide text-foreground">Страховка</span>
+                                                                                        <div className="flex items-center gap-1.5">
+                                                                                            <span className="text-[10px] font-black uppercase tracking-wide text-foreground">Страховка</span>
+                                                                                            {hostInsuranceEnabled && (
+                                                                                                <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-500/10 px-1 rounded leading-none">Активна</span>
+                                                                                            )}
+                                                                                        </div>
                                                                                         <span className="text-[9px] text-muted-foreground">Возврат {Math.round(COVERAGE_RATE * 100)}% при проигрыше</span>
                                                                                     </div>
                                                                                 </div>
                                                                                 <div className="flex items-center gap-3">
-                                                                                    <div className="flex items-center gap-1 text-blue-500">
+                                                                                    <div className="flex items-center gap-1 text-emerald-500">
                                                                                         <span className="text-[10px] font-bold">+{hostInsurancePremium}</span>
                                                                                         <Coins size={10} className="text-amber-500" />
                                                                                     </div>
                                                                                     <Switch
                                                                                         checked={hostInsuranceEnabled}
                                                                                         onCheckedChange={setHostInsuranceEnabled}
-                                                                                        className="data-[state=checked]:bg-blue-500 scale-75"
+                                                                                        className="data-[state=checked]:bg-emerald-500 scale-75"
                                                                                     />
                                                                                 </div>
                                                                             </motion.div>
@@ -1845,11 +1927,19 @@ export default function Duel() {
                                                                                         <>
                                                                                             <Search className="mr-2 h-4 w-4 relative z-10" />
                                                                                             <span className="relative z-10">
-                                                                                                {betAmount > 0
-                                                                                                    ? hostTotalStake > userCoins
-                                                                                                        ? `Недостаточно: ${hostTotalStake}`
-                                                                                                        : `Найти игру за ${hostTotalStake}`
-                                                                                                    : 'Найти игру'}
+                                                                                                {rematchOpponent ? (
+                                                                                                    betAmount > 0
+                                                                                                        ? hostTotalStake > userCoins
+                                                                                                            ? `Недостаточно: ${hostTotalStake}`
+                                                                                                            : `Реванш за ${hostTotalStake}`
+                                                                                                        : 'Начать реванш'
+                                                                                                ) : (
+                                                                                                    betAmount > 0
+                                                                                                        ? hostTotalStake > userCoins
+                                                                                                            ? `Недостаточно: ${hostTotalStake}`
+                                                                                                            : `Найти игру за ${hostTotalStake}`
+                                                                                                        : 'Найти игру'
+                                                                                                )}
                                                                                             </span>
                                                                                             {betAmount > 0 && <Coins size={14} className={cn("ml-1.5 relative z-10", hostTotalStake > userCoins ? "text-zinc-500" : "text-amber-500")} />}
                                                                                         </>
@@ -2071,7 +2161,7 @@ export default function Duel() {
                                                                                     transition={{ delay: 0.25 }}
                                                                                     className="flex items-center gap-2 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 dark:from-blue-500/10 dark:to-indigo-500/10 px-4 py-2 rounded-xl border border-blue-500/30 backdrop-blur-sm"
                                                                                 >
-                                                                                    <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                                                    <Shield className="w-3.5 h-3.5 text-blue-400 fill-blue-400" />
                                                                                     <span className="font-mono font-black text-lg text-blue-700 dark:text-blue-300">
                                                                                         {Math.floor(waitTime / 60)}:{(waitTime % 60).toString().padStart(2, '0')}
                                                                                     </span>
@@ -2327,18 +2417,40 @@ export default function Duel() {
                                                                         <motion.div
                                                                             initial={{ opacity: 0, y: 5 }}
                                                                             animate={{ opacity: 1, y: 0 }}
-                                                                            className="p-3 rounded-2xl bg-white/70 dark:bg-amber-950/30 border border-amber-200/40 dark:border-amber-800/40 flex items-center justify-between gap-4"
+                                                                            className={cn(
+                                                                                "p-3 rounded-2xl border transition-all duration-300 flex items-center justify-between gap-4",
+                                                                                joinInsuranceEnabled
+                                                                                    ? "bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                                                                                    : "bg-white/70 dark:bg-amber-950/30 border-amber-200/40 dark:border-amber-800/40"
+                                                                            )}
                                                                         >
-                                                                            <div>
-                                                                                <p className="text-sm font-semibold text-foreground">Добавить страховку</p>
-                                                                                <p className="text-xs text-muted-foreground">
-                                                                                    +{joinInsurancePremiumValue} монет • возврат {Math.round(COVERAGE_RATE * 100)}% при поражении
-                                                                                </p>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className={cn(
+                                                                                    "p-2 rounded-xl transition-colors relative",
+                                                                                    joinInsuranceEnabled ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"
+                                                                                )}>
+                                                                                    <Shield size={14} />
+                                                                                    {joinInsuranceEnabled && (
+                                                                                        <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-white rounded-full border border-emerald-500 animate-pulse" />
+                                                                                    )}
+                                                                                </div>
+                                                                                <div>
+                                                                                    <div className="flex items-center gap-1.5">
+                                                                                        <p className="text-sm font-semibold text-foreground leading-none">Страховка</p>
+                                                                                        {joinInsuranceEnabled && (
+                                                                                            <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-500/10 px-1 rounded leading-none">Активна</span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                                                                        +{joinInsurancePremiumValue} монет • возврат {Math.round(COVERAGE_RATE * 100)}%
+                                                                                    </p>
+                                                                                </div>
                                                                             </div>
                                                                             <Switch
                                                                                 checked={joinInsuranceEnabled}
                                                                                 onCheckedChange={(checked) => setJoinInsuranceEnabled(checked)}
                                                                                 disabled={userCoins < joinTotalRequired}
+                                                                                className="data-[state=checked]:bg-emerald-500 scale-75"
                                                                             />
                                                                         </motion.div>
                                                                     )}
@@ -2477,9 +2589,27 @@ export default function Duel() {
                         {mode === 'result' && duelId && (
                             <DuelResult
                                 duelId={duelId}
-                                onRematch={() => {
-                                    duelResultSnapshotRef.current = null; // Очищаем snapshot при реванше
-                                    setMode('create');
+                                onRematch={(isBotRematch, opponentData) => {
+                                    console.log('[Duel] 🔄 Rematch initiated:', { isBotRematch, opponentData });
+                                    duelResultSnapshotRef.current = null;
+
+                                    setDuelId(null);
+                                    setDuelCode(null);
+                                    setCreatedCode(null);
+                                    setJoinCode('');
+                                    setSearchParams(new URLSearchParams());
+
+                                    setRematchOpponent(opponentData);
+                                    setRematchInsuranceEnabled(true); // По умолчанию страховка включена
+
+                                    if (isBotRematch) {
+                                        setDuelMode('random');
+                                    } else {
+                                        setDuelMode('friend');
+                                    }
+
+                                    // Показываем попап настройки реванша
+                                    setShowRematchSetup(true);
                                 }}
                                 onBackToMenu={() => {
                                     duelResultSnapshotRef.current = null; // Очищаем snapshot при выходе
@@ -2493,6 +2623,57 @@ export default function Duel() {
                         {process.env.NODE_ENV === 'development' && (
                             <div className="fixed bottom-4 right-4 bg-black/80 text-white p-2 text-xs rounded z-50">
                                 Mode: {mode} | DuelId: {duelId ? '✅' : '❌'}
+                            </div>
+                        )}
+
+                        {mode === 'finding' && (
+                            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in zoom-in-95 duration-500 px-4">
+                                <div className="relative">
+                                    {/* Animated rings */}
+                                    <motion.div
+                                        animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                                        className="absolute inset-0 bg-blue-500/20 rounded-full"
+                                    />
+                                    <motion.div
+                                        animate={{ scale: [1, 1.2], opacity: [0.3, 0] }}
+                                        transition={{ duration: 2, delay: 0.5, repeat: Infinity, ease: "easeOut" }}
+                                        className="absolute inset-0 bg-blue-400/20 rounded-full"
+                                    />
+
+                                    <div className="relative h-24 w-24 rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center overflow-hidden shadow-2xl">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-indigo-500/20" />
+                                        <motion.div
+                                            animate={{
+                                                rotate: [0, 10, -10, 0],
+                                                scale: [1, 1.1, 1]
+                                            }}
+                                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                        >
+                                            <Swords className="h-10 w-10 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+                                        </motion.div>
+                                    </div>
+                                </div>
+                                <div className="text-center space-y-3">
+                                    <h3 className="text-xl font-black text-white tracking-tight uppercase">
+                                        {rematchOpponent ? 'Инициация реванша' : 'Поиск соперника'}
+                                    </h3>
+                                    <p className="text-sm text-slate-400 font-medium max-w-[240px] mx-auto leading-relaxed">
+                                        {rematchOpponent
+                                            ? `Вызываем ${rematchOpponent.name || 'соперника'} на реванш...`
+                                            : 'Подбираем равного по силе соперника...'}
+                                    </p>
+                                    <div className="flex items-center justify-center gap-1 pt-2">
+                                        {[0, 1, 2].map(i => (
+                                            <motion.div
+                                                key={i}
+                                                animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
+                                                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                                                className="w-1.5 h-1.5 rounded-full bg-blue-400"
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         )}
 
@@ -2515,7 +2696,148 @@ export default function Duel() {
                             onClose={() => setShowJoinModal(false)}
                             onDuelJoined={handleDuelJoined}
                         />
+
+                        {/* Попап настройки реванша */}
+                        <AnimatePresence>
+                            {showRematchSetup && rematchOpponent && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+                                    onClick={() => {
+                                        setShowRematchSetup(false);
+                                        setMode('menu');
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0.85, opacity: 0, y: 20 }}
+                                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                                        exit={{ scale: 0.9, opacity: 0, y: 10 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                                        className="relative w-full max-w-sm bg-background rounded-3xl border border-border/50 shadow-2xl overflow-hidden"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        {/* Заголовок */}
+                                        <div className="relative p-5 pb-4 bg-gradient-to-br from-indigo-600/20 via-blue-600/10 to-purple-600/20 border-b border-border/30">
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 via-transparent to-purple-500/5" />
+                                            <div className="relative flex items-center gap-3">
+                                                <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 flex-shrink-0">
+                                                    <Swords className="w-5 h-5 text-white" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-base font-black text-foreground">Реванш!</h3>
+                                                    <p className="text-xs text-muted-foreground font-medium">
+                                                        vs <span className="text-foreground font-bold">{rematchOpponent.name || 'Соперник'}</span>
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        setShowRematchSetup(false);
+                                                        setMode('menu');
+                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                    }}
+                                                    className="ml-auto w-8 h-8 rounded-full bg-muted/50 hover:bg-muted flex items-center justify-center transition-colors"
+                                                >
+                                                    <X className="w-4 h-4 text-muted-foreground" />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-5 space-y-4">
+                                            {/* Условия дуэли */}
+                                            <div className="grid grid-cols-2 gap-2.5">
+                                                <div className="flex flex-col gap-1 p-3 rounded-xl bg-muted/40 border border-border/40">
+                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Вопросов</span>
+                                                    <span className="text-lg font-black text-foreground">{numQuestions}</span>
+                                                </div>
+                                                <div className="flex flex-col gap-1 p-3 rounded-xl bg-muted/40 border border-border/40">
+                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Ставка</span>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Coins className="w-4 h-4 text-amber-500" />
+                                                        <span className="text-lg font-black text-amber-500">{betAmount > 0 ? betAmount : 'Нет'}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Страховка */}
+                                            {betAmount > 0 && (
+                                                <motion.div
+                                                    animate={{
+                                                        borderColor: rematchInsuranceEnabled ? 'rgba(16, 185, 129, 0.5)' : 'rgba(var(--border), 0.4)',
+                                                        backgroundColor: rematchInsuranceEnabled ? 'rgba(16, 185, 129, 0.07)' : 'rgba(var(--muted), 0.4)'
+                                                    }}
+                                                    className="flex items-center justify-between gap-3 p-3.5 rounded-xl border transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className={cn(
+                                                            "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                                                            rematchInsuranceEnabled ? "bg-emerald-500/20" : "bg-muted/60"
+                                                        )}>
+                                                            <Shield className={cn("w-4 h-4", rematchInsuranceEnabled ? "text-emerald-500" : "text-muted-foreground")} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold text-foreground">Страховка</p>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                +{getInsurancePremium(betAmount)} монет • возврат {Math.round(COVERAGE_RATE * 100)}%
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <Switch
+                                                        checked={rematchInsuranceEnabled}
+                                                        onCheckedChange={setRematchInsuranceEnabled}
+                                                    />
+                                                </motion.div>
+                                            )}
+
+                                            {/* Активная страховка индикатор */}
+                                            {betAmount > 0 && rematchInsuranceEnabled && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium px-1"
+                                                >
+                                                    <Shield className="w-3.5 h-3.5" />
+                                                    <span>Страховка активна — ваш аватар будет в зелёной ауре</span>
+                                                </motion.div>
+                                            )}
+
+                                            {/* Кнопки */}
+                                            <div className="flex flex-col gap-2 pt-1">
+                                                <Button
+                                                    onClick={() => {
+                                                        setShowRematchSetup(false);
+                                                        setMode('menu');
+                                                        handleFindMatch(false, rematchOpponent, rematchInsuranceEnabled);
+                                                    }}
+                                                    className="w-full h-12 text-base font-black rounded-2xl bg-gradient-to-r from-indigo-500 via-blue-600 to-purple-600 hover:from-indigo-600 hover:via-blue-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 relative overflow-hidden group"
+                                                >
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                                                    <Swords className="w-4 h-4 mr-2 relative z-10" />
+                                                    <span className="relative z-10">В бой!</span>
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => {
+                                                        setShowRematchSetup(false);
+                                                        setRematchOpponent(null);
+                                                        setMode('menu');
+                                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                                    }}
+                                                    className="w-full h-10 text-sm font-medium text-muted-foreground hover:text-foreground rounded-2xl"
+                                                >
+                                                    Отмена
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
+
                 </Layout >
             )
             }

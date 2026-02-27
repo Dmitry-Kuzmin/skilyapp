@@ -1739,10 +1739,10 @@ export function BoostShopModal({
                       <Card
                         key={idx}
                         className={`group relative overflow-visible rounded-3xl border bg-card p-4 shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${isBestValue
-                            ? "border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.25)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.35)] ring-2 ring-violet-500/30"
-                            : isHighlighted
-                              ? "border-yellow-400/50 shadow-[0_10px_30px_rgba(251,191,36,0.15)] dark:shadow-[0_15px_40px_rgba(251,191,36,0.25)]"
-                              : "border-border hover:border-violet-500/30"
+                          ? "border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.25)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.35)] ring-2 ring-violet-500/30"
+                          : isHighlighted
+                            ? "border-yellow-400/50 shadow-[0_10px_30px_rgba(251,191,36,0.15)] dark:shadow-[0_15px_40px_rgba(251,191,36,0.25)]"
+                            : "border-border hover:border-violet-500/30"
                           }`}
                       >
                         {/* Best Value бейдж - яркий красно-оранжевый */}
@@ -1758,10 +1758,10 @@ export function BoostShopModal({
                           <div className="flex flex-col items-center text-center gap-3">
                             <div
                               className={`relative w-20 h-20 rounded-[2rem] flex items-center justify-center flex-shrink-0 ${isBestValue
-                                  ? "bg-gradient-to-br from-violet-600 via-purple-500 to-indigo-600 text-white shadow-xl shadow-violet-500/40"
-                                  : isHighlighted
-                                    ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900 shadow-xl shadow-amber-500/30"
-                                    : "bg-gradient-to-br from-yellow-500/10 via-amber-500/20 to-orange-500/10 border border-yellow-500/20"
+                                ? "bg-gradient-to-br from-violet-600 via-purple-500 to-indigo-600 text-white shadow-xl shadow-violet-500/40"
+                                : isHighlighted
+                                  ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900 shadow-xl shadow-amber-500/30"
+                                  : "bg-gradient-to-br from-yellow-500/10 via-amber-500/20 to-orange-500/10 border border-yellow-500/20"
                                 }`}
                             >
                               {/* Эффект свечения для всех иконок */}
@@ -1769,8 +1769,8 @@ export function BoostShopModal({
 
                               <Coins
                                 className={`relative w-10 h-10 z-10 ${isBestValue || isHighlighted
-                                    ? "drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
-                                    : "text-yellow-500 drop-shadow-md"
+                                  ? "drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
+                                  : "text-yellow-500 drop-shadow-md"
                                   }`}
                               />
 
@@ -2612,12 +2612,12 @@ export function BoostShopModal({
                                   {/* Иконка - упрощенная версия */}
                                   <div
                                     className={`flex-shrink-0 ${isPositive
-                                        ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                                        : isPurchase
-                                          ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                                          : isReward
-                                            ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                                            : "bg-red-500/10 text-red-600 dark:text-red-400"
+                                      ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                                      : isPurchase
+                                        ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                        : isReward
+                                          ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                                          : "bg-red-500/10 text-red-600 dark:text-red-400"
                                       } p-2 rounded-lg`}
                                   >
                                     <IconComponent className="h-4 w-4" />
@@ -2637,8 +2637,8 @@ export function BoostShopModal({
                                           <Badge
                                             variant="secondary"
                                             className={`text-xs h-4 px-1.5 ${isPurchase
-                                                ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                                                : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                                              ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                              : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
                                               }`}
                                           >
                                             {isPurchase
@@ -2663,8 +2663,8 @@ export function BoostShopModal({
                                   ) : (
                                     <span
                                       className={`text-sm font-bold ${isPositive
-                                          ? "text-green-600 dark:text-green-400"
-                                          : "text-red-600 dark:text-red-400"
+                                        ? "text-green-600 dark:text-green-400"
+                                        : "text-red-600 dark:text-red-400"
                                         }`}
                                     >
                                       {isPositive ? "+" : ""}
@@ -2778,7 +2778,6 @@ export function BoostShopModal({
       <ResponsiveModal
         open={open}
         onOpenChange={onOpenChange}
-        title="Market"
         headerContent={headerContent}
         className="max-w-5xl h-[85vh] max-h-[85vh] min-h-[600px] md:h-[85vh] md:max-h-[85vh] md:min-h-[700px] flex flex-col"
         contentClassName="scrollbar-none"
@@ -3083,10 +3082,10 @@ export function BoostShopModal({
                       className={cn("text-3xl", inspectTheme.icon)}
                       style={{
                         filter: `drop-shadow(0 0 12px ${inspectCategory === "exploit"
-                            ? "rgba(239, 68, 68, 0.8)"
-                            : inspectCategory === "defense"
-                              ? "rgba(6, 182, 212, 0.8)"
-                              : "rgba(34, 197, 94, 0.8)"
+                          ? "rgba(239, 68, 68, 0.8)"
+                          : inspectCategory === "defense"
+                            ? "rgba(6, 182, 212, 0.8)"
+                            : "rgba(34, 197, 94, 0.8)"
                           })`,
                       }}
                     >

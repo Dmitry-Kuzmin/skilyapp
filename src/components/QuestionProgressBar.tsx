@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles, Flag } from 'lucide-react';
+import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles, Flag, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { usePDDContext } from '@/contexts/PDDContext';
@@ -42,6 +42,11 @@ interface QuestionProgressBarProps {
   onToggleSmartVocabulary?: () => void;
   smartVocabularyEnabled?: boolean;
   onReportProblem?: () => void;
+  betInfo?: {
+    betAmount: number;
+    totalBank: number;
+    currency: string;
+  } | null;
 }
 
 export function QuestionProgressBar({
@@ -67,6 +72,7 @@ export function QuestionProgressBar({
   onToggleSmartVocabulary,
   smartVocabularyEnabled = false,
   onReportProblem,
+  betInfo,
 }: QuestionProgressBarProps) {
   const { t } = useLanguage();
   const { selectedCountry } = usePDDContext();
@@ -143,7 +149,6 @@ export function QuestionProgressBar({
               className="hidden xs:flex h-10 border-none bg-orange-500/5 dark:bg-slate-900/40 backdrop-blur-md shadow-none"
             />
           )}
-
         </div>
 
         {/* Horizontal Progress Bar with visual indicators */}
@@ -173,6 +178,30 @@ export function QuestionProgressBar({
             )}
           </motion.div>
         </div>
+
+        {/* 💰 Bank / Pot - Now moved AFTER the line for better flow */}
+        {betInfo && betInfo.totalBank > 0 && (
+          <motion.div
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.1)] shrink-0"
+          >
+            <div className="relative">
+              <Coins className="w-3.5 h-3.5 text-amber-500" />
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 bg-amber-400 blur-[4px] rounded-full -z-10"
+              />
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="text-[7px] font-black text-amber-500/70 uppercase tracking-tighter mb-0.5">Банк</span>
+              <span className="text-[12px] font-black tracking-tight text-amber-600 dark:text-amber-400">
+                {betInfo.totalBank}
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         {/* Score indicators - скрываем в режиме экзамена */}
         {answers.length > 0 && !hideScoreIndicators && (

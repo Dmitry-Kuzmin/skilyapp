@@ -19,10 +19,10 @@ const SP_RULES: Record<string, number> = {
 };
 
 const BASE_WIN_NO_BET_SP = 15;
-const BASE_LOSE_SP = 5;
+const BASE_LOSE_SP = 10;
 const DRAW_SP = 7;
 const MIN_BET_FOR_LOSE_SP = 100;
-const LOSE_SP_WITH_BET = 10;
+const LOSE_SP_WITH_BET = 20;
 
 const riskMultiplierForBet = (betAmount: number): number => {
   if (!betAmount || betAmount <= 0) return 1;

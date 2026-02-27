@@ -48,6 +48,7 @@ export function useDuelGame({
   const setMyScore = useDuelStore(state => state.setMyScore);
   const setOpponentScore = useDuelStore(state => state.setOpponentScore);
   const setMyPlayerId = useDuelStore(state => state.setMyPlayerId);
+  const setPlayers = useDuelStore(state => state.setPlayers);
   const setLoading = useDuelStore(state => state.setLoading);
   const setTimeLeft = useDuelStore(state => state.setTimeLeft);
 
@@ -126,41 +127,47 @@ export function useDuelGame({
       }
 
       playersLoadedRef.current = true;
-      log('[useDuelGame] ✅ Players loaded:', { count: players.players.length });
+      log('[useDuelGame] ✅ Players loaded:', {
+        count: players.players.length,
+        myName: players.myName,
+        opponentName: players.opponentName,
+        profileId
+      });
 
       setMyPlayerId(players.myPlayerId);
       setMyScore(players.myScore);
       setOpponentScore(players.opponentScore);
+      setPlayers(players.players);
 
-      const myPlayer = players.players.find((p: any) => p.user_id === profileId);
-      const opponent = players.players.find((p: any) => p.user_id !== profileId);
+      const myPlayer = players.players.find((p: any) => String(p.user_id) === String(profileId));
+      const opponent = players.players.find((p: any) => String(p.user_id) !== String(profileId));
 
-      let opponentName = players.opponentName;
-      let opponentPhotoUrl = null;
+      // Используем имена из fetchPlayers как основной источник (там уже есть fallbacks)
+      const finalMyName = players.myName || "Ты";
+      const finalOpponentName = players.opponentName || "Соперник";
 
-      if (opponent?.is_bot) {
-        opponentName = opponent.bot_name || opponent.name || players.opponentName || 'CyberNinja';
-        opponentPhotoUrl = null; // Bot avatar fallback
-        console.log('[useDuelGame] Bot name set:', { bot_name: opponent.bot_name, name: opponent.name, final: opponentName });
-      } else {
-        opponentName = players.opponentName;
-        if (opponent?.profiles?.photo_url) {
-          opponentPhotoUrl = getImageUrl(opponent.profiles.photo_url);
-        }
-      }
+      // Определяем фото
+      const myPhotoUrlRaw = myPlayer?.profiles?.photo_url || myPlayer?.photo_url;
+      const opponentPhotoUrlRaw = opponent?.profiles?.photo_url || opponent?.photo_url;
 
-      setPlayersData({
-        myName: players.myName,
-        opponentName: opponentName,
-        myPhotoUrl: myPlayer?.profiles?.photo_url ? getImageUrl(myPlayer.profiles.photo_url) : null,
-        opponentPhotoUrl
+      log('[useDuelGame] 🏷️ Final sync data:', {
+        my: finalMyName,
+        opponent: finalOpponentName,
+        hasMyPhoto: !!myPhotoUrlRaw,
+        hasOpponentPhoto: !!opponentPhotoUrlRaw
       });
 
+      setPlayersData({
+        myName: finalMyName,
+        opponentName: finalOpponentName,
+        myPhotoUrl: myPhotoUrlRaw ? getImageUrl(myPhotoUrlRaw) : null,
+        opponentPhotoUrl: (opponent && !opponent.is_bot && opponentPhotoUrlRaw) ? getImageUrl(opponentPhotoUrlRaw) : null
+      });
     } catch (error) {
       logError('[useDuelGame] Error syncing players:', error);
       playersLoadedRef.current = false;
     }
-  }, [fetchPlayers, profileId, setMyPlayerId, setMyScore, setOpponentScore, setPlayersData]);
+  }, [fetchPlayers, profileId, setMyPlayerId, setMyScore, setOpponentScore, setPlayers, setPlayersData]);
 
   // Sync questions
   const syncQuestions = useCallback(async () => {

@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, Swords, Shield, Zap, Coins, Sparkles, Flame } from 'lucide-react';
+import { Coins, Sparkles, Shield, Trophy, Target, Clock, Zap, Smartphone, Monitor, Info, History, Flame } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndicator';
 import { memo, useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-// Функция для генерации инициалов из имени
+// Функция для генерации инициалов из имени (оставлена на всякий случай)
 const getInitials = (name: string): string => {
   if (!name || name.trim().length === 0) return '?';
 
@@ -43,6 +44,25 @@ const getInitials = (name: string): string => {
     .join('');
 
   return initials || '?';
+};
+
+const getFallbackAvatar = (name: string) => {
+  if (!name) return `https://i.pravatar.cc/150?u=fallback`;
+  const lowerName = name.toLowerCase().trim();
+
+  const isFemale = lowerName.endsWith('a') || lowerName.endsWith('я') || lowerName.endsWith('и') || lowerName.endsWith('ah') || lowerName === 'chloe' || lowerName === 'zoe';
+
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const femaleIds = [1, 5, 9, 10, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 35, 36, 38, 39, 40, 41, 42, 43, 44, 45, 47, 48, 49];
+  const maleIds = [3, 4, 6, 7, 8, 11, 12, 13, 14, 15, 17, 18, 33, 37, 46, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67];
+
+  const ids = isFemale ? femaleIds : maleIds;
+  const index = Math.abs(hash) % ids.length;
+  return `https://i.pravatar.cc/150?img=${ids[index]}`;
 };
 
 interface DuelScoreBoardProps {
@@ -97,8 +117,8 @@ export const DuelScoreBoard = memo(({
     return fullName.split(' ')[0];
   };
 
-  const myDisplayName = getFirstName(myName);
-  const opponentDisplayName = getFirstName(opponentName);
+  const myDisplayName = getFirstName(myName) || 'Ты';
+  const opponentDisplayName = getFirstName(opponentName) || 'Соперник';
 
   const [myImgError, setMyImgError] = useState(false);
   const [opponentImgError, setOpponentImgError] = useState(false);
@@ -117,28 +137,37 @@ export const DuelScoreBoard = memo(({
         } : {}}
       >
         <div className="relative">
-          {myPhotoUrl && !myImgError ? (
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden border-2 border-blue-500/50 shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
-              <img
-                src={myPhotoUrl}
-                alt={myName}
-                className="w-full h-full object-cover"
-                onError={() => setMyImgError(true)}
-              />
-            </div>
-          ) : (
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:shadow-blue-500/50 transition-shadow">
-              <span className="text-sm md:text-base font-bold text-white select-none">
+          <div className={cn(
+            "relative p-0.5 rounded-2xl transition-all duration-500",
+            myInsuranceActive && "ring-2 ring-emerald-500/60"
+          )}>
+            <Avatar className="h-10 w-10 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-10 bg-background">
+              <AvatarImage src={(myPhotoUrl && !myImgError) ? myPhotoUrl : getFallbackAvatar(myName)} alt={myName || ''} onError={() => setMyImgError(true)} />
+              <AvatarFallback className="bg-slate-800 text-slate-400 font-bold uppercase">
                 {getInitials(myName)}
-              </span>
-            </div>
-          )}
+              </AvatarFallback>
+            </Avatar>
+            {myInsuranceActive && (
+              <motion.div
+                animate={{ opacity: [0.3, 0.7, 0.3], scale: [1.1, 1.4, 1.1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -inset-4 rounded-full bg-emerald-500/30 blur-2xl -z-10"
+              />
+            )}
+          </div>
           {/* Иконка страховки рядом с фото */}
-          {myInsuranceActive && (
-            <div className="absolute -bottom-0.5 -left-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-green-500/50">
-              <Shield className="w-3 h-3 text-green-600 dark:text-green-400" />
-            </div>
-          )}
+          <AnimatePresence>
+            {myInsuranceActive && (
+              <motion.div
+                initial={{ scale: 0, y: 10 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0 }}
+                className="absolute -bottom-1 -left-1 z-30 bg-emerald-500 rounded-lg p-0.5 shadow-[0_0_10px_rgba(16,185,129,0.5)] border border-white/20"
+              >
+                <Shield className="w-3 h-3 text-white" />
+              </motion.div>
+            )}
+          </AnimatePresence>
           {/* Иконка КОМБО поверх аватара */}
           <AnimatePresence>
             {combo > 1 && (
@@ -146,7 +175,7 @@ export const DuelScoreBoard = memo(({
                 initial={{ scale: 0, rotate: -45 }}
                 animate={{ scale: 1, rotate: 0 }}
                 exit={{ scale: 0 }}
-                className="absolute -top-1 -right-1 z-20 flex items-center justify-center bg-gradient-to-br from-orange-500 to-red-600 rounded-full px-1.5 py-0.5 border border-white dark:border-slate-900 shadow-lg"
+                className="absolute -top-1.5 -right-1.5 z-30 flex items-center justify-center bg-gradient-to-br from-orange-500 to-red-600 rounded-full px-1.5 py-0.5 border border-white dark:border-slate-900 shadow-lg"
               >
                 <Flame className="w-2.5 h-2.5 text-white animate-pulse" />
                 <span className="text-[10px] font-black text-white ml-0.5">x{combo}</span>
@@ -155,15 +184,22 @@ export const DuelScoreBoard = memo(({
           </AnimatePresence>
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <p className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-none" title={myName}>{myDisplayName}</p>
+          <div className="flex flex-col items-start gap-0.5 mb-0.5">
+            <p className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-none" title={myName || 'Ты'}>{myDisplayName}</p>
             {myInsuranceActive && (
-              <Shield className="w-3 h-3 text-green-600 dark:text-green-400 shrink-0" title={`Страховка: ${myCoverageDisplay}%`} />
+              <motion.div
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-500/30"
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.8)]" />
+                <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Страховка</span>
+              </motion.div>
             )}
           </div>
           <motion.div
             key={myScore}
-            className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+            className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-1"
             initial={{ scale: 1.2, y: -10 }}
             animate={{ scale: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -173,7 +209,7 @@ export const DuelScoreBoard = memo(({
         </div>
       </motion.div>
 
-      <div className="text-xl md:text-2xl font-bold text-muted-foreground/30 px-2">VS</div>
+      <div className="text-xl md:text-2xl font-black text-muted-foreground/20 px-1">VS</div>
 
       {/* Opponent Score */}
       <motion.div
@@ -182,10 +218,7 @@ export const DuelScoreBoard = memo(({
         animate={opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
       >
         <div className="flex-1 text-right min-w-0">
-          <div className="flex items-center justify-end gap-1.5 mb-0.5">
-            {opponentInsuranceActive && (
-              <Shield className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" title={`Страховка: ${opponentCoverageDisplay}%`} />
-            )}
+          <div className="flex flex-col items-end gap-0.5 mb-0.5">
             <p
               className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-[120px]"
               title={opponentName}
@@ -193,10 +226,20 @@ export const DuelScoreBoard = memo(({
             >
               {opponentDisplayName || 'Соперник'}
             </p>
+            {opponentInsuranceActive && (
+              <motion.div
+                initial={{ opacity: 0, x: 5 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-500/30"
+              >
+                <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Страховка</span>
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.8)]" />
+              </motion.div>
+            )}
           </div>
           <motion.div
             key={opponentScore}
-            className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right"
+            className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right mr-1"
             initial={{ scale: 1.2, y: -10 }}
             animate={{ scale: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -205,25 +248,27 @@ export const DuelScoreBoard = memo(({
           </motion.div>
         </div>
         <div className="relative">
-          {opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') && !opponentImgError ? (
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden border-2 border-orange-500/50 shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
-              <img
-                src={opponentPhotoUrl}
-                alt={opponentName}
-                className="w-full h-full object-cover"
-                onError={() => setOpponentImgError(true)}
-              />
-            </div>
-          ) : (
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:shadow-orange-500/50 transition-shadow">
-              <span className="text-sm md:text-base font-bold text-white select-none">
+          <div className={cn(
+            "relative p-0.5 rounded-2xl transition-all duration-500",
+            opponentInsuranceActive && "ring-2 ring-emerald-500/60"
+          )}>
+            <Avatar className="h-10 w-10 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
+              <AvatarImage src={(opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') && !opponentImgError) ? opponentPhotoUrl : getFallbackAvatar(opponentName)} alt={opponentName || ''} onError={() => setOpponentImgError(true)} />
+              <AvatarFallback className="bg-slate-800 text-white font-bold uppercase">
                 {getInitials(opponentName)}
-              </span>
-            </div>
-          )}
+              </AvatarFallback>
+            </Avatar>
+            {opponentInsuranceActive && (
+              <motion.div
+                animate={{ opacity: [0.3, 0.7, 0.3], scale: [1.1, 1.4, 1.1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -inset-4 rounded-full bg-emerald-500/30 blur-2xl -z-10"
+              />
+            )}
+          </div>
 
           {/* Индикатор активности соперника - компактный */}
-          <div className="absolute -bottom-0.5 -right-0.5 z-10">
+          <div className="absolute -bottom-0.5 -right-0.5 z-30">
             <OpponentActivityIndicator
               status={opponentActivityStatus}
               showTooltip={true}
@@ -237,17 +282,24 @@ export const DuelScoreBoard = memo(({
           />
 
           {/* Иконка страховки рядом с фото */}
-          {opponentInsuranceActive && (
-            <div className="absolute -bottom-0.5 -left-0.5 z-10 bg-background rounded-full p-0.5 shadow-sm border border-blue-500/50">
-              <Shield className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-            </div>
-          )}
+          <AnimatePresence>
+            {opponentInsuranceActive && (
+              <motion.div
+                initial={{ scale: 0, y: 10 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0 }}
+                className="absolute -bottom-1 -left-1 z-30 bg-emerald-500 rounded-lg p-0.5 shadow-[0_0_10px_rgba(16,185,129,0.5)] border border-white/20"
+              >
+                <Shield className="w-3 h-3 text-white" />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Иконка молнии когда соперник отвечает */}
           <AnimatePresence>
             {opponentAnswered && (
               <motion.div
-                className="absolute -top-1 -right-1 z-20 w-5 h-5 md:w-6 md:h-6 bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/50 border-2 border-white"
+                className="absolute -top-1.5 -right-1.5 z-30 w-5 h-5 md:w-6 md:h-6 bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-yellow-500/50 border-2 border-white"
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{
                   scale: [0, 1.3, 1],
@@ -267,27 +319,6 @@ export const DuelScoreBoard = memo(({
           </AnimatePresence>
         </div>
       </motion.div>
-
-      {/* Компактные индикаторы банка и награды - адаптивные */}
-      {betInfo && !isTelegramMobile && (
-        <div className="flex items-center gap-2.5 ml-2 md:ml-4 flex-wrap">
-          {/* Банк - компактный индикатор */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-amber-500/10 dark:bg-amber-500/15 border border-amber-400/20 whitespace-nowrap">
-            <Coins className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
-            <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
-              {betInfo.totalBank.toLocaleString('ru-RU')}
-            </span>
-          </div>
-
-          {/* SP награда - компактный индикатор */}
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-blue-500/10 dark:bg-blue-500/15 border border-blue-400/20 whitespace-nowrap">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-            <span className="text-xs font-bold text-blue-700 dark:text-blue-400">
-              +{seasonBonusDisplay}
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   );
 });

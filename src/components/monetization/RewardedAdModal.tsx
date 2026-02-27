@@ -147,13 +147,13 @@ export function RewardedAdModal({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            "z-50 flex items-end sm:items-center justify-center p-0 backdrop-blur-xl bg-black/70",
+            "z-50 flex items-end sm:items-center justify-center p-0 backdrop-blur-2xl bg-[#0b0d14]/80",
             inlineOverlay ? "absolute inset-0 rounded-xl overflow-hidden" : "fixed inset-0 sm:p-4"
           )}
           onClick={() => !loading && onOpenChange(false)}
         >
           {/* Overlay color if not using backdrop-blur directly on the container */}
-          {!inlineOverlay && <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />}
+          {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14]/80 backdrop-blur-2xl" />}
 
           {/* Modal */}
           <motion.div

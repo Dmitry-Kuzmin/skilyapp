@@ -27,6 +27,7 @@ export function useDuelLocalState() {
 
     const [showDuelSettings, setShowDuelSettings] = useState(false);
     const [feedbackEffect, setFeedbackEffect] = useState<'correct' | 'wrong' | null>(null);
+    const [showStartScreen, setShowStartScreen] = useState(true);
 
     // Refs for tracking transitions and activity (moved from main component)
     const isLoadingRef = useRef(false);
@@ -47,6 +48,7 @@ export function useDuelLocalState() {
         boostFeedback,
         showDuelSettings,
         feedbackEffect,
+        showStartScreen,
 
         // Setters
         setDuelCode,
@@ -58,6 +60,7 @@ export function useDuelLocalState() {
         setBoostFeedback,
         setShowDuelSettings,
         setFeedbackEffect,
+        setShowStartScreen,
 
         // Refs
         isLoadingRef,

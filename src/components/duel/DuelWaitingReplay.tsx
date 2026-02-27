@@ -96,7 +96,8 @@ export function DuelWaitingReplay({
       const myPlayer = players.find((p) => p.user_id === profileId);
 
       if (opponent) {
-        const name = opponent.profiles?.first_name || opponent.profiles?.username || 'Соперник';
+        // @ts-ignore - is_bot property exists in updated hook
+        const name = (opponent.is_bot ? (opponent.bot_name || opponent.name) : (opponent.profiles?.first_name || opponent.profiles?.username)) || 'Соперник';
         setOpponentName(name);
         setOpponentScore(opponent.score || 0);
         opponentPlayerIdRef.current = opponent.id;

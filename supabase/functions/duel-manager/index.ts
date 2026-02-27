@@ -30,9 +30,9 @@ async function fetchRandomQuestions(
   supabase: SupabaseClient,
   count: number,
   country: string,
+  seed: number,
   categories: string[] | null | undefined,
   difficulty: string | null | undefined,
-  seed: number,
   licenseCategory: string = 'A_B'
 ) {
   const t1 = Date.now();
@@ -67,34 +67,15 @@ async function fetchRandomQuestions(
     }
   }
 
-  // Categories (Topics)
-  // Check if categories are UUIDs (Topics) or something else?
-  // Schema says UUIDs. But fetchRandomQuestions receives string[].
-  // If categories contains explicit topic IDs, we filter by topic_id (if exists) 
-  // OR we skip if category_id column is missing (as found earlier).
-  // Assuming categories logic was for topics but disabled/broken now or handled differently.
-  // We keep it as is but commented out if column missing?
-  // Previous code had: if (categories && categories.length > 0) query = query.in('category_id', categories);
-  // We KNOW 'category_id' is missing. So we should NOT query it.
-  // Instead, maybe query 'topic_id' if categories are topic UUIDs?
-  // Let's assume for now we SKIP category filtering to avoid crash.
-
-  /* 
-  if (categories && categories.length > 0) {
-    // query = query.in('category_id', categories); // COLUMN MISSING
-    // TODO: Map to topic_id or metadata->topics?
-  }
-  */
-
   if (difficulty && difficulty !== 'mix') {
     query = query.eq('difficulty', difficulty);
   }
 
-  const { data: ids, error } = await query;
+  const { data: ids, error: idsError } = await query;
 
-  if (error) {
-    console.error('[fetchRandomQuestions] Error fetching IDs:', error);
-    throw error;
+  if (idsError) {
+    console.error('[fetchRandomQuestions] Error fetching IDs:', idsError);
+    throw idsError;
   }
 
   if (!ids || ids.length === 0) return [];
@@ -105,7 +86,7 @@ async function fetchRandomQuestions(
 
   // Shuffle IDs
   const rng = mulberry32(seed);
-  const shuffledIds = fisherYatesShuffle(ids.map(x => x.id), rng);
+  const shuffledIds = fisherYatesShuffle(ids.map((x: any) => x.id), rng);
   const selectedIds = shuffledIds.slice(0, count);
 
   console.log(`[fetchRandomQuestions] Selected ${selectedIds.length} IDs`);
@@ -116,8 +97,8 @@ async function fetchRandomQuestions(
   const { data: questions, error: detailsError } = await supabase
     .from('questions_new')
     .select(`
-id, question_ru, question_es, question_en, image_url, difficulty,
-  answer_options(id, text_ru, text_es, text_en, is_correct, position)
+      id, question_ru, question_es, question_en, image_url, difficulty,
+      answer_options(id, text_ru, text_es, text_en, is_correct, position)
     `)
     .in('id', selectedIds);
 
@@ -131,7 +112,7 @@ id, question_ru, question_es, question_en, image_url, difficulty,
   }
 
   // Restore order from selectedIds (important for seed consistency)
-  const questionsMap = new Map((questions || []).map(q => [q.id, q]));
+  const questionsMap = new Map((questions || []).map((q: any) => [q.id, q]));
   return selectedIds.map(id => questionsMap.get(id)).filter(q => !!q);
 }
 
@@ -1112,7 +1093,7 @@ Deno.serve(async (req) => {
           try {
             const { data: profiles, error } = await supabase
               .from('profiles')
-              .select('id, first_name, username, telegram_id')
+              .select('id, first_name, username, photo_url, telegram_id')
               .in('id', userIds);
 
             if (error) {
@@ -1122,7 +1103,7 @@ Deno.serve(async (req) => {
               const profilePromises = userIds.map(async (userId) => {
                 const { data: profile, error: singleError } = await supabase
                   .from('profiles')
-                  .select('id, first_name, username, telegram_id')
+                  .select('id, first_name, username, photo_url, telegram_id')
                   .eq('id', userId)
                   .single();
 
@@ -1145,7 +1126,7 @@ Deno.serve(async (req) => {
               });
             } else {
               // Batch запрос успешен - создаем Map
-              (profiles || []).forEach((profile: { id: string; first_name?: string | null; username?: string | null; telegram_id?: number | null }) => {
+              (profiles || []).forEach((profile: { id: string; first_name?: string | null; username?: string | null; photo_url?: string | null; telegram_id?: number | null }) => {
                 profilesMap.set(profile.id, profile);
               });
             }
@@ -1272,7 +1253,9 @@ Deno.serve(async (req) => {
             correct_count: p.correct_count || 0,
             answered_count: answeredCount,
             is_finished: answeredCount >= totalQuestions,
-            name: name
+            name: name,
+            photo_url: profile?.photo_url || null,
+            is_bot: false
           };
         });
 
@@ -4108,19 +4091,20 @@ Deno.serve(async (req) => {
         const availableBoosts: { type: string; weight: number }[] = [];
 
         if (botDifficulty === 'easy') {
-          // Easy боты не используют бусты
-          return new Response(JSON.stringify({ error: 'Easy bots do not use boosts' }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
-        } else if (botDifficulty === 'medium') {
-          // Medium: утилиты и редко атаки
+          // Easy: в основном утилиты, редкие атаки
           availableBoosts.push(
-            { type: 'fifty_fifty', weight: 40 },
-            { type: 'hint', weight: 30 },
-            { type: 'screen_injector', weight: 15 },
-            { type: 'input_lag', weight: 10 },
-            { type: 'gps_spoofing', weight: 5 }
+            { type: 'fifty_fifty', weight: 50 },
+            { type: 'hint', weight: 40 },
+            { type: 'screen_injector', weight: 10 }
+          );
+        } else if (botDifficulty === 'medium') {
+          // Medium: сбалансировано
+          availableBoosts.push(
+            { type: 'fifty_fifty', weight: 30 },
+            { type: 'hint', weight: 20 },
+            { type: 'screen_injector', weight: 20 },
+            { type: 'input_lag', weight: 20 },
+            { type: 'gps_spoofing', weight: 10 }
           );
         } else {
           // Hard/Insane: агрессивные атаки

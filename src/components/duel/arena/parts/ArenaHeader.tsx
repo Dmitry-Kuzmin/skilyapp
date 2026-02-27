@@ -52,8 +52,8 @@ interface ArenaHeaderProps {
     setVoiceOver: (enabled: boolean) => void;
     ambientMusic: boolean;
     setAmbientMusic: (enabled: boolean) => void;
-    fontSize: string;
-    setFontSize: (size: string) => void;
+    fontSize: number;
+    setFontSize: (size: number) => void;
 
     // Layout
     isTelegramMobile: boolean;
@@ -144,6 +144,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                         onToggleBookmark={onToggleBookmark}
                         isBookmarked={isQuestionBookmarked}
                         bookmarkLoading={bookmarkLoading}
+                        betInfo={betInfo}
                         SettingsMenuComponent={
                             <DuelSettingsMenu
                                 open={showDuelSettings}
@@ -167,11 +168,11 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
             <div className="w-full relative z-20 mt-2">
                 <div
                     className={cn(
-                        "max-w-7xl mx-auto w-full px-3 md:px-4",
+                        "max-w-7xl mx-auto w-full px-2 md:px-4",
                         "relative flex overflow-visible transition-transform duration-100",
                         screenShake && "animate-shake",
                         isInTelegramMiniApp || isTelegramMobile
-                            ? "flex-col gap-2"
+                            ? "flex-col gap-3 items-center"
                             : "flex-row items-center justify-between gap-3"
                     )}
                 >
@@ -180,8 +181,8 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                         opponentScore={opponentScore}
                         myName={myName}
                         opponentName={opponentName}
-                        myPhotoUrl={myPhotoUrl}
-                        opponentPhotoUrl={opponentPhotoUrl}
+                        myPhotoUrl={myPhotoUrl ?? null}
+                        opponentPhotoUrl={opponentPhotoUrl ?? null}
                         myInsuranceActive={myInsuranceActive}
                         myCoverageDisplay={myCoverageDisplay}
                         opponentInsuranceActive={opponentInsuranceActive}

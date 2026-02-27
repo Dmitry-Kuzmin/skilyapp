@@ -134,7 +134,7 @@ export const DuelBoostsPanel = memo(({
             disabled={isDisabled}
             whileHover={!isDisabled ? { scale: 1.05 } : {}}
             whileTap={!isDisabled ? { scale: 0.95 } : {}}
-            className={`relative h-8 px-2 flex items-center gap-1 rounded-lg font-bold text-[11px] transition-all shadow-sm border ${isDisabled
+            className={`relative h-8 px-1.5 sm:px-2 flex items-center gap-0.5 sm:gap-1 rounded-lg font-bold text-[10px] sm:text-[11px] transition-all shadow-sm border ${isDisabled
               ? 'bg-muted/30 border-border/40 opacity-40 cursor-not-allowed grayscale'
               : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
               }`}

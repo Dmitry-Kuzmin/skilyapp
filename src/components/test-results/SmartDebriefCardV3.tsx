@@ -819,7 +819,7 @@ const SmartDebriefCard = memo(({
         </Drawer>
       ) : (
         resultModalOpen && analysisData && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={handleClose}>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#0b0d14]/80 backdrop-blur-xl animate-in fade-in duration-300" onClick={handleClose}>
             <div
               className="w-full max-w-2xl rounded-3xl shadow-2xl bg-white dark:bg-[#0f172a] h-full max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300"
               onClick={(e) => e.stopPropagation()}

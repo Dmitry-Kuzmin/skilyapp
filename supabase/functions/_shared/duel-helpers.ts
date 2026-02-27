@@ -22,7 +22,8 @@ export const createDuelSchema = z.object({
         ip_hash: z.string().max(255).optional(),
         device_hash: z.string().max(255).optional()
     }).optional(),
-    license_category: z.enum(['A_B', 'C_D']).optional().default('A_B')
+    license_category: z.enum(['A_B', 'C_D']).optional().default('A_B'),
+    rematch_from_duel_id: z.string().uuid().optional().nullable()
 });
 
 export const joinDuelSchema = z.object({
@@ -45,6 +46,9 @@ export const findMatchSchema = z.object({
     insurance_enabled: z.boolean().optional(),
     insurance_rate: z.number().min(0).max(1).optional(),
     insurance_coverage_rate: z.number().min(0).max(1).optional(),
+    immediate_bot: z.boolean().optional(),
+    rematch_opponent_id: z.string().uuid().optional().nullable(),
+    rematch_bot_name: z.string().optional().nullable(),
     security_context: z.object({
         ip_hash: z.string().max(255).optional(),
         device_hash: z.string().max(255).optional()
@@ -98,9 +102,9 @@ export async function fetchRandomQuestions(
     supabase: SupabaseClient,
     count: number,
     country: string,
+    seed: number,
     categories?: string[] | null,
-    difficulty?: string | null,
-    seed: number
+    difficulty?: string | null
 ) {
     const t1 = Date.now();
     let query = supabase.from('questions_new').select('id');
@@ -121,11 +125,27 @@ export async function fetchRandomQuestions(
         query = query.eq('difficulty', difficulty);
     }
 
-    const { data: ids, error } = await query;
+    let ids = null;
+    let fetchIdsError = null;
+    let retriesIds = 3;
 
-    if (error) {
-        console.error('[fetchRandomQuestions] Error fetching IDs:', error);
-        throw error;
+    while (retriesIds > 0) {
+        const { data, error } = await query;
+        if (!error) {
+            ids = data;
+            break;
+        }
+        fetchIdsError = error;
+        retriesIds--;
+        if (retriesIds > 0) {
+            console.warn(`[fetchRandomQuestions] Retrying fetch IDs (${3 - retriesIds}/3)...`);
+            await new Promise(r => setTimeout(r, 600)); // 600ms delay
+        }
+    }
+
+    if (fetchIdsError || !ids) {
+        console.error('[fetchRandomQuestions] Error fetching IDs after retries:', fetchIdsError);
+        throw fetchIdsError || new Error('Failed to fetch IDs');
     }
 
     if (!ids || ids.length === 0) return [];
@@ -136,20 +156,40 @@ export async function fetchRandomQuestions(
     const shuffledIds = fisherYatesShuffle(ids.map(x => x.id), rng);
     const selectedIds = shuffledIds.slice(0, count);
 
-    const { data: questions, error: detailsError } = await supabase
-        .from('questions_new')
-        .select(`
-      id, question_ru, question_es, question_en, image_url, difficulty,
-      answer_options (id, text_ru, text_es, text_en, is_correct, position)
-    `)
-        .in('id', selectedIds);
+    let questionsResult = null;
+    let fetchDetailsError = null;
+    let retriesDetails = 3;
 
-    if (detailsError) {
-        console.error('[fetchRandomQuestions] Error fetching details:', detailsError);
-        throw detailsError;
+    while (retriesDetails > 0) {
+        const { data: questions, error: detailsError } = await supabase
+            .from('questions_new')
+            .select(`
+          id, question_ru, question_es, question_en, image_url, difficulty,
+          answer_options (id, text_ru, text_es, text_en, is_correct, position)
+        `)
+            .in('id', selectedIds);
+
+        if (!detailsError) {
+            questionsResult = questions;
+            break;
+        }
+
+        fetchDetailsError = detailsError;
+        retriesDetails--;
+
+        // Specially handle broken pipe or fetch errors by adding a delay
+        if (retriesDetails > 0) {
+            console.warn(`[fetchRandomQuestions] Retrying fetch details (${3 - retriesDetails}/3) due to:`, detailsError.message || detailsError);
+            await new Promise(r => setTimeout(r, 600)); // 600ms delay
+        }
     }
 
-    const questionsMap = new Map((questions || []).map(q => [q.id, q]));
+    if (fetchDetailsError || !questionsResult) {
+        console.error('[fetchRandomQuestions] Error fetching details after retries:', fetchDetailsError);
+        throw fetchDetailsError || new Error('Failed to fetch question details');
+    }
+
+    const questionsMap = new Map((questionsResult || []).map(q => [q.id, q]));
     return selectedIds.map(id => questionsMap.get(id)).filter(q => !!q);
 }
 
