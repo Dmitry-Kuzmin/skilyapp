@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2, Activity, X } from 'lucide-react';
+import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2, Activity as ActivityIcon, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -498,7 +498,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     )}>
                                         <div className="flex items-center justify-between mb-3">
                                             <span className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest">Аналитика</span>
-                                            <Activity size={12} className="text-indigo-400/60" />
+                                            <ActivityIcon size={12} className="text-indigo-400/60" />
                                         </div>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-3">
@@ -549,7 +549,6 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 </div>
             </div>
 
-            {/* Ambient Background Glow matching the rank */}
             <div className={cn(
                 "absolute -inset-2 z-0 opacity-20 blur-2xl rounded-[40px] transition-all duration-1000",
                 rankStyle.bg

@@ -81,7 +81,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             setGlobalProfileId(actualProfileId);
           }
           localStorage.setItem(`profile_${supabaseUser.id}`, actualProfileId);
-          console.log("[UserContext] ✅ Profile ID synced from DB:", actualProfileId);
+
 
           // 🔄 SELF-HEALING: Если аватар старый (api.telegram.org) или отсутствует, запускаем синхронизацию
           // Это исправляет проблему с "протухшими" ссылками на аватарки

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, lazy, Suspense, useCallback, useContext, memo } from "react";
+import { useState, useEffect, lazy, Suspense, useCallback, useContext, memo, useMemo } from "react";
 import { UserContext, useUserContext } from "@/contexts/UserContext";
 // ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
 // Supabase будет загружаться только когда нужен (в handleClaimBonus)
@@ -334,7 +334,7 @@ const Index = memo(function Index() {
   // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
   useEffect(() => {
     if (!isLoading && userContext && !isAuthenticated && !isInTelegram) {
-      console.log('[Index] Not authenticated, redirecting to landing...');
+
       setRedirecting(true);
       navigate('/', { replace: true });
     }
@@ -390,7 +390,6 @@ const Index = memo(function Index() {
           <button
             onClick={async () => {
               // НОЯБРЬСКАЯ ЗАЩИТА: Полная очистка всего, что может мешать
-              console.log("[Index] Nuclear session reset...");
               localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
               localStorage.removeItem('telegram_token');
               localStorage.removeItem('puzzle_user');

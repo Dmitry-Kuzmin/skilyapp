@@ -48,7 +48,7 @@ setTimeout(() => {
   // Инициализация Rollbar
   import('./lib/rollbar').then(({ initRollbar, reportError }) => {
     initRollbar();
-    console.log('[Main] Rollbar initialized (deferred)');
+
 
     // Отправляем накопленные ранние ошибки
     if (earlyErrors.length > 0) {
