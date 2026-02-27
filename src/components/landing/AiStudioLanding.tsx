@@ -1357,7 +1357,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
                   Product
                 </h4>
                 <ul className="space-y-4">
-                  {copy.footer.menu.filter(i => !i.href.includes('terms') && !i.href.includes('privacy') && !i.href.includes('refund') && !i.href.includes('subscription')).map((item) => (
+                  {copy.footer.menu.filter(i => !i.href.includes('/legal/')).map((item) => (
                     <li key={item.label}>
                       {item.external ? (
                         <a href={item.href} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white text-sm transition-colors block">
@@ -1389,7 +1389,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
                   Legal
                 </h4>
                 <ul className="space-y-4">
-                  {copy.footer.menu.filter(i => i.href.includes('terms') || i.href.includes('privacy') || i.href.includes('refund') || i.href.includes('subscription')).map((item) => (
+                  {copy.footer.menu.filter(i => i.href.includes('/legal/')).map((item) => (
                     <li key={item.label}>
                       <button onClick={() => navigate(item.href)} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
                         {item.label}

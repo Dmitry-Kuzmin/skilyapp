@@ -8,6 +8,9 @@ import { FileText, Shield, CreditCard, RefreshCw, ChevronLeft } from "lucide-rea
 // Lazy load heavy legal documents
 const Terms = lazy(() => import("./Terms"));
 const Cookies = lazy(() => import("./Cookies"));
+const Privacy = lazy(() => import("./Privacy"));
+const SubscriptionTerms = lazy(() => import("./SubscriptionTerms"));
+const RefundPolicy = lazy(() => import("./RefundPolicy"));
 
 export type LegalTab = "terms" | "privacy" | "cookies" | "subscription" | "refund";
 

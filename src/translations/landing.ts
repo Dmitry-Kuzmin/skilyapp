@@ -320,10 +320,11 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     footer: {
       menu: [
         { label: "Acerca de", href: "/about" },
-        { label: "Términos", href: "/terms" },
-        { label: "Privacidad", href: "/privacy" },
-        { label: "Términos de suscripción", href: "/subscription-terms" },
-        { label: "Política de reembolso", href: "/refund-policy" },
+        { label: "Términos", href: "/legal/terms" },
+        { label: "Privacidad", href: "/legal/privacy" },
+        { label: "Cookies", href: "/legal/cookies" },
+        { label: "Términos de suscripción", href: "/legal/subscription" },
+        { label: "Política de reembolso", href: "/legal/refund" },
         { label: "Precios", href: "/pricing" },
         { label: "Soporte", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Afiliados", href: "#partnership" },
@@ -514,10 +515,11 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     footer: {
       menu: [
         { label: "About", href: "/about" },
-        { label: "Terms", href: "/terms" },
-        { label: "Privacy", href: "/privacy" },
-        { label: "Subscription Terms", href: "/subscription-terms" },
-        { label: "Refund Policy", href: "/refund-policy" },
+        { label: "Terms", href: "/legal/terms" },
+        { label: "Privacy", href: "/legal/privacy" },
+        { label: "Cookies", href: "/legal/cookies" },
+        { label: "Subscription Terms", href: "/legal/subscription" },
+        { label: "Refund Policy", href: "/legal/refund" },
         { label: "Pricing", href: "/pricing" },
         { label: "Support", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Affiliates", href: "#partnership" },
@@ -708,10 +710,11 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     footer: {
       menu: [
         { label: "О нас", href: "/about" },
-        { label: "Условия", href: "/terms" },
-        { label: "Политика", href: "/privacy" },
-        { label: "Условия подписки", href: "/subscription-terms" },
-        { label: "Политика возврата", href: "/refund-policy" },
+        { label: "Условия", href: "/legal/terms" },
+        { label: "Политика", href: "/legal/privacy" },
+        { label: "Cookies", href: "/legal/cookies" },
+        { label: "Условия подписки", href: "/legal/subscription" },
+        { label: "Политика возврата", href: "/legal/refund" },
         { label: "Цены", href: "/pricing" },
         { label: "Поддержка", href: "https://t.me/skilyapp_bot", external: true },
         { label: "Партнёрам", href: "#partnership" },

@@ -324,20 +324,21 @@ const Index = memo(function Index() {
   const navigate = useNavigate();
   const [redirecting, setRedirecting] = useState(false);
 
+  // КРИТИЧНО: Определяем, находимся ли мы в Telegram Mini App
+  const isInTelegram = useMemo(() => typeof window !== 'undefined' &&
+    window.Telegram?.WebApp &&
+    window.Telegram.WebApp.initData &&
+    window.Telegram.WebApp.initData !== '' &&
+    !window.Telegram.WebApp.initData.startsWith('mock_'), []);
+
   // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
   useEffect(() => {
-    const isInTelegram = typeof window !== 'undefined' &&
-      window.Telegram?.WebApp &&
-      window.Telegram.WebApp.initData &&
-      window.Telegram.WebApp.initData !== '' &&
-      !window.Telegram.WebApp.initData.startsWith('mock_');
-
     if (!isLoading && userContext && !isAuthenticated && !isInTelegram) {
       console.log('[Index] Not authenticated, redirecting to landing...');
       setRedirecting(true);
       navigate('/', { replace: true });
     }
-  }, [isLoading, userContext, isAuthenticated, navigate]);
+  }, [isLoading, userContext, isAuthenticated, navigate, isInTelegram]);
 
   // SAFETY NET: Если загрузка авторизации висит дольше 5 секунд — принудительно редиректим
   useEffect(() => {
@@ -361,6 +362,11 @@ const Index = memo(function Index() {
 
   // Если не авторизован и не был запущен редирект (например, сбой авторизации внутри Telegram)
   if (!isAuthenticated && !redirecting && !isLoading) {
+    // КРИТИЧНО: На вебе просто ждем редиректа, не показывая ошибку
+    if (!isInTelegram) {
+      return <PageLoader />;
+    }
+
     if (import.meta.env.DEV) console.debug('[Index] Auth failed in Telegram, showing error state');
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-white bg-zinc-950 p-6 text-center font-sans">

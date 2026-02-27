@@ -90,18 +90,10 @@ const Learning = () => {
       },
     ];
 
-    if (selectedCountry === 'russia' || language === 'ru') {
+    const isRussia = selectedCountry === 'russia';
+
+    if (isRussia) {
       return [
-        {
-          id: "handbook",
-          title: t('learningPage.materials.handbook'),
-          description: t('learningPage.materials.handbookDesc'),
-          icon: BookOpen,
-          badge: "NEW",
-          path: "/learn/russia/handbook",
-          gradient: "from-emerald-500/10 to-teal-500/10",
-          iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-        },
         {
           id: "pdd-tickets",
           title: "Билеты ПДД РФ",
@@ -112,7 +104,16 @@ const Learning = () => {
           gradient: "from-blue-500/10 to-cyan-500/10",
           iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
         },
-        ...commonResources.filter(r => r.id !== 'videos'),
+        {
+          id: "handbook",
+          title: t('learningPage.materials.handbook'),
+          description: t('learningPage.materials.handbookDesc'),
+          icon: BookOpen,
+          badge: "NEW",
+          path: "/learn/russia/handbook",
+          gradient: "from-emerald-500/10 to-teal-500/10",
+          iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        }
       ];
     }
 
@@ -251,7 +252,7 @@ const Learning = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6 lg:py-10 max-w-[1600px]">
+      <div className="container mx-auto px-4 py-6 lg:py-10 max-w-[1370px]">
         <div className="flex flex-col xl:flex-row gap-6 xl:gap-8">
           {/* Основной контент - Карта обучения (80%) */}
           <section className="xl:w-[78%] space-y-6">
@@ -272,52 +273,11 @@ const Learning = () => {
               </div>
             </div>
 
-            <div className="relative">
-              {/* <LearningMap variant="embedded" /> */}
-              <Card className="min-h-[450px] flex items-center justify-center p-8 md:p-12 border-border/50 bg-gradient-to-br from-card/95 to-card/80 backdrop-blur-xl shadow-lg relative overflow-hidden">
-                <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-secondary/5 rounded-full blur-3xl" />
-
-                <div className="relative flex flex-col items-center text-center space-y-8 max-w-xl mx-auto z-10">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
-                    <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/20 flex items-center justify-center shadow-sm">
-                      <Sparkles className="w-10 h-10 text-primary animate-pulse" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
-                      Новый учебник<br />уже в пути
-                    </h2>
-                    <p className="text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
-                      Мы создаем интерактивную карту обучения нового поколения. Видео-уроки, умные тесты и персональный план — всё это скоро появится здесь.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md pt-2">
-                    <div className="px-4 py-3 rounded-xl bg-background/50 border border-border/50 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                        <Video className="w-4 h-4" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs font-medium text-muted-foreground">Формат</p>
-                        <p className="text-sm font-semibold">Видео-уроки</p>
-                      </div>
-                    </div>
-                    <div className="px-4 py-3 rounded-xl bg-background/50 border border-border/50 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
-                        <Target className="w-4 h-4" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs font-medium text-muted-foreground">Система</p>
-                        <p className="text-sm font-semibold">Smart Learning</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
+            {selectedCountry !== 'russia' && (
+              <div className="relative">
+                <LearningMap variant="embedded" />
+              </div>
+            )}
           </section>
 
           {/* Правый сайдбар (22%) */}

@@ -11,6 +11,7 @@ import { DuelLobby } from '@/components/duel/DuelLobby';
 import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
 import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
 import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
+import { DuelFindingScreen } from '@/components/duel/parts/DuelFindingScreen';
 import { DuelResult } from '@/components/duel/DuelResult';
 import { PageLoader } from '@/components/PageLoader';
 import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
@@ -141,6 +142,7 @@ export default function Duel() {
     const [rematchOpponent, setRematchOpponent] = useState<{ id?: string; name?: string; isBot?: boolean } | null>(null);
     const [showRematchSetup, setShowRematchSetup] = useState(false);
     const [rematchInsuranceEnabled, setRematchInsuranceEnabled] = useState(true); // Страховка активна по умолчанию
+    const [userProfile, setUserProfile] = useState<{ firstName: string | null; photoUrl: string | null }>({ firstName: null, photoUrl: null });
 
     // Use realtime hook when duel is created
     const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
@@ -234,6 +236,10 @@ export default function Duel() {
 
             if (!coinsError && coinsData) {
                 setUserCoins(coinsData.coins || 0);
+                setUserProfile({
+                    firstName: (coinsData as any).first_name || null,
+                    photoUrl: (coinsData as any).photo_url || null
+                });
             }
 
             // Load duel stats
@@ -1510,7 +1516,7 @@ export default function Duel() {
                                                             setRematchOpponent(null);
                                                             setDuelMode('random');
                                                         })}
-                                                        className="group relative flex flex-col justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-left"
+                                                        className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-center"
                                                     >
                                                         {/* Flare */}
                                                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1519,14 +1525,14 @@ export default function Duel() {
                                                             <Search className="w-40 h-40 transform rotate-[15deg] group-hover:scale-110 transition-transform duration-500" strokeWidth={1.5} />
                                                         </div>
 
-                                                        <div className="relative z-10 space-y-4">
-                                                            <div className="flex items-start gap-4">
-                                                                <div className="w-12 h-12 flex-shrink-0 mt-1 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
+                                                        <div className="relative z-10 space-y-4 text-center">
+                                                            <div className="flex flex-col items-center gap-4">
+                                                                <div className="w-12 h-12 flex-shrink-0 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
                                                                     <Search className="w-6 h-6 text-white" />
                                                                 </div>
                                                                 <div className="space-y-1">
                                                                     <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">Случайный бой</h3>
-                                                                    <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px]">
+                                                                    <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
                                                                         Мгновенный подбор равного по силе врага
                                                                     </p>
                                                                 </div>
@@ -1547,7 +1553,7 @@ export default function Duel() {
                                                             setRematchOpponent(null);
                                                             setDuelMode('friend');
                                                         })}
-                                                        className="group relative flex flex-col justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-amber-500/40 hover:bg-amber-500/[0.02] transition-all duration-500 overflow-hidden text-left"
+                                                        className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-amber-500/40 hover:bg-amber-500/[0.02] transition-all duration-500 overflow-hidden text-center"
                                                     >
                                                         {/* Flare */}
                                                         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1556,14 +1562,14 @@ export default function Duel() {
                                                             <Users className="w-40 h-40 transform rotate-[-10deg] group-hover:scale-110 transition-transform duration-500" strokeWidth={1.5} />
                                                         </div>
 
-                                                        <div className="relative z-10 space-y-4">
-                                                            <div className="flex items-start gap-4">
-                                                                <div className="w-12 h-12 flex-shrink-0 mt-1 rounded-2xl bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300">
+                                                        <div className="relative z-10 space-y-4 text-center">
+                                                            <div className="flex flex-col items-center gap-4">
+                                                                <div className="w-12 h-12 flex-shrink-0 rounded-2xl bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300">
                                                                     <Users className="w-6 h-6 text-white" />
                                                                 </div>
                                                                 <div className="space-y-1">
                                                                     <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">Игра с другом</h3>
-                                                                    <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px]">
+                                                                    <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
                                                                         Создай комнату и пригласи товарища по коду
                                                                     </p>
                                                                 </div>
@@ -2627,54 +2633,15 @@ export default function Duel() {
                         )}
 
                         {mode === 'finding' && (
-                            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8 animate-in fade-in zoom-in-95 duration-500 px-4">
-                                <div className="relative">
-                                    {/* Animated rings */}
-                                    <motion.div
-                                        animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-                                        transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
-                                        className="absolute inset-0 bg-blue-500/20 rounded-full"
-                                    />
-                                    <motion.div
-                                        animate={{ scale: [1, 1.2], opacity: [0.3, 0] }}
-                                        transition={{ duration: 2, delay: 0.5, repeat: Infinity, ease: "easeOut" }}
-                                        className="absolute inset-0 bg-blue-400/20 rounded-full"
-                                    />
-
-                                    <div className="relative h-24 w-24 rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center overflow-hidden shadow-2xl">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-transparent to-indigo-500/20" />
-                                        <motion.div
-                                            animate={{
-                                                rotate: [0, 10, -10, 0],
-                                                scale: [1, 1.1, 1]
-                                            }}
-                                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                        >
-                                            <Swords className="h-10 w-10 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
-                                        </motion.div>
-                                    </div>
-                                </div>
-                                <div className="text-center space-y-3">
-                                    <h3 className="text-xl font-black text-white tracking-tight uppercase">
-                                        {rematchOpponent ? 'Инициация реванша' : 'Поиск соперника'}
-                                    </h3>
-                                    <p className="text-sm text-slate-400 font-medium max-w-[240px] mx-auto leading-relaxed">
-                                        {rematchOpponent
-                                            ? `Вызываем ${rematchOpponent.name || 'соперника'} на реванш...`
-                                            : 'Подбираем равного по силе соперника...'}
-                                    </p>
-                                    <div className="flex items-center justify-center gap-1 pt-2">
-                                        {[0, 1, 2].map(i => (
-                                            <motion.div
-                                                key={i}
-                                                animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
-                                                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                                                className="w-1.5 h-1.5 rounded-full bg-blue-400"
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
+                            <DuelFindingScreen
+                                userName={userProfile.firstName}
+                                userPhotoUrl={userProfile.photoUrl}
+                                betAmount={betAmount}
+                                questionCount={numQuestions}
+                                insuranceEnabled={rematchOpponent ? rematchInsuranceEnabled : hostInsuranceEnabled}
+                                onCancel={handleCancelDuel}
+                                rematchOpponent={rematchOpponent}
+                            />
                         )}
 
                         {dataLoaded && (
