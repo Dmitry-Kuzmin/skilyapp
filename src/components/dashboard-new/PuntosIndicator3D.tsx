@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 // Ультрасовременные цвета с поддержкой динамики
 const getGradientColors = (points: number) => {
@@ -12,7 +13,7 @@ const getGradientColors = (points: number) => {
     }
 };
 
-const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15 }) => {
+const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = true }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const radius = 85;
@@ -23,6 +24,9 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15 }) => {
     const targetOffset = circumference - (circumference * fillPercentage);
 
     const colors = getGradientColors(currentPoints);
+
+    // Динамический цвет пустых сегментов
+    const emptySegmentColor = isDarkTheme ? "rgba(2, 6, 23, 0.6)" : "rgba(0, 0, 0, 0.08)";
 
     useEffect(() => {
         const timer = setTimeout(() => setIsLoaded(true), 300);
@@ -92,7 +96,7 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15 }) => {
                 <circle
                     cx="100" cy="100" r={radius}
                     fill="transparent"
-                    stroke="rgba(2, 6, 23, 0.95)"
+                    stroke={emptySegmentColor}
                     strokeWidth="18"
                     mask="url(#capsulesMask3D)"
                 />
@@ -142,9 +146,14 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15 }) => {
                         key={currentPoints}
                         initial={{ opacity: 0, scale: 0.5, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className="text-white text-8xl font-black leading-none tracking-tighter"
+                        className={cn(
+                            "text-6xl sm:text-7xl md:text-8xl font-black leading-none tracking-tighter",
+                            isDarkTheme ? "text-white" : "text-black"
+                        )}
                         style={{
-                            textShadow: '0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1)'
+                            textShadow: isDarkTheme
+                                ? '0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1)'
+                                : '0 4px 10px rgba(0,0,0,0.05)'
                         }}
                     >
                         {currentPoints}
@@ -157,11 +166,14 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15 }) => {
                         animate={{ opacity: 0.5 }}
                         className="flex items-center gap-2 mt-4"
                     >
-                        <div className="h-[1px] w-4 bg-slate-500" />
-                        <span className="text-slate-300 text-[10px] tracking-[0.5em] font-black uppercase font-mono">
+                        <div className={cn("h-[1px] w-4", isDarkTheme ? "bg-slate-500" : "bg-slate-300")} />
+                        <span className={cn(
+                            "text-[10px] tracking-[0.5em] font-black uppercase font-mono transition-colors",
+                            isDarkTheme ? "text-slate-300" : "text-slate-500"
+                        )}>
                             Puntos
                         </span>
-                        <div className="h-[1px] w-4 bg-slate-500" />
+                        <div className={cn("h-[1px] w-4", isDarkTheme ? "bg-slate-500" : "bg-slate-300")} />
                     </motion.div>
                 </div>
             </div>

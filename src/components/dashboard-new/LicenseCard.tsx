@@ -219,7 +219,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
         <div className="flex flex-col min-w-0 group/field">
             <span className={cn(
                 "text-[7px] sm:text-[8px] md:text-[9px] font-bold tracking-tight mb-0.5",
-                isDarkTheme ? "text-indigo-200/50" : "text-black/40"
+                isDarkTheme ? "text-indigo-200/50" : "text-black/60"
             )}>
                 {label}
             </span>
@@ -235,7 +235,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     );
 
     return (
-        <div className="w-full h-full relative group perspective-[2000px]">
+        <div className="w-full h-full relative group perspective-[2000px] p-2 sm:p-4">
             {/* The 3D Glassmorphism License Card */}
             <div className={cn(
                 "w-full h-full relative z-10 rounded-[28px] md:rounded-[36px] overflow-hidden border transition-all duration-700 flex flex-col shadow-2xl backdrop-blur-3xl",
@@ -355,7 +355,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     className="cursor-pointer transition-transform active:scale-95 w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] md:w-[110px] md:h-[110px] flex items-center justify-center overflow-visible"
                                 >
                                     <div className="scale-[0.28] sm:scale-[0.38] md:scale-[0.55] origin-center shrink-0">
-                                        <PuntosIndicator currentPoints={points} />
+                                        <PuntosIndicator currentPoints={points} isDarkTheme={isDarkTheme} />
                                     </div>
                                 </div>
                             </div>
@@ -412,28 +412,37 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
             {/* Points Info Modal - Ultra Premium Glass Overlay */}
             {isPointsModalOpen && (
-                <div className="absolute inset-0 z-[100] flex items-center justify-center animate-in fade-in duration-300 rounded-[24px] md:rounded-[32px] overflow-hidden">
+                <div className="fixed md:absolute inset-0 z-[1000] md:z-[100] flex items-center justify-center animate-in fade-in zoom-in-95 duration-300 md:rounded-[24px] lg:rounded-[32px] overflow-hidden">
                     {/* High-quality deep backdrop - Solid for maximum focus */}
                     <div className={cn(
                         "absolute inset-0 backdrop-blur-3xl",
-                        isDarkTheme ? "bg-zinc-950 shadow-inner" : "bg-white"
+                        isDarkTheme ? "bg-zinc-950/95" : "bg-white/95"
                     )} />
 
                     {/* Content Container - Balanced Bento Layout */}
-                    <div className="w-full h-full p-4 md:p-6 lg:p-8 flex flex-col gap-3 md:gap-4 relative z-10 animate-in zoom-in-95 duration-400 overflow-y-auto no-scrollbar">
+                    <div className="w-full h-full p-4 sm:p-6 md:p-8 flex flex-col gap-4 relative z-10 overflow-y-auto no-scrollbar pt-16 md:pt-6">
 
-                        {/* 0. Laconic Close Button */}
+                        {/* 0. Laconic Close Button - Moved for better reach on mobile */}
                         <button
                             onClick={(e) => { e.stopPropagation(); setIsPointsModalOpen(false); }}
-                            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors z-[60] border border-white/5"
+                            className={cn(
+                                "fixed md:absolute top-4 right-4 p-2.5 rounded-full transition-all z-[1001] border backdrop-blur-md active:scale-90",
+                                isDarkTheme ? "bg-white/10 hover:bg-white/20 border-white/10" : "bg-black/5 hover:bg-black/10 border-black/10"
+                            )}
                         >
-                            <X size={16} className="text-white/40" />
+                            <X size={24} className={isDarkTheme ? "text-white" : "text-black"} />
                         </button>
 
                         {/* 1. Top Section: Points Summary */}
-                        <div className="flex items-center justify-between flex-shrink-0 bg-white/[0.02] p-4 md:p-5 rounded-3xl border border-white/5">
+                        <div className={cn(
+                            "flex items-center justify-between flex-shrink-0 p-4 md:p-5 rounded-3xl border",
+                            isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
+                        )}>
                             <div className="space-y-1">
-                                <h3 className="text-xs md:text-sm font-black text-white/90 uppercase tracking-[0.15em]">{localeConfig.fields.pointsLabel}</h3>
+                                <h3 className={cn(
+                                    "text-xs md:text-sm font-black uppercase tracking-[0.15em]",
+                                    isDarkTheme ? "text-white/90" : "text-black/90"
+                                )}>{localeConfig.fields.pointsLabel}</h3>
                                 <div className={cn(
                                     "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-black uppercase tracking-[0.05em] border shadow-md",
                                     points >= 10
@@ -447,7 +456,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                             <div className="relative shrink-0 flex items-center justify-center w-12 h-12 md:w-16 md:h-16">
                                 <div className="scale-[0.2] md:scale-[0.28] origin-center absolute pointer-events-none">
-                                    <PuntosIndicator currentPoints={points} />
+                                    <PuntosIndicator currentPoints={points} isDarkTheme={isDarkTheme} />
                                 </div>
                             </div>
                         </div>
@@ -456,7 +465,10 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4 min-h-0 overflow-hidden">
 
                             {/* Left: Main Graph (3/5 width) */}
-                            <div className="md:col-span-3 flex flex-col gap-2 p-3 md:p-4 rounded-2xl bg-white/[0.02] border border-white/5 shadow-xl transition-all hover:bg-white/[0.04]">
+                            <div className={cn(
+                                "md:col-span-3 flex flex-col gap-2 p-3 md:p-4 rounded-2xl border shadow-xl transition-all",
+                                isDarkTheme ? "bg-white/[0.02] border-white/5 hover:bg-white/[0.04]" : "bg-black/[0.02] border-black/5 hover:bg-black/[0.04]"
+                            )}>
                                 <div className="flex items-center justify-between">
                                     <span className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest">Аналитика недели</span>
                                     <Activity size={12} className="text-indigo-400/60" />
@@ -493,11 +505,11 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                         </div>
                                     )}
                                 </div>
-                                <div className="flex justify-between items-center pt-2 border-t border-white/5">
+                                <div className={cn("flex justify-between items-center pt-2 border-t", isDarkTheme ? "border-white/5" : "border-black/5")}>
                                     <div className="flex items-center gap-3">
                                         <div className="flex flex-col">
                                             <span className="text-[6px] font-bold text-zinc-500 uppercase">Stability</span>
-                                            <span className="text-[10px] font-black text-white">{stats.accuracy || 85}%</span>
+                                            <span className={cn("text-[10px] font-black", isDarkTheme ? "text-white" : "text-black")}>{stats.accuracy || 85}%</span>
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="text-[6px] font-bold text-zinc-500 uppercase">Efficiency</span>
@@ -513,7 +525,10 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                             {/* Right: Rules Mechanic (2/5 width) */}
                             <div className="md:col-span-2 flex flex-col gap-2">
-                                <div className="flex-1 p-3 md:p-4 rounded-2xl bg-white/[0.02] border border-white/5 shadow-lg flex flex-col justify-center gap-3">
+                                <div className={cn(
+                                    "flex-1 p-3 md:p-4 rounded-2xl border shadow-lg flex flex-col justify-center gap-3",
+                                    isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
+                                )}>
                                     <div className="flex items-center gap-2">
                                         <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
                                             <span className="text-emerald-400 text-xs font-black">+1</span>
@@ -534,18 +549,26 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                         </div>
                                     </div>
 
-                                    <div className="mt-1 p-2 rounded-xl bg-white/5 border border-white/5 text-center flex justify-between">
+                                    <div className={cn(
+                                        "mt-1 p-2 rounded-xl border text-center flex justify-between",
+                                        isDarkTheme ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5"
+                                    )}>
                                         <div className="flex flex-col items-start gap-0">
-                                            <span className="text-[6px] font-black text-zinc-500 uppercase">SAFE RANGE</span>
-                                            <span className="text-[9px] font-black text-white">0-15</span>
+                                            <span className="text-[7px] font-black text-zinc-500 uppercase">SAFE RANGE</span>
+                                            <span className={cn("text-[10px] font-black", isDarkTheme ? "text-white" : "text-black")}>0-15</span>
                                         </div>
                                         <div className="flex flex-col items-end gap-0">
-                                            <span className="text-[6px] font-black text-zinc-500 uppercase">MIN EXAM</span>
-                                            <span className="text-[9px] font-black text-emerald-400">10 pts</span>
+                                            <span className="text-[7px] font-black text-zinc-500 uppercase">MIN EXAM</span>
+                                            <span className="text-[10px] font-black text-emerald-400">10 pts</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Small footer info for mobile to ensure user sees everything */}
+                        <div className="md:hidden flex flex-col items-center gap-1 opacity-40 py-2 border-t border-black/5 dark:border-white/5">
+                            <p className="text-[8px] font-black tracking-widest uppercase text-center">{t('common.licensedBy') || 'DGT OFFICIAL SYSTEM'}</p>
                         </div>
                     </div>
                 </div>
