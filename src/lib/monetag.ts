@@ -21,7 +21,7 @@ declare global {
 export const MONETAG_TMA_REWARDED_ZONE_ID = '10323643';
 
 // Zone ID для Native Banner (Interstitial) в веб-версии
-export const MONETAG_WEB_REWARDED_ZONE_ID = '10323437';
+export const MONETAG_WEB_REWARDED_ZONE_ID = '10323509';
 
 // Имена функций, которые будут созданы SDK
 const TMA_SHOW_FUNCTION_NAME = `show_${MONETAG_TMA_REWARDED_ZONE_ID}` as const;
@@ -64,7 +64,7 @@ export function initMonetagTMA(): void {
   }
 
   console.warn('[Monetag TMA] SDK not loaded yet. Waiting for script to load...');
-  
+
   // Ждем загрузки SDK (максимум 5 секунд)
   let attempts = 0;
   const checkInterval = setInterval(() => {
@@ -98,7 +98,7 @@ export function initMonetagWeb(): void {
   }
 
   console.warn('[Monetag Web] SDK not loaded yet. Waiting for script to load...');
-  
+
   // Ждем загрузки SDK (максимум 5 секунд)
   let attempts = 0;
   const checkInterval = setInterval(() => {
@@ -142,7 +142,7 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
     initMonetagTMA();
     // Ждем немного (500ms) на случай, если SDK загружается асинхронно
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     if (!isTMASDKLoaded()) {
       // SDK не загружен - возможно, AdBlock заблокировал скрипт
       const error = new Error('Monetag SDK не загружен. Возможно, AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.');
@@ -153,7 +153,7 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
 
   try {
     const showFunction = (window as any)[TMA_SHOW_FUNCTION_NAME];
-    
+
     if (typeof showFunction !== 'function') {
       console.error('[Monetag TMA] Function not found:', TMA_SHOW_FUNCTION_NAME);
       console.error('[Monetag TMA] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
@@ -161,33 +161,33 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
     }
 
     console.log('[Monetag TMA] Calling show function:', TMA_SHOW_FUNCTION_NAME);
-    
+
     // КРИТИЧНО: Добавляем таймаут 3 секунды, чтобы интерфейс не зависал
     // Rewarded Interstitial для TMA возвращает Promise
     // Promise резолвится, когда пользователь просмотрел рекламу до конца
     await Promise.race([
       showFunction(),
-      new Promise<never>((_, reject) => 
+      new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Monetag ad timeout - ad did not show within 3 seconds')), 3000)
       )
     ]);
-    
+
     console.log('[Monetag TMA] Rewarded interstitial completed successfully');
     return true;
   } catch (error: any) {
     console.error('[Monetag TMA] Error showing rewarded video:', error);
-    
+
     // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
     if (error.isAdBlockError) {
       throw error;
     }
-    
+
     // Если это таймаут, логируем и возвращаем false
     if (error.message?.includes('timeout')) {
       console.warn('[Monetag TMA] Ad timeout - ad may not have shown, skipping reward');
       return false;
     }
-    
+
     // Другие ошибки - считаем неуспехом
     return false;
   }
@@ -218,7 +218,7 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
     initMonetagWeb();
     // Ждем немного (500ms) на случай, если SDK загружается асинхронно
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     if (!isWebSDKLoaded()) {
       // SDK не загружен - возможно, AdBlock заблокировал скрипт
       const error = new Error('Monetag SDK не загружен. Возможно, AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.');
@@ -232,7 +232,7 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
     new Promise<boolean>((resolve) => {
       try {
         const showFunction = (window as any)[WEB_SHOW_FUNCTION_NAME];
-        
+
         if (typeof showFunction !== 'function') {
           console.error('[Monetag Web] Function not found:', WEB_SHOW_FUNCTION_NAME);
           console.error('[Monetag Web] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
@@ -241,12 +241,12 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
         }
 
         console.log('[Monetag Web] Calling show function:', WEB_SHOW_FUNCTION_NAME);
-        
+
         // Показываем рекламу
         try {
           showFunction();
           console.log('[Monetag Web] Ad banner shown');
-          
+
           // Проверяем, что реклама действительно показалась
           // Monetag обычно создает iframe или div с рекламой
           const checkAdShown = () => {
@@ -258,7 +258,7 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
               'div[class*="monetag"]',
               '[data-zone="10323437"]'
             ];
-            
+
             for (const selector of monetagSelectors) {
               if (document.querySelector(selector)) {
                 return true;
@@ -266,7 +266,7 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
             }
             return false;
           };
-          
+
           // Проверяем через 500ms, что реклама показалась
           setTimeout(() => {
             const adShown = checkAdShown();
@@ -303,15 +303,15 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
             return;
           }
         }
-        
+
       } catch (error: any) {
         console.error('[Monetag Web] Error showing rewarded video:', error);
-        
+
         // Если это ошибка загрузки SDK (AdBlock), пробрасываем дальше
         if (error.isAdBlockError) {
           throw error;
         }
-        
+
         // Другие ошибки - считаем неуспехом
         resolve(false);
       }

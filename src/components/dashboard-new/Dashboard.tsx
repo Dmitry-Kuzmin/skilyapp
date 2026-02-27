@@ -2,6 +2,7 @@ import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
 import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Target, BarChart2, Settings } from 'lucide-react';
 import { ContextSwitcher } from '@/components/shared';
 import { usePDDContext } from '@/contexts/PDDContext';
+import { useUserContext } from '@/contexts/UserContext';
 import { usePDDTickets } from '@/hooks/usePDDTickets';
 import { useTopics } from '@/hooks/useTopics';
 import { useNavigate } from 'react-router-dom';
@@ -90,7 +91,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   licenseHistory,
   animatePoints = false
 }) => {
-  const stats = { ...initialStats, userProfile }; // Merge for convenience
+  const { user } = useUserContext();
+  const stats = {
+    ...initialStats, userProfile: {
+      ...userProfile,
+      photo_url: userProfile?.photo_url || user?.photo_url
+    }
+  }; // Merge for convenience
   const { language, t } = useLanguage();
   const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
   const [statsModalOpen, setStatsModalOpen] = useState(false);
@@ -217,7 +224,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               userProfile={userProfile}
               stats={stats}
               isDarkTheme={isDarkTheme}
-              selectedCountry={selectedCountry}
+              selectedCountry={selectedCountry === 'spain' ? 'es' : selectedCountry === 'russia' ? 'ru' : 'sk'}
               language={language}
               hasClaimedToday={hasClaimedToday}
               onClaimReward={onClaimReward}

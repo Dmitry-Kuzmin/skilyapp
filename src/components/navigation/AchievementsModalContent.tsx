@@ -322,19 +322,19 @@ export const AchievementsModalContent = ({
 
       {!hideHeader && (
         <div className="flex flex-col sm:flex-row gap-2 mb-2 p-1">
-          <div className="flex-1 flex items-center justify-between gap-4 p-3 rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-xl">
+          <div className="flex-1 flex items-center justify-between gap-4 p-3 rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-xl">
             <div className="z-10 flex items-center gap-3">
               <div className="p-2 rounded-xl bg-primary/20 text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.15)] group-hover:scale-110 transition-transform duration-500">
                 <Zap size={16} className="fill-primary" />
               </div>
               <div>
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] leading-none mb-1">Lvl {level}</p>
-                <p className="text-sm font-black tabular-nums leading-none tracking-tight">{xp.toLocaleString()} <span className="text-[10px] opacity-40 font-bold ml-1">XP</span></p>
+                <p className="text-sm font-black tabular-nums leading-none tracking-tight text-foreground">{xp.toLocaleString()} <span className="text-[10px] opacity-40 font-bold ml-1">XP</span></p>
               </div>
             </div>
             <div className="z-10 text-right">
               <p className="text-[10px] font-black text-primary mb-1.5 drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.3)]">{Math.round(((xp % XP_PER_LEVEL) / XP_PER_LEVEL) * 100)}%</p>
-              <div className="w-14 h-1.5 rounded-full bg-white/5 overflow-hidden shadow-inner">
+              <div className="w-14 h-1.5 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden shadow-inner">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${((xp % XP_PER_LEVEL) / XP_PER_LEVEL) * 100}%` }}
@@ -345,19 +345,19 @@ export const AchievementsModalContent = ({
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-between gap-4 p-3 rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-xl">
+          <div className="flex-1 flex items-center justify-between gap-4 p-3 rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-xl">
             <div className="z-10 flex items-center gap-3">
               <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.15)] group-hover:scale-110 transition-transform duration-500">
                 < Trophy size={16} className="fill-emerald-500" />
               </div>
               <div>
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.15em] leading-none mb-1">Достижения</p>
-                <p className="text-sm font-black tabular-nums leading-none tracking-tight">{stats.unlockedCount} <span className="text-[10px] opacity-40 font-bold ml-1">/ {stats.totalCount}</span></p>
+                <p className="text-sm font-black tabular-nums leading-none tracking-tight text-foreground">{stats.unlockedCount} <span className="text-[10px] opacity-40 font-bold ml-1">/ {stats.totalCount}</span></p>
               </div>
             </div>
             <div className="z-10 text-right">
               <p className="text-[10px] font-black text-emerald-500 mb-1.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]">{Math.round(stats.completionPercent)}%</p>
-              <div className="w-14 h-1.5 rounded-full bg-white/5 overflow-hidden shadow-inner">
+              <div className="w-14 h-1.5 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden shadow-inner">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${stats.completionPercent}%` }}
@@ -421,15 +421,15 @@ export const AchievementsModalContent = ({
 
                             <div className="z-10 min-w-0">
                               <div className="flex items-center gap-3 mb-2.5">
-                                <div className={cn("p-1.5 rounded-xl border border-white/10 shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500", palette.tag)}>
+                                <div className={cn("p-1.5 rounded-xl border border-black/10 dark:border-white/10 shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500", palette.tag)}>
                                   {isUnlocked ? <CheckCircle2 size={14} className="text-current fill-current/10" /> : <Lock size={14} className="opacity-40" />}
                                 </div>
-                                <span className="text-[13px] font-black tracking-tight leading-none text-zinc-100 truncate group-hover:text-white transition-colors">
+                                <span className="text-[13px] font-black tracking-tight leading-none text-slate-900 dark:text-zinc-100 truncate group-hover:text-primary transition-colors">
                                   {translatedTitle}
                                 </span>
                               </div>
                               <p className={cn(
-                                "text-[11px] font-medium leading-[1.5] text-zinc-400 transition-colors group-hover:text-zinc-300",
+                                "text-[11px] font-medium leading-[1.5] text-slate-500 dark:text-zinc-400 transition-colors group-hover:text-slate-700 dark:group-hover:text-zinc-300",
                                 !isExpanded && "line-clamp-2"
                               )}>
                                 {translatedDesc}

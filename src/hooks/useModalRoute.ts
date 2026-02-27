@@ -20,9 +20,9 @@ import { useCallback } from "react";
 export function useModalRoute(modalName: string) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
+
   const isOpen = searchParams.get('modal') === modalName;
-  
+
   const openModal = useCallback((params?: Record<string, string>) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('modal', modalName);
@@ -31,9 +31,9 @@ export function useModalRoute(modalName: string) {
         newParams.set(key, value);
       });
     }
-    navigate({ search: newParams.toString() }, { replace: true });
+    navigate({ search: newParams.toString() }, { replace: false });
   }, [modalName, searchParams, navigate]);
-  
+
   const closeModal = useCallback(() => {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete('modal');
@@ -41,9 +41,9 @@ export function useModalRoute(modalName: string) {
     // Можно добавить логику для удаления специфичных параметров
     navigate({ search: newParams.toString() }, { replace: true });
   }, [searchParams, navigate]);
-  
+
   const params = Object.fromEntries(searchParams);
-  
+
   return { isOpen, openModal, closeModal, params };
 }
 

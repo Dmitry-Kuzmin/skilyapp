@@ -139,21 +139,35 @@ export const DuelScoreBoard = memo(({
         <div className="relative">
           <div className={cn(
             "relative p-0.5 rounded-2xl transition-all duration-500",
-            myInsuranceActive && "ring-2 ring-emerald-500/60"
+            myInsuranceActive && "ring-4 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.5)]"
           )}>
+            {myInsuranceActive && (
+              <>
+                <motion.div
+                  animate={{
+                    opacity: [0.3, 0.6, 0.3],
+                    scale: [1, 1.4, 1],
+                    rotate: [0, 90, 180, 270, 360]
+                  }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  className="absolute -inset-6 rounded-full bg-gradient-to-r from-emerald-400/30 via-green-400/50 to-emerald-400/30 blur-3xl -z-10"
+                />
+                <motion.div
+                  animate={{
+                    opacity: [0.5, 0.9, 0.5],
+                    scale: [1.2, 1.6, 1.2]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -inset-2 rounded-full border-2 border-emerald-400/60 blur-sm -z-10 shadow-[0_0_15px_rgba(52,211,153,0.8)]"
+                />
+              </>
+            )}
             <Avatar className="h-10 w-10 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-10 bg-background">
               <AvatarImage src={(myPhotoUrl && !myImgError) ? myPhotoUrl : getFallbackAvatar(myName)} alt={myName || ''} onError={() => setMyImgError(true)} />
               <AvatarFallback className="bg-slate-800 text-slate-400 font-bold uppercase">
                 {getInitials(myName)}
               </AvatarFallback>
             </Avatar>
-            {myInsuranceActive && (
-              <motion.div
-                animate={{ opacity: [0.3, 0.7, 0.3], scale: [1.1, 1.4, 1.1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -inset-4 rounded-full bg-emerald-500/30 blur-2xl -z-10"
-              />
-            )}
           </div>
           {/* Иконка страховки рядом с фото */}
           <AnimatePresence>
@@ -250,21 +264,35 @@ export const DuelScoreBoard = memo(({
         <div className="relative">
           <div className={cn(
             "relative p-0.5 rounded-2xl transition-all duration-500",
-            opponentInsuranceActive && "ring-2 ring-emerald-500/60"
+            opponentInsuranceActive && "ring-4 ring-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.5)]"
           )}>
+            {opponentInsuranceActive && (
+              <>
+                <motion.div
+                  animate={{
+                    opacity: [0.3, 0.6, 0.3],
+                    scale: [1, 1.4, 1],
+                    rotate: [0, 90, 180, 270, 360]
+                  }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  className="absolute -inset-6 rounded-full bg-gradient-to-r from-emerald-400/30 via-green-400/50 to-emerald-400/30 blur-3xl -z-10"
+                />
+                <motion.div
+                  animate={{
+                    opacity: [0.5, 0.9, 0.5],
+                    scale: [1.2, 1.6, 1.2]
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute -inset-2 rounded-full border-2 border-emerald-400/60 blur-sm -z-10 shadow-[0_0_15px_rgba(52,211,153,0.8)]"
+                />
+              </>
+            )}
             <Avatar className="h-10 w-10 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
               <AvatarImage src={(opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') && !opponentImgError) ? opponentPhotoUrl : getFallbackAvatar(opponentName)} alt={opponentName || ''} onError={() => setOpponentImgError(true)} />
               <AvatarFallback className="bg-slate-800 text-white font-bold uppercase">
                 {getInitials(opponentName)}
               </AvatarFallback>
             </Avatar>
-            {opponentInsuranceActive && (
-              <motion.div
-                animate={{ opacity: [0.3, 0.7, 0.3], scale: [1.1, 1.4, 1.1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -inset-4 rounded-full bg-emerald-500/30 blur-2xl -z-10"
-              />
-            )}
           </div>
 
           {/* Индикатор активности соперника - компактный */}
@@ -324,5 +352,3 @@ export const DuelScoreBoard = memo(({
 });
 
 DuelScoreBoard.displayName = 'DuelScoreBoard';
-
-

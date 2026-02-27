@@ -32,7 +32,7 @@ const Games = () => {
   const { language } = useLanguage();
   const { selectedCountry } = useCountry();
   const navigate = useNavigate();
-  const { profileId } = useUserContext();
+  const { user, profileId, supabaseUser } = useUserContext();
   const { isPremium } = usePremium();
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -40,6 +40,9 @@ const Games = () => {
   const { enabled: duelsEnabled } = useFeatureFlag('duels_enabled', true);
   const { isAuthenticated } = useUserContext();
   const isTelegramUser = isTelegramMiniApp();
+
+  // Получаем аватар текущего пользователя
+  const currentUserPhoto = user?.photo_url || supabaseUser?.user_metadata?.avatar_url || null;
 
   const handleDuelClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -55,7 +58,7 @@ const Games = () => {
   const { data: onlineData } = useOnlinePlayers();
 
   const onlinePlayers = onlineData?.players || [];
-  const onlineCount = onlineData?.count || 0;
+  const onlineCount = onlineData?.count || 1240;
 
   // Fallback значения для stats
   const safeStats = stats || { gamesPlayed: 0, studiedTerms: 0, averageResult: 0 };
@@ -270,7 +273,7 @@ const Games = () => {
               >
                 {/* Noise texture - только для активной карточки */}
                 {duelsEnabled && (
-                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }}></div>
+                  <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }}></div>
                 )}
 
                 {/* Animated Background Gradients - только для активной карточки */}
@@ -359,7 +362,11 @@ const Games = () => {
 
                       {duelsEnabled && (
                         <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm">
-                          <OnlinePlayers baseCount={1240} />
+                          <OnlinePlayers
+                            baseCount={onlineCount}
+                            players={onlinePlayers}
+                            currentUserPhoto={currentUserPhoto}
+                          />
                         </div>
                       )}
                     </div>

@@ -38,7 +38,7 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
 
     return (
         <motion.div
-            className="relative w-64 h-64 flex items-center justify-center cursor-pointer transition-all duration-300 ease-out hover:scale-[1.03] active:scale-[0.97] group"
+            className="relative w-64 h-64 flex items-center justify-center cursor-pointer transition-all duration-300 ease-out hover:scale-[1.03] active:scale-[0.97] group overflow-visible"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -49,7 +49,7 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
                     opacity: isHovered ? [0.2, 0.4, 0.2] : [0.15, 0.25, 0.15]
                 }}
                 transition={{ duration: isHovered ? 2 : 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-4 rounded-full blur-[60px] pointer-events-none"
+                className="absolute inset-8 rounded-full blur-[40px] pointer-events-none"
                 style={{ backgroundColor: colors.stop1 }}
             />
 
@@ -200,11 +200,16 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
                         delay: i * 0.1,
                         ease: "easeOut"
                     }}
-                    className="absolute bg-white rounded-full blur-[1px] pointer-events-none"
+                    className={cn(
+                        "absolute rounded-full blur-[1px] pointer-events-none",
+                        isDarkTheme ? "bg-white" : "bg-orange-400"
+                    )}
                     style={{
                         width: isHovered ? '3px' : '1.5px',
                         height: isHovered ? '3px' : '1.5px',
-                        boxShadow: isHovered ? `0 0 10px white` : 'none'
+                        boxShadow: isHovered
+                            ? (isDarkTheme ? `0 0 10px white` : `0 0 8px rgba(251, 146, 60, 0.8)`)
+                            : 'none'
                     }}
                 />
             ))}

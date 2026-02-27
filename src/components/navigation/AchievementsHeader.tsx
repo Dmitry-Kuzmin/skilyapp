@@ -29,7 +29,7 @@ export const AchievementsHeader = ({
         )}>
             {/* XP Block */}
             <div className={cn(
-                "flex-1 flex items-center justify-between gap-2 sm:gap-4 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-lg",
+                "flex-1 flex items-center justify-between gap-2 sm:gap-4 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-lg",
                 isCompact && "min-w-0"
             )}>
                 <div className="z-10 flex items-center gap-2 sm:gap-3 min-w-0">
@@ -43,7 +43,7 @@ export const AchievementsHeader = ({
                 </div>
                 <div className="z-10 text-right shrink-0 hidden xs:block">
                     <p className="text-[8px] sm:text-[10px] font-black text-primary mb-1 sm:mb-1.5 drop-shadow-[0_0_8px_rgba(var(--primary-rgb),0.3)]">{Math.round(((xp % XP_PER_LEVEL) / XP_PER_LEVEL) * 100)}%</p>
-                    <div className="w-10 sm:w-14 h-1 sm:h-1.5 rounded-full bg-white/5 overflow-hidden shadow-inner">
+                    <div className="w-10 sm:w-14 h-1 sm:h-1.5 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden shadow-inner">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${((xp % XP_PER_LEVEL) / XP_PER_LEVEL) * 100}%` }}
@@ -56,7 +56,7 @@ export const AchievementsHeader = ({
 
             {/* Achievements Block */}
             <div className={cn(
-                "flex-1 flex items-center justify-between gap-2 sm:gap-4 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-lg",
+                "flex-1 flex items-center justify-between gap-2 sm:gap-4 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.03] dark:bg-white/[0.03] backdrop-blur-xl relative overflow-hidden group shadow-lg",
                 isCompact && "min-w-0"
             )}>
                 <div className="z-10 flex items-center gap-2 sm:gap-3 min-w-0">
@@ -70,7 +70,7 @@ export const AchievementsHeader = ({
                 </div>
                 <div className="z-10 text-right shrink-0 hidden xs:block">
                     <p className="text-[8px] sm:text-[10px] font-black text-emerald-500 mb-1 sm:mb-1.5 drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]">{Math.round(completionPercent)}%</p>
-                    <div className="w-10 sm:w-14 h-1 sm:h-1.5 rounded-full bg-white/5 overflow-hidden shadow-inner">
+                    <div className="w-10 sm:w-14 h-1 sm:h-1.5 rounded-full bg-black/5 dark:bg-white/5 overflow-hidden shadow-inner">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${completionPercent}%` }}

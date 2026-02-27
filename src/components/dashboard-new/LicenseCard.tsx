@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2, Activity, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 import PuntosIndicator from './PuntosIndicator3D';
 
 interface LicenseCardProps {
@@ -107,6 +108,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     t,
     licenseHistory = []
 }) => {
+    const isMobile = useIsMobile();
     const {
         points,
         rankStyle,
@@ -235,10 +237,14 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     );
 
     return (
-        <div className="w-full h-full relative group perspective-[2000px] p-2 sm:p-4">
+        <div className={cn(
+            "w-full relative group perspective-[2000px] p-2 sm:p-4",
+            isPointsModalOpen && isMobile ? "h-auto" : "h-full"
+        )}>
             {/* The 3D Glassmorphism License Card */}
             <div className={cn(
-                "w-full h-full relative z-10 rounded-[28px] md:rounded-[36px] overflow-hidden border transition-all duration-700 flex flex-col shadow-2xl backdrop-blur-3xl",
+                "w-full relative z-10 rounded-[28px] md:rounded-[36px] overflow-hidden border transition-all duration-700 flex flex-col shadow-2xl backdrop-blur-3xl",
+                isPointsModalOpen && isMobile ? "h-auto" : "h-full",
                 isDarkTheme
                     ? "bg-zinc-950/80 border-white/5"
                     : "bg-white/90 border-zinc-200 shadow-indigo-900/10"
@@ -251,11 +257,20 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 )} />
 
                 {/* Guilloche / Security Pattern */}
-                <div className="absolute inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none"
+                <div className="absolute inset-0 z-0 opacity-[0.015] dark:opacity-[0.006] pointer-events-none"
                     style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
                     }}
                 />
+                {/* Вторая накладка для темной темы чтобы было как раньше */}
+                {isDarkTheme && (
+                    <div className="absolute inset-0 z-0 opacity-[0.005] pointer-events-none"
+                        style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                        }}
+                    />
+                )}
+
 
                 {RecoveryOverlay}
 
@@ -298,7 +313,6 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                 {/* Content Section */}
                 <div className="flex-1 p-3 md:p-5 flex flex-row gap-4 md:gap-6 z-10 relative mt-0 md:mt-1">
-
                     {/* Left Side: User Photo Area */}
                     <div className="flex flex-col gap-2 shrink-0">
                         <div className={cn(
@@ -329,7 +343,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                     {/* Right Side: Info + Meta Data Stack */}
                     <div className="flex-1 min-w-0 flex flex-col">
                         {/* Information Fields & Points Indicator Cluster */}
-                        <div className="flex-1 min-w-0 flex flex-row items-center justify-between gap-4 md:gap-6 overflow-hidden">
+                        <div className="flex-1 min-w-0 flex flex-row items-center justify-between gap-4 md:gap-6 overflow-visible">
                             <div className="grid grid-cols-1 gap-y-1 md:gap-y-2 flex-1 min-w-0 max-w-[65%] sm:max-w-none">
                                 <Field label={localeConfig.fields.name} value={fullName} />
 
@@ -354,7 +368,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     onClick={() => setIsPointsModalOpen(true)}
                                     className="cursor-pointer transition-transform active:scale-95 w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] md:w-[110px] md:h-[110px] flex items-center justify-center overflow-visible"
                                 >
-                                    <div className="scale-[0.28] sm:scale-[0.38] md:scale-[0.55] origin-center shrink-0">
+                                    <div className="scale-[0.28] sm:scale-[0.38] md:scale-[0.55] origin-center shrink-0 overflow-visible">
                                         <PuntosIndicator currentPoints={points} isDarkTheme={isDarkTheme} />
                                     </div>
                                 </div>
@@ -401,6 +415,131 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                     </div>
                 </div>
 
+                {/* Points Info - Ultra Premium Glass Overlay (Fixed on DT, Relative Expand on Mobile) */}
+                <AnimatePresence>
+                    {isPointsModalOpen && (
+                        <motion.div
+                            initial={isMobile ? { height: 0, opacity: 0 } : { opacity: 0, scale: 0.95 }}
+                            animate={isMobile ? { height: 'auto', opacity: 1 } : { opacity: 1, scale: 1 }}
+                            exit={isMobile ? { height: 0, opacity: 0 } : { opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.4, ease: "circOut" }}
+                            className={cn(
+                                "flex flex-col items-center justify-center",
+                                isMobile
+                                    ? "relative z-[100] w-full border-t border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5"
+                                    : "fixed md:absolute inset-0 z-[1000] md:z-[100] md:rounded-[24px] lg:rounded-[32px] overflow-hidden backdrop-blur-3xl"
+                            )}
+                        >
+                            {/* High-quality deep backdrop - DT Only */}
+                            {!isMobile && (
+                                <div className={cn(
+                                    "absolute inset-0",
+                                    isDarkTheme ? "bg-zinc-950/95" : "bg-white/95"
+                                )} />
+                            )}
+
+                            {/* Content Container */}
+                            <div className={cn(
+                                "w-full relative z-10 flex flex-col gap-4 no-scrollbar",
+                                isMobile
+                                    ? "p-4"
+                                    : "h-full p-6 md:p-8 overflow-y-auto pt-16 md:pt-6"
+                            )}>
+
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setIsPointsModalOpen(false); }}
+                                    className={cn(
+                                        isMobile
+                                            ? "absolute top-4 right-4 p-1.5 rounded-full z-[1001] bg-black/10 dark:bg-white/10"
+                                            : "fixed md:absolute top-4 right-4 p-2.5 rounded-full transition-all z-[1001] border backdrop-blur-md active:scale-90",
+                                        !isMobile && (isDarkTheme ? "bg-white/10 hover:bg-white/20 border-white/10" : "bg-black/5 hover:bg-black/10 border-black/10")
+                                    )}
+                                >
+                                    <X size={isMobile ? 16 : 24} className={isDarkTheme ? "text-white" : "text-black"} />
+                                </button>
+
+                                {/* Title/Header for mobile details */}
+                                {isMobile && (
+                                    <div className="mb-2">
+                                        <h3 className={cn("text-xs font-black uppercase tracking-widest", isDarkTheme ? "text-white/40" : "text-black/40")}>
+                                            {localeConfig.fields.pointsLabel}
+                                        </h3>
+                                    </div>
+                                )}
+
+                                {/* Points Summary Card */}
+                                <div className={cn(
+                                    "flex items-center justify-between p-4 rounded-2xl border",
+                                    isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
+                                )}>
+                                    <div className="space-y-1">
+                                        <div className={cn(
+                                            "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-black uppercase tracking-[0.05em] border shadow-md",
+                                            points >= 10
+                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                                : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                                        )}>
+                                            {points >= 10 ? <ShieldCheck size={12} className="animate-pulse" /> : <AlertTriangle size={12} />}
+                                            {points >= 10 ? "Допуск к экзамену открыт" : "Для экзамена нужно 10"}
+                                        </div>
+                                    </div>
+                                    <div className="relative shrink-0 flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
+                                        <div className="scale-[0.15] md:scale-[0.28] origin-center absolute pointer-events-none overflow-visible">
+                                            <PuntosIndicator currentPoints={points} isDarkTheme={isDarkTheme} />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Stats & Rules */}
+                                <div className="grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4">
+                                    <div className={cn(
+                                        "md:col-span-3 p-3 md:p-4 rounded-2xl border shadow-xl",
+                                        isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
+                                    )}>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <span className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest">Аналитика</span>
+                                            <Activity size={12} className="text-indigo-400/60" />
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[6px] font-bold text-zinc-500 uppercase">Stability</span>
+                                                    <span className={cn("text-[10px] font-black", isDarkTheme ? "text-white" : "text-black")}>{stats.accuracy || 85}%</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[6px] font-bold text-zinc-500 uppercase">Streak</span>
+                                                    <div className="flex items-center gap-1">
+                                                        <Zap size={8} className="text-amber-500" />
+                                                        <span className="text-[10px] font-black text-amber-500">+{stats.currentStreak || 0}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={cn(
+                                        "md:col-span-2 p-3 md:p-4 rounded-2xl border shadow-lg flex flex-col justify-center gap-3",
+                                        isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
+                                    )}>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                                                <span className="text-emerald-400 text-[10px] font-black">+1</span>
+                                            </div>
+                                            <p className="text-[9px] text-zinc-400 font-medium">Вход, победы, чистые тесты.</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+                                                <span className="text-rose-400 text-[10px] font-black">-1</span>
+                                            </div>
+                                            <p className="text-[9px] text-zinc-400 font-medium">Ошибки, простой более 48ч.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 {/* Bottom Neon Edge Line - Now INSIDE the overflow-hidden container */}
                 <div className="absolute bottom-0 left-0 h-[2px] w-full bg-white/5 overflow-hidden z-20">
                     <div
@@ -409,170 +548,6 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                     />
                 </div>
             </div>
-
-            {/* Points Info Modal - Ultra Premium Glass Overlay */}
-            {isPointsModalOpen && (
-                <div className="fixed md:absolute inset-0 z-[1000] md:z-[100] flex items-center justify-center animate-in fade-in zoom-in-95 duration-300 md:rounded-[24px] lg:rounded-[32px] overflow-hidden">
-                    {/* High-quality deep backdrop - Solid for maximum focus */}
-                    <div className={cn(
-                        "absolute inset-0 backdrop-blur-3xl",
-                        isDarkTheme ? "bg-zinc-950/95" : "bg-white/95"
-                    )} />
-
-                    {/* Content Container - Balanced Bento Layout */}
-                    <div className="w-full h-full p-4 sm:p-6 md:p-8 flex flex-col gap-4 relative z-10 overflow-y-auto no-scrollbar pt-16 md:pt-6">
-
-                        {/* 0. Laconic Close Button - Moved for better reach on mobile */}
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setIsPointsModalOpen(false); }}
-                            className={cn(
-                                "fixed md:absolute top-4 right-4 p-2.5 rounded-full transition-all z-[1001] border backdrop-blur-md active:scale-90",
-                                isDarkTheme ? "bg-white/10 hover:bg-white/20 border-white/10" : "bg-black/5 hover:bg-black/10 border-black/10"
-                            )}
-                        >
-                            <X size={24} className={isDarkTheme ? "text-white" : "text-black"} />
-                        </button>
-
-                        {/* 1. Top Section: Points Summary */}
-                        <div className={cn(
-                            "flex items-center justify-between flex-shrink-0 p-4 md:p-5 rounded-3xl border",
-                            isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
-                        )}>
-                            <div className="space-y-1">
-                                <h3 className={cn(
-                                    "text-xs md:text-sm font-black uppercase tracking-[0.15em]",
-                                    isDarkTheme ? "text-white/90" : "text-black/90"
-                                )}>{localeConfig.fields.pointsLabel}</h3>
-                                <div className={cn(
-                                    "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-black uppercase tracking-[0.05em] border shadow-md",
-                                    points >= 10
-                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                        : "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                                )}>
-                                    {points >= 10 ? <ShieldCheck size={12} className="animate-pulse" /> : <AlertTriangle size={12} />}
-                                    {points >= 10 ? "Допуск к экзамену открыт" : "Для экзамена нужно 10"}
-                                </div>
-                            </div>
-
-                            <div className="relative shrink-0 flex items-center justify-center w-12 h-12 md:w-16 md:h-16">
-                                <div className="scale-[0.2] md:scale-[0.28] origin-center absolute pointer-events-none">
-                                    <PuntosIndicator currentPoints={points} isDarkTheme={isDarkTheme} />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 2. Middle Section: Dynamic Graph & Key Stats */}
-                        <div className="flex-1 grid grid-cols-1 md:grid-cols-5 gap-3 md:gap-4 min-h-0 overflow-hidden">
-
-                            {/* Left: Main Graph (3/5 width) */}
-                            <div className={cn(
-                                "md:col-span-3 flex flex-col gap-2 p-3 md:p-4 rounded-2xl border shadow-xl transition-all",
-                                isDarkTheme ? "bg-white/[0.02] border-white/5 hover:bg-white/[0.04]" : "bg-black/[0.02] border-black/5 hover:bg-black/[0.04]"
-                            )}>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-[8px] md:text-[9px] font-black text-zinc-500 uppercase tracking-widest">Аналитика недели</span>
-                                    <Activity size={12} className="text-indigo-400/60" />
-                                </div>
-                                <div className="flex-1 w-full min-h-[70px] relative overflow-visible mt-1">
-                                    {licenseHistory && licenseHistory.length > 1 ? (
-                                        <svg className="w-full h-full overflow-visible" viewBox={`0 0 ${(licenseHistory.length - 1) * 20} 40`} preserveAspectRatio="none">
-                                            <defs>
-                                                <linearGradient id="modalPointsGradientBal" x1="0%" y1="0%" x2="0%" y2="100%">
-                                                    <stop offset="0%" stopColor={rankStyle.accent} stopOpacity="0.3" />
-                                                    <stop offset="100%" stopColor={rankStyle.accent} stopOpacity="0" />
-                                                </linearGradient>
-                                            </defs>
-                                            <path
-                                                d={`M 0 40 ${licenseHistory.map((p: any, i: number) => `L ${i * 20} ${40 - (p.points / 15) * 30}`).join(' ')} L ${(licenseHistory.length - 1) * 20} 40 Z`}
-                                                fill="url(#modalPointsGradientBal)"
-                                            />
-                                            <path
-                                                d={licenseHistory.map((p: any, i: number) => `${i === 0 ? 'M' : 'L'} ${i * 20} ${40 - (p.points / 15) * 30}`).join(' ')}
-                                                fill="none"
-                                                stroke={rankStyle.accent}
-                                                strokeWidth="2.5"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                className="drop-shadow-[0_0_8px_currentColor]"
-                                            />
-                                            {licenseHistory.map((p: any, i: number) => (
-                                                <circle key={i} cx={i * 20} cy={40 - (p.points / 15) * 30} r="1.5" fill="white" className="drop-shadow-[0_0_2px_white]" />
-                                            ))}
-                                        </svg>
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center opacity-10">
-                                            <Activity size={18} />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className={cn("flex justify-between items-center pt-2 border-t", isDarkTheme ? "border-white/5" : "border-black/5")}>
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex flex-col">
-                                            <span className="text-[6px] font-bold text-zinc-500 uppercase">Stability</span>
-                                            <span className={cn("text-[10px] font-black", isDarkTheme ? "text-white" : "text-black")}>{stats.accuracy || 85}%</span>
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[6px] font-bold text-zinc-500 uppercase">Efficiency</span>
-                                            <div className="flex items-center gap-1">
-                                                <Zap size={8} className="text-amber-500" />
-                                                <span className="text-[10px] font-black text-amber-500">+{stats.currentStreak || 0}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span className="text-[7px] font-black text-zinc-600 uppercase">Adaptive Sync</span>
-                                </div>
-                            </div>
-
-                            {/* Right: Rules Mechanic (2/5 width) */}
-                            <div className="md:col-span-2 flex flex-col gap-2">
-                                <div className={cn(
-                                    "flex-1 p-3 md:p-4 rounded-2xl border shadow-lg flex flex-col justify-center gap-3",
-                                    isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
-                                )}>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                                            <span className="text-emerald-400 text-xs font-black">+1</span>
-                                        </div>
-                                        <div className="space-y-0 text-left">
-                                            <h4 className="text-[8px] font-black text-emerald-400 uppercase tracking-widest leading-none mb-0.5">Прогресс</h4>
-                                            <p className="text-[9px] text-zinc-400 leading-tight font-medium">Вход, победы, чистые тесты.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
-                                            <span className="text-rose-400 text-xs font-black">-1</span>
-                                        </div>
-                                        <div className="space-y-0 text-left">
-                                            <h4 className="text-[8px] font-black text-rose-400 uppercase tracking-widest leading-none mb-0.5">Штраф</h4>
-                                            <p className="text-[9px] text-zinc-400 leading-tight font-medium">Ошибки, простой более 48ч.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className={cn(
-                                        "mt-1 p-2 rounded-xl border text-center flex justify-between",
-                                        isDarkTheme ? "bg-white/5 border-white/5" : "bg-black/5 border-black/5"
-                                    )}>
-                                        <div className="flex flex-col items-start gap-0">
-                                            <span className="text-[7px] font-black text-zinc-500 uppercase">SAFE RANGE</span>
-                                            <span className={cn("text-[10px] font-black", isDarkTheme ? "text-white" : "text-black")}>0-15</span>
-                                        </div>
-                                        <div className="flex flex-col items-end gap-0">
-                                            <span className="text-[7px] font-black text-zinc-500 uppercase">MIN EXAM</span>
-                                            <span className="text-[10px] font-black text-emerald-400">10 pts</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Small footer info for mobile to ensure user sees everything */}
-                        <div className="md:hidden flex flex-col items-center gap-1 opacity-40 py-2 border-t border-black/5 dark:border-white/5">
-                            <p className="text-[8px] font-black tracking-widest uppercase text-center">{t('common.licensedBy') || 'DGT OFFICIAL SYSTEM'}</p>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Ambient Background Glow matching the rank */}
             <div className={cn(

@@ -262,6 +262,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       <UnifiedModal
         open={open}
         onOpenChange={onOpenChange}
+        modalRouteKey="paywall"
         showTitleBar={false}
         className={cn(
           "sm:max-w-[950px] p-0 overflow-hidden border-0",
@@ -616,7 +617,7 @@ function CheckoutModal({ open, onClose, children }: { open: boolean; onClose: ()
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         className="relative w-full max-w-[500px] bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden"
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-900/50">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-900/50 pt-[calc(0.75rem+env(safe-area-inset-top))] md:pt-3">
           <h3 className="text-sm font-medium text-slate-200 flex items-center gap-2">
             <Lock className="w-4 h-4 text-emerald-500" />
             Безопасная оплата

@@ -45,7 +45,7 @@ export function AchievementsModalVaul({
   }, []);
 
   const header = (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-8 sm:pr-16 pt-6 pb-4 border-b border-white/10 relative">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 sm:px-8 sm:pr-16 pt-6 pb-4 border-b border-black/10 dark:border-white/10 relative">
       <div className="flex flex-col gap-1 pr-4 sm:pr-0">
         <h2 className="text-xl font-bold text-foreground leading-tight">{title}</h2>
         {description && (
