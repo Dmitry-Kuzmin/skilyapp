@@ -6,6 +6,29 @@
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <!-- Axeptio Cookie Consent -->
+  <script>
+    window.axeptioSettings = {
+      clientId: "69a1acef0a02cdc0f86b3b4e",
+      cookiesVersion: "a9f70806-d61a-4b9c-897b-f1e641f17590",
+      googleConsentMode: {
+        default: {
+          analytics_storage: "denied",
+          ad_storage: "denied",
+          ad_user_data: "denied",
+          ad_personalization: "denied",
+          wait_for_update: 500
+        }
+      }
+    };
+
+    (function (d, s) {
+      var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
+      e.async = true; e.src = "//static.axept.io/sdk.js";
+      t.parentNode.insertBefore(e, t);
+    })(document, "script");
+  </script>
+
   <!-- Theme color для браузерных панелей - динамическое определение (Chameleon Protocol) -->
   <script>
     (function () {
@@ -746,7 +769,7 @@
 
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1758777358223420"
-     crossorigin="anonymous"></script>
+    crossorigin="anonymous"></script>
 </head>
 
 <body>

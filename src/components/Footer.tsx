@@ -31,7 +31,10 @@ export function Footer() {
 
   // Минималистичные ссылки для мобильного приложения
   const footerLinks = [
-    { to: "/legal", label: t("footer.legal"), icon: Scale },
+    { to: "/about", label: t("footer.about"), icon: HelpCircle },
+    { to: "/legal/terms", label: t("footer.terms"), icon: Scale },
+    { to: "/legal/privacy", label: t("footer.privacy"), icon: Scale },
+    { to: "/legal/cookies", label: t("footer.cookies"), icon: Scale },
     { to: "/help", label: t("footer.support"), icon: HelpCircle },
   ];
 

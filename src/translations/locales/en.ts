@@ -336,6 +336,7 @@ export const en = {
     about: "About",
     terms: "Terms and conditions",
     privacy: "Privacy policy",
+    cookies: "Cookie Policy",
     subscriptionTerms: "Subscription terms",
     pricing: "Pricing",
     refundPolicy: "Refund Policy",
@@ -355,6 +356,7 @@ export const en = {
     tabs: {
       terms: "Terms",
       privacy: "Privacy",
+      cookies: "Cookies",
       subscription: "Subscription",
       refund: "Refunds",
     },

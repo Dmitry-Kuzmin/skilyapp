@@ -370,6 +370,7 @@ export function AppRoutes() {
       {/* Redirects for legacy legal routes */}
       <Route path="/terms" element={<Navigate to="/legal/terms" replace />} />
       <Route path="/privacy" element={<Navigate to="/legal/privacy" replace />} />
+      <Route path="/cookies" element={<Navigate to="/legal/cookies" replace />} />
       <Route path="/subscription-terms" element={<Navigate to="/legal/subscription" replace />} />
       <Route path="/refund-policy" element={<Navigate to="/legal/refund" replace />} />
       <Route path="/about" element={

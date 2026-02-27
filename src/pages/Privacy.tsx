@@ -59,6 +59,14 @@ export default function Privacy({ embedded = false }: PrivacyProps) {
 - Улучшения веб-сайта. Эти файлы cookie позволяют нам улучшить наши сервисы, отслеживая, как они используются.`
         },
         {
+          title: "Файлы cookie Google AdSense",
+          content: `Мы используем Google AdSense для показа рекламы на нашем Сайте. Google, как сторонний поставщик, использует файлы cookie для показа объявлений.
+
+Использование Google файлов cookie DART позволяет Google и его партнерам показывать объявления пользователям на основе их посещений нашего Сайта и других сайтов в Интернете.
+
+Вы можете отказаться от использования файлов cookie DART, посетив страницу с политикой конфиденциальности Google для рекламной и партнерской сети: https://policies.google.com/technologies/ads`
+        },
+        {
           title: "Обмен информацией с третьими сторонами",
           content: `Если не указано иное, мы не раскрываем ваши персональные данные третьим сторонам. Мы работаем с платформами третьих сторон, которые предоставляют нам аналитические и рекламные услуги. Это включает помощь нам в понимании того, как используется наш Сайт, и предоставление рекламы нашим пользователям.`
         },
@@ -135,6 +143,14 @@ Usamos cookies para:
 - Mejora del sitio web. Estas cookies nos permiten mejorar nuestros servicios monitoreando cómo se usan.`
         },
         {
+          title: "Cookies de Google AdSense",
+          content: `Utilizamos Google AdSense para mostrar anuncios en nuestro Sitio. Google, como proveedor externo, utiliza cookies para publicar anuncios.
+
+El uso de Google de la cookie de DART le permite a Google y a sus socios mostrar anuncios a los usuarios en función de su visita a nuestro Sitio y a otros sitios en Internet.
+
+Los usuarios pueden optar por no utilizar la cookie de DART visitando la política de privacidad de la red de contenido y anuncios de Google: https://policies.google.com/technologies/ads`
+        },
+        {
           title: "Compartir información con terceros",
           content: `A menos que se indique lo contrario, no divulgamos sus datos personales a terceros. Trabajamos con plataformas de terceros que nos proporcionan servicios analíticos y publicitarios. Esto incluye ayudarnos a entender cómo se usa nuestro Sitio y proporcionar publicidad a nuestros usuarios.`
         },
@@ -209,6 +225,14 @@ We use cookies for:
 - Basic functions to let you navigate uninterrupted. These cookies are used to provide a seamless experience by e.g. remembering your authentication.
 - Personalization of advertising campaigns. These cookies help us estimate the effectiveness of our advertising campaigns.
 - Improvement for the website. These cookies enable us to improve our services by monitoring how they are used.`
+        },
+        {
+          title: "Google AdSense Cookies",
+          content: `We use Google AdSense to serve ads on our Site. Google, as a third party vendor, uses cookies to serve ads on our Site.
+
+Google's use of the DART cookie enables it and its partners to serve ads to users based on their visit to our Site and other sites on the Internet.
+
+Users may opt out of the use of the DART cookie by visiting the Google ad and content network privacy policy at the following URL: https://policies.google.com/technologies/ads`
         },
         {
           title: "Sharing information with third parties",

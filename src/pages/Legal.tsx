@@ -7,15 +7,14 @@ import { FileText, Shield, CreditCard, RefreshCw, ChevronLeft } from "lucide-rea
 
 // Lazy load heavy legal documents
 const Terms = lazy(() => import("./Terms"));
-const Privacy = lazy(() => import("./Privacy"));
-const SubscriptionTerms = lazy(() => import("./SubscriptionTerms"));
-const RefundPolicy = lazy(() => import("./RefundPolicy"));
+const Cookies = lazy(() => import("./Cookies"));
 
-export type LegalTab = "terms" | "privacy" | "subscription" | "refund";
+export type LegalTab = "terms" | "privacy" | "cookies" | "subscription" | "refund";
 
 const tabConfig: { id: LegalTab; icon: typeof FileText; labelKey: string }[] = [
     { id: "terms", icon: FileText, labelKey: "legal.tabs.terms" },
     { id: "privacy", icon: Shield, labelKey: "legal.tabs.privacy" },
+    { id: "cookies", icon: Shield, labelKey: "legal.tabs.cookies" },
     { id: "subscription", icon: CreditCard, labelKey: "legal.tabs.subscription" },
     { id: "refund", icon: RefreshCw, labelKey: "legal.tabs.refund" },
 ];
@@ -62,6 +61,7 @@ export default function Legal() {
     const tabLabels: Record<LegalTab, string> = {
         terms: t("legal.tabs.terms"),
         privacy: t("legal.tabs.privacy"),
+        cookies: t("legal.tabs.cookies"),
         subscription: t("legal.tabs.subscription"),
         refund: t("legal.tabs.refund"),
     };
@@ -138,6 +138,7 @@ export default function Legal() {
                             <Suspense fallback={<DocumentSkeleton />}>
                                 {activeTab === "terms" && <Terms embedded />}
                                 {activeTab === "privacy" && <Privacy embedded />}
+                                {activeTab === "cookies" && <Cookies embedded />}
                                 {activeTab === "subscription" && <SubscriptionTerms embedded />}
                                 {activeTab === "refund" && <RefundPolicy embedded />}
                             </Suspense>
