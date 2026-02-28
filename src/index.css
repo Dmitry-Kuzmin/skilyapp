@@ -528,10 +528,6 @@ All colors MUST be HSL.
 
 
 
-  /* Также обнуляем padding на body для duel страниц */
-  body.telegram-mobile-app.duel-active {
-    padding-top: 0 !important;
-  }
 
   /* Исключение для fullscreen режимов (тесты, игры) */
   html.telegram-mobile-app.fullscreen-mode .telegram-main-content,
