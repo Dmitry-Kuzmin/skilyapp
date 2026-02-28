@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import React, { useState, useEffect, useRef } from "react";
 import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, Settings } from "lucide-react";
 import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";

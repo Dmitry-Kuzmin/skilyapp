@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 /**
  * AIChatWidget — Глобальный AI чат виджет с Zustand + Vaul
  *

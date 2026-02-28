@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { isTelegramMiniApp } from "@/lib/telegram";

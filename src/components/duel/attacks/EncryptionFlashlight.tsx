@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { ScrambleContext } from '@/utils/scramble';
 
