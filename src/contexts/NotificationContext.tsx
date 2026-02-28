@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
@@ -40,10 +40,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const queryClient = useQueryClient();
 
     // Отслеживание показанных уведомлений для предотвращения дублей
-    const deliveredNotificationIdsRef = useRef<Set<string>>(new Set());
-    const lastToastAtRef = useRef(0);
-    const lastTelegramAtRef = useRef(0);
-    const previousNotificationsRef = useRef<DuelNotification[]>([]);
+    const deliveredNotificationIdsRef = React.useRef<Set<string>>(new Set());
+    const lastToastAtRef = React.useRef(0);
+    const lastTelegramAtRef = React.useRef(0);
+    const previousNotificationsRef = React.useRef<DuelNotification[]>([]);
 
     const shouldDebugLog = useMemo(() => {
         if (process.env.NODE_ENV !== 'production') return true;

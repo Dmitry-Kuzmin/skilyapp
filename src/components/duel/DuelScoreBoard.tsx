@@ -3,7 +3,8 @@ import { Coins, Sparkles, Shield, Trophy, Target, Clock, Zap, Smartphone, Monito
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { OpponentActivityIndicator } from './OpponentActivityIndicator';
 import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndicator';
-import { memo, useState, useEffect } from 'react';
+import { memo, useState, useEffect, useRef } from 'react';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { cn } from '@/lib/utils';
 
 // Функция для генерации инициалов из имени (оставлена на всякий случай)
@@ -90,6 +91,7 @@ interface DuelScoreBoardProps {
   combo?: number;
 }
 
+
 export const DuelScoreBoard = memo(({
   myScore,
   opponentScore,
@@ -150,7 +152,7 @@ export const DuelScoreBoard = memo(({
                     rotate: [0, 90, 180, 270, 360]
                   }}
                   transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                  className="absolute -inset-6 rounded-full bg-gradient-to-r from-emerald-400/30 via-green-400/50 to-emerald-400/30 blur-3xl -z-10"
+                  className="absolute -inset-6 rounded-full bg-gradient-to-r from-emerald-400/30 via-green-400/50 to-emerald-400/30 blur-2xl z-0 pointer-events-none"
                 />
                 <motion.div
                   animate={{
@@ -158,7 +160,7 @@ export const DuelScoreBoard = memo(({
                     scale: [1.2, 1.6, 1.2]
                   }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -inset-2 rounded-full border-2 border-emerald-400/60 blur-sm -z-10 shadow-[0_0_15px_rgba(52,211,153,0.8)]"
+                  className="absolute -inset-2 rounded-full border-2 border-emerald-400/60 blur-sm z-0 shadow-[0_0_15px_rgba(52,211,153,0.8)] pointer-events-none"
                 />
               </>
             )}
@@ -211,15 +213,9 @@ export const DuelScoreBoard = memo(({
               </motion.div>
             )}
           </div>
-          <motion.div
-            key={myScore}
-            className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-1"
-            initial={{ scale: 1.2, y: -10 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            {myScore}
-          </motion.div>
+          <div className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-1 flex items-center overflow-visible">
+            <AnimatedCounter value={myScore} />
+          </div>
         </div>
       </motion.div>
 
@@ -251,15 +247,9 @@ export const DuelScoreBoard = memo(({
               </motion.div>
             )}
           </div>
-          <motion.div
-            key={opponentScore}
-            className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right mr-1"
-            initial={{ scale: 1.2, y: -10 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            {opponentScore}
-          </motion.div>
+          <div className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right mr-1 flex items-center justify-end overflow-visible">
+            <AnimatedCounter value={opponentScore} />
+          </div>
         </div>
         <div className="relative">
           <div className={cn(
@@ -275,7 +265,7 @@ export const DuelScoreBoard = memo(({
                     rotate: [0, 90, 180, 270, 360]
                   }}
                   transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                  className="absolute -inset-6 rounded-full bg-gradient-to-r from-emerald-400/30 via-green-400/50 to-emerald-400/30 blur-3xl -z-10"
+                  className="absolute -inset-6 rounded-full bg-gradient-to-r from-emerald-400/30 via-green-400/50 to-emerald-400/30 blur-2xl z-0 pointer-events-none"
                 />
                 <motion.div
                   animate={{
@@ -283,7 +273,7 @@ export const DuelScoreBoard = memo(({
                     scale: [1.2, 1.6, 1.2]
                   }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -inset-2 rounded-full border-2 border-emerald-400/60 blur-sm -z-10 shadow-[0_0_15px_rgba(52,211,153,0.8)]"
+                  className="absolute -inset-2 rounded-full border-2 border-emerald-400/60 blur-sm z-0 shadow-[0_0_15px_rgba(52,211,153,0.8)] pointer-events-none"
                 />
               </>
             )}

@@ -316,8 +316,8 @@
 
     .cyber-ring-container {
       position: relative;
-      width: 16rem;
-      height: 16rem;
+      width: 12rem;
+      height: 12rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -329,25 +329,23 @@
       inset: 0;
       border-radius: 50%;
       border: 1px solid rgba(255, 255, 255, 0.05);
-      border-top-color: #6366f1;
       animation: spin-normal 4s linear infinite;
     }
 
     .cyber-ring-2 {
       position: absolute;
-      inset: 1.5rem;
+      inset: 0.5rem;
       border-radius: 50%;
       border: 1px solid rgba(255, 255, 255, 0.05);
-      border-bottom-color: #a855f7;
-      animation: spin-reverse 2.5s linear infinite;
-      box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+      border-top-color: rgba(99, 102, 241, 0.4);
+      animation: spin-reverse 3s linear infinite;
     }
 
     .cyber-ring-3 {
       position: absolute;
-      inset: 3rem;
+      inset: 2rem;
       border-radius: 50%;
-      outline: 1px dashed rgba(255, 255, 255, 0.1);
+      outline: 1px dashed rgba(255, 255, 255, 0.05);
       animation: spin-normal 10s linear infinite;
     }
 
@@ -425,6 +423,77 @@
       font-family: monospace;
       letter-spacing: 0.5em;
       color: rgba(255, 255, 255, 0.5);
+    }
+
+    /* NEW: PHRASES AND LOADER STYLES */
+    .skeleton-phrases-container {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .skeleton-phrase-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      max-width: 280px;
+      line-height: 1.6;
+      animation: skeleton-fade-in 1s ease-out;
+    }
+
+    .skeleton-loader-bar {
+      width: 140px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .skeleton-loader-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 40%;
+      background: linear-gradient(90deg, transparent, #6366f1, transparent);
+      animation: skeleton-loader-anim 2s ease-in-out infinite;
+    }
+
+    @keyframes skeleton-loader-anim {
+      0% {
+        left: -50%;
+        width: 30%;
+      }
+
+      50% {
+        width: 50%;
+        opacity: 1;
+      }
+
+      100% {
+        left: 100%;
+        width: 30%;
+      }
+    }
+
+    @keyframes skeleton-fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+        filter: blur(2px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
     }
 
     @keyframes pulse-glow {
@@ -778,34 +847,7 @@
 </head>
 
 <body>
-  <div class="app-skeleton">
-    <!-- Ambient Background Glow (from CSS) -->
-    <div class="ambient-glow-1"></div>
-    <div class="ambient-glow-2"></div>
 
-    <div class="cyber-ring-container">
-      <!-- Cyber-Rings (animated via CSS) -->
-      <div class="cyber-ring-1"></div>
-      <div class="cyber-ring-2"></div>
-      <div class="cyber-ring-3"></div>
-
-      <div class="skeleton-logo-container">
-        <div class="skeleton-logo-glow"></div>
-        <div class="skeleton-text-sub">Skily System</div>
-        <div class="skeleton-divider"></div>
-        <div class="skeleton-logo-text">SKILY</div>
-      </div>
-    </div>
-
-    <div class="bottom-cyber">
-      <div class="bottom-dots">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </div>
-      <div class="bottom-text">S K I L Y &nbsp; V 2 . 0</div>
-    </div>
-  </div>
 
   <script>
     (function () {
@@ -827,7 +869,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-02-28-17:49';
+      const APP_VERSION = '2026-02-28-19:28';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)

@@ -13,6 +13,7 @@ import Confetti from "react-confetti";
 import { useUserContext } from "@/contexts/UserContext";
 import { updateTermProgress } from "@/lib/termProgress";
 import { cn } from "@/lib/utils";
+import { AnimatedCounter } from "@/components/ui/AnimatedCounter";
 
 interface LanguageTerm {
   id: string;
@@ -248,9 +249,12 @@ const LexiconGame = () => {
 
                 <div className="flex items-center gap-2 bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl shadow-xl">
                   <Trophy className="w-5 h-5 text-yellow-400 drop-shadow-glow" />
-                  <span className="text-xl font-black text-foreground tabular-nums tracking-tighter">
-                    {score}
-                  </span>
+                  <div className="flex items-center">
+                    <AnimatedCounter
+                      value={score}
+                      className="text-xl font-black text-foreground tracking-tighter"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
