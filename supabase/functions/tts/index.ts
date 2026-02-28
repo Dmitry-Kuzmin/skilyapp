@@ -5,16 +5,19 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
 // Константы для авторизации Edge TTS
 const TRUSTED_CLIENT_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
 const WSS_URL = `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=${TRUSTED_CLIENT_TOKEN}`;
+const EDGE_VERSION = '145.0.3800.82'; // Актуальная версия на февраль 2026
 
 /**
  * Генерирует Sec-MS-GEC токен
  */
 async function generateSecMsGecToken(): Promise<string> {
+    // Windows file time: ticks since 1601-01-01
     const ticks = (BigInt(Date.now()) + BigInt(11644473600000)) * BigInt(10000);
     // Округляем до ближайших 5 минут (300 млрд тиков)
     const roundedTicks = ticks - (ticks % BigInt(3000000000));
@@ -36,7 +39,7 @@ function uuidv4() {
     return crypto.randomUUID();
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
     // Handle CORS
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders });
@@ -44,9 +47,9 @@ serve(async (req) => {
 
     try {
         const url = new URL(req.url);
-        // Parse query params or body. Let's support both.
+        // Parse query params or body
         let text = url.searchParams.get('text');
-        let lang = url.searchParams.get('lang') || 'ru';
+        let lang = url.searchParams.get('lang') || 'es'; // Default to Spanish as requested
         let voice = url.searchParams.get('voice');
 
         if (!text) {
@@ -67,15 +70,15 @@ serve(async (req) => {
             });
         }
 
-        // Default voices
+        // ПДД термины обычно на испанском или русском
         if (!voice) {
             if (lang === 'ru') voice = 'ru-RU-SvetlanaNeural';
             else if (lang === 'es') voice = 'es-ES-ElviraNeural';
             else if (lang === 'en') voice = 'en-US-AriaNeural';
-            else voice = 'ru-RU-SvetlanaNeural';
+            else voice = 'es-ES-ElviraNeural';
         }
 
-        console.log(`[TTS] Request: "${text.substring(0, 20)}..." (${lang}, ${voice})`);
+        console.log(`[TTS] Request: "${text.substring(0, 30)}..." (${lang}, ${voice})`);
 
         const audioData = await generateAudio(text, voice, lang);
 
@@ -83,13 +86,14 @@ serve(async (req) => {
             headers: {
                 ...corsHeaders,
                 'Content-Type': 'audio/mpeg',
-                'Cache-Control': 'public, max-age=31536000, immutable'
+                'Cache-Control': 'public, max-age=31536000, immutable',
+                'X-Content-Type-Options': 'nosniff'
             }
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('[TTS] Error:', error);
-        return new Response(JSON.stringify({ error: error.message }), {
+        return new Response(JSON.stringify({ error: error.message || 'Unknown error' }), {
             status: 500,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
@@ -98,107 +102,108 @@ serve(async (req) => {
 
 function generateAudio(text: string, voice: string, lang: string): Promise<Uint8Array> {
     return new Promise(async (resolve, reject) => {
-        const requestId = uuidv4().replace(/-/g, '');
-        const secMsGec = await generateSecMsGecToken();
+        try {
+            const requestId = uuidv4().replace(/-/g, '');
+            const secMsGec = await generateSecMsGecToken();
 
-        const url = `${WSS_URL}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-144.0.3719.115&ConnectionId=${requestId}`;
+            const url = `${WSS_URL}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-${EDGE_VERSION}&ConnectionId=${requestId}`;
 
-        const ws = new WebSocket(url);
-        const chunks: Uint8Array[] = [];
-        const ssmlLang = lang === 'ru' ? 'ru-RU' : (lang === 'es' ? 'es-ES' : 'en-US');
+            const ws = new WebSocket(url);
+            const chunks: Uint8Array[] = [];
+            const ssmlLang = lang === 'ru' ? 'ru-RU' : (lang === 'es' ? 'es-ES' : 'en-US');
 
-        // Timeout 15s
-        const timeout = setTimeout(() => {
-            if (ws.readyState === WebSocket.OPEN) ws.close();
-            reject(new Error('Timeout waiting for Edge TTS'));
-        }, 15000);
+            // Timeout 15s
+            const timeout = setTimeout(() => {
+                if (ws.readyState === WebSocket.OPEN) ws.close();
+                reject(new Error('Timeout waiting for Edge TTS (15s)'));
+            }, 15000);
 
-        ws.onopen = () => {
-            const config = JSON.stringify({
-                context: {
-                    synthesis: {
-                        audio: {
-                            metadataoptions: { sentenceBoundaryEnabled: "false", wordBoundaryEnabled: "false" },
-                            outputFormat: "audio-24khz-48kbitrate-mono-mp3"
+            ws.onopen = () => {
+                const timestamp = new Date().toUTCString();
+                const config = JSON.stringify({
+                    context: {
+                        synthesis: {
+                            audio: {
+                                metadataoptions: { sentenceBoundaryEnabled: "false", wordBoundaryEnabled: "false" },
+                                outputFormat: "audio-24khz-48kbitrate-mono-mp3"
+                            }
                         }
                     }
+                });
+                ws.send(`X-Timestamp:${timestamp}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n${config}`);
+
+                const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='${ssmlLang}'><voice name='${voice}'><prosody rate='0%' pitch='0%'>${text}</prosody></voice></speak>`;
+                ws.send(`X-RequestId:${requestId}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${timestamp}\r\nPath:ssml\r\n\r\n${ssml}`);
+            };
+
+            ws.onmessage = async (event) => {
+                const data = event.data;
+                if (data instanceof Blob) {
+                    const buffer = new Uint8Array(await data.arrayBuffer());
+                    handleBinary(buffer);
+                } else if (data instanceof ArrayBuffer) {
+                    const buffer = new Uint8Array(data);
+                    handleBinary(buffer);
+                } else if (typeof data === 'string') {
+                    if (data.includes('Path:turn.end')) {
+                        ws.close();
+                    } else if (data.includes('Path:turn.start')) {
+                        // Just started
+                    }
                 }
-            });
-            ws.send(`X-Timestamp:${new Date().toString()}\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n${config}`);
+            };
 
-            const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='${ssmlLang}'><voice name='${voice}'><prosody rate='0%' pitch='0%'>${text}</prosody></voice></speak>`;
-            ws.send(`X-RequestId:${requestId}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${new Date().toString()}\r\nPath:ssml\r\n\r\n${ssml}`);
-        };
-
-        ws.onmessage = async (event) => {
-            const data = event.data;
-            if (data instanceof Blob) {
-                const buffer = new Uint8Array(await data.arrayBuffer());
-                handleBinary(buffer);
-            } else if (data instanceof ArrayBuffer) {
-                const buffer = new Uint8Array(data);
-                handleBinary(buffer);
-            } else if (typeof data === 'string') {
-                if (data.includes('Path:turn.end')) {
-                    ws.close();
-                }
-            }
-        };
-
-        // Helper to process binary data
-        const handleBinary = (buffer: Uint8Array) => {
-            // Search for Path:audio\r\n
-            // "Path:audio\r\n" in bytes: 50 61 74 68 3a 61 75 64 69 6f 0d 0a
-            const separator = new TextEncoder().encode("Path:audio\r\n");
-
-            // Simple naive search
-            let headerIndex = -1;
-            for (let i = 0; i < buffer.length - separator.length; i++) {
-                let match = true;
-                for (let j = 0; j < separator.length; j++) {
-                    if (buffer[i + j] !== separator[j]) {
-                        match = false;
+            // Helper to process binary data
+            const handleBinary = (buffer: Uint8Array) => {
+                const separator = new TextEncoder().encode("Path:audio\r\n");
+                let headerIndex = -1;
+                for (let i = 0; i < buffer.length - separator.length; i++) {
+                    let match = true;
+                    for (let j = 0; j < separator.length; j++) {
+                        if (buffer[i + j] !== separator[j]) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) {
+                        headerIndex = i;
                         break;
                     }
                 }
-                if (match) {
-                    headerIndex = i;
-                    break;
-                }
-            }
 
-            if (headerIndex >= 0) {
-                const audioStart = headerIndex + separator.length;
-                const audioPart = buffer.slice(audioStart);
-                if (audioPart.length > 0) {
-                    chunks.push(audioPart);
+                if (headerIndex >= 0) {
+                    const audioStart = headerIndex + separator.length;
+                    const audioPart = buffer.slice(audioStart);
+                    if (audioPart.length > 0) {
+                        chunks.push(audioPart);
+                    }
                 }
-            }
-        };
+            };
 
-        ws.onclose = (event) => {
-            clearTimeout(timeout);
-            if (chunks.length > 0) {
-                // Concat all chunks
-                const totalLength = chunks.reduce((acc, c) => acc + c.length, 0);
-                const result = new Uint8Array(totalLength);
-                let offset = 0;
-                for (const chunk of chunks) {
-                    result.set(chunk, offset);
-                    offset += chunk.length;
+            ws.onclose = (event) => {
+                clearTimeout(timeout);
+                if (chunks.length > 0) {
+                    const totalLength = chunks.reduce((acc, c) => acc + c.length, 0);
+                    const result = new Uint8Array(totalLength);
+                    let offset = 0;
+                    for (const chunk of chunks) {
+                        result.set(chunk, offset);
+                        offset += chunk.length;
+                    }
+                    resolve(result);
+                } else {
+                    console.error('[TTS] WebSocket closed without audio. Code:', event.code, 'Reason:', event.reason);
+                    reject(new Error(`No audio received from Edge (Code: ${event.code})`));
                 }
-                resolve(result);
-            } else {
-                console.error('[TTS] WebSocket closed without audio chunks. Code:', event.code, 'Reason:', event.reason);
-                reject(new Error(`No audio received (Code: ${event.code})`));
-            }
-        };
+            };
 
-        ws.onerror = (e) => {
-            clearTimeout(timeout);
-            console.error('WebSocket Error:', e);
-            // ws.onerror event usually doesn't contain error details in standard WebSocket
-            reject(new Error('WebSocket connection error'));
-        };
+            ws.onerror = (e) => {
+                clearTimeout(timeout);
+                console.error('[TTS] WebSocket Error:', e);
+                reject(new Error('WebSocket connection failed'));
+            };
+        } catch (e) {
+            reject(e);
+        }
     });
 }

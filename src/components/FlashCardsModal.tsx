@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, RotateCcw, RotateCw, XCircle, CheckCircle2, Zap } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw, XCircle, CheckCircle2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -36,11 +36,11 @@ interface FlashCardsModalProps {
   language?: 'ru' | 'es' | 'eng';
 }
 
-export function FlashCardsModal({ 
-  open, 
-  onOpenChange, 
-  topic, 
-  language = 'ru' 
+export function FlashCardsModal({
+  open,
+  onOpenChange,
+  topic,
+  language = 'ru'
 }: FlashCardsModalProps) {
   const { profileId } = useUserContext();
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
@@ -56,7 +56,7 @@ export function FlashCardsModal({
 
     const currentCard = flashcards[index];
     if (!currentCard) return;
-    
+
     // Отменяем предыдущий таймаут
     if (savePositionTimeoutRef.current) {
       clearTimeout(savePositionTimeoutRef.current);
@@ -89,7 +89,7 @@ export function FlashCardsModal({
   const loadFlashcards = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Загружаем карточки
       const { data: flashcardsData, error: flashcardsError } = await supabase
         .from("flashcards")
@@ -149,11 +149,11 @@ export function FlashCardsModal({
         setStats({ total, mastered, learning, new: newCards });
       } else {
         setCurrentIndex(0);
-        setStats({ 
-          total: flashcardsData?.length || 0, 
-          mastered: 0, 
-          learning: 0, 
-          new: flashcardsData?.length || 0 
+        setStats({
+          total: flashcardsData?.length || 0,
+          mastered: 0,
+          learning: 0,
+          new: flashcardsData?.length || 0
         });
       }
 
@@ -215,7 +215,7 @@ export function FlashCardsModal({
 
     const currentCard = flashcards[currentIndex];
     const currentProgress = progressMap.get(currentCard.id);
-    
+
     // Используем данные из локального прогресса или значения по умолчанию
     let easeFactor = currentProgress?.ease_factor || 2.5;
     let intervalDays = currentProgress?.interval_days || 0;
@@ -313,7 +313,7 @@ export function FlashCardsModal({
   // Обработка клавиатуры
   useEffect(() => {
     if (!open) return;
-    
+
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === " ") {
         e.preventDefault();
@@ -501,7 +501,7 @@ export function FlashCardsModal({
                         >
                           Показать вопрос
                         </Button>
-                        
+
                         {/* Кнопки оценки (только если пользователь авторизован) */}
                         {profileId && (
                           <div className="flex items-center justify-center gap-2 mt-4">

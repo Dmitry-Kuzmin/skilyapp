@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, X, Trophy, Zap, Star, Brain, Flame, Sparkles, Languages, Gauge } from "lucide-react";
+import { ArrowLeft, Check, X, Trophy, Zap, Star, Brain, Flame, Sparkles, Languages, Gauge, RotateCw } from "lucide-react";
 import { PageLoader } from "@/components/PageLoader";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import Layout from "@/components/Layout";
 import { toast } from 'sonner';
 import { supabase } from "@/integrations/supabase/client";

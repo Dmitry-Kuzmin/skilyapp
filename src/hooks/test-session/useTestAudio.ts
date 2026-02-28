@@ -198,7 +198,6 @@ export const useTestAudio = (
 
                         const response = await fetch(url.toString(), {
                             headers: {
-                                'Authorization': `Bearer ${anonKey}`,
                                 'apikey': anonKey
                             },
                             signal: abortControllerRef.current.signal

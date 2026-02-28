@@ -230,7 +230,7 @@ export const ru = {
     processing: "ОБРАБОТКА...",
     ready: "Системы готовы.",
     description: "Доступ к базе данных DGT в реальном времени. Задай свой вопрос.",
-    modelInfo: "MODEL: GEMINI-2.5-FLASH // LATENCY: 24ms",
+    modelInfo: "MODEL: GEMINI-3.1-PRO-PREVIEW // LATENCY: 24ms",
     inputPlaceholder: "Напиши свой вопрос...",
     analyzing: "Анализирую правила...",
   },

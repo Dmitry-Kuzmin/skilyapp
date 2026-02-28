@@ -225,7 +225,7 @@ export const es = {
     processing: "PROCESANDO...",
     ready: "Sistemas listos.",
     description: "Acceso a la base de datos DGT en tiempo real. Haz tu pregunta.",
-    modelInfo: "MODELO: GEMINI-2.5-FLASH // LATENCIA: 24ms",
+    modelInfo: "MODELO: GEMINI-3.1-PRO-PREVIEW // LATENCIA: 24ms",
     inputPlaceholder: "Escribe tu pregunta...",
     analyzing: "Analizando reglas...",
   },

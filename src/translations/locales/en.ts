@@ -224,7 +224,7 @@ export const en = {
     processing: "PROCESSING...",
     ready: "Systems ready.",
     description: "Real-time access to DGT database. Ask your question.",
-    modelInfo: "MODEL: GEMINI-2.5-FLASH // LATENCY: 24ms",
+    modelInfo: "MODEL: GEMINI-3.1-PRO-PREVIEW // LATENCY: 24ms",
     inputPlaceholder: "Type your question...",
     analyzing: "Analyzing rules...",
   },

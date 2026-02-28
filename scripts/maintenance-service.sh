@@ -18,9 +18,10 @@ log() {
 
 # 1. Функция приоритизации Antigravity (чтобы печатать было легко)
 boost_editor() {
-    local AG_PID=$(pgrep -x "Electron" | head -n 1) # Antigravity базируется на Electron
+    # Ищем основной процесс Antigravity
+    local AG_PID=$(ps aux | grep "Antigravity.app/Contents/MacOS/Antigravity" | grep -v "grep" | awk '{print $2}' | head -n 1)
     if [ -n "$AG_PID" ]; then
-        # Устанавливаем приоритет выше (nice -5) для основного процесса
+        log "🚀 Повышение приоритета Antigravity (PID: $AG_PID)..."
         renice -n -5 -p "$AG_PID" 2>/dev/null
     fi
 }
@@ -59,12 +60,18 @@ deep_clean() {
     rm -rf ~/Library/Caches/com.apple.appstore/* 2>/dev/null
     rm -rf ~/Library/Caches/com.apple.Safari/* 2>/dev/null
     
-    # Очистка Vite & TS
-    rm -rf "$PROJECT_DIR/node_modules/.vite" 2>/dev/null
+    # Очистка TS (НЕ ТРОГАЕМ .VITE В ФОНЕ!)
     rm -rf "$HOME/Library/Caches/typescript"/* 2>/dev/null
     
     # Принудительный сброс RAM
     sync && purge 2>/dev/null
+}
+
+# 4. Плановая очистка (безопасная)
+clean_caches() {
+    # Чистим только логи и мелкий мусор
+    find "$HOME/Library/Application Support/Antigravity/logs" -type f -name "*.log" -mtime +1 -delete 2>/dev/null
+    find "$PROJECT_DIR" -maxdepth 2 -name ".DS_Store" -delete 2>/dev/null
 }
 
 # Основной цикл
