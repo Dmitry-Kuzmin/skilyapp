@@ -127,12 +127,12 @@ export const DuelScoreBoard = memo(({
 
   return (
     <div className={cn(
-      "flex items-center gap-2 md:gap-3 min-w-0 flex-nowrap",
+      "flex items-center gap-1.5 md:gap-3 min-w-0 flex-nowrap",
       isTelegramMobile && "flex-1 justify-center"
     )}>
       {/* My Score */}
       <motion.div
-        className="flex items-center gap-2 md:gap-3 group"
+        className="flex items-center gap-1.5 md:gap-3 group min-w-0"
         whileHover={{ scale: 1.02 }}
         animate={myScore > opponentScore ? {
           boxShadow: ['0 0 0px rgba(59, 130, 246, 0)', '0 0 20px rgba(59, 130, 246, 0.5)', '0 0 0px rgba(59, 130, 246, 0)']
@@ -164,7 +164,7 @@ export const DuelScoreBoard = memo(({
                 />
               </>
             )}
-            <Avatar className="h-10 w-10 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-10 bg-background">
+            <Avatar className="h-8 w-8 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-10 bg-background">
               <AvatarImage src={(myPhotoUrl && !myImgError) ? myPhotoUrl : getFallbackAvatar(myName)} alt={myName || ''} onError={() => setMyImgError(true)} />
               <AvatarFallback className="bg-slate-800 text-slate-400 font-bold uppercase">
                 {getInitials(myName)}
@@ -199,57 +199,57 @@ export const DuelScoreBoard = memo(({
             )}
           </AnimatePresence>
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-col items-start gap-0.5 mb-0.5">
-            <p className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-none" title={myName || 'Ты'}>{myDisplayName}</p>
-            {myInsuranceActive && (
-              <motion.div
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-500/30"
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.8)]" />
-                <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Страховка</span>
-              </motion.div>
-            )}
+        <div className="min-w-0 flex flex-col items-start gap-0.5">
+          <div className="flex items-center gap-1 min-w-0">
+            <p className="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[50px] md:max-w-none" title={myName || 'Ты'}>{myDisplayName}</p>
+            <div className="text-base md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center overflow-visible">
+              <AnimatedCounter value={myScore} />
+            </div>
           </div>
-          <div className="text-xl md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-1 flex items-center overflow-visible">
-            <AnimatedCounter value={myScore} />
-          </div>
+          {myInsuranceActive && (
+            <motion.div
+              initial={{ opacity: 0, x: -5 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1 py-0.5 rounded-full border border-emerald-500/30 w-fit"
+            >
+              <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Щит</span>
+            </motion.div>
+          )}
         </div>
       </motion.div>
 
-      <div className="text-xl md:text-2xl font-black text-muted-foreground/20 px-1">VS</div>
+      <div className="text-base md:text-2xl font-black text-muted-foreground/20 px-0.5 flex-shrink-0">VS</div>
 
       {/* Opponent Score */}
       <motion.div
-        className="flex items-center gap-2 md:gap-3 group"
+        className="flex items-center gap-1.5 md:gap-3 group min-w-0"
         whileHover={{ scale: 1.02 }}
         animate={opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
       >
-        <div className="flex-1 text-right min-w-0">
-          <div className="flex flex-col items-end gap-0.5 mb-0.5">
+        <div className="min-w-0 flex-1 flex flex-col items-end gap-0.5">
+          <div className="flex items-center justify-end gap-1 min-w-0">
+            <div className="text-base md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center justify-end overflow-visible">
+              <AnimatedCounter value={opponentScore} />
+            </div>
             <p
-              className="text-xs font-medium text-muted-foreground truncate max-w-[100px] md:max-w-[120px]"
+              className="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[50px] md:max-w-[120px]"
               title={opponentName}
               key={`opponent-name-${opponentName}`}
             >
-              {opponentDisplayName || 'Соперник'}
+              {opponentDisplayName || 'Враг'}
             </p>
-            {opponentInsuranceActive && (
-              <motion.div
-                initial={{ opacity: 0, x: 5 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1.5 py-0.5 rounded-full border border-emerald-500/30"
-              >
-                <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Страховка</span>
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.8)]" />
-              </motion.div>
-            )}
           </div>
-          <div className="text-xl md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-right mr-1 flex items-center justify-end overflow-visible">
-            <AnimatedCounter value={opponentScore} />
-          </div>
+          {opponentInsuranceActive && (
+            <motion.div
+              initial={{ opacity: 0, x: 5 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1 py-0.5 rounded-full border border-emerald-500/30 w-fit ml-auto"
+            >
+              <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Щит</span>
+              <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+            </motion.div>
+          )}
         </div>
         <div className="relative">
           <div className={cn(
@@ -277,7 +277,7 @@ export const DuelScoreBoard = memo(({
                 />
               </>
             )}
-            <Avatar className="h-10 w-10 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
+            <Avatar className="h-8 w-8 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
               <AvatarImage src={(opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') && !opponentImgError) ? opponentPhotoUrl : getFallbackAvatar(opponentName)} alt={opponentName || ''} onError={() => setOpponentImgError(true)} />
               <AvatarFallback className="bg-slate-800 text-white font-bold uppercase">
                 {getInitials(opponentName)}
@@ -336,8 +336,8 @@ export const DuelScoreBoard = memo(({
             )}
           </AnimatePresence>
         </div>
-      </motion.div>
-    </div>
+      </motion.div >
+    </div >
   );
 });
 

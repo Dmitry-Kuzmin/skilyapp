@@ -172,7 +172,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                         "relative flex overflow-visible transition-transform duration-100",
                         screenShake && "animate-shake",
                         isInTelegramMiniApp || isTelegramMobile
-                            ? "flex-col gap-3 items-center"
+                            ? "flex-col gap-2 items-center"
                             : "flex-row items-center justify-between gap-3"
                     )}
                 >

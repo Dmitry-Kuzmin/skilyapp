@@ -219,6 +219,9 @@ export function useBotOpponent({
       // Очищаем обработанные вопросы
       processedQuestions.current.clear();
 
+      // Сбрасываем счетчик использованных бустов за дуэль
+      boostsUsedThisDuelRef.current = 0;
+
       // Сбрасываем время последней проверки бустов
       lastBoostCheckRef.current = 0;
 
@@ -236,6 +239,7 @@ export function useBotOpponent({
   // 🔥 НОВАЯ ЛОГИКА: Использование бустов ботом
   const boostCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastBoostCheckRef = useRef<number>(0);
+  const boostsUsedThisDuelRef = useRef<number>(0);
 
   useEffect(() => {
     if (!duelId || !botPlayerRef.current || !currentQuestionId) {
@@ -272,9 +276,14 @@ export function useBotOpponent({
         return;
       }
 
-      // Проверяем не слишком ли часто (минимум 8 секунд между проверками — было 12)
+      // 🔥 НОВОЕ: Ограничиваем количество бустов за всю дуэль (1-2 за дуэль)
+      if (boostsUsedThisDuelRef.current >= 2) {
+        return;
+      }
+
+      // Проверяем не слишком ли часто (минимум 15 секунд между проверками — увеличил время)
       const now = Date.now();
-      if (now - lastBoostCheckRef.current < 8000) {
+      if (now - lastBoostCheckRef.current < 15000) {
         return;
       }
       lastBoostCheckRef.current = now;
@@ -308,6 +317,9 @@ export function useBotOpponent({
             boost_type: data?.boost_type,
             effect: data?.effect
           });
+
+          // 🔥 Инкрементируем счетчик использованных бустов
+          boostsUsedThisDuelRef.current += 1;
         } catch (error) {
           console.error('[useBotOpponent] ❌ Exception bot using boost:', error);
           attackUsedForQuestion = false;

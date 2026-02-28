@@ -110,14 +110,14 @@ export function DuelLoadingView({
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="absolute inset-0 flex flex-col items-center justify-center z-10"
+                            className="absolute inset-0 flex flex-col items-center justify-center z-10 text-center px-4"
                         >
                             <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-4 border border-white/10 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
                                 <Swords className="w-8 h-8 text-indigo-400" />
                             </div>
                             <span className="text-white/40 text-[10px] font-bold tracking-[0.3em] uppercase mb-1">Duel Arena</span>
                             <div className="h-px w-8 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent mb-2" />
-                            <span className="text-white font-black text-xl tracking-[0.1em] uppercase">
+                            <span className="text-white font-black text-base sm:text-xl tracking-tight sm:tracking-[0.1em] uppercase text-center leading-tight">
                                 {loading ? (
                                     <motion.span
                                         animate={{ opacity: [0.5, 1, 0.5] }}

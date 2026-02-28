@@ -139,15 +139,10 @@ export function QuestionProgressBar({
   );
 
   return (
-    <div className={cn("w-full flex flex-col gap-2 z-[100]", className)}>
-      {/* 📱 Mobile Top Row: Question Count ONLY */}
-      <div className="flex sm:hidden items-center justify-between w-full px-1">
-        <QuestionCountBlock />
-      </div>
+    <div className={cn("w-full flex flex-col z-[100]", className)}>
 
       <div className={cn(
-        "w-full flex items-center justify-between gap-2 sm:gap-4 relative",
-        layout === 'focus' ? "py-2 sm:py-4" : "py-1",
+        "w-full flex items-center justify-between gap-1.5 sm:gap-4 relative py-1",
       )}>
         {/* Close button (Always on left) */}
         {showClose && onClose && (
@@ -156,8 +151,7 @@ export function QuestionProgressBar({
             size="icon"
             onClick={onClose}
             className={cn(
-              "shrink-0 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors shadow-sm border border-border/30",
-              layout === 'focus' ? "h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-border/30 group" : "h-10 w-10 sm:h-11 sm:w-11"
+              "shrink-0 rounded-xl hover:bg-destructive/10 hover:text-destructive transition-colors shadow-sm border border-border/30 h-9 w-9 sm:h-11 sm:w-11",
             )}
           >
             <X className={cn(
@@ -171,18 +165,18 @@ export function QuestionProgressBar({
         {customLeftContent}
 
         {/* Progress Bar - растягивается по центру */}
-        <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-          {/* Question Counter - Hidden on mobile if not needed, but here it's on the left on desktop */}
-          <div className="hidden sm:block">
+        <div className="flex items-center gap-1.5 sm:gap-4 flex-1 min-w-0">
+          {/* Question Counter - Visible on all screens now */}
+          <div>
             <QuestionCountBlock />
           </div>
 
           {/* Horizontal Progress Bar */}
           <div className={cn(
-            "flex-1 rounded-full shadow-inner border min-w-[60px] relative overflow-hidden transition-all duration-300",
+            "flex-1 rounded-full shadow-inner border min-w-[30px] relative overflow-hidden transition-all duration-300 h-2 sm:h-3",
             layout === 'focus'
-              ? "h-2 sm:h-2.5 bg-muted/20 border-border/10"
-              : (isRussia ? "h-3 sm:h-3.5 bg-slate-200/50 dark:bg-slate-800/50 border-slate-300/50 dark:border-slate-700/50" : "h-2 sm:h-2.5 bg-muted/20 border-border/10")
+              ? "bg-muted/20 border-border/10"
+              : (isRussia ? "bg-slate-200/50 dark:bg-slate-800/50 border-slate-300/50 dark:border-slate-700/50" : "bg-muted/20 border-border/10")
           )}>
             <motion.div
               initial={{ width: 0 }}
@@ -218,7 +212,7 @@ export function QuestionProgressBar({
         </div>
 
         {/* Right Side Controls - Bookmark + Settings + Close (in focus mode) */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
 
 
           {/* Bookmark Button */}
@@ -228,7 +222,7 @@ export function QuestionProgressBar({
               onClick={onToggleBookmark}
               disabled={bookmarkLoading}
               className={cn(
-                "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl transition-all active:scale-95 backdrop-blur-sm border-2",
+                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-xl transition-all active:scale-95 backdrop-blur-sm border-2",
                 isBookmarked
                   ? "bg-blue-500 border-blue-400 text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/10"
                   : "bg-background border-border/50 hover:bg-muted/50 shadow-sm dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
@@ -254,7 +248,7 @@ export function QuestionProgressBar({
             <button
               onClick={onToggleTranslation}
               className={cn(
-                "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full transition-all duration-300 active:scale-90 border font-semibold text-[10px] sm:text-xs",
+                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-full transition-all duration-300 active:scale-90 border font-semibold text-[10px] sm:text-xs",
                 showTranslation
                   ? "bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-500/40 ring-4 ring-blue-500/10"
                   : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
@@ -274,7 +268,7 @@ export function QuestionProgressBar({
             <button
               onClick={onToggleSmartVocabulary}
               className={cn(
-                "flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full transition-all duration-500 active:scale-90 border",
+                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-full transition-all duration-500 active:scale-90 border",
                 smartVocabularyEnabled
                   ? "bg-amber-100 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-lg shadow-amber-500/10 ring-4 ring-amber-500/5 animate-pulse"
                   : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"

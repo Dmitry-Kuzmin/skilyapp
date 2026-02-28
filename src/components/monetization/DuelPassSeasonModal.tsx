@@ -9,7 +9,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, Rocket, LockOpen, type LucideIcon } from "lucide-react";
+import { Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, CheckCircle2, Zap, Gift, Star, ArrowRight, ChevronRight, Flame, Gauge, Hourglass, Shield, Sticker, Swords, Award, BarChart3, Users, Rocket, Lock, LockOpen, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -1361,10 +1361,18 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     const metadata = definition?.metadata;
 
     let title = definition?.name;
-    if (!title) {
-      if (type === "coins" && rewardData.amount) {
-        title = `+${rewardData.amount} ${dp("rewardTypes.coins.label")}`;
-      } else {
+    const amountVal = rewardData.amount ?? rewardData.value ?? rewardData.reward_value ?? rewardData.coins;
+
+    // Более агрессивная замена слова "Награда" на количество
+    const isGenericTitle = !title ||
+      title.toLowerCase() === "награда" ||
+      title.toLowerCase() === "reward" ||
+      title.toLowerCase() === "generic_reward";
+
+    if (isGenericTitle) {
+      if (type === "coins" && amountVal) {
+        title = `+${amountVal} ${dp("rewardTypes.coins.label")}`;
+      } else if (!title) {
         title = formatTechnicalName(rewardData.id, t("duelPass.fallbackRewardName"));
       }
     }
@@ -1397,22 +1405,22 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     // Заблокированная Premium ячейка — показываем сундук вместо слова "Награда"
     if (!rewardData && variant === 'premium') {
       return (
-        <div className="rounded-xl border border-dashed border-yellow-500/20 bg-yellow-500/5 px-1.5 py-1.5 flex items-center gap-1.5 opacity-50">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0 bg-yellow-500/10">
+        <div className="rounded-xl border border-dashed border-yellow-500/20 bg-yellow-500/5 px-1 py-1 sm:px-1.5 sm:py-1.5 flex items-center gap-1 sm:gap-1.5 opacity-50 min-h-[44px] sm:min-h-[48px]">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0 bg-yellow-500/10">
             🔒
           </div>
-          <p className="text-[10px] text-yellow-600/70 font-medium leading-tight">Premium</p>
+          <p className="text-[10px] text-yellow-600/70 font-medium leading-tight">Elite</p>
         </div>
       );
     }
 
     if (!rewardData) {
-      return <span className="text-[10px] text-muted-foreground">—</span>;
+      return <div className="flex items-center justify-center h-[44px] sm:h-[48px]"><span className="text-[10px] text-muted-foreground">—</span></div>;
     }
 
     const meta = getRewardVisualMeta(rewardData);
     if (!meta) {
-      return <span className="text-[10px] text-muted-foreground">—</span>;
+      return <div className="flex items-center justify-center h-[44px] sm:h-[48px]"><span className="text-[10px] text-muted-foreground">—</span></div>;
     }
 
     const Icon = meta.Icon;
@@ -1427,7 +1435,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       <motion.div
         whileHover={{ scale: options.unlocked ? 1.04 : 1 }}
         className={cn(
-          "rounded-xl border px-1.5 py-1.5 transition-all bg-muted/30",
+          "rounded-xl border px-1 py-1 transition-all bg-muted/30 min-h-[38px] sm:min-h-[48px]",
           variant === "premium" && "border-yellow-500/40 bg-yellow-500/5",
           isEpicOrLegendary && variant === 'premium' && "border-yellow-500/60 bg-yellow-500/8",
           options.claimed && "ring-1 ring-green-400/40",
@@ -1435,9 +1443,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         )}
         style={isEpicOrLegendary && options.unlocked ? { boxShadow: rarityGlow } : undefined}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-base flex-shrink-0"
+            className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-[13px] sm:text-base flex-shrink-0"
             style={{
               background: meta.color
                 ? `linear-gradient(135deg, ${withAlpha(meta.color, "55")}, ${withAlpha(meta.color, "1A")})`
@@ -1446,12 +1454,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               boxShadow: meta.color ? `0 0 8px ${withAlpha(meta.color, '44')}` : undefined,
             }}
           >
-            {meta.iconEmoji ? meta.iconEmoji : Icon ? <Icon className="w-4 h-4" /> : meta.title.charAt(0)}
+            {meta.iconEmoji ? meta.iconEmoji : Icon ? <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : meta.title.charAt(0)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold truncate leading-tight">{meta.title}</p>
-            {meta.subtitle && (
-              <p className="text-[9px] text-muted-foreground/80 truncate leading-tight">{meta.subtitle}</p>
+            <p className="text-[10px] sm:text-[11px] font-bold truncate leading-tight">{meta.title}</p>
+            {meta.subtitle && !isMobile && (
+              <p className="text-[9px] text-muted-foreground/80 truncate leading-tight mt-0.5">{meta.subtitle}</p>
             )}
           </div>
         </div>
@@ -1607,9 +1615,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
         </div>
 
-        <div className={cn("space-y-5", isMobile ? "px-4 py-4" : "px-8 py-6")}>
+        <div className={cn("space-y-5 overflow-x-hidden", isMobile ? "px-3 py-4" : "px-8 py-6")}>
           {/* Сезонный hero блок */}
-          <div className="relative mx-1 mb-2">
+          <div className="relative mx-1 mb-2 overflow-hidden rounded-3xl">
             {/* Мягкое ореольное свечение вокруг карточки — расширено, чтобы не резалось */}
             <div className="pointer-events-none absolute -inset-12 rounded-[50px] bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.25),transparent_70%)] opacity-70 blur-[70px]" />
             <motion.div
@@ -1845,34 +1853,36 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse min-w-full">
                   <colgroup>
-                    <col className="w-8" />
-                    <col style={{ width: '28%', minWidth: '100px' }} />
-                    <col style={{ width: '28%', minWidth: '100px' }} />
-                    <col className="w-16" />
-                    <col className="w-20" />
+                    <col className="w-9 sm:w-12" />
+                    <col style={{ width: '40%', minWidth: isMobile ? '70px' : '100px' }} />
+                    <col style={{ width: '40%', minWidth: isMobile ? '70px' : '100px' }} />
+                    {!isMobile && <col className="w-16" />}
+                    <col className="w-12 sm:w-20" />
                   </colgroup>
                   <thead>
                     <tr className="bg-muted/50 border-b border-border">
-                      <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                        {dp("table.columns.level")}
+                      <th className="text-center px-1 py-1.5 text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        {isMobile ? "Ур." : dp("table.columns.level")}
                       </th>
-                      <th className="text-left px-1.5 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                      <th className="text-left px-1.5 py-1.5 text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                         <div className="flex items-center gap-1">
-                          <Coins className="w-3 h-3 text-yellow-500" />
-                          <span>{dp("table.columns.free")}</span>
+                          <Coins className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-500" />
+                          <span>{isMobile ? "Бесп." : dp("table.columns.free")}</span>
                         </div>
                       </th>
-                      <th className="text-left px-1.5 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                      <th className="text-left px-1.5 py-1.5 text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                         <div className="flex items-center gap-1">
-                          <Crown className="w-3 h-3 text-yellow-600" />
-                          <span>{dp("table.columns.premium")}</span>
+                          <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-yellow-600" />
+                          <span>PREM</span>
                         </div>
                       </th>
-                      <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                        {dp("table.columns.sp")}
-                      </th>
-                      <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                        {dp("table.columns.status")}
+                      {!isMobile && (
+                        <th className="text-center px-1 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                          {dp("table.columns.sp")}
+                        </th>
+                      )}
+                      <th className="text-center px-1 py-1.5 text-[9px] sm:text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                        {isMobile ? "Статус" : dp("table.columns.status")}
                       </th>
                     </tr>
                   </thead>
@@ -1987,24 +1997,28 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                           </td>
 
                           {/* SP */}
-                          <td className="px-1 py-1.5 text-center">
-                            {!unlocked ? (
-                              <Badge variant="outline" className="text-[9px] px-1 py-0.5">
-                                {dp("table.spBadge", { sp: reward.sp_required - currentSP })}
-                              </Badge>
-                            ) : (
-                              <span className="text-[10px] text-muted-foreground">—</span>
-                            )}
-                          </td>
+                          {!isMobile && (
+                            <td className="px-1 py-1.5 text-center">
+                              {!unlocked ? (
+                                <Badge variant="outline" className="text-[9px] px-1 py-0.5">
+                                  {dp("table.spBadge", { sp: reward.sp_required - currentSP })}
+                                </Badge>
+                              ) : (
+                                <span className="text-[10px] text-muted-foreground">—</span>
+                              )}
+                            </td>
+                          )}
 
                           {/* Действие */}
                           <td className="px-1 py-1.5 text-center">
                             {allClaimed ? (
                               <div className="flex items-center justify-center gap-0.5">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
-                                <span className="text-[9px] font-medium text-green-600">
-                                  {dp("table.status.claimed")}
-                                </span>
+                                {!isMobile && (
+                                  <span className="text-[9px] font-medium text-green-600 line-clamp-1">
+                                    {dp("table.status.claimed")}
+                                  </span>
+                                )}
                               </div>
                             ) : unlocked ? (
                               <Button
@@ -2022,7 +2036,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                                   (!hasFreeReward && premiumClaimed)
                                 }
                                 className={cn(
-                                  "h-6 px-1.5 text-[9px] font-medium",
+                                  "h-6 px-1.5 text-[9px] font-medium w-full sm:w-auto",
                                   // Если есть бесплатная награда и она не получена - обычная кнопка
                                   // Если бесплатная получена, но есть премиум - желтая кнопка
                                   // Если только премиум - желтая кнопка
@@ -2030,29 +2044,35 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                                   reward.premium_reward &&
                                   !isPremium &&
                                   !premiumClaimed &&
-                                  "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm"
+                                  "bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white shadow-sm border-none"
                                 )}
                               >
                                 {hasFreeReward && !freeClaimed ? (
-                                  dp("table.buttons.claim")
+                                  isMobile ? "Забрать" : dp("table.buttons.claim")
                                 ) : !hasFreeReward && reward.premium_reward && !isPremium ? (
                                   <>
-                                    <Crown className="w-3 h-3 mr-1" />
-                                    {dp("table.buttons.premiumOnly")}
+                                    <Crown className="w-2.5 h-2.5 sm:mr-1" />
+                                    {!isMobile && dp("table.buttons.premiumOnly")}
                                   </>
                                 ) : (reward.premium_reward && isPremium && !premiumClaimed) || (hasFreeReward && freeClaimed && reward.premium_reward && isPremium && !premiumClaimed) ? (
                                   <>
-                                    <Crown className="w-3 h-3 mr-1" />
-                                    {dp("table.buttons.claimPremium")}
+                                    <Crown className="w-2.5 h-2.5 sm:mr-1" />
+                                    {isMobile ? "Забрать" : dp("table.buttons.claimPremium")}
                                   </>
                                 ) : (
-                                  dp("table.buttons.default")
+                                  isMobile ? "Забрать" : dp("table.buttons.default")
                                 )}
                               </Button>
                             ) : (
-                              <Badge variant="secondary" className="text-[9px] px-1 py-0.5">
-                                {dp("table.status.locked")}
-                              </Badge>
+                              <div className="flex justify-center">
+                                {isMobile ? (
+                                  <Lock className="w-3.5 h-3.5 text-muted-foreground/30" />
+                                ) : (
+                                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 opacity-50">
+                                    {dp("table.status.locked")}
+                                  </Badge>
+                                )}
+                              </div>
                             )}
                           </td>
                         </tr>

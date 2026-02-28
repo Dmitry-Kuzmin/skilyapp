@@ -4119,11 +4119,28 @@ Deno.serve(async (req) => {
         }
 
         // Выбираем случайный буст на основе весов
-        const totalWeight = availableBoosts.reduce((sum, boost) => sum + boost.weight, 0);
-        let random = Math.random() * totalWeight;
-        let selectedBoost = availableBoosts[0];
+        // Пытаемся избежать повторения последнего использованного буста для разнообразия
+        const { data: lastBoostNotif } = await supabase
+          .from('duel_notifications')
+          .select('metadata')
+          .eq('duel_id', duel_id)
+          .eq('type', 'boost')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
 
-        for (const boost of availableBoosts) {
+        const lastBoostType = (lastBoostNotif?.metadata as any)?.boost_type;
+
+        // Если буст уже использовался недавно, уменьшаем его вес или убираем
+        const filteredBoosts = lastBoostType
+          ? availableBoosts.filter(b => b.type !== lastBoostType || availableBoosts.length === 1)
+          : availableBoosts;
+
+        const totalWeight = filteredBoosts.reduce((sum, boost) => sum + boost.weight, 0);
+        let random = Math.random() * totalWeight;
+        let selectedBoost = filteredBoosts[0];
+
+        for (const boost of filteredBoosts) {
           random -= boost.weight;
           if (random <= 0) {
             selectedBoost = boost;
