@@ -602,9 +602,8 @@ export function AIChatWidget() {
                     <DrawerContent
                         className="overflow-hidden flex flex-col focus:outline-none"
                         style={{
-                            // px-высота стабильнее dvh на iOS при открытой клавиатуре
-                            height: drawerHeight ? `${drawerHeight}px` : '92svh',
-                            maxHeight: drawerHeight ? `${drawerHeight}px` : '92svh',
+                            height: '92dvh',
+                            maxHeight: '92dvh',
                         }}
                     >
                         {chatContent}
