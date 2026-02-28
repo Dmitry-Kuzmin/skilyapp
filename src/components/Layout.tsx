@@ -455,6 +455,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         ref={mainContentRef}
         className={cn(
           "telegram-main-content bg-transparent relative z-1",
+          "flex-1 flex flex-col min-h-0", // Позволяем контенту растягиваться и не схлопываться
           // CSS в index.css применяет padding-top через:
           // .telegram-mobile-app .telegram-main-content { padding-top: max(...) }
         )}

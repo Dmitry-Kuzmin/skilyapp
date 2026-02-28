@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useDashboardData } from './useDashboardData';
+import { useUserContext } from '@/contexts/UserContext';
 
 /**
  * ОПТИМИЗАЦИЯ: Хуки для статических данных с агрессивным кэшированием
@@ -22,11 +23,12 @@ export interface DailyBonusDef {
  * КЭШИРОВАНИЕ: 24 часа (данные не меняются)
  */
 export function useDailyBonusDefinitions() {
+  const { profileId } = useUserContext();
   // ОПТИМИЗАЦИЯ: Пытаемся взять из Super RPC Dashboard
   const { data: dashboardData } = useDashboardData();
-  
+
   return useQuery<DailyBonusDef[]>({
-    queryKey: ['daily-bonus-definitions'],
+    queryKey: ['daily-bonus-definitions', profileId],
     queryFn: async () => {
       // Если есть в Super RPC - используем!
       if (dashboardData?.daily_bonus_definitions) {
@@ -45,6 +47,7 @@ export function useDailyBonusDefinitions() {
       if (error) throw error;
       return data || [];
     },
+    enabled: !!profileId,
     staleTime: 24 * 60 * 60 * 1000, // 24 часа
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -71,11 +74,12 @@ export interface TopicBasic {
  * КЭШИРОВАНИЕ: 1 час (данные меняются редко)
  */
 export function useTopicsList() {
+  const { profileId } = useUserContext();
   // ОПТИМИЗАЦИЯ: Пытаемся взять из Super RPC Dashboard
   const { data: dashboardData } = useDashboardData();
-  
+
   return useQuery<TopicBasic[]>({
-    queryKey: ['topics-list'],
+    queryKey: ['topics-list', profileId],
     queryFn: async () => {
       // Если есть в Super RPC - используем!
       if (dashboardData?.topics) {
@@ -93,6 +97,7 @@ export function useTopicsList() {
       if (error) throw error;
       return data || [];
     },
+    enabled: !!profileId,
     staleTime: 60 * 60 * 1000, // 1 час
     gcTime: 2 * 60 * 60 * 1000, // 2 часа
     refetchOnWindowFocus: false,
@@ -121,7 +126,7 @@ export function useSeasonRewards() {
     queryFn: async () => {
       // Сначала получаем активный сезон
       const { data: seasonData } = await supabase.rpc('get_active_season');
-      
+
       if (!seasonData) return [];
 
       // Загружаем награды для этого сезона

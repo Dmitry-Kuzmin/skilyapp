@@ -75,6 +75,9 @@ export default function Duel() {
         const code = searchParams.get('code');
         const startParam = safeGetTelegramWebApp()?.initDataUnsafe?.start_param;
         console.log('[Duel] 🧩 Component Mounted. URL Code:', code, 'StartParam:', startParam);
+
+        // КРИТИЧНО: Скролл вверх при монтировании, чтобы экран копирования был сверху
+        window.scrollTo(0, 0);
     }, []);
 
     const { isAuthenticated, profileId, user, supabaseUser } = useUserContext();

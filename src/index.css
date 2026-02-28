@@ -43,19 +43,20 @@ body {
   display: block;
 }
 
-/* Flex и min-height только для Telegram WebApp */
 html.telegram-webapp,
 body.telegram-webapp {
-  height: auto;
-  display: block;
-  min-height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height */
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-color: #09090b;
 }
 
 html.telegram-webapp #root,
 body.telegram-webapp #root {
-  height: auto;
-  display: block;
-  min-height: 100vh;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Для светлой темы */
@@ -196,7 +197,8 @@ iframe[id^="telegram-login"] {
  * ============================================================================ */
 html.telegram-mobile-app,
 body.telegram-mobile-app {
-  --tg-content-safe-area-inset-top: 88px;
+  /* КРИТИЧНО: Начальное значение 96px для iPhone 16 Pro и Dynamic Island */
+  --tg-content-safe-area-inset-top: 96px;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
@@ -481,18 +483,20 @@ All colors MUST be HSL.
   body.telegram-mobile-app .telegram-main-content {
     /* 
      * Вычисляем padding как максимум из:
-     * 1. --tg-content-safe-area-inset-top (высота UI Telegram: кнопка назад)
-     * 2. --tg-safe-area-inset-top (системный отступ: notch/Dynamic Island)
-     * 3. 88px - минимальный fallback для мобильных (увеличен для комфорта)
-     * 
-     * ВАЖНО: Используем max() для выбора максимального значения
+     * 1. --tg-content-safe-area-inset-top (плашка Telegram)
+     * 2. --tg-safe-area-inset-top (системный notch/island)
+     * 3. env(safe-area-inset-top) (браузерный notch/island)
+     * 4. 92px - безопасный минимум для iPhone 16
      */
-    padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
+    padding-top: max(
+        var(--tg-content-safe-area-inset-top, 0px),
         var(--tg-safe-area-inset-top, 0px),
-        88px) !important;
+        env(safe-area-inset-top, 0px),
+        92px
+    ) !important;
 
-    /* Анимируем изменения padding для плавного UX */
-    transition: padding-top 0.15s ease-out;
+    /* Плавный переход при изменении ориентации или скрытии BackButton */
+    transition: padding-top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* PWA (Standalone) Safe Area Support */

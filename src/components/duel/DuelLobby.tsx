@@ -193,7 +193,12 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
     try {
       await navigator.clipboard.writeText(duelCode);
       setCopied(true);
-      toast.success('Код скопирован!');
+
+      // КРИТИЧНО: Улучшенная обратная связь для копирования
+      toast.success('🎉 Код скопирован!', {
+        description: 'Отправь его другу, чтобы начать битву',
+        duration: 3000,
+      });
 
       // Сбрасываем состояние через 2 секунды
       setTimeout(() => {
@@ -241,7 +246,7 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
   if (duelCode) {
     return (
-      <div className="max-w-3xl mx-auto space-y-6 p-4">
+      <div className="max-w-3xl mx-auto space-y-6 p-4 pt-2 md:pt-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -496,18 +501,18 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
 
                   {/* Label in border - рамка с текстом */}
                   <div className="relative z-10">
-                    <div className="absolute inset-x-0 top-0 flex items-center justify-center">
-                      <div className="bg-background px-3">
+                    <div className="absolute inset-x-0 -bottom-2 flex items-center justify-center">
+                      <div className="bg-card px-3 rounded-full border border-emerald-500/20 shadow-sm py-0.5">
                         <AnimatePresence mode="wait">
                           {copied ? (
                             <motion.span
                               key="copied"
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              exit={{ opacity: 0, scale: 0.9 }}
-                              className="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
+                              initial={{ opacity: 0, y: 5 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -5 }}
+                              className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter"
                             >
-                              Скопировано!
+                              Готово!
                             </motion.span>
                           ) : (
                             <motion.span
@@ -515,9 +520,9 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 0 }}
-                              className="text-xs text-muted-foreground font-medium uppercase tracking-wide"
+                              className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-60"
                             >
-                              КОД ДУЭЛИ
+                              Код дуэли (нажми)
                             </motion.span>
                           )}
                         </AnimatePresence>

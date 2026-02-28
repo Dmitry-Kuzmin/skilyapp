@@ -15,6 +15,7 @@ import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
 // ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
 // Все эти компоненты тянут Supabase/Radix, поэтому Layout не должен быть в initial bundle
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
+import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton"; // Добавляем импорт скелетона
 import { StartupCurtain } from "@/components/StartupCurtain";
 const Layout = lazy(() => import("@/components/Layout").then(m => ({ default: m.default })));
 const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal").then(m => ({ default: m.PaywallModal })));
@@ -306,9 +307,11 @@ const DashboardContent = memo(function DashboardContent() {
                 </Suspense>
               </>
             ) : (
-              <PageLoader />
+              <DashboardSkeleton />
             )}
           </div>
+          {/* Поднимаем шторку только когда данные загружены или показан скелетон */}
+          {!loading && <StartupCurtain />}
         </Layout>
       </Suspense>
     </>
@@ -340,28 +343,37 @@ const Index = memo(function Index() {
     }
   }, [isLoading, userContext, isAuthenticated, navigate, isInTelegram]);
 
-  // SAFETY NET: Если загрузка авторизации висит дольше 5 секунд — принудительно редиректим
+  const [authTimeout, setAuthTimeout] = useState(false);
+
+  // SAFETY NET: Если загрузка авторизации висит дольше 15 секунд — показываем UI ошибки
   useEffect(() => {
-    if (!isLoading) return;
+    if (!isLoading) {
+      setAuthTimeout(false);
+      return;
+    }
 
     const timer = setTimeout(() => {
-      console.warn('[Index] ⚠️ Auth loading timeout (5s), force redirect to landing');
-      if (typeof window !== 'undefined') {
-        window.location.replace('/');
+      console.warn('[Index] ⚠️ Auth loading timeout (15s)');
+      if (!isInTelegram) {
+        if (typeof window !== 'undefined') {
+          window.location.replace('/');
+        }
+      } else {
+        setAuthTimeout(true);
       }
-    }, 5000);
+    }, 15000);
 
     return () => clearTimeout(timer);
-  }, [isLoading]);
+  }, [isLoading, isInTelegram]);
 
   // Показываем loader пока идет загрузка авторизации
-  if (isLoading || !userContext) {
+  if ((isLoading && !authTimeout) || !userContext) {
     if (import.meta.env.DEV) console.debug('[Index] Loading auth...', { isLoading, hasContext: !!userContext });
     return <PageLoader />;
   }
 
-  // Если не авторизован и не был запущен редирект (например, сбой авторизации внутри Telegram)
-  if (!isAuthenticated && !redirecting && !isLoading) {
+  // Если не авторизован или случился таймаут
+  if ((!isAuthenticated || authTimeout) && !redirecting && !isLoading) {
     // КРИТИЧНО: На вебе просто ждем редиректа, не показывая ошибку
     if (!isInTelegram) {
       return <PageLoader />;
@@ -371,47 +383,36 @@ const Index = memo(function Index() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-white bg-zinc-950 p-6 text-center font-sans">
         <StartupCurtain />
-        <div className="w-16 h-16 bg-red-500/10 text-red-500 flex items-center justify-center rounded-2xl mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+        <div className="w-20 h-20 bg-amber-500/10 text-amber-500 flex items-center justify-center rounded-3xl mb-8 relative">
+          <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full animate-pulse"></div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="relative z-10"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
         </div>
-        <h2 className="text-2xl font-black uppercase tracking-tight mb-2">Ошибка доступа</h2>
-        <p className="text-zinc-400 mb-8 max-w-sm">
-          Не удалось верифицировать вашу сессию. Авторизация отклонена сервером или сессия устарела.
+        <h2 className="text-3xl font-black uppercase tracking-tighter mb-4">Авторизация...</h2>
+        <p className="text-zinc-400 mb-10 max-w-sm leading-relaxed">
+          Соединение с сервером занимает больше времени, чем обычно. Это может быть связано с плохим сигналом связи.
         </p>
-        <div className="flex flex-col gap-3 w-full max-w-xs">
+        <div className="flex flex-col gap-4 w-full max-w-xs">
           <button
             onClick={() => {
               window.location.reload();
             }}
-            className="w-full px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all rounded-xl font-bold uppercase tracking-widest text-xs"
+            className="w-full px-8 py-4 bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all rounded-2xl font-bold uppercase tracking-widest text-sm shadow-[0_0_30px_rgba(79,70,229,0.4)]"
           >
             Попробовать снова
           </button>
           <button
             onClick={async () => {
-              // НОЯБРЬСКАЯ ЗАЩИТА: Полная очистка всего, что может мешать
               localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
               localStorage.removeItem('telegram_token');
               localStorage.removeItem('puzzle_user');
-
-              // Очищаем куки
               document.cookie.split(";").forEach((c) => {
                 document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
               });
-
-              // Пытаемся выйти через Supabase если клиент жив
-              try {
-                const { supabase } = await import("@/integrations/supabase/client");
-                await supabase.auth.signOut();
-              } catch (e) {
-                console.warn("Supabase signOut failed, continuing with reload");
-              }
-
               window.location.replace('/');
             }}
-            className="w-full px-8 py-3 bg-zinc-800 hover:bg-zinc-700 active:scale-95 transition-all rounded-xl font-bold uppercase tracking-widest text-xs text-zinc-400"
+            className="w-full px-8 py-3 bg-white/5 hover:bg-white/10 active:scale-95 transition-all rounded-2xl font-bold uppercase tracking-widest text-xs text-zinc-500"
           >
-            Сбросить сессию и выйти
+            Сбросить и выйти
           </button>
         </div>
       </div>
@@ -426,7 +427,6 @@ const Index = memo(function Index() {
 
   return (
     <>
-      <StartupCurtain />
       <DashboardContent />
     </>
   );
