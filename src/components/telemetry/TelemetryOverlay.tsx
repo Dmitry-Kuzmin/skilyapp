@@ -334,8 +334,8 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
     if (isMobile) {
         return (
             <Drawer open={open} onOpenChange={onOpenChange}>
-                <DrawerContent className="max-h-[85vh] flex flex-col bg-zinc-950 border-white/5 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden">
-                    <DrawerHeader className="border-b border-white/5 shrink-0 bg-zinc-950/98 z-10 py-4 px-6 relative">
+                <DrawerContent className="max-h-[85vh] flex flex-col bg-zinc-950/95 backdrop-blur-2xl border-t border-white/10 shadow-[0_-15px_50px_-10px_rgba(0,0,0,0.9),0_0_100px_-20px_rgba(139,92,246,0.3)] overflow-hidden">
+                    <DrawerHeader className="border-b border-white/5 shrink-0 bg-transparent z-10 py-4 px-6 relative">
                         <DrawerTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
                             <Gauge className="w-5 h-5 text-violet-500" />
                             Skily Telemetry
@@ -351,8 +351,8 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-zinc-950 border-white/10 p-0 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.9),0_0_80px_-10px_rgba(139,92,246,0.15)] sm:rounded-2xl overflow-hidden">
-                <DialogHeader className="p-6 pb-4 border-b border-white/5 shrink-0 bg-zinc-950/98 z-10 flex flex-row items-center justify-between shadow-sm relative">
+            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-zinc-950/95 backdrop-blur-2xl border border-white/10 p-0 shadow-[0_45px_100px_-20px_rgba(0,0,0,1),0_0_80px_-10px_rgba(139,92,246,0.2),inset_0_0_0_1px_rgba(255,255,255,0.05)] sm:rounded-2xl overflow-hidden">
+                <DialogHeader className="p-6 pb-4 border-b border-white/5 shrink-0 bg-transparent z-10 flex flex-row items-center justify-between relative">
                     <DialogTitle className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
                         <div className="w-10 h-10 rounded-2xl bg-violet-500/10 flex items-center justify-center">
                             <Gauge className="w-6 h-6 text-violet-500" />

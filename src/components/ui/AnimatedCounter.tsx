@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, animate, useAnimation } from 'framer-motion';
+import { motion, animate } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface AnimatedCounterProps {
     value: number;
     className?: string;
-    showPlus?: boolean;
     prefix?: string;
     suffix?: string;
 }
@@ -13,29 +12,22 @@ interface AnimatedCounterProps {
 export const AnimatedCounter = ({
     value,
     className,
-    showPlus = false,
     prefix = "",
     suffix = ""
 }: AnimatedCounterProps) => {
     const [displayValue, setDisplayValue] = useState(value);
     const prevValue = useRef(value);
-    const controls = useAnimation();
+    const [pulse, setPulse] = useState(false);
 
     useEffect(() => {
         if (value !== prevValue.current) {
-            // ПРЕМИУМ: Пульсация и свечение при изменении
-            controls.start({
-                scale: [1, 1.3, 1],
-                filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"],
-                transition: {
-                    duration: 0.4,
-                    ease: [0.34, 1.56, 0.64, 1], // Пружинистый эффект
-                }
-            });
+            // Пульсация при изменении (без filter — он ломает bg-clip-text)
+            setPulse(true);
+            const pulseTimer = setTimeout(() => setPulse(false), 500);
 
-            // ПЛАВНО: Текст увеличивается плавно "на глазах"
+            // Плавная прокрутка числа
             const anim = animate(prevValue.current, value, {
-                duration: 1.0,
+                duration: 0.8,
                 ease: [0.16, 1, 0.3, 1],
                 onUpdate(latest) {
                     setDisplayValue(Math.round(latest));
@@ -43,16 +35,19 @@ export const AnimatedCounter = ({
             });
 
             prevValue.current = value;
-            return () => anim.stop();
+            return () => {
+                anim.stop();
+                clearTimeout(pulseTimer);
+            };
         }
-    }, [value, controls]);
+    }, [value]);
 
     return (
         <motion.span
-            animate={controls}
+            animate={pulse ? { scale: [1, 1.25, 1] } : { scale: 1 }}
+            transition={{ duration: 0.35, ease: [0.34, 1.56, 0.64, 1] }}
             className={cn("inline-block tabular-nums tracking-tight", className)}
         >
-            {showPlus && value > prevValue.current && "+"}
             {prefix}
             {displayValue}
             {suffix}

@@ -685,12 +685,12 @@ export const ru = {
       legendary: "Легенда",
     },
     rewardTypes: {
-      coins: { label: "Монеты", subtitle: "Моментально на баланс" },
-      skin: { label: "Скин", subtitle: "Новый образ профиля" },
-      badge: { label: "Бейдж", subtitle: "Коллекция достижений" },
-      boost: { label: "Буст", subtitle: "Ускорение прогресса" },
-      sticker: { label: "Стикер", subtitle: "Эмоции в дуэлях" },
-      trophy: { label: "Трофей", subtitle: "Эксклюзивная награда" },
+      coins: { label: "монет", subtitle: "" },
+      skin: { label: "Скин", subtitle: "Образ профиля" },
+      badge: { label: "Бейдж", subtitle: "Коллекция" },
+      boost: { label: "Буст", subtitle: "Ускорение" },
+      sticker: { label: "Стикер", subtitle: "Для дуэлей" },
+      trophy: { label: "Трофей", subtitle: "Награда" },
     },
     fallbackRewardName: "Награда",
     countdown: {
