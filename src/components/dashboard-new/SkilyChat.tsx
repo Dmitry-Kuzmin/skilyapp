@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useState, useRef, useEffect } from 'react';
 import { Maximize2, Minimize2, ArrowRight } from 'lucide-react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';

@@ -1,5 +1,4 @@
-import { useEffect,
-  useRef} from 'react';
+import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useLocation } from 'react-router-dom';
 
@@ -11,18 +10,21 @@ import { useLocation } from 'react-router-dom';
 export function ThemeColorManager() {
     const { resolvedTheme } = useTheme();
     const location = useLocation();
-    const lastColorRef = useRef<string | null>(null);
 
     useEffect(() => {
         // Функция для обновления мета-тега и цвета Telegram
         const updateThemeColor = (color: string) => {
-            if (!color || color === lastColorRef.current) return;
-            lastColorRef.current = color;
+            if (!color) return;
 
             // 1. Обновляем <meta name="theme-color">
             const metaThemeColor = document.querySelector('meta[name="theme-color"]');
             if (metaThemeColor) {
                 metaThemeColor.setAttribute('content', color);
+            } else {
+                const meta = document.createElement('meta');
+                meta.name = 'theme-color';
+                meta.content = color;
+                document.head.appendChild(meta);
             }
 
             // 2. Обновляем msapplication-TileColor для Windows
@@ -43,8 +45,7 @@ export function ThemeColorManager() {
                         tg.setBackgroundColor(color);
                     }
                 } catch (e) {
-                    // Fail silently in production
-                    if (import.meta.env.DEV) console.warn('[ThemeColorManager] Failed to set TG colors:', e);
+                    console.warn('[ThemeColorManager] Failed to set TG colors:', e);
                 }
             }
 
@@ -57,44 +58,52 @@ export function ThemeColorManager() {
         const detectColor = (): string => {
             // КРИТИЧНО: Приоритеты для конкретных роутов (Landing и т.д.)
             if (location.pathname === '/' || location.pathname === '/landing' || !location.pathname.startsWith('/dashboard')) {
+                // Если мы на лендинге или любой внешней странице (не в приложении)
+                // Используем глубокий синий фон лендинга
                 return '#0f172a';
             }
 
+            // Для всех остальных страниц (внутри /dashboard/*) стараемся определить динамически
             const bodyStyle = window.getComputedStyle(document.body);
             let bgColor = bodyStyle.backgroundColor;
 
+            // Если body прозрачный (бывает при использовании градиентов или в начале рендера)
             if (!bgColor || bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
+                // Пытаемся найти первый дочерний элемент в #root
                 const firstChild = document.querySelector('#root > div');
                 if (firstChild) {
                     bgColor = window.getComputedStyle(firstChild).backgroundColor;
                 }
             }
 
+            // Если не удалось определить динамически или это прозрачный фон — используем fallback
             if (!bgColor || bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
                 return resolvedTheme === 'dark' ? '#09090b' : '#ffffff';
             }
 
+            // Преобразуем RGB/RGBA в HEX для лучшей поддержки браузерами
             return rgbToHex(bgColor);
         };
 
-        // 1. Мгновенная попытка
-        updateThemeColor(detectColor());
+        // 1. Мгновенная попытка (для статических страниц)
+        const initialColor = detectColor();
+        updateThemeColor(initialColor);
 
         // 2. Попытка через RAF (когда DOM обновился)
         const rafId = requestAnimationFrame(() => {
-            updateThemeColor(detectColor());
+            const rafColor = detectColor();
+            updateThemeColor(rafColor);
 
-            // 3. Отложенная попытка (на случай анимаций смены темы)
+            // 3. Отложенная попытка (на случай анимаций смены темы или ленивой загрузки)
             const timerId = setTimeout(() => {
-                updateThemeColor(detectColor());
-            }, 500);
+                const finalColor = detectColor();
+                updateThemeColor(finalColor);
+            }, 500); // 500мс достаточно для большинства переходов
 
             return () => clearTimeout(timerId);
         });
 
-        return () => {
-            cancelAnimationFrame(rafId);
-        };
+        return () => cancelAnimationFrame(rafId);
     }, [resolvedTheme, location.pathname]);
 
     return null;

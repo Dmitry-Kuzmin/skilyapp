@@ -797,17 +797,6 @@
       </div>
     </div>
 
-    <!-- Мгновенные советы и лайфхаки (Rotating Tips) -->
-    <div class="skeleton-tips-container" id="startup-tips">
-      <div class="skeleton-tip-badge">
-        <span class="skeleton-tip-icon">💡</span>
-        <span class="skeleton-tip-label">СЕКРЕТ SKILY</span>
-      </div>
-      <p class="skeleton-tip-text" id="startup-tip-text">
-        Загрузка нейронных связей... Активируем систему обучения...
-      </p>
-    </div>
-
     <div class="bottom-cyber">
       <div class="bottom-dots">
         <div class="dot"></div>
@@ -838,7 +827,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-02-28-17:53';
+      const APP_VERSION = '2026-02-28-17:49';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
@@ -931,56 +920,6 @@
         window.location.replace(url.toString());
         return;
       }
-
-      // Скрипт для ротации советов в скелетоне (до загрузки React)
-      (function () {
-        const phrases = [
-          "Секрет Skily: Банк ошибок запоминает все сложные вопросы для повторения.",
-          "Лайфхак: В Дуэлях можно использовать бусты, чтобы замедлить соперника.",
-          "А вы знали? Ежедневная серия (Streak) дает бонус к лиге и монетам.",
-          "Совет: AI-Наставнику можно задавать любые вопросы по правилам.",
-          "Фишка: Режим мастера открывает доступ к секретным достижениям профиля.",
-          "Приглашайте друзей и получайте % от их выигрышей в турнирах.",
-          "СИНХРОНИЗАЦИЯ... Активируем нейронные связи для лучшего обучения..."
-        ];
-
-        const tipText = document.getElementById('startup-tip-text');
-        if (tipText) {
-          let index = Math.floor(Math.random() * phrases.length);
-          tipText.textContent = phrases[index];
-
-          const updateTip = () => {
-            tipText.style.opacity = '0';
-            tipText.style.transform = 'translateY(-5px)';
-            setTimeout(() => {
-              index = (index + 1) % phrases.length;
-              tipText.textContent = phrases[index];
-              tipText.style.opacity = '1';
-              tipText.style.transform = 'translateY(0)';
-            }, 500);
-          };
-          // Запускаем интервал ротации
-          const intervalId = setInterval(updateTip, 4000);
-
-          // Очищаем интервал, когда React загрузится и скелетон скроется
-          const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-              if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                const target = mutation.target;
-                if (target.classList.contains('fade-out')) {
-                  clearInterval(intervalId);
-                  observer.disconnect();
-                }
-              }
-            });
-          });
-
-          const skeleton = document.querySelector('.app-skeleton');
-          if (skeleton) {
-            observer.observe(skeleton, { attributes: true });
-          }
-        }
-      })();
 
       // Отслеживаем ошибки загрузки модулей
       window.addEventListener('error', function (e) {

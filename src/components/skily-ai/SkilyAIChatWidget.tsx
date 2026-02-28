@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useState, useRef, useEffect } from "react";
 import { X, Send, Lightbulb, Sparkles, ChevronDown, ChevronUp, ChevronRight, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Button } from '@/components/ui/button';

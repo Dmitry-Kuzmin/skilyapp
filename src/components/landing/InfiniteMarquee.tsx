@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useRef, useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';

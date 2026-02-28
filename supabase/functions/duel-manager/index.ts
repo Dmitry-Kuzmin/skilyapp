@@ -120,7 +120,7 @@ const BASE_INSURANCE_RATE = 0.15;
 const MIN_INSURANCE_RATE = 0.05;
 const MAX_INSURANCE_RATE = 0.35;
 const BASE_COVERAGE_RATE = 0.6;
-const MIN_COVERAGE_RATE = 0.5;
+const MIN_COVERAGE_RATE = 0.6;
 const MAX_COVERAGE_RATE = 0.9;
 
 const clampNumber = (value: number, min: number, max: number) => {

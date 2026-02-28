@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Move3d } from 'lucide-react';

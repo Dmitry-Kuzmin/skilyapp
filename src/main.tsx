@@ -14,23 +14,18 @@ if (typeof window !== 'undefined') {
   window._mainLoaded = true;
 }
 
-// ОПТИМИЗАЦИЯ DEV: Дросселируем console чтобы 2000+ логов не фризили JS-поток
-// В production они дропаются esbuild'ом, в dev — throttle 100ms
+// ОПТИМИЗАЦИЯ DEV: Дросселируем console.log чтобы 1925 логов не фризили JS-поток
+// В production они дропаются esbuild'ом, в dev — throttle 50ms
 if (import.meta.env.DEV) {
-  const methods: (keyof Console)[] = ['log', 'debug', 'info', 'warn', 'error'];
+  const origLog = console.log.bind(console);
   let _lastLog = 0;
-
-  methods.forEach(method => {
-    const original = console[method].bind(console);
-    (console as any)[method] = (...args: unknown[]) => {
-      const now = performance.now();
-      // Пропускаем слишком частые логи одного типа (кроме ошибок)
-      if (now - _lastLog > 100 || method === 'error') {
-        _lastLog = now;
-        original(...args);
-      }
-    };
-  });
+  console.log = (...args: unknown[]) => {
+    const now = performance.now();
+    if (now - _lastLog > 50) {
+      _lastLog = now;
+      origLog(...args);
+    }
+  };
 }
 
 // Initialize Telegram Mock for localhost development

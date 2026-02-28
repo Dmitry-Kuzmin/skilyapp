@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useState, useRef, useEffect } from 'react';
 import { Trophy, CheckCircle2, XCircle, ArrowRight, CornerDownLeft, Sparkles, Zap, AlertTriangle, Car, Shield, Activity, Info, Headphones, BookOpen, Brain, Swords } from 'lucide-react';
 import { motion, AnimatePresence } from '@/components/optimized/Motion';

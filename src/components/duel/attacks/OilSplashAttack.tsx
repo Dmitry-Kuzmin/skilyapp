@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { AlertTriangle, Skull } from 'lucide-react';
 import { isTelegramDesktopPlatformName } from '@/lib/telegram';

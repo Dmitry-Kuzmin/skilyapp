@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Flame, Info, X, Gift, Coins, TrendingUp, Zap, Trophy } from 'lucide-react';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";

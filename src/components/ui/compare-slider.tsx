@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { MoveHorizontal } from "lucide-react";

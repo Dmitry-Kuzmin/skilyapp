@@ -149,7 +149,7 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
               if (isWinner) winnings = duelData.bet_amount * 2;
               else if (isDraw) winnings = duelData.bet_amount;
               if (!isWinner && !isDraw && (duelData.insurance_used || duelData.host_insurance_enabled)) {
-                insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
+                insuranceRefund = Math.floor(duelData.bet_amount * 0.6);
               }
             }
 
@@ -233,7 +233,7 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
           opponentAvatar: opponentPlayer?.is_bot ? null : (opponentPlayer.profiles?.photo_url || null),
           betAmount: duelData.bet_amount || 0,
           winnings: isWinner ? (duelData.bet_amount * 2) : (isDraw ? duelData.bet_amount : 0),
-          insuranceRefund: (!isWinner && !isDraw && duelData.insurance_used) ? Math.floor(duelData.bet_amount * 0.5) : 0,
+          insuranceRefund: (!isWinner && !isDraw && duelData.insurance_used) ? Math.floor(duelData.bet_amount * 0.6) : 0,
           insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled),
           opponentId: opponentPlayer.user_id,
           isBot: !!opponentPlayer.is_bot,

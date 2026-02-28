@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import React, { useEffect, useRef } from "react";
 import { Language } from "@/contexts/LanguageContext";
 import { LANGUAGE_OPTIONS } from "@/translations/landing";

@@ -818,6 +818,55 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                   <span className="font-black text-2xl text-blue-600 dark:text-blue-400">+{results.betAmount}</span>
                 </div>
               )}
+
+              {/* Блок страховки */}
+              <motion.div
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className={cn(
+                  "flex items-center justify-between rounded-xl p-3 border mt-1",
+                  results.insuranceUsed
+                    ? "bg-indigo-500/10 border-indigo-500/20"
+                    : "bg-slate-500/5 border-dashed border-slate-500/20"
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className={cn(
+                    "p-1.5 rounded-lg flex items-center justify-center",
+                    results.insuranceUsed ? "bg-indigo-500/20" : "bg-slate-500/10"
+                  )}>
+                    <Shield className={cn(
+                      "w-4 h-4",
+                      results.insuranceUsed ? "text-indigo-500 dark:text-indigo-400" : "text-slate-400"
+                    )} />
+                  </div>
+                  <span className={cn(
+                    "font-semibold text-sm",
+                    results.insuranceUsed ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"
+                  )}>
+                    {results.insuranceUsed ? "Страховка ставки" : "Без страховки"}
+                  </span>
+                </div>
+
+                <div className="text-right flex flex-col items-end justify-center">
+                  {results.insuranceUsed ? (
+                    results.insuranceRefund > 0 ? (
+                      <span className="font-black text-green-600 dark:text-green-400 flex items-center gap-1">
+                        +{results.insuranceRefund} <Coins className="w-3.5 h-3.5" />
+                      </span>
+                    ) : (
+                      <span className="text-xs font-bold text-indigo-500/80 dark:text-indigo-400/80">
+                        Не пригодилась
+                      </span>
+                    )
+                  ) : (
+                    <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
+                      Могла спасти {Math.floor(results.betAmount * 0.6)} <Coins className="w-3 h-3" />
+                    </span>
+                  )}
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         )}
