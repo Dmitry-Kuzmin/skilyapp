@@ -57,7 +57,7 @@ async function main() {
         const mimeType = imageResponse.headers['content-type'] || 'image/jpeg';
 
         // Используем Gemini 3 Pro Image (поддерживает image-to-image)
-        const MODEL = "gemini-3-pro-image-preview";
+        const MODEL = "gemini-3.1-pro-preview-image-preview";
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
 
         console.log(`📤 Отправляем запрос в ${MODEL} (Strict Mode)...`);

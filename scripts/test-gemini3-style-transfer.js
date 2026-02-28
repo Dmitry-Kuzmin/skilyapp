@@ -75,7 +75,7 @@ async function main() {
             process.exit(1);
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${API_KEY}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview-image-preview:generateContent?key=${API_KEY}`;
 
         console.log("📤 Отправляем запрос (Layout + 2 Style Refs)...");
 

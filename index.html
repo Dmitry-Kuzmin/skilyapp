@@ -381,6 +381,55 @@
       pointer-events: none;
     }
 
+    /* TIPS SKELETON STYLES */
+    .skeleton-tips-container {
+      position: relative;
+      width: 100%;
+      max-width: 28rem;
+      margin-top: -1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 1.5rem;
+      z-index: 20;
+    }
+
+    .skeleton-tip-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.375rem 1rem;
+      border-radius: 9999px;
+      box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .skeleton-tip-icon {
+      font-size: 1.125rem;
+    }
+
+    .skeleton-tip-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+    }
+
+    .skeleton-tip-text {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.5;
+      min-height: 3rem;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+      transition: all 0.5s ease;
+    }
+
     .bottom-cyber {
       position: absolute;
       bottom: 2rem;
@@ -797,6 +846,17 @@
       </div>
     </div>
 
+    <!-- Мгновенные советы и лайфхаки (Rotating Tips) -->
+    <div class="skeleton-tips-container" id="startup-tips">
+      <div class="skeleton-tip-badge">
+        <span class="skeleton-tip-icon">💡</span>
+        <span class="skeleton-tip-label">СЕКРЕТ SKILY</span>
+      </div>
+      <p class="skeleton-tip-text" id="startup-tip-text">
+        Загрузка нейронных связей... Активируем систему обучения...
+      </p>
+    </div>
+
     <div class="bottom-cyber">
       <div class="bottom-dots">
         <div class="dot"></div>
@@ -827,7 +887,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-02-27-22:20';
+      const APP_VERSION = '2026-02-28-17:53';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
@@ -920,6 +980,56 @@
         window.location.replace(url.toString());
         return;
       }
+
+      // Скрипт для ротации советов в скелетоне (до загрузки React)
+      (function () {
+        const phrases = [
+          "Секрет Skily: Банк ошибок запоминает все сложные вопросы для повторения.",
+          "Лайфхак: В Дуэлях можно использовать бусты, чтобы замедлить соперника.",
+          "А вы знали? Ежедневная серия (Streak) дает бонус к лиге и монетам.",
+          "Совет: AI-Наставнику можно задавать любые вопросы по правилам.",
+          "Фишка: Режим мастера открывает доступ к секретным достижениям профиля.",
+          "Приглашайте друзей и получайте % от их выигрышей в турнирах.",
+          "СИНХРОНИЗАЦИЯ... Активируем нейронные связи для лучшего обучения..."
+        ];
+
+        const tipText = document.getElementById('startup-tip-text');
+        if (tipText) {
+          let index = Math.floor(Math.random() * phrases.length);
+          tipText.textContent = phrases[index];
+
+          const updateTip = () => {
+            tipText.style.opacity = '0';
+            tipText.style.transform = 'translateY(-5px)';
+            setTimeout(() => {
+              index = (index + 1) % phrases.length;
+              tipText.textContent = phrases[index];
+              tipText.style.opacity = '1';
+              tipText.style.transform = 'translateY(0)';
+            }, 500);
+          };
+          // Запускаем интервал ротации
+          const intervalId = setInterval(updateTip, 4000);
+
+          // Очищаем интервал, когда React загрузится и скелетон скроется
+          const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+              if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const target = mutation.target;
+                if (target.classList.contains('fade-out')) {
+                  clearInterval(intervalId);
+                  observer.disconnect();
+                }
+              }
+            });
+          });
+
+          const skeleton = document.querySelector('.app-skeleton');
+          if (skeleton) {
+            observer.observe(skeleton, { attributes: true });
+          }
+        }
+      })();
 
       // Отслеживаем ошибки загрузки модулей
       window.addEventListener('error', function (e) {

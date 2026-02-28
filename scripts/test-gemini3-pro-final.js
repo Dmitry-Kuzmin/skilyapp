@@ -52,7 +52,7 @@ async function main() {
         const imageResponse = await axios.get(INPUT_IMAGE_URL, { responseType: 'arraybuffer' });
         const base64Image = Buffer.from(imageResponse.data).toString('base64');
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${API_KEY}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview-image-preview:generateContent?key=${API_KEY}`;
 
         console.log("📤 Отправляем запрос...");
 

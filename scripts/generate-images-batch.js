@@ -46,8 +46,8 @@ function initializeAI() {
     console.log(`🔑 [System] Initializing Gemini with Key #${currentKeyIndex + 1} (${key.slice(0, 10)}...)`);
 
     genAI = new GoogleGenerativeAI(key);
-    visionModel = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-    imagenModel = genAI.getGenerativeModel({ model: 'gemini-3-pro-image-preview' });
+    visionModel = genAI.getGenerativeModel({ model: 'gemini-3.1-pro-preview' });
+    imagenModel = genAI.getGenerativeModel({ model: 'gemini-3.1-pro-preview-image-preview' });
     imagenModelFlash = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
 }
 

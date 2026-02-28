@@ -38,7 +38,7 @@
 
 ```javascript
 const model = genAI.getGenerativeModel({
-    model: "gemini-3-pro-preview",  // Самая умная модель
+    model: "gemini-3.1-pro-preview",  // Самая умная модель
     generationConfig: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,  // Гарантированная структура
@@ -48,7 +48,7 @@ const model = genAI.getGenerativeModel({
 ```
 
 **Почему эти параметры:**
-- **gemini-3-pro-preview**: Максимальное качество рассуждений + мультимодальность
+- **gemini-3.1-pro-preview**: Максимальное качество рассуждений + мультимодальность
 - **temperature 0.2**: Минимум "творчества", максимум точности к словарю терминов
 - **JSON Schema**: 100% гарантия корректной структуры без постобработки
 

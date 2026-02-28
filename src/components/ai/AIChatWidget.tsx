@@ -1,6 +1,6 @@
 /**
  * AIChatWidget — Глобальный AI чат виджет с Zustand + Vaul
- * 
+ *
  * Использует:
  * - Zustand store для глобального состояния
  * - Vaul Drawer для мобильных (нативная физика свайпа)
@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, ChevronDown, Mic, MicOff } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff } from 'lucide-react';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,13 +30,11 @@ import { generateAIChatPrompt } from '@/lib/aiPrompts';
 import { useProfileData } from '@/hooks/useProfileData';
 import { usePDDContext } from '@/contexts/PDDContext';
 
-// Типизация для markdown рендеринга
 type MarkdownProps = {
     children: string;
     className?: string;
 };
 
-// ВАЖНО: react-markdown без remarkGfm (как в SmartDebriefCard где работает!)
 const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => (
     <div className={cn("text-sm leading-relaxed", className)}>
         <ReactMarkdown
@@ -58,6 +56,47 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => (
         </ReactMarkdown>
     </div>
 );
+
+/**
+ * Хук для стабильного отслеживания высоты viewport на iOS/Telegram.
+ * Решает проблему «чёрной дыры» и прыжков высоты при открытии клавиатуры.
+ */
+function useStableViewportHeight(isOpen: boolean) {
+    const [height, setHeight] = useState<number>(0);
+    const isTelegram = isTelegramMiniApp();
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const update = () => {
+            if (isTelegram && window.Telegram?.WebApp?.viewportHeight) {
+                setHeight(window.Telegram.WebApp.viewportHeight);
+            } else {
+                // window.innerHeight — самый стабильный, не меняется при открытии клавиатуры на iOS
+                setHeight(window.visualViewport?.height ?? window.innerHeight);
+            }
+        };
+
+        update();
+
+        const tg = isTelegram ? window.Telegram?.WebApp : null;
+        if (tg) {
+            tg.onEvent('viewportChanged', update);
+            return () => tg.offEvent('viewportChanged', update);
+        }
+
+        const vv = window.visualViewport;
+        if (vv) {
+            vv.addEventListener('resize', update);
+            return () => vv.removeEventListener('resize', update);
+        }
+
+        window.addEventListener('resize', update);
+        return () => window.removeEventListener('resize', update);
+    }, [isOpen, isTelegram]);
+
+    return height;
+}
 
 export function AIChatWidget() {
     const isMobile = useIsMobile();
@@ -92,6 +131,10 @@ export function AIChatWidget() {
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    // Стабильная высота viewport (решает проблему iOS + Telegram)
+    const viewportHeight = useStableViewportHeight(isOpen);
 
     // Voice Input State (Whisper API)
     const [isRecording, setIsRecording] = useState(false);
@@ -116,12 +159,12 @@ export function AIChatWidget() {
                 const mimeType = mediaRecorder.mimeType;
                 const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
 
-                setIsRecording(false); // UI update immediate
-                setIsProcessingVoice(true); // Show loader
+                setIsRecording(false);
+                setIsProcessingVoice(true);
 
                 try {
                     const formData = new FormData();
-                    formData.append('file', audioBlob, 'voice.webm'); // Name doesn't matter much for Whisper, but ext might
+                    formData.append('file', audioBlob, 'voice.webm');
                     formData.append('language', selectedCountry === 'russia' ? 'ru' : 'es');
 
                     const { data, error } = await supabase.functions.invoke('speech-to-text', {
@@ -132,25 +175,19 @@ export function AIChatWidget() {
 
                     if (data?.text) {
                         const newText = data.text.trim();
-                        // Умное добавление пробела
                         setInput(prev => {
                             const trimmed = prev.trim();
                             if (!trimmed) return newText;
-                            // Если заканчивается на знак препинания, пробел нужен
                             return `${trimmed} ${newText}`;
                         });
                         triggerHapticFeedback('success');
-
-                        // КРИТИЧНО: Возвращаем фокус в инпут после голосового ввода
                         setTimeout(() => inputRef.current?.focus(), 150);
                     }
                 } catch (err) {
-                    console.error('Voice processing error:', err);
                     toast.error('Не удалось распознать речь');
                     triggerHapticFeedback('error');
                 } finally {
                     setIsProcessingVoice(false);
-                    // Stop all tracks to release mic
                     stream.getTracks().forEach(track => track.stop());
                 }
             };
@@ -159,7 +196,6 @@ export function AIChatWidget() {
             setIsRecording(true);
             triggerHapticFeedback('light');
         } catch (err) {
-            console.error('Microphone access denied:', err);
             toast.error('Нет доступа к микрофону');
         }
     };
@@ -172,73 +208,36 @@ export function AIChatWidget() {
     };
 
     const toggleVoiceInput = () => {
-        if (isRecording) {
-            stopRecording();
-        } else {
-            startRecording();
-        }
+        if (isRecording) stopRecording();
+        else startRecording();
     };
 
-
-    // Фокус на input при открытии
+    // Фокус на input при открытии (с задержкой для анимации)
     useEffect(() => {
         if (isOpen && inputRef.current) {
-            setTimeout(() => inputRef.current?.focus(), 300);
+            setTimeout(() => inputRef.current?.focus(), 400);
         }
     }, [isOpen]);
 
-    // КРИТИЧНО: Обработка высоты в Telegram при изменении клавиатуры
-    const [tgViewportHeight, setTgViewportHeight] = useState<number | null>(null);
-
+    // Автоскролл к последнему сообщению
     useEffect(() => {
-        if (!isTelegram || !isOpen) return;
+        if (!messagesEndRef.current) return;
+        // requestAnimationFrame гарантирует скролл после рендера
+        requestAnimationFrame(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        });
+    }, [messages, isLoading]);
 
-        const tg = window.Telegram?.WebApp;
-        if (!tg) return;
-
-        const updateHeight = () => {
-            // Используем viewportHeight для корректного отображения без "черных дыр"
-            setTgViewportHeight(tg.viewportHeight);
-        };
-
-        tg.onEvent('viewportChanged', updateHeight);
-        updateHeight(); // Инициализация
-
-        return () => {
-            tg.offEvent('viewportChanged', updateHeight);
-        };
-    }, [isOpen, isTelegram]);
-
-    const handleInputBlur = () => {
-        // КРИТИЧНО для iOS Telegram: принудительный сброс скролла вниз при закрытии клавиатуры
-        if (isMobile) {
-            window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-            // Дополнительная проверка через 100мс на случай задержки ОС
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-                if (window.Telegram?.WebApp) {
-                    window.Telegram.WebApp.expand();
-                }
-            }, 100);
-        }
-    };
-
-    // Определяем язык интерфейса
     const interfaceLanguage = showTranslation ? 'ru' : (questionContext?.testLanguage || 'es');
 
-    // Отправка сообщения в AI
     const askAI = useCallback(async (userMessage: string) => {
         if (!userMessage.trim() || isLoading) return;
 
         setLoading(true);
-
-        // Добавляем user message
         addMessage({ role: 'user', content: userMessage });
 
         const context = questionContext;
 
-        // 🧠 UNIFIED AI PROMPT SYSTEM
-        // Используем тот же мощный промпт что и в SmartDebriefCard
         const aiPrompt = generateAIChatPrompt(
             context ? {
                 questionText: context.question || '',
@@ -254,7 +253,7 @@ export function AIChatWidget() {
                 name: profileData.full_name || 'Студент',
                 xp: profileData.xp || 0,
                 streak: profileData.streak || 0,
-                prevWeakness: null, // TODO: добавить tracking слабых тем
+                prevWeakness: null,
             } : undefined,
             interfaceLanguage
         );
@@ -264,8 +263,6 @@ export function AIChatWidget() {
             const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
             const allMessages = messages.map(m => ({ role: m.role, content: m.content }));
-
-            // В первом сообщении добавляем AI промпт как system context
             allMessages.push({
                 role: 'user' as const,
                 content: messages.length === 0 ? aiPrompt + '\n\n' + userMessage : userMessage
@@ -282,11 +279,10 @@ export function AIChatWidget() {
                     imageUrl: context?.imageUrl || '',
                     country: selectedCountry,
                     language: interfaceLanguage,
-                    mode: 'debrief', // 🔥 КРИТИЧНО: отключаем старый system prompt, используем наш unified prompt
+                    mode: 'debrief',
                 }),
             });
 
-            // Handle AI Limit
             if (response.status === 429) {
                 const errorData = await response.json();
                 if (errorData.error === 'daily_limit_reached') {
@@ -304,7 +300,6 @@ export function AIChatWidget() {
                 throw new Error('Failed to get response');
             }
 
-            // Streaming response
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
 
@@ -325,23 +320,17 @@ export function AIChatWidget() {
                         try {
                             const parsed = JSON.parse(data);
                             const content = parsed.choices?.[0]?.delta?.content;
-                            if (content) {
-                                updateLastMessage(content);
-                            }
-                        } catch (e) {
-                            // Skip invalid JSON
+                            if (content) updateLastMessage(content);
+                        } catch {
+                            // пропускаем невалидный JSON чанк
                         }
                     }
                 }
             }
 
-            // Хаптик при успешном ответе
-            if (isTelegram) {
-                triggerHapticFeedback('success');
-            }
+            if (isTelegram) triggerHapticFeedback('success');
 
         } catch (error) {
-            console.error('AI Chat error:', error);
             toast.error('Ошибка при получении ответа');
         } finally {
             setLoading(false);
@@ -356,13 +345,10 @@ export function AIChatWidget() {
         askAI(userMessage);
     };
 
-    // Общий контент чата
     const chatContent = (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col" style={{ height: '100%' }}>
             {/* Header */}
-            <div
-                className="flex items-center justify-between px-5 py-3 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10"
-            >
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
                         <Sparkles className="w-4 h-4 text-blue-500" />
@@ -392,36 +378,32 @@ export function AIChatWidget() {
                 </div>
             </div>
 
-            {/* Messages */}
-            <div className={cn(
-                "flex-1 overflow-y-auto px-4 py-4 space-y-4 relative transition-colors duration-500",
-                "bg-[#F5F8FF]/80 dark:bg-slate-900/40"
-            )}>
-                {/* Noise texture */}
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')] mix-blend-overlay"></div>
+            {/* Messages — flex-1 + overflow-y-auto */}
+            <div
+                ref={scrollContainerRef}
+                className={cn(
+                    "flex-1 overflow-y-auto px-4 py-4 space-y-4 relative",
+                    "bg-[#F5F8FF]/80 dark:bg-slate-900/40"
+                )}
+                style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')] mix-blend-overlay" />
 
-                {/* Welcome Screen - если нет сообщений и есть контекст вопроса */}
                 {messages.length === 0 && questionContext && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="flex flex-col items-center text-center py-8 px-4"
                     >
-                        {/* Lumi Character */}
                         <SkilyAICharacter size="lg" />
-
-                        {/* Greeting */}
                         <h3 className="text-xl font-bold mt-4 mb-2">
                             {interfaceLanguage === 'ru' ? 'Привет! Я Skily 💡' : '¡Hola! Soy Skily 💡'}
                         </h3>
-
                         <p className="text-muted-foreground text-sm max-w-[85%] mb-6 px-2">
                             {interfaceLanguage === 'ru'
                                 ? 'Нужна подсказка или объяснение? Просто нажми кнопку или задай свой вопрос!'
-                                : '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, y te ayudaré en el acto. ¡Listo cuando tú lo estés!'}
+                                : '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, ¡y te ayudaré al momento!'}
                         </p>
-
-                        {/* Action Buttons - Stack vertically on mobile to fit long text */}
                         <div className="flex flex-col w-full max-w-sm gap-3 px-2">
                             <Button
                                 variant="outline"
@@ -441,7 +423,6 @@ export function AIChatWidget() {
                     </motion.div>
                 )}
 
-                {/* Empty state - если нет контекста вопроса */}
                 {messages.length === 0 && !questionContext && (
                     <div className="flex flex-col items-center justify-center h-full text-center px-4">
                         <SkilyAICharacter size="lg" />
@@ -476,7 +457,6 @@ export function AIChatWidget() {
                                     <p className="text-sm font-medium tracking-tight leading-relaxed">{message.content}</p>
                                 )}
 
-                                {/* Feedback buttons for assistant */}
                                 {message.role === 'assistant' && message.content && (
                                     <div className="flex items-center gap-1 mt-2 pt-2 border-t border-black/5 dark:border-white/5">
                                         <Button
@@ -524,7 +504,7 @@ export function AIChatWidget() {
 
             {/* Smart Suggestions */}
             {smartSuggestions.length > 0 && !isLoading && (
-                <div className="px-4 pb-2">
+                <div className="px-4 pb-2 shrink-0">
                     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                         {smartSuggestions.map((suggestion, index) => (
                             <Button
@@ -541,12 +521,11 @@ export function AIChatWidget() {
                 </div>
             )}
 
-            {/* Input */}
+            {/* Input — строго shrink-0, поднимается с клавиатурой через env() */}
             <div
-                className="px-3 py-3 border-t border-border/10 shrink-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl z-20"
+                className="px-3 pt-3 border-t border-border/10 shrink-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl z-20"
                 style={{
-                    paddingBottom: isTelegram ? 'calc(var(--tg-content-safe-area-inset-bottom, 20px) + 10px)' : '20px',
-                    paddingTop: '12px'
+                    paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 12px)',
                 }}
             >
                 <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
@@ -555,10 +534,10 @@ export function AIChatWidget() {
                             ref={inputRef}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            onBlur={handleInputBlur}
-                            placeholder={interfaceLanguage === 'ru' ? 'Спроси что-нибудь...' : 'Pregunta algo...'}
+                            placeholder={interfaceLanguage === 'ru' ? 'Напиши свой вопрос...' : 'Escribe tu pregunta...'}
                             disabled={isLoading}
-                            className="w-full min-h-[48px] max-h-[120px] py-3 rounded-[24px] px-5 border-border/50 focus:ring-blue-500/20 bg-muted/50 focus:bg-background transition-all resize-none shadow-sm text-base"
+                            className="w-full min-h-[48px] py-3 rounded-[24px] px-5 border-border/50 focus:ring-blue-500/20 bg-muted/50 focus:bg-background transition-all resize-none shadow-sm text-base"
+                            style={{ fontSize: '16px' }} // предотвращает zoom на iOS
                         />
                     </div>
 
@@ -582,7 +561,7 @@ export function AIChatWidget() {
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : isRecording ? (
                             <>
-                                <span className="absolute inset-0 rounded-full animate-ping bg-white/30 duration-1000"></span>
+                                <span className="absolute inset-0 rounded-full animate-ping bg-white/30 duration-1000" />
                                 <MicOff className="w-5 h-5 relative z-10" />
                             </>
                         ) : (
@@ -610,6 +589,8 @@ export function AIChatWidget() {
 
     // Mobile: Vaul Drawer
     if (isMobile) {
+        const drawerHeight = viewportHeight > 0 ? viewportHeight : undefined;
+
         return (
             <>
                 <Drawer
@@ -618,10 +599,11 @@ export function AIChatWidget() {
                     shouldScaleBackground={false}
                 >
                     <DrawerContent
-                        className="overflow-hidden flex flex-col"
+                        className="overflow-hidden flex flex-col focus:outline-none"
                         style={{
-                            height: tgViewportHeight ? `${tgViewportHeight}px` : '96dvh',
-                            maxHeight: tgViewportHeight ? `${tgViewportHeight}px` : '96dvh'
+                            // px-высота стабильнее dvh на iOS при открытой клавиатуре
+                            height: drawerHeight ? `${drawerHeight}px` : '92svh',
+                            maxHeight: drawerHeight ? `${drawerHeight}px` : '92svh',
                         }}
                     >
                         {chatContent}

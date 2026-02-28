@@ -35,7 +35,7 @@ node scripts/enrich-batch-v2.js data/parsed/topic-02/topic-02_test-002.json
 ```
 
 **Особенности:**
-- Использует модель `gemini-2.0-flash-exp` (можно менять на `gemini-3-pro-preview`)
+- Использует модель `gemini-2.0-flash-exp` (можно менять на `gemini-3.1-pro-preview`)
 - Автоматические повторы при ошибках (до 3 попыток)
 - Валидация: требует ровно 30 вопросов
 - Формат объяснений: 🧠 **Логика "Почему"** + 💣 **Ловушка / Трюк**
@@ -171,7 +171,7 @@ data/parsed/
 
 ### Модели Gemini:
 - **`gemini-2.0-flash-exp`** — быстрая, бесплатная, умная (используем по умолчанию)
-- **`gemini-3-pro-preview`** — очень умная, но может быть перегружена (503 errors)
+- **`gemini-3.1-pro-preview`** — очень умная, но может быть перегружена (503 errors)
 
 ### Где менять модель:
 В файле `scripts/enrich-batch-v2.js` или `scripts/fix-all-issues.js`:

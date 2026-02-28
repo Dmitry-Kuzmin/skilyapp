@@ -67,7 +67,7 @@ async function main() {
         const style1Base64 = await getBase64FromFile(STYLE_REF_1_PATH);
         const style2Base64 = await getBase64FromFile(STYLE_REF_2_PATH);
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${API_KEY}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview-image-preview:generateContent?key=${API_KEY}`;
 
         console.log("📤 Отправляем сложный запрос (Scenario + Style)...");
 

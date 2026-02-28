@@ -10,7 +10,7 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 const model = genAI.getGenerativeModel({
-    model: "gemini-3-pro", // Updated to strongest text model
+    model: "gemini-3.1-pro-preview", // Updated to strongest text model
     generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {

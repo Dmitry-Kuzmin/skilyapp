@@ -101,8 +101,8 @@ const responseSchema = {
 // Модели в порядке приоритета.
 // User specific request with exact model names.
 const MODELS_PRIORITY = [
-    "gemini-3-pro-preview",
-    "gemini-3-flash-preview",
+    "gemini-3.1-pro-preview",
+    "gemini-3.1-pro-preview",
     "gemini-2.0-flash-exp"
 ];
 
