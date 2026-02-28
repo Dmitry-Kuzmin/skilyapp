@@ -45,7 +45,8 @@ body {
 
 html.telegram-webapp,
 body.telegram-webapp {
-  height: 100dvh; /* Use dynamic viewport height */
+  height: 100dvh;
+  /* Use dynamic viewport height */
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -488,12 +489,10 @@ All colors MUST be HSL.
      * 3. env(safe-area-inset-top) (браузерный notch/island)
      * 4. 92px - безопасный минимум для iPhone 16
      */
-    padding-top: max(
-        var(--tg-content-safe-area-inset-top, 0px),
+    padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
         var(--tg-safe-area-inset-top, 0px),
         env(safe-area-inset-top, 0px),
-        92px
-    ) !important;
+        92px) !important;
 
     /* Плавный переход при изменении ориентации или скрытии BackButton */
     transition: padding-top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -528,11 +527,6 @@ All colors MUST be HSL.
    */
 
 
-  /* Исключение для duel-страниц - они сами управляют отступами */
-  html.telegram-mobile-app.duel-active .telegram-main-content,
-  body.telegram-mobile-app.duel-active .telegram-main-content {
-    padding-top: 0 !important;
-  }
 
   /* Также обнуляем padding на body для duel страниц */
   body.telegram-mobile-app.duel-active {
@@ -1731,6 +1725,7 @@ html {
     opacity: 0;
     transform: translateY(1rem);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
