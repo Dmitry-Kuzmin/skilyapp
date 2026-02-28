@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { User, AlertTriangle, ShieldCheck, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2, Activity as ActivityIcon, X } from 'lucide-react';
+import { User, AlertTriangle, ShieldCheck, ShieldAlert, TrendingUp, Check, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2, Activity as ActivityIcon, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -33,6 +33,11 @@ interface LicenseCardProps {
     licenseHistory?: Array<{
         points: number;
         recorded_at: string;
+    }>;
+    licenseAudit?: Array<{
+        delta: number;
+        event_type: string;
+        created_at: string;
     }>;
     animatePoints?: boolean;
 }
@@ -102,11 +107,13 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     stats,
     isDarkTheme,
     selectedCountry,
+    language,
     hasClaimedToday,
     onRecoverPoints,
     animatePoints = false,
     t,
-    licenseHistory = []
+    licenseHistory = [],
+    licenseAudit = []
 }) => {
     const isMobile = useIsMobile();
     const {
@@ -238,7 +245,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
     return (
         <div className={cn(
-            "w-full relative group perspective-[2000px] p-2 sm:p-4",
+            "w-full relative group perspective-[2000px]",
             isPointsModalOpen && isMobile ? "h-auto" : "h-full"
         )}>
             {/* The 3D Glassmorphism License Card */}
@@ -426,15 +433,15 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                             className={cn(
                                 "flex flex-col items-center justify-center",
                                 isMobile
-                                    ? "relative z-[100] w-full border-t border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5"
-                                    : "fixed md:absolute inset-0 z-[1000] md:z-[100] md:rounded-[24px] lg:rounded-[32px] overflow-hidden backdrop-blur-3xl"
+                                    ? "relative z-[100] w-full border-t border-black/20 dark:border-white/20 bg-white dark:bg-[#0F1014]"
+                                    : "fixed md:absolute inset-0 z-[1000] md:z-[100] md:rounded-[24px] lg:rounded-[32px] overflow-hidden backdrop-blur-[60px]"
                             )}
                         >
                             {/* High-quality deep backdrop - DT Only */}
                             {!isMobile && (
                                 <div className={cn(
                                     "absolute inset-0",
-                                    isDarkTheme ? "bg-zinc-950/95" : "bg-white/95"
+                                    isDarkTheme ? "bg-[#0F1014]" : "bg-zinc-50"
                                 )} />
                             )}
 
@@ -446,19 +453,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     : "h-full p-6 md:p-8 overflow-y-auto pt-16 md:pt-6"
                             )}>
 
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); setIsPointsModalOpen(false); }}
-                                    className={cn(
-                                        isMobile
-                                            ? "absolute top-4 right-4 p-1.5 rounded-full z-[1001] bg-black/10 dark:bg-white/10"
-                                            : "fixed md:absolute top-4 right-4 p-2.5 rounded-full transition-all z-[1001] border backdrop-blur-md active:scale-90",
-                                        !isMobile && (isDarkTheme ? "bg-white/10 hover:bg-white/20 border-white/10" : "bg-black/5 hover:bg-black/10 border-black/10")
-                                    )}
-                                >
-                                    <X size={isMobile ? 16 : 24} className={isDarkTheme ? "text-white" : "text-black"} />
-                                </button>
-
-                                {/* Title/Header for mobile details */}
+                                {/* Title/Header for mobile details (removed absolute close button from here) */}
                                 {isMobile && (
                                     <div className="mb-2">
                                         <h3 className={cn("text-xs font-black uppercase tracking-widest", isDarkTheme ? "text-white/40" : "text-black/40")}>
@@ -467,25 +462,84 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     </div>
                                 )}
 
-                                {/* Points Summary Card */}
-                                <div className={cn(
-                                    "flex items-center justify-between p-4 rounded-2xl border",
-                                    isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
-                                )}>
-                                    <div className="space-y-1">
+                                {/* Status Banner Area with Integrated Close */}
+                                <div className="flex items-stretch gap-2 mb-4">
+                                    <div className={cn(
+                                        "flex-1 flex items-center gap-4 p-4 rounded-3xl border shadow-xl transition-all duration-700",
+                                        points >= 10
+                                            ? "bg-emerald-500/10 border-emerald-500/20 shadow-emerald-500/5"
+                                            : "bg-amber-500/10 border-amber-500/20 shadow-amber-500/5"
+                                    )}>
                                         <div className={cn(
-                                            "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] md:text-xs font-black uppercase tracking-[0.05em] border shadow-md",
-                                            points >= 10
-                                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                                            "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner transition-transform",
+                                            points >= 10 ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" : "bg-amber-500/20 border-amber-500/30 text-amber-400"
                                         )}>
-                                            {points >= 10 ? <ShieldCheck size={12} className="animate-pulse" /> : <AlertTriangle size={12} />}
-                                            {points >= 10 ? "Допуск к экзамену открыт" : "Для экзамена нужно 10"}
+                                            {points >= 10 ? <ShieldCheck size={28} className="animate-pulse" /> : <ShieldAlert size={28} />}
+                                        </div>
+                                        <div className="flex flex-col text-left">
+                                            <span className={cn(
+                                                "text-[12px] font-black uppercase tracking-widest",
+                                                points >= 10 ? "text-emerald-400" : "text-amber-400"
+                                            )}>
+                                                {points >= 10 ? 'Допуск к экзаменам открыт' : 'Допуск ограничен'}
+                                            </span>
+                                            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
+                                                {points >= 10 ? 'Вы набрали необходимые 10 баллов' : `Нужно еще ${10 - points} баллов до экзамена`}
+                                            </span>
                                         </div>
                                     </div>
-                                    <div className="relative shrink-0 flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
-                                        <div className="scale-[0.15] md:scale-[0.28] origin-center absolute pointer-events-none overflow-visible">
-                                            <PuntosIndicator currentPoints={points} isDarkTheme={isDarkTheme} />
+
+                                    {/* Embedded Close Button */}
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); setIsPointsModalOpen(false); }}
+                                        className={cn(
+                                            "w-14 md:w-20 flex items-center justify-center rounded-3xl border transition-all active:scale-90 shadow-xl",
+                                            isDarkTheme ? "bg-white/5 hover:bg-white/10 border-white/10" : "bg-black/5 hover:bg-black/10 border-black/5"
+                                        )}
+                                    >
+                                        <X size={24} className={isDarkTheme ? "text-white" : "text-black"} />
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className={cn(
+                                        "p-6 rounded-3xl border shadow-xl flex items-center justify-between overflow-hidden relative group",
+                                        isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
+                                    )}>
+                                        {/* Subtle background glow for points */}
+                                        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-500/10 blur-3xl rounded-full" />
+
+                                        <div className="flex flex-col gap-1 text-left relative z-10">
+                                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Текущий счет</span>
+                                            <div className="flex items-baseline gap-1">
+                                                <span className={cn("text-4xl font-black tabular-nums tracking-tighter", isDarkTheme ? "text-white" : "text-black")}>
+                                                    {points}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-zinc-500 uppercase">баллов</span>
+                                            </div>
+                                        </div>
+                                        <div className="relative w-20 h-20 flex items-center justify-center z-10">
+                                            <div className="scale-[0.35] origin-center absolute pointer-events-none">
+                                                <PuntosIndicator currentPoints={points} isDarkTheme={isDarkTheme} />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={cn(
+                                        "p-6 rounded-3xl border shadow-xl flex items-center gap-5",
+                                        isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
+                                    )}>
+                                        <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shadow-inner">
+                                            <TrendingUp size={28} className="text-indigo-400" />
+                                        </div>
+                                        <div className="flex flex-col text-left">
+                                            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Профит-фактор</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className={cn("text-3xl font-black", isDarkTheme ? "text-white" : "text-black")}>
+                                                    {((stats.accuracy || 100) / 10).toFixed(1)}
+                                                </span>
+                                                <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[8px] font-black uppercase">Good</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -518,20 +572,87 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     </div>
 
                                     <div className={cn(
-                                        "md:col-span-2 p-3 md:p-4 rounded-2xl border shadow-lg flex flex-col justify-center gap-3",
-                                        isDarkTheme ? "bg-white/[0.02] border-white/5" : "bg-black/[0.02] border-black/5"
+                                        "md:col-span-3 p-3 md:p-5 rounded-2xl border shadow-lg flex flex-col gap-4 overflow-hidden",
+                                        isDarkTheme ? "bg-black/40 border-white/5" : "bg-white border-black/5"
                                     )}>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                                                <span className="text-emerald-400 text-[10px] font-black">+1</span>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[8px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest">Журнал событий</span>
+                                            <div className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                                                <span className="text-[7px] font-bold text-indigo-400 uppercase">Последние действия</span>
                                             </div>
-                                            <p className="text-[9px] text-zinc-400 font-medium">Вход, победы, чистые тесты.</p>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
-                                                <span className="text-rose-400 text-[10px] font-black">-1</span>
+                                        <div className="flex flex-col gap-3 overflow-y-auto max-h-[160px] pr-1 custom-scrollbar">
+                                            {licenseAudit.length > 0 ? (
+                                                licenseAudit.map((item, idx) => (
+                                                    <div key={idx} className="flex items-center justify-between gap-3 group/item">
+                                                        <div className="flex items-center gap-3 truncate">
+                                                            <div className={cn(
+                                                                "w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border transition-transform group-hover/item:scale-110",
+                                                                item.delta > 0
+                                                                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                                                    : item.delta < 0 ? "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                                                                        : "bg-zinc-500/10 border-zinc-500/20 text-zinc-400"
+                                                            )}>
+                                                                <span className="text-[10px] font-black">
+                                                                    {item.delta > 0 ? `+${item.delta}` : item.delta}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex flex-col truncate text-left">
+                                                                <span className={cn("text-[10px] font-black truncate", isDarkTheme ? "text-zinc-200" : "text-zinc-800")}>
+                                                                    {item.event_type === 'daily_login' ? 'Вход в систему' :
+                                                                        item.event_type === 'inactivity_decay' ? 'Простой > 48ч' :
+                                                                            item.event_type === 'admin_restore' ? 'Коррекция ИИ' :
+                                                                                item.event_type === 'topic_perfect' ? 'Чистый тест' :
+                                                                                    item.event_type === 'exam_pass' ? 'Экзамен сдан' :
+                                                                                        item.event_type === 'exam_fail' ? 'Экзамен провален' : item.event_type}
+                                                                </span>
+                                                                <span className="text-[7px] text-zinc-500 uppercase font-bold tracking-tighter">
+                                                                    {new Date(item.created_at).toLocaleString(language, { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit' })}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500/20" />
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center py-6 opacity-30">
+                                                    <Info size={20} className="mb-2" />
+                                                    <span className="text-[10px] uppercase font-black tracking-widest">История пуста</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className={cn(
+                                        "md:col-span-2 p-3 md:p-5 rounded-2xl border shadow-lg flex flex-col gap-4",
+                                        isDarkTheme ? "bg-indigo-500/[0.03] border-indigo-500/10" : "bg-indigo-50 border-indigo-100"
+                                    )}>
+                                        <span className="text-[8px] md:text-[10px] font-black text-indigo-500/60 uppercase tracking-widest text-left">Система баллов</span>
+                                        <div className="space-y-4">
+                                            <div className="flex items-start gap-3 group/rule">
+                                                <div className="w-7 h-7 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 transition-all group-hover/rule:bg-emerald-500/20">
+                                                    <span className="text-emerald-500 text-[11px] font-black">+1</span>
+                                                </div>
+                                                <div className="flex flex-col text-left">
+                                                    <span className={cn("text-[10px] font-black", isDarkTheme ? "text-zinc-200" : "text-zinc-800")}>Бонусы</span>
+                                                    <p className="text-[9px] text-zinc-500 font-medium leading-tight">Ежедневный вход, победы в дуэлях, идеальные тесты.</p>
+                                                </div>
                                             </div>
-                                            <p className="text-[9px] text-zinc-400 font-medium">Ошибки, простой более 48ч.</p>
+                                            <div className="flex items-start gap-3 group/rule">
+                                                <div className="w-7 h-7 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0 transition-all group-hover/rule:bg-rose-500/20">
+                                                    <span className="text-rose-500 text-[11px] font-black">-1</span>
+                                                </div>
+                                                <div className="flex flex-col text-left">
+                                                    <span className={cn("text-[10px] font-black", isDarkTheme ? "text-zinc-200" : "text-zinc-800")}>Штрафы</span>
+                                                    <p className="text-[9px] text-zinc-500 font-medium leading-tight">Ошибки в тестах, простой в обучении более 48 часов.</p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-4 pt-4 border-t border-indigo-500/10 text-left">
+                                                <div className="flex items-center gap-2 text-indigo-500/60">
+                                                    <HelpCircle size={12} />
+                                                    <span className="text-[8px] font-black uppercase tracking-tighter">Нужно 10 для экзамена</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

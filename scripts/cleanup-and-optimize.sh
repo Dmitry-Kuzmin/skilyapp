@@ -7,12 +7,20 @@ LOG_FILE="$HOME/Library/Logs/cursor-cleanup.log"
 PROJECT_DIR="$HOME/Desktop/Sdadim/sdadim-dgt-prep"
 CURSOR_LOGS="$HOME/Library/Application Support/Cursor/logs"
 CURSOR_USER_DATA="$HOME/Library/Application Support/Cursor/User"
-MAX_LOG_SIZE=100M  # Максимальный размер лога перед очисткой
-MAX_DB_SIZE=100M  # Максимальный размер базы данных перед предупреждением (100MB)
+ANTIGRAVITY_LOGS="$HOME/Library/Application Support/Antigravity/logs"
+ANTIGRAVITY_USER_DATA="$HOME/Library/Application Support/Antigravity/User"
+MAX_LOG_SIZE=50M  # Уменьшил лимит логов
+
 
 # Функция логирования
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+    echo -e "${GREEN}[$(date '+%Y-%m-%d %H:%M:%S')] $1${NC}" | tee -a "$LOG_FILE"
+}
+
+# Функция жесткого удаления процессов по имени
+force_kill() {
+    log "🎯 Уничтожение процессов: $1..."
+    pkill -9 -f "$1" 2>/dev/null
 }
 
 log "=== Начало очистки и оптимизации ==="
@@ -25,25 +33,24 @@ fi
 
 cd "$PROJECT_DIR" || exit 1
 
-# 1. Остановка зависших процессов Node/Vite
-log "1. Остановка зависших процессов Node/Vite..."
-pkill -f "vite|npm.*dev" 2>/dev/null
-sleep 2
-# Принудительная остановка, если процесс все еще работает
-pgrep -f "vite|npm.*dev" | xargs kill -9 2>/dev/null
-log "   ✓ Процессы остановлены"
+# 1. Агрессивная остановка всего лишнего
+log "1. Остановка фонового мусора..."
+force_kill "vite"
+force_kill "npm.*dev"
+force_kill "Google Chrome Helper"
+force_kill "Safari"
+force_kill "com.apple.WebKit.WebContent"
+log "   ✓ Сторонние процессы остановлены"
 
-# 2. Очистка логов Cursor (осторожно - только старые файлы)
-log "2. Очистка логов Cursor..."
-if [ -d "$CURSOR_LOGS" ]; then
-    # Удаляем только старые логи (> 7 дней) и ограничиваем размер
-    find "$CURSOR_LOGS" -type f -name "*.log" -mtime +7 -delete 2>/dev/null
-    # Очищаем большие логи (оставляем только последние 1000 строк)
-    find "$CURSOR_LOGS" -type f -name "*.log" -size +$MAX_LOG_SIZE -exec sh -c 'tail -1000 "$1" > "$1.tmp" && mv "$1.tmp" "$1"' _ {} \; 2>/dev/null
-    log "   ✓ Логи Cursor очищены"
-else
-    log "   ⚠ Директория логов Cursor не найдена"
-fi
+# 2. Очистка логов Cursor/Antigravity (осторожно - только старые файлы)
+log "2. Очистка логов..."
+for LOG_DIR in "$CURSOR_LOGS" "$ANTIGRAVITY_LOGS"; do
+    if [ -d "$LOG_DIR" ]; then
+        find "$LOG_DIR" -type f -name "*.log" -mtime +3 -delete 2>/dev/null
+        find "$LOG_DIR" -type f -name "*.log" -size +$MAX_LOG_SIZE -exec sh -c 'tail -500 "$1" > "$1.tmp" && mv "$1.tmp" "$1"' _ {} \; 2>/dev/null
+    fi
+done
+log "   ✓ Логи очищены"
 
 # 3. Очистка кешей Vite
 log "3. Очистка кешей Vite..."
@@ -86,68 +93,42 @@ log "9. Очистка старых логов проекта..."
 find . -type f -name "*.log" -mtime +7 -delete 2>/dev/null
 log "   ✓ Логи проекта очищены"
 
-# 10. Очистка больших файлов Cursor
-log "10. Очистка больших файлов Cursor..."
-if [ -d "$CURSOR_USER_DATA" ]; then
-    # Удаляем backup базы данных (безопасно, он пересоздастся при необходимости)
-    BACKUP_DB="$CURSOR_USER_DATA/globalStorage/state.vscdb.backup"
-    if [ -f "$BACKUP_DB" ]; then
-        BACKUP_SIZE=$(du -h "$BACKUP_DB" | cut -f1)
-        rm -f "$BACKUP_DB" 2>/dev/null
-        log "   ✓ Удален backup базы данных Cursor (было ${BACKUP_SIZE})"
-    fi
-    
-    # Проверяем размер основной базы данных
-    MAIN_DB="$CURSOR_USER_DATA/globalStorage/state.vscdb"
-    if [ -f "$MAIN_DB" ]; then
-        DB_SIZE=$(stat -f%z "$MAIN_DB" 2>/dev/null || echo 0)
-        DB_SIZE_MB=$((DB_SIZE / 1048576))
-        if [ "$DB_SIZE" -gt 104857600 ]; then  # > 100MB
-            log "   ⚠ ВНИМАНИЕ: База данных Cursor слишком большая: ${DB_SIZE_MB}MB (рекомендуется < 100MB)"
-            log "   💡 Рекомендация: Закрой Cursor и удали файл state.vscdb - он пересоздастся (потеряются некоторые настройки)"
-        else
-            log "   ✓ Размер базы данных Cursor: ${DB_SIZE_MB}MB (нормально)"
-        fi
-    fi
-    
-    # Очищаем старые workspaceStorage (> 30 дней без использования)
-    WORKSPACE_STORAGE="$CURSOR_USER_DATA/workspaceStorage"
-    if [ -d "$WORKSPACE_STORAGE" ]; then
-        OLD_WORKSPACES=$(find "$WORKSPACE_STORAGE" -mindepth 1 -maxdepth 1 -type d -mtime +30 | wc -l | tr -d ' ')
-        if [ "$OLD_WORKSPACES" -gt 0 ]; then
-            find "$WORKSPACE_STORAGE" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} \; 2>/dev/null
-            log "   ✓ Удалено старых рабочих областей: ${OLD_WORKSPACES}"
-        else
-            log "   ✓ Старые рабочие области не найдены"
+# 10. Очистка больших файлов Cursor/Antigravity
+log "10. Очистка больших файлов приложений..."
+for USER_DATA in "$CURSOR_USER_DATA" "$ANTIGRAVITY_USER_DATA"; do
+    if [ -d "$USER_DATA" ]; then
+        APP_NAME=$(basename $(dirname "$USER_DATA"))
+        log "   Обработка $APP_NAME..."
+        
+        # Удаляем backup базы данных
+        BACKUP_DB="$USER_DATA/globalStorage/state.vscdb.backup"
+        if [ -f "$BACKUP_DB" ]; then
+            rm -f "$BACKUP_DB" 2>/dev/null
         fi
         
-        # Очищаем старые скриншоты (> 14 дней) внутри активных workspaceStorage
-        find "$WORKSPACE_STORAGE" -type d -name "images" -exec sh -c '
-            OLD_IMAGES=$(find "$1" -type f -mtime +14 | wc -l | tr -d " ")
-            if [ "$OLD_IMAGES" -gt 0 ]; then
-                find "$1" -type f -mtime +14 -delete 2>/dev/null
-                echo "   ✓ Удалено старых скриншотов: ${OLD_IMAGES}"
-            fi
-        ' _ {} \; 2>/dev/null
+        # Очищаем старые workspaceStorage (> 14 дней)
+        WORKSPACE_STORAGE="$USER_DATA/workspaceStorage"
+        if [ -d "$WORKSPACE_STORAGE" ]; then
+            find "$WORKSPACE_STORAGE" -mindepth 1 -maxdepth 1 -type d -mtime +14 -exec rm -rf {} \; 2>/dev/null
+        fi
         
-        # Проверяем размер текущих workspaceStorage
-        WS_SIZE=$(du -sh "$WORKSPACE_STORAGE" 2>/dev/null | cut -f1)
-        log "   Размер workspaceStorage: ${WS_SIZE}"
+        # Очистка Code Cache и GPU Cache
+        APP_ROOT=$(dirname "$USER_DATA")
+        rm -rf "$APP_ROOT/Code Cache"/* 2>/dev/null
+        rm -rf "$APP_ROOT/GPUCache"/* 2>/dev/null
     fi
-else
-    log "   ⚠ Директория данных Cursor не найдена"
-fi
+done
 
-# 11. Финализация - проверка размера лога очистки
-log "11. Проверка размера лога очистки..."
-if [ -f "$LOG_FILE" ]; then
-    LOG_SIZE=$(wc -c < "$LOG_FILE" 2>/dev/null || echo 0)
-    MAX_LOG_BYTES=10485760  # 10MB
-    if [ "$LOG_SIZE" -gt "$MAX_LOG_BYTES" ]; then
-        tail -5000 "$LOG_FILE" > "$LOG_FILE.tmp" && mv "$LOG_FILE.tmp" "$LOG_FILE"
-        log "   Лог очистки был слишком большим, обрезан до последних 5000 строк"
-    fi
-fi
+# 11. Сброс системных служб (мини-ребут без ребута)
+log "11. Сброс системных служб macOS..."
+# Сброс кэша DNS
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder 2>/dev/null || log "   (пропущено: DNS)"
+# Сброс кэша иконок (частая причина лагов Finder/UI)
+sudo rm -rf /Library/Caches/com.apple.iconservices.store 2>/dev/null || log "   (пропущено: Icons)"
+
+# 12. Финальный сброс памяти
+log "12. Финальный удар по RAM (Purge)..."
+sync && sudo purge 2>/dev/null || purge 2>/dev/null
 
 log "=== Очистка завершена успешно ==="
 log ""

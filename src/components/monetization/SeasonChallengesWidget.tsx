@@ -55,7 +55,7 @@ export function SeasonChallengesWidget() {
       const { data: challengesData, error: challengesError } = await supabase
         .from("season_challenges")
         .select("*")
-        .eq("season_id", season.id)
+        .eq("season_id", activeSeason.id)
         .eq("is_active", true)
         .order("challenge_type", { ascending: true })
         .order("created_at", { ascending: true });
@@ -82,7 +82,7 @@ export function SeasonChallengesWidget() {
         setChallenges(uniqueChallenges as Challenge[]);
 
         // Загружаем прогресс пользователя
-        if (uniqueChallenges.length > 0) {
+        if (uniqueChallenges.length > 0 && profileId) {
           const challengeIds = uniqueChallenges.map((c: any) => c.id);
           const { data: progressData } = await supabase
             .from("user_challenge_progress")

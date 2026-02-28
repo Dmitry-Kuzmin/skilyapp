@@ -104,7 +104,7 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
                                 ) : showResult && isSelected && !isCorrect ? (
                                     <X className="w-6 h-6" />
                                 ) : (
-                                    String.fromCharCode(65 + index)
+                                    index + 1
                                 )}
                             </div>
 
@@ -150,7 +150,7 @@ export const BlitzQuestionCard = memo(function BlitzQuestionCard({
                             transition={{ duration: 0.4 }}
                             src={currentQuestion.image_url}
                             alt="Question"
-                            className="relative z-10 w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
+                            className="relative z-10 w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] rounded-2xl"
                         />
                     </div>
 

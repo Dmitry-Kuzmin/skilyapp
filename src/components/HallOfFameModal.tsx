@@ -4,9 +4,10 @@ import { useModalRoute } from "@/hooks/useModalRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
-import { Trophy, Crown, Award, Star, Calendar, TrendingUp } from "lucide-react";
+import { Trophy, Crown, Award, Star, Calendar, TrendingUp, ChevronLeft } from "lucide-react";
 import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
 import { UserContext } from "@/contexts/UserContext";
@@ -153,98 +154,62 @@ export function HallOfFameModal() {
       open={isOpen}
       onOpenChange={(open) => !open && closeModal()}
       title="Зал славы"
-      snapPoints={['55%', '95%']}
+      snapPoints={['70vh', '95vh']}
       initialSnap={0}
       showTitleBar={false}
       modalRouteKey="hall-of-fame"
+      className="max-w-5xl rounded-[2.5rem] overflow-hidden"
     >
-      <div className="space-y-6">
-        {/* Заголовок (внутри scroll, с отступами) */}
-        <div className="text-center space-y-3 px-4 pt-2 pb-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 text-yellow-600 text-xs font-semibold">
-            <Trophy className="w-3 h-3" />
-            Легенды сезонов
+      <div className="space-y-6 py-4 px-4 sm:px-6">
+        <header className="space-y-4 text-left relative">
+          {/* Кнопка Назад */}
+          <div className="flex items-center absolute top-0 left-0 z-50">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md"
+              onClick={() => closeModal()}
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
           </div>
-          <p className="text-sm text-muted-foreground">
-            История чемпионов и элитных игроков, которые достигли вершин в Duel Pass
-          </p>
-        </div>
 
-        {/* Дополнительный контент для тестирования */}
+          <div className="flex flex-col pt-12">
+            <div className="inline-flex items-center w-max gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 text-yellow-600 text-[10px] uppercase tracking-wider font-bold mb-3">
+              <Trophy className="w-3 h-3" />
+              Легенды сезонов
+            </div>
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none bg-gradient-to-br from-yellow-300 via-yellow-500 to-amber-600 bg-clip-text text-transparent mb-2">
+              Зал славы
+            </h1>
+            <p className="text-sm text-muted-foreground max-w-md">
+              История чемпионов и элитных игроков, которые достигли вершин в Duel Pass
+            </p>
+          </div>
+        </header>
+
+        {/* Дополнительный контент */}
         <div className="grid gap-4 sm:grid-cols-2">
-          <Card className="p-4 space-y-3">
+          <Card className="p-5 space-y-3 bg-white/5 border-white/10 backdrop-blur-sm rounded-3xl">
             <div className="flex items-center gap-2">
-              <Crown className="w-4 h-4 text-yellow-500" />
-              <h3 className="font-semibold text-base">Как попасть в Hall of Fame?</h3>
+              <Crown className="w-5 h-5 text-yellow-500" />
+              <h3 className="font-bold text-lg">Как попасть в Hall of Fame?</h3>
             </div>
             <p className="text-sm text-muted-foreground">
               Держи высокий темп прокачки, не пропускай сезонные ивенты и используй бусты XP — стабильность даёт шанс попасть в топ.
             </p>
-            <ul className="text-xs text-muted-foreground space-y-1 border-t border-border/50 pt-2">
-              <li>• Выполняй ежедневные задания для ускорения прогресса</li>
-              <li>• Подключай бусты и наборы за дуэльные монеты</li>
-              <li>• Финальные недели сезона решают всё — увеличь активность</li>
-            </ul>
           </Card>
 
-          <Card className="p-4 space-y-3">
+          <Card className="p-5 space-y-3 bg-white/5 border-white/10 backdrop-blur-sm rounded-3xl">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-emerald-500" />
-              <h3 className="font-semibold text-base">Мини-аналитика топа</h3>
+              <TrendingUp className="w-5 h-5 text-emerald-500" />
+              <h3 className="font-bold text-lg">Элита Duel Pass</h3>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-lg border p-2">
-                <p className="text-muted-foreground mb-1">Средний уровень топ-3</p>
-                <p className="text-xl font-black text-emerald-500">24</p>
-              </div>
-              <div className="rounded-lg border p-2">
-                <p className="text-muted-foreground mb-1">Максимальное XP</p>
-                <p className="text-xl font-black text-primary">1.2M</p>
-              </div>
-              <div className="rounded-lg border p-2">
-                <p className="text-muted-foreground mb-1">Игроков с легендарным титулом</p>
-                <p className="text-xl font-black text-sky-500">42</p>
-              </div>
-              <div className="rounded-lg border p-2">
-                <p className="text-muted-foreground mb-1">Рекорд серии побед</p>
-                <p className="text-xl font-black text-rose-500">18</p>
-              </div>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              В Зал славы попадают только 10 лучших игроков каждого сезона. Их имена навсегда вписываются в историю, а аватары украшаются знаками отличия.
+            </p>
           </Card>
         </div>
-
-        <Card className="p-4 space-y-3">
-          <h4 className="font-semibold text-base">Маршрут чемпиона</h4>
-          <div className="flex flex-col gap-3 text-sm text-muted-foreground">
-            <div className="flex gap-3">
-              <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
-                1
-              </span>
-              <div>
-                <p className="text-foreground font-medium">Старт сезона</p>
-                <p>Сконцентрируйся на ежедневных заданиях и удвоенных XP акциях.</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
-                2
-              </span>
-              <div>
-                <p className="text-foreground font-medium">Середина</p>
-                <p>Подключай дуэли и командные события, чтобы удержаться в топе.</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <span className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
-                3
-              </span>
-              <div>
-                <p className="text-foreground font-medium">Финиш</p>
-                <p>Следи за рейтингом, бусти опыт и закрывай пропущенные задачи.</p>
-              </div>
-            </div>
-          </div>
-        </Card>
 
         {/* Фильтр по сезонам */}
         {seasons.length > 0 && (

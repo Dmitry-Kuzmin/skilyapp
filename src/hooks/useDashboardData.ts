@@ -129,6 +129,11 @@ interface DashboardStats {
     points: number;
     recorded_at: string;
   }>;
+  license_audit?: Array<{
+    delta: number;
+    event_type: string;
+    created_at: string;
+  }>;
 }
 
 interface DashboardData extends DashboardStats {

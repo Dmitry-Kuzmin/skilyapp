@@ -856,8 +856,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                         className="w-full h-full rounded-2xl object-cover border-2 border-white/20 shadow-xl relative z-10"
                         alt={results.opponentName}
                       />
-                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-slate-900 z-20" />
                     </motion.div>
+
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-1">
@@ -878,7 +878,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                   <Button
                     onClick={() => {
                       setShowBotProposal(false);
-                      onRematch(true, { name: results.opponentName, isBot: true });
+                      onRematch(true, { id: results.opponentId || 'bot', name: results.opponentName, isBot: true });
+
                     }}
                     className="flex-[2] bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl h-10 shadow-lg shadow-indigo-500/20 border-0 active:scale-95 transition-all text-xs tracking-wider"
                   >

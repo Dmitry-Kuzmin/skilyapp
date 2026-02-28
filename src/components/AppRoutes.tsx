@@ -96,7 +96,6 @@ const HandbookRussiaArticle = lazy(() => import("../pages/RussiaHandbookArticle"
 const Partners = lazy(() => import("../pages/Partners"));
 const Blog = lazy(() => import("../pages/Blog"));
 const Article = lazy(() => import("../pages/Article"));
-const DuelLeaderboard = lazy(() => import("../pages/DuelLeaderboard"));
 const Inventory = lazy(() => import("../pages/Inventory"));
 const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
@@ -408,11 +407,8 @@ export function AppRoutes() {
           <Article />
         </Suspense>
       } />
-      <Route path="/duel-leaderboard" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <DuelLeaderboard />
-        </Suspense>
-      } />
+      <Route path="/stats" element={<Navigate to="/" replace />} />
+      <Route path="/duel-leaderboard" element={<Navigate to="/" replace />} />
       <Route path="/inventory" element={
         <Suspense fallback={<PageSkeleton />}>
           <Inventory />

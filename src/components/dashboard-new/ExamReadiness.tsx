@@ -22,6 +22,7 @@ interface ExamReadinessProps {
   licensePoints?: number;
   onStartTest?: () => void;
   onExpandedChange?: (expanded: boolean) => void;
+  onTelemetryClick?: () => void;
 }
 
 
@@ -35,7 +36,8 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
   profileId,
   licensePoints = 8,
   onStartTest,
-  onExpandedChange
+  onExpandedChange,
+  onTelemetryClick
 }) => {
   const { language, t } = useLanguage();
   const navigate = useNavigate();
@@ -299,7 +301,18 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
       </div>
 
       {/* Main Content - Gauge */}
-      <div className={`relative w-full transition-all duration-500 ${showLevels ? 'opacity-0 scale-95 -translate-y-4 pointer-events-none' : 'opacity-100 scale-100 translate-y-0 pointer-events-auto'}`}>
+      <div
+        onClick={() => {
+          if (!showLevels && onTelemetryClick) {
+            playClickSound();
+            onTelemetryClick();
+          }
+        }}
+        className={cn(
+          "relative w-full transition-all duration-500",
+          showLevels ? 'opacity-0 scale-95 -translate-y-4 pointer-events-none' : 'opacity-100 scale-100 translate-y-0 cursor-pointer hover:scale-[1.02] active:scale-[0.98]'
+        )}
+      >
         <div className="text-center mb-6 relative z-10">
           <h3 className={`font-bold ${textPrimaryClass} mb-1`}>
             {language === 'ru' ? 'Вероятность сдачи' : 'Probabilidad'}
@@ -368,34 +381,34 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
             <h3 className={`font-bold ${textPrimaryClass} text-base sm:text-lg`}>TELEMETRÍA & PREDICCIÓN</h3>
           </div>
 
-          {/* Split View: Levels (Left) + Analytics (Right) - простой адаптивный layout */}
-          <div className="flex-1 flex flex-col xl:flex-row gap-4 md:gap-6 min-h-0 overflow-hidden">
-            {/* Left Side: Levels - фиксированные пропорции */}
-            <div className="flex flex-col w-full xl:w-[45%] xl:min-w-[300px] xl:max-w-[400px]">
-              <div className="mb-3">
+          {/* Split View: Levels (Left) + Analytics (Right) */}
+          <div className="flex-1 flex flex-col xl:flex-row gap-6 md:gap-8 min-h-0">
+            {/* Left Side: Levels */}
+            <div className="flex flex-col w-full xl:w-[50%] xl:min-w-[340px] xl:max-w-[450px] min-h-0">
+              <div className="mb-4">
                 <h4 className={`text-xs font-bold ${sectionTitleClass} uppercase tracking-wider`}>
                   {language === 'ru' ? 'УРОВНИ ПОЛЕТА' : 'NIVELES DE VUELO'}
                 </h4>
               </div>
 
               {/* Levels List with Progress Line */}
-              <div className="flex-1 relative flex flex-col justify-between min-h-0 overflow-y-auto">
+              <div className="flex-1 relative pr-2 min-h-0 overflow-y-auto custom-scrollbar pb-6">
                 {/* Vertical Progress Line (background) */}
-                <div className={`absolute left-4 top-0 bottom-0 w-0.5 ${progressLineClass}`}></div>
+                <div className={`absolute left-4 top-2 bottom-8 w-0.5 ${progressLineClass}`}></div>
 
-                {/* Active Progress Line (filled portion - только до активного уровня) */}
+                {/* Active Progress Line */}
                 {!hasNoData && currentLevelIndex > 0 && (
                   <div
-                    className="absolute left-4 top-0 w-0.5 transition-all duration-1000 ease-out"
+                    className="absolute left-4 top-2 w-0.5 transition-all duration-1000 ease-out z-10"
                     style={{
-                      height: `${(currentLevelIndex / (readinessLevels.length - 1)) * 100}%`,
+                      height: `${(currentLevelIndex / (readinessLevels.length - 1)) * (100 - 15)}%`,
                       background: `linear-gradient(to bottom, ${gaugeColor}60, ${gaugeColor}40)`,
                     }}
                   />
                 )}
 
-                {/* Levels Container - равномерное распределение по высоте */}
-                <div className="relative h-full flex flex-col justify-between">
+                {/* Levels Container */}
+                <div className="relative space-y-6 sm:space-y-8 py-2">
                   {readinessLevels.map((level, index) => {
                     const isActive = index === currentLevelIndex && !hasNoData;
 
@@ -408,25 +421,23 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                           x: showLevels ? 0 : -20
                         }}
                         transition={{ delay: index * 0.1, duration: 0.4 }}
-                        className="relative flex items-start gap-3 sm:gap-4 flex-1 min-h-0"
+                        className="relative flex items-start gap-4 sm:gap-5"
                       >
                         {/* Dot on Progress Line */}
-                        <div className="relative z-10 flex-shrink-0 flex items-center">
+                        <div className="relative z-20 flex-shrink-0 flex items-center pt-1">
                           <div
-                            className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center relative ${isActive
-                              ? `bg-transparent border-orange-400 shadow-lg shadow-orange-500/50 scale-110`
-                              : `bg-transparent ${levelDotBorderClass}`
+                            className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 transition-all duration-500 flex items-center justify-center relative ${isActive
+                              ? `bg-slate-900 border-orange-400 shadow-[0_0_15px_rgba(251,146,60,0.4)] scale-110`
+                              : `bg-slate-900 ${levelDotBorderClass}`
                               }`}
                           >
-                            {/* Inner dot */}
                             <div
                               className={`rounded-full transition-all duration-500 ${isActive
-                                ? 'w-3 h-3 sm:w-3.5 sm:h-3.5 bg-orange-500'
+                                ? 'w-3.5 h-3.5 sm:w-4 sm:h-4 bg-orange-500'
                                 : `w-2 h-2 sm:w-2.5 sm:h-2.5 ${levelDotBgClass}`
                                 }`}
                             />
 
-                            {/* Pulse glow effect for active */}
                             {isActive && (
                               <motion.div
                                 animate={{ scale: [1, 1.8, 1], opacity: [0.4, 0, 0.4] }}
@@ -435,29 +446,19 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
                               />
                             )}
                           </div>
-
-                          {/* Glowing line extending downward from active dot */}
-                          {isActive && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: '60px', opacity: 1 }}
-                              transition={{ delay: 0.3, duration: 0.6, ease: "easeOut" }}
-                              className="absolute top-6 sm:top-7 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-orange-500/90 via-orange-500/60 to-transparent"
-                            />
-                          )}
                         </div>
 
                         {/* Level Content */}
-                        <div className={`flex-1 transition-all duration-300 pt-0.5 flex flex-col justify-center ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-                          <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                            <span className={`text-xs sm:text-sm font-bold uppercase tracking-wider ${level.titleColor}`}>
+                        <div className={`flex-1 transition-all duration-300 flex flex-col ${isActive ? 'opacity-100 translate-x-1' : 'opacity-40'}`}>
+                          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                            <span className={`text-sm sm:text-base font-black uppercase tracking-tight ${level.titleColor}`}>
                               {level.title}
                             </span>
-                            <span className={`text-[9px] sm:text-[10px] ${levelRangeClass} font-medium`}>
+                            <span className={`text-[10px] sm:text-xs px-1.5 py-0.5 rounded ${level.bgColor} ${level.titleColor} font-bold`}>
                               {level.range}
                             </span>
                           </div>
-                          <p className={`text-[10px] sm:text-xs ${levelDescClass} leading-relaxed`}>
+                          <p className={`text-xs sm:text-sm ${levelDescClass} leading-snug max-w-[320px]`}>
                             {level.description}
                           </p>
                         </div>
@@ -468,26 +469,29 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
               </div>
             </div>
 
-            {/* Right Side: Analytics - фиксированные пропорции */}
+            {/* Right Side: Analytics */}
             <div className="flex flex-col flex-1 min-h-0 w-full xl:min-w-0">
-              <div className="mb-3">
+              <div className="mb-4">
                 <h4 className={`text-xs font-bold ${textPrimaryClass} uppercase tracking-wider`}>
                   {language === 'ru' ? 'РАСШИРЕННАЯ ТЕЛЕМЕТРИЯ' : 'TELEMETRÍA AVANZADA'}
                 </h4>
               </div>
-              <AnalyticsPanel
-                trend={analytics?.trend || null}
-                consistency={analytics?.consistency || null}
-                timeToPass={analytics?.timeToPass || null}
-                criticalPoint={analytics?.criticalPoint || null}
-                focusBattery={analytics?.focusBattery || null}
-                activityHeatmap={analytics?.activityHeatmap || null}
-                currentScore={score}
-                loading={analyticsLoading}
-                showHeader={false}
-              />
+              <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1">
+                <AnalyticsPanel
+                  trend={analytics?.trend || null}
+                  consistency={analytics?.consistency || null}
+                  timeToPass={analytics?.timeToPass || null}
+                  criticalPoint={analytics?.criticalPoint || null}
+                  focusBattery={analytics?.focusBattery || null}
+                  activityHeatmap={analytics?.activityHeatmap || null}
+                  currentScore={score}
+                  loading={analyticsLoading}
+                  showHeader={false}
+                />
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

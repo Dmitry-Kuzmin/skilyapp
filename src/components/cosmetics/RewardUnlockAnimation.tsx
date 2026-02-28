@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { motion } from "@/components/optimized/Motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -87,7 +88,7 @@ export function RewardUnlockAnimation({
     if (open) {
       setShowConfetti(true);
       setAnimate(true);
-      
+
       // Останавливаем конфетти через 5 секунд
       const confettiTimer = setTimeout(() => {
         setShowConfetti(false);
@@ -171,13 +172,34 @@ export function RewardUnlockAnimation({
             {reward.type === "sticker" && reward.metadata?.emoji ? (
               <span className="text-8xl">{reward.metadata.emoji}</span>
             ) : reward.type === "skin" ? (
-              <div
-                className="w-32 h-32 rounded-full flex items-center justify-center text-6xl font-bold text-white"
-                style={{
-                  background: reward.metadata?.color || "#6366f1",
-                }}
-              >
-                {reward.name_ru.charAt(0)}
+              <div className="relative w-32 h-32 flex items-center justify-center">
+                {/* Avatar Placeholder */}
+                <div className="w-24 h-24 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden border border-white/5">
+                  <Smile className="w-12 h-12 text-zinc-600" />
+                </div>
+
+                {/* Frame Preview */}
+                <div
+                  className={cn(
+                    "absolute inset-0 rounded-full border-[6px]",
+                    reward.id === 'frame_novice' && "border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)]",
+                    reward.id === 'frame_season_1_premium' && "border-[#C5A059] shadow-[0_0_30px_rgba(197,160,89,0.6)] animate-pulse",
+                    !['frame_novice', 'frame_season_1_premium'].includes(reward.id) && "border-primary"
+                  )}
+                  style={{
+                    boxShadow: reward.id === 'frame_season_1_premium'
+                      ? '0 0 30px rgba(197,160,89,0.6), inset 0 0 15px rgba(197,160,89,0.4)'
+                      : undefined
+                  }}
+                >
+                  {reward.id === 'frame_season_1_premium' && (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                      className="absolute -inset-[2px] rounded-full border-2 border-dashed border-white/20"
+                    />
+                  )}
+                </div>
               </div>
             ) : (
               <div

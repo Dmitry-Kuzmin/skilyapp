@@ -140,6 +140,9 @@ export function AIChatWidget() {
                             return `${trimmed} ${newText}`;
                         });
                         triggerHapticFeedback('success');
+
+                        // КРИТИЧНО: Возвращаем фокус в инпут после голосового ввода
+                        setTimeout(() => inputRef.current?.focus(), 150);
                     }
                 } catch (err) {
                     console.error('Voice processing error:', err);
@@ -180,9 +183,45 @@ export function AIChatWidget() {
     // Фокус на input при открытии
     useEffect(() => {
         if (isOpen && inputRef.current) {
-            setTimeout(() => inputRef.current?.focus(), 100);
+            setTimeout(() => inputRef.current?.focus(), 300);
         }
     }, [isOpen]);
+
+    // КРИТИЧНО: Обработка высоты в Telegram при изменении клавиатуры
+    const [tgViewportHeight, setTgViewportHeight] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!isTelegram || !isOpen) return;
+
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return;
+
+        const updateHeight = () => {
+            // Используем viewportHeight для корректного отображения без "черных дыр"
+            setTgViewportHeight(tg.viewportHeight);
+        };
+
+        tg.onEvent('viewportChanged', updateHeight);
+        updateHeight(); // Инициализация
+
+        return () => {
+            tg.offEvent('viewportChanged', updateHeight);
+        };
+    }, [isOpen, isTelegram]);
+
+    const handleInputBlur = () => {
+        // КРИТИЧНО для iOS Telegram: принудительный сброс скролла вниз при закрытии клавиатуры
+        if (isMobile) {
+            window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            // Дополнительная проверка через 100мс на случай задержки ОС
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                if (window.Telegram?.WebApp) {
+                    window.Telegram.WebApp.expand();
+                }
+            }, 100);
+        }
+    };
 
     // Определяем язык интерфейса
     const interfaceLanguage = showTranslation ? 'ru' : (questionContext?.testLanguage || 'es');
@@ -516,6 +555,7 @@ export function AIChatWidget() {
                             ref={inputRef}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
+                            onBlur={handleInputBlur}
                             placeholder={interfaceLanguage === 'ru' ? 'Спроси что-нибудь...' : 'Pregunta algo...'}
                             disabled={isLoading}
                             className="w-full min-h-[48px] max-h-[120px] py-3 rounded-[24px] px-5 border-border/50 focus:ring-blue-500/20 bg-muted/50 focus:bg-background transition-all resize-none shadow-sm text-base"
@@ -577,7 +617,13 @@ export function AIChatWidget() {
                     onOpenChange={(open) => !open && closeChat()}
                     shouldScaleBackground={false}
                 >
-                    <DrawerContent className="h-[96dvh] max-h-[96dvh]">
+                    <DrawerContent
+                        className="overflow-hidden flex flex-col"
+                        style={{
+                            height: tgViewportHeight ? `${tgViewportHeight}px` : '96dvh',
+                            maxHeight: tgViewportHeight ? `${tgViewportHeight}px` : '96dvh'
+                        }}
+                    >
                         {chatContent}
                     </DrawerContent>
                 </Drawer>

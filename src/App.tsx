@@ -48,9 +48,8 @@ const PWAInstallBanner = lazy(() => import("@/components/pwa").then(m => ({ defa
 const AppProviders = lazy(() => import("@/components/providers/AppProviders").then(m => ({ default: m.AppProviders })));
 const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
 
-// ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query)
-// Это критично для уменьшения initial bundle
-import Landing from "./pages/Landing";
+// ОПТИМИЗАЦИЯ: Landing теперь lazy для уменьшения initial bundle
+const Landing = lazy(() => import("./pages/Landing"));
 // AuthCallback - страница для обработки OAuth callback
 // Должна быть доступна без AppProviders, так как обрабатывает сессию сама
 import { AuthCallback } from "./pages/AuthCallback";
@@ -242,7 +241,7 @@ const RefundPolicy = lazy(() =>
 );
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const Partners = lazy(() => import("./pages/Partners"));
-const DuelLeaderboard = lazy(() => import("./pages/DuelLeaderboard"));
+// DuelStats is handled in AppRoutes.tsx
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 const Inventory = lazy(() => import("./pages/Inventory"));
@@ -506,6 +505,7 @@ const App = () => {
   }, []);
 
   // Показываем сообщение при первом запуске без интернета
+
   if (isFirstRun) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6">
@@ -558,7 +558,11 @@ const App = () => {
             <ThemeColorManager />
             {/* ОПТИМИЗАЦИЯ: Landing рендерится БЕЗ AppProviders (без Supabase/Query) */}
             <Routes>
-              <Route path="/" element={<LandingRedirect />} />
+              <Route path="/" element={
+                <Suspense fallback={null}>
+                  <LandingRedirect />
+                </Suspense>
+              } />
               {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
               <Route path="/auth/callback" element={
                 <>

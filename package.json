@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run validator\" --names \"APP,API\" --prefix-colors \"cyan,magenta\"",
+    "dev": "./optimize-system.sh && concurrently \"npm run dev:frontend\" \"npm run validator\" \"./scripts/maintenance-service.sh\" --names \"APP,API,MAINT\" --prefix-colors \"cyan,magenta,yellow\"",
+    "panic-clean": "./scripts/cleanup-and-optimize.sh",
     "dev:frontend": "vite",
     "dev:tunnel": "./scripts/start-dev-with-tunnel.sh",
     "prebuild": "node scripts/update-version.js",

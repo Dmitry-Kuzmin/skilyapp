@@ -1,11 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="6" fill="url(#grad)"/>
-  <text x="16" y="22" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle">S</text>
+<svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="blue_gradient" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#3b82f6" />
+            <stop offset="50%" stop-color="#2563eb" />
+            <stop offset="100%" stop-color="#1d4ed8" />
+        </linearGradient>
+        <linearGradient id="inner_glow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="white" stop-opacity="0.1" />
+            <stop offset="100%" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+    </defs>
+    
+    <!-- Blue rounded square (consistent with brand) -->
+    <rect x="0" y="0" width="60" height="60" rx="18" fill="url(#blue_gradient)" />
+    <rect x="0" y="0" width="60" height="60" rx="18" fill="url(#inner_glow)" />
+    
+    <!-- Bold 'S' (consistent with Skily typography) perfectly centered -->
+    <text x="30" y="30" 
+          font-family="Inter, -apple-system, system-ui, sans-serif" 
+          font-weight="900" 
+          font-size="42" 
+          fill="white" 
+          text-anchor="middle"
+          dominant-baseline="central">S</text>
 </svg>
 

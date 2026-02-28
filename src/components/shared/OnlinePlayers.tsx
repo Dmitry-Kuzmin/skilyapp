@@ -16,6 +16,7 @@ interface OnlinePlayersProps {
     baseCount?: number;
     players?: OnlinePlayer[];
     currentUserPhoto?: string | null;
+    currentUserId?: string | null;
     className?: string;
 }
 
@@ -23,6 +24,7 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
     baseCount = 1240,
     players = [],
     currentUserPhoto,
+    currentUserId,
     className
 }) => {
     const [count, setCount] = useState(baseCount);
@@ -58,7 +60,7 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
 
         // 2. Реальные игроки (те, у кого есть фото и это не боты)
         const realPlayers = players
-            .filter(p => !p.isBot && p.photoUrl && p.id !== 'current-user')
+            .filter(p => !p.isBot && p.photoUrl && p.id !== 'current-user' && p.id !== currentUserId)
             .sort(() => Math.random() - 0.5) // Перемешиваем реальных
             .slice(0, 4 - list.length);
 
@@ -85,7 +87,7 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
         }
 
         return list.slice(0, 4);
-    }, [players, currentUserPhoto]);
+    }, [players, currentUserPhoto, currentUserId]);
 
     return (
         <div className={cn("flex flex-row items-center gap-3", className)}>
@@ -99,30 +101,26 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
                         transition={{ delay: i * 0.1 }}
                         className="relative"
                     >
-                        <Avatar className="h-8 w-8 ring-2 ring-[#a855f7] border-2 border-[#1a1c2e] shadow-xl">
+                        <Avatar className="h-8 w-8 ring-[1px] ring-white/5 border-none shadow-2xl transition-transform hover:scale-110">
                             <AvatarImage src={player.photoUrl || undefined} className="object-cover" />
                             <AvatarFallback className="bg-slate-800 text-[10px] text-white font-bold">
                                 {player.initials}
                             </AvatarFallback>
                         </Avatar>
-                        {/* Индикатор онлайна на последнем аватаре или просто точка */}
-                        {i === 0 && (
-                            <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full ring-1 ring-[#1a1c2e]" />
-                        )}
                     </motion.div>
                 ))}
             </div>
 
             {/* Счетчик в том же ряду */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md shadow-lg h-9">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
                 <div className="flex items-baseline gap-1">
                     <NumberTicker
                         value={count}
-                        className="text-[11px] font-black text-white tracking-widest"
+                        useSeparator={false}
+                        className="text-[14px] font-black text-white"
                     />
-                    <span className="text-[10px] font-bold text-white/60 tracking-widest uppercase">
-                        Online
+                    <span className="text-[9px] font-black text-white/40 tracking-[0.1em] uppercase ml-1">
+                        В СЕТИ
                     </span>
                 </div>
             </div>

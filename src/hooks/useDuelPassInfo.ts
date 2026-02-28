@@ -15,15 +15,12 @@ export interface DuelPassInfo {
 
 const DUEL_PASS_INFO_KEY = 'duel-pass-info';
 
-/**
- * ОПТИМИЗИРОВАННЫЙ хук для получения данных Duel Pass
- * Использует React Query для кэширования
- * Объединяет несколько запросов в один батч
- */
 export function useDuelPassInfo() {
   const { profileId } = useUserContext();
-  // ОПТИМИЗАЦИЯ: Используем данные из Super RPC Dashboard
   const { data: dashboardData } = useDashboardData();
+
+  // ID сезона в queryKey гарантирует инвалидацию кэша при смене/истечении сезона
+  const activeSeasonId = dashboardData?.active_season?.id ?? null;
 
   const {
     data,
@@ -31,90 +28,40 @@ export function useDuelPassInfo() {
     error,
     refetch,
   } = useQuery<DuelPassInfo | null>({
-    queryKey: [DUEL_PASS_INFO_KEY, profileId],
+    queryKey: [DUEL_PASS_INFO_KEY, profileId, activeSeasonId],
     queryFn: async () => {
       if (!profileId) return null;
 
-      // ОПТИМИЗАЦИЯ: Сначала пытаемся взять из Super RPC Dashboard
-      // ВАЖНО: season_progress может быть null для нового пользователя - это нормально!
-      if (dashboardData?.active_season) {
-        const season = dashboardData.active_season;
-        // Если прогресса нет (null) - используем дефолтные значения (уровень 0, 0 SP)
-        // НЕ создаем прогресс автоматически - только когда пользователь реально начнет играть
-        const progress = dashboardData.season_progress || {
-          season_points: 0,
-          level: 0,
-        };
+      // Дашборд загружен, но активного сезона нет — сезон истёк или ещё не начался
+      if (!dashboardData?.active_season) return null;
 
-        // Получаем статистику дуэлей (этот запрос можно тоже добавить в Super RPC позже)
-        const { data: stats } = await supabase
-          .from('duel_stats')
-          .select('total_duels, wins')
-          .eq('user_id', profileId)
-          .maybeSingle();
+      const season = dashboardData.active_season;
+      const progress = dashboardData.season_progress || { season_points: 0, level: 0 };
 
-        const currentSP = progress.season_points || 0;
-        const currentLevel = progress.level || 0; // Уровень 0 для нового пользователя
-        const spForNextLevel = 100; // Каждый уровень требует 100 SP
-        const spInCurrentLevel = currentSP % 100;
-        const nextLevelSP = spForNextLevel - spInCurrentLevel;
-
-        return {
-          level: currentLevel,
-          seasonPoints: currentSP,
-          nextLevelSP: nextLevelSP,
-          daysRemaining: season.days_remaining || 0,
-          seasonName: season.name_ru || `Сезон ${season.season_number || 1}`,
-          totalDuels: stats?.total_duels || 0,
-          wins: stats?.wins || 0,
-        };
-      }
-
-      // Fallback: если данных нет в Super RPC, делаем отдельные запросы
-      const { data: seasonData, error: seasonError } = await supabase.rpc('get_active_season');
-      
-      if (seasonError || !seasonData || seasonData.length === 0) {
-        return null;
-      }
-
-      const season = seasonData[0];
-
-      const [progressResult, statsResult] = await Promise.allSettled([
-        supabase.rpc('get_or_create_season_progress', {
-          p_user_id: profileId,
-          p_season_id: season.id,
-        }),
-        supabase
-          .from('duel_stats')
-          .select('total_duels, wins')
-          .eq('user_id', profileId)
-          .maybeSingle(),
-      ]);
-
-      const progress = progressResult.status === 'fulfilled' && progressResult.value.data?.[0];
-      const stats = statsResult.status === 'fulfilled' && statsResult.value.data;
-
-      if (!progress) return null;
+      const { data: stats } = await supabase
+        .from('duel_stats')
+        .select('total_duels, wins')
+        .eq('user_id', profileId)
+        .maybeSingle();
 
       const currentSP = progress.season_points || 0;
-      const currentLevel = progress.level || 1;
-      const spForNextLevel = 100;
+      const currentLevel = progress.level || 0;
       const spInCurrentLevel = currentSP % 100;
-      const nextLevelSP = spForNextLevel - spInCurrentLevel;
+      const nextLevelSP = 100 - spInCurrentLevel;
 
       return {
         level: currentLevel,
         seasonPoints: currentSP,
-        nextLevelSP: nextLevelSP,
+        nextLevelSP,
         daysRemaining: season.days_remaining || 0,
         seasonName: season.name_ru || `Сезон ${season.season_number || 1}`,
         totalDuels: stats?.total_duels || 0,
         wins: stats?.wins || 0,
       };
     },
-    enabled: !!profileId && !!dashboardData, // Ждем загрузки dashboard
-    staleTime: 30 * 1000, // 30 секунд
-    gcTime: 5 * 60 * 1000, // 5 минут
+    enabled: !!profileId && !!dashboardData,
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: true,
@@ -128,4 +75,3 @@ export function useDuelPassInfo() {
     refresh: refetch,
   };
 }
-

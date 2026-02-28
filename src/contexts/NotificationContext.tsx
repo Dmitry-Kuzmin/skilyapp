@@ -30,7 +30,7 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-const MUTED_NOTIFICATION_TYPES = new Set(['start', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder']);
+const MUTED_NOTIFICATION_TYPES = new Set(['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'reminder', 'answer']);
 const IMPORTANT_NOTIFICATION_TYPES = new Set(['finish', 'timeout']);
 const TOAST_RATE_LIMIT_MS = 4000;
 const TELEGRAM_RATE_LIMIT_MS = 60000;
@@ -204,11 +204,14 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         previousNotificationsRef.current = notificationsData;
     }, [notificationsData, profileId, debugLog]);
 
-    const unreadCount = useMemo(() => notificationsData.filter(n => !n.is_read).length, [notificationsData]);
+    const HIDDEN_FROM_UI_TYPES = new Set(['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'answer']);
+    const unreadCount = useMemo(() => {
+        return notificationsData.filter(n => !n.is_read && !HIDDEN_FROM_UI_TYPES.has(n.type)).length;
+    }, [notificationsData]);
 
     const markAsRead = useCallback(async (notificationId: string) => {
-        await supabase
-            .from('duel_notifications')
+        await (supabase
+            .from('duel_notifications') as any)
             .update({ is_read: true })
             .eq('id', notificationId);
 
@@ -218,8 +221,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const markAllAsRead = useCallback(async () => {
         if (!profileId) return;
 
-        await supabase
-            .from('duel_notifications')
+        await (supabase
+            .from('duel_notifications') as any)
             .update({ is_read: true })
             .eq('user_id', profileId)
             .eq('is_read', false);

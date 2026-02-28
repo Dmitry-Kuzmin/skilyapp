@@ -5,8 +5,9 @@ import { PageLoader } from "@/components/PageLoader";
 
 // ОПТИМИЗАЦИЯ: AuthModal lazy loaded - содержит UserContext и Supabase
 const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
-import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
-import { LandingRussia } from "@/components/landing/LandingRussia";
+// ОПТИМИЗАЦИЯ: Тяжелые компоненты лендинга теперь lazy loaded
+const AiStudioLanding = lazy(() => import("@/components/landing/AiStudioLanding").then(m => ({ default: m.AiStudioLanding })));
+const LandingRussia = lazy(() => import("@/components/landing/LandingRussia").then(m => ({ default: m.LandingRussia })));
 // ОПТИМИЗАЦИЯ: PartnerInviteBanner lazy-loaded - использует Button, который тянет Radix UI
 // Это критично для уменьшения initial bundle - Radix UI не должен грузиться на лендинге
 const PartnerInviteBanner = lazy(() => import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner })));
@@ -230,7 +231,9 @@ const Landing = () => {
   // UPD: Используем PageLoader, который так же поднимает шторку (StartupCurtain) и показывает красивый спиннер
   // Это предотвращает "зависание" на HTML скелетоне
   if (isCheckingTelegram) {
-    return <PageLoader />;
+    // ВАЖНО: Во время проверки Telegram мы НЕ возвращаем PageLoader, так как он поднимет шторку (StartupCurtain).
+    // Мы возвращаем null, чтобы оставить HTML скелетон на экране. Это дает +500мс к визуальному TTI.
+    return null;
   }
 
   // Выбираем лендинг в зависимости от страны

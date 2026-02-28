@@ -9,7 +9,7 @@ interface UserAvatarProps {
     profileId: string | null;
     className?: string;
     avatarClassName?: string;
-    size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
+    size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
     previewSkin?: any; // For shop/inventory
     showPremiumGlow?: boolean;
     onClick?: () => void;
@@ -44,7 +44,8 @@ export function UserAvatar({
         "md": "h-10 w-10",
         "lg": "h-12 w-12",
         "xl": "h-20 w-20",
-        "2xl": "h-32 w-32"
+        "2xl": "h-32 w-32",
+        "3xl": "h-40 w-40"
     };
 
     const getInitials = (name?: string | null) => {
@@ -53,13 +54,13 @@ export function UserAvatar({
     };
 
     if (isLoading && !profile && profileId) {
-        return <Skeleton className={cn(sizeClasses[size], "rounded-full", className)} />;
+        return <Skeleton className={cn(sizeClasses[size || "md"], "rounded-full", className)} />;
     }
 
     return (
         <div
             className={cn(
-                "relative inline-flex items-center justify-center shrink-0 isolate",
+                "relative inline-flex items-center justify-center shrink-0 isolate rounded-full",
                 className
             )}
             onClick={onClick}
@@ -96,29 +97,48 @@ export function UserAvatar({
                 </>
             )}
 
-            {/* ADVANCED Skin Effects based on rarity */}
+            {/* ADVANCED Skin Effects based on rarity or specific ID */}
             {activeSkin && (
-                <motion.div
-                    className={cn(
-                        "absolute rounded-full pointer-events-none z-0",
-                        size === "2xl" ? "-inset-[5px]" : size === "xl" ? "-inset-[4px]" : "-inset-[3px]",
-                        activeSkin.rarity === "legendary" && "bg-gradient-to-br from-yellow-300 via-amber-500 to-orange-600 shadow-[0_0_20px_rgba(245,158,11,0.5)]",
-                        activeSkin.rarity === "epic" && "bg-gradient-to-br from-blue-400 via-indigo-600 to-purple-600 shadow-[0_0_20px_rgba(79,70,229,0.5)]",
-                        activeSkin.rarity === "rare" && "bg-gradient-to-br from-blue-300 via-blue-500 to-cyan-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                <>
+                    <motion.div
+                        className={cn(
+                            "absolute rounded-full pointer-events-none z-0",
+                            size === "2xl" ? "-inset-[5px]" : size === "xl" ? "-inset-[4px]" : "-inset-[3px]",
+                            // Специфичные рамки
+                            activeSkin.id === 'frame_novice' && "bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)] border border-emerald-400",
+                            activeSkin.id === 'frame_season_1_premium' && "bg-gradient-to-b from-[#EED08A] to-[#C5A059] shadow-[0_0_20px_rgba(197,160,89,0.5)]",
+                            // Общие по редкости
+                            !['frame_novice', 'frame_season_1_premium'].includes(activeSkin.id) && activeSkin.rarity === "legendary" && "bg-gradient-to-br from-yellow-300 via-amber-500 to-orange-600 shadow-[0_0_20px_rgba(245,158,11,0.5)]",
+                            !['frame_novice', 'frame_season_1_premium'].includes(activeSkin.id) && activeSkin.rarity === "epic" && "bg-gradient-to-br from-blue-400 via-indigo-600 to-purple-600 shadow-[0_0_20px_rgba(79,70,229,0.5)]",
+                            !['frame_novice', 'frame_season_1_premium'].includes(activeSkin.id) && activeSkin.rarity === "rare" && "bg-gradient-to-br from-blue-300 via-blue-500 to-cyan-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                        )}
+                        animate={activeSkin.id === 'frame_season_1_premium' ? { scale: [1, 1.02, 1] } : activeSkin.rarity === "legendary" && !['frame_novice', 'frame_season_1_premium'].includes(activeSkin.id) ? { rotate: -360 } : undefined}
+                        transition={{ duration: activeSkin.id === 'frame_season_1_premium' ? 2 : 8, repeat: Infinity, ease: activeSkin.id === 'frame_season_1_premium' ? "easeInOut" : "linear" }}
+                    />
+
+                    {/* Дополнительный вращающийся паттерн для season 1 premium */}
+                    {activeSkin.id === 'frame_season_1_premium' && (
+                        <motion.div
+                            className={cn(
+                                "absolute rounded-full pointer-events-none z-[1]",
+                                size === "2xl" ? "-inset-[3px]" : size === "xl" ? "-inset-[2px]" : "-inset-[1px]",
+                                "border border-dashed border-black/30"
+                            )}
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                        />
                     )}
-                    animate={activeSkin.rarity === "legendary" ? { rotate: -360 } : undefined}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                />
+                </>
             )}
 
             <Avatar className={cn(
                 sizeClasses[size],
                 "transition-all relative z-10 overflow-hidden",
                 isProfilePremium && !activeSkin
-                    ? "ring-[1px] ring-white/10"
-                    : !activeSkin ? "ring-[0.5px] ring-border/20" : "",
-                activeSkin?.rarity === "legendary" && "ring-1 ring-white/20",
-                activeSkin?.rarity === "epic" && "ring-1 ring-white/20",
+                    ? "ring-[1px] ring-white/15"
+                    : !activeSkin ? "ring-[0.5px] ring-white/5" : "",
+                activeSkin?.rarity === "legendary" && "ring-[1px] ring-white/20",
+                activeSkin?.rarity === "epic" && "ring-[1px] ring-white/15",
                 avatarClassName
             )}>
                 <AvatarImage
@@ -147,7 +167,7 @@ export function UserAvatar({
 
                 <AvatarFallback className={cn(
                     "text-white font-black overflow-hidden relative",
-                    size === "2xl" ? "text-4xl" : size === "xl" ? "text-2xl" : "text-sm",
+                    size === "3xl" ? "text-5xl" : size === "2xl" ? "text-4xl" : size === "xl" ? "text-2xl" : "text-sm",
                     // Premium mesh-like background for fallback
                     isProfilePremium && !activeSkin && "bg-slate-950",
                     activeSkin?.rarity === "legendary" && "bg-amber-950",

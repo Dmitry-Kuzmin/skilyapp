@@ -177,10 +177,16 @@ const fetchDuelPass = async (
       });
     }
 
-    const rewardsData =
-      rewardsResult.status === "fulfilled" && rewardsResult.value.data
-        ? rewardsResult.value.data.filter((reward: any) => reward.season_id === activeSeason.id)
+    const rewardsRecord = rewardsResult[0];
+    const rawRewards =
+      rewardsRecord.status === "fulfilled" && rewardsRecord.value.data
+        ? rewardsRecord.value.data
         : [];
+
+    // Используем нестрогое сравнение для season_id на случай разницы типов (string/number)
+    const rewardsData = rawRewards.filter(
+      (reward: any) => String(reward.season_id) === String(activeSeason.id)
+    );
 
     const unlockedLevels = Math.max(currentLevel, 0);
     const claimedFreeUnlocked = Array.from(claimedFreeLevels).filter((lvl) => lvl <= currentLevel).length;
@@ -254,15 +260,17 @@ const fetchDuelPass = async (
 
 export const useDuelPassData = (profileId?: string | null) => {
   const enabled = Boolean(profileId);
-  // ОПТИМИЗАЦИЯ: Используем данные из Super RPC Dashboard
   const { data: dashboardData } = useDashboardData();
 
+  // ID сезона в queryKey гарантирует инвалидацию кэша при смене/истечении сезона
+  const activeSeasonId = dashboardData?.active_season?.id ?? null;
+
   const query = useQuery<DuelPassQueryResult>({
-    queryKey: ["duelPass", profileId],
+    queryKey: ["duelPass", profileId, activeSeasonId],
     queryFn: () => fetchDuelPass(profileId as string, dashboardData),
-    enabled: enabled && !!dashboardData, // Ждем загрузки dashboard
-    staleTime: 2 * 60 * 1000, // 2 минуты
-    gcTime: 10 * 60 * 1000, // 10 минут
+    enabled: enabled && !!dashboardData,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     retry: 1,
     refetchInterval: false,
     refetchIntervalInBackground: false,

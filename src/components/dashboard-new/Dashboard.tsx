@@ -24,6 +24,7 @@ const ExamReadiness = lazy(() => import('./ExamReadiness').then(m => ({ default:
 const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.PremiumCard })));
 const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m.DuelPassInfo })));
 const DuelPassSeasonModal = lazy(() => import('../monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
+const TelemetryOverlay = lazy(() => import('../telemetry/TelemetryOverlay').then(m => ({ default: m.TelemetryOverlay })));
 
 // Fallback component for lazy loading
 const ComponentSkeleton = () => (
@@ -75,6 +76,11 @@ interface DashboardProps {
     points: number;
     recorded_at: string;
   }>;
+  licenseAudit?: Array<{
+    delta: number;
+    event_type: string;
+    created_at: string;
+  }>;
   animatePoints?: boolean;
 }
 
@@ -89,6 +95,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   readinessStatus,
   userProfile,
   licenseHistory,
+  licenseAudit,
   animatePoints = false
 }) => {
   const { user } = useUserContext();
@@ -102,6 +109,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [examReadinessExpanded, setExamReadinessExpanded] = React.useState(false);
   const [statsModalOpen, setStatsModalOpen] = useState(false);
   const [selectedStatType, setSelectedStatType] = useState<'xp' | 'tests' | 'coins'>('xp');
+  const [telemetryOpen, setTelemetryOpen] = useState(false);
 
   const { selectedCountry } = usePDDContext();
   const navigate = useNavigate();
@@ -154,7 +162,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const handleRehabComplete = async () => {
     try {
-      const { error } = await supabase.rpc('process_license_event', {
+      const { error } = await (supabase as any).rpc('process_license_event', {
         p_user_id: profileId,
         p_event_type: 'rehabilitation_pass'
       });
@@ -232,6 +240,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               onRecoverPoints={handleRecoverPoints}
               t={t}
               licenseHistory={licenseHistory}
+              licenseAudit={licenseAudit}
               animatePoints={animatePoints}
             />
           </div>
@@ -255,6 +264,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 licensePoints={userProfile?.license_points || 8}
                 onStartTest={handleStartQuiz}
                 onExpandedChange={handleExamReadinessExpanded}
+                onTelemetryClick={() => setTelemetryOpen(true)}
               />
             </Suspense>
           </div>
@@ -285,6 +295,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       <Suspense fallback={null}>
         <DuelPassSeasonModalWrapper />
+        <TelemetryOverlay open={telemetryOpen} onOpenChange={setTelemetryOpen} />
       </Suspense>
 
       <AnimatePresence>

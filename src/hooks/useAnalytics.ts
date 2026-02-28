@@ -25,6 +25,7 @@ interface AnalyticsData {
   criticalPoint: CriticalPoint | null;
   focusBattery: ReturnType<typeof calculateFocusBattery>;
   activityHeatmap: ReturnType<typeof generateActivityHeatmap>;
+  topicStats: Array<{ topic_id: string; topic_title: string; error_rate: number; attempts: number; accuracy: number }>;
 }
 
 /**
@@ -107,6 +108,7 @@ export function useAnalytics(
     if (!rawData) return null;
 
     // Фильтруем сессии по стране (если есть metadata.country)
+
     // ТАКЖЕ: Отсеиваем "мусорные" сессии (менее 5 вопросов)
     const filteredSessions = rawData.sessions.filter((s: any) => {
       // 1. Проверка на пустоту
@@ -170,9 +172,8 @@ export function useAnalytics(
     );
 
     // Критическая точка
-    let criticalPoint: CriticalPoint | null = null;
-    if (topicErrors.size > 0) {
-      const topicsWithErrors = Array.from(topicErrors.entries())
+    const calculatedTopicsWithErrors = topicErrors.size > 0
+      ? Array.from(topicErrors.entries())
         .map(([topicId, stats]) => {
           const errorRate = stats.attempts > 0
             ? Math.round((stats.errors / stats.attempts) * 100)
@@ -186,12 +187,13 @@ export function useAnalytics(
             attempts: stats.attempts,
           };
         })
-        .sort((a, b) => b.error_rate !== a.error_rate ? b.error_rate - a.error_rate : b.error_count - a.error_count);
+        .sort((a, b) => b.error_rate !== a.error_rate ? b.error_rate - a.error_rate : b.error_count - a.error_count)
+      : [];
 
-      if (topicsWithErrors.length > 0 && topicsWithErrors[0].error_rate > 0) {
-        criticalPoint = topicsWithErrors[0];
-      }
-    }
+    const criticalPoint = calculatedTopicsWithErrors.length > 0 && calculatedTopicsWithErrors[0].error_rate > 0
+      ? calculatedTopicsWithErrors[0] as CriticalPoint
+      : null;
+
 
     const focusBattery = calculateFocusBattery(testResults);
     const activityHeatmap = generateActivityHeatmap(testResults, 30);
@@ -208,6 +210,7 @@ export function useAnalytics(
       criticalPoint,
       focusBattery,
       activityHeatmap,
+      topicStats: calculatedTopicsWithErrors.map(t => ({ ...t, accuracy: 100 - t.error_rate })),
       averageScore: filteredAverageScore, // Возвращаем отфильтрованный средний балл
     };
   }, [rawData, countryTopics, currentScore, targetScore, country]);

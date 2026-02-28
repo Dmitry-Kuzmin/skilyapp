@@ -105,10 +105,19 @@ serve(async (req) => {
       profile = data as UserProfile | null;
     }
 
-    if (!profile || !profile.telegram_id) {
+    if (!profile) {
+      console.error('[Notification Sender] Profile not found for user_id:', body.user_id);
       return new Response(
-        JSON.stringify({ error: 'Profile not found or no telegram_id' }),
+        JSON.stringify({ error: 'Profile not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!profile.telegram_id) {
+      console.warn('[Notification Sender] User has no telegram_id:', profile.id);
+      return new Response(
+        JSON.stringify({ error: 'No telegram_id', skipped: true }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -202,7 +211,7 @@ serve(async (req) => {
         console.log('[Notification Sender] Cooldown active for template:', template.type);
         return new Response(
           JSON.stringify({ skipped: true, reason: 'cooldown_active' }),
-          { headers: ...corsHeaders, 'Content-Type': 'application/json' }
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
     }
@@ -235,6 +244,7 @@ serve(async (req) => {
       }
     }
 
+    // 1. Отправка в Telegram
     const telegramResult = await sendTelegramNotification(
       profile.telegram_id,
       title,
@@ -244,9 +254,26 @@ serve(async (req) => {
       ctaDeeplink
     );
 
-    if (!telegramResult.success) {
+    // 2. Отправка PWA Push (параллельно)
+    const pwaPushResult = await sendPWAPushNotification(
+      profile.id,
+      title,
+      message,
+      icon,
+      ctaText,
+      ctaDeeplink
+    ).catch(err => {
+      console.error('[Notification Sender] PWA Push failed:', err);
+      return { success: false, error: String(err) };
+    });
+
+    if (!telegramResult.success && !pwaPushResult.success) {
       return new Response(
-        JSON.stringify({ error: 'Failed to send Telegram notification', details: telegramResult.error }),
+        JSON.stringify({
+          error: 'Failed to send notification via any channel',
+          telegram_error: telegramResult.error,
+          pwa_error: pwaPushResult.error
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -269,11 +296,16 @@ serve(async (req) => {
       sent_at: new Date().toISOString()
     });
 
-    console.log('[Notification Sender] Notification sent successfully');
+    console.log('[Notification Sender] Notification sent successfully:', {
+      telegram: telegramResult.success,
+      pwa_push: pwaPushResult?.success
+    });
 
     return new Response(
       JSON.stringify({
         success: true,
+        telegram_sent: telegramResult.success,
+        pwa_sent: pwaPushResult?.success,
         message_id: telegramResult.message_id,
         ai_enhanced: wasAiEnhanced
       }),
@@ -428,6 +460,44 @@ ${JSON.stringify(context, null, 2)}
   } catch (error) {
     console.error('[Notification Sender] AI enhancement error:', error);
     return null;
+  }
+}
+
+async function sendPWAPushNotification(
+  userId: string,
+  title: string,
+  body: string,
+  icon: string,
+  ctaText?: string | null,
+  ctaDeeplink?: string | null
+): Promise<{ success: boolean; sent?: number; error?: string }> {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-push`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`
+      },
+      body: JSON.stringify({
+        userId,
+        title,
+        body,
+        icon,
+        url: ctaDeeplink ? (ctaDeeplink.startsWith('http') ? ctaDeeplink : `/dashboard?startapp=${ctaDeeplink.replace(/^\//, '')}`) : '/dashboard',
+        actions: ctaText ? [{ action: 'open', title: ctaText }] : undefined
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return { success: false, error: error.error || 'Unknown error' };
+    }
+
+    const result = await response.json();
+    return { success: true, sent: result.sent };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { success: false, error: message };
   }
 }
 

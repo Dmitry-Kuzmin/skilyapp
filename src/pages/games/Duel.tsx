@@ -32,6 +32,8 @@ import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { GameMode } from '@/features/duel/shared';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { usePDDContext } from '@/contexts/PDDContext';
+import { useOnlinePlayers } from '@/hooks/useGamesData';
+import { useProfileData } from '@/hooks/useProfileData';
 
 import { OnlinePlayers } from '@/components/shared/OnlinePlayers';
 
@@ -73,7 +75,7 @@ export default function Duel() {
     // 🔍 Debug logs for initialization
     useEffect(() => {
         const code = searchParams.get('code');
-        const startParam = safeGetTelegramWebApp()?.initDataUnsafe?.start_param;
+        const startParam = (safeGetTelegramWebApp() as any)?.initDataUnsafe?.start_param;
         console.log('[Duel] 🧩 Component Mounted. URL Code:', code, 'StartParam:', startParam);
 
         // КРИТИЧНО: Скролл вверх при монтировании, чтобы экран копирования был сверху
@@ -149,6 +151,14 @@ export default function Duel() {
 
     // Use realtime hook when duel is created
     const { state: duelState } = useDuelRealtime(createdCode && duelId ? duelId : null);
+
+    // Онлайн игроки
+    const { data: onlineData } = useOnlinePlayers();
+    const { profileData } = useProfileData(profileId);
+
+    const onlinePlayers = onlineData?.players || [];
+    const onlineCount = onlineData?.count || 1240;
+    const currentUserPhoto = profileData?.photo_url || user?.photo_url || supabaseUser?.user_metadata?.avatar_url || null;
 
 
     const navigate = useNavigate();
@@ -254,8 +264,8 @@ export default function Duel() {
 
             if (!statsError && statsData) {
                 setDuelStats({
-                    totalDuels: statsData.total_duels || 0,
-                    wins: statsData.wins || 0,
+                    totalDuels: (statsData as any).total_duels || 0,
+                    wins: (statsData as any).wins || 0,
                 });
             } else if (statsError && statsError.code !== 'PGRST116') {
                 // PGRST116 = no rows returned, which is fine for new users
@@ -345,13 +355,13 @@ export default function Duel() {
                         return;
                     }
 
-                    setDuelCode(data.code);
+                    setDuelCode((data as any).code);
 
-                    if (data.status === 'active') {
+                    if ((data as any).status === 'active') {
                         // Если дуэль активна - переходим к битве
                         console.log('[Duel] ✅ Duel is active, going to battle');
                         handleDuelStarted(urlDuelId);
-                    } else if (data.status === 'waiting') {
+                    } else if ((data as any).status === 'waiting') {
                         // Если дуэль в ожидании - переходим к лобби
                         console.log('[Duel] ⏳ Duel is waiting, going to lobby');
                         setMode('create');
@@ -394,7 +404,7 @@ export default function Duel() {
                     }
 
                     // Определяем правильный экран на основе актуального статуса
-                    if (data.status === 'finished') {
+                    if ((data as any).status === 'finished') {
                         // Дуэль завершена - НЕ очищаем activeDuel (Delayed Cleanup strategy)
                         // Данные нужны для экрана результатов, очистка произойдет при выходе
                         console.log('[Duel] ✅ Duel is finished, going to results (keeping activeDuel for data)');
@@ -404,7 +414,7 @@ export default function Duel() {
                         }
                         // Переходим к результатам без очистки activeDuel
                         setMode('result');
-                    } else if (data.status === 'active') {
+                    } else if ((data as any).status === 'active') {
                         // Дуэль активна - проверяем режим сохраненного состояния
                         if (activeDuel.mode === 'waiting') {
                             // Если пользователь уже закончил все вопросы - переходим к экрану ожидания
@@ -416,7 +426,7 @@ export default function Duel() {
                             console.log('[Duel] ✅ Duel is active, restoring to battle mode');
                             handleDuelStarted(activeDuel.duelId);
                         }
-                    } else if (data.status === 'waiting' || activeDuel.mode === 'waiting') {
+                    } else if ((data as any).status === 'waiting' || activeDuel.mode === 'waiting') {
                         // Дуэль в ожидании - переходим к лобби
                         console.log('[Duel] ⏳ Duel is waiting, restoring to lobby');
                         setMode('create');
@@ -442,7 +452,7 @@ export default function Duel() {
             const { data } = await supabase.functions.invoke('assistant-suggest', {
                 body: { trigger: 'low_coins_in_duel' },
             });
-            const message = data?.suggestion?.message;
+            const message = (data as any)?.suggestion?.message;
             if (message) {
                 toast.info(message, {
                     action: {
@@ -475,7 +485,7 @@ export default function Duel() {
         // 2. Пытаемся достать из Telegram start_param (startapp)
         // Формат может быть: "CODE" (напрямую) или "duel_CODE" (старый формат)
         const webApp = safeGetTelegramWebApp();
-        const tgStartParam = webApp?.initDataUnsafe?.start_param;
+        const tgStartParam = (webApp as any)?.initDataUnsafe?.start_param;
 
         let code = urlCode;
         if (!code && tgStartParam) {
@@ -561,13 +571,13 @@ export default function Duel() {
                 // Продолжаем с переходом в лобби даже при ошибке проверки
             }
 
-            if (data?.status === 'active') {
+            if ((data as any)?.status === 'active') {
                 console.log('[Duel] Duel already active, going straight to battle!');
                 // #region agent log
                 debugFetch({ location: 'Duel.tsx:370', message: 'Duel active - calling handleDuelStarted', data: { id, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
                 // #endregion
                 handleDuelStarted(id); // Передаем id для гарантии
-            } else if (data?.status === 'finished') {
+            } else if ((data as any)?.status === 'finished') {
                 // 🆕 CRITICAL FIX: Если дуэль уже завершена при присоединении - это ошибка
                 console.error('[Duel] ❌ Cannot join: duel is already finished');
                 toast.error('Дуэль уже завершена. Создайте новую или присоединитесь к другой.');
@@ -740,30 +750,30 @@ export default function Duel() {
             }
 
             // Проверяем, что данные корректны
-            if (!data || !data.duel || !data.duel.id || !data.duel.code) {
+            if (!data || !(data as any).duel || !(data as any).duel.id || !(data as any).duel.code) {
                 console.error('[Duel] ❌ Invalid response data:', data);
                 throw new Error('Неверный ответ от сервера. Попробуйте еще раз.');
             }
 
             console.log('[Duel] join_duel data:', {
-                auto_started: data.auto_started,
-                duel_status: data.duel?.status,
-                duel_id: data.duel?.id,
-                player_id: data.player?.id
+                auto_started: (data as any).auto_started,
+                duel_status: (data as any).duel?.status,
+                duel_id: (data as any).duel?.id,
+                player_id: (data as any).player?.id
             });
 
-            showDuelJoinSuccess(data.auto_started);
+            showDuelJoinSuccess((data as any).auto_started);
 
             // #region agent log
-            debugFetch({ location: 'Duel.tsx:519', message: 'Calling handleDuelJoined', data: { duelId: data.duel.id, duelCode: data.duel.code, autoStarted: data.auto_started, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
+            debugFetch({ location: 'Duel.tsx:519', message: 'Calling handleDuelJoined', data: { duelId: (data as any).duel.id, duelCode: (data as any).duel.code, autoStarted: (data as any).auto_started, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
             // Передаем auto_started в handleDuelJoined для правильной обработки
-            handleDuelJoined(data.duel.id, data.duel.code, data.auto_started);
+            handleDuelJoined((data as any).duel.id, (data as any).duel.code, (data as any).auto_started);
             setJoinCode('');
             hasAutoJoinedRef.current = false;
             setIsJoining(false);
             // #region agent log
-            debugFetch({ location: 'Duel.tsx:522', message: 'Join completed successfully', data: { duelId: data.duel.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
+            debugFetch({ location: 'Duel.tsx:522', message: 'Join completed successfully', data: { duelId: (data as any).duel.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' });
             // #endregion
         } catch (error: any) {
             console.error('[Duel] ❌ Error in handleInlineJoin:', error);
@@ -879,11 +889,11 @@ export default function Duel() {
                 setUserCoins(userCoins - betAmount);
             }
 
-            setCreatedCode(data.duel.code);
+            setCreatedCode((data as any).duel.code);
 
             // Auto-copy code to clipboard
             try {
-                await navigator.clipboard.writeText(data.duel.code);
+                await navigator.clipboard.writeText((data as any).duel.code);
                 setCopied(true);
                 toast.success('Дуэль создана! Код скопирован в буфер обмена 🎮');
                 setTimeout(() => setCopied(false), 3000);
@@ -893,14 +903,14 @@ export default function Duel() {
             }
 
             // Store duel ID and code for lobby navigation
-            setDuelId(data.duel.id);
-            setDuelCode(data.duel.code);
+            setDuelId((data as any).duel.id);
+            setDuelCode((data as any).duel.code);
             setConnectionStatus('checking');
             setWaitTime(0);
 
             dispatchUserEvent(profileId, 'duel_invite_created', {
-                duel_id: data.duel.id,
-                duel_code: data.duel.code,
+                duel_id: (data as any).duel.id,
+                duel_code: (data as any).duel.code,
                 bet_amount: betAmount,
                 num_questions: numQuestions,
                 opponent_name: 'соперник',
@@ -966,7 +976,7 @@ export default function Duel() {
                 num_questions: numQuestionsValue,
                 difficulty: 'mix' as const,
                 bet_amount: betAmountValue,
-                bet_type: betType || 'none',
+                bet_type: betType,
                 license_category: licenseCategory, // Pass category
                 immediate_bot: immediateBot || (isActuallyRematch && activeRematchOpponent?.isBot), // Флаг для мгновенного создания бота при реванше
                 rematch_opponent_id: activeRematchOpponent?.id,
@@ -1029,49 +1039,49 @@ export default function Duel() {
                 setUserCoins(userCoins - betAmount);
             }
 
-            setDuelId(data.duel.id);
-            setDuelCode(data.duel.code);
+            setDuelId((data as any).duel.id);
+            setDuelCode((data as any).duel.code);
 
             console.log('[Duel] 📦 Match found data:', {
-                auto_started: data.auto_started,
-                opponent_type: data.opponent_type,
-                bot_name: data.bot_name,
-                duel_id: data.duel.id
+                auto_started: (data as any).auto_started,
+                opponent_type: (data as any).opponent_type,
+                bot_name: (data as any).bot_name,
+                duel_id: (data as any).duel.id
             });
 
             // Если автозапуск произошел - сразу переходим к битве
-            if (data.auto_started) {
-                if (activeRematchOpponent && data.opponent_type === 'bot') {
+            if ((data as any).auto_started) {
+                if (activeRematchOpponent && (data as any).opponent_type === 'bot') {
                     // Премиальная задержка для ощущения "вызова"
-                    toast.loading(`Вызываем ${activeRematchOpponent.name || data.bot_name || 'соперника'} на реванш...`, { id: 'rematch-bot-loading' });
+                    toast.loading(`Вызываем ${activeRematchOpponent.name || (data as any).bot_name || 'соперника'} на реванш...`, { id: 'rematch-bot-loading' });
 
                     setTimeout(() => {
-                        toast.success(`${activeRematchOpponent.name || data.bot_name || 'Соперник'} принял ваш вызов!`, {
+                        toast.success(`${activeRematchOpponent.name || (data as any).bot_name || 'Соперник'} принял ваш вызов!`, {
                             id: 'rematch-bot-loading',
                             icon: '⚔️'
                         });
 
                         setTimeout(() => {
-                            handleDuelStarted(data.duel.id);
+                            handleDuelStarted((data as any).duel.id);
                         }, 1000);
                     }, 1800);
                 } else {
-                    handleDuelStarted(data.duel.id);
-                    toast.success(data.opponent_type === 'bot' ? `Соперник ${data.bot_name || 'найден'}!` : 'Соперник найден!');
+                    handleDuelStarted((data as any).duel.id);
+                    toast.success((data as any).opponent_type === 'bot' ? `Соперник ${(data as any).bot_name || 'найден'}!` : 'Соперник найден!');
                 }
             } else {
                 // FALLBACK: Если не автозапуск (например, нашли реального игрока, но нужно ждать подтверждения)
                 if (isActuallyRematch) {
                     console.log('[Duel] 🔄 Rematch fallback: forcing battle start for bot or showing error');
-                    if (data.opponent_type === 'bot') {
-                        handleDuelStarted(data.duel.id);
+                    if ((data as any).opponent_type === 'bot') {
+                        handleDuelStarted((data as any).duel.id);
                     } else {
                         // Для людей - переходим в лобби
-                        setCreatedCode(data.duel.code);
+                        setCreatedCode((data as any).duel.code);
                         setMode('create');
                     }
                 } else {
-                    setCreatedCode(data.duel.code);
+                    setCreatedCode((data as any).duel.code);
                     setMode('create');
                     setConnectionStatus('checking');
                     setWaitTime(0);
@@ -1172,9 +1182,11 @@ export default function Duel() {
             });
 
             if (error) throw error;
-
-            if (data.success) {
-                const refundAmount = data.refunded || 0;
+            if (data) {
+                setUserCoins((data as any).coins || 0);
+            }
+            if ((data as any).success) {
+                const refundAmount = (data as any).refunded || 0;
 
                 if (refundAmount > 0) {
                     toast.success(`Дуэль отменена! Возвращено ${refundAmount} монет`, {
@@ -1467,7 +1479,21 @@ export default function Duel() {
                                             {/* Title & Desc */}
                                             <div className="space-y-4">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-indigo-500/20 border border-primary/30 flex items-center justify-center shadow-lg backdrop-blur-xl">
+                                                    <button
+                                                        onClick={() => {
+                                                            if (duelMode) {
+                                                                console.log('[Duel] 🔙 Back to menu from setup, clearing rematch data');
+                                                                setDuelMode(null);
+                                                                setRematchOpponent(null);
+                                                            } else {
+                                                                navigate('/games');
+                                                            }
+                                                        }}
+                                                        className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-2xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.1] hover:border-white/[0.15] transition-all duration-300"
+                                                    >
+                                                        <ArrowLeft className="w-5 h-5 text-slate-300" />
+                                                    </button>
+                                                    <div className="w-14 h-14 flex-shrink-0 rounded-2xl bg-gradient-to-br from-primary/20 to-indigo-500/20 border border-primary/30 flex items-center justify-center shadow-lg backdrop-blur-xl hidden sm:flex">
                                                         <Swords className="w-7 h-7 text-primary" />
                                                     </div>
                                                     <div>
@@ -1544,7 +1570,10 @@ export default function Duel() {
 
                                                         <div className="relative z-10 flex items-center justify-between mt-6">
                                                             <OnlinePlayers
-                                                                baseCount={1240}
+                                                                baseCount={onlineCount}
+                                                                players={onlinePlayers}
+                                                                currentUserPhoto={currentUserPhoto}
+                                                                currentUserId={profileId}
                                                                 className="w-full flex-row-reverse"
                                                             />
                                                         </div>
@@ -1601,7 +1630,7 @@ export default function Duel() {
                                     {/* — Случайный соперник — */}
                                     {(duelMode === 'random' || duelMode === 'friend' || createdCode) && (
                                         <motion.div
-                                            key={duelMode === 'random' ? 'random' : 'friend'}
+                                            key="duel-settings-container"
                                             className="mb-12 sm:mb-16"
                                             initial={{ opacity: 0, y: 16 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -1610,10 +1639,10 @@ export default function Duel() {
                                         >
                                             {/* Блок настроек лобби */}
 
-                                            <Card className="p-0 border border-border/40 shadow-xl rounded-3xl sm:rounded-[2rem] overflow-hidden bg-card relative">
+                                            <Card className="p-0 border border-border/40 shadow-xl rounded-3xl sm:rounded-[2rem] bg-card relative">
                                                 <div className={`grid ${(duelMode === 'friend' || createdCode) ? 'md:grid-cols-2' : 'md:grid-cols-1'} divide-y md:divide-y-0 ${(duelMode === 'friend' || createdCode) ? 'md:divide-x' : ''} divide-border/30`}>
                                                     {/* Create Duel Section - Premium */}
-                                                    <div className="relative p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/20 dark:via-purple-950/15 dark:to-indigo-950/20 overflow-hidden">
+                                                    <div className="relative p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/20 dark:via-purple-950/15 dark:to-indigo-950/20 rounded-3xl sm:rounded-[2rem]">
                                                         {/* Noise texture */}
                                                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
@@ -1626,31 +1655,7 @@ export default function Duel() {
                                                         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-violet-400/20 to-purple-500/20 rounded-full blur-3xl -z-10" />
 
                                                         <div className="relative space-y-6 sm:space-y-8">
-                                                            {/* Встроенная кнопка назад и идентификатор режима */}
-                                                            <div className="flex items-center justify-between">
-                                                                <button
-                                                                    onClick={() => {
-                                                                        console.log('[Duel] 🔙 Back to menu from setup, clearing rematch data');
-                                                                        setDuelMode(null);
-                                                                        setRematchOpponent(null);
-                                                                    }}
-                                                                    className="group/back flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all active:scale-95 shadow-lg backdrop-blur-md"
-                                                                >
-                                                                    <ArrowLeft size={18} className="text-slate-400 group-hover/back:text-white transition-colors" />
-                                                                    <span className="text-[11px] font-black text-slate-400 group-hover/back:text-white uppercase tracking-[0.2em]">Назад</span>
-                                                                </button>
 
-                                                                <div className="flex items-center gap-2.5 px-4 py-2.5 bg-black/40 rounded-2xl border border-white/5 backdrop-blur-xl shadow-inner">
-                                                                    {duelMode === 'random' ? (
-                                                                        <Search size={14} className="text-violet-400" />
-                                                                    ) : (
-                                                                        <Users size={14} className="text-amber-400" />
-                                                                    )}
-                                                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
-                                                                        {rematchOpponent ? 'REMATCH' : duelMode === 'random' ? 'RANDOM MATCH' : 'PRIVATE DUEL'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
 
                                                             <div className="flex items-center justify-between pt-2">
                                                                 {/* Title is now in Hero block, only showing mode badge here */}
@@ -1668,7 +1673,7 @@ export default function Duel() {
                                                                             initial={{ opacity: 0, scale: 0.95 }}
                                                                             animate={betAmount > 0 && betAmount >= Math.floor(userCoins / 10) * 10 && userCoins > 0 ? { boxShadow: "0 0 30px rgba(249, 115, 22, 0.3)", opacity: 1, scale: 1 } : { boxShadow: "0 0 0px rgba(0,0,0,0)", opacity: 1, scale: 1 }}
                                                                             className={cn(
-                                                                                "relative overflow-hidden rounded-3xl p-5 border transition-all duration-300",
+                                                                                "relative rounded-3xl p-5 border transition-all duration-300",
                                                                                 betAmount > 0
                                                                                     ? "bg-gradient-to-br from-orange-50 to-white dark:from-orange-950/30 dark:to-black border-orange-200 dark:border-orange-800"
                                                                                     : "bg-secondary/30 border-transparent dark:bg-white/5"
@@ -1680,11 +1685,15 @@ export default function Duel() {
                                                                             {/* HEADER */}
                                                                             <div className="flex justify-between items-center mb-6 relative z-10">
                                                                                 <div className={cn(
-                                                                                    "flex items-center gap-2 font-black text-[10px] tracking-[0.2em] uppercase transition-colors",
-                                                                                    betAmount > 0 ? "text-orange-600 dark:text-orange-500" : "text-muted-foreground/60"
+                                                                                    "flex items-center gap-2 font-black text-[10px] tracking-[0.3em] uppercase transition-colors opacity-90",
+                                                                                    duelMode === 'random' ? "text-violet-500 dark:text-violet-400" : "text-amber-500 dark:text-amber-400"
                                                                                 )}>
-                                                                                    <Zap size={14} className={betAmount > 0 && betAmount >= Math.floor(userCoins / 10) * 10 ? "animate-pulse" : ""} />
-                                                                                    {betAmount > 0 ? 'Азартный режим' : 'Тренировка'}
+                                                                                    {duelMode === 'random' ? (
+                                                                                        <Search size={14} />
+                                                                                    ) : (
+                                                                                        <Users size={14} />
+                                                                                    )}
+                                                                                    {rematchOpponent ? 'REMATCH' : duelMode === 'random' ? 'RANDOM MATCH' : 'PRIVATE DUEL'}
                                                                                 </div>
                                                                                 <motion.button
                                                                                     layout
@@ -1916,7 +1925,7 @@ export default function Duel() {
                                                                                 <Button
                                                                                     size="lg"
                                                                                     onClick={() => handleActionClick(() => handleFindMatch())}
-                                                                                    disabled={isFindingMatch || isCreating || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
+                                                                                    disabled={isFindingMatch || isCreating || (betAmount <= 0 && (betType as string) !== 'none') || (betAmount > 0 && hostTotalStake > userCoins)}
                                                                                     variant="outline"
                                                                                     className="w-full h-12 text-sm sm:text-base font-black rounded-2xl border-2 border-violet-500/50 hover:border-violet-500 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
                                                                                 >
@@ -1961,7 +1970,7 @@ export default function Duel() {
                                                                                 <Button
                                                                                     size="lg"
                                                                                     onClick={() => handleActionClick(() => handleInlineCreate())}
-                                                                                    disabled={isCreating || isFindingMatch || (betType !== 'none' && betAmount <= 0) || (betAmount > 0 && hostTotalStake > userCoins)}
+                                                                                    disabled={isCreating || isFindingMatch || (betAmount <= 0 && (betType as string) !== 'none') || (betAmount > 0 && hostTotalStake > userCoins)}
                                                                                     variant="outline"
                                                                                     className="w-full h-12 text-sm sm:text-base font-black rounded-2xl border-2 border-violet-500/50 hover:border-violet-500 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all duration-300 disabled:opacity-50 touch-manipulation relative overflow-hidden group"
                                                                                 >

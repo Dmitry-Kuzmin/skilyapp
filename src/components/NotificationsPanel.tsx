@@ -171,7 +171,7 @@ export function NotificationsPanel({
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const navigate = useNavigate();
-  const parentRef = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement | null>(null);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
   const toggleNotificationExpansion = useCallback((notificationId: string) => {
@@ -210,12 +210,9 @@ export function NotificationsPanel({
   }, [notifications, unreadCount, profileId]);
 
   // Filter notifications by type
-  // Hide progress notifications (start, progress, boost, opponent_ahead, opponent_behind)
+  // Hide progress notifications and answers (start, progress, boost, opponent_ahead, opponent_behind, answer)
   // Show only results (finish, timeout) and reminders
-  // ВАЖНО: Не скрываем все уведомления - показываем finish, timeout и другие важные
-  // КРИТИЧНО: Не фильтруем 'answer' - это уведомления о правильных ответах соперника
-  // Фильтруем только 'progress' для неправильных ответов (чтобы не было спама)
-  const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind'];
+  const PROGRESS_NOTIFICATION_TYPES = ['start', 'progress', 'boost', 'opponent_ahead', 'opponent_behind', 'answer'];
 
   const filteredNotifications = useMemo(() => {
     // First, filter out progress notifications (always hide them)
@@ -264,7 +261,7 @@ export function NotificationsPanel({
     // Очищаем старый кеш (храним только последние 100)
     if (timeCache.current.size > 100) {
       const firstKey = timeCache.current.keys().next().value;
-      timeCache.current.delete(firstKey);
+      if (firstKey) timeCache.current.delete(firstKey);
     }
     return formatted;
   }, []);
@@ -407,7 +404,7 @@ export function NotificationsPanel({
     overscan: 5, // Рендерим 5 элементов сверху и снизу для плавности скролла
     // КРИТИЧНО: Включаем измерение элементов для динамических размеров
     measureElement: (element) => {
-      if (!element) return undefined;
+      if (!element) return 0;
       return element.getBoundingClientRect().height;
     },
   });

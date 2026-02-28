@@ -166,7 +166,7 @@ const TicketCore = ({
             <div className={cn(
               "px-2 py-0.5 rounded-full border flex items-center gap-1",
               status === 'damaged' ? "bg-red-500/20 border-red-500/30" :
-                status === 'charged' ? "bg-orange-500/10 border-orange-500/20 opacity-80" :
+                status === 'charging' ? "bg-orange-500/10 border-orange-500/20 opacity-80" :
                   "bg-red-500/10 border-red-200 dark:border-red-500/20 opacity-60"
             )}>
               <AlertCircle className={cn("w-2.5 h-2.5 sm:w-3 sm:h-3 text-red-500", status === 'idle' && "text-red-400")} />
@@ -865,6 +865,12 @@ const Tests = () => {
                                 {mode.badge}
                               </Badge>
                             )}
+                            {mode.id === 2 && !mode.isLocked && (
+                              <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full flex gap-1 items-center animate-pulse">
+                                <CheckCircle size={10} className="fill-emerald-500/20" />
+                                {language === 'ru' ? 'Допуск открыт' : 'Acceso abierto'}
+                              </Badge>
+                            )}
                           </div>
                         </div>
 
@@ -876,9 +882,9 @@ const Tests = () => {
                           )}>
                             {mode.title}
                           </h3>
-                          <p className="text-slate-600 dark:text-slate-400 font-medium text-sm leading-relaxed line-clamp-2">
+                          <p className="text-slate-600 dark:text-slate-400 font-medium text-sm leading-relaxed line-clamp-2 text-left">
                             {mode.isLocked
-                              ? (language === 'ru' ? `Набери 10 баллов, чтобы открыть доступ к экзамену (у тебя ${licensePoints}/10)` : `Consigue 10 puntos para desbloquear el examen (tienes ${licensePoints}/10)`)
+                              ? (language === 'ru' ? `Набери 10 баллов, чтобы открыть доступ к экзамену. У тебя ${licensePoints}/10.` : `Consigue 10 puntos para desbloquear el examen. Tienes ${licensePoints}/10.`)
                               : mode.description
                             }
                           </p>

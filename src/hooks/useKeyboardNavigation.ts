@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { TestMode } from '@/types/pdd';
+import { TestMode } from '@/hooks/test-session/useTestDataLoader';
 
 interface UseKeyboardNavigationProps {
     // State
@@ -79,8 +79,8 @@ export const useKeyboardNavigation = ({
                             selectOption(answerId);
 
                             // Автоматически отвечаем только в режимах, где нет кнопки "Подтвердить"
-                            // (например, в обычной практике РФ)
-                            const hasConfirmButton = mode === 'exam-russia' || !isRussia;
+                            // В блиц-режиме кнопок подтверждения нет, поэтому автоответ.
+                            const hasConfirmButton = mode !== 'blitz' && (mode === 'exam-russia' || !isRussia);
                             if (!hasConfirmButton && !selectedOption) {
                                 handleAnswer(answerId);
                             }

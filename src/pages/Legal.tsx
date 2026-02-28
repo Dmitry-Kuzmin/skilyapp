@@ -3,7 +3,7 @@ import { useParams, useNavigate, Navigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
-import { FileText, Shield, CreditCard, RefreshCw, ChevronLeft } from "lucide-react";
+import { FileText, Shield, CreditCard, RefreshCw, ChevronLeft, Cookie } from "lucide-react";
 
 // Lazy load heavy legal documents
 const Terms = lazy(() => import("./Terms"));
@@ -17,7 +17,7 @@ export type LegalTab = "terms" | "privacy" | "cookies" | "subscription" | "refun
 const tabConfig: { id: LegalTab; icon: typeof FileText; labelKey: string }[] = [
     { id: "terms", icon: FileText, labelKey: "legal.tabs.terms" },
     { id: "privacy", icon: Shield, labelKey: "legal.tabs.privacy" },
-    { id: "cookies", icon: Shield, labelKey: "legal.tabs.cookies" },
+    { id: "cookies", icon: Cookie, labelKey: "legal.tabs.cookies" },
     { id: "subscription", icon: CreditCard, labelKey: "legal.tabs.subscription" },
     { id: "refund", icon: RefreshCw, labelKey: "legal.tabs.refund" },
 ];

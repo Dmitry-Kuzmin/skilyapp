@@ -30,12 +30,14 @@
   </script>
 
   <!-- Theme color для браузерных панелей - динамическое определение (Chameleon Protocol) -->
+  <meta name="theme-color" content="#09090b">
+  <meta name="msapplication-TileColor" content="#09090b">
   <script>
     (function () {
       const isLanding = window.location.pathname === '/' || window.location.pathname === '/landing' || !window.location.pathname.startsWith('/dashboard');
       const color = isLanding ? '#0f172a' : '#09090b';
-      document.write('<meta name="theme-color" content="' + color + '">');
-      document.write('<meta name="msapplication-TileColor" content="' + color + '">');
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
+      document.querySelector('meta[name="msapplication-TileColor"]').setAttribute('content', color);
     })();
   </script>
   <!-- Для Safari iOS - черная полупрозрачная строка состояния -->
@@ -49,7 +51,6 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
-  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
   <!-- ОПТИМИЗАЦИЯ LCP: Preload критического изображения для hero section dashboard -->
   <!-- Убрано: noise.svg не используется сразу, вызывает предупреждение -->
@@ -644,8 +645,12 @@
         window.location.hostname === '127.0.0.1';
 
       if (isTelegram) {
-        // Мы в Telegram или в dev-режиме - загружаем SDK синхронно
-        document.write('<script src="https://telegram.org/js/telegram-web-app.js" crossorigin="anonymous"><\/script>');
+        // Мы в Telegram или в dev-режиме - загружаем SDK асинхронно, но с высоким приоритетом
+        const script = document.createElement('script');
+        script.src = "https://telegram.org/js/telegram-web-app.js";
+        script.crossOrigin = "anonymous";
+        script.async = false; // Для соблюдения порядка выполнения, но это уже в конце head
+        document.head.appendChild(script);
       }
     })();
   </script>
@@ -773,6 +778,35 @@
 </head>
 
 <body>
+  <div class="app-skeleton">
+    <!-- Ambient Background Glow (from CSS) -->
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <div class="cyber-ring-container">
+      <!-- Cyber-Rings (animated via CSS) -->
+      <div class="cyber-ring-1"></div>
+      <div class="cyber-ring-2"></div>
+      <div class="cyber-ring-3"></div>
+
+      <div class="skeleton-logo-container">
+        <div class="skeleton-logo-glow"></div>
+        <div class="skeleton-text-sub">Skily System</div>
+        <div class="skeleton-divider"></div>
+        <div class="skeleton-logo-text">SKILY</div>
+      </div>
+    </div>
+
+    <div class="bottom-cyber">
+      <div class="bottom-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="bottom-text">S K I L Y &nbsp; V 2 . 0</div>
+    </div>
+  </div>
+
   <script>
     (function () {
       'use strict';
@@ -784,10 +818,6 @@
   </script>
 
   <div id="root" vaul-drawer-wrapper></div>
-
-  <div class="app-skeleton">
-    <!-- Только черный фон для мгновенного появления. Весь UI теперь в React PageLoader -->
-  </div>
 
   <!-- PWA Service Worker управляется через vite-plugin-pwa -->
   <!-- НЕ удаляем SW вручную - это блокирует offline режим -->

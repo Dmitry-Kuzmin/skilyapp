@@ -45,8 +45,6 @@ import {
   Flame,
   Star,
   Shield,
-  Star,
-  Shield,
   Globe,
   Smartphone,
   Palette,
@@ -58,6 +56,7 @@ import { toast } from "sonner";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useCosmeticsPreview } from "@/contexts/CosmeticsPreviewContext";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
+import { TelemetryOverlay } from './telemetry/TelemetryOverlay';
 
 const supabaseClient = supabase as any;
 
@@ -106,6 +105,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
   const { openSettings } = useSettingsStore();
 
   const [open, setOpen] = useState(false);
+  const [telemetryOpen, setTelemetryOpen] = useState(false);
   const [referralModalOpen, setReferralModalOpen] = useState(false);
   const isMiniApp = isTelegramMiniApp();
   const { unreadCount } = notificationsApi;
@@ -229,18 +229,14 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 previewSkin={previewSkin}
               />
             )}
-            {!showSkeleton && (
-              hasUnreadNotifications ? (
-                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border border-primary/60 bg-background/95 text-primary flex items-center justify-center shadow-[0_0_12px_rgba(79,70,229,0.35)] z-30 animate-[pulse_2.4s_ease-in-out_infinite]">
-                  <MailOpen className="w-2.5 h-2.5" />
-                </div>
-              ) : (
-                // Индикатор онлайн - скрываем если есть previewBadges или previewSticker
-                (!previewBadges || previewBadges.length === 0) && !previewSticker && (
-                  <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background z-30 shadow-lg" />
-                )
-              )
+            {!showSkeleton && hasUnreadNotifications && (
+              <div className="absolute -top-1 -right-1 z-30 pointer-events-none">
+                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-black border-2 border-background shadow-sm">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              </div>
             )}
+
           </button>
         </PopoverTrigger>
         <PopoverContent
@@ -323,7 +319,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 className="h-8 text-[11px] font-medium border-border/30 bg-background/40 hover:bg-accent/40 transition-colors"
                 onClick={() => {
                   setOpen(false);
-                  navigate('/duel-leaderboard');
+                  setTelemetryOpen(true);
                 }}
               >
                 <BarChart3 className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
@@ -343,7 +339,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
             </div>
 
             {/* Subscription Status */}
-            {subscription === 'pro' && (
+            {isProfilePremium && (
               <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/10">
                 <Crown className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium">{t('profileMenu.proBadge')}</span>
@@ -484,6 +480,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
         </PopoverContent>
       </Popover>
 
+      <TelemetryOverlay open={telemetryOpen} onOpenChange={setTelemetryOpen} />
       {/* Referral Modal */}
       <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
     </>

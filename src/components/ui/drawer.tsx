@@ -3,7 +3,7 @@ import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "@/lib/utils";
 
-interface DrawerProps extends React.ComponentProps<typeof DrawerPrimitive.Root> {
+type DrawerProps = React.ComponentProps<typeof DrawerPrimitive.Root> & {
   /** Включить scale эффект фона при открытии (default: false из-за проблем с layout в Telegram) */
   shouldScaleBackground?: boolean;
   /** 
@@ -17,6 +17,7 @@ interface DrawerProps extends React.ComponentProps<typeof DrawerPrimitive.Root> 
 const Drawer = ({
   shouldScaleBackground = false,
   dismissibleThreshold = 0.25, // Уменьшенный порог для легкого закрытия
+  children,
   ...props
 }: DrawerProps) => (
   <DrawerPrimitive.Root
@@ -24,7 +25,9 @@ const Drawer = ({
     dismissible={true} // Явно включаем возможность закрытия
     closeThreshold={dismissibleThreshold} // Используем dismissibleThreshold для closeThreshold
     {...props}
-  />
+  >
+    {children}
+  </DrawerPrimitive.Root>
 );
 Drawer.displayName = "Drawer";
 

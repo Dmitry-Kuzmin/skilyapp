@@ -167,14 +167,23 @@ serve(async (req) => {
       });
     }
 
-    const filteredRules = rules.filter((rule) =>
-      matchesFilters(rule.user_state_filter, userState, settings, payload, metrics)
-    );
+    console.log(`[EventDispatcher] Processing ${rules.length} potential rules for event: ${event_type}`);
+
+    const filteredRules = rules.filter((rule) => {
+      const matched = matchesFilters(rule.user_state_filter, userState, settings, payload, metrics);
+      if (!matched) {
+        console.log(`[EventDispatcher] Rule "${rule.rule_name}" skipped by filter:`, rule.user_state_filter);
+      }
+      return matched;
+    });
+
+    console.log(`[EventDispatcher] Rules after filter: ${filteredRules.length}`);
 
     let sentCount = 0;
 
     for (const rule of filteredRules) {
       if (!categoryAllowed(settings, rule.category)) {
+        console.log(`[EventDispatcher] Category "${rule.category}" not allowed by settings for rule: ${rule.rule_name}`);
         continue;
       }
 
@@ -187,6 +196,7 @@ serve(async (req) => {
       );
 
       if (!canSend) {
+        console.log(`[EventDispatcher] Cooldown active for rule "${rule.rule_name}" (template: ${rule.template_type})`);
         continue;
       }
 
@@ -205,7 +215,10 @@ serve(async (req) => {
         variables,
       });
 
-      if (!sent) continue;
+      if (!sent) {
+        console.warn(`[EventDispatcher] notification-sender failed to send for rule: ${rule.rule_name}`);
+        continue;
+      }
 
       sentCount += 1;
     }

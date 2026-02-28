@@ -45,12 +45,14 @@ body {
 
 html.telegram-webapp,
 body.telegram-webapp {
-  height: 100dvh;
-  /* Use dynamic viewport height */
+  min-height: 100dvh;
+  /* Allow page to grow and scroll */
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+  overflow-y: auto;
   background-color: #09090b;
+  -webkit-overflow-scrolling: touch;
 }
 
 html.telegram-webapp #root,
@@ -139,6 +141,30 @@ iframe[id^="telegram-login"] {
 
   .mce-content-body img:hover {
     @apply opacity-90;
+  }
+
+  /* OFFICIAL AXEPTIO OVERRIDE */
+  /* Полностью удаляет плавающую кнопку из DOM-дерева. */
+  /* Это гарантирует, что она не будет перекрывать контент и клики. */
+  [id^="axeptio_btn"],
+  [id*="axeptio_btn"],
+  [id^="axeptio_main_button"],
+  [class^="axeptio_widget_trigger"],
+  [class*="axeptio_widget_trigger"],
+  [class^="axeptio-widget"],
+  [class*="axeptio-widget"],
+  [id^="axeptio_badge"],
+  [class^="axeptio_badge"],
+  #axeptio_btn,
+  .axeptio_widget_trigger {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    position: fixed !important;
+    left: -9999px !important;
   }
 }
 
@@ -2058,4 +2084,21 @@ html {
   top: 50%;
   animation: coin-particle-3 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   animation-delay: 100ms;
+}
+/* Custom Scrollbar for Analytics and Telemetry */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
 }

@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trophy, Crown, Sparkles, Award, Star, TrendingUp, Search, Globe, Users, MapPin, ChevronLeft, ChevronRight, Flame } from "lucide-react";
+import { Trophy, Crown, Sparkles, Award, Star, TrendingUp, Search, Globe, Users, MapPin, ChevronLeft, ChevronRight, Flame, Coins } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserAvatar } from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
@@ -80,7 +80,17 @@ const rarityColors = {
 
 type FilterType = "global" | "friends" | "country";
 
-// Вспомогательная функция renderAvatarWithCosmetics удалена в пользу UserAvatar
+// Вспомогательная функция для расчета времени
+const calculateTimeLeft = (endDate?: string | null) => {
+  if (!endDate) return null;
+  const difference = new Date(endDate).getTime() - Date.now();
+  const total = Math.max(difference, 0);
+  const days = Math.floor(total / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((total / (1000 * 60)) % 60);
+  const seconds = Math.floor((total / 1000) % 60);
+  return { total, days, hours, minutes, seconds };
+};
 
 export function DuelPassLeaderboardModal() {
   // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
@@ -102,17 +112,20 @@ export function DuelPassLeaderboardModal() {
   const highlightedRowClass = useMemo(
     () =>
       isLightTheme
-        ? "!bg-primary/10 !border-l-4 !border-l-primary shadow-md [&>td]:!bg-primary/10 [&>td]:!border-0"
-        : "!bg-primary/20 !border-l-4 !border-l-primary shadow-md ring-1 ring-primary/20 [&>td]:!bg-primary/20 [&>td]:!border-0",
+        ? "bg-gradient-to-r from-indigo-50/80 to-blue-50/80 border border-indigo-200/50 shadow-sm backdrop-blur-md"
+        : "bg-gradient-to-r from-indigo-600/80 to-blue-600/80 border border-white/10 shadow-[0_8px_32px_rgba(79,70,229,0.3)] backdrop-blur-xl",
     [isLightTheme]
   );
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
+  const [absoluteTop3, setAbsoluteTop3] = useState<LeaderboardEntry[]>([]);
   const [userPositionData, setUserPositionData] = useState<UserPositionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rewardsModalOpen, setRewardsModalOpen] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState<number | null>(null);
   const [activeSeasonId, setActiveSeasonId] = useState<number | null>(null);
+  const [seasonEndDate, setSeasonEndDate] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<ReturnType<typeof calculateTimeLeft>>(null);
   const [filterType, setFilterType] = useState<FilterType>("global");
   const [searchQuery, setSearchQuery] = useState("");
   const [pagination, setPagination] = useState<PaginationData>({
@@ -130,7 +143,7 @@ export function DuelPassLeaderboardModal() {
     try {
       const { data: activeSeason } = await supabase
         .from("duel_pass_seasons")
-        .select("id")
+        .select("id, end_date")
         .eq("is_active", true)
         .order("season_number", { ascending: false })
         .limit(1)
@@ -138,6 +151,8 @@ export function DuelPassLeaderboardModal() {
 
       if (activeSeason) {
         setActiveSeasonId(activeSeason.id);
+        setSeasonEndDate(activeSeason.end_date);
+        setTimeLeft(calculateTimeLeft(activeSeason.end_date));
       }
 
       const { data, error } = await supabase.functions.invoke("duel-pass-leaderboard", {
@@ -157,6 +172,12 @@ export function DuelPassLeaderboardModal() {
       }
 
       setLeaders(data?.leaderboard || []);
+
+      // Фиксируем ТОП-3 только если это первая страница
+      if (page === 1 && data?.leaderboard) {
+        setAbsoluteTop3(data.leaderboard.slice(0, 3));
+      }
+
       if (data?.pagination) {
         setPagination(data.pagination);
       }
@@ -167,6 +188,21 @@ export function DuelPassLeaderboardModal() {
       setLoading(false);
     }
   };
+
+  // Эффект для таймера
+  useEffect(() => {
+    if (!seasonEndDate) return;
+
+    const timer = setInterval(() => {
+      const remaining = calculateTimeLeft(seasonEndDate);
+      setTimeLeft(remaining);
+      if (remaining && remaining.total <= 0) {
+        clearInterval(timer);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [seasonEndDate]);
 
   // Загрузка позиции пользователя
   const loadUserPosition = async () => {
@@ -233,7 +269,7 @@ export function DuelPassLeaderboardModal() {
   const getMotionProps = <T,>(config: T): Partial<T> => (disableAnimations ? {} : config);
 
   const renderLoadingState = () => (
-    <div className="space-y-6 py-4">
+    <div className="space-y-6 py-6 px-4 sm:px-6">
       <div className="space-y-3">
         <Skeleton className="h-4 w-32 sm:w-40 rounded-full" />
         <Skeleton className="h-8 w-48 sm:w-64 rounded-xl" />
@@ -277,34 +313,60 @@ export function DuelPassLeaderboardModal() {
         snapPoints={["70vh", "95vh"]}
         initialSnap={0}
         showTitleBar={false}
-        className="max-w-5xl"
+        className="max-w-5xl rounded-[2.5rem] overflow-hidden"
         modalRouteKey="duel-pass-leaderboard"
       >
         {loading ? (
           renderLoadingState()
         ) : (
-          <div className="space-y-8 py-4">
-            <header className="space-y-3 text-left">
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 text-primary text-sm font-semibold">
-                <Trophy className="w-4 h-4" />
-                Турнирная таблица Duel Pass
-              </div>
-              <h1 className="text-3xl md:text-4xl font-black tracking-tight">
-                Топ игроков по Duel Pass
-              </h1>
-              <p className="text-muted-foreground max-w-xl">
-                Лучшие игроки, заработавшие больше всего уровней и наград в Duel Pass.
-                Покажи свою косметику и достижения!
-              </p>
-              <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="space-y-6 py-4 px-4 sm:px-6">
+            <header className="space-y-4 text-left">
+              {/* Кнопка Назад */}
+              <div className="flex items-center absolute top-4 left-4 z-50">
                 <Button
-                  variant="outline"
-                  onClick={() => openHallOfFameModal()}
-                  className="gap-2"
+                  variant="ghost"
+                  size="icon"
+                  className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md"
+                  onClick={() => closeModal()}
                 >
-                  <Trophy className="w-4 h-4" />
-                  Зал славы
+                  <ChevronLeft className="w-6 h-6" />
                 </Button>
+              </div>
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-4 md:pt-0 pl-12 md:pl-0">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
+                    <Trophy className="w-3 h-3" />
+                    Соревновательный сезон
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent">
+                    Топ игроков
+                  </h1>
+                  <p className="text-sm text-muted-foreground max-w-md">
+                    Бейся в дуэлях, копи XP и забирай <span className="text-yellow-500 font-bold">Premium</span> или <span className="text-yellow-500 font-bold">1000 монет</span> в конце сезона!
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {timeLeft && (
+                    <div className="px-4 py-2 rounded-2xl bg-slate-900/50 border border-white/5 backdrop-blur-md">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold">До конца сезона</p>
+                      <p className="text-sm font-mono font-bold text-primary">
+                        {timeLeft.days > 0 && `${timeLeft.days}д `}
+                        {String(timeLeft.hours).padStart(2, '0')}:
+                        {String(timeLeft.minutes).padStart(2, '0')}:
+                        {String(timeLeft.seconds).padStart(2, '0')}
+                      </p>
+                    </div>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openHallOfFameModal()}
+                    className="gap-2 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl"
+                  >
+                    <Trophy className="w-4 h-4 text-yellow-500" />
+                    Зал славы
+                  </Button>
+                </div>
               </div>
             </header>
 
@@ -430,631 +492,250 @@ export function DuelPassLeaderboardModal() {
               </Card>
             )}
 
-            {/* Топ 3 - Премиум пьедестал (новая версия) */}
-            {filteredLeaders.length >= 3 && !showMyPosition && (
-              <div className="relative pt-8 sm:pt-12">
-                {/* Фон пьедестала */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/95 to-transparent -z-10" />
+            {/* ТОП-3 — Премиальный подиум */}
+            {absoluteTop3.length >= 3 && !showMyPosition && (
+              <div className="flex items-end justify-center gap-3 md:gap-8 pb-8 pt-10 px-4 relative">
+                {/* Фоновое свечение для всего блока */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-2xl bg-primary/5 blur-[100px] -z-10" />
 
-                {/* Пьедестал */}
-                <div className="flex flex-col items-center gap-4 md:gap-6">
-                  {/* Карточки игроков */}
-                  <div className="w-full max-w-5xl mx-auto flex items-stretch justify-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 px-1 sm:px-2 md:px-4 pb-2 sm:pb-3 md:pb-4">
-                    {/* 2 место - Серебро */}
-                    <motion.div
-                      {...getMotionProps({
-                        initial: { opacity: 0, y: 50, scale: 0.9 },
-                        animate: { opacity: 1, y: 0, scale: 1 },
-                        transition: { delay: 0.2, type: "spring", stiffness: 150, damping: 15 },
-                      })}
-                      className="order-1 flex-1 basis-0 min-w-0"
+                {/* 2 место — Серебро */}
+                <div className="flex-1 max-w-[150px] relative flex flex-col items-center gap-3 p-4 rounded-[2.5rem] border border-white/10 bg-gradient-to-b from-slate-400/10 to-slate-900/90 backdrop-blur-2xl transition-all hover:scale-[1.05] group shadow-2xl">
+                  <div className="absolute -top-3 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-slate-200 to-slate-400 flex items-center justify-center text-slate-900 font-black text-xs shadow-[0_0_15px_rgba(255,255,255,0.2)] z-20">2</div>
+                  <div className="relative">
+                    <UserAvatar
+                      profileId={absoluteTop3[1]?.user_id}
+                      size="xl"
+                      showPremiumGlow={false}
+                      avatarClassName="rounded-full"
+                      className="rounded-full ring-2 ring-slate-300/30 relative z-10 shadow-lg"
+                    />
+                    <div className="absolute inset-0 bg-slate-400/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-center min-w-0 w-full">
+                    <p className="font-bold text-sm truncate text-white uppercase tracking-tight">{absoluteTop3[1]?.profile?.first_name || 'Гонщик'}</p>
+                    <div className="mt-2 flex flex-col items-center gap-1">
+                      <span className="text-[10px] font-black text-slate-400/80 uppercase tracking-widest leading-none">Приз</span>
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-200 font-bold shadow-inner">
+                        <Coins className="w-3 h-3 text-slate-400" />
+                        500
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 1 место — Золото */}
+                <div className="flex-1 max-w-[190px] relative flex flex-col items-center gap-4 p-5 rounded-[3rem] border-2 border-yellow-500/30 bg-gradient-to-b from-yellow-500/10 via-slate-900/95 to-slate-900 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.6)] z-10 transition-all hover:scale-[1.08] group">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+                    <Crown className="w-12 h-12 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_15px_rgba(234,179,8,0.8)] animate-pulse" />
+                  </div>
+                  <div className="absolute -top-4 -right-2 w-10 h-10 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-500 flex items-center justify-center text-yellow-950 font-black text-sm shadow-[0_0_20px_rgba(234,179,8,0.5)] z-20 border-2 border-yellow-200/50">1</div>
+                  <div className="relative">
+                    <UserAvatar
+                      profileId={absoluteTop3[0]?.user_id}
+                      size="2xl"
+                      showPremiumGlow={false}
+                      avatarClassName="rounded-full"
+                      className="rounded-full ring-4 ring-yellow-400/50 shadow-[0_0_30px_rgba(234,179,8,0.4)] relative z-10 scale-105"
+                    />
+                    <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full animate-pulse" />
+                  </div>
+                  <div className="text-center min-w-0 w-full">
+                    <p className="font-black text-base md:text-lg truncate bg-gradient-to-r from-yellow-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent uppercase tracking-tighter">{absoluteTop3[0]?.profile?.first_name || 'Чемпион'}</p>
+                    <div className="mt-2 flex flex-col items-center gap-1">
+                      <span className="text-[11px] font-black text-yellow-500 uppercase tracking-[0.2em] leading-none">Награда</span>
+                      <div className="mt-1 flex items-center gap-2 px-4 py-2 rounded-2xl bg-yellow-400 text-yellow-950 text-[11px] font-black uppercase tracking-wider shadow-[0_4px_15px_rgba(234,179,8,0.4)] transition-transform group-hover:scale-105">
+                        <Star className="w-4 h-4 fill-yellow-950" />
+                        Premium
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3 место — Бронза */}
+                <div className="flex-1 max-w-[150px] relative flex flex-col items-center gap-3 p-4 rounded-[2.5rem] border border-white/10 bg-gradient-to-b from-orange-400/10 to-slate-900/90 backdrop-blur-2xl transition-all hover:scale-[1.05] group shadow-2xl">
+                  <div className="absolute -top-3 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-700 flex items-center justify-center text-orange-50 font-black text-xs shadow-[0_0_15px_rgba(249,115,22,0.2)] z-20">3</div>
+                  <div className="relative">
+                    <UserAvatar
+                      profileId={absoluteTop3[2]?.user_id}
+                      size="xl"
+                      showPremiumGlow={false}
+                      avatarClassName="rounded-full"
+                      className="rounded-full ring-2 ring-orange-500/30 relative z-10 shadow-lg"
+                    />
+                    <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-center min-w-0 w-full">
+                    <p className="font-bold text-sm truncate text-white uppercase tracking-tight">{absoluteTop3[2]?.profile?.first_name || 'Гонщик'}</p>
+                    <div className="mt-2 flex flex-col items-center gap-1">
+                      <span className="text-[10px] font-black text-orange-400/80 uppercase tracking-widest leading-none">Приз</span>
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-orange-200 font-bold shadow-inner">
+                        <Coins className="w-3 h-3 text-orange-400" />
+                        250
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Заголовок основного списка */}
+            <div className="flex items-center justify-between px-2 pt-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-6 bg-primary rounded-full" />
+                <h2 className="text-xl font-bold tracking-tight">Полный рейтинг</h2>
+              </div>
+              <Badge variant="secondary" className="bg-white/5 text-muted-foreground border-white/10 flex items-center gap-1.5 px-3 py-1 rounded-full">
+                <Sparkles className="w-3 h-3 text-yellow-500" />
+                <span>{pagination.total || filteredLeaders.length} игроков</span>
+              </Badge>
+            </div>
+
+            <div className="space-y-2">
+              {/* Шапка "таблицы" */}
+              <div className="flex items-center px-6 py-2 text-[10px] uppercase font-black text-muted-foreground tracking-widest">
+                <div className="w-10">#</div>
+                <div className="flex-1 ml-4">Гонщик</div>
+                <div className="hidden sm:block w-24 text-center">Уровень</div>
+                <div className="w-24 text-right">Опыт</div>
+              </div>
+
+              <div className="space-y-2">
+                {filteredLeaders.map((leader, index) => {
+                  const name = leader.profile?.first_name || leader.profile?.username || "Гонщик";
+                  const isCurrentUser = leader.user_id === profileId;
+                  const rank = (leader.rank || getRankFromLevel(leader.duel_pass_level)) as RankType;
+                  const position = leader.position || (pagination.page - 1) * pagination.page_size + index + 1;
+
+                  return (
+                    <div
+                      key={leader.user_id}
+                      className={cn(
+                        "flex items-center p-4 rounded-2xl transition-all border border-white/[0.02] backdrop-blur-md",
+                        isCurrentUser
+                          ? highlightedRowClass
+                          : "bg-white/[0.02] hover:bg-white/[0.05] border-white/[0.01]"
+                      )}
                     >
-                      <Card className="relative overflow-hidden h-full bg-gradient-to-br from-slate-50 via-slate-100/70 to-slate-50 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                        {/* Серебряный градиентный фон */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-200/30 via-slate-100/20 to-transparent dark:from-slate-700/30 dark:via-slate-800/20" />
+                      {/* Ранг # */}
+                      <div className="w-10 flex flex-col items-center justify-center shrink-0">
+                        <span className={cn(
+                          "w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shadow-lg shadow-black/20",
+                          position === 1 ? "bg-yellow-400 text-yellow-950" :
+                            position === 2 ? "bg-slate-300 text-slate-800" :
+                              position === 3 ? "bg-orange-500 text-orange-50" : "text-muted-foreground/60 bg-white/5"
+                        )}>
+                          {position}
+                        </span>
+                      </div>
 
-                        {/* Блестящий эффект */}
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
-                          animate={{
-                            x: ["-100%", "200%"],
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            repeatDelay: 2,
-                            ease: "easeInOut",
-                          }}
+                      {/* Игрок + Лига */}
+                      <div className="flex-1 ml-4 flex items-center gap-3 min-w-0">
+                        <UserAvatar
+                          profileId={leader.user_id}
+                          size="md"
+                          showPremiumGlow={false}
+                          avatarClassName="rounded-full"
+                          className={cn(
+                            "rounded-full ring-2 ring-white/5 shrink-0",
+                            isCurrentUser && "ring-white/30"
+                          )}
                         />
-
-                        {/* Номер места */}
-                        <div className="absolute top-3 right-3 z-20">
-                          <motion.div
-                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-white font-black text-lg md:text-xl shadow-lg"
-                            whileHover={{ scale: 1.1, rotate: 5 }}
-                          >
-                            2
-                          </motion.div>
-                        </div>
-
-                        <CardContent className="p-4 md:p-6 pt-8 md:pt-10 relative z-10">
-                          {/* Аватар */}
-                          <div className="flex flex-col items-center space-y-3 md:space-y-4">
-                            <div className="relative">
-                              <RankFrame rank={(filteredLeaders[1]?.rank || getRankFromLevel(filteredLeaders[1]?.duel_pass_level || 1)) as RankType} />
-                              <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                              >
-                                <UserAvatar
-                                  profileId={filteredLeaders[1]?.user_id}
-                                  size="xl"
-                                  showPremiumGlow={true}
-                                  className="border-4 border-slate-400/60 shadow-2xl ring-2 ring-slate-300/30"
-                                />
-                              </motion.div>
-                              {/* Серебряная аура */}
-                              <div className="absolute inset-0 rounded-full bg-slate-400/20 blur-xl -z-10" />
-                            </div>
-
-                            {/* Имя */}
-                            <div className="text-center space-y-2 w-full">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="relative px-2 w-full overflow-hidden flex justify-center">
-                                      <h3
-                                        className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 w-full max-w-[150px] text-center mx-auto"
-                                        style={{
-                                          maskImage: 'linear-gradient(to right, transparent 0, black 18px, black calc(100% - 18px), transparent 100%)',
-                                          WebkitMaskImage: 'linear-gradient(to right, transparent 0, black 18px, black calc(100% - 18px), transparent 100%)'
-                                        }}
-                                      >
-                                        {filteredLeaders[1]?.profile?.first_name || filteredLeaders[1]?.profile?.username || "Игрок"}
-                                      </h3>
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="font-semibold">{filteredLeaders[1]?.profile?.first_name || filteredLeaders[1]?.profile?.username || "Игрок"}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-
-                              {/* Ранг */}
-                              <RankBadge
-                                rank={(filteredLeaders[1]?.rank || getRankFromLevel(filteredLeaders[1]?.duel_pass_level || 1)) as RankType}
-                                size="xs"
-                                variant="subtle"
-                              />
-
-                              {/* Статистика */}
-                              <div className="flex flex-col items-center gap-1.5 text-sm">
-                                <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                                  <Star className="w-4 h-4" />
-                                  <span className="font-semibold">Уровень {filteredLeaders[1]?.duel_pass_level || 1}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <TrendingUp className="w-3 h-3" />
-                                  <span>{((filteredLeaders[1]?.season_points ?? filteredLeaders[1]?.duel_pass_xp) || 0).toLocaleString("ru-RU")} {filteredLeaders[1]?.season_points !== undefined ? 'SP' : 'XP'}</span>
-                                </div>
-                              </div>
-                            </div>
+                        <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                          <p className={cn(
+                            "font-bold text-sm md:text-base truncate text-white max-w-[120px] md:max-w-[200px]",
+                            isCurrentUser && "text-white"
+                          )}>
+                            {name}
+                          </p>
+                          <div className="shrink-0 flex items-center">
+                            <RankIcon rank={rank} size="xs" />
                           </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-
-                    {/* 1 место - Золото (центр, выше) */}
-                    <motion.div
-                      {...getMotionProps({
-                        initial: { opacity: 0, y: -30, scale: 0.8 },
-                        animate: { opacity: 1, y: 0, scale: 1 },
-                        transition: { delay: 0.1, type: "spring", stiffness: 200, damping: 12 },
-                      })}
-                      className="order-2 -mt-2 sm:-mt-6 md:-mt-12 lg:-mt-16 flex-1 basis-0 min-w-0"
-                    >
-                      <Card className="relative overflow-hidden h-full bg-gradient-to-br from-yellow-50 via-amber-50/80 to-yellow-50 dark:from-yellow-950/40 dark:via-amber-950/40 dark:to-yellow-950/40 shadow-2xl hover:shadow-yellow-500/30 transition-all duration-300 group">
-                        {/* Золотой градиентный фон */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 via-amber-400/20 to-yellow-500/30" />
-
-                        {/* Анимированное свечение */}
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-br from-yellow-400/40 via-amber-400/30 to-yellow-500/40"
-                          animate={{
-                            opacity: [0.4, 0.6, 0.4],
-                          }}
-                          transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                        />
-
-                        {/* Блестящий эффект */}
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
-                          animate={{
-                            x: ["-100%", "200%"],
-                          }}
-                          transition={{
-                            duration: 2.5,
-                            repeat: Infinity,
-                            repeatDelay: 1.5,
-                            ease: "easeInOut",
-                          }}
-                        />
-
-                        {/* Частицы золота */}
-                        <div className="absolute inset-0 overflow-hidden">
-                          {[...Array(6)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              className="absolute w-1 h-1 bg-yellow-400 rounded-full"
-                              style={{
-                                left: `${20 + i * 15}%`,
-                                top: `${10 + i * 12}%`,
-                              }}
-                              animate={{
-                                y: [0, -20, 0],
-                                opacity: [0.3, 0.8, 0.3],
-                                scale: [1, 1.5, 1],
-                              }}
-                              transition={{
-                                duration: 2 + i * 0.3,
-                                repeat: Infinity,
-                                delay: i * 0.2,
-                                ease: "easeInOut",
-                              }}
-                            />
-                          ))}
                         </div>
+                      </div>
 
-                        {/* Корона */}
-                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-30">
-                          <motion.div
-                            animate={{
-                              y: [0, -8, 0],
-                              rotate: [0, 5, -5, 0],
-                            }}
-                            transition={{
-                              duration: 3,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            }}
-                          >
-                            <Crown className="w-12 h-12 md:w-16 md:h-16 text-yellow-500 fill-yellow-500 drop-shadow-2xl filter" />
-                          </motion.div>
+                      {/* Уровень (LVL) - Скрываем на мобилках */}
+                      <div className="hidden sm:flex w-24 flex-col items-center shrink-0">
+                        <div className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-muted-foreground uppercase">
+                          Ур. {leader.duel_pass_level}
                         </div>
+                      </div>
 
-                        {/* Номер места */}
-                        <div className="absolute top-3 right-3 z-20">
-                          <motion.div
-                            className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-xl"
-                            whileHover={{ scale: 1.15, rotate: 15 }}
-                            animate={{
-                              boxShadow: [
-                                "0 0 20px rgba(234, 179, 8, 0.6)",
-                                "0 0 40px rgba(234, 179, 8, 0.8)",
-                                "0 0 20px rgba(234, 179, 8, 0.6)",
-                              ],
-                            }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            }}
-                          >
-                            1
-                          </motion.div>
-                        </div>
+                      {/* Опыт (XP) */}
+                      <div className="w-24 text-right shrink-0">
+                        <p className={cn(
+                          "font-mono font-black tabular-nums tracking-tighter",
+                          isCurrentUser ? "text-white text-lg" : "text-white/90 text-sm md:text-base"
+                        )}>
+                          {(leader.season_points ?? leader.duel_pass_xp).toLocaleString("ru-RU")}
+                          <span className="text-[9px] ml-1 opacity-50 uppercase font-black">XP</span>
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-                        <CardContent className="p-5 md:p-7 pt-12 md:pt-16 relative z-10">
-                          {/* Аватар */}
-                          <div className="flex flex-col items-center space-y-4 md:space-y-5">
-                            <div className="relative">
-                              <RankFrame rank={(filteredLeaders[0]?.rank || getRankFromLevel(filteredLeaders[0]?.duel_pass_level || 1)) as RankType} />
-                              <motion.div
-                                whileHover={{ scale: 1.08 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                              >
-                                <UserAvatar
-                                  profileId={filteredLeaders[0]?.user_id}
-                                  size="2xl"
-                                  showPremiumGlow={true}
-                                  className="border-4 border-yellow-400 shadow-2xl ring-4 ring-yellow-300/40"
-                                />
-                              </motion.div>
-                              {/* Золотая аура */}
-                              <motion.div
-                                className="absolute inset-0 rounded-full bg-yellow-400/30 blur-2xl -z-10"
-                                animate={{
-                                  scale: [1, 1.2, 1],
-                                  opacity: [0.3, 0.5, 0.3],
-                                }}
-                                transition={{
-                                  duration: 3,
-                                  repeat: Infinity,
-                                  ease: "easeInOut",
-                                }}
-                              />
-                            </div>
-
-                            {/* Имя */}
-                            <div className="text-center space-y-2.5 w-full">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="relative px-2 w-full overflow-hidden flex justify-center">
-                                      <h3
-                                        className="font-black text-lg md:text-xl lg:text-2xl bg-gradient-to-r from-yellow-700 via-amber-700 to-yellow-700 dark:from-yellow-400 dark:via-amber-400 dark:to-yellow-400 bg-clip-text text-transparent cursor-help line-clamp-1 w-full max-w-[170px] text-center mx-auto"
-                                        style={{
-                                          maskImage: 'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)',
-                                          WebkitMaskImage: 'linear-gradient(to right, transparent 0, black 20px, black calc(100% - 20px), transparent 100%)'
-                                        }}
-                                      >
-                                        {filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}
-                                      </h3>
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="font-semibold">{filteredLeaders[0]?.profile?.first_name || filteredLeaders[0]?.profile?.username || "Игрок"}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-
-                              {/* Ранг */}
-                              <RankBadge
-                                rank={(filteredLeaders[0]?.rank || getRankFromLevel(filteredLeaders[0]?.duel_pass_level || 1)) as RankType}
-                                size="sm"
-                                variant="subtle"
-                              />
-
-                              {/* Статистика */}
-                              <div className="flex flex-col items-center gap-2 text-sm md:text-base">
-                                <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-400">
-                                  <Crown className="w-5 h-5" />
-                                  <span className="font-bold">Уровень {filteredLeaders[0]?.duel_pass_level || 1}</span>
-                                </div>
-                                <div className="flex items-center gap-1.5 text-xs md:text-sm text-muted-foreground font-semibold">
-                                  <Sparkles className="w-3.5 h-3.5" />
-                                  <span>{((filteredLeaders[0]?.season_points ?? filteredLeaders[0]?.duel_pass_xp) || 0).toLocaleString("ru-RU")} {filteredLeaders[0]?.season_points !== undefined ? 'SP' : 'XP'}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-
-                    {/* 3 место - Бронза */}
-                    <motion.div
-                      {...getMotionProps({
-                        initial: { opacity: 0, y: 50, scale: 0.9 },
-                        animate: { opacity: 1, y: 0, scale: 1 },
-                        transition: { delay: 0.3, type: "spring", stiffness: 150, damping: 15 },
-                      })}
-                      className="order-3 flex-1 basis-0 min-w-0"
-                    >
-                      <Card className="relative overflow-hidden h-full bg-gradient-to-br from-orange-50 via-amber-50/70 to-orange-50 dark:from-orange-950/40 dark:via-amber-950/40 dark:to-orange-950/40 shadow-xl hover:shadow-2xl transition-all duration-300 group">
-                        {/* Бронзовый градиентный фон */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-300/25 via-orange-200/15 to-transparent dark:from-orange-700/25 dark:via-orange-800/15" />
-
-                        {/* Блестящий эффект */}
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"
-                          animate={{
-                            x: ["-100%", "200%"],
-                          }}
-                          transition={{
-                            duration: 3.5,
-                            repeat: Infinity,
-                            repeatDelay: 2.5,
-                            ease: "easeInOut",
-                          }}
-                        />
-
-                        {/* Номер места */}
-                        <div className="absolute top-3 right-3 z-20">
-                          <motion.div
-                            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-black text-lg md:text-xl shadow-lg"
-                            whileHover={{ scale: 1.1, rotate: -5 }}
-                          >
-                            3
-                          </motion.div>
-                        </div>
-
-                        <CardContent className="p-4 md:p-6 pt-8 md:pt-10 relative z-10">
-                          {/* Аватар */}
-                          <div className="flex flex-col items-center space-y-3 md:space-y-4">
-                            <div className="relative">
-                              <RankFrame rank={(filteredLeaders[2]?.rank || getRankFromLevel(filteredLeaders[2]?.duel_pass_level || 1)) as RankType} />
-                              <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ type: "spring", stiffness: 300 }}
-                              >
-                                <UserAvatar
-                                  profileId={filteredLeaders[2]?.user_id}
-                                  size="xl"
-                                  showPremiumGlow={true}
-                                  className="border-4 border-orange-400/60 shadow-2xl ring-2 ring-orange-300/30"
-                                />
-                              </motion.div>
-                              {/* Оранжевая аура */}
-                              <div className="absolute inset-0 rounded-full bg-orange-400/20 blur-xl -z-10" />
-                            </div>
-
-                            {/* Имя */}
-                            <div className="text-center space-y-2 w-full">
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <div className="relative px-2 w-full overflow-hidden flex justify-center">
-                                      <h3
-                                        className="font-bold text-base md:text-lg lg:text-xl text-foreground cursor-help line-clamp-1 w-full max-w-[150px] text-center mx-auto"
-                                        style={{
-                                          maskImage: 'linear-gradient(to right, transparent 0, black 18px, black calc(100% - 18px), transparent 100%)',
-                                          WebkitMaskImage: 'linear-gradient(to right, transparent 0, black 18px, black calc(100% - 18px), transparent 100%)'
-                                        }}
-                                      >
-                                        {filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}
-                                      </h3>
-                                    </div>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p className="font-semibold">{filteredLeaders[2]?.profile?.first_name || filteredLeaders[2]?.profile?.username || "Игрок"}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-
-                              {/* Ранг */}
-                              <RankBadge
-                                rank={(filteredLeaders[2]?.rank || getRankFromLevel(filteredLeaders[2]?.duel_pass_level || 1)) as RankType}
-                                size="xs"
-                                variant="subtle"
-                              />
-
-                              {/* Статистика */}
-                              <div className="flex flex-col items-center gap-1.5 text-sm">
-                                <div className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
-                                  <Award className="w-4 h-4" />
-                                  <span className="font-semibold">Уровень {filteredLeaders[2]?.duel_pass_level || 1}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <TrendingUp className="w-3 h-3" />
-                                  <span>{((filteredLeaders[2]?.season_points ?? filteredLeaders[2]?.duel_pass_xp) || 0).toLocaleString("ru-RU")} {filteredLeaders[2]?.season_points !== undefined ? 'SP' : 'XP'}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
+            {/* СТИКИ-ФУТЕР ПОЛЬЗОВАТЕЛЯ */}
+            {profileId && !isUserInTop && userPositionData && (
+              <div className="sticky bottom-4 mx-4 p-5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 backdrop-blur-2xl rounded-3xl border border-white/20 shadow-[0_15px_40px_rgba(0,0,0,0.6)] z-30 animate-in fade-in slide-in-from-bottom-5 duration-500">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center font-black text-white shadow-inner transform rotate-3">
+                      {userPositionData.position}
+                    </div>
+                    <UserAvatar profileId={profileId} size="lg" className="ring-4 ring-white/30 shadow-2xl" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-lg font-black text-white leading-none">Ты</p>
+                        <Badge className="bg-white/20 hover:bg-white/30 text-[9px] uppercase font-black text-white border-0 py-0 px-1.5 h-4">
+                          LVL {userContext?.profile?.duel_pass_level || 1}
+                        </Badge>
+                      </div>
+                      <p className="text-[10px] text-white/80 font-bold mt-1.5 uppercase tracking-wider flex items-center gap-1">
+                        <Flame className="w-3 h-3 text-orange-400" />
+                        До топ-10: <span className="text-white font-black">1.2k XP</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-black text-white font-mono tabular-nums leading-none">
+                      {(userContext?.profile?.duel_pass_xp || 0).toLocaleString()}
+                      <span className="text-[10px] ml-1 text-white/60">XP</span>
+                    </p>
+                    <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em] mt-1">Твой прогресс</p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Таблица лидеров */}
-            <Card className="overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b bg-muted/50">
-                <div>
-                  <h2 className="text-xl font-bold">Полный рейтинг</h2>
-                  <p className="text-sm text-muted-foreground">
-                    {filterType === "global" && "Глобальный рейтинг"}
-                    {filterType === "friends" && "Рейтинг среди друзей"}
-                    {filterType === "country" && "Рейтинг по стране"}
-                  </p>
+            {/* Пагинация */}
+            {pagination.total_pages > 1 && (
+              <div className="flex items-center justify-between px-6 py-4 border-t">
+                <div className="text-sm text-muted-foreground">
+                  Страница {pagination.page} из {pagination.total_pages}
                 </div>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  {pagination.total || filteredLeaders.length} игроков
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadTopLeaderboard(pagination.page - 1)}
+                    disabled={pagination.page <= 1 || loading}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Назад
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadTopLeaderboard(pagination.page + 1)}
+                    disabled={pagination.page >= pagination.total_pages || loading}
+                  >
+                    Вперёд
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
-
-              {loading ? (
-                <div className="p-6 text-center text-muted-foreground">
-                  Загрузка...
-                </div>
-              ) : error ? (
-                <div className="p-6 text-center text-destructive font-semibold">
-                  {error}
-                </div>
-              ) : filteredLeaders.length === 0 ? (
-                <div className="p-6 text-center text-muted-foreground">
-                  {searchQuery ? "Ничего не найдено по запросу." : "Пока нет игроков в рейтинге."}
-                </div>
-              ) : (
-                <>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-16">#</TableHead>
-                        <TableHead>Игрок</TableHead>
-                        <TableHead>Ранг</TableHead>
-                        <TableHead>Уровень</TableHead>
-                        <TableHead>SP/XP</TableHead>
-                        <TableHead>Скин</TableHead>
-                        <TableHead>Бейджи</TableHead>
-                        <TableHead>Награды</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredLeaders.map((leader, index) => {
-                        const name =
-                          leader.profile?.first_name ||
-                          leader.profile?.username ||
-                          "Игрок";
-                        const isCurrentUser = leader.user_id === profileId;
-                        const skin = leader.active_skin?.skin_definitions;
-                        const badges = leader.displayed_badges || [];
-                        const rank = (leader.rank || getRankFromLevel(leader.duel_pass_level)) as RankType;
-                        const position = leader.position || (pagination.page - 1) * pagination.page_size + index + 1;
-
-                        return (
-                          <TableRow
-                            key={leader.user_id}
-                            className={cn(
-                              rowBaseClass,
-                              "relative overflow-hidden transition-colors",
-                              isCurrentUser && highlightedRowClass
-                            )}
-                          >
-                            <TableCell className="font-bold">
-                              {position}
-                              {position <= 3 && (
-                                <Trophy className="w-4 h-4 inline-block ml-1 text-yellow-500" />
-                              )}
-                            </TableCell>
-                            <TableCell className="max-w-[200px] sm:max-w-[250px] md:max-w-none">
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className="relative flex-shrink-0">
-                                  <RankFrame rank={rank} />
-                                  <motion.div
-                                    whileHover={{ scale: 1.1 }}
-                                    transition={{ type: "spring", stiffness: 300 }}
-                                  >
-                                    <UserAvatar
-                                      profileId={leader.user_id}
-                                      size="sm"
-                                      showPremiumGlow={false}
-                                      className={cn(
-                                        "border-2 shadow-md",
-                                        rank === "master" && "border-yellow-400/60 ring-2 ring-yellow-300/30",
-                                        rank === "diamond" && "border-purple-400/60 ring-2 ring-purple-300/30",
-                                        rank === "platinum" && "border-blue-400/60",
-                                        rank === "gold" && "border-yellow-400/60",
-                                        rank === "silver" && "border-gray-300/60",
-                                        rank === "bronze" && "border-orange-400/60"
-                                      )}
-                                    />
-                                  </motion.div>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <div className="relative flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
-                                          <p
-                                            className={cn(
-                                              "font-semibold cursor-help line-clamp-1 max-w-[80px] sm:max-w-[120px] md:max-w-[150px]",
-                                              isCurrentUser && "text-primary font-bold"
-                                            )}
-                                            style={{
-                                              maskImage: 'linear-gradient(to right, black calc(100% - 15px), transparent 100%)',
-                                              WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 15px), transparent 100%)'
-                                            }}
-                                          >
-                                            {name}
-                                          </p>
-                                        </div>
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p className="font-semibold">{name}</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                  <p className="text-xs text-muted-foreground truncate">
-                                    Уровень {leader.duel_pass_level}
-                                  </p>
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <RankBadge rank={rank} size="sm" variant="pill" />
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className="gap-1">
-                                <Star className="w-3 h-3" />
-                                {leader.duel_pass_level}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground">
-                              {(leader.season_points ?? leader.duel_pass_xp).toLocaleString("ru-RU")} {leader.season_points !== undefined ? 'SP' : 'XP'}
-                            </TableCell>
-                            <TableCell>
-                              {skin ? (
-                                <Badge
-                                  variant="outline"
-                                  className={cn(
-                                    "text-xs",
-                                    rarityColors[skin.rarity as keyof typeof rarityColors] ||
-                                    rarityColors.common
-                                  )}
-                                >
-                                  {skin.name_ru}
-                                </Badge>
-                              ) : (
-                                <span className="text-muted-foreground text-sm">—</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-1">
-                                {badges.length > 0 ? (
-                                  badges.slice(0, 3).map((badge, idx) => (
-                                    <Badge
-                                      key={idx}
-                                      variant="outline"
-                                      className={cn(
-                                        "text-xs",
-                                        badge.badge_definitions &&
-                                        rarityColors[
-                                        badge.badge_definitions.rarity as keyof typeof rarityColors
-                                        ] || rarityColors.common
-                                      )}
-                                      title={badge.badge_definitions?.name_ru}
-                                    >
-                                      <Award className="w-3 h-3 mr-1" />
-                                      {badge.badge_definitions?.name_ru || "Бейдж"}
-                                    </Badge>
-                                  ))
-                                ) : (
-                                  <span className="text-muted-foreground text-sm">—</span>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="secondary" className="gap-1">
-                                <Trophy className="w-3 h-3" />
-                                {leader.claimed_rewards_count || 0}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-
-                  {/* Пагинация */}
-                  {pagination.total_pages > 1 && (
-                    <div className="flex items-center justify-between px-6 py-4 border-t">
-                      <div className="text-sm text-muted-foreground">
-                        Страница {pagination.page} из {pagination.total_pages}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => loadTopLeaderboard(pagination.page - 1)}
-                          disabled={pagination.page <= 1 || loading}
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                          Назад
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => loadTopLeaderboard(pagination.page + 1)}
-                          disabled={pagination.page >= pagination.total_pages || loading}
-                        >
-                          Вперёд
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </Card>
+            )}
           </div>
         )}
       </UnifiedModal>

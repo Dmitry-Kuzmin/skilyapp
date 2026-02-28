@@ -341,7 +341,7 @@ export const ru = {
     about: "О нас",
     terms: "Условия использования",
     privacy: "Политика конфиденциальности",
-    cookies: "Файлы Cookie",
+    cookies: "Настройки Cookies",
     subscriptionTerms: "Условия подписки",
     pricing: "Цены",
     refundPolicy: "Политика возврата",

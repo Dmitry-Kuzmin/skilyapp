@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 // VAPID Public Key (получим позже из Supabase Edge Function)
 // Это публичный ключ для шифрования пушей
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || 'BIbTbtur6M7ge2EeItW-bpqGt1MIjiOcJdT4EeUI4cqEB2Nz7fZz2ql734VCtJb6V5B0wco48SCYkujejZ3f6WI';
 
 /**
  * Проверяет, поддерживаются ли Push-уведомления

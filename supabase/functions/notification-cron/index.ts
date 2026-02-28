@@ -33,7 +33,9 @@ serve(async (req) => {
         inactive_3d: 0,
         inactive_7d: 0,
         streak_reminder: 0,
-        almost_ready: 0
+        almost_ready: 0,
+        license_warning_12h: 0,
+        license_warning_1h: 0
       }
     };
 
@@ -48,6 +50,9 @@ serve(async (req) => {
 
     // 4. Мотивационные напоминания для почти готовых
     await sendAlmostReadyReminders(supabase, results);
+
+    // 5. Предупреждения о потере баллов (12ч и 1ч)
+    await sendLicensePointLossReminders(supabase, results);
 
     console.log('[Notification CRON] Results:', results);
 
@@ -278,8 +283,94 @@ async function sendAlmostReadyReminders(supabase: SupabaseClient, results: Recor
 }
 
 // =====================================================
-// Отправка события в user-event-dispatcher
+// Предупреждения о потере баллов (12ч и 1ч)
 // =====================================================
+
+async function sendLicensePointLossReminders(
+  supabase: SupabaseClient,
+  results: Record<string, any>
+): Promise<void> {
+  try {
+    console.log('[Notification CRON] Checking users approaching license point loss...');
+
+    // 1. Порог 12 часов (неактивность 36-37 часов)
+    const threshold12h = new Date();
+    threshold12h.setHours(threshold12h.getHours() - 36);
+
+    const { data: users12h, error: error12h } = await supabase
+      .from('profiles')
+      .select('id, license_points, last_activity_at, license_warning_level')
+      .lt('last_activity_at', threshold12h.toISOString())
+      .gt('license_points', 0)
+      .is('license_warning_level', null);
+
+    if (error12h) console.error('[Notification CRON] Error fetching 12h warning users:', error12h);
+
+    if (users12h && users12h.length > 0) {
+      console.log(`[Notification CRON] Found ${users12h.length} users for 12h warning`);
+      results.total_checked += users12h.length;
+      for (const user of users12h) {
+        const sendResult = await dispatchEvent({
+          userId: user.id,
+          eventType: 'license_warning_12h',
+          payload: { points: user.license_points }
+        });
+
+        if (sendResult.sent > 0) {
+          await supabase.from('profiles').update({ license_warning_level: '12h' }).eq('id', user.id);
+          results.sent += sendResult.sent;
+          results.breakdown.license_warning_12h += sendResult.sent;
+        } else if (sendResult.skipped) {
+          results.skipped++;
+        } else {
+          results.errors++;
+        }
+      }
+    }
+
+    // 2. Порог 1 час (неактивность 47-48 часов)
+    const threshold1h = new Date();
+    threshold1h.setHours(threshold1h.getHours() - 47);
+
+    const { data: users1h, error: error1h } = await supabase
+      .from('profiles')
+      .select('id, license_points, last_activity_at, license_warning_level')
+      .lt('last_activity_at', threshold1h.toISOString())
+      .gt('license_points', 0)
+      .neq('license_warning_level', '1h');
+
+    if (error1h) console.error('[Notification CRON] Error fetching 1h warning users:', error1h);
+
+    if (users1h && users1h.length > 0) {
+      console.log(`[Notification CRON] Found ${users1h.length} users for 1h warning`);
+      results.total_checked += users1h.length;
+      for (const user of users1h) {
+        // Проверяем, что неактивность все еще в пределах 48 часов (чтобы не спамить после потери)
+        const inactivityHours = (new Date().getTime() - new Date(user.last_activity_at).getTime()) / (1000 * 60 * 60);
+        if (inactivityHours >= 48) continue;
+
+        const sendResult = await dispatchEvent({
+          userId: user.id,
+          eventType: 'license_warning_1h',
+          payload: { points: user.license_points }
+        });
+
+        if (sendResult.sent > 0) {
+          await supabase.from('profiles').update({ license_warning_level: '1h' }).eq('id', user.id);
+          results.sent += sendResult.sent;
+          results.breakdown.license_warning_1h += sendResult.sent;
+        } else if (sendResult.skipped) {
+          results.skipped++;
+        } else {
+          results.errors++;
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error('[Notification CRON] License warnings error:', error);
+  }
+}
 
 async function dispatchEvent(params: {
   userId: string;

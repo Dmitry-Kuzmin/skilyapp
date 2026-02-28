@@ -199,23 +199,29 @@ export function calculateReadiness(metrics: ReadinessMetrics): ReadinessResult {
   let confidenceFactor = 0;
 
   if (metrics.testsCompleted < 3) {
-    // 1-2 tests: Very low confidence. Random chance?
-    // Max 15% confidence. Even 100% accuracy -> 15% readiness.
-    confidenceFactor = 0.15;
+    // 1-2 tests: Extremely low confidence.
+    // Max 8% confidence.
+    confidenceFactor = 0.08;
   } else if (metrics.testsCompleted < 10) {
-    // 3-9 tests: Growing confidence.
-    // 0.3 at 3 tests -> 0.6 at 9 tests.
+    // 3-9 tests: Initial progress.
+    // 0.1 at 3 tests -> 0.35 at 9 tests.
     const progress = (metrics.testsCompleted - 3) / 7;
-    confidenceFactor = 0.3 + (progress * 0.3);
+    confidenceFactor = 0.1 + (progress * 0.25);
   } else if (metrics.testsCompleted < 30) {
-    // 10-29 tests: High confidence.
-    // 0.7 at 10 tests -> 1.0 at 30 tests.
+    // 10-29 tests: Moderate confidence.
+    // 0.4 at 10 tests -> 0.8 at 29 tests.
     const progress = (metrics.testsCompleted - 10) / 20;
-    confidenceFactor = 0.7 + (progress * 0.3);
+    confidenceFactor = 0.4 + (progress * 0.4);
+  } else if (metrics.testsCompleted < 50) {
+    // 30-49 tests: High confidence.
+    // 0.8 at 30 tests -> 1.0 at 50 tests.
+    const progress = (metrics.testsCompleted - 30) / 20;
+    confidenceFactor = 0.8 + (progress * 0.2);
   } else {
-    // 30+ tests: Full confidence.
+    // 50+ tests: Full confidence.
     confidenceFactor = 1.0;
   }
+
 
   // 4. FINAL CALCULATION
   let readinessPercent = basePerformance * confidenceFactor * 100;
