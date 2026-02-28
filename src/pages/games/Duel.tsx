@@ -645,6 +645,9 @@ export default function Duel() {
         // Это гарантирует 100% наличие данных для useDuelResults и устраняет race condition
         console.log('[Duel] ✅ Keeping activeDuel data for results screen (will be cleared on exit)');
 
+        // 🆕 CRITICAL FIX: Обновляем статус в localStorage чтобы скрыть меню "Дуэль"
+        updateActiveDuel({ mode: 'result' });
+
         console.log('[Duel] ✅ duelId is valid, proceeding with mode change...');
 
         // Устанавливаем режим результата - используем функциональное обновление для гарантии

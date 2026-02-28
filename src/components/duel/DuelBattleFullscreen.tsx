@@ -417,22 +417,16 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   useEffect(() => {
     // Обновляем только если новое значение является валидным числом
     if (typeof realtimeState.myScore === 'number' && realtimeState.myScore >= 0) {
-      setMyScore(prev => {
-        // Если счет меняется
-        if (prev !== realtimeState.myScore) {
-          // Если текущий счет больше 0, а новое значение 0 - это подозрительно
-          // Но обновляем, так как realtime - это источник истины
-          if (prev > 0 && realtimeState.myScore === 0) {
-            logWarn('[DuelBattleFullscreen] ⚠️ Score reset to 0 via realtime (was:', prev, ', new:', realtimeState.myScore, ')');
-          } else if (prev !== realtimeState.myScore) {
-            log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', realtimeState.myScore, '(was:', prev, ')');
-          }
-          return realtimeState.myScore;
+      if (myScore !== realtimeState.myScore) {
+        if (myScore > 0 && realtimeState.myScore === 0) {
+          logWarn('[DuelBattleFullscreen] ⚠️ Score reset to 0 via realtime (was:', myScore, ', new:', realtimeState.myScore, ')');
+        } else {
+          log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', realtimeState.myScore, '(was:', myScore, ')');
         }
-        return prev;
-      });
+        setMyScore(realtimeState.myScore);
+      }
     }
-  }, [realtimeState.myScore, setMyScore]);
+  }, [realtimeState.myScore, myScore, setMyScore]);
 
   // УБРАНО: Периодическое обновление счета - теперь используется Realtime через useDuelRealtime
   // useDuelRealtime уже подписывается на изменения duel_players через postgres_changes

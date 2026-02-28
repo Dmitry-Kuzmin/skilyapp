@@ -32,7 +32,7 @@ export const AUTO_WIN_TIMEOUT_MS = 30000; // 30 секунд до авто-по�
 export interface ActiveDuelState {
   duelId: string;
   duelCode: string | null;
-  mode: 'battle' | 'waiting';
+  mode: 'battle' | 'waiting' | 'result';
   currentIndex?: number;
   myScore: number;
   opponentScore: number;

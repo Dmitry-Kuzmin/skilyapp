@@ -334,14 +334,14 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
     if (isMobile) {
         return (
             <Drawer open={open} onOpenChange={onOpenChange}>
-                <DrawerContent className="max-h-[85vh] px-4 overflow-y-auto bg-zinc-950 border-white/5">
-                    <DrawerHeader className="border-b border-white/5 mb-4 sticky top-0 bg-zinc-950/98 z-10 py-4 -mx-4 px-8">
+                <DrawerContent className="max-h-[85vh] flex flex-col bg-zinc-950 border-white/5 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.8)] overflow-hidden">
+                    <DrawerHeader className="border-b border-white/5 shrink-0 bg-zinc-950/98 z-10 py-4 px-6 relative">
                         <DrawerTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
                             <Gauge className="w-5 h-5 text-violet-500" />
                             Skily Telemetry
                         </DrawerTitle>
                     </DrawerHeader>
-                    <div className="px-1">
+                    <div className="flex-1 overflow-y-auto px-4 pb-6 mt-2 scrollbar-none">
                         <TelemetryContent onClose={() => onOpenChange(false)} />
                     </div>
                 </DrawerContent>
@@ -351,8 +351,8 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-zinc-950 border-white/10 p-0 scrollbar-none">
-                <DialogHeader className="p-6 pb-2 border-b border-white/5 sticky top-0 bg-zinc-950/98 z-10 flex flex-row items-center justify-between">
+            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-zinc-950 border-white/10 p-0 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.9),0_0_80px_-10px_rgba(139,92,246,0.15)] sm:rounded-2xl overflow-hidden">
+                <DialogHeader className="p-6 pb-4 border-b border-white/5 shrink-0 bg-zinc-950/98 z-10 flex flex-row items-center justify-between shadow-sm relative">
                     <DialogTitle className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
                         <div className="w-10 h-10 rounded-2xl bg-violet-500/10 flex items-center justify-center">
                             <Gauge className="w-6 h-6 text-violet-500" />
@@ -360,7 +360,7 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
                         Skily Telemetry Dashboard
                     </DialogTitle>
                 </DialogHeader>
-                <div className="p-8 pb-12 pt-4">
+                <div className="flex-1 p-8 pb-12 pt-4 overflow-y-auto scrollbar-none">
                     <TelemetryContent onClose={() => onOpenChange(false)} />
                 </div>
             </DialogContent>
