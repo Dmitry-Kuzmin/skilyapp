@@ -471,10 +471,11 @@ All colors MUST be HSL.
     height: auto;
     overflow-anchor: none;
 
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* Typography defaults */
     font-feature-settings: "kern" 1, "liga" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1,
@@ -483,8 +484,7 @@ All colors MUST be HSL.
   h4,
   h5,
   h6 {
-    font-family: 'Outfit', sans-serif;
-    @apply font-black tracking-tight uppercase;
+    @apply font-bold tracking-tight;
   }
 
   /* Telegram Mobile Padding Support */
