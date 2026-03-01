@@ -18,7 +18,7 @@
 
   body {
     @apply bg-background text-foreground antialiased transition-colors duration-300;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     font-feature-settings: "kern" 1, "liga" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -31,8 +31,8 @@
   h4,
   h5,
   h6 {
-    font-family: 'Outfit', sans-serif;
-    @apply font-black tracking-tight uppercase;
+    font-family: var(--font-heading);
+    @apply font-bold tracking-tight;
   }
 }
 
