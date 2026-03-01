@@ -6,8 +6,7 @@
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <!-- Axeptio Cookie Consent (DISABLED) -->
-  <!-- 
+  <!-- Axeptio Cookie Consent -->
   <script>
     window.axeptioSettings = {
       clientId: "69a1acef0a02cdc0f86b3b4e",
@@ -29,28 +28,30 @@
       t.parentNode.insertBefore(e, t);
     })(document, "script");
   </script>
-  -->
 
   <!-- Theme color для браузерных панелей - динамическое определение (Chameleon Protocol) -->
   <meta name="theme-color" content="#09090b">
   <meta name="msapplication-TileColor" content="#09090b">
   <script>
     (function () {
-      var isLanding = window.location.pathname === '/' || window.location.pathname === '/landing' || !window.location.pathname.startsWith('/dashboard');
-      var color = isLanding ? '#0f172a' : '#09090b';
-      var themeMeta = document.querySelector('meta[name="theme-color"]');
-      var msTileMeta = document.querySelector('meta[name="msapplication-TileColor"]');
-      if (themeMeta) themeMeta.setAttribute('content', color);
-      if (msTileMeta) msTileMeta.setAttribute('content', color);
+      const isLanding = window.location.pathname === '/' || window.location.pathname === '/landing' || !window.location.pathname.startsWith('/dashboard');
+      const color = isLanding ? '#0f172a' : '#09090b';
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
+      document.querySelector('meta[name="msapplication-TileColor"]').setAttribute('content', color);
     })();
   </script>
   <!-- Для Safari iOS - черная полупрозрачная строка состояния -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-  <!-- Typography restored to system defaults -->
+  <!-- PREMIUM TYPOGRAPHY: Outfit for headings, Inter for body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800;900&display=swap"
+    rel="stylesheet">
 
   <!-- Favicons -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="/favicon-s.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -197,9 +198,9 @@
   <!-- https://github.com/rafgraph/spa-github-pages -->
   <script>
     (function (l) {
-      if (l.search[0] === '?' && l.search[1] === '/') {
+      if (l.search[1] === '/') {
         var decoded = l.search.slice(1).split('&').map(function (s) {
-          return s.replace(/~and~/g, '&');
+          return s.replace(/~and~/g, '&')
         }).join('?');
         window.history.replaceState(null, null,
           l.pathname.slice(0, -1) + decoded + l.hash
@@ -308,47 +309,19 @@
   <script>
       /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
       (function (w) {
-        "use strict";
-        if (!w.loadCSS) { w.loadCSS = function () { } }
+        "use strict"; if (!w.loadCSS) { w.loadCSS = function () { } }
         var loadCSS = function (href, before, media) {
-          var doc = w.document;
-          var ss = doc.createElement("link");
-          var ref;
-          if (before) { ref = before }
-          else {
-            var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
-            ref = refs[refs.length - 1]
-          }
-          var sheets = doc.styleSheets;
-          ss.rel = "stylesheet";
-          ss.href = href;
-          ss.media = "only x";
-          function ready(cb) {
-            if (doc.body) { return cb(); }
+          var doc = w.document; var ss = doc.createElement("link"); var ref; if (before) { ref = before } else { var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes; ref = refs[refs.length - 1] }
+          var sheets = doc.styleSheets; ss.rel = "stylesheet"; ss.href = href; ss.media = "only x"; function ready(cb) {
+            if (doc.body) { return cb() }
             setTimeout(function () { ready(cb) })
           }
-          ready(function () {
-            ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling)
-          });
-          var onloadcssdefined = function (cb) {
-            var resolvedHref = ss.href;
-            var i = sheets.length;
-            while (i--) {
-              if (sheets[i].href === resolvedHref) { return cb() }
-            }
+          ready(function () { ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling) }); var onloadcssdefined = function (cb) {
+            var resolvedHref = ss.href; var i = sheets.length; while (i--) { if (sheets[i].href === resolvedHref) { return cb() } }
             setTimeout(function () { onloadcssdefined(cb) })
-          };
-          function onload() {
-            ss.onload = null;
-            ss.media = media || "all"
-          }
-          if (ss.addEventListener) {
-            ss.addEventListener("load", onload)
-          }
-          ss.onloadcssdefined = onloadcssdefined;
-          onloadcssdefined(onload);
-          return ss
-        };
+          }; function onload() { ss.onload = null; ss.media = media || "all" }
+          if (ss.addEventListener) { ss.addEventListener("load", onload) } ss.onloadcssdefined = onloadcssdefined; onloadcssdefined(onload); return ss
+        }
         w.loadCSS = loadCSS
       })(typeof global !== "undefined" ? global : this);
   </script>
@@ -381,23 +354,25 @@
   <!-- КРИТИЧНО: Загружаем Telegram SDK только если мы действительно в Telegram или на localhost (для мока) -->
   <script>
     (function () {
-      var hostname = window.location.hostname;
-      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      // MOCK MONETAG & AD SYSTEMS ON LOCALHOST (ROBUST VERSION)
+      // Это предотвращает загрузку внешних скриптов (vignette.min.js), которые ломают IndexedDB и WebSocket
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('[Dev] 🛡️ Mocking Ad Systems to prevent crashes (Protocol v3)');
 
         // Mock Monetag Functions
         window.show_10323437 = function () { console.log('[Dev] Mock Monetag Interstitial shown'); return Promise.resolve(true); };
         window.show_10323643 = function () { console.log('[Dev] Mock Monetag Rewarded shown'); return Promise.resolve(true); };
 
-        var originalCreateElement = document.createElement;
+        // 1. Monkey Patch document.createElement
+        const originalCreateElement = document.createElement;
         document.createElement = function (tagName) {
-          var element = originalCreateElement.call(document, tagName);
+          const element = originalCreateElement.call(document, tagName);
           if (tagName.toLowerCase() === 'script') {
             Object.defineProperty(element, 'src', {
               set: function (url) {
-                if (url && (typeof url === 'string') && (url.indexOf('monetag') !== -1 || url.indexOf('groleegni') !== -1 || url.indexOf('gizokraijaw') !== -1 || url.indexOf('vignette') !== -1)) {
+                if (url && (typeof url === 'string') && (url.includes('monetag') || url.includes('groleegni') || url.includes('gizokraijaw') || url.includes('vignette'))) {
                   console.warn('[Dev] 🛡️ Blocked Ad Script (createElement):', url);
-                  return;
+                  return; // Block assignment
                 }
                 this.setAttribute('src', url);
               },
@@ -407,41 +382,43 @@
           return element;
         };
 
-        var isAdScript = function (node) {
+        // 2. Monkey Patch appendChild and insertBefore
+        const isAdScript = (node) => {
           if (node && node.tagName === 'SCRIPT') {
-            var src = node.src || node.getAttribute('src');
-            if (src && (src.indexOf('monetag') !== -1 || src.indexOf('groleegni') !== -1 || src.indexOf('gizokraijaw') !== -1 || src.indexOf('vignette') !== -1)) {
+            const src = node.src || node.getAttribute('src');
+            if (src && (src.includes('monetag') || src.includes('groleegni') || src.includes('gizokraijaw') || src.includes('vignette'))) {
               console.warn('[Dev] 🛡️ Blocked Ad Script (DOM Injection):', src);
-              if (node.parentNode) node.parentNode.removeChild(node);
+              if (node.parentNode) node.remove(); // Remove if already attached
               return true;
             }
           }
           return false;
         };
 
-        var originalAppendChild = Node.prototype.appendChild;
+        const originalAppendChild = Node.prototype.appendChild;
         Node.prototype.appendChild = function (child) {
           if (isAdScript(child)) return child;
           return originalAppendChild.call(this, child);
         };
 
-        var originalInsertBefore = Node.prototype.insertBefore;
+        const originalInsertBefore = Node.prototype.insertBefore;
         Node.prototype.insertBefore = function (newNode, referenceNode) {
           if (isAdScript(newNode)) return newNode;
           return originalInsertBefore.call(this, newNode, referenceNode);
         };
       }
 
-      var isTelegram = window.location.hash.indexOf('tgWebAppData') !== -1 ||
-        window.location.search.indexOf('tgWebAppPlatform') !== -1 ||
-        hostname === 'localhost' ||
-        hostname === '127.0.0.1';
+      const isTelegram = window.location.hash.includes('tgWebAppData') ||
+        window.location.search.includes('tgWebAppPlatform') ||
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
 
       if (isTelegram) {
-        var script = document.createElement('script');
+        // Мы в Telegram или в dev-режиме - загружаем SDK асинхронно, но с высоким приоритетом
+        const script = document.createElement('script');
         script.src = "https://telegram.org/js/telegram-web-app.js";
         script.crossOrigin = "anonymous";
-        script.async = false;
+        script.async = false; // Для соблюдения порядка выполнения, но это уже в конце head
         document.head.appendChild(script);
       }
     })();
@@ -451,28 +428,48 @@
   <script>
     (function () {
       'use strict';
+      const SCRIPT_VERSION = 'v6.0-fullscreen';
+
+      const log = function (msg, data) {
+        if (typeof console !== 'undefined' && console.log && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+          console.log('[System/TG] ' + msg, data || '');
+        }
+      };
 
       function expandTelegramApp() {
         if (window.Telegram && window.Telegram.WebApp) {
-          var tg = window.Telegram.WebApp;
+          const tg = window.Telegram.WebApp;
 
+          // ============================================================================
+          // GOLDEN RULES v3.0 - RULE 3.5: requestFullscreen() (Mini Apps 8.0+)
+          // @see RULES_LAYOUT.md
+          // ============================================================================
+
+          // 1. Сначала вызываем старый expand() для совместимости
           if (typeof tg.expand === 'function') {
             tg.expand();
           }
 
-          if (typeof tg.requestFullscreen === 'function' && parseFloat(tg.version || '0') >= 8.0) {
+          // 2. МАГИЯ Mini Apps 8.0+ — иммерсивный режим на полный экран
+          // requestFullscreen() переводит в режим без шторки, как у BotFather
+          // Проверяем версию, чтобы не вызывать ошибку на старых клиентах
+          if (typeof tg.requestFullscreen === 'function' && parseFloat(tg.version) >= 8.0) {
             try {
               tg.requestFullscreen();
             } catch (e) {
-              // Silent log
+              // Тихий лог, не пугаем пользователя
+              if (window.location.hostname === 'localhost') console.debug('[TG] requestFullscreen failed', e);
             }
           }
 
+          // 3. Красим UI (Chameleon Protocol)
+          // setHeaderColor и setBackgroundColor требуют v6.1+
           try {
-            var version = parseFloat(tg.version || '0');
+            const version = parseFloat(tg.version || '0');
             if (version >= 6.1) {
-              var isLanding = window.location.pathname === '/' || window.location.pathname === '/landing' || !window.location.pathname.indexOf('/dashboard') === -1;
-              var initialColor = isLanding ? '#0f172a' : '#09090b';
+              // Динамическое определение начального цвета для предотвращения моргания
+              const isLanding = window.location.pathname === '/' || window.location.pathname === '/landing';
+              const initialColor = isLanding ? '#0f172a' : '#09090b';
 
               if (typeof tg.setHeaderColor === 'function') {
                 tg.setHeaderColor(initialColor);
@@ -480,11 +477,14 @@
               if (typeof tg.setBackgroundColor === 'function') {
                 tg.setBackgroundColor(initialColor);
               }
+            } else {
+              if (window.location.hostname === 'localhost') console.debug('[TG] Colors skipped for v' + version);
             }
           } catch (e) {
-            // Error setting colors
+            log('⚠️ Error setting colors', e);
           }
 
+          // 4. Ready
           if (typeof tg.ready === 'function') tg.ready();
 
           return true;
@@ -492,10 +492,11 @@
         return false;
       }
 
+      // Try immediately — как можно раньше!
       if (!expandTelegramApp()) {
-        var attempts = 0;
-        var maxAttempts = 10;
-        var interval = setInterval(function () {
+        let attempts = 0;
+        const maxAttempts = 10; // Уменьшим количество попыток, чтобы не спамить
+        const interval = setInterval(function () {
           attempts++;
           if (expandTelegramApp() || attempts >= maxAttempts) {
             clearInterval(interval);
@@ -509,25 +510,30 @@
   <!-- Загружается только при скролле или через 3 секунды после загрузки страницы -->
   <script>
     (function () {
-      var widgetLoaded = false;
-      var loadWidget = function () {
+      let widgetLoaded = false;
+      const loadWidget = () => {
         if (widgetLoaded) return;
         widgetLoaded = true;
-        var script = document.createElement('script');
+        const script = document.createElement('script');
         script.src = 'https://telegram.org/js/telegram-widget.js?22';
         script.defer = true;
-        script.crossOrigin = 'anonymous';
+        script.crossOrigin = 'anonymous'; // Для лучшей совместимости с Safari Privacy
         document.head.appendChild(script);
       };
 
-      window.addEventListener('scroll', function () {
+      // Загружаем при скролле
+      let scrollTimer;
+      window.addEventListener('scroll', () => {
         if (!widgetLoaded) {
-          setTimeout(loadWidget, 100);
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(loadWidget, 100);
         }
       }, { once: true, passive: true });
 
+      // Загружаем при клике
       window.addEventListener('click', loadWidget, { once: true });
 
+      // Загружаем через 3 секунды (fallback)
       setTimeout(loadWidget, 3000);
     })();
   </script>
@@ -561,91 +567,169 @@
     (function () {
       'use strict';
 
-      const APP_VERSION = '2026-03-01-11:10';
-      var CACHE_KEY = 'app_version';
+      // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
+      // Версия приложения - автоматически обновляется при деплое
+      const APP_VERSION = '2026-02-28-20:07';
+      const CACHE_KEY = 'skilyapp_version';
 
+      // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
       window.addEventListener('error', function (e) {
-        var msg = (e.message || '').toLowerCase();
-        var isModuleError =
+        const msg = (e.message || '').toLowerCase();
+        const isModuleError =
           msg.indexOf('importing a module script failed') !== -1 ||
           msg.indexOf('failed to fetch dynamically imported module') !== -1 ||
           msg.indexOf("'text/html' is not a valid javascript mime type") !== -1 ||
           msg.indexOf('loading chunk') !== -1;
 
         if (isModuleError) {
-          console.error('[CRITICAL] Module loading failed. Recovery attempt...');
+          console.error('[CRITICAL] Module loading failed (Deployment mismatch). Attempting recovery...', e);
 
-          var storageKey = 'module_reload_count';
-          var timeKey = 'module_reload_time';
+          // Проверяем счетчик перезагрузок для защиты от бесконечного цикла
+          const storageKey = 'module_reload_count';
+          const timeKey = 'module_reload_time';
 
-          var count = parseInt(localStorage.getItem(storageKey) || '0');
-          var lastTime = parseInt(localStorage.getItem(timeKey) || '0');
-          var now = Date.now();
+          const count = parseInt(localStorage.getItem(storageKey) || '0');
+          const lastTime = parseInt(localStorage.getItem(timeKey) || '0');
+          const now = Date.now();
 
-          var currentCount = (now - lastTime > 120000) ? 0 : count;
+          // Сбрасываем счетчик, если прошло больше 120 секунд
+          const currentCount = (now - lastTime > 120000) ? 0 : count;
 
           if (currentCount < 3) {
             localStorage.setItem(storageKey, (currentCount + 1).toString());
             localStorage.setItem(timeKey, now.toString());
 
-            setTimeout(function () {
+            console.log(`[HTML] Reloading page (Attempt ${currentCount + 1}/3)...`);
+
+            setTimeout(() => {
               window.location.reload(true);
             }, 500);
           } else {
-            var root = document.getElementById('root') || document.body;
-            root.innerHTML = '<div style="position: fixed; inset: 0; background: #09090b; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; text-align: center; padding: 20px; z-index: 9999;"><h2 style="color: #ef4444; margin-bottom: 10px;">Обновление приложения</h2><p style="color: #a1a1aa; margin-bottom: 20px; max-width: 400px;">Мы выпустили обновление. Пожалуйста, обновите страницу.</p><button onclick="localStorage.removeItem(\'module_reload_count\'); window.location.reload(true);" style="background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;">Обновить сейчас</button></div>';
+            console.error('[CRITICAL] Reload limit exceeded. Showing manual recovery prompt.');
+            // Показываем сообщение пользователю, вместо бесконечного цикла
+            const root = document.getElementById('root') || document.body;
+            root.innerHTML = `
+               <div style="
+                 position: fixed; inset: 0; background: #09090b; color: white;
+                 display: flex; flex-direction: column; align-items: center; justify-content: center;
+                 font-family: sans-serif; text-align: center; padding: 20px; z-index: 9999;
+               ">
+                 <h2 style="color: #ef4444; margin-bottom: 10px;">Обновление приложения</h2>
+                 <p style="color: #a1a1aa; margin-bottom: 20px; max-width: 400px;">
+                   Мы выпустили важное обновление. Пожалуйста, нажмите кнопку ниже, чтобы загрузить новую версию.
+                 </p>
+                 <button onclick="localStorage.removeItem('module_reload_count'); window.location.reload(true);" style="
+                   background: #2563eb; color: white; border: none; padding: 12px 24px;
+                   border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
+                 ">
+                   Обновить сейчас
+                 </button>
+               </div>
+             `;
           }
         }
       }, true);
 
-      var storedVersion = localStorage.getItem(CACHE_KEY);
+      // Проверяем версию в localStorage
+      const storedVersion = localStorage.getItem(CACHE_KEY);
       if (storedVersion !== APP_VERSION) {
-        var importantKeys = ['sb-yffjnqegeiorunyvcxkn-auth-token', 'user_preferences', 'telegram_user', 'puzzle_user'];
-        var keysToKeep = {};
-        importantKeys.forEach(function (key) {
-          var value = localStorage.getItem(key);
+        console.log('[HTML] 🔄 New version detected! Clearing cache...', {
+          stored: storedVersion,
+          current: APP_VERSION,
+        });
+
+        // Очищаем localStorage (кроме важных данных)
+        const importantKeys = ['sb-yffjnqegeiorunyvcxkn-auth-token', 'user_preferences', 'telegram_user', 'puzzle_user'];
+        const keysToKeep = {};
+        importantKeys.forEach(key => {
+          const value = localStorage.getItem(key);
           if (value) keysToKeep[key] = value;
         });
 
         localStorage.clear();
 
-        Object.keys(keysToKeep).forEach(function (key) {
+        Object.keys(keysToKeep).forEach(key => {
           localStorage.setItem(key, keysToKeep[key]);
         });
 
+        // Сохраняем новую версию
         localStorage.setItem(CACHE_KEY, APP_VERSION);
+
+        // Принудительная перезагрузка без cache-busting параметров (Vercel CDN кэширует)
         window.location.reload();
         return;
       }
+
+      // Отслеживаем ошибки загрузки модулей
+      window.addEventListener('error', function (e) {
+        if (e.filename && (e.filename.includes('main') || e.filename.includes('react-vendor'))) {
+          console.error('[HTML] ❌ Module load error:', {
+            message: e.message,
+            filename: e.filename,
+            lineno: e.lineno,
+            colno: e.colno,
+            error: e.error,
+          });
+        }
+      }, true);
+
+      // 🛡️ ХАРДВОРК: Таймер загрузки основного модуля
+      // Если за 15 секунд приложение не просигнализировало о загрузке - пробуем восстановить
+      setTimeout(function () {
+        if (!window._mainLoaded) {
+          console.error('[HTML] Main module not loaded after 15s, forcing cache clear...');
+
+          // Удаляем токен, так как 400 error refresh_token часто блокирует загрузку
+          localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
+
+          window.location.reload();
+        }
+      }, 15000);
     })();
+
   </script>
   <!-- КРИТИЧНО: Основной скрипт приложения - должен загружаться первым -->
   <script type="module" src="/src/main.tsx"></script>
 
   <!-- 🚀 Дополнительный fallback: expand() после загрузки всех скриптов -->
   <script>
+    // КРИТИЧНО: Проверяем, что это действительно Mini App, а не обычный сайт
     function checkAndExpand() {
-      if (!window.Telegram || !window.Telegram.WebApp || !window.Telegram.WebApp.initData || window.Telegram.WebApp.initData === 'mock_init_data') {
+      // КРИТИЧНО: Если мы не в Telegram, просто выходим без логов
+      if (!window.Telegram?.WebApp?.initData || window.Telegram.WebApp.initData === 'mock_init_data') {
         return false;
       }
 
-      var tg = window.Telegram.WebApp;
+      const tg = window.Telegram.WebApp;
 
       try {
         if (typeof tg.expand === 'function') tg.expand();
-        if (typeof tg.ready === 'function') tg.ready();
+
+        // Тихий лог состояния только для отладки
+        if (window.location.hostname === 'localhost') {
+          console.debug('[Telegram Expand] State:', {
+            platform: tg.platform,
+            version: tg.version,
+            isExpanded: tg.isExpanded
+          });
+        }
       } catch (e) {
+        // Ошибка только если что-то реально упало
         console.warn('[Telegram Expand] expand error:', e);
       }
 
       return true;
     }
 
+    // Этот скрипт выполняется после загрузки всех модулей
     window.addEventListener('load', function () {
+      if (window.location.hostname === 'localhost') console.error('[Telegram Expand LOAD] 🚀 window.load event fired');
       checkAndExpand();
     });
 
+    // Также пробуем на DOMContentLoaded
     document.addEventListener('DOMContentLoaded', function () {
+      if (window.location.hostname === 'localhost') console.error('[Telegram Expand DOM] 🚀 DOMContentLoaded event fired');
       checkAndExpand();
     });
   </script>

@@ -23,7 +23,7 @@ interface LicenseCardProps {
         averageScore?: number;
     };
     isDarkTheme: boolean;
-    selectedCountry: 'es' | 'ru' | 'sk';
+    selectedCountry: string;
     language: 'ru' | 'es' | 'en';
     hasClaimedToday: boolean;
     onClaimReward: () => void;
@@ -79,25 +79,6 @@ const T_MAP = {
             cat: "9. КАТ.",
             streak: "СТРИК 🔥",
             pointsLabel: "12. ШТРАФНЫЕ БАЛЛЫ",
-        }
-    },
-    sk: {
-        bg: "from-blue-500/10 via-red-500/10 to-white/5",
-        lightBg: "bg-gradient-to-br from-blue-100 via-white to-red-100",
-        header: "SLOVENSKO",
-        docType: "VODIČSKÝ PREUKAZ",
-        fields: {
-            name: "1. 2. PRIEZVISKO A MENO",
-            dob: "3. DÁTUM A MIESTO NARODENIA",
-            dobVal: "10.05.1995 • BRATISLAVA",
-            issue: "4a. DÁTUM VYDANIA • 4b. PLATNÉ DO",
-            issueVal: "01.01.2024 • 01.01.2034",
-            issuer: "4c. VYDANÉ",
-            issuerVal: "POLÍCIA SR",
-            id: "4d. 5. ČÍSLO PREUKAZU",
-            cat: "9. SKUP.",
-            streak: "SÉRIA 🔥",
-            pointsLabel: "12. BODY",
         }
     }
 };
@@ -188,8 +169,8 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
         }
 
         const normCountry = (selectedCountry || 'es').toLowerCase();
-        const effectiveCountry = normCountry === 'spain' || normCountry === 'es' ? 'es' : normCountry === 'slovakia' || normCountry === 'sk' ? 'sk' : 'ru';
-        const countryCode = effectiveCountry === 'es' ? 'E' : effectiveCountry === 'sk' ? 'SK' : 'RUS';
+        const effectiveCountry = (normCountry === 'russia' || normCountry === 'ru') ? 'ru' : 'es';
+        const countryCode = effectiveCountry === 'ru' ? 'RUS' : 'E';
         const localeConfig = T_MAP[effectiveCountry as keyof typeof T_MAP] || T_MAP['es'];
 
         return {

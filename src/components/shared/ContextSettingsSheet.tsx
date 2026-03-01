@@ -51,7 +51,7 @@ export function ContextSettingsSheet({
   onApply,
 }: ContextSettingsSheetProps) {
   const { resolvedTheme } = useTheme();
-  const { t } = useLanguage();
+  const { t, setLanguage } = useLanguage();
   const { profileData } = useProfileData();
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>(currentCountry);
   const [selectedCategory, setSelectedCategory] = useState<LicenseCategory>(currentCategory);
@@ -105,21 +105,18 @@ export function ContextSettingsSheet({
 
     // Применяем выбор локально
     onApply(selectedCountry, selectedCategory);
+
+    // If switching to Russia, also switch language to Russian automatically
+    if (selectedCountry === 'russia') {
+      setLanguage('ru');
+    }
+
     onOpenChange(false);
   };
 
   // Генерируем заголовок
   const getTitle = () => {
-    if (selectedCategoryData) {
-      const CategoryIcon = getCategoryIcon(selectedCategoryData.code);
-      return (
-        <div className="flex items-center gap-2">
-          <CategoryIcon className="w-4 h-4" />
-          <span>{t('contextSettings.readyToStart', { category: selectedCategoryData.code })}</span>
-        </div>
-      );
-    }
-    return t('contextSettings.selectContext');
+    return t('settings.context.title');
   };
 
   return (

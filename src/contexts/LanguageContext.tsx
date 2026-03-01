@@ -142,16 +142,30 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
       const supabase = await getSupabaseClient();
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .select('settings')
+        .select('settings, preferred_country')
         .eq('id', profileId)
         .single();
 
-      const lang = (data?.settings as Record<string, unknown> | null)?.language as Language | undefined;
-      if (lang && SUPPORTED_LANGUAGES.includes(lang)) {
-        applyLanguage(lang);
-        return;
+      if (!error && data) {
+        const profile = data as any;
+        const settings = profile.settings as Record<string, any> | null;
+        const preferredCountry = profile.preferred_country;
+        const lang = settings?.language as Language | undefined;
+
+        // If country is Russia, force Russian language unless it's already ru
+        if (preferredCountry === 'russia' || preferredCountry === 'ru') {
+          if (lang !== 'ru') {
+            applyLanguage('ru');
+            return;
+          }
+        }
+
+        if (lang && SUPPORTED_LANGUAGES.includes(lang)) {
+          applyLanguage(lang);
+          return;
+        }
       }
 
       applyLanguage(detectPreferredLanguage());
@@ -161,28 +175,29 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [profileId, applyLanguage]);
 
   const setLanguage = async (lang: Language) => {
+    // Немедленно обновляем UI и localStorage (синхронно, без ожидания)
     applyLanguage(lang);
 
+    // Сохраняем в Supabase в фоне — не блокируем UI и навигацию
     if (profileId) {
-      const supabase = await getSupabaseClient();
+      getSupabaseClient().then(async (supabase) => {
+        try {
+          const { data: currentProfile } = await supabase
+            .from('profiles')
+            .select('settings')
+            .eq('id', profileId)
+            .single();
 
-      const { data: currentProfile } = await supabase
-        .from('profiles')
-        .select('settings')
-        .eq('id', profileId)
-        .single();
+          const currentSettings = ((currentProfile as any)?.settings as Record<string, any>) || {};
 
-      const currentSettings = (currentProfile?.settings as Record<string, any>) || {};
-
-      await supabase
-        .from('profiles')
-        .update({
-          settings: {
-            ...currentSettings,
-            language: lang,
-          },
-        })
-        .eq('id', profileId);
+          await (supabase as any)
+            .from('profiles')
+            .update({ settings: { ...currentSettings, language: lang } })
+            .eq('id', profileId);
+        } catch {
+          // Non-critical — language is already stored in localStorage
+        }
+      });
     }
   };
 

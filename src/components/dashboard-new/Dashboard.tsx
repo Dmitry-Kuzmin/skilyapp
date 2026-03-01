@@ -232,7 +232,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
               userProfile={userProfile}
               stats={stats}
               isDarkTheme={isDarkTheme}
-              selectedCountry={selectedCountry === 'spain' ? 'es' : selectedCountry === 'russia' ? 'ru' : 'sk'}
+              selectedCountry={
+                (selectedCountry?.toLowerCase() === 'spain' || selectedCountry?.toUpperCase() === 'ES') ? 'es' :
+                  (selectedCountry?.toLowerCase() === 'russia' || selectedCountry?.toUpperCase() === 'RU') ? 'ru' : 'ru'
+              }
               language={language}
               hasClaimedToday={hasClaimedToday}
               onClaimReward={onClaimReward}

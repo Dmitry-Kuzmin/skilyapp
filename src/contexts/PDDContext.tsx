@@ -23,9 +23,9 @@ export function PDDProvider({ children }: { children: ReactNode }) {
   const [selectedCountry, setSelectedCountryState] = useState<CountryCode>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('pdd_selected_country') as CountryCode | null;
-      return saved || 'russia';
+      return saved || 'spain';
     }
-    return 'russia';
+    return 'spain';
   });
 
   const [selectedCategory, setSelectedCategoryState] = useState<LicenseCategory>(() => {
@@ -43,10 +43,16 @@ export function PDDProvider({ children }: { children: ReactNode }) {
         country: profileData.preferred_country,
         category: profileData.preferred_license_category
       });
-      setSelectedCountryState(profileData.preferred_country as CountryCode);
+
+      // Normalize country code (ES -> spain, RU -> russia)
+      let normalizedCountry = profileData.preferred_country.toLowerCase();
+      if (normalizedCountry === 'es') normalizedCountry = 'spain';
+      if (normalizedCountry === 'ru') normalizedCountry = 'russia';
+
+      setSelectedCountryState(normalizedCountry as CountryCode);
       setSelectedCategoryState(profileData.preferred_license_category as LicenseCategory);
       // Обновляем localStorage чтобы синхронизировать
-      localStorage.setItem('pdd_selected_country', profileData.preferred_country);
+      localStorage.setItem('pdd_selected_country', normalizedCountry);
       localStorage.setItem('pdd_selected_category', profileData.preferred_license_category);
     }
   }, [profileData?.preferred_country, profileData?.preferred_license_category]);
