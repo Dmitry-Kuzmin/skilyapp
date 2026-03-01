@@ -5,7 +5,7 @@
  * Синхронизируется с localStorage для сохранения выбора пользователя.
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import {
     CountryConfig,
     DEFAULT_COUNTRY,
@@ -67,11 +67,26 @@ export const CountryProvider: React.FC<CountryProviderProps> = ({ children }) =>
         }
     };
 
-    const value: CountryContextValue = {
+    const value = useMemo(() => ({
         selectedCountry,
-        setSelectedCountry,
-        setCountryByCode,
-    };
+        setSelectedCountry: (country: CountryConfig) => {
+            if (country.isActive) {
+                setSelectedCountryState(country);
+            } else {
+                console.warn(`[CountryContext] Country ${country.code} is not active yet`);
+            }
+        },
+        setCountryByCode: (code: string) => {
+            const country = getCountryByCode(code);
+            if (country) {
+                if (country.isActive) {
+                    setSelectedCountryState(country);
+                }
+            } else {
+                console.warn(`[CountryContext] Country with code ${code} not found`);
+            }
+        },
+    }), [selectedCountry]);
 
     return (
         <CountryContext.Provider value={value}>

@@ -271,7 +271,7 @@ const LandingRedirect = () => {
       const session = parsed?.currentSession ?? parsed?.currentSession?.user ? parsed.currentSession : parsed?.session ?? parsed;
       const hasToken = session?.access_token || session?.currentSession?.access_token;
       if (hasToken) {
-        navigate("/dashboard", { replace: true });
+        navigate("/dashboard" + window.location.search, { replace: true });
       }
     } catch (error) {
       console.warn("[LandingRedirect] Failed to parse supabase auth token", error);

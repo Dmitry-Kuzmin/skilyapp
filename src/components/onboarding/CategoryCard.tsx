@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Check, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Car, Bike, Truck, Bus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CategoryCardProps {
@@ -10,8 +10,16 @@ interface CategoryCardProps {
     onClick?: () => void;
     title: string;
     description: string;
-    icon?: string; // Эмодзи или иконка
 }
+
+const getCategoryIcon = (category: string) => {
+    switch (category) {
+        case 'A': return <Bike className="w-9 h-9" />;
+        case 'C': return <Truck className="w-9 h-9" />;
+        case 'D': return <Bus className="w-9 h-9" />;
+        default: return <Car className="w-9 h-9" />;
+    }
+};
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({
     category,
@@ -19,74 +27,73 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
     isDisabled,
     onClick,
     title,
-    description,
-    icon = "🚗"
+    description
 }) => {
     return (
         <motion.div
-            whileHover={!isDisabled ? { scale: 1.02, y: -4 } : {}}
+            whileHover={!isDisabled ? { y: -12, scale: 1.02 } : {}}
             whileTap={!isDisabled ? { scale: 0.98 } : {}}
             onClick={!isDisabled ? onClick : undefined}
             className={cn(
-                "relative flex flex-col items-center justify-between p-6 rounded-[2rem] border-2 transition-all duration-300 cursor-pointer overflow-hidden",
-                "w-[240px] h-[320px] shrink-0",
+                "relative group flex flex-col items-center justify-between p-10 rounded-[4rem] border transition-all duration-500 cursor-pointer snap-center",
+                "w-[280px] h-[360px] shrink-0",
                 isSelected
-                    ? "border-amber-500 bg-zinc-900/80 shadow-[0_0_40px_rgba(234,179,8,0.25)] scale-105 z-10"
-                    : "border-zinc-800 bg-zinc-900/40 hover:border-zinc-700",
-                isDisabled && "opacity-50 grayscale cursor-not-allowed"
+                    ? "border-blue-500 bg-blue-500/[0.04] shadow-[0_40px_80px_-20px_rgba(59,130,246,0.25)]"
+                    : "border-white/[0.04] bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.04]",
+                isDisabled && "opacity-20 grayscale cursor-not-allowed border-dashed"
             )}
         >
-            {/* Background Glow */}
-            {isSelected && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[50%] bg-amber-500/10 blur-[60px]" />
-            )}
-
-            {/* Top Section */}
-            <div className="flex flex-col items-center gap-3">
-                <div className={cn(
-                    "w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-lg",
-                    isSelected ? "bg-amber-500/20 text-amber-500" : "bg-zinc-800 text-zinc-400"
-                )}>
-                    {icon}
-                </div>
-                <div className="text-center">
-                    <h3 className={cn(
-                        "text-2xl font-black uppercase tracking-tight leading-none",
-                        isSelected ? "text-amber-500" : "text-zinc-200"
-                    )}>
-                        Категория {category}
-                    </h3>
-                    <span className="text-xs font-medium text-zinc-500 uppercase tracking-widest mt-1 block">
-                        {title}
-                    </span>
-                </div>
-            </div>
-
-            {/* Center Description */}
-            <p className="text-sm text-center text-zinc-400 font-medium px-4">
-                {description}
-            </p>
-
-            {/* Bottom Check / Label */}
-            <div className={cn(
-                "w-full py-3 rounded-2xl flex items-center justify-center gap-2 font-bold transition-colors",
-                isSelected
-                    ? "bg-amber-500 text-zinc-950"
-                    : "bg-zinc-800 text-zinc-400"
-            )}>
-                {isSelected ? (
-                    <>
-                        <Check className="w-5 h-5 stroke-[3px]" />
-                        ВЫБРАНО
-                    </>
-                ) : (
-                    "ВЫБРАТЬ"
+            {/* Selection Radial Bloom */}
+            <AnimatePresence>
+                {isSelected && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(59,130,246,0.15),transparent_60%)] pointer-events-none"
+                    />
                 )}
+            </AnimatePresence>
+
+            {/* Icon Container */}
+            <div className="relative z-10 flex flex-col items-center gap-6 w-full mt-2">
+                <div className={cn(
+                    "w-20 h-20 rounded-[2.5rem] flex items-center justify-center transition-all duration-500 shadow-2xl backdrop-blur-3xl",
+                    isSelected
+                        ? "bg-blue-500 text-white shadow-blue-500/30"
+                        : "bg-white/[0.03] text-zinc-600 group-hover:text-zinc-400 group-hover:scale-105"
+                )}>
+                    {getCategoryIcon(category)}
+                </div>
+
+                <div className="text-center space-y-1">
+                    <div className={cn(
+                        "text-3xl font-black tracking-tighter transition-all duration-500",
+                        isSelected ? "text-white scale-105" : "text-zinc-500"
+                    )}>
+                        CAT {category}
+                    </div>
+                </div>
             </div>
 
-            {/* Floating Category Letter Backdrop */}
-            <div className="absolute -bottom-8 -right-4 text-[120px] font-black opacity-[0.03] select-none pointer-events-none">
-                {category}
+            {/* Description */}
+            <div className={cn(
+                "relative z-10 text-[12px] text-center font-bold leading-relaxed px-4 transition-colors duration-500",
+                isSelected ? "text-zinc-300" : "text-zinc-600"
+            )}>
+                {description}
+            </div>
+
+            {/* Minimalist Selection Mark */}
+            <div className="relative z-10">
+                <div className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 border-2",
+                    isSelected
+                        ? "bg-blue-500 border-blue-400 text-white shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                        : "bg-white/5 border-white/5 text-transparent"
+                )}>
+                    <Check className={cn("w-5 h-5 stroke-[4px] transition-all", isSelected ? "scale-100" : "scale-0")} />
+                </div>
             </div>
         </motion.div>
     );

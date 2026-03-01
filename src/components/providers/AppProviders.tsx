@@ -159,9 +159,9 @@ export function AppProviders({ children }: AppProvidersProps) {
 
         <UserProvider>
           <LanguageProvider>
-            <SessionHandler />
             <NotificationProvider>
               <PDDProvider>
+                <SessionHandler />
                 <ReconnectHandler />
                 {/* Global Settings Drawer (Zustand controlled) */}
                 <GlobalSettingsManager />

@@ -463,120 +463,18 @@ All colors MUST be HSL.
     @apply bg-background text-foreground antialiased transition-colors duration-300;
     margin: 0;
     box-sizing: border-box;
-    /* CRITICAL: Remove overflow-x: hidden from body to prevent Chrome scroll lock */
-    /* overflow-x: hidden; */
     overflow-y: visible;
     position: relative;
-    /* Let html handle scrolling */
     width: 100%;
     max-width: 100vw;
     min-height: 100vh;
     height: auto;
     overflow-anchor: none;
 
-    /* Отступы от системных UI элементов (Dynamic Island, статус-бар, home indicator) */
-    padding-top: var(--app-safe-top);
-    padding-bottom: var(--app-safe-bottom);
-    padding-left: var(--app-safe-left);
-    padding-right: var(--app-safe-right);
-
-    /* Typography defaults */
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     font-feature-settings: "kern" 1, "liga" 1;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* ============================================================================
-   * ГЛОБАЛЬНЫЙ ОТСТУП ДЛЯ TELEGRAM MOBILE (v4.0 - CSS-first)
-   * ============================================================================
-   * КРИТИЧНО: Отступы теперь управляются через CSS!
-   * 
-   * Предыдущая версия с JS-манипуляциями в Layout.tsx имела проблемы:
-   * 1. Рассинхронизация при навигации между страницами
-   * 2. Асинхронные обновления contentSafeAreaInset от Telegram
-   * 3. Гонки между useEffect и событиями Telegram
-   * 
-   * Новый подход — CSS calc() автоматически пересчитывается когда
-   * CSS-переменные обновляются из TelegramNavigation.tsx
-   * 
-   * @see TelegramNavigation.tsx — устанавливает CSS-переменные
-   * @see Layout.tsx — теперь НЕ управляет padding (удалён useEffect)
-   * ============================================================================ */
-
-  /* Глобальный padding для Telegram Mobile через CSS */
-  /* Используем .telegram-main-content для main элемента в Layout.tsx */
-  html.telegram-mobile-app .telegram-main-content,
-  body.telegram-mobile-app .telegram-main-content {
-    /* 
-     * Вычисляем padding как максимум из:
-     * 1. --tg-content-safe-area-inset-top (плашка Telegram)
-     * 2. --tg-safe-area-inset-top (системный notch/island)
-     * 3. env(safe-area-inset-top) (браузерный notch/island)
-     * 4. 92px - безопасный минимум для iPhone 16
-     */
-    padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
-        var(--tg-safe-area-inset-top, 0px),
-        env(safe-area-inset-top, 0px),
-        92px) !important;
-
-    /* Плавный переход при изменении ориентации или скрытии BackButton */
-    transition: padding-top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* PWA (Standalone) Safe Area Support */
-  /* Для iOS PWA (Add to Home Screen) используем системные env() */
-  @media all and (display-mode: standalone) {
-    .telegram-main-content {
-      padding-top: max(env(safe-area-inset-top), 20px) !important;
-      padding-left: env(safe-area-inset-left) !important;
-      padding-right: env(safe-area-inset-right) !important;
-      padding-bottom: env(safe-area-inset-bottom) !important;
-    }
-
-    /* Убираем верхний отступ если есть header (на десктопе может быть standalone) */
-    /* Но у нас header скрыт на mobile, так что это ок */
-
-    /* Корректируем нижнее меню для PWA */
-    .app-bottom-nav {
-      padding-bottom: env(safe-area-inset-bottom) !important;
-    }
-  }
-
-  /* УДАЛЕНО: Специальное правило для Dashboard
-   * Теперь Dashboard использует глобальное правило выше, которое корректно
-   * учитывает ОБА значения:
-   * - --tg-content-safe-area-inset-top (UI Telegram: кнопка Закрыть)
-   * - --tg-safe-area-inset-top (системный отступ: челка/Dynamic Island)
-   * 
-   * Это обеспечивает автоматический расчёт для разных устройств!
-   */
-
-
-
-
-  /* Исключение для fullscreen режимов (тесты, игры) */
-  html.telegram-mobile-app.fullscreen-mode .telegram-main-content,
-  body.telegram-mobile-app.fullscreen-mode .telegram-main-content {
-    /* В fullscreen режиме сами компоненты управляют отступами */
-    padding-top: 0 !important;
-  }
-
-  /* ОПТИМИЗАЦИЯ: Reduce motion для пользователей с предпочтениями */
-  @media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-
-  body.dark {
-    background: linear-gradient(to bottom, hsl(222 47% 11%), hsl(224 30% 8%));
   }
 
   h1,
@@ -585,14 +483,76 @@ All colors MUST be HSL.
   h4,
   h5,
   h6 {
-    @apply font-bold tracking-tight;
-    font-feature-settings: "kern" 1;
+    font-family: 'Outfit', sans-serif;
+    @apply font-black tracking-tight uppercase;
+  }
+
+  /* Telegram Mobile Padding Support */
+  html.telegram-mobile-app .telegram-main-content,
+  body.telegram-mobile-app .telegram-main-content {
+    padding-top: max(var(--tg-content-safe-area-inset-top, 0px),
+        var(--tg-safe-area-inset-top, 0px),
+        env(safe-area-inset-top, 0px),
+        92px) !important;
+    transition: padding-top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* PWA Standalone */
+  @media all and (display-mode: standalone) {
+    .telegram-main-content {
+      padding-top: max(env(safe-area-inset-top), 20px) !important;
+      padding-left: env(safe-area-inset-left) !important;
+      padding-right: env(safe-area-inset-right) !important;
+      padding-bottom: env(safe-area-inset-bottom) !important;
+    }
+  }
+
+  /* Fullscreen exemption */
+  html.telegram-mobile-app.fullscreen-mode .telegram-main-content,
+  body.telegram-mobile-app.fullscreen-mode .telegram-main-content {
+    padding-top: 0 !important;
+  }
+
+  body.dark {
+    background: linear-gradient(to bottom, hsl(222 47% 11%), hsl(224 30% 8%));
   }
 }
 
 @layer utilities {
+  .mesh-gradient-bg {
+    background-color: #09090b;
+    background-image:
+      radial-gradient(at 0% 0%, hsla(217, 91%, 60%, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(45, 100%, 51%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(217, 91%, 60%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(45, 100%, 51%, 0.15) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  .glass-premium {
+    @apply bg-zinc-950/40 backdrop-blur-xl border border-white/10;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .glass-premium-hover {
+    @apply transition-all duration-300 hover:bg-zinc-950/60 hover:border-white/20;
+  }
+
   .gradient-primary {
     background: var(--gradient-primary);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-600;
+  }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 
   .gradient-card {
@@ -2085,6 +2045,7 @@ html {
   animation: coin-particle-3 500ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
   animation-delay: 100ms;
 }
+
 /* Custom Scrollbar for Analytics and Telemetry */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;

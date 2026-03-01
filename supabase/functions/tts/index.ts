@@ -10,8 +10,8 @@ const corsHeaders = {
 
 // Константы для авторизации Edge TTS
 const TRUSTED_CLIENT_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
-const WSS_URL = `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=${TRUSTED_CLIENT_TOKEN}`;
-const EDGE_VERSION = '145.0.3800.82'; // Актуальная версия на февраль 2026
+const WSS_URL = `wss://api.msedgeservices.com/tts/cognitiveservices/websocket/v1?Ocp-Apim-Subscription-Key=${TRUSTED_CLIENT_TOKEN}`;
+const EDGE_VERSION = '143.0.3650.75'; // На базе Chromium 143 (март 2026)
 
 /**
  * Генерирует Sec-MS-GEC токен
@@ -108,7 +108,17 @@ function generateAudio(text: string, voice: string, lang: string): Promise<Uint8
 
             const url = `${WSS_URL}&Sec-MS-GEC=${secMsGec}&Sec-MS-GEC-Version=1-${EDGE_VERSION}&ConnectionId=${requestId}`;
 
-            const ws = new WebSocket(url);
+            // Используем Node-совместимый WebSocket через npm:ws для передачи заголовков Origin и User-Agent,
+            // что критически важно для обхода новых проверок Microsoft.
+            // @ts-ignore
+            const { default: WebSocket } = await import("npm:ws");
+
+            const ws = new WebSocket(url, {
+                headers: {
+                    'Origin': 'chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold',
+                    'User-Agent': `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${EDGE_VERSION.split('.')[0]}.0.0.0 Safari/537.36 Edg/${EDGE_VERSION}`
+                }
+            });
             const chunks: Uint8Array[] = [];
             const ssmlLang = lang === 'ru' ? 'ru-RU' : (lang === 'es' ? 'es-ES' : 'en-US');
 
@@ -144,6 +154,9 @@ function generateAudio(text: string, voice: string, lang: string): Promise<Uint8
                 } else if (data instanceof ArrayBuffer) {
                     const buffer = new Uint8Array(data);
                     handleBinary(buffer);
+                } else if (Buffer && Buffer.isBuffer(data)) {
+                    // Обработка npm:ws Buffer формата
+                    handleBinary(new Uint8Array(data));
                 } else if (typeof data === 'string') {
                     if (data.includes('Path:turn.end')) {
                         ws.close();
