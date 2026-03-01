@@ -13,6 +13,7 @@ import { createAsyncStoragePersister } from "@/lib/queryPersister";
 import { UserProvider } from "@/contexts/UserContext";
 import { PDDProvider } from "@/contexts/PDDContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 // ОПТИМИЗАЦИЯ: Только Sonner для всех уведомлений (унифицированный чёрный стиль)
 
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -156,20 +157,22 @@ export function AppProviders({ children }: AppProvidersProps) {
       <TooltipProvider>
 
         <UserProvider>
-          <SessionHandler />
-          <NotificationProvider>
-            <PDDProvider>
-              <ReconnectHandler />
-              {/* Global Settings Drawer (Zustand controlled) */}
-              <GlobalSettingsManager />
-              {(() => {
-                if (import.meta.env.DEV) {
-                  console.debug('[AppProviders] 🚀 Rendering children:', !!children);
-                }
-                return children;
-              })()}
-            </PDDProvider>
-          </NotificationProvider>
+          <LanguageProvider>
+            <SessionHandler />
+            <NotificationProvider>
+              <PDDProvider>
+                <ReconnectHandler />
+                {/* Global Settings Drawer (Zustand controlled) */}
+                <GlobalSettingsManager />
+                {(() => {
+                  if (import.meta.env.DEV) {
+                    console.debug('[AppProviders] 🚀 Rendering children:', !!children);
+                  }
+                  return children;
+                })()}
+              </PDDProvider>
+            </NotificationProvider>
+          </LanguageProvider>
         </UserProvider>
       </TooltipProvider>
     </PersistQueryClientProvider>

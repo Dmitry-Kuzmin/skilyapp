@@ -156,16 +156,19 @@ export const useTestDataLoader = ({
         category
     );
 
-    // Nonstop/Marathon/Sequential questions
-    const isSequentialRequired = (mode === 'nonstop' || mode === 'marathon' || mode === 'traps') && pddCountry === 'russia';
+    // Nonstop — загружаем все вопросы последовательно (марафон из всей базы)
+    const isSequentialRequired = mode === 'nonstop' && pddCountry === 'russia';
     const pddSequentialQuestions = usePDDSequentialQuestions(
         pddCountry || 'russia',
         isSequentialRequired,
         category
     );
 
-    // Random questions - positional args: (country, count, category)
-    const isRandomRequired = !isSequentialRequired && (mode === 'practice' || mode === 'blitz' || mode === 'exam' || mode === 'mastery' || mode === 'hardest');
+    // Random questions — практика, блиц, экзамен, мастерство, МАРАФОН (раунды из случайных)
+    const isRandomRequired = !isSequentialRequired && (
+        mode === 'practice' || mode === 'blitz' || mode === 'exam' ||
+        mode === 'mastery' || mode === 'hardest' || mode === 'marathon'
+    );
     const pddRandomQuestions = usePDDRandomQuestions(
         pddCountry || 'russia',
         isRandomRequired && (pddCountry === 'russia' || pddCountry === 'spain') ? questionCount : 0,
@@ -341,15 +344,33 @@ export const useTestDataLoader = ({
                 };
 
             case 'nonstop':
-            case 'marathon':
                 return {
                     questions: pddSequentialQuestions.data || [],
                     isLoading: pddSequentialQuestions.isLoading,
                     error: pddSequentialQuestions.error as Error | null,
                     testInfo: {
                         id: mode,
-                        title: mode === 'marathon' ? '🔥 Марафон' : '♾️ Нон-стоп'
+                        title: '♾️ Нон-стоп'
                     },
+                };
+
+            case 'marathon':
+                // Марафон = случайные вопросы для всех стран
+                // Логика раундов (повтор ошибок) управляется в useRoundRetryMode + useTestFinisher
+                if ((pddCountry === 'russia' || pddCountry === 'spain') && !topicId && !topic) {
+                    return {
+                        questions: pddRandomQuestions.data || [],
+                        isLoading: pddRandomQuestions.isLoading,
+                        error: pddRandomQuestions.error as Error | null,
+                        testInfo: { id: 'marathon', title: '🔥 Марафон' },
+                    };
+                }
+                // Fallback на topic questions
+                return {
+                    questions: (topicId ? topicByIdQuestions.data : topicQuestions.data) || [],
+                    isLoading: topicId ? topicByIdQuestions.isLoading : topicQuestions.isLoading,
+                    error: (topicId ? topicByIdQuestions.error : topicQuestions.error) as Error | null,
+                    testInfo: { id: 'marathon', title: '🔥 Марафон' },
                 };
 
             case 'traps':

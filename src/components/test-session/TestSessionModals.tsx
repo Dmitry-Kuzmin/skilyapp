@@ -157,12 +157,25 @@ export const TestSessionModals = memo(function TestSessionModals({
                         onViewResults={onViewResults || (() => {
                             if (mode === 'blitz') {
                                 navigate('/games');
+                            } else if (mode === 'marathon') {
+                                // For marathon, onViewResults from TestSession will handle total time etc.
+                                // If not provided, fallback to tests
+                                navigate('/tests');
                             } else {
                                 navigate('/tests');
                             }
                         })}
                     />
                 </>
+            )}
+
+            {/* Marathon also needs the fail modal if error happens */}
+            {mode === 'marathon' && (
+                <ExamFailureModal
+                    open={showFailureModal}
+                    reason={failureReason}
+                    onViewResults={onViewResults || (() => navigate('/tests'))}
+                />
             )}
 
             <TestExitDialog

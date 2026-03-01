@@ -49,6 +49,7 @@ export const findMatchSchema = z.object({
     immediate_bot: z.boolean().optional(),
     rematch_opponent_id: z.string().uuid().optional().nullable(),
     rematch_bot_name: z.string().optional().nullable(),
+    license_category: z.enum(['A_B', 'C_D']).optional().default('A_B'),
     security_context: z.object({
         ip_hash: z.string().max(255).optional(),
         device_hash: z.string().max(255).optional()
@@ -104,7 +105,8 @@ export async function fetchRandomQuestions(
     country: string,
     seed: number,
     categories?: string[] | null,
-    difficulty?: string | null
+    difficulty?: string | null,
+    licenseCategory?: string | null
 ) {
     const t1 = Date.now();
     let query = supabase.from('questions_new').select('id');
@@ -112,17 +114,26 @@ export async function fetchRandomQuestions(
     // Map country
     let countryCode = 'es';
     const c = country ? country.toLowerCase().trim() : 'spain';
-    if (c === 'russia' || c === 'ru') countryCode = 'ru';
+    if (c === 'russia' || c === 'ru') countryCode = 'russia';
     else if (c === 'spain' || c === 'es') countryCode = 'es';
     else countryCode = c;
     query = query.eq('country', countryCode);
 
     if (categories && categories.length > 0) {
-        query = query.in('category_id', categories);
+        query = query.in('topic_id', categories);
     }
 
     if (difficulty && difficulty !== 'mix') {
         query = query.eq('difficulty', difficulty);
+    }
+
+    if (countryCode === 'russia') {
+        if (licenseCategory === 'C_D') {
+            query = query.eq('metadata->>ticket_category', 'C_D');
+        } else {
+            // Default to A_B if not specified or A_B
+            query = query.or('metadata->>ticket_category.is.null,metadata->>ticket_category.neq.C_D');
+        }
     }
 
     let ids = null;
@@ -164,7 +175,7 @@ export async function fetchRandomQuestions(
         const { data: questions, error: detailsError } = await supabase
             .from('questions_new')
             .select(`
-          id, question_ru, question_es, question_en, image_url, difficulty,
+          id, question_ru, question_es, question_en, image_url, difficulty, topic_id,
           answer_options (id, text_ru, text_es, text_en, is_correct, position)
         `)
             .in('id', selectedIds);
@@ -189,7 +200,16 @@ export async function fetchRandomQuestions(
         throw fetchDetailsError || new Error('Failed to fetch question details');
     }
 
-    const questionsMap = new Map((questionsResult || []).map(q => [q.id, q]));
+    const questionsMap = new Map((questionsResult || []).map(q => {
+        // Enforce topic_id as category_id for compatibility
+        const questionWithCategoryId = {
+            ...q,
+            category_id: q.topic_id,
+            // Extract correct_option_id from answer_options for index.ts compatibility
+            correct_option_id: q.answer_options?.find((a: any) => a.is_correct)?.id
+        };
+        return [q.id, questionWithCategoryId];
+    }));
     return selectedIds.map(id => questionsMap.get(id)).filter(q => !!q);
 }
 

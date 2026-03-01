@@ -12,7 +12,7 @@ export function useChallengeStats(profileId: string | null, country?: string, ca
         queryFn: async () => {
             if (!profileId) return { errors: 0, favorites: 0 };
 
-            const dbCountry = country === 'russia' ? 'ru' : country === 'spain' ? 'es' : country;
+            const dbCountry = country === 'russia' ? 'russia' : country === 'spain' ? 'es' : country;
 
             // Errors Query
             let errorsQuery = supabase

@@ -51,10 +51,11 @@ export function SubmitButton({
         switch (variant) {
             case 'exam':
                 return cn(
-                    'bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600',
+                    'bg-blue-600 dark:bg-blue-600',
                     'text-white',
-                    'shadow-[0_4px_20px_rgba(59,130,246,0.4)]',
-                    'hover:shadow-[0_8px_25px_rgba(59,130,246,0.5)]',
+                    'shadow-[0_4px_12px_rgba(37,99,235,0.3)]',
+                    'hover:shadow-[0_8px_20px_rgba(37,99,235,0.4)]',
+                    'hover:bg-blue-700 dark:hover:bg-blue-500',
                     'hover:-translate-y-0.5'
                 );
             case 'practice':
@@ -70,7 +71,8 @@ export function SubmitButton({
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                'flex-1 font-semibold h-12 sm:h-14 rounded-2xl transition-all duration-200 relative',
+                'flex-1 font-semibold h-12 sm:h-14 rounded-2xl transition-all duration-200 w-full',
+                'flex items-center justify-center px-4 overflow-hidden',
                 variant === 'exam' && getVariantStyles(),
                 disabled && 'opacity-50 cursor-not-allowed',
                 isEnterPressed && !disabled && 'scale-[0.98] brightness-110 shadow-blue-400/50',
@@ -78,23 +80,25 @@ export function SubmitButton({
                 className
             )}
         >
-            <span className="text-lg sm:text-xl">{label}</span>
+            <span className="text-[15px] sm:text-lg font-bold tracking-wide truncate">
+                {label}
+            </span>
 
             {/* Иконка стрелки */}
             {showArrow && !disabled && (
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-5 h-5 flex-shrink-0 opacity-80 ml-2" />
             )}
 
             {/* Подсказка клавиатуры (только на desktop) */}
             {showKeyboardHint && !disabled && (
                 <span
                     className={cn(
-                        'hidden sm:inline-flex absolute right-4 text-[10px] items-center gap-1 opacity-50 font-mono transition-all duration-200',
+                        'hidden sm:flex text-[10px] items-center gap-1 opacity-60 font-mono transition-all duration-200 flex-shrink-0 ml-4',
                         isEnterPressed && 'scale-110 opacity-100 text-yellow-400'
                     )}
                 >
                     <Keyboard className="w-4 h-4" />
-                    <span className="border border-white/30 px-1 rounded flex items-center gap-0.5">
+                    <span className="border border-white/30 bg-black/10 px-1.5 py-0.5 rounded flex items-center gap-0.5">
                         Enter <CornerDownLeft className="w-3 h-3" />
                     </span>
                 </span>

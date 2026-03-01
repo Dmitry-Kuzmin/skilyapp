@@ -24,6 +24,7 @@ export const useTestState = () => {
     const prevQuestion = useExamStore(state => state.prevQuestion);
     const jumpToQuestion = useExamStore(state => state.jumpToQuestion);
     const selectOption = useExamStore(state => state.selectOption);
+    const setRussiaSelectedOption = useExamStore(state => state.setRussiaSelectedOption);
     const setIsAnswerLocked = useExamStore(state => state.setIsAnswerLocked);
     const setFeedbackStatus = useExamStore(state => state.setFeedbackStatus);
     const resetExam = useExamStore(state => state.resetExam);
@@ -46,6 +47,7 @@ export const useTestState = () => {
         prevQuestion,
         jumpToQuestion,
         selectOption,
+        setRussiaSelectedOption,
         setIsAnswerLocked,
         setFeedbackStatus,
         resetExam,

@@ -138,6 +138,8 @@ Deno.serve(async (req) => {
                     insurance_enabled,
                     insurance_rate,
                     insurance_coverage_rate,
+                    rematch_from_duel_id,
+                    license_category,
                 } = validated;
 
                 const hostInsurance = bet_amount > 0 ? getInsuranceConfig(bet_amount, {
@@ -207,7 +209,8 @@ Deno.serve(async (req) => {
                     profile.preferred_country || 'spain',
                     questionSeed,
                     categories,
-                    difficulty
+                    difficulty,
+                    license_category
                 );
 
                 if (questions.length < num_questions) {
@@ -439,6 +442,7 @@ Deno.serve(async (req) => {
                     insurance_enabled,
                     insurance_rate,
                     insurance_coverage_rate,
+                    license_category,
                 } = validated;
 
                 const { data: playerProfile } = await supabase
@@ -628,9 +632,10 @@ Deno.serve(async (req) => {
                     supabase,
                     num_questions,
                     playerCountry,
+                    questionSeed,
                     categories,
                     difficulty,
-                    questionSeed
+                    license_category
                 );
 
                 const duelQuestions = questions.map((q: any, index: number) => ({

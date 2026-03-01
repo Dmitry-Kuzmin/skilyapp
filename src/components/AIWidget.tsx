@@ -79,9 +79,9 @@ export const AIWidget = ({
     return null;
   }
 
-  // Определяем язык интерфейса на основе языка теста
-  // Используем язык теста для интерфейса, но если showTranslation активен или testLanguage явный 'ru', используем русский
-  const interfaceLanguage = testLanguage === 'ru' || showTranslation ? 'ru' : testLanguage;
+  // Определяем язык интерфейса на основе языка теста и страны
+  // Используем язык теста для интерфейса, но если в России — всегда русский по умолчанию
+  const interfaceLanguage = (country === 'russia' || testLanguage === 'ru' || showTranslation) ? 'ru' : testLanguage;
 
   const toggleVoiceInput = () => {
     if (isListening) {

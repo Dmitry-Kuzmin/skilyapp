@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { XCircle, Clock, CheckCircle2, ChevronDown, Target, BookOpen, Sparkles, Zap, AlertTriangle } from "lucide-react";
+import { XCircle, Clock, CheckCircle2, ChevronDown, Target, BookOpen, Sparkles, Zap, AlertTriangle, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
@@ -178,6 +178,8 @@ const TestResults = () => {
     russiaExamStats?: { totalQuestions: number; totalErrors: number; status?: string; timeSpent?: number; }; // Add stats support
     country?: string;
     isRedemptionSuccess?: boolean;
+    isRussianFailed?: boolean;
+    masteryRound?: number;
   } | null;
 
   // Early return if no state
@@ -192,7 +194,7 @@ const TestResults = () => {
     );
   }
 
-  const { questions, answers, mode, timeSpent, testId, rewardResult, russiaExamStats, country } = state;
+  const { questions, answers, mode, timeSpent, testId, rewardResult, russiaExamStats, country, masteryRound } = state;
   const profileId = (supabase.auth.getUser() as any)?.data?.user?.id; // Safe access
 
   // 🔍 DEBUG: Что приходит из TestSession
@@ -266,12 +268,21 @@ const TestResults = () => {
 
   if (mode === 'exam' || mode === 'exam-russia') {
     maxErrors = mode === 'exam-russia' ? 2 : 3;
-    if (mode === 'exam-russia' && russiaExamStats && russiaExamStats.status) {
-      passed = russiaExamStats.status === 'passed';
+    if (mode === 'exam-russia') {
+      if (state.isRussianFailed !== undefined) {
+        passed = !state.isRussianFailed;
+      } else if (russiaExamStats && russiaExamStats.status) {
+        passed = russiaExamStats.status === 'passed';
+      } else {
+        const totalErrors = russiaExamStats ? russiaExamStats.totalErrors : incorrectCount;
+        passed = totalErrors <= maxErrors;
+      }
     } else {
-      const totalErrors = russiaExamStats ? russiaExamStats.totalErrors : incorrectCount;
-      passed = totalErrors <= maxErrors;
+      passed = incorrectCount <= maxErrors;
     }
+  } else if (mode === 'marathon' || mode === 'mastery') {
+    // В марафоне мы считаем "сданным", если ошибок 0 (так как это работа над ними)
+    passed = incorrectCount === 0;
   } else {
     passed = (correctCount / totalQuestions) >= 0.8;
   }
@@ -292,8 +303,9 @@ const TestResults = () => {
 
   // Format Helpers
   const formatTime = (seconds: number) => {
+    if (typeof seconds !== 'number' || isNaN(seconds)) return "00:00";
     const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
+    const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
@@ -334,16 +346,17 @@ const TestResults = () => {
           .single();
 
         if (profile) {
+          const p = profile as any;
           console.log('[TestResults] 🔍 Profile data from DB:', {
-            first_name: profile.first_name,
-            username: profile.username,
+            first_name: p.first_name,
+            username: p.username,
             user_metadata_first_name: user.user_metadata?.first_name
           });
 
           setStudentStats({
-            name: profile.first_name || profile.username || user.user_metadata?.first_name || 'Студент',
-            xp: (profile as any).xp || 0,
-            streak: profile.streak_days || 1,
+            name: p.first_name || p.username || user.user_metadata?.first_name || 'Студент',
+            xp: p.xp || 0,
+            streak: p.streak_days || 1,
             prevWeakness: weakTopic || null,
             trend: 'stable'
           });
@@ -398,7 +411,11 @@ const TestResults = () => {
           <ResultDonut score={correctCount} total={totalQuestions} passed={passed} />
 
           <h1 className={cn("text-2xl sm:text-3xl font-bold mb-2", passed ? "text-emerald-500" : "text-red-500")}>
-            {passed ? "🎉 Экзамен сдан!" : "Экзамен не сдан"}
+            {mode === 'marathon' ? (
+              passed ? "🏆 Марафон: Цель достигнута!" : `🏃 Марафон: Раунд ${masteryRound || 1} завершен`
+            ) : (
+              passed ? "🎉 Экзамен сдан!" : "Экзамен не сдан"
+            )}
           </h1>
 
           {!passed && (mode === 'exam' || mode === 'exam-russia') && (
@@ -413,7 +430,11 @@ const TestResults = () => {
           )}
 
           {passed && (
-            <p className="text-muted-foreground">Отличный результат! Продолжайте в том же духе.</p>
+            <p className="text-muted-foreground">
+              {mode === 'marathon'
+                ? "Вы успешно отработали ошибки этого раунда. Марафон продолжается до полного успеха!"
+                : "Отличный результат! Продолжайте в том же духе."}
+            </p>
           )}
         </motion.div>
 
@@ -450,15 +471,27 @@ const TestResults = () => {
             <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">Монеты</span>
           </div>
 
-          {/* XP Card */}
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden">
-            <div className="absolute inset-0 bg-yellow-500/10 blur-xl" />
-            <Zap className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
-            <span className="text-xl sm:text-2xl font-bold text-yellow-400 relative z-10">
-              +{rewardResult?.sp_awarded ?? 0}
-            </span>
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">XP получен</span>
-          </div>
+          {/* Season Points Card for Marathon, XP Card for others */}
+          {mode === 'marathon' || mode === 'mastery' ? (
+            <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-indigo-500/20 blur-2xl group-hover:bg-indigo-500/30 transition-colors" />
+              <Trophy className="w-6 h-6 text-indigo-400 mb-1 relative z-10 animate-bounce-slow" />
+              <span className="text-xl sm:text-2xl font-black text-indigo-400 relative z-10 drop-shadow-sm">
+                +{rewardResult?.sp_awarded ?? 0}
+              </span>
+              <span className="text-[10px] sm:text-xs uppercase font-black tracking-[0.15em] text-indigo-500/70 relative z-10">Season Points</span>
+            </div>
+          ) : (
+            /* Standard XP Card */
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden">
+              <div className="absolute inset-0 bg-yellow-500/10 blur-xl" />
+              <Zap className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
+              <span className="text-xl sm:text-2xl font-bold text-yellow-400 relative z-10">
+                +{rewardResult?.sp_awarded ?? 0}
+              </span>
+              <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">XP получен</span>
+            </div>
+          )}
         </motion.div>
 
         {/* AI Insights Library (PRO only) */}
@@ -478,49 +511,84 @@ const TestResults = () => {
                 ? answers
                   .filter(a => !a.isCorrect)
                   .map(ans => {
-                    const q = questions.find(q => q.id === ans.questionId);
+                    const q: any = questions.find(q => q.id === ans.questionId);
+                    if (!q) return null;
+
                     const isSpain = country === 'spain';
-                    const selectedOption = q?.answer_options.find(opt => opt.id === ans.selectedAnswerId);
-                    const correctOption = q?.answer_options.find(opt => opt.is_correct);
+                    const isUniversal = 'text' in q && 'answers' in q;
 
-                    // 🔍 DEBUG: Почему selectedOption не находится?
-                    console.log('🔍 DEBUG selectedOption:', {
-                      questionId: ans.questionId,
-                      selectedAnswerId: ans.selectedAnswerId,
-                      selectedAnswerIdType: typeof ans.selectedAnswerId,
-                      optionIds: q?.answer_options.map(o => ({ id: o.id, type: typeof o.id })),
-                      foundOption: selectedOption ? 'FOUND' : 'NOT_FOUND',
-                      foundOptionText: selectedOption?.text_es || selectedOption?.text_ru
-                    });
+                    let qText = '';
+                    let qCorrect = '';
+                    let qUser = '';
+                    let qExp = '';
+                    let qTopic = '';
+                    let qImg: string | null = null;
 
-                    // Определяем текст ответа пользователя
-                    const userAnswerText = selectedOption
-                      ? (isSpain ? selectedOption.text_es : selectedOption.text_ru) || selectedOption.text_ru
-                      : null;
+                    if (isUniversal) {
+                      // Russian PDD format (UniversalQuestion)
+                      qText = q.text || '';
+                      const correctOpt = q.answers?.find((a: any) => a.isCorrect);
+                      const userOpt = q.answers?.find((a: any) => a.id === ans.selectedAnswerId);
+
+                      qCorrect = correctOpt?.text || '';
+                      qUser = userOpt?.text || 'NO_ANSWER_GIVEN';
+                      qExp = q.explanation || '';
+                      qTopic = q.topics?.[0] || 'ПДД РФ';
+                      qImg = q.image || null;
+                    } else {
+                      // DGT format (QuestionData)
+                      const selectedOption = q.answer_options?.find((opt: any) => opt.id === ans.selectedAnswerId);
+                      const correctOption = q.answer_options?.find((opt: any) => opt.is_correct);
+
+                      const userAnswerText = selectedOption
+                        ? (isSpain ? selectedOption.text_es : selectedOption.text_ru) || selectedOption.text_ru
+                        : null;
+
+                      qText = (isSpain ? q.question_es : q.question_ru) || q.question_ru || '';
+                      qUser = userAnswerText || 'NO_ANSWER_GIVEN';
+                      qCorrect = (isSpain ? correctOption?.text_es : correctOption?.text_ru) || correctOption?.text_ru || '';
+                      qTopic = isSpain ? q.topics?.title_es : q.topics?.title_ru;
+                      qExp = (isSpain ? q.explanation_es : q.explanation_ru) || q.explanation_ru || '';
+                      qImg = q.image_url || null;
+                    }
 
                     return {
                       questionId: ans.questionId,
-                      questionText: (isSpain ? q?.question_es : q?.question_ru) || q?.question_ru || '',
-                      userAnswer: userAnswerText || 'NO_ANSWER_GIVEN', // Явный маркер пропуска
-                      correctAnswer: (isSpain ? correctOption?.text_es : correctOption?.text_ru) || correctOption?.text_ru || '',
-                      topic: isSpain ? q?.topics?.title_es : q?.topics?.title_ru,
-                      explanation: (isSpain ? q?.explanation_es : q?.explanation_ru) || q?.explanation_ru || '',
-                      imageUrl: q?.image_url || null, // Добавляем картинку вопроса
+                      questionText: qText,
+                      userAnswer: qUser,
+                      correctAnswer: qCorrect,
+                      topic: qTopic || 'ПДД РФ',
+                      explanation: qExp,
+                      imageUrl: qImg,
                     };
-                  })
-                : questions.map(q => {
+                  }).filter(Boolean) as any[]
+                : questions.map((q: any) => {
                   const isSpain = country === 'spain';
-                  const correctOption = q.answer_options.find(opt => opt.is_correct);
+                  const isUniversal = 'text' in q && 'answers' in q;
 
-                  return {
-                    questionId: q.id,
-                    questionText: (isSpain ? q.question_es : q.question_ru) || q.question_ru || '',
-                    userAnswer: 'NO_ANSWER_GIVEN', // Явный маркер пропуска
-                    correctAnswer: (isSpain ? correctOption?.text_es : correctOption?.text_ru) || correctOption?.text_ru || '',
-                    topic: isSpain ? q.topics?.title_es : q.topics?.title_ru,
-                    explanation: (isSpain ? q.explanation_es : q.explanation_ru) || q.explanation_ru || '',
-                    imageUrl: q.image_url || null, // Добавляем картинку вопроса
-                  };
+                  if (isUniversal) {
+                    const correctOpt = q.answers?.find((a: any) => a.isCorrect);
+                    return {
+                      questionId: q.id,
+                      questionText: q.text || '',
+                      userAnswer: 'NO_ANSWER_GIVEN',
+                      correctAnswer: correctOpt?.text || '',
+                      topic: q.topics?.[0] || 'ПДД РФ',
+                      explanation: q.explanation || '',
+                      imageUrl: q.image || null,
+                    };
+                  } else {
+                    const correctOption = q.answer_options?.find((opt: any) => opt.is_correct);
+                    return {
+                      questionId: q.id,
+                      questionText: (isSpain ? q.question_es : q.question_ru) || q.question_ru || '',
+                      userAnswer: 'NO_ANSWER_GIVEN',
+                      correctAnswer: (isSpain ? correctOption?.text_es : correctOption?.text_ru) || correctOption?.text_ru || '',
+                      topic: isSpain ? q.topics?.title_es : q.topics?.title_ru,
+                      explanation: (isSpain ? q.explanation_es : q.explanation_ru) || q.explanation_ru || '',
+                      imageUrl: q.image_url || null,
+                    };
+                  }
                 })
             }
             weakTopic={weakTopic}

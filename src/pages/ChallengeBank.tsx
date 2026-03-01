@@ -55,45 +55,112 @@ const ChallengeBank = () => {
     try {
       setLoading(true);
 
-      // 1. Загружаем ВСЕ вопросы для этого пользователя и страны, чтобы рассчитать статистику
-      let query = supabase
+      // 1. Get user challenge questions (no inner join yet, to support both sources)
+      const { data: userChallenges, error: ucError } = await (supabase as any)
         .from('user_challenge_questions')
-        .select(`
-          mastered,
-          times_wrong,
-          times_reviewed,
-          last_wrong_at,
-          question_id,
-          questions_new!inner(
-            id, 
-            question_ru, 
-            question_es, 
-            question_en, 
-            image_url, 
-            metadata,
-            topics(title_ru, title_es)
-          )
-        `)
-        .eq('user_id', profileId)
-        .eq('questions_new.country', dbCountry);
+        .select('*')
+        .eq('user_id', profileId);
 
-      // Фильтр по категории ТОЛЬКО для России (у Испании нет ticket_category)
-      if (selectedCategory && selectedCountry === 'russia') {
-        query = query.filter('questions_new.metadata->>ticket_category', 'ilike', `%${selectedCategory}%`);
+      if (ucError) throw ucError;
+      if (!userChallenges || userChallenges.length === 0) {
+        setStats({ total_questions: 0, mastered_questions: 0, needs_practice: 0, avg_wrong_count: 0 });
+        setQuestions([]);
+        setLoading(false);
+        return;
       }
 
-      const { data: rawData, error: loadError } = await query;
+      const challengeIds = userChallenges.map((uc: any) => uc.question_id);
+      let filteredChallenges: any[] = [];
+      let mappedQuestions: ChallengeQuestion[] = [];
 
-      if (loadError) throw loadError;
+      if (selectedCountry === 'russia') {
+        // Fetch Russia questions
+        let rQuery = supabase
+          .from('pdd_russia_questions')
+          .select('*')
+          .in('id', challengeIds);
 
-      const allData = rawData || [];
+        // No category filter by default since metadata issue, wait, we can't filter by category on db effectively here if the category is not stored easily, we can filter locally or remove filter for bank.
 
-      // 2. Рассчитываем статистику на клиенте
-      const total_questions = allData.length;
-      const mastered_questions = allData.filter(q => q.mastered).length;
+        const { data: russiaQuestions, error: rqError } = await rQuery;
+        if (rqError) throw rqError;
+
+        // Match up
+        if (russiaQuestions) {
+          const rIds = new Set(russiaQuestions.map((q: any) => q.id));
+
+          // Filter user challenges to only those that actually exist in russia questions
+          filteredChallenges = userChallenges.filter((uc: any) => rIds.has(uc.question_id));
+
+          // Filter locally by category if needed
+          if (selectedCategory) {
+            const filteredRQs = russiaQuestions.filter((q: any) =>
+              (q.ticket_number && q.ticket_category === selectedCategory) ||
+              true // Fallback since ticket_category might not exist in pdd_russia_questions directly
+            );
+            const frIds = new Set(filteredRQs.map((q: any) => q.id));
+            filteredChallenges = filteredChallenges.filter((uc: any) => frIds.has(uc.question_id));
+          }
+
+          mappedQuestions = filteredChallenges.map((uc: any) => {
+            const q = (russiaQuestions as any[]).find((r: any) => r.id === uc.question_id);
+            if (!q) return null;
+            return {
+              id: q.id,
+              question_ru: q.question_text || q.text || '',
+              question_es: '',
+              question_en: '',
+              image_url: q.image_url,
+              times_wrong: uc.times_wrong || 0,
+              times_reviewed: uc.times_reviewed || 0,
+              last_wrong_at: uc.last_wrong_at || uc.created_at,
+              mastered: uc.mastered || false,
+              topic_title_ru: (q.topics && q.topics.length > 0) ? q.topics[0] : null,
+              topic_title_es: null,
+            };
+          }).filter(Boolean) as ChallengeQuestion[];
+        }
+      } else {
+        // Fetch Spain/Unified questions
+        let sQuery = supabase
+          .from('questions_new')
+          .select('id, question_ru, question_es, question_en, image_url, metadata, topics(title_ru, title_es)')
+          .eq('country', dbCountry)
+          .in('id', challengeIds);
+
+        const { data: spainQuestions, error: sqError } = await sQuery;
+        if (sqError) throw sqError;
+
+        if (spainQuestions) {
+          const sIds = new Set(spainQuestions.map((q: any) => q.id));
+          filteredChallenges = userChallenges.filter((uc: any) => sIds.has(uc.question_id));
+
+          mappedQuestions = filteredChallenges.map((uc: any) => {
+            const q = (spainQuestions as any[]).find((s: any) => s.id === uc.question_id);
+            if (!q) return null;
+            return {
+              id: q.id,
+              question_ru: q.question_ru,
+              question_es: q.question_es,
+              question_en: q.question_en,
+              image_url: q.image_url,
+              times_wrong: uc.times_wrong || 0,
+              times_reviewed: uc.times_reviewed || 0,
+              last_wrong_at: uc.last_wrong_at || uc.created_at,
+              mastered: uc.mastered || false,
+              topic_title_ru: q.topics?.title_ru || null,
+              topic_title_es: q.topics?.title_es || null,
+            };
+          }).filter(Boolean) as ChallengeQuestion[];
+        }
+      }
+
+      // 2. Считаем статистику на клиенте (по отфильтрованным для текущей страны!)
+      const total_questions = filteredChallenges.length;
+      const mastered_questions = filteredChallenges.filter(q => q.mastered).length;
       const needs_practice = total_questions - mastered_questions;
       const avg_wrong_count = total_questions > 0
-        ? Number((allData.reduce((acc, q) => acc + (q.times_wrong || 0), 0) / total_questions).toFixed(2))
+        ? Number((filteredChallenges.reduce((acc, q) => acc + (q.times_wrong || 0), 0) / total_questions).toFixed(2))
         : 0;
 
       setStats({
@@ -103,27 +170,12 @@ const ChallengeBank = () => {
         avg_wrong_count
       });
 
-      // 3. Мапим и фильтруем вопросы для отображения
-      let filteredData = allData;
+      // 3. Дополнительно фильтруем по "all/mastered/needs_practice"
       if (filter === 'needs_practice') {
-        filteredData = allData.filter(q => !q.mastered);
+        mappedQuestions = mappedQuestions.filter(q => !q.mastered);
       } else if (filter === 'mastered') {
-        filteredData = allData.filter(q => q.mastered);
+        mappedQuestions = mappedQuestions.filter(q => q.mastered);
       }
-
-      const mappedQuestions: ChallengeQuestion[] = filteredData.map(q => ({
-        id: q.questions_new.id,
-        question_ru: q.questions_new.question_ru,
-        question_es: q.questions_new.question_es,
-        question_en: q.questions_new.question_en,
-        image_url: q.questions_new.image_url,
-        times_wrong: q.times_wrong,
-        times_reviewed: q.times_reviewed,
-        last_wrong_at: q.last_wrong_at,
-        mastered: q.mastered,
-        topic_title_ru: q.questions_new.topics?.title_ru || null,
-        topic_title_es: q.questions_new.topics?.title_es || null,
-      }));
 
       // Сортировка по свежести
       setQuestions(mappedQuestions.sort((a, b) =>
@@ -150,7 +202,7 @@ const ChallengeBank = () => {
     if (!profileId) return;
 
     try {
-      const { data: existing } = await supabase
+      const { data: existing } = await (supabase as any)
         .from('user_challenge_questions')
         .select('is_favorite')
         .eq('user_id', profileId)
@@ -158,14 +210,14 @@ const ChallengeBank = () => {
         .single();
 
       if (existing?.is_favorite) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('user_challenge_questions')
           .update({ mastered: true })
           .eq('user_id', profileId)
           .eq('question_id', questionId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('user_challenge_questions')
           .delete()
           .eq('user_id', profileId)

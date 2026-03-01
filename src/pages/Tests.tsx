@@ -351,7 +351,7 @@ const Tests = () => {
         color: "destructive",
         premium: false,
         difficulty: "Сложная",
-        route: selectedCountry === 'russia' ? `/test/marathon?country=russia&category=${selectedCategory}` : '/test/mastery',
+        route: `/test/marathon?country=${selectedCountry === 'russia' ? 'russia' : 'spain'}&category=${selectedCategory}`,
         gradient: "from-pink-600 to-rose-600",
       },
       {

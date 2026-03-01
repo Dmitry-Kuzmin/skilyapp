@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
   const queryClient = useQueryClient();
-  
+
   // Слушаем события обновления feature flags
   useEffect(() => {
     const handleFlagUpdate = (event: CustomEvent) => {
@@ -18,7 +18,7 @@ export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
         queryClient.invalidateQueries({ queryKey: ['feature-flag', flagKey] });
       }
     };
-    
+
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === `feature-flag-${flagKey}` && e.newValue) {
         try {
@@ -32,16 +32,16 @@ export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
         }
       }
     };
-    
+
     window.addEventListener('feature-flag-updated', handleFlagUpdate as EventListener);
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('feature-flag-updated', handleFlagUpdate as EventListener);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [flagKey, queryClient]);
-  
+
   const { data, isLoading } = useQuery({
     queryKey: ['feature-flag', flagKey],
     queryFn: async () => {
@@ -50,7 +50,7 @@ export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
         .select('value')
         .eq('key', flagKey)
         .maybeSingle(); // Используем maybeSingle вместо single для обработки отсутствующих записей
-      
+
       // Если ошибка доступа (403) или запись не найдена - возвращаем значение по умолчанию
       if (error) {
         // Логируем только если это не 404 (запись не найдена) и не 403 (RLS блокирует)
@@ -63,29 +63,29 @@ export function useFeatureFlag(flagKey: string, defaultValue: boolean = true) {
         }
         return defaultValue;
       }
-      
+
       if (!data) {
         return defaultValue;
       }
-      
+
       // Поддерживаем разные форматы: {enabled: true} или просто true
-      const value = data.value;
+      const value = data.value as unknown;
       if (typeof value === 'boolean') {
         return value;
       }
-      if (typeof value === 'object' && 'enabled' in value) {
-        return value.enabled === true;
+      if (value !== null && typeof value === 'object' && 'enabled' in value) {
+        return (value as { enabled: unknown }).enabled === true;
       }
       if (typeof value === 'string') {
         return value === 'true';
       }
-      
+
       return defaultValue;
     },
-    staleTime: 10 * 1000, // Кэш 10 секунд (для быстрого отключения фич)
-    refetchInterval: 15 * 1000, // Обновлять каждые 15 секунд (для мгновенного отключения)
+    staleTime: 5 * 60 * 1000, // Кэш 5 минут — флаги меняются редко
+    refetchInterval: false,    // Без polling: инвалидация через storage/CustomEvent events
   });
-  
+
   return { enabled: data ?? defaultValue, isLoading };
 }
 

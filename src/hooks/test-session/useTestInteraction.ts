@@ -25,12 +25,13 @@ interface UseTestInteractionParams {
     nextQuestion: () => void;
     modifyTime: (amount: number) => void;
     selectOption: (id: string) => void;
+    setRussiaSelectedOption: (id: string | null) => void;
 
     // UI Local State Setters
     setIsTransitioning: (v: boolean) => void;
     setBlitzShaking: (v: boolean) => void;
     setIsAnswerLocked: (v: boolean) => void;
-    setPenaltyBlock: (v: string | null) => void;
+    setPenaltyBlock: (v: number | null) => void;
     setShowPenaltyAlert: (v: boolean) => void;
     setShowFailureModal: (v: boolean) => void;
     setFailureReason: (v: string) => void;
@@ -48,6 +49,7 @@ interface UseTestInteractionParams {
     // Navigation
     navigate: any;
     answers: any[];
+    isAnswerLocked: boolean;
 }
 
 export const useTestInteraction = ({
@@ -63,6 +65,7 @@ export const useTestInteraction = ({
     nextQuestion,
     modifyTime,
     selectOption,
+    setRussiaSelectedOption,
     setIsTransitioning,
     setBlitzShaking,
     setIsAnswerLocked,
@@ -79,7 +82,8 @@ export const useTestInteraction = ({
     redemptionOriginalCount,
     redemptionFailedQuestions,
     navigate,
-    answers
+    answers,
+    isAnswerLocked
 }: UseTestInteractionParams) => {
     const queryClient = useQueryClient();
     const [isFirstWrongAnswer, setIsFirstWrongAnswer] = useState(true);
@@ -90,7 +94,7 @@ export const useTestInteraction = ({
     const markQuestionAsMastered = async (questionId: string) => {
         if (!profileId) return;
         try {
-            const { error } = await supabase
+            const { error } = await (supabase as any)
                 .from('user_challenge_questions')
                 .update({ mastered: true, updated_at: new Date().toISOString() })
                 .eq('user_id', profileId)
@@ -112,7 +116,7 @@ export const useTestInteraction = ({
         try {
             // 1. Challenge Bank (только при ошибке и не в режиме mastery/russia)
             if (!isCorrect && mode !== "mastery") {
-                const { data: existing, error: selectError } = await supabase
+                const { data: existing, error: selectError } = await (supabase as any)
                     .from('user_challenge_questions')
                     .select('id, times_wrong')
                     .eq('user_id', profileId)
@@ -121,16 +125,16 @@ export const useTestInteraction = ({
 
                 if (!selectError) {
                     if (existing) {
-                        await supabase.from('user_challenge_questions')
+                        await (supabase as any).from('user_challenge_questions')
                             .update({
-                                times_wrong: existing.times_wrong + 1,
+                                times_wrong: (existing as any).times_wrong + 1,
                                 last_wrong_at: new Date().toISOString(),
                                 mastered: false,
                                 updated_at: new Date().toISOString(),
                             })
-                            .eq('id', existing.id);
+                            .eq('id', (existing as any).id);
                     } else {
-                        await supabase.from('user_challenge_questions')
+                        await (supabase as any).from('user_challenge_questions')
                             .insert({
                                 user_id: profileId,
                                 question_id: questionId,
@@ -176,7 +180,7 @@ export const useTestInteraction = ({
      */
     const handleAnswer = async (optionId?: string, selectedOptionValue?: string | null) => {
         const answerId = optionId || selectedOptionValue;
-        if (!answerId) return;
+        if (!answerId || isAnswerLocked) return;
 
         // --- RUSSIA EXAM ---
         if (mode === 'exam-russia' && russiaExam.currentQuestion) {
@@ -207,21 +211,42 @@ export const useTestInteraction = ({
                 return;
             }
 
-            // Анимация перехода
-            setIsTransitioning(true);
-            setTimeout(() => setIsTransitioning(false), 300);
+            // ВНИМАНИЕ: Для РФ версии больше НЕ делаем автопереход в handleAnswer,
+            // чтобы пользователь мог нажать "Объяснение" или переварить ответ.
+            // Переход будет по нажатию кнопки "Далее" или Enter (см. useKeyboardNavigation).
             return;
         }
 
         // --- STANDARD MODES ---
         const currentQuestion = questions[currentIndex];
-        if (!currentQuestion || !currentQuestion.answer_options) {
+
+        if (!currentQuestion) {
+            console.error('[TestInteraction] ❌ Question object missing!', {
+                currentIndex,
+                questionsLoaded: questions.length,
+                mode
+            });
+            // Не показываем тост, если это конец теста (просто возвращаемся)
+            if (currentIndex >= questions.length && questions.length > 0) return;
             toast.error("Ошибка: вопрос не найден");
             return;
         }
 
-        const selectedAnswer = currentQuestion.answer_options.find((opt: any) => opt.id === answerId);
-        const isCorrect = selectedAnswer?.is_correct || false;
+        const options = currentQuestion.answer_options || currentQuestion.answers;
+        if (!options) {
+            console.error('[TestInteraction] ❌ Options missing for question!', {
+                questionId: currentQuestion.id,
+                currentIndex
+            });
+            toast.error("Ошибка: варианты ответов не найдены");
+            return;
+        }
+
+        // Блокируем ввод СРАЗУ (для предотвращения двойных кликов/нажатий клавиш)
+        setIsAnswerLocked(true);
+
+        const selectedAnswer = options.find((opt: any) => opt.id === answerId);
+        const isCorrect = selectedAnswer?.is_correct ?? selectedAnswer?.isCorrect ?? false;
 
         if (isTelegramApp) triggerHapticFeedback(isCorrect ? 'success' : 'error');
         if (profileId) saveAnswerToDB(currentQuestion.id, isCorrect);
@@ -233,8 +258,8 @@ export const useTestInteraction = ({
             markQuestionAsMastered(currentQuestion.id);
         }
 
-        // Mastery Mode
-        if (mode === "mastery" && !isCorrect) {
+        // Mastery & Marathon Mode — трекаем ошибки для следующего раунда
+        if ((mode === "mastery" || mode === "marathon") && !isCorrect) {
             setMasteryWrongQuestions((prev: string[]) => prev.includes(currentQuestion.id) ? prev : [...prev, currentQuestion.id]);
         }
 
@@ -313,7 +338,11 @@ export const useTestInteraction = ({
         }
 
         // --- DEFAULT NAVIGATION ---
-        const isPracticeLikeMode = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'challenge-bank'].includes(mode);
+        const isPracticeLikeMode = [
+            'practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps',
+            'mastery', 'hardest', 'sequential', 'challenge-bank',
+            'marathon', 'exam-russia', 'redemption', 'module', 'favorites'
+        ].includes(mode);
 
         if (isPracticeLikeMode) {
             // В режиме практики не переходим автоматически, ждем пользователя 

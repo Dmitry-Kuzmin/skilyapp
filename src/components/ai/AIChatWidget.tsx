@@ -228,7 +228,9 @@ export function AIChatWidget() {
         });
     }, [messages, isLoading]);
 
-    const interfaceLanguage = showTranslation ? 'ru' : (questionContext?.testLanguage || 'es');
+    const currentProfileCountry = useProfileData().profileData?.preferred_country || 'russia';
+    const baseInterfaceLanguage = showTranslation ? 'ru' : (questionContext?.testLanguage || 'es');
+    const interfaceLanguage = currentProfileCountry === 'russia' ? 'ru' : baseInterfaceLanguage;
 
     const askAI = useCallback(async (userMessage: string) => {
         if (!userMessage.trim() || isLoading) return;
@@ -244,15 +246,15 @@ export function AIChatWidget() {
                 correctAnswer: context.correctAnswer || '',
                 userAnswer: context.userAnswer,
                 topic: context.topic,
-                explanation: context.explanation,
+                explanation: context.explanation ?? undefined,
                 isCorrect: context.isCorrect,
                 imageUrl: context.imageUrl,
             } : undefined,
             selectedCountry,
             profileData ? {
-                name: profileData.full_name || 'Студент',
+                name: profileData.first_name || profileData.username || 'Студент',
                 xp: profileData.xp || 0,
-                streak: profileData.streak || 0,
+                streak: profileData.streak_days || 0,
                 prevWeakness: null,
             } : undefined,
             interfaceLanguage

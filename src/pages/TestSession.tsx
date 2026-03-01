@@ -44,7 +44,7 @@ import { useAIChat } from "@/hooks/useAIChat";
 import { useTestProgress } from "@/hooks/useTestProgress";
 import { useTestTimer } from "@/hooks/useTestTimer";
 import { useRedemptionMode } from "@/hooks/useRedemptionMode";
-import { useMasteryMode } from "@/hooks/useMasteryMode";
+import { useRoundRetryMode } from "@/hooks/useRoundRetryMode";
 import { useRussiaExamMode } from "@/hooks/useRussiaExamMode";
 import { TestSessionModals } from "@/components/test-session/TestSessionModals";
 import { OfflineStatusIndicator, AnswerOptionsList } from "@/components/test-session";
@@ -68,11 +68,10 @@ import { checkOnlineStatus } from "@/hooks/useOnlineStatus";
 import { trackOfflineAction } from "@/utils/offlineAnalytics";
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation";
 
-import { Flashcard } from "@/types/ai";
-import { CountryCode } from "@/types/pdd";
+import type { Flashcard } from "../types/ai";
+import { type UniversalQuestion, type UniversalAnswer as Answer, type CountryCode } from "@/types/pdd";
 import { getExamStats, handleMainQuestionAnswer, handleExtraQuestionAnswer } from "@/utils/russiaExamLogic";
 import { useRussiaExamAdapter } from "@/hooks/test-session/useRussiaExamAdapter";
-import { ExtendedQuestion } from "@/types/pddExam";
 
 import { useTestInteraction } from "@/hooks/test-session/useTestInteraction";
 import { useTestCompletion } from "@/hooks/test-session/useTestCompletion";
@@ -83,6 +82,7 @@ type QuestionData = {
   question_ru: string;
   question_es: string;
   question_en: string;
+  profileId?: string | null;
   image_url: string | null;
   explanation_ru: string | null;
   explanation_es: string | null;
@@ -132,7 +132,7 @@ const TestSession = () => {
   const [searchParams] = useSearchParams();
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
-  const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
+  const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
   const { selectedCountry, selectedCategory } = usePDDContext();
   const isRussia = (countryParam || selectedCountry) === 'russia';
   const { language: userLanguage } = useLanguage();
@@ -149,6 +149,7 @@ const TestSession = () => {
     if (location.pathname.includes("/test/dgt")) return "dgt";
     if (location.pathname.includes("/test/exam-russia") || searchParams.get('mode') === 'exam-russia') return "exam-russia";
     if (location.pathname.includes("/test/by-topic") || searchParams.get('topic')) return "by-topic";
+    if (location.pathname.includes("/test/marathon")) return "marathon";
     if (location.pathname.includes("/test/nonstop")) return "nonstop";
     return "practice";
   }, [rawMode, location.pathname, searchParams, ticketIdParam]);
@@ -181,9 +182,10 @@ const TestSession = () => {
   const countParam = searchParams.get('count');
   const questionCount = countParam ? parseInt(countParam) : (
     mode === 'blitz' ? 20 :
-      mode === 'nonstop' && selectedCountry === 'russia' ? 800 :
+      mode === 'nonstop' && pddCountry === 'russia' ? 800 :
         mode === 'challenge-bank' ? 20 :
-          30
+          mode === 'marathon' && pddCountry === 'russia' ? 20 :
+            30
   );
   const blitzDuration = parseInt(searchParams.get('timer') || (mode === 'blitz' ? '300' : '300')) || (mode === 'blitz' ? 300 : 300);
   const initialTimeBudget = mode === "exam" ? 30 * 60 : mode === "blitz" ? blitzDuration : 0;
@@ -192,7 +194,6 @@ const TestSession = () => {
   const setQuestions = setQuestionsState;
 
   // Game Engine - manages navigation and answers
-  // === ZUSTAND CORE (Replacing useTestEngine) ===
   // === ZUSTAND CORE (Replacing useTestEngine) ===
   const {
     activeState,
@@ -207,6 +208,7 @@ const TestSession = () => {
     prevQuestion: prevQuestionZ,
     jumpToQuestion: jumpToQuestionZ,
     selectOption,
+    setRussiaSelectedOption,
     setIsAnswerLocked,
     setFeedbackStatus,
     resetExam,
@@ -266,6 +268,7 @@ const TestSession = () => {
   const previousTestIdRef = useRef<string | null>(null); // Для отслеживания изменения testId
 
   // === PHASE 3: startTime теперь в examStore.data.startTime ===
+  const [sessionStartTime] = useState(Date.now());
   const startTime = activeState?.kind === 'standard' ? activeState.data.startTime : Date.now();
 
   // AI Chat через Zustand store (глобальный виджет)
@@ -293,6 +296,7 @@ const TestSession = () => {
     image_url?: string;
     explanation?: string;
     explanation_ru?: string;
+    explanation_es?: string;
     answers?: Array<unknown>;
     answer_options?: Array<unknown>;
     topics?: string[];
@@ -305,7 +309,7 @@ const TestSession = () => {
   }
   const locState = location.state as LocationState | null;
   const isRedemptionMode = locState?.mode === 'redemption';
-  const redemptionFailedQuestions = locState?.failedQuestions || [];
+  const redemptionFailedQuestions = useMemo(() => locState?.failedQuestions || [], [locState?.failedQuestions]);
   const redemptionAnalysisData = locState?.analysisData;
   // Log only once on mount via useEffect below
 
@@ -400,9 +404,18 @@ const TestSession = () => {
       return;
     }
 
-    const timeSpent = activeState.data.timeLimit
-      ? (activeState.data.timeLimit - activeState.data.timeInfo)
-      : activeState.data.timeInfo;
+    let timeSpent = 0;
+    let isRussianFailed = false;
+
+    if (activeState.kind === 'russia') {
+      const d = activeState.data;
+      timeSpent = d.endTime ? Math.floor((d.endTime - d.startTime) / 1000) : (d.timeLimit + d.extraTimeAdded - d.timeRemaining);
+      isRussianFailed = d.status === 'failed' || d.status === 'failed-extra';
+    } else {
+      timeSpent = activeState.data.timeLimit
+        ? (activeState.data.timeLimit - activeState.data.timeInfo)
+        : activeState.data.timeInfo;
+    }
 
     navigate('/test/results', {
       state: {
@@ -410,10 +423,12 @@ const TestSession = () => {
         answers,
         mode,
         testInfo,
-        timeSpent
+        timeSpent,
+        isRussianFailed,
+        country: pddCountry
       }
     });
-  }, [navigate, activeState, questionsState, answers, mode, testInfo]);
+  }, [navigate, activeState, questionsState, answers, mode, testInfo, pddCountry]);
 
   const dgtQuestions = useMemo(() => ({
     data: mode === 'dgt' ? dataLoader.questions : null,
@@ -553,17 +568,17 @@ const TestSession = () => {
     return raw.map((q) => ({
       id: q.id,
       // NEW: Use multilingual fields from SpainUnifiedStrategy
-      question_ru: q.question_ru || q.text_ru || q.text || q.question_text || q.question_es || '',
-      question_es: q.question_es || q.text_es || q.text || q.question_ru || q.question_text || '',
-      question_en: q.question_en || q.text_en || q.text || q.question_ru || q.question_text || '',
-      image_url: q.image || q.image_url || q.image_filename || null,
-      explanation_ru: q.explanation_ru || q.explanation || q.explanation_es || null,
-      explanation_es: q.explanation_es || q.explanation || q.explanation_ru || null,
-      explanation_en: q.explanation_en || q.explanation || q.explanation_ru || null,
+      question_ru: q.question_ru || (q as any).text_ru || (q as any).text || (q as any).question_text || q.question_es || '',
+      question_es: q.question_es || (q as any).text_es || (q as any).text || q.question_ru || (q as any).question_text || '',
+      question_en: (q as any).question_en || (q as any).text_en || (q as any).text || q.question_ru || (q as any).question_text || '',
+      image_url: (q as any).image || q.image_url || (q as any).image_filename || null,
+      explanation_ru: q.explanation_ru || (q as any).explanation || (q as any).explanation_es || null,
+      explanation_es: (q as any).explanation_es || (q as any).explanation || q.explanation_ru || null,
+      explanation_en: (q as any).explanation_en || (q as any).explanation || q.explanation_ru || null,
       topics: q.topics && q.topics.length > 0
         ? (typeof q.topics[0] === 'string' ? { title_ru: q.topics[0], title_es: q.topics[0] } : q.topics[0])
-        : (q.topic_title_ru ? { title_ru: q.topic_title_ru, title_es: q.topic_title_es } : null),
-      answer_options: (q.answers || q.answer_options || []).map((a) => ({
+        : ((q as any).topic_title_ru ? { title_ru: (q as any).topic_title_ru, title_es: (q as any).topic_title_es } : null),
+      answer_options: (q.answers || (q as any).answer_options || []).map((a: any) => ({
         id: a.id,
         // NEW: Use multilingual fields from UniversalAnswer
         text_ru: a.text_ru || a.text || a.answer_text || '',
@@ -626,18 +641,14 @@ const TestSession = () => {
   });
 
   const {
-    masteryWrongQuestions,
-    setMasteryWrongQuestions,
-    masteryRound,
-    setMasteryRound,
+    wrongQuestionIds: masteryWrongQuestions,
+    setWrongQuestionIds: setMasteryWrongQuestions,
+    round: masteryRound,
+    setRound: setMasteryRound,
     addWrongQuestion,
-    startNextRound,
-    resetMastery,
-    isRoundComplete,
-    shouldContinue
-  } = useMasteryMode({
-    isEnabled: mode === 'mastery',
-    totalQuestions: questions.length
+    reset: resetMastery,
+  } = useRoundRetryMode({
+    isEnabled: mode === 'mastery' || mode === 'marathon',
   });
 
 
@@ -670,7 +681,7 @@ const TestSession = () => {
     showPenaltyAlert,
     setShowPenaltyAlert,
     penaltyBlock,
-    setPenaltyBlock,
+    setPenaltyBlock: setPenaltyBlockAny,
     showFailureModal,
     setShowFailureModal,
     failureReason,
@@ -681,15 +692,30 @@ const TestSession = () => {
     closeFailureModal
   } = useRussiaExamMode({ isEnabled: mode === 'exam-russia' });
 
+  // Adapter for penaltyBlock type if needed
+  const setPenaltyBlock = (val: string | number | null) => {
+    setPenaltyBlockAny(val as any);
+  };
+
   const { saveProgress, clearProgress } = useTestProgress({
-    testId: testInfo?.id,
+    testId: (testInfo as any)?.id,
     mode: mode as TestMode,
     questionsLoaded: questions.length > 0,
     answers,
     currentIndex,
     startTime,
-    resetExam
+    resetExam,
+    answerQuestion: (id, ok) => answerQuestionZ(id, ok),
+    jumpToQuestion: jumpToQuestionZ
   });
+
+  // Cleanup on unmount to prevent stale results when starting a new game (fixes the 'completed' status carryover)
+  useEffect(() => {
+    return () => {
+      console.log("[TestSession] Cleaning up exam state on unmount");
+      resetExam();
+    };
+  }, [resetExam]);
 
   useTestTimer({ tickTimer });
 
@@ -742,7 +768,6 @@ const TestSession = () => {
   }, []);
 
   // Адаптер для совместимости с существующим JSX кодом
-  // Адаптер для совместимости с существующим JSX кодом
   const russiaExam = useRussiaExamAdapter();
 
   // Универсальный объект текущего вопроса
@@ -769,7 +794,7 @@ const TestSession = () => {
         position: a.position || 0,
       })),
     }
-    : questions[currentIndex];
+    : (questionsState && questionsState.length > 0 ? questionsState[currentIndex] : questions[currentIndex]);
 
   // Sort answer options by position - защита от null/undefined
   const sortedOptions = useMemo(() => {
@@ -798,7 +823,7 @@ const TestSession = () => {
       : (selectedOption ? sortedOptions.find((opt) => opt.id === selectedOption)?.[showTranslation || testLanguage === 'ru' ? 'text_ru' : (testLanguage === 'en' ? 'text_en' : 'text_es')] : undefined);
 
     const isCorrectAnswer = mode === 'exam-russia' && russiaExam.currentQuestion && selectedOption
-      ? ((russiaExam.currentQuestion.answers || []).find((a: any) => a.id === selectedOption)?.isCorrect || (russiaExam.currentQuestion.answers || []).find((a: any) => a.id === selectedOption)?.is_correct || false)
+      ? ((russiaExam.currentQuestion.answers || []).find((a: any) => a.id === selectedOption)?.isCorrect || false)
       : (selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false);
 
     // ВАЖНО: Explanation передаём ВСЕГДА (не зависит от selectedOption)
@@ -848,9 +873,8 @@ const TestSession = () => {
     isOnline,
     startTime,
     answers,
-    pddCountry,
+    pddCountry: pddCountry || "spain",
     currentIndex,
-    activeState,
 
     // UI стейты и сеттеры
     showQuestionMap,
@@ -878,6 +902,7 @@ const TestSession = () => {
     setShowReflectionOverlay,
     russiaExamStatus: russiaExam.status,
     russiaExamStats: russiaExam.stats,
+    isPremium: !!isPremium,
 
     // Хелперы
     getOrCreateSessionId
@@ -935,7 +960,11 @@ const TestSession = () => {
 
 
 
-  const practiceLikeModes = ["practice", "blitz", "mastery", "sequential", "module", "challenge-bank", "dgt", "pdd-ticket", "redemption"];
+  const practiceLikeModes = [
+    "practice", "blitz", "mastery", "marathon", "sequential", "module",
+    "challenge-bank", "dgt", "pdd-ticket", "redemption", "by-topic",
+    "traps", "hardest", "favorites"
+  ];
   const isPracticeLikeMode = practiceLikeModes.includes(mode);
 
   // ============================================
@@ -950,8 +979,11 @@ const TestSession = () => {
 
   // Wrapper that handles UI cleanup (AI, Translation) + Navigation
   const nextQuestion = () => {
+    // Используем актуальное количество вопросов для текущего раунда (для Марафона/Мастерства)
+    const currentTotal = questionsState.length > 0 ? questionsState.length : questions.length;
+
     // === PHASE 2: selectedOption и isAnswerLocked теперь сбрасываются в examStore.nextQuestion() ===
-    if (currentIndex < questions.length - 1) {
+    if (currentIndex < currentTotal - 1) {
       engineNextQuestion();
       setShowTranslation(false);
       closeAIChat();
@@ -967,26 +999,62 @@ const TestSession = () => {
   };
 
   // ============================================
-  // INTERACTION LOGIC (Extracted to Hook)
+  // INTERACTION & NAVIGATION LOGIC
   // ============================================
 
+  // КРИТИЧНО: Используем questionsState (то, что реально на экране) для прогресса и логики
+  const effectiveSessionQuestions = useMemo(() => {
+    return (questionsState && questionsState.length > 0) ? questionsState : (questions || []);
+  }, [questionsState, questions]);
+
+  // КРИТИЧНО: Используем effectiveSessionQuestions (то, что реально на экране) для прогресса
+  const sessionQuestionCount = effectiveSessionQuestions.length;
+
+  const progressPercent = useMemo(() => {
+    if (activeState?.kind === 'russia' && russiaExam.progress) {
+      return (russiaExam.progress.current / russiaExam.progress.total) * 100;
+    }
+    return sessionQuestionCount > 0 ? (answers.length / sessionQuestionCount) * 100 : 0;
+  }, [answers.length, sessionQuestionCount, activeState, russiaExam.progress]);
+
+  const errorCount = mode === 'exam-russia' && russiaExam.stats
+    ? russiaExam.stats.totalErrors
+    : answers.filter((a) => !a.isCorrect).length;
+
+  // Map QuestionData to UniversalQuestion for hooks and components
+  const universalQuestions = useMemo(() => {
+    if (!effectiveSessionQuestions) return [];
+    return effectiveSessionQuestions.map(q => ({
+      id: q.id,
+      text: q.question_ru || q.question_es || '',
+      image: q.image_url || null,
+      answers: (q.answer_options || []).map(a => ({
+        id: a.id,
+        text: a.text_ru || a.text_es || '',
+        isCorrect: a.is_correct
+      })),
+      explanation: q.explanation_ru || q.explanation_es || null
+    }));
+  }, [effectiveSessionQuestions]);
+
   const { handleAnswer } = useTestInteraction({
-    profileId,
+    profileId: profileId || undefined,
     mode,
-    isTelegramApp,
-    pddCountry,
-    questions,
+    isTelegramApp: !!isTelegramApp,
+    pddCountry: pddCountry || "spain",
+    questions: universalQuestions,
     currentIndex,
     activeState,
     russiaExam,
     answerQuestionZ,
-    nextQuestion, // Pass the UI wrapper
+    nextQuestion,
     modifyTime,
     selectOption,
+    setRussiaSelectedOption,
     setIsTransitioning,
     setBlitzShaking,
     setIsAnswerLocked,
-    setPenaltyBlock,
+    setPenaltyBlock: setPenaltyBlockAny as any,
     setShowPenaltyAlert,
     setShowFailureModal,
     setFailureReason,
@@ -999,34 +1067,28 @@ const TestSession = () => {
     redemptionOriginalCount,
     redemptionFailedQuestions,
     navigate,
-    answers
+    answers,
+    isAnswerLocked: !!isAnswerLocked
   });
 
-
-
-
-  // ============================================
-  // TEST COMPLETION LOGIC (Extracted to Hook)
-  // ============================================
-
   const { finishTest } = useTestCompletion({
-    profileId,
+    profileId: profileId || undefined,
     mode,
-    questions,
-    testInfo,
+    questions: universalQuestions,
+    testInfo: testInfo as any,
     startTime,
     timeLeft,
     initialTimeBudget,
     testId,
     ticketIdParam,
     pddCountry,
-    topic,
-    isPremium,
+    topic: topic || "",
+    isPremium: !!isPremium,
     enqueueOfflineAction,
     getOrCreateSessionId,
     masteryWrongQuestions,
     masteryRound,
-    setQuestions,
+    setQuestions: setQuestions as any,
     setMasteryWrongQuestions,
     setMasteryRound,
     setCurrentIndex,
@@ -1035,12 +1097,13 @@ const TestSession = () => {
     closeAIChat,
     russiaExamQuestions: russiaExam.questions,
     isRussia,
-    answers
+    answers,
+    setAnswers
   });
 
   // === KEYBOARD NAVIGATION ===
   useKeyboardNavigation({
-    mode,
+    mode: mode as any,
     selectedOption,
     isAnswerLocked,
     currentIndex,
@@ -1049,7 +1112,7 @@ const TestSession = () => {
     showExitConfirm,
     showReportModal,
     showTestSettings,
-    currentQuestion: questionsState[currentIndex] || questions[currentIndex],
+    currentQuestion: (questionsState && questionsState[currentIndex]) || (questions && questions[currentIndex]),
     russiaExamCurrentQuestion: russiaExam.currentQuestion,
     selectOption,
     handleAnswer,
@@ -1068,7 +1131,7 @@ const TestSession = () => {
     return <PageLoader />;
   }
 
-  if (questions.length === 0) {
+  if (questions.length === 0 && questionsState.length === 0) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
@@ -1081,7 +1144,7 @@ const TestSession = () => {
     );
   }
 
-  if (!questions.length || !questions[currentIndex]) {
+  if (!questionsState[currentIndex] && !questions[currentIndex]) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
@@ -1106,14 +1169,6 @@ const TestSession = () => {
       </Layout>
     );
   }
-
-  // Для экзамена РФ используем прогресс из russiaExam
-  const progress = mode === 'exam-russia' && russiaExam.progress
-    ? (russiaExam.progress.current / russiaExam.progress.total) * 100
-    : questions.length > 0 ? (answers.length / questions.length) * 100 : 0;
-  const errorCount = mode === 'exam-russia' && russiaExam.stats
-    ? russiaExam.stats.totalErrors
-    : answers.filter((a) => !a.isCorrect).length;
 
   const getQuestionText = (lang: 'ru' | 'es' | 'en'): string => {
     if (lang === 'ru') return currentQuestion.question_ru || currentQuestion.question_es;
@@ -1149,12 +1204,12 @@ const TestSession = () => {
       <GameBackground mode={mode} timeLeft={timeLeft} streak={streak} />
       <TestContentLayout
         mode={mode}
-        isTelegramApp={isTelegramApp}
-        isPracticeLikeMode={isPracticeLikeMode}
-        isRedemptionMode={isRedemptionMode}
+        isTelegramApp={!!isTelegramApp}
+        isPracticeLikeMode={!!isPracticeLikeMode}
+        isRedemptionMode={!!isRedemptionMode}
         sidebar={
           !isTelegramApp && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia' && (
-            <div className="lg:mt-[116px]"> {/* Компенсация высоты прогресс-бара для выравнивания с карточкой */}
+            <div className="lg:mt-[76px]">
               <AIWidget
                 explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru :
                   (effectiveLanguage === 'ru' ? currentQuestion.explanation_ru :
@@ -1186,11 +1241,12 @@ const TestSession = () => {
         <OfflineStatusIndicator isOnline={isOnline} pendingSync={pendingSync} />
 
         <TestSessionHeader
-          mode={mode}
-          isTelegramApp={isTelegramApp}
+          mode={mode as any}
+          isTelegramApp={!!isTelegramApp}
+          handleClose={() => setShowExitConfirm(true)}
           currentIndex={currentIndex}
-          totalQuestions={questions.length}
-          answers={answers}
+          totalQuestions={sessionQuestionCount}
+          answers={answers as any}
           streak={streak}
           timeLeft={timeLeft}
           russiaExam={{
@@ -1214,18 +1270,17 @@ const TestSession = () => {
           fontSize={fontSize}
           setFontSize={setFontSize}
           testLanguage={testLanguage}
-          setTestLanguage={handleLanguageChange}
+          setTestLanguage={(lang: string) => handleLanguageChange(lang as any)}
           smartVocabularyEnabled={smartVocabularyEnabled}
           setSettings={setSettings}
           setShowQuestionMap={setShowQuestionMap}
           toggleBookmark={toggleBookmark}
           isQuestionBookmarked={isQuestionBookmarked}
           bookmarkLoading={bookmarkLoading}
-          profileId={profileId}
+          profileId={profileId || ""}
           toggleTranslation={toggleTranslation}
           showTranslation={showTranslation}
           masteryRound={masteryRound}
-          handleClose={handleClose}
           onReportProblem={() => setShowReportModal(true)}
         />
 
@@ -1238,7 +1293,7 @@ const TestSession = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "max-w-4xl mx-auto w-full mt-6",
+              "max-w-5xl mx-auto w-full mt-6",
               isAnswerLocked && "opacity-50 pointer-events-none"
             )}
           >
@@ -1255,14 +1310,14 @@ const TestSession = () => {
               }))}
               selectedAnswerId={selectedOption}
               showResult={false} // на экзамене не показываем результат сразу
-              disabled={isAnswerLocked || selectedOption !== null}
+              disabled={isAnswerLocked}
               onAnswerClick={(answerId) => {
                 if (mode === "exam-russia" && !isAnswerLocked) {
                   selectOption(answerId);
                 }
               }}
               onShowExplanation={selectedOption ? handleOpenAIChat : undefined}
-              fontSize={fontSize}
+              fontSize={fontSize as any}
               header={
                 russiaExam.isExtraMode && (
                   <div className="mb-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center gap-3">
@@ -1276,7 +1331,7 @@ const TestSession = () => {
               footer={
                 <SubmitButton
                   label="ПОДТВЕРДИТЬ"
-                  onClick={() => handleAnswer()}
+                  onClick={() => handleAnswer(selectedOption ?? undefined)}
                   disabled={!selectedOption || isAnswerLocked}
                   isEnterPressed={isEnterPressed}
                   variant="exam"
@@ -1288,41 +1343,55 @@ const TestSession = () => {
             />
           </motion.div>
         ) : mode === 'blitz' ? (
-          <BlitzQuestionCard
-            blitzShaking={blitzShaking}
-            currentQuestion={currentQuestion}
-            displayQuestion={displayQuestion}
-            fontSize={fontSize}
-            sortedOptions={sortedOptions || []}
-            selectedOption={selectedOption}
-            selectOption={selectOption}
-            handleAnswer={handleAnswer}
-            nextQuestion={nextQuestion}
-            testLanguage={effectiveLanguage}
-          />
+          <div className="max-w-5xl mx-auto w-full">
+            <BlitzQuestionCard
+              blitzShaking={blitzShaking}
+              currentQuestion={currentQuestion}
+              displayQuestion={displayQuestion}
+              fontSize={fontSize}
+              sortedOptions={sortedOptions || []}
+              selectedOption={selectedOption}
+              selectOption={selectOption}
+              handleAnswer={handleAnswer}
+              nextQuestion={nextQuestion}
+              testLanguage={effectiveLanguage}
+            />
+          </div>
         ) : (
-          <QuestionCard
-            currentQuestion={currentQuestion}
-            displayQuestion={displayQuestion}
-            isRussia={isRussia}
-            feedbackStatus={feedbackStatus || 'idle'}
-            fontSize={fontSize}
-            isTransitioning={isTransitioning}
-            sortedOptions={sortedOptions || []}
-            selectedOption={selectedOption}
-            isPracticeLikeMode={isPracticeLikeMode}
-            mode={mode}
-            testLanguage={effectiveLanguage}
-            showTranslation={showTranslation}
-            toggleTranslation={toggleTranslation}
-            answerPopularity={answerPopularity || false}
-            selectOption={selectOption}
-            handleAnswer={handleAnswer}
-            handleOpenAIChat={handleOpenAIChat}
-            nextQuestion={nextQuestion}
-            isEnterPressed={isEnterPressed}
-            onReportProblem={() => setShowReportModal(true)}
-          />
+          <div className="max-w-[1300px] lg:ml-auto lg:mr-0 mx-auto w-full">
+            <QuestionCard
+              currentQuestion={currentQuestion as any}
+              displayQuestion={displayQuestion}
+              isRussia={isRussia}
+              feedbackStatus={feedbackStatus}
+              fontSize={fontSize as any}
+              isTransitioning={isTransitioning}
+              sortedOptions={sortedOptions || []}
+              selectedOption={selectedOption}
+              isPracticeLikeMode={isPracticeLikeMode}
+              mode={mode}
+              testLanguage={effectiveLanguage}
+              showTranslation={showTranslation}
+              toggleTranslation={toggleTranslation}
+              answerPopularity={answerPopularity || false}
+              selectOption={selectOption}
+              handleAnswer={handleAnswer}
+              handleOpenAIChat={handleOpenAIChat}
+              nextQuestion={nextQuestion}
+              isEnterPressed={isEnterPressed}
+              onReportProblem={() => setShowReportModal(true)}
+            />
+          </div>
+        )}
+
+        {/* 
+          Modern AI floating widget (Skily Sphere) 
+          Visible in Practice-like modes including Marathon Round 2+
+        */}
+        {(mode === 'marathon' || mode === 'practice' || mode === 'mastery') && (
+          <div className="fixed bottom-24 right-6 z-50 animate-bounce-subtle pointer-events-none opacity-60">
+            <SkilyAICharacter size="md" />
+          </div>
         )}
 
 
@@ -1330,14 +1399,14 @@ const TestSession = () => {
         <TestSessionModals
           showQuestionMap={showQuestionMap}
           setShowQuestionMap={setShowQuestionMap}
-          questions={questionsState}
+          questions={universalQuestions}
           currentIndex={currentIndex}
-          answers={answers}
-          jumpToQuestion={jumpToQuestionZ}
+          answers={answers as any}
+          jumpToQuestion={jumpToQuestion}
           mode={mode}
           showReportModal={showReportModal}
           setShowReportModal={setShowReportModal}
-          currentQuestion={currentQuestion}
+          currentQuestion={currentQuestion as any}
           showTranslation={showTranslation}
           testLanguage={testLanguage}
           showChallengeBankNotification={showChallengeBankNotification}
@@ -1350,7 +1419,7 @@ const TestSession = () => {
           redemptionAnalysisData={redemptionAnalysisData}
           showPenaltyAlert={showPenaltyAlert}
           setShowPenaltyAlert={setShowPenaltyAlert}
-          penaltyBlock={penaltyBlock}
+          penaltyBlock={penaltyBlock as any}
           setPenaltyBlock={setPenaltyBlock}
           russiaExam={russiaExam}
           setIsAnswerLocked={setIsAnswerLocked}
@@ -1365,7 +1434,7 @@ const TestSession = () => {
         />
 
       </TestContentLayout>
-    </Layout>
+    </Layout >
   );
 };
 

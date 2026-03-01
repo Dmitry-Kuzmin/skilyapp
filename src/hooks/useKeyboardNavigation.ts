@@ -69,21 +69,16 @@ export const useKeyboardNavigation = ({
             if (/^[1-9]$/.test(e.key) && currentQ) {
                 const currentAnswers = mode === 'exam-russia'
                     ? russiaExamCurrentQuestion?.answers
-                    : currentQ.answer_options;
+                    : (currentQ.answer_options || currentQ.answers);
 
                 if (currentAnswers) {
                     const index = parseInt(e.key) - 1;
                     if (index < currentAnswers.length) {
                         const answerId = currentAnswers[index].id;
                         if (!isAnswerLocked) {
+                            // При нажатии цифры — сразу выбираем и фиксируем ответ
                             selectOption(answerId);
-
-                            // Автоматически отвечаем только в режимах, где нет кнопки "Подтвердить"
-                            // В блиц-режиме кнопок подтверждения нет, поэтому автоответ.
-                            const hasConfirmButton = mode !== 'blitz' && (mode === 'exam-russia' || !isRussia);
-                            if (!hasConfirmButton && !selectedOption) {
-                                handleAnswer(answerId);
-                            }
+                            handleAnswer(answerId);
                         }
                     }
                 }
@@ -99,16 +94,12 @@ export const useKeyboardNavigation = ({
                     setTimeout(() => setIsEnterPressed(false), 200);
                 }
 
-                // Определяем isPracticeLikeMode локально для правильной работы
-                const practiceModes = ['practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps', 'mastery', 'hardest', 'sequential', 'challenge-bank'];
-                const isPractice = practiceModes.includes(mode);
-
-                // Сначала отвечаем, если еще не ответили
+                // 1. Если вариант выбран, но ответ еще не зафиксирован — фиксируем (handleAnswer)
                 if (selectedOption && !isAnswerLocked) {
-                    handleAnswer();
+                    handleAnswer(selectedOption);
                 }
-                // Затем переходим дальше, если уже ответили (показывается результат)
-                else if (isAnswerLocked && isPractice) {
+                // 2. Если ответ уже зафиксирован (isAnswerLocked) — переходим к следующему во ВСЕХ режимах
+                else if (isAnswerLocked) {
                     nextQuestion();
                 }
             }

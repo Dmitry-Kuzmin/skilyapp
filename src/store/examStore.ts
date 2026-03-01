@@ -71,6 +71,7 @@ interface ExamActions {
 
     // === PHASE 1: UI Interactions ===
     selectOption: (optionId: string) => void; // Выбор варианта (без подтверждения)
+    setIsAnswerLocked: (locked: boolean) => void; // Блокировка ответа после выбора
 
     // Interaction
     answerQuestion: (answerId: string, isCorrect: boolean) => void;
@@ -90,27 +91,33 @@ interface ExamActions {
 
 type ExamStore = {
     activeState: UnifiedState | null;
-} & ExamActions;
+    // Shared UI state for russia mode (kind='russia' doesn't have these in data)
+    russiaSelectedOption: string | null;
+    russiaAnswerLocked: boolean;
+} & ExamActions & {
+    setRussiaSelectedOption: (id: string | null) => void;
+    setRussiaAnswerLocked: (locked: boolean) => void;
+};
 
 export const useExamStore = create<ExamStore>((set, get) => ({
     activeState: null,
+    russiaSelectedOption: null,
+    russiaAnswerLocked: false,
 
     initializeExam: (mode, questions, options) => {
         const currentState = get().activeState;
 
-        // Prevent re-init if same questions (simple check)
-        if (currentState &&
-            ((currentState.kind === 'standard' && currentState.data.questions[0]?.id === questions[0]?.id) ||
-                (currentState.kind === 'russia' && currentState.data.mainQuestions[0]?.id === questions[0]?.id))
-        ) {
-            return;
-        }
+        // Allow re-initialization even with same questions to support round-restarts (Marathon/Mastery)
+        // Previous guard was: if (currentState && same questions) return;
+
 
         if (mode === 'exam-russia') {
             // Initialize Russia Logic
             const russiaState = createRussiaExamState(questions, options?.allQuestionsByBlock);
             set({
-                activeState: { kind: 'russia', data: russiaState }
+                activeState: { kind: 'russia', data: russiaState },
+                russiaSelectedOption: null,
+                russiaAnswerLocked: false,
             });
         } else {
             // Initialize Standard Logic
@@ -145,7 +152,14 @@ export const useExamStore = create<ExamStore>((set, get) => ({
     // === PHASE 1: UI Actions Implementation ===
     selectOption: (optionId) => {
         const { activeState } = get();
-        if (!activeState || activeState.kind !== 'standard') return;
+        if (!activeState) return;
+
+        if (activeState.kind === 'russia') {
+            // Russia mode: store in shared UI state, allow changing before confirm
+            if (get().russiaAnswerLocked) return;
+            set({ russiaSelectedOption: optionId });
+            return;
+        }
 
         // Нельзя менять выбор, если ответ уже дан
         if (activeState.data.isAnswerLocked) return;
@@ -157,6 +171,24 @@ export const useExamStore = create<ExamStore>((set, get) => ({
             }
         });
     },
+
+    setIsAnswerLocked: (locked: boolean) => {
+        const { activeState } = get();
+        if (!activeState) return;
+        if (activeState.kind === 'russia') {
+            set({ russiaAnswerLocked: locked });
+        } else {
+            set({
+                activeState: {
+                    kind: 'standard',
+                    data: { ...activeState.data, isAnswerLocked: locked }
+                }
+            });
+        }
+    },
+
+    setRussiaSelectedOption: (id) => set({ russiaSelectedOption: id }),
+    setRussiaAnswerLocked: (locked) => set({ russiaAnswerLocked: locked }),
 
     answerQuestion: (answerId, isCorrect) => {
         console.log('📝 [ExamStore] answerQuestion called:', { answerId, isCorrect });
@@ -436,12 +468,14 @@ export const selectIsCorrectAnswer = (store: ExamStore, questionId: string) => {
 
 // === PHASE 1: UI State Selectors ===
 export const selectSelectedOption = (store: ExamStore) => {
-    if (!store.activeState || store.activeState.kind !== 'standard') return null;
+    if (!store.activeState) return null;
+    if (store.activeState.kind === 'russia') return store.russiaSelectedOption;
     return store.activeState.data.selectedOption;
 };
 
 export const selectIsAnswerLocked = (store: ExamStore) => {
-    if (!store.activeState || store.activeState.kind !== 'standard') return false;
+    if (!store.activeState) return false;
+    if (store.activeState.kind === 'russia') return store.russiaAnswerLocked;
     return store.activeState.data.isAnswerLocked;
 };
 

@@ -58,13 +58,26 @@ export const useTestLifecycle = ({
     russiaExamStatus,
     russiaExamStats
 }: TestLifecycleParams) => {
-    // 1. Sync questionsState
+    // 1. Sync questionsState - только при первой загрузке или смене источника данных
     useEffect(() => {
-        if (questions.length > 0) {
-            const isDifferent = questions.length !== questionsState.length || (questions[0]?.id !== questionsState[0]?.id);
-            if (isDifferent) setQuestionsState(questions);
+        if (questions && questions.length > 0) {
+            // Если в стейте еще пусто - инициализируем
+            if (questionsState.length === 0) {
+                setQuestionsState(questions);
+                return;
+            }
+
+            // Если источник (memo в TestSession) реально изменился (сменился тест/билет)
+            // Но мы НЕ должны перезаписывать, если мы внутри Марафона/Мастерства (там questionsState управляется вручную)
+            const isManualMode = mode === 'mastery' || mode === 'marathon';
+            if (!isManualMode) {
+                const isSourceChanged = questions.length !== questionsState.length || (questions[0]?.id !== questionsState[0]?.id);
+                if (isSourceChanged) {
+                    setQuestionsState(questions);
+                }
+            }
         }
-    }, [questions, questionsState, setQuestionsState]);
+    }, [questions, setQuestionsState, mode, questionsState.length]);
 
     // 2. Initialize Exam Store
     useEffect(() => {
@@ -137,6 +150,10 @@ export const useTestLifecycle = ({
 
         if (status === 'completed') {
             if (activeState.kind === 'standard') {
+                // В режимах Мастерство/Марафон навигация управляется вручную в useTestCompletion
+                // так как там может потребоваться запуск следующего раунда.
+                if (mode === 'mastery' || mode === 'marathon') return;
+
                 navigate('/test/results', {
                     state: {
                         questions,

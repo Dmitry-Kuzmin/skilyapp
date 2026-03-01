@@ -102,17 +102,18 @@ export function useTestFinisher(options: UseTestFinisherOptions): UseTestFinishe
                 });
             }
 
-            // MASTERY MODE: Repeat wrong questions
-            if (mode === "mastery" && masteryWrongQuestions.length > 0) {
+            // MASTERY / MARATHON MODE: Repeat wrong questions
+            if ((mode === "mastery" || mode === "marathon") && masteryWrongQuestions.length > 0) {
                 const wrongQuestionsData = questions.filter(q => masteryWrongQuestions.includes(q.id));
 
                 if (wrongQuestionsData.length > 0) {
+                    const modeLabel = mode === 'marathon' ? 'Марафон' : 'Мастерство';
                     toast.info(
-                        `Раунд ${masteryRound} завершён! Повторяем ${wrongQuestionsData.length} неправильных вопросов 🔄`,
-                        { duration: 3000 }
+                        `${modeLabel}: Раунд ${masteryRound} √  →  Повторяем ${wrongQuestionsData.length} ошибочных вопросов 🔄`,
+                        { duration: 3500 }
                     );
 
-                    // Restart with wrong questions
+                    // Новый раунд — только из ошибок
                     setQuestions(wrongQuestionsData);
                     setMasteryWrongQuestions([]);
                     setMasteryRound(masteryRound + 1);
@@ -122,13 +123,15 @@ export function useTestFinisher(options: UseTestFinisherOptions): UseTestFinishe
                     setShowTranslation(false);
                     setShowAIExplanation(false);
                     isFinishingRef.current = false;
-                    return; // Don't finish test!
+                    return; // Тест не завершён!
                 }
             }
 
-            // Mastery Mode complete - show congratulation
+            // Mastery / Marathon complete — победа!
             if (mode === "mastery") {
                 toast.success(`🎉 ИДЕАЛЬНО! Все вопросы правильно за ${masteryRound} раундов!`, { duration: 5000 });
+            } else if (mode === "marathon") {
+                toast.success(`🏆 Марафон пройден за ${masteryRound} раундов без единой ошибки!`, { duration: 6000 });
             }
 
             // Calculate results

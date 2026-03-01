@@ -21,9 +21,9 @@ export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicator
 
     const loadActiveBoosts = async () => {
       const now = new Date();
-      
+
       // Проверяем Double SP
-      const { data: spBoost } = await supabase
+      const { data: spBoostData } = await supabase
         .from('active_boosts')
         .select('effect_multiplier, expires_at')
         .eq('user_id', userId)
@@ -34,7 +34,8 @@ export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicator
         .maybeSingle();
 
       const boosts: Array<{ type: string; multiplier: number; expiresAt: string }> = [];
-      
+      const spBoost = spBoostData as any; // Фикс для TS ошибки с never
+
       if (spBoost && spBoost.effect_multiplier && parseFloat(spBoost.effect_multiplier.toString()) >= 2) {
         boosts.push({
           type: 'double_sp',
@@ -47,10 +48,8 @@ export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicator
     };
 
     loadActiveBoosts();
-    
-    // Обновляем каждые 30 секунд
-    const interval = setInterval(loadActiveBoosts, 30000);
-    return () => clearInterval(interval);
+
+    // Без polling — обновление происходит через invalidateQueries после покупки буста
   }, [userId]);
 
   if (activeBoosts.length === 0) return null;
@@ -59,12 +58,12 @@ export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicator
     const now = new Date();
     const expires = new Date(expiresAt);
     const diff = expires.getTime() - now.getTime();
-    
+
     if (diff <= 0) return null;
-    
+
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
-    
+
     if (minutes > 0) {
       return `${minutes}м ${seconds}с`;
     }
@@ -85,7 +84,7 @@ export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicator
             exit={{ opacity: 0, y: -10 }}
             className={cn(
               "flex items-center gap-2 px-3 py-1.5 rounded-lg border shadow-lg",
-              boost.type === 'double_sp' 
+              boost.type === 'double_sp'
                 ? "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400"
                 : "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400",
               className

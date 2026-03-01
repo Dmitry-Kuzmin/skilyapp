@@ -59,9 +59,9 @@ export function useAdminStats() {
         activeUsers: activeUsersRes.count || 0,
       };
     },
-    staleTime: 30 * 1000, // 30 секунд - данные обновляются каждые 30 секунд
+    staleTime: 5 * 60 * 1000, // 5 минут
     gcTime: 2 * 60 * 1000, // 2 минуты
-    refetchInterval: 30 * 1000, // Автоматическое обновление каждые 30 секунд
+    refetchInterval: false,      // Без polling — обновляем только при открытии страницы
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     retry: 1,

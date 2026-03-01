@@ -24,23 +24,23 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
   const queryClient = useQueryClient();
   const [showAdModal, setShowAdModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // Проверяем статус рекламы через хук (coins: 5 раз в день, кулдаун 60 минут)
-  const { 
-    canWatch, 
-    nextAvailableAt, 
-    dailyCount, 
-    dailyLimit, 
+  const {
+    canWatch,
+    nextAvailableAt,
+    dailyCount,
+    dailyLimit,
     cooldownMinutes,
-    refetch 
+    refetch
   } = useAdRewardStatus(
     profileId,
     'coins',
-    { 
+    {
       enabled: !!profileId,
       dailyLimit: 5, // 5 раз в день
       cooldownMinutes: 60, // 1 час кулдаун
-      refetchInterval: 30000, // Обновляем каждые 30 секунд для актуального таймера
+      // refetchInterval: 30000 убран для экономии Edge Requests
     }
   );
 
@@ -106,7 +106,7 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
       if (data.success) {
         // Обновляем баланс в кэше
         await queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
-        
+
         // Обновляем статус рекламы
         await refetch();
 
@@ -122,7 +122,7 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
       }
     } catch (err: any) {
       console.error('[CryptoMinerAdButton] Error claiming reward:', err);
-      
+
       // Обрабатываем ошибки лимитов
       if (err.message?.includes('daily limit') || err.message?.includes('cooldown')) {
         toast({
@@ -145,22 +145,22 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
 
   const getTimeUntilAvailable = () => {
     if (!nextAvailableAt) return null;
-    
+
     const now = new Date();
     const diff = nextAvailableAt.getTime() - now.getTime();
-    
+
     if (diff <= 0) return null;
-    
+
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
-    
+
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const timeUntilAvailable = getTimeUntilAvailable();
   const isOnCooldown = !!timeUntilAvailable;
-  const isDailyLimitReached = dailyCount && dailyLimit 
-    ? dailyCount >= dailyLimit 
+  const isDailyLimitReached = dailyCount && dailyLimit
+    ? dailyCount >= dailyLimit
     : false;
 
   return (

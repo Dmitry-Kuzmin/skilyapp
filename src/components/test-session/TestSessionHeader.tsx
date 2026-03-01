@@ -6,7 +6,11 @@ import { TestSettingsMenu } from '@/components/TestSettingsMenu';
 import { Clock, Trophy } from 'lucide-react';
 import type { TestMode } from '@/store/examStore';
 import type { RussiaExamState } from '@/types/pddExam';
-import type { Answer } from '@/types/pdd';
+
+interface HeaderAnswer {
+    questionId: string;
+    isCorrect: boolean;
+}
 
 interface TestSessionHeaderProps {
     // Общие
@@ -14,7 +18,7 @@ interface TestSessionHeaderProps {
     isTelegramApp: boolean;
     currentIndex: number;
     totalQuestions: number;
-    answers: Answer[];
+    answers: HeaderAnswer[];
     streak: number;
     timeLeft: number;
 
@@ -26,7 +30,7 @@ interface TestSessionHeaderProps {
         isExtraMode: boolean;
         stats: { totalErrors: number } | null;
     };
-    russiaExamAnswers: Answer[];
+    russiaExamAnswers: HeaderAnswer[];
 
     // Settings
     showTestSettings: boolean;
@@ -37,12 +41,12 @@ interface TestSessionHeaderProps {
     setAnswerPopularity: (value: boolean) => void;
     ambientMusic: boolean;
     setAmbientMusic: (value: boolean) => void;
-    selectedMusicTrack: string;
-    setSelectedMusicTrack: (track: string) => void;
+    selectedMusicTrack: string | null;
+    setSelectedMusicTrack: (track: string | null) => void;
     fontSize: number;
     setFontSize: (size: number) => void;
     testLanguage: string;
-    setTestLanguage: (lang: string) => void;
+    setTestLanguage: (lang: any) => void;
     smartVocabularyEnabled: boolean;
     setSettings: (settings: { smartVocabularyEnabled: boolean }) => void;
 
@@ -168,28 +172,31 @@ export const TestSessionHeader = ({
                     customLeftContent={
                         <>
                             {/* Timer */}
-                            {(mode === "exam" || mode === "exam-russia" || mode === "marathon") && (
-                                <div className={cn(
-                                    "flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border shadow-sm shrink-0 transition-colors duration-300",
-                                    timeLeft < 300
-                                        ? "bg-red-500/10 border-red-500/30 animate-pulse"
-                                        : "bg-background/80 backdrop-blur-md border-border/50"
-                                )}>
-                                    <Clock className={cn(
-                                        "w-4 h-4 sm:w-5 sm:h-5 transition-colors",
-                                        timeLeft < 300 ? "text-red-500" : "text-foreground/70"
-                                    )} />
-                                    <span className={cn(
-                                        "font-mono font-semibold text-xs sm:text-sm transition-colors",
-                                        timeLeft < 300 ? "text-red-600 dark:text-red-400" : "text-foreground"
+                            {(mode === "exam" || mode === "exam-russia" || mode === "marathon") && (() => {
+                                const isWarningTime = (mode === "exam" || mode === "exam-russia") && timeLeft > 0 && timeLeft < 300;
+                                return (
+                                    <div className={cn(
+                                        "flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border shadow-sm shrink-0 transition-colors duration-300",
+                                        isWarningTime
+                                            ? "bg-red-500/10 border-red-500/30 animate-pulse"
+                                            : "bg-background/80 backdrop-blur-md border-border/50"
                                     )}>
-                                        {formatTime(timeLeft)}
-                                    </span>
-                                </div>
-                            )}
+                                        <Clock className={cn(
+                                            "w-4 h-4 sm:w-5 sm:h-5 transition-colors",
+                                            isWarningTime ? "text-red-500" : "text-foreground/70"
+                                        )} />
+                                        <span className={cn(
+                                            "font-mono font-semibold text-xs sm:text-sm transition-colors",
+                                            isWarningTime ? "text-red-600 dark:text-red-400" : "text-foreground"
+                                        )}>
+                                            {formatTime(timeLeft)}
+                                        </span>
+                                    </div>
+                                );
+                            })()}
 
-                            {/* Mastery Round Indicator */}
-                            {mode === "mastery" && masteryRound > 1 && (
+                            {/* Mastery / Marathon Round Indicator */}
+                            {(mode === "mastery" || mode === "marathon") && masteryRound > 1 && (
                                 <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-blue-500/10 backdrop-blur-md border border-blue-500/30 shadow-sm shrink-0">
                                     <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
                                     <span className="font-semibold text-xs sm:text-sm text-blue-600 dark:text-blue-400">
@@ -210,11 +217,11 @@ export const TestSessionHeader = ({
                             ambientMusic={ambientMusic}
                             onAmbientMusicChange={setAmbientMusic}
                             selectedMusicTrack={selectedMusicTrack}
-                            onMusicTrackChange={setSelectedMusicTrack}
+                            onMusicTrackChange={(track: string | null) => setSelectedMusicTrack(track)}
                             fontSize={fontSize}
                             onFontSizeChange={setFontSize}
-                            language={testLanguage}
-                            onLanguageChange={setTestLanguage}
+                            language={testLanguage as any}
+                            onLanguageChange={(lang: any) => setTestLanguage(lang)}
                             hideLanguageSelector={mode === 'pdd-ticket' || mode === 'exam-russia'}
                             smartVocabulary={smartVocabularyEnabled}
                             onSmartVocabularyChange={(val) => setSettings({ smartVocabularyEnabled: val })}

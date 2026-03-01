@@ -106,8 +106,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             return data as DuelNotification[];
         },
         enabled: !!profileId,
-        refetchInterval: 10000, // 10 секунд
-        staleTime: 5000,
+        refetchInterval: 60000,  // 1 минута вместо 10 сек — достаточно для уведомлений
+        staleTime: 30000,        // 30 секунд
     });
 
     // Обработка новых уведомлений

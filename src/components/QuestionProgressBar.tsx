@@ -142,7 +142,7 @@ export function QuestionProgressBar({
     <div className={cn("w-full flex flex-col z-[100]", className)}>
 
       <div className={cn(
-        "w-full flex items-center justify-between gap-1.5 sm:gap-4 relative py-1",
+        "w-full max-w-[1300px] mx-auto flex items-center justify-between gap-1.5 sm:gap-4 relative py-1",
       )}>
         {/* Close button (Always on left) */}
         {showClose && onClose && (

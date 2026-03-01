@@ -43,7 +43,7 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
             enabled: !!profileId,
             dailyLimit: 5,
             cooldownMinutes: 60,
-            refetchInterval: 30000,
+            // refetchInterval убран для экономии Edge Requests
         }
     );
 

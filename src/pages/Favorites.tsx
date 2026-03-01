@@ -123,60 +123,106 @@ const Favorites = () => {
                 return;
             }
 
-            const relationMap = new Map(relations.map(r => [r.question_id, r]));
-            const questionIds = relations.map(r => r.question_id);
+            const parsedRelations: any[] = relations || [];
+            const relationMap = new Map(parsedRelations.map((r: any) => [r.question_id, r]));
+            const questionIds = parsedRelations.map((r: any) => r.question_id);
 
             // 2. Load Questions with Answers and Explanations
-            let query = supabase
-                .from('questions_new')
-                .select(`
-                    id, question_ru, question_es, image_url, metadata, country, explanation_ru, explanation_es,
-                    topics(title_ru, title_es),
-                    answer_options(text_ru, text_es, is_correct)
-                `)
-                .in('id', questionIds);
+            let mappedData: FavoriteQuestion[] = [];
 
-            if (dbCountry) query = query.eq('country', dbCountry);
+            if (selectedCountry === 'russia') {
+                const { data: russiaQuestions, error: qError } = await supabase
+                    .from('pdd_russia_questions')
+                    .select('*')
+                    .in('id', questionIds);
 
-            const { data: questionsData, error: qError } = await query;
-            if (qError) throw qError;
+                if (qError) throw qError;
 
-            // 3. Map Data
-            const mapped: FavoriteQuestion[] = (questionsData || []).map((q: any) => {
-                const rel = relationMap.get(q.id);
-                const correctOption = q.answer_options?.find((o: any) => o.is_correct);
+                if (russiaQuestions && russiaQuestions.length > 0) {
+                    const { data: russiaAnswers } = await supabase
+                        .from('pdd_russia_answers')
+                        .select('*')
+                        .in('question_id', russiaQuestions.map((q: any) => q.id));
 
-                let difficulty: 'easy' | 'medium' | 'hard' = 'medium';
-                if (q.metadata?.difficulty === 'hard' || (rel?.times_wrong || 0) > 2) difficulty = 'hard';
-                else if (q.metadata?.difficulty === 'easy') difficulty = 'easy';
+                    mappedData = russiaQuestions.map((q: any) => {
+                        const rel = relationMap.get(q.id);
+                        const answers = ((russiaAnswers as any[]) || []).filter((a: any) => a.question_id === q.id);
+                        const correctOption = answers.find((a: any) => a.is_correct);
 
-                return {
-                    id: q.id,
-                    question_ru: q.question_ru,
-                    question_es: q.question_es,
-                    image_url: q.image_url,
-                    added_at: rel?.created_at,
-                    updated_at: rel?.updated_at || rel?.created_at,
-                    topic_title_ru: q.topics?.title_ru,
-                    mastered: rel?.mastered || false,
-                    times_wrong: rel?.times_wrong || 0,
-                    correct_streak: rel?.correct_streak || 0,
-                    difficulty,
-                    explanation_ru: q.explanation_ru,
-                    explanation_es: q.explanation_es,
-                    correct_answer_ru: correctOption?.text_ru,
-                    correct_answer_es: correctOption?.text_es
-                };
-            });
+                        let difficulty: 'easy' | 'medium' | 'hard' = 'medium';
+                        if (q.difficulty === 'hard' || (rel?.times_wrong || 0) > 2) difficulty = 'hard';
+                        else if (q.difficulty === 'easy') difficulty = 'easy';
+
+                        return {
+                            id: q.id,
+                            question_ru: q.question_text || q.text || '',
+                            question_es: '',
+                            image_url: q.image_url,
+                            added_at: rel?.created_at,
+                            updated_at: rel?.updated_at || rel?.created_at,
+                            topic_title_ru: (q.topics && q.topics.length > 0) ? q.topics[0] : null,
+                            mastered: rel?.mastered || false,
+                            times_wrong: rel?.times_wrong || 0,
+                            correct_streak: rel?.correct_streak || 0,
+                            difficulty,
+                            explanation_ru: q.explanation || null,
+                            explanation_es: null,
+                            correct_answer_ru: correctOption?.answer_text || correctOption?.text || null,
+                            correct_answer_es: null
+                        };
+                    });
+                }
+            } else {
+                let query = supabase
+                    .from('questions_new')
+                    .select(`
+                        id, question_ru, question_es, image_url, metadata, country, explanation_ru, explanation_es,
+                        topics(title_ru, title_es),
+                        answer_options(text_ru, text_es, is_correct)
+                    `)
+                    .in('id', questionIds);
+
+                if (dbCountry) query = query.eq('country', dbCountry);
+
+                const { data: questionsData, error: qError } = await query;
+                if (qError) throw qError;
+
+                mappedData = (questionsData || []).map((q: any) => {
+                    const rel = relationMap.get(q.id);
+                    const correctOption = q.answer_options?.find((o: any) => o.is_correct);
+
+                    let difficulty: 'easy' | 'medium' | 'hard' = 'medium';
+                    if (q.metadata?.difficulty === 'hard' || (rel?.times_wrong || 0) > 2) difficulty = 'hard';
+                    else if (q.metadata?.difficulty === 'easy') difficulty = 'easy';
+
+                    return {
+                        id: q.id,
+                        question_ru: q.question_ru,
+                        question_es: q.question_es,
+                        image_url: q.image_url,
+                        added_at: rel?.created_at,
+                        updated_at: rel?.updated_at || rel?.created_at,
+                        topic_title_ru: q.topics?.title_ru,
+                        mastered: rel?.mastered || false,
+                        times_wrong: rel?.times_wrong || 0,
+                        correct_streak: rel?.correct_streak || 0,
+                        difficulty,
+                        explanation_ru: q.explanation_ru,
+                        explanation_es: q.explanation_es,
+                        correct_answer_ru: correctOption?.text_ru,
+                        correct_answer_es: correctOption?.text_es
+                    };
+                });
+            }
 
             // Sort by Battery Charge (Lowest charge first)
-            mapped.sort((a, b) => {
+            mappedData.sort((a, b) => {
                 const battA = calculateBattery(a.updated_at, a.correct_streak);
                 const battB = calculateBattery(b.updated_at, b.correct_streak);
                 return battA - battB;
             });
 
-            setQuestions(mapped);
+            setQuestions(mappedData);
 
         } catch (error) {
             console.error('Error loading Favorites:', error);
@@ -188,7 +234,7 @@ const Favorites = () => {
 
     const handleRemoveFavorite = async (questionId: string) => {
         if (!profileId) return;
-        const { error } = await supabase
+        const { error } = await (supabase as any)
             .from('user_challenge_questions')
             .update({ is_favorite: false })
             .eq('user_id', profileId)

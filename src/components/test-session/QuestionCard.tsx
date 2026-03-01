@@ -34,13 +34,13 @@ interface QuestionCardProps {
     displayQuestion: string;
     isRussia: boolean;
     feedbackStatus: 'idle' | 'correct' | 'incorrect';
-    fontSize: number;
+    fontSize: 0 | 1 | 2 | 3 | 4;
     isTransitioning: boolean;
     sortedOptions: any[];
     selectedOption: string | null;
     isPracticeLikeMode: boolean;
     mode: string;
-    testLanguage: string;
+    testLanguage: 'es' | 'en' | 'ru';
     showTranslation: boolean;
     toggleTranslation: () => void;
     answerPopularity: boolean;
@@ -94,7 +94,7 @@ export const QuestionCard = ({
         <Card
             data-testid="question-card"
             className={cn(
-                "p-3 sm:p-4 md:p-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 shadow-sm backdrop-blur-sm transition-all duration-300 relative overflow-hidden rounded-3xl",
+                "p-3 sm:p-4 md:p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/5 shadow-sm backdrop-blur-sm transition-all duration-300 relative overflow-hidden rounded-3xl",
                 feedbackStatus === 'correct' && "border-emerald-500/50 shadow-emerald-500/10",
                 feedbackStatus === 'incorrect' && "border-red-500/50 shadow-red-500/10"
             )}
@@ -106,9 +106,9 @@ export const QuestionCard = ({
                     <div className="space-y-6">
                         <div className="w-full">
                             <QuestionImage
-                                imageUrl={currentQuestion.image_url}
+                                imageUrl={currentQuestion.image_url || null}
                                 country={isRussia ? 'russia' : 'spain'}
-                                className="w-full h-auto max-h-[350px] md:max-h-[450px] object-contain bg-muted/30 rounded-[2.5rem] border border-border/50 mb-4 shadow-sm"
+                                className="w-full h-auto max-h-[300px] md:max-h-[400px] object-contain bg-muted/10 rounded-2xl mb-4 border border-white/5"
                             />
                         </div>
                         <div className="flex flex-col mt-6">
@@ -132,17 +132,20 @@ export const QuestionCard = ({
                                 showResult={selectedOption !== null && isPracticeLikeMode}
                                 showTranslation={showTranslation}
                                 testLanguage={testLanguage}
-                                fontSize={fontSize}
+                                fontSize={fontSize === 0 ? 'small' : fontSize >= 3 ? 'large' : 'medium'}
                                 isTransitioning={isTransitioning}
                                 answerPopularity={answerPopularity}
                                 onSelect={(val) => {
+                                    if (selectedOption) return; // Prevent interaction if already answered
                                     selectOption(val);
-                                    // Auto-submit logic for non-practice modes or specific settings
-                                    if (!isPracticeLikeMode && val) {
-                                        setTimeout(() => handleAnswer(val), 200);
+
+                                    // Auto-submit logic for non-practice modes OR Russia version
+                                    // In Russia version, we auto-submit even in practice to match GAI flow
+                                    if ((!isPracticeLikeMode || isRussia) && val) {
+                                        // Use a small delay for tactile feedback if needed, but ensure it's called once
+                                        setTimeout(() => handleAnswer(val), 100);
                                     }
                                 }}
-                                onAnswer={handleAnswer}
                             />
 
                             {/* Navigation */}
@@ -228,7 +231,7 @@ export const QuestionCard = ({
                                     !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
                                         <SubmitButton
                                             label={isRussia ? "Ответить" : "Responder"}
-                                            onClick={() => handleAnswer()}
+                                            onClick={() => handleAnswer(selectedOption || undefined)}
                                             disabled={!selectedOption}
                                             isEnterPressed={isEnterPressed}
                                             variant="practice"
@@ -244,10 +247,10 @@ export const QuestionCard = ({
                 ) : (
                     // DGT Split Layout (Premium Split) 
                     // Stacks vertically on tablets (md), side-by-side only on large screens (lg+)
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-start">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 lg:gap-6 items-start">
                         <div className="w-full lg:sticky lg:top-6 lg:self-start">
                             <QuestionImage
-                                imageUrl={currentQuestion.image_url}
+                                imageUrl={currentQuestion.image_url || null}
                                 country={isRussia ? 'russia' : 'spain'}
                                 className="w-full h-auto object-cover rounded-[2rem] border border-border/50 shadow-md hover:shadow-xl transition-all duration-500 bg-zinc-900/5 dark:bg-zinc-100/5 group-hover:scale-[1.02]"
                             />
@@ -270,11 +273,16 @@ export const QuestionCard = ({
                                 showResult={selectedOption !== null && isPracticeLikeMode}
                                 showTranslation={showTranslation}
                                 testLanguage={testLanguage}
-                                fontSize={fontSize}
+                                fontSize={fontSize === 0 ? 'small' : fontSize >= 3 ? 'large' : 'medium'}
                                 isTransitioning={isTransitioning}
                                 answerPopularity={answerPopularity}
-                                onSelect={selectOption}
-                                onAnswer={handleAnswer}
+                                onSelect={(val) => {
+                                    if (selectedOption) return;
+                                    selectOption(val);
+                                    if ((!isPracticeLikeMode || isRussia) && val) {
+                                        setTimeout(() => handleAnswer(val), 100);
+                                    }
+                                }}
                             />
 
                             {/* Sticky Mobile Navigation */}
@@ -361,7 +369,7 @@ export const QuestionCard = ({
                                         !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
                                             <SubmitButton
                                                 label={isRussia ? "Ответить" : "Responder"}
-                                                onClick={() => handleAnswer()}
+                                                onClick={() => handleAnswer(selectedOption || undefined)}
                                                 disabled={!selectedOption}
                                                 isEnterPressed={isEnterPressed}
                                                 variant="practice"
@@ -395,20 +403,20 @@ export const QuestionCard = ({
                         showResult={selectedOption !== null && isPracticeLikeMode}
                         showTranslation={showTranslation}
                         testLanguage={testLanguage}
-                        fontSize={fontSize}
+                        fontSize={fontSize === 0 ? 'small' : fontSize >= 3 ? 'large' : 'medium'}
                         isTransitioning={isTransitioning}
                         answerPopularity={answerPopularity}
                         onSelect={(val) => {
+                            if (selectedOption) return;
                             selectOption(val);
-                            if (!isPracticeLikeMode && val) {
-                                setTimeout(() => handleAnswer(val), 200);
+                            if ((!isPracticeLikeMode || isRussia) && val) {
+                                setTimeout(() => handleAnswer(val), 100);
                             }
                         }}
-                        onAnswer={handleAnswer}
                     />
 
                     <div className="flex gap-3 items-center mt-6">
-                        {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
+                        {(isPracticeLikeMode || mode === 'by-topic') && (
                             <button
                                 onClick={handleOpenAIChat}
                                 className="group h-12 sm:h-14 pl-2 pr-4 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center gap-1.5 transition-all hover:bg-indigo-100 dark:hover:bg-indigo-500/20 active:scale-95 shrink-0 xl:hidden shadow-sm"
@@ -446,7 +454,7 @@ export const QuestionCard = ({
                             !(isRussia && isPracticeLikeMode && mode !== "exam-russia") && mode !== "exam-russia" && (
                                 <SubmitButton
                                     label={isRussia ? "Ответить" : "Responder"}
-                                    onClick={() => handleAnswer()}
+                                    onClick={() => handleAnswer(selectedOption || undefined)}
                                     disabled={!selectedOption}
                                     isEnterPressed={isEnterPressed}
                                     variant="practice"

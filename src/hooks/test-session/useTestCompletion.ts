@@ -35,6 +35,7 @@ interface UseTestCompletionParams {
     russiaExamQuestions: any[];
     isRussia: boolean;
     answers?: any[];
+    setAnswers: (a: any[]) => void;
 }
 
 interface TestRewardResult {
@@ -76,7 +77,8 @@ export const useTestCompletion = ({
     closeAIChat,
     russiaExamQuestions,
     isRussia,
-    answers = []
+    answers = [],
+    setAnswers
 }: UseTestCompletionParams) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -103,7 +105,7 @@ export const useTestCompletion = ({
         const currentQuestions = latestState
             ? (latestState.kind === 'russia'
                 ? russiaExamQuestions
-                : questions)
+                : latestState.data.questions)
             : questions;
 
         // КРИТИЧНО: Очищаем локальное сохранение после завершения теста
@@ -113,34 +115,41 @@ export const useTestCompletion = ({
             });
         }
 
-        // MASTERY MODE: Если есть неправильные вопросы - повторяем!
-        if (mode === "mastery" && masteryWrongQuestions.length > 0) {
+        // MASTERY / MARATHON MODE: Если есть неправильные вопросы - повторяем!
+        if ((mode === "mastery" || mode === "marathon") && masteryWrongQuestions.length > 0) {
+            // ФИКС: Берем ТОЛЬКО те вопросы, которые были в masteryWrongQuestions
             const wrongQuestionsData = currentQuestions.filter((q: any) => masteryWrongQuestions.includes(q.id));
 
             if (wrongQuestionsData.length > 0) {
+                const nextRound = masteryRound + 1;
                 toast.info(
-                    `Раунд ${masteryRound} завершён! Повторяем ${wrongQuestionsData.length} неправильных вопросов 🔄`,
-                    { duration: 3000 }
+                    `🎉 Раунд ${masteryRound} пройден! Переходим к Раунду ${nextRound} (${wrongQuestionsData.length} вопросов)`,
+                    { duration: 4500 }
                 );
+
+                // Очищаем локальные ответы сразу, чтобы UI не мигал старыми данными
+                setAnswers([]);
 
                 // Перезапускаем с неправильными вопросами
                 setQuestions(wrongQuestionsData);
-                setMasteryWrongQuestions([]); // Очищаем для следующего раунда
-                setMasteryRound(masteryRound + 1);
+                setMasteryWrongQuestions([]); // Сбрасываем для нового раунда
+                setMasteryRound(nextRound);
                 setCurrentIndex(0);
 
-                // Реинициализируем экзамен с новыми вопросами
-                initializeExam(wrongQuestionsData, mode, initialTimeBudget, isRussia);
+                // Реинициализируем экзамен
+                initializeExam(mode, wrongQuestionsData, { timeLimit: initialTimeBudget });
 
                 setShowTranslation(false);
-                closeAIChat();
+                if (closeAIChat) closeAIChat();
                 return; // НЕ завершаем тест!
             }
         }
 
-        // Если Mastery Mode и все правильно - показываем поздравление!
+        // Если Mastery / Marathon Mode и все правильно - показываем поздравление!
         if (mode === "mastery") {
             toast.success(`🎉 ИДЕАЛЬНО! Все вопросы правильно за ${masteryRound} раундов!`, { duration: 5000 });
+        } else if (mode === "marathon") {
+            toast.success(`🏆 Марафон пройден за ${masteryRound} раундов без единой ошибки!`, { duration: 6000 });
         }
 
         const correctCount = currentAnswers.filter((a: any) => a.isCorrect).length;
@@ -324,22 +333,21 @@ export const useTestCompletion = ({
                         message: "OFFLINE: Результаты сохранены и будут отправлены при подключении."
                     };
                 } else {
-                    // ONLINE call
-                    const { data, error } = await supabase.functions.invoke('complete-test-and-award', {
+                    // Расчет наград для марафона (SP и XP)
+                    const isMarathon = mode === 'marathon' || mode === 'mastery';
+                    const { data, error } = await supabase.functions.invoke('calculate-test-reward', {
                         body: {
                             user_id: profileId,
-                            session_id: sessionId,
-                            test_id: testId || null,
-                            score,
-                            questions_count: currentQuestions.length,
-                            correct_count: correctCount,
-                            test_duration_seconds: Math.max(timeSpent, 0),
-                            premium_flag: Boolean(isPremium),
-                            // double_sp_active is handled by backend or logic before
-                            mode: mode // Send mode for specific logic (exam vs blitz etc)
+                            test_id: testId || 'practice',
+                            mode: mode,
+                            score: correctCount,
+                            total: currentQuestions.length, // Use currentQuestions.length
+                            time_spent: timeSpent,
+                            // Добавляем инфо о раундах для марафона
+                            marathon_rounds: isMarathon ? masteryRound : 1,
+                            country: pddCountry || 'spain'
                         }
                     });
-
                     if (error) {
                         console.error("Error calculating rewards:", error);
                     } else if (data) {
@@ -365,7 +373,8 @@ export const useTestCompletion = ({
                 questions: currentQuestions,
                 timeSpent,
                 mode,
-                rewardResult
+                rewardResult,
+                masteryRound
             },
         });
     };
