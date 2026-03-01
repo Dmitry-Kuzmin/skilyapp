@@ -59,9 +59,15 @@ export interface StandardExamStats {
     timeSpent: number;
 }
 
+export interface SavedProgress {
+    answers: Record<string, { isCorrect: boolean; selectedOptionId: string; answeredAt: number }>;
+    currentIndex: number;
+}
+
 export interface ExamOptions {
     allQuestionsByBlock?: Record<number, UniversalQuestion[]>;
     timeLimit?: number;
+    savedProgress?: SavedProgress;
 }
 
 interface ExamActions {
@@ -79,6 +85,9 @@ interface ExamActions {
     prevQuestion: () => void;
     jumpToQuestion: (index: number) => void;
     modifyTime: (amount: number) => void; // For Blitz bonuses
+
+    // Restoration
+    restoreSession: (answers: Record<string, any>, currentIndex: number) => void;
 
     // Timer
     tickTimer: () => void;
@@ -122,21 +131,26 @@ export const useExamStore = create<ExamStore>((set, get) => ({
         } else {
             // Initialize Standard Logic
             const timeLimit = options?.timeLimit || (mode === 'blitz' ? 90 : (mode === 'exam' ? 1200 : undefined));
+            const saved = options?.savedProgress;
+
+            const startIndex = saved?.currentIndex ?? 0;
+            const startAnswers = saved?.answers ?? {};
+            const hasRestoredAnswer = saved ? !!saved.answers[questions[startIndex]?.id] : false;
 
             const standardState: StandardTestState = {
                 questions,
-                currentIndex: 0,
-                answers: {},
-                // Phase 1: UI State
+                currentIndex: startIndex,
+                answers: startAnswers,
                 selectedOption: null,
-                isAnswerLocked: false,
-                feedbackStatus: 'idle',
-                // Blitz
+                isAnswerLocked: hasRestoredAnswer,
+                feedbackStatus: hasRestoredAnswer
+                    ? (startAnswers[questions[startIndex]?.id]?.isCorrect ? 'correct' : 'incorrect')
+                    : 'idle',
                 streak: 0,
                 bestStreak: 0,
                 startTime: Date.now(),
                 timeLimit,
-                timeInfo: timeLimit || 0, // starts at limit (countdown) or 0 (countup)
+                timeInfo: timeLimit || 0,
                 status: 'in-progress',
                 mode
             };
@@ -336,6 +350,29 @@ export const useExamStore = create<ExamStore>((set, get) => ({
                     }
                 });
             }
+        }
+    },
+
+    restoreSession: (answers, currentIndex) => {
+        const { activeState } = get();
+        if (activeState?.kind === 'standard') {
+            const { data } = activeState;
+            const currentQuestionId = data.questions[currentIndex]?.id;
+            const existingAnswer = currentQuestionId ? answers[currentQuestionId] : null;
+
+            set({
+                activeState: {
+                    kind: 'standard',
+                    data: {
+                        ...data,
+                        answers: { ...data.answers, ...answers },
+                        currentIndex,
+                        isAnswerLocked: !!existingAnswer,
+                        feedbackStatus: existingAnswer ? (existingAnswer.isCorrect ? 'correct' : 'incorrect') : 'idle',
+                        status: currentIndex >= data.questions.length ? 'completed' : 'in-progress',
+                    }
+                }
+            });
         }
     },
 

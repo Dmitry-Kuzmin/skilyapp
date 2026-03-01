@@ -28,7 +28,6 @@ import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { isTelegramMiniApp, triggerHapticFeedback } from "@/lib/telegram";
 import { cn } from "@/lib/utils";
-import { saveTestProgress, loadTestProgress, clearTestProgress } from "@/utils/testStorage";
 import { useExamStore } from "@/store/examStore";
 import { useTestEffects } from "@/hooks/test-session/useTestEffects";
 import { useSettingsStore } from "@/store/settingsStore";
@@ -213,7 +212,7 @@ const TestSession = () => {
     setFeedbackStatus,
     resetExam,
     modifyTime,
-    tickTimer
+    tickTimer,
   } = useTestState();
 
   // Aliases for compatibility
@@ -697,16 +696,12 @@ const TestSession = () => {
     setPenaltyBlockAny(val as any);
   };
 
-  const { saveProgress, clearProgress } = useTestProgress({
+  const { clearProgress } = useTestProgress({
     testId: (testInfo as any)?.id,
-    mode: mode as TestMode,
-    questionsLoaded: questions.length > 0,
+    mode: mode as any,
     answers,
     currentIndex,
     startTime,
-    resetExam,
-    answerQuestion: (id, ok) => answerQuestionZ(id, ok),
-    jumpToQuestion: jumpToQuestionZ
   });
 
   // Cleanup on unmount to prevent stale results when starting a new game (fixes the 'completed' status carryover)
@@ -963,7 +958,7 @@ const TestSession = () => {
   const practiceLikeModes = [
     "practice", "blitz", "mastery", "marathon", "sequential", "module",
     "challenge-bank", "dgt", "pdd-ticket", "redemption", "by-topic",
-    "traps", "hardest", "favorites"
+    "traps", "hardest", "favorites", "nonstop"
   ];
   const isPracticeLikeMode = practiceLikeModes.includes(mode);
 

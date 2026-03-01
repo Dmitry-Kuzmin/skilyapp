@@ -341,7 +341,7 @@ export const useTestInteraction = ({
         const isPracticeLikeMode = [
             'practice', 'pdd-topic', 'pdd-ticket', 'by-topic', 'traps',
             'mastery', 'hardest', 'sequential', 'challenge-bank',
-            'marathon', 'exam-russia', 'redemption', 'module', 'favorites'
+            'marathon', 'exam-russia', 'redemption', 'module', 'favorites', 'nonstop'
         ].includes(mode);
 
         if (isPracticeLikeMode) {

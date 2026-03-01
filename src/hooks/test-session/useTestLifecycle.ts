@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { checkOnlineStatus } from "@/hooks/useOnlineStatus";
+import { loadTestProgress } from "@/utils/testStorage";
+import { SavedProgress } from "@/store/examStore";
 
 interface TestLifecycleParams {
     // Initialization
@@ -79,19 +81,51 @@ export const useTestLifecycle = ({
         }
     }, [questions, setQuestionsState, mode, questionsState.length]);
 
-    // 2. Initialize Exam Store
+    // 2. Initialize Exam Store (with optional saved progress restore)
     useEffect(() => {
-        if (questionsState.length > 0) {
+        if (questionsState.length === 0) return;
+
+        // Режимы с таймером/строгими правилами — прогресс не восстанавливаем
+        const noRestoreModes = ['blitz', 'exam', 'exam-russia'];
+        const canRestore = !noRestoreModes.includes(mode);
+
+        const doInit = async () => {
+            let savedProgress: SavedProgress | undefined;
+
+            if (canRestore && testInfo?.id) {
+                try {
+                    const saved = await loadTestProgress(testInfo.id);
+                    if (saved && saved.answers.length > 0) {
+                        // Конвертируем массив TestAnswer → Record
+                        const answersRecord: SavedProgress['answers'] = {};
+                        saved.answers.forEach(a => {
+                            answersRecord[a.questionId] = {
+                                isCorrect: a.isCorrect,
+                                selectedOptionId: a.selectedAnswerId,
+                                answeredAt: a.timestamp || Date.now()
+                            };
+                        });
+                        savedProgress = {
+                            answers: answersRecord,
+                            currentIndex: saved.currentIndex
+                        };
+                        toast.info('Прогресс восстановлен', { icon: '↩️', id: `restore-${testInfo.id}` });
+                    }
+                } catch (e) {
+                    console.error('[TestLifecycle] Failed to load saved progress:', e);
+                }
+            }
+
             initializeExam(mode, questionsState, {
                 allQuestionsByBlock,
                 timeLimit: initialTimeBudget,
-                redemption: {
-                    isEnabled: isRedemptionMode || false,
-                    failedQuestions: redemptionFailedQuestions
-                }
+                savedProgress,
             });
-        }
-    }, [mode, questionsState, allQuestionsByBlock, initializeExam, initialTimeBudget, isRedemptionMode, redemptionFailedQuestions]);
+        };
+
+        doInit();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [questionsState, mode, allQuestionsByBlock, initialTimeBudget]);
 
     // 3. Start Test Session (Edge Function)
     useEffect(() => {

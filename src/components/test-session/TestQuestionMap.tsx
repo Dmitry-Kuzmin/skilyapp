@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import { SkilyBrandLogo } from "../SkilyBrandLogo";
+import { getImageUrl } from "@/utils/imageUtils";
 
 interface TestQuestionMapProps {
     open: boolean;
@@ -61,7 +62,7 @@ export const TestQuestionMap = ({
             const answer = answersMap.get(question.id);
             const isAnswered = answer !== undefined;
             const isCurrent = idx === currentIndex;
-            const imageUrl = question.image_url;
+            const imageUrl = getImageUrl(question.image || question.image_url);
 
             return (
                 <button

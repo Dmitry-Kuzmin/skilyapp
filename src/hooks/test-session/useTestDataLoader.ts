@@ -349,7 +349,7 @@ export const useTestDataLoader = ({
                     isLoading: pddSequentialQuestions.isLoading,
                     error: pddSequentialQuestions.error as Error | null,
                     testInfo: {
-                        id: mode,
+                        id: pddCountry === 'russia' ? 'nonstop_russia' : mode,
                         title: '♾️ Нон-стоп'
                     },
                 };

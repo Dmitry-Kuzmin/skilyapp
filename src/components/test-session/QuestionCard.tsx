@@ -139,10 +139,9 @@ export const QuestionCard = ({
                                     if (selectedOption) return; // Prevent interaction if already answered
                                     selectOption(val);
 
-                                    // Auto-submit logic for non-practice modes OR Russia version
-                                    // In Russia version, we auto-submit even in practice to match GAI flow
-                                    if ((!isPracticeLikeMode || isRussia) && val) {
-                                        // Use a small delay for tactile feedback if needed, but ensure it's called once
+                                    // В режимах "практики" (где ответы подсвечиваются сразу и кнопка "Ответить" прячется),
+                                    // мы должны отправлять ответ (сохранять прогресс) автоматически при выборе
+                                    if (val && (isPracticeLikeMode || isRussia)) {
                                         setTimeout(() => handleAnswer(val), 100);
                                     }
                                 }}
@@ -279,7 +278,7 @@ export const QuestionCard = ({
                                 onSelect={(val) => {
                                     if (selectedOption) return;
                                     selectOption(val);
-                                    if ((!isPracticeLikeMode || isRussia) && val) {
+                                    if (val && (isPracticeLikeMode || isRussia)) {
                                         setTimeout(() => handleAnswer(val), 100);
                                     }
                                 }}
@@ -409,7 +408,7 @@ export const QuestionCard = ({
                         onSelect={(val) => {
                             if (selectedOption) return;
                             selectOption(val);
-                            if ((!isPracticeLikeMode || isRussia) && val) {
+                            if (val && (isPracticeLikeMode || isRussia)) {
                                 setTimeout(() => handleAnswer(val), 100);
                             }
                         }}
