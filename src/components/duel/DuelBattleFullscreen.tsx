@@ -732,15 +732,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-6 md:gap-12"
+            className="flex items-center gap-4 sm:gap-6 md:gap-12 w-full justify-center px-4"
           >
             {/* Игрок 1 */}
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 min-w-0">
               <motion.div
                 initial={{ x: -100, opacity: 0, scale: 0.5 }}
                 animate={{ x: 0, opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 100, damping: 12, delay: 0.2 }}
-                className="relative w-32 h-32 md:w-48 md:h-48 rounded-[2rem] overflow-hidden border-4 border-blue-500 shadow-[0_0_50px_rgba(59,130,246,0.6)] group"
+                className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border-4 border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.5)] group flex-shrink-0"
               >
                 <div className="absolute inset-0 bg-blue-500/10 mix-blend-overlay opacity-0 transition-opacity duration-500 z-10" />
                 <img src={myPhotoUrl || getFallbackAvatar(myName)} className="w-full h-full object-cover transform scale-[1.02] transition-transform duration-700" alt={myName || 'Player 1'} />
@@ -749,7 +749,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="text-white font-black text-xl md:text-2xl uppercase tracking-[0.2em] drop-shadow-md text-center max-w-[200px] truncate"
+                className="text-white font-black text-sm sm:text-xl md:text-2xl uppercase tracking-[0.1em] sm:tracking-[0.2em] drop-shadow-md text-center max-w-[100px] sm:max-w-[200px] truncate"
               >
                 {myName}
               </motion.span>
@@ -758,23 +758,23 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
             {/* VS */}
             <motion.div
               initial={{ scale: 0, rotate: -30 }}
-              animate={{ scale: [0, 1.5, 1], rotate: 0 }}
+              animate={{ scale: [0, 1.2, 1], rotate: 0 }}
               transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.5 }}
-              className="relative mx-2 md:mx-10"
+              className="relative mx-1 sm:mx-2 md:mx-10 flex-shrink-0"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 blur-3xl opacity-50 scale-150 animate-pulse" />
-              <div className="relative text-7xl md:text-[8rem] font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white via-indigo-300 to-blue-600 drop-shadow-[0_0_20px_rgba(99,102,241,1)] transform hover:scale-110 transition-transform">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-500 blur-2xl opacity-40 scale-150 animate-pulse" />
+              <div className="relative text-4xl sm:text-6xl md:text-[8rem] font-black italic text-transparent bg-clip-text bg-gradient-to-b from-white via-indigo-300 to-blue-600 drop-shadow-[0_0_15px_rgba(99,102,241,0.8)] transform hover:scale-110 transition-transform">
                 VS
               </div>
             </motion.div>
 
             {/* Игрок 2 (Оппонент) */}
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 min-w-0">
               <motion.div
                 initial={{ x: 100, opacity: 0, scale: 0.5 }}
                 animate={{ x: 0, opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 100, damping: 12, delay: 0.2 }}
-                className="relative w-32 h-32 md:w-48 md:h-48 rounded-[2rem] overflow-hidden border-4 border-orange-500 shadow-[0_0_50px_rgba(234,88,12,0.6)] group"
+                className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border-4 border-orange-500 shadow-[0_0_40px_rgba(234,88,12,0.5)] group flex-shrink-0"
               >
                 <div className="absolute inset-0 bg-orange-500/10 mix-blend-overlay opacity-0 transition-opacity duration-500 z-10" />
                 <img src={opponentPhotoUrl || getFallbackAvatar(opponentName)} className="w-full h-full object-cover transform scale-[1.02] transition-transform duration-700" alt={opponentName || 'Player 2'} />
@@ -783,7 +783,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
-                className="text-white font-black text-xl md:text-2xl uppercase tracking-[0.2em] drop-shadow-md text-center max-w-[200px] truncate"
+                className="text-white font-black text-sm sm:text-xl md:text-2xl uppercase tracking-[0.1em] sm:tracking-[0.2em] drop-shadow-md text-center max-w-[100px] sm:max-w-[200px] truncate"
               >
                 {opponentName}
               </motion.span>

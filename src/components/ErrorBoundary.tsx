@@ -142,16 +142,28 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
             )}
 
-            {/* Кнопка перезагрузки */}
-            <button
-              onClick={() => {
-                this.setState({ hasError: false, error: null, errorInfo: null });
-                window.location.reload();
-              }}
-              className="w-full h-12 px-4 bg-white text-black font-semibold rounded-xl hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] transition-all duration-200 hover:scale-[1.01]"
-            >
-              Перезагрузить
-            </button>
+            {/* Кнопки действий */}
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null, errorInfo: null });
+                  window.location.reload();
+                }}
+                className="w-full h-12 px-4 bg-white text-black font-semibold rounded-xl hover:shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] transition-all duration-200 hover:scale-[1.01]"
+              >
+                Повторить попытку
+              </button>
+
+              <button
+                onClick={() => {
+                  this.setState({ hasError: false, error: null, errorInfo: null });
+                  window.location.href = '/';
+                }}
+                className="w-full h-12 px-4 bg-zinc-900 text-zinc-300 font-semibold rounded-xl border border-zinc-800 hover:bg-zinc-800 hover:text-white transition-all duration-200"
+              >
+                Вернуться на главную
+              </button>
+            </div>
 
             {/* Дополнительная информация (только в dev) */}
             {import.meta.env.DEV && this.state.error?.stack && (

@@ -5,7 +5,7 @@
  */
 
 import React, { useContext, useState, useEffect } from 'react';
-import { User, Camera, LogOut, Check, MessageSquare, Mail, Pencil, Save, X, ExternalLink, Copy, ShieldCheck } from 'lucide-react';
+import { User, Camera, LogOut, Check, MessageSquare, Mail, Pencil, Save, X, ExternalLink, Copy, ShieldCheck, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -630,15 +630,36 @@ export const AccountTab: React.FC = () => {
 
             <Separator className="bg-slate-200 dark:bg-slate-700" />
 
-            {/* Выход */}
-            <div>
+            {/* Выход и Сброс */}
+            <div className="space-y-2">
                 <Button
                     variant="ghost"
                     onClick={handleLogout}
-                    className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 font-medium"
+                    className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 font-medium h-12"
                 >
                     <LogOut className="w-4 h-4 mr-3" />
                     Выйти из аккаунта
+                </Button>
+
+                <Button
+                    variant="ghost"
+                    onClick={() => {
+                        if (confirm('Это полностью сбросит кэш и настройки приложения. Помогает при ошибках входа. Продолжить?')) {
+                            localStorage.clear();
+                            sessionStorage.clear();
+                            // Clear cookies
+                            document.cookie.split(";").forEach((c) => {
+                                document.cookie = c
+                                    .replace(/^ +/, "")
+                                    .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                            });
+                            window.location.href = '/';
+                        }
+                    }}
+                    className="w-full justify-start text-muted-foreground/60 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/5 text-[11px] h-10"
+                >
+                    <Zap className="w-3.5 h-3.5 mr-3" />
+                    Nuclear Reset (Сброс всего кэша)
                 </Button>
             </div>
         </div>

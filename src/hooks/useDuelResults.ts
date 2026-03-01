@@ -143,12 +143,28 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
             const isWinner = (myPlayer.score || 0) > (opponentPlayer.score || 0);
             const isDraw = (myPlayer.score || 0) === (opponentPlayer.score || 0);
 
-            let winnings = 0;
+            // Fetch insurance info if missing from edge data
+            let insuranceUsed = !!(duelData.insurance_used || duelData.host_insurance_enabled);
             let insuranceRefund = 0;
+            let winnings = 0;
+
             if (duelData.bet_amount > 0) {
+              // Try to get more accurate insurance info from duel_bets
+              const { data: betRow } = await supabase
+                .from('duel_bets')
+                .select('host_insurance_enabled, opponent_insurance_enabled')
+                .eq('duel_id', duelId)
+                .maybeSingle();
+
+              if (betRow) {
+                const isHost = profileId === duelData.host_user;
+                insuranceUsed = isHost ? !!(betRow as any).host_insurance_enabled : !!(betRow as any).opponent_insurance_enabled;
+              }
+
               if (isWinner) winnings = duelData.bet_amount * 2;
               else if (isDraw) winnings = duelData.bet_amount;
-              if (!isWinner && !isDraw && (duelData.insurance_used || duelData.host_insurance_enabled)) {
+
+              if (!isWinner && !isDraw && insuranceUsed) {
                 insuranceRefund = Math.floor(duelData.bet_amount * 0.6);
               }
             }
@@ -174,7 +190,7 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
                 betAmount: duelData.bet_amount || 0,
                 winnings,
                 insuranceRefund,
-                insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled),
+                insuranceUsed,
                 opponentId: opponentPlayer.user_id,
                 isBot: !!opponentPlayer.is_bot,
               },
@@ -213,6 +229,19 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
       const isWinner = (myPlayer.score || 0) > (opponentPlayer.score || 0);
       const isDraw = (myPlayer.score || 0) === (opponentPlayer.score || 0);
 
+      // Fetch insurance info if missing
+      const { data: betRow } = await supabase
+        .from('duel_bets')
+        .select('host_insurance_enabled, opponent_insurance_enabled')
+        .eq('duel_id', duelId)
+        .maybeSingle();
+
+      let insuranceUsed = !!((duelData as any).insurance_used || (duelData as any).host_insurance_enabled);
+      if (betRow) {
+        const isHost = profileId === duelData.host_user;
+        insuranceUsed = isHost ? !!(betRow as any).host_insurance_enabled : !!(betRow as any).opponent_insurance_enabled;
+      }
+
       const finalData: DuelResultData = {
         duel: duelData,
         players,
@@ -233,8 +262,8 @@ export function useDuelResults(duelId: string, profileId: string | null, initial
           opponentAvatar: opponentPlayer?.is_bot ? null : (opponentPlayer.profiles?.photo_url || null),
           betAmount: duelData.bet_amount || 0,
           winnings: isWinner ? (duelData.bet_amount * 2) : (isDraw ? duelData.bet_amount : 0),
-          insuranceRefund: (!isWinner && !isDraw && duelData.insurance_used) ? Math.floor(duelData.bet_amount * 0.6) : 0,
-          insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled),
+          insuranceRefund: (!isWinner && !isDraw && insuranceUsed) ? Math.floor(duelData.bet_amount * 0.6) : 0,
+          insuranceUsed,
           opponentId: opponentPlayer.user_id,
           isBot: !!opponentPlayer.is_bot,
         }

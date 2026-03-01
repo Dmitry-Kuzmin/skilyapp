@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { saveDuelResultSnapshot } from '@/utils/duelResultSnapshot';
-import { DuelResultSnapshot, DuelPlayer } from '@/features/duel/shared';
+import { DuelResultSnapshot } from '@/features/duel/shared';
+import { DuelPlayer } from '@/types/duel';
 
 const getIsDev = () => Boolean(import.meta.env.DEV);
 const log = (...args: any[]) => { if (getIsDev()) console.log(...args); };
@@ -42,13 +43,13 @@ export function useDuelResultLogic({
             ]);
 
             if (duelResult.data && playersResult.data && playersResult.data.length >= 2) {
-                const players = playersResult.data;
+                const players = playersResult.data as any[];
                 const myPlayer = players.find((p: any) => p.user_id === profileId);
                 const opponentPlayer = players.find((p: any) => p.user_id !== profileId);
 
                 if (myPlayer && opponentPlayer) {
-                    const myPlayerIdForSnapshot = myPlayer.id;
-                    const opponentPlayerId = opponentPlayer.id;
+                    const myPlayerIdForSnapshot = (myPlayer as any).id;
+                    const opponentPlayerId = (opponentPlayer as any).id;
 
                     // Load answers
                     const [myAnswersResult, opponentAnswersResult] = await Promise.all([
@@ -70,26 +71,40 @@ export function useDuelResultLogic({
                     const opponentAnswers = opponentAnswersResult.data || [];
 
                     // Calculate final results
-                    const myScoreFinal = myPlayer.score || myScore;
-                    const opponentScoreFinal = opponentPlayer.score || opponentScore;
-                    const myCorrect = myPlayer.correct_count || 0;
-                    const opponentCorrect = opponentPlayer.correct_count || 0;
-                    const opponent = opponentPlayer.profiles || {};
+                    const myScoreFinal = (myPlayer as any).score || myScore;
+                    const opponentScoreFinal = (opponentPlayer as any).score || opponentScore;
+                    const myCorrect = (myPlayer as any).correct_count || 0;
+                    const opponentCorrect = (opponentPlayer as any).correct_count || 0;
+                    const opponent = (opponentPlayer as any).profiles || {};
                     const duelData = duelResult.data;
 
                     const isWinner = myScoreFinal > opponentScoreFinal;
                     const isDraw = myScoreFinal === opponentScoreFinal;
 
+                    // Fetch insurance info if missing from db directly
+                    const { data: betRow } = await supabase
+                        .from('duel_bets')
+                        .select('host_insurance_enabled, opponent_insurance_enabled')
+                        .eq('duel_id', duelId)
+                        .maybeSingle();
+
+                    let insuranceUsed = !!((duelData as any).insurance_used || (duelData as any).host_insurance_enabled);
+                    if (betRow) {
+                        const isHost = profileId === (duelData as any).host_user;
+                        insuranceUsed = isHost ? !!(betRow as any).host_insurance_enabled : !!(betRow as any).opponent_insurance_enabled;
+                    }
+
                     let winnings = 0;
                     let insuranceRefund = 0;
-                    if (duelData.bet_amount > 0) {
+
+                    if ((duelData as any).bet_amount > 0) {
                         if (isWinner) {
-                            winnings = duelData.bet_amount * 2;
+                            winnings = (duelData as any).bet_amount * 2;
                         } else if (isDraw) {
-                            winnings = duelData.bet_amount;
+                            winnings = (duelData as any).bet_amount;
                         }
-                        if (!isWinner && !isDraw && duelData.insurance_used) {
-                            insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
+                        if (!isWinner && !isDraw && insuranceUsed) {
+                            insuranceRefund = Math.floor((duelData as any).bet_amount * 0.6);
                         }
                     }
 
@@ -110,10 +125,10 @@ export function useDuelResultLogic({
                             opponentCorrect,
                             opponentName: opponent?.username || opponent?.first_name || opponentName,
                             opponentAvatar: opponent?.photo_url || null,
-                            betAmount: duelData.bet_amount || 0,
+                            betAmount: (duelData as any).bet_amount || 0,
                             winnings,
                             insuranceRefund,
-                            insuranceUsed: duelData.insurance_used || false,
+                            insuranceUsed,
                         },
                         timestamp: Date.now(),
                     };
@@ -155,11 +170,14 @@ export function useDuelResultLogic({
             let winnings = 0;
             let insuranceRefund = 0;
             if (duelData.bet_amount > 0) {
+                // NOTE: Here we use info from duelData as we cannot await in synchronous createSnapshotFromServerData
+                const insuranceUsed = !!(duelData.insurance_used || duelData.host_insurance_enabled);
+
                 if (isWinner) winnings = duelData.bet_amount * 2;
                 else if (isDraw) winnings = duelData.bet_amount;
 
-                if (!isWinner && !isDraw && (duelData.insurance_used || duelData.host_insurance_enabled)) {
-                    insuranceRefund = Math.floor(duelData.bet_amount * 0.5);
+                if (!isWinner && !isDraw && insuranceUsed) {
+                    insuranceRefund = Math.floor(duelData.bet_amount * 0.6);
                 }
             }
 
@@ -185,7 +203,7 @@ export function useDuelResultLogic({
                     betAmount: duelData.bet_amount || 0,
                     winnings,
                     insuranceRefund,
-                    insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled)
+                    insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled) // This will be updated if betRow found above
                 },
                 timestamp: Date.now()
             };

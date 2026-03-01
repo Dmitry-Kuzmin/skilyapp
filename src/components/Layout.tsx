@@ -28,6 +28,7 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useSmartHeader } from "@/hooks/useSmartHeader";
 import { liftStartupCurtain } from "@/utils/startup";
+import { GlobalDuelWatcher } from "./duel/GlobalDuelWatcher";
 
 
 interface LayoutProps {
@@ -198,7 +199,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           .from('duels')
           .select('status')
           .eq('id', activeDuel.duelId)
-          .maybeSingle();
+          .maybeSingle() as { data: any | null, error: any };
 
         if (error || !data) {
           console.warn('[Layout] Error checking duel status for menu button:', error);
@@ -320,6 +321,9 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       <TelegramNavigation />
       {/* Edge Swipe Back Area (Telegram/Mobile) */}
       <EdgeSwipeBack />
+
+      {/* Глобальное обнаружение активных дуэлей */}
+      <GlobalDuelWatcher />
 
       {/* УБРАНО: TelegramSafeAreaDebug - debug overlay убран для продакшена */}
 
@@ -463,8 +467,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         {children}
       </main>
 
-      {/* Footer - Скрываем в полноэкранных режимах (тесты, игры) */}
-      {!hideNavigation && !isFullscreenMode && <Footer />}
+      {/* Footer - Скрываем в полноэкранных режимах (тесты, игры) ИЛИ если пользователь авторизован (пункты перенесены в ProfileMenu) */}
+      {!hideNavigation && !isFullscreenMode && !isAuthenticated && <Footer />}
 
       {/* Bottom Navigation for Mobile and Telegram - Скрыт в fullscreen режимах (тесты, игры) или при hideNavigation */}
       {

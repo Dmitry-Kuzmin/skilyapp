@@ -92,7 +92,7 @@ export function useDuelLifecycle({
                     .from('duels')
                     .select('status')
                     .eq('id', duelId)
-                    .single();
+                    .single() as { data: any | null };
 
                 if (duel?.status === 'active') {
                     const { data: myPlayer } = await supabase
@@ -100,16 +100,12 @@ export function useDuelLifecycle({
                         .select('is_connected, last_heartbeat_at')
                         .eq('duel_id', duelId)
                         .eq('user_id', profileId)
-                        .single();
+                        .single() as { data: any | null };
 
-                    if (!myPlayer?.is_connected || !myPlayer?.last_heartbeat_at) {
-                        const timeSinceLastHeartbeat = myPlayer?.last_heartbeat_at
-                            ? Date.now() - new Date(myPlayer.last_heartbeat_at).getTime()
-                            : Infinity;
-
-                        if (timeSinceLastHeartbeat > 10000) {
-                            setReconnectionState({ showReconnectionModal: true });
-                        }
+                    // Если игрок был оффлайн, просто ставим статус реконнекта (без модалки с кнопками)
+                    // Это предотвратит показ "Обнаружена активная дуэль" когда пользователь уже в ней.
+                    if (!myPlayer?.is_connected) {
+                        setReconnectionState({ isReconnecting: true });
                     }
                 }
             } catch (error) {

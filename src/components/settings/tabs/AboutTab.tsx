@@ -106,9 +106,30 @@ export const AboutTab: React.FC = () => {
                 <div className="space-y-1">
                     <SettingRow
                         icon={<FileText className="w-4 h-4 text-slate-400" />}
-                        label="Документы"
-                        description="Оферта, Приватность, Возврат"
-                        onClick={() => handleNavigate('/legal')}
+                        label="Конфиденциальность"
+                        description="Privacy Policy"
+                        onClick={() => handleNavigate('/legal/privacy')}
+                    >
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                    </SettingRow>
+                    <SettingRow
+                        icon={<FileText className="w-4 h-4 text-slate-400" />}
+                        label="Правила"
+                        description="Terms of Service"
+                        onClick={() => handleNavigate('/legal/terms')}
+                    >
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                    </SettingRow>
+                    <SettingRow
+                        icon={<FileText className="w-4 h-4 text-slate-400" />}
+                        label="Cookies"
+                        description="Cookie Settings"
+                        onClick={() => {
+                            const win = window as any;
+                            const sdk = win.axeptioSDK || win.axeptio || win.Axeptio;
+                            if (sdk?.requestConsent) sdk.requestConsent();
+                            else if (sdk?.openConsentModal) sdk.openConsentModal();
+                        }}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>

@@ -192,7 +192,7 @@ export const SkilyChat = React.memo(() => {
           </div>
         </div>
 
-        <div className="relative z-10 w-full mt-auto">
+        <div className="relative z-10 w-full mt-4">
           <button
             onClick={(e) => {
               e.stopPropagation();

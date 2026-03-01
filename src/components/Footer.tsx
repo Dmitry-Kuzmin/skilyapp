@@ -53,7 +53,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-white/5 bg-transparent mt-auto relative z-10 mb-[100px] md:mb-0">
+    <footer className="border-t border-white/5 bg-transparent mt-auto relative z-10 mb-[140px] md:mb-0">
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6">
 

@@ -446,35 +446,48 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
               </div>
             </div>
 
-            {/* Logout / Reset */}
-            <div className="pt-2 flex items-center justify-between gap-2 opacity-60 hover:opacity-100 transition-opacity">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-red-500 transition-colors p-1"
-              >
-                <LogOut className="h-3 w-3" />
-                {t('logout') || 'Выйти'}
-              </button>
-
-              <button
-                onClick={() => {
-                  if (confirm('Это полностью сбросит кэш и настройки приложения. Помогает при ошибках входа. Продолжить?')) {
-                    localStorage.clear();
-                    sessionStorage.clear();
-                    // Clear cookies
-                    document.cookie.split(";").forEach((c) => {
-                      document.cookie = c
-                        .replace(/^ +/, "")
-                        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-                    });
-                    window.location.href = '/';
-                  }
-                }}
-                className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:text-orange-500 transition-colors p-1"
-              >
-                <Zap className="h-3 w-3" />
-                Nuclear Reset
-              </button>
+            {/* Юридическая информация (Компактный блок) */}
+            <div className="pt-2 mt-2 border-t border-border/10">
+              <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[10px] font-medium text-muted-foreground/50">
+                <button
+                  onClick={() => { setOpen(false); navigate("/legal/privacy"); }}
+                  className="hover:text-foreground transition-colors"
+                >
+                  Privacy
+                </button>
+                <span className="opacity-30">•</span>
+                <button
+                  onClick={() => { setOpen(false); navigate("/legal/terms"); }}
+                  className="hover:text-foreground transition-colors"
+                >
+                  Terms
+                </button>
+                <span className="opacity-30">•</span>
+                <button
+                  onClick={(e) => {
+                    setOpen(false);
+                    const win = window as any;
+                    const sdk = win.axeptioSDK || win.axeptio || win.Axeptio;
+                    if (sdk?.requestConsent) sdk.requestConsent();
+                    else if (sdk?.openConsentModal) sdk.openConsentModal();
+                  }}
+                  className="hover:text-foreground transition-colors"
+                >
+                  Cookies
+                </button>
+                <span className="opacity-30">•</span>
+                <a
+                  href="https://t.me/skilyapp_bot"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Help
+                </a>
+              </div>
+              <div className="mt-2 text-center text-[9px] text-muted-foreground/30 font-mono tracking-widest uppercase">
+                © 2026 SKILY
+              </div>
             </div>
           </div>
         </PopoverContent>

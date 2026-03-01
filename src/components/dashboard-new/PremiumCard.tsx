@@ -60,7 +60,7 @@ export const PremiumCard: React.FC<PremiumCardProps> = React.memo(({ onGetPremiu
 
     return {
       title: 'Разблокировать все',
-      description: 'Доступ к 5,000+ тестам и безлимитные возможности',
+      description: 'Доступ к 3,000+ тестам и безлимитные возможности',
       badge: null,
     };
   }, [isPremium, isLifetime, daysRemaining, loading]);

@@ -982,7 +982,7 @@ export default function Duel() {
                 bet_type: betType,
                 license_category: licenseCategory, // Pass category
                 immediate_bot: immediateBot || (isActuallyRematch && activeRematchOpponent?.isBot), // Флаг для мгновенного создания бота при реванше
-                rematch_opponent_id: activeRematchOpponent?.id,
+                rematch_opponent_id: (activeRematchOpponent?.id && activeRematchOpponent.id.trim() !== '') ? activeRematchOpponent.id : undefined,
                 rematch_bot_name: activeRematchOpponent?.isBot ? activeRematchOpponent.name : undefined,
             };
 

@@ -148,18 +148,8 @@ export function useSessionManager() {
       // 1. Были закрыты предыдущие сессии
       // 2. И это действительно новый токен (не восстановленный)
       // 3. И закрытые сессии были с ДРУГОГО устройства (не с того же)
-      if (
-        data?.previous_sessions_closed > 0 &&
-        isNewToken &&
-        !data?.closed_same_device
-      ) {
-        // Закрыты сессии с другого устройства - показываем уведомление
-        toast.info('Вход выполнен с нового устройства', {
-          description: 'Предыдущая сессия была завершена',
-          duration: 5000,
-          id: 'new-session-started',
-        });
-      }
+      // No notification here to avoid double prompts
+      return;
     }).catch((err) => {
       console.warn('[SessionManager] Ошибка создания сессии (продолжаем работу):', err);
     });

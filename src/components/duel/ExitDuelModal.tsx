@@ -47,8 +47,8 @@ export function ExitDuelModal({
           return;
         }
 
-        const betAmountValue = duelData?.bet_amount && duelData.bet_amount > 0
-          ? Number(duelData.bet_amount)
+        const betAmountValue = (duelData as any)?.bet_amount && (duelData as any).bet_amount > 0
+          ? Number((duelData as any).bet_amount)
           : 0;
 
         setBetAmount(betAmountValue);
@@ -183,15 +183,15 @@ export function ExitDuelModal({
             icon: TrendingDown,
             label: "Рейтинг",
             value: "Потеря"
-          }].filter(Boolean).map((item, i) => (
-            <div key={i} className="group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
+          }].filter(Boolean).map((item: any, i) => (
+            <div key={i} className="group flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors text-center">
               <div className="p-2 rounded-full bg-zinc-900 group-hover:bg-red-500/20 transition-colors">
                 <item.icon className="w-4 h-4 text-zinc-400 group-hover:text-red-400 transition-colors" />
               </div>
-              <div className="flex flex-col items-center">
-                <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">{item.label}</span>
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider text-center">{item.label}</span>
                 {item.value && (
-                  <span className="text-xs font-bold text-red-400">{item.value}</span>
+                  <span className="text-xs font-bold text-red-400 text-center">{item.value}</span>
                 )}
               </div>
             </div>

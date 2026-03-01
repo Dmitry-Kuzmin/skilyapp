@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo, useRef } from "react";
+import { toast } from "sonner";
 import { TelegramUser } from "@/types/window";
 import { getTelegramUser, getPlatform } from "@/core/TelegramInit";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -425,7 +426,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
             } else if (authData?.session) {
               console.log("[UserContext] ✅ Got Supabase session from Telegram auth!");
 
-              toast.success('Авторизация успешна!', { duration: 1500 });
+              // КРИТИЧНО: Показываем только одно уведомление (желтое/warning как просил Дим)
+              // Используем id чтобы Sonner автоматически заменял/игнорировал дубликаты
+              toast.warning('Авторизация успешна!', {
+                id: 'auth-success-toast',
+                duration: 2000
+              });
 
               // ФУНДАМЕНТАЛЬНЫЙ МОМЕНТ: Устанавливаем сессию в Supabase клиент
               const { error: sessionError } = await supabase.auth.setSession({

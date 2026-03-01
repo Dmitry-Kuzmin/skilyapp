@@ -58,22 +58,33 @@ export function DuelLoadingView({
                 }}></div>
 
                 <div className="relative z-10 space-y-6 max-w-sm">
-                    <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto border border-red-500/20 shadow-[0_0_30px_rgba(239,68,68,0.1)]">
-                        <AlertCircle className="w-10 h-10 text-red-500" />
+                    <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto border border-red-500/20 shadow-[0_0_40px_rgba(239,68,68,0.2)]">
+                        <AlertCircle className="w-12 h-12 text-red-500" />
                     </div>
-                    <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-white uppercase tracking-wider">Сбой инициализации</h3>
-                        <p className="text-zinc-400 text-sm leading-relaxed">Не удалось загрузить данные дуэли. Возможно, соединение было разорвано.</p>
+                    <div className="space-y-3">
+                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Упс! Что-то пошло не так</h3>
+                        <p className="text-zinc-400 text-sm leading-relaxed">Ошибка в процессе дуэли. Пожалуйста, попробуйте перезайти или вернуться на главную.</p>
                     </div>
-                    {onExit && (
+
+                    <div className="flex flex-col gap-3">
                         <Button
-                            onClick={onExit}
-                            variant="outline"
-                            className="w-full bg-white/5 border-white/10 hover:bg-white/10 text-white rounded-xl h-12 uppercase tracking-widest text-xs font-bold transition-all active:scale-95"
+                            onClick={() => window.location.reload()}
+                            className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold uppercase tracking-widest text-sm shadow-[0_0_25px_rgba(79,70,229,0.4)] transition-all active:scale-95"
                         >
-                            Вернуться назад
+                            Перезагрузить
                         </Button>
-                    )}
+
+                        <Button
+                            onClick={() => {
+                                if (onExit) onExit();
+                                window.location.href = '/';
+                            }}
+                            variant="outline"
+                            className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10 text-white/70 rounded-2xl uppercase tracking-widest text-xs font-bold transition-all"
+                        >
+                            На дашборд
+                        </Button>
+                    </div>
                 </div>
             </div>
         );
