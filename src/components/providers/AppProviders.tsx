@@ -25,13 +25,14 @@ import { GlobalSettingsManager } from "@/components/settings";
 import { Motion } from "@/components/optimized/Motion";
 import { useSessionManager } from "@/hooks/useSessionManager";
 
+import { SmartOnboardingFlow } from "@/components/onboarding/SmartOnboardingFlow";
+
 /**
  * Глобальный обработчик сессий.
- * Должен находиться внутри UserProvider.
  */
 const SessionHandler = () => {
   useSessionManager();
-  return null;
+  return <SmartOnboardingFlow />; // Рендерим онбординг рядом с SessionHandler
 };
 
 interface AppProvidersProps {

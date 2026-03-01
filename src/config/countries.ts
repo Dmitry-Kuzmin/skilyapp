@@ -12,6 +12,9 @@ export interface CountryConfig {
     /** Название страны на английском */
     nameEn: string;
 
+    /** Название страны на русском (для UI) */
+    nameRu: string;
+
     /** Название экзамена на английском */
     examNameEn: string;
 
@@ -23,6 +26,21 @@ export interface CountryConfig {
 
     /** Активна ли страна (для постепенного релиза) */
     isActive: boolean;
+
+    /** Дефолтная локаль для этой страны */
+    defaultLocale: string;
+
+    /** Доступные категории прав */
+    availableCategories: string[];
+
+    /** Языки, на которых можно сдавать экзамен в этой стране */
+    examLanguages: string[];
+
+    /** Валюта страны */
+    currency: string;
+
+    /** Доступен ли "умный переводчик" на русский (полезно для Испании) */
+    smartTranslatorAvailable?: boolean;
 
     /** URL официального сайта экзамена */
     officialUrl?: string;
@@ -43,12 +61,18 @@ export interface CountryConfig {
  */
 export const COUNTRIES: CountryConfig[] = [
     {
-        code: 'es',
+        code: 'ES',
         nameEn: 'Spain',
+        nameRu: 'Испания',
         examNameEn: 'Driving Theory Test',
         flag: '🇪🇸',
         authority: 'DGT',
         isActive: true,
+        defaultLocale: 'es-ES',
+        availableCategories: ['B'],
+        examLanguages: ['es', 'en'],
+        currency: 'EUR',
+        smartTranslatorAvailable: true,
         officialUrl: 'https://sede.dgt.gob.es',
         metadata: {
             passingScore: 90,
@@ -57,12 +81,36 @@ export const COUNTRIES: CountryConfig[] = [
         },
     },
     {
-        code: 'pl',
+        code: 'RU',
+        nameEn: 'Russia',
+        nameRu: 'Россия',
+        examNameEn: 'Driving Theory Test',
+        flag: '🇷🇺',
+        authority: 'ГИБДД',
+        isActive: true,
+        defaultLocale: 'ru-RU',
+        availableCategories: ['A', 'B', 'C', 'D'],
+        examLanguages: ['ru'],
+        currency: 'RUB',
+        officialUrl: 'https://гибдд.рф',
+        metadata: {
+            passingScore: 90,
+            totalQuestions: 20,
+            examDuration: 20,
+        },
+    },
+    {
+        code: 'PL',
         nameEn: 'Poland',
+        nameRu: 'Польша',
         examNameEn: 'Driving Theory Test',
         flag: '🇵🇱',
         authority: 'WORD',
-        isActive: false, // Скоро будет активировано
+        isActive: false,
+        defaultLocale: 'pl-PL',
+        availableCategories: ['B'],
+        examLanguages: ['pl', 'en', 'ru'],
+        currency: 'PLN',
         officialUrl: 'https://www.gov.pl/web/infrastruktura/prawo-jazdy',
         metadata: {
             passingScore: 68,
@@ -71,12 +119,17 @@ export const COUNTRIES: CountryConfig[] = [
         },
     },
     {
-        code: 'de',
+        code: 'DE',
         nameEn: 'Germany',
+        nameRu: 'Германия',
         examNameEn: 'Driving Theory Test',
         flag: '🇩🇪',
         authority: 'TÜV',
-        isActive: false, // Скоро будет активировано
+        isActive: false,
+        defaultLocale: 'de-DE',
+        availableCategories: ['B'],
+        examLanguages: ['de', 'en', 'ru', 'es', 'fr', 'it', 'pl', 'pt', 'ro', 'ru', 'tr'],
+        currency: 'EUR',
         officialUrl: 'https://www.tuev-sued.de',
         metadata: {
             passingScore: 90,
@@ -84,21 +137,12 @@ export const COUNTRIES: CountryConfig[] = [
             examDuration: 45,
         },
     },
-    {
-        code: 'ru',
-        nameEn: 'Russia',
-        examNameEn: 'Driving Theory Test',
-        flag: '🇷🇺',
-        authority: 'ГИБДД',
-        isActive: true,
-        officialUrl: 'https://гибдд.рф',
-        metadata: {
-            passingScore: 90,
-            totalQuestions: 20,
-            examDuration: 20,
-        },
-    },
 ];
+
+export const COUNTRY_CONFIG = COUNTRIES.reduce((acc, country) => {
+    acc[country.code] = country;
+    return acc;
+}, {} as Record<string, CountryConfig>);
 
 /**
  * Получить конфигурацию страны по коду
