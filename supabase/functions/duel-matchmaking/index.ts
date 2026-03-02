@@ -341,6 +341,25 @@ Deno.serve(async (req) => {
                 }
 
                 if (duel.status !== 'waiting') {
+                    // Идемпотентность: если игрок уже внутри и дуэль активна, возвращаем успех
+                    const { data: existingPlayer } = await supabase
+                        .from('duel_players')
+                        .select('id')
+                        .eq('duel_id', duel.id)
+                        .eq('user_id', profileId)
+                        .maybeSingle();
+
+                    if (existingPlayer && duel.status === 'active') {
+                        return new Response(JSON.stringify({
+                            duel,
+                            player: existingPlayer,
+                            auto_started: true,
+                            idempotent: true
+                        }), {
+                            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                        });
+                    }
+
                     return new Response(JSON.stringify({ error: 'Duel already started or finished' }), {
                         status: 400,
                         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
