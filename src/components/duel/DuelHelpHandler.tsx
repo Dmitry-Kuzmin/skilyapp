@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from '@/components/optimized/Motion';
-import { Heart, Coins, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Heart, Coins, Sparkles, CheckCircle2, Loader2 } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -133,10 +133,10 @@ export function DuelHelpHandler() {
                 </motion.div>
             </div>
 
-            <h2 className="text-2xl font-bold text-white tracking-tight">
+            <h2 className="text-2xl font-bold text-white tracking-tight text-center">
                 {isDone ? 'Помощь оказана!' : 'Другу нужна помощь'}
             </h2>
-            <p className="text-sm text-zinc-400 leading-relaxed max-w-[280px] mx-auto">
+            <p className="text-sm text-zinc-400 leading-relaxed max-w-[280px] mx-auto text-center mt-2">
                 {isDone
                     ? 'Монеты списаны с вашего счёта. Дуэль запущена ⚔️'
                     : <>
