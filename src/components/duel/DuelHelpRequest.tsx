@@ -94,49 +94,56 @@ export function DuelHelpRequest({
 
     return (
         <>
-            <div className={cn("p-5 rounded-[28px] bg-[#121214] border border-amber-500/20 shadow-xl relative overflow-hidden group", className)}>
+            <div className={cn("p-6 rounded-[32px] bg-[#121214] border border-amber-500/20 shadow-xl relative overflow-hidden group w-full", className)}>
                 {/* Background Glow */}
-                <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 blur-3xl pointer-events-none group-hover:bg-amber-500/20 transition-all duration-500" />
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 blur-3xl pointer-events-none group-hover:bg-amber-500/20 transition-all duration-700" />
+                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-orange-500/5 blur-3xl pointer-events-none" />
 
-                <div className="flex items-center gap-4 relative z-10">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 flex-shrink-0">
-                        <motion.div
-                            animate={{ scale: [1, 1.1, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                        >
-                            <Heart className="w-6 h-6 text-white fill-white/20" />
-                        </motion.div>
+                <div className="flex flex-col gap-6 relative z-10">
+                    <div className="flex items-center gap-4 text-left">
+                        <div className="w-14 h-14 rounded-[20px] bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 flex items-center justify-center shadow-2xl shadow-amber-500/20 flex-shrink-0">
+                            <motion.div
+                                animate={{ scale: [1, 1.15, 1], rotate: [0, 5, -5, 0] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                            >
+                                <Heart className="w-7 h-7 text-white fill-white/20" />
+                            </motion.div>
+                        </div>
+
+                        <div className="flex-1">
+                            <h4 className="text-lg font-black text-white tracking-tight leading-none mb-2">
+                                Выручить тебя? 🤝
+                            </h4>
+                            <p className="text-sm text-zinc-400 font-medium leading-relaxed">
+                                Не хватает всего <span className="text-amber-400 font-bold">{missingAmount}</span> монет. Твой друг может помочь доплатить, чтобы вы начали битву прямо сейчас!
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                        <h4 className="text-base font-black text-white tracking-tight leading-none mb-1">
-                            Нужна поддержка?
-                        </h4>
-                        <p className="text-xs text-zinc-400 font-medium leading-normal">
-                            Не хватает <span className="text-amber-400 font-bold">{missingAmount}</span> монет. Хост может доплатить за вас!
-                        </p>
-                    </div>
-
-                    <div className="flex-shrink-0">
+                    <div className="block w-full">
                         <AnimatePresence mode="wait">
                             {requestStatus === 'idle' || requestStatus === 'failed' ? (
                                 <motion.div
                                     key="idle"
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    className="w-full"
                                 >
                                     <Button
                                         onClick={handleRequestHelp}
                                         disabled={isRequesting}
-                                        className="h-11 px-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-xs tracking-widest transition-all active:scale-95 group/btn"
+                                        className={cn(
+                                            "w-full h-14 rounded-2xl font-black text-sm tracking-widest transition-all active:scale-[0.98] group/btn shadow-xl",
+                                            "bg-white/5 border border-white/10 hover:bg-white/10 hover:border-amber-500/30 text-white"
+                                        )}
                                     >
                                         {isRequesting ? (
-                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <Loader2 className="w-5 h-5 animate-spin" />
                                         ) : (
-                                            <div className="flex items-center gap-2">
-                                                <Sparkles className="w-4 h-4 text-amber-400 group-hover/btn:scale-110 transition-transform" />
-                                                <span>ЗАПРОСИТЬ</span>
+                                            <div className="flex items-center justify-center gap-3">
+                                                <Sparkles className="w-5 h-5 text-amber-400 group-hover/btn:scale-110 transition-transform" />
+                                                <span>ПОПРОСИТЬ ПОМОЩЬ</span>
                                             </div>
                                         )}
                                     </Button>
@@ -144,12 +151,12 @@ export function DuelHelpRequest({
                             ) : requestStatus === 'sent' ? (
                                 <motion.div
                                     key="sent"
-                                    initial={{ opacity: 0, x: 10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-amber-500/10 border border-amber-500/20"
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex items-center justify-center gap-3 w-full h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20"
                                 >
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-500" />
-                                    <span className="text-[11px] text-amber-400 font-black uppercase tracking-widest">Ждем...</span>
+                                    <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                                    <span className="text-xs text-amber-400 font-black uppercase tracking-widest">Ждем ответа друга...</span>
                                 </motion.div>
                             ) : null}
                         </AnimatePresence>
@@ -158,12 +165,12 @@ export function DuelHelpRequest({
 
                 {requestStatus === 'failed' && (
                     <motion.div
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-3 flex items-center gap-2 text-red-500 justify-center border-t border-white/5 pt-3"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="mt-4 flex items-center gap-2 text-red-500 justify-center"
                     >
                         <AlertCircle size={14} />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-red-400">Ошибка отправки</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-red-400">Ошибка отправки запроса</span>
                     </motion.div>
                 )}
             </div>
