@@ -568,17 +568,49 @@ Deno.serve(async (req) => {
                         throw rematchDuelError || new Error('Failed to create rematch duel');
                     }
 
-                    // Обновляем страховку хоста
-                    if (hostInsurance.enabled) {
-                        await supabase
-                            .from('duel_players')
-                            .update({
-                                insurance_enabled: hostInsurance.enabled,
-                                insurance_premium: hostInsurance.premium,
-                                insurance_coverage_rate: hostInsurance.coverageRate,
-                            })
-                            .eq('duel_id', rematchDuel.id)
-                            .eq('user_id', profileId);
+                    // Добавляем хоста в duel_players (без этого дуэль пуста)
+                    const { error: hostPlayerError } = await supabase
+                        .from('duel_players')
+                        .insert({
+                            duel_id: rematchDuel.id,
+                            user_id: profileId,
+                            is_bot: false,
+                            insurance_enabled: hostInsurance.enabled,
+                            insurance_premium: hostInsurance.premium,
+                            insurance_coverage_rate: hostInsurance.coverageRate,
+                        });
+
+                    if (hostPlayerError) {
+                        console.error('[find_match] ❌ Failed to insert host player for rematch:', hostPlayerError);
+                        throw hostPlayerError;
+                    }
+
+                    // Создаём вопросы для дуэли (без этого нечего играть)
+                    const rematchQuestions = await fetchRandomQuestions(
+                        supabase,
+                        num_questions,
+                        playerCountry,
+                        questionSeed,
+                        categories,
+                        difficulty,
+                        license_category
+                    );
+
+                    const rematchDuelQuestions = rematchQuestions.map((q: any, index: number) => ({
+                        duel_id: rematchDuel.id,
+                        question_id: q.id,
+                        position: index + 1,
+                        question_snapshot: q,
+                        correct_option_ids: q.correct_option_id ? [q.correct_option_id] : [],
+                    }));
+
+                    const { error: rematchQuestionsError } = await supabase
+                        .from('duel_questions')
+                        .insert(rematchDuelQuestions);
+
+                    if (rematchQuestionsError) {
+                        console.error('[find_match] ❌ Failed to insert questions for rematch:', rematchQuestionsError);
+                        throw rematchQuestionsError;
                     }
 
                     // Получаем имя инициатора для уведомления
@@ -597,7 +629,8 @@ Deno.serve(async (req) => {
                         .eq('id', rematch_opponent_id)
                         .maybeSingle();
 
-                    // Отправляем Telegram уведомление через Edge Function bot (если есть telegram_id)
+                    // Отправляем Telegram уведомление если есть telegram_id
+                    let notificationSent = false;
                     if (opponentProfile?.telegram_id) {
                         try {
                             const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
@@ -621,10 +654,10 @@ Deno.serve(async (req) => {
                                         }
                                     })
                                 });
+                                notificationSent = true;
                                 console.log(`[find_match] ✅ Rematch notification sent to telegram_id: ${opponentProfile.telegram_id}`);
                             }
                         } catch (notifyError) {
-                            // Не блокируем создание дуэли если уведомление не прошло
                             console.error('[find_match] ⚠️ Failed to send rematch notification:', notifyError);
                         }
                     } else {
@@ -636,7 +669,7 @@ Deno.serve(async (req) => {
                         code: rematchCode,
                         auto_started: false,
                         opponent_type: 'human',
-                        rematch_notification_sent: !!opponentProfile?.telegram_id
+                        rematch_notification_sent: notificationSent
                     }), {
                         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                     });
