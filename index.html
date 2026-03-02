@@ -327,20 +327,14 @@
   </script>
 
   <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
-  <!-- ОПТИМИЗАЦИЯ: defer для рекламных SDK + загрузка после взаимодействия -->
+  <!-- ОПТИМИЗАЦИЯ: загрузка Google AdSense после взаимодействия (для прохождения проверки) -->
   <script>
     (function () {
-      const loadAds = () => {
+      const loadAdSense = () => {
         if (window._adsLoaded) return;
         window._adsLoaded = true;
 
-        // Adsgram
-        const adsgram = document.createElement('script');
-        adsgram.src = "https://sad.adsgram.ai/js/sad.min.js";
-        adsgram.defer = true;
-        document.head.appendChild(adsgram);
-
-        // Google AdSense
+        // Google AdSense - загружаем только для проверки
         const adsense = document.createElement('script');
         adsense.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1758777358223420";
         adsense.async = true;
@@ -348,10 +342,10 @@
         document.head.appendChild(adsense);
       };
 
-      // Загрузка через 5 секунд или при первом скролле/клике
-      window.addEventListener('scroll', loadAds, { once: true, passive: true });
-      window.addEventListener('click', loadAds, { once: true });
-      setTimeout(loadAds, 5000);
+      // Загрузка через 6 секунд или при первом скролле/клике
+      window.addEventListener('scroll', loadAdSense, { once: true, passive: true });
+      window.addEventListener('click', loadAdSense, { once: true });
+      setTimeout(loadAdSense, 6000);
     })();
   </script>
 

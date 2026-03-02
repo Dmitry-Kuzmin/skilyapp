@@ -25,7 +25,7 @@ class HapticManager {
       this.enabled = !!tg && version >= 6.1;
 
       if (tg && version < 6.1 && (window as any).isDev) {
-
+        /* ignore */
       }
     } catch (e) {
       this.enabled = false;

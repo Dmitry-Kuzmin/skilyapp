@@ -32,23 +32,49 @@ const ADSGRAM_CONFIG = {
 let adController: AdsGramAdController | null = null;
 
 /**
+ * Динамическая загрузка скрипта AdsGram SDK
+ */
+async function loadAdsGramScript(): Promise<boolean> {
+  if (typeof window === 'undefined') return false;
+  if (window.Adsgram) return true;
+
+  return new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = "https://sad.adsgram.ai/js/sad.min.js";
+    script.async = true;
+    script.onload = () => {
+      console.log('[AdsGram] SDK Script loaded dynamically');
+      resolve(true);
+    };
+    script.onerror = () => {
+      console.error('[AdsGram] Failed to load SDK script');
+      resolve(false);
+    };
+    document.head.appendChild(script);
+  });
+}
+
+/**
  * Инициализация AdsGram SDK
  * Должна быть вызвана один раз при загрузке приложения
  */
-export function initAdsGram(): AdsGramAdController | null {
+export async function initAdsGram(): Promise<AdsGramAdController | null> {
   if (typeof window === 'undefined') {
     console.warn('[AdsGram] Window is not available');
     return null;
   }
 
-  if (!window.Adsgram) {
-    console.error('[AdsGram] SDK not loaded. Make sure script is included in index.html');
-    return null;
+  if (adController) {
+    return adController;
   }
 
-  if (adController) {
-    console.log('[AdsGram] Already initialized');
-    return adController;
+  // Если скрипта еще нет, загружаем его
+  if (!window.Adsgram) {
+    const loaded = await loadAdsGramScript();
+    if (!loaded || !window.Adsgram) {
+      console.error('[AdsGram] SDK not loaded even after dynamic attempt');
+      return null;
+    }
   }
 
   try {
@@ -71,19 +97,18 @@ export function initAdsGram(): AdsGramAdController | null {
  * Promise резолвится, если пользователь досмотрел рекламу до конца
  * Promise реджектится, если была ошибка или пользователь пропустил рекламу
  */
-export function showAdsGramRewardedVideo(): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    if (!adController) {
-      // Пытаемся инициализировать, если еще не инициализировано
-      const controller = initAdsGram();
-      if (!controller) {
-        reject(new Error('AdsGram SDK not initialized'));
-        return;
-      }
+export async function showAdsGramRewardedVideo(): Promise<boolean> {
+  if (!adController) {
+    // Пытаемся инициализировать
+    const controller = await initAdsGram();
+    if (!controller) {
+      throw new Error('AdsGram SDK not initialized');
     }
+  }
 
-    const controller = adController!;
+  const controller = adController!;
 
+  return new Promise((resolve, reject) => {
     controller
       .show()
       .then((result: ShowPromiseResult) => {
@@ -99,23 +124,23 @@ export function showAdsGramRewardedVideo(): Promise<boolean> {
       .catch((error: any) => {
         // Обработка различных типов ошибок
         console.error('[AdsGram] Rewarded video error:', error);
-        
+
         // Проверяем тип ошибки
         const errorMessage = error?.message || error?.description || 'Unknown error';
         const errorName = error?.name || '';
-        
+
         // NotAllowedError - браузер блокирует автовоспроизведение
         if (errorName === 'NotAllowedError' || errorMessage.includes('not allowed') || errorMessage.includes('NotAllowedError')) {
           reject(new Error('Автовоспроизведение заблокировано браузером. Пожалуйста, нажмите на кнопку "Смотреть видео" еще раз.'));
           return;
         }
-        
+
         // Если это объект ShowPromiseResult
         if (typeof error === 'object' && 'description' in error) {
           reject(new Error(error.description || 'Ad error'));
           return;
         }
-        
+
         // Общая ошибка
         reject(new Error(errorMessage || 'Не удалось показать рекламу'));
       });
@@ -125,7 +150,7 @@ export function showAdsGramRewardedVideo(): Promise<boolean> {
 /**
  * Получить текущий контроллер рекламы
  */
-export function getAdsGramController(): AdsGramAdController | null {
+export async function getAdsGramController(): Promise<AdsGramAdController | null> {
   if (!adController) {
     return initAdsGram();
   }

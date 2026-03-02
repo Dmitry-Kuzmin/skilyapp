@@ -158,7 +158,7 @@ export function useDuelOpponentEvents({
 
                     if (duel?.status === 'finished' && !hasTransitionedRef.current) {
                         hasTransitionedRef.current = true;
-                        try { if (sounds?.victory) sounds.victory(); } catch (e) { }
+                        try { if (sounds?.victory) sounds.victory(); } catch (e) { /* ignore */ }
                         toast.info('🏁 Финиш! Подводим итоги...', { duration: 2000 });
                         transitionToResults();
                     }

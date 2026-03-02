@@ -48,42 +48,15 @@ export function useRewardedAd() {
     return true;
   }, [isPremium]);
 
-  // Инициализация SDK при монтировании
+  // Инициализация SDK при монтировании (необязательно, но полезно для прогрева)
   useEffect(() => {
     if (!isAvailable()) {
       return;
     }
 
-    // В Telegram Mini App используем только AdsGram
     if (isTelegramMiniApp()) {
-      // Ждем загрузки AdsGram SDK скрипта
-      const checkSDK = () => {
-        if (typeof window !== 'undefined' && window.Adsgram) {
-          initAdsGram();
-        } else {
-          // Проверяем каждые 100мс до 5 секунд
-          let attempts = 0;
-          const interval = setInterval(() => {
-            attempts++;
-            if (window.Adsgram || attempts > 50) {
-              clearInterval(interval);
-              if (window.Adsgram) {
-                initAdsGram();
-              }
-            }
-          }, 100);
-        }
-      };
-
-      // Если DOM уже загружен
-      if (document.readyState === 'complete') {
-        checkSDK();
-      } else {
-        window.addEventListener('load', checkSDK);
-        return () => window.removeEventListener('load', checkSDK);
-      }
+      initAdsGram().catch(console.error);
     } else {
-      // В веб-версии используем Monetag
       initMonetag();
     }
   }, [isAvailable]);
