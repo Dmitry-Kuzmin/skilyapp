@@ -77,32 +77,32 @@ function FlightNavigation({ currentStatus, language }: { currentStatus: string, 
     const currentIndex = levels.findIndex(l => l.id === (currentStatus === 'legend' ? 'ready' : currentStatus));
 
     return (
-        <div className="relative pt-2 pb-6">
-            <div className="absolute top-[17px] left-4 right-4 h-[1px] bg-white/5" />
-            <div className="relative flex justify-between items-center px-4">
+        <div className="relative pt-1 pb-4">
+            <div className="absolute top-[13px] left-8 right-8 h-[1px] bg-white/5" />
+            <div className="relative flex justify-between items-center px-8 text-center">
                 {levels.map((lvl, idx) => {
                     const isActive = currentStatus === lvl.id || (currentStatus === 'legend' && lvl.id === 'ready');
                     const isPast = idx < currentIndex;
 
                     return (
-                        <div key={lvl.id} className="flex flex-col items-center gap-2 group">
+                        <div key={lvl.id} className="flex flex-col items-center gap-1.5 transition-all duration-300">
                             <div className={cn(
-                                "relative w-2.5 h-2.5 rounded-full border-2 transition-all duration-700 z-10",
-                                isActive ? "bg-white border-current scale-150 shadow-[0_0_15px_currentColor]" :
-                                    isPast ? "bg-current border-current" : "bg-zinc-950 border-slate-800"
+                                "relative w-2 h-2 rounded-full border-2 transition-all duration-700 z-10",
+                                isActive ? "bg-white border-current scale-150 shadow-[0_0_12px_currentColor]" :
+                                    isPast ? "bg-current border-current border-0" : "bg-zinc-950 border-white/10"
                             )} style={{ color: lvl.color }}>
                                 {isActive && (
-                                    <div className="absolute inset-[-4px] rounded-full border border-current opacity-30 animate-ping" />
+                                    <div className="absolute inset-[-3px] rounded-full border border-current opacity-30 animate-ping" />
                                 )}
                             </div>
-                            <div className="flex flex-col items-center">
+                            <div className="flex flex-col items-center gap-0.5">
                                 <span className={cn(
-                                    "text-[8px] font-black tracking-widest uppercase transition-colors duration-500",
+                                    "text-[7px] font-black tracking-[0.2em] uppercase transition-colors duration-500",
                                     isActive ? "text-white" : "text-slate-600"
                                 )}>
                                     {lvl.name}
                                 </span>
-                                <span className="text-[7px] font-bold text-slate-700 tabular-nums">{lvl.range}</span>
+                                <span className="text-[6px] font-bold text-slate-800 tabular-nums">{lvl.range}</span>
                             </div>
                         </div>
                     );
@@ -192,89 +192,91 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     return (
         <div className="flex flex-col space-y-8 pb-10 px-1 md:px-0">
             {/* ── Main Dashboard Hero (Single Unified Block) ── */}
-            <div className="relative rounded-[2rem] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
-                {/* Shared Background Background Effects */}
-                <div className="absolute inset-0 opacity-[0.15]"
-                    style={{ background: `radial-gradient(circle at 70% 50%, ${status.fill}40 0%, transparent 60%)` }}
+            <div className="relative rounded-[1.5rem] bg-zinc-950 border border-white/[0.03] overflow-hidden shadow-2xl">
+                {/* Subtle Glow Backdrop */}
+                <div className="absolute inset-0 opacity-[0.05]"
+                    style={{ background: `radial-gradient(circle at 50% 50%, ${status.fill} 0%, transparent 70%)` }}
                 />
 
                 <div className="relative">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/10 border-b border-white/10">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.05] border-b border-white/[0.05]">
                         {/* Left Section: Main Instrument (Gauge) */}
-                        <div className="lg:col-span-6 p-10 md:p-14 flex flex-col items-center justify-center relative bg-black/5">
-                            <div className="relative w-56 h-56 md:w-64 md:h-64 flex-shrink-0 group">
-                                <div className="absolute inset-0 rounded-full border border-white/5 bg-zinc-950/40 shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]" />
-                                <div className="absolute inset-[-30px] rounded-full bg-indigo-500/5 blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-1000" />
+                        <div className="lg:col-span-6 p-8 md:p-10 flex flex-col items-center justify-center relative">
+                            <div className="relative w-48 h-48 md:w-56 md:h-56 flex-shrink-0 group">
+                                <div className="absolute inset-0 rounded-full border border-white/[0.03] bg-zinc-950 shadow-[inset_0_0_30px_rgba(0,0,0,0.8)]" />
+                                <div className="absolute inset-[-15px] rounded-full bg-indigo-500/5 blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-1000" />
 
-                                <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_25px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
-                                    <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="8" />
+                                <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_15px_rgba(0,0,0,0.4)]" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="6" />
                                     <circle
                                         cx="50" cy="50" r="44" fill="none"
                                         stroke={status.fill}
-                                        strokeWidth="8"
+                                        strokeWidth="6"
                                         strokeLinecap="round"
                                         strokeDasharray={276}
                                         strokeDashoffset={276 - (276 * score) / 100}
-                                        style={{ transition: 'stroke-dashoffset 2.5s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
-                                        className="drop-shadow-[0_0_15px_currentColor]"
+                                        style={{ transition: 'stroke-dashoffset 2.5s cubic-bezier(0.19, 1, 0.22, 1)' }}
+                                        className="drop-shadow-[0_0_8px_currentColor]"
                                     />
-                                    {[...Array(36)].map((_, i) => (
-                                        <line key={i} x1="50" y1="6" x2="50" y2="9" transform={`rotate(${i * 10} 50 50)`} stroke="rgba(255,255,255,0.1)" strokeWidth="0.8" />
+                                    {[...Array(24)].map((_, i) => (
+                                        <line key={i} x1="50" y1="6" x2="50" y2="8.5" transform={`rotate(${i * 15} 50 50)`} stroke="rgba(255,255,255,0.05)" strokeWidth="0.8" />
                                     ))}
                                 </svg>
 
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-6xl md:text-7xl font-black tracking-tighter text-white">
+                                    <motion.span initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-5xl md:text-6xl font-black tracking-tighter text-white">
                                         {score}%
                                     </motion.span>
-                                    <div className="mt-2 flex items-center gap-2 opacity-40">
-                                        <ActivityIcon className="w-3 h-3" />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Pass Prob</span>
+                                    <div className="mt-1 flex items-center gap-1 opacity-20">
+                                        <ActivityIcon className="w-2.5 h-2.5" />
+                                        <span className="text-[7px] font-black uppercase tracking-[0.4em]">PROBABILITY</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Section: Detailed Verdict */}
-                        <div className="lg:col-span-6 p-8 md:p-12 flex flex-col justify-center bg-white/[0.01]">
-                            <div className="space-y-8">
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4 text-violet-400" />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Системный вердикт</span>
+                        {/* Right Section: Compact Expert Verdict */}
+                        <div className="lg:col-span-6 p-8 md:p-10 flex flex-col justify-center bg-white/[0.01]">
+                            <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-1.5 opacity-40 mb-1">
+                                        <Sparkles className="w-3 h-3" />
+                                        <span className="text-[8px] font-black uppercase tracking-[0.3em]">{language === 'ru' ? 'СИСТЕМНЫЙ ВЕРДИКТ' : 'SYSTEM VERDICT'}</span>
                                     </div>
-                                    <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.9]">
+                                    <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight leading-none">
                                         {readiness?.shortText || 'Анализ...'}
                                     </h2>
-                                    <div className="bg-white/5 rounded-2xl p-5 border border-white/10 backdrop-blur-sm">
-                                        <p className="text-sm md:text-base text-slate-400 font-medium leading-relaxed italic border-l-2 border-indigo-500/50 pl-4">
+                                    <div className="relative pt-2">
+                                        <p className="text-xs md:text-sm text-slate-500 font-medium leading-relaxed italic max-w-sm">
                                             "{readiness?.statusText}"
                                         </p>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Уверенность</span>
-                                        <span className="text-2xl font-black text-white tabular-nums">
+                                <div className="flex items-center gap-6 pt-2">
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">{language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIDENCE'}</span>
+                                        <span className="text-lg font-black text-white tabular-nums">
                                             {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
                                         </span>
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Цель</span>
-                                        <span className="text-2xl font-black text-emerald-400 tabular-nums">75%</span>
+                                    <div className="w-[1px] h-6 bg-white/5" />
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">{language === 'ru' ? 'ЦЕЛЬ' : 'TARGET'}</span>
+                                        <span className="text-lg font-black text-emerald-400 tabular-nums">75%</span>
                                     </div>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Rank</span>
-                                        <span className="text-2xl font-black text-amber-500 tabular-nums">#420</span>
+                                    <div className="w-[1px] h-6 bg-white/5" />
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">RANK</span>
+                                        <span className="text-lg font-black text-amber-500 tabular-nums">#420</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Bottom Full-width Navigation Path */}
-                    <div className="px-10 py-6 bg-black/40">
+                    {/* Bottom Compact Navigation Path */}
+                    <div className="px-10 py-4 bg-zinc-950/60 backdrop-blur-md">
                         <FlightNavigation currentStatus={readiness?.status || 'start'} language={language} />
                     </div>
                 </div>
