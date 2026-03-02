@@ -861,7 +861,7 @@ Deno.serve(async (req) => {
                     });
                 }
 
-                // 4. Атомарно списываем монеты у хоста (helper)
+                // 5. Атомарно списываем монеты у хоста (helper)
                 const { error: withdrawError } = await supabase.rpc('increment_profile_value', {
                     p_profile_id: helper_id,
                     p_column: 'coins',
@@ -869,14 +869,6 @@ Deno.serve(async (req) => {
                 });
 
                 if (withdrawError) throw withdrawError;
-
-                // 5. Записываем транзакцию для хоста
-                await supabase.from('duel_transactions').insert({
-                    duel_id: duel_id,
-                    user_id: helper_id,
-                    amount: -amount,
-                    transaction_type: 'help_friend'
-                }).catch(e => console.error('[process_help] Tx insert error:', e));
 
                 // 6. Добавляем гостя в дуэль
                 const { data: newPlayer, error: playerError } = await supabase
@@ -911,18 +903,24 @@ Deno.serve(async (req) => {
                     .eq('id', duel_id);
 
                 // 8. Уведомляем гостя о том, что помощь получена и дуэль началась
-                await supabase.from('duel_notifications').insert({
-                    user_id: requester_id,
-                    duel_id: duel_id,
-                    type: 'help_received',
-                    title: 'Помощь получена! ⚔️',
-                    message: `Друг доплатил ${amount} монет. Дуэль начинается!`,
-                    metadata: {
+                try {
+                    const { error: notifError } = await supabase.from('duel_notifications').insert({
+                        user_id: requester_id,
                         duel_id: duel_id,
-                        amount: amount,
-                        helper_id: helper_id,
-                    }
-                }).catch(e => console.error('[process_help] Notification insert error:', e));
+                        type: 'help_received',
+                        title: 'Помощь получена! ⚔️',
+                        message: `Друг доплатил ${amount} монет. Дуэль начинается!`,
+                        metadata: {
+                            duel_id: duel_id,
+                            amount: amount,
+                            helper_id: helper_id,
+                        }
+                    });
+                    if (notifError) console.error('[process_help] Notification insert error:', notifError);
+                } catch (notifErr) {
+                    console.error('[process_help] Notification exception:', notifErr);
+                }
+
 
                 return new Response(JSON.stringify({
                     success: true,
