@@ -579,84 +579,242 @@
   </script>
 
   <div id="root" vaul-drawer-wrapper>
-    <!-- SKELETON FOR LCP OPTIMIZATION (Fills the screen before React Hydration) -->
+    <!-- ПРЕЛОАДЕР SKILY (STATIC VERSION ДЛЯ МОМЕНТАЛЬНОЙ ЗАГРУЗКИ И LCP) -->
     <style>
-      .initial-skeleton {
+      .app-skeleton {
         position: fixed;
         inset: 0;
-        background: #0f172a;
+        z-index: 9999;
+        background: #06080F;
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 1rem 2rem;
-        z-index: 1;
+        justify-content: center;
         font-family: sans-serif;
+        transition: opacity 0.5s ease-out;
+        overflow: hidden;
       }
 
-      .sk-nav {
-        width: 100%;
-        max-width: 1400px;
+      .app-skeleton.fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .skily-grid {
+        position: absolute;
+        inset: 0;
+        opacity: 0.05;
+        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+      }
+
+      .glow-1 {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 60vw;
+        height: 60vw;
+        background: rgba(99, 102, 241, 0.08);
+        border-radius: 50%;
+        filter: blur(100px);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      .glow-2 {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 40vw;
+        height: 40vw;
+        background: rgba(168, 85, 247, 0.08);
+        border-radius: 50%;
+        filter: blur(80px);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      .ring-container {
+        position: relative;
+        width: 280px;
+        height: 280px;
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         align-items: center;
-        margin-bottom: 5rem;
+        justify-content: center;
+        transform: scale(0.9);
       }
 
-      .sk-logo {
-        width: 100px;
-        height: 32px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
+      .ring-1 {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-top-color: #6366f1;
+        animation: sk-spin 4s linear infinite;
       }
 
-      .sk-btn {
-        width: 130px;
-        height: 38px;
-        background: white;
+      .ring-2 {
+        position: absolute;
+        inset: 24px;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom-color: #a855f7;
+        animation: sk-spin 2.5s linear infinite reverse;
+      }
+
+      .ring-3 {
+        position: absolute;
+        inset: 48px;
+        outline: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: sk-spin 10s linear infinite;
+      }
+
+      .logo-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 10;
+      }
+
+      .system-status {
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 10px;
+        font-weight: bold;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      .divider {
+        height: 1px;
+        width: 40px;
+        background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+        margin-bottom: 8px;
+      }
+
+      .logo-text {
+        color: white;
+        font-weight: 900;
+        font-size: 26px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
+      }
+
+      .phrase-box {
+        margin-top: 40px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+        max-width: 320px;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 1.5;
+        padding: 0 20px;
+        position: relative;
+        z-index: 10;
+      }
+
+      .phrase-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 6px 16px;
         border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 12px;
       }
 
-      .sk-title-1 {
-        width: 85%;
-        height: 50px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 10px;
-        margin-bottom: 1rem;
+      .phrase-badge span {
+        font-size: 10px;
+        font-weight: bold;
+        letter-spacing: 0.15em;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
       }
 
-      .sk-title-2 {
-        width: 65%;
-        height: 50px;
-        background: linear-gradient(90deg, #3b82f6, #06b6d4);
-        border-radius: 10px;
-        margin-bottom: 2rem;
+      .footer-info {
+        position: absolute;
+        bottom: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 0.25;
       }
 
-      .sk-text {
-        width: 75%;
-        height: 16px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
-        margin-bottom: 3rem;
+      .dots {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
       }
 
-      .sk-cta {
-        width: 220px;
-        height: 56px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 28px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+      .dot {
+        width: 5px;
+        height: 5px;
+        background: #6366f1;
+        border-radius: 50%;
+        animation: sk-pulse 1.5s infinite;
+      }
+
+      .version {
+        font-family: monospace;
+        font-size: 9px;
+        letter-spacing: 0.5em;
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      @keyframes sk-spin {
+        from {
+          transform: rotate(0deg);
+        }
+
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes sk-pulse {
+
+        0%,
+        100% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0.3;
+        }
       }
     </style>
-    <div class="initial-skeleton">
-      <div class="sk-nav">
-        <div class="sk-logo"></div>
-        <div class="sk-btn"></div>
+    <div class="app-skeleton">
+      <div class="skily-grid"></div>
+      <div class="glow-1"></div>
+      <div class="glow-2"></div>
+      <div class="ring-container">
+        <div class="ring-1"></div>
+        <div class="ring-2"></div>
+        <div class="ring-3"></div>
+        <div class="logo-center">
+          <span class="system-status">Skily System</span>
+          <div class="divider"></div>
+          <span class="logo-text">SKILY</span>
+        </div>
       </div>
-      <div class="sk-title-1"></div>
-      <div class="sk-title-2"></div>
-      <div class="sk-text"></div>
-      <div class="sk-cta"></div>
+      <div class="phrase-box">
+        <div class="phrase-badge"><span>Секрет Skily</span></div>
+        <p>Активируем нейронные связи для лучшего обучения...</p>
+      </div>
+      <div class="footer-info">
+        <div class="dots">
+          <div class="dot"></div>
+          <div class="dot" style="animation-delay:0.2s"></div>
+          <div class="dot" style="animation-delay:0.4s"></div>
+        </div>
+        <div class="version">SKILY V2.0</div>
+      </div>
     </div>
   </div>
 
