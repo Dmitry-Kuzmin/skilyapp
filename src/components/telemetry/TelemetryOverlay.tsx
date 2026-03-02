@@ -192,83 +192,85 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     return (
         <div className="flex flex-col space-y-8 pb-10 px-1 md:px-0">
             {/* ── Main Dashboard Hero (Single Unified Block) ── */}
-            <div className="relative rounded-[1.5rem] bg-zinc-950 border border-white/[0.03] overflow-hidden shadow-2xl">
-                {/* Subtle Glow Backdrop */}
-                <div className="absolute inset-0 opacity-[0.05]"
-                    style={{ background: `radial-gradient(circle at 50% 50%, ${status.fill} 0%, transparent 70%)` }}
+            <div className="relative rounded-[1.5rem] bg-slate-900/40 backdrop-blur-xl border border-white/10 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                {/* Dynamic Ambient Light */}
+                <div className="absolute inset-0 opacity-[0.1]"
+                    style={{ background: `radial-gradient(circle at 30% 20%, ${status.fill} 0%, transparent 60%)` }}
                 />
 
                 <div className="relative">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.05] border-b border-white/[0.05]">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/10 border-b border-white/10">
                         {/* Left Section: Main Instrument (Gauge) */}
-                        <div className="lg:col-span-6 p-8 md:p-10 flex flex-col items-center justify-center relative">
+                        <div className="lg:col-span-6 p-8 md:p-12 flex flex-col items-center justify-center relative bg-white/[0.02]">
                             <div className="relative w-48 h-48 md:w-56 md:h-56 flex-shrink-0 group">
-                                <div className="absolute inset-0 rounded-full border border-white/[0.03] bg-zinc-950 shadow-[inset_0_0_30px_rgba(0,0,0,0.8)]" />
-                                <div className="absolute inset-[-15px] rounded-full bg-indigo-500/5 blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-1000" />
+                                {/* Gauge Background Glass */}
+                                <div className="absolute inset-0 rounded-full border border-white/5 bg-slate-950/40 shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]" />
+                                <div className="absolute inset-[-20px] rounded-full bg-indigo-500/10 blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-1000" />
 
                                 <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_15px_rgba(0,0,0,0.4)]" viewBox="0 0 100 100">
-                                    <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="6" />
+                                    <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
                                     <circle
                                         cx="50" cy="50" r="44" fill="none"
                                         stroke={status.fill}
-                                        strokeWidth="6"
+                                        strokeWidth="7"
                                         strokeLinecap="round"
                                         strokeDasharray={276}
                                         strokeDashoffset={276 - (276 * score) / 100}
                                         style={{ transition: 'stroke-dashoffset 2.5s cubic-bezier(0.19, 1, 0.22, 1)' }}
-                                        className="drop-shadow-[0_0_8px_currentColor]"
+                                        className="drop-shadow-[0_0_12px_currentColor]"
                                     />
                                     {[...Array(24)].map((_, i) => (
-                                        <line key={i} x1="50" y1="6" x2="50" y2="8.5" transform={`rotate(${i * 15} 50 50)`} stroke="rgba(255,255,255,0.05)" strokeWidth="0.8" />
+                                        <line key={i} x1="50" y1="6" x2="50" y2="9" transform={`rotate(${i * 15} 50 50)`} stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
                                     ))}
                                 </svg>
 
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <motion.span initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-5xl md:text-6xl font-black tracking-tighter text-white">
+                                    <motion.span initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-6xl font-black tracking-tighter text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
                                         {score}%
                                     </motion.span>
-                                    <div className="mt-1 flex items-center gap-1 opacity-20">
-                                        <ActivityIcon className="w-2.5 h-2.5" />
-                                        <span className="text-[7px] font-black uppercase tracking-[0.4em]">PROBABILITY</span>
+                                    <div className="mt-1 flex items-center gap-1.5 opacity-40">
+                                        <ActivityIcon className="w-3 h-3 text-indigo-400" />
+                                        <span className="text-[8px] font-black uppercase tracking-[0.4em]">PROBABILITY</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Right Section: Compact Expert Verdict */}
-                        <div className="lg:col-span-6 p-8 md:p-10 flex flex-col justify-center bg-white/[0.01]">
+                        <div className="lg:col-span-6 p-8 md:p-12 flex flex-col justify-center bg-indigo-500/[0.02]">
                             <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-1.5 opacity-40 mb-1">
-                                        <Sparkles className="w-3 h-3" />
-                                        <span className="text-[8px] font-black uppercase tracking-[0.3em]">{language === 'ru' ? 'СИСТЕМНЫЙ ВЕРДИКТ' : 'SYSTEM VERDICT'}</span>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="w-6 h-[1px] bg-indigo-500/40" />
+                                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-indigo-400/80">
+                                            {language === 'ru' ? 'СИСТЕМНЫЙ ВЕРДИКТ' : 'SYSTEM VERDICT'}
+                                        </span>
                                     </div>
-                                    <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight leading-none">
+                                    <h2 className="text-4xl font-black text-white uppercase tracking-tight leading-none drop-shadow-sm">
                                         {readiness?.shortText || 'Анализ...'}
                                     </h2>
-                                    <div className="relative pt-2">
-                                        <p className="text-xs md:text-sm text-slate-500 font-medium leading-relaxed italic max-w-sm">
+                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 backdrop-blur-sm relative">
+                                        <p className="text-sm text-slate-300 font-medium leading-relaxed italic opacity-90 relative z-10">
                                             "{readiness?.statusText}"
                                         </p>
+                                        <Sparkles className="absolute -top-1 -right-1 w-8 h-8 text-indigo-500/10 pointer-events-none" />
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-6 pt-2">
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">{language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIDENCE'}</span>
-                                        <span className="text-lg font-black text-white tabular-nums">
+                                <div className="flex items-center gap-8 pt-2">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIDENCE'}</span>
+                                        <span className="text-2xl font-black text-white tabular-nums drop-shadow-sm">
                                             {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
                                         </span>
                                     </div>
-                                    <div className="w-[1px] h-6 bg-white/5" />
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">{language === 'ru' ? 'ЦЕЛЬ' : 'TARGET'}</span>
-                                        <span className="text-lg font-black text-emerald-400 tabular-nums">75%</span>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{language === 'ru' ? 'ЦЕЛЬ' : 'TARGET'}</span>
+                                        <span className="text-2xl font-black text-emerald-400 tabular-nums">75%</span>
                                     </div>
-                                    <div className="w-[1px] h-6 bg-white/5" />
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest">RANK</span>
-                                        <span className="text-lg font-black text-amber-500 tabular-nums">#420</span>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">RANK</span>
+                                        <span className="text-2xl font-black text-amber-500 tabular-nums">#420</span>
                                     </div>
                                 </div>
                             </div>
@@ -276,7 +278,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                     </div>
 
                     {/* Bottom Compact Navigation Path */}
-                    <div className="px-10 py-4 bg-zinc-950/60 backdrop-blur-md">
+                    <div className="px-10 py-6 bg-slate-950/40 border-t border-white/5">
                         <FlightNavigation currentStatus={readiness?.status || 'start'} language={language} />
                     </div>
                 </div>
