@@ -32,7 +32,12 @@ export function LearnCountryHome() {
   const { profileId } = useUserContext();
   const { selectedCategory } = usePDDContext();
 
-  if (!country || !COUNTRIES_CONFIG[country]?.available) {
+  // Хук должен вызываться до return — правила React Hooks
+  // Если страна невалидна — передаём undefined, хук обрабатывает это корректно
+  const validCountry = country && COUNTRIES_CONFIG[country]?.available ? country : undefined;
+  const { data: tickets, isLoading: ticketsLoading } = usePDDTickets(validCountry as CountryCode, selectedCategory);
+
+  if (!validCountry) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
@@ -45,18 +50,17 @@ export function LearnCountryHome() {
     );
   }
 
-  const countryData = COUNTRIES_CONFIG[country];
-  const { data: tickets, isLoading: ticketsLoading } = usePDDTickets(country, selectedCategory);
+  const countryData = COUNTRIES_CONFIG[validCountry];
 
   // Вычисляем статистику (пока мок, потом из БД)
   const stats = {
     totalTickets: tickets?.length || 0,
-    completedTickets: 0, // TODO: из user_progress
+    completedTickets: 0,
     totalQuestions: tickets?.reduce((sum, t) => sum + t.questions_count, 0) || 0,
-    answeredQuestions: 0, // TODO: из user_progress
-    correctAnswers: 0, // TODO: из user_progress
-    accuracy: 0, // TODO: вычислять
-    averageScore: 0, // TODO: вычислять
+    answeredQuestions: 0,
+    correctAnswers: 0,
+    accuracy: 0,
+    averageScore: 0,
   };
 
   const lastTickets = tickets?.slice(0, 4) || [];

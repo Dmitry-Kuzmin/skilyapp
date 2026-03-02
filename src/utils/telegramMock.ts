@@ -7,7 +7,7 @@ export const initTelegramMock = () => {
     }
 
     // Check if real Telegram WebApp exists and is not a dummy
-    // @ts-ignore
+    // @ts-expect-error
     const existingWebApp = window.Telegram?.WebApp;
     const isDummy = existingWebApp && (existingWebApp.platform === 'unknown' || existingWebApp.version === '6.0');
 
@@ -45,59 +45,59 @@ export const initTelegramMock = () => {
             BackButton: {
                 show: () => {
                     console.log('[Mock] BackButton show');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockBackButtonVisible = true;
                 },
                 hide: () => {
                     console.log('[Mock] BackButton hide');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockBackButtonVisible = false;
                 },
                 onClick: (callback: () => void) => {
                     console.log('[Mock] BackButton onClick registered');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockBackButtonCallback = callback;
                 },
                 offClick: (callback: () => void) => {
                     console.log('[Mock] BackButton offClick registered');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockBackButtonCallback = null;
                 }
             },
             MainButton: {
                 setText: (text: string) => {
                     console.log('[Mock] MainButton setText:', text);
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockMainButtonText = text;
                 },
                 show: () => {
                     console.log('[Mock] MainButton show');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockMainButtonVisible = true;
                 },
                 hide: () => {
                     console.log('[Mock] MainButton hide');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockMainButtonVisible = false;
                 },
                 onClick: (callback: () => void) => {
                     console.log('[Mock] MainButton onClick registered');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockMainButtonCallback = callback;
                 },
                 offClick: (callback: () => void) => {
                     console.log('[Mock] MainButton offClick registered');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockMainButtonCallback = null;
                 },
                 enable: () => {
                     console.log('[Mock] MainButton enable');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockMainButtonEnabled = true;
                 },
                 disable: () => {
                     console.log('[Mock] MainButton disable');
-                    // @ts-ignore
+                    // @ts-expect-error
                     window.mockMainButtonEnabled = false;
                 },
                 showProgress: (leave: boolean) => {
@@ -157,16 +157,16 @@ export const initTelegramMock = () => {
             requestFullscreen: () => console.log('[Mock] requestFullscreen'),
         };
 
-        // @ts-ignore
+        // @ts-expect-error
         window.Telegram = window.Telegram || {};
-        // @ts-ignore
+        // @ts-expect-error
         window.Telegram.WebApp = mockWebApp;
         console.log('[Mock] Telegram WebApp Mock initialized for localhost');
 
         // Trigger ready event manually just in case
-        // @ts-ignore
+        // @ts-expect-error
         if (window.Telegram.WebApp.onEvent) {
-            // @ts-ignore
+            // @ts-expect-error
             window.Telegram.WebApp.onEvent('viewportChanged', { isStateStable: true });
         }
     } else {

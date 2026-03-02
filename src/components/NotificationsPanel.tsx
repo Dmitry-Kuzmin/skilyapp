@@ -165,7 +165,9 @@ export function NotificationsPanel({
   trigger,
 }: NotificationsPanelProps) {
   const { profileId } = useUserContext();
-  const api = notificationsApi ?? useNotifications();
+  // Хук должен вызываться безусловно (правила React)
+  const ownApi = useNotifications();
+  const api = notificationsApi ?? ownApi;
   const { notifications, unreadCount, markAsRead, markAllAsRead } = api;
   const [filter, setFilter] = useState<NotificationFilter>('all');
   const [expandedNotifications, setExpandedNotifications] = useState<Set<string>>(new Set());

@@ -2,6 +2,8 @@
  * Утилиты для мониторинга производительности
  */
 
+import { useEffect } from 'react';
+
 interface PerformanceMetric {
   name: string;
   value: number;
@@ -179,9 +181,9 @@ export const performanceMonitor = typeof window !== 'undefined' ? new Performanc
 
 // React Hook для измерения производительности компонентов
 export function usePerformanceMeasure(componentName: string) {
-  if (typeof window === 'undefined') return;
-
   useEffect(() => {
+    // Только в браузере (не SSR)
+    if (typeof window === 'undefined') return;
     const start = performance.now();
     return () => {
       const duration = performance.now() - start;
@@ -194,8 +196,8 @@ export function usePerformanceMeasure(componentName: string) {
 
 // Утилита для измерения времени рендеринга
 export function measureRenderTime(componentName: string) {
-  if (typeof window === 'undefined') return () => {};
-  
+  if (typeof window === 'undefined') return () => { };
+
   const start = performance.now();
   return () => {
     const duration = performance.now() - start;

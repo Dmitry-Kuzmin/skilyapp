@@ -36,7 +36,17 @@ interface AIWidgetProps {
   country?: 'spain' | 'russia';
 }
 
-export const AIWidget = ({
+export const AIWidget = (props: AIWidgetProps) => {
+  const { enabled: aiEnabled } = useFeatureFlag('ai_chat_enabled', true);
+
+  // Feature flag: не показываем виджет если AI чат отключён
+  if (!aiEnabled) return null;
+
+  return <AIWidgetContent {...props} />;
+};
+
+// Внутренний компонент: все хуки вызываются безусловно (правила React)
+const AIWidgetContent = ({
   explanation,
   explanationRu,
   explanationEs,
@@ -52,35 +62,24 @@ export const AIWidget = ({
   testLanguage = 'es',
   country = 'spain',
 }: AIWidgetProps) => {
-  const { enabled: aiEnabled } = useFeatureFlag('ai_chat_enabled', true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
-
-  // Voice Input State
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<any>(null);
-
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const widgetRef = useRef<HTMLDivElement>(null);
-  const { t } = useLanguage();
-
-  // AI Limit Modal State
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [limitData, setLimitData] = useState({ currentCount: 0, limit: 10, message: '' });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const widgetRef = useRef<HTMLDivElement>(null);
 
-  // 🚦 FEATURE FLAG: Если AI чат отключен, не показываем виджет
-  if (!aiEnabled) {
-    return null;
-  }
+  const { t } = useLanguage();
 
   // Определяем язык интерфейса на основе языка теста и страны
-  // Используем язык теста для интерфейса, но если в России — всегда русский по умолчанию
   const interfaceLanguage = (country === 'russia' || testLanguage === 'ru' || showTranslation) ? 'ru' : testLanguage;
 
   const toggleVoiceInput = () => {

@@ -48,7 +48,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'ru-q1',
             question: 'Разрешен ли обгон (опережение) на перекрестке с круговым движением?',
-            imageUrl: '/images/demo/es/q1.png',
+            imageUrl: '/images/demo/es/q1.webp',
             illustrationType: 'roundabout',
             illustrationVariant: 'indigo',
             aiAnalysis: {
@@ -65,7 +65,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'ru-q2',
             question: 'Может ли один мотоцикл обогнать другой в этом повороте с ограниченной видимостью?',
-            imageUrl: '/images/demo/es/q2.png',
+            imageUrl: '/images/demo/es/q2.webp',
             illustrationType: 'speed',
             illustrationVariant: 'orange',
             aiAnalysis: {
@@ -82,7 +82,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'ru-q3',
             question: 'В данной ситуации может ли зеленый автомобиль обогнать белый?',
-            imageUrl: '/images/demo/es/q3.png',
+            imageUrl: '/images/demo/es/q3.webp',
             illustrationType: 'speed',
             illustrationVariant: 'blue',
             aiAnalysis: {
@@ -101,7 +101,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'es-q1',
             question: '¿Está permitido adelantar en una glorieta?',
-            imageUrl: '/images/demo/es/q1.png',
+            imageUrl: '/images/demo/es/q1.webp',
             illustrationType: 'roundabout',
             illustrationVariant: 'indigo',
             aiAnalysis: {
@@ -118,7 +118,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'es-q2',
             question: '¿Puede adelantar una motocicleta a otra en esta curva de visibilidad reducida?',
-            imageUrl: '/images/demo/es/q2.png',
+            imageUrl: '/images/demo/es/q2.webp',
             illustrationType: 'speed',
             illustrationVariant: 'orange',
             aiAnalysis: {
@@ -135,7 +135,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'es-q3',
             question: 'En las circunstancias que se dan en la imagen, el vehículo verde, ¿puede adelantar al vehículo blanco?',
-            imageUrl: '/images/demo/es/q3.png',
+            imageUrl: '/images/demo/es/q3.webp',
             illustrationType: 'speed',
             illustrationVariant: 'blue',
             aiAnalysis: {
@@ -154,7 +154,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'en-q1',
             question: 'Is overtaking permitted in a roundabout?',
-            imageUrl: '/images/demo/es/q1.png',
+            imageUrl: '/images/demo/es/q1.webp',
             illustrationType: 'roundabout',
             illustrationVariant: 'indigo',
             aiAnalysis: {
@@ -171,7 +171,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'en-q2',
             question: 'Can a motorcycle overtake another motorcycle in this curve with reduced visibility?',
-            imageUrl: '/images/demo/es/q2.png',
+            imageUrl: '/images/demo/es/q2.webp',
             illustrationType: 'speed',
             illustrationVariant: 'orange',
             aiAnalysis: {
@@ -188,7 +188,7 @@ const DEMO_QUESTIONS_DATA = {
         {
             id: 'en-q3',
             question: 'Under these circumstances, can the green vehicle overtake the white one?',
-            imageUrl: '/images/demo/es/q3.png',
+            imageUrl: '/images/demo/es/q3.webp',
             illustrationType: 'speed',
             illustrationVariant: 'blue',
             aiAnalysis: {
@@ -533,6 +533,7 @@ export const LandingQuizDemo: React.FC<LandingQuizDemoProps> = ({ onRegisterClic
                                     src={currentQuestion.imageUrl}
                                     alt={currentQuestion.question}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
                                     onError={() => setImageError(true)}
                                 />
                             ) : (

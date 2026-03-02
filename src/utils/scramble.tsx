@@ -22,7 +22,7 @@ export const ScrambleContext = createContext<boolean>(false);
  */
 export const useScramble = (text: string): string => {
   const shouldScramble = useContext(ScrambleContext);
-  
+
   return useMemo(() => {
     if (!shouldScramble) return text;
     return scrambleText(text);
@@ -42,12 +42,12 @@ export const Scrambler: React.FC<{ children: string }> = ({ children }) => {
  */
 export const ScrambledText: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const shouldScramble = useContext(ScrambleContext);
-  
+  // Хук должен вызываться безусловно — правила React Hooks
+  const scrambled = useScramble(typeof children === 'string' ? children : '');
+
   if (!shouldScramble || typeof children !== 'string') {
     return <>{children}</>;
   }
-  
-  const scrambled = useScramble(children);
+
   return <>{scrambled}</>;
 };
-

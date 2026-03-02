@@ -45,7 +45,7 @@ import { StartEngineButton } from "./StartEngineButton";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "./LanguageSelector";
 import { CountrySelector } from "./CountrySelector";
-import { LandingQuizDemo } from "./LandingQuizDemo";
+const LandingQuizDemo = React.lazy(() => import("./LandingQuizDemo").then(m => ({ default: m.LandingQuizDemo })));
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { PartnershipExpansionPortal } from "./PartnershipExpansionPortal";
@@ -56,8 +56,6 @@ import {
 } from "@/translations/landing";
 
 // ВРЕМЕННО: прямой импорт вместо lazy для дебага
-import { LandingDuelDemo } from './LandingDuelDemo';
-import { LandingBlitzDemo } from './LandingBlitzDemo';
 const LandingDuelPassSection = React.lazy(() => import('./LandingDuelPassSection').then(module => ({ default: module.LandingDuelPassSection })));
 import { FAQItem } from "./FAQItem";
 // const LandingDuelDemo = React.lazy(() => import('./LandingDuelDemo').then(module => ({ default: module.LandingDuelDemo })));
@@ -202,6 +200,26 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   const [activeGameMode, setActiveGameMode] = useState<'pvp' | 'race'>('pvp');
   const [shouldLoadDemo, setShouldLoadDemo] = useState(false);
   const demoContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const [shouldLoadQuizDemo, setShouldLoadQuizDemo] = useState(false);
+  const quizDemoContainerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!quizDemoContainerRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !shouldLoadQuizDemo) {
+            setShouldLoadQuizDemo(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0, rootMargin: '600px' }
+    );
+    observer.observe(quizDemoContainerRef.current);
+    return () => observer.disconnect();
+  }, [shouldLoadQuizDemo]);
 
   // Intersection Observer для ленивой загрузки демо-дуэли
   useEffect(() => {
@@ -517,7 +535,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           <div className="h-4 w-px bg-white/20 self-center mx-0.5" />
 
           {/* Country Selector */}
-          <CountrySelector onOpenPartnership={() => setIsPartnershipOpen(true)} />
+          <CountrySelector />
         </div>
 
         {/* Right Side: Actions */}
@@ -794,11 +812,22 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           </div>
         </div>
 
-        <div className="relative z-10">
-          <LandingQuizDemo
-            onRegisterClick={handleEnter}
-            language={language}
-          />
+        <div ref={quizDemoContainerRef} className="relative z-10 min-h-[500px]">
+          {shouldLoadQuizDemo ? (
+            <React.Suspense fallback={
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-12 h-12 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin"></div>
+                <div className="text-slate-500 text-sm font-bold animate-pulse">Загрузка интерактивного блока...</div>
+              </div>
+            }>
+              <LandingQuizDemo
+                onRegisterClick={handleEnter}
+                language={language}
+              />
+            </React.Suspense>
+          ) : (
+            <div className="opacity-0">Loading...</div>
+          )}
         </div>
       </section>
 
@@ -1117,12 +1146,12 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                       "bg-[#11141D] border border-white/5 hover:border-white/10"
                 )}
               >
-                {plan.badge && (
+                {(plan as any).badge && (
                   <div className={cn(
                     "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest",
                     isHighlighted ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30" : "bg-slate-800 text-slate-400"
                   )}>
-                    {plan.badge}
+                    {(plan as any).badge}
                   </div>
                 )}
 
@@ -1135,7 +1164,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
                 <div className="flex items-baseline gap-1 mb-6">
                   <span className="text-2xl font-black text-white">{plan.price}</span>
-                  {plan.note && <span className="text-slate-500 text-xs font-medium">{plan.note}</span>}
+                  {(plan as any).note && <span className="text-slate-500 text-xs font-medium">{(plan as any).note}</span>}
                 </div>
 
                 <ul className="space-y-3 mb-8 text-xs flex-grow">

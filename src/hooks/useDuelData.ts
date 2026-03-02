@@ -409,7 +409,7 @@ export const useDuelData = (duelId: string | null, profileId?: string | null) =>
         },
       });
 
-      // @ts-ignore
+      // @ts-expect-error
       const { data, error } = await Promise.race([invokePromise, timeoutPromise]);
 
       if (!error && data?.players?.length) {

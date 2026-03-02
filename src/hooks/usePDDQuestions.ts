@@ -43,7 +43,7 @@ export function usePDDSequentialQuestions(country: CountryCode, enabled: boolean
     queryFn: async (): Promise<UniversalQuestion[]> => {
       const strategy = getPDDStrategy(country);
       if (strategy.getSequentialQuestions) {
-        // @ts-ignore - method might not exist on interface yet if not updated fully, but we know it does
+        // @ts-expect-error - method might not exist on interface yet if not updated fully, but we know it does
         return strategy.getSequentialQuestions(country, category);
       }
       // Fallback to random if not implemented

@@ -35,22 +35,14 @@ export function StarsPaymentButton({
   variant = 'outline',
   size = 'default'
 }: StarsPaymentButtonProps) {
-  const { profileId, user, platform } = useUserContext();
+  const { profileId, user } = useUserContext();
   const [loading, setLoading] = useState(false);
 
   // Показывать только в Telegram Mini App
-  // Используем isTelegramMiniApp() для более надежного определения (работает на мобильных и десктопе)
   const webApp = getTelegramWebApp();
   const isTelegram = isTelegramMiniApp();
 
-  // Не показывать вне Telegram
-  if (!isTelegram || !webApp) {
-    return null;
-  }
-
-  // Рассчитать эквивалент в Stars
-  // Используем price_stars из БД, если доступно (правильный расчет на основе евро)
-  // Иначе используем старый расчет на основе coins (для обратной совместимости)
+  // Хук должен быть до return — правила React Hooks
   const [starsAmount, setStarsAmount] = useState<number>(0);
 
   useEffect(() => {
@@ -65,22 +57,25 @@ export function StarsPaymentButton({
           .single();
 
         if (!error && data) {
-          // Используем price_stars если есть, иначе рассчитываем на основе coins
           const stars = data.price_stars || Math.round(data.price_coins / 0.5);
           setStarsAmount(stars);
         } else {
-          // Fallback: рассчитываем на основе переданного priceCoins
           setStarsAmount(Math.round(priceCoins / 0.5));
         }
       } catch (err) {
         console.error('[StarsPaymentButton] Error loading stars price:', err);
-        // Fallback: рассчитываем на основе переданного priceCoins
         setStarsAmount(Math.round(priceCoins / 0.5));
       }
     };
 
     loadStarsPrice();
   }, [packageKey, priceCoins]);
+
+  // Не показывать вне Telegram (после всех хуков!)
+  if (!isTelegram || !webApp) {
+    return null;
+  }
+
 
   const handlePurchase = async () => {
     if (!profileId || !user?.id) {

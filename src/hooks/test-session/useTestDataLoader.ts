@@ -248,17 +248,18 @@ export const useTestDataLoader = ({
                 }
 
                 // Fallback for topic-based practice/exam
-                const questionsData = (topicId ? topicByIdQuestions.data : topicQuestions.data) || [];
-                const isLoading = topicId ? topicByIdQuestions.isLoading : topicQuestions.isLoading;
-                const error = (topicId ? topicByIdQuestions.error : topicQuestions.error) as Error | null;
+                {
+                    const questionsData = (topicId ? topicByIdQuestions.data : topicQuestions.data) || [];
+                    const isLoading = topicId ? topicByIdQuestions.isLoading : topicQuestions.isLoading;
+                    const error = (topicId ? topicByIdQuestions.error : topicQuestions.error) as Error | null;
 
-                return {
-                    questions: questionsData,
-                    isLoading: isLoading,
-                    error: error,
-                    testInfo: { id: 'practice', title: mode === 'exam' ? 'Экзамен DGT' : 'Практика' },
-                };
-
+                    return {
+                        questions: questionsData,
+                        isLoading: isLoading,
+                        error: error,
+                        testInfo: { id: 'practice', title: mode === 'exam' ? 'Экзамен DGT' : 'Практика' },
+                    };
+                }
 
             case 'sequential':
                 return {

@@ -95,7 +95,7 @@ export const PartnershipExpansionPortal: React.FC<PartnershipExpansionPortalProp
                         <button
                             onClick={() => {
                                 playClickSound();
-                                document.getElementById('form')?.scrollIntoView({ behavior: 'smooth' });
+                                document.getElementById('partnership-form')?.scrollIntoView({ behavior: 'smooth' });
                             }}
                             className="px-8 py-4 rounded-full bg-white text-slate-900 font-bold hover:bg-slate-100 transition-all hover:scale-105 shadow-lg"
                         >
@@ -243,7 +243,7 @@ export const PartnershipExpansionPortal: React.FC<PartnershipExpansionPortalProp
                 </section>
 
                 {/* FORM SECTION (CTA Banner style) */}
-                <section id="form" className="mb-12">
+                <section id="partnership-form" className="mb-12">
                     {!isSubmitted ? (
                         <div className="relative p-10 md:p-12 rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-600 overflow-hidden">
                             {/* Background pattern */}

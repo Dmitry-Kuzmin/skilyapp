@@ -241,7 +241,7 @@ export function useDuelBoostAction({
 
                 // RPC CALL
                 console.log('[handleBoostUse] 🔥 Calling RPC use_boost_attack:', { duelId, boostType });
-                // @ts-ignore
+                // @ts-expect-error
                 const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
                     p_duel_id: duelId,
                     p_boost_type: boostType,
@@ -314,7 +314,7 @@ export function useDuelBoostAction({
             // Yes, standard boosts also consume quantity on server.
 
             try {
-                // @ts-ignore
+                // @ts-expect-error
                 const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
                     p_duel_id: duelId,
                     p_boost_type: boostType,

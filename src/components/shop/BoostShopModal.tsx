@@ -137,64 +137,14 @@ export function BoostShopModal({
   // БЕЗОПАСНОЕ использование UserContext - может быть undefined если модалка открыта вне UserProvider
   const userContext = useContext(UserContext);
 
-  // Ранний возврат, если UserContext отсутствует (модалка открыта вне UserProvider)
-  if (!userContext) {
-    return null;
-  }
-
-  const profileId = userContext.profileId ?? null;
-  const platform = userContext.platform ?? "web";
+  // Хуки должны вызываться безусловно (правила React)
   const queryClient = useQueryClient();
-
-  // Если UserContext отсутствует, закрываем модалку
-  useEffect(() => {
-    if (open && !userContext) {
-      console.warn("[BoostShopModal] UserContext not available, closing modal");
-      onOpenChange(false);
-    }
-  }, [open, userContext, onOpenChange]);
-
   const { isPremium } = usePremium();
   const { t, language } = useLanguage();
-  const dateLocale = localeMap[language] || "en-US";
-  const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
-  // Используем isTelegramMiniApp() для более надежного определения Telegram Mini App
-  const currentPlatform = platform === "telegram" ? "telegram" : "web";
-  const showStarsPayment = isPaymentMethodAvailable(
-    "telegram_stars",
-    currentPlatform,
-  );
-  const showCryptomusPayment = isPaymentMethodAvailable(
-    "cryptomus",
-    currentPlatform,
-  );
-  const showPaddlePayment = isPaymentMethodAvailable("paddle", currentPlatform);
 
-  // Логирование для отладки (только в dev или при открытии модалки)
-  useEffect(() => {
-    if (open) {
-      console.log("[BoostShopModal] Payment methods availability:", {
-        platform,
-        currentPlatform,
-        showStarsPayment,
-        showCryptomusPayment,
-        showPaddlePayment,
-        paddleEnabled: PAYMENT_CONFIG.paddleEnabled,
-      });
-    }
-  }, [
-    open,
-    platform,
-    currentPlatform,
-    showStarsPayment,
-    showCryptomusPayment,
-    showPaddlePayment,
-  ]);
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
-
-  // Состояние для предварительного экрана Cryptomus
   const [cryptomusPreview, setCryptomusPreview] = useState<{
     open: boolean;
     paymentUrl: string;
@@ -208,44 +158,58 @@ export function BoostShopModal({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [paddleLoading, setPaddleLoading] = useState(false);
-  const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null); // catalogKey покупки в процессе
-  const [boostPurchaseLoading, setBoostPurchaseLoading] = useState<
-    string | null
-  >(null); // boost.type покупки в процессе
+  const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null);
+  const [boostPurchaseLoading, setBoostPurchaseLoading] = useState<string | null>(null);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
+  const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>(initialTab || 'boosts');
+  const [modalSnapPoint, setModalSnapPoint] = useState<number | string>(0.92);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+  const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
 
-  // Инициализация Paddle SDK через глобальную утилиту (предзагружается при старте приложения)
+  const modalContentRef = useRef<HTMLDivElement>(null);
+  const hasLoadedRef = useRef(false);
+  const historyLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Вычисляем параметры которые нужны для useEffect (не хуки — просто вычисления)
+  const profileId = userContext?.profileId ?? null;
+  const platform = userContext?.platform ?? 'web';
+  const dateLocale = localeMap[language] || 'en-US';
+  const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
+  const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
+  const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
+  const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
+  const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
+
+  // Логирование для отладки
+  useEffect(() => {
+    if (open) {
+      console.log('[BoostShopModal] Payment methods availability:', {
+        platform,
+        currentPlatform,
+        showStarsPayment,
+        showCryptomusPayment,
+        showPaddlePayment,
+        paddleEnabled: PAYMENT_CONFIG.paddleEnabled,
+      });
+    }
+  }, [open, platform, currentPlatform, showStarsPayment, showCryptomusPayment, showPaddlePayment]);
+
+  // Инициализация Paddle SDK
   useEffect(() => {
     if (!showPaddlePayment) return;
-
-    // Пробуем получить уже инициализированный инстанс
     const existingPaddle = getPaddleInstanceSync();
     if (existingPaddle) {
       setPaddle(existingPaddle);
       return;
     }
-
-    // Если не инициализирован - инициализируем (но это должно быть редко, т.к. предзагружается)
     setPaddleLoading(true);
     getPaddleInstance()
-      .then((instance) => {
-        setPaddle(instance);
-      })
-      .catch((error) => {
-        console.error("[BoostShopModal] Failed to get Paddle instance:", error);
-      })
-      .finally(() => {
-        setPaddleLoading(false);
-      });
+      .then((instance) => { setPaddle(instance); })
+      .catch((error) => { console.error('[BoostShopModal] Failed to get Paddle instance:', error); })
+      .finally(() => { setPaddleLoading(false); });
   }, [showPaddlePayment]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [filterCategory, setFilterCategory] = useState<
-    "all" | "earn" | "spend" | "purchase" | "reward"
-  >("all");
-  const [activeTab, setActiveTab] = useState<
-    "boosts" | "coins" | "premium" | "history"
-  >(initialTab || "boosts");
-  const [modalSnapPoint, setModalSnapPoint] = useState<number | string>(0.92);
 
   useEffect(() => {
     if (open) {
@@ -255,11 +219,44 @@ export function BoostShopModal({
       }
     }
   }, [open, initialTab]);
-  const [paywallOpen, setPaywallOpen] = useState(false);
-  const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
 
-  // Реф для контейнера с контентом модалки (для сброса скролла)
-  const modalContentRef = useRef<HTMLDivElement>(null);
+  // Загружаем данные при открытии
+  useEffect(() => {
+    if (open && !hasLoadedRef.current && profileId) {
+      console.log('[BoostShopModal] Загрузка данных, profileId:', profileId);
+      hasLoadedRef.current = true;
+      loadData();
+    } else if (!open) {
+      hasLoadedRef.current = false;
+    } else if (open && !profileId) {
+      console.warn('[BoostShopModal] Модалка открыта, но profileId отсутствует');
+    }
+  }, [open, profileId]);
+
+  // Загружаем историю транзакций при переключении на вкладку "История"
+  useEffect(() => {
+    if (open && activeTab === 'history' && transactions.length === 0 && !loadingHistory) {
+      historyLoadTimeoutRef.current = setTimeout(() => { loadTransactionHistory(); }, 150);
+    }
+    return () => {
+      if (historyLoadTimeoutRef.current) clearTimeout(historyLoadTimeoutRef.current);
+    };
+  }, [open, activeTab]);
+
+  // Сбрасываем скролл контента при переключении вкладок
+  useEffect(() => {
+    if (!open) return;
+    const timeoutId = setTimeout(() => {
+      const scrollableContainer = modalContentRef.current?.querySelector('[data-scrollable]') as HTMLElement;
+      if (scrollableContainer) scrollableContainer.scrollTop = 0;
+    }, 100);
+    return () => clearTimeout(timeoutId);
+  }, [activeTab, open]);
+
+  // Если UserContext отсутствует — возвращаем null ПОСЛЕ всех хуков
+  if (!userContext) {
+    return null;
+  }
 
   const translateBoostField = (
     boostType: string | undefined,
@@ -347,65 +344,7 @@ export function BoostShopModal({
     },
   ] as const;
 
-  const hasLoadedRef = useRef(false);
 
-  useEffect(() => {
-    if (open && !hasLoadedRef.current && profileId) {
-      console.log("[BoostShopModal] Загрузка данных, profileId:", profileId);
-      hasLoadedRef.current = true;
-      loadData();
-    } else if (!open) {
-      // Сбрасываем флаг при закрытии
-      hasLoadedRef.current = false;
-    } else if (open && !profileId) {
-      console.warn(
-        "[BoostShopModal] Модалка открыта, но profileId отсутствует",
-      );
-    } else if (open && hasLoadedRef.current) {
-      console.log("[BoostShopModal] Данные уже загружены, пропускаем");
-    }
-  }, [open, profileId]);
-
-  // Загружаем историю транзакций при переключении на вкладку "История"
-  const historyLoadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  useEffect(() => {
-    if (
-      open &&
-      activeTab === "history" &&
-      transactions.length === 0 &&
-      !loadingHistory
-    ) {
-      // ОПТИМИЗАЦИЯ: Debounce для предотвращения множественных загрузок
-      historyLoadTimeoutRef.current = setTimeout(() => {
-        loadTransactionHistory();
-      }, 150);
-    }
-
-    return () => {
-      if (historyLoadTimeoutRef.current) {
-        clearTimeout(historyLoadTimeoutRef.current);
-      }
-    };
-  }, [open, activeTab]);
-
-  // Сбрасываем скролл контента при переключении вкладок и при открытии модалки
-  useEffect(() => {
-    if (!open) return;
-
-    // Небольшая задержка для того, чтобы контент успел отрендериться
-    const timeoutId = setTimeout(() => {
-      // Находим скроллируемый контейнер внутри модалки
-      const scrollableContainer = modalContentRef.current?.querySelector(
-        "[data-scrollable]",
-      ) as HTMLElement;
-      if (scrollableContainer) {
-        // Сбрасываем скролл в начало
-        scrollableContainer.scrollTop = 0;
-      }
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [activeTab, open]);
 
   const loadData = async () => {
     console.log("[BoostShopModal] loadData вызвана, profileId:", profileId);

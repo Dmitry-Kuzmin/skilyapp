@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";

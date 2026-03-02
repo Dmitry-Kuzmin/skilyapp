@@ -2,6 +2,9 @@
  * Преобразует ошибки Edge Function в понятные сообщения для пользователя
  * @deprecated Используйте getDuelJoinErrorMessage из duelNotifications.ts для дуэлей
  */
+import { getDuelJoinErrorMessage } from './duelNotifications';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getHumanReadableError(error: any, context?: string): string {
   // Если ошибка уже в человеко-читаемом формате
   if (typeof error === 'string' && !error.includes('Edge Function') && !error.includes('non-2xx')) {
@@ -9,26 +12,22 @@ export function getHumanReadableError(error: any, context?: string): string {
   }
 
   // Получаем сообщение об ошибке
-  const errorMessage = error?.message || error?.error || error?.toString() || 'Неизвестная ошибка';
-  
+  const errorMessage: string = error?.message || error?.error || String(error) || 'Неизвестная ошибка';
+
   // Проверяем на различные типы ошибок
   if (errorMessage.includes('non-2xx') || errorMessage.includes('Edge Function')) {
-    // Пытаемся извлечь реальное сообщение из error.context или error.data
     const realError = error?.context || error?.data || error;
-    const realMessage = realError?.message || realError?.error || '';
-    
+    const realMessage: string = realError?.message || realError?.error || '';
+
     if (realMessage) {
       return getHumanReadableError(realMessage, context);
     }
-    
-    // Общие ошибки Edge Function
+
     return 'Произошла ошибка при выполнении запроса. Пожалуйста, попробуйте еще раз.';
   }
 
-  // Ошибки связанные с дуэлями - используем улучшенные сообщения
+  // Ошибки связанные с дуэлями
   if (context === 'join') {
-    // Для присоединения к дуэли используем специальную функцию
-    const { getDuelJoinErrorMessage } = require('./duelNotifications');
     const extractedError = extractErrorFromResponse(error);
     return getDuelJoinErrorMessage(extractedError).description;
   }
