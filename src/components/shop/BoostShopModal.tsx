@@ -253,11 +253,7 @@ export function BoostShopModal({
     return () => clearTimeout(timeoutId);
   }, [activeTab, open]);
 
-  // Если UserContext отсутствует — возвращаем null ПОСЛЕ всех хуков
-  if (!userContext) {
-    return null;
-  }
-
+  // userContext проверен на null в самом конце компонента перед рендером
   const translateBoostField = (
     boostType: string | undefined,
     field: "name" | "description",
@@ -2711,6 +2707,11 @@ export function BoostShopModal({
       </div>
     </div>
   );
+
+  // Если UserContext отсутствует — не рендерим модалку
+  if (!userContext) {
+    return null;
+  }
 
   return (
     <>

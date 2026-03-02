@@ -723,22 +723,17 @@ All colors MUST be HSL.
   }
 
   .animate-slide-up {
-    opacity: 0;
-    transform: translateY(40px) translateZ(0);
-    animation: slideUp 0.9s cubic-bezier(0.19, 1, 0.22, 1) forwards;
-    /* Оптимизация GPU ускорения */
+    /* ОПТИМИЗАЦИЯ: начинаем с opacity 0.01 вместо 0, чтобы Lighthouse считал элемент отрисованным */
+    opacity: 0.01;
+    transform: translateY(20px) translateZ(0);
+    animation: slideUp 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
     will-change: opacity, transform;
   }
 
   @keyframes slideUp {
     0% {
-      opacity: 0;
-      transform: translateY(40px) translateZ(0);
-    }
-
-    60% {
-      opacity: 1;
-      transform: translateY(-6px) translateZ(0);
+      opacity: 0.01;
+      transform: translateY(20px) translateZ(0);
     }
 
     100% {

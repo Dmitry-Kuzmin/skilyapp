@@ -72,8 +72,6 @@ export async function updateTermProgress(
 
         if (error) {
           console.error('Error updating term progress:', error);
-        } else {
-
         }
       } else {
         // Создаем новую запись
@@ -89,8 +87,6 @@ export async function updateTermProgress(
 
         if (error) {
           console.error('Error inserting term progress:', error);
-        } else {
-
         }
       }
     } else {

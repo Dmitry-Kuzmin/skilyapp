@@ -7,8 +7,7 @@ import { useUserContext } from "@/contexts/UserContext";
 import { usePremium } from "@/hooks/usePremium";
 import {
   CheckCircle2,
-
-  Infinity,
+  Infinity as InfinityIcon,
   Crown,
   ShieldCheck
 } from "lucide-react";
@@ -49,7 +48,7 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
     if (!open || !showPaddlePayment) return;
     const existing = getPaddleInstanceSync();
     if (existing) { setPaddle(existing); return; }
-    getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { });
+    getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { /* ignore */ });
   }, [open, showPaddlePayment]);
 
   const handlePurchase = async (planId: string) => {
@@ -284,7 +283,7 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
             <div className="mt-10 pt-6 border-t border-white/5 text-center">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex flex-wrap items-center justify-center gap-4">
                 <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /> Безопасная оплата</span>
-                <span className="flex items-center gap-1.5"><Infinity className="w-3.5 h-3.5 text-indigo-400" /> Мгновенный доступ</span>
+                <span className="flex items-center gap-1.5"><InfinityIcon className="w-3.5 h-3.5 text-indigo-400" /> Мгновенный доступ</span>
                 <span className="flex items-center gap-1.5"><Crown className="w-3.5 h-3.5 text-amber-500" /> Все функции Premium</span>
               </p>
             </div>

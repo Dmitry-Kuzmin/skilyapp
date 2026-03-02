@@ -1,4 +1,4 @@
-import { Trophy, Clock, Calendar, Crown, Infinity } from "lucide-react";
+import { Trophy, Clock, Calendar, Crown, Infinity as InfinityIcon } from "lucide-react";
 
 export interface PricingPlan {
     id: 'monthly' | 'quarterly' | 'biannual' | 'yearly' | 'lifetime';

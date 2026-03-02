@@ -23,7 +23,7 @@ export function LandingUserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [platform, setPlatform] = useState<'telegram' | 'web'>('web');
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // АРХИТЕКТУРА: Используем TelegramProvider вместо прямого вызова initTelegram()
   const webApp = useTelegram();
 
@@ -32,58 +32,58 @@ export function LandingUserProvider({ children }: { children: ReactNode }) {
     const initializeAuth = async () => {
       // Проверяем, является ли Telegram WebApp моком
       const isMockTelegram = window.Telegram?.WebApp?.initData === 'mock_init_data' ||
-                            window.Telegram?.WebApp?.initData?.startsWith('mock_') ||
-                            (window.Telegram?.WebApp?.initDataUnsafe?.user?.id === 123456789 && 
-                             window.Telegram?.WebApp?.initDataUnsafe?.user?.username === 'test_user');
-      
+        window.Telegram?.WebApp?.initData?.startsWith('mock_') ||
+        (window.Telegram?.WebApp?.initDataUnsafe?.user?.id === 123456789 &&
+          window.Telegram?.WebApp?.initDataUnsafe?.user?.username === 'test_user');
+
       if (isMockTelegram) {
         setIsLoading(false);
         return;
       }
-      
+
       // АРХИТЕКТУРА: Используем TelegramProvider (Singleton) вместо прямого вызова initTelegram()
       // Получаем пользователя из уже инициализированного WebApp
       let telegramUser: TelegramUser | null = null;
-      
+
       if (webApp?.initDataUnsafe?.user) {
         const userData = webApp.initDataUnsafe.user;
         if (userData.id !== 123456789 && userData.username !== 'test_user') {
           telegramUser = userData as TelegramUser;
         }
       }
-      
+
       // Fallback: если пользователя нет в WebApp, проверяем другие источники
       if (!telegramUser) {
         telegramUser = getTelegramUser();
-      
+      }
       // Retry mechanism for Telegram WebApp initialization
       if (!telegramUser && window.Telegram?.WebApp && !isMockTelegram) {
         await new Promise(resolve => setTimeout(resolve, 300));
         telegramUser = getTelegramUser();
-        
+
         if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
           telegramUser = null;
         }
-        
+
         if (!telegramUser) {
           await new Promise(resolve => setTimeout(resolve, 500));
           telegramUser = getTelegramUser();
-          
+
           if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
             telegramUser = null;
           }
         }
-        
+
         if (!telegramUser) {
           await new Promise(resolve => setTimeout(resolve, 800));
           telegramUser = getTelegramUser();
-          
+
           if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
             telegramUser = null;
           }
         }
       }
-      
+
       // Fallback to window.puzzleUser or localStorage
       if (!telegramUser) {
         if (window.puzzleUser) {
@@ -108,12 +108,12 @@ export function LandingUserProvider({ children }: { children: ReactNode }) {
           }
         }
       }
-      
+
       const detectedPlatform = getPlatform();
       const isTelegramEnv = isTelegramMiniApp();
-      
+
       setPlatform(detectedPlatform);
-      
+
       // Auto-login for Telegram Mini App (только если не мок)
       if (telegramUser && telegramUser.id !== 123456789 && telegramUser.username !== 'test_user') {
         setUser(telegramUser);
@@ -126,13 +126,13 @@ export function LandingUserProvider({ children }: { children: ReactNode }) {
           LANGUAGE: telegramUser.language_code,
           PLATFORM: detectedPlatform
         };
-        
+
         localStorage.setItem('puzzle_user', JSON.stringify(telegramUser));
       }
-      
+
       setIsLoading(false);
     };
-    
+
     initializeAuth();
   }, [webApp]); // АРХИТЕКТУРА: Зависим от webApp из TelegramProvider
 

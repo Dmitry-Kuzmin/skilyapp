@@ -633,7 +633,7 @@ export default function GuessTheSign() {
                           const target = e.target as HTMLImageElement;
                           if (target.src.includes('wikimedia')) {
                             // Try to use original SVG instead of thumb if thumb fails
-                            const original = target.src.replace(/\/thumb\//, '/').replace(/\/[^\/]+$/, '');
+                            const original = target.src.replace(/\/thumb\//, '/').replace(/\/[^/]+$/, '');
                             if (original !== target.src) {
                               target.src = original;
                               return;

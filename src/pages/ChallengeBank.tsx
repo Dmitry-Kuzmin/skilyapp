@@ -75,7 +75,7 @@ const ChallengeBank = () => {
 
       if (selectedCountry === 'russia') {
         // Fetch Russia questions
-        let rQuery = supabase
+        const rQuery = supabase
           .from('pdd_russia_questions')
           .select('*')
           .in('id', challengeIds);
@@ -122,7 +122,7 @@ const ChallengeBank = () => {
         }
       } else {
         // Fetch Spain/Unified questions
-        let sQuery = supabase
+        const sQuery = supabase
           .from('questions_new')
           .select('id, question_ru, question_es, question_en, image_url, metadata, topics(title_ru, title_es)')
           .eq('country', dbCountry)

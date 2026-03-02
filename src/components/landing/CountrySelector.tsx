@@ -10,7 +10,7 @@ import { Rocket } from 'lucide-react';
 import { getActiveCountries, CountryConfig } from '@/config/countries';
 import { playClickSound } from '@/services/audioService';
 import { useCountry } from '@/contexts/CountryContext';
-import { PartnershipExpansionPortal } from './PartnershipExpansionPortal';
+const PartnershipExpansionPortal = React.lazy(() => import('./PartnershipExpansionPortal').then(m => ({ default: m.PartnershipExpansionPortal })));
 
 export const CountrySelector: React.FC = () => {
     const { selectedCountry, setSelectedCountry } = useCountry();
@@ -146,10 +146,12 @@ export const CountrySelector: React.FC = () => {
             )}
 
             {/* Partnership Modal */}
-            <PartnershipExpansionPortal
-                isOpen={isPartnershipOpen}
-                onClose={() => setIsPartnershipOpen(false)}
-            />
+            <React.Suspense fallback={null}>
+                <PartnershipExpansionPortal
+                    isOpen={isPartnershipOpen}
+                    onClose={() => setIsPartnershipOpen(false)}
+                />
+            </React.Suspense>
         </div>
     );
 };

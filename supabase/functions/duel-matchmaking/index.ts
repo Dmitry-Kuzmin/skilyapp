@@ -775,6 +775,69 @@ Deno.serve(async (req) => {
                 });
             }
 
+            case 'process_help': {
+                const { duel_id, requester_id, helper_id, amount } = params;
+
+                // 1. Проверяем баланс хоста (helper_id)
+                const { data: helperProfile, error: helperError } = await supabase
+                    .from('profiles')
+                    .select('coins')
+                    .eq('id', helper_id)
+                    .single();
+
+                if (helperError || !helperProfile) {
+                    return new Response(JSON.stringify({ error: 'Helper profile not found' }), {
+                        status: 404,
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    });
+                }
+
+                if ((helperProfile.coins || 0) < amount) {
+                    return new Response(JSON.stringify({ error: 'Insufficient coins for help' }), {
+                        status: 400,
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    });
+                }
+
+                // 2. Списываем монеты у хоста атомарно
+                const { error: withdrawError } = await supabase.rpc('increment_profile_value', {
+                    p_profile_id: helper_id,
+                    p_column: 'coins',
+                    p_amount: -amount
+                });
+
+                if (withdrawError) throw withdrawError;
+
+                // 3. Записываем транзакцию 'help_friend'
+                await supabase.from('duel_transactions').insert({
+                    duel_id: duel_id,
+                    user_id: helper_id,
+                    amount: -amount,
+                    transaction_type: 'help_friend'
+                });
+
+                // 4. Отправляем уведомление просящему (requester_id) о получении помощи
+                await supabase.from('duel_notifications').insert({
+                    user_id: requester_id,
+                    duel_id: duel_id,
+                    type: 'help_received',
+                    title: 'Помощь получена!',
+                    message: `Ваш друг доплатил за Вас ${amount} монет. Дуэль начинается!`,
+                    metadata: {
+                        duel_id: duel_id,
+                        amount: amount,
+                        helper_id: helper_id,
+                    }
+                });
+
+                // 5. Также можно обновить статус игрока, если нужно (например, поменять признак оплаты)
+                // Но лучше просто полагаться на уведомление и повторную попытку входа
+
+                return new Response(JSON.stringify({ success: true }), {
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                });
+            }
+
             default:
                 return new Response(JSON.stringify({ error: 'Unknown action' }), {
                     status: 400,
@@ -789,3 +852,4 @@ Deno.serve(async (req) => {
         });
     }
 });
+

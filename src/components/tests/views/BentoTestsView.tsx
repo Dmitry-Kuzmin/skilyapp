@@ -431,7 +431,6 @@ export const BentoTestsView = memo(function BentoTestsView({
                 </div>
 
             </motion.div>
-        </motion.div>
-        </div >
+        </div>
     );
 });

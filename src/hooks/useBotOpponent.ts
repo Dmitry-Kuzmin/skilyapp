@@ -259,7 +259,7 @@ export function useBotOpponent({
       insane: 0.60, // 60%
     };
     const diff = (botDifficulty as string) || 'medium';
-    let attackChance = attackChances[diff as keyof typeof attackChances] || 0.35;
+    const attackChance = attackChances[diff as keyof typeof attackChances] || 0.35;
 
     // Easy боты не используют бусты
     if (attackChance === 0) {

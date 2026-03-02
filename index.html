@@ -327,14 +327,33 @@
   </script>
 
   <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
-  <!-- КРИТИЧНО: telegram-web-app.js нужен для инициализации, загружаем с defer -->
-  <!-- crossorigin="anonymous" для лучшей совместимости с Safari Privacy -->
-  <!-- AdsGram SDK (для Telegram Mini App) -->
-  <!-- КРИТИЧНО: telegram-web-app.js нужен для инициализации, загружаем с defer -->
-  <!-- crossorigin="anonymous" для лучшей совместимости с Safari Privacy -->
-  <!-- AdsGram SDK (для Telegram Mini App) -->
-  <!-- ОПТИМИЗАЦИЯ: defer для рекламных SDK -->
-  <script src="https://sad.adsgram.ai/js/sad.min.js" defer></script>
+  <!-- ОПТИМИЗАЦИЯ: defer для рекламных SDK + загрузка после взаимодействия -->
+  <script>
+    (function () {
+      const loadAds = () => {
+        if (window._adsLoaded) return;
+        window._adsLoaded = true;
+
+        // Adsgram
+        const adsgram = document.createElement('script');
+        adsgram.src = "https://sad.adsgram.ai/js/sad.min.js";
+        adsgram.defer = true;
+        document.head.appendChild(adsgram);
+
+        // Google AdSense
+        const adsense = document.createElement('script');
+        adsense.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1758777358223420";
+        adsense.async = true;
+        adsense.crossOrigin = "anonymous";
+        document.head.appendChild(adsense);
+      };
+
+      // Загрузка через 5 секунд или при первом скролле/клике
+      window.addEventListener('scroll', loadAds, { once: true, passive: true });
+      window.addEventListener('click', loadAds, { once: true });
+      setTimeout(loadAds, 5000);
+    })();
+  </script>
 
   <!-- Monetag Native Banner (Interstitial) SDK (для веб-версии - Rewarded Video) -->
   <!-- Zone ID: 10323437 (Skillful tag) - используется как Rewarded Video -->
@@ -538,12 +557,18 @@
     })();
   </script>
 
+  <!-- ОПТИМИЗАЦИЯ FONTS: Preload критического шрифта -->
+  <link rel="preload"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap" as="style"
+    onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap">
+  </noscript>
+
   <!-- Development: Telegram WebApp Mock - загружается через main.tsx -->
 
 
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1758777358223420"
-    crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -559,7 +584,87 @@
     })();
   </script>
 
-  <div id="root" vaul-drawer-wrapper></div>
+  <div id="root" vaul-drawer-wrapper>
+    <!-- SKELETON FOR LCP OPTIMIZATION (Fills the screen before React Hydration) -->
+    <style>
+      .initial-skeleton {
+        position: fixed;
+        inset: 0;
+        background: #0f172a;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem 2rem;
+        z-index: 1;
+        font-family: sans-serif;
+      }
+
+      .sk-nav {
+        width: 100%;
+        max-width: 1400px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5rem;
+      }
+
+      .sk-logo {
+        width: 100px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+      }
+
+      .sk-btn {
+        width: 130px;
+        height: 38px;
+        background: white;
+        border-radius: 20px;
+      }
+
+      .sk-title-1 {
+        width: 85%;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        margin-bottom: 1rem;
+      }
+
+      .sk-title-2 {
+        width: 65%;
+        height: 50px;
+        background: linear-gradient(90deg, #3b82f6, #06b6d4);
+        border-radius: 10px;
+        margin-bottom: 2rem;
+      }
+
+      .sk-text {
+        width: 75%;
+        height: 16px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        margin-bottom: 3rem;
+      }
+
+      .sk-cta {
+        width: 220px;
+        height: 56px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+    </style>
+    <div class="initial-skeleton">
+      <div class="sk-nav">
+        <div class="sk-logo"></div>
+        <div class="sk-btn"></div>
+      </div>
+      <div class="sk-title-1"></div>
+      <div class="sk-title-2"></div>
+      <div class="sk-text"></div>
+      <div class="sk-cta"></div>
+    </div>
+  </div>
 
   <!-- PWA Service Worker управляется через vite-plugin-pwa -->
   <!-- НЕ удаляем SW вручную - это блокирует offline режим -->

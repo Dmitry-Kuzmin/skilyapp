@@ -69,9 +69,11 @@ export const LazyTipTapEditor = ({ content, onChange, placeholder, editable = tr
   useEffect(() => {
     if (!tiptapModules?.react || !editable) return;
 
+    let editorInstance: any = null;
+
     const initializeEditor = async () => {
       try {
-        const { useEditor, EditorContent } = tiptapModules.react;
+        const { Editor } = tiptapModules.react;
         const { StarterKit } = tiptapModules.starterKit;
         const { Image } = tiptapModules.extensions.image;
         const { Link } = tiptapModules.extensions.link;
@@ -83,7 +85,7 @@ export const LazyTipTapEditor = ({ content, onChange, placeholder, editable = tr
         const { TextStyle } = await import('@tiptap/extension-text-style');
         const { Color } = await import('@tiptap/extension-color');
 
-        const editorInstance = useEditor({
+        editorInstance = new Editor({
           extensions: [
             StarterKit,
             Image.configure({
@@ -107,7 +109,7 @@ export const LazyTipTapEditor = ({ content, onChange, placeholder, editable = tr
           ],
           content: content || '',
           editable,
-          onUpdate: ({ editor }) => {
+          onUpdate: ({ editor }: any) => {
             onChange?.(editor.getJSON());
           },
         });
@@ -119,6 +121,12 @@ export const LazyTipTapEditor = ({ content, onChange, placeholder, editable = tr
     };
 
     initializeEditor();
+
+    return () => {
+      if (editorInstance) {
+        editorInstance.destroy();
+      }
+    };
   }, [tiptapModules, content, editable, onChange]);
 
   const addImage = useCallback(async () => {
@@ -127,7 +135,7 @@ export const LazyTipTapEditor = ({ content, onChange, placeholder, editable = tr
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    
+
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
@@ -262,7 +270,7 @@ export const LazyTipTapEditor = ({ content, onChange, placeholder, editable = tr
           </Tooltip>
         </div>
       )}
-      
+
       <div className="p-4">
         <EditorContent editor={editor} />
       </div>

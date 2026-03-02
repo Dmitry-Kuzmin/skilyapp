@@ -110,14 +110,14 @@ export const TelegramNavigation = () => {
     if (webApp.MainButton) {
       try {
         webApp.MainButton.hide();
-      } catch (e) { }
+      } catch (e) { /* ignore */ }
     }
 
     return () => {
       if (supportsBackButton && webApp.BackButton) {
         try {
           webApp.BackButton.offClick(handleBack);
-        } catch (e) { }
+        } catch (e) { /* ignore */ }
       }
     };
   }, [isTelegramReady, navigate, location.pathname, isSettingsOpen, closeSettings]);
