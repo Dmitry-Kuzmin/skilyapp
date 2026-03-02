@@ -820,6 +820,25 @@ Deno.serve(async (req) => {
                     });
                 }
 
+                if (duel.status === 'active') {
+                    // Идемпотентность: дуэль уже активна (предыдущий запрос мог завершиться частично)
+                    const { data: guestPlayer } = await supabase
+                        .from('duel_players')
+                        .select('id')
+                        .eq('duel_id', duel_id)
+                        .eq('user_id', requester_id)
+                        .maybeSingle();
+
+                    return new Response(JSON.stringify({
+                        success: true,
+                        duel: { id: duel_id, code: duel.code, status: 'active' },
+                        player: guestPlayer,
+                        idempotent: true
+                    }), {
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    });
+                }
+
                 if (duel.status !== 'waiting') {
                     return new Response(JSON.stringify({ error: 'Duel not in waiting state' }), {
                         status: 400,
