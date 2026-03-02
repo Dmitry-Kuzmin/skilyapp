@@ -452,26 +452,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
 
   // ОПТИМИЗАЦИЯ: Сохраняем состояние активной дуэли с debounce (раз в 2 секунды)
-  // Это уменьшает количество операций записи в localStorage и ререндеров
   const saveActiveDuelRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
     if (!duelId || !profileId || !storeQuestions?.length || !duelCode) return;
 
-    // Сохраняем состояние только если дуэль активна
     if (realtimeState.duelStarted && !realtimeState.duelFinished) {
-      // Очищаем предыдущий таймер
       if (saveActiveDuelRef.current) {
         clearTimeout(saveActiveDuelRef.current);
       }
 
-      // ОПТИМИЗАЦИЯ: Используем requestIdleCallback для сохранения состояния
-      // Это предотвращает блокировку основного потока
       const saveState = () => {
         const stateToSave = {
           duelId,
           duelCode,
           mode: (isWaitingForOpponent ? 'waiting' : 'battle') as "waiting" | "battle",
-          currentIndex: isWaitingForOpponent ? undefined : storeCurrentIndex, // Не сохраняем currentIndex в режиме ожидания
+          currentIndex: isWaitingForOpponent ? undefined : storeCurrentIndex,
           myScore,
           opponentScore,
           totalQuestions: storeQuestions.length,
@@ -479,7 +474,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
           opponentName,
         };
 
-        // Используем saveActiveDuel если activeDuel еще не существует, иначе updateActiveDuel
         if (activeDuel) {
           updateActiveDuel(stateToSave);
         } else {
@@ -487,15 +481,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         }
       };
 
-      // Устанавливаем новый таймер с debounce 2 секунды
-      // Используем requestIdleCallback если доступен для некритического сохранения
-      saveActiveDuelRef.current = setTimeout(() => {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(saveState, { timeout: 1000 });
-        } else {
-          saveState();
-        }
-      }, 2000); // Debounce 2 секунды
+      // Debounce 500мс — чтобы не писать при каждом ре-рендере, но не терять при краше
+      saveActiveDuelRef.current = setTimeout(saveState, 500);
     }
 
     return () => {
@@ -504,6 +491,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       }
     };
   }, [duelId, duelCode, storeCurrentIndex, myScore, opponentScore, storeQuestions?.length, myName, opponentName, isWaitingForOpponent, realtimeState.duelStarted, realtimeState.duelFinished, profileId, activeDuel, saveActiveDuel, updateActiveDuel]);
+
 
   // Перезагружаем когда дуэль началась (игроки должны быть точно созданы)
   useEffect(() => {
