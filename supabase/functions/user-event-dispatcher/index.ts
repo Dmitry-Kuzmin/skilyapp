@@ -41,6 +41,14 @@ serve(async (req) => {
   }
 
   try {
+
+    console.log('[EventDispatcher] 📥 New request:', {
+      method: req.method,
+      contentType: req.headers.get('content-type'),
+      userAgent: req.headers.get('user-agent'),
+      origin: req.headers.get('origin')
+    });
+
     if (req.method !== 'POST') {
       return new Response(JSON.stringify({ error: 'Method not allowed' }), {
         status: 405,
@@ -48,10 +56,26 @@ serve(async (req) => {
       });
     }
 
-    const body: EventRequest = await req.json();
+    const bodyText = await req.text();
+    console.log('[EventDispatcher] Body received (first 100 chars):', bodyText.substring(0, 100));
+
+    let body: EventRequest;
+    try {
+      body = JSON.parse(bodyText);
+    } catch (e) {
+      console.error('[EventDispatcher] JSON parse error:', e);
+      return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { event_id, user_id, event_type, payload = {}, override_template_type } = body;
 
+    console.log('[EventDispatcher] Event details:', { event_id, user_id, event_type, payloadKeys: Object.keys(payload) });
+
     if (!user_id || !event_type) {
+      console.warn('[EventDispatcher] Missing required fields:', { user_id, event_type });
       return new Response(JSON.stringify({ error: 'user_id and event_type are required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

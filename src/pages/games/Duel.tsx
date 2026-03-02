@@ -559,26 +559,21 @@ export default function Duel() {
             // #region agent log
             debugFetch({ location: 'Duel.tsx:359', message: 'Checking duel status from DB', data: { id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
             // #endregion
+            console.log('[Duel] 🔍 Checking status... currentMode:', mode);
             const { data, error } = await supabase
                 .from('duels')
                 .select('status')
                 .eq('id', id)
                 .maybeSingle();
 
-            // #region agent log
-            debugFetch({ location: 'Duel.tsx:365', message: 'Duel status check result', data: { hasError: !!error, status: data?.status }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
-            // #endregion
             if (error) {
                 console.error('[Duel] Error checking duel status:', error);
-                // Продолжаем с переходом в лобби даже при ошибке проверки
             }
 
-            if ((data as any)?.status === 'active') {
+            if ((data as any)?.status === 'active' || (data as any)?.status === 'started') {
                 console.log('[Duel] Duel already active, going straight to battle!');
-                // #region agent log
-                debugFetch({ location: 'Duel.tsx:370', message: 'Duel active - calling handleDuelStarted', data: { id, currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
-                // #endregion
                 handleDuelStarted(id); // Передаем id для гарантии
+                return;
             } else if ((data as any)?.status === 'finished') {
                 // 🆕 CRITICAL FIX: Если дуэль уже завершена при присоединении - это ошибка
                 console.error('[Duel] ❌ Cannot join: duel is already finished');
@@ -586,13 +581,12 @@ export default function Duel() {
                 setMode('menu');
                 setDuelId(null);
                 setDuelCode(null);
-            } else {
-                console.log('[Duel] Going to lobby to wait for start');
-                // #region agent log
-                debugFetch({ location: 'Duel.tsx:374', message: 'Setting mode to create (lobby)', data: { currentMode: mode }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' });
-                // #endregion
-                setMode('create');
+                return;
             }
+
+            // Stay in menu, wait for realtime or status check to transition
+            console.log('[Duel] Joined successfully, waiting for status change');
+            setMode('menu');
         } catch (error) {
             console.error('[Duel] ❌ Error in handleDuelJoined:', error);
             // #region agent log
@@ -2365,7 +2359,7 @@ export default function Duel() {
                                                                             animate={{ opacity: joinCode.length === 4 ? 1 : 0.6 }}
                                                                             className="text-xs sm:text-sm text-center text-muted-foreground/80 pt-2 px-2 font-medium"
                                                                         >
-                                                                            {joinCode.length < 4 ? 'Введите 4 символа' : joinCode.length === 4 ? '✨ Автоприсоединение...' : ''}
+                                                                            {joinCode.length < 4 ? 'Введите 4 символа' : joinCode.length === 4 ? '✨ Код принят!' : ''}
                                                                         </motion.p>
                                                                     </div>
                                                                 </div>
