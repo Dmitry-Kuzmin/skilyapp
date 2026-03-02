@@ -37,6 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (
       error.message.includes('Importing a module script failed') ||
       error.message.includes('text/html') ||
+      error.message.includes('Failed to fetch dynamically imported module') ||
       error.name === 'ChunkLoadError'
     ) {
       console.error('[ErrorBoundary] Chunk load error detected. Attempting recovery...', error);

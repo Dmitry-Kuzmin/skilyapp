@@ -188,6 +188,7 @@ window.addEventListener('error', (event) => {
     errorMsg.includes('Loading chunk') ||
     errorMsg.includes('text/html') ||
     errorMsg.includes('missing') ||
+    errorMsg.includes('Failed to fetch dynamically imported module') ||
     (errorMsg.includes('Unexpected token') && (event.filename?.includes('assets/') || errorMsg.includes('<')));
 
   // КРИТИЧНО: Автоматическая перезагрузка при ошибке загрузки чанка (MIME type mismatch или 404)
