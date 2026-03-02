@@ -702,7 +702,10 @@ async function createNotification(body: NotificationParams, profileId: string, s
       .select('id, user_id, is_bot, bot_name, name')
       .eq('duel_id', duel_id);
 
-    if (playersError || !players || players.length < 2) {
+    // For help_requested, it's normal if there's only 1 player (the host) because 
+    // the requester hasn't joined the duel table yet due to lack of coins.
+    const isHelp = type === 'help_requested';
+    if (playersError || !players || (players.length < (isHelp ? 1 : 2))) {
       return new Response(JSON.stringify({ error: playersError?.message || 'Players not found' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

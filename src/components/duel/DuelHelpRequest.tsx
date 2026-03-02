@@ -67,6 +67,7 @@ export function DuelHelpRequest({
             const { data, error } = await supabase.functions.invoke('duel-manager', {
                 body: {
                     action: 'create_notification',
+                    profile_id: profileId, // Pass explicitly to avoid 404 in resolving profile
                     duel_id: duelId,
                     type: 'help_requested',
                     title: 'НУЖНА ПОМОЩЬ! 🤝',
