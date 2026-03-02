@@ -611,6 +611,12 @@ export function BoostShopModal({
           description: t("boostShop.transactions.insurance_refund"),
           category: "earn",
         };
+      case "help_friend":
+        return {
+          icon: Heart,
+          description: t("boostShop.transactions.help_friend"),
+          category: "spend",
+        };
       case "referral_earned":
         return {
           icon: Users,

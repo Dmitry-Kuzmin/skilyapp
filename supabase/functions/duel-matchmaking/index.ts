@@ -411,10 +411,12 @@ Deno.serve(async (req) => {
                     .select()
                     .single();
 
-                await supabase
+                const { error: activeError } = await supabase
                     .from('duels')
                     .update({ status: 'active', started_at: new Date().toISOString() })
                     .eq('id', duel.id);
+
+                if (activeError) throw activeError;
 
                 // Запись транзакций для ставки и страховки присоединившегося игрока
                 if (duel.bet_amount > 0) {
@@ -920,12 +922,27 @@ Deno.serve(async (req) => {
                 }
 
                 // 7. Активируем дуэль
-                await supabase
+                const { error: activeError } = await supabase
                     .from('duels')
                     .update({ status: 'active', started_at: new Date().toISOString() })
                     .eq('id', duel_id);
 
-                // 8. Уведомляем гостя о том, что помощь получена и дуэль началась
+                if (activeError) throw activeError;
+
+                // 8. Записываем транзакцию списания у хоста (helper)
+                try {
+                    await supabase.from('duel_transactions').insert({
+                        duel_id: duel_id,
+                        user_id: helper_id,
+                        amount: -amount,
+                        transaction_type: 'help_friend'
+                    });
+                    console.log(`[process_help] Transaction record created for helper ${helper_id}`);
+                } catch (txErr) {
+                    console.error('[process_help] Failed to create transaction record:', txErr);
+                }
+
+                // 9. Уведомляем гостя о том, что помощь получена и дуэль началась
                 try {
                     const { error: notifError } = await supabase.from('duel_notifications').insert({
                         user_id: requester_id,

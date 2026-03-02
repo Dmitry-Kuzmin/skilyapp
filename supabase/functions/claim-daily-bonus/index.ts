@@ -146,11 +146,15 @@ serve(async (req) => {
       // We don't fail the whole request if license points fail
     }
 
-    fetch(`${supabaseUrl}/functions/v1/season-sp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseKey}` },
-      body: JSON.stringify({ user_id, source_type: 'daily_login', metadata: { streak_days: newStreak } })
-    }).catch(err => console.warn('[claim-daily-bonus] season-sp error:', err));
+    try {
+      await fetch(`${supabaseUrl}/functions/v1/season-sp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseKey}` },
+        body: JSON.stringify({ user_id, source_type: 'daily_login', metadata: { streak_days: newStreak } })
+      });
+    } catch (err) {
+      console.warn('[claim-daily-bonus] season-sp error:', err);
+    }
 
     return new Response(JSON.stringify({
       success: true,

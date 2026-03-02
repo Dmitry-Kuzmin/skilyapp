@@ -549,6 +549,7 @@ export const en = {
       base_payout: "Duel reward",
       insurance_premium: "Duel insurance",
       insurance_refund: "Insurance refund",
+      help_friend: "Helping a friend in a duel",
     },
   },
   profileMenu: {

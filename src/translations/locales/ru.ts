@@ -554,6 +554,7 @@ export const ru = {
       base_payout: "Награда за дуэль",
       insurance_premium: "Страховка дуэли",
       insurance_refund: "Возврат страховки",
+      help_friend: "Помощь другу в дуэли",
     },
   },
   profileMenu: {

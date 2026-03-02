@@ -133,22 +133,19 @@ export function DuelHelpHandler() {
                 </motion.div>
             </div>
 
-            {/* Title & Description */}
-            <div className="text-center px-6 pb-6 space-y-2">
-                <h2 className="text-2xl font-bold text-white tracking-tight">
-                    {isDone ? 'Помощь оказана!' : 'Нужна помощь другу!'}
-                </h2>
-                <p className="text-sm text-zinc-400 leading-relaxed max-w-[280px] mx-auto">
-                    {isDone
-                        ? 'Монеты списаны с вашего счёта. Дуэль запущена ⚔️'
-                        : <>
-                            Оппоненту не хватает{' '}
-                            <span className="text-amber-400 font-bold">{amount} монет</span>{' '}
-                            для начала дуэли. Поможете?
-                        </>
-                    }
-                </p>
-            </div>
+            <h2 className="text-2xl font-bold text-white tracking-tight">
+                {isDone ? 'Помощь оказана!' : 'Другу нужна помощь'}
+            </h2>
+            <p className="text-sm text-zinc-400 leading-relaxed max-w-[280px] mx-auto">
+                {isDone
+                    ? 'Монеты списаны с вашего счёта. Дуэль запущена ⚔️'
+                    : <>
+                        Оппоненту не хватает{' '}
+                        <span className="text-amber-400 font-bold">{amount} монет</span>{' '}
+                        для начала битвы. Выручите?
+                    </>
+                }
+            </p>
 
             {/* Info Cards */}
             {!isDone && (
@@ -189,25 +186,25 @@ export function DuelHelpHandler() {
                         onClick={handleApprove}
                         disabled={isProcessing}
                         className={cn(
-                            'w-full h-14 text-base',
-                            'bg-gradient-to-r from-amber-500 to-orange-500',
-                            'text-white font-bold rounded-2xl',
+                            'w-full h-14 text-base shadow-2xl',
+                            'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600',
+                            'text-white font-black rounded-2xl',
                             'hover:from-amber-400 hover:to-orange-400',
-                            'hover:shadow-lg hover:shadow-amber-500/20',
+                            'hover:shadow-[0_0_20px_rgba(251,191,36,0.3)]',
                             'active:scale-[0.98]',
-                            'transition-all duration-200',
+                            'transition-all duration-300',
                             'border-0'
                         )}
                     >
                         {isProcessing ? (
                             <span className="flex items-center gap-2">
-                                <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                <Loader2 className="w-5 h-5 animate-spin" />
                                 Обрабатываем...
                             </span>
                         ) : (
-                            <span className="flex items-center gap-2">
-                                <Coins className="w-5 h-5" />
-                                Доплатить {amount}
+                            <span className="flex items-center gap-3">
+                                <Coins className="w-5 h-5 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
+                                <span>Доплатить {amount}</span>
                             </span>
                         )}
                     </Button>

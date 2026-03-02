@@ -550,6 +550,7 @@ export const es = {
       base_payout: "Recompensa por duelo",
       insurance_premium: "Seguro de duelo",
       insurance_refund: "Reembolso de seguro",
+      help_friend: "Ayuda a un amigo en duelo",
     },
   },
   profileMenu: {

@@ -773,21 +773,25 @@ async function createNotification(body: NotificationParams, profileId: string, s
 
     // Telegram delivery for finish/timeout/help
     if (['finish', 'timeout', 'help_requested'].includes(type) && opponentId) {
-      const templateType = type === 'finish' ? (metadata.is_winner ? 'duel_win' : 'duel_lose') : type;
-      await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/notification-sender`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
-        },
-        body: JSON.stringify({
-          user_id: opponentId,
-          template_type: templateType,
-          variables: { ...metadata, duel_id, opponent_name: metadata.opponent_name },
-          cta_text: type === 'help_requested' ? 'Помочь монетами' : 'Посмотреть результаты',
-          cta_deeplink: `duel_${duel_id}`
-        })
-      }).catch(err => console.error('[DuelManager] Telegram notification error:', err));
+      try {
+        const templateType = type === 'finish' ? (metadata.is_winner ? 'duel_win' : 'duel_lose') : type;
+        await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/notification-sender`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({
+            user_id: opponentId,
+            template_type: templateType,
+            variables: { ...metadata, duel_id, opponent_name: metadata.opponent_name },
+            cta_text: type === 'help_requested' ? 'Помочь монетами' : 'Посмотреть результаты',
+            cta_deeplink: `duel_${duel_id}`
+          })
+        });
+      } catch (err) {
+        console.error('[DuelManager] Telegram notification error:', err);
+      }
     }
 
     return new Response(JSON.stringify({ success: true }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -3022,21 +3026,23 @@ Deno.serve(async (req) => {
           // ВНИМАНИЕ: Оппонент - это НЕ тот, кто сейчас отвечает.
           // Но в createNotification мы передадим данные СЕНДЕРА (нас).
 
-          await createNotification({
-            duel_id,
-            type: isCorrect ? 'answer' : 'progress',
-            metadata: {
-              is_correct: isCorrect,
-              question_number: question.position,
-              combo: finalCombo >= 3 ? finalCombo : undefined,
-              error_streak: currentErrorStreak >= 2 ? currentErrorStreak : undefined,
-              progress: progress >= 25 && progress % 25 === 0 ? progress : undefined,
-              opponent_name: player.name || undefined, // Передаем наше имя (сендера)
-              num_questions: numQuestions
-            }
-          }, profileId, supabase).catch(err => {
+          try {
+            await createNotification({
+              duel_id,
+              type: isCorrect ? 'answer' : 'progress',
+              metadata: {
+                is_correct: isCorrect,
+                question_number: question.position,
+                combo: finalCombo >= 3 ? finalCombo : undefined,
+                error_streak: currentErrorStreak >= 2 ? currentErrorStreak : undefined,
+                progress: progress >= 25 && progress % 25 === 0 ? progress : undefined,
+                opponent_name: player.name || undefined, // Передаем наше имя (сендера)
+                num_questions: numQuestions
+              }
+            }, profileId, supabase);
+          } catch (err) {
             console.error('[submit_answer] Notification failed:', err);
-          });
+          }
         }
 
 
@@ -3306,25 +3312,21 @@ Deno.serve(async (req) => {
 
           // Уведомляем о каждом ответе бота
           // Используем тип 'answer' для правильных ответов, 'progress' для неправильных
-          const notifResult = await createNotification({
-            duel_id,
-            recipient_profile_id: humanPlayer.user_id, // Явно указываем получателя
-            type: isCorrect ? 'answer' : 'progress',
-            metadata: {
-              is_correct: isCorrect,
-              question_number: question.position,
-              progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Процент только на milestones (25%, 50%, 75%)
-              opponent_name: botName, // Имя бота для правильного отображения в уведомлении
-            }
-          }, profileId, supabase).catch(err => {
-            console.error('[bot_answer] Error creating progress notification:', err);
-            return false;
-          });
-
-          if (!notifResult) {
-            console.warn('[bot_answer] Failed to create progress notification - human player might not be found');
-          } else {
+          try {
+            await createNotification({
+              duel_id,
+              recipient_profile_id: humanPlayer.user_id, // Явно указываем получателя
+              type: isCorrect ? 'answer' : 'progress',
+              metadata: {
+                is_correct: isCorrect,
+                question_number: question.position,
+                progress: progress >= 25 && progress % 25 === 0 ? progress : undefined, // Процент только на milestones (25%, 50%, 75%)
+                opponent_name: botName, // Имя бота для правильного отображения в уведомлении
+              }
+            }, profileId, supabase);
             console.log('[bot_answer] ✅ Progress notification created successfully');
+          } catch (err) {
+            console.error('[bot_answer] Error creating progress notification:', err);
           }
         } else {
           console.warn('[bot_answer] ⚠️ Human player not found in duel');
@@ -4045,18 +4047,16 @@ Deno.serve(async (req) => {
         }
 
         // Create boost notification for opponent
-        const notifResult = await createNotification({
-          duel_id,
-          type: 'boost',
-          metadata: {
-            boost_type,
-          }
-        }, profileId, supabase).catch(err => {
+        try {
+          await createNotification({
+            duel_id,
+            type: 'boost',
+            metadata: {
+              boost_type,
+            }
+          }, profileId, supabase);
+        } catch (err) {
           console.error('[use_boost] Error creating boost notification:', err);
-          return false;
-        });
-        if (!notifResult) {
-          console.warn('[use_boost] Failed to create boost notification');
         }
 
         return new Response(JSON.stringify(boostEffect), {
@@ -4270,25 +4270,27 @@ Deno.serve(async (req) => {
         if (humanPlayer?.user_id) {
           const botName = botPlayer.bot_name || botPlayer.name || 'Бот';
 
-          await createNotification({
-            duel_id,
-            type: 'boost',
-            title: `⚠️ ${botName} использовал буст!`,
-            message: boostType === 'screen_injector' ? 'Data Leak активирован! 🛢️' :
-              boostType === 'input_lag' ? 'Input Lag активирован!' :
-                boostType === 'gps_spoofing' ? 'GPS Spoofing активирован!' :
-                  boostType === 'police_backdoor' ? 'Police Backdoor активирован!' :
-                    boostType === 'cryptolocker' ? 'Cryptolocker активирован! 🔒' :
-                      'Бот использовал буст!',
-            icon: '⚡',
-            metadata: {
-              boost_type: boostType,
-              opponent_name: botName,
-              is_bot: true,
-            }
-          }, humanPlayer.user_id, supabase).catch(err => {
+          try {
+            await createNotification({
+              duel_id,
+              type: 'boost',
+              title: `⚠️ ${botName} использовал буст!`,
+              message: boostType === 'screen_injector' ? 'Data Leak активирован! 🛢️' :
+                boostType === 'input_lag' ? 'Input Lag активирован!' :
+                  boostType === 'gps_spoofing' ? 'GPS Spoofing активирован!' :
+                    boostType === 'police_backdoor' ? 'Police Backdoor активирован!' :
+                      boostType === 'cryptolocker' ? 'Cryptolocker активирован! 🔒' :
+                        'Бот использовал буст!',
+              icon: '⚡',
+              metadata: {
+                boost_type: boostType,
+                opponent_name: botName,
+                is_bot: true,
+              }
+            }, humanPlayer.user_id, supabase);
+          } catch (err) {
             console.error('[bot_use_boost] Error creating boost notification:', err);
-          });
+          }
         }
 
         return new Response(JSON.stringify({
@@ -4875,25 +4877,27 @@ Deno.serve(async (req) => {
           // Create finish notification for opponent
           const opponentPlayer = playersWithScores.find((p: { user_id: string }) => p.user_id !== profile_id);
           if (opponentPlayer) {
-            // Get current player name (who finished) for personalized notification to opponent
-            const currentPlayerName = await getOpponentName(profile_id, supabase).catch(() => 'Игрок');
+            let currentPlayerName = 'Игрок';
+            try {
+              currentPlayerName = await getOpponentName(profile_id, supabase);
+            } catch {
+              // Fallback
+            }
             console.log('[finish_duel] Creating finish notification with player name:', currentPlayerName);
 
-            const notifResult = await createNotification({
-              duel_id,
-              type: 'finish',
-              metadata: {
-                opponent_name: currentPlayerName, // Имя игрока, который закончил (для оппонента)
-                is_winner: opponentPlayer.id === winnerId,
-                correct_answers: opponentPlayer.correct_count || 0,
-                is_last_question: false,
-              }
-            }, profile_id, supabase).catch(err => {
+            try {
+              await createNotification({
+                duel_id,
+                type: 'finish',
+                metadata: {
+                  opponent_name: currentPlayerName,
+                  is_winner: opponentPlayer.id === winnerId,
+                  correct_answers: opponentPlayer.correct_count || 0,
+                  is_last_question: false,
+                }
+              }, profile_id, supabase);
+            } catch (err) {
               console.error('[finish_duel] Error creating finish notification:', err);
-              return false;
-            });
-            if (!notifResult) {
-              console.warn('[finish_duel] Failed to create finish notification');
             }
           }
 
@@ -4926,24 +4930,27 @@ Deno.serve(async (req) => {
           const currentPlayerData = allPlayers.find((p: { user_id: string }) => p.user_id === profile_id);
           if (opponentPlayer && currentPlayerData) {
             // Get current player name (who finished) for personalized notification to opponent
-            const currentPlayerName = await getOpponentName(profile_id, supabase).catch(() => 'Игрок');
+            let currentPlayerName = 'Игрок';
+            try {
+              currentPlayerName = await getOpponentName(profile_id, supabase);
+            } catch {
+              // Fallback
+            }
             console.log('[finish_duel] Creating finish notification with player name:', currentPlayerName);
 
-            const notifResult = await createNotification({
-              duel_id,
-              type: 'finish',
-              metadata: {
-                opponent_name: currentPlayerName, // Имя игрока, который закончил (для оппонента)
-                is_winner: false,
-                correct_answers: currentPlayerData.correct_count || 0,
-                is_last_question: false,
-              }
-            }, profile_id, supabase).catch(err => {
+            try {
+              await createNotification({
+                duel_id,
+                type: 'finish',
+                metadata: {
+                  opponent_name: currentPlayerName,
+                  is_winner: false,
+                  correct_answers: currentPlayerData.correct_count || 0,
+                  is_last_question: false,
+                }
+              }, profile_id, supabase);
+            } catch (err) {
               console.error('[finish_duel] Error creating finish notification:', err);
-              return false;
-            });
-            if (!notifResult) {
-              console.warn('[finish_duel] Failed to create finish notification');
             }
           }
 
@@ -5492,14 +5499,14 @@ Deno.serve(async (req) => {
           bet_amount: duel.bet_amount
         });
 
-        if (duel.status !== 'active') {
-          console.warn('[surrender] Duel is not active:', {
+        if (duel.status !== 'active' && duel.status !== 'waiting' && duel.status !== 'waiting_opponent') {
+          console.warn('[surrender] Duel status not eligible for surrender:', {
             duel_id,
             current_status: duel.status
           });
           return new Response(JSON.stringify({
-            error: 'Duel is not active',
-            details: `Current status: ${duel.status}`
+            error: 'Duel is not ready for surrender',
+            details: `Current status: ${duel.status}. Surrender is only allowed for active or waiting duels.`
           }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -5738,17 +5745,24 @@ Deno.serve(async (req) => {
         }
 
         // Создаем уведомление для оппонента
-        const surrenderingPlayerName = await getOpponentName(userProfileId, supabase).catch(() => 'Игрок');
-        await createNotification({
-          duel_id,
-          type: 'opponent_left',
-          metadata: {
-            opponent_name: surrenderingPlayerName,
-            reason: 'surrender'
-          }
-        }, opponentPlayer.user_id, supabase).catch(err => {
+        let surrenderingPlayerName = 'Игрок';
+        try {
+          surrenderingPlayerName = await getOpponentName(userProfileId, supabase);
+        } catch {
+          // Ignore error, keep default
+        }
+        try {
+          await createNotification({
+            duel_id,
+            type: 'opponent_left',
+            metadata: {
+              opponent_name: surrenderingPlayerName,
+              reason: 'surrender'
+            }
+          }, opponentPlayer.user_id, supabase);
+        } catch (err) {
           console.error('[surrender] Error creating notification:', err);
-        });
+        }
 
         // Логируем инцидент
         const { error: incidentError } = await supabase
