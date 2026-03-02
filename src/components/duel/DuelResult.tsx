@@ -304,13 +304,15 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   }, [results]);
 
   // 🤖 BOT REMATCH LOGIC: Если соперник бот, предлагаем реванш через 3.5 секунды
+  // КРИТИЧНО: двойная проверка is_bot - и из results, и из opponentPlayer - чтобы не показывать при дуэли с другом
   useEffect(() => {
-    if (results && duelResultsData?.opponentPlayer?.is_bot && !showBotProposal && rematchProposalCount < 2) {
+    const isDefinitelyBot = results?.isBot === true && duelResultsData?.opponentPlayer?.is_bot === true;
+    if (results && isDefinitelyBot && !showBotProposal && rematchProposalCount < 2) {
       const timer = setTimeout(() => {
         setShowBotProposal(true);
         setRematchProposalCount(prev => prev + 1);
-        sounds.notificationPop(); // Звук уведомления
-        haptics.boostActivated(); // 'medium' вибрация
+        sounds.notificationPop();
+        haptics.boostActivated();
       }, 3500);
       return () => clearTimeout(timer);
     }
@@ -1090,7 +1092,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           <div className="grid grid-cols-2 gap-4">
             <Button
               onClick={() => {
-                // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
                 console.log('[DuelResult] 🧹 Cleaning up activeDuel on rematch');
                 clearActiveDuel();
                 clearDuelResultSnapshot();
@@ -1099,11 +1100,13 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
               size="lg"
               className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
             >
-              {/* Noise texture overlay */}
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
               <div className="relative z-10 flex items-center justify-center">
-                <RotateCcw className="w-5 h-5 mr-2" />
-                Реванш
+                {results.isBot ? (
+                  <><RotateCcw className="w-5 h-5 mr-2" />Реванш</>
+                ) : (
+                  <><Swords className="w-5 h-5 mr-2" />Вызов на реванш</>
+                )}
               </div>
             </Button>
 
