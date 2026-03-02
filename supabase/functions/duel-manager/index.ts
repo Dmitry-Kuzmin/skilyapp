@@ -897,53 +897,41 @@ Deno.serve(async (req) => {
       console.log('[Duel Manager] No valid profile_id from client, attempting auth lookup...');
       const authHeader = req.headers.get('Authorization');
 
-      if (authHeader) {
-        const { data: { user }, error: authError } = await supabase.auth.getUser(
-          authHeader.replace('Bearer ', '')
-        );
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const userToken = authHeader.replace('Bearer ', '');
+        const { data: { user }, error: authError } = await supabase.auth.getUser(userToken);
 
         if (user && !authError) {
-          console.log('[Duel Manager] 🔐 Authenticated user found:', user.id, 'metadata:', JSON.stringify(user.user_metadata));
+          console.log('[Duel Manager] 🔐 Authenticated user found:', user.id);
 
-          // ПРИОРИТЕТ 1: Поиск по user_id (для Email/Auth пользователей)
-          const { data: authProfile, error: authProfileError } = await supabase
+          const { data: authProfile } = await supabase
             .from('profiles')
-            .select('id, user_id, telegram_id')
+            .select('id')
             .eq('user_id', user.id)
             .maybeSingle();
 
-          if (authProfile && !authProfileError) {
+          if (authProfile) {
             profileId = authProfile.id;
-            console.log('[Duel Manager] ✅ Profile found via user_id:', profileId, 'telegram_id:', authProfile.telegram_id);
+            console.log('[Duel Manager] ✅ Profile found via user_id:', profileId);
           } else {
-            console.log('[Duel Manager] ⚠️ No profile found via user_id, trying telegram_id...');
-
-            // ПРИОРИТЕТ 2: Поиск по telegram_id (для Telegram Mini App пользователей)
             const telegramId = user.user_metadata?.telegram_id || user.user_metadata?.sub;
-
             if (telegramId) {
-              console.log('[Duel Manager] 🔍 Searching by telegram_id:', telegramId);
-              const { data: tgProfile, error: tgProfileError } = await supabase
+              const { data: tgProfile } = await supabase
                 .from('profiles')
-                .select('id, user_id, telegram_id')
+                .select('id')
                 .eq('telegram_id', parseInt(telegramId))
                 .maybeSingle();
-
-              if (tgProfile && !tgProfileError) {
+              if (tgProfile) {
                 profileId = tgProfile.id;
-                console.log('[Duel Manager] ✅ Profile found via telegram_id:', profileId, 'user_id:', tgProfile.user_id);
-              } else {
-                console.error('[Duel Manager] ❌ No profile found via telegram_id:', telegramId, 'Error:', tgProfileError);
+                console.log('[Duel Manager] ✅ Profile found via telegram_id:', profileId);
               }
-            } else {
-              console.warn('[Duel Manager] ⚠️ No telegram_id in user metadata');
             }
           }
         } else {
-          console.error('[Duel Manager] ❌ Auth error:', authError);
+          console.error('[Duel Manager] ❌ Auth error:', authError?.message || 'unknown');
         }
       } else {
-        console.warn('[Duel Manager] ⚠️ No Authorization header');
+        console.warn('[Duel Manager] ⚠️ No valid Authorization header for auth lookup');
       }
     }
 

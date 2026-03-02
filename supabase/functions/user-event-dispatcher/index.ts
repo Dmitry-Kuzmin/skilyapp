@@ -103,21 +103,23 @@ serve(async (req) => {
         );
       }
 
-      await supabase
-        .from('analytics_events_log')
-        .insert({
-          event_id,
-          user_id,
-          event_type,
-          payload,
-          override_template_type,
-          processed: false,
-        })
-        .catch((error) => {
-          if (error.code !== '23505') {
-            console.error('[EventDispatcher] Error logging event:', error);
-          }
-        });
+      try {
+        const { error: insertError } = await supabase
+          .from('analytics_events_log')
+          .insert({
+            event_id,
+            user_id,
+            event_type,
+            payload,
+            override_template_type,
+            processed: false,
+          });
+        if (insertError && insertError.code !== '23505') {
+          console.error('[EventDispatcher] Error logging event:', insertError);
+        }
+      } catch (logErr) {
+        console.error('[EventDispatcher] Exception logging event:', logErr);
+      }
     }
 
     const { data: settings } = await supabase
@@ -248,13 +250,17 @@ serve(async (req) => {
     }
 
     if (event_id) {
-      await supabase
-        .from('analytics_events_log')
-        .update({ processed: true, processed_at: new Date().toISOString() })
-        .eq('event_id', event_id)
-        .catch((error) => {
-          console.error('[EventDispatcher] Error marking event as processed:', error);
-        });
+      try {
+        const { error: updateError } = await supabase
+          .from('analytics_events_log')
+          .update({ processed: true, processed_at: new Date().toISOString() })
+          .eq('event_id', event_id);
+        if (updateError) {
+          console.error('[EventDispatcher] Error marking event as processed:', updateError);
+        }
+      } catch (updateErr) {
+        console.error('[EventDispatcher] Exception marking event as processed:', updateErr);
+      }
     }
 
     return new Response(JSON.stringify({ success: true, sent: sentCount }), {
