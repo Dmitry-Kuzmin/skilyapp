@@ -778,7 +778,14 @@ Deno.serve(async (req) => {
             case 'process_help': {
                 const { duel_id, requester_id, helper_id, amount } = params;
 
-                // 1. Проверяем баланс хоста (helper_id)
+                if (!duel_id || !requester_id || !helper_id) {
+                    return new Response(JSON.stringify({ error: 'Missing required params: duel_id, requester_id, helper_id' }), {
+                        status: 400,
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    });
+                }
+
+                // 1. Проверяем баланс хоста (helper)
                 const { data: helperProfile, error: helperError } = await supabase
                     .from('profiles')
                     .select('coins')
@@ -799,7 +806,43 @@ Deno.serve(async (req) => {
                     });
                 }
 
-                // 2. Списываем монеты у хоста атомарно
+                // 2. Проверяем дуэль
+                const { data: duel, error: duelError } = await supabase
+                    .from('duels')
+                    .select('id, status, bet_amount, code')
+                    .eq('id', duel_id)
+                    .single();
+
+                if (duelError || !duel) {
+                    return new Response(JSON.stringify({ error: 'Duel not found' }), {
+                        status: 404,
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    });
+                }
+
+                if (duel.status !== 'waiting') {
+                    return new Response(JSON.stringify({ error: 'Duel not in waiting state' }), {
+                        status: 400,
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    });
+                }
+
+                // 3. Проверяем что гость ещё не в дуэли
+                const { data: existingPlayer } = await supabase
+                    .from('duel_players')
+                    .select('id')
+                    .eq('duel_id', duel_id)
+                    .eq('user_id', requester_id)
+                    .maybeSingle();
+
+                if (existingPlayer) {
+                    return new Response(JSON.stringify({ error: 'Requester already in duel' }), {
+                        status: 409,
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    });
+                }
+
+                // 4. Атомарно списываем монеты у хоста (helper)
                 const { error: withdrawError } = await supabase.rpc('increment_profile_value', {
                     p_profile_id: helper_id,
                     p_column: 'coins',
@@ -808,35 +851,69 @@ Deno.serve(async (req) => {
 
                 if (withdrawError) throw withdrawError;
 
-                // 3. Записываем транзакцию 'help_friend'
+                // 5. Записываем транзакцию для хоста
                 await supabase.from('duel_transactions').insert({
                     duel_id: duel_id,
                     user_id: helper_id,
                     amount: -amount,
                     transaction_type: 'help_friend'
-                });
+                }).catch(e => console.error('[process_help] Tx insert error:', e));
 
-                // 4. Отправляем уведомление просящему (requester_id) о получении помощи
+                // 6. Добавляем гостя в дуэль
+                const { data: newPlayer, error: playerError } = await supabase
+                    .from('duel_players')
+                    .insert({
+                        duel_id: duel_id,
+                        user_id: requester_id,
+                        is_bot: false,
+                        score: 0,
+                        correct_count: 0,
+                        insurance_enabled: false,
+                        insurance_premium: 0,
+                        insurance_coverage_rate: 0,
+                    })
+                    .select()
+                    .single();
+
+                if (playerError) {
+                    // Откатываем монеты при ошибке
+                    await supabase.rpc('increment_profile_value', {
+                        p_profile_id: helper_id,
+                        p_column: 'coins',
+                        p_amount: amount
+                    }).catch(() => { });
+                    throw playerError;
+                }
+
+                // 7. Активируем дуэль
+                await supabase
+                    .from('duels')
+                    .update({ status: 'active', started_at: new Date().toISOString() })
+                    .eq('id', duel_id);
+
+                // 8. Уведомляем гостя о том, что помощь получена и дуэль началась
                 await supabase.from('duel_notifications').insert({
                     user_id: requester_id,
                     duel_id: duel_id,
                     type: 'help_received',
-                    title: 'Помощь получена!',
-                    message: `Ваш друг доплатил за Вас ${amount} монет. Дуэль начинается!`,
+                    title: 'Помощь получена! ⚔️',
+                    message: `Друг доплатил ${amount} монет. Дуэль начинается!`,
                     metadata: {
                         duel_id: duel_id,
                         amount: amount,
                         helper_id: helper_id,
                     }
-                });
+                }).catch(e => console.error('[process_help] Notification insert error:', e));
 
-                // 5. Также можно обновить статус игрока, если нужно (например, поменять признак оплаты)
-                // Но лучше просто полагаться на уведомление и повторную попытку входа
-
-                return new Response(JSON.stringify({ success: true }), {
+                return new Response(JSON.stringify({
+                    success: true,
+                    duel: { id: duel_id, code: duel.code, status: 'active' },
+                    player: newPlayer
+                }), {
                     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 });
             }
+
 
             default:
                 return new Response(JSON.stringify({ error: 'Unknown action' }), {
