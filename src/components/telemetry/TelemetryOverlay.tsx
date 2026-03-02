@@ -2,6 +2,7 @@ import React, { useMemo, useCallback, useState } from 'react';
 import {
     RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer
 } from 'recharts';
+import { motion } from 'framer-motion';
 import {
     Gauge, Zap, Trophy, Target, AlertTriangle,
     Flame, Swords, BookOpen, TrendingUp, X, Loader2, Rocket, Award, Sparkles, Activity as ActivityIcon, CheckCircle
@@ -228,101 +229,129 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                     style={{ background: `radial-gradient(circle at 70% 50%, ${status.fill}40 0%, transparent 60%)` }}
                 />
 
-                <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/5">
-                    {/* Left: Flight Levels (40%) */}
-                    <div className="lg:col-span-5 p-6 md:p-8">
+                <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+                    {/* Left Section: The Journey (Flight Levels) */}
+                    <div className="lg:col-span-3 p-6 md:p-8 bg-black/20">
                         <FlightLevels currentStatus={readiness?.status || 'start'} language={language} />
                     </div>
 
-                    {/* Right: Readiness Gauge & Summary (60%) */}
-                    <div className="lg:col-span-7 p-6 md:p-10 flex flex-col justify-center">
-                        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full">
-                            <div className="relative w-44 md:w-52 h-44 md:h-52 flex-shrink-0">
-                                <div className="absolute inset-0 rounded-full border border-white/5" />
-                                <div className="absolute inset-4 rounded-full border border-white/5" />
-                                <div className="absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-transparent to-indigo-500/5 animate-spin-slow" />
+                    {/* Center Section: Core Instrument (Gauge) */}
+                    <div className="lg:col-span-4 p-8 md:p-12 flex flex-col items-center justify-center relative overflow-hidden">
+                        {/* Decorative background glow */}
+                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-indigo-500/10 to-transparent pointer-events-none" />
 
-                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" strokeLinecap="round" />
-                                    <circle
-                                        cx="50" cy="50" r="45" fill="none"
-                                        stroke={status.fill}
-                                        strokeWidth="6"
-                                        strokeLinecap="round"
-                                        strokeDasharray={283}
-                                        strokeDashoffset={283 - (283 * score) / 100}
-                                        style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                                        className="drop-shadow-[0_0_15px_currentColor]"
+                        <div className="relative w-56 h-56 md:w-64 md:h-64 flex-shrink-0 group">
+                            {/* Inner glow and rings */}
+                            <div className="absolute inset-0 rounded-full border border-white/5 bg-zinc-950/40 shadow-[inset_0_0_40px_rgba(0,0,0,0.4)]" />
+                            <div className="absolute inset-4 rounded-full border border-white/[0.03]" />
+                            <div className="absolute inset-[-20px] rounded-full bg-indigo-500/5 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
+
+                            <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]" viewBox="0 0 100 100">
+                                {/* Base track */}
+                                <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="8" strokeLinecap="round" />
+                                {/* Progress track */}
+                                <circle
+                                    cx="50" cy="50" r="44" fill="none"
+                                    stroke={status.fill}
+                                    strokeWidth="8"
+                                    strokeLinecap="round"
+                                    strokeDasharray={276}
+                                    strokeDashoffset={276 - (276 * score) / 100}
+                                    style={{
+                                        transition: 'stroke-dashoffset 2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                                        filter: `drop-shadow(0 0 12px ${status.fill}60)`
+                                    }}
+                                />
+                                {/* Decorative ticks around the circle */}
+                                {[...Array(36)].map((_, i) => (
+                                    <line
+                                        key={i}
+                                        x1="50" y1="6"
+                                        x2="50" y2="10"
+                                        transform={`rotate(${i * 10} 50 50)`}
+                                        stroke="rgba(255,255,255,0.1)"
+                                        strokeWidth="1"
                                     />
-                                </svg>
+                                ))}
+                            </svg>
 
-                                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <span className="text-5xl md:text-6xl font-black tracking-tighter text-white">{score}%</span>
-                                    <div className="px-2 py-0.5 mt-1 rounded bg-white/5 text-[8px] font-black uppercase tracking-widest text-slate-500">
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                <motion.span
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    className="text-6xl md:text-7xl font-black tracking-tighter text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]"
+                                >
+                                    {score}%
+                                </motion.span>
+                                <div className="mt-2 flex items-center gap-2">
+                                    <ActivityIcon className="w-3 h-3 text-slate-500 animate-pulse" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
                                         Pass Prob
-                                    </div>
+                                    </span>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="flex-1 space-y-6">
-                                {/* Header Group */}
-                                <div className="space-y-1 md:border-l md:border-white/10 md:pl-8">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse",
-                                            readiness?.status === 'ready' || readiness?.status === 'legend' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-500'
-                                        )} />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                            {language === 'ru' ? 'ТЕКУЩИЙ СТАТУС' : 'ESTADO ACTUAL'}
-                                        </span>
+                        {/* Status Label below gauge */}
+                        <div className="mt-8 flex flex-col items-center gap-2">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{language === 'ru' ? 'ТЕКУЩИЙ УРОВЕНЬ' : 'NIVEL ACTUAL'}</span>
+                            <div className={cn(
+                                "px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest transition-all",
+                                readiness?.status === 'legend' ? 'bg-purple-500/10 border-purple-500/30 text-purple-400' :
+                                    readiness?.status === 'ready' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
+                                        readiness?.status === 'near' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400' :
+                                            readiness?.status === 'progress' ? 'bg-orange-500/10 border-orange-500/30 text-orange-400' : 'bg-slate-500/10 border-slate-500/30 text-slate-400'
+                            )}>
+                                {readiness?.status || 'START'}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Section: Verdict & Detailed Metrics */}
+                    <div className="lg:col-span-5 p-8 md:p-10 flex flex-col justify-start">
+                        <div className="flex flex-col h-full">
+                            {/* Verdict Header */}
+                            <div className="mb-8 p-6 rounded-[2rem] bg-indigo-500/[0.03] border border-white/5 relative overflow-hidden">
+                                <Sparkles className="absolute -top-2 -right-2 w-12 h-12 text-indigo-500/10 rotate-12" />
+                                <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none mb-4">
+                                    {readiness?.shortText || 'Анализ...'}
+                                </h2>
+                                <p className="text-[13px] text-slate-400 font-medium leading-relaxed italic opacity-80">
+                                    "{readiness?.statusText}"
+                                </p>
+                            </div>
+
+                            {/* Adaptive Stats Stack */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4 lg:flex-1">
+                                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center gap-5 group hover:bg-white/[0.05] transition-all">
+                                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                                        <Target className="w-6 h-6 text-indigo-400" />
                                     </div>
-                                    <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-3">
-                                        {readiness?.shortText || 'Анализ...'}
-                                    </h2>
-                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 inline-block">
-                                        <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-sm italic">
-                                            "{readiness?.statusText}"
-                                        </p>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">{language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIANZA'}</span>
+                                        <span className="text-2xl font-black text-white tabular-nums">
+                                            {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
+                                        </span>
                                     </div>
                                 </div>
 
-                                {/* Stats Grid */}
-                                <div className="grid grid-cols-3 gap-3 md:pl-8">
-                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-between group hover:bg-white/[0.08] transition-all">
-                                        <div className="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3 group-hover:text-slate-400 transition-colors">
-                                            {language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIANZA'}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center">
-                                                <Target className="w-4 h-4 text-indigo-400" />
-                                            </div>
-                                            <span className="text-xl md:text-2xl font-black text-white tabular-nums">
-                                                {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
-                                            </span>
-                                        </div>
+                                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center gap-5 group hover:bg-white/[0.05] transition-all">
+                                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                                        <Rocket className="w-6 h-6 text-emerald-400" />
                                     </div>
-
-                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-between group hover:bg-white/[0.08] transition-all">
-                                        <div className="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3 group-hover:text-slate-400 transition-colors">
-                                            {language === 'ru' ? 'ЦЕЛЬ' : 'META'}
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                                                <Rocket className="w-4 h-4 text-emerald-400" />
-                                            </div>
-                                            <span className="text-xl md:text-2xl font-black text-emerald-400 tabular-nums">75%</span>
-                                        </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">{language === 'ru' ? 'ЦЕЛЬ' : 'META'}</span>
+                                        <span className="text-2xl font-black text-emerald-400 tabular-nums">75%</span>
                                     </div>
+                                </div>
 
-                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-between group hover:bg-white/[0.08] transition-all">
-                                        <div className="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3 group-hover:text-slate-400 transition-colors">
-                                            RANK
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                                                <Award className="w-4 h-4 text-amber-400" />
-                                            </div>
-                                            <span className="text-xl md:text-2xl font-black text-amber-400 tabular-nums">#420</span>
-                                        </div>
+                                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center gap-5 group hover:bg-white/[0.05] transition-all">
+                                    <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
+                                        <Award className="w-6 h-6 text-amber-400" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">RANK</span>
+                                        <span className="text-2xl font-black text-amber-400 tabular-nums">#420</span>
                                     </div>
                                 </div>
                             </div>

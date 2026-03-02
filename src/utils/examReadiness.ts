@@ -18,6 +18,7 @@ export interface ReadinessResult {
   description: string; // Подробное описание уровня
   color: string;
   recommendations: string[];
+  confidenceFactor: number;
 }
 
 
@@ -186,7 +187,7 @@ export function normalizeTestsCompleted(tests: number): number {
 export function calculateReadiness(metrics: ReadinessMetrics): ReadinessResult {
   // 1. ABSOLUTE ZERO CHECK: No tests = 0% readiness.
   if (metrics.testsCompleted === 0) {
-    return createReadinessResult(0, metrics);
+    return createReadinessResult(0, metrics, 0);
   }
 
   // 2. BASE PERFORMANCE (Accuracy is king)
@@ -241,10 +242,10 @@ export function calculateReadiness(metrics: ReadinessMetrics): ReadinessResult {
     readinessPercent = Math.min(readinessPercent, 75);
   }
 
-  return createReadinessResult(readinessPercent, metrics);
+  return createReadinessResult(readinessPercent, metrics, confidenceFactor);
 }
 
-function createReadinessResult(percentRaw: number, metrics: ReadinessMetrics): ReadinessResult {
+function createReadinessResult(percentRaw: number, metrics: ReadinessMetrics, confidenceFactor: number = 1): ReadinessResult {
   const percent = Math.min(100, Math.max(0, Math.round(percentRaw)));
   const status = getReadinessStatus(percent);
   const recommendations = generateRecommendations(metrics);
@@ -257,6 +258,7 @@ function createReadinessResult(percentRaw: number, metrics: ReadinessMetrics): R
     description: status.description,
     color: status.color,
     recommendations,
+    confidenceFactor,
   };
 }
 
