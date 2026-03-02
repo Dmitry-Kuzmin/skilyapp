@@ -761,8 +761,8 @@ async function createNotification(body: NotificationParams, profileId: string, s
 
     if (notifError) throw notifError;
 
-    // Telegram delivery for finish/timeout
-    if (['finish', 'timeout'].includes(type) && opponentId) {
+    // Telegram delivery for finish/timeout/help
+    if (['finish', 'timeout', 'help_requested'].includes(type) && opponentId) {
       const templateType = type === 'finish' ? (metadata.is_winner ? 'duel_win' : 'duel_lose') : type;
       await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/notification-sender`, {
         method: 'POST',
@@ -774,7 +774,7 @@ async function createNotification(body: NotificationParams, profileId: string, s
           user_id: opponentId,
           template_type: templateType,
           variables: { ...metadata, duel_id, opponent_name: metadata.opponent_name },
-          cta_text: 'Посмотреть результаты',
+          cta_text: type === 'help_requested' ? 'Помочь монетами' : 'Посмотреть результаты',
           cta_deeplink: `duel_${duel_id}`
         })
       }).catch(err => console.error('[DuelManager] Telegram notification error:', err));
