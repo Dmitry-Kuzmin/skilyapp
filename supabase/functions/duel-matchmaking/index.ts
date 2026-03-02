@@ -59,17 +59,23 @@ Deno.serve(async (req) => {
         let profileId: string | null = profile_id || null;
 
         if (!profileId) {
-            const authHeader = req.headers.get('Authorization')!;
-            const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+            const authHeader = req.headers.get('Authorization');
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                try {
+                    const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
 
-            if (user) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('id')
-                    .eq('user_id', user.id)
-                    .maybeSingle();
+                    if (user && !authError) {
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .eq('user_id', user.id)
+                            .maybeSingle();
 
-                if (profile) profileId = profile.id;
+                        if (profile) profileId = profile.id;
+                    }
+                } catch (e) {
+                    console.error('[Duel Matchmaking] Auth lookup error:', e);
+                }
             }
         }
 

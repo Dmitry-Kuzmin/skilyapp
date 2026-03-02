@@ -60,6 +60,7 @@ export function DuelHelpHandler() {
                     requester_id,
                     amount,
                     helper_id: profileId,
+                    profile_id: profileId,
                 }
             });
 
