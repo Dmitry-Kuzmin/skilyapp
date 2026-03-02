@@ -712,18 +712,25 @@ async function createNotification(body: NotificationParams, profileId: string, s
       });
     }
 
-    let opponentPlayer = players.find(p => p.user_id === body.recipient_profile_id);
-    if (!opponentPlayer) {
-      opponentPlayer = players.find(p => p.user_id && p.user_id !== profileId);
-    }
+    let recipientPlayer: typeof players[0] | undefined;
 
-    if (!opponentPlayer || (opponentPlayer.is_bot && !metadata.opponent_name)) {
-      if (!opponentPlayer) {
-        return new Response(JSON.stringify({ error: 'Opponent not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (type === 'help_requested') {
+      // Для запроса помощи — отправляем хосту (единственному игроку в дуэли).
+      // Гость ещё НЕ вступил, поэтому в duel_players только хост.
+      recipientPlayer = players.find(p => p.user_id && p.user_id !== profileId) || players[0];
+    } else {
+      recipientPlayer = players.find(p => p.user_id === body.recipient_profile_id);
+      if (!recipientPlayer) {
+        recipientPlayer = players.find(p => p.user_id && p.user_id !== profileId);
       }
     }
 
-    const opponentId = opponentPlayer!.user_id;
+    if (!recipientPlayer) {
+      console.error('[create_notification] Recipient not found. Players:', players, 'profileId:', profileId, 'type:', type);
+      return new Response(JSON.stringify({ error: 'Recipient not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    const opponentId = recipientPlayer.user_id;
 
     if (!metadata.opponent_name && profileId) {
       metadata.opponent_name = await getOpponentName(profileId, supabase);
