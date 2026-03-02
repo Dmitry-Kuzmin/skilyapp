@@ -888,11 +888,15 @@ Deno.serve(async (req) => {
 
                 if (playerError) {
                     // Откатываем монеты при ошибке
-                    await supabase.rpc('increment_profile_value', {
-                        p_profile_id: helper_id,
-                        p_column: 'coins',
-                        p_amount: amount
-                    }).catch(() => { });
+                    try {
+                        await supabase.rpc('increment_profile_value', {
+                            p_profile_id: helper_id,
+                            p_column: 'coins',
+                            p_amount: amount
+                        });
+                    } catch (rollbackErr) {
+                        console.error('[process_help] Rollback error:', rollbackErr);
+                    }
                     throw playerError;
                 }
 
