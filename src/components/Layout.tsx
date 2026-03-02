@@ -29,6 +29,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useSmartHeader } from "@/hooks/useSmartHeader";
 import { liftStartupCurtain } from "@/utils/startup";
 import { GlobalDuelWatcher } from "./duel/GlobalDuelWatcher";
+import { HeaderSkeleton } from "./HeaderSkeleton";
 
 
 interface LayoutProps {
@@ -119,6 +120,11 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   const [isTelegramMobilePlatform, setIsTelegramMobilePlatform] = useState<boolean | null>(null);
   const mainContentRef = useRef<HTMLElement>(null);
   const notificationsApi = useNotifications();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Smart Header - прячется при скролле вниз, появляется при скролле вверх
   // ОПТИМИЗАЦИЯ: Inline проверка fullscreen режима для хука
@@ -329,117 +335,120 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Top Navigation for Desktop - Hide only when hideNavigation */}
       {!hideNavigation && (
-        <header className={cn(
-          "border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-0 z-50 overflow-x-hidden overflow-y-visible w-full",
-          "hidden md:block" // Показываем на десктопе всегда (и в Telegram тоже, если десктоп)
-        )} style={{ overflow: 'visible' }}>
-          <div className="container mx-auto px-4 max-w-[1370px]" style={{ overflow: 'visible', position: 'relative' }}>
-            <div className="flex items-center justify-between h-16 min-w-0" style={{ overflow: 'visible', position: 'relative' }}>
-              <NavLink
-                to={isAuthenticated ? "/dashboard" : "/"}
-                className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
-                style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
-              >
-                <LandingLogo variant="bold" showText={true} />
-              </NavLink>
+        !isMounted ? (
+          <HeaderSkeleton />
+        ) : (
+          <header className={cn(
+            "border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-0 z-50 overflow-x-hidden overflow-y-visible w-full",
+            "hidden md:block" // Показываем на десктопе всегда (и в Telegram тоже, если десктоп)
+          )} style={{ overflow: 'visible' }}>
+            <div className="container mx-auto px-4 max-w-[1370px]" style={{ overflow: 'visible', position: 'relative' }}>
+              <div className="flex items-center justify-between h-16 min-w-0" style={{ overflow: 'visible', position: 'relative' }}>
+                <NavLink
+                  to={isAuthenticated ? "/dashboard" : "/"}
+                  className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
+                  style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
+                >
+                  <LandingLogo variant="bold" showText={true} />
+                </NavLink>
 
-              <nav className="flex gap-1 min-w-0 flex-shrink">
-                {navigation.map((item) => {
-                  const desktopActive = isNavigationItemActive(item, location.pathname);
-                  return (
-                    <NavLink
-                      key={item.name}
-                      to={item.href}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap flex-shrink-0",
-                        desktopActive
-                          ? "bg-primary/10 text-primary font-semibold shadow-sm"
-                          : "text-muted-foreground opacity-70 hover:opacity-100 hover:bg-muted/30",
-                        item.isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
-                      )}
-                      style={{
-                        pointerEvents: 'auto',
-                        touchAction: 'manipulation',
-                        WebkitTapHighlightColor: 'transparent',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <item.icon className="w-5 h-5 flex-shrink-0" />
-                      <span className="font-medium">{item.name}</span>
-                    </NavLink>
-                  );
-                })}
-              </nav>
-
-              <div className="flex items-center gap-0.5 min-w-0 flex-shrink-0">
-                {isAuthenticated && (
-                  <>
-                    {/* Wallet + Achievements widgets в header на больших экранах */}
-                    <div className="hidden lg:flex items-center gap-2 min-w-0 flex-shrink-0 mr-1">
-                      <WalletWidget />
-                      <AchievementsWidget />
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      aria-pressed={referralModalOpen}
-                      onClick={() => setReferralModalOpen(true)}
-                      className={cn(
-                        "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
-                        referralModalOpen
-                          ? "bg-primary/15 text-primary border-[0.5px] border-white/80 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
-                          : "text-muted-foreground hover:text-primary hover:border-[0.5px] hover:border-white/80 hover:bg-primary/10 hover:h-9 hover:w-9"
-                      )}
-                      title="Реферальная программа"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5 shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
+                <nav className="flex gap-1 min-w-0 flex-shrink">
+                  {navigation.map((item) => {
+                    const desktopActive = isNavigationItemActive(item, location.pathname);
+                    return (
+                      <NavLink
+                        key={item.name}
+                        to={item.href}
+                        className={cn(
+                          "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap flex-shrink-0",
+                          desktopActive
+                            ? "bg-primary/10 text-primary font-semibold shadow-sm"
+                            : "text-muted-foreground opacity-70 hover:opacity-100 hover:bg-muted/30",
+                          item.isActiveDuel && "bg-gradient-to-r from-primary/10 to-blue-500/10 border border-primary/20"
+                        )}
+                        style={{
+                          pointerEvents: 'auto',
+                          touchAction: 'manipulation',
+                          WebkitTapHighlightColor: 'transparent',
+                          cursor: 'pointer',
+                        }}
                       >
-                        <path fill="currentColor" d="M19.25 14.75h-6.5v4.5H18c.69 0 1.25-.56 1.25-1.25zM9.118 3.958C7.931 3.257 6.71 3.35 6.03 4.03c-.257.258-.377.548-.382.818-.004.262.1.589.445.934.664.665 2.193 1.345 5.103 1.452-.216-1.574-1.083-2.688-2.078-3.276m8.852.072c-.68-.68-1.901-.773-3.088-.072-.995.588-1.863 1.702-2.08 3.276 2.912-.107 4.44-.787 5.105-1.452.346-.345.449-.672.445-.934-.005-.27-.125-.56-.382-.818M4.75 18c0 .69.56 1.25 1.25 1.25h5.25v-4.5h-6.5zm14.5-8c0-.69-.56-1.25-1.25-1.25h-5.25v4.5h6.5zm-14.5 3.25h6.5v-4.5H6c-.69 0-1.25.56-1.25 1.25zm16 4.75A2.75 2.75 0 0 1 18 20.75H6A2.75 2.75 0 0 1 3.25 18v-8a2.75 2.75 0 0 1 2.313-2.713 4 4 0 0 1-.53-.444c-.593-.592-.896-1.296-.885-2.019.012-.714.33-1.362.822-1.854 1.32-1.32 3.349-1.226 4.912-.303A5.7 5.7 0 0 1 12 4.901a5.7 5.7 0 0 1 2.118-2.234c1.563-.923 3.592-1.017 4.912.303.492.492.81 1.14.822 1.854.01.723-.292 1.427-.884 2.019a4 4 0 0 1-.532.444A2.75 2.75 0 0 1 20.75 10z" />
-                      </svg>
-                    </Button>
-                  </>
-                )}
-                <div className="flex-shrink-0">
-                  <Suspense fallback={null}>
-                    <NotificationsPanel
-                      notificationsApi={notificationsApi}
-                      open={notificationsOpen}
-                      onOpenChange={setNotificationsOpen}
-                      renderTrigger={false}
-                    />
-                  </Suspense>
-                </div>
-                {isAuthenticated ? (
+                        <item.icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="font-medium">{item.name}</span>
+                      </NavLink>
+                    );
+                  })}
+                </nav>
+
+                <div className="flex items-center gap-0.5 min-w-0 flex-shrink-0">
+                  {isAuthenticated && (
+                    <>
+                      {/* Wallet + Achievements widgets в header на больших экранах */}
+                      <div className="hidden lg:flex items-center gap-2 min-w-0 flex-shrink-0 mr-1">
+                        <WalletWidget />
+                        <AchievementsWidget />
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-pressed={referralModalOpen}
+                        onClick={() => setReferralModalOpen(true)}
+                        className={cn(
+                          "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
+                          referralModalOpen
+                            ? "bg-primary/15 text-primary border-[0.5px] border-white/80 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
+                            : "text-muted-foreground hover:text-primary hover:border-[0.5px] hover:border-white/80 hover:bg-primary/10 hover:h-9 hover:w-9"
+                        )}
+                        title="Реферальная программа"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-5 h-5 shrink-0"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path fill="currentColor" d="M19.25 14.75h-6.5v4.5H18c.69 0 1.25-.56 1.25-1.25zM9.118 3.958C7.931 3.257 6.71 3.35 6.03 4.03c-.257.258-.377.548-.382.818-.004.262.1.589.445.934.664.665 2.193 1.345 5.103 1.452-.216-1.574-1.083-2.688-2.078-3.276m8.852.072c-.68-.68-1.901-.773-3.088-.072-.995.588-1.863 1.702-2.08 3.276 2.912-.107 4.44-.787 5.105-1.452.346-.345.449-.672.445-.934-.005-.27-.125-.56-.382-.818M4.75 18c0 .69.56 1.25 1.25 1.25h5.25v-4.5h-6.5zm14.5-8c0-.69-.56-1.25-1.25-1.25h-5.25v4.5h6.5zm-14.5 3.25h6.5v-4.5H6c-.69 0-1.25.56-1.25 1.25zm16 4.75A2.75 2.75 0 0 1 18 20.75H6A2.75 2.75 0 0 1 3.25 18v-8a2.75 2.75 0 0 1 2.313-2.713 4 4 0 0 1-.53-.444c-.593-.592-.896-1.296-.885-2.019.012-.714.33-1.362.822-1.854 1.32-1.32 3.349-1.226 4.912-.303A5.7 5.7 0 0 1 12 4.901a5.7 5.7 0 0 1 2.118-2.234c1.563-.923 3.592-1.017 4.912.303.492.492.81 1.14.822 1.854.01.723-.292 1.427-.884 2.019a4 4 0 0 1-.532.444A2.75 2.75 0 0 1 20.75 10z" />
+                        </svg>
+                      </Button>
+                    </>
+                  )}
                   <div className="flex-shrink-0">
                     <Suspense fallback={null}>
-                      <UserProfilePopover
+                      <NotificationsPanel
                         notificationsApi={notificationsApi}
-                        onOpenNotifications={() => setNotificationsOpen(true)}
+                        open={notificationsOpen}
+                        onOpenChange={setNotificationsOpen}
+                        renderTrigger={false}
                       />
                     </Suspense>
                   </div>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setAuthModalOpen(true)}
-                    className="hidden sm:flex flex-shrink-0"
-                  >
-                    <LogIn className="w-5 h-5 mr-2" />
-                    {t('login')}
-                  </Button>
-                )}
+                  {isAuthenticated ? (
+                    <div className="flex-shrink-0">
+                      <Suspense fallback={null}>
+                        <UserProfilePopover
+                          notificationsApi={notificationsApi}
+                          onOpenNotifications={() => setNotificationsOpen(true)}
+                        />
+                      </Suspense>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setAuthModalOpen(true)}
+                      className="hidden sm:flex flex-shrink-0"
+                    >
+                      <LogIn className="w-5 h-5 mr-2" />
+                      {t('login')}
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </header>
-      )
-      }
+          </header>
+        )
+      )}
 
       {/* Wallet Widget Bar - отдельная строка под header на средних экранах (планшеты) */}
       {!hideNavigation && isAuthenticated && !isTelegramApp && (
@@ -460,6 +469,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         className={cn(
           "telegram-main-content bg-transparent relative z-1",
           "flex-1 flex flex-col min-h-0", // Позволяем контенту растягиваться и не схлопываться
+          !hideNavigation && !isFullscreenMode && "has-bottom-nav",
+          isAuthenticated && !hideNavigation && !isFullscreenMode && "has-bottom-widgets",
           // CSS в index.css применяет padding-top через:
           // .telegram-mobile-app .telegram-main-content { padding-top: max(...) }
         )}

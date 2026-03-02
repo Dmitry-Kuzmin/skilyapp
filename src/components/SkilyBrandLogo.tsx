@@ -56,11 +56,13 @@ export const SkilyBrandLogo: React.FC<SkilyBrandLogoProps> = ({
 
             {showText && (
                 <span
-                    className="font-bold tracking-tight"
+                    className="font-black tracking-tight"
                     style={{
                         fontSize: size * 0.6,
                         color: textColor,
-                        fontFamily: "'Inter', sans-serif"
+                        fontFamily: "'Outfit', sans-serif",
+                        fontWeight: 900,
+                        letterSpacing: '-0.02em',
                     }}
                 >
                     Skily

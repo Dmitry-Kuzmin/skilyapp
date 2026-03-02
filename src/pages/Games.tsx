@@ -171,18 +171,20 @@ const Games = () => {
     // ID 1: Duel (Universal) - Keep (hide from list as it's featured above)
     if (game.id === 1) return true;
 
+    const countryCode = selectedCountry?.code?.toLowerCase();
+
     // ID 2: Race (Vocabulary Translation)
     // Logic: Only for SPAIN content, but NOT for Spanish interface users (natives)
     // They don't need to translate their own language.
     if (game.id === 2) {
-      const isSpain = selectedCountry?.code === 'es';
+      const isSpain = countryCode === 'es';
       const isNotSpanishLang = language !== 'es';
       return isSpain && isNotSpanishLang;
     }
 
-    // ID 9: Road Race (Marathon) - Seems like DGT/Spain specific content
+    // ID 9: Road Race (Marathon) - DGT/Spain specific content
     if (game.id === 9) {
-      return selectedCountry?.code === 'es';
+      return countryCode === 'es';
     }
 
     // Default: Show all other games
@@ -318,7 +320,7 @@ const Games = () => {
                         )}>Главный режим</span>
                       </div>
                       <h2 className={cn(
-                        "text-4xl md:text-7xl font-black tracking-tight leading-[0.9] drop-shadow-lg",
+                        "text-5xl md:text-7xl font-black tracking-tight leading-[0.9] drop-shadow-lg",
                         duelsEnabled ? "text-white" : "text-cyan-100"
                       )}>
                         ДУЭЛЬ

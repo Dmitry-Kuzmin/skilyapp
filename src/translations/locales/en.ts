@@ -994,6 +994,7 @@ export const en = {
     countrySection: "1. PDD Country",
     categorySection: "2. License Category",
     apply: "Apply",
+    title: "Context Settings",
   },
   smartMentor: {
     correctionTitle: "Mistake correction",

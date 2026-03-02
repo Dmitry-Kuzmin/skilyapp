@@ -182,19 +182,15 @@ const TestResults = () => {
     masteryRound?: number;
   } | null;
 
-  // Early return if no state
-  if (!state) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground mb-4">Нет данных о результатах</p>
-          <Button onClick={() => navigate("/tests")}>Вернуться к тестам</Button>
-        </div>
-      </Layout>
-    );
-  }
+  const questions = state?.questions || [];
+  const answers = state?.answers || [];
+  const mode = state?.mode || 'practice';
+  const timeSpent = state?.timeSpent || 0;
+  const rewardResult = state?.rewardResult;
+  const russiaExamStats = state?.russiaExamStats;
+  const country = state?.country;
+  const masteryRound = state?.masteryRound;
 
-  const { questions, answers, mode, timeSpent, testId, rewardResult, russiaExamStats, country, masteryRound } = state;
   const profileId = (supabase.auth.getUser() as any)?.data?.user?.id; // Safe access
 
   // 🔍 DEBUG: Что приходит из TestSession
@@ -209,7 +205,7 @@ const TestResults = () => {
 
   // Banner hooks
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
-  useVignetteBanner(!!questions && !!answers, 1500);
+  useVignetteBanner(!!questions.length && !!answers.length, 1500);
   useInterstitialBanner(shouldShowInterstitial, 300);
 
   // Sync rewards
@@ -269,8 +265,8 @@ const TestResults = () => {
   if (mode === 'exam' || mode === 'exam-russia') {
     maxErrors = mode === 'exam-russia' ? 2 : 3;
     if (mode === 'exam-russia') {
-      if (state.isRussianFailed !== undefined) {
-        passed = !state.isRussianFailed;
+      if (state?.isRussianFailed !== undefined) {
+        passed = !state?.isRussianFailed;
       } else if (russiaExamStats && russiaExamStats.status) {
         passed = russiaExamStats.status === 'passed';
       } else {
@@ -284,22 +280,22 @@ const TestResults = () => {
     // В марафоне мы считаем "сданным", если ошибок 0 (так как это работа над ними)
     passed = incorrectCount === 0;
   } else {
-    passed = (correctCount / totalQuestions) >= 0.8;
+    passed = totalQuestions > 0 ? (correctCount / totalQuestions) >= 0.8 : false;
   }
 
   // Trigger confetti and sounds
   useEffect(() => {
-    if (passed) {
+    if (passed && totalQuestions > 0) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 5000);
 
       // Play victory sound and haptic if it was a redemption success
-      if (state.isRedemptionSuccess) {
+      if (state?.isRedemptionSuccess) {
         sounds.victory();
         haptics.victory();
       }
     }
-  }, [passed, state.isRedemptionSuccess]);
+  }, [passed, state?.isRedemptionSuccess, totalQuestions]);
 
   // Format Helpers
   const formatTime = (seconds: number) => {
@@ -386,6 +382,18 @@ const TestResults = () => {
   // Handlers
   const toggleTranslation = (id: string) => setShowTranslation(prev => ({ ...prev, [id]: !prev[id] }));
   const toggleExplanation = (id: string) => setExpandedExplanations(prev => ({ ...prev, [id]: !prev[id] }));
+
+  // Early return if no state
+  if (!state) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8 text-center">
+          <p className="text-muted-foreground mb-4">Нет данных о результатах</p>
+          <Button onClick={() => navigate("/tests")}>Вернуться к тестам</Button>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

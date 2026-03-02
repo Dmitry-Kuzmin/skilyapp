@@ -8,8 +8,8 @@
  * ============================================================================ */
 @layer base {
   :root {
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-heading: 'Outfit', sans-serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
+    --font-heading: -apple-system, BlinkMacSystemFont, 'Outfit', system-ui, sans-serif;
   }
 
   * {
@@ -32,7 +32,10 @@
   h5,
   h6 {
     font-family: var(--font-heading);
-    @apply font-bold tracking-tight;
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
@@ -541,7 +544,31 @@ All colors MUST be HSL.
         92px) !important;
 
     /* Плавный переход при изменении ориентации или скрытии BackButton */
-    transition: padding-top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: padding-top 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Глобальный padding снизу для мобильных устройств, чтобы контент не перекрывался таббаром */
+  @media (max-width: 767px) {
+    .telegram-main-content.has-bottom-nav {
+      /* Базовый отступ (таббар ~72px) + небольшой запас для "воздуха" (16px) = 88px */
+      /* Плюс системный safe area bottom */
+      padding-bottom: calc(88px + var(--app-safe-bottom, 0px)) !important;
+    }
+
+    .telegram-main-content.has-bottom-widgets {
+      /* С виджетами навар выше (~120px + запас 16px = 136px) */
+      padding-bottom: calc(136px + var(--app-safe-bottom, 0px)) !important;
+    }
+
+    /* В полноэкранных режимах отступ не нужен */
+    .fullscreen-mode .telegram-main-content {
+      padding-bottom: 0 !important;
+    }
+  }
+
+  /* Исправление таббара для корректного отображения на устройствах с Home Indicator (iPhone) */
+  .app-bottom-nav {
+    padding-bottom: var(--app-safe-bottom, 0px) !important;
   }
 
   /* PWA (Standalone) Safe Area Support */
@@ -551,7 +578,7 @@ All colors MUST be HSL.
       padding-top: max(env(safe-area-inset-top), 20px) !important;
       padding-left: env(safe-area-inset-left) !important;
       padding-right: env(safe-area-inset-right) !important;
-      padding-bottom: env(safe-area-inset-bottom) !important;
+      /* padding-bottom управляется глобальными правилами выше с учетом таббара */
     }
 
     /* Убираем верхний отступ если есть header (на десктопе может быть standalone) */
@@ -605,8 +632,11 @@ All colors MUST be HSL.
   h4,
   h5,
   h6 {
-    @apply font-bold tracking-tight;
-    font-feature-settings: "kern" 1;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
   }
 }
 

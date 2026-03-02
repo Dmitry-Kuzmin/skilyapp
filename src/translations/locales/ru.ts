@@ -999,6 +999,7 @@ export const ru = {
     countrySection: "1. Страна ПДД",
     categorySection: "2. Категория прав",
     apply: "Применить",
+    title: "Настройки контекста",
   },
   smartMentor: {
     correctionTitle: "Работа над ошибками",
