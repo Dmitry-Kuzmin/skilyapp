@@ -13,6 +13,8 @@ import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
 import { DuelBattleFullscreen } from '@/components/duel/DuelBattleFullscreen';
 import { DuelFindingScreen } from '@/components/duel/parts/DuelFindingScreen';
 import { DuelResult } from '@/components/duel/DuelResult';
+import { DuelHelpRequest } from '@/components/duel/DuelHelpRequest';
+import { DuelHelpHandler } from '@/components/duel/DuelHelpHandler';
 import { PageLoader } from '@/components/PageLoader';
 import { LoadoutSelector } from '@/components/duel/LoadoutSelector';
 import { AuthModalNew as AuthModal } from '@/components/AuthModalNew';
@@ -119,7 +121,7 @@ export default function Duel() {
     const hasAutoJoinedRef = useRef(false);
     // 🆕 CRITICAL FIX: Ref для хранения snapshot (передается напрямую из памяти, минуя localStorage)
     const duelResultSnapshotRef = useRef<DuelResultSnapshot | null>(null);
-    const [duelPreview, setDuelPreview] = useState<{ bet_amount: number; num_questions: number } | null>(null);
+    const [duelPreview, setDuelPreview] = useState<{ bet_amount: number; num_questions: number; id?: string } | null>(null);
 
     // Inline create state
     const [numQuestions, setNumQuestions] = useState(10);
@@ -812,14 +814,15 @@ export default function Duel() {
                 try {
                     const { data, error } = await supabase
                         .from('duels')
-                        .select('bet_amount, num_questions, bet_type')
+                        .select('bet_amount, num_questions, bet_type, id')
                         .eq('code', joinCode.toUpperCase())
                         .single();
 
                     if (!error && data) {
                         setDuelPreview({
                             bet_amount: (data as any).bet_amount || 0,
-                            num_questions: (data as any).num_questions || 10
+                            num_questions: (data as any).num_questions || 10,
+                            id: (data as any).id
                         });
                     }
                 } catch (e) {
@@ -846,13 +849,14 @@ export default function Duel() {
                 }
             }
 
-            const timer = setTimeout(() => {
-                if (joinCode.length === 4 && !hasAutoJoinedRef.current) {
-                    handleInlineJoin(joinCode);
-                }
-            }, 500);
+            // Disable auto-join for now
+            // const timer = setTimeout(() => {
+            //     if (joinCode.length === 4 && !hasAutoJoinedRef.current) {
+            //         handleInlineJoin(joinCode);
+            //     }
+            // }, 500);
 
-            return () => clearTimeout(timer);
+            // return () => clearTimeout(timer);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [joinCode, isJoining, profileId, isAuthenticated, isTelegramUser, duelPreview, userCoins]);
@@ -1435,6 +1439,7 @@ export default function Duel() {
                 </div>
             ) : (
                 <Layout>
+                    <DuelHelpHandler />
                     {/* Старый виджет убран - используем ActiveDuelWidget из Layout */}
 
                     <div className={cn(
@@ -1660,9 +1665,28 @@ export default function Duel() {
                                                         <div className="relative space-y-6 sm:space-y-8">
 
 
-                                                            <div className="flex items-center justify-between pt-2">
-                                                                {/* Title is now in Hero block, only showing mode badge here */}
-                                                                <div />
+                                                            <div className="flex items-start sm:items-center gap-4 sm:gap-5 mb-4">
+                                                                <motion.div
+                                                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                                                    whileTap={{ scale: 0.95 }}
+                                                                    className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-600 to-indigo-600 flex items-center justify-center shadow-xl shadow-violet-500/40 flex-shrink-0 ring-4 ring-violet-500/20"
+                                                                >
+                                                                    {/* Shine effect */}
+                                                                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-white/30 via-transparent to-transparent" />
+                                                                    {duelMode === 'random' ? (
+                                                                        <Zap className="h-7 w-7 sm:h-8 sm:w-8 text-white relative z-10 drop-shadow-md" />
+                                                                    ) : (
+                                                                        <Swords className="h-7 w-7 sm:h-8 sm:w-8 text-white relative z-10 drop-shadow-md" />
+                                                                    )}
+                                                                </motion.div>
+                                                                <div className="min-w-0 flex-1">
+                                                                    <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent mb-1.5">
+                                                                        {duelMode === 'random' ? 'Случайный бой' : 'Создать дуэль'}
+                                                                    </h2>
+                                                                    <p className="text-sm sm:text-base text-muted-foreground/80 leading-relaxed font-medium">
+                                                                        {duelMode === 'random' ? 'Сражайтесь со случайными соперниками' : 'Настройте лобби и пригласите друга'}
+                                                                    </p>
+                                                                </div>
                                                             </div>
 
                                                             {!createdCode ? (
@@ -2403,9 +2427,23 @@ export default function Duel() {
                                                                                             </span> монет
                                                                                         </p>
                                                                                         {userCoins < joinTotalRequired && (
-                                                                                            <p className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400">
-                                                                                                Нужно ещё {joinTotalRequired - userCoins} монет
-                                                                                            </p>
+                                                                                            <div className="space-y-4">
+                                                                                                <p className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400">
+                                                                                                    Нужно ещё {joinTotalRequired - userCoins} монет
+                                                                                                </p>
+                                                                                                {duelPreview?.id && (
+                                                                                                    <DuelHelpRequest
+                                                                                                        duelId={duelPreview.id}
+                                                                                                        requiredAmount={joinTotalRequired}
+                                                                                                        userCoins={userCoins}
+                                                                                                        onSuccess={() => {
+                                                                                                            if (joinCode.length === 4) {
+                                                                                                                handleInlineJoin(joinCode);
+                                                                                                            }
+                                                                                                        }}
+                                                                                                    />
+                                                                                                )}
+                                                                                            </div>
                                                                                         )}
                                                                                     </div>
                                                                                 </div>
@@ -2475,6 +2513,16 @@ export default function Duel() {
                                                                             />
                                                                         </motion.div>
                                                                     )}
+
+                                                                    {/* Join Loadout Selector */}
+                                                                    <motion.div
+                                                                        initial={{ opacity: 0, y: 10 }}
+                                                                        animate={{ opacity: 1, y: 0 }}
+                                                                        transition={{ delay: 0.25 }}
+                                                                        className="py-4"
+                                                                    >
+                                                                        <LoadoutSelector />
+                                                                    </motion.div>
 
                                                                     <motion.div
                                                                         initial={{ opacity: 0, y: 10 }}
