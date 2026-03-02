@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
 import { haptics } from '@/lib/haptics';
 import { useDuelTimeout } from '@/hooks/useDuelTimeout';
-import { DuelQuestion } from '@/features/duel/shared';
+import { DuelQuestion } from '@/types/duel';
 
 // Константы
 const TIME_LIMIT_MS = 60000; // 60 seconds
@@ -15,14 +15,14 @@ interface UseDuelTimerProps {
     isAnswered: boolean;
     isWaitingForOpponent: boolean;
     hasFinishedMyQuestions: boolean;
-    setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
+    setTimeLeft: (time: number) => void;
     setMyScore: (score: number) => void;
     setCombo: (combo: number) => void;
     setIsAnswered: (isAnswered: boolean) => void;
     setHasFinishedMyQuestions: (finished: boolean) => void;
     isFinishingRef: React.MutableRefObject<boolean>;
     moveToNextQuestion: () => void;
-    finishDuel: () => void;
+    finishDuel: (callerHasFinished?: boolean) => Promise<void>;
     refreshExploits?: () => Promise<any>;
     questionEndTimeRef: React.MutableRefObject<number | null>;
 }

@@ -23,12 +23,13 @@ interface UseDuelGameProps {
   profileId: string | null;
   // Callbacks
   onWrongAnswer?: () => void;
-  onCorrectAnswer?: () => void;
+  onCorrectAnswer?: (points: number) => void;
   // External fetchers needed because they depend on other hooks/logic not in store
   fetchQuestions: () => Promise<any[]>;
   fetchPlayers: () => Promise<any>;
   finishDuel: (callerHasFinished?: boolean) => Promise<void>;
   moveToNextQuestion: () => void;
+  isFinishingRef: React.MutableRefObject<boolean>;
 }
 
 export function useDuelGame({
@@ -40,6 +41,7 @@ export function useDuelGame({
   fetchPlayers,
   onWrongAnswer,
   onCorrectAnswer,
+  isFinishingRef,
 }: UseDuelGameProps) {
   // Access store actions
   const setQuestions = useDuelStore(state => state.setQuestions);
@@ -69,7 +71,7 @@ export function useDuelGame({
   // Refs for tracking async state
   const playersLoadedRef = useRef(false);
   const isLoadingRef = useRef(false);
-  const isFinishingRef = useRef(false);
+
 
   // Sync initialization
   useEffect(() => {
@@ -406,7 +408,7 @@ export function useDuelGame({
         if (serverIsCorrect) {
           sounds.correctAnswer();
           haptics.correctAnswer();
-          onCorrectAnswer?.();
+          onCorrectAnswer?.(data.points_awarded);
           if (serverCombo > 1) {
             sounds.combo(serverCombo);
             haptics.combo();
@@ -448,6 +450,8 @@ export function useDuelGame({
         if (currentIdx < currentQuestions.length - 1) {
           moveToNextQuestion();
         } else {
+          // КРИТИЧНО: Даже при ошибке помечаем, что мы закончили свои вопросы
+          setHasFinishedMyQuestions(true);
           finishDuel(true);
         }
       }, 1000);

@@ -65,6 +65,83 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: any) {
     );
 }
 
+function FlightLevels({ currentStatus, language }: { currentStatus: string, language: string }) {
+    const levels = [
+        {
+            id: 'start',
+            name: language === 'ru' ? 'СТАРТ' : 'INICIO',
+            range: '0-30%',
+            desc: language === 'ru' ? 'Двигатель запускается. Путь только начинается.' : 'El motor arranca. El camino acaba de empezar.',
+            color: '#94a3b8'
+        },
+        {
+            id: 'progress',
+            name: language === 'ru' ? 'В ПРОЦЕССЕ' : 'EN PROCESO',
+            range: '31-70%',
+            desc: language === 'ru' ? 'Набираем скорость. Усилия уже заметны.' : 'Ganando velocidad. Los esfuerzos ya son visibles.',
+            color: '#f59e0b'
+        },
+        {
+            id: 'near',
+            name: language === 'ru' ? 'ПОЧТИ ГОТОВ' : 'CASI LISTO',
+            range: '71-85%',
+            desc: language === 'ru' ? 'Видим финишную прямую. Нужна концентрация.' : 'Vemos la meta. Se necesita concentración.',
+            color: '#eab308'
+        },
+        {
+            id: 'ready',
+            name: language === 'ru' ? 'ГОТОВ' : 'LISTO',
+            range: '86-100%',
+            desc: language === 'ru' ? 'Максимальная готовность. Пора сдавать!' : 'Máxima preparación. ¡Es hora del examen!',
+            color: '#10b981'
+        }
+    ];
+
+    return (
+        <div className="space-y-4 md:space-y-6">
+            <h3 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4 md:mb-6 px-1">
+                {language === 'ru' ? 'УРОВНИ ПОЛЕТА' : 'NIVELES DE VUELO'}
+            </h3>
+            <div className="relative space-y-6 md:space-y-8 pl-8">
+                {/* Vertical line */}
+                <div className="absolute left-[11.5px] top-2 bottom-2 w-[1px] bg-white/10" />
+
+                {levels.map((lvl) => {
+                    const isActive = currentStatus === lvl.id || (currentStatus === 'legend' && lvl.id === 'ready');
+
+                    return (
+                        <div key={lvl.id} className={cn("relative transition-all duration-500", !isActive && "opacity-20")}>
+                            {/* Circle Indicator */}
+                            <div className={cn(
+                                "absolute -left-8 top-1 w-6 h-6 rounded-full border bg-zinc-950 flex items-center justify-center transition-all duration-500 z-10",
+                                isActive ? "border-current scale-110 shadow-[0_0_15px_-3px_currentColor]" : "border-slate-800"
+                            )} style={{ color: isActive ? lvl.color : 'transparent' }}>
+                                <div className={cn(
+                                    "w-2 h-2 rounded-full transition-all duration-500",
+                                    isActive ? "bg-white animate-pulse" : "bg-slate-800"
+                                )} />
+                                {isActive && (
+                                    <div className="absolute inset-[-4px] rounded-full border border-current opacity-30 animate-pulse" />
+                                )}
+                            </div>
+
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] md:text-[11px] font-black tracking-widest text-white uppercase">{lvl.name}</span>
+                                    <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[8px] md:text-[10px] font-black text-slate-500">{lvl.range}</span>
+                                </div>
+                                <p className="text-[9px] md:text-[10px] text-slate-400 font-medium leading-relaxed max-w-[200px]">
+                                    {lvl.desc}
+                                </p>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
+
 // ─── Main Content Component ──────────────────────────────────────────────────
 
 export function TelemetryContent({ onClose }: { onClose: () => void }) {
@@ -144,97 +221,110 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
     return (
         <div className="flex flex-col space-y-8 pb-10 px-1 md:px-0">
-            {/* ── Header Indicator ── */}
-            <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-500">
-                        {language === 'ru' ? 'ТЕЛЕМЕТРИЯ АКТИВНА' : 'TELEMETRÍA ACTIVA'}
-                    </span>
-                </div>
-                <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-500 font-mono">
-                    ID: {profileId?.slice(0, 8).toUpperCase() || 'OFFLINE'}
-                </div>
-            </div>
+            {/* ── Main Dashboard Hero (Single Unified Block) ── */}
+            <div className="relative rounded-[2rem] bg-slate-900 border border-white/5 overflow-hidden shadow-2xl">
+                {/* Shared Background Background Effects */}
+                <div className="absolute inset-0 opacity-[0.15]"
+                    style={{ background: `radial-gradient(circle at 70% 50%, ${status.fill}40 0%, transparent 60%)` }}
+                />
 
-            {/* ── Readiness Hero ── */}
-            <div className="relative rounded-[2.5rem] bg-slate-900 border border-white/5 overflow-hidden p-8 md:p-12 shadow-2xl">
-                <div className="absolute inset-0 opacity-20" style={{ background: `radial-gradient(circle at 50% 120%, ${status.fill}40 0%, transparent 70%)` }} />
-
-                <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-                    <div className="relative w-56 h-56 flex-shrink-0">
-                        <div className="absolute inset-0 rounded-full border border-white/5" />
-                        <div className="absolute inset-4 rounded-full border border-white/5" />
-                        <div className="absolute inset-8 rounded-full border border-white/5" />
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-transparent to-indigo-500/10 animate-spin-slow" />
-
-                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" strokeLinecap="round" />
-                            <circle
-                                cx="50" cy="50" r="45" fill="none"
-                                stroke={status.fill}
-                                strokeWidth="8"
-                                strokeLinecap="round"
-                                strokeDasharray={283}
-                                strokeDashoffset={283 - (283 * score) / 100}
-                                style={{ transition: 'stroke-dashoffset 1s ease-out' }}
-                                className="drop-shadow-[0_0_12px_currentColor]"
-                            />
-                        </svg>
-
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-6xl font-black tracking-tighter text-white drop-shadow-lg">{score}%</span>
-                            <div className="px-3 py-1 mt-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                Pass Prob
-                            </div>
-                        </div>
+                <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/5">
+                    {/* Left: Flight Levels (40%) */}
+                    <div className="lg:col-span-5 p-6 md:p-8">
+                        <FlightLevels currentStatus={readiness?.status || 'start'} language={language} />
                     </div>
 
-                    <div className="flex-1 text-center md:text-left space-y-4">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-2 justify-center md:justify-start mb-2">
-                                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded",
-                                    readiness?.status === 'legend' ? 'bg-purple-500/20 text-purple-400' :
-                                        readiness?.status === 'ready' ? 'bg-emerald-500/20 text-emerald-400' :
-                                            readiness?.status === 'near' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                readiness?.status === 'progress' ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-500/20 text-slate-400'
-                                )}>
-                                    Level: {readiness?.status?.toUpperCase() || 'START'}
-                                </span>
-                            </div>
-                            <h2 className="text-3xl md:text-4xl font-black text-white leading-tight uppercase tracking-tighter">
-                                {readiness?.shortText || 'Анализ...'}
-                            </h2>
-                            <p className="text-base text-slate-400 font-medium max-w-md">
-                                {readiness?.statusText}
-                            </p>
-                        </div>
+                    {/* Right: Readiness Gauge & Summary (60%) */}
+                    <div className="lg:col-span-7 p-6 md:p-10 flex flex-col justify-center">
+                        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full">
+                            <div className="relative w-44 md:w-52 h-44 md:h-52 flex-shrink-0">
+                                <div className="absolute inset-0 rounded-full border border-white/5" />
+                                <div className="absolute inset-4 rounded-full border border-white/5" />
+                                <div className="absolute inset-0 rounded-full bg-gradient-to-b from-transparent via-transparent to-indigo-500/5 animate-spin-slow" />
 
-                        <div className="grid grid-cols-2 gap-3 max-w-xs mx-auto md:mx-0">
-                            <div className="bg-white/5 border border-white/5 rounded-xl p-2 text-center">
-                                <div className="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-0.5">
-                                    {language === 'ru' ? 'Уверенность' : 'Confianza'}
-                                </div>
-                                <div className="text-sm font-bold text-white">{readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%</div>
-                            </div>
-                            <div className="bg-white/5 border border-white/5 rounded-xl p-2 text-center">
-                                <div className="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-0.5">
-                                    {language === 'ru' ? 'Цель дня' : 'Meta diaria'}
-                                </div>
-                                <div className="text-sm font-bold text-emerald-400">75%</div>
-                            </div>
-                        </div>
+                                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" strokeLinecap="round" />
+                                    <circle
+                                        cx="50" cy="50" r="45" fill="none"
+                                        stroke={status.fill}
+                                        strokeWidth="6"
+                                        strokeLinecap="round"
+                                        strokeDasharray={283}
+                                        strokeDashoffset={283 - (283 * score) / 100}
+                                        style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                                        className="drop-shadow-[0_0_15px_currentColor]"
+                                    />
+                                </svg>
 
-                        <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start pt-2">
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5">
-                                <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Global Rank: #420</span>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                    <span className="text-5xl md:text-6xl font-black tracking-tighter text-white">{score}%</span>
+                                    <div className="px-2 py-0.5 mt-1 rounded bg-white/5 text-[8px] font-black uppercase tracking-widest text-slate-500">
+                                        Pass Prob
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5">
-                                <ActivityIcon className="w-3.5 h-3.5 text-blue-400" />
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    {language === 'ru' ? 'Стабильность' : 'Estabilidad'}: {dashData?.profile?.streak_days || 0}d
-                                </span>
+
+                            <div className="flex-1 space-y-6">
+                                {/* Header Group */}
+                                <div className="space-y-1 md:border-l md:border-white/10 md:pl-8">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse",
+                                            readiness?.status === 'ready' || readiness?.status === 'legend' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-500'
+                                        )} />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+                                            {language === 'ru' ? 'ТЕКУЩИЙ СТАТУС' : 'ESTADO ACTUAL'}
+                                        </span>
+                                    </div>
+                                    <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-3">
+                                        {readiness?.shortText || 'Анализ...'}
+                                    </h2>
+                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 inline-block">
+                                        <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-sm italic">
+                                            "{readiness?.statusText}"
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Stats Grid */}
+                                <div className="grid grid-cols-3 gap-3 md:pl-8">
+                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-between group hover:bg-white/[0.08] transition-all">
+                                        <div className="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3 group-hover:text-slate-400 transition-colors">
+                                            {language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIANZA'}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-xl bg-indigo-500/10 flex items-center justify-center">
+                                                <Target className="w-4 h-4 text-indigo-400" />
+                                            </div>
+                                            <span className="text-xl md:text-2xl font-black text-white tabular-nums">
+                                                {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-between group hover:bg-white/[0.08] transition-all">
+                                        <div className="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3 group-hover:text-slate-400 transition-colors">
+                                            {language === 'ru' ? 'ЦЕЛЬ' : 'META'}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                                                <Rocket className="w-4 h-4 text-emerald-400" />
+                                            </div>
+                                            <span className="text-xl md:text-2xl font-black text-emerald-400 tabular-nums">75%</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-between group hover:bg-white/[0.08] transition-all">
+                                        <div className="text-[9px] text-slate-500 uppercase font-black tracking-widest mb-3 group-hover:text-slate-400 transition-colors">
+                                            RANK
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                                                <Award className="w-4 h-4 text-amber-400" />
+                                            </div>
+                                            <span className="text-xl md:text-2xl font-black text-amber-400 tabular-nums">#420</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

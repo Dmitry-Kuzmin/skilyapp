@@ -34,6 +34,7 @@ export type TestMode =
     | 'traps'
     | 'redemption'
     | 'favorites'
+    | 'hardest'
     | 'mastery';
 
 interface UseTestDataLoaderProps {
@@ -85,12 +86,11 @@ export const useTestDataLoader = ({
 
     // Sequential test questions
     const sequentialQuestions = useSequentialTestQuestions(
-        mode === 'sequential' && testId ? testId : undefined
+        (mode === 'sequential' && testId) ? testId : null
     );
-
     // Sequential test info
     const testInfoQuery = useTestInfo(
-        mode === 'sequential' && testId ? testId : undefined
+        (mode === 'sequential' && testId) ? testId : null
     );
 
     // Challenge bank questions  
@@ -128,6 +128,7 @@ export const useTestDataLoader = ({
     // Topic-based questions (новая система - по UUID темы из questions_new)
     // ФИКС: вызываем ТОЛЬКО если topicId И pddCountry переданы (infinite loop fix)
     const shouldLoadByTopicId = (mode === 'by-topic' || mode === 'practice') && !!topicId && !!pddCountry;
+    // @ts-ignore - position check
     const topicByIdQuestions = useQuestionsByTopicId(
         shouldLoadByTopicId ? topicId : null,
         shouldLoadByTopicId ? pddCountry : null,
@@ -157,7 +158,7 @@ export const useTestDataLoader = ({
     );
 
     // Nonstop — загружаем все вопросы последовательно (марафон из всей базы)
-    const isSequentialRequired = mode === 'nonstop' && pddCountry === 'russia';
+    const isSequentialRequired = mode === 'nonstop' || mode === 'sequential';
     const pddSequentialQuestions = usePDDSequentialQuestions(
         pddCountry || 'russia',
         isSequentialRequired,
@@ -167,7 +168,7 @@ export const useTestDataLoader = ({
     // Random questions — практика, блиц, экзамен, мастерство, МАРАФОН (раунды из случайных)
     const isRandomRequired = !isSequentialRequired && (
         mode === 'practice' || mode === 'blitz' || mode === 'exam' ||
-        mode === 'mastery' || mode === 'hardest' || mode === 'marathon'
+        mode === 'mastery' || (mode as string) === 'hardest' || mode === 'marathon'
     );
     const pddRandomQuestions = usePDDRandomQuestions(
         pddCountry || 'russia',
@@ -191,7 +192,7 @@ export const useTestDataLoader = ({
             if (origError) throw origError;
 
             // 2. Load drill questions (similar topics)
-            const topicIds = [...new Set(original?.map(q => q.topic_id).filter(Boolean))];
+            const topicIds = [...new Set((original as any[])?.map(q => q.topic_id).filter(Boolean))];
 
             let drill: any[] = [];
             if (topicIds.length > 0) {
@@ -326,7 +327,7 @@ export const useTestDataLoader = ({
 
             case 'exam-russia':
                 return {
-                    questions: pddExamQuestions.data?.questions || [],
+                    questions: pddExamQuestions.data?.selectedQuestions || [],
                     isLoading: pddExamQuestions.isLoading,
                     error: pddExamQuestions.error as Error | null,
                     testInfo: { id: 'exam-russia', title: '🚦 Экзамен ПДД РФ' },

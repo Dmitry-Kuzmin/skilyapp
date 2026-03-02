@@ -70,8 +70,8 @@ export const useTestLifecycle = ({
             }
 
             // Если источник (memo в TestSession) реально изменился (сменился тест/билет)
-            // Но мы НЕ должны перезаписывать, если мы внутри Марафона/Мастерства (там questionsState управляется вручную)
-            const isManualMode = mode === 'mastery' || mode === 'marathon';
+            // Но мы НЕ должны перезаписывать, если мы внутри Марафона/Мастерства/Нонстопа (там questionsState управляется вручную или должен быть стабилен)
+            const isManualMode = mode === 'mastery' || mode === 'marathon' || mode === 'nonstop';
             if (!isManualMode) {
                 const isSourceChanged = questions.length !== questionsState.length || (questions[0]?.id !== questionsState[0]?.id);
                 if (isSourceChanged) {
@@ -85,9 +85,8 @@ export const useTestLifecycle = ({
     useEffect(() => {
         if (questionsState.length === 0) return;
 
-        // Режимы с таймером/строгими правилами — прогресс не восстанавливаем
-        const noRestoreModes = ['blitz', 'exam', 'exam-russia'];
-        const canRestore = !noRestoreModes.includes(mode);
+        // Режимы с сохранением и восстановлением прогресса (только для марафонских режимов, где это критично)
+        const canRestore = mode === 'nonstop';
 
         const doInit = async () => {
             let savedProgress: SavedProgress | undefined;

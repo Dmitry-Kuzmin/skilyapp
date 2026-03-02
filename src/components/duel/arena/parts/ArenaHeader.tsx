@@ -128,8 +128,6 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
             <div
                 className="relative z-[5] bg-background/95 backdrop-blur-md border-b border-border/30"
                 style={{
-                    paddingLeft: `${totalLeftPadding}px`,
-                    paddingRight: `${totalRightPadding}px`,
                     paddingTop: isTelegramMobile || isTelegramDesktop ? '4px' : '8px',
                     paddingBottom: isTelegramMobile || isTelegramDesktop ? '4px' : '8px'
                 }}
@@ -169,11 +167,8 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                 <div
                     className={cn(
                         "max-w-7xl mx-auto w-full px-2 md:px-4",
-                        "relative flex overflow-visible transition-transform duration-100",
-                        screenShake && "animate-shake",
-                        isInTelegramMiniApp || isTelegramMobile
-                            ? "flex-col gap-2 items-center"
-                            : "flex-row items-center justify-between gap-3"
+                        "relative flex items-center justify-between gap-2 transition-transform duration-100",
+                        screenShake && "animate-shake"
                     )}
                 >
                     <DuelScoreBoard

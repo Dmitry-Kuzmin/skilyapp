@@ -88,7 +88,7 @@ export const useTestDataEffects = ({
     useEffect(() => {
         if (!prevOnlineRef.current && isOnline) {
             setPendingSync(true);
-            if (testInfo?.id && answers.length > 0) {
+            if (testInfo?.id && mode === 'nonstop' && answers.length > 0) {
                 toast.success('Соединение восстановлено', {
                     description: 'Синхронизируем ваши ответы...',
                     duration: 3000,

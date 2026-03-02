@@ -233,20 +233,21 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     fetchPlayers,
     moveToNextQuestion,
     finishDuel,
-    // 🎯 Callback для screen shake при неправильном ответе
     onWrongAnswer: () => {
-      setScreenShake(true);
       setFeedbackEffect('wrong');
-      setTimeout(() => {
-        setScreenShake(false);
-        setFeedbackEffect(null);
-      }, 500);
+      setTimeout(() => setFeedbackEffect(null), 1000);
     },
-    // 🎯 Callback для эффекта при правильном ответе
-    onCorrectAnswer: () => {
+    onCorrectAnswer: (points) => {
       setFeedbackEffect('correct');
-      setTimeout(() => setFeedbackEffect(null), 800);
+      setToastNotifications(prev => [...prev, {
+        id: Date.now().toString(),
+        type: 'points',
+        title: `+${points} очков`,
+        message: 'Верный ответ!'
+      }]);
+      setTimeout(() => setFeedbackEffect(null), 1000);
     },
+    isFinishingRef,
   });
 
   useEffect(() => {

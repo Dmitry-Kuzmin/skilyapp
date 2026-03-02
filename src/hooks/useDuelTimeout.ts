@@ -20,13 +20,13 @@ interface UseDuelTimeoutProps {
   questions: any[];
   currentIndex: number;
   isAnswered: boolean;
-  setMyScore: React.Dispatch<React.SetStateAction<number>>;
-  setCombo: React.Dispatch<React.SetStateAction<number>>;
-  setIsAnswered: React.Dispatch<React.SetStateAction<boolean>>;
-  setHasFinishedMyQuestions: React.Dispatch<React.SetStateAction<boolean>>;
+  setMyScore: (score: number) => void;
+  setCombo: (combo: number) => void;
+  setIsAnswered: (isAnswered: boolean) => void;
+  setHasFinishedMyQuestions: (finished: boolean) => void;
   isFinishingRef: React.MutableRefObject<boolean>;
   moveToNextQuestion: () => void;
-  finishDuel: () => Promise<void>;
+  finishDuel: (callerHasFinished?: boolean) => Promise<void>;
 }
 
 export function useDuelTimeout({
@@ -132,7 +132,7 @@ export function useDuelTimeout({
         log('[useDuelTimeout] ✅ Last question timeout - checking duel status');
 
         setHasFinishedMyQuestions(true);
-        await finishDuel();
+        await finishDuel(true);
       } else {
         log('[useDuelTimeout] Transitioning to next question after timeout in 1500ms');
         setTimeout(() => {
@@ -146,7 +146,9 @@ export function useDuelTimeout({
         if (currentIndex < questions.length - 1) {
           moveToNextQuestion();
         } else {
-          finishDuel();
+          // КРИТИЧНО: Даже при ошибке помечаем, что мы закончили свои вопросы
+          setHasFinishedMyQuestions(true);
+          finishDuel(true);
         }
       }, 1500);
     }

@@ -629,17 +629,32 @@ Deno.serve(async (req) => {
                         .eq('id', rematch_opponent_id)
                         .maybeSingle();
 
+                    // Всегда создаём in-app уведомление о реванше (независимо от Telegram)
+                    await supabase.from('duel_notifications').insert({
+                        duel_id: rematchDuel.id,
+                        type: 'rematch_challenge',
+                        metadata: {
+                            duel_code: rematchCode,
+                            challenger_name: senderName,
+                            challenger_id: profileId,
+                        },
+                        recipient_id: rematch_opponent_id,
+                    }).then(({ error: notifErr }) => {
+                        if (notifErr) console.warn('[find_match] ⚠️ Failed to insert duel_notification:', notifErr.message);
+                    });
+
                     // Отправляем Telegram уведомление если есть telegram_id
                     let notificationSent = false;
                     if (opponentProfile?.telegram_id) {
                         try {
                             const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
-                            const appUrl = Deno.env.get('APP_URL') || 'https://skilyapp.com';
-                            if (botToken) {
-                                const deepLink = `${appUrl}/games/duel?code=${rematchCode}`;
-                                const messageText = `⚔️ *${senderName}* вызывает тебя на реванш!\n\nНажми кнопку ниже, чтобы принять вызов.`;
+                            const botUsername = Deno.env.get('TELEGRAM_BOT_USERNAME');
+                            if (botToken && botUsername) {
+                                // Используем правильный формат deeplink для Telegram Mini App
+                                const deepLink = `https://t.me/${botUsername}?startapp=duel_${rematchCode}`;
+                                const messageText = `⚔️ *${senderName}* вызывает тебя на реванш!\\n\\nКод дуэли: \`${rematchCode}\`\\nНажми кнопку ниже, чтобы принять вызов.`;
 
-                                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                                const tgResponse = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({
@@ -654,14 +669,39 @@ Deno.serve(async (req) => {
                                         }
                                     })
                                 });
+                                const tgResult = await tgResponse.json();
+                                if (tgResult.ok) {
+                                    notificationSent = true;
+                                    console.log(`[find_match] ✅ Rematch notification sent to telegram_id: ${opponentProfile.telegram_id}`);
+                                } else {
+                                    console.error(`[find_match] ❌ Telegram API error:`, tgResult);
+                                }
+                            } else if (botToken) {
+                                // Fallback: без botUsername используем APP_URL
+                                const appUrl = Deno.env.get('APP_URL') || 'https://skilyapp.com';
+                                const deepLink = `${appUrl}/games/duel?code=${rematchCode}`;
+                                const messageText = `⚔️ *${senderName}* вызывает тебя на реванш!\\n\\nКод дуэли: \`${rematchCode}\`\\nНажми кнопку ниже, чтобы принять вызов.`;
+
+                                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        chat_id: opponentProfile.telegram_id,
+                                        text: messageText,
+                                        parse_mode: 'Markdown',
+                                        reply_markup: {
+                                            inline_keyboard: [[{ text: '⚔️ Принять реванш', url: deepLink }]]
+                                        }
+                                    })
+                                });
                                 notificationSent = true;
-                                console.log(`[find_match] ✅ Rematch notification sent to telegram_id: ${opponentProfile.telegram_id}`);
+                                console.log(`[find_match] ✅ Rematch notification sent (fallback URL) to: ${opponentProfile.telegram_id}`);
                             }
                         } catch (notifyError) {
                             console.error('[find_match] ⚠️ Failed to send rematch notification:', notifyError);
                         }
                     } else {
-                        console.warn(`[find_match] ⚠️ No telegram_id for opponent ${rematch_opponent_id}, skipping notification`);
+                        console.warn(`[find_match] ⚠️ No telegram_id for opponent ${rematch_opponent_id}, skipping Telegram notification (in-app already sent)`);
                     }
 
                     return new Response(JSON.stringify({

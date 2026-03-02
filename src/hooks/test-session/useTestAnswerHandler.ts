@@ -196,7 +196,7 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
                 return;
             }
 
-            const selectedAnswer = currentQuestion.answer_options.find(opt => opt.id === answerId);
+            const selectedAnswer = currentQuestion.answer_options?.find((opt: any) => opt.id === answerId);
             const isCorrect = selectedAnswer?.is_correct || false;
 
             // Haptic feedback in Telegram
@@ -213,24 +213,6 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
             const updatedAnswers = [...(answers || []), newAnswer];
             setAnswers(updatedAnswers);
 
-            // Save progress locally for offline mode
-            if (testInfo?.id) {
-                saveTestProgress(
-                    testInfo.id,
-                    mode,
-                    updatedAnswers.map(a => ({
-                        questionId: a.questionId,
-                        selectedAnswerId: a.selectedAnswerId,
-                        isCorrect: a.isCorrect,
-                        timestamp: Date.now(),
-                    })),
-                    currentIndex + 1,
-                    startTime
-                ).catch((error) => {
-                    console.error('[TestSession] Error saving progress locally:', error);
-                });
-            }
-
             // Mastery Mode: track wrong questions for retry
             if (mode === "mastery" && !isCorrect) {
                 if (!masteryWrongQuestions.includes(currentQuestion.id)) {
@@ -246,13 +228,13 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
                         await handleChallengeBankUpdate(
                             currentQuestion.id,
                             profileId,
-                            answers,
+                            updatedAnswers, // Use updatedAnswers here for accuracy
                             isFirstWrongAnswer,
                             setIsFirstWrongAnswer,
                             setShowChallengeBankNotification
                         ).catch(err => console.error('[Challenge Bank] Silent error:', err));
                     } else if (isCorrect) {
-                        // Mark as mastered if correct (removes from Errors, keeps in Favorites if favorite)
+                        // Mark as mastered if correct
                         await handleChallengeBankSuccess(
                             currentQuestion.id,
                             profileId
@@ -262,6 +244,24 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
 
                 // Save user progress to server
                 await saveUserProgress(currentQuestion.id, isCorrect).catch(err => console.error('[Progress] Silent error:', err));
+            }
+
+            // Save progress locally – ONLY for nonstop mode
+            if (mode === 'nonstop' && testInfo?.id) {
+                saveTestProgress(
+                    testInfo.id,
+                    mode,
+                    updatedAnswers.map(a => ({
+                        questionId: a.questionId,
+                        selectedAnswerId: a.selectedAnswerId,
+                        isCorrect: a.isCorrect,
+                        timestamp: Date.now(),
+                    })),
+                    currentIndex + 1,
+                    startTime
+                ).catch((error) => {
+                    console.error('[TestSession] Error saving progress locally:', error);
+                });
             }
 
             // Mode-specific behavior
@@ -290,13 +290,6 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
                         icon: React.createElement(Timer, { className: "w-5 h-5 text-red-500" })
                     });
                 }
-
-                // Save progress
-                // The saveTestProgress call for blitz mode is already handled above for all modes.
-                // await saveTestProgress(testInfo.id, updatedAnswers, currentIndex + 1, startTime);
-
-                // Check finish condition (all answered)
-                // Logic handled by useEffect in TestSession usually, or explicit finishTest
             }
 
             if (isPracticeLikeMode) {
@@ -335,6 +328,7 @@ export function useTestAnswerHandler(options: UseTestAnswerHandlerOptions): UseT
         setIsQuestionBookmarked,
         setShowChallengeBankNotification,
         addPenalty,
+        addTime,
         nextQuestion,
         isPracticeLikeMode,
         isTelegramApp,
@@ -475,7 +469,7 @@ async function saveUserProgress(questionId: string, isCorrect: boolean): Promise
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: profile } = await supabase
+        const { data: profile } = await (supabase as any)
             .from("profiles")
             .select("id")
             .eq("user_id", user.id)
@@ -484,7 +478,7 @@ async function saveUserProgress(questionId: string, isCorrect: boolean): Promise
         if (!profile) return;
 
         const progressData = {
-            user_id: profile.id,
+            user_id: (profile as any).id,
             question_id: questionId,
             is_answered: true,
             is_correct: isCorrect,

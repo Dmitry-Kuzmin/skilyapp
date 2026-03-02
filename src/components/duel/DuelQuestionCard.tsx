@@ -111,7 +111,7 @@ export const DuelQuestionCard = memo(({
                   <img
                     src={imageUrl}
                     alt="Question media"
-                    className="w-full h-auto object-contain max-h-[400px] rounded-xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500 will-change-transform"
+                    className="w-full h-auto object-contain max-h-[25vh] md:max-h-[400px] rounded-xl shadow-lg group-hover:scale-[1.02] transition-transform duration-500 will-change-transform"
                   />
                 </div>
 

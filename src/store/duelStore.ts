@@ -265,14 +265,15 @@ export const useDuelStore = create<DuelState>()(
 
             // --- New Actions Implementation ---
             syncActiveExploits: (incomingExploits) => set((state) => {
+                // ИСПРАВЛЕНИЕ: Если входящий массив пуст — НЕ очищаем стор.
+                // Это устраняет race condition, когда realtimeState.activeExploits
+                // временно становится пустым между polling-итерациями.
+                // Очистка происходит только через cleanupExpiredExploits.
                 if (!incomingExploits || incomingExploits.length === 0) {
-                    if (state.activeExploits.size > 0) {
-                        return { activeExploits: new Map() };
-                    }
                     return state;
                 }
 
-                const newMap = new Map<string, ExploitState>();
+                const newMap = new Map<string, ExploitState>(state.activeExploits);
                 let hasNewAttack = false;
 
                 incomingExploits.forEach(exploit => {
@@ -286,13 +287,11 @@ export const useDuelStore = create<DuelState>()(
                     });
 
                     if (isNew) {
-                        const isAttack = ['screen_injector', 'data_leak', 'oil_spill', 'police_backdoor'].includes(exploit.type);
+                        const isAttack = ['screen_injector', 'data_leak', 'oil_spill', 'police_backdoor', 'input_lag', 'gps_spoofing', 'cryptolocker'].includes(exploit.type);
                         if (isAttack) hasNewAttack = true;
                     }
                 });
 
-                // Only update if map changed size or values (simplified check)
-                // Ideally we should do deep check but Map ref change is enough for React
                 return {
                     activeExploits: newMap,
                     lastAttackTimestamp: hasNewAttack ? Date.now() : state.lastAttackTimestamp

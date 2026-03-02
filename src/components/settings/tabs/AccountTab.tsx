@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { triggerHaptic } from '@/lib/haptics';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfileData } from '@/hooks/useProfileData';
+import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { cn } from "@/lib/utils";
 import { PasskeyManager } from '@/components/auth/PasskeyManager';
 import { useQueryClient } from "@tanstack/react-query";
@@ -134,7 +135,7 @@ export const AccountTab: React.FC = () => {
                     first_name: editedFirstName.trim(),
                     last_name: editedLastName.trim(),
                     updated_at: new Date().toISOString()
-                })
+                } as any)
                 .eq('id', profileData.id);
 
             if (error) throw error;
@@ -230,149 +231,8 @@ export const AccountTab: React.FC = () => {
     };
 
     // Avatar Upload State
-    const [isUploading, setIsUploading] = useState(false);
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const { isUploading, fileInputRef, handleAvatarClick, handleAvatarUpload } = useAvatarUpload();
 
-    const handleAvatarClick = () => {
-        triggerHaptic('light');
-        fileInputRef.current?.click();
-    };
-
-    const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        // КРИТИЧНО: Используем supabaseUser.id для Storage (RLS) и profileData.id для DB
-        if (!supabaseUser?.id || !profileData?.id) {
-            toast.error('Ошибка: данные пользователя не загружены');
-            console.error('Avatar upload failed: Missing IDs', { supabaseUserId: !!supabaseUser?.id, profileId: !!profileData?.id });
-            return;
-        }
-
-        let fileToUpload = file;
-
-        // ПОДДЕРЖКА HEIC (iPhone): Конвертируем в JPEG, так как браузеры и Supabase не любят HEIC
-        const isHeic = file.type === 'image/heic' || file.name.toLowerCase().endsWith('.heic');
-
-        const toastId = 'avatar-upload-tab';
-        toast.loading(isHeic ? 'Конвертируем HEIC в JPEG...' : 'Загружаем аватар...', { id: toastId });
-
-        try {
-            setIsUploading(true);
-
-            if (isHeic) {
-                try {
-                    // Попытка 1: Используем heic2any
-                    try {
-                        const heic2anyModule = await import('heic2any');
-                        const heic2any = (heic2anyModule as any).default || heic2anyModule;
-
-                        console.log('[AvatarUpload] Attempting heic2any conversion...');
-                        const convertedBlob = await heic2any({
-                            blob: file,
-                            toType: 'image/jpeg',
-                            quality: 0.8
-                        });
-
-                        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                        if (blob && blob.size > 0) {
-                            fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
-                            console.log('[AvatarUpload] heic2any success');
-                        } else {
-                            throw new Error('Empty blob from heic2any');
-                        }
-                    } catch (libErr) {
-                        console.warn('[AvatarUpload] heic2any failed, trying native Safari fallback:', libErr);
-
-                        // Попытка 2: Нативный Safari Fallback (через Canvas)
-                        // Safari умеет рисовать HEIC на канвас напрямую
-                        fileToUpload = await new Promise((resolve, reject) => {
-                            const url = URL.createObjectURL(file);
-                            const img = new Image();
-                            img.onload = () => {
-                                URL.revokeObjectURL(url);
-                                const canvas = document.createElement('canvas');
-                                canvas.width = img.naturalWidth;
-                                canvas.height = img.naturalHeight;
-                                const ctx = canvas.getContext('2d');
-                                if (!ctx) {
-                                    reject(new Error('Canvas context not available'));
-                                    return;
-                                }
-                                ctx.drawImage(img, 0, 0);
-                                canvas.toBlob((blob) => {
-                                    if (blob) {
-                                        resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
-                                    } else {
-                                        reject(new Error('Canvas toBlob failed'));
-                                    }
-                                }, 'image/jpeg', 0.9);
-                            };
-                            img.onerror = () => {
-                                URL.revokeObjectURL(url);
-                                reject(new Error('Native rendering failed'));
-                            };
-                            img.src = url;
-
-                            // Таймаут на загрузку нативного рендеринга
-                            setTimeout(() => reject(new Error('Timeout')), 5000);
-                        }) as File;
-                        console.log('[AvatarUpload] Native Safari conversion success');
-                    }
-
-                    toast.loading('Загружаем подготовленное фото...', { id: toastId });
-                } catch (convErr: any) {
-                    console.error('[AvatarUpload] All HEIC conversion attempts failed:', convErr);
-                    throw new Error('Ваш формат фото слишком новый для обработки. Сделайте скриншот этого фото и загрузите его — это сработает мгновенно!');
-                }
-            }
-
-            // КРИТИЧНО: Папка должна называться как auth.uid()
-            const fileExt = fileToUpload.name.split('.').pop() || 'jpg';
-            const filePath = `${supabaseUser.id}/${Date.now()}.${fileExt}`;
-
-            // 1. Upload to Supabase Storage - БЕЗ refreshSession (он ломает токены)
-            const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(filePath, fileToUpload, {
-                    upsert: true,
-                    contentType: fileToUpload.type
-                });
-
-            if (uploadError) throw uploadError;
-
-            // 2. Get Public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(filePath);
-
-            // 3. Update Profile - используем profileData.id (UUID из таблицы profiles)
-            const { error: updateError } = await supabase
-                .from('profiles')
-                .update({
-                    photo_url: publicUrl,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', profileData.id);
-
-            if (updateError) throw updateError;
-
-            // 4. БЕЗОПАСНОЕ обновление UI через React Query (не трогает auth)
-            toast.success('Аватар обновлён!', { id: toastId });
-
-            queryClient.invalidateQueries({ queryKey: ['profile-data'] });
-            queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
-
-        } catch (error: any) {
-            console.error('Avatar upload error:', error);
-            toast.error(`Не удалось загрузить аватар: ${error.message || 'Ошибка сети'}`, { id: toastId });
-        } finally {
-            setIsUploading(false);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        }
-    };
 
     return (
         <div className="space-y-6">

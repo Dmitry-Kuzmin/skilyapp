@@ -3,6 +3,7 @@ import { User, AlertTriangle, ShieldCheck, ShieldAlert, TrendingUp, Check, Flame
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import PuntosIndicator from './PuntosIndicator3D';
 
 interface LicenseCardProps {
@@ -190,6 +191,9 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     const [imageError, setImageError] = useState(false);
     const [isPointsModalOpen, setIsPointsModalOpen] = useState(false);
 
+    // Avatar Upload Logic
+    const { isUploading, fileInputRef, handleAvatarClick, handleAvatarUpload } = useAvatarUpload();
+
     const RecoveryOverlay = isSuspended && (
         <div className="absolute inset-0 z-[60] bg-[#0F1014]/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center animate-in fade-in duration-700 rounded-[28px] md:rounded-[36px]">
             <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mb-4">
@@ -303,10 +307,22 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 <div className="flex-1 p-3 md:p-5 flex flex-row gap-4 md:gap-6 z-10 relative mt-0 md:mt-1">
                     {/* Left Side: User Photo Area */}
                     <div className="flex flex-col gap-2 shrink-0">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                            accept="image/*"
+                            disabled={isUploading}
+                        />
                         <div className={cn(
                             "w-20 h-28 sm:w-24 sm:h-[120px] md:w-[100px] md:h-[136px] rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
-                            isDarkTheme ? "border-white/10 bg-black/40" : "border-slate-200/80 bg-slate-50"
-                        )}>
+                            isDarkTheme ? "border-white/10 bg-black/40" : "border-slate-200/80 bg-slate-50",
+                            "cursor-pointer active:scale-[0.98] transition-all",
+                            isUploading && "opacity-50"
+                        )}
+                            onClick={handleAvatarClick}
+                        >
                             {/* Face Recognition Guides */}
                             <div className="absolute top-2 left-2 w-2 h-2 border-t-2 border-l-2 border-indigo-500/50 rounded-tl-sm z-20" />
                             <div className="absolute top-2 right-2 w-2 h-2 border-t-2 border-r-2 border-indigo-500/50 rounded-tr-sm z-20" />
@@ -320,6 +336,10 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     className="w-full h-full object-cover transition-all"
                                     onError={() => setImageError(true)}
                                 />
+                            ) : isUploading ? (
+                                <div className="w-full h-full flex flex-col items-center justify-center">
+                                    <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                                </div>
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400">
                                     <Camera size={28} className="opacity-50 mb-2" />

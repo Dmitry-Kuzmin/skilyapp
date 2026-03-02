@@ -2,9 +2,10 @@ import { useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { clearTestProgress } from '@/lib/localTestProgress';
+import { clearTestProgress } from '@/utils/testStorage';
 import { checkOnlineStatus } from '@/hooks/useOnlineStatus';
-import { enqueueOfflineAction, trackOfflineAction } from '@/utils/offlineAnalytics';
+import { trackOfflineAction } from '@/utils/offlineAnalytics';
+import { useOfflineQueue } from '@/hooks/useOfflineQueue';
 import type { QuestionData, Answer } from '@/types/question';
 
 interface TestRewardResult {
@@ -89,6 +90,9 @@ export function useTestFinisher(options: UseTestFinisherOptions): UseTestFinishe
 
     const navigate = useNavigate();
     const isFinishingRef = useRef(false);
+
+    // Get enqueue function from useOfflineQueue hook
+    const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
 
     const finishTest = useCallback(async () => {
         if (isFinishingRef.current) return;
