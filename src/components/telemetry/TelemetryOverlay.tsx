@@ -66,74 +66,43 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: any) {
     );
 }
 
-function FlightLevels({ currentStatus, language }: { currentStatus: string, language: string }) {
+function FlightNavigation({ currentStatus, language }: { currentStatus: string, language: string }) {
     const levels = [
-        {
-            id: 'start',
-            name: language === 'ru' ? 'СТАРТ' : 'INICIO',
-            range: '0-30%',
-            desc: language === 'ru' ? 'Двигатель запускается. Путь только начинается.' : 'El motor arranca. El camino acaba de empezar.',
-            color: '#94a3b8'
-        },
-        {
-            id: 'progress',
-            name: language === 'ru' ? 'В ПРОЦЕССЕ' : 'EN PROCESO',
-            range: '31-70%',
-            desc: language === 'ru' ? 'Набираем скорость. Усилия уже заметны.' : 'Ganando velocidad. Los esfuerzos ya son visibles.',
-            color: '#f59e0b'
-        },
-        {
-            id: 'near',
-            name: language === 'ru' ? 'ПОЧТИ ГОТОВ' : 'CASI LISTO',
-            range: '71-85%',
-            desc: language === 'ru' ? 'Видим финишную прямую. Нужна концентрация.' : 'Vemos la meta. Se necesita concentración.',
-            color: '#eab308'
-        },
-        {
-            id: 'ready',
-            name: language === 'ru' ? 'ГОТОВ' : 'LISTO',
-            range: '86-100%',
-            desc: language === 'ru' ? 'Максимальная готовность. Пора сдавать!' : 'Máxima preparación. ¡Es hora del examen!',
-            color: '#10b981'
-        }
+        { id: 'start', name: language === 'ru' ? 'СТАРТ' : 'INI', range: '0-30%', color: '#94a3b8' },
+        { id: 'progress', name: language === 'ru' ? 'КУРС' : 'CRS', range: '31-70%', color: '#f59e0b' },
+        { id: 'near', name: language === 'ru' ? 'ПОДЛЕТ' : 'APP', range: '71-85%', color: '#eab308' },
+        { id: 'ready', name: language === 'ru' ? 'ГОТОВ' : 'RDY', range: '86-100%', color: '#10b981' }
     ];
 
-    return (
-        <div className="space-y-4 md:space-y-6">
-            <h3 className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4 md:mb-6 px-1">
-                {language === 'ru' ? 'УРОВНИ ПОЛЕТА' : 'NIVELES DE VUELO'}
-            </h3>
-            <div className="relative space-y-6 md:space-y-8 pl-8">
-                {/* Vertical line */}
-                <div className="absolute left-[11.5px] top-2 bottom-2 w-[1px] bg-white/10" />
+    const currentIndex = levels.findIndex(l => l.id === (currentStatus === 'legend' ? 'ready' : currentStatus));
 
-                {levels.map((lvl) => {
+    return (
+        <div className="relative pt-2 pb-6">
+            <div className="absolute top-[17px] left-4 right-4 h-[1px] bg-white/5" />
+            <div className="relative flex justify-between items-center px-4">
+                {levels.map((lvl, idx) => {
                     const isActive = currentStatus === lvl.id || (currentStatus === 'legend' && lvl.id === 'ready');
+                    const isPast = idx < currentIndex;
 
                     return (
-                        <div key={lvl.id} className={cn("relative transition-all duration-500", !isActive && "opacity-20")}>
-                            {/* Circle Indicator */}
+                        <div key={lvl.id} className="flex flex-col items-center gap-2 group">
                             <div className={cn(
-                                "absolute -left-8 top-1 w-6 h-6 rounded-full border bg-zinc-950 flex items-center justify-center transition-all duration-500 z-10",
-                                isActive ? "border-current scale-110 shadow-[0_0_15px_-3px_currentColor]" : "border-slate-800"
-                            )} style={{ color: isActive ? lvl.color : 'transparent' }}>
-                                <div className={cn(
-                                    "w-2 h-2 rounded-full transition-all duration-500",
-                                    isActive ? "bg-white animate-pulse" : "bg-slate-800"
-                                )} />
+                                "relative w-2.5 h-2.5 rounded-full border-2 transition-all duration-700 z-10",
+                                isActive ? "bg-white border-current scale-150 shadow-[0_0_15px_currentColor]" :
+                                    isPast ? "bg-current border-current" : "bg-zinc-950 border-slate-800"
+                            )} style={{ color: lvl.color }}>
                                 {isActive && (
-                                    <div className="absolute inset-[-4px] rounded-full border border-current opacity-30 animate-pulse" />
+                                    <div className="absolute inset-[-4px] rounded-full border border-current opacity-30 animate-ping" />
                                 )}
                             </div>
-
-                            <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] md:text-[11px] font-black tracking-widest text-white uppercase">{lvl.name}</span>
-                                    <span className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-[8px] md:text-[10px] font-black text-slate-500">{lvl.range}</span>
-                                </div>
-                                <p className="text-[9px] md:text-[10px] text-slate-400 font-medium leading-relaxed max-w-[200px]">
-                                    {lvl.desc}
-                                </p>
+                            <div className="flex flex-col items-center">
+                                <span className={cn(
+                                    "text-[8px] font-black tracking-widest uppercase transition-colors duration-500",
+                                    isActive ? "text-white" : "text-slate-600"
+                                )}>
+                                    {lvl.name}
+                                </span>
+                                <span className="text-[7px] font-bold text-slate-700 tabular-nums">{lvl.range}</span>
                             </div>
                         </div>
                     );
@@ -229,133 +198,84 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                     style={{ background: `radial-gradient(circle at 70% 50%, ${status.fill}40 0%, transparent 60%)` }}
                 />
 
-                <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
-                    {/* Left Section: The Journey (Flight Levels) */}
-                    <div className="lg:col-span-3 p-6 md:p-8 bg-black/20">
-                        <FlightLevels currentStatus={readiness?.status || 'start'} language={language} />
-                    </div>
+                <div className="relative">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/10 border-b border-white/10">
+                        {/* Left Section: Main Instrument (Gauge) */}
+                        <div className="lg:col-span-6 p-10 md:p-14 flex flex-col items-center justify-center relative bg-black/5">
+                            <div className="relative w-56 h-56 md:w-64 md:h-64 flex-shrink-0 group">
+                                <div className="absolute inset-0 rounded-full border border-white/5 bg-zinc-950/40 shadow-[inset_0_0_50px_rgba(0,0,0,0.5)]" />
+                                <div className="absolute inset-[-30px] rounded-full bg-indigo-500/5 blur-3xl opacity-30 group-hover:opacity-60 transition-opacity duration-1000" />
 
-                    {/* Center Section: Core Instrument (Gauge) */}
-                    <div className="lg:col-span-4 p-8 md:p-12 flex flex-col items-center justify-center relative overflow-hidden">
-                        {/* Decorative background glow */}
-                        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-indigo-500/10 to-transparent pointer-events-none" />
-
-                        <div className="relative w-56 h-56 md:w-64 md:h-64 flex-shrink-0 group">
-                            {/* Inner glow and rings */}
-                            <div className="absolute inset-0 rounded-full border border-white/5 bg-zinc-950/40 shadow-[inset_0_0_40px_rgba(0,0,0,0.4)]" />
-                            <div className="absolute inset-4 rounded-full border border-white/[0.03]" />
-                            <div className="absolute inset-[-20px] rounded-full bg-indigo-500/5 blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
-
-                            <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]" viewBox="0 0 100 100">
-                                {/* Base track */}
-                                <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="8" strokeLinecap="round" />
-                                {/* Progress track */}
-                                <circle
-                                    cx="50" cy="50" r="44" fill="none"
-                                    stroke={status.fill}
-                                    strokeWidth="8"
-                                    strokeLinecap="round"
-                                    strokeDasharray={276}
-                                    strokeDashoffset={276 - (276 * score) / 100}
-                                    style={{
-                                        transition: 'stroke-dashoffset 2s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                                        filter: `drop-shadow(0 0 12px ${status.fill}60)`
-                                    }}
-                                />
-                                {/* Decorative ticks around the circle */}
-                                {[...Array(36)].map((_, i) => (
-                                    <line
-                                        key={i}
-                                        x1="50" y1="6"
-                                        x2="50" y2="10"
-                                        transform={`rotate(${i * 10} 50 50)`}
-                                        stroke="rgba(255,255,255,0.1)"
-                                        strokeWidth="1"
+                                <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_25px_rgba(0,0,0,0.6)]" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="8" />
+                                    <circle
+                                        cx="50" cy="50" r="44" fill="none"
+                                        stroke={status.fill}
+                                        strokeWidth="8"
+                                        strokeLinecap="round"
+                                        strokeDasharray={276}
+                                        strokeDashoffset={276 - (276 * score) / 100}
+                                        style={{ transition: 'stroke-dashoffset 2.5s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+                                        className="drop-shadow-[0_0_15px_currentColor]"
                                     />
-                                ))}
-                            </svg>
+                                    {[...Array(36)].map((_, i) => (
+                                        <line key={i} x1="50" y1="6" x2="50" y2="9" transform={`rotate(${i * 10} 50 50)`} stroke="rgba(255,255,255,0.1)" strokeWidth="0.8" />
+                                    ))}
+                                </svg>
 
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <motion.span
-                                    initial={{ scale: 0.8, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    className="text-6xl md:text-7xl font-black tracking-tighter text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]"
-                                >
-                                    {score}%
-                                </motion.span>
-                                <div className="mt-2 flex items-center gap-2">
-                                    <ActivityIcon className="w-3 h-3 text-slate-500 animate-pulse" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
-                                        Pass Prob
-                                    </span>
+                                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                    <motion.span initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-6xl md:text-7xl font-black tracking-tighter text-white">
+                                        {score}%
+                                    </motion.span>
+                                    <div className="mt-2 flex items-center gap-2 opacity-40">
+                                        <ActivityIcon className="w-3 h-3" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Pass Prob</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Status Label below gauge */}
-                        <div className="mt-8 flex flex-col items-center gap-2">
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{language === 'ru' ? 'ТЕКУЩИЙ УРОВЕНЬ' : 'NIVEL ACTUAL'}</span>
-                            <div className={cn(
-                                "px-4 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest transition-all",
-                                readiness?.status === 'legend' ? 'bg-purple-500/10 border-purple-500/30 text-purple-400' :
-                                    readiness?.status === 'ready' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' :
-                                        readiness?.status === 'near' ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400' :
-                                            readiness?.status === 'progress' ? 'bg-orange-500/10 border-orange-500/30 text-orange-400' : 'bg-slate-500/10 border-slate-500/30 text-slate-400'
-                            )}>
-                                {readiness?.status || 'START'}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Section: Verdict & Detailed Metrics */}
-                    <div className="lg:col-span-5 p-8 md:p-10 flex flex-col justify-start">
-                        <div className="flex flex-col h-full">
-                            {/* Verdict Header */}
-                            <div className="mb-8 p-6 rounded-[2rem] bg-indigo-500/[0.03] border border-white/5 relative overflow-hidden">
-                                <Sparkles className="absolute -top-2 -right-2 w-12 h-12 text-indigo-500/10 rotate-12" />
-                                <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter leading-none mb-4">
-                                    {readiness?.shortText || 'Анализ...'}
-                                </h2>
-                                <p className="text-[13px] text-slate-400 font-medium leading-relaxed italic opacity-80">
-                                    "{readiness?.statusText}"
-                                </p>
-                            </div>
-
-                            {/* Adaptive Stats Stack */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4 lg:flex-1">
-                                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center gap-5 group hover:bg-white/[0.05] transition-all">
-                                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 group-hover:scale-110 transition-transform">
-                                        <Target className="w-6 h-6 text-indigo-400" />
+                        {/* Right Section: Detailed Verdict */}
+                        <div className="lg:col-span-6 p-8 md:p-12 flex flex-col justify-center bg-white/[0.01]">
+                            <div className="space-y-8">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="w-4 h-4 text-violet-400" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Системный вердикт</span>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">{language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIANZA'}</span>
+                                    <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter leading-[0.9]">
+                                        {readiness?.shortText || 'Анализ...'}
+                                    </h2>
+                                    <div className="bg-white/5 rounded-2xl p-5 border border-white/10 backdrop-blur-sm">
+                                        <p className="text-sm md:text-base text-slate-400 font-medium leading-relaxed italic border-l-2 border-indigo-500/50 pl-4">
+                                            "{readiness?.statusText}"
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Уверенность</span>
                                         <span className="text-2xl font-black text-white tabular-nums">
                                             {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
                                         </span>
                                     </div>
-                                </div>
-
-                                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center gap-5 group hover:bg-white/[0.05] transition-all">
-                                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                                        <Rocket className="w-6 h-6 text-emerald-400" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">{language === 'ru' ? 'ЦЕЛЬ' : 'META'}</span>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Цель</span>
                                         <span className="text-2xl font-black text-emerald-400 tabular-nums">75%</span>
                                     </div>
-                                </div>
-
-                                <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05] flex items-center gap-5 group hover:bg-white/[0.05] transition-all">
-                                    <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
-                                        <Award className="w-6 h-6 text-amber-400" />
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-0.5">RANK</span>
-                                        <span className="text-2xl font-black text-amber-400 tabular-nums">#420</span>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Rank</span>
+                                        <span className="text-2xl font-black text-amber-500 tabular-nums">#420</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    {/* Bottom Full-width Navigation Path */}
+                    <div className="px-10 py-6 bg-black/40">
+                        <FlightNavigation currentStatus={readiness?.status || 'start'} language={language} />
                     </div>
                 </div>
             </div>
