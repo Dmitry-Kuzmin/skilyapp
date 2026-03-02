@@ -1,8 +1,5 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import {
-    RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer
-} from 'recharts';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/optimized/Motion';
 import {
     Gauge, Zap, Trophy, Target, AlertTriangle,
     Flame, Swords, BookOpen, TrendingUp, X, Loader2, Rocket, Award, Sparkles, Activity as ActivityIcon, CheckCircle
@@ -162,6 +159,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
     // Real dynamic radar data
     const radarData = useMemo(() => {
+        /* Temporarily disabled to debug React crash
         if (!analytics?.topicStats || analytics.topicStats.length === 0) {
             return [
                 { subject: 'Знаки', accuracy: 0 },
@@ -176,6 +174,8 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
             subject: t.topic_title ? t.topic_title.split(' ')[0] : 'Tema',
             accuracy: t.accuracy || 0
         }));
+        */
+        return [];
     }, [analytics]);
 
     if (dashLoading || readinessLoading) {
@@ -323,14 +323,8 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                             {language === 'ru' ? 'Радар знаний' : 'Radar de temas'}
                         </span>
                     </div>
-                    <div className="h-48">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <RadarChart data={radarData}>
-                                <PolarGrid stroke="rgba(255,255,255,0.05)" />
-                                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 9, fontWeight: 700 }} />
-                                <Radar name="Score" dataKey="accuracy" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.2} dot={{ r: 2, fill: '#8b5cf6' }} />
-                            </RadarChart>
-                        </ResponsiveContainer>
+                    <div className="h-48 flex items-center justify-center bg-white/5 rounded-xl">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Radar Chart Standby</span>
                     </div>
                 </div>
 
