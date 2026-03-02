@@ -135,7 +135,14 @@ export function useDuelGame({
       });
 
       setMyPlayerId(players.myPlayerId);
-      setMyScore(players.myScore);
+
+      // КРИТИЧНО: Синхронизируем счет только если он больше текущего (защита от stale data)
+      const currentMyScore = useDuelStore.getState().myScore;
+      if (typeof players.myScore === 'number' && players.myScore > currentMyScore) {
+        log('[useDuelGame] ✅ Syncing my score:', players.myScore, '(was:', currentMyScore, ')');
+        setMyScore(players.myScore);
+      }
+
       setOpponentScore(players.opponentScore);
       setPlayers(players.players);
 
@@ -373,7 +380,13 @@ export function useDuelGame({
       }
 
       if (data && data.new_score !== undefined) {
-        setMyScore(data.new_score);
+        const currentScore = useDuelStore.getState().myScore;
+        // КРИТИЧНО: Обновляем только если счет увеличился или это первый вопрос (счет 0)
+        if (data.new_score >= currentScore) {
+          setMyScore(data.new_score);
+        } else {
+          logWarn('[useDuelGame] ⚠️ Server returned LOWER score than local:', { server: data.new_score, local: currentScore });
+        }
 
         const serverCombo = data.combo !== undefined ? data.combo : 0;
         setCombo(serverCombo);

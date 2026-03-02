@@ -202,7 +202,7 @@ export const DuelScoreBoard = memo(({
         <div className="min-w-0 flex flex-col items-start gap-0.5">
           <div className="flex items-center gap-1 min-w-0">
             <p className="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[50px] md:max-w-none" title={myName || 'Ты'}>{myDisplayName}</p>
-            <div className="text-base md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center overflow-visible">
+            <div className="text-base md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center overflow-visible [transform:translateZ(0)]">
               <AnimatedCounter value={myScore} />
             </div>
           </div>
@@ -229,7 +229,7 @@ export const DuelScoreBoard = memo(({
       >
         <div className="min-w-0 flex-1 flex flex-col items-end gap-0.5">
           <div className="flex items-center justify-end gap-1 min-w-0">
-            <div className="text-base md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center justify-end overflow-visible">
+            <div className="text-base md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center justify-end overflow-visible [transform:translateZ(0)]">
               <AnimatedCounter value={opponentScore} />
             </div>
             <p

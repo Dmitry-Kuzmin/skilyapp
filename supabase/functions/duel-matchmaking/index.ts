@@ -470,6 +470,8 @@ Deno.serve(async (req) => {
                     insurance_rate,
                     insurance_coverage_rate,
                     license_category,
+                    rematch_opponent_id,
+                    rematch_bot_name,
                 } = validated;
 
                 const { data: playerProfile } = await supabase
@@ -525,6 +527,119 @@ Deno.serve(async (req) => {
 
                 if (categories && Array.isArray(categories) && categories.length > 0) {
                     queueData.categories = categories;
+                }
+
+                // РЕВАНШ С ДРУГОМ: создаём приватную дуэль и уведомляем оппонента
+                if (rematch_opponent_id) {
+                    console.log(`[find_match] 🔄 Rematch requested with opponent: ${rematch_opponent_id}`);
+
+                    const rematchCode = generateDuelCode();
+                    const questionSeed = Math.floor(Date.now() * 1000 + Math.random() * 1000000);
+                    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+                    const { data: rematchDuel, error: rematchDuelError } = await supabase
+                        .from('duels')
+                        .insert({
+                            code: rematchCode,
+                            host_user: profileId,
+                            num_questions,
+                            categories,
+                            difficulty,
+                            question_seed: questionSeed,
+                            bet_amount: bet_amount,
+                            bet_type: bet_amount > 0 ? bet_type : 'none',
+                            expires_at: expiresAt,
+                            country: playerCountry,
+                            status: 'waiting',
+                        })
+                        .select()
+                        .single();
+
+                    if (rematchDuelError || !rematchDuel) {
+                        // Возвращаем монеты при ошибке
+                        if (bet_amount > 0) {
+                            const requiredCoins = bet_amount + (hostInsurance.premium || 0);
+                            await supabase.rpc('increment_profile_value', {
+                                p_profile_id: profileId,
+                                p_column: 'coins',
+                                p_amount: requiredCoins
+                            });
+                        }
+                        throw rematchDuelError || new Error('Failed to create rematch duel');
+                    }
+
+                    // Обновляем страховку хоста
+                    if (hostInsurance.enabled) {
+                        await supabase
+                            .from('duel_players')
+                            .update({
+                                insurance_enabled: hostInsurance.enabled,
+                                insurance_premium: hostInsurance.premium,
+                                insurance_coverage_rate: hostInsurance.coverageRate,
+                            })
+                            .eq('duel_id', rematchDuel.id)
+                            .eq('user_id', profileId);
+                    }
+
+                    // Получаем имя инициатора для уведомления
+                    const { data: senderProfile } = await supabase
+                        .from('profiles')
+                        .select('first_name, username, telegram_id')
+                        .eq('id', profileId)
+                        .maybeSingle();
+
+                    const senderName = senderProfile?.first_name || senderProfile?.username || 'Соперник';
+
+                    // Получаем telegram_id получателя (оппонента)
+                    const { data: opponentProfile } = await supabase
+                        .from('profiles')
+                        .select('telegram_id, first_name')
+                        .eq('id', rematch_opponent_id)
+                        .maybeSingle();
+
+                    // Отправляем Telegram уведомление через Edge Function bot (если есть telegram_id)
+                    if (opponentProfile?.telegram_id) {
+                        try {
+                            const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN');
+                            const appUrl = Deno.env.get('APP_URL') || 'https://skilyapp.com';
+                            if (botToken) {
+                                const deepLink = `${appUrl}/games/duel?code=${rematchCode}`;
+                                const messageText = `⚔️ *${senderName}* вызывает тебя на реванш!\n\nНажми кнопку ниже, чтобы принять вызов.`;
+
+                                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        chat_id: opponentProfile.telegram_id,
+                                        text: messageText,
+                                        parse_mode: 'Markdown',
+                                        reply_markup: {
+                                            inline_keyboard: [[{
+                                                text: '⚔️ Принять реванш',
+                                                url: deepLink
+                                            }]]
+                                        }
+                                    })
+                                });
+                                console.log(`[find_match] ✅ Rematch notification sent to telegram_id: ${opponentProfile.telegram_id}`);
+                            }
+                        } catch (notifyError) {
+                            // Не блокируем создание дуэли если уведомление не прошло
+                            console.error('[find_match] ⚠️ Failed to send rematch notification:', notifyError);
+                        }
+                    } else {
+                        console.warn(`[find_match] ⚠️ No telegram_id for opponent ${rematch_opponent_id}, skipping notification`);
+                    }
+
+                    return new Response(JSON.stringify({
+                        duel: rematchDuel,
+                        code: rematchCode,
+                        auto_started: false,
+                        opponent_type: 'human',
+                        rematch_notification_sent: !!opponentProfile?.telegram_id
+                    }), {
+                        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    });
                 }
 
                 await supabase.from('duel_matchmaking_queue').insert(queueData);

@@ -1071,15 +1071,22 @@ export default function Duel() {
                     toast.success((data as any).opponent_type === 'bot' ? `Соперник ${(data as any).bot_name || 'найден'}!` : 'Соперник найден!');
                 }
             } else {
-                // FALLBACK: Если не автозапуск (например, нашли реального игрока, но нужно ждать подтверждения)
+                // FALLBACK: Если не автозапуск (реванш с другом — ждём его присоединения)
                 if (isActuallyRematch) {
-                    console.log('[Duel] 🔄 Rematch fallback: forcing battle start for bot or showing error');
+                    console.log('[Duel] 🔄 Rematch with human: waiting in lobby for friend');
                     if ((data as any).opponent_type === 'bot') {
                         handleDuelStarted((data as any).duel.id);
                     } else {
-                        // Для людей - переходим в лобби
-                        setCreatedCode((data as any).duel.code);
+                        // Реванш с живым другом — переходим в лобби с кодом
+                        setCreatedCode((data as any).duel.code || (data as any).code);
                         setMode('create');
+                        setConnectionStatus('checking');
+                        setWaitTime(0);
+                        if ((data as any).rematch_notification_sent) {
+                            toast.success(`⚔️ Вызов отправлен ${activeRematchOpponent?.name || 'другу'}! Ждём его в лобби...`, { duration: 5000 });
+                        } else {
+                            toast.info(`⚔️ Дуэль создана! Отправь другу код: ${(data as any).duel.code || (data as any).code}`, { duration: 8000 });
+                        }
                     }
                 } else {
                     setCreatedCode((data as any).duel.code);
@@ -2637,6 +2644,11 @@ export default function Duel() {
                                 console.log('[Duel] 🔄 Rematch initiated:', { isBotRematch, opponentData });
                                 duelResultSnapshotRef.current = null;
 
+                                // КРИТИЧНО: Очищаем activeDuel ПЕРЕД сбросом duelId,
+                                // иначе useEffect восстановления прочитает старый activeDuel
+                                // и перебросит пользователя обратно на экран результатов.
+                                clearActiveDuel();
+
                                 setDuelId(null);
                                 setDuelCode(null);
                                 setCreatedCode(null);
@@ -2644,7 +2656,7 @@ export default function Duel() {
                                 setSearchParams(new URLSearchParams());
 
                                 setRematchOpponent(opponentData);
-                                setRematchInsuranceEnabled(true); // По умолчанию страховка включена
+                                setRematchInsuranceEnabled(true);
 
                                 if (isBotRematch) {
                                     setDuelMode('random');

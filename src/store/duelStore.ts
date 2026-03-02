@@ -143,6 +143,8 @@ interface DuelState {
         opponentLastSeen: string | null;
     }>) => void;
 
+    setExploitPassed: (type: string) => void;
+
 
     // Reset logic
     resetGame: () => void;
@@ -161,7 +163,7 @@ const initialState = {
     opponentName: '',
     myPhotoUrl: null,
     opponentPhotoUrl: null,
-    opponentActivityStatus: 'online',
+    opponentActivityStatus: 'online' as const,
     betInfo: null,
 
 

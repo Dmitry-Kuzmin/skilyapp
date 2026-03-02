@@ -413,20 +413,22 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     };
   }, []);
 
-  // Sync opponent score from realtime - основной способ обновления  // Sync my score from realtime
+  // 🔄 SYNC SCORES FROM REALTIME
   useEffect(() => {
-    // Обновляем только если новое значение является валидным числом
-    if (typeof realtimeState.myScore === 'number' && realtimeState.myScore >= 0) {
-      if (myScore !== realtimeState.myScore) {
-        if (myScore > 0 && realtimeState.myScore === 0) {
-          logWarn('[DuelBattleFullscreen] ⚠️ Score reset to 0 via realtime (was:', myScore, ', new:', realtimeState.myScore, ')');
-        } else {
-          log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', realtimeState.myScore, '(was:', myScore, ')');
-        }
-        setMyScore(realtimeState.myScore);
+    // 1. Sync my score (safety net) - only if it's an increase to prevent stale 0 resets
+    if (typeof realtimeState.myScore === 'number' && realtimeState.myScore > myScore) {
+      log('[DuelBattleFullscreen] ✅ Updating my score from realtime:', realtimeState.myScore, '(was:', myScore, ')');
+      setMyScore(realtimeState.myScore);
+    }
+
+    // 2. Sync opponent score (Main source of truth for opponent)
+    if (typeof realtimeState.opponentScore === 'number' && realtimeState.opponentScore >= 0) {
+      if (opponentScore !== realtimeState.opponentScore) {
+        log('[DuelBattleFullscreen] 🤖 Updating opponent score from realtime:', realtimeState.opponentScore, '(was:', opponentScore, ')');
+        setOpponentScore(realtimeState.opponentScore);
       }
     }
-  }, [realtimeState.myScore, myScore, setMyScore]);
+  }, [realtimeState.myScore, realtimeState.opponentScore, myScore, opponentScore, setMyScore, setOpponentScore]);
 
   // УБРАНО: Периодическое обновление счета - теперь используется Realtime через useDuelRealtime
   // useDuelRealtime уже подписывается на изменения duel_players через postgres_changes
@@ -440,7 +442,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         .select('code')
         .eq('id', duelId)
         .single()
-        .then(({ data }) => {
+        .then(({ data }: { data: any }) => {
           if (data?.code) {
             setDuelCode(data.code);
           }
