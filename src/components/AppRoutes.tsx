@@ -91,6 +91,7 @@ const Pricing = lazy(() => import("../pages/Pricing"));
 const Legal = lazy(() => import("../pages/Legal"));
 const LegalRedirect = lazy(() => import("../pages/Legal").then(m => ({ default: m.LegalRedirect })));
 const HelpCenter = lazy(() => import("../pages/HelpCenter"));
+const Changelog = lazy(() => import("../pages/Changelog"));
 const HandbookRussia = lazy(() => import("../pages/RussiaHandbook"));
 const HandbookRussiaArticle = lazy(() => import("../pages/RussiaHandbookArticle"));
 const Partners = lazy(() => import("../pages/Partners"));
@@ -385,6 +386,11 @@ export function AppRoutes() {
       <Route path="/pricing" element={
         <Suspense fallback={<PageSkeleton />}>
           <Pricing />
+        </Suspense>
+      } />
+      <Route path="/help/changelog" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <Changelog />
         </Suspense>
       } />
       <Route path="/help" element={

@@ -21,7 +21,8 @@ import {
   Users,
   Bell,
   ShoppingBag,
-  Palette
+  Palette,
+  Rocket
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isTelegramMiniApp } from "@/lib/telegram";
@@ -1315,6 +1316,28 @@ Premium подписка включает все преимущества, оп�
                   </Card>
                 );
               })}
+            </div>
+
+            {/* Карточка «Что нового» */}
+            <div className="mt-4">
+              <Link
+                to="/help/changelog"
+                className="group flex items-center justify-between p-6 md:p-8 rounded-2xl border-2 border-dashed border-blue-200 dark:border-blue-800/60 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/30 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-lg transition-all duration-200"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                    <Rocket className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">История обновлений</h3>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold">NEW</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Смотри, что изменилось в приложении за последние месяцы</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-blue-400 dark:text-blue-500 group-hover:translate-x-1 transition-transform shrink-0" />
+              </Link>
             </div>
           </div>
         ) : (

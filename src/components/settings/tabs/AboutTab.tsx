@@ -1,5 +1,5 @@
 /**
- * AboutTab - Вкладка "О приложении"
+ * AboutTab - Вкладка «О приложении»
  */
 
 import React from 'react';
@@ -52,6 +52,9 @@ export const AboutTab: React.FC = () => {
     const navigate = useNavigate();
     const { closeSettings } = useSettingsStore();
 
+    // Динамическая версия из глобальной переменной (обновляется при каждом деплое)
+    const appVersion = (window as unknown as Record<string, string>)['APP_VERSION'] ?? '—';
+
     const handleNavigate = (path: string) => {
         closeSettings();
         navigate(path);
@@ -59,7 +62,7 @@ export const AboutTab: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            {/* Ресурсы (бывшее меню футера) */}
+            {/* Ресурсы */}
             <div>
                 <SectionTitle title="Меню" />
                 <div className="space-y-1">
@@ -125,8 +128,8 @@ export const AboutTab: React.FC = () => {
                         label="Cookies"
                         description="Cookie Settings"
                         onClick={() => {
-                            const win = window as any;
-                            const sdk = win.axeptioSDK || win.axeptio || win.Axeptio;
+                            const win = window as unknown as Record<string, { requestConsent?: () => void; openConsentModal?: () => void }>;
+                            const sdk = win['axeptioSDK'] ?? win['axeptio'] ?? win['Axeptio'];
                             if (sdk?.requestConsent) sdk.requestConsent();
                             else if (sdk?.openConsentModal) sdk.openConsentModal();
                         }}
@@ -161,12 +164,30 @@ export const AboutTab: React.FC = () => {
 
             <Separator className="bg-slate-200 dark:bg-slate-700" />
 
-            {/* Версия */}
+            {/* Версия и обновления */}
             <div>
                 <SectionTitle title="Приложение" />
                 <div className="space-y-1">
-                    <SettingRow label="Версия" description="1.0.0-beta">
-                        <span className="text-xs text-slate-400">22.12.2025</span>
+                    {/* Что нового */}
+                    <SettingRow
+                        icon={
+                            <span className="text-base" role="img" aria-label="spark">✨</span>
+                        }
+                        label="Что нового"
+                        description="История обновлений"
+                        onClick={() => handleNavigate('/help/changelog')}
+                    >
+                        <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold">
+                                NEW
+                            </span>
+                            <ChevronRight className="w-4 h-4 text-slate-400" />
+                        </div>
+                    </SettingRow>
+
+                    {/* Текущая версия */}
+                    <SettingRow label="Версия" description={appVersion || '1.0.0-beta'}>
+                        <span className="text-xs text-slate-400">актуальная</span>
                     </SettingRow>
                 </div>
             </div>
