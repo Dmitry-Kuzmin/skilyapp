@@ -2,108 +2,72 @@ import { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
+import { useActiveDuel } from '@/hooks/useActiveDuel';
 import { ReconnectionModal } from './ReconnectionModal';
 import { toast } from 'sonner';
 
 /**
  * Глобальный наблюдатель за активными дуэлями.
- * Показывает модалку восстановления если пользователь ушёл со страницы дуэли
- * пока дуэль ещё активна (краш, перезагрузка, навигация).
  *
- * Логика показа:
- * - Пользователь аутентифицирован
- * - Пользователь НЕ на странице дуэли
- * - В БД есть дуэль со статусом 'active' где пользователь участник
- * - Дуэль не старше 30 минут
- * - Модалка не была явно закрыта пользователем (dismiss)
+ * Логика БЕЗ лишних запросов:
+ * 1. Проверяем ТОЛЬКО если в localStorage есть activeDuel (значит игрок был в игре).
+ * 2. Если localStorage пуст — не делаем НИ ОДНОГО запроса к БД.
+ * 3. Единственный запрос — валидация duelId из localStorage.
+ * 4. После dismiss — очищаем, больше не проверяем до следующего входа в игру.
  */
 export function GlobalDuelWatcher() {
     const { profileId, isAuthenticated } = useUserContext();
     const location = useLocation();
     const navigate = useNavigate();
+    const { activeDuel, clearActiveDuel } = useActiveDuel();
     const [showModal, setShowModal] = useState(false);
     const [activeDuelId, setActiveDuelId] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const checkedRef = useRef(false);
 
-    // Храним id дуэлей, которые пользователь явно закрыл (dismiss) — сбрасывается при перезагрузке
-    const dismissedRef = useRef<Set<string>>(new Set());
-    // Таймер для периодической проверки
-    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const isDuelPage = location.pathname.startsWith('/games/duel');
 
-    const isDuelPage = location.pathname.startsWith('/games/duel') || location.pathname.includes('/game/duel');
-
-    const checkActiveDuel = async () => {
-        if (!profileId || !isAuthenticated || isDuelPage) return;
-
-        try {
-            const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
-
-            // Один запрос: ищем активную дуэль пользователя за последние 30 минут
-            const { data: playerSessions, error } = await supabase
-                .from('duel_players')
-                .select('duel_id, duels!inner(id, status, started_at)')
-                .eq('user_id', profileId)
-                .eq('duels.status', 'active')
-                .gte('duels.started_at', thirtyMinutesAgo)
-                .limit(1) as { data: any[] | null, error: any };
-
-            if (error) {
-                console.error('[GlobalDuelWatcher] Error checking active duels:', error);
-                return;
-            }
-
-            if (!playerSessions || playerSessions.length === 0) {
-                // Активных дуэлей нет — скрываем модалку если показана
-                if (showModal) {
-                    setShowModal(false);
-                    setActiveDuelId(null);
-                }
-                return;
-            }
-
-            const duelId = playerSessions[0].duel_id;
-
-            // Пользователь явно закрыл эту дуэль — не показываем снова
-            if (dismissedRef.current.has(duelId)) return;
-
-            console.log('[GlobalDuelWatcher] ✅ Active duel found, showing modal:', duelId);
-            setActiveDuelId(duelId);
-            setShowModal(true);
-        } catch (err) {
-            console.error('[GlobalDuelWatcher] Unexpected error:', err);
-        }
-    };
-
-    // Запускаем проверку при изменении страницы и периодически (каждые 15 сек)
     useEffect(() => {
-        if (!isAuthenticated || !profileId) return;
+        // Только если:
+        // 1. Пользователь авторизован
+        // 2. Не на странице дуэли
+        // 3. В localStorage есть activeDuel с duelId (игрок был в игре)
+        // 4. Ещё не проверяли в этой сессии
+        if (!isAuthenticated || !profileId || isDuelPage || checkedRef.current) return;
+        if (!activeDuel?.duelId) return;
 
-        if (isDuelPage) {
-            // На странице дуэли скрываем модалку — пользователь уже там
-            setShowModal(false);
+        checkedRef.current = true;
 
-            // Очищаем интервал — не нужен пока в игре
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-            return;
-        }
+        const validate = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('duels')
+                    .select('status')
+                    .eq('id', activeDuel.duelId)
+                    .maybeSingle();
 
-        // Первая проверка сразу при входе на "мирную" страницу
-        checkActiveDuel();
+                if (error || !data || data.status !== 'active') {
+                    // Дуэль не активна — очищаем localStorage, не беспокоим пользователя
+                    clearActiveDuel();
+                    return;
+                }
 
-        // Периодическая проверка каждые 15 секунд пока не на странице дуэли
-        intervalRef.current = setInterval(checkActiveDuel, 15000);
-
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
+                // Дуэль активна — показываем модалку
+                console.log('[GlobalDuelWatcher] ✅ Active duel confirmed:', activeDuel.duelId);
+                setActiveDuelId(activeDuel.duelId);
+                setShowModal(true);
+            } catch (err) {
+                console.error('[GlobalDuelWatcher] Validation error:', err);
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [profileId, isAuthenticated, isDuelPage]);
+
+        validate();
+    }, [isAuthenticated, profileId, isDuelPage, activeDuel, clearActiveDuel]);
+
+    // Скрываем модалку если пользователь сам зашёл на страницу дуэли
+    useEffect(() => {
+        if (isDuelPage) setShowModal(false);
+    }, [isDuelPage]);
 
     const handleResume = () => {
         if (activeDuelId) {
@@ -113,9 +77,10 @@ export function GlobalDuelWatcher() {
     };
 
     const handleDismiss = (open: boolean) => {
-        if (!open && activeDuelId) {
-            // Пользователь явно закрыл — запоминаем, больше не беспокоим за эту дуэль
-            dismissedRef.current.add(activeDuelId);
+        if (!open) {
+            // Пользователь закрыл — очищаем всё, больше не беспокоим
+            clearActiveDuel();
+            setActiveDuelId(null);
         }
         setShowModal(open);
     };
@@ -136,8 +101,8 @@ export function GlobalDuelWatcher() {
             if (error) throw error;
 
             toast.success('Дуэль завершена');
+            clearActiveDuel();
             setShowModal(false);
-            if (activeDuelId) dismissedRef.current.add(activeDuelId);
             setActiveDuelId(null);
         } catch (err) {
             console.error('[GlobalDuelWatcher] Surrender error:', err);
