@@ -554,6 +554,19 @@ const RaceGame = () => {
           <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.3} />
         )}
 
+        {/* Red Pulse Overlay for low time */}
+        <AnimatePresence>
+          {timeLeft <= 10000 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 0.15, 0] }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 z-0 bg-red-600 pointer-events-none"
+            />
+          )}
+        </AnimatePresence>
+
         {/* Ambient backgrounds */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-[-10%] left-[-10%] w-[80vw] h-[80vw] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDuration: '8s' }} />
@@ -561,42 +574,47 @@ const RaceGame = () => {
         </div>
 
         {/* Header */}
-        <div className="relative z-20 flex justify-between items-center px-4 pt-[max(env(safe-area-inset-top),16px)] pb-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => { if (window.confirm('Закончить гонку?')) endGame('manual'); }}
-            className="text-white/40 hover:text-white hover:bg-white/10 rounded-full w-10 h-10"
-          >
-            <X className="w-5 h-5" />
-          </Button>
-
-          {/* Points badge */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-            <Trophy className="w-4 h-4 text-yellow-400" />
-            <span className="text-white font-bold text-sm">{stats.total_points}</span>
+        <div className="relative z-20 grid grid-cols-3 items-center px-4 pt-[max(env(safe-area-inset-top),16px)] pb-4">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => { if (window.confirm('Закончить гонку?')) endGame('manual'); }}
+              className="text-white/40 hover:text-white hover:bg-white/10 rounded-full w-10 h-10"
+            >
+              <X className="w-5 h-5" />
+            </Button>
           </div>
 
-          {/* Circular timer */}
-          <div className="relative w-12 h-12">
-            {timeLeft <= 10000 && (
-              <div className="absolute inset-0 rounded-full bg-red-500/30 blur-md animate-pulse" />
-            )}
-            <svg className="transform -rotate-90 w-full h-full" viewBox="0 0 44 44">
-              <circle cx="22" cy="22" r="19" stroke="rgba(255,255,255,0.1)" strokeWidth="3" fill="none" />
-              <motion.circle
-                cx="22" cy="22" r="19"
-                stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round"
-                className={timeLeft <= 10000 ? "text-red-500" : "text-blue-500"}
-                strokeDasharray={2 * Math.PI * 19}
-                animate={{ strokeDashoffset: 2 * Math.PI * 19 * (1 - timeLeft / GAME_CONFIG.START_TIME_MS) }}
-                transition={{ duration: 0.1, ease: 'linear' }}
-              />
-            </svg>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className={cn("text-xs font-black", timeLeft <= 10000 ? "text-red-400" : "text-white")}>
-                {Math.ceil(timeLeft / 1000)}
-              </span>
+          <div className="flex flex-col items-center">
+            <div className="relative w-16 h-16">
+              {timeLeft <= 10000 && (
+                <div className="absolute inset-0 rounded-full bg-red-500/40 blur-xl animate-pulse" />
+              )}
+              <svg className="transform -rotate-90 w-full h-full" viewBox="0 0 44 44">
+                <circle cx="22" cy="22" r="19" stroke="rgba(255,255,255,0.05)" strokeWidth="3" fill="none" />
+                <motion.circle
+                  cx="22" cy="22" r="19"
+                  stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round"
+                  className={timeLeft <= 10000 ? "text-red-500" : "text-blue-500"}
+                  strokeDasharray={2 * Math.PI * 19}
+                  animate={{ strokeDashoffset: 2 * Math.PI * 19 * (1 - timeLeft / GAME_CONFIG.START_TIME_MS) }}
+                  transition={{ duration: 0.1, ease: 'linear' }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center -space-y-1">
+                <span className={cn("text-xl font-black", timeLeft <= 10000 ? "text-red-400" : "text-white")}>
+                  {Math.ceil(timeLeft / 1000)}
+                </span>
+                <span className="text-[8px] font-bold text-white/30 uppercase tracking-tighter">сек</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+              <Trophy className="w-4 h-4 text-yellow-400" />
+              <span className="text-white font-bold text-sm">{stats.total_points}</span>
             </div>
           </div>
         </div>
@@ -817,19 +835,45 @@ const RaceGame = () => {
   // ============================================
   return (
     <Layout hideNavigation>
-      <div className="min-h-[calc(100vh-0px)] flex flex-col items-center justify-center px-4 py-6 bg-background">
+      <div className="min-h-[calc(100vh-0px)] flex flex-col items-center justify-center px-4 py-6 bg-background relative overflow-hidden">
+        {/* Background Decorations */}
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div
+            animate={{
+              y: [0, -20, 0],
+              rotate: [0, 5, 0],
+            }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[15%] left-[10%] w-12 h-12 text-blue-500/10"
+          >
+            <Zap className="w-full h-full fill-current" />
+          </motion.div>
+          <motion.div
+            animate={{
+              y: [0, 20, 0],
+              rotate: [0, -5, 0],
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute bottom-[20%] right-[12%] w-16 h-16 text-indigo-500/10"
+          >
+            <Trophy className="w-full h-full fill-current" />
+          </motion.div>
+          <div className="absolute top-[40%] right-[-5%] w-32 h-32 bg-blue-600/5 rounded-full blur-[80px]" />
+          <div className="absolute bottom-[10%] left-[-5%] w-40 h-40 bg-indigo-600/5 rounded-full blur-[80px]" />
+        </div>
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.35, ease: "easeOut" }}
-          className="w-full max-w-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="w-full max-w-sm relative z-10"
         >
           {/* Back */}
           <button
             onClick={() => navigate("/games")}
-            className="flex items-center gap-1.5 text-white/50 hover:text-white transition-colors mb-6 text-sm font-medium"
+            className="flex items-center gap-1.5 text-white/40 hover:text-white transition-colors mb-8 text-sm font-medium group"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             Назад
           </button>
 
