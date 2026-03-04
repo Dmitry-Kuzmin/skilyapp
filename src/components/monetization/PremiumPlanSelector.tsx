@@ -93,10 +93,11 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
       sessionStorage.setItem('paddle_transaction_id', data.transaction_id);
       localStorage.setItem('paddle_transaction_id', data.transaction_id);
 
-      // КРИТИЧНО: правильный формат Paddle Billing v2 checkout URL
-      // https://checkout.paddle.com/transaction/{id} — НЕ СУЩЕСТВУЕТ (404)
-      // Правильный URL через query-параметр _ptxn:
-      const paddleCheckoutUrl = `https://buy.paddle.com/checkout/custom-checkout?_ptxn=${data.transaction_id}&_gl=`;
+      // checkout_url — настоящий URL от Paddle API, он всегда валиден
+      // Fallback на buy.paddle.com если сервер не вернул url (не должно происходить)
+      const paddleCheckoutUrl = data.checkout_url
+        ?? `https://buy.paddle.com/checkout/${data.transaction_id}`;
+
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
 
@@ -153,12 +154,12 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-5xl max-h-[92vh] overflow-y-auto w-[95%] sm:w-full p-0 rounded-[2.5rem] border-0 shadow-2xl bg-[#0A0D14] overflow-hidden">
+        <DialogContent className="sm:max-w-5xl max-h-[92vh] overflow-y-auto w-[95%] sm:w-full p-0 rounded-[2.5rem] border-0 shadow-2xl bg-[#0A0D14] [&>button]:z-50 [&>button]:top-4 [&>button]:right-4">
           {/* Background Glows */}
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-600/10 blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[100px] pointer-events-none" />
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-600/10 blur-[100px] pointer-events-none z-0" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[100px] pointer-events-none z-0" />
 
-          <div className="relative z-10 p-6 sm:p-10">
+          <div className="relative z-10 p-6 sm:p-10 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(2.5rem+env(safe-area-inset-top))] sm:pt-10">
             <DialogHeader className="mb-10 space-y-4">
               <div className="flex justify-center">
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">

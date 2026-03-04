@@ -148,7 +148,15 @@ serve(async (req) => {
       metadata: { ...entry.metadata, paddle_data: transactionData },
     });
 
-    return new Response(JSON.stringify({ success: true, transaction_id: transactionData.id }), { headers: corsHeaders });
+    // checkout.url — официальный URL от Paddle, безопасен для редиректа
+    const checkoutUrl = transactionData.checkout?.url ?? null;
+    console.log(`[paddle-payment] Transaction created: ${transactionData.id}, checkout_url: ${checkoutUrl}`);
+
+    return new Response(JSON.stringify({
+      success: true,
+      transaction_id: transactionData.id,
+      checkout_url: checkoutUrl,
+    }), { headers: corsHeaders });
   } catch (error: any) {
     console.error("[paddle-payment] Error:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
