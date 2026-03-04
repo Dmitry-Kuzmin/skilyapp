@@ -864,7 +864,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                     )
                   ) : (
                     <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                      Могла спасти {Math.floor(results.betAmount * 0.6)} <Coins className="w-3 h-3" />
+                      Могла спасти {Math.floor(results.betAmount * (results.insuranceCoverageRate || 0.7))} <Coins className="w-3 h-3" />
                     </span>
                   )}
                 </div>
@@ -1140,6 +1140,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
       {/* AI Widget */}
       {showAIWidget && selectedQuestion && (
         <AIWidget
+          id={selectedQuestion?.duel_questions?.id || selectedQuestion?.id}
           question={selectedQuestion?.question_snapshot?.question_ru || selectedQuestion?.question_ru || 'Вопрос'}
           correctAnswer={selectedQuestion?.duel_questions?.correct_answer || ''}
           isCorrect={selectedQuestion?.is_correct || false}

@@ -8,6 +8,7 @@ export interface ReadinessMetrics {
   topicsCovered: number; // 0-1
   recentPerformance: number; // 0-1
   activityScore: number; // 0-1
+  uniqueQuestions?: number; // количество уникальных отвеченных вопросов
 }
 
 export interface ReadinessResult {
@@ -195,51 +196,60 @@ export function calculateReadiness(metrics: ReadinessMetrics): ReadinessResult {
   // Topic coverage helps, but accuracy matters most (80/20 split)
   const basePerformance = (accuracyScore * 0.8) + (metrics.topicsCovered * 0.2);
 
-  // 3. CONFIDENCE FACTOR (Test Volume)
-  // How much do we trust this result?
+  // 3. CONFIDENCE FACTOR (Experience balance)
+  // Насколько мы доверяем результату на основе объема практики.
+  // Мы увеличили требования для того, чтобы прогресс не шел слишком быстро (как просил Дим)
   let confidenceFactor = 0;
 
-  if (metrics.testsCompleted < 3) {
-    // 1-2 tests: Extremely low confidence.
-    // Max 8% confidence.
-    confidenceFactor = 0.08;
-  } else if (metrics.testsCompleted < 10) {
-    // 3-9 tests: Initial progress.
-    // 0.1 at 3 tests -> 0.35 at 9 tests.
-    const progress = (metrics.testsCompleted - 3) / 7;
-    confidenceFactor = 0.1 + (progress * 0.25);
-  } else if (metrics.testsCompleted < 30) {
-    // 10-29 tests: Moderate confidence.
-    // 0.4 at 10 tests -> 0.8 at 29 tests.
-    const progress = (metrics.testsCompleted - 10) / 20;
-    confidenceFactor = 0.4 + (progress * 0.4);
+  if (metrics.testsCompleted < 5) {
+    // 1-4 тестов: Экстремально низкая уверенность.
+    // Max 5% уверенности.
+    confidenceFactor = 0.05;
+  } else if (metrics.testsCompleted < 20) {
+    // 5-19 тестов: Начало пути. 
+    // Требуется больше тестов для роста.
+    // 0.1 при 5 тестах -> 0.3 при 19 тестах.
+    const progress = (metrics.testsCompleted - 5) / 15;
+    confidenceFactor = 0.1 + (progress * 0.2);
   } else if (metrics.testsCompleted < 50) {
-    // 30-49 tests: High confidence.
-    // 0.8 at 30 tests -> 1.0 at 50 tests.
-    const progress = (metrics.testsCompleted - 30) / 20;
-    confidenceFactor = 0.8 + (progress * 0.2);
+    // 20-49 тестов: Средняя уверенность.
+    // 0.3 при 20 тестах -> 0.7 при 49 тестах.
+    const progress = (metrics.testsCompleted - 20) / 30;
+    confidenceFactor = 0.3 + (progress * 0.4);
+  } else if (metrics.testsCompleted < 80) {
+    // 50-79 тестов: Высокая уверенность.
+    // 0.7 при 50 тестах -> 0.9 при 79 тестах.
+    const progress = (metrics.testsCompleted - 50) / 30;
+    confidenceFactor = 0.7 + (progress * 0.2);
   } else {
-    // 50+ tests: Full confidence.
+    // 80+ тестов: Полная уверенность.
     confidenceFactor = 1.0;
   }
 
+  // 4. UNIQUE QUESTIONS BONUS (Если пройдено много уникальных вопросов, повышаем уверенность)
+  if (metrics.uniqueQuestions && metrics.uniqueQuestions > 0) {
+    // Для DGT Spain база ~3000 вопросов. 1500 уникальных = 50% базы.
+    // Добавляем до +0.1 к confidenceFactor если пройдено много уникальных вопросов
+    const questionBonus = Math.min(metrics.uniqueQuestions / 1500, 1) * 0.1;
+    confidenceFactor = Math.min(1.0, confidenceFactor + questionBonus);
+  }
 
-  // 4. FINAL CALCULATION
+  // 5. FINAL CALCULATION
   let readinessPercent = basePerformance * confidenceFactor * 100;
 
-  // 5. ACTIVITY BONUS (Only for active users with significant history)
-  if (metrics.testsCompleted >= 10 && metrics.activityScore > 0.5) {
-    readinessPercent += 5; // +5% boost for consistency
+  // 6. ACTIVITY BONUS (Только для активных пользователей с историей)
+  if (metrics.testsCompleted >= 15 && metrics.activityScore > 0.5) {
+    readinessPercent += 5; // +5% бонус за стабильность
   }
 
-  // 6. LOGICAL CAPS
-  // If accuracy is poor (< 60%), readiness cannot exceed 40% regardless of volume.
+  // 7. LOGICAL CAPS
+  // Если точность низкая (< 60%), готовность не может превысить 30% независимо от объема.
   if (metrics.accuracy < 0.6) {
-    readinessPercent = Math.min(readinessPercent, 40);
+    readinessPercent = Math.min(readinessPercent, 30);
   }
-  // If accuracy is mediocre (< 80%), readiness cannot exceed 75% ("Almost Ready").
+  // Если точность средняя (< 80%), готовность не может превысить 70% ("Почти готов").
   if (metrics.accuracy < 0.8) {
-    readinessPercent = Math.min(readinessPercent, 75);
+    readinessPercent = Math.min(readinessPercent, 70);
   }
 
   return createReadinessResult(readinessPercent, metrics, confidenceFactor);

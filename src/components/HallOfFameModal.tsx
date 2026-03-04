@@ -30,8 +30,7 @@ interface Champion {
   claimed_at: string;
 }
 
-export function HallOfFameModal() {
-  const { isOpen, closeModal } = useModalRoute('hall-of-fame');
+export function HallOfFameView({ onBack }: { onBack: () => void }) {
   // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
@@ -40,17 +39,10 @@ export function HallOfFameModal() {
   const [selectedSeason, setSelectedSeason] = useState<number | null>(null);
   const [seasons, setSeasons] = useState<Array<{ id: number; season_number: number; name_ru: string }>>([]);
 
-  // Отладка
   useEffect(() => {
-    console.log('[HallOfFameModal] isOpen:', isOpen);
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
-      loadSeasons();
-      loadChampions();
-    }
-  }, [isOpen]);
+    loadSeasons();
+    loadChampions();
+  }, []);
 
   const loadSeasons = async () => {
     try {
@@ -150,15 +142,11 @@ export function HallOfFameModal() {
   }, {} as Record<number, Champion[]>);
 
   return (
-    <UnifiedModal
-      open={isOpen}
-      onOpenChange={(open) => !open && closeModal()}
-      title="Зал славы"
-      snapPoints={['70vh', '95vh']}
-      initialSnap={0}
-      showTitleBar={false}
-      modalRouteKey="hall-of-fame"
-      className="max-w-5xl rounded-[2.5rem] overflow-hidden"
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="flex-1 overflow-y-auto w-full"
     >
       <div className="space-y-6 py-4 px-4 sm:px-6">
         <header className="space-y-4 text-left relative">
@@ -168,7 +156,7 @@ export function HallOfFameModal() {
               variant="ghost"
               size="icon"
               className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md"
-              onClick={() => closeModal()}
+              onClick={onBack}
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
@@ -364,7 +352,7 @@ export function HallOfFameModal() {
           </div>
         )}
       </div>
-    </UnifiedModal>
+    </motion.div>
   );
 }
 

@@ -78,7 +78,7 @@ export function ResponsiveModal({
         snapPoints={snapPoints}
         activeSnapPoint={activeSnapPoint}
         setActiveSnapPoint={onSnapPointChange}
-        fadeFromIndex={fadeFromIndex}
+        {...(snapPoints ? { fadeFromIndex } as any : {})}
         modal={true}
         shouldScaleBackground={true} // Возвращаем scale эффект для нативности
         repositionInputs={true} // Включаем авто-скролл к инпутам
@@ -121,7 +121,6 @@ export function ResponsiveModal({
                 "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none w-full px-4",
                 contentClassName
               )}
-              data-vaul-no-drag
               style={{
                 WebkitOverflowScrolling: 'touch',
                 scrollbarWidth: 'none',

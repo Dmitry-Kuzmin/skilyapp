@@ -26,16 +26,16 @@ export function useExamReadiness(profileId: string | null): UseExamReadinessResu
   const { data: dashboardData, loading: dashboardLoading } = useDashboardData();
 
   // Дополнительно запрашиваем только данные для активности (легкий запрос)
-  const { data: activityData, isLoading: activityLoading } = useQuery({
+  const { data: activityData, isLoading: activityLoading } = useQuery<Array<{ last_attempt_at: string | null }> | null>({
     queryKey: ['exam-readiness-activity', profileId],
     queryFn: async () => {
       if (!profileId) return null;
 
       // Легкий запрос: только даты последних попыток
       const { data, error } = await supabase
-          .from('user_progress')
+        .from('user_progress')
         .select('last_attempt_at')
-          .eq('user_id', profileId)
+        .eq('user_id', profileId)
         .eq('is_answered', true)
         .order('last_attempt_at', { ascending: false })
         .limit(50); // Ограничиваем для производительности
@@ -49,7 +49,7 @@ export function useExamReadiness(profileId: string | null): UseExamReadinessResu
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
-          
+
   // Вычисляем метрики на основе данных dashboard
   const { metrics, readiness } = useMemo(() => {
     if (!dashboardData) {
@@ -64,13 +64,13 @@ export function useExamReadiness(profileId: string | null): UseExamReadinessResu
 
     // Если нет данных, возвращаем дефолт
     if (stats.tests_completed === 0 && stats.total_questions === 0) {
-          const defaultMetrics: ReadinessMetrics = {
-            accuracy: 0,
-            testsCompleted: 0,
-            topicsCovered: 0,
-            recentPerformance: 0,
-            activityScore: 0,
-          };
+      const defaultMetrics: ReadinessMetrics = {
+        accuracy: 0,
+        testsCompleted: 0,
+        topicsCovered: 0,
+        recentPerformance: 0,
+        activityScore: 0,
+      };
       return {
         metrics: defaultMetrics,
         readiness: calculateReadiness(defaultMetrics),
@@ -86,14 +86,15 @@ export function useExamReadiness(profileId: string | null): UseExamReadinessResu
         (item) => item.last_attempt_at && new Date(item.last_attempt_at).getTime() > sevenDaysAgo.getTime()
       );
       activityScore = recentAttempts.length > 0 ? 1 : 0.5;
-        }
+    }
 
     const calculatedMetrics: ReadinessMetrics = {
       accuracy: stats.accuracy / 100, // Конвертируем из процентов в 0-1
       testsCompleted: stats.tests_completed,
       topicsCovered: readinessData ? readinessData.topics_covered_percent / 100 : 0,
       recentPerformance: stats.recent_performance ? stats.recent_performance / 100 : 0,
-          activityScore,
+      activityScore,
+      uniqueQuestions: readinessData ? readinessData.unique_questions_answered : 0,
     };
 
     return {

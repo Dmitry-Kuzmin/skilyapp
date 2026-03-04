@@ -132,7 +132,8 @@ export interface DuelResultSnapshot {
     winnings: number;
     insuranceRefund: number;
     insuranceUsed: boolean;
+    insuranceCoverageRate?: number;
+    opponentId?: string | null;
   };
   timestamp: number; // Время создания snapshot
 }
-

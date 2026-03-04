@@ -17,8 +17,6 @@ const PaywallModal = lazy(() => import('@/components/monetization/PaywallModal')
 const DuelPassSeasonModal = lazy(() => import('@/components/monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
 const FlashCardsModal = lazy(() => import('@/components/FlashCardsModal').then(m => ({ default: m.FlashCardsModal })));
 const TermProgressModal = lazy(() => import('@/components/TermProgressModal').then(m => ({ default: m.TermProgressModal })));
-const HallOfFameModal = lazy(() => import('@/components/HallOfFameModal').then(m => ({ default: m.HallOfFameModal })));
-const DuelPassLeaderboardModal = lazy(() => import('@/components/leaderboard/DuelPassLeaderboardModal').then(m => ({ default: m.DuelPassLeaderboardModal })));
 const LeaderboardRewardsModal = lazy(() => import('@/components/leaderboard/LeaderboardRewardsModal').then(m => ({ default: m.LeaderboardRewardsModal })));
 const ReferralModal = lazy(() => import('@/components/ReferralModal').then(m => ({ default: m.ReferralModal })));
 const ActivatePremiumKeyModal = lazy(() => import('@/components/ActivatePremiumKeyModal').then(m => ({ default: m.ActivatePremiumKeyModal })));
@@ -40,8 +38,6 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
   DUEL_PASS: DuelPassSeasonModal,
   FLASH_CARDS: FlashCardsModal,
   TERM_PROGRESS: TermProgressModal,
-  HALL_OF_FAME: HallOfFameModal,
-  DUEL_PASS_LEADERBOARD: DuelPassLeaderboardModal,
   LEADERBOARD_REWARDS: LeaderboardRewardsModal,
   REFERRAL: ReferralModal,
   ACTIVATE_PREMIUM_KEY: ActivatePremiumKeyModal,
@@ -250,9 +246,7 @@ export const GlobalModalManager = () => {
   // не нужно оборачивать в дополнительный div, так как это блокирует клики
   // Проверяем, создает ли модалка свой портал
   const createsOwnPortal = topModal.type === 'BOOST_SHOP' ||
-    topModal.type === 'CELEBRATION' ||
-    topModal.type === 'HALL_OF_FAME' ||
-    topModal.type === 'DUEL_PASS_LEADERBOARD';
+    topModal.type === 'CELEBRATION';
 
   if (createsOwnPortal) {
     // Модалка сама создает портал, просто рендерим её

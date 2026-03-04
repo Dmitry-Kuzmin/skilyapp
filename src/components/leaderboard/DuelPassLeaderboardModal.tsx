@@ -92,13 +92,16 @@ const calculateTimeLeft = (endDate?: string | null) => {
   return { total, days, hours, minutes, seconds };
 };
 
-export function DuelPassLeaderboardModal() {
-  // КРИТИЧНО: Безопасное получение UserContext - не выбрасывает ошибку если провайдер отсутствует
+export function DuelPassLeaderboardView({
+  onBack,
+  onOpenHallOfFame
+}: {
+  onBack: () => void;
+  onOpenHallOfFame: () => void;
+}) {
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
   const user = userContext?.user ?? null;
-  const { isOpen, closeModal } = useModalRoute('duel-pass-leaderboard');
-  const { openModal: openHallOfFameModal } = useModalRoute('hall-of-fame');
   const { resolvedTheme } = useTheme();
   const theme = resolvedTheme ?? "dark";
   const isLightTheme = theme === "light";
@@ -136,24 +139,35 @@ export function DuelPassLeaderboardModal() {
   });
   const [showMyPosition, setShowMyPosition] = useState(false);
 
-  // Загрузка топ-10
-  const loadTopLeaderboard = async (page: number = 1) => {
-    setLoading(true);
-    setError(null);
-    try {
+  // Кэшируем ID и дату активного сезона, чтобы не дергать базу при каждой смене вкладки/страницы
+  // ОПТИМИЗАЦИЯ СКОРОСТИ
+  useEffect(() => {
+    const fetchActiveSeason = async () => {
       const { data: activeSeason } = await supabase
         .from("duel_pass_seasons")
         .select("id, end_date")
         .eq("is_active", true)
         .order("season_number", { ascending: false })
         .limit(1)
-        .single();
+        .single<{ id: number; end_date: string }>();
 
       if (activeSeason) {
         setActiveSeasonId(activeSeason.id);
         setSeasonEndDate(activeSeason.end_date);
         setTimeLeft(calculateTimeLeft(activeSeason.end_date));
       }
+    };
+    fetchActiveSeason();
+  }, []);
+
+  // Загрузка топ-10
+  const loadTopLeaderboard = async (page: number = 1) => {
+    // Если сезон еще не загружен - ждем (loading уже true по умолчанию)
+    if (activeSeasonId === null) return;
+
+    setLoading(true);
+    setError(null);
+    try {
 
       const { data, error } = await supabase.functions.invoke("duel-pass-leaderboard", {
         body: {
@@ -236,9 +250,10 @@ export function DuelPassLeaderboardModal() {
   };
 
   useEffect(() => {
-    if (!isOpen) return;
-    loadTopLeaderboard(pagination.page);
-  }, [filterType, isOpen]);
+    if (activeSeasonId !== null) {
+      loadTopLeaderboard(1);
+    }
+  }, [filterType, activeSeasonId]);
 
   // Фильтрация по поиску
   const filteredLeaders = useMemo(() => {
@@ -254,6 +269,8 @@ export function DuelPassLeaderboardModal() {
   // Проверка, находится ли пользователь в топе
   const isUserInTop = useMemo(() => {
     if (!profileId) return false;
+    // Проверка через userContext.profileId (может быть null, если не авторизован)
+    const currentUserId = userContext?.profileId;
     return leaders.some((leader) => leader.user_id === profileId);
   }, [leaders, profileId]);
 
@@ -264,7 +281,7 @@ export function DuelPassLeaderboardModal() {
 
   const userPosition = getUserPosition();
 
-  const disableAnimations = useMemo(() => loading || !isOpen, [loading, isOpen]);
+  const disableAnimations = loading;
 
   const getMotionProps = <T,>(config: T): Partial<T> => (disableAnimations ? {} : config);
 
@@ -306,38 +323,35 @@ export function DuelPassLeaderboardModal() {
 
   return (
     <>
-      <UnifiedModal
-        open={isOpen}
-        onOpenChange={(open) => (!open ? closeModal() : undefined)}
-        title="Таблица лидеров"
-        snapPoints={["70vh", "95vh"]}
-        initialSnap={0}
-        showTitleBar={false}
-        className="max-w-5xl rounded-[2.5rem] overflow-hidden"
-        modalRouteKey="duel-pass-leaderboard"
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: -20 }}
+        className="flex-1 overflow-y-auto w-full"
       >
         {loading ? (
           renderLoadingState()
         ) : (
           <div className="space-y-6 py-4 px-4 sm:px-6">
-            <header className="space-y-4 text-left">
-              {/* Кнопка Назад */}
-              <div className="flex items-center absolute top-4 left-4 z-50">
+            <header className="space-y-4 text-left relative flex flex-col pt-2">
+              {/* Кнопка Назад и Плашка на одном уровне */}
+              <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md"
-                  onClick={() => closeModal()}
+                  className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md shrink-0"
+                  onClick={onBack}
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </Button>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
+                  <Trophy className="w-3 h-3" />
+                  Соревновательный сезон
+                </div>
               </div>
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-4 md:pt-0 pl-12 md:pl-0">
+
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 pt-4 md:pt-2">
                 <div className="space-y-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
-                    <Trophy className="w-3 h-3" />
-                    Соревновательный сезон
-                  </div>
                   <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent">
                     Топ игроков
                   </h1>
@@ -360,7 +374,7 @@ export function DuelPassLeaderboardModal() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => openHallOfFameModal()}
+                    onClick={onOpenHallOfFame}
                     className="gap-2 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl"
                   >
                     <Trophy className="w-4 h-4 text-yellow-500" />
@@ -688,7 +702,7 @@ export function DuelPassLeaderboardModal() {
                       <div className="flex items-center gap-2">
                         <p className="text-lg font-black text-white leading-none">Ты</p>
                         <Badge className="bg-white/20 hover:bg-white/30 text-[9px] uppercase font-black text-white border-0 py-0 px-1.5 h-4">
-                          LVL {userContext?.profile?.duel_pass_level || 1}
+                          LVL {userPositionData?.user_data?.duel_pass_level || 1}
                         </Badge>
                       </div>
                       <p className="text-[10px] text-white/80 font-bold mt-1.5 uppercase tracking-wider flex items-center gap-1">
@@ -699,7 +713,7 @@ export function DuelPassLeaderboardModal() {
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-black text-white font-mono tabular-nums leading-none">
-                      {(userContext?.profile?.duel_pass_xp || 0).toLocaleString()}
+                      {(userPositionData?.user_data?.duel_pass_xp || 0).toLocaleString()}
                       <span className="text-[10px] ml-1 text-white/60">XP</span>
                     </p>
                     <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em] mt-1">Твой прогресс</p>
@@ -738,7 +752,7 @@ export function DuelPassLeaderboardModal() {
             )}
           </div>
         )}
-      </UnifiedModal>
+      </motion.div>
 
       {activeSeasonId && selectedPosition && (
         <LeaderboardRewardsModal

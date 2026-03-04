@@ -1206,6 +1206,7 @@ const TestSession = () => {
           !isTelegramApp && isPracticeLikeMode && mode !== 'blitz' && mode !== 'exam' && mode !== 'exam-russia' && (
             <div className="lg:mt-[76px]">
               <AIWidget
+                id={currentQuestion.id}
                 explanation={selectedOption ? (showTranslation ? currentQuestion.explanation_ru :
                   (effectiveLanguage === 'ru' ? currentQuestion.explanation_ru :
                     (effectiveLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es))) : null}

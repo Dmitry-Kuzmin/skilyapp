@@ -20,6 +20,7 @@ type Message = {
 };
 
 interface AIWidgetProps {
+  id?: string | null;
   explanation?: string | null;
   explanationRu?: string | null;
   explanationEs?: string | null;
@@ -47,6 +48,7 @@ export const AIWidget = (props: AIWidgetProps) => {
 
 // Внутренний компонент: все хуки вызываются безусловно (правила React)
 const AIWidgetContent = ({
+  id,
   explanation,
   explanationRu,
   explanationEs,
@@ -205,12 +207,12 @@ const AIWidgetContent = ({
     }
   }, [showTranslation, explanation, explanationRu, explanationEs, explanationEn]);
 
-  // Сброс при смене вопроса
+  // Сброс при смене вопроса (используем ID как надежный идентификатор)
   useEffect(() => {
     setMessages([]);
     setInput("");
     setIsExpanded(false);
-  }, [question]);
+  }, [id || question]);
 
   // Измеряем высоту всего блока тестов и ограничиваем максимальную высоту виджета
   useEffect(() => {

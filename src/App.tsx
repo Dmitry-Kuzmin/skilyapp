@@ -33,8 +33,6 @@ const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m
 // Иначе при ошибках lazy loading OAuth callback не обработается
 import { Toaster, toast } from "@/components/ui/sonner";
 const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
-const HallOfFameModal = lazy(() => import("@/components/HallOfFameModal").then(m => ({ default: m.HallOfFameModal })));
-const DuelPassLeaderboardModal = lazy(() => import("@/components/leaderboard/DuelPassLeaderboardModal").then(m => ({ default: m.DuelPassLeaderboardModal })));
 
 // ОПТИМИЗАЦИЯ: Lazy load некритичных компонентов для уменьшения initial bundle
 const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").then(m => ({ default: m.PerformanceMonitor })));
@@ -599,8 +597,6 @@ const App = () => {
                           {/* OAuthCallbackHandler отключен - используем /auth/callback маршрут для OAuth */}
                           {/* Если нужно обрабатывать токены на других страницах - можно включить с проверкой pathname */}
                           {/* <OAuthCallbackHandler /> */}
-                          <HallOfFameModal />
-                          <DuelPassLeaderboardModal />
                         </Suspense>
                         <AppRoutes />
                         {/* Глобальный менеджер модалок должен быть внутри провайдеров,

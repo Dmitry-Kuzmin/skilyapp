@@ -81,18 +81,9 @@ export function useDuelResultLogic({
                     const isWinner = myScoreFinal > opponentScoreFinal;
                     const isDraw = myScoreFinal === opponentScoreFinal;
 
-                    // Fetch insurance info if missing from db directly
-                    const { data: betRow } = await supabase
-                        .from('duel_bets')
-                        .select('host_insurance_enabled, opponent_insurance_enabled')
-                        .eq('duel_id', duelId)
-                        .maybeSingle();
-
-                    let insuranceUsed = !!((duelData as any).insurance_used || (duelData as any).host_insurance_enabled);
-                    if (betRow) {
-                        const isHost = profileId === (duelData as any).host_user;
-                        insuranceUsed = isHost ? !!(betRow as any).host_insurance_enabled : !!(betRow as any).opponent_insurance_enabled;
-                    }
+                    // Fetch insurance info: insurance_enabled is in duel_players
+                    const insuranceUsed = !!(myPlayer as any).insurance_enabled;
+                    const coverageRate = (myPlayer as any).insurance_coverage_rate || 0.7;
 
                     let winnings = 0;
                     let insuranceRefund = 0;
@@ -104,7 +95,7 @@ export function useDuelResultLogic({
                             winnings = (duelData as any).bet_amount;
                         }
                         if (!isWinner && !isDraw && insuranceUsed) {
-                            insuranceRefund = Math.floor((duelData as any).bet_amount * 0.6);
+                            insuranceRefund = Math.floor((duelData as any).bet_amount * coverageRate);
                         }
                     }
 
@@ -169,15 +160,15 @@ export function useDuelResultLogic({
             const duelData = data.duel_data;
             let winnings = 0;
             let insuranceRefund = 0;
-            if (duelData.bet_amount > 0) {
-                // NOTE: Here we use info from duelData as we cannot await in synchronous createSnapshotFromServerData
-                const insuranceUsed = !!(duelData.insurance_used || duelData.host_insurance_enabled);
+            const insuranceUsed = !!myPlayer.insurance_enabled;
+            const coverageRate = myPlayer.insurance_coverage_rate || 0.7;
 
+            if (duelData.bet_amount > 0) {
                 if (isWinner) winnings = duelData.bet_amount * 2;
                 else if (isDraw) winnings = duelData.bet_amount;
 
                 if (!isWinner && !isDraw && insuranceUsed) {
-                    insuranceRefund = Math.floor(duelData.bet_amount * 0.6);
+                    insuranceRefund = Math.floor(duelData.bet_amount * coverageRate);
                 }
             }
 
@@ -203,7 +194,7 @@ export function useDuelResultLogic({
                     betAmount: duelData.bet_amount || 0,
                     winnings,
                     insuranceRefund,
-                    insuranceUsed: !!(duelData.insurance_used || duelData.host_insurance_enabled) // This will be updated if betRow found above
+                    insuranceUsed
                 },
                 timestamp: Date.now()
             };
