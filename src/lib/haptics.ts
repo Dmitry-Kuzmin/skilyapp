@@ -132,6 +132,27 @@ class HapticManager {
     this.notificationOccurred('warning');
   }
 
+  // Standard Aliases
+  light() {
+    this.trigger('light');
+  }
+
+  medium() {
+    this.trigger('medium');
+  }
+
+  heavy() {
+    this.trigger('heavy');
+  }
+
+  success() {
+    this.notificationOccurred('success');
+  }
+
+  error() {
+    this.notificationOccurred('error');
+  }
+
   // Enable/disable
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
