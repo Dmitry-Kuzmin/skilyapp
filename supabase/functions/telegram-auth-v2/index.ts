@@ -54,8 +54,8 @@ Deno.serve(async (req) => {
 
         if (existingProf?.user_id) {
             try {
-                const { data: { user: authUser } } = await supabaseAdmin.auth.admin.getUserById(existingProf.user_id);
-                if (authUser?.email) email = authUser.email;
+                const { data: { user: authUser }, error: getUserErr } = await supabaseAdmin.auth.admin.getUserById(existingProf.user_id);
+                if (!getUserErr && authUser?.email) email = authUser.email;
             } catch (e) {
                 console.warn(`[telegram-auth-v2] Failed to get auth user for ${existingProf.user_id}`);
             }
@@ -79,9 +79,25 @@ Deno.serve(async (req) => {
 
         let user = authData?.user;
         if (authError && (authError.message.includes("recorded") || authError.status === 422)) {
-            console.log(`[telegram-auth-v2] User already exists, ensuring password match`);
-            const { data: { users } } = await supabaseAdmin.auth.admin.listUsers();
-            user = users.find(u => u.email === email);
+            console.log(`[telegram-auth-v2] User already exists, finding by email...`);
+            // КРИТИЧНО: listUsers() без параметров возвращает только первые 50 юзеров.
+            // Используем getUserByEmail через прямой lookup по email — O(1) вместо полного скана.
+            const { data: { users: found }, error: listErr } = await supabaseAdmin.auth.admin.listUsers({
+                filter: `email.eq.${email}`,
+                perPage: 1,
+                page: 1
+            } as any);
+
+            user = found?.[0] ?? undefined;
+
+            if (!user) {
+                // Финальный fallback: если фильтр не поддерживается в текущей версии SDK
+                console.warn(`[telegram-auth-v2] listUsers filter failed (${listErr?.message}), falling back to existingProf lookup`);
+                if (existingProf?.user_id) {
+                    const { data: { user: byId } } = await supabaseAdmin.auth.admin.getUserById(existingProf.user_id);
+                    user = byId ?? undefined;
+                }
+            }
 
             if (user) {
                 await supabaseAdmin.auth.admin.updateUserById(user.id, { password });
@@ -166,10 +182,11 @@ Deno.serve(async (req) => {
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     } catch (err) {
-        console.error(`[telegram-auth-v2] CRITICAL ERROR:`, err);
+        const error = err as Error;
+        console.error(`[telegram-auth-v2] CRITICAL ERROR:`, error);
         return new Response(JSON.stringify({
-            error: err.message,
-            stack: err.stack,
+            error: error.message ?? String(err),
+            stack: error.stack,
             type: 'telegram-auth-v2-error'
         }), { status: 500, headers: corsHeaders });
     }

@@ -419,15 +419,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
             if (authError) {
               console.error('[UserContext] telegram-auth-v2 error:', authError);
               toast.error('Сбой быстрой авторизации', { description: 'Пробуем обычный вход...' });
-              // Fallback to old login method
-              login(telegramUser).catch(err => {
+              await login(telegramUser).catch(err => {
                 console.error('[UserContext] Fallback login failed:', err);
               });
             } else if (authData?.session) {
               console.log("[UserContext] ✅ Got Supabase session from Telegram auth!");
 
-              // КРИТИЧНО: Показываем только одно уведомление (желтое/warning как просил Дим)
-              // Используем id чтобы Sonner автоматически заменял/игнорировал дубликаты
               toast.warning('Авторизация успешна!', {
                 id: 'auth-success-toast',
                 duration: 2000
@@ -441,21 +438,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
               if (sessionError) {
                 console.error('[UserContext] setSession error:', sessionError);
-                // Если ошибка связана с невалидным токеном (400), пробуем войти заново без сессии
                 if (sessionError.message.includes('refresh_token_not_found') || sessionError.status === 400) {
                   console.warn('[UserContext] Invalid session detected, clearing storage and falling back...');
                   localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
-                  login(telegramUser).catch(err => console.error('[UserContext] Fallback login failed:', err));
+                  await login(telegramUser).catch(err => console.error('[UserContext] Fallback login failed:', err));
                 }
               } else {
                 console.log("[UserContext] 🎉 Supabase session set successfully!");
                 setSession(authData.session);
                 setSupabaseUser(authData.user);
 
-                // 🚀 NEW: Устанавливаем profileId напрямую из ответа функции
-                // Это устраняет задержку и ошибки при первой покупке
+                // КРИТИЧНО: profileId устанавливается СИНХРОННО до setIsLoading(false)
+                // Это предотвращает ситуацию когда StarsPaymentButton видит profileId=null
                 if (authData.profile_id) {
-                  console.log("[UserContext] Set profileId from auth function:", authData.profile_id);
+                  console.log("[UserContext] ✅ profileId from auth function:", authData.profile_id);
                   setProfileId(authData.profile_id);
                   setGlobalProfileId(authData.profile_id);
                   localStorage.setItem(`profile_${telegramUser.id}`, authData.profile_id);
@@ -464,33 +460,28 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
             } else {
               console.warn('[UserContext] telegram-auth-v2 returned no session');
-              // Fallback to old login method
-              login(telegramUser).catch(err => {
+              await login(telegramUser).catch(err => {
                 console.error('[UserContext] Fallback login failed:', err);
               });
             }
           } catch (err) {
             console.error('[UserContext] telegram-auth-v2 exception:', err);
-            // Fallback to old login method
-            login(telegramUser).catch(err => {
-              console.error('[UserContext] Fallback login failed:', err);
+            await login(telegramUser).catch(err2 => {
+              console.error('[UserContext] Fallback login failed:', err2);
             });
           }
         } else {
-          // No valid initData, use old method
-          login(telegramUser).catch(err => {
+          // initData отсутствует или мок — используем старый метод
+          await login(telegramUser).catch(err => {
             console.error('[UserContext] Auto-login failed:', err);
           });
         }
       } else {
-        // Check for stored token
-        const token = localStorage.getItem('telegram_token');
-
-        if (!token) {
-          console.log("[UserContext] No stored session - user needs to login");
-        }
+        console.log("[UserContext] No Telegram user - user needs to login manually");
       }
 
+      // КРИТИЧНО: setIsLoading(false) вызывается ТОЛЬКО ЗДЕСЬ — после завершения ВСЕЙ цепочки
+      // Это гарантирует что profileId, session, supabaseUser установлены до рендера
       setIsLoading(false);
     };
 
