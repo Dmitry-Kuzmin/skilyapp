@@ -52,9 +52,9 @@ export function HallOfFameView({ onBack }: { onBack: () => void }) {
         .order("season_number", { ascending: false });
 
       if (data) {
-        setSeasons(data);
+        setSeasons(data as any[]);
         if (data.length > 0) {
-          setSelectedSeason(data[0].id);
+          setSelectedSeason((data as any[])[0].id);
         }
       }
     } catch (error) {
@@ -93,7 +93,7 @@ export function HallOfFameView({ onBack }: { onBack: () => void }) {
         .select("id, season_number, name_ru")
         .in("id", seasonIds);
 
-      const seasonsMap = new Map(seasonsData?.map((s) => [s.id, s]) || []);
+      const seasonsMap = new Map((seasonsData as any[])?.map((s: any) => [s.id, s]) || []);
 
       const championsList: Champion[] = (rewardsData || []).map((reward: any) => ({
         season_id: reward.season_id,
@@ -149,24 +149,24 @@ export function HallOfFameView({ onBack }: { onBack: () => void }) {
       className="flex-1 overflow-y-auto w-full"
     >
       <div className="space-y-6 py-4 px-4 sm:px-6">
-        <header className="space-y-4 text-left relative">
-          {/* Кнопка Назад */}
-          <div className="flex items-center absolute top-0 left-0 z-50">
+        <header className="space-y-4 text-left relative flex flex-col pt-2">
+          {/* Кнопка Назад и Плашка на одном уровне */}
+          <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
-              className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md"
+              className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md shrink-0 cursor-pointer"
               onClick={onBack}
             >
               <ChevronLeft className="w-6 h-6" />
             </Button>
-          </div>
-
-          <div className="flex flex-col pt-12">
-            <div className="inline-flex items-center w-max gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 text-yellow-600 text-[10px] uppercase tracking-wider font-bold mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 text-yellow-600 text-[10px] uppercase tracking-wider font-bold">
               <Trophy className="w-3 h-3" />
               Легенды сезонов
             </div>
+          </div>
+
+          <div className="flex flex-col pt-2">
             <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none bg-gradient-to-br from-yellow-300 via-yellow-500 to-amber-600 bg-clip-text text-transparent mb-2">
               Зал славы
             </h1>

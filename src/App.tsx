@@ -159,12 +159,6 @@ const AdminSecurityMonitoring = lazy(() =>
 const AdminPartners = lazy(() =>
   import("./pages/admin/AdminPartners").then((module) => ({ default: module.AdminPartners }))
 );
-const AdminMarketingMaterials = lazy(() =>
-  import("./pages/admin/AdminMarketingMaterials").then((module) => ({ default: module.AdminMarketingMaterials }))
-);
-const AdminRewardReports = lazy(() =>
-  import("./pages/admin/AdminRewardReports").then((module) => ({ default: module.AdminRewardReports }))
-);
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const ModernPartnerDashboard = lazy(() => import("./pages/ModernPartnerDashboard"));
 const PartnerLinkRedirect = lazy(() => import("./pages/PartnerLinkRedirect"));

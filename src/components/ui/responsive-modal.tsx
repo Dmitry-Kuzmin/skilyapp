@@ -80,7 +80,7 @@ export function ResponsiveModal({
         setActiveSnapPoint={onSnapPointChange}
         {...(snapPoints ? { fadeFromIndex } as any : {})}
         modal={true}
-        shouldScaleBackground={true} // Возвращаем scale эффект для нативности
+        shouldScaleBackground={false} // Пользователь просил убрать уменьшение контента, но оставить красивое затемнение
         repositionInputs={true} // Включаем авто-скролл к инпутам
       >
         <DrawerContent

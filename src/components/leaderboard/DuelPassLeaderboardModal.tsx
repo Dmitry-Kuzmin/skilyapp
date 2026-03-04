@@ -350,20 +350,20 @@ export function DuelPassLeaderboardView({
                 </div>
               </div>
 
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 pt-4 md:pt-2">
-                <div className="space-y-2">
+              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 pt-4 md:pt-2">
+                <div className="space-y-2 flex-1 min-w-0">
                   <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent">
                     Топ игроков
                   </h1>
-                  <p className="text-sm text-muted-foreground max-w-md">
+                  <p className="text-sm text-muted-foreground max-w-xl">
                     Бейся в дуэлях, копи XP и забирай <span className="text-yellow-500 font-bold">Premium</span> или <span className="text-yellow-500 font-bold">1000 монет</span> в конце сезона!
                   </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-3 shrink-0 flex-wrap sm:flex-nowrap">
                   {timeLeft && (
-                    <div className="px-4 py-2 rounded-2xl bg-slate-900/50 border border-white/5 backdrop-blur-md">
-                      <p className="text-[10px] text-muted-foreground uppercase font-bold">До конца сезона</p>
-                      <p className="text-sm font-mono font-bold text-primary">
+                    <div className="flex flex-col justify-center px-4 py-2 rounded-2xl bg-slate-900/50 border border-white/5 backdrop-blur-md shrink-0 flex-1 sm:flex-none">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold whitespace-nowrap">До конца сезона</p>
+                      <p className="text-sm font-mono font-bold text-primary whitespace-nowrap">
                         {timeLeft.days > 0 && `${timeLeft.days}д `}
                         {String(timeLeft.hours).padStart(2, '0')}:
                         {String(timeLeft.minutes).padStart(2, '0')}:
@@ -373,12 +373,11 @@ export function DuelPassLeaderboardView({
                   )}
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={onOpenHallOfFame}
-                    className="gap-2 bg-white/5 border-white/10 hover:bg-white/10 rounded-xl"
+                    className="h-auto py-2.5 px-4 gap-2 bg-white/5 border-white/10 hover:bg-white/10 rounded-2xl shrink-0 flex-1 sm:flex-none"
                   >
-                    <Trophy className="w-4 h-4 text-yellow-500" />
-                    Зал славы
+                    <Trophy className="w-5 h-5 text-yellow-500 shrink-0" />
+                    <span className="font-semibold whitespace-nowrap">Зал славы</span>
                   </Button>
                 </div>
               </div>
