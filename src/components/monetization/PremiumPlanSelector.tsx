@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
@@ -9,7 +9,8 @@ import {
   CheckCircle2,
   Infinity as InfinityIcon,
   Crown,
-  ShieldCheck
+  ShieldCheck,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -154,12 +155,25 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-5xl max-h-[92vh] overflow-y-auto w-[95%] sm:w-full p-0 rounded-[2.5rem] border-0 shadow-2xl bg-[#0A0D14] [&>button]:z-50 [&>button]:top-4 [&>button]:right-4">
+        <DialogContent
+          className="sm:max-w-5xl max-h-[92vh] overflow-y-auto w-[95%] sm:w-full p-0 rounded-[2.5rem] border-0 shadow-2xl bg-[#0A0D14]"
+          // Скрываем дефолтную X от Radix — используем свою с safe-area
+          hideCloseButton
+        >
           {/* Background Glows */}
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-600/10 blur-[100px] pointer-events-none z-0" />
           <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[100px] pointer-events-none z-0" />
 
-          <div className="relative z-10 p-6 sm:p-10 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(2.5rem+env(safe-area-inset-top))] sm:pt-10">
+          {/* Кнопка закрытия — явная, поверх z-10, с учётом нотча iPhone */}
+          <DialogClose
+            className="absolute z-50 right-4 bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
+            style={{ top: 'max(1rem, env(safe-area-inset-top))' }}
+          >
+            <X className="h-4 w-4 text-white" />
+            <span className="sr-only">Закрыть</span>
+          </DialogClose>
+
+          <div className="relative z-10 p-6 sm:p-10 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-[calc(3.5rem+env(safe-area-inset-top))] sm:pt-10">
             <DialogHeader className="mb-10 space-y-4">
               <div className="flex justify-center">
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">

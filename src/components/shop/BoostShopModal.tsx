@@ -972,90 +972,58 @@ export function BoostShopModal({
           return;
         }
 
-        // Запоминаем transaction_id (для Paddle) для последующей проверки
+        // Запоминаем transaction_id для последующей проверки
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        // КРИТИЧНО: В Telegram WebView overlay работает плохо, используем прямой редирект
-        // В веб-версии используем overlay через Paddle JS SDK
+        // КРИТИЧНО: используем checkout_url из реального ответа Paddle API
+        // Этот URL всегда валиден — Paddle формирует его сам
+        // Для этого paddle-payment добавляет ?include=checkout в запросе
+        const paddleCheckoutUrl = data.checkout_url as string | undefined;
+
         const isTelegram = isTelegramMiniApp();
         const webApp = getTelegramWebApp();
 
-        // PADDLE BILLING v2: правильный формат URL - через дефолтную Payment Link + _ptxn параметр
-        // НЕ используем /transaction/ путь напрямую — он требует одобренный домен в Paddle Dashboard
-        // Правильный формат: https://checkout.paddle.com/checkout/custom-checkout?_ptxn=txn_xxx
-        // Либо через Payment Link: https://buy.paddle.com/product/xxx?_ptxn=txn_xxx
-        // Самый надёжный — overlay через SDK (для веба) или openCheckoutOverlay
-        const paddleCheckoutUrl = `https://checkout.paddle.com/checkout/custom-checkout?_ptxn=${data.transaction_id}`;
+        // Пробуем overlay Paddle SDK — работает и в Telegram WebView, и в браузере
+        let sdkInstance = paddleInstance || getPaddleInstanceSync();
+        if (!sdkInstance) {
+          sdkInstance = await getPaddleInstance();
+          if (sdkInstance) setPaddle(sdkInstance);
+        }
 
-        // В Telegram — открываем через системный браузер
-        if (isTelegram && webApp) {
-          console.log("[BoostShop] Opening Paddle checkout in Telegram:", {
-            transactionId: data.transaction_id,
-            url: paddleCheckoutUrl,
-          });
-
-          setPurchaseLoading(null);
-
-          if ((webApp as any).openLink) {
-            (webApp as any).openLink(paddleCheckoutUrl);
-          } else {
-            window.open(paddleCheckoutUrl, "_blank");
+        if (sdkInstance) {
+          console.log("[BoostShop] Opening Paddle checkout overlay");
+          try {
+            sdkInstance.Checkout.open({
+              transactionId: data.transaction_id,
+              settings: {
+                displayMode: "overlay",
+                successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
+                theme: "dark",
+                locale: language === "ru" ? "ru" : language === "es" ? "es" : "en",
+              },
+            });
+            setPurchaseLoading(null);
+            return;
+          } catch (err) {
+            console.warn("[BoostShop] Overlay failed:", err);
           }
+        }
+
+        // Fallback: если SDK недоступен — открываем checkout_url
+        setPurchaseLoading(null);
+        if (!paddleCheckoutUrl) {
+          toast({
+            title: t("boostShop.toasts.errorTitle"),
+            description: "Не удалось получить ссылку оплаты. Попробуйте снова.",
+            variant: "destructive",
+          });
           return;
         }
 
-        // Для веб-версии используем overlay через Paddle SDK
-        if (paddleInstance) {
-          console.log("[BoostShop] Opening Paddle checkout overlay (web):", {
-            transactionId: data.transaction_id,
-            displayMode: "overlay",
-          });
-
-          try {
-            // Overlay - открывается попап прямо на сайте (рекомендуется для веба)
-            // ВАЖНО: Paddle имеет ограниченную кастомизацию через SDK
-            // Для полной кастомизации (логотип, цвета) используйте Paddle Dashboard:
-            // Settings → Branding → Checkout appearance
-            paddleInstance.Checkout.open({
-              transactionId: data.transaction_id,
-              settings: {
-                displayMode: "overlay", // Попап на сайте - современный UX
-                successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
-                theme: "dark", // Темная тема под ваш дизайн (light/dark)
-                locale:
-                  language === "ru" ? "ru" : language === "es" ? "es" : "en", // Локализация
-              },
-            });
-            // После успешного открытия overlay - сбрасываем loading (форма открыта)
-            setPurchaseLoading(null);
-          } catch (error) {
-            console.error(
-              "[BoostShop] Failed to open Paddle checkout overlay:",
-              error,
-            );
-
-            // Fallback: если overlay не открылся, используем редирект
-            console.warn(
-              "[BoostShop] Overlay failed, falling back to redirect",
-            );
-            setPurchaseLoading(null);
-            window.location.href = paddleCheckoutUrl;
-          }
+        if (isTelegram && webApp && (webApp as any).openLink) {
+          (webApp as any).openLink(paddleCheckoutUrl);
         } else {
-          // Fallback: если SDK не инициализирован, используем редирект
-          console.warn(
-            "[BoostShop] Paddle SDK not initialized, using fallback redirect",
-          );
-          console.warn(
-            "[BoostShop] Make sure VITE_PADDLE_CLIENT_TOKEN is set and project is redeployed",
-          );
-
-          console.log(
-            "[BoostShop] Redirecting to Paddle checkout:",
-            paddleCheckoutUrl,
-          );
-          setPurchaseLoading(null);
           window.location.href = paddleCheckoutUrl;
         }
       } catch (err: any) {
