@@ -93,7 +93,10 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
       sessionStorage.setItem('paddle_transaction_id', data.transaction_id);
       localStorage.setItem('paddle_transaction_id', data.transaction_id);
 
-      const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${data.transaction_id}`;
+      // КРИТИЧНО: правильный формат Paddle Billing v2 checkout URL
+      // https://checkout.paddle.com/transaction/{id} — НЕ СУЩЕСТВУЕТ (404)
+      // Правильный URL через query-параметр _ptxn:
+      const paddleCheckoutUrl = `https://buy.paddle.com/checkout/custom-checkout?_ptxn=${data.transaction_id}&_gl=`;
       const isTelegram = isTelegramMiniApp();
       const webApp = getTelegramWebApp();
 
@@ -106,9 +109,16 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         return;
       }
 
-      if (paddleInstance) {
+      // Пробуем SDK overlay первым — лучший UX
+      let sdkInstance = paddleInstance || getPaddleInstanceSync();
+      if (!sdkInstance && showPaddlePayment) {
+        sdkInstance = await getPaddleInstance();
+        if (sdkInstance) setPaddle(sdkInstance);
+      }
+
+      if (sdkInstance) {
         try {
-          paddleInstance.Checkout.open({
+          sdkInstance.Checkout.open({
             transactionId: data.transaction_id,
             settings: {
               displayMode: "overlay",
@@ -117,10 +127,12 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
               locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
             },
           });
-        } catch {
+        } catch (e) {
+          console.warn('[PremiumPlanSelector] Paddle overlay failed, redirecting:', e);
           window.location.href = paddleCheckoutUrl;
         }
       } else {
+        // Fallback: открываем прямую ссылку Paddle
         window.location.href = paddleCheckoutUrl;
       }
     } catch (error: any) {
@@ -134,11 +146,6 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         setSelectedPlan(null);
       }, 1500);
     }
-  };
-
-  const triggerConfetti = () => {
-    setShowConfetti(true);
-    setTimeout(() => setShowConfetti(false), 3000);
   };
 
 
