@@ -15,16 +15,16 @@ type DrawerProps = React.ComponentProps<typeof DrawerPrimitive.Root> & {
 }
 
 const Drawer = ({
-  shouldScaleBackground = false,
-  dismissibleThreshold = 0.25, // Уменьшенный порог для легкого закрытия
+  shouldScaleBackground: _shouldScaleBackground, // Игнорируем пришедшее значение
+  dismissibleThreshold = 0.25,
   children,
   ...props
 }: DrawerProps) => (
   <DrawerPrimitive.Root
-    shouldScaleBackground={shouldScaleBackground}
-    dismissible={true} // Явно включаем возможность закрытия
-    closeThreshold={dismissibleThreshold} // Используем dismissibleThreshold для closeThreshold
     {...props}
+    shouldScaleBackground={false} // ВСЕГДА false — пользователь не хочет scale эффект
+    dismissible={true}
+    closeThreshold={dismissibleThreshold}
   >
     {children}
   </DrawerPrimitive.Root>
