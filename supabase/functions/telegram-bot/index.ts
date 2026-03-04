@@ -8,6 +8,7 @@ import {
   TelegramUpdate,
   TelegramCallbackQuery,
   TelegramInlineQuery,
+  TelegramPreCheckoutQuery,
   AnswerCallbackQueryOptions,
   EditMessageTextOptions,
   TelegramMessage,
@@ -37,7 +38,16 @@ serve(async (req) => {
     const update: TelegramUpdate = await req.json();
     console.log(`[Update] Received update_id: ${update.update_id}`);
 
-    if (update.message) {
+    // =====================================================
+    // ПЛАТЕЖИ: pre_checkout_query и successful_payment
+    // КРИТИЧНО: Telegram ждёт ответ на pre_checkout за 10 сек!
+    // Без этого — все платежи тихо отклоняются.
+    // =====================================================
+    if (update.pre_checkout_query) {
+      await handlePreCheckoutQuery(update.pre_checkout_query);
+    } else if (update.message?.successful_payment) {
+      await handleSuccessfulPayment(update.message);
+    } else if (update.message) {
       await handleMessage(update.message);
     } else if (update.callback_query) {
       await handleCallbackQuery(update.callback_query);
@@ -51,6 +61,101 @@ serve(async (req) => {
     return new Response("OK", { status: 200 });
   }
 });
+
+// =====================================================
+// ОБРАБОТКА PRE-CHECKOUT (подтверждение платежа)
+// Telegram ждёт ответ МАКСИМУМ 10 секунд!
+// =====================================================
+async function handlePreCheckoutQuery(query: TelegramPreCheckoutQuery) {
+  console.log(`[PreCheckout] query_id=${query.id} payload=${query.invoice_payload}`);
+
+  try {
+    const STARS_PAYMENT_URL = `${Deno.env.get('SUPABASE_URL')}/functions/v1/telegram-stars-payment`;
+    const response = await fetch(STARS_PAYMENT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+      },
+      body: JSON.stringify({
+        action: 'pre_checkout_query',
+        query_id: query.id,
+        invoice_payload: query.invoice_payload,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`[PreCheckout] Stars payment error: ${errText}`);
+      // При ошибке — всё равно отвечаем OK чтобы не блокировать юзера
+      await fetch(`${TELEGRAM_API}/answerPreCheckoutQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pre_checkout_query_id: query.id, ok: true }),
+      });
+    } else {
+      console.log(`[PreCheckout] Stars payment processed successfully`);
+    }
+  } catch (err: unknown) {
+    console.error('[PreCheckout] Fatal error:', err);
+    // Fallback: отвечаем OK чтобы Telegram не отклонял
+    try {
+      await fetch(`${TELEGRAM_API}/answerPreCheckoutQuery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pre_checkout_query_id: query.id, ok: true }),
+      });
+    } catch (e: unknown) {
+      console.error('[PreCheckout] Fallback answerPreCheckout failed:', e);
+    }
+  }
+}
+
+// =====================================================
+// ОБРАБОТКА SUCCESSFUL PAYMENT (успешная оплата)
+// =====================================================
+async function handleSuccessfulPayment(message: TelegramMessage) {
+  const payment = message.successful_payment!;
+  console.log(`[SuccessfulPayment] charge_id=${payment.telegram_payment_charge_id} stars=${payment.total_amount}`);
+
+  try {
+    const STARS_PAYMENT_URL = `${Deno.env.get('SUPABASE_URL')}/functions/v1/telegram-stars-payment`;
+    const response = await fetch(STARS_PAYMENT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+      },
+      body: JSON.stringify({
+        action: 'successful_payment',
+        invoice_payload: payment.invoice_payload,
+        telegram_payment_charge_id: payment.telegram_payment_charge_id,
+        total_amount: payment.total_amount,
+        currency: payment.currency,
+      }),
+    });
+
+    const result = await response.json();
+    console.log(`[SuccessfulPayment] Result: success=${result.success} rewards=${result.rewards_status}`);
+
+    // Отправляем пользователю сообщение об успехе
+    if (message.chat?.id) {
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: message.chat.id,
+          text: `🎉 *Оплата успешна!*\n\nСпасибо за поддержку! Ваши награды уже начислены.\n\n⭐ Потрачено: ${payment.total_amount} Stars`,
+          parse_mode: 'Markdown',
+        }),
+      });
+    }
+  } catch (err: unknown) {
+    console.error('[SuccessfulPayment] Fatal error:', err);
+  }
+}
+
+
 
 async function handleMessage(message: TelegramMessage) {
   const text = message.text || "";

@@ -21,6 +21,14 @@ export interface TelegramChat {
   last_name?: string;
 }
 
+export interface TelegramSuccessfulPayment {
+  currency: string;
+  total_amount: number;
+  invoice_payload: string;
+  telegram_payment_charge_id: string;
+  provider_payment_charge_id?: string;
+}
+
 export interface TelegramMessage {
   message_id: number;
   from?: TelegramUser;
@@ -28,6 +36,7 @@ export interface TelegramMessage {
   date: number;
   text?: string;
   entities?: TelegramMessageEntity[];
+  successful_payment?: TelegramSuccessfulPayment;
 }
 
 export interface TelegramMessageEntity {
@@ -55,12 +64,21 @@ export interface TelegramInlineQuery {
   chat_type?: 'sender' | 'private' | 'group' | 'supergroup' | 'channel';
 }
 
+export interface TelegramPreCheckoutQuery {
+  id: string;
+  from: TelegramUser;
+  currency: string;
+  total_amount: number;
+  invoice_payload: string;
+}
+
 export interface TelegramUpdate {
   update_id: number;
   message?: TelegramMessage;
   edited_message?: TelegramMessage;
   callback_query?: TelegramCallbackQuery;
   inline_query?: TelegramInlineQuery;
+  pre_checkout_query?: TelegramPreCheckoutQuery;
 }
 
 export interface InlineKeyboardButton {
