@@ -299,9 +299,31 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Проверяем сессию Supabase перед инициализацией Telegram
       const { data: { session: existingSession } } = await supabase.auth.getSession();
       if (existingSession?.user) {
-        console.log("[UserContext] Real Supabase user found, skipping Telegram initialization");
+        console.log("[UserContext] Real Supabase user found, restoring session...");
         setSupabaseUser(existingSession.user);
         setSession(existingSession);
+
+        // КРИТИЧНО: При раннем return из-за кэшированной сессии (реальный Telegram, не dev-режим)
+        // user (TelegramUser) всё равно должен быть установлен — иначе StarsPaymentButton
+        // видит user=null и показывает "Необходимо войти в аккаунт"
+        const tgWebappUser =
+          webApp?.initDataUnsafe?.user ??
+          window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (tgWebappUser && tgWebappUser.id !== 123456789 && tgWebappUser.username !== 'test_user') {
+          console.log("[UserContext] ✅ TelegramUser restored from WebApp on session restore:", tgWebappUser.first_name);
+          setUser(tgWebappUser as TelegramUser);
+          window.puzzleUser = tgWebappUser as TelegramUser;
+        }
+
+        // КРИТИЧНО: Восстанавливаем profileId из кэша ДО снятия флага загрузки
+        // Это предотвращает мигание/блокировку кнопки оплаты
+        const cachedProfileId = localStorage.getItem(`profile_${existingSession.user.id}`);
+        if (cachedProfileId) {
+          console.log("[UserContext] ✅ profileId restored from cache:", cachedProfileId);
+          setProfileId(cachedProfileId);
+          setGlobalProfileId(cachedProfileId);
+        }
+
         setIsLoading(false);
         return;
       }
