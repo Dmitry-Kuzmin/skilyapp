@@ -110,7 +110,7 @@ export function ResponsiveModal({
             )}
 
             {headerContent && (
-              <div className="shrink-0">
+              <div className="shrink-0 pt-[env(safe-area-inset-top,0px)]">
                 {headerContent}
               </div>
             )}

@@ -114,7 +114,7 @@ serve(async (req) => {
 
     const customData = { user_id, catalog_key, db_type: entry.dbType, db_item_id: entry.dbItemId, ...entry.metadata };
 
-    const transactionResponse = await fetch("https://api.paddle.com/transactions?include=checkout", {
+    const transactionResponse = await fetch("https://api.paddle.com/transactions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${paddleApiKey}`, "Content-Type": "application/json", "Paddle-Version": "1" },
       body: JSON.stringify({
@@ -148,8 +148,9 @@ serve(async (req) => {
       metadata: { ...entry.metadata, paddle_data: transactionData },
     });
 
-    // checkout.url — официальный URL от Paddle, безопасен для редиректа
-    const checkoutUrl = transactionData.checkout?.url ?? null;
+    // Формируем ссылку вручную для Paddle Billing v2
+    // Этот формат работает для всех транзакций без настройки дополнительных доменов
+    const checkoutUrl = `https://buy.paddle.com/checkout/custom-checkout?_ptxn=${transactionData.id}`;
     console.log(`[paddle-payment] Transaction created: ${transactionData.id}, checkout_url: ${checkoutUrl}`);
 
     return new Response(JSON.stringify({

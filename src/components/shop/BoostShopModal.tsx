@@ -2602,7 +2602,10 @@ export function BoostShopModal({
 
   const headerContent = (
     <div className="relative">
-      <div className="relative px-4 md:px-5 py-4 md:py-5 border-b border-border/30">
+      <div
+        className="relative px-4 md:px-5 py-4 md:py-5 border-b border-border/30"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}
+      >
         <div className="flex items-center justify-between gap-3">
           {/* Left: Title & subtitle */}
           <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -2666,15 +2669,15 @@ export function BoostShopModal({
             <button
               onClick={() => onOpenChange(false)}
               className={cn(
-                "p-2 rounded-lg",
+                "p-2 rounded-lg relative z-[100]",
                 "bg-muted/50 hover:bg-muted",
                 "text-muted-foreground hover:text-foreground",
                 "transition-all duration-200",
-                "opacity-70 hover:opacity-100",
+                "opacity-80 hover:opacity-100",
               )}
               aria-label="Закрыть"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5 md:w-4 md:h-4" />
             </button>
           </div>
         </div>
