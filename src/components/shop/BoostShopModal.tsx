@@ -948,11 +948,11 @@ export function BoostShopModal({
         }
 
         if (data?.error) {
-          console.error("[BoostShop] Error in response:", data.error);
+          console.error("[BoostShop] Error in response:", finalData.error);
           toast({
             title: t("boostShop.toasts.errorTitle"),
             description:
-              data.error || t("boostShop.toasts.purchaseErrorDescription"),
+              finalData.error || t("boostShop.toasts.purchaseErrorDescription"),
             variant: "destructive",
           });
           setPurchaseLoading(null);
@@ -1808,6 +1808,16 @@ export function BoostShopModal({
 
                                     console.log("[BoostShop] Cryptomus raw response:", { data, error });
 
+                                     // 🛡️ Исправление: если data пришла как строка (JSON), парсим её вручную
+                                     let finalData = data;
+                                     if (typeof data === "string") {
+                                       try {
+                                         finalData = JSON.parse(data);
+                                       } catch (e) {
+                                         console.error("[BoostShop] Error parsing Cryptomus string data:", e);
+                                       }
+                                     }
+
                                     if (error) {
                                       console.error(
                                         "[BoostShop] Cryptomus error:",
@@ -1825,11 +1835,11 @@ export function BoostShopModal({
                                       return;
                                     }
 
-                                    if (data?.error) {
+                                    if (finalData?.error) {
                                       toast({
                                         title: t("boostShop.toasts.errorTitle"),
                                         description:
-                                          data.error ||
+                                          finalData.error ||
                                           t(
                                             "boostShop.toasts.purchaseErrorDescription",
                                           ),
@@ -1838,19 +1848,19 @@ export function BoostShopModal({
                                       return;
                                     }
 
-                                    if (data?.url && data?.orderId) {
+                                    if (finalData?.url if (data?.url && data?.orderId)if (data?.url && data?.orderId) finalData?.orderId) {
                                       const amount = pack.priceValue || 0;
 
                                       setCryptomusPreview({
                                         open: true,
-                                        paymentUrl: data.url,
-                                        orderId: data.orderId,
+                                        paymentUrl: finalData.url,
+                                        orderId: finalData.orderId,
                                         amount: amount,
                                         currency: "EUR",
                                         itemName: `${pack.amount} монет`,
                                       });
                                     } else {
-                                      console.error("[BoostShop] Cryptomus data incomplete:", data);
+                                      console.error("[BoostShop] Cryptomus data incomplete:", finalData || data);
                                       toast({
                                         title: t("boostShop.toasts.errorTitle"),
                                         description: t(
@@ -2200,8 +2210,8 @@ export function BoostShopModal({
                                         if (data?.url && data?.orderId) {
                                           setCryptomusPreview({
                                             open: true,
-                                            paymentUrl: data.url,
-                                            orderId: data.orderId,
+                                            paymentUrl: finalData.url,
+                                            orderId: finalData.orderId,
                                             amount: plan.priceValue,
                                             currency: "EUR",
                                             itemName: `Premium: ${plan.title}`,
