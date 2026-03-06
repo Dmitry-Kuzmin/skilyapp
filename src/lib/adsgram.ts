@@ -26,7 +26,7 @@ declare global {
 // Конфигурация
 const ADSGRAM_CONFIG = {
   // Block ID из вашего кабинета AdsGram
-  REWARDED_VIDEO_BLOCK_ID: '19051', // Ваш созданный блок
+  REWARDED_VIDEO_BLOCK_ID: '24504', // Новый блок для @skilyapp_bot
 };
 
 let adController: AdsGramAdController | null = null;
@@ -56,15 +56,16 @@ async function loadAdsGramScript(): Promise<boolean> {
 
 /**
  * Инициализация AdsGram SDK
- * Должна быть вызвана один раз при загрузке приложения
+ * @param userId - ID пользователя (Telegram ID) для серверных уведомлений
  */
-export async function initAdsGram(): Promise<AdsGramAdController | null> {
+export async function initAdsGram(userId?: string): Promise<AdsGramAdController | null> {
   if (typeof window === 'undefined') {
     console.warn('[AdsGram] Window is not available');
     return null;
   }
 
-  if (adController) {
+  // Если контроллер уже есть, но userId изменился - пересоздаем (редкий случай)
+  if (adController && !userId) {
     return adController;
   }
 
@@ -78,12 +79,13 @@ export async function initAdsGram(): Promise<AdsGramAdController | null> {
   }
 
   try {
-    // Инициализация с blockId
+    // Инициализация с blockId и userId
     adController = window.Adsgram.init({
       blockId: ADSGRAM_CONFIG.REWARDED_VIDEO_BLOCK_ID,
+      ...(userId ? { userId } : {}),
     });
 
-    console.log('[AdsGram] SDK initialized successfully with blockId:', ADSGRAM_CONFIG.REWARDED_VIDEO_BLOCK_ID);
+    console.log('[AdsGram] SDK initialized successfully with blockId:', ADSGRAM_CONFIG.REWARDED_VIDEO_BLOCK_ID, 'userId:', userId);
     return adController;
   } catch (error) {
     console.error('[AdsGram] Initialization error:', error);
@@ -93,20 +95,14 @@ export async function initAdsGram(): Promise<AdsGramAdController | null> {
 
 /**
  * Показать Rewarded Video рекламу
- * 
- * Promise резолвится, если пользователь досмотрел рекламу до конца
- * Promise реджектится, если была ошибка или пользователь пропустил рекламу
+ * @param userId - ID пользователя (Telegram ID)
  */
-export async function showAdsGramRewardedVideo(): Promise<boolean> {
-  if (!adController) {
-    // Пытаемся инициализировать
-    const controller = await initAdsGram();
-    if (!controller) {
-      throw new Error('AdsGram SDK not initialized');
-    }
+export async function showAdsGramRewardedVideo(userId?: string): Promise<boolean> {
+  // Пытаемся инициализировать (или обновить userId)
+  const controller = await initAdsGram(userId);
+  if (!controller) {
+    throw new Error('AdsGram SDK not initialized');
   }
-
-  const controller = adController!;
 
   return new Promise((resolve, reject) => {
     controller

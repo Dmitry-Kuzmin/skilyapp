@@ -18,9 +18,8 @@ import { cn } from '@/lib/utils';
 import { useDuelResults } from '@/hooks/useDuelResults';
 import { clearDuelResultSnapshot, loadDuelResultSnapshot } from '@/utils/duelResultSnapshot';
 import { DataLaunderingButton } from './DataLaunderingButton';
-import { useVignetteBanner } from '@/hooks/useVignetteBanner';
-import { useInterstitialBanner } from '@/hooks/useInterstitialBanner';
 import { usePremium } from '@/hooks/usePremium';
+
 import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCardV3";
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { AnimatedCounter } from '@/components/AnimatedCounter';
@@ -228,12 +227,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   // Получаем общее количество вопросов из данных дуэли
   const totalQuestions = duelResultsData?.duel?.num_questions || myAnswers.length || 10;
 
-  // Показываем Vignette Banner после завершения дуэли (только в веб-версии, один раз за сессию)
-  // Задержка 1.5 секунды, чтобы не перекрывать анимацию результатов
-  useVignetteBanner(!!results, 1500);
+  // Автоматическая реклама удалена
 
-  // Показываем Interstitial Banner при возврате в меню (только в веб-версии, один раз за сессию)
-  useInterstitialBanner(shouldShowInterstitial, 300);
 
   useEffect(() => {
     if (results && profileId && !rewardsAppliedRef.current) {
@@ -400,7 +395,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
       webApp.shareToStory(imageDataUrl, {
         text: shareText,
         widget_link: {
-          url: 'https://t.me/dgt_prep_bot',
+          url: 'https://t.me/skilyapp_bot',
+
           name: 'Попробуй обыграть меня!'
         }
       });

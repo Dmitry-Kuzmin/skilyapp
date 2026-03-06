@@ -4,7 +4,7 @@
 
 - [x] Приложение создано в AdsGram (PlatformID: 17830)
 - [x] Ad Block создан: **"Rewarded Video - Coins"**
-- [x] **Unit ID получен: 19051** ✅
+- [x] **Unit ID получен: 24504** ✅
 - [x] Reward URL настроен (нужно исправить опечатку)
 
 ---
@@ -38,7 +38,7 @@ https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/ad-reward?userid=[userId]&
 
 **Вариант A: Через поддержку**
 - Напишите в Telegram канал: https://t.me/AdsGram_ai
-- Скажите: "Создал Ad Block (UnitID: 19051), нужен SDK для интеграции Rewarded Video в Telegram Mini App"
+- Скажите: "Создал Ad Block (UnitID: 24504), нужен SDK для интеграции Rewarded Video в Telegram Mini App"
 
 **Вариант B: Через документацию**
 - Проверьте: https://docs.adsgram.ai/publisher/monetize-app/
@@ -61,18 +61,18 @@ https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/ad-reward?userid=[userId]&
 2. **Обновите `src/hooks/useRewardedAd.ts`:**
    - Раскомментируйте код SDK (строки 93-102 и 142-162)
    - Замените `TEST_MODE_CONFIG.enabled = false`
-   - Добавьте Unit ID: `19051`
+   - Добавьте Unit ID: `24504`
 
 3. **Добавьте Unit ID в конфигурацию:**
    ```typescript
    // В useRewardedAd.ts
-   const REWARDED_VIDEO_UNIT_ID = '19051'; // Ваш Unit ID от AdsGram
+   const REWARDED_VIDEO_UNIT_ID = '24504'; // Ваш Unit ID от AdsGram
    ```
 
 4. **Или через переменные окружения:**
    ```env
    # .env.local
-   VITE_ADSGRAM_UNIT_ID_REWARDED=19051
+   VITE_ADSGRAM_UNIT_ID_REWARDED=24504
    ```
 
 ---

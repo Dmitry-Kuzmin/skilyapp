@@ -78,26 +78,33 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
     const handleRewardClaimed = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase.functions.invoke('claim-ad-reward', {
-                body: { user_id: profileId, reward_type: 'coins', reward_amount: 50 }
-            });
+            // Для Telegram мы НЕ вызываем claim-ad-reward вручную, 
+            // так как это делает сервер Adsgram через S2S callback.
+            // Мы только оповещаем UI об успехе, если это не Telegram.
+            const isTG = isTelegramMiniApp();
 
-            if (error) throw error;
+            if (!isTG) {
+                const { data, error } = await supabase.functions.invoke('claim-ad-reward', {
+                    body: { user_id: profileId, reward_type: 'coins', reward_amount: 25 }
+                });
 
-            if (data.success) {
-                await queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
-                await refetch();
-
-                sounds.correctAnswer();
-                haptics.boostActivated();
-
-                setShowSuccess(true);
-                setTimeout(() => setShowSuccess(false), 2500);
-
-                toast({ title: '⚡ CRYPTO MINED!', description: `+50 монет добыто! (${data.daily_count}/${data.daily_limit})` });
+                if (error) throw error;
+                if (!data.success) throw new Error(data.error || 'Ошибка майнинга');
             } else {
-                throw new Error(data.error || 'Ошибка майнинга');
+                // В Telegram просто ждем секунду, чтобы сервер успел обработать callback
+                await new Promise(resolve => setTimeout(resolve, 1500));
             }
+
+            await queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
+            await refetch();
+
+            sounds.correctAnswer();
+            haptics.boostActivated();
+
+            setShowSuccess(true);
+            setTimeout(() => setShowSuccess(false), 2500);
+
+            toast({ title: '⚡ CRYPTO MINED!', description: `+25 монет добыто!` });
         } catch (err: any) {
             console.error('[CryptoMinerAdvanced] Error:', err);
             toast({ title: 'Ошибка', description: err.message, variant: 'destructive' });
@@ -270,7 +277,7 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
                                 whileHover={canWatch ? { scale: 1.05, backgroundColor: 'rgba(255,255,255,0.3)' } : {}}
                             >
                                 <Coins className="w-5 h-5 text-yellow-300 drop-shadow-sm" />
-                                <span className="text-white font-bold text-lg sm:text-xl drop-shadow-sm">+50</span>
+                                <span className="text-white font-bold text-lg sm:text-xl drop-shadow-sm">+25</span>
                             </motion.div>
 
                             {canWatch && (
@@ -331,7 +338,7 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
                                 >
                                     <Sparkles className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-300 drop-shadow-lg" />
                                 </motion.div>
-                                <span className="text-white font-bold text-xl sm:text-2xl drop-shadow-lg">+50 MINED!</span>
+                                <span className="text-white font-bold text-xl sm:text-2xl drop-shadow-lg">+25 MINED!</span>
                             </motion.div>
                         </motion.div>
                     )}
@@ -342,7 +349,7 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
                 open={showAdModal}
                 onOpenChange={setShowAdModal}
                 rewardType="coins"
-                rewardAmount={50}
+                rewardAmount={25}
                 onRewardClaimed={handleRewardClaimed}
                 title="⚡ CRYPTO MINER"
                 description="Добывай криптомонеты! Смотри рекламу и получай награду."

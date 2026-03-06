@@ -181,7 +181,6 @@ export const isTelegramMiniApp = () => {
   const webApp = window.Telegram.WebApp;
 
   // КРИТИЧНО: Проверяем, что это НЕ мок из index.html
-  // Мок имеет initData = 'mock_init_data' - это не валидный Telegram initData
   const isMockData = webApp.initData === 'mock_init_data' ||
     webApp.initData?.startsWith('mock_') ||
     (webApp.initDataUnsafe?.user?.id === 123456789 &&
@@ -191,15 +190,8 @@ export const isTelegramMiniApp = () => {
     return false;
   }
 
-  // Проверка на наличие данных авторизации (обязательно для Mini App)
-  const hasInitData = webApp.initData && webApp.initData !== '';
-  const hasUserData = !!webApp.initDataUnsafe?.user;
-
-  if (!hasInitData && !hasUserData) {
-    return false;
-  }
-
-  // Дополнительная проверка: platform должен быть валидной Telegram платформой
+  // На десктопе initData может быть пустым или появляться с задержкой,
+  // поэтому проверяем наличие платформы и версии (они всегда есть в реальном SDK)
   const platform = webApp.platform;
   const isValidPlatform = platform === 'web' ||
     platform === 'ios' ||
@@ -209,9 +201,9 @@ export const isTelegramMiniApp = () => {
     platform === 'windows' ||
     platform === 'linux';
 
-  const hasVersion = webApp.version && typeof webApp.version === 'string';
+  const hasVersion = !!(webApp.version && typeof webApp.version === 'string');
 
-  // Возвращаем true только если есть данные, платформа валидна И есть версия
+  // Если есть платформа и версия — это уже 99% Telegram WebApp
   return isValidPlatform && hasVersion;
 };
 

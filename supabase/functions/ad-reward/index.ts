@@ -27,7 +27,7 @@ serve(async (req) => {
 
     let user_id: string | null = null;
     let reward_type: RewardType = 'coins';
-    let amount = 20;
+    let amount = 25;
     let ad_unit_id: string | undefined;
     let ad_network = 'adsgram';
     let metadata: Record<string, any> | undefined;
@@ -36,7 +36,7 @@ serve(async (req) => {
       const url = new URL(req.url);
       const telegramUserId = url.searchParams.get('userid');
       reward_type = (url.searchParams.get('reward_type') as RewardType) || 'coins';
-      amount = parseInt(url.searchParams.get('amount') || '20', 10);
+      amount = parseInt(url.searchParams.get('amount') || '25', 10);
       ad_unit_id = url.searchParams.get('ad_unit_id') || undefined;
       ad_network = url.searchParams.get('ad_network') || 'adsgram';
 
@@ -67,7 +67,7 @@ serve(async (req) => {
       }
 
       reward_type = body.reward_type || 'coins';
-      amount = body.amount || 20;
+      amount = body.amount || 25;
       ad_unit_id = body.ad_unit_id;
       ad_network = body.ad_network || 'adsgram';
       metadata = body.metadata;

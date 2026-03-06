@@ -20,7 +20,7 @@ serve(async (req) => {
 
   try {
     const body: ClaimRequest = await req.json();
-    const { user_id, reward_type = 'coins', reward_amount = 50 } = body;
+    const { user_id, reward_type = 'coins', reward_amount = 25 } = body;
 
     if (!user_id) {
       return new Response(JSON.stringify({ error: 'user_id is required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });

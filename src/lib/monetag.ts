@@ -145,7 +145,7 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
 
     if (!isTMASDKLoaded()) {
       // SDK не загружен - возможно, AdBlock заблокировал скрипт
-      const error = new Error('Monetag SDK не загружен. Возможно, AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.');
+      const error = new Error('Monetag SDK не загружен. Если вы в Telegram — это ошибка определения платформы. Если в браузере — проверьте AdBlock.');
       (error as any).isAdBlockError = true;
       throw error;
     }
@@ -221,7 +221,7 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
 
     if (!isWebSDKLoaded()) {
       // SDK не загружен - возможно, AdBlock заблокировал скрипт
-      const error = new Error('Monetag SDK не загружен. Возможно, AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.');
+      const error = new Error('Monetag SDK не загружен. Если вы в Telegram — это ошибка определения платформы. Если в браузере — проверьте AdBlock.');
       (error as any).isAdBlockError = true;
       throw error;
     }

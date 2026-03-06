@@ -97,7 +97,7 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
         body: {
           user_id: profileId,
           reward_type: 'coins',
-          reward_amount: 50,
+          reward_amount: 25,
         }
       });
 
@@ -115,7 +115,7 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
 
         toast({
           title: '✅ CRYPTO MINER',
-          description: `+50 монет начислено! (${data.daily_count || 0}/${data.daily_limit || 5} сегодня)`,
+          description: `+25 монет начислено! (${data.daily_count || 0}/${data.daily_limit || 5} сегодня)`,
         });
       } else {
         throw new Error(data.error || 'Не удалось начислить награду');
@@ -208,7 +208,7 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
           </div>
         </div>
         <div className="text-right">
-          <span className="text-white font-mono font-bold block">+50 🟡</span>
+          <span className="text-white font-mono font-bold block">+25 🟡</span>
           <span className="text-[10px] text-white/40 uppercase">
             {isDailyLimitReached ? 'Limit' : isOnCooldown ? 'Wait' : 'Watch Ad'}
           </span>
@@ -219,10 +219,10 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
         open={showAdModal}
         onOpenChange={setShowAdModal}
         rewardType="coins"
-        rewardAmount={50}
+        rewardAmount={25}
         onRewardClaimed={handleRewardClaimed}
         title="CRYPTO MINER"
-        description="Посмотри видео и получи 50 монет. Майнинг крипты требует времени..."
+        description="Посмотри видео и получи 25 монет. Майнинг крипты требует времени..."
       />
     </>
   );

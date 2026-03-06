@@ -491,7 +491,7 @@ export function BoostShopModal({
         return {
           icon: Video,
           description: t("boostShop.transactions.coinsEarnedAd", {
-            amount: metadata?.amount || 20,
+            amount: metadata?.amount || 25,
           }),
           category: "earn",
         };

@@ -26,7 +26,7 @@ export function RewardedAdModal({
   open,
   onOpenChange,
   rewardType,
-  rewardAmount = 50,
+  rewardAmount = 25,
   onRewardClaimed,
   title,
   description,

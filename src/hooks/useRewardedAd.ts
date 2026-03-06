@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { isTelegramMiniApp } from '@/lib/telegram';
+import { isTelegramMiniApp, getTelegramUser } from '@/lib/telegram';
 import { usePremium } from './usePremium';
 import { initAdsGram, showAdsGramRewardedVideo } from '@/lib/adsgram';
 import { initMonetag, showMonetagRewardedVideo } from '@/lib/monetag';
@@ -55,7 +55,9 @@ export function useRewardedAd() {
     }
 
     if (isTelegramMiniApp()) {
-      initAdsGram().catch(console.error);
+      const tgUser = getTelegramUser();
+      const userId = tgUser?.id?.toString();
+      initAdsGram(userId).catch(console.error);
     } else {
       initMonetag();
     }
@@ -77,7 +79,9 @@ export function useRewardedAd() {
 
       // В Telegram Mini App используем только AdsGram
       if (isTelegramMiniApp()) {
-        rewarded = await showAdsGramRewardedVideo();
+        const tgUser = getTelegramUser();
+        const userId = tgUser?.id?.toString();
+        rewarded = await showAdsGramRewardedVideo(userId);
       } else {
         // В веб-версии используем Monetag Native Banner
         rewarded = await showMonetagRewardedVideo();
@@ -94,6 +98,10 @@ export function useRewardedAd() {
       // AdBlock ошибка (Monetag)
       if (err.isAdBlockError || err.message?.includes('AdBlock')) {
         errorMessage = 'AdBlock заблокировал рекламу. Отключите AdBlock, чтобы получить награду.';
+        // Если мы в Telegram, уточняем сообщение
+        if (isTelegramMiniApp()) {
+          errorMessage = 'Ошибка загрузки рекламного модуля. Пожалуйста, убедитесь, что у вас стабильное интернет-соединение и попробуйте еще раз.';
+        }
       }
       // NotAllowedError - автовоспроизведение заблокировано (AdsGram)
       else if (err.message?.includes('not allowed') || err.message?.includes('NotAllowedError') || err.name === 'NotAllowedError') {

@@ -11,8 +11,8 @@ import { usePremium } from "@/hooks/usePremium";
 import { getImageUrl } from "@/utils/imageUtils";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import Confetti from "react-confetti";
-import { useVignetteBanner } from "@/hooks/useVignetteBanner";
-import { useInterstitialBanner } from "@/hooks/useInterstitialBanner";
+import { usePremium } from "@/hooks/usePremium";
+
 import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCardV3";
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { sounds } from "@/lib/sounds";
@@ -203,10 +203,8 @@ const TestResults = () => {
 
   console.log('[TestResults] Country from state:', country);
 
-  // Banner hooks
-  const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
-  useVignetteBanner(!!questions.length && !!answers.length, 1500);
-  useInterstitialBanner(shouldShowInterstitial, 300);
+  // Автоматическая реклама удалена
+
 
   // Sync rewards
   useEffect(() => {
@@ -744,8 +742,8 @@ const TestResults = () => {
             className="w-full h-12 text-base font-semibold"
             variant="outline"
             onClick={() => {
-              if (!isPremium) setShouldShowInterstitial(true);
               setTimeout(() => navigate("/tests"), 100);
+
             }}
           >
             Вернуться к тестам
