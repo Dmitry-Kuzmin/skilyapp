@@ -95,10 +95,14 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
       }
 
       setTransactionId(data.transaction_id);
+
+      // Сначала открываем чекаут, потом закрываем планы
       setShowCheckout(true);
 
-      // Скрываем текущую модалку планов, чтобы не было наслоения
-      onOpenChange(false);
+      // Небольшая задержка перед закрытием планов, чтобы избежать конфликта порталов
+      setTimeout(() => {
+        onOpenChange(false);
+      }, 100);
 
     } catch (error: any) {
       console.error('[PremiumPlanSelector] Purchase error:', error);

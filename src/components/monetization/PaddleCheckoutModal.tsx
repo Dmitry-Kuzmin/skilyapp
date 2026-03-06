@@ -24,18 +24,24 @@ export function PaddleCheckoutModal({
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const paddleRef = useRef<Paddle | null>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const initializedRef = useRef<string | null>(null);
 
     useEffect(() => {
-        if (open && transactionId) {
+        if (open && transactionId && initializedRef.current !== transactionId) {
             setLoading(true);
             setError(null);
-            initCheckout();
+            // Небольшая задержка, чтобы модалка успела отрендерить контейнер в DOM
+            const timer = setTimeout(() => {
+                initCheckout();
+            }, 300);
+            return () => clearTimeout(timer);
         }
     }, [open, transactionId]);
 
     const initCheckout = async () => {
         try {
+            console.log("[PaddleCheckoutModal] Initializing for transaction:", transactionId);
+
             let paddle = getPaddleInstanceSync();
             if (!paddle) {
                 paddle = await getPaddleInstance();
@@ -46,50 +52,39 @@ export function PaddleCheckoutModal({
             }
 
             paddleRef.current = paddle;
+            initializedRef.current = transactionId;
 
-            // Ждем отрисовку контейнера
-            setTimeout(() => {
-                if (!paddleRef.current || !transactionId) return;
+            // Очищаем контейнер перед вставкой (на всякий случай)
+            const container = document.getElementById("paddle-checkout-container");
+            if (container) container.innerHTML = "";
 
-                paddleRef.current.Checkout.open({
-                    transactionId: transactionId,
-                    settings: {
-                        displayMode: "inline",
-                        frameTarget: "paddle-checkout-container",
-                        frameInitialHeight: 450,
-                        frameStyle: "width: 100%; border: none; background: transparent;",
-                        theme: "dark",
-                        locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
-                        successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
+            paddle.Checkout.open({
+                transactionId: transactionId,
+                settings: {
+                    displayMode: "inline",
+                    frameTarget: "paddle-checkout-container",
+                    frameInitialHeight: 450,
+                    frameStyle: "width: 100%; border: none; background: transparent; min-height: 450px;",
+                    theme: "dark",
+                    locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
+                    successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
+                },
+                eventCallback: (event: any) => {
+                    console.log("[PaddleCheckoutModal] Event:", event.name);
+                    if (event.name === "checkout.loaded") {
+                        setLoading(false);
                     }
-                });
-
-                // Слушаем события через глобальный коллбэк, так как инлайновый иногда багует
-                paddleRef.current.Checkout.open({
-                    transactionId: transactionId,
-                    settings: {
-                        displayMode: "inline",
-                        frameTarget: 'paddle-checkout-container'
+                    if (event.name === "checkout.completed") {
+                        toast.success("Оплата прошла успешно!");
+                        onSuccess?.();
+                        setTimeout(() => onOpenChange(false), 1500);
                     }
-                });
-
-                // На самом деле в v2 события слушаются так:
-                (window as any).Paddle.Checkout.open({
-                    transactionId: transactionId,
-                    settings: {
-                        displayMode: "inline",
-                        frameTarget: "paddle-checkout-container"
-                    },
-                    eventCallback: (event: any) => {
-                        if (event.name === "checkout.loaded") setLoading(false);
-                        if (event.name === "checkout.completed") {
-                            onSuccess?.();
-                            onOpenChange(false);
-                        }
+                    if (event.name === "checkout.error") {
+                        setError("Ошибка Paddle: " + (event.data?.error?.message || "Неизвестная ошибка"));
+                        setLoading(false);
                     }
-                });
-
-            }, 100);
+                }
+            });
 
         } catch (err: any) {
             console.error("[PaddleCheckoutModal] Error:", err);
@@ -101,11 +96,14 @@ export function PaddleCheckoutModal({
     return (
         <ResponsiveModal
             open={open}
-            onOpenChange={onOpenChange}
+            onOpenChange={(val) => {
+                if (!val) initializedRef.current = null;
+                onOpenChange(val);
+            }}
             className="max-w-2xl"
-            contentClassName="p-0 overflow-hidden"
+            contentClassName="p-0 overflow-hidden bg-[#0A0D14]"
         >
-            <div className="relative min-h-[500px] w-full bg-[#0A0D14] flex flex-col items-center justify-center p-4">
+            <div className="relative min-h-[500px] w-full bg-[#0A0D14] flex flex-col items-center justify-center">
                 {loading && !error && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A0D14] z-10 space-y-4">
                         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
@@ -116,35 +114,47 @@ export function PaddleCheckoutModal({
                 )}
 
                 {error && (
-                    <div className="flex flex-col items-center justify-center p-8 text-center space-y-4">
+                    <div className="flex flex-col items-center justify-center p-8 text-center space-y-4 z-20">
                         <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
                             <AlertCircle className="w-8 h-8 text-red-500" />
                         </div>
                         <h3 className="text-lg font-bold text-white">Упс! Что-то пошло не так</h3>
-                        <p className="text-zinc-400 text-sm">{error}</p>
-                        <button
-                            onClick={initCheckout}
-                            className="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-colors text-sm font-bold"
-                        >
-                            Попробовать снова
-                        </button>
+                        <p className="text-zinc-400 text-sm max-w-xs">{error}</p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => {
+                                    initializedRef.current = null;
+                                    initCheckout();
+                                }}
+                                className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors text-sm font-bold"
+                            >
+                                Повторить
+                            </button>
+                            <button
+                                onClick={() => onOpenChange(false)}
+                                className="px-6 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-colors text-sm font-bold"
+                            >
+                                Отмена
+                            </button>
+                        </div>
                     </div>
                 )}
 
                 <div
                     id="paddle-checkout-container"
-                    ref={containerRef}
                     className={cn(
                         "w-full min-h-[450px] transition-opacity duration-500",
-                        loading ? "opacity-0" : "opacity-100"
+                        (loading || error) ? "opacity-0 h-0" : "opacity-100 h-auto"
                     )}
                 />
 
-                <div className="mt-4 pb-4 px-6 text-center">
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono opacity-50">
-                        Secure processing by Paddle
-                    </p>
-                </div>
+                {!error && (
+                    <div className="mt-4 pb-6 px-6 text-center shrink-0">
+                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono opacity-50">
+                            Secure Cloud processing by Paddle
+                        </p>
+                    </div>
+                )}
             </div>
         </ResponsiveModal>
     );

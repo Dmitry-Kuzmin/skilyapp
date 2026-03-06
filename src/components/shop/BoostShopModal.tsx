@@ -982,8 +982,10 @@ export function BoostShopModal({
         setTransactionId(data.transaction_id);
         setShowCheckout(true);
 
-        // Закрываем текущую модалку магазина
-        onOpenChange(false);
+        // Закрываем текущую модалку магазина с небольшой задержкой
+        setTimeout(() => {
+          onOpenChange(false);
+        }, 100);
       } catch (err: any) {
         console.error("[BoostShop] Purchase error:", err);
         toast({
