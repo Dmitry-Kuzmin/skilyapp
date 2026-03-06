@@ -32,50 +32,18 @@ const ADSGRAM_CONFIG = {
 let adController: AdsGramAdController | null = null;
 
 /**
- * Динамическая загрузка скрипта AdsGram SDK
- */
-async function loadAdsGramScript(): Promise<boolean> {
-  if (typeof window === 'undefined') return false;
-  if (window.Adsgram) return true;
-
-  return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = "https://sad.adsgram.ai/js/sad.min.js";
-    script.async = true;
-    script.onload = () => {
-      console.log('[AdsGram] SDK Script loaded dynamically');
-      resolve(true);
-    };
-    script.onerror = () => {
-      console.error('[AdsGram] Failed to load SDK script');
-      resolve(false);
-    };
-    document.head.appendChild(script);
-  });
-}
-
-/**
  * Инициализация AdsGram SDK
  * @param userId - ID пользователя (Telegram ID) для серверных уведомлений
  */
 export async function initAdsGram(userId?: string): Promise<AdsGramAdController | null> {
   if (typeof window === 'undefined') {
-    console.warn('[AdsGram] Window is not available');
     return null;
   }
 
-  // Если контроллер уже есть, но userId изменился - пересоздаем (редкий случай)
-  if (adController && !userId) {
-    return adController;
-  }
-
-  // Если скрипта еще нет, загружаем его
+  // Скрипт теперь загружается в index.html через <script>
   if (!window.Adsgram) {
-    const loaded = await loadAdsGramScript();
-    if (!loaded || !window.Adsgram) {
-      console.error('[AdsGram] SDK not loaded even after dynamic attempt');
-      return null;
-    }
+    console.error('[AdsGram] SDK not found on window. Ensure script is in index.html');
+    return null;
   }
 
   try {
