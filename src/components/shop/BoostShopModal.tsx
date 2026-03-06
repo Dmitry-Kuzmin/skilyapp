@@ -1796,16 +1796,17 @@ export function BoostShopModal({
                                   }
 
                                   try {
-                                    const { data, error } =
-                                      await supabaseClient.functions.invoke(
-                                        "cryptomus-payment",
-                                        {
-                                          body: {
-                                            user_id: profileId,
-                                            catalog_key: pack.catalogKey,
-                                          },
+                                    const { data, error } = await supabaseClient.functions.invoke(
+                                      "cryptomus-payment",
+                                      {
+                                        body: {
+                                          user_id: profileId,
+                                          catalog_key: pack.catalogKey,
                                         },
-                                      );
+                                      },
+                                    );
+
+                                    console.log("[BoostShop] Cryptomus raw response:", { data, error });
 
                                     if (error) {
                                       console.error(
@@ -1849,6 +1850,7 @@ export function BoostShopModal({
                                         itemName: `${pack.amount} монет`,
                                       });
                                     } else {
+                                      console.error("[BoostShop] Cryptomus data incomplete:", data);
                                       toast({
                                         title: t("boostShop.toasts.errorTitle"),
                                         description: t(
@@ -2572,7 +2574,7 @@ export function BoostShopModal({
             </TabsContent>
           </Tabs>
         </div>
-      </div>
+      </div >
     );
   };
 

@@ -49,7 +49,9 @@ const CATALOG: Record<string, CatalogEntry> = {
 };
 
 function createSignature(payload: string, secret: string): string {
-  const base64Payload = btoa(unescape(encodeURIComponent(payload)));
+  // В Deno btoa работает с бинарными строками, поэтому unescape/encodeURIComponent не нужны 
+  // если payload — это просто JSON. Но для надежности используем стандартный подход.
+  const base64Payload = btoa(payload);
   const dataToHash = base64Payload + secret;
   const hash = createHash("md5");
   hash.update(dataToHash);
@@ -141,7 +143,12 @@ serve(async (req) => {
     if (!cryptomusResponse.ok) {
       const errorText = await cryptomusResponse.text();
       console.error("[cryptomus-payment] API error:", errorText);
-      return new Response(JSON.stringify({ error: "Cryptomus API failed" }), { status: 500, headers: corsHeaders });
+      try {
+        const errorJson = JSON.parse(errorText);
+        return new Response(JSON.stringify({ error: errorJson.message || "Cryptomus API failed", details: errorJson }), { status: 500, headers: corsHeaders });
+      } catch {
+        return new Response(JSON.stringify({ error: "Cryptomus API failed", details: errorText }), { status: 500, headers: corsHeaders });
+      }
     }
 
     const cryptomusData: CryptomusResponse = await cryptomusResponse.json();

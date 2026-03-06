@@ -114,15 +114,15 @@ serve(async (req) => {
 
     const customData = { user_id, catalog_key, db_type: entry.dbType, db_item_id: entry.dbItemId, ...entry.metadata };
 
-    const transactionResponse = await fetch("https://api.paddle.com/transactions", {
+    const transactionResponse = await fetch("https://api.paddle.com/transactions?include=checkout", {
       method: "POST",
-      headers: { "Authorization": `Bearer ${paddleApiKey}`, "Content-Type": "application/json", "Paddle-Version": "1" },
+      headers: {
+        "Authorization": `Bearer ${paddleApiKey}`,
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         items: [{ price_id: PADDLE_PRICE_IDS[catalog_key], quantity: 1 }],
         custom_data: customData,
-        checkout: {
-          url: `${successUrl}?transaction_id={transaction_id}`,
-        },
       }),
     });
 
