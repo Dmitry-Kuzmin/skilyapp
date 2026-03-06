@@ -61,6 +61,7 @@ import { usePremium } from "@/hooks/usePremium";
 import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { CryptomusPaymentPreview } from "@/components/monetization/CryptomusPaymentPreview";
+import { PaddleCheckoutModal } from "@/components/monetization/PaddleCheckoutModal";
 import {
   getTelegramWebApp,
   isTelegramMiniApp,
@@ -169,6 +170,11 @@ export function BoostShopModal({
   const [modalSnapPoint, setModalSnapPoint] = useState<number | string>(0.92);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
+  const [checkoutModal, setCheckoutModal] = useState<{
+    open: boolean;
+    transactionId: string | null;
+    checkoutUrl: string | null;
+  }>({ open: false, transactionId: null, checkoutUrl: null });
 
   const modalContentRef = useRef<HTMLDivElement>(null);
   const hasLoadedRef = useRef(false);
@@ -974,28 +980,17 @@ export function BoostShopModal({
           return;
         }
 
-        // Запоминаем transaction_id для последующей проверки
+        // Сохраняем transaction_id для проверки
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        if (data.checkout_url) {
-          if (isTelegramMiniApp()) {
-            const webApp = getTelegramWebApp();
-            if (webApp && webApp.openLink) {
-              webApp.openLink(data.checkout_url);
-            } else {
-              window.location.href = data.checkout_url;
-            }
-          } else {
-            window.location.href = data.checkout_url;
-          }
-        } else {
-          toast({
-            title: t("boostShop.toasts.errorTitle"),
-            description: "Ошибка: ссылка на оплату не найдена",
-            variant: "destructive",
-          });
-        }
+        // Открываем PaddleCheckoutModal — он сам выберет стратегию:
+        // Telegram → openLink, мобилка → Vaul Inline, десктоп → Overlay
+        setCheckoutModal({
+          open: true,
+          transactionId: data.transaction_id,
+          checkoutUrl: data.checkout_url || null,
+        });
 
         // Закрываем магазин
         onOpenChange(false);
@@ -2681,6 +2676,15 @@ export function BoostShopModal({
           }}
         />
       )}
+
+      {/* Paddle Checkout Modal */}
+      <PaddleCheckoutModal
+        open={checkoutModal.open}
+        onOpenChange={(val) => setCheckoutModal(prev => ({ ...prev, open: val }))}
+        transactionId={checkoutModal.transactionId}
+        checkoutUrl={checkoutModal.checkoutUrl}
+        onSuccess={() => { loadData(); }}
+      />
 
       {/* Rewarded Ad Modal */}
       <RewardedAdModal

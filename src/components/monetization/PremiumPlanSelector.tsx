@@ -20,6 +20,7 @@ import { isPaymentMethodAvailable } from "@/lib/payment-config";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
+import { PaddleCheckoutModal } from "@/components/monetization/PaddleCheckoutModal";
 
 const PLAN_TO_CATALOG: Record<string, string> = {
   monthly: 'premium_monthly',
@@ -41,6 +42,11 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { language } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
+  const [checkoutModal, setCheckoutModal] = useState<{
+    open: boolean;
+    transactionId: string | null;
+    checkoutUrl: string | null;
+  }>({ open: false, transactionId: null, checkoutUrl: null });
 
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
@@ -91,22 +97,11 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         return;
       }
 
-      if (data.checkout_url) {
-        if (isTelegramMiniApp()) {
-          const webApp = getTelegramWebApp();
-          if (webApp && webApp.openLink) {
-            webApp.openLink(data.checkout_url);
-          } else {
-            window.location.href = data.checkout_url;
-          }
-        } else {
-          window.location.href = data.checkout_url;
-        }
-      } else {
-        toast.error('Ошибка', {
-          description: 'Ссылка на оплату не найдена',
-        });
-      }
+      setCheckoutModal({
+        open: true,
+        transactionId: data.transaction_id,
+        checkoutUrl: data.checkout_url || null,
+      });
 
       onOpenChange(false);
 
@@ -285,6 +280,14 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
           </div>
         </DialogContent>
       </Dialog>
+
+      <PaddleCheckoutModal
+        open={checkoutModal.open}
+        onOpenChange={(val) => setCheckoutModal(prev => ({ ...prev, open: val }))}
+        transactionId={checkoutModal.transactionId}
+        checkoutUrl={checkoutModal.checkoutUrl}
+        onSuccess={() => { refreshPremium(); }}
+      />
     </>
   );
 }
