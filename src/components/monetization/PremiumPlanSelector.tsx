@@ -17,10 +17,9 @@ import { toast } from "sonner";
 import { PRICING_PLANS } from "@/lib/pricing-config";
 import { getPaddleInstance, getPaddleInstanceSync } from "@/lib/paddle";
 import { isPaymentMethodAvailable } from "@/lib/payment-config";
-import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
-import { PaddleCheckoutModal } from "./PaddleCheckoutModal";
+import { useModalStore } from "@/store/modalStore";
 
 const PLAN_TO_CATALOG: Record<string, string> = {
   monthly: 'premium_monthly',
@@ -42,8 +41,7 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { language } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [transactionId, setTransactionId] = useState<string | null>(null);
+  const { openModal } = useModalStore();
 
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
@@ -94,15 +92,12 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         return;
       }
 
-      setTransactionId(data.transaction_id);
+      openModal('PADDLE_CHECKOUT', {
+        transactionId: data.transaction_id,
+        onSuccess: () => { refreshPremium(); }
+      }, false);
 
-      // Сначала открываем чекаут, потом закрываем планы
-      setShowCheckout(true);
-
-      // Небольшая задержка перед закрытием планов, чтобы избежать конфликта порталов
-      setTimeout(() => {
-        onOpenChange(false);
-      }, 100);
+      onOpenChange(false);
 
     } catch (error: any) {
       console.error('[PremiumPlanSelector] Purchase error:', error);
@@ -279,15 +274,6 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
           </div>
         </DialogContent>
       </Dialog>
-
-      <PaddleCheckoutModal
-        open={showCheckout}
-        onOpenChange={setShowCheckout}
-        transactionId={transactionId}
-        onSuccess={() => {
-          refreshPremium();
-        }}
-      />
     </>
   );
 }

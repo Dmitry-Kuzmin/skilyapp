@@ -23,6 +23,7 @@ export type ModalType =
   | 'REPORT_PROBLEM'
   | 'REMINDER_CONNECT'
   | 'CELEBRATION'
+  | 'PADDLE_CHECKOUT'
   | string; // Для кастомных модалок
 
 /**

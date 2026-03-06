@@ -11,7 +11,6 @@ import {
   ResponsiveModal,
   ModalSkeleton,
 } from "@/components/ui/responsive-modal";
-import { PaddleCheckoutModal } from "@/components/monetization/PaddleCheckoutModal";
 import {
   Popover,
   PopoverContent,
@@ -142,6 +141,7 @@ export function BoostShopModal({
   const queryClient = useQueryClient();
   const { isPremium } = usePremium();
   const { t, language } = useLanguage();
+  const { openModal } = useModalStore();
 
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
@@ -159,8 +159,6 @@ export function BoostShopModal({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [paddleLoading, setPaddleLoading] = useState(false);
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [transactionId, setTransactionId] = useState<string | null>(null);
   const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null);
   const [boostPurchaseLoading, setBoostPurchaseLoading] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -979,13 +977,14 @@ export function BoostShopModal({
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        setTransactionId(data.transaction_id);
-        setShowCheckout(true);
+        // Открываем глобальную модалку оплаты через GlobalModalManager
+        openModal('PADDLE_CHECKOUT', {
+          transactionId: data.transaction_id,
+          onSuccess: () => { loadData(); }
+        }, false);
 
-        // Закрываем текущую модалку магазина с небольшой задержкой
-        setTimeout(() => {
-          onOpenChange(false);
-        }, 100);
+        // Закрываем магазин
+        onOpenChange(false);
       } catch (err: any) {
         console.error("[BoostShop] Purchase error:", err);
         toast({
@@ -2564,8 +2563,7 @@ export function BoostShopModal({
   const headerContent = (
     <div className="relative">
       <div
-        className="relative px-4 md:px-5 py-4 md:py-5 border-b border-border/30"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}
+        className="relative px-4 md:px-5 py-4 border-b border-border/30"
       >
         <div className="flex items-center justify-between gap-3">
           {/* Left: Title & subtitle */}
@@ -2784,15 +2782,6 @@ export function BoostShopModal({
               variant: "destructive",
             });
           }
-        }}
-      />
-
-      <PaddleCheckoutModal
-        open={showCheckout}
-        onOpenChange={setShowCheckout}
-        transactionId={transactionId}
-        onSuccess={() => {
-          loadData();
         }}
       />
 
