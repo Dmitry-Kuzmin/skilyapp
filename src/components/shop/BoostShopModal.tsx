@@ -1005,7 +1005,6 @@ export function BoostShopModal({
             transactionId: data.transaction_id,
             settings: {
               displayMode: "overlay",
-              theme: "dark",
               locale,
               successUrl,
             },

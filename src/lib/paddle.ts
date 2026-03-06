@@ -8,15 +8,15 @@
 import { initializePaddle, type Paddle } from '@paddle/paddle-js';
 import { isPaddleEnabled, getEnvConfig } from '@/utils/envValidation';
 
-let paddleInstance: Paddle | null = null;
-let initializationPromise: Promise<Paddle | null> | null = null;
+let paddleInstance: Paddle | null | undefined = null;
+let initializationPromise: Promise<Paddle | null | undefined> | null = null;
 let isInitializing = false;
 
 /**
  * Инициализирует Paddle SDK один раз и кэширует инстанс
  * Можно вызывать несколько раз - вернет тот же промис/инстанс
  */
-export async function getPaddleInstance(): Promise<Paddle | null> {
+export async function getPaddleInstance(): Promise<Paddle | null | undefined> {
   // Если уже инициализирован - возвращаем сразу
   // Если уже инициализирован - обновляем настройки и возвращаем
   if (paddleInstance) {
@@ -24,7 +24,6 @@ export async function getPaddleInstance(): Promise<Paddle | null> {
       checkout: {
         settings: {
           displayMode: "overlay",
-          theme: "dark",
         }
       }
     });
@@ -78,7 +77,6 @@ export async function getPaddleInstance(): Promise<Paddle | null> {
         checkout: {
           settings: {
             displayMode: "overlay",
-            theme: "dark",
             locale: "en", // Or detect from navigator
           }
         }
@@ -113,7 +111,7 @@ export function preloadPaddle(): void {
  * Получить текущий инстанс Paddle (если уже инициализирован)
  * Если не инициализирован - вернет null (не будет инициализировать)
  */
-export function getPaddleInstanceSync(): Paddle | null {
+export function getPaddleInstanceSync(): Paddle | null | undefined {
   return paddleInstance;
 }
 

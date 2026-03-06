@@ -111,7 +111,7 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         const successUrl = `${window.location.origin}/purchase/success?transaction_id={transaction_id}`;
         (paddleForCheckout.Checkout.open as (opts: any) => void)({
           transactionId: data.transaction_id,
-          settings: { displayMode: 'overlay', theme: 'dark', locale, successUrl },
+          settings: { displayMode: 'overlay', locale, successUrl },
           eventCallback: (event: any) => {
             if (event.name === 'checkout.completed') {
               toast.success('Оплата прошла успешно! 🎉');
