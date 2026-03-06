@@ -96,7 +96,7 @@ export function ResponsiveModal({
             }
           }}
         >
-          <div className="flex-1 flex flex-col w-full bg-background/95 backdrop-blur-xl overflow-hidden rounded-t-[32px]">
+          <div className="flex-1 flex flex-col w-full bg-background overflow-hidden rounded-t-[32px]">
             {/* Header Tray */}
             {title && (
               <DrawerHeader className="text-left shrink-0 pb-2 px-8">
@@ -146,7 +146,7 @@ export function ResponsiveModal({
         className={cn(
           defaultMaxWidth,
           fullscreen ? "h-screen rounded-none" : "max-h-[90vh]",
-          "bg-background/95 backdrop-blur-xl border-zinc-800/50",
+          "bg-background border-zinc-800/50",
           "flex flex-col p-0",
           "shadow-[0_8px_40px_rgba(0,0,0,0.2)]",
           className
