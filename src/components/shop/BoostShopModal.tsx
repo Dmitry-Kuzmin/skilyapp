@@ -1015,8 +1015,14 @@ export function BoostShopModal({
                 loadData();
                 onOpenChange(false);
               }
+              if (event.name === "checkout.closed") {
+                onOpenChange(false);
+              }
             },
           });
+          // Даём Paddle 100ms чтобы инжектировать overlay в body,
+          // только потом закрываем нашу модалку (иначе backdrop блокирует клики)
+          setTimeout(() => onOpenChange(false), 100);
         } else {
           // Фоллбэк — открываем checkout_url если Paddle SDK недоступен
           const url = data.checkout_url;

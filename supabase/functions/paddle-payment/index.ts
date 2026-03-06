@@ -120,7 +120,9 @@ serve(async (req) => {
       body: JSON.stringify({
         items: [{ price_id: PADDLE_PRICE_IDS[catalog_key], quantity: 1 }],
         custom_data: customData,
-        return_url: `${successUrl}?transaction_id={transaction_id}`,
+        checkout: {
+          url: `${successUrl}?transaction_id={transaction_id}`,
+        },
       }),
     });
 
@@ -148,9 +150,9 @@ serve(async (req) => {
       metadata: { ...entry.metadata, paddle_data: transactionData },
     });
 
-    // Формируем ссылку вручную для Paddle Billing v2
-    // Этот формат работает для всех транзакций без настройки дополнительных доменов
-    const checkoutUrl = `https://buy.paddle.com/checkout/custom-checkout?_ptxn=${transactionData.id}`;
+    // Используем официальный checkout URL из ответа Paddle API
+    const checkoutUrl = transactionData.checkout?.url
+      ?? `https://buy.paddle.com/checkout/${transactionData.id}`;
     console.log(`[paddle-payment] Transaction created: ${transactionData.id}, checkout_url: ${checkoutUrl}`);
 
     return new Response(JSON.stringify({

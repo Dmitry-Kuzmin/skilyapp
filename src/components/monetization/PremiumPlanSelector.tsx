@@ -118,8 +118,13 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
               refreshPremium();
               onOpenChange(false);
             }
+            if (event.name === 'checkout.closed') {
+              onOpenChange(false);
+            }
           },
         });
+        // Даём Paddle 100ms — overlay инжектируется в body, только после закрываем нашу модалку
+        setTimeout(() => onOpenChange(false), 100);
       } else {
         const url = data.checkout_url;
         if (url) window.open(url, '_blank');
