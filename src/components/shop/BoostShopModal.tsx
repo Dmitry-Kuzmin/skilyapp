@@ -11,6 +11,7 @@ import {
   ResponsiveModal,
   ModalSkeleton,
 } from "@/components/ui/responsive-modal";
+import { PaddleCheckoutModal } from "@/components/monetization/PaddleCheckoutModal";
 import {
   Popover,
   PopoverContent,
@@ -158,6 +159,8 @@ export function BoostShopModal({
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [paddle, setPaddle] = useState<Paddle | null>(null);
   const [paddleLoading, setPaddleLoading] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
   const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null);
   const [boostPurchaseLoading, setBoostPurchaseLoading] = useState<string | null>(null);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -976,56 +979,11 @@ export function BoostShopModal({
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        // КРИТИЧНО: используем checkout_url из реального ответа Paddle API
-        // Этот URL всегда валиден — Paddle формирует его сам
-        // Для этого paddle-payment добавляет ?include=checkout в запросе
-        const paddleCheckoutUrl = data.checkout_url as string | undefined;
+        setTransactionId(data.transaction_id);
+        setShowCheckout(true);
 
-        const isTelegram = isTelegramMiniApp();
-        const webApp = getTelegramWebApp();
-
-        // Пробуем overlay Paddle SDK — работает и в Telegram WebView, и в браузере
-        let sdkInstance = paddleInstance || getPaddleInstanceSync();
-        if (!sdkInstance) {
-          sdkInstance = await getPaddleInstance();
-          if (sdkInstance) setPaddle(sdkInstance);
-        }
-
-        if (sdkInstance) {
-          console.log("[BoostShop] Opening Paddle checkout overlay");
-          try {
-            sdkInstance.Checkout.open({
-              transactionId: data.transaction_id,
-              settings: {
-                displayMode: "overlay",
-                successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
-                theme: "dark",
-                locale: language === "ru" ? "ru" : language === "es" ? "es" : "en",
-              },
-            });
-            setPurchaseLoading(null);
-            return;
-          } catch (err) {
-            console.warn("[BoostShop] Overlay failed:", err);
-          }
-        }
-
-        // Fallback: если SDK недоступен — открываем checkout_url
-        setPurchaseLoading(null);
-        if (!paddleCheckoutUrl) {
-          toast({
-            title: t("boostShop.toasts.errorTitle"),
-            description: "Не удалось получить ссылку оплаты. Попробуйте снова.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        if (isTelegram && webApp && (webApp as any).openLink) {
-          (webApp as any).openLink(paddleCheckoutUrl);
-        } else {
-          window.location.href = paddleCheckoutUrl;
-        }
+        // Закрываем текущую модалку магазина
+        onOpenChange(false);
       } catch (err: any) {
         console.error("[BoostShop] Purchase error:", err);
         toast({
@@ -1034,6 +992,7 @@ export function BoostShopModal({
             err?.message || t("boostShop.toasts.purchaseErrorDescription"),
           variant: "destructive",
         });
+      } finally {
         setPurchaseLoading(null);
       }
     },
@@ -2823,6 +2782,15 @@ export function BoostShopModal({
               variant: "destructive",
             });
           }
+        }}
+      />
+
+      <PaddleCheckoutModal
+        open={showCheckout}
+        onOpenChange={setShowCheckout}
+        transactionId={transactionId}
+        onSuccess={() => {
+          loadData();
         }}
       />
 

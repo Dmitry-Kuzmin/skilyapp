@@ -20,6 +20,7 @@ import { isPaymentMethodAvailable } from "@/lib/payment-config";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
+import { PaddleCheckoutModal } from "./PaddleCheckoutModal";
 
 const PLAN_TO_CATALOG: Record<string, string> = {
   monthly: 'premium_monthly',
@@ -41,6 +42,8 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { language } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [transactionId, setTransactionId] = useState<string | null>(null);
 
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
@@ -91,52 +94,12 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         return;
       }
 
-      sessionStorage.setItem('paddle_transaction_id', data.transaction_id);
-      localStorage.setItem('paddle_transaction_id', data.transaction_id);
+      setTransactionId(data.transaction_id);
+      setShowCheckout(true);
 
-      // checkout_url — настоящий URL от Paddle API, он всегда валиден
-      // Fallback на buy.paddle.com если сервер не вернул url (не должно происходить)
-      const paddleCheckoutUrl = data.checkout_url
-        ?? `https://buy.paddle.com/checkout/${data.transaction_id}`;
+      // Скрываем текущую модалку планов, чтобы не было наслоения
+      onOpenChange(false);
 
-      const isTelegram = isTelegramMiniApp();
-      const webApp = getTelegramWebApp();
-
-      if (isTelegram && webApp) {
-        if ((webApp as any).openLink) {
-          (webApp as any).openLink(paddleCheckoutUrl);
-        } else {
-          window.location.href = paddleCheckoutUrl;
-        }
-        return;
-      }
-
-      // Пробуем SDK overlay первым — лучший UX
-      let sdkInstance = paddleInstance || getPaddleInstanceSync();
-      if (!sdkInstance && showPaddlePayment) {
-        sdkInstance = await getPaddleInstance();
-        if (sdkInstance) setPaddle(sdkInstance);
-      }
-
-      if (sdkInstance) {
-        try {
-          sdkInstance.Checkout.open({
-            transactionId: data.transaction_id,
-            settings: {
-              displayMode: "overlay",
-              successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
-              theme: "dark",
-              locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
-            },
-          });
-        } catch (e) {
-          console.warn('[PremiumPlanSelector] Paddle overlay failed, redirecting:', e);
-          window.location.href = paddleCheckoutUrl;
-        }
-      } else {
-        // Fallback: открываем прямую ссылку Paddle
-        window.location.href = paddleCheckoutUrl;
-      }
     } catch (error: any) {
       console.error('[PremiumPlanSelector] Purchase error:', error);
       toast.error('Ошибка при покупке', {
@@ -313,7 +276,14 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         </DialogContent>
       </Dialog>
 
-
+      <PaddleCheckoutModal
+        open={showCheckout}
+        onOpenChange={setShowCheckout}
+        transactionId={transactionId}
+        onSuccess={() => {
+          refreshPremium();
+        }}
+      />
     </>
   );
 }
