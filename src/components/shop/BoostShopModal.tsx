@@ -2572,7 +2572,6 @@ export function BoostShopModal({
   };
 
   // 🏆 BLACK MARKET Header Design
-  const isMobile = useIsMobile();
 
   const headerContent = (
     <div className="relative">
