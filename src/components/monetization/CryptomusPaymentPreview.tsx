@@ -117,20 +117,33 @@ export function CryptomusPaymentPreview({
   };
 
   const handleProceedToPayment = () => {
+    if (!paymentUrl) {
+      console.error("[CryptomusPaymentPreview] paymentUrl is empty!");
+      return;
+    }
+
+    console.log("[CryptomusPaymentPreview] Opening payment URL:", paymentUrl);
     setIsNavigating(true);
 
     const webApp = getTelegramWebApp();
     const isTelegram = platform === 'telegram' && isTelegramMiniApp();
 
-    // КРИТИЧНО: В Telegram Mini App используем window.location.href
-    // вместо webApp.openLink(), чтобы сохранить контекст приложения
-    if (isTelegram && webApp) {
-      console.log("[CryptomusPaymentPreview] Opening payment in Telegram Mini App (same context)");
-      window.location.href = paymentUrl;
+    if (isTelegram && webApp?.openLink) {
+      // В Telegram Mini App используем официальный API
+      webApp.openLink(paymentUrl);
     } else {
-      console.log("[CryptomusPaymentPreview] Redirecting to payment");
-      window.location.href = paymentUrl;
+      // В браузере — открываем новую вкладку (не редирект!)
+      // window.open должен вызываться строго в onClick, иначе Safari заблокирует
+      const newWindow = window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+      if (!newWindow) {
+        // Fallback если всплывающие окна заблокированы
+        window.location.href = paymentUrl;
+      }
     }
+
+    // Не закрываем модал — он следит за статусом оплаты
+    // Возвращаем кнопку в исходное состояние через 5 сек
+    setTimeout(() => setIsNavigating(false), 5000);
   };
 
   const handleCancel = () => {
