@@ -54,11 +54,11 @@ export function PaddleCheckoutModal({
             paddleRef.current = paddle;
             initializedRef.current = transactionId;
 
-            // Очищаем контейнер перед вставкой (на всякий случай)
-            const container = document.getElementById("paddle-checkout-container");
+            // Очищаем контейнер перед вставкой
+            const container = document.getElementsByClassName("paddle-checkout-container")[0] as HTMLElement | undefined;
             if (container) container.innerHTML = "";
 
-            paddle.Checkout.open({
+            (paddle.Checkout.open as (opts: any) => void)({
                 transactionId: transactionId,
                 settings: {
                     displayMode: "inline",
@@ -140,12 +140,13 @@ export function PaddleCheckoutModal({
                     </div>
                 )}
 
+                {/* Контейнер ВСЕГДА должен быть в DOM с реальными размерами — Paddle ищет его через getElementsByClassName */}
                 <div
-                    id="paddle-checkout-container"
                     className={cn(
-                        "w-full min-h-[450px] transition-opacity duration-500",
-                        (loading || error) ? "opacity-0 h-0" : "opacity-100 h-auto"
+                        "paddle-checkout-container w-full transition-opacity duration-500",
+                        (loading || error) ? "opacity-0" : "opacity-100"
                     )}
+                    style={{ minHeight: 450 }}
                 />
 
                 {!error && (
