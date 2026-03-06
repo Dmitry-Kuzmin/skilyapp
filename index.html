@@ -326,28 +326,8 @@
       })(typeof global !== "undefined" ? global : this);
   </script>
 
-  <!-- Telegram WebApp Scripts - загружаем асинхронно, не блокируя рендеринг -->
-  <!-- ОПТИМИЗАЦИЯ: загрузка Google AdSense после взаимодействия (для прохождения проверки) -->
-  <script>
-    (function () {
-      const loadAdSense = () => {
-        if (window._adsLoaded) return;
-        window._adsLoaded = true;
-
-        // Google AdSense - загружаем только для проверки
-        const adsense = document.createElement('script');
-        adsense.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1758777358223420";
-        adsense.async = true;
-        adsense.crossOrigin = "anonymous";
-        document.head.appendChild(adsense);
-      };
-
-      // Загрузка через 6 секунд или при первом скролле/клике
-      window.addEventListener('scroll', loadAdSense, { once: true, passive: true });
-      window.addEventListener('click', loadAdSense, { once: true });
-      setTimeout(loadAdSense, 6000);
-    })();
-  </script>
+  <!-- Google AdSense — прямой тег для верификации Google (обязательно в <head>) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1758777358223420" crossorigin="anonymous"></script>
 
   <!-- Monetag Native Banner (Interstitial) SDK (для веб-версии - Rewarded Video) -->
   <!-- Zone ID: 10323437 (Skillful tag) - используется как Rewarded Video -->
