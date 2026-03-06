@@ -61,7 +61,6 @@ import { usePremium } from "@/hooks/usePremium";
 import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { CryptomusPaymentPreview } from "@/components/monetization/CryptomusPaymentPreview";
-import { PaddleCheckoutModal } from "@/components/monetization/PaddleCheckoutModal";
 import {
   getTelegramWebApp,
   isTelegramMiniApp,
@@ -81,7 +80,7 @@ import type { Paddle } from "@paddle/paddle-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useModalStore } from "@/store/modalStore";
+
 
 const supabaseClient = supabase as any;
 
@@ -143,7 +142,7 @@ export function BoostShopModal({
   const queryClient = useQueryClient();
   const { isPremium } = usePremium();
   const { t, language } = useLanguage();
-  const { openModal } = useModalStore();
+  const isMobile = useIsMobile();
 
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
@@ -170,11 +169,7 @@ export function BoostShopModal({
   const [modalSnapPoint, setModalSnapPoint] = useState<number | string>(0.92);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
-  const [checkoutModal, setCheckoutModal] = useState<{
-    open: boolean;
-    transactionId: string | null;
-    checkoutUrl: string | null;
-  }>({ open: false, transactionId: null, checkoutUrl: null });
+
 
   const modalContentRef = useRef<HTMLDivElement>(null);
   const hasLoadedRef = useRef(false);
@@ -984,16 +979,50 @@ export function BoostShopModal({
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        // Открываем PaddleCheckoutModal — он сам выберет стратегию:
-        // Telegram → openLink, мобилка → Vaul Inline, десктоп → Overlay
-        setCheckoutModal({
-          open: true,
-          transactionId: data.transaction_id,
-          checkoutUrl: data.checkout_url || null,
-        });
+        // Telegram Mini App — открываем через Telegram.openLink
+        if (isTelegramMiniApp()) {
+          const webApp = getTelegramWebApp();
+          const url = data.checkout_url;
+          if (url && webApp?.openLink) {
+            webApp.openLink(url);
+          } else if (url) {
+            window.open(url, "_blank");
+          }
+          onOpenChange(false);
+          return;
+        }
 
-        // Закрываем магазин
-        onOpenChange(false);
+        // Веб (мобилка + десктоп) — открываем Paddle Overlay НАПРяМУЮ
+        // (overlay будет поверх нашего UI, не уходим со страницы)
+        let paddleForCheckout = paddle || getPaddleInstanceSync();
+        if (!paddleForCheckout) paddleForCheckout = await getPaddleInstance();
+
+        if (paddleForCheckout) {
+          const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
+          const successUrl = `${window.location.origin}/purchase/success?transaction_id={transaction_id}`;
+
+          (paddleForCheckout.Checkout.open as (opts: any) => void)({
+            transactionId: data.transaction_id,
+            settings: {
+              displayMode: "overlay",
+              theme: "dark",
+              locale,
+              successUrl,
+            },
+            eventCallback: (event: any) => {
+              if (event.name === "checkout.completed") {
+                toast({ title: t("boostShop.coins.successTitle"), description: "Оплата прошла успешно! 🎉" });
+                loadData();
+                onOpenChange(false);
+              }
+            },
+          });
+        } else {
+          // Фоллбэк — открываем checkout_url если Paddle SDK недоступен
+          const url = data.checkout_url;
+          if (url) window.open(url, "_blank");
+          onOpenChange(false);
+        }
       } catch (err: any) {
         console.error("[BoostShop] Purchase error:", err);
         toast({
@@ -2676,15 +2705,6 @@ export function BoostShopModal({
           }}
         />
       )}
-
-      {/* Paddle Checkout Modal */}
-      <PaddleCheckoutModal
-        open={checkoutModal.open}
-        onOpenChange={(val) => setCheckoutModal(prev => ({ ...prev, open: val }))}
-        transactionId={checkoutModal.transactionId}
-        checkoutUrl={checkoutModal.checkoutUrl}
-        onSuccess={() => { loadData(); }}
-      />
 
       {/* Rewarded Ad Modal */}
       <RewardedAdModal

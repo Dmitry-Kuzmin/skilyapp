@@ -20,7 +20,7 @@ import { isPaymentMethodAvailable } from "@/lib/payment-config";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
-import { PaddleCheckoutModal } from "@/components/monetization/PaddleCheckoutModal";
+
 
 const PLAN_TO_CATALOG: Record<string, string> = {
   monthly: 'premium_monthly',
@@ -42,11 +42,6 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { language } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
-  const [checkoutModal, setCheckoutModal] = useState<{
-    open: boolean;
-    transactionId: string | null;
-    checkoutUrl: string | null;
-  }>({ open: false, transactionId: null, checkoutUrl: null });
 
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
@@ -97,13 +92,39 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         return;
       }
 
-      setCheckoutModal({
-        open: true,
-        transactionId: data.transaction_id,
-        checkoutUrl: data.checkout_url || null,
-      });
+      // Telegram Mini App — openLink
+      if (isTelegramMiniApp()) {
+        const webApp = getTelegramWebApp();
+        const url = data.checkout_url;
+        if (url && webApp?.openLink) { webApp.openLink(url); }
+        else if (url) { window.open(url, "_blank"); }
+        onOpenChange(false);
+        return;
+      }
 
-      onOpenChange(false);
+      // Веб — открываем Paddle Overlay напрямую (поверх нашего UI)
+      let paddleForCheckout = paddle || getPaddleInstanceSync();
+      if (!paddleForCheckout) paddleForCheckout = await getPaddleInstance();
+
+      if (paddleForCheckout) {
+        const locale = language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en';
+        const successUrl = `${window.location.origin}/purchase/success?transaction_id={transaction_id}`;
+        (paddleForCheckout.Checkout.open as (opts: any) => void)({
+          transactionId: data.transaction_id,
+          settings: { displayMode: 'overlay', theme: 'dark', locale, successUrl },
+          eventCallback: (event: any) => {
+            if (event.name === 'checkout.completed') {
+              toast.success('Оплата прошла успешно! 🎉');
+              refreshPremium();
+              onOpenChange(false);
+            }
+          },
+        });
+      } else {
+        const url = data.checkout_url;
+        if (url) window.open(url, '_blank');
+        onOpenChange(false);
+      }
 
     } catch (error: any) {
       console.error('[PremiumPlanSelector] Purchase error:', error);
@@ -280,14 +301,6 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
           </div>
         </DialogContent>
       </Dialog>
-
-      <PaddleCheckoutModal
-        open={checkoutModal.open}
-        onOpenChange={(val) => setCheckoutModal(prev => ({ ...prev, open: val }))}
-        transactionId={checkoutModal.transactionId}
-        checkoutUrl={checkoutModal.checkoutUrl}
-        onSuccess={() => { refreshPremium(); }}
-      />
     </>
   );
 }
