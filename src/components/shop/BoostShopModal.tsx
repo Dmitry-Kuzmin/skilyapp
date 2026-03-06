@@ -1848,7 +1848,7 @@ export function BoostShopModal({
                                       return;
                                     }
 
-                                    if (finalData?.url if (data?.url && data?.orderId)if (data?.url && data?.orderId) finalData?.orderId) {
+                                     if (finalData?.url && finalData?.orderId) {
                                       const amount = pack.priceValue || 0;
 
                                       setCryptomusPreview({
