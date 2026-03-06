@@ -17,9 +17,9 @@ import { toast } from "sonner";
 import { PRICING_PLANS } from "@/lib/pricing-config";
 import { getPaddleInstance, getPaddleInstanceSync } from "@/lib/paddle";
 import { isPaymentMethodAvailable } from "@/lib/payment-config";
+import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
-import { useModalStore } from "@/store/modalStore";
 
 const PLAN_TO_CATALOG: Record<string, string> = {
   monthly: 'premium_monthly',
@@ -41,7 +41,6 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const { language } = useLanguage();
   const [paddle, setPaddle] = useState<Paddle | null>(null);
-  const { openModal } = useModalStore();
 
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
@@ -92,10 +91,22 @@ export function PremiumPlanSelector({ open, onOpenChange, triggerSource = 'duel_
         return;
       }
 
-      openModal('PADDLE_CHECKOUT', {
-        transactionId: data.transaction_id,
-        onSuccess: () => { refreshPremium(); }
-      }, false);
+      if (data.checkout_url) {
+        if (isTelegramMiniApp()) {
+          const webApp = getTelegramWebApp();
+          if (webApp && webApp.openLink) {
+            webApp.openLink(data.checkout_url);
+          } else {
+            window.location.href = data.checkout_url;
+          }
+        } else {
+          window.location.href = data.checkout_url;
+        }
+      } else {
+        toast.error('Ошибка', {
+          description: 'Ссылка на оплату не найдена',
+        });
+      }
 
       onOpenChange(false);
 

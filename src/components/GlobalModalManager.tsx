@@ -26,7 +26,6 @@ const HelpFeedbackModal = lazy(() => import('@/components/HelpFeedbackModal').th
 const ReportProblemModal = lazy(() => import('@/components/ReportProblemModal').then(m => ({ default: m.ReportProblemModal })));
 const ReminderConnectModal = lazy(() => import('@/components/notifications/ReminderConnectModal').then(m => ({ default: m.ReminderConnectModal })));
 const CelebrationModal = lazy(() => import('@/components/dashboard-new/CelebrationModal').then(m => ({ default: m.CelebrationModal })));
-const PaddleCheckoutModal = lazy(() => import('@/components/monetization/PaddleCheckoutModal').then(m => ({ default: m.PaddleCheckoutModal })));
 
 /**
  * Маппинг типов модалок на компоненты
@@ -48,7 +47,6 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
   REPORT_PROBLEM: ReportProblemModal,
   REMINDER_CONNECT: ReminderConnectModal,
   CELEBRATION: CelebrationModal,
-  PADDLE_CHECKOUT: PaddleCheckoutModal,
 };
 
 /**
@@ -248,8 +246,7 @@ export const GlobalModalManager = () => {
   // не нужно оборачивать в дополнительный div, так как это блокирует клики
   // Проверяем, создает ли модалка свой портал
   const createsOwnPortal = topModal.type === 'BOOST_SHOP' ||
-    topModal.type === 'CELEBRATION' ||
-    topModal.type === 'PADDLE_CHECKOUT';
+    topModal.type === 'CELEBRATION';
 
   if (createsOwnPortal) {
     // Модалка сама создает портал, просто рендерим её

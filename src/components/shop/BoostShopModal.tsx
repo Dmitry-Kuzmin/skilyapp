@@ -44,6 +44,7 @@ import {
   Wand2,
   Download,
   Lock,
+  Heart,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext, UserContext } from "@/contexts/UserContext";
@@ -177,7 +178,7 @@ export function BoostShopModal({
   const profileId = userContext?.profileId ?? null;
   const platform = userContext?.platform ?? 'web';
   const dateLocale = localeMap[language] || 'en-US';
-  const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId);
+  const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
@@ -698,7 +699,7 @@ export function BoostShopModal({
       // Create purchase map for enrichment
       const purchaseMap = new Map<string, any>();
       const purchases = purchasesResult.data || [];
-      purchases.forEach((p) => {
+      purchases.forEach((p: any) => {
         const sessionId = p.metadata?.session_id || p.id;
         purchaseMap.set(sessionId, p);
       });
@@ -713,7 +714,7 @@ export function BoostShopModal({
       }
 
       if (newTransactions) {
-        newTransactions.forEach((tx) => {
+        newTransactions.forEach((tx: any) => {
           let enrichedMetadata = { ...tx.metadata };
           if (
             tx.transaction_type?.startsWith("premium_purchase_") &&
@@ -756,7 +757,7 @@ export function BoostShopModal({
       // Process duel transactions
       const duelTx = duelTxResult.data;
       if (duelTx) {
-        duelTx.forEach((tx) => {
+        duelTx.forEach((tx: any) => {
           const info = getTransactionInfo(tx.transaction_type);
           allTransactions.push({
             id: tx.id || `duel_${tx.created_at}`,
@@ -771,7 +772,7 @@ export function BoostShopModal({
       }
 
       // Process purchases
-      purchases.forEach((purchase) => {
+      purchases.forEach((purchase: any) => {
         let description = "";
         let amount = 0;
         let transactionType = "coins_purchase_paddle";
@@ -838,7 +839,7 @@ export function BoostShopModal({
       // Process referrals
       const referrals = referralsResult.data;
       if (referrals) {
-        referrals.forEach((ref) => {
+        referrals.forEach((ref: any) => {
           const isReferrer = ref.reward_given;
           const referralName =
             (ref.referred as any)?.first_name ||
@@ -977,11 +978,24 @@ export function BoostShopModal({
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        // Открываем глобальную модалку оплаты через GlobalModalManager
-        openModal('PADDLE_CHECKOUT', {
-          transactionId: data.transaction_id,
-          onSuccess: () => { loadData(); }
-        }, false);
+        if (data.checkout_url) {
+          if (isTelegramMiniApp()) {
+            const webApp = getTelegramWebApp();
+            if (webApp && webApp.openLink) {
+              webApp.openLink(data.checkout_url);
+            } else {
+              window.location.href = data.checkout_url;
+            }
+          } else {
+            window.location.href = data.checkout_url;
+          }
+        } else {
+          toast({
+            title: t("boostShop.toasts.errorTitle"),
+            description: "Ошибка: ссылка на оплату не найдена",
+            variant: "destructive",
+          });
+        }
 
         // Закрываем магазин
         onOpenChange(false);
@@ -1524,7 +1538,7 @@ export function BoostShopModal({
               {/* Grid Layout для бустов */}
               {filteredRegularBoosts.length > 0 ||
                 filteredPremiumBoosts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-1">
                   {filteredRegularBoosts.map((boost) => (
                     <MarketItem
                       key={boost.id}
@@ -1589,11 +1603,11 @@ export function BoostShopModal({
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 px-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4 gap-2 md:gap-3 px-1">
                   {coinPacks.map((pack, idx) => {
                     // Выделяем пак 500 монет как "Best Value" (лучшее соотношение цена/количество)
                     const isBestValue = pack.amount === 500;
-                    const isHighlighted = Boolean(pack.highlight);
+                    const isHighlighted = Boolean((pack as any).highlight);
                     const pricePerCoin =
                       pack.priceValue && pack.priceCoins
                         ? pack.priceValue / pack.priceCoins
@@ -1607,77 +1621,54 @@ export function BoostShopModal({
                     return (
                       <Card
                         key={idx}
-                        className={`group relative overflow-visible rounded-3xl border bg-card p-4 shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${isBestValue
-                          ? "border-violet-500/50 shadow-[0_15px_40px_rgba(139,92,246,0.25)] dark:shadow-[0_15px_40px_rgba(139,92,246,0.35)] ring-2 ring-violet-500/30"
+                        className={`group relative overflow-visible rounded-3xl border bg-card p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${isBestValue
+                          ? "border-violet-500/50 shadow-[0_8px_20px_rgba(139,92,246,0.15)] dark:shadow-[0_8px_20px_rgba(139,92,246,0.25)] ring-1 ring-violet-500/30"
                           : isHighlighted
-                            ? "border-yellow-400/50 shadow-[0_10px_30px_rgba(251,191,36,0.15)] dark:shadow-[0_15px_40px_rgba(251,191,36,0.25)]"
+                            ? "border-yellow-400/50 shadow-[0_5px_15px_rgba(251,191,36,0.1)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.15)]"
                             : "border-border hover:border-violet-500/30"
                           }`}
                       >
-                        {/* Best Value бейдж - яркий красно-оранжевый */}
+                        {/* Best Value бейдж */}
                         {isBestValue && (
                           <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap">
-                            <Badge className="bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 text-white border-0 shadow-lg shadow-red-500/40 text-[10px] sm:text-[11px] font-black px-3 py-1 rounded-full animate-bounce">
-                              🔥 ХИТ ПРОДАЖ
+                            <Badge className="bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 text-white border-0 shadow-sm text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full">
+                              🔥 ХИТ
                             </Badge>
                           </div>
                         )}
 
-                        <div className="space-y-4">
-                          <div className="flex flex-col items-center text-center gap-3">
+                        <div className="space-y-2">
+                          <div className="flex flex-col items-center text-center gap-2">
                             <div
-                              className={`relative w-20 h-20 rounded-[2rem] flex items-center justify-center flex-shrink-0 ${isBestValue
-                                ? "bg-gradient-to-br from-violet-600 via-purple-500 to-indigo-600 text-white shadow-xl shadow-violet-500/40"
+                              className={`relative w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${isBestValue
+                                ? "bg-gradient-to-br from-violet-600 via-purple-500 to-indigo-600 text-white shadow-md shadow-violet-500/20"
                                 : isHighlighted
-                                  ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900 shadow-xl shadow-amber-500/30"
+                                  ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900 shadow-md shadow-amber-500/20"
                                   : "bg-gradient-to-br from-yellow-500/10 via-amber-500/20 to-orange-500/10 border border-yellow-500/20"
                                 }`}
                             >
-                              {/* Эффект свечения для всех иконок */}
-                              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 via-transparent to-orange-500/10 blur-md rounded-inherit" />
-
                               <Coins
-                                className={`relative w-10 h-10 z-10 ${isBestValue || isHighlighted
-                                  ? "drop-shadow-[0_4px_12px_rgba(0,0,0,0.3)]"
-                                  : "text-yellow-500 drop-shadow-md"
+                                className={`relative w-6 h-6 z-10 ${isBestValue || isHighlighted
+                                  ? "drop-shadow-sm"
+                                  : "text-yellow-500 drop-shadow-sm"
                                   }`}
                               />
-
-                              {/* Дополнительные монеты для эффекта "кучи" */}
-                              {!isBestValue && !isHighlighted && (
-                                <div className="absolute inset-0 overflow-visible pointer-events-none">
-                                  <Coins className="absolute w-6 h-6 text-yellow-500/40 -top-2 -right-2 rotate-[25deg] blur-[0.5px]" />
-                                  <Coins className="absolute w-5 h-5 text-amber-500/30 -bottom-2 -left-2 -rotate-[20deg] blur-[0.5px]" />
-                                </div>
-                              )}
-
-                              {isBestValue && (
-                                <div className="absolute inset-0 animate-pulse bg-white/10 blur-xl rounded-full" />
-                              )}
                             </div>
 
-                            <div className="w-full space-y-1 px-1">
-                              <p className="text-lg sm:text-xl font-black text-foreground tracking-tight truncate">
+                            <div className="w-full space-y-0.5 px-1">
+                              <p className="text-sm sm:text-base font-black text-foreground tracking-tight truncate">
                                 {t("boostShop.coins.packLabel", {
                                   amount: pack.amount,
                                 })}
                               </p>
-                              <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-tight line-clamp-2 min-h-[2.2em]">
+                              <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight line-clamp-2 min-h-[2.2em]">
                                 {description}
                               </p>
-                              {pack.bonus > 0 && (
-                                <div className="inline-flex items-center gap-1 text-[10px] font-bold mt-1 px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20 shadow-sm">
-                                  <Sparkles className="w-3 h-3" />
-                                  {t("boostShop.coins.bonusLabel", {
-                                    bonus: pack.bonus,
-                                  })}
-                                </div>
-                              )}
                             </div>
                           </div>
 
-                          <div className="flex flex-col items-center gap-0.5 pt-1">
-                            <span className="text-xl sm:text-2xl font-black text-foreground drop-shadow-sm leading-none tabular-nums">
+                          <div className="flex flex-col items-center gap-0 pt-1">
+                            <span className="text-base sm:text-lg font-black text-foreground drop-shadow-sm leading-none tabular-nums mt-2">
                               {pack.price}
                             </span>
                             {pricePerCoin && (
@@ -1693,7 +1684,7 @@ export function BoostShopModal({
 
                         <div className="mt-auto pt-4 space-y-3">
                           {/* Главная кнопка покупки */}
-                          <div className="flex flex-col gap-2">
+                          <div className="flex flex-col gap-1.5 mt-2">
                             {showStarsPayment && (
                               <StarsPaymentButton
                                 packageKey={pack.packageKey}
@@ -1710,20 +1701,19 @@ export function BoostShopModal({
                                   });
                                 }}
                                 variant="default"
-                                size="default"
+                                size="sm"
                                 className={cn(
-                                  "w-full h-12 font-semibold text-base transition-all duration-200 hover:scale-[1.01]",
+                                  "w-full h-8 font-semibold text-xs transition-all duration-200",
                                   isBestValue || isHighlighted
-                                    ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black hover:brightness-110 shadow-[0_0_20px_rgba(245,158,11,0.4)] font-bold"
-                                    : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50",
-                                  isBestValue && "ring-2 ring-amber-400/50",
+                                    ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black shadow-sm font-bold"
+                                    : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm"
                                 )}
                               />
                             )}
 
                             {!showStarsPayment && showPaddlePayment && (
                               <Button
-                                size="lg"
+                                size="sm"
                                 aria-label={t("boostShop.coins.buyPackAria", {
                                   amount: pack.amount,
                                 })}
@@ -1731,9 +1721,9 @@ export function BoostShopModal({
                                   handleCoinPurchase(pack.catalogKey)
                                 }
                                 className={cn(
-                                  "w-full h-12 font-semibold text-base border-0 transition-all duration-200 hover:scale-[1.01]",
+                                  "w-full h-10 font-bold text-sm sm:h-11 sm:text-base border-0 transition-all duration-200 hover:scale-[1.01]",
                                   isBestValue || isHighlighted
-                                    ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black hover:brightness-110 shadow-[0_0_20px_rgba(245,158,11,0.4)] font-bold"
+                                    ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black hover:brightness-110 shadow-[0_0_20px_rgba(245,158,11,0.4)]"
                                     : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50",
                                   isBestValue && "ring-2 ring-amber-400/50",
                                 )}
@@ -1745,17 +1735,17 @@ export function BoostShopModal({
                               >
                                 {purchaseLoading === pack.catalogKey ? (
                                   <>
-                                    <div className="w-5 h-5 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    {t("boostShop.coins.loading").includes(
-                                      "boostShop",
-                                    )
-                                      ? "Загрузка..."
-                                      : t("boostShop.coins.loading")}
+                                    <div className="w-4 h-4 mr-1.5 sm:w-5 sm:h-5 sm:mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
+                                    <span className="truncate">
+                                      {t("boostShop.coins.loading").includes("boostShop")
+                                        ? "Загрузка..."
+                                        : t("boostShop.coins.loading")}
+                                    </span>
                                   </>
                                 ) : (
                                   <>
-                                    <ShoppingBag className="w-5 h-5 mr-2" />
-                                    Купить за {pack.price}
+                                    <ShoppingBag className="w-4 h-4 mr-1.5 sm:w-5 sm:h-5 sm:mr-2 shrink-0" />
+                                    <span className="truncate">Купить за {pack.price}</span>
                                   </>
                                 )}
                               </Button>
@@ -2660,7 +2650,7 @@ export function BoostShopModal({
         hideCloseButton={true}
         snapPoints={[0.92, 1]}
         activeSnapPoint={modalSnapPoint}
-        onSnapPointChange={setModalSnapPoint}
+        onSnapPointChange={(val) => setModalSnapPoint(val as number | string)}
       >
         {loading ? <ModalSkeleton rows={4} /> : <ModalContent />}
       </ResponsiveModal>
