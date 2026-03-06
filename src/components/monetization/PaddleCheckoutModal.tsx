@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { getPaddleInstance, getPaddleInstanceSync } from "@/lib/paddle";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import type { Paddle } from "@paddle/paddle-js";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -23,29 +23,67 @@ export function PaddleCheckoutModal({
     const { language } = useLanguage();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [timedOut, setTimedOut] = useState(false);
     const paddleRef = useRef<Paddle | null>(null);
     const initializedRef = useRef<string | null>(null);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const locale = language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en';
+    const successUrl = `${window.location.origin}/purchase/success?transaction_id={transaction_id}`;
+
+    const clearLoadTimeout = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+    };
 
     useEffect(() => {
         if (open && transactionId && initializedRef.current !== transactionId) {
             setLoading(true);
             setError(null);
-            // Небольшая задержка, чтобы модалка успела отрендерить контейнер в DOM
-            const timer = setTimeout(() => {
-                initCheckout();
-            }, 300);
+            setTimedOut(false);
+            // Ждём 300мс чтобы модалка отрисовала контейнер в DOM
+            const timer = setTimeout(() => { initCheckout(); }, 300);
             return () => clearTimeout(timer);
         }
     }, [open, transactionId]);
 
-    const initCheckout = async () => {
+    // Очищаем таймаут при закрытии
+    useEffect(() => {
+        if (!open) clearLoadTimeout();
+    }, [open]);
+
+    const tryOverlay = useCallback(async () => {
+        if (!transactionId) return;
+        try {
+            let paddle = paddleRef.current || getPaddleInstanceSync();
+            if (!paddle) paddle = await getPaddleInstance();
+            if (!paddle) throw new Error("Paddle SDK unavailable");
+
+            paddle.Checkout.open({
+                transactionId,
+                settings: {
+                    displayMode: "overlay",
+                    theme: "dark",
+                    locale,
+                    successUrl,
+                },
+            });
+            // Overlay открылся — закрываем нашу оболочку
+            onOpenChange(false);
+        } catch {
+            setError("Не удалось открыть форму оплаты. Попробуйте обновить страницу.");
+            setLoading(false);
+        }
+    }, [transactionId, locale, successUrl, onOpenChange]);
+
+    const initCheckout = useCallback(async () => {
         try {
             console.log("[PaddleCheckoutModal] Initializing for transaction:", transactionId);
 
             let paddle = getPaddleInstanceSync();
-            if (!paddle) {
-                paddle = await getPaddleInstance();
-            }
+            if (!paddle) paddle = await getPaddleInstance();
 
             if (!paddle || !transactionId) {
                 throw new Error("Paddle SDK not initialized or transaction missing");
@@ -54,33 +92,50 @@ export function PaddleCheckoutModal({
             paddleRef.current = paddle;
             initializedRef.current = transactionId;
 
-            // Очищаем контейнер перед вставкой
+            // Очищаем контейнер
             const container = document.getElementsByClassName("paddle-checkout-container")[0] as HTMLElement | undefined;
             if (container) container.innerHTML = "";
 
+            // Если контейнер не найден — сразу переходим на overlay
+            if (!container) {
+                console.warn("[PaddleCheckoutModal] Container not found, falling back to overlay");
+                await tryOverlay();
+                return;
+            }
+
+            // Таймаут: если inline не загрузился за 8 сек — переходим на overlay
+            timeoutRef.current = setTimeout(async () => {
+                console.warn("[PaddleCheckoutModal] Inline checkout timed out, falling back to overlay");
+                setTimedOut(true);
+                setLoading(false);
+            }, 8000);
+
             (paddle.Checkout.open as (opts: any) => void)({
-                transactionId: transactionId,
+                transactionId,
                 settings: {
                     displayMode: "inline",
                     frameTarget: "paddle-checkout-container",
                     frameInitialHeight: 450,
                     frameStyle: "width: 100%; border: none; background: transparent; min-height: 450px;",
                     theme: "dark",
-                    locale: language === 'ru' ? 'ru' : language === 'es' ? 'es' : 'en',
-                    successUrl: `${window.location.origin}/purchase/success?transaction_id={transaction_id}`,
+                    locale,
+                    successUrl,
                 },
                 eventCallback: (event: any) => {
                     console.log("[PaddleCheckoutModal] Event:", event.name);
                     if (event.name === "checkout.loaded") {
+                        clearLoadTimeout();
                         setLoading(false);
+                        setTimedOut(false);
                     }
                     if (event.name === "checkout.completed") {
-                        toast.success("Оплата прошла успешно!");
+                        toast.success("Оплата прошла успешно! 🎉");
                         onSuccess?.();
                         setTimeout(() => onOpenChange(false), 1500);
                     }
                     if (event.name === "checkout.error") {
-                        setError("Ошибка Paddle: " + (event.data?.error?.message || "Неизвестная ошибка"));
+                        clearLoadTimeout();
+                        setError("Ошибка: " + (event.data?.error?.message || "Неизвестная ошибка"));
                         setLoading(false);
                     }
                 }
@@ -91,28 +146,58 @@ export function PaddleCheckoutModal({
             setError(err.message || "Ошибка загрузки оплаты");
             setLoading(false);
         }
-    };
+    }, [transactionId, locale, successUrl, onSuccess, onOpenChange, tryOverlay]);
 
     return (
         <ResponsiveModal
             open={open}
             onOpenChange={(val) => {
-                if (!val) initializedRef.current = null;
+                if (!val) {
+                    clearLoadTimeout();
+                    initializedRef.current = null;
+                }
                 onOpenChange(val);
             }}
             className="max-w-2xl"
             contentClassName="p-0 overflow-hidden bg-[#0A0D14]"
         >
             <div className="relative min-h-[500px] w-full bg-[#0A0D14] flex flex-col items-center justify-center">
-                {loading && !error && (
+                {/* Лоадер */}
+                {loading && !error && !timedOut && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#0A0D14] z-10 space-y-4">
                         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
                         <p className="text-zinc-400 text-sm font-medium animate-pulse">
-                            {language === 'ru' ? 'Загрузка безопасной оплаты...' : 'Loading secure checkout...'}
+                            {locale === 'ru' ? 'Загрузка безопасной оплаты...' : 'Loading secure checkout...'}
                         </p>
                     </div>
                 )}
 
+                {/* Таймаут — предлагаем открыть через overlay */}
+                {timedOut && !error && (
+                    <div className="flex flex-col items-center justify-center p-8 text-center space-y-5 z-20">
+                        <div className="w-16 h-16 bg-amber-500/10 rounded-full flex items-center justify-center">
+                            <ExternalLink className="w-8 h-8 text-amber-400" />
+                        </div>
+                        <h3 className="text-xl font-black text-white">Форма оплаты готова</h3>
+                        <p className="text-zinc-400 text-sm max-w-xs">
+                            Встроенная оплата недоступна в этой среде. Нажмите кнопку ниже чтобы открыть форму.
+                        </p>
+                        <button
+                            onClick={tryOverlay}
+                            className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl transition-all duration-200 text-sm font-black uppercase tracking-widest shadow-lg shadow-indigo-600/30 hover:shadow-indigo-500/40 hover:scale-105 active:scale-95"
+                        >
+                            Открыть форму оплаты
+                        </button>
+                        <button
+                            onClick={() => onOpenChange(false)}
+                            className="text-zinc-500 hover:text-zinc-300 text-xs transition-colors"
+                        >
+                            Отмена
+                        </button>
+                    </div>
+                )}
+
+                {/* Ошибка */}
                 {error && (
                     <div className="flex flex-col items-center justify-center p-8 text-center space-y-4 z-20">
                         <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center">
@@ -124,6 +209,7 @@ export function PaddleCheckoutModal({
                             <button
                                 onClick={() => {
                                     initializedRef.current = null;
+                                    setError(null);
                                     initCheckout();
                                 }}
                                 className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors text-sm font-bold"
@@ -140,19 +226,19 @@ export function PaddleCheckoutModal({
                     </div>
                 )}
 
-                {/* Контейнер ВСЕГДА должен быть в DOM с реальными размерами — Paddle ищет его через getElementsByClassName */}
+                {/* Контейнер Paddle ВСЕГДА в DOM с реальными размерами */}
                 <div
                     className={cn(
                         "paddle-checkout-container w-full transition-opacity duration-500",
-                        (loading || error) ? "opacity-0" : "opacity-100"
+                        (loading || error || timedOut) ? "opacity-0" : "opacity-100"
                     )}
                     style={{ minHeight: 450 }}
                 />
 
-                {!error && (
-                    <div className="mt-4 pb-6 px-6 text-center shrink-0">
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono opacity-50">
-                            Secure Cloud processing by Paddle
+                {!error && !timedOut && (
+                    <div className="pb-4 px-6 text-center shrink-0">
+                        <p className="text-[10px] text-zinc-600 uppercase tracking-widest font-mono">
+                            Secure processing by Paddle
                         </p>
                     </div>
                 )}
