@@ -10,6 +10,7 @@ import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
+import { SignWidget } from '@/components/chat/SignWidget';
 
 // Типизация для markdown рендеринга
 type MarkdownProps = {
@@ -316,22 +317,7 @@ export const SkilyChat = React.memo(() => {
                             const [_, type, param1, param2] = match;
 
                             if (type === 'SIGN') {
-                              return (
-                                <div key={partIndex} className={cn("my-3 p-3 rounded-xl border flex flex-col items-center group transition-all hover:shadow-md", isDarkTheme ? "bg-indigo-950/20 border-indigo-800/30 hover:bg-slate-800" : "bg-indigo-50/50 border-indigo-100/50 hover:bg-white")}>
-                                  <div className={cn("w-20 h-20 xl:w-24 xl:h-24 flex items-center justify-center p-2 mb-2 rounded-lg shadow-sm", isDarkTheme ? "bg-slate-900" : "bg-white")}>
-                                    <img
-                                      src={`https://trmyymchczgczpsvtsas.supabase.co/storage/v1/object/public/system/signs/${param1.trim().toUpperCase()}.webp`}
-                                      alt={`Знак ${param1}`}
-                                      className="max-w-full max-h-full object-contain filter drop-shadow-md group-hover:scale-110 transition-transform duration-300"
-                                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                    />
-                                  </div>
-                                  <span className={cn("text-[10px] xl:text-xs font-bold px-2.5 py-1 rounded-md tracking-wide uppercase shadow-sm", isDarkTheme ? "bg-indigo-900/80 text-indigo-200" : "bg-indigo-100 text-indigo-800")}>
-                                    ЗНАК {param1.trim()}
-                                  </span>
-                                  {param2 && <p className="text-[10px] xl:text-xs text-muted-foreground mt-2 text-center font-medium leading-tight max-w-[90%]">{param2.trim()}</p>}
-                                </div>
-                              );
+                              return <SignWidget key={partIndex} code={param1} description={param2} isDarkTheme={isDarkTheme} />;
                             }
 
                             if (type === 'CTA' && param1 === 'PREMIUM') {
@@ -342,7 +328,7 @@ export const SkilyChat = React.memo(() => {
                                     <h4 className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5"><Sparkles className="w-4 h-4" />Skily PRO</h4>
                                     <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">{param2 || "Открой подробные разборы ошибок"}</p>
                                   </div>
-                                  <Button size="sm" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => window.location.href = '/premium'}>
+                                  <Button size="sm" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => window.location.href = '/pricing'}>
                                     Стать PRO
                                   </Button>
                                 </div>
