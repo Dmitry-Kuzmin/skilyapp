@@ -7,8 +7,10 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useUserContext } from '@/contexts/UserContext';
 // ОПТИМИЗАЦИЯ: Импортируем только нужные функции из date-fns
 import { formatDistanceToNow, format, isToday, isYesterday, isThisWeek, isThisMonth } from 'date-fns';
-// ОПТИМИЗАЦИЯ: Импортируем только русскую локаль (tree-shaking работает)
+// ОПТИМИЗАЦИЯ: Импортируем только нужные локали (tree-shaking работает)
 import { ru } from 'date-fns/locale/ru';
+import { es } from 'date-fns/locale/es';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from "@/components/optimized/Motion";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -157,13 +159,9 @@ const NotificationItem = memo(({
 });
 NotificationItem.displayName = 'NotificationItem';
 
-export function NotificationsPanel({
-  notificationsApi,
-  open,
-  onOpenChange,
-  renderTrigger = true,
-  trigger,
-}: NotificationsPanelProps) {
+export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, renderTrigger = true, trigger }: NotificationsPanelProps) => {
+  const { t, language } = useLanguage();
+  const dateLocale = language === 'es' ? es : ru;
   const { profileId } = useUserContext();
   // Хук должен вызываться безусловно (правила React)
   const ownApi = useNotifications();
@@ -257,7 +255,7 @@ export function NotificationsPanel({
     }
     const formatted = formatDistanceToNow(new Date(createdAt), {
       addSuffix: true,
-      locale: ru,
+      locale: dateLocale,
     });
     timeCache.current.set(cacheKey, formatted);
     // Очищаем старый кеш (храним только последние 100)
@@ -266,7 +264,7 @@ export function NotificationsPanel({
       if (firstKey) timeCache.current.delete(firstKey);
     }
     return formatted;
-  }, []);
+  }, [dateLocale]);
 
   // ОПТИМИЗАЦИЯ: Плоский список для виртуализации (вместо группировки)
   // Создаем массив элементов: заголовки групп + уведомления
@@ -281,15 +279,15 @@ export function NotificationsPanel({
       let groupKey: string;
 
       if (isToday(date)) {
-        groupKey = 'Сегодня';
+        groupKey = t('notifications.today');
       } else if (isYesterday(date)) {
-        groupKey = 'Вчера';
+        groupKey = t('notifications.yesterday');
       } else if (isThisWeek(date)) {
-        groupKey = 'На этой неделе';
+        groupKey = t('notifications.thisWeek');
       } else if (isThisMonth(date)) {
-        groupKey = 'В этом месяце';
+        groupKey = t('notifications.thisMonth');
       } else {
-        groupKey = format(date, 'MMMM yyyy', { locale: ru });
+        groupKey = format(date, 'MMMM yyyy', { locale: dateLocale });
       }
 
       if (!groups[groupKey]) {
@@ -307,7 +305,7 @@ export function NotificationsPanel({
     });
 
     return items;
-  }, [filteredNotifications]);
+  }, [filteredNotifications, t, dateLocale]);
 
   // Group notifications by date (для малых списков)
   const groupedNotifications = useMemo(() => {
@@ -318,15 +316,15 @@ export function NotificationsPanel({
       let groupKey: string;
 
       if (isToday(date)) {
-        groupKey = 'Сегодня';
+        groupKey = t('notifications.today');
       } else if (isYesterday(date)) {
-        groupKey = 'Вчера';
+        groupKey = t('notifications.yesterday');
       } else if (isThisWeek(date)) {
-        groupKey = 'На этой неделе';
+        groupKey = t('notifications.thisWeek');
       } else if (isThisMonth(date)) {
-        groupKey = 'В этом месяце';
+        groupKey = t('notifications.thisMonth');
       } else {
-        groupKey = format(date, 'MMMM yyyy', { locale: ru });
+        groupKey = format(date, 'MMMM yyyy', { locale: dateLocale });
       }
 
       if (!groups[groupKey]) {
@@ -336,7 +334,7 @@ export function NotificationsPanel({
     });
 
     return groups;
-  }, [filteredNotifications]);
+  }, [filteredNotifications, t, dateLocale]);
 
   // КРИТИЧНО: Отслеживаем реальную высоту контейнера (Zero-Dimension Trap fix)
   // Это решает проблему, когда виртуализатор инициализируется до того, как контейнер получит размеры
@@ -428,7 +426,7 @@ export function NotificationsPanel({
     if (notification.duel_id) {
       navigate(`/games/duel?duelId=${notification.duel_id}`);
     }
-  }, [navigate]);
+  }, [navigate, markAsRead]);
 
   const getFilterIcon = (filterType: NotificationFilter) => {
     switch (filterType) {
@@ -470,7 +468,7 @@ export function NotificationsPanel({
           <div className="flex items-center justify-between mb-4">
             <SheetTitle className="text-2xl font-bold flex items-center gap-2">
               <Bell className="h-6 w-6" />
-              Уведомления
+              {t('notifications.title')}
             </SheetTitle>
             {unreadCount > 0 && (
               <Button
@@ -480,7 +478,7 @@ export function NotificationsPanel({
                 className="text-xs h-8"
               >
                 <CheckCheck className="h-4 w-4 mr-1" />
-                Всё прочитано
+                {t('notifications.markAllAsRead')}
               </Button>
             )}
           </div>
@@ -489,19 +487,19 @@ export function NotificationsPanel({
           <Tabs value={filter} onValueChange={(v) => setFilter(v as NotificationFilter)} className="w-full">
             <TabsList className="grid w-full grid-cols-4 h-9">
               <TabsTrigger value="all" className="text-xs px-2">
-                Все
+                {t('notifications.all')}
               </TabsTrigger>
               <TabsTrigger value="duels" className="text-xs px-2">
                 <Swords className="h-3 w-3 mr-1" />
-                Дуэли
+                {t('notifications.duels')}
               </TabsTrigger>
               <TabsTrigger value="reminders" className="text-xs px-2">
                 <Clock className="h-3 w-3 mr-1" />
-                Напоминания
+                {t('notifications.reminders')}
               </TabsTrigger>
               <TabsTrigger value="system" className="text-xs px-2">
                 <Zap className="h-3 w-3 mr-1" />
-                Системные
+                {t('notifications.system')}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -521,8 +519,8 @@ export function NotificationsPanel({
               </div>
               <p className="text-muted-foreground">
                 {filter === 'all'
-                  ? 'Пока нет уведомлений'
-                  : `Нет уведомлений в категории "${filter}"`}
+                  ? t('notifications.emptyAll')
+                  : t('notifications.emptyCategory', { category: t(`notifications.${filter}`) })}
               </p>
               {filter === 'reminders' && (
                 <Button
@@ -531,7 +529,7 @@ export function NotificationsPanel({
                   size="sm"
                 >
                   <Clock className="w-4 h-4 mr-2" />
-                  Настроить напоминания
+                  {t('notifications.configureReminders')}
                 </Button>
               )}
             </motion.div>

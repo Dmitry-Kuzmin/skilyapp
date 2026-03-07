@@ -9,8 +9,9 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/shift-away.css';
 import { PDD_DICTIONARY_ES, PDD_KEYWORDS, PDD_KEYWORDS_RU } from "@/utils/pddDictionary";
 import { cn } from '@/lib/utils';
-import { Languages, Sparkles, Bot } from 'lucide-react';
+import { Languages, Sparkles, Bot, Wand2 } from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface QuestionTextProps {
   text: string;
@@ -127,9 +128,9 @@ export function QuestionText({
     return parts.map((part, i) => {
       const lowerPart = part.toLowerCase();
 
-      // 1. Ключевые слова-ловушки
+      // 1. Ключевые слова-ловушки (только если подсказки включены)
       const isKeyword = keywords.some(k => k.toLowerCase() === lowerPart);
-      if (isKeyword) {
+      if (isKeyword && isHintsActive) {
         return (
           <span key={i} className="text-amber-500 dark:text-amber-400 font-black underline decoration-amber-500/30 underline-offset-4">
             {part}
@@ -189,18 +190,61 @@ export function QuestionText({
   };
 
   return (
-    <div className={cn("relative", className)}>
-      <div className="relative group">
-        <h2
-          className={cn(
-            fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
-            "font-bold leading-tight tracking-tight text-slate-900 dark:text-white/95 whitespace-pre-line transition-all duration-300",
-            isTransitioning ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0',
-          )}
+    <div className={cn("relative group/qtext w-full", className)}>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={text}
+          initial={{ opacity: 0, filter: 'blur(8px)', y: 2 }}
+          animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
+          exit={{ opacity: 0, filter: 'blur(4px)', y: -2 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className={cn("relative w-full", onToggleTranslation ? "pb-1" : "")}
         >
-          {renderSmartText(text)}
-        </h2>
-      </div>
+          <h2
+            className={cn(
+              fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
+              "font-bold leading-tight tracking-tight text-slate-900 dark:text-white/95 whitespace-pre-line m-0",
+              onToggleTranslation ? "pr-10" : "pr-0"
+            )}
+          >
+            {renderSmartText(text)}
+
+            {/* Translation Button */}
+            {onToggleTranslation && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleTranslation();
+                }}
+                className={cn(
+                  "absolute bottom-1 right-0 p-1 transition-all duration-500 active:scale-75 select-none",
+                  showTranslation
+                    ? "text-blue-500 scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]"
+                    : "text-slate-400/50 hover:text-blue-500/80 hover:scale-110"
+                )}
+                title={showTranslation ? "Показать оригинал" : "Перевести"}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4"
+                >
+                  <path d="M5 8l6 6" />
+                  <path d="M4 14l6-6 2-3" />
+                  <path d="M2 8h12" />
+                  <path d="M7 2h1" />
+                  <path d="M22 22l-5-10-5 10" />
+                  <path d="M14 18h6" />
+                </svg>
+              </button>
+            )}
+          </h2>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

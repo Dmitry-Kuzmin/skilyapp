@@ -36,7 +36,7 @@ async function fetchServerTime(): Promise<number | null> {
       import.meta.env.VITE_SUPABASE_ANON_KEY ||
       '';
 
-    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+    const response = await fetch(`${supabaseUrl}/rest/v1/profiles?limit=0`, {
       method: 'HEAD',
       headers: {
         'apikey': supabaseKey,

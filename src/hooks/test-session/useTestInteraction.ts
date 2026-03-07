@@ -182,6 +182,8 @@ export const useTestInteraction = ({
         const answerId = optionId || selectedOptionValue;
         if (!answerId || isAnswerLocked) return;
 
+        const isExamMode = mode === 'exam' || mode === 'exam-russia';
+
         // --- RUSSIA EXAM ---
         if (mode === 'exam-russia' && russiaExam.currentQuestion) {
             const selectedAnswer = (russiaExam.currentQuestion.answers || []).find((a: any) => a.id === answerId);
@@ -207,13 +209,12 @@ export const useTestInteraction = ({
                         className: "bg-orange-500 text-white border-none",
                     });
                 }
-                if (isTelegramApp) triggerHapticFeedback('heavy');
                 return;
             }
 
-            // ВНИМАНИЕ: Для РФ версии больше НЕ делаем автопереход в handleAnswer,
-            // чтобы пользователь мог нажать "Объяснение" или переварить ответ.
-            // Переход будет по нажатию кнопки "Далее" или Enter (см. useKeyboardNavigation).
+            if (isTelegramApp) {
+                triggerHapticFeedback('light');
+            }
             return;
         }
 
@@ -248,7 +249,10 @@ export const useTestInteraction = ({
         const selectedAnswer = options.find((opt: any) => opt.id === answerId);
         const isCorrect = selectedAnswer?.is_correct ?? selectedAnswer?.isCorrect ?? false;
 
-        if (isTelegramApp) triggerHapticFeedback(isCorrect ? 'success' : 'error');
+        if (isTelegramApp) {
+            // В режиме экзамена всегда одинаковая слабая вибрация, чтобы не подсказывать ответ
+            triggerHapticFeedback(isExamMode ? 'light' : (isCorrect ? 'success' : 'error'));
+        }
         if (profileId) saveAnswerToDB(currentQuestion.id, isCorrect);
 
         answerQuestionZ(answerId, isCorrect);

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import { SkilyBrandLogo } from "../SkilyBrandLogo";
 import { getImageUrl } from "@/utils/imageUtils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TestQuestionMapProps {
     open: boolean;
@@ -22,6 +23,7 @@ export const TestQuestionMap = ({
     jumpToQuestion,
     mode
 }: TestQuestionMapProps) => {
+    const { t } = useLanguage();
     const [isDragging, setIsDragging] = useState(false);
     const [dragStartY, setDragStartY] = useState(0);
     const [dragCurrentY, setDragCurrentY] = useState(0);
@@ -205,11 +207,11 @@ export const TestQuestionMap = ({
 
                 <div className="px-4 sm:px-6 pb-4 border-b border-border">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-lg sm:text-xl font-semibold text-foreground">Карта вопросов</h2>
+                        <h2 className="text-lg sm:text-xl font-semibold text-foreground">{t('test.questionMap')}</h2>
                         <div className="flex items-center gap-2">
                             <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground px-2 py-1 rounded-md bg-muted/50">
                                 <kbd className="px-1.5 py-0.5 text-xs font-semibold text-muted-foreground bg-background border border-border rounded">Esc</kbd>
-                                <span>закрыть</span>
+                                <span>{t('test.escToClose')}</span>
                             </span>
                             <button
                                 onClick={(e) => {
@@ -239,28 +241,28 @@ export const TestQuestionMap = ({
                     <div className="flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm">
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded border border-border bg-muted/50" />
-                            <span>Не отвечен</span>
+                            <span>{t('test.notAnswered')}</span>
                         </div>
                         {mode === "exam" ? (
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 rounded border-2 border-blue-500/50 bg-blue-500/20" />
-                                <span>Отвечен</span>
+                                <span>{t('test.answered')}</span>
                             </div>
                         ) : (
                             <>
                                 <div className="flex items-center gap-2">
                                     <div className="w-4 h-4 rounded border-2 border-emerald-500/50 bg-emerald-500/20" />
-                                    <span>Правильно</span>
+                                    <span>{t('test.correct')}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-4 h-4 rounded border-2 border-red-500/50 bg-red-500/20" />
-                                    <span>Неправильно</span>
+                                    <span>{t('test.incorrect')}</span>
                                 </div>
                             </>
                         )}
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded ring-2 ring-accent ring-offset-2 bg-accent text-accent-foreground" />
-                            <span>Текущий</span>
+                            <span>{t('test.current')}</span>
                         </div>
                     </div>
                 </div>

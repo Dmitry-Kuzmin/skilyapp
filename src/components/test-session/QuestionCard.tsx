@@ -89,6 +89,7 @@ export const QuestionCard = ({
         : (testLanguage === 'en' ? (currentQuestion.explanation_en || currentQuestion.explanation_es) : currentQuestion.explanation_es);
 
     const imageUrl = getImageUrl(currentQuestion.image_url);
+    const isExam = mode === 'exam' || mode === 'exam-russia';
 
     return (
         <Card
@@ -112,17 +113,16 @@ export const QuestionCard = ({
                             />
                         </div>
                         <div className="flex flex-col mt-6">
-                            {/* Question Card - Swiss Design */}
+                            {/* Question Card - Uni Layout with Translation button support */}
                             <div className="mb-8">
-                                <div className="relative">
-                                    <h2 className={cn(
-                                        fontSizeClasses[fontSize],
-                                        "font-bold text-foreground dark:text-white whitespace-pre-line transition-opacity duration-300 tracking-tight leading-tight",
-                                        isTransitioning ? 'opacity-0' : 'opacity-100'
-                                    )}>
-                                        {displayQuestion}
-                                    </h2>
-                                </div>
+                                <QuestionText
+                                    text={displayQuestion}
+                                    fontSize={fontSize}
+                                    showTranslation={showTranslation}
+                                    onToggleTranslation={!isExam ? toggleTranslation : undefined}
+                                    isTransitioning={isTransitioning}
+                                    hintsEnabled={false} // Disable smart hints for Russia mode
+                                />
                             </div>
 
                             {/* Answer Options - Premium Component */}
@@ -149,44 +149,6 @@ export const QuestionCard = ({
 
                             {/* Navigation */}
                             <div className="flex gap-3 items-center mt-6">
-                                {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
-                                    <div className="relative xl:hidden">
-                                        <button
-                                            onClick={handleOpenAIChat}
-                                            className={cn(
-                                                "group relative h-12 w-auto px-3 sm:px-5 rounded-2xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 xl:hidden overflow-hidden shadow-lg",
-                                                showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-                                            )}
-                                            title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                            <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
-                                                <Lightbulb className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
-                                            </div>
-                                            <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
-                                                {testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                            </span>
-                                        </button>
-                                        {selectedOption && explanationText && (
-                                            <div
-                                                onClick={handleOpenAIChat}
-                                                className="absolute bottom-full left-0 mb-3 w-64 p-4 bg-zinc-900/95 dark:bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 cursor-pointer ring-1 ring-white/5"
-                                            >
-                                                <div className="relative">
-                                                    <div className="text-[10px] text-purple-400 mb-1.5 flex items-center gap-1.5 font-bold uppercase tracking-wider">
-                                                        <Sparkles className="w-3 h-3" />
-                                                        {testLanguage === 'ru' ? "AI Объяснение" : testLanguage === 'en' ? "AI Explanation" : "Explicación AI"}
-                                                    </div>
-                                                    <p className="text-xs text-zinc-200 line-clamp-3 leading-relaxed">
-                                                        {explanationText}
-                                                    </p>
-                                                    <div className="absolute -bottom-[22px] left-6 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-zinc-900/95 dark:border-t-black/95" />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
                                 {onReportProblem && (
                                     <button
                                         onClick={onReportProblem}
@@ -240,12 +202,50 @@ export const QuestionCard = ({
                                         />
                                     )
                                 )}
+
+                                {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && !isExam && (
+                                    <div className="relative">
+                                        <button
+                                            onClick={handleOpenAIChat}
+                                            className={cn(
+                                                "group relative h-12 w-auto px-3 sm:px-5 rounded-2xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 overflow-hidden shadow-lg",
+                                                showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
+                                            )}
+                                            title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
+                                        >
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                            <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
+                                                <Bot className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
+                                            </div>
+                                            <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
+                                                {testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
+                                            </span>
+                                        </button>
+                                        {selectedOption && explanationText && (
+                                            <div
+                                                onClick={handleOpenAIChat}
+                                                className="absolute bottom-full left-0 mb-3 w-64 p-4 bg-zinc-900/95 dark:bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 cursor-pointer ring-1 ring-white/5"
+                                            >
+                                                <div className="relative">
+                                                    <div className="text-[10px] text-purple-400 mb-1.5 flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                                                        <Sparkles className="w-3 h-3" />
+                                                        {testLanguage === 'ru' ? "AI Объяснение" : testLanguage === 'en' ? "AI Explanation" : "Explicación AI"}
+                                                    </div>
+                                                    <p className="text-xs text-zinc-200 line-clamp-3 leading-relaxed">
+                                                        {explanationText}
+                                                    </p>
+                                                    <div className="absolute -bottom-[22px] left-6 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-zinc-900/95 dark:border-t-black/95" />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                             </div>
                         </div>
                     </div>
                 ) : (
                     // DGT Split Layout (Premium Split) 
-                    // Stacks vertically on tablets (md), side-by-side only on large screens (lg+)
                     <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6 lg:gap-6 items-start">
                         <div className="w-full lg:sticky lg:top-6 lg:self-start">
                             <QuestionImage
@@ -261,8 +261,9 @@ export const QuestionCard = ({
                                     text={displayQuestion}
                                     fontSize={fontSize}
                                     showTranslation={showTranslation}
-                                    onToggleTranslation={toggleTranslation}
+                                    onToggleTranslation={!isExam ? toggleTranslation : undefined}
                                     isTransitioning={isTransitioning}
+                                    hintsEnabled={!isExam}
                                 />
                             </div>
 
@@ -287,49 +288,11 @@ export const QuestionCard = ({
                             {/* Sticky Mobile Navigation */}
                             <div className="sticky bottom-0 left-0 right-0 z-50 pt-6 pb-4 bg-gradient-to-t from-white via-white/80 dark:from-slate-900/60 dark:via-slate-900/20 to-transparent sm:relative sm:bg-none sm:bg-transparent sm:from-transparent sm:via-transparent sm:to-transparent sm:dark:from-transparent sm:pt-0 sm:mt-8 sm:z-10 sm:backdrop-blur-0">
                                 <div className="flex gap-3 items-center">
-                                    {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && (
-                                        <div className="relative xl:hidden">
-                                            <button
-                                                onClick={handleOpenAIChat}
-                                                className={cn(
-                                                    "group relative h-12 ml-2 w-auto px-3 sm:px-4 rounded-xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 xl:hidden overflow-hidden shadow-lg",
-                                                    showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-                                                )}
-                                                title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                            >
-                                                <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
-                                                    <Lightbulb className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
-                                                </div>
-                                                <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
-                                                    {testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                                </span>
-                                            </button>
-                                            {selectedOption && explanationText && (
-                                                <div
-                                                    onClick={handleOpenAIChat}
-                                                    className="absolute bottom-full left-0 mb-3 w-64 p-4 bg-zinc-900/95 dark:bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 cursor-pointer ring-1 ring-white/5"
-                                                >
-                                                    <div className="relative">
-                                                        <div className="text-[10px] text-purple-400 mb-1.5 flex items-center gap-1.5 font-bold uppercase tracking-wider">
-                                                            <Sparkles className="w-3 h-3" />
-                                                            {testLanguage === 'ru' ? "AI Объяснение" : testLanguage === 'en' ? "AI Explanation" : "Explicación AI"}
-                                                        </div>
-                                                        <p className="text-xs text-zinc-200 line-clamp-3 leading-relaxed">
-                                                            {explanationText}
-                                                        </p>
-                                                        <div className="absolute -bottom-[22px] left-6 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-zinc-900/95 dark:border-t-black/95" />
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
                                     {onReportProblem && (
                                         <button
                                             onClick={onReportProblem}
                                             className="h-12 w-12 rounded-2xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 flex items-center justify-center text-zinc-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/10 hover:border-orange-200 dark:hover:border-orange-500/30 transition-all active:scale-95 shrink-0"
-                                            title={testLanguage === 'ru' ? "Сообщить о проблеме" : "Reportar problema"}
+                                            title={testLanguage === 'ru' ? "Сообщить о проблеме" : "Reportar проблема"}
                                         >
                                             <Flag className="w-5 h-5" />
                                         </button>
@@ -378,6 +341,45 @@ export const QuestionCard = ({
                                             />
                                         )
                                     )}
+
+                                    {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && !isExam && (
+                                        <div className="relative">
+                                            <button
+                                                onClick={handleOpenAIChat}
+                                                className={cn(
+                                                    "group relative h-12 ml-2 w-auto px-3 sm:px-4 rounded-xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 overflow-hidden shadow-lg",
+                                                    showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
+                                                )}
+                                                title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
+                                            >
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                                <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
+                                                    <Bot className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
+                                                </div>
+                                                <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
+                                                    {testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
+                                                </span>
+                                            </button>
+                                            {selectedOption && explanationText && (
+                                                <div
+                                                    onClick={handleOpenAIChat}
+                                                    className="absolute bottom-full left-0 mb-3 w-64 p-4 bg-zinc-900/95 dark:bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 cursor-pointer ring-1 ring-white/5"
+                                                >
+                                                    <div className="relative">
+                                                        <div className="text-[10px] text-purple-400 mb-1.5 flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                                                            <Sparkles className="w-3 h-3" />
+                                                            {testLanguage === 'ru' ? "AI Объяснение" : testLanguage === 'en' ? "AI Explanation" : "Explicación AI"}
+                                                        </div>
+                                                        <p className="text-xs text-zinc-200 line-clamp-3 leading-relaxed">
+                                                            {explanationText}
+                                                        </p>
+                                                        <div className="absolute -bottom-[22px] left-6 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-zinc-900/95 dark:border-t-black/95" />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                 </div>
                             </div>
                         </div>
@@ -387,13 +389,14 @@ export const QuestionCard = ({
                 // No image layout -> Just text
                 <div className="space-y-6">
                     <div className="mb-6">
-                        <h2 className={cn(
-                            fontSizeClasses[fontSize],
-                            "font-bold text-foreground dark:text-white whitespace-pre-line transition-opacity duration-300 tracking-tight leading-tight",
-                            isTransitioning ? 'opacity-0' : 'opacity-100'
-                        )}>
-                            {displayQuestion}
-                        </h2>
+                        <QuestionText
+                            text={displayQuestion}
+                            fontSize={fontSize}
+                            showTranslation={showTranslation}
+                            onToggleTranslation={!isExam ? toggleTranslation : undefined}
+                            isTransitioning={isTransitioning}
+                            hintsEnabled={!isExam}
+                        />
                     </div>
 
                     <AnswerOptionsList
@@ -413,21 +416,7 @@ export const QuestionCard = ({
                             }
                         }}
                     />
-
                     <div className="flex gap-3 items-center mt-6">
-                        {(isPracticeLikeMode || mode === 'by-topic') && (
-                            <button
-                                onClick={handleOpenAIChat}
-                                className="group h-12 sm:h-14 pl-2 pr-4 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center gap-1.5 transition-all hover:bg-indigo-100 dark:hover:bg-indigo-500/20 active:scale-95 shrink-0 xl:hidden shadow-sm"
-                                title="Спросить AI"
-                            >
-                                <div className="w-8 h-8 relative flex items-center justify-center">
-                                    <SkilyAICharacter size="sm" mood="happy" animate={true} />
-                                </div>
-                                <span className="font-bold text-indigo-600 dark:text-indigo-300 text-sm leading-none">AI</span>
-                            </button>
-                        )}
-
                         {onReportProblem && (
                             <button
                                 onClick={onReportProblem}
@@ -462,6 +451,19 @@ export const QuestionCard = ({
                                     showKeyboardHint={true}
                                 />
                             )
+                        )}
+
+                        {(isPracticeLikeMode || mode === 'by-topic') && !isExam && (
+                            <button
+                                onClick={handleOpenAIChat}
+                                className="group h-12 sm:h-14 pl-2 pr-4 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center gap-1.5 transition-all hover:bg-indigo-100 dark:hover:bg-indigo-500/20 active:scale-95 shrink-0 shadow-sm"
+                                title="Спросить AI"
+                            >
+                                <div className="w-8 h-8 relative flex items-center justify-center">
+                                    <Bot className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                                </div>
+                                <span className="font-bold text-indigo-600 dark:text-indigo-300 text-xs sm:text-sm leading-none">AI</span>
+                            </button>
                         )}
                     </div>
                 </div>

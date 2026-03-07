@@ -16,6 +16,7 @@ interface TestRewardRequest {
   test_duration_seconds: number;
   premium_flag?: boolean;
   double_sp_active?: boolean;
+  mode?: string;
 }
 
 interface TestRewardResponse {
@@ -48,6 +49,7 @@ serve(async (req) => {
       test_duration_seconds,
       premium_flag = false,
       double_sp_active = false,
+      mode = 'practice',
     } = body;
 
     console.log('[complete-test-and-award] 🚀 START:', { user_id, session_id, score });
@@ -99,7 +101,8 @@ serve(async (req) => {
       p_correct_count: correct_count,
       p_test_duration_seconds: test_duration_seconds,
       p_premium_flag: premium_flag,
-      p_double_sp_active: double_sp_active
+      p_double_sp_active: double_sp_active,
+      p_mode: mode,
     }) as { data: TestRewardResponse | null, error: unknown };
 
     if (rpcError) {
@@ -119,7 +122,6 @@ serve(async (req) => {
     // ============================================
     // Определяем тип события для системы баллов
     let licenseEvent: string | null = null;
-    const mode = (body as any).mode || 'practice';
 
     if (mode === 'exam' || mode === 'exam-russia') {
       licenseEvent = score >= 90 ? 'exam_pass' : 'exam_fail';

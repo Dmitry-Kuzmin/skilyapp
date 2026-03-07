@@ -303,12 +303,15 @@ const AIWidgetContent = ({
 
 # Сценарии
 
-## Если ученик просит подсказку:
-Не говори "Правильный ответ 2".
-Скажи: "Обрати внимание на знак справа. Это знак приоритета или предписывающий? Вспомни правило проезда нерегулируемых перекрестков..."
+## Если ученик просит подсказку (userAnswer отсутствует):
+**НИКОГДА не говори "Не переживай из-за ошибки" или "Ничего страшного, что ошибся", если ответа еще нет!** 
+Вместо этого используй фразы: "Давай разберемся вместе", "Хороший вопрос, давай посмотрим на детали", "Даю наводку:".
+Твоя цель — направить внимание на ключевой дорожный знак или ситуацию.
+ЗАПРЕЩЕНО называть номер правильного ответа.
 
-## Если ученик ошибся:
+## Если ученик ошибся (userAnswer есть и isCorrect=false):
 Мягко укажи на ошибку. "Не совсем так. Ты подумал про помеху справа, но здесь действует знак 'Главная дорога'. Посмотри пункт 13.9 ПДД."
+Здесь уместно поддержать ученика.
 
 ## Если ученик спрашивает "А в жизни так же?":
 Честно отвечай, как это работает на практике в России (ДДД - Дай Дорогу Дураку), но подчеркивай, что на экзамене мы отвечаем строго по книжке.
@@ -328,7 +331,7 @@ Estilo de comunicación:
 5. Respuestas breves: el espacio en el chat es limitado.
 
 Escenarios:
-- Si el estudiante pide ayuda: Haz preguntas que lo lleven a reflexionar.
+- **Si el estudiante pide ayuda (userAnswer no existe):** ¡NO digas "no te preocupes por el error"! No hay error todavía. Guía con preguntas brillantes. PROHIBIDO dar la respuesta directa.
 - Si el estudiante se equivoca: Señala el error con tacto y explica la lógica.
 - Si pregunta sobre la práctica real: Sé honesto sobre cómo es en la carretera, pero recuerda que en el examen debes responder según el reglamento.
 
@@ -347,7 +350,7 @@ ${systemPrompt}
 ${interfaceLanguage === 'ru' ? 'Вопрос' : interfaceLanguage === 'en' ? 'Question' : 'Pregunta'}: ${question}
 ${interfaceLanguage === 'ru' ? 'Правильный ответ' : interfaceLanguage === 'en' ? 'Correct Answer' : 'Respuesta correcta'}: ${correctAnswer}
 ${userAnswer ? `${interfaceLanguage === 'ru' ? 'Ответ пользователя' : interfaceLanguage === 'en' ? 'User Answer' : 'Respuesta del usuario'}: ${userAnswer}` : ''}
-${interfaceLanguage === 'ru' ? 'Результат' : interfaceLanguage === 'en' ? 'Result' : 'Resultado'}: ${isCorrect ? (interfaceLanguage === 'ru' ? 'ПРАВИЛЬНО ✅' : 'CORRECTO ✅') : (interfaceLanguage === 'ru' ? 'НЕПРАВИЛЬНО ❌' : 'INCORRECTO ❌')}
+${interfaceLanguage === 'ru' ? 'Результат' : interfaceLanguage === 'en' ? 'Result' : 'Resultado'}: ${userAnswer ? (isCorrect ? (interfaceLanguage === 'ru' ? 'ПРАВИЛЬНО ✅' : 'CORRECTO ✅') : (interfaceLanguage === 'ru' ? 'НЕПРАВИЛЬНО ❌' : 'INCORRECTO ❌')) : (interfaceLanguage === 'ru' ? 'Ещё не отвечено (нужна подсказка) 💡' : 'Still searching for answer (needs a hint) 💡')}
 ${topic ? `${interfaceLanguage === 'ru' ? 'Тема' : interfaceLanguage === 'en' ? 'Topic' : 'Tema'}: ${topic}` : ''}
 ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объяснение из базы' : interfaceLanguage === 'en' ? 'Official Explanation' : 'Explicación oficial'}: ${explanation}` : ''}
 `;

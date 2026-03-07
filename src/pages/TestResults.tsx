@@ -11,7 +11,6 @@ import { usePremium } from "@/hooks/usePremium";
 import { getImageUrl } from "@/utils/imageUtils";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import Confetti from "react-confetti";
-import { usePremium } from "@/hooks/usePremium";
 
 import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCardV3";
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
@@ -21,6 +20,7 @@ import { haptics } from "@/lib/haptics";
 type TestRewardPayload = {
   coins_awarded?: number;
   sp_awarded?: number;
+  xp_awarded?: number;
   base_coins?: number;
   base_sp?: number;
   level_up?: boolean;
@@ -210,9 +210,9 @@ const TestResults = () => {
   useEffect(() => {
     if (!rewardResult || hasShownRewardsRef.current) return;
     try {
-      if (rewardResult.coins_awarded || rewardResult.sp_awarded || rewardResult.level_up) {
+      if (rewardResult.coins_awarded || rewardResult.xp_awarded || rewardResult.sp_awarded || rewardResult.level_up) {
         toast.success("Награды получены!", {
-          description: `+${rewardResult.coins_awarded || 0} монет, +${rewardResult.sp_awarded || 0} XP`,
+          description: `+${rewardResult.coins_awarded || 0} монет, +${rewardResult.xp_awarded ?? rewardResult.sp_awarded ?? 0} XP`,
         });
         hasShownRewardsRef.current = true;
       }
@@ -483,7 +483,7 @@ const TestResults = () => {
               <div className="absolute inset-0 bg-indigo-500/20 blur-2xl group-hover:bg-indigo-500/30 transition-colors" />
               <Trophy className="w-6 h-6 text-indigo-400 mb-1 relative z-10 animate-bounce-slow" />
               <span className="text-xl sm:text-2xl font-black text-indigo-400 relative z-10 drop-shadow-sm">
-                +{rewardResult?.sp_awarded ?? 0}
+                +{rewardResult?.xp_awarded ?? rewardResult?.sp_awarded ?? 0}
               </span>
               <span className="text-[10px] sm:text-xs uppercase font-black tracking-[0.15em] text-indigo-500/70 relative z-10">Season Points</span>
             </div>
@@ -493,7 +493,7 @@ const TestResults = () => {
               <div className="absolute inset-0 bg-yellow-500/10 blur-xl" />
               <Zap className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
               <span className="text-xl sm:text-2xl font-bold text-yellow-400 relative z-10">
-                +{rewardResult?.sp_awarded ?? 0}
+                +{rewardResult?.xp_awarded ?? rewardResult?.sp_awarded ?? 0}
               </span>
               <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">XP получен</span>
             </div>

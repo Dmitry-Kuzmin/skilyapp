@@ -44,6 +44,7 @@
 ### 📚 ДЕТАЛЬНЫЕ ПРАВИЛА:
 
 Смотри файлы:
+- Project.md - главные архитектурные решения и инструкции ИИ (Agent Skills)
 - CURSOR_RULES.md - полные правила работы
 - GIT_WORKFLOW.md - правила синхронизации с Git
 - RULES_LAYOUT.md - Golden Rules v3.0 для Telegram Mini App layout (safe areas, colors, scrolling)

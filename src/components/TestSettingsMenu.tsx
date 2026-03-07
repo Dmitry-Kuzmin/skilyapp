@@ -11,6 +11,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TestSettingsMenuProps {
   open: boolean;
@@ -32,8 +34,6 @@ interface TestSettingsMenuProps {
   onSmartVocabularyChange: (value: boolean) => void;
 }
 
-import { supabase } from "@/integrations/supabase/client";
-
 export const TestSettingsMenu = ({
   open,
   onOpenChange,
@@ -54,8 +54,9 @@ export const TestSettingsMenu = ({
   onSmartVocabularyChange,
 }: TestSettingsMenuProps) => {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const isDark = theme === 'dark';
-  const fontSizeLabels = ['Pequeño', 'Default', 'Grande'];
+  const fontSizeLabels = [t('test.fontSizeSmall'), t('test.fontSizeDefault'), t('test.fontSizeLarge')];
   const [tracks, setTracks] = useState<string[]>([]);
   const [showAllTracks, setShowAllTracks] = useState(false);
 
@@ -129,7 +130,7 @@ export const TestSettingsMenu = ({
       <DropdownMenuTrigger asChild>
         <button
           className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-background shadow-sm hover:shadow-md hover:bg-muted/50 transition-all active:scale-95 backdrop-blur-sm border-2 border-border/50"
-          title="Настройки теста"
+          title={t('test.settings')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-more-vertical">
             <circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" />
@@ -149,7 +150,7 @@ export const TestSettingsMenu = ({
               <div className="w-8 h-8 rounded-md bg-blue-500/10 flex items-center justify-center">
                 <Volume2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               </div>
-              <span className="font-medium text-sm">Озвучка</span>
+              <span className="font-medium text-sm">{t('test.voiceOver')}</span>
             </div>
             <Switch
               checked={voiceOver}
@@ -164,7 +165,7 @@ export const TestSettingsMenu = ({
               <div className="w-8 h-8 rounded-md bg-green-500/10 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
               </div>
-              <span className="font-medium text-sm">Статистика</span>
+              <span className="font-medium text-sm">{t('test.statistics')}</span>
             </div>
             <Switch
               checked={answerPopularity}
@@ -181,7 +182,7 @@ export const TestSettingsMenu = ({
                   <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-medium text-sm">Подсказки слов</span>
+                  <span className="font-medium text-sm">{t('test.wordHints')}</span>
                   <span className="text-[9px] text-muted-foreground leading-none">Smart Vocabulary</span>
                 </div>
               </div>
@@ -221,10 +222,10 @@ export const TestSettingsMenu = ({
                 <div className="text-xs font-bold text-foreground truncate">
                   {ambientMusic
                     ? (selectedMusicTrack ? getTrackDisplayName(selectedMusicTrack) : '🔀 Shuffle Mix')
-                    : 'Музыка выкл.'
+                    : t('test.musicOff')
                   }
                 </div>
-                <div className="text-[10px] text-muted-foreground font-medium">Ambient Player</div>
+                <div className="text-[10px] text-muted-foreground font-medium">{t('test.ambientMusic')}</div>
               </div>
 
               {/* Toggle */}
@@ -296,7 +297,7 @@ export const TestSettingsMenu = ({
                     <button
                       onClick={() => setShowAllTracks(false)}
                       className="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-150">
-                      Свернуть
+                      {t('lumiCollapse')}
                     </button>
                   )}
                 </div>
@@ -312,7 +313,7 @@ export const TestSettingsMenu = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Type className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium text-sm">Шрифт</span>
+                <span className="font-medium text-sm">{t('test.fontSize')}</span>
               </div>
               <span className="text-xs text-blue-600 dark:text-blue-400 font-semibold px-2 py-0.5 rounded bg-blue-500/10">
                 {fontSizeLabels[fontSize]}
@@ -337,8 +338,8 @@ export const TestSettingsMenu = ({
             <div className="flex items-center gap-2">
               <Keyboard className="w-4 h-4 text-muted-foreground" />
               <div className="flex flex-col">
-                <span className="font-medium text-sm">Клавиши</span>
-                <span className="text-[9px] text-muted-foreground leading-none">1-6 = ответы, Enter = далее</span>
+                <span className="font-medium text-sm">{t('test.keys')}</span>
+                <span className="text-[9px] text-muted-foreground leading-none">{t('test.keysDesc')}</span>
               </div>
             </div>
             <div className="flex items-center gap-1 text-xs">
@@ -356,7 +357,7 @@ export const TestSettingsMenu = ({
 
               {/* Language selection */}
               <div className="px-2 pb-1">
-                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">Язык теста</div>
+                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('test.languageLabel')}</div>
                 <div className="grid grid-cols-2 gap-1.5">
                   <button
                     onClick={() => onLanguageChange('es')}
@@ -382,7 +383,7 @@ export const TestSettingsMenu = ({
                   </button>
                 </div>
                 <div className="mt-2 text-[9px] text-muted-foreground/70 px-1">
-                  Русский доступен через кнопку перевода в тесте
+                  {t('test.russianAvailable')}
                 </div>
               </div>
             </>
@@ -392,5 +393,3 @@ export const TestSettingsMenu = ({
     </DropdownMenu>
   );
 };
-
-

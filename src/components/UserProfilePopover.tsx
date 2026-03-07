@@ -181,7 +181,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
     {
       key: 'settings',
       icon: Settings,
-      label: 'Настройки',
+      label: t('nav.settings'),
       action: () => {
         // Открываем Unified Settings
         useSettingsStore.getState().openSettings('general');
@@ -190,7 +190,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
     {
       key: 'about',
       icon: Info,
-      label: 'О приложении',
+      label: t('unifiedSettings.about'),
       action: () => {
         // Открываем Unified Settings на вкладке About
         useSettingsStore.getState().openSettings('about');
@@ -323,7 +323,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 }}
               >
                 <BarChart3 className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                Статистика
+                {t('test.statistics')}
               </Button>
               <Button
                 variant="outline"
@@ -360,7 +360,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
               >
                 <div className="flex items-center gap-2">
                   <Bell className="h-4 w-4 text-muted-foreground" />
-                  <span>{t('notifications') || 'Уведомления'}</span>
+                  <span>{t('nav.notifications')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   {hasUnreadNotifications && (
@@ -453,14 +453,14 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                   onClick={() => { setOpen(false); navigate("/legal/privacy"); }}
                   className="hover:text-foreground transition-colors"
                 >
-                  Privacy
+                  {t('nav.privacy')}
                 </button>
                 <span className="opacity-30">•</span>
                 <button
                   onClick={() => { setOpen(false); navigate("/legal/terms"); }}
                   className="hover:text-foreground transition-colors"
                 >
-                  Terms
+                  {t('nav.terms')}
                 </button>
                 <span className="opacity-30">•</span>
                 <button
@@ -473,7 +473,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                   }}
                   className="hover:text-foreground transition-colors"
                 >
-                  Cookies
+                  {t('nav.cookies')}
                 </button>
                 <span className="opacity-30">•</span>
                 <a
@@ -482,7 +482,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                   rel="noreferrer"
                   className="hover:text-foreground transition-colors"
                 >
-                  Help
+                  {t('nav.help')}
                 </a>
               </div>
               <div className="mt-2 text-center text-[9px] text-muted-foreground/30 font-mono tracking-widest uppercase">

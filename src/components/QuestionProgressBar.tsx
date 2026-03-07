@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles, Flag, Coins } from 'lucide-react';
+import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles, Flag, Coins, Languages } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { usePDDContext } from '@/contexts/PDDContext';
@@ -129,7 +129,7 @@ export function QuestionProgressBar({
           />
         </div>
         <div className="flex flex-col leading-none">
-          <span className="text-[7px] font-black text-amber-500/70 uppercase tracking-tighter mb-0.5 text-left">Банк</span>
+          <span className="text-[7px] font-black text-amber-500/70 uppercase tracking-tighter mb-0.5 text-left">{t('boostShop.duelPass.table.columns.sp')}</span>
           <span className="text-[12px] font-black tracking-tight text-amber-600 dark:text-amber-400">
             {betInfo.totalBank}
           </span>
@@ -227,7 +227,7 @@ export function QuestionProgressBar({
                   ? "bg-blue-500 border-blue-400 text-white shadow-lg shadow-blue-500/30 ring-2 ring-blue-500/10"
                   : "bg-background border-border/50 hover:bg-muted/50 shadow-sm dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
               )}
-              title={isBookmarked ? "Удалить из закладок" : "Добавить в закладки"}
+              title={isBookmarked ? t('test.removeFromBookmarks') : t('test.addToBookmarks')}
             >
               {isBookmarked ? (
                 <BookmarkCheck className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -243,23 +243,22 @@ export function QuestionProgressBar({
           {/* Settings Menu */}
           {SettingsMenuComponent}
 
-          {/* Language Switcher - Minimalist Circular Style */}
-          {onToggleTranslation && !isRussia && (
+          {/* Translation Toggle - Flag or Languages Icon */}
+          {onToggleTranslation && !hideScoreIndicators && (
             <button
               onClick={onToggleTranslation}
               className={cn(
-                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-full transition-all duration-300 active:scale-90 border font-semibold text-[10px] sm:text-xs",
+                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-full transition-all duration-300 active:scale-95 border",
                 showTranslation
-                  ? "bg-blue-600 border-blue-400 text-white shadow-lg shadow-blue-500/40 ring-4 ring-blue-500/10"
-                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm dark:shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+                  ? "bg-blue-100 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 shadow-md"
+                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
               )}
-              title={showTranslation ? "Показать оригинал (ES)" : "Перевести на русский (RU)"}
+              title={showTranslation ? t('test.hideTranslation') : t('test.showTranslation')}
             >
-              <div className="flex flex-col items-center justify-center leading-none tracking-tighter">
-                <span className={cn("transition-colors", showTranslation ? "text-white" : "text-slate-900 dark:text-white")}>
-                  {showTranslation ? 'RU' : 'ES'}
-                </span>
-              </div>
+              <Languages className={cn(
+                "w-4 h-4 sm:w-5 sm:h-5 transition-transform",
+                showTranslation && "scale-110"
+              )} />
             </button>
           )}
 
@@ -273,7 +272,7 @@ export function QuestionProgressBar({
                   ? "bg-amber-100 dark:bg-amber-500/10 border-amber-300 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-lg shadow-amber-500/10 ring-4 ring-amber-500/5 animate-pulse"
                   : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
               )}
-              title={smartVocabularyEnabled ? "Скрыть подсказки слов" : "Показать подсказки слов"}
+              title={smartVocabularyEnabled ? t('lumiCollapse') : t('test.wordHints')}
             >
               <Sparkles className={cn(
                 "w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-500",

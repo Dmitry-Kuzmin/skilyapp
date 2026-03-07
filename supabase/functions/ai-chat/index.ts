@@ -135,15 +135,26 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
   if (!apiKey) return null;
 
   try {
-    let prompt = mode === 'debrief' ? '' : getSystemPrompt(country, showComparison, language) + '\n\n';
-    messages.forEach(m => prompt += `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}\n\n`);
+    const systemPrompt = mode === 'debrief' ? '' : getSystemPrompt(country, showComparison, language);
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=${apiKey}`, {
+    // Формируем контент для Gemini API
+    const contents = messages.map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }]
+    }));
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:streamGenerateContent?alt=sse&key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 4000 }
+        system_instruction: systemPrompt ? {
+          parts: [{ text: systemPrompt }]
+        } : undefined,
+        contents,
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 2048,
+        }
       }),
     });
 
@@ -152,11 +163,43 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
       console.error(`[AI Chat] Gemini error (${response.status}):`, errorText);
       return null;
     }
-    const data = await response.json();
-    const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Ошибка ИИ.";
-    const ssePayload = `data: ${JSON.stringify({ choices: [{ delta: { content: aiText } }] })}\n\ndata: [DONE]\n\n`;
 
-    return new Response(ssePayload, { headers: { ...corsHeaders, 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' } });
+    // Трансформируем стрим из формата Gemini в формат OpenAI (для совместимости с фронтендом)
+    const transformStream = new TransformStream({
+      transform(chunk, controller) {
+        const text = new TextDecoder().decode(chunk);
+        const lines = text.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (content) {
+                const ssePayload = `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`;
+                controller.enqueue(new TextEncoder().encode(ssePayload));
+              }
+              if (data.usageMetadata) {
+                // Done
+              }
+            } catch (e) {
+              // Ignore partial JSON
+            }
+          }
+        }
+      },
+      flush(controller) {
+        controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+      }
+    });
+
+    return new Response(response.body?.pipeThrough(transformStream), {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache'
+      }
+    });
   } catch (err) {
     console.error('[AI Chat] Gemini exception:', err);
     return null;
@@ -197,8 +240,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 1️⃣ Приоритет: Gemini 3.1 Pro Preview
-    console.log('[AI Chat] Trying Gemini 3.1 Pro Preview...');
+    // 1️⃣ Приоритет: Gemini 3.1 Flash Lite (Fastest & most efficient)
+    console.log('[AI Chat] Trying Gemini 3.1 Flash Lite...');
     const gemini = await tryGemini(messages, country, mode, showComparison, language);
 
     if (gemini) {

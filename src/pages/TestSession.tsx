@@ -134,7 +134,7 @@ const TestSession = () => {
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
   const { selectedCountry, selectedCategory } = usePDDContext();
   const isRussia = (countryParam || selectedCountry) === 'russia';
-  const { language: userLanguage } = useLanguage();
+  const { language: userLanguage, t } = useLanguage();
   const mode = useMemo(() => {
     // Sanitization: extract only the base mode part before any query markers that might have leaked into path
     const sanitizedRawMode = rawMode?.split('&')[0]?.split('?')[0];
@@ -821,10 +821,14 @@ const TestSession = () => {
       ? ((russiaExam.currentQuestion.answers || []).find((a: any) => a.id === selectedOption)?.isCorrect || false)
       : (selectedOption ? (sortedOptions.find((opt) => opt.id === selectedOption)?.is_correct || false) : false);
 
-    // ВАЖНО: Explanation передаём ВСЕГДА (не зависит от selectedOption)
-    const explanation = mode === 'exam-russia' && russiaExam.currentQuestion
-      ? russiaExam.currentQuestion.explanation
-      : (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es));
+    // Передаем объяснение только если ответ ПРИНЯТ (locked)
+    const isAnswerSubmitted = isAnswerLocked;
+
+    const explanation = isAnswerSubmitted && selectedOption
+      ? (mode === 'exam-russia' && russiaExam.currentQuestion
+        ? russiaExam.currentQuestion.explanation
+        : (showTranslation ? currentQuestion.explanation_ru : (testLanguage === 'en' ? currentQuestion.explanation_en : currentQuestion.explanation_es)))
+      : undefined;
 
     openAIChat({
       question,
@@ -832,11 +836,13 @@ const TestSession = () => {
       userAnswer,
       isCorrect: isCorrectAnswer,
       explanation,
-      explanationRu: mode === 'exam-russia' && russiaExam.currentQuestion
-        ? russiaExam.currentQuestion.explanation
-        : currentQuestion.explanation_ru,
-      explanationEs: currentQuestion.explanation_es,
-      explanationEn: currentQuestion.explanation_en,
+      explanationRu: isAnswerSubmitted && selectedOption
+        ? (mode === 'exam-russia' && russiaExam.currentQuestion
+          ? russiaExam.currentQuestion.explanation
+          : currentQuestion.explanation_ru)
+        : undefined,
+      explanationEs: isAnswerSubmitted && selectedOption ? currentQuestion.explanation_es : undefined,
+      explanationEn: isAnswerSubmitted && selectedOption ? currentQuestion.explanation_en : undefined,
       topic: mode === 'exam-russia' && russiaExam.currentQuestion
         ? (russiaExam.currentQuestion.topics && russiaExam.currentQuestion.topics.length > 0 ? russiaExam.currentQuestion.topics[0] : undefined)
         : currentQuestion.topics?.title_es,
@@ -1319,19 +1325,19 @@ const TestSession = () => {
                   <div className="mb-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center gap-3">
                     <AlertTriangle className="w-5 h-5 text-orange-500" />
                     <p className="text-sm font-bold text-orange-600 dark:text-orange-400">
-                      ДОПОЛНИТЕЛЬНЫЙ БЛОК: ОШИБКИ НЕДОПУСТИМЫ
+                      {t('test.extraBlockWarning')}
                     </p>
                   </div>
                 )
               }
               footer={
                 <SubmitButton
-                  label="ПОДТВЕРДИТЬ"
+                  label={t('test.confirm')}
                   onClick={() => handleAnswer(selectedOption ?? undefined)}
                   disabled={!selectedOption || isAnswerLocked}
                   isEnterPressed={isEnterPressed}
                   variant="exam"
-                  tooltipText="Нажмите Enter, чтобы подтвердить ответ"
+                  tooltipText={t('test.confirmTooltip')}
                   showArrow={!!selectedOption}
                   showKeyboardHint={true}
                 />
@@ -1354,7 +1360,9 @@ const TestSession = () => {
             />
           </div>
         ) : (
-          <div className="max-w-[1300px] lg:ml-auto lg:mr-0 mx-auto w-full">
+          <div className={cn(
+            "max-w-[1300px] w-full mx-auto",
+          )}>
             <QuestionCard
               currentQuestion={currentQuestion as any}
               displayQuestion={displayQuestion}
@@ -1381,13 +1389,10 @@ const TestSession = () => {
         )}
 
         {/* 
-          Modern AI floating widget (Skily Sphere) 
-          Visible in Practice-like modes including Marathon Round 2+
+          Modern AI floating widget - Moved or removed as requested by user
         */}
         {(mode === 'marathon' || mode === 'practice' || mode === 'mastery') && (
-          <div className="fixed bottom-24 right-6 z-50 animate-bounce-subtle pointer-events-none opacity-60">
-            <SkilyAICharacter size="md" />
-          </div>
+          null
         )}
 
 

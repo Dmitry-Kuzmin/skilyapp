@@ -321,40 +321,33 @@ export const useTestCompletion = ({
                         test_duration_seconds: Math.max(timeSpent, 0),
                         premium_flag: Boolean(isPremium),
                         double_sp_active: false,
+                        mode,
                     });
 
                     // Базовые награды для UI (будут пересчитаны при sync)
-                    const baseCoins = Math.max(2, Math.floor(score / 10));
-                    const baseSP = Math.max(1, Math.floor(score / 20));
-
                     rewardResult = {
-                        coins_awarded: baseCoins,
-                        sp_awarded: baseSP,
+                        coins_awarded: 0,
+                        sp_awarded: 0,
                         message: "OFFLINE: Результаты сохранены и будут отправлены при подключении."
                     };
                 } else {
-                    // Расчет наград для марафона (SP и XP)
-                    const isMarathon = mode === 'marathon' || mode === 'mastery';
-                    const { data, error } = await supabase.functions.invoke('calculate-test-reward', {
+                    const { data, error } = await supabase.functions.invoke('complete-test-and-award', {
                         body: {
                             user_id: profileId,
-                            test_id: testId || 'practice',
-                            mode: mode,
-                            score: correctCount,
-                            total: currentQuestions.length, // Use currentQuestions.length
-                            time_spent: timeSpent,
-                            // Добавляем инфо о раундах для марафона
-                            marathon_rounds: isMarathon ? masteryRound : 1,
-                            country: pddCountry || 'spain'
+                            session_id: sessionId,
+                            test_id: testId || null,
+                            score,
+                            questions_count: currentQuestions.length,
+                            correct_count: correctCount,
+                            test_duration_seconds: Math.max(timeSpent, 0),
+                            premium_flag: Boolean(isPremium),
+                            double_sp_active: false,
+                            mode,
                         }
                     });
                     if (error) {
                         console.error("Error calculating rewards:", error);
                     } else if (data) {
-                        // Если есть abuse_penalty > 0, показываем уведомление
-                        if (data.abuse_penalty > 0) {
-                            console.warn(`[Anti-Abuse] Penalty applied: ${data.abuse_penalty}% reduction. Reason: ${data.message}`);
-                        }
                         rewardResult = data;
                     }
                 }

@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { X, Settings, User, Gauge, Bell, Sparkles, Database, Info } from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { triggerHaptic } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 
@@ -39,19 +40,24 @@ interface NavItem {
 }
 
 // === NAVIGATION ===
-const navItems: NavItem[] = [
-    { id: 'account', label: 'Аккаунт', icon: <User className="w-4 h-4" />, description: 'Профиль и связи' },
-    { id: 'general', label: 'Основные', icon: <Settings className="w-4 h-4" />, description: 'Язык и тема' },
-    { id: 'cockpit', label: 'Кокпит', icon: <Gauge className="w-4 h-4" />, description: 'Звук и вибрация' },
-    { id: 'notifications', label: 'Уведомления', icon: <Bell className="w-4 h-4" />, description: 'Push-уведомления' },
-    { id: 'subscription', label: 'Подписка', icon: <Sparkles className="w-4 h-4" />, description: 'Premium' },
-    { id: 'data', label: 'Данные', icon: <Database className="w-4 h-4" />, description: 'Кэш и хранилище' },
-    { id: 'about', label: 'О приложении', icon: <Info className="w-4 h-4" />, description: 'Версия и помощь' },
-];
+const useNavItems = () => {
+    const { t } = useLanguage();
+    return [
+        { id: 'account', label: t('unifiedSettings.account'), icon: <User className="w-4 h-4" />, description: t('unifiedSettings.accountDesc') },
+        { id: 'general', label: t('unifiedSettings.general'), icon: <Settings className="w-4 h-4" />, description: t('unifiedSettings.generalDesc') },
+        { id: 'cockpit', label: t('unifiedSettings.cockpit'), icon: <Gauge className="w-4 h-4" />, description: t('unifiedSettings.cockpitDesc') },
+        { id: 'notifications', label: t('unifiedSettings.notifications'), icon: <Bell className="w-4 h-4" />, description: t('unifiedSettings.notificationsDesc') },
+        { id: 'subscription', label: t('unifiedSettings.subscription'), icon: <Sparkles className="w-4 h-4" />, description: t('unifiedSettings.subscriptionDesc') },
+        { id: 'data', label: t('unifiedSettings.data'), icon: <Database className="w-4 h-4" />, description: t('unifiedSettings.dataDesc') },
+        { id: 'about', label: t('unifiedSettings.about'), icon: <Info className="w-4 h-4" />, description: t('unifiedSettings.aboutDesc') },
+    ] as NavItem[];
+};
 
 // === MAIN COMPONENT ===
 export const UnifiedSettingsDrawer: React.FC = () => {
     const isMobile = useIsMobile();
+    const { t } = useLanguage();
+    const navItems = useNavItems();
     const { isOpen, closeSettings, userLevel, userTitle, activeTab, setActiveTab } = useSettingsStore();
 
     const handleSectionChange = (section: SettingsSection) => {
@@ -86,7 +92,7 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                     <Settings className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-semibold text-slate-900 dark:text-white/90">Настройки</span>
+                <span className="font-semibold text-slate-900 dark:text-white/90">{t('unifiedSettings.title')}</span>
             </div>
 
             {/* Nav Items */}
@@ -145,9 +151,9 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                         <Settings className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                        <h2 className="text-base font-semibold text-slate-900 dark:text-white select-none">Настройки</h2>
+                        <h2 className="text-base font-semibold text-slate-900 dark:text-white select-none">{t('unifiedSettings.title')}</h2>
                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Уровень {userLevel} • {userTitle}
+                            {t('unifiedSettings.level')} {userLevel} • {userTitle}
                         </p>
                     </div>
                 </div>

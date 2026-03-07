@@ -57,7 +57,7 @@ export const GeneralTab: React.FC = () => {
     } = useSettingsStore();
 
     const { setTheme: setNextTheme, resolvedTheme, theme: nextTheme } = useTheme();
-    const { setLanguage: setContextLanguage, language: contextLanguage } = useLanguage();
+    const { t, setLanguage: setContextLanguage, language: contextLanguage } = useLanguage();
 
     // Синхронизация при монтировании (если настройки изменились в другом месте)
     React.useEffect(() => {
@@ -77,7 +77,11 @@ export const GeneralTab: React.FC = () => {
         triggerHaptic('medium');
         setTheme(newTheme);
         setNextTheme(newTheme);
-        const labels = { dark: 'Тёмная тема', light: 'Светлая тема', system: 'Системная тема' };
+        const labels = {
+            dark: t('settings.themeToast.dark'),
+            light: t('settings.themeToast.light'),
+            system: t('settings.themeToast.system')
+        };
         toast.success(labels[newTheme], { duration: 1500 });
     };
 
@@ -86,20 +90,25 @@ export const GeneralTab: React.FC = () => {
         setLanguage(lang);
         setContextLanguage(lang);
         const labels = { ru: 'Русский', en: 'English', es: 'Español' };
-        toast.success(`Язык: ${labels[lang]}`, { duration: 1500 });
+        toast.success(`${t('settings.language')}: ${labels[lang]}`, { duration: 1500 });
     };
 
     const handlePerformanceToggle = () => {
         triggerHaptic('medium');
         togglePerformanceMode();
-        toast.success(performanceMode ? 'Полные эффекты включены' : 'Экономный режим включён', { duration: 1500 });
+        toast.success(
+            performanceMode
+                ? t('settings.performanceToast.off')
+                : t('settings.performanceToast.on'),
+            { duration: 1500 }
+        );
     };
 
     return (
         <div className="space-y-6">
             {/* Язык */}
             <div>
-                <SectionTitle title="Язык" />
+                <SectionTitle title={t('settings.language')} />
                 <div className="grid grid-cols-3 gap-2">
                     {[
                         { id: 'ru', label: 'Русский', flag: '🇷🇺' },
@@ -133,34 +142,34 @@ export const GeneralTab: React.FC = () => {
 
             {/* Тема */}
             <div>
-                <SectionTitle title="Внешний вид" />
+                <SectionTitle title={t('settings.appearance')} />
                 <div className="grid grid-cols-3 gap-2">
                     {[
-                        { id: 'light', label: 'Светлая', icon: <Sun className="w-5 h-5" /> },
-                        { id: 'dark', label: 'Тёмная', icon: <Moon className="w-5 h-5" /> },
-                        { id: 'system', label: 'Системная', icon: <Smartphone className="w-5 h-5" /> },
-                    ].map((t) => (
+                        { id: 'light', label: t('settings.themeLight'), icon: <Sun className="w-5 h-5" /> },
+                        { id: 'dark', label: t('settings.themeDark'), icon: <Moon className="w-5 h-5" /> },
+                        { id: 'system', label: t('settings.themeSystem'), icon: <Smartphone className="w-5 h-5" /> },
+                    ].map((t_mode) => (
                         <button
-                            key={t.id}
-                            onClick={() => handleThemeChange(t.id as ThemeMode)}
+                            key={t_mode.id}
+                            onClick={() => handleThemeChange(t_mode.id as ThemeMode)}
                             className={cn(
                                 "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
                                 "hover:scale-[1.02] active:scale-[0.98]",
-                                theme === t.id
+                                theme === t_mode.id
                                     ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10"
                                     : "border-slate-200 dark:border-slate-700 hover:border-indigo-300 dark:hover:border-indigo-500/50"
                             )}
                         >
                             <span className={cn(
-                                theme === t.id ? "text-indigo-500" : "text-slate-400"
+                                theme === t_mode.id ? "text-indigo-500" : "text-slate-400"
                             )}>
-                                {t.icon}
+                                {t_mode.icon}
                             </span>
                             <span className={cn(
                                 "text-xs font-medium",
-                                theme === t.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500"
+                                theme === t_mode.id ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500"
                             )}>
-                                {t.label}
+                                {t_mode.label}
                             </span>
                         </button>
                     ))}
@@ -171,11 +180,11 @@ export const GeneralTab: React.FC = () => {
 
             {/* Производительность */}
             <div>
-                <SectionTitle title="Производительность" />
+                <SectionTitle title={t('settings.performance')} />
                 <SettingRow
                     icon={<Zap className={performanceMode ? 'w-4 h-4 text-amber-500' : 'w-4 h-4 text-slate-400'} />}
-                    label="Экономный режим"
-                    description="Отключает тяжёлые анимации"
+                    label={t('settings.powerSaver')}
+                    description={t('settings.powerSaverDesc')}
                 >
                     <CyberSwitch
                         checked={performanceMode}
