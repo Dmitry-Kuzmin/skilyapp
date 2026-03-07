@@ -10,6 +10,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { useAdRewardStatus } from '@/hooks/useAdRewardStatus';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { isTelegramMiniApp } from '@/lib/telegram';
 
 interface CryptoMinerAdvancedProps {
     className?: string;
@@ -81,19 +82,13 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
             // Для Telegram мы НЕ вызываем claim-ad-reward вручную, 
             // так как это делает сервер Adsgram через S2S callback.
             // Мы только оповещаем UI об успехе, если это не Telegram.
-            const isTG = isTelegramMiniApp();
+            // Начисляем монеты через Edge Function (с проверкой ограничений)
+            const { data, error } = await supabase.functions.invoke('claim-ad-reward', {
+                body: { user_id: profileId, reward_type: 'coins', reward_amount: 25 }
+            });
 
-            if (!isTG) {
-                const { data, error } = await supabase.functions.invoke('claim-ad-reward', {
-                    body: { user_id: profileId, reward_type: 'coins', reward_amount: 25 }
-                });
-
-                if (error) throw error;
-                if (!data.success) throw new Error(data.error || 'Ошибка майнинга');
-            } else {
-                // В Telegram просто ждем секунду, чтобы сервер успел обработать callback
-                await new Promise(resolve => setTimeout(resolve, 1500));
-            }
+            if (error) throw error;
+            if (!data.success) throw new Error(data.error || 'Ошибка майнинга');
 
             await queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
             await refetch();

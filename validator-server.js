@@ -45,11 +45,23 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3030;
+const VERSION = "1.0.4-DIAGNOSTIC";
+
+console.log(`\n🚀 VALIDATOR SERVER STARTING...`);
+console.log(`📍 Path: ${process.cwd()}`);
+console.log(`📅 Started: ${new Date().toLocaleString()}`);
+console.log(`🛡️ Version: ${VERSION}\n`);
 
 // ===========================================
 // 🛡️ АБСОЛЮТНО ПЕРВЫЙ MIDDLEWARE: CORS + LOGGING
 // ===========================================
 app.use((req, res, next) => {
+    // Handle /sql -> /api legacy or glitchy redirects
+    if (req.url.startsWith('/sql/')) {
+        console.log(`[REDIR] /sql -> /api for ${req.url}`);
+        req.url = req.url.replace(/^\/sql\//, '/api/');
+    }
+
     const origin = req.headers.origin;
     const method = req.method;
     const url = req.url;
@@ -1948,6 +1960,55 @@ app.get('/api/db/question/:id', async (req, res) => {
                 }
 
                 // Strategy 2: Universal scan (dgt_test-XXX_UUID, essential_test-XXX_UUID, etc.)
+                if (pathsToCheck.length === 0) {
+                    const categories = await fs.readdir(path.join(process.cwd(), 'data', 'parsed'));
+                    for (const category of categories) {
+                        if (category === 'russia' || category.startsWith('.')) continue;
+                        pathsToCheck.push(path.join(process.cwd(), 'data', 'parsed', category, `${testIdMatch ? testIdMatch[1] : id.split('_')[0]}-enriched.json`));
+                        // Add more generic search if needed
+                    }
+                }
+
+                for (const filePath of pathsToCheck) {
+                    try {
+                        const content = await fs.readFile(filePath, 'utf-8');
+                        const data = JSON.parse(content);
+                        const items = Array.isArray(data) ? data : (data.questions || []);
+
+                        // 1. Try match by ID/ExternalID
+                        let question = items.find(q => q.external_id === id || q.id === id || q.external_id === queryId || q.id === queryId);
+
+                        // 2. Fallback: try by question number if ID looks corrupted
+                        if (!question) {
+                            const qMatch = id.match(/_q-(\d+)$/) || id.match(/_q(\d+)$/);
+                            if (qMatch) {
+                                const num = parseInt(qMatch[1]);
+                                question = items.find(q => q.question_number === num);
+                            }
+                        }
+
+                        // 3. Last stand: fallback to 1-based index if all else fails
+                        if (!question && id.includes('_')) {
+                            // If index is known from UI (it usually is passed as part of the list), but here we don't know it.
+                            // However, let's log the mismatch
+                            console.warn(`[API /api/db/question] ID Mismatch: requested ${id} but not found in ${path.basename(filePath)}. Available IDs like ${items[0]?.id?.substring(0, 8)}...`);
+                        }
+
+                        if (question) {
+                            return res.json({
+                                question: {
+                                    ...question,
+                                    // Normalize for UI
+                                    question: question.question || { ru: question.question_ru, es: question.question_es, en: question.question_en },
+                                    explanation: question.explanation || { ru: question.explanation_ru, es: question.explanation_es, en: question.explanation_en },
+                                    answer_options: question.answers || question.answer_options || []
+                                },
+                                source: 'json',
+                                sourceFile: filePath
+                            });
+                        }
+                    } catch (e) { }
+                }
                 if (pathsToCheck.length === 0 || !testIdMatch) {
                     // Extract testId: everything before the last UUID segment
                     const uuidPart = id.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i);

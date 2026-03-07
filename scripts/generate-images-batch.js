@@ -136,9 +136,10 @@ LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
 * **VEHICLES:** European-spec models. Real automotive paint with clear coat reflections. 
 
 **RULE 3: DGT 2026 UPDATE - EMERGENCY SIGNALS**
-* **NO TRIANGLES:** Do NOT generate "Warning Triangles" (Triángulos de preseñalización) on the road.
+* **USE ONLY IF SPECIFIED**: Apply V16 ONLY for breakdowns or accidents (vehicle stopped).
+* **NO TRIANGLES:** Do NOT generate "Warning Triangles" on the road.
 * **V16 BEACON:** For breakdowns/accidents, use **V16 Orange Flashing Beacon** (Luz de emergencia V-16) on the vehicle roof.
-* **VISUAL:** Small orange dome light on roof, emitting generic orange glow. No physical triangles on asphalt.
+* **VISUAL:** Small orange dome light on roof. NO strobe lights for moving traffic.
 
 {{DYNAMIC_BRANDING_PLACEHOLDER}}
 
@@ -408,10 +409,26 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
                 visionAnalysis.toLowerCase().includes('inside vehicle')
             ));
 
+        // NEW: Detect Active Driving / Overtaking / Normal Traffic
+        // If these keywords are present, we should be VERY SKEPTICAL about V16
+        const isMovingTraffic =
+            textToScan.includes('adelantar') ||
+            textToScan.includes('overtake') ||
+            textToScan.includes('circulando') ||
+            textToScan.includes('conducir') ||
+            textToScan.includes('rebasar') ||
+            textToScan.includes('rebase') ||
+            textToScan.includes('driving') ||
+            textToScan.includes('at night') ||
+            textToScan.includes('night') ||
+            textToScan.includes('oblongar') || // user typo but frequent
+            textToScan.includes('moving');
+
         // Detect Breakdown / Emergency / V16 Context
         // STRICTER LOGIC: Only trigger V16 if it's clearly an emergency/stopped vehicle scenario AND NOT inside the car
+        // AND NOT moving traffic
         const isEmergencyV16 =
-            !isInterior && (
+            !isInterior && !isMovingTraffic && (
                 textToScan.includes('avería') ||
                 textToScan.includes('breakdown') ||
                 textToScan.includes('emergencia') ||
@@ -459,7 +476,18 @@ ${isEmergencyV16 ? `
 
 ## MISSION:
 Recreate the scene with high fidelity, BUT **APPLY THE V16 BEACON MODIFICATION if applicable above**.
-- Professional 3D isometric style
+
+## TRAFFIC DYNAMICS (CRITICAL):
+${isMovingTraffic ? `
+1. **ACTIVE MOTION**: The vehicles must be DRIVING STABLY in the middle of their lanes.
+2. **NO EXITING / NO BRAKING**: Do not show brake lights or turn signals unless explicitly requested. The cars should look like they are in normal traffic flow at constant speed.
+3. **WHEEL ACTION**: Subtle motion blur on wheels to indicate movement.
+4. **NO EMERGENCY LIGHTS**: Do NOT add orange strobe lights, beacons, or hazard lights for moving cars.
+` : `
+1. **STATIONARY**: The main vehicle should be STOPPED (usually on the shoulder or near the edge) if this is an emergency scenario.
+`}
+
+- Professional 3D automotive style
 - Premium educational quality
 - Crystal clear DGT road signs (ONLY those from original, NO extras)
 
@@ -571,7 +599,8 @@ STRICT GUIDELINES:
 4. **MAINTAIN STYLE**: Keep "Unreleased Unreal Engine 5", "Isometric" headers intact.
 5. **KEEP TECHNICAL RULES**: Keep "WHITE LINES ONLY" unless user explicitly asks for yellow (works).
 6. **UNPACK SIGN CODES (CRITICAL)**: If you see DGT codes (e.g., "S-34", "R-301"), DO NOT include the text code in the result. Replace it with its VISUAL DESCRIPTION (e.g., "Blue rectangular sign with white P and train icon").
-7. **OUTPUT format**: Return ONLY the full, final, ready-to-use prompt text. NO markdown code blocks, NO "Here is the prompt". Just the raw text.`;
+7. **NO HALLUCINATIONS**: Do not assume accidents, breakdowns, or strobe lights unless the USER INSTRUCTION specifically requests an emergency scenario.
+8. **OUTPUT format**: Return ONLY the full, final, ready-to-use prompt text. NO markdown code blocks, NO "Here is the prompt". Just the raw text.`;
 
             // Protect against infinite hang with 45s timeout (increased from 10s)
             const rewriterPromise = visionModel.generateContent(rewriterPrompt);
