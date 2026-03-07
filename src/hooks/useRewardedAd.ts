@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { isTelegramMiniApp, getTelegramUser } from '@/lib/telegram';
+import { isTelegramMiniApp, getTelegramUser, getTelegramWebApp, isTelegramMobilePlatformName } from '@/lib/telegram';
 import { usePremium } from './usePremium';
 import { initAdsGram, showAdsGramRewardedVideo } from '@/lib/adsgram';
 import { initMonetag, showMonetagRewardedVideo } from '@/lib/monetag';
@@ -54,7 +54,10 @@ export function useRewardedAd() {
       return;
     }
 
-    if (isTelegramMiniApp()) {
+    const webApp = getTelegramWebApp();
+    const isMobileTMA = isTelegramMiniApp() && isTelegramMobilePlatformName(webApp?.platform);
+
+    if (isMobileTMA) {
       const tgUser = getTelegramUser();
       const userId = tgUser?.id?.toString();
       initAdsGram(userId).catch(console.error);
@@ -77,13 +80,17 @@ export function useRewardedAd() {
     try {
       let rewarded: boolean;
 
-      // В Telegram Mini App используем только AdsGram
-      if (isTelegramMiniApp()) {
+      const webApp = getTelegramWebApp();
+      const isMobileTMA = isTelegramMiniApp() && isTelegramMobilePlatformName(webApp?.platform);
+
+      // В Telegram Mini App на МОБИЛЬНЫХ используем AdsGram (официальный партнер)
+      if (isMobileTMA) {
         const tgUser = getTelegramUser();
         const userId = tgUser?.id?.toString();
         rewarded = await showAdsGramRewardedVideo(userId);
       } else {
-        // В веб-версии используем Monetag Native Banner
+        // В веб-версии ИЛИ Desktop TMA используем Monetag
+        // На Desktop TMA AdsGram часто не имеет рекламы (fill), а Monetag работает стабильно
         rewarded = await showMonetagRewardedVideo();
       }
 
