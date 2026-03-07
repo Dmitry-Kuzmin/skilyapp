@@ -7,7 +7,7 @@ import { QuestionImage } from "@/components/test/QuestionImage";
 import { QuestionText } from "@/components/test/QuestionText";
 import { SubmitButton } from "@/components/test/SubmitButton";
 import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
-import { ChevronRight, Keyboard, CornerDownLeft, Sparkles, Wand2, Lightbulb, Flag } from "lucide-react";
+import { ChevronRight, Keyboard, CornerDownLeft, Sparkles, Wand2, Lightbulb, Flag, Bot } from "lucide-react";
 import { getImageUrl } from "@/utils/imageUtils";
 import { useState, useEffect } from "react";
 
@@ -203,43 +203,9 @@ export const QuestionCard = ({
                                     )
                                 )}
 
-                                {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && !isExam && (
-                                    <div className="relative">
-                                        <button
-                                            onClick={handleOpenAIChat}
-                                            className={cn(
-                                                "group relative h-12 w-auto px-3 sm:px-5 rounded-2xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 overflow-hidden shadow-lg",
-                                                showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-                                            )}
-                                            title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                            <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
-                                                <Bot className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
-                                            </div>
-                                            <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
-                                                {testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                            </span>
-                                        </button>
-                                        {selectedOption && explanationText && (
-                                            <div
-                                                onClick={handleOpenAIChat}
-                                                className="absolute bottom-full left-0 mb-3 w-64 p-4 bg-zinc-900/95 dark:bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 cursor-pointer ring-1 ring-white/5"
-                                            >
-                                                <div className="relative">
-                                                    <div className="text-[10px] text-purple-400 mb-1.5 flex items-center gap-1.5 font-bold uppercase tracking-wider">
-                                                        <Sparkles className="w-3 h-3" />
-                                                        {testLanguage === 'ru' ? "AI Объяснение" : testLanguage === 'en' ? "AI Explanation" : "Explicación AI"}
-                                                    </div>
-                                                    <p className="text-xs text-zinc-200 line-clamp-3 leading-relaxed">
-                                                        {explanationText}
-                                                    </p>
-                                                    <div className="absolute -bottom-[22px] left-6 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-zinc-900/95 dark:border-t-black/95" />
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+
+
+
 
                             </div>
                         </div>
@@ -342,43 +308,9 @@ export const QuestionCard = ({
                                         )
                                     )}
 
-                                    {(isPracticeLikeMode || mode === 'by-topic') && !isRussia && !isExam && (
-                                        <div className="relative">
-                                            <button
-                                                onClick={handleOpenAIChat}
-                                                className={cn(
-                                                    "group relative h-12 ml-2 w-auto px-3 sm:px-4 rounded-xl bg-zinc-900/40 dark:bg-black/40 backdrop-blur-md border border-white/10 dark:border-white/5 flex items-center justify-center gap-2 transition-all hover:bg-white/5 active:scale-95 shrink-0 overflow-hidden shadow-lg",
-                                                    showHintPulse && !selectedOption && "ring-2 ring-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
-                                                )}
-                                                title={testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                            >
-                                                <div className="absolute inset-0 bg-gradient-to-tr from-yellow-500/10 via-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                                <div className={cn("relative transition-transform duration-700", showHintPulse && !selectedOption && "animate-bounce")}>
-                                                    <Bot className="w-5 h-5 text-yellow-400 fill-yellow-400/20" />
-                                                </div>
-                                                <span className="font-bold text-yellow-100/90 text-sm hidden sm:inline-block relative z-10 tracking-wide">
-                                                    {testLanguage === 'ru' ? "Подсказка" : testLanguage === 'en' ? "Hint" : "Pista"}
-                                                </span>
-                                            </button>
-                                            {selectedOption && explanationText && (
-                                                <div
-                                                    onClick={handleOpenAIChat}
-                                                    className="absolute bottom-full left-0 mb-3 w-64 p-4 bg-zinc-900/95 dark:bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 cursor-pointer ring-1 ring-white/5"
-                                                >
-                                                    <div className="relative">
-                                                        <div className="text-[10px] text-purple-400 mb-1.5 flex items-center gap-1.5 font-bold uppercase tracking-wider">
-                                                            <Sparkles className="w-3 h-3" />
-                                                            {testLanguage === 'ru' ? "AI Объяснение" : testLanguage === 'en' ? "AI Explanation" : "Explicación AI"}
-                                                        </div>
-                                                        <p className="text-xs text-zinc-200 line-clamp-3 leading-relaxed">
-                                                            {explanationText}
-                                                        </p>
-                                                        <div className="absolute -bottom-[22px] left-6 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-zinc-900/95 dark:border-t-black/95" />
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+
+
+
 
                                 </div>
                             </div>
@@ -453,18 +385,7 @@ export const QuestionCard = ({
                             )
                         )}
 
-                        {(isPracticeLikeMode || mode === 'by-topic') && !isExam && (
-                            <button
-                                onClick={handleOpenAIChat}
-                                className="group h-12 sm:h-14 pl-2 pr-4 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 flex items-center gap-1.5 transition-all hover:bg-indigo-100 dark:hover:bg-indigo-500/20 active:scale-95 shrink-0 shadow-sm"
-                                title="Спросить AI"
-                            >
-                                <div className="w-8 h-8 relative flex items-center justify-center">
-                                    <Bot className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                                </div>
-                                <span className="font-bold text-indigo-600 dark:text-indigo-300 text-xs sm:text-sm leading-none">AI</span>
-                            </button>
-                        )}
+
                     </div>
                 </div>
             )}

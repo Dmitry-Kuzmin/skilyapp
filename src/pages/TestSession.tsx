@@ -1389,10 +1389,17 @@ const TestSession = () => {
         )}
 
         {/* 
-          Modern AI floating widget - Moved or removed as requested by user
+          Modern AI floating widget (Skily Sphere) 
+          Visible in Practice-like modes when sidebar is hidden (mobile/tablet)
         */}
-        {(mode === 'marathon' || mode === 'practice' || mode === 'mastery') && (
-          null
+        {(mode === 'marathon' || mode === 'practice' || mode === 'mastery' || mode === 'by-topic') && (
+          <div
+            className="fixed bottom-24 right-6 z-50 xl:hidden group cursor-pointer"
+            onClick={handleOpenAIChat}
+          >
+            <div className="absolute -inset-2 bg-indigo-500/20 rounded-full blur-xl group-hover:bg-indigo-500/40 transition-all animate-pulse" />
+            <SkilyAICharacter size="md" className="relative drop-shadow-2xl animate-bounce-subtle" />
+          </div>
         )}
 
 

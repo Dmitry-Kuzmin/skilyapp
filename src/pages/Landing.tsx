@@ -56,18 +56,10 @@ const Landing = () => {
         return;
       }
 
-      // ОПТИМИЗАЦИЯ: Если мы явно НЕ в Telegram (нет window.Telegram), 
-      // прекращаем проверку немедленно, не дожидаясь таймаутов
-      if (typeof window !== 'undefined' && !window.Telegram?.WebApp && attempts === 0 && !location.hash.includes('tgWebAppData')) {
-        console.log('[Landing] No Telegram environment detected immediately');
-        setIsCheckingTelegram(false);
-        return;
-      }
-
       attempts++;
 
       // Проверяем наличие Telegram WebApp
-      const hasWebApp = hasTelegramWebApp();
+      const hasWebApp = hasTelegramWebApp() || !!window.Telegram?.WebApp;
       if (hasWebApp) {
         webAppDetected = true;
       }

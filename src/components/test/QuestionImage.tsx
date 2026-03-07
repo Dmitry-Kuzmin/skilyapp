@@ -7,7 +7,7 @@ import { useState, useEffect, memo } from 'react';
 import { getImageUrl, getCachedImageAspectRatio } from '@/utils/imageUtils';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { ZoomIn, X, Bot } from 'lucide-react';
+import { ZoomIn, X, Bot, Car } from 'lucide-react';
 import { ThreeDImageViewer } from '@/components/ui/ThreeDImageViewer';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -168,7 +168,9 @@ export const QuestionImage = memo(function QuestionImage({
           {protectContent && !isSpanish && !isSpain && (
             <div className="absolute bottom-3 right-3 z-[7] opacity-80 pointer-events-none">
               <div className="px-2 py-1 bg-black/40 backdrop-blur-md rounded-md border border-white/10 flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                <div className="w-4 h-4 rounded-full bg-blue-500/20 flex items-center justify-center">
+                  <Car className="w-2.5 h-2.5 text-blue-400" />
+                </div>
                 <span className="text-[9px] font-bold text-white/90">Skily</span>
               </div>
             </div>

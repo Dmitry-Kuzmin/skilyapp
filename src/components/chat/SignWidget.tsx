@@ -5,12 +5,14 @@ import { Loader2 } from 'lucide-react';
 
 interface SignWidgetProps {
     code: string;
+    description?: string;
     isDarkTheme?: boolean;
 }
 
-export const SignWidget: React.FC<SignWidgetProps> = ({ code, isDarkTheme }) => {
+export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDarkTheme }) => {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [nameFromDb, setNameFromDb] = useState<string | null>(null);
+    const [descriptionFromDb, setDescriptionFromDb] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
     const [isFallback, setIsFallback] = useState(false);
@@ -27,17 +29,17 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, isDarkTheme }) => 
                 // Try exact match first (case-insensitive)
                 let { data, error: e1 } = await supabase
                     .from('road_signs')
-                    .select('image_url, name_ru')
+                    .select('image_url, name_ru, description_ru')
                     .ilike('sign_number', normalized)
-                    .maybeSingle() as unknown as { data: { image_url: string; name_ru: string } | null, error: any };
+                    .maybeSingle() as unknown as { data: { image_url: string; name_ru: string; description_ru: string } | null, error: any };
 
                 // Fallback: wildcard match (e.g. "R-2%" to handle "R‐2" with non-breaking hyphens)
                 if (!data && !e1) {
                     const fallback = await supabase
                         .from('road_signs')
-                        .select('image_url, name_ru')
+                        .select('image_url, name_ru, description_ru')
                         .ilike('sign_number', `%${normalized.replace('-', '')}%`)
-                        .maybeSingle() as unknown as { data: { image_url: string; name_ru: string } | null, error: any };
+                        .maybeSingle() as unknown as { data: { image_url: string; name_ru: string; description_ru: string } | null, error: any };
                     data = fallback.data;
                 }
 
@@ -50,6 +52,7 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, isDarkTheme }) => 
                 if (mounted && data.image_url) {
                     setImageUrl(data.image_url);
                     if (data.name_ru) setNameFromDb(data.name_ru);
+                    if (data.description_ru) setDescriptionFromDb(data.description_ru);
                 } else if (mounted) {
                     setError(true);
                 }
@@ -93,52 +96,76 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, isDarkTheme }) => 
         setError(true);
     };
 
+    const finalDescription = descriptionFromDb || description;
+
     return (
         <div className={cn(
-            "my-2 px-3 py-2.5 rounded-xl border flex flex-row items-center gap-4 group transition-all hover:shadow-md",
+            "my-4 px-5 py-4 rounded-[2rem] border flex flex-row items-center gap-6 group transition-all duration-500 ease-in-out",
             isDarkTheme !== undefined
-                ? (isDarkTheme ? "bg-indigo-950/10 border-indigo-800/20 hover:bg-indigo-900/20" : "bg-indigo-50/30 border-indigo-100/30 hover:bg-white")
-                : "bg-indigo-50/30 dark:bg-indigo-950/10 border-indigo-100/30 dark:border-indigo-800/20 hover:bg-white dark:hover:bg-indigo-900/20"
+                ? (isDarkTheme
+                    ? "bg-slate-900/40 border-slate-800/60 hover:bg-slate-800/60 hover:border-indigo-500/30 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)]"
+                    : "bg-white border-indigo-100/80 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] hover:border-indigo-200")
+                : "bg-white dark:bg-slate-900/40 border-indigo-100/80 dark:border-slate-800/60 hover:shadow-xl"
         )}>
-            {/* Левая часть: Знак + Номер под ним */}
-            <div className="flex flex-col items-center gap-1 shrink-0">
-                <div className="w-14 h-14 flex items-center justify-center relative overflow-hidden bg-transparent">
-                    {isLoading && <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />}
+            <div className="flex flex-col items-center gap-3 shrink-0 p-1">
+                <div className="w-16 h-16 flex items-center justify-center relative bg-transparent overflow-visible">
+                    {isLoading && <Loader2 className="w-5 h-5 animate-spin text-indigo-400 opacity-50" />}
                     {!isLoading && error && (
-                        <span className="text-[9px] text-muted-foreground text-center leading-tight opacity-50">Нет<br />фото</span>
+                        <div className="flex flex-col items-center opacity-40">
+                            <span className="text-[10px] font-bold">DGT</span>
+                            <span className="text-[9px] text-center leading-tight">Нет фото</span>
+                        </div>
                     )}
                     {!isLoading && imageUrl && !error && (
                         <img
                             src={imageUrl}
                             alt={`Знак ${code}`}
-                            className="max-w-full max-h-full object-contain filter drop-shadow-md group-hover:scale-110 transition-transform duration-300"
+                            className="max-w-full max-h-full object-contain filter drop-shadow-lg transform group-hover:scale-125 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                             onError={handleImageError}
                         />
                     )}
                 </div>
-                <span className={cn(
-                    "text-[8px] font-bold tracking-tighter uppercase opacity-30 group-hover:opacity-60 transition-opacity",
+                <div className={cn(
+                    "px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-widest uppercase transition-all duration-300 border shadow-sm",
                     isDarkTheme !== undefined
-                        ? (isDarkTheme ? "text-indigo-200" : "text-indigo-900")
-                        : "text-indigo-900 dark:text-indigo-200"
+                        ? (isDarkTheme ? "bg-slate-950/60 text-slate-500 border-slate-800 group-hover:text-indigo-400 group-hover:border-indigo-500/30" : "bg-indigo-50/50 text-indigo-400 border-indigo-100 group-hover:text-indigo-600 group-hover:border-indigo-200")
+                        : "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
                 )}>
                     {code.trim()}
-                </span>
+                </div>
             </div>
 
-            {/* Правая часть: Описание из базы */}
-            <div className="flex flex-col gap-0.5 min-w-0">
+            {/* Правая часть: Название и Описание */}
+            <div className="flex flex-col gap-2 min-w-0 flex-1 overflow-hidden">
                 {nameFromDb ? (
-                    <p className={cn(
-                        "text-[12px] font-semibold leading-snug tracking-tight",
-                        isDarkTheme !== undefined
-                            ? (isDarkTheme ? "text-slate-200" : "text-slate-800")
-                            : "text-slate-800 dark:text-slate-200"
-                    )}>
-                        {nameFromDb}
-                    </p>
+                    <div className="max-h-[60px] overflow-y-auto pr-1 scrollbar-hide group-hover:scrollbar-default transition-all">
+                        <h4 className={cn(
+                            "text-sm sm:text-base font-black leading-tight tracking-tight transition-colors duration-300",
+                            isDarkTheme !== undefined
+                                ? (isDarkTheme ? "text-white group-hover:text-indigo-200" : "text-slate-900 group-hover:text-indigo-900")
+                                : "text-slate-900 dark:text-white"
+                        )}>
+                            {nameFromDb}
+                        </h4>
+                    </div>
                 ) : !isLoading && (
-                    <p className="text-[10px] italic opacity-50">Описание загружается...</p>
+                    <div className="h-5 w-32 bg-indigo-100/50 dark:bg-indigo-500/10 animate-pulse rounded-lg" />
+                )}
+
+                {finalDescription && (
+                    <div className={cn(
+                        "max-h-[110px] overflow-y-auto pr-2 custom-scrollbar",
+                        isDarkTheme ? "scrollbar-dark" : "scrollbar-light"
+                    )}>
+                        <p className={cn(
+                            "text-[11px] sm:text-xs leading-relaxed font-semibold transition-colors duration-500",
+                            isDarkTheme !== undefined
+                                ? (isDarkTheme ? "text-slate-500 group-hover:text-slate-400" : "text-slate-500 group-hover:text-slate-600")
+                                : "text-slate-500 dark:text-slate-500"
+                        )}>
+                            {finalDescription}
+                        </p>
+                    </div>
                 )}
             </div>
         </div>

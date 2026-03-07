@@ -276,10 +276,10 @@ const LandingRedirect = () => {
 const App = () => {
   // КРИТИЧНО: Проверяем Telegram WebApp только если мы действительно в Telegram Mini App
   // В браузере window.Telegram может быть моком или заглушкой
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp && isTelegramMiniApp()) {
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     const tg = window.Telegram.WebApp;
 
-    // Вызываем ready() один раз
+    // Вызываем ready() один раз (даже если это мок или без параметров)
     if (typeof tg.ready === 'function') {
       tg.ready();
     }

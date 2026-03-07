@@ -138,7 +138,16 @@ When you receive tool results with test scores, present them honestly and exactl
 
 Respond in the SAME LANGUAGE as the user query.
 NEVER switch languages mid-response. If the user writes in Russian, respond fully in Russian.
-UI interface preference: ${languageName}.`;
+UI interface preference: ${languageName}.
+
+# 🛑 CRITICAL TRUTH (ANTIHALLUCINATION LIST) - DO NOT GET THESE WRONG:
+- ЗНАК S-11: это "Дорога с односторонним движением" (квадратный синий знак со стрелкой). Это НЕ автомагистраль!
+- ЗНАК S-1: это "Автомагистраль" (Autopista).
+- ЗНАК S-2: это "Автодорога" (Autovia).
+- ЗНАК R-2: это "STOP".
+- ЗНАК R-1: это "Ceda el paso" (Уступи дорогу). Это НЕ кирпич!
+- ВСЕГДА проверяй свои данные перед ответом. Если не уверен в коде знака — просто назови его, но не используй виджет с ошибкой.
+`;
 };
 
 async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'llama-3.1-8b-instant', language: string = 'es'): Promise<Response | null> {
@@ -335,7 +344,7 @@ Deno.serve(async (req) => {
 
   try {
     const body: ChatRequest = await req.json();
-    const { messages, country = 'spain', mode = 'chat', showComparison = true, language = 'es' } = body;
+    const { messages, country = 'spain', mode = 'chat', showComparison = false, language = 'es' } = body;
 
     console.log('[AI Chat] Request:', {
       mode,

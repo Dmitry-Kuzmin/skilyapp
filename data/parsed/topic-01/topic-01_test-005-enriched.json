@@ -60,37 +60,37 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "45 km/h.",
-          "en": "45 km/h.",
-          "ru": "45 км/ч."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "100 km/h.",
-          "en": "100 km/h.",
-          "ru": "100 км/ч."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "70 км/ч.",
           "es": "70 km/h.",
-          "en": "70 km/h.",
-          "ru": "70 км/ч."
+          "en": "70 km/h."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "45 км/ч.",
+          "es": "45 km/h.",
+          "en": "45 km/h."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "100 км/ч.",
+          "es": "100 km/h.",
+          "en": "100 km/h."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
       "es": "Según el Reglamento General de Circulación, los vehículos de tres ruedas y los cuadriciclos no ligeros tienen una velocidad máxima genérica de 70 km/h en cualquier vía fuera de poblado donde su circulación esté permitida. No deben confundirse con los cuadriciclos ligeros, cuya velocidad máxima es de 45 km/h.",
       "en": "According to the General Traffic Regulations, three-wheeled vehicles and non-light quadricycles have a generic maximum speed of 70 km/h on any road outside built-up areas where they are permitted to drive. They should not be confused with light quadricycles, which have a maximum speed of 45 km/h.",
-      "ru": "🎓 \n\nВодитель легкового автомобиля (Turismo) на обычной загородной дороге может ехать 90 км/ч. Однако вы должны знать ограничения для других участников движения, чтобы безопасно их обгонять. Тяжелые квадрициклы (cuadriciclos no ligeros) имеют жесткое ограничение скорости — **70 км/ч**, независимо от того, едут они по обычной дороге или по обочине (если вынуждены).\n\nВажно не путать их с легкими квадрициклами (cuadriciclos ligeros), которые приравниваются к мопедам и едут максимум 45 км/ч.\n\n💡 \n\nЗапомни простую арифметику:\n• Легкий (Ligero) = как мопед = **45**.\n• НЕ легкий (NO ligero) = **70**.\n\nВидим в названии **NO** (ligero) — значит, скорость **NO** (не) маленькая, но и не 90."
+      "ru": "🎓 Водитель легкового автомобиля (Turismo) на обычной загородной дороге может ехать 90 км/ч. Однако вы должны знать ограничения для других участников движения, чтобы безопасно их обгонять. Тяжелые квадрициклы (cuadriciclos no ligeros) имеют жесткое ограничение скорости — **70 км/ч**, независимо от того, едут они по обычной дороге или по обочине (если вынуждены).\n\nВажно не путать их с легкими квадрициклами (cuadriciclos ligeros), которые приравниваются к мопедам и едут максимум 45 км/ч.\n\n💡 Запомни простую арифметику:\n• Легкий (Ligero) = как мопед = **45**.\n• НЕ легкий (NO ligero) = **70**.\n\nВидим в названии **NO** (ligero) — значит, скорость **NO** (не) маленькая, но и не 90."
     },
     "image_url": "https://teorica.practicavial.com/question/891112a1-4262-49ef-8947-bf7a020fa04a-1653072568-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/891112a1-4262-49ef-8947-bf7a020fa04a-s-1.jpg",
