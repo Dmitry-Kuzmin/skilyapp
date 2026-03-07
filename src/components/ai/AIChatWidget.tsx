@@ -281,7 +281,8 @@ export function AIChatWidget() {
                     imageUrl: context?.imageUrl || '',
                     country: selectedCountry,
                     language: interfaceLanguage,
-                    mode: 'debrief',
+                    mode: 'chat',
+                    showComparison: false,
                 }),
             });
 
