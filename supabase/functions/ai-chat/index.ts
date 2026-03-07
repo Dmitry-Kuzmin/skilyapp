@@ -80,11 +80,27 @@ const getSystemPrompt = (country: string = 'spain', showComparison: boolean = tr
 `;
   }
 
+  const widgetInstructions = `
+# INTERACTIVE WIDGETS
+Ты можешь показывать пользователю красивые интерактивные виджеты ПРЯМО В ЧАТЕ, используя специальные теги. 
+Вставляй эти теги в свой текстовый ответ (каждый тег с новой строки). Фронтенд превратит их в UI-карточки.
+ДОСТУПНЫЕ ТЕГИ:
+1. ДОРОЖНЫЕ ЗНАКИ: [WIDGET:SIGN:<ИМЯ_ЗНАКА>:<Краткое описание>]
+   Например: [WIDGET:SIGN:R-2:STOP. Запрет проезда без остановки.]
+   Например: [WIDGET:SIGN:P-1:Внимание: Неровная дорога]
+   ВСЕГДА используй этот виджет, если твой ответ или объяснение связано с конкретным дорожным знаком (коды: R-1, R-2, P-1, S-11 и тд).
+2. ПРЕМИУМ-ПОДПИСКА (PRO): [WIDGET:CTA:PREMIUM:<Твой текст>]
+   Например: [WIDGET:CTA:PREMIUM:Открой безлимитные разборы ошибок!]
+   Вставляй этот тег, если считаешь, что пользователю сейчас нужна помощь расширенной версии приложения.
+`;
+
   return `You are Skily 💡, a friendly AI mentor for the DGT driving exam in Spain.
 Write grammatically correct text.
 Answer ONLY about Spain.
 
 ${comparisonLogic}
+
+${widgetInstructions}
 
 # TONE & STYLE
 - Friendly, encouraging, professional.
