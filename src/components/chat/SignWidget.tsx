@@ -93,19 +93,22 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
     };
 
     return (
-        <div className={cn("my-3 p-3 rounded-xl border flex flex-col items-center group transition-all hover:shadow-md",
+        <div className={cn(
+            "my-2 px-3 py-2.5 rounded-xl border flex flex-row items-center gap-3 group transition-all hover:shadow-md",
             isDarkTheme !== undefined
                 ? (isDarkTheme ? "bg-indigo-950/20 border-indigo-800/30 hover:bg-slate-800" : "bg-indigo-50/50 border-indigo-100/50 hover:bg-white")
                 : "bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-100/50 dark:border-indigo-800/30 hover:bg-white dark:hover:bg-slate-800"
         )}>
-            <div className={cn("w-20 h-20 xl:w-24 xl:h-24 flex items-center justify-center p-2 mb-2 rounded-lg shadow-sm relative overflow-hidden",
+            {/* Знак слева */}
+            <div className={cn(
+                "shrink-0 w-14 h-14 flex items-center justify-center p-1.5 rounded-lg shadow-sm relative overflow-hidden",
                 isDarkTheme !== undefined
                     ? (isDarkTheme ? "bg-slate-900" : "bg-white")
                     : "bg-white dark:bg-slate-900"
             )}>
-                {isLoading && <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />}
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />}
                 {!isLoading && error && (
-                    <span className="text-[10px] text-muted-foreground text-center">Изображение<br />отсутствует</span>
+                    <span className="text-[9px] text-muted-foreground text-center leading-tight">Нет<br />фото</span>
                 )}
                 {!isLoading && imageUrl && !error && (
                     <img
@@ -116,18 +119,28 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
                     />
                 )}
             </div>
-            <span className={cn("text-[10px] xl:text-xs font-bold px-2.5 py-1 rounded-md tracking-wide uppercase shadow-sm",
-                isDarkTheme !== undefined
-                    ? (isDarkTheme ? "bg-indigo-900/80 text-indigo-200" : "bg-indigo-100 text-indigo-800")
-                    : "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/80 dark:text-indigo-200"
-            )}>
-                ЗНАК {code.trim()}
-            </span>
-            {description && <p className={cn("text-[10px] xl:text-xs mt-2 text-center font-medium leading-tight max-w-[90%]",
-                isDarkTheme !== undefined
-                    ? (isDarkTheme ? "text-slate-300" : "text-slate-600")
-                    : "text-slate-600 dark:text-slate-300"
-            )}>{description.trim()}</p>}
+
+            {/* Текст справа */}
+            <div className="flex flex-col gap-1 min-w-0">
+                <span className={cn(
+                    "text-[10px] font-bold px-2 py-0.5 rounded tracking-wide uppercase self-start",
+                    isDarkTheme !== undefined
+                        ? (isDarkTheme ? "bg-indigo-900/80 text-indigo-200" : "bg-indigo-100 text-indigo-800")
+                        : "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/80 dark:text-indigo-200"
+                )}>
+                    ЗНАК {code.trim()}
+                </span>
+                {description && (
+                    <p className={cn(
+                        "text-[11px] font-medium leading-snug",
+                        isDarkTheme !== undefined
+                            ? (isDarkTheme ? "text-slate-300" : "text-slate-600")
+                            : "text-slate-600 dark:text-slate-300"
+                    )}>
+                        {description.trim()}
+                    </p>
+                )}
+            </div>
         </div>
     );
 };
