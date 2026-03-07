@@ -87,7 +87,6 @@ const getSystemPrompt = (country: string = 'spain', showComparison: boolean = tr
 ДОСТУПНЫЕ ТЕГИ:
 1. ДОРОЖНЫЕ ЗНАКИ: [WIDGET:SIGN:<ИМЯ_ЗНАКА>:<Краткое описание>]
    Например: [WIDGET:SIGN:R-2:STOP. Запрет проезда без остановки.]
-   Например: [WIDGET:SIGN:P-1:Внимание: Неровная дорога]
    ВСЕГДА используй этот виджет, если твой ответ или объяснение связано с конкретным дорожным знаком (коды: R-1, R-2, P-1, S-11 и тд).
 2. ПРЕМИУМ-ПОДПИСКА (PRO): [WIDGET:CTA:PREMIUM:<Твой текст>]
    Например: [WIDGET:CTA:PREMIUM:Открой безлимитные разборы ошибок!]
@@ -101,6 +100,9 @@ Answer ONLY about Spain.
 ${comparisonLogic}
 
 ${widgetInstructions}
+
+# USER CONTEXT & TOOLS
+If the user asks about their personal stats, coins, XP, levels, or recent tests, YOU MUST call the \`get_user_stats\` tool to fetch their data. DO NOT say "I don't know" - call the tool!
 
 # TONE & STYLE
 - Friendly, encouraging, professional.
@@ -163,9 +165,8 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
 
     // Tool validation loop
     for (let iteration = 0; iteration < 2; iteration++) {
-      const isLastIteration = iteration === 1;
-
-      const tools = (supabaseClient && userId && !isLastIteration) ? [{
+      // Always pass tools if available; Gemini requires tools to be defined if history contains functionCall/functionResponse
+      const tools = (supabaseClient && userId) ? [{
         functionDeclarations: [{
           name: "get_user_stats",
           description: "Returns user statistics (XP, level, coins, pass) and recent test results from game_sessions. MUST be called if the user asks about their coins, XP, progress, errors, or stats.",
@@ -178,16 +179,14 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
         body: JSON.stringify({
           system_instruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
           contents: currentContents,
-          tools,
+          tools, // Always pass tools if available; Gemini requires tools to be defined if history contains functionCall/functionResponse
           generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
         }),
       });
 
       if (!response.ok) {
-        if (isLastIteration) {
-          const errorText = await response.text();
-          console.error(`[AI Chat] Gemini error (${response.status}):`, errorText);
-        }
+        const errorText = await response.text();
+        console.error(`[AI Chat] Gemini error (${response.status}) on iteration ${iteration}:`, errorText);
         return null;
       }
 
