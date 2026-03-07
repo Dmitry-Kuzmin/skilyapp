@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Maximize2, Minimize2, ArrowRight } from 'lucide-react';
+import { Maximize2, Minimize2, ArrowRight, Sparkles } from 'lucide-react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { useSkilyAIChat } from '@/hooks/useSkilyAIChat';
 import { playClickSound, playNotificationSound, playTabSwitchSound } from '@/services/audioService';
@@ -9,6 +9,7 @@ import { AISphere } from '@/components/ai/AISphere';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { Button } from '@/components/ui/button';
 
 // Типизация для markdown рендеринга
 type MarkdownProps = {
@@ -307,7 +308,58 @@ export const SkilyChat = React.memo(() => {
                       : 'bg-white/95 backdrop-blur-md text-slate-800 border border-indigo-100/50 rounded-tl-none shadow-[0_10px_30px_rgba(0,0,0,0.04)]'
                 )}>
                   {msg.role === 'assistant' ? (
-                    <MarkdownContent isDarkTheme={isDarkTheme}>{msg.content}</MarkdownContent>
+                    <div>
+                      {msg.content.split(/(\[WIDGET:[\s\S]*?\])/g).map((part, partIndex) => {
+                        if (part.startsWith('[WIDGET:') && part.endsWith(']')) {
+                          const match = part.match(/\[WIDGET:([^:]+):([^:]+)(?::([\s\S]+))?\]/);
+                          if (match) {
+                            const [_, type, param1, param2] = match;
+
+                            if (type === 'SIGN') {
+                              return (
+                                <div key={partIndex} className={cn("my-3 p-3 rounded-xl border flex flex-col items-center group transition-all hover:shadow-md", isDarkTheme ? "bg-indigo-950/20 border-indigo-800/30 hover:bg-slate-800" : "bg-indigo-50/50 border-indigo-100/50 hover:bg-white")}>
+                                  <div className={cn("w-20 h-20 xl:w-24 xl:h-24 flex items-center justify-center p-2 mb-2 rounded-lg shadow-sm", isDarkTheme ? "bg-slate-900" : "bg-white")}>
+                                    <img
+                                      src={`https://trmyymchczgczpsvtsas.supabase.co/storage/v1/object/public/system/signs/${param1.trim().toUpperCase()}.webp`}
+                                      alt={`Знак ${param1}`}
+                                      className="max-w-full max-h-full object-contain filter drop-shadow-md group-hover:scale-110 transition-transform duration-300"
+                                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                    />
+                                  </div>
+                                  <span className={cn("text-[10px] xl:text-xs font-bold px-2.5 py-1 rounded-md tracking-wide uppercase shadow-sm", isDarkTheme ? "bg-indigo-900/80 text-indigo-200" : "bg-indigo-100 text-indigo-800")}>
+                                    ЗНАК {param1.trim()}
+                                  </span>
+                                  {param2 && <p className="text-[10px] xl:text-xs text-muted-foreground mt-2 text-center font-medium leading-tight max-w-[90%]">{param2.trim()}</p>}
+                                </div>
+                              );
+                            }
+
+                            if (type === 'CTA' && param1 === 'PREMIUM') {
+                              return (
+                                <div key={partIndex} className="my-4 p-4 bg-gradient-to-br from-amber-500/10 via-orange-400/5 to-amber-500/10 border border-amber-500/30 dark:border-amber-500/20 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm relative overflow-hidden">
+                                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                                  <div>
+                                    <h4 className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5"><Sparkles className="w-4 h-4" />Skily PRO</h4>
+                                    <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">{param2 || "Открой подробные разборы ошибок"}</p>
+                                  </div>
+                                  <Button size="sm" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => window.location.href = '/premium'}>
+                                    Стать PRO
+                                  </Button>
+                                </div>
+                              );
+                            }
+                          }
+                          // Fallback if widget parsing fails
+                          return <span key={partIndex} className="text-muted-foreground hidden">{part}</span>;
+                        }
+
+                        // Render text parts 
+                        if (!part.trim()) return null;
+                        return (
+                          <MarkdownContent key={partIndex} isDarkTheme={isDarkTheme}>{part}</MarkdownContent>
+                        );
+                      })}
+                    </div>
                   ) : (
                     <span className="font-medium tracking-tight prose-sm">{msg.content}</span>
                   )}

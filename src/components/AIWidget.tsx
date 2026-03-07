@@ -631,9 +631,9 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
                           "max-w-[90%] p-4 rounded-2xl rounded-tl-none text-xs xl:text-sm leading-relaxed transition-all",
                           "bg-white dark:bg-slate-800/90 backdrop-blur-md border border-indigo-100/30 dark:border-white/5 shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-black/20"
                         )}>
-                          {message.content.split(/(\[WIDGET:.*?\])/g).map((part, partIndex) => {
+                          {message.content.split(/(\[WIDGET:[\s\S]*?\])/g).map((part, partIndex) => {
                             if (part.startsWith('[WIDGET:') && part.endsWith(']')) {
-                              const match = part.match(/\[WIDGET:([^:]+):([^:]+)(?::([^\]]+))?\]/);
+                              const match = part.match(/\[WIDGET:([^:]+):([^:]+)(?::([\s\S]+))?\]/);
                               if (match) {
                                 const [_, type, param1, param2] = match;
 
