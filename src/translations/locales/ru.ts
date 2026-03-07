@@ -561,11 +561,11 @@ export const ru = {
     title: "Профиль",
     loading: "Загрузка профиля...",
     notFound: "Профиль не найден",
-    xpLabel: "XP",
-    xpDescription: "Очки опыта",
+    xpLabel: "Опыт XP",
+    xpDescription: "Повышай уровень для наград",
     notifications: "Уведомления",
     achievements: "Мои достижения",
-    invite: "Пригласить",
+    invite: "Пригласить друзей",
     inventory: "Инвентарь",
     achievementsDesc: "Следите за прогрессом и открывайте новые награды",
     blog: "Блог",
@@ -578,14 +578,15 @@ export const ru = {
     notConnected: "Не подключено",
     appearance: "Внешний вид",
     proBadge: "PRO",
-    toasts: {
-      settingsSaved: "Настройки сохранены",
-      settingsFailed: "Не удалось сохранить настройки",
-      avatarUploadError: "Не удалось загрузить аватар",
-      nameChangeError: "Не удалось изменить имя",
-      googleRedirect: "Перенаправляем в Google...",
-      googleLinkError: "Не удалось связать Google-аккаунт",
-    },
+    logout: "Выйти"
+  },
+  toasts: {
+    settingsSaved: "Настройки сохранены",
+    settingsFailed: "Не удалось сохранить настройки",
+    avatarUploadError: "Не удалось загрузить аватар",
+    nameChangeError: "Не удалось изменить имя",
+    googleRedirect: "Перенаправляем в Google...",
+    googleLinkError: "Не удалось связать Google-аккаунт",
   },
   achievementsModal: {
     title: "Достижения",
@@ -1101,14 +1102,6 @@ export const ru = {
     terms: "Условия",
     cookies: "Куки",
     invite: "Пригласить"
-  },
-  profileMenu: {
-    xpLabel: "Опыт XP",
-    xpDescription: "Повышай уровень для наград",
-    inventory: "Инвентарь",
-    invite: "Пригласить друзей",
-    proBadge: "PRO",
-    logout: "Выйти"
   },
   telemetry: {
     title: "Телеметрия Skily",

@@ -1,3 +1,5 @@
+// @ts-nocheck
+import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
 import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
 
@@ -130,76 +132,168 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
   }
 }
 
-async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es'): Promise<Response | null> {
+async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null): Promise<Response | null> {
   const apiKey = Deno.env.get('GEMINI_API_KEY');
   if (!apiKey) return null;
 
   try {
     const systemPrompt = mode === 'debrief' ? '' : getSystemPrompt(country, showComparison, language);
 
-    // Формируем контент для Gemini API
-    const contents = messages.map(m => ({
+    let currentContents: any[] = messages.map(m => ({
       role: m.role === 'user' ? 'user' : 'model',
       parts: [{ text: m.content }]
     }));
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:streamGenerateContent?alt=sse&key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: systemPrompt ? {
-          parts: [{ text: systemPrompt }]
-        } : undefined,
-        contents,
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 2048,
+    // Tool validation loop
+    for (let iteration = 0; iteration < 2; iteration++) {
+      const isLastIteration = iteration === 1;
+
+      const tools = (supabaseClient && userId && !isLastIteration) ? [{
+        functionDeclarations: [{
+          name: "get_user_stats",
+          description: "Возвращает статистику пользователя (опыт, уровень, монеты и результаты последних тестов). Обязательно вызывай этот инструмент, если пользователь спрашивает про свои тесты, прогресс, ошибки или стату.",
+        }]
+      }] : undefined;
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:streamGenerateContent?alt=sse&key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
+          contents: currentContents,
+          tools,
+          generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
+        }),
+      });
+
+      if (!response.ok) {
+        if (isLastIteration) {
+          const errorText = await response.text();
+          console.error(`[AI Chat] Gemini error (${response.status}):`, errorText);
         }
-      }),
-    });
+        return null;
+      }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[AI Chat] Gemini error (${response.status}):`, errorText);
-      return null;
-    }
+      // Read the first chunk to detect function calls early
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let firstParsedData = null;
+      const streamedChunks: Uint8Array[] = [];
 
-    // Трансформируем стрим из формата Gemini в формат OpenAI (для совместимости с фронтендом)
-    const transformStream = new TransformStream({
-      transform(chunk, controller) {
-        const text = new TextDecoder().decode(chunk);
-        const lines = text.split('\n');
+      while (!firstParsedData) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        streamedChunks.push(value);
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete part
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
+            const dataStr = line.slice(6);
+            if (dataStr === '[DONE]') continue;
             try {
-              const data = JSON.parse(line.slice(6));
-              const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (content) {
-                const ssePayload = `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`;
-                controller.enqueue(new TextEncoder().encode(ssePayload));
-              }
-              if (data.usageMetadata) {
-                // Done
-              }
-            } catch (e) {
-              // Ignore partial JSON
-            }
+              firstParsedData = JSON.parse(dataStr);
+              break;
+            } catch (e) { }
           }
         }
-      },
-      flush(controller) {
-        controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
       }
-    });
 
-    return new Response(response.body?.pipeThrough(transformStream), {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache'
+      const part = firstParsedData?.candidates?.[0]?.content?.parts?.[0];
+
+      if (part?.functionCall) {
+        // Intercept function call
+        const functionCallData = part.functionCall;
+        reader.cancel().catch(() => { }); // Close current stream
+
+        if (functionCallData.name === 'get_user_stats') {
+          console.log('[AI Chat] ⚙️ TOOL CALLED: get_user_stats for user', userId);
+
+          let toolResult: any = {};
+          try {
+            const { data: profile } = await supabaseClient.from('profiles').select('xp, coins, duel_pass_level').eq('id', userId).single();
+            const { data: sessions } = await supabaseClient.from('test_sessions').select('score, passed, mode, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5);
+            toolResult = {
+              user_stats: profile || null,
+              latest_tests: sessions || []
+            };
+          } catch (e) {
+            console.error('[AI Chat] DB Error during tool execution:', e);
+            toolResult = { error: "Database unavailable" };
+          }
+
+          currentContents.push({ role: "model", parts: [{ functionCall: functionCallData }] });
+          currentContents.push({
+            role: "function",
+            parts: [{
+              functionResponse: {
+                name: "get_user_stats",
+                response: { name: "get_user_stats", content: toolResult }
+              }
+            }]
+          });
+
+          // Start next iteration to answer using the DB results
+          continue;
+        }
       }
-    });
+
+      // No function call, proceed to stream text to frontend
+      const proxyStream = new ReadableStream({
+        async start(controller) {
+          for (const chunk of streamedChunks) {
+            controller.enqueue(chunk);
+          }
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            controller.enqueue(value);
+          }
+          controller.close();
+        }
+      });
+
+      const transformStream = new TransformStream({
+        transform(chunk, controller) {
+          const text = new TextDecoder().decode(chunk);
+          const lines = text.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const dataStr = line.slice(6);
+              if (dataStr === '[DONE]') continue;
+              try {
+                const data = JSON.parse(dataStr);
+                const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (content) {
+                  const ssePayload = `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`;
+                  controller.enqueue(new TextEncoder().encode(ssePayload));
+                }
+              } catch (e) {
+                // Ignore partial JSON
+              }
+            }
+          }
+        },
+        flush(controller) {
+          controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+        }
+      });
+
+      return new Response(proxyStream.pipeThrough(transformStream), {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache'
+        }
+      });
+    }
+
+    return null;
   } catch (err) {
     console.error('[AI Chat] Gemini exception:', err);
     return null;
@@ -227,12 +321,16 @@ Deno.serve(async (req) => {
     });
 
     const authHeader = req.headers.get('Authorization');
+    let supabaseClient: any = null;
+    let userId: string | null = null;
+
     if (authHeader) {
-      const supabase = createPooledSupabaseClient();
-      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      supabaseClient = createPooledSupabaseClient();
+      const { data: { user } } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''));
 
       if (user && mode !== 'debrief') {
-        const { data: usage } = await supabase.rpc('increment_ai_usage', { p_user_id: user.id }) as { data: UsageData[] | null };
+        userId = user.id;
+        const { data: usage } = await supabaseClient.rpc('increment_ai_usage', { p_user_id: user.id }) as { data: UsageData[] | null };
         if (usage?.[0]?.limit_reached) {
           console.log('[AI Chat] Limit reached for user:', user.id);
           return new Response(JSON.stringify({ error: 'daily_limit_reached', message: 'Дневной лимит Skily исчерпан. Попробуй завтра или активируй Premium!' }), { status: 429, headers: corsHeaders });
@@ -242,7 +340,7 @@ Deno.serve(async (req) => {
 
     // 1️⃣ Приоритет: Gemini 3.1 Flash Lite (Fastest & most efficient)
     console.log('[AI Chat] Trying Gemini 3.1 Flash Lite...');
-    const gemini = await tryGemini(messages, country, mode, showComparison, language);
+    const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId);
 
     if (gemini) {
       console.log('[AI Chat] ✅ Gemini success');
