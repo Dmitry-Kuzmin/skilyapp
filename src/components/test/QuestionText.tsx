@@ -204,12 +204,11 @@ export function QuestionText({
             className={cn(
               fontSizeClasses[fontSize as keyof typeof fontSizeClasses] || fontSizeClasses[1],
               "font-bold leading-tight tracking-tight text-slate-900 dark:text-white/95 whitespace-pre-line m-0",
-              onToggleTranslation ? "pr-10" : "pr-0"
             )}
           >
             {renderSmartText(text)}
 
-            {/* Translation Button */}
+            {/* Translation Button - Inline at the end of the last line, pushed to the right */}
             {onToggleTranslation && (
               <button
                 onClick={(e) => {
@@ -217,7 +216,7 @@ export function QuestionText({
                   onToggleTranslation();
                 }}
                 className={cn(
-                  "absolute bottom-1 right-0 p-1 transition-all duration-500 active:scale-75 select-none",
+                  "inline-flex items-center align-middle float-right ml-4 p-1 mt-1 transition-all duration-500 active:scale-75 select-none",
                   showTranslation
                     ? "text-blue-500 scale-110 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]"
                     : "text-slate-400/50 hover:text-blue-500/80 hover:scale-110"
@@ -231,7 +230,7 @@ export function QuestionText({
                   strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="w-4 h-4"
+                  className="w-5 h-5"
                 >
                   <path d="M5 8l6 6" />
                   <path d="M4 14l6-6 2-3" />

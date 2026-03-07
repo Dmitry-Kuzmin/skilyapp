@@ -243,24 +243,6 @@ export function QuestionProgressBar({
           {/* Settings Menu */}
           {SettingsMenuComponent}
 
-          {/* Translation Toggle - Flag or Languages Icon */}
-          {onToggleTranslation && !hideScoreIndicators && (
-            <button
-              onClick={onToggleTranslation}
-              className={cn(
-                "flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-full transition-all duration-300 active:scale-95 border",
-                showTranslation
-                  ? "bg-blue-100 dark:bg-blue-500/10 border-blue-300 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 shadow-md"
-                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm"
-              )}
-              title={showTranslation ? t('test.hideTranslation') : t('test.showTranslation')}
-            >
-              <Languages className={cn(
-                "w-4 h-4 sm:w-5 sm:h-5 transition-transform",
-                showTranslation && "scale-110"
-              )} />
-            </button>
-          )}
 
           {/* Smart Vocabulary Toggle - Sparkles Icon */}
           {onToggleSmartVocabulary && (
