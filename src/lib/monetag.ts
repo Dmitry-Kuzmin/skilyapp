@@ -17,8 +17,8 @@ declare global {
   }
 }
 
-// Zone ID для Rewarded Interstitial в Telegram Mini App
-export const MONETAG_TMA_REWARDED_ZONE_ID = '10323643';
+// Zone ID для Rewarded Interstitial в Telegram Mini App (настроен Димой)
+export const MONETAG_TMA_REWARDED_ZONE_ID = '10694746';
 
 // Zone ID для Native Banner (Interstitial) в веб-версии
 export const MONETAG_WEB_REWARDED_ZONE_ID = '10323509';
