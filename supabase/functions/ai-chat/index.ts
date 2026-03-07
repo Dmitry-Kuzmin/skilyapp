@@ -231,7 +231,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
 
           let toolResult: any = {};
           try {
-            const { data: profile } = await supabaseClient.from('profiles').select('xp, coins, duel_pass_level').eq('id', userId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('id, xp, coins, duel_pass_level').or(`id.eq.${userId},user_id.eq.${userId}`).single();
             const { data: sessions } = await supabaseClient.from('game_sessions').select('score, total_questions, game_type, created_at').eq('user_id', profile?.id || userId).order('created_at', { ascending: false }).limit(5);
             toolResult = {
               user_stats: profile || null,
