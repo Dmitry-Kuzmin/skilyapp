@@ -21,14 +21,27 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
             setIsLoading(true);
             setError(false);
             try {
-                const { data, error } = await supabase
+                const normalized = code.trim().toUpperCase();
+
+                // Try exact match first (case-insensitive)
+                let { data, error: e1 } = await supabase
                     .from('road_signs')
                     .select('image_url')
-                    .ilike('sign_number', code.trim()) // Using ilike to be case-insensitive
+                    .ilike('sign_number', normalized)
                     .maybeSingle() as unknown as { data: { image_url: string } | null, error: any };
 
-                if (error || !data) {
-                    console.warn(`Sign not found: ${code}`, error);
+                // Fallback: wildcard match (e.g. "R-2%" to handle "R‐2" with non-breaking hyphens)
+                if (!data && !e1) {
+                    const fallback = await supabase
+                        .from('road_signs')
+                        .select('image_url')
+                        .ilike('sign_number', `%${normalized.replace('-', '')}%`)
+                        .maybeSingle() as unknown as { data: { image_url: string } | null, error: any };
+                    data = fallback.data;
+                }
+
+                if (!data) {
+                    console.warn(`[SignWidget] Sign not found: ${code}`);
                     if (mounted) setError(true);
                     return;
                 }
@@ -39,6 +52,7 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
                     setError(true);
                 }
             } catch (e) {
+                console.error(`[SignWidget] Error fetching ${code}:`, e);
                 if (mounted) setError(true);
             } finally {
                 if (mounted) setIsLoading(false);
