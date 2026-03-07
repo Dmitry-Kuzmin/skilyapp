@@ -65,10 +65,6 @@ export function useRewardedAd() {
       initAdsGram(userId).catch(console.error);
     } else {
       initMonetag();
-      // Прелоад рекламы для Monetag (только для Desktop TMA или веба)
-      if (profileId) {
-        showMonetagRewardedVideo({ ymid: profileId, type: 'preload' }).catch(() => { });
-      }
     }
   }, [isAvailable]);
 

@@ -64,7 +64,20 @@ export function initMonetagTMA(): void {
     return;
   }
 
-  console.warn('[Monetag TMA] SDK not loaded yet. Waiting for script to load...');
+  console.warn('[Monetag TMA] SDK not loaded yet. Injecting script dynamically...');
+
+  // КРИТИЧНО ДЛЯ SPEEDTEST: Инжектим скрипт динамически, чтобы не блокировать LCP
+  const scriptId = 'monetag-sdk-tma';
+  if (!document.getElementById(scriptId)) {
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'https://libtl.com/sdk.js';
+    script.dataset.zone = MONETAG_TMA_REWARDED_ZONE_ID;
+    script.dataset.sdk = TMA_SHOW_FUNCTION_NAME;
+    script.async = true;
+    document.head.appendChild(script);
+    console.log('[Monetag TMA] Script injected successfully');
+  }
 
   // Ждем загрузки SDK (максимум 5 секунд)
   let attempts = 0;
@@ -76,8 +89,6 @@ export function initMonetagTMA(): void {
     } else if (attempts > 50) {
       clearInterval(checkInterval);
       console.error('[Monetag TMA] SDK failed to load after 5 seconds');
-      console.error('[Monetag TMA] Available window functions:', Object.keys(window).filter(k => k.startsWith('show_')));
-      console.error('[Monetag TMA] Possible reasons: AdBlock, CORS, or script not loaded');
     }
   }, 100);
 }
