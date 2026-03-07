@@ -112,8 +112,9 @@ ${widgetInstructions}
 - Highlight key terms in **bold**.
 - Use lists for readability.
 
-Respond in the SAME LANGUAGE as the context or the user query.
-Strictly respond in: ${languageName}.`;
+Respond in the SAME LANGUAGE as the user query.
+If the user specifically asks you to translate or explain a Spanish term, you can use Spanish context, but ALWAYS formulate the main response in the language the user wrote to you!
+Your UI interface language preference is: ${languageName}.`;
 };
 
 async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'llama-3.1-8b-instant', language: string = 'es'): Promise<Response | null> {
@@ -167,7 +168,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
       const tools = (supabaseClient && userId && !isLastIteration) ? [{
         functionDeclarations: [{
           name: "get_user_stats",
-          description: "Возвращает статистику пользователя (опыт, уровень, монеты и результаты последних тестов). Обязательно вызывай этот инструмент, если пользователь спрашивает про свои тесты, прогресс, ошибки или стату.",
+          description: "Returns user statistics (XP, level, coins, pass) and recent test results from game_sessions. MUST be called if the user asks about their coins, XP, progress, errors, or stats.",
         }]
       }] : undefined;
 
@@ -232,7 +233,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
           let toolResult: any = {};
           try {
             const { data: profile } = await supabaseClient.from('profiles').select('xp, coins, duel_pass_level').eq('id', userId).single();
-            const { data: sessions } = await supabaseClient.from('test_sessions').select('score, passed, mode, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5);
+            const { data: sessions } = await supabaseClient.from('game_sessions').select('score, total_questions, game_type, created_at').eq('user_id', profile?.id || userId).order('created_at', { ascending: false }).limit(5);
             toolResult = {
               user_stats: profile || null,
               latest_tests: sessions || []
