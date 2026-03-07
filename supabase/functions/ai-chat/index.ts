@@ -190,14 +190,15 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
         return null;
       }
 
-      // Read the first chunk to detect function calls early
+      // Read ALL chunks to collect complete model turn (including thought_signature for thinking models)
       const reader = response.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
-      let firstParsedData = null;
       const streamedChunks: Uint8Array[] = [];
+      const allParsedChunks: any[] = [];
 
-      while (!firstParsedData) {
+      // Drain the entire stream
+      while (true) {
         const { value, done } = await reader.read();
         if (done) break;
 
@@ -205,25 +206,31 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
         buffer += decoder.decode(value, { stream: true });
 
         const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // Keep incomplete part
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             const dataStr = line.slice(6);
             if (dataStr === '[DONE]') continue;
             try {
-              firstParsedData = JSON.parse(dataStr);
-              break;
+              allParsedChunks.push(JSON.parse(dataStr));
             } catch (e) { }
           }
         }
       }
 
-      const part = firstParsedData?.candidates?.[0]?.content?.parts?.[0];
+      // Merge all parts from all chunks to preserve thought_signature
+      const allModelParts: any[] = [];
+      for (const chunk of allParsedChunks) {
+        const chunkParts = chunk?.candidates?.[0]?.content?.parts;
+        if (chunkParts) allModelParts.push(...chunkParts);
+      }
 
-      if (part?.functionCall) {
+      const functionCallPart = allModelParts.find((p: any) => p.functionCall);
+
+      if (functionCallPart) {
         // Intercept function call
-        const functionCallData = part.functionCall;
+        const functionCallData = functionCallPart.functionCall;
         reader.cancel().catch(() => { }); // Close current stream
 
         if (functionCallData.name === 'get_user_stats') {
@@ -242,7 +249,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
             toolResult = { error: "Database unavailable" };
           }
 
-          currentContents.push({ role: "model", parts: [{ functionCall: functionCallData }] });
+          currentContents.push({ role: "model", parts: allModelParts });
           currentContents.push({
             role: "function",
             parts: [{
@@ -258,49 +265,30 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
         }
       }
 
-      // No function call, proceed to stream text to frontend
-      const proxyStream = new ReadableStream({
-        async start(controller) {
-          for (const chunk of streamedChunks) {
-            controller.enqueue(chunk);
+      // No function call — reconstruct text response from already-drained chunks
+      const sseLines: string[] = [];
+      for (const chunk of allParsedChunks) {
+        const chunkParts = chunk?.candidates?.[0]?.content?.parts;
+        if (!chunkParts) continue;
+        for (const part of chunkParts) {
+          if (part.text) {
+            sseLines.push(`data: ${JSON.stringify({ choices: [{ delta: { content: part.text } }] })}\n\n`);
           }
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            controller.enqueue(value);
+        }
+      }
+      sseLines.push('data: [DONE]\n\n');
+
+      const encoder = new TextEncoder();
+      const textStream = new ReadableStream({
+        start(controller) {
+          for (const line of sseLines) {
+            controller.enqueue(encoder.encode(line));
           }
           controller.close();
         }
       });
 
-      const transformStream = new TransformStream({
-        transform(chunk, controller) {
-          const text = new TextDecoder().decode(chunk);
-          const lines = text.split('\n');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const dataStr = line.slice(6);
-              if (dataStr === '[DONE]') continue;
-              try {
-                const data = JSON.parse(dataStr);
-                const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (content) {
-                  const ssePayload = `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`;
-                  controller.enqueue(new TextEncoder().encode(ssePayload));
-                }
-              } catch (e) {
-                // Ignore partial JSON
-              }
-            }
-          }
-        },
-        flush(controller) {
-          controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
-        }
-      });
-
-      return new Response(proxyStream.pipeThrough(transformStream), {
+      return new Response(textStream, {
         headers: {
           ...corsHeaders,
           'Content-Type': 'text/event-stream',

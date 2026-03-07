@@ -1,8 +1,28 @@
 const { createClient } = require('@supabase/supabase-js');
-require('dotenv').config({ path: '.env' });
-const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY);
-async function run() {
-  const { data, error } = await supabase.from('profiles').select('id, user_id, xp, coins, duel_pass_level').or(`id.eq.88533a8b-3ca0-40c1-9ee2-619833b79491,user_id.eq.88533a8b-3ca0-40c1-9ee2-619833b79491`);
-  console.log("My Profil 3:", data, "Error:", error);
+const fs = require('fs');
+
+async function testGemini() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return console.error("No API key");
+
+  const tools = [{
+      functionDeclarations: [{
+        name: "get_user_stats",
+        description: "Returns user statistics.",
+      }]
+  }];
+  
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:streamGenerateContent?alt=sse&key=${apiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: "user", parts: [{ text: "What are my stats?" }]}],
+      tools,
+      generationConfig: { temperature: 0.3 }
+    })
+  });
+  
+  const text = await response.text();
+  console.log(text);
 }
-run();
+testGemini();
