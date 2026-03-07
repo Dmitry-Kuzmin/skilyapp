@@ -13,6 +13,7 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
+    const [isFallback, setIsFallback] = useState(false);
 
     useEffect(() => {
         let mounted = true;
@@ -52,7 +53,7 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
                     setError(true);
                 }
             } catch (e) {
-                console.error(`[SignWidget] Error fetching ${code}:`, e);
+                console.error(`[SignWidget 🚀] Error fetching ${code}:`, e);
                 if (mounted) setError(true);
             } finally {
                 if (mounted) setIsLoading(false);
@@ -65,6 +66,31 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
             mounted = false;
         };
     }, [code]);
+
+    const handleImageError = () => {
+        // Fallback for Wikimedia 429: if thumbnail fails, try original file
+        if (imageUrl?.includes('/thumb/') && !isFallback) {
+            console.warn(`[SignWidget 🚀] Thumbnail failed for ${code} (possibly 429), trying original...`);
+            // Example conversion: 
+            // from: .../thumb/path/File.svg/240px-File.svg.png
+            // to:   .../path/File.svg
+            const parts = imageUrl.split('/');
+            const fileNameIdx = parts.findIndex(p => p === 'thumb');
+            if (fileNameIdx !== -1) {
+                const newParts = parts.filter((_, i) => i !== fileNameIdx);
+                // Last part of thumb URL is often the resize parameter (e.g., 200px-...)
+                // We remove it to get the original file name
+                if (newParts[newParts.length - 1].includes('px-')) {
+                    newParts.pop();
+                }
+                const fallbackUrl = newParts.join('/');
+                setIsFallback(true);
+                setImageUrl(fallbackUrl);
+                return;
+            }
+        }
+        setError(true);
+    };
 
     return (
         <div className={cn("my-3 p-3 rounded-xl border flex flex-col items-center group transition-all hover:shadow-md",
@@ -79,14 +105,14 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
             )}>
                 {isLoading && <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />}
                 {!isLoading && error && (
-                    <span className="text-xs text-muted-foreground text-center">Изображение<br />отсутствует</span>
+                    <span className="text-[10px] text-muted-foreground text-center">Изображение<br />отсутствует</span>
                 )}
                 {!isLoading && imageUrl && !error && (
                     <img
                         src={imageUrl}
                         alt={`Знак ${code}`}
                         className="max-w-full max-h-full object-contain filter drop-shadow-md group-hover:scale-110 transition-transform duration-300"
-                        onError={() => setError(true)}
+                        onError={handleImageError}
                     />
                 )}
             </div>

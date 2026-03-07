@@ -121,6 +121,8 @@ When you receive tool results with test scores, present them honestly and exactl
 - NEVER invent test results, scores, or statistics.
 - If you don't have tool data, say you'll fetch it and call the tool.
 - Do not say things like "your last test was 70%" unless you got that from the tool.
+- 🛑 STICK TO SPAIN: Even if the user is Russian, do NOT compare with Russia unless Comparison Mode is explicitly ON.
+- If Comparison Mode is OFF, and you are asked about Russia, say: "Я сосредоточен только на правилах Испании (DGT), так как это самый быстрый путь к твоей цели! 🇪🇸"
 
 # TONE & STYLE
 - Friendly, encouraging, professional.
@@ -142,8 +144,8 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
   if (!apiKey) return null;
 
   try {
-    // 🔥 Если mode === 'debrief', НЕ добавляем system prompt (unified prompt уже в messages)
-    const systemMessage = mode === 'debrief' ? [] : [{ role: 'system' as const, content: getSystemPrompt(country, showComparison, language) }];
+    // 🔥 Мы ВСЕГДА добавляем системный промпт, чтобы ИИ помнил про Skily persona и Испанию
+    const systemMessage = [{ role: 'system' as const, content: getSystemPrompt(country, showComparison, language) }];
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -174,7 +176,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
   if (!apiKey) return null;
 
   try {
-    const systemPrompt = mode === 'debrief' ? '' : getSystemPrompt(country, showComparison, language);
+    const systemPrompt = getSystemPrompt(country, showComparison, language);
 
     let currentContents: any[] = messages.map(m => ({
       role: m.role === 'user' ? 'user' : 'model',
