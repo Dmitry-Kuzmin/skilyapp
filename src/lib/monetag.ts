@@ -11,7 +11,8 @@
 declare global {
   interface Window {
     // Monetag Rewarded Interstitial для Telegram Mini App (возвращает Promise)
-    show_10323643?: () => Promise<void>;
+    // Может принимать объект с параметрами: { ymid: string, type?: 'preload' }
+    show_10694746?: (options?: { ymid?: string; type?: 'preload' }) => Promise<void>;
     // Monetag Native Banner (Interstitial) для веб-версии (НЕ возвращает Promise)
     [key: `show_${string}`]: (() => void) | (() => Promise<void>);
   }
@@ -130,9 +131,10 @@ export function initMonetag(): void {
  * ВАЖНО: Rewarded Interstitial для TMA возвращает Promise!
  * Promise резолвится, когда пользователь просмотрел рекламу до конца.
  * 
+ * @param options - Объект с параметрами (ymid для трекинга, type для прелоада)
  * @returns Promise<boolean> - true если реклама просмотрена до конца
  */
-export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
+export async function showMonetagRewardedVideoTMA(options?: { ymid?: string; type?: 'preload' }): Promise<boolean> {
   if (typeof window === 'undefined') {
     throw new Error('Monetag SDK is not available - window is undefined');
   }
@@ -156,23 +158,20 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
 
     if (typeof showFunction !== 'function') {
       console.error('[Monetag TMA] Function not found:', TMA_SHOW_FUNCTION_NAME);
-      console.error('[Monetag TMA] Available functions:', Object.keys(window).filter(k => k.startsWith('show_')));
       return false;
     }
 
-    console.log('[Monetag TMA] Calling show function:', TMA_SHOW_FUNCTION_NAME);
+    console.log('[Monetag TMA] Calling show function with options:', options);
 
-    // КРИТИЧНО: Добавляем таймаут 3 секунды, чтобы интерфейс не зависал
-    // Rewarded Interstitial для TMA возвращает Promise
-    // Promise резолвится, когда пользователь просмотрел рекламу до конца
+    // Вызываем функцию с параметрами (ymid и type)
     await Promise.race([
-      showFunction(),
+      showFunction(options),
       new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Monetag ad timeout - ad did not show within 3 seconds')), 3000)
+        setTimeout(() => reject(new Error('Monetag ad timeout - ad did not show within 5 seconds')), 5000)
       )
     ]);
 
-    console.log('[Monetag TMA] Rewarded interstitial completed successfully');
+    console.log('[Monetag TMA] Rewarded interstitial action completed');
     return true;
   } catch (error: any) {
     console.error('[Monetag TMA] Error showing rewarded video:', error);
@@ -199,16 +198,10 @@ export async function showMonetagRewardedVideoTMA(): Promise<boolean> {
  * ВАЖНО: Native Banner (Interstitial) от Monetag НЕ возвращает Promise!
  * Это просто функция, которая показывает полноэкранный баннер.
  * 
- * Логика награды:
- * Monetag платит за ПОКАЗЫ (impressions), не за клики.
- * Поэтому награда выдается сразу после показа рекламы.
- * 
- * Переходы по ссылке (клики) - это дополнительный доход, но не обязательны.
- * Если пользователь перейдет - хорошо, если нет - тоже нормально.
- * 
+ * @param _options - Игнорируется в веб-версии, оставлено для совместимости интерфейса
  * @returns Promise<boolean> - true если реклама показана
  */
-export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
+export async function showMonetagRewardedVideoWeb(_options?: { ymid?: string; type?: 'preload' }): Promise<boolean> {
   if (typeof window === 'undefined') {
     throw new Error('Monetag SDK is not available - window is undefined');
   }
@@ -330,10 +323,18 @@ export async function showMonetagRewardedVideoWeb(): Promise<boolean> {
  * Показывает Rewarded Video рекламу (Monetag)
  * Автоматически определяет платформу и использует соответствующий SDK
  * 
+ * @param options - Объект с параметрами (ymid для трекинга, type для прелоада)
  * @returns Promise<boolean> - true если реклама просмотрена
  */
-export async function showMonetagRewardedVideo(): Promise<boolean> {
-  // Для обратной совместимости используем веб-версию
-  // В useRewardedAd будет правильное определение платформы
-  return showMonetagRewardedVideoWeb();
+export async function showMonetagRewardedVideo(options?: { ymid?: string; type?: 'preload' }): Promise<boolean> {
+  // Определяем, являемся ли мы Telegram Mini App
+  const isTMA = typeof window !== 'undefined' &&
+    !!window.Telegram?.WebApp?.platform &&
+    !!window.Telegram?.WebApp?.version;
+
+  if (isTMA) {
+    return showMonetagRewardedVideoTMA(options);
+  }
+
+  return showMonetagRewardedVideoWeb(options);
 }

@@ -3,6 +3,7 @@ import { isTelegramMiniApp, getTelegramUser, getTelegramWebApp, isTelegramMobile
 import { usePremium } from './usePremium';
 import { initAdsGram, showAdsGramRewardedVideo } from '@/lib/adsgram';
 import { initMonetag, showMonetagRewardedVideo } from '@/lib/monetag';
+import { useUserContext } from '@/contexts/UserContext';
 
 /**
  * Типы наград за просмотр рекламы
@@ -29,6 +30,7 @@ export function useRewardedAd() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { isPremium } = usePremium();
+  const { profileId } = useUserContext();
 
   /**
    * Проверяет, доступна ли реклама для пользователя
@@ -63,6 +65,10 @@ export function useRewardedAd() {
       initAdsGram(userId).catch(console.error);
     } else {
       initMonetag();
+      // Прелоад рекламы для Monetag (только для Desktop TMA или веба)
+      if (profileId) {
+        showMonetagRewardedVideo({ ymid: profileId, type: 'preload' }).catch(() => { });
+      }
     }
   }, [isAvailable]);
 
@@ -91,7 +97,8 @@ export function useRewardedAd() {
       } else {
         // В веб-версии ИЛИ Desktop TMA используем Monetag
         // На Desktop TMA AdsGram часто не имеет рекламы (fill), а Monetag работает стабильно
-        rewarded = await showMonetagRewardedVideo();
+        // Передаем profileId как ymid для трекинга и postbacks
+        rewarded = await showMonetagRewardedVideo({ ymid: profileId || undefined });
       }
 
       setLoading(false);
@@ -134,6 +141,11 @@ export function useRewardedAd() {
     error,
     isAvailable: isAvailable(),
     showAd,
+    preload: useCallback(() => {
+      if (isAvailable() && !isTelegramMobilePlatformName(getTelegramWebApp()?.platform)) {
+        showMonetagRewardedVideo({ ymid: profileId || undefined, type: 'preload' }).catch(() => { });
+      }
+    }, [isAvailable, profileId]),
     reset,
   };
 }

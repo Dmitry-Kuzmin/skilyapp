@@ -33,15 +33,17 @@ export function RewardedAdModal({
   inlineOverlay = false,
   secondaryAction,
 }: RewardedAdModalProps) {
-  const { loading, error, isAvailable, showAd, reset } = useRewardedAd();
+  const { loading, error, isAvailable, showAd, preload, reset } = useRewardedAd();
   const [showReward, setShowReward] = useState(false);
 
   useEffect(() => {
-    if (!open) {
+    if (open) {
+      preload();
+    } else {
       reset();
       setShowReward(false);
     }
-  }, [open, reset]);
+  }, [open, preload, reset]);
 
   const getRewardInfo = () => {
     switch (rewardType) {
