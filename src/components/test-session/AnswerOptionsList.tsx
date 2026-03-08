@@ -8,6 +8,7 @@ interface AnswerOption {
     text_ru?: string;
     text_es?: string;
     text_en?: string;
+    text?: string;
     is_correct: boolean;
 }
 
@@ -90,9 +91,9 @@ export const AnswerButton = memo(function AnswerButton({
         // Default state - clean surface buttons
         return cn(
             'border-slate-200 dark:border-white/5 bg-white dark:bg-slate-800/80',
-            // Hover
-            'hover:border-slate-300 dark:hover:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700',
-            // Active press - tactile feel
+            // Hover styles strictly for monitors (fixes mobile double-tap bugs)
+            'lg:hover:border-slate-300 dark:lg:hover:border-white/10 lg:hover:bg-slate-50 dark:lg:hover:bg-slate-700',
+            // Active press - tactile feel for all devices
             'active:scale-[0.98] active:bg-slate-100 dark:active:bg-slate-600'
         );
     };

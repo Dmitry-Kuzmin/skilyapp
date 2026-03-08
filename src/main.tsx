@@ -9,6 +9,12 @@ import "./index.css";
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
 
+declare global {
+  interface Window {
+    _mainLoaded?: boolean;
+  }
+}
+
 // КРИТИЧНО: Помечаем, что main.tsx загрузился (как можно раньше!)
 if (typeof window !== 'undefined') {
   window._mainLoaded = true;
@@ -16,6 +22,7 @@ if (typeof window !== 'undefined') {
 
 // ОПТИМИЗАЦИЯ DEV: Дросселируем console.log чтобы 1925 логов не фризили JS-поток
 // В production они дропаются esbuild'ом, в dev — throttle 50ms
+/* 
 if (import.meta.env.DEV) {
   const origLog = console.log.bind(console);
   let _lastLog = 0;
@@ -27,6 +34,7 @@ if (import.meta.env.DEV) {
     }
   };
 }
+*/
 
 // Initialize Telegram Mock for localhost development
 if (import.meta.env.DEV) {
@@ -161,7 +169,9 @@ if (performanceMonitor && typeof window !== 'undefined') {
     const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     if (nav) {
       const loadTime = nav.loadEventEnd - nav.fetchStart;
-      performanceMonitor.recordMetric('page-load', loadTime);
+      if (performanceMonitor) {
+        performanceMonitor.recordMetric('page-load', loadTime);
+      }
       if (loadTime > 3000) {
         console.warn(`[Performance] Slow page load: ${loadTime.toFixed(2)}ms`);
       }
@@ -175,7 +185,7 @@ if (performanceMonitor && typeof window !== 'undefined') {
 
   window.addEventListener('load', () => {
     const navigationTime = performance.now() - navigationStart;
-    if (navigationTime > 0 && navigationTime < 10000) {
+    if (navigationTime > 0 && navigationTime < 10000 && performanceMonitor) {
       performanceMonitor.recordMetric('navigation-time', navigationTime);
     }
   });

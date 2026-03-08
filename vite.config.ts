@@ -81,6 +81,7 @@ export default defineConfig(({ mode }) => {
       alias: {
         "@": path.resolve(__dirname, "./src"),
       },
+      dedupe: ['react', 'react-dom'],
     },
     build: {
       // КРИТИЧНО: Используем esbuild с более консервативными настройками
@@ -113,7 +114,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes('framer-motion')) {
               return true;
             }
-            return 'no-external'; // Разрешаем side effects для внутренних модулей
+            return true; // Разрешаем side effects для внутренних модулей
           },
           propertyReadSideEffects: false,
           tryCatchDeoptimization: false,
@@ -255,6 +256,7 @@ export default defineConfig(({ mode }) => {
         'react/jsx-runtime',
         'react-dom/client',
         'react-router-dom',
+        'next-themes',
         '@tanstack/react-query',
         'framer-motion',
         '@fingerprintjs/fingerprintjs', // Добавляем FingerprintJS для правильной обработки

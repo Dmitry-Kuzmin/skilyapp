@@ -367,16 +367,30 @@
         document.createElement = function (tagName) {
           const element = originalCreateElement.call(document, tagName);
           if (tagName.toLowerCase() === 'script') {
-            Object.defineProperty(element, 'src', {
-              set: function (url) {
-                if (url && (typeof url === 'string') && (url.includes('monetag') || url.includes('groleegni') || url.includes('gizokraijaw') || url.includes('vignette'))) {
-                  console.warn('[Dev] 🛡️ Blocked Ad Script (createElement):', url);
-                  return; // Block assignment
-                }
-                this.setAttribute('src', url);
-              },
-              get: function () { return this.getAttribute('src'); }
-            });
+            const originalSetAttribute = element.setAttribute;
+            element.setAttribute = function (name, value) {
+              if (name === 'src' && value && (typeof value === 'string') && (value.includes('monetag') || value.includes('groleegni') || value.includes('gizokraijaw') || value.includes('vignette'))) {
+                console.warn('[Dev] 🛡️ Blocked Ad Script (setAttribute):', value);
+                return;
+              }
+              return originalSetAttribute.apply(this, arguments);
+            };
+
+            // Use Property Descriptor to intercept .src but maintain native behavior for proxying
+            const descriptor = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+            if (descriptor) {
+              Object.defineProperty(element, 'src', {
+                get: function () { return descriptor.get.call(this); },
+                set: function (url) {
+                  if (url && (typeof url === 'string') && (url.includes('monetag') || url.includes('groleegni') || url.includes('gizokraijaw') || url.includes('vignette'))) {
+                    console.warn('[Dev] 🛡️ Blocked Ad Script (src property):', url);
+                    return;
+                  }
+                  descriptor.set.call(this, url);
+                },
+                configurable: true
+              });
+            }
           }
           return element;
         };
@@ -385,9 +399,8 @@
         const isAdScript = (node) => {
           if (node && node.tagName === 'SCRIPT') {
             const src = node.src || node.getAttribute('src');
-            if (src && (src.includes('monetag') || src.includes('groleegni') || src.includes('gizokraijaw') || src.includes('vignette'))) {
+            if (src && (typeof src === 'string') && (src.includes('monetag') || src.includes('groleegni') || src.includes('gizokraijaw') || src.includes('vignette'))) {
               console.warn('[Dev] 🛡️ Blocked Ad Script (DOM Injection):', src);
-              if (node.parentNode) node.remove(); // Remove if already attached
               return true;
             }
           }

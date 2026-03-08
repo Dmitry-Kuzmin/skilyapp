@@ -86,13 +86,10 @@ export const QuestionCard = ({
         : (testLanguage === 'en' ? (currentQuestion.explanation_en || currentQuestion.explanation_es) : currentQuestion.explanation_es);
 
     const handleShowExplanation = useCallback(() => {
+        handleOpenAIChat(); // Always open chat on click as requested
         if (explanationText) {
             setShowExplanation(true);
             setExplanationKey(prev => prev + 1);
-            // The timer for auto-closing is now handled by the Popover's internal state or a separate mechanism if desired.
-            // For now, we'll let the user close it or rely on the Popover's default behavior.
-        } else {
-            handleOpenAIChat(); // If no explanation text, open chat directly
         }
     }, [explanationText, handleOpenAIChat]);
 
