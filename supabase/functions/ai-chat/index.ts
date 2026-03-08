@@ -90,6 +90,8 @@ Only compare with Russian rules when it adds value. Format:
 2. ПРЕМИУМ-ПОДПИСКА (PRO): [WIDGET:CTA:PREMIUM:<Твой текст>]
    Например: [WIDGET:CTA:PREMIUM:Открой безлимитные разборы ошибок!]
    Вставляй этот тег, если считаешь, что пользователю сейчас нужна помощь расширенной версии приложения.
+3. TON CONNECT (WALLET): [WIDGET:TON:CONNECT]
+   Используй этот тег, если видишь, что у пользователя НЕ подключен кошелек (через инструмент get_user_stats), или если пользователь спрашивает, как оплатить TON/Звездами.
 `;
 
   const premiumFeatures = `
@@ -269,7 +271,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
 
           let toolResult: any = {};
           try {
-            const { data: profile } = await supabaseClient.from('profiles').select('id, xp, coins, duel_pass_level').or(`id.eq.${userId},user_id.eq.${userId}`).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('id, xp, coins, duel_pass_level, ton_wallet_address').or(`id.eq.${userId},user_id.eq.${userId}`).single();
             const { data: sessions } = await supabaseClient.from('game_sessions').select('score, total_questions, game_type, created_at').eq('user_id', profile?.id || userId).order('created_at', { ascending: false }).limit(5);
             toolResult = {
               user_stats: profile || null,

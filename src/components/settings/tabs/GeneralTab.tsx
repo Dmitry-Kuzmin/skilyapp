@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { triggerHaptic } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 import { CyberSwitch } from '../ui/CyberSwitch';
+import { TonConnectButton } from '@tonconnect/ui-react';
 
 // === COMPONENTS ===
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
@@ -192,6 +193,47 @@ export const GeneralTab: React.FC = () => {
                     />
                 </SettingRow>
             </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-700" />
+
+            {/* TON integration */}
+            <div className="pt-2">
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                        <img src="https://ton.org/download/ton_symbol.svg" className="w-5 h-5" alt="TON" />
+                    </div>
+                    <h3 className="text-xs font-bold text-blue-500 uppercase tracking-widest tracking-tighter">
+                        TON Ecosystem
+                    </h3>
+                </div>
+                <div className="bg-blue-500/5 rounded-2xl border border-blue-500/10 overflow-hidden">
+                    <div className="p-4 space-y-3">
+                        <div className="flex items-start gap-3">
+                            <div className="p-2 bg-blue-500/10 rounded-lg shrink-0">
+                                <Zap className="w-4 h-4 text-blue-500" />
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Smart Payments</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Подключи кошелек для мгновенных покупок подсказок и Premium в 1 клик через TON.</p>
+                            </div>
+                        </div>
+                        <div className="ton-connect-wrapper w-full flex justify-center">
+                            <TonConnectButton />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>{`
+              .ton-connect-wrapper button {
+                width: 100% !important;
+                min-width: 200px !important;
+                border-radius: 12px !important;
+                background-color: #0088cc !important;
+                color: white !important;
+                font-weight: 600 !important;
+                justify-content: center !important;
+              }
+            `}</style>
         </div>
     );
 };

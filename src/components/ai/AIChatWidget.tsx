@@ -9,8 +9,9 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap } from 'lucide-react';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
+import { TonConnectButton as TonConnectUIBtn } from '@tonconnect/ui-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -35,27 +36,99 @@ type MarkdownProps = {
     className?: string;
 };
 
-const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => (
-    <div className={cn("text-sm leading-relaxed", className)}>
-        <ReactMarkdown
-            components={{
-                p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
-                li: ({ children }) => <li className="mb-1">{children}</li>,
-                strong: ({ children }) => (
-                    <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
-                ),
-                em: ({ children }) => (
-                    <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
-                ),
-                code: ({ children }) => <code className="bg-muted px-1 rounded text-xs">{children}</code>,
-            }}
-        >
-            {children}
-        </ReactMarkdown>
-    </div>
-);
+const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
+    // Регулярка для поиска виджетов
+    const WIDGET_REGEX = /\[WIDGET:(SIGN|CTA|TON):([^\]]+)\]/g;
+
+    // Если виджетов нет — просто рендерим Markdown
+    if (!children.match(WIDGET_REGEX)) {
+        return (
+            <div className={cn("text-sm leading-relaxed", className)}>
+                <ReactMarkdown
+                    components={{
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
+                        li: ({ children }) => <li className="mb-1">{children}</li>,
+                        strong: ({ children }) => (
+                            <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
+                        ),
+                        em: ({ children }) => (
+                            <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
+                        ),
+                        code: ({ children }) => <code className="bg-muted px-1 rounded text-xs">{children}</code>,
+                    }}
+                >
+                    {children}
+                </ReactMarkdown>
+            </div>
+        );
+    }
+
+    // Парсим текст на части (текст и виджеты)
+    const parts = children.split(WIDGET_REGEX);
+    const elements: React.ReactNode[] = [];
+
+    let i = 0;
+    while (i < parts.length) {
+        // Добавляем текст (Markdown)
+        const textPart = parts[i];
+        if (textPart && textPart.trim()) {
+            elements.push(
+                <div key={`text-${i}`} className={cn("text-sm leading-relaxed", className)}>
+                    <ReactMarkdown
+                        components={{
+                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                            strong: ({ children }) => <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>,
+                            em: ({ children }) => <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>,
+                        }}
+                    >
+                        {textPart}
+                    </ReactMarkdown>
+                </div>
+            );
+        }
+
+        // Если есть виджет (тип и параметр)
+        const type = parts[i + 1];
+        const param = parts[i + 2];
+
+        if (type) {
+            if (type === 'TON' && param === 'CONNECT') {
+                elements.push(
+                    <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Zap className="w-4 h-4 text-blue-500" />
+                            <span className="text-xs font-bold text-blue-500 uppercase">TON Connect</span>
+                        </div>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Подключи TON-кошелек для быстрой оплаты и бонусов.</p>
+                        <div className="flex justify-center [&_button]:!rounded-xl [&_button]:!h-10">
+                            <TonConnectUIBtn />
+                        </div>
+                    </div>
+                );
+            } else if (type === 'CTA' && param.startsWith('PREMIUM')) {
+                const ctaText = param.split(':').slice(1).join(':') || 'Активировать Premium';
+                elements.push(
+                    <div key={`widget-${i}`} className="my-4">
+                        <Button
+                            className="w-full h-12 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-bold rounded-xl shadow-lg border-none"
+                            onClick={() => window.location.hash = '#pricing'}
+                        >
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            {ctaText}
+                        </Button>
+                    </div>
+                );
+            }
+            // ЗНАКИ (SIGN) можно добавить аналогично, если есть база знаков
+        }
+
+        i += 3; // Пропускаем тип и параметр
+    }
+
+    return <div className="space-y-2">{elements}</div>;
+};
 
 /**
  * Хук для стабильного отслеживания высоты viewport на iOS/Telegram.
