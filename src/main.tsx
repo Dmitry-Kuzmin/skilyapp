@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { CountryProvider } from "./contexts/CountryContext";
@@ -8,6 +9,7 @@ import "./index.css";
 // ОПТИМИЗАЦИЯ: animations.css lazy load (не блокирует FCP)
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
+import TMAAnalytics from "@telegram-apps/analytics";
 
 declare global {
   interface Window {
@@ -18,6 +20,20 @@ declare global {
 // КРИТИЧНО: Помечаем, что main.tsx загрузился (как можно раньше!)
 if (typeof window !== 'undefined') {
   window._mainLoaded = true;
+
+  // Инициализация TON Analytics (максимально рано)
+  const tonAnalyticsKey = import.meta.env.VITE_TON_ANALYTICS_KEY;
+  if (tonAnalyticsKey) {
+    try {
+      TMAAnalytics.init({
+        token: tonAnalyticsKey,
+        appName: 'skilyapp',
+        env: import.meta.env.PROD ? 'PROD' : 'STG',
+      }).catch(e => console.error('[TMA Analytics] Init promise error:', e));
+    } catch (e) {
+      console.error('[TMA Analytics] Sync error:', e);
+    }
+  }
 }
 
 // ОПТИМИЗАЦИЯ DEV: Дросселируем console.log чтобы 1925 логов не фризили JS-поток
@@ -380,13 +396,15 @@ try {
 
   root.render(
     <ErrorBoundary>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        <LanguageProvider>
-          <CountryProvider>
-            <App />
-          </CountryProvider>
-        </LanguageProvider>
-      </ThemeProvider>
+      <TonConnectUIProvider manifestUrl="https://sdadim.com/tonconnect-manifest.json">
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <LanguageProvider>
+            <CountryProvider>
+              <App />
+            </CountryProvider>
+          </LanguageProvider>
+        </ThemeProvider>
+      </TonConnectUIProvider>
     </ErrorBoundary>
   );
 
