@@ -94,19 +94,56 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
         const param = parts[i + 2];
 
         if (type) {
-            if (type === 'TON' && param === 'CONNECT') {
-                elements.push(
-                    <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-3">
-                        <div className="flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-blue-500" />
-                            <span className="text-xs font-bold text-blue-500 uppercase">TON Connect</span>
+            if (type === 'TON') {
+                if (param === 'CONNECT' || param === 'WALLET:LOGIN') {
+                    elements.push(
+                        <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-3">
+                            <div className="flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-blue-500" />
+                                <span className="text-xs font-bold text-blue-500 uppercase">WalletKit Login</span>
+                            </div>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">1-click авторизация в экосистему Skily через TON.</p>
+                            <div className="flex justify-center [&_button]:!rounded-xl [&_button]:!h-10">
+                                <TonConnectUIBtn />
+                            </div>
                         </div>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">Подключи TON-кошелек для быстрой оплаты и бонусов.</p>
-                        <div className="flex justify-center [&_button]:!rounded-xl [&_button]:!h-10">
-                            <TonConnectUIBtn />
+                    );
+                } else if (param.startsWith('PAY:')) {
+                    const payParts = param.split(':');
+                    const amount = payParts[1] || '0.1';
+                    const reason = payParts.slice(2).join(':') || 'Оплата';
+                    elements.push(
+                        <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-3">
+                            <div className="flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-emerald-500" />
+                                <span className="text-xs font-bold text-emerald-500 uppercase">TON Pay 2.0 (L2)</span>
+                            </div>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{reason}</p>
+                            <Button
+                                className="w-full bg-[#0088cc] hover:bg-[#0088cc]/90 text-white font-bold h-10 rounded-xl"
+                                onClick={() => {
+                                    // Simulated L2 transaction
+                                    setTimeout(() => alert(`Оплата ${amount} TON успешно проведена (TON Pay 2.0 Demo)!`), 500);
+                                }}
+                            >
+                                Купить за {amount} TON
+                            </Button>
                         </div>
-                    </div>
-                );
+                    );
+                } else if (param === 'AGENT:PROGRESS') {
+                    elements.push(
+                        <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-3">
+                            <div className="flex items-center gap-2">
+                                <Zap className="w-4 h-4 text-purple-500 animate-pulse" />
+                                <span className="text-xs font-bold text-purple-500 uppercase">AgenticKit Link</span>
+                            </div>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">Сохраняем твой прогресс обучения в смарт-контракт.</p>
+                            <Button variant="outline" className="w-full h-10 rounded-xl text-purple-600 border-purple-200 hover:bg-purple-50">
+                                Зафиксировать прогресс (Web3)
+                            </Button>
+                        </div>
+                    );
+                }
             } else if (type === 'CTA' && param.startsWith('PREMIUM')) {
                 const ctaText = param.split(':').slice(1).join(':') || 'Активировать Premium';
                 elements.push(
