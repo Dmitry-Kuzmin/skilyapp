@@ -97,14 +97,42 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
             if (type === 'TON') {
                 if (param === 'CONNECT' || param === 'WALLET:LOGIN') {
                     elements.push(
-                        <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20 space-y-3">
-                            <div className="flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-blue-500" />
-                                <span className="text-xs font-bold text-blue-500 uppercase">WalletKit Login</span>
+                        <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Zap className="w-4 h-4 text-blue-500" />
+                                    <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">TON Ecosystem 2026</span>
+                                </div>
+                                <span className="text-[10px] bg-blue-500/20 text-blue-600 px-2 py-0.5 rounded-full font-bold">ALPHA</span>
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">1-click авторизация в экосистему Skily через TON.</p>
-                            <div className="flex justify-center [&_button]:!rounded-xl [&_button]:!h-10">
-                                <TonConnectUIBtn />
+
+                            <div className="space-y-3">
+                                {/* WalletKit Section */}
+                                <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-blue-200/30 dark:border-white/10">
+                                    <p className="text-[11px] font-bold mb-2 opacity-70">WalletKit Login</p>
+                                    <div className="flex justify-center [&_button]:!h-10">
+                                        <TonConnectUIBtn />
+                                    </div>
+                                </div>
+
+                                {/* TON Pay Section */}
+                                <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-emerald-200/30 dark:border-white/10">
+                                    <p className="text-[11px] font-bold mb-2 text-emerald-600">TON Pay 2.0 (L2)</p>
+                                    <Button
+                                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-10 rounded-xl text-xs font-bold"
+                                        onClick={() => alert('Демо-платеж TON Pay 2.0 запущен!')}
+                                    >
+                                        Купить 10 разборов (0.1 TON)
+                                    </Button>
+                                </div>
+
+                                {/* AgenticKit Section */}
+                                <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-purple-200/30 dark:border-white/10 text-center">
+                                    <p className="text-[11px] font-bold mb-2 text-purple-600">AgenticKit Link</p>
+                                    <Button variant="ghost" className="w-full h-9 rounded-lg text-xs font-bold text-purple-600 hover:bg-purple-100/50">
+                                        Зафиксировать прогресс (Web3)
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     );
