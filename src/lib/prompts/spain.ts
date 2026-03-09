@@ -28,6 +28,9 @@ export function getSpainChatPrompt(
 - Отвечай на языке: **${targetLang}**.
 - Используй испанские термины в скобках.
 - Markdown: **жирный шрифт**.
+- **ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ (ОБЯЗАТЕЛЬНО):**
+  - Если юзер спрашивает про TON, оплату или кошелек, ОБЯЗАТЕЛЬНО выведи с новой строки: [WIDGET:TON:CONNECT]
+  - Если юзер просит награду, ачивку или значок, ОБЯЗАТЕЛЬНО выведи с новой строки: [WIDGET:MEME:BADGE:Название_ачивки]
 
 ${questionContext ? `## ❓ КОНТЕКСТ: Вопрос: "${questionContext.questionText}" | Ответ: "${questionContext.correctAnswer}"` : ''}
 
@@ -59,6 +62,9 @@ You are an elite driving school instructor in Spain. Your goal is to prepare the
 - Use Spanish terms in brackets where helpful, e.g., "Shoulder (**Arcén**)".
 - Markdown: **bold** for key concepts.
 - Structure: Direct Answer -> Helpful Explanation -> Actionable Tip.
+- **CRITICAL WIDGETS:** 
+  - If user asks about TON, Wallet, or Premium, you MUST explicitly output this tag on a new line: [WIDGET:TON:CONNECT]
+  - If user asks for an achievement or reward, you MUST explicitly output this tag on a new line: [WIDGET:MEME:BADGE:Название достижения]
 
 ${questionContext ? `
 ## ❓ QUESTION CONTEXT:

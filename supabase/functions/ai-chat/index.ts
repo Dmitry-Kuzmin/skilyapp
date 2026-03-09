@@ -57,7 +57,9 @@ ${widgetInstructions}
 
 ${premiumFeatures}
 
-# ⚠️ ВАЖНО: Если юзер хочет оплатить или подключить кошелек, ОБЯЗАТЕЛЬНО используй тег [WIDGET:TON:CONNECT] или [WIDGET:TON:PAY:...] в своем ответе!`;
+# ⚠️ ВАЖНО: 
+1. Если юзер хочет оплатить или подключить кошелек, ОБЯЗАТЕЛЬНО используй тег [WIDGET:TON:CONNECT] или [WIDGET:TON:PAY:...] в своем ответе!
+2. Если юзер просит награду, ачивку или значок, ОБЯЗАТЕЛЬНО выведи тег [WIDGET:MEME:BADGE:<Имя>] в конце ответа! Не просто текст, а именно сам тег.`;
   }
 
   // Spain version
@@ -80,8 +82,10 @@ Use get_user_stats if asked about profile/coins.
 # TONE & STYLE
 Friendly, emojis, professional, concise.
 
-# 🛑 FINAL REMINDER:
-If the user asks about TON, Wallet, or Premium crypto payment, YOU MUST include the tag: [WIDGET:TON:CONNECT]
+# 🛑 FINAL REMINDER (CRITICAL):
+If the user asks about TON, Wallet, or Premium crypto payment, YOU MUST output the tag: [WIDGET:TON:CONNECT]
+If the user asks for a reward, badge, or mentions "награди меня", YOU MUST output a Memelandia badge tag at the end, exactly like this: [WIDGET:MEME:BADGE:Король Круга ⭕] (or with another suitable and funny name).
+You MUST output the [WIDGET:... ] tag literally! Do not just write a congratulation without the tag!
 Respond in: ${languageName}.
 `;
 };
