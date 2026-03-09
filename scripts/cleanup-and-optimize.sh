@@ -37,10 +37,12 @@ cd "$PROJECT_DIR" || exit 1
 log "1. Остановка фонового мусора..."
 force_kill "vite"
 force_kill "npm.*dev"
-force_kill "Google Chrome Helper"
-force_kill "Safari"
-force_kill "com.apple.WebKit.WebContent"
-log "   ✓ Сторонние процессы остановлены"
+# УДАЛЕНО: Больше не убиваем браузеры пользователя!
+# force_kill "Google Chrome Helper"
+# force_kill "Safari"
+# force_kill "com.apple.WebKit.WebContent"
+force_kill "language_server_macos_arm" # Убиваем раздувшийся сервер Cursor
+log "   ✓ Процессы разработки остановлены (браузеры не затронуты)"
 
 # 2. Очистка логов Cursor/Antigravity (осторожно - только старые файлы)
 log "2. Очистка логов..."

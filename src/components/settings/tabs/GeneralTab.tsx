@@ -109,7 +109,7 @@ export const GeneralTab: React.FC = () => {
         <div className="space-y-6">
             {/* Язык */}
             <div>
-                <SectionTitle title={t('settings.language')} />
+                <SectionTitle title={t('unifiedSettings.language')} />
                 <div className="grid grid-cols-3 gap-2">
                     {[
                         { id: 'ru', label: 'Русский', flag: '🇷🇺' },
@@ -143,12 +143,12 @@ export const GeneralTab: React.FC = () => {
 
             {/* Тема */}
             <div>
-                <SectionTitle title={t('settings.appearance')} />
+                <SectionTitle title={t('unifiedSettings.appearance')} />
                 <div className="grid grid-cols-3 gap-2">
                     {[
-                        { id: 'light', label: t('settings.themeLight'), icon: <Sun className="w-5 h-5" /> },
-                        { id: 'dark', label: t('settings.themeDark'), icon: <Moon className="w-5 h-5" /> },
-                        { id: 'system', label: t('settings.themeSystem'), icon: <Smartphone className="w-5 h-5" /> },
+                        { id: 'light', label: t('unifiedSettings.themeLight'), icon: <Sun className="w-5 h-5" /> },
+                        { id: 'dark', label: t('unifiedSettings.themeDark'), icon: <Moon className="w-5 h-5" /> },
+                        { id: 'system', label: t('unifiedSettings.themeSystem'), icon: <Smartphone className="w-5 h-5" /> },
                     ].map((t_mode) => (
                         <button
                             key={t_mode.id}
@@ -181,11 +181,11 @@ export const GeneralTab: React.FC = () => {
 
             {/* Производительность */}
             <div>
-                <SectionTitle title={t('settings.performance')} />
+                <SectionTitle title={t('unifiedSettings.performance')} />
                 <SettingRow
                     icon={<Zap className={performanceMode ? 'w-4 h-4 text-amber-500' : 'w-4 h-4 text-slate-400'} />}
-                    label={t('settings.powerSaver')}
-                    description={t('settings.powerSaverDesc')}
+                    label={t('unifiedSettings.powerSaver')}
+                    description={t('unifiedSettings.powerSaverDesc')}
                 >
                     <CyberSwitch
                         checked={performanceMode}

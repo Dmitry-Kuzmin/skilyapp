@@ -1082,6 +1082,41 @@ export const en = {
     performanceToast: {
       on: "Power saver mode enabled",
       off: "Full effects enabled"
+    },
+    cockpitKeys: {
+      audio: "Audio",
+      soundEffects: "Sound Effects",
+      interfaceSounds: "Interface and game sounds",
+      volume: "Volume",
+      haptics: "Haptic Feedback",
+      vibration: "Vibration",
+      hapticFeedback: "Touch response",
+      gameSettings: "Game Settings",
+      aiHints: "AI Hints",
+      testHelp: "Help in tests",
+      duelNotifications: "Duel Notifications",
+      duelDescription: "Challenges and results",
+      soundOn: "Sound enabled",
+      soundOff: "Sound disabled",
+      hapticOn: "Haptics enabled",
+      hapticOff: "Haptics disabled",
+      aiHintsOn: "AI hints enabled",
+      aiHintsOff: "AI hints disabled",
+      duelNotificationsOn: "Notifications enabled",
+      duelNotificationsOff: "Notifications disabled"
+    },
+    dataKeys: {
+      cache: "Cache and Storage",
+      localCache: "Local Cache",
+      localCacheDesc: "Speeds up application load",
+      clear: "Clear",
+      development: "Development",
+      swActive: "Service Worker active",
+      swDesc: "Use if having issues with outdated code",
+      clearSw: "Clear Service Worker and cache",
+      clearing: "Clearing...",
+      cacheCleared: "All cache cleared!",
+      reloadDesc: "The page will reload"
     }
   },
   nav: {

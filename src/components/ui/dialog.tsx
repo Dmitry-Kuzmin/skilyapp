@@ -21,11 +21,11 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-[100000] bg-black/95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-150",
+      "fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md transition-all duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-150",
       className,
     )}
     style={{
-      willChange: "opacity",
+      willChange: "opacity, backdrop-filter",
     }}
     {...props}
   />
@@ -47,7 +47,8 @@ const DialogContent = React.forwardRef<
 >(({ className, children, hideCloseButton = false, modalType = 'default', autoAccessibility = true, fullscreen = false, preventClose = false, ...props }, ref) => {
   const isMobile = useIsMobile();
   const config = getModalConfig(modalType);
-  const sizeConfig = isMobile ? config.mobile : config.desktop;
+  // Используем приведение типа, чтобы избежать проблем с отсутствующим maxWidth на мобильных
+  const sizeConfig = (isMobile ? config.mobile : config.desktop) as { maxWidth?: string; maxHeight?: string };
 
   // Полноэкранный режим
   if (fullscreen) {
@@ -144,12 +145,12 @@ const DialogContent = React.forwardRef<
     <DialogPortal>
       <DialogOverlay />
       {/* Обёртка для центрирования без transform (избегаем stacking context проблем) */}
-      <div className="fixed inset-0 z-[100000] flex items-center justify-center pointer-events-none">
+      <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
         <DialogPrimitive.Content
           ref={ref}
           className={cn(
             // Базовые стили для dialog (премиум стиль)
-            "relative z-[100000] grid w-full gap-4 p-6 duration-200 pointer-events-auto",
+            "relative z-50 grid w-full gap-4 p-6 duration-200 pointer-events-auto",
             // Максимальная ширина
             sizeConfig.maxWidth || "max-w-lg",
             // Максимальная высота

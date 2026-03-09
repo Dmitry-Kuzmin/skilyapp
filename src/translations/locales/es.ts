@@ -574,6 +574,7 @@ export const es = {
     notConnected: "No conectado",
     appearance: "Apariencia",
     proBadge: "PRO",
+    logout: "Cerrar sesión",
     toasts: {
       settingsSaved: "Configuración guardada",
       settingsFailed: "No se pudo guardar la configuración",
@@ -1083,6 +1084,41 @@ export const es = {
     performanceToast: {
       on: "Ahorro de energía activado",
       off: "Efectos completos activados"
+    },
+    cockpitKeys: {
+      audio: "Audio",
+      soundEffects: "Efectos de sonido",
+      interfaceSounds: "Sonidos de interfaz y juegos",
+      volume: "Volumen",
+      haptics: "Respuesta táctil",
+      vibration: "Vibración",
+      hapticFeedback: "Respuesta al tocar",
+      gameSettings: "Ajustes de juego",
+      aiHints: "Sugerencias AI",
+      testHelp: "Ayuda en los tests",
+      duelNotifications: "Notificaciones de duelo",
+      duelDescription: "Desafíos y resultados",
+      soundOn: "Sonido activado",
+      soundOff: "Sonido desactivado",
+      hapticOn: "Vibración activada",
+      hapticOff: "Vibración desactivada",
+      aiHintsOn: "Sugerencias AI activadas",
+      aiHintsOff: "Sugerencias AI desactivadas",
+      duelNotificationsOn: "Notificaciones activadas",
+      duelNotificationsOff: "Notificaciones desactivadas"
+    },
+    dataKeys: {
+      cache: "Caché y Almacenamiento",
+      localCache: "Caché Local",
+      localCacheDesc: "Acelera la carga de la aplicación",
+      clear: "Limpiar",
+      development: "Desarrollo",
+      swActive: "Service Worker activo",
+      swDesc: "Usar si hay problemas con código antiguo",
+      clearSw: "Limpiar Service Worker y caché",
+      clearing: "Limpiando...",
+      cacheCleared: "¡Caché limpiada con éxito!",
+      reloadDesc: "La página se recargará"
     }
   },
   notifications: {
@@ -1101,14 +1137,6 @@ export const es = {
   },
   nav: {
     invite: "Invitar"
-  },
-  profileMenu: {
-    xpLabel: "Experiencia XP",
-    xpDescription: "Sube de nivel para desbloquear premios",
-    inventory: "Inventario",
-    invite: "Invitar amigos",
-    proBadge: "PRO",
-    logout: "Cerrar sesión"
   },
   telemetry: {
     title: "Telemetría Skily",

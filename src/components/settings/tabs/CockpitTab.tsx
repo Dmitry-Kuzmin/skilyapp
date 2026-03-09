@@ -13,6 +13,7 @@ import { triggerHaptic } from '@/lib/haptics';
 import { toast } from 'sonner';
 import { CyberSwitch } from '../ui/CyberSwitch';
 import { CyberSlider } from '../ui/CyberSlider';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // === COMPONENTS ===
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
@@ -46,6 +47,7 @@ const SettingRow: React.FC<{
 );
 
 export const CockpitTab: React.FC = () => {
+    const { t } = useLanguage();
     const {
         soundEnabled,
         soundVolume,
@@ -64,7 +66,10 @@ export const CockpitTab: React.FC = () => {
         toggleSound();
         sounds.setEnabled?.(!soundEnabled);
         if (!soundEnabled) sounds.playClick?.(1000, 0.1);
-        toast.success(soundEnabled ? 'Звук выключен' : 'Звук включён', { duration: 1500 });
+
+        const labelOn = t('unifiedSettings.cockpitKeys.soundOn');
+        const labelOff = t('unifiedSettings.cockpitKeys.soundOff');
+        toast.success(soundEnabled ? labelOff : labelOn, { duration: 1500 });
     };
 
     const handleVolumeChange = (value: number) => {
@@ -77,31 +82,37 @@ export const CockpitTab: React.FC = () => {
         if (!hapticEnabled) {
             triggerHaptic('success');
         }
-        toast.success(hapticEnabled ? 'Вибрация выключена' : 'Вибрация включена', { duration: 1500 });
+        const labelOn = t('unifiedSettings.cockpitKeys.hapticOn');
+        const labelOff = t('unifiedSettings.cockpitKeys.hapticOff');
+        toast.success(hapticEnabled ? labelOff : labelOn, { duration: 1500 });
     };
 
     const handleAdasToggle = () => {
         triggerHaptic('medium');
         toggleAdasHints();
-        toast.success(adasHints ? 'AI-подсказки выключены' : 'AI-подсказки включены', { duration: 1500 });
+        const labelOn = t('unifiedSettings.cockpitKeys.aiHintsOn');
+        const labelOff = t('unifiedSettings.cockpitKeys.aiHintsOff');
+        toast.success(adasHints ? labelOff : labelOn, { duration: 1500 });
     };
 
     const handleNotificationsToggle = () => {
         triggerHaptic('medium');
         toggleDuelNotifications();
-        toast.success(duelNotifications ? 'Уведомления выключены' : 'Уведомления включены', { duration: 1500 });
+        const labelOn = t('unifiedSettings.cockpitKeys.duelNotificationsOn');
+        const labelOff = t('unifiedSettings.cockpitKeys.duelNotificationsOff');
+        toast.success(duelNotifications ? labelOff : labelOn, { duration: 1500 });
     };
 
     return (
         <div className="space-y-6">
             {/* Аудио */}
             <div>
-                <SectionTitle title="Аудио" />
+                <SectionTitle title={t('unifiedSettings.cockpitKeys.audio')} />
                 <div className="space-y-4">
                     <SettingRow
                         icon={soundEnabled ? <Volume2 className="w-4 h-4 text-emerald-500" /> : <VolumeX className="w-4 h-4 text-slate-400" />}
-                        label="Звуковые эффекты"
-                        description="Звуки интерфейса и игр"
+                        label={t('unifiedSettings.cockpitKeys.soundEffects')}
+                        description={t('unifiedSettings.cockpitKeys.interfaceSounds')}
                     >
                         <CyberSwitch
                             checked={soundEnabled}
@@ -114,7 +125,7 @@ export const CockpitTab: React.FC = () => {
                             <CyberSlider
                                 value={soundVolume}
                                 onValueChange={handleVolumeChange}
-                                label="Громкость"
+                                label={t('unifiedSettings.cockpitKeys.volume')}
                             />
                         </div>
                     )}
@@ -125,11 +136,11 @@ export const CockpitTab: React.FC = () => {
 
             {/* Haptics */}
             <div>
-                <SectionTitle title="Тактильная отдача" />
+                <SectionTitle title={t('unifiedSettings.cockpitKeys.haptics')} />
                 <SettingRow
                     icon={<Vibrate className={hapticEnabled ? 'w-4 h-4 text-purple-500' : 'w-4 h-4 text-slate-400'} />}
-                    label="Вибрация"
-                    description="Отклик на касания"
+                    label={t('unifiedSettings.cockpitKeys.vibration')}
+                    description={t('unifiedSettings.cockpitKeys.hapticFeedback')}
                 >
                     <CyberSwitch
                         checked={hapticEnabled}
@@ -142,12 +153,12 @@ export const CockpitTab: React.FC = () => {
 
             {/* Game HUD */}
             <div>
-                <SectionTitle title="Игровые настройки" />
+                <SectionTitle title={t('unifiedSettings.cockpitKeys.gameSettings')} />
                 <div className="space-y-1">
                     <SettingRow
                         icon={<Sparkles className={adasHints ? 'w-4 h-4 text-cyan-500' : 'w-4 h-4 text-slate-400'} />}
-                        label="AI-подсказки"
-                        description="Помощь в тестах"
+                        label={t('unifiedSettings.cockpitKeys.aiHints')}
+                        description={t('unifiedSettings.cockpitKeys.testHelp')}
                     >
                         <CyberSwitch
                             checked={adasHints}
@@ -157,8 +168,8 @@ export const CockpitTab: React.FC = () => {
 
                     <SettingRow
                         icon={duelNotifications ? <Bell className="w-4 h-4 text-amber-500" /> : <BellOff className="w-4 h-4 text-slate-400" />}
-                        label="Уведомления о дуэлях"
-                        description="Вызовы и результаты"
+                        label={t('unifiedSettings.cockpitKeys.duelNotifications')}
+                        description={t('unifiedSettings.cockpitKeys.duelDescription')}
                     >
                         <CyberSwitch
                             checked={duelNotifications}

@@ -1235,29 +1235,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "No, basta con encender la señal de emergencia.",
-          "en": "No, it is enough to turn on the hazard warning lights.",
-          "ru": "Нет, достаточно включить аварийную световую сигнализацию."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Да, на максимально возможной по высоте части транспортного средства.",
           "es": "Sí, en la parte más alta posible del vehículo.",
-          "en": "Yes, on the highest possible part of the vehicle.",
-          "ru": "Да, на максимально возможной по высоте части транспортного средства."
+          "en": "Yes, on the highest possible part of the vehicle."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Нет, достаточно включить аварийную световую сигнализацию.",
+          "es": "No, basta con encender la señal de emergencia.",
+          "en": "No, it is enough to turn on the hazard warning lights."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Да, на задней части транспортного средства.",
           "es": "Sí, en la parte trasera del vehículo.",
-          "en": "Yes, on the rear part of the vehicle.",
-          "ru": "Да, на задней части транспортного средства."
+          "en": "Yes, on the rear part of the vehicle."
         },
         "is_correct": false
       }
@@ -1265,7 +1265,7 @@
     "explanation": {
       "es": "Según el Reglamento General de Vehículos, la señal V-16 (dispositivo luminoso amarillo auto) puede utilizarse opcionalmente para señalizar un vehículo inmovilizado en la calzada o el arcén por emergencia. Desde el 1 de julio de 2021, este dispositivo puede sustituir a los triángulos de preseñalización de peligro. Debe colocarse en la parte más alta posible del vehículo para garantizar su visibilidad en los 360 grados. A partir del 1 de enero de 2026, será obligatorio que el dispositivo cuente con geoposicionamiento.",
       "en": "According to the General Vehicle Regulations, the V-16 signal (yellow hazard warning light device) can be used optionally to signal a vehicle immobilized on the road or shoulder due to an emergency. Since July 1, 2021, this device can replace the hazard warning triangles. It must be placed on the highest possible part of the vehicle to ensure 360-degree visibility. Starting January 1, 2026, it will be mandatory for the device to include geolocation features.",
-      "ru": "🎓 При вынужденной остановке на проезжей части или обочине ты обязан обозначить свой легковой автомобиль. С 1 июля 2021 года в Испании вместо выставления треугольников разрешено использовать магнитный желтый маячок (сигнал V-16). Его нужно закрепить на самой высокой части кузова, обычно на крыше, чтобы свет был виден со всех сторон на 360 градусов. Это значительно безопаснее, так как водителю не нужно выходить из машины и идти по дороге. Важно помнить, что на дорогах с двусторонним движением при использовании старых треугольников их потребовалось бы два (спереди и сзади), но один маячок V-16 заменяет их полностью. С января 2026 года такие устройства станут обязательными и должны будут иметь функцию геолокации.\n\n🇷🇺 В РФ использование подобного маячка не заменяет установку знака аварийной остановки — треугольник остается обязательным.\n\n💡 Маячок на крышу примагнить — жизнь сохранишь и путь осветишь!"
+      "ru": "🎓 При вынужденной остановке на проезжей части или обочине ты обязан обозначить свой легковой автомобиль. С 1 июля 2021 года в Испании вместо выставления треугольников разрешено использовать магнитный желтый маячок (сигнал V-16). Его нужно закрепить на самой высокой части кузова, обычно на крыше, чтобы свет был виден со всех сторон на 360 градусов. Это значительно безопаснее, так как водителю не нужно выходить из машины и идти по дороге. Важно помнить, что на дорогах с двусторонним движением при использовании старых треугольников их потребовалось бы два (спереди и сзади), но один маячок V-16 заменяет их полностью. С января 2026 года такие устройства стали обязательными и должны будут иметь функцию геолокации.\n\n🇷🇺 В РФ использование подобного маячка не заменяет установку знака аварийной остановки — треугольник остается обязательным.\n\n💡 Маячок на крышу примагнить — жизнь сохранишь и путь осветишь!"
     },
     "image_url": "https://teorica.practicavial.com/question/5730e001-1f70-4382-b942-28097e36002b-1657900588-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/5730e001-1f70-4382-b942-28097e36002b-s-1.jpg",

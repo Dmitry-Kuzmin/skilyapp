@@ -4,43 +4,43 @@
     "question_number": 1,
     "category": "B",
     "question": {
-      "es": "¿En caso de no disponer del dispositivo luminoso V-16 y hasta el 1 de enero del 2026, está permitido colocar los triángulos de preseñalización de peligro a menos de 50 metros del vehículo averiado?",
-      "en": "If the V-16 luminous device is not available and until January 1, 2026, is it permitted to place the hazard warning triangles less than 50 meters from the disabled vehicle?",
-      "ru": "Если световое устройство V-16 отсутствует, разрешено ли до 1 января 2026 года устанавливать знаки аварийной остановки (треугольники) на расстоянии менее 50 метров от неисправного транспортного средства?"
+      "es": "La baliza luminosa V-16 conectada, obligatoria desde el 1 de enero de 2026, ¿desde qué distancia mínima debe ser visible?",
+      "en": "From what minimum distance must the connected V-16 luminous beacon, mandatory since January 1, 2026, be visible?",
+      "ru": "На каком минимальном расстоянии должен быть виден подключенный световой сигнал V-16, ставший обязательным с 1 января 2026 года?"
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "No, deben estar al menos a 100 metros.",
-          "en": "No, they must be at least 100 meters away.",
-          "ru": "Нет, они должны находиться на расстоянии не менее 100 метров."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Sí, a esa distancia ya son visibles.",
-          "en": "Yes, they are already visible at that distance.",
-          "ru": "Да, на таком расстоянии они уже видны."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "No.",
-          "en": "No.",
-          "ru": "Нет."
+          "ru": " 1000 метров (1 километр) с углом обзора 360 градусов.",
+          "es": "1.000 metros (1 kilómetro) y en un ángulo de 360 grados.",
+          "en": "1,000 meters (1 kilometer) and at a 360-degree angle."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "100 метров, как у старых знаков аварийной остановки (треугольников).",
+          "es": " 100 metros, igual que los antiguos triángulos de emergencia.",
+          "en": "100 meters, just like the old emergency triangles."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "50 метров спереди и сзади транспортного средства.",
+          "es": "50 metros por delante y por detrás del vehículo.",
+          "en": "50 meters in front of and behind the vehicle."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
-      "es": "Según el Reglamento General de Vehículos, los triángulos de preseñalización de peligro deben colocarse a una distancia mínima de 50 metros del vehículo, de forma que sean visibles desde al menos 100 metros por los conductores que se aproximen. En calzadas de doble sentido y dos o tres carriles, se colocará uno por delante y otro por detrás. En autopistas, autovías o calzadas de sentido único, solo es necesario el trasero. El dispositivo V-16 sustituirá definitivamente a los triángulos el 1 de enero de 2026.",
-      "en": "According to the General Vehicle Regulations, hazard warning triangles must be placed at a minimum distance of 50 meters from the vehicle, ensuring they are visible from at least 100 meters by approaching drivers. On two-way roads with two or three lanes, one must be placed in front and one behind. On motorways, dual carriageways, or one-way roads, only the rear one is required. The V-16 device will permanently replace triangles on January 1, 2026.",
-      "ru": "🎓 При вынужденной остановке на дороге ты обязан обозначить свой легковой автомобиль (Turismo). Если у тебя нет маячка V-16, нужно выставить знаки аварийной остановки. Минимальное расстояние — 50 метров от ТС, чтобы их было видно другим водителям за 100 метров. На дорогах с двусторонним движением (до 3 полос) ставь два знака: спереди и сзади. На Autopista/Autovía или дорогах с односторонним движением достаточно одного знака сзади. Помни: выходить из машины на обочину (Arcén) можно только в светоотражающем жилете. 🇷🇺 В РФ в населенных пунктах знак ставится за 15 метров, вне — за 30 метров. В Испании стандарт строже: минимум 50 метров в любом случае на междугородних трассах. 💡 Пятьдесят метров — знак стоит, за сто метров — его узрит!"
+      "es": "💡 Desde 2026, la baliza V-16 conectada sustituye definitivamente a los triángulos. Su luz amarilla auto intermitente está diseñada para ser visible a 1.000 metros (1 km) de distancia y en 360 grados, mejorando drásticamente la seguridad en comparación con los triángulos, que solo exigían visibilidad a 100 metros.",
+      "en": "💡 As of 2026, the connected V-16 beacon definitively replaces warning triangles. Its flashing yellow light is designed to be visible from 1,000 meters (1 km) away in 360 degrees, drastically improving safety compared to triangles, which only required visibility from 100 meters.",
+      "ru": "💡 С 2026 года подключенный маячок V-16 полностью заменил аварийные треугольники. Его пульсирующий желтый свет спроектирован так, чтобы быть видимым на расстоянии 1000 метров (1 км) во все стороны (360 градусов). Это кардинально повышает безопасность на скоростных трассах по сравнению с треугольниками, которые обеспечивали видимость лишь со 100 метров."
     },
     "image_url": "https://teorica.practicavial.com/question/810477e8-72c4-4e98-8c3e-474e9419b7c7-1657900521-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/810477e8-72c4-4e98-8c3e-474e9419b7c7-s-1.jpg",

@@ -1088,6 +1088,41 @@ export const ru = {
     performanceToast: {
       on: "Экономный режим включён",
       off: "Полные эффекты включены"
+    },
+    cockpitKeys: {
+      audio: "Аудио",
+      soundEffects: "Звуковые эффекты",
+      interfaceSounds: "Звуки интерфейса и игр",
+      volume: "Громкость",
+      haptics: "Тактильная отдача",
+      vibration: "Вибрация",
+      hapticFeedback: "Отклик на касания",
+      gameSettings: "Игровые настройки",
+      aiHints: "AI-подсказки",
+      testHelp: "Помощь в тестах",
+      duelNotifications: "Уведомления о дуэлях",
+      duelDescription: "Вызовы и результаты",
+      soundOn: "Звук включён",
+      soundOff: "Звук выключен",
+      hapticOn: "Вибрация включена",
+      hapticOff: "Вибрация выключена",
+      aiHintsOn: "AI-подсказки включены",
+      aiHintsOff: "AI-подсказки выключены",
+      duelNotificationsOn: "Уведомления включены",
+      duelNotificationsOff: "Уведомления выключены"
+    },
+    dataKeys: {
+      cache: "Кэш и хранилище",
+      localCache: "Локальный кэш",
+      localCacheDesc: "Ускоряет загрузку приложения",
+      clear: "Очистить",
+      development: "Разработка",
+      swActive: "Service Worker активен",
+      swDesc: "Используйте при проблемах с устаревшим кодом",
+      clearSw: "Очистить Service Worker и кэш",
+      clearing: "Очистка...",
+      cacheCleared: "Весь кэш очищен!",
+      reloadDesc: "Страница перезагрузится"
     }
   },
   nav: {

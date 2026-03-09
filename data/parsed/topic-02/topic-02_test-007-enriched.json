@@ -1278,43 +1278,43 @@
     "question_number": 27,
     "category": "B",
     "question": {
-      "es": "Hasta el 1 de enero del 2026, en una calzada de sentido único y en caso de no disponer del dispositivo luminoso V-16, ¿cómo debe colocar los triángulos de preseñalización de peligro?",
-      "en": "Until January 1, 2026, on a one-way carriageway and in case of not having the V-16 luminous device, how must you place the danger warning triangles?",
-      "ru": "До 1 января 2026 года, на проезжей части с односторонним движением и при отсутствии светового сигнала V-16, как следует устанавливать знаки аварийной остановки (треугольники)?"
+      "es": "En caso de inmovilización del vehículo por avería o accidente, ¿dónde y cómo debe colocarse el dispositivo luminoso V-16 conectado?",
+      "en": "In the event of vehicle immobilization due to a breakdown or accident, where and how should the connected V-16 luminous device be placed?",
+      "ru": "В случае вынужденной остановки из-за поломки или аварии, где и как следует устанавливать подключенный световой сигнал V-16?"
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Dos por detrás del vehículo separados por 50 metros.",
-          "en": "Two behind the vehicle separated by 50 meters.",
-          "ru": "Два сзади автомобиля на расстоянии 50 метров друг от друга."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "Uno por detrás del vehículo a 50 metros como mínimo.",
-          "en": "One behind the vehicle at a minimum of 50 meters.",
-          "ru": "Один сзади автомобиля на расстоянии не менее 50 метров."
+          "ru": "На самой высокой части транспортного средства для обеспечения максимальной видимости, не выходя при этом из салона.",
+          "es": "En la parte más alta posible del vehículo para garantizar su máxima visibilidad, sin necesidad de salir del habitáculo. ",
+          "en": "On the highest possible part of the vehicle to ensure maximum visibility, without the need to leave the passenger compartment."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
-          "es": "Uno por delante y otro por detrás del vehículo a 50 metros.",
-          "en": "One in front and one behind the vehicle at 50 meters.",
-          "ru": "Один спереди и один сзади автомобиля на расстоянии 50 метров."
+          "ru": "На расстоянии 50 метров позади автомобиля, двигаясь по обочине.",
+          "es": "A 50 metros por detrás del vehículo, caminando por el arcén.",
+          "en": "50 meters behind the vehicle, walking along the hard shoulder."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "На приборной панели автомобиля, рядом с рулевым колесом.",
+          "es": "En el salpicadero del vehículo, junto al volante.",
+          "en": "On the vehicle's dashboard, next to the steering wheel."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": "Según el Reglamento General de Circulación, en calzadas de sentido único o de más de tres carriles por sentido, basta con colocar un solo triángulo de preseñalización de peligro en la parte posterior del vehículo. Este debe situarse a una distancia mínima de 50 metros y ser visible desde 100 metros. La colocación del triángulo delantero es innecesaria debido a la ausencia de circulación en sentido contrario.",
-      "en": "According to the General Traffic Regulations, on one-way carriageways or those with more than three lanes in each direction, it is sufficient to place a single warning triangle at the rear of the vehicle. It must be positioned at a minimum distance of 50 meters and be visible from 100 meters. Placing a front triangle is unnecessary due to the absence of oncoming traffic.",
-      "ru": "🎓 На дорогах с односторонним движением встречных машин нет, поэтому спереди ставить знак бессмысленно. Вы обязаны выставить только **один** знак аварийной остановки позади автомобиля. Расстояние установки — не менее **50 метров** от машины, чтобы его было видно другим водителям с дистанции 100 метров.\n\n🇷🇺 В РФ дистанция за городом — 30 метров, а в городе — 15. В Испании требование строже: минимум **50 метров** (это примерно 70-80 шагов).\n\n💡 Одностороннее движение — Один треугольник."
+      "es": "A partir del 1 de enero de 2026, la baliza V-16 conectada es obligatoria y sustituye definitivamente a los triángulos. Debe fijarse en la parte más alta del vehículo (generalmente el techo) sacando el brazo por la ventanilla. Esto evita el alto riesgo de atropello al salir a la vía. Además, el dispositivo transmite automáticamente la posición exacta a la plataforma DGT 3.0.",
+      "en": "As of January 1, 2026, the connected V-16 beacon is mandatory and permanently replaces warning triangles. It must be attached to the highest part of the vehicle (usually the roof) by simply sticking your arm out the window. This completely eliminates the high risk of being run over when stepping onto the roadway. In addition, the device automatically transmits its exact position to the DGT 3.0 platform.",
+      "ru": "🎓 С 1 января 2026 года подключенный маячок V-16 является обязательным и окончательно заменяет аварийные треугольники. Его необходимо крепить на самую высокую часть автомобиля (обычно на крышу), просто высунув руку из окна. Это полностью исключает риск наезда на водителя при выходе на проезжую часть. Кроме того, включенный маячок автоматически передает ваши точные координаты на платформу спасательных служб DGT 3.0."
     },
     "image_url": "https://teorica.practicavial.com/question/041e71bb-e90d-40cc-8cee-02971bd6c841-1657900469-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/041e71bb-e90d-40cc-8cee-02971bd6c841-s-1.jpg",

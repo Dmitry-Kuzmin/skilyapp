@@ -21,6 +21,22 @@ const normalizeLanguage = (lang?: string | null): Language | null => {
 
 const getStoredLanguage = (): Language | null => {
   if (!isBrowser) return null;
+
+  // 1. Try sdadim-settings first (unified settings store)
+  const settingsJson = localStorage.getItem('sdadim-settings');
+  if (settingsJson) {
+    try {
+      const parsed = JSON.parse(settingsJson);
+      const lang = parsed?.state?.language;
+      if (lang && SUPPORTED_LANGUAGES.includes(lang as Language)) {
+        return lang as Language;
+      }
+    } catch (e) {
+      console.warn('[LanguageContext] Error parsing sdadim-settings:', e);
+    }
+  }
+
+  // 2. Fallback to legacy key
   const saved = localStorage.getItem('app_language');
   return normalizeLanguage(saved);
 };

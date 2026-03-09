@@ -1,44 +1,34 @@
 #!/bin/bash
-# Скрипт для оптимизации системы при работе с проектом
 
-echo "🔧 Оптимизация системы для работы с проектом..."
+# ==========================================
+# SDADIM SYSTEM OPTIMIZER (8GB RAM Edition)
+# ==========================================
 
-# 1. Остановить все dev server'ы
-echo "📦 Остановка всех dev server'ов..."
-pkill -f "vite" 2>/dev/null
-pkill -f "npm run dev" 2>/dev/null
-sleep 2
+echo "🚀 Starting system optimization..."
 
-# 2. Очистить кэш Vite
-echo "🧹 Очистка кэша Vite..."
-cd "$(dirname "$0")"
+# 1. Kill stale node processes (clean start)
+echo "🧹 Killing rogue Node.js processes..."
+pkill -9 node || true
+
+# 2. Clear Vite & TS Caches
+echo "📂 Clearing build caches..."
 rm -rf node_modules/.vite
-rm -rf .vite
+rm -rf .tsbuildinfo
 rm -rf dist
 
-# 3. Удалить .DS_Store файлы
-echo "🗑️  Удаление .DS_Store файлов..."
-find . -name ".DS_Store" -delete 2>/dev/null
+# 3. Clean project local storage/temp if any
+rm -rf .antigravity/cache
 
-# 4. Очистить кэш TypeScript (если есть)
-echo "📝 Очистка кэша TypeScript..."
-rm -rf node_modules/.cache 2>/dev/null
+# 4. Memory Flush (macOS specific)
+# Note: ‘purge’ requires sudo usually, but let's try or just skip
+# echo "🧼 Flushing system disk cache..."
+# purge || true
 
-# 5. Проверить использование памяти
-echo ""
-echo "📊 Текущее использование памяти:"
-ps aux | grep -E "(Cursor|node|vite)" | grep -v grep | awk '{sum+=$6} END {print "Всего памяти: " sum/1024 " MB"}'
-
-# 6. Проверить Load Average
-echo ""
-echo "⚡ Load Average:"
-uptime | awk -F'load averages:' '{print $2}'
-
-echo ""
-echo "✅ Оптимизация завершена!"
-echo ""
-echo "💡 Рекомендации:"
-echo "   - Закройте один из редакторов (Cursor или Antigravity)"
-echo "   - Перезапустите dev server: npm run dev"
-echo "   - Если проблемы продолжаются, перезагрузите Mac"
-
+echo "✅ Project cleanup done."
+echo "-----------------------------------"
+echo "💡 RECOMMENDATIONS FOR 8GB RAM:"
+echo "1. Close 'OmniDiskSweeper' (it eats 300MB+ for nothing now)."
+echo "2. Close 'About This Mac > Storage' or Activity Monitor if not needed."
+echo "3. Keep Chrome tabs < 5."
+echo "4. Use 'Stats' in menu bar to watch SWAP (keep it < 1GB)."
+echo "-----------------------------------"
