@@ -1,7 +1,7 @@
 import sharp from 'sharp';
 
-const TARGET_WIDTH = 1200;
-const QUALITY = 75;
+const TARGET_WIDTH = 1600;
+const QUALITY = 88;
 const WATERMARK_SCALE = 0.20;
 const PADDING_PX = 40;
 
@@ -148,7 +148,7 @@ export async function processImageForUpload(inputBuffer, questionData, testId) {
                     'time created': currentDate.split('T')[1].substring(0, 8) // HH:MM:SS
                 }
             })
-            .webp({ quality: QUALITY })
+            .webp({ quality: QUALITY, effort: 6 })
             .toBuffer();
 
         return optimizedBuffer;

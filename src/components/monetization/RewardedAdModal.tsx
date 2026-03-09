@@ -13,6 +13,7 @@ interface RewardedAdModalProps {
   onRewardClaimed: () => void | Promise<void>;
   title?: string;
   description?: string;
+  placement?: string;
   inlineOverlay?: boolean;
   secondaryAction?: {
     text: string;
@@ -30,6 +31,7 @@ export function RewardedAdModal({
   onRewardClaimed,
   title,
   description,
+  placement,
   inlineOverlay = false,
   secondaryAction,
 }: RewardedAdModalProps) {
@@ -127,7 +129,7 @@ export function RewardedAdModal({
     try {
       setShowReward(false);
       reset();
-      const success = await showAd();
+      const success = await showAd(placement || title);
       if (success) {
         setShowReward(true);
         await onRewardClaimed();

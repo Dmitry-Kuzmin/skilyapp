@@ -346,6 +346,7 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
                 rewardType="coins"
                 rewardAmount={25}
                 onRewardClaimed={handleRewardClaimed}
+                placement="crypto-miner"
                 title="⚡ CRYPTO MINER"
                 description="Добывай криптомонеты! Смотри рекламу и получай награду."
             />

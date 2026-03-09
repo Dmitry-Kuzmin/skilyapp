@@ -221,6 +221,7 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
         rewardType="coins"
         rewardAmount={25}
         onRewardClaimed={handleRewardClaimed}
+        placement="crypto-miner"
         title="CRYPTO MINER"
         description="Посмотри видео и получи 25 монет. Майнинг крипты требует времени..."
       />

@@ -11,8 +11,8 @@ const INPUT_DIR = path.resolve(__dirname, '../data/generated-images');
 const OUTPUT_DIR = path.resolve(__dirname, '../data/optimized-images');
 
 // SETTINGS (Mobile Optimized)
-const TARGET_WIDTH = 1200;
-const QUALITY = 75;
+const TARGET_WIDTH = 1600;
+const QUALITY = 88;
 const WATERMARK_SCALE = 0.20; // 20% от ширины
 const PADDING_PX = 40;
 
@@ -128,7 +128,7 @@ async function optimizeImage(inputPath, outputPath) {
                     'date created': currentDate
                 }
             })
-            .webp({ quality: QUALITY })
+            .webp({ quality: QUALITY, effort: 6 })
             .toFile(outputPath);
 
         return true;

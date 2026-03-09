@@ -3,6 +3,7 @@ import { isTelegramMiniApp, getTelegramUser, getTelegramWebApp, isTelegramMobile
 import { usePremium } from './usePremium';
 import { initAdsGram, showAdsGramRewardedVideo } from '@/lib/adsgram';
 import { initMonetag, showMonetagRewardedVideo } from '@/lib/monetag';
+import { initAdSenseH5, showAdSenseRewardedVideo } from '@/lib/adsense';
 import { useUserContext } from '@/contexts/UserContext';
 
 /**
@@ -65,13 +66,15 @@ export function useRewardedAd() {
       initAdsGram(userId).catch(console.error);
     } else {
       initMonetag();
+      initAdSenseH5();
     }
   }, [isAvailable]);
 
   /**
    * Показывает рекламу и возвращает Promise, который резолвится при успешном просмотре
+   * @param placement - Название места размещения (например, 'crypto-miner')
    */
-  const showAd = useCallback(async (): Promise<boolean> => {
+  const showAd = useCallback(async (placement?: string): Promise<boolean> => {
     if (!isAvailable()) {
       throw new Error('Реклама недоступна для Premium пользователей');
     }
@@ -91,10 +94,17 @@ export function useRewardedAd() {
         const userId = tgUser?.id?.toString();
         rewarded = await showAdsGramRewardedVideo(userId);
       } else {
-        // В веб-версии ИЛИ Desktop TMA используем Monetag
-        // На Desktop TMA AdsGram часто не имеет рекламы (fill), а Monetag работает стабильно
-        // Передаем profileId как ymid для трекинга и postbacks
-        rewarded = await showMonetagRewardedVideo({ ymid: profileId || undefined });
+        // В веб-версии ИЛИ Desktop TMA используем Google AdSense H5 для Криптомайнера
+        // Для остальных мест пока оставляем Monetag (или будем переводить постепенно)
+        if (placement === 'crypto-miner' || placement === 'CRYPTO MINER') {
+          console.log('[useRewardedAd] Using Google AdSense H5 for placement:', placement);
+          rewarded = await showAdSenseRewardedVideo({ name: 'crypto-miner' });
+        } else {
+          // В веб-версии ИЛИ Desktop TMA используем Monetag
+          // На Desktop TMA AdsGram часто не имеет рекламы (fill), а Monetag работает стабильно
+          // Передаем profileId как ymid для трекинга и postbacks
+          rewarded = await showMonetagRewardedVideo({ ymid: profileId || undefined });
+        }
       }
 
       setLoading(false);

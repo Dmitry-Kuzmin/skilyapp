@@ -46,9 +46,12 @@ function initializeAI() {
     console.log(`🔑 [System] Initializing Gemini with Key #${currentKeyIndex + 1} (${key.slice(0, 10)}...)`);
 
     genAI = new GoogleGenerativeAI(key);
-    visionModel = genAI.getGenerativeModel({ model: 'gemini-3.1-pro-preview' });
-    imagenModel = genAI.getGenerativeModel({ model: 'gemini-3.1-pro-preview-image-preview' });
-    imagenModelFlash = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-image' });
+    // 🧠 Director / Vision
+    visionModel = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite-preview' });
+    // 🎨 Main Artist
+    imagenModel = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-image-preview' });
+    // 🎨 Backup Artist
+    imagenModelFlash = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-image-preview' });
 }
 
 function rotateApiKey() {
@@ -100,6 +103,7 @@ OUTPUT FORMAT: Structured breakdown.
 4. SIGNS: VISUAL DESCRIPTION ONLY. 
    - BAD: "P-18 present"
    - GOOD: "Yellow triangular warning sign with construction worker symbol".
+   - **PERSPECTIVE**: State if the car icon on the sign is facing FORWARD (front view) or SIDE (profile).
    - NO TEXT CODES in description.
 5. MARKINGS:
    - Center: Continuous or Dashed? White or Yellow?
@@ -110,6 +114,7 @@ OUTPUT FORMAT: Structured breakdown.
 7. ENVIRONMENT: Lighting, Weather, Surrounding (Urban/Rural).
 8. SCENARIO: Objective description of situation (Overtaking, Junction, Parking).
 9. TRAJECTORIES: Describe arrow paths (Color, Start/End).
+10. IS_SIGN_ONLY: SET TO TRUE if the image is strictly an isolated traffic sign on a white or plain background without any road/traffic context.
 
 ACCURACY IS PARAMOUNT. FLAG LOGICAL ERRORS.`;
 
@@ -126,6 +131,10 @@ LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
 * **CONSTRUCTION SIGNS (Obras)**: Draw ONLY the **Yellow Triangle with Worker Symbol**. ABOLISH the yellow square plate with "Obras" or "P-18".
 * **VISUAL ONLY:** Render the *graphical symbol* only. The sign pole must be clean.
 * **PURE GEOMETRY:** Signs must be geometrically perfect (Perfect Circles, Triangles, Rectangles).
+* **PICTOGRAM ACCURACY:** Pay close attention to the vehicle orientation on signs:
+    - **FRONT VIEW**: If the original sign shows a car facing the viewer (Front/Forward), the 3D recreation MUST use a front-facing car pictogram.
+    - **SIDE VIEW**: If the original shows a car profile, use a side profile.
+    - **R-120 (Emission Zone)**: MUST be a **front-facing car** with dots/smoke to its side.
 
 **RULE 2: HYPER-REALISTIC MATERIALS**
 * **ASPHALT:** Texture must be visible—grainy, slight wear, tire skid marks, oil spots, and variances in roughness. NOT flat grey.
@@ -138,8 +147,14 @@ LOCATION: {{DYNAMIC_LOCATION_PLACEHOLDER}}
 **RULE 3: DGT 2026 UPDATE - EMERGENCY SIGNALS**
 * **USE ONLY IF SPECIFIED**: Apply V16 ONLY for breakdowns or accidents (vehicle stopped).
 * **NO TRIANGLES:** Do NOT generate "Warning Triangles" on the road.
-* **V16 BEACON:** For breakdowns/accidents, use **V16 Orange Flashing Beacon** (Luz de emergencia V-16) on the vehicle roof.
-* **VISUAL:** Small orange dome light on roof. NO strobe lights for moving traffic.
+* **V16 BEACON:** For breakdowns/accidents, use the **V16 Orange Emergency Beacon**.
+* **SCALE & FORM**: It must be a **small, flat, palm-sized disk** (approx. 10cm wide, 5cm tall). It is NOT a large siren or a tall police dome. 
+* **VISUAL**: It sits magnetically on the roof. Emits a pulsing/flashing amber light. NO strobe lights for moving traffic.
+
+**RULE 4: REALISTIC SIGN PLACEMENT (CRITICAL)**
+* **PLACEMENT**: Every traffic sign MUST be placed realistically: on the right-hand SIDEWALK (Urban) or on the SHOULDER/ARCÉN (Rural/Highway).
+* **FORBIDDEN**: NEVER place a sign pole on the asphalt road surface or in the middle of a lane.
+* **INTEGRATION**: If the original image is a close-up of an isolated sign, you must place it alongside a road in the 3D scene, properly mounted on the right side.
 
 {{DYNAMIC_BRANDING_PLACEHOLDER}}
 
@@ -305,8 +320,8 @@ function getSkilyBranding(text, isSafetyCritical = false) {
 * Skily vehicles (marked with livery) must NEVER be involved in accidents, collisions, or illegal maneuvers.
 * Skily vehicles must always be PARKED legally or DRIVING safely.`;
 
-    // Increased probability to 70% as requested ("adequate quantity")
-    if (candidates.length > 0 && Math.random() < 0.7) {
+    // Probability 10% for gadgets (drones/robots) to avoid clutter, but 70% for car livery (minimal)
+    if (candidates.length > 0 && Math.random() < 0.1) {
         const selected = candidates[Math.floor(Math.random() * candidates.length)];
         brandingText = `## SKILY BRANDING (MODERN & COOL):
 ${selected.text}
@@ -409,6 +424,19 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
                 visionAnalysis.toLowerCase().includes('inside vehicle')
             ));
 
+        // Detect Police / Authorities (Guardia Civil)
+        const isPoliceScenario =
+            textToScan.includes('policía') ||
+            textToScan.includes('agente') ||
+            textToScan.includes('autoridad') ||
+            textToScan.includes('civil guard') ||
+            textToScan.includes('police officer') ||
+            (typeof visionAnalysis === 'string' && (
+                visionAnalysis.toLowerCase().includes('police') ||
+                visionAnalysis.toLowerCase().includes('officer') ||
+                visionAnalysis.toLowerCase().includes('authority')
+            ));
+
         // NEW: Detect Active Driving / Overtaking / Normal Traffic
         // If these keywords are present, we should be VERY SKEPTICAL about V16
         const isMovingTraffic =
@@ -426,21 +454,28 @@ async function generateImage(question, visionAnalysis, attempt = 1, useBackup = 
 
         // Detect Breakdown / Emergency / V16 Context
         // STRICTER LOGIC: Only trigger V16 if it's clearly an emergency/stopped vehicle scenario AND NOT inside the car
-        // AND NOT moving traffic
+        // AND NOT moving traffic AND NOT just polyce immobilization
         const isEmergencyV16 =
             !isInterior && !isMovingTraffic && (
                 textToScan.includes('avería') ||
                 textToScan.includes('breakdown') ||
                 textToScan.includes('emergencia') ||
                 textToScan.includes('siniestro') || // accident
-                (textToScan.includes('inmoviliz') && (textToScan.includes('arcén') || textToScan.includes('calzada'))) || // immobilized on road/shoulder
+                (textToScan.includes('inmoviliz') && !isPoliceScenario && (textToScan.includes('arcén') || textToScan.includes('calzada'))) || // immobilized on road/shoulder
                 textToScan.includes('v-16') ||
                 textToScan.includes('v16') ||
                 textToScan.includes('warning triangle') ||
                 textToScan.includes('triángulo de preseñalización')
             );
-        // REMOVED: 'arcén' (too broad), 'chaleco', 'golpe', single 'triangle'
 
+        // Analyze vision analysis for presence of objects
+        const hasVehiclesInOriginal = typeof visionAnalysis === 'string' &&
+            !visionAnalysis.toLowerCase().includes('none present') &&
+            !visionAnalysis.toLowerCase().includes('no vehicles') &&
+            !visionAnalysis.toLowerCase().includes('vehicle: none');
+
+        const hasPoliceInOriginal = typeof visionAnalysis === 'string' &&
+            (visionAnalysis.toLowerCase().includes('police') || visionAnalysis.toLowerCase().includes('officer'));
 
         // INJECT SKILY BRANDING (SUBTLE MODE)
         // Pass isEmergencyV16 to disable branding in accidents
@@ -483,9 +518,18 @@ ${isMovingTraffic ? `
 2. **NO EXITING / NO BRAKING**: Do not show brake lights or turn signals unless explicitly requested. The cars should look like they are in normal traffic flow at constant speed.
 3. **WHEEL ACTION**: Subtle motion blur on wheels to indicate movement.
 4. **NO EMERGENCY LIGHTS**: Do NOT add orange strobe lights, beacons, or hazard lights for moving cars.
+` : (isEmergencyV16 && hasVehiclesInOriginal ? `
+1. **STATIONARY**: The main vehicle should be STOPPED (usually on the shoulder or near the edge) as this is an emergency scenario.
+` : (isPoliceScenario || hasPoliceInOriginal ? `
+1. **AUTHORITY SCENE**: Incorporate Spanish Traffic Police (Guardia Civil) in professional uniforms. 
+2. **POSITION**: They should be standing near a patrol vehicle or by the roadside, interacting with the scene.
+3. **PATROL VEHICLE**: A distinctive white and green Spanish Guardia Civil patrol car with blue flashing lights (Siren) is highly recommended to illustrate the context.
+` : (typeof visionAnalysis === 'string' && visionAnalysis.includes('IS_SIGN_ONLY: TRUE') ? `
+1. **PURE SIGN CONTEXT**: The original is an isolated sign. Place it realistically on a pole on the right-hand SIDEWALK of a professional city street.
+2. **NO OBSTRUCTIONS**: Ensure the sign is perfectly visible and readable, not blocked by any elements.
 ` : `
-1. **STATIONARY**: The main vehicle should be STOPPED (usually on the shoulder or near the edge) if this is an emergency scenario.
-`}
+1. **SCENE STABILITY**: Recreate the elements exactly as described in analysis. If no vehicles are mentioned, focus on characters or infrastructure.
+`)))}
 
 - Professional 3D automotive style
 - Premium educational quality
@@ -630,7 +674,7 @@ STRICT GUIDELINES:
         console.log(`   🎨 Генерируем через: ${modelName}...`);
 
         const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("Generation Timeout (60s)")), 60000)
+            setTimeout(() => reject(new Error("Generation Timeout (120s)")), 120000)
         );
 
         const result = await Promise.race([
@@ -794,6 +838,7 @@ async function processAllQuestions() {
                 if (id) {
                     // Normalize ID
                     questionsMap.set(id, {
+                        ...q, // CRITICAL FIX: Preserve all fields (answers, explanation, etc.)
                         id: id,
                         question: q.question,
                         // Fix URL loading - check both fields

@@ -116,29 +116,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "disminuir la separación con el vehículo de delante.",
-          "en": "decrease the separation with the vehicle in front.",
-          "ru": "уменьшить дистанцию до транспортного средства спереди."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "увеличить дистанцию до транспортного средства спереди.",
           "es": "aumentar la separación con el vehículo de delante.",
-          "en": "increase the separation with the vehicle in front.",
-          "ru": "увеличить дистанцию до транспортного средства спереди."
+          "en": "increase the separation with the vehicle in front."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "уменьшить дистанцию до транспортного средства спереди.",
+          "es": "disminuir la separación con el vehículo de delante.",
+          "en": "decrease the separation with the vehicle in front."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "сохранить ту же дистанцию до транспортного средства спереди.",
           "es": "mantener la misma separación con el vehículo de delante.",
-          "en": "maintain the same separation with the vehicle in front.",
-          "ru": "сохранить ту же дистанцию до транспортного средства спереди."
+          "en": "maintain the same separation with the vehicle in front."
         },
         "is_correct": false
       }
@@ -146,7 +146,7 @@
     "explanation": {
       "es": "Cuando un vehículo circula demasiado cerca por detrás (no respeta la distancia de seguridad), aumenta el riesgo de colisión por alcance en caso de frenada brusca. Según las técnicas de conducción preventiva, el conductor debe compensar este riesgo aumentando la separación con el vehículo de delante. Esto permite disponer de más espacio para frenar de manera progresiva y suave ante cualquier imprevisto, concediendo así más tiempo de reacción al conductor que circula detrás y evitando que impacte contra nuestro vehículo.",
       "en": "When a vehicle follows too closely behind (tailgating), the risk of a rear-end collision increases in the event of sudden braking. According to defensive driving techniques, the driver must compensate for this risk by increasing the separation distance from the vehicle in front. This provides more space to brake progressively and smoothly in case of any unforeseen event, thereby granting the driver behind more reaction time and preventing them from impacting your vehicle.",
-      "ru": "🎓 \n\nЕсли водитель сзади не соблюдает дистанцию и «висит на хвосте», ты находишься в зоне повышенного риска удара сзади (colisión por alcance). Ты не можешь заставить его отъехать, но ты обязан компенсировать эту опасность.\n\nТвоя задача — **увеличить дистанцию до автомобиля спереди**.\nЛогика проста: большой запас места спереди позволит тебе в случае опасности тормозить очень плавно и постепенно, а не резко бить по тормозам. Плавное замедление даст водителю сзади лишние секунды на реакцию, чтобы он успел затормозить и не въехал в твой бампер.\n\n💡 \n\nЗапомни закон сохранения места: **Если сзади места мало — спереди должно быть много.**\nДавят сзади? Отпусти переднего подальше."
+      "ru": "🎓 Если водитель сзади не соблюдает дистанцию и «висит на хвосте», ты находишься в зоне повышенного риска удара сзади (colisión por alcance). Ты не можешь заставить его отъехать, но ты обязан компенсировать эту опасность.\n\nТвоя задача — **увеличить дистанцию до автомобиля спереди**.\nЛогика проста: большой запас места спереди позволит тебе в случае опасности тормозить очень плавно и постепенно, а не резко бить по тормозам. Плавное замедление даст водителю сзади лишние секунды на реакцию, чтобы он успел затормозить и не въехал в твой бампер.\n\n💡 Запомни закон сохранения места: **Если сзади места мало — спереди должно быть много.**\nДавят сзади? Отпусти переднего подальше."
     },
     "image_url": "https://teorica.practicavial.com/question/f7b9916d-213a-4b0f-9f77-c7061306ec0e-1658858762-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/f7b9916d-213a-4b0f-9f77-c7061306ec0e-s-1.jpg",
@@ -222,29 +222,29 @@
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "un extintor de incendios adecuado y eficaz.",
-          "en": "a suitable and effective fire extinguisher.",
-          "ru": "подходящего и эффективного огнетушителя."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "устройства глушителя взрывов (глушителя).",
           "es": "un dispositivo silenciador de explosiones.",
-          "en": "an explosion silencing device.",
-          "ru": "устройства глушителя взрывов (глушителя)."
+          "en": "an explosion silencing device."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "подходящего и эффективного огнетушителя.",
+          "es": "un extintor de incendios adecuado y eficaz.",
+          "en": "a suitable and effective fire extinguisher."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "комплекта запасных ремней для двигателя.",
           "es": "un juego de correas de repuesto para el equipo motor.",
-          "en": "a set of spare belts for the engine equipment.",
-          "ru": "комплекта запасных ремней для двигателя."
+          "en": "a set of spare belts for the engine equipment."
         },
         "is_correct": false
       }
@@ -252,7 +252,7 @@
     "explanation": {
       "es": "Según el Reglamento General de Vehículos, tanto en vías urbanas como interurbanas, se prohíbe la circulación de vehículos a motor y ciclomotores sin el preceptivo dispositivo silenciador de las explosiones. La conducción con 'escape libre' o sin silenciador no solo conlleva una sanción, sino que los agentes de la autoridad podrán inmovilizar el vehículo si este supera los niveles de ruido o gases permitidos reglamentariamente. El extintor solo es obligatorio para determinados vehículos (como los destinados al transporte de mercancías o pasajeros) y los recambios mecánicos (correas) ya no son exigibles.",
       "en": "According to the General Vehicle Regulations, on both urban and interurban roads, it is prohibited to drive motor vehicles and mopeds without the mandatory explosion silencing device (muffler). Driving with an 'open exhaust' or without a silencer not only carries a penalty, but law enforcement agents may also immobilize the vehicle if it exceeds the legally permitted noise or gas levels. A fire extinguisher is only mandatory for certain vehicles (such as those for transporting goods or passengers), and mechanical spare parts (belts) are no longer required.",
-      "ru": "**🎓 **\nДля водителя **легкового автомобиля** (Turismo) наличие исправного глушителя (dispositivo silenciador de explosiones) является строгим требованием. ПДД Испании категорически запрещают движение по любым дорогам (городским и междугородним) без этого устройства или с так называемым «свободным выхлопом» (escape libre). Глушитель не только снижает шум, но и предотвращает выброс газов экстремально высокой температуры.\n\nВажно знать: если уровень шума превышает норму или глушитель отсутствует, полиция имеет полное право **обездвижить** (inmovilizar) ваш автомобиль на месте до устранения неисправности.\n\nЧто касается остальных вариантов: огнетушитель в обычном легковом авто обязателен только при наличии прицепа, а возить запасные ремни больше не требуется законом.\n\n**💡 **\nЗапомни метод исключения:\n• Ремни — это прошлое (отменили).\n• Огнетушитель — это для грузовиков (или если тянешь прицеп).\n• Глушитель — это **обязательно для всех**, чтобы не оглушать окружающих.\nНет глушителя = нет поездки (машину заберут на штрафстоянку)."
+      "ru": "🎓 Для водителя **легкового автомобиля** (Turismo) наличие исправного глушителя (dispositivo silenciador de explosiones) является строгим требованием. ПДД Испании категорически запрещают движение по любым дорогам (городским и междугородним) без этого устройства или с так называемым «свободным выхлопом» (escape libre). Глушитель не только снижает шум, но и предотвращает выброс газов экстремально высокой температуры.\n\nВажно знать: если уровень шума превышает норму или глушитель отсутствует, полиция имеет полное право **обездвижить** (inmovilizar) ваш автомобиль на месте до устранения неисправности.\n\nЧто касается остальных вариантов: огнетушитель в обычном легковом авто обязателен только при наличии прицепа, а возить запасные ремни больше не требуется законом.\n\n💡 Запомни метод исключения:\n• Ремни — это прошлое (отменили).\n• Огнетушитель — это для грузовиков (или если тянешь прицеп).\n• Глушитель — это **обязательно для всех**, чтобы не оглушать окружающих.\nНет глушителя = нет поездки (машину заберут на штрафстоянку)."
     },
     "image_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-1663758070-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/1cbbbf4c-78f8-4c47-9373-86bc3aef4f29-s-1.jpg",

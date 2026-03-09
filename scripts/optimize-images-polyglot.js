@@ -12,8 +12,8 @@ const GENERATED_IMAGES_DIR = path.resolve(__dirname, '../data/generated-images')
 const OUTPUT_DIR = path.resolve(__dirname, '../data/optimized-images');
 
 // SETTINGS (Optimized for Mobile Performance)
-const TARGET_WIDTH = 1200; // Reduced from 1600 for faster loading
-const QUALITY = 75; // Sweet spot: quality vs size (was 90)
+const TARGET_WIDTH = 1600;
+const QUALITY = 88;
 const WATERMARK_SCALE = 0.08;
 const PADDING_PX = 40;
 

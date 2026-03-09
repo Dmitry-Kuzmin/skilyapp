@@ -1410,35 +1410,35 @@
     "question": {
       "es": "En la disposición más generalizada en los mandos de una motocicleta, el acelerador se acciona con...",
       "en": "In the most common layout of motorcycle controls, the accelerator is operated with...",
-      "ru": "При наиболее распространенном расположении органов управления мотоцикла, акселератор (ручка газа) приводится в действие..."
+      "ru": "В стандартной схеме управления мотоциклом ручка газа приводится в движение..."
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "la mano izquierda.",
-          "en": "the left hand.",
-          "ru": "левой рукой."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "el pie derecho.",
-          "en": "the right foot.",
-          "ru": "правой ногой."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
+          "ru": "правой рукой.",
           "es": "la mano derecha.",
-          "en": "the right hand.",
-          "ru": "правой рукой."
+          "en": "the right hand."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "левой рукой.",
+          "es": "la mano izquierda.",
+          "en": "the left hand."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "правой ногой.",
+          "es": "el pie derecho.",
+          "en": "the right foot."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
