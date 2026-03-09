@@ -37,11 +37,11 @@ type MarkdownProps = {
 };
 
 const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
-    // Регулярка для поиска виджетов
-    const WIDGET_REGEX = /\[WIDGET:(SIGN|CTA|TON):([^\]]+)\]/g;
+    // Более надежная регулярка: захватываем [WIDGET:TYPE:PARAM]
+    const WIDGET_REGEX = /\[WIDGET:(SIGN|CTA|TON|MEME):([^\]]+)\]/g;
 
     // Если виджетов нет — просто рендерим Markdown
-    if (!children.match(WIDGET_REGEX)) {
+    if (!children || !children.includes('[WIDGET:')) {
         return (
             <div className={cn("text-sm leading-relaxed", className)}>
                 <ReactMarkdown
@@ -65,17 +65,20 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
         );
     }
 
-    // Парсим текст на части (текст и виджеты)
-    const parts = children.split(WIDGET_REGEX);
+    // Разбиваем текст, сохраняя разделители (тип и параметр)
     const elements: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
 
-    let i = 0;
-    while (i < parts.length) {
-        // Добавляем текст (Markdown)
-        const textPart = parts[i];
-        if (textPart && textPart.trim()) {
+    // Сбрасываем индекс регулярки (важно для /g)
+    WIDGET_REGEX.lastIndex = 0;
+
+    while ((match = WIDGET_REGEX.exec(children)) !== null) {
+        // 1. Добавляем текст ДО виджета
+        const textBefore = children.substring(lastIndex, match.index);
+        if (textBefore.trim()) {
             elements.push(
-                <div key={`text-${i}`} className={cn("text-sm leading-relaxed", className)}>
+                <div key={`text-${lastIndex}`} className={cn("text-sm leading-relaxed", className)}>
                     <ReactMarkdown
                         components={{
                             p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
@@ -83,21 +86,21 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
                             em: ({ children }) => <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>,
                         }}
                     >
-                        {textPart}
+                        {textBefore}
                     </ReactMarkdown>
                 </div>
             );
         }
 
-        // Если есть виджет (тип и параметр)
-        const type = parts[i + 1];
-        const param = parts[i + 2];
+        // 2. Рендерим сам виджет
+        const [fullMatch, type, param] = match;
+        const key = `widget-${match.index}`;
 
-        if (type) {
+        try {
             if (type === 'TON') {
                 if (param === 'CONNECT' || param === 'WALLET:LOGIN') {
                     elements.push(
-                        <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 space-y-4">
+                        <div key={key} className="my-4 p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 space-y-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Zap className="w-4 h-4 text-blue-500" />
@@ -105,91 +108,108 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
                                 </div>
                                 <span className="text-[10px] bg-blue-500/20 text-blue-600 px-2 py-0.5 rounded-full font-bold">ALPHA</span>
                             </div>
-
                             <div className="space-y-3">
-                                {/* WalletKit Section */}
                                 <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-blue-200/30 dark:border-white/10">
                                     <p className="text-[11px] font-bold mb-2 opacity-70">WalletKit Login</p>
                                     <div className="flex justify-center [&_button]:!h-10">
                                         <TonConnectUIBtn />
                                     </div>
                                 </div>
-
-                                {/* TON Pay Section */}
                                 <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-emerald-200/30 dark:border-white/10">
                                     <p className="text-[11px] font-bold mb-2 text-emerald-600">TON Pay 2.0 (L2)</p>
-                                    <Button
-                                        className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-10 rounded-xl text-xs font-bold"
-                                        onClick={() => alert('Демо-платеж TON Pay 2.0 запущен!')}
-                                    >
-                                        Купить 10 разборов (0.1 TON)
-                                    </Button>
-                                </div>
-
-                                {/* AgenticKit Section */}
-                                <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-purple-200/30 dark:border-white/10 text-center">
-                                    <p className="text-[11px] font-bold mb-2 text-purple-600">AgenticKit Link</p>
-                                    <Button variant="ghost" className="w-full h-9 rounded-lg text-xs font-bold text-purple-600 hover:bg-purple-100/50">
-                                        Зафиксировать прогресс (Web3)
+                                    <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-10 rounded-xl text-xs font-bold" onClick={() => alert('Демо-платеж TON Pay 2.0!')}>
+                                        Купить Premium (1.5 TON)
                                     </Button>
                                 </div>
                             </div>
                         </div>
                     );
                 } else if (param.startsWith('PAY:')) {
-                    const payParts = param.split(':');
-                    const amount = payParts[1] || '0.1';
-                    const reason = payParts.slice(2).join(':') || 'Оплата';
+                    const [, amount, ...reasonParts] = param.split(':');
+                    const reason = reasonParts.join(':') || 'Оплата';
                     elements.push(
-                        <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-3">
+                        <div key={key} className="my-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-3">
                             <div className="flex items-center gap-2">
                                 <Zap className="w-4 h-4 text-emerald-500" />
-                                <span className="text-xs font-bold text-emerald-500 uppercase">TON Pay 2.0 (L2)</span>
+                                <span className="text-xs font-bold text-emerald-500 uppercase">TON Pay 2.0</span>
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{reason}</p>
-                            <Button
-                                className="w-full bg-[#0088cc] hover:bg-[#0088cc]/90 text-white font-bold h-10 rounded-xl"
-                                onClick={() => {
-                                    // Simulated L2 transaction
-                                    setTimeout(() => alert(`Оплата ${amount} TON успешно проведена (TON Pay 2.0 Demo)!`), 500);
-                                }}
-                            >
-                                Купить за {amount} TON
+                            <p className="text-xs font-medium">{reason}</p>
+                            <Button className="w-full bg-[#0088cc] text-white font-bold h-10 rounded-xl" onClick={() => alert('Платеж запущен!')}>
+                                Оплатить {amount} TON
                             </Button>
                         </div>
                     );
                 } else if (param === 'AGENT:PROGRESS') {
                     elements.push(
-                        <div key={`widget-${i}`} className="my-4 p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-3">
+                        <div key={key} className="my-4 p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-3">
                             <div className="flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-purple-500 animate-pulse" />
-                                <span className="text-xs font-bold text-purple-500 uppercase">AgenticKit Link</span>
+                                <Zap className="w-4 h-4 text-purple-500" />
+                                <span className="text-xs font-bold text-purple-500 uppercase">AgenticKit</span>
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">Сохраняем твой прогресс обучения в смарт-контракт.</p>
-                            <Button variant="outline" className="w-full h-10 rounded-xl text-purple-600 border-purple-200 hover:bg-purple-50">
-                                Зафиксировать прогресс (Web3)
+                            <Button variant="outline" className="w-full h-10 rounded-xl text-purple-600 border-purple-200">
+                                Сохранить прогресс в TON
                             </Button>
                         </div>
                     );
                 }
+            } else if (type === 'MEME' && param.startsWith('BADGE:')) {
+                const badgeName = param.split(':')[1] || 'Новичок';
+                elements.push(
+                    <div key={key} className="my-4 p-4 rounded-2xl bg-gradient-to-br from-yellow-400/20 via-orange-500/10 to-pink-500/20 border border-orange-200/50 shadow-inner overflow-hidden relative group">
+                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-all" />
+                        <div className="relative z-10 flex flex-col items-center text-center space-y-2">
+                            <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-lg border-2 border-orange-400/30 mb-1 ring-4 ring-orange-400/10">
+                                <Sparkles className="w-8 h-8 text-orange-500 animate-pulse" />
+                            </div>
+                            <div className="space-y-1">
+                                <h4 className="text-sm font-black text-orange-600 dark:text-orange-400 tracking-tighter uppercase">Достижение разблокировано!</h4>
+                                <p className="text-xl font-extrabold text-slate-800 dark:text-white leading-tight">{badgeName}</p>
+                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-[200px]">Это достижение подтверждено в блокчейне Memelandia!</p>
+                            <Button size="sm" className="bg-slate-900 text-white rounded-full px-6 font-bold text-xs h-8 hover:scale-105 transition-transform active:scale-95" onClick={() => toast.success('Скопировано в буфер для Share!')}>
+                                <Languages className="w-3 h-3 mr-2" />
+                                Поделиться в Story
+                            </Button>
+                        </div>
+                    </div>
+                );
             } else if (type === 'CTA' && param.startsWith('PREMIUM')) {
                 const ctaText = param.split(':').slice(1).join(':') || 'Активировать Premium';
                 elements.push(
-                    <div key={`widget-${i}`} className="my-4">
-                        <Button
-                            className="w-full h-12 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-bold rounded-xl shadow-lg border-none"
-                            onClick={() => window.location.hash = '#pricing'}
-                        >
+                    <div key={key} className="my-4">
+                        <Button className="w-full h-12 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold rounded-xl shadow-lg border-none" onClick={() => window.location.hash = '#pricing'}>
                             <Sparkles className="w-4 h-4 mr-2" />
                             {ctaText}
                         </Button>
                     </div>
                 );
+            } else {
+                // Fallback для отладки
+                elements.push(<div key={key} className="text-[10px] text-red-500 border border-red-200 p-1 rounded my-1">Unknown Widget: {fullMatch}</div>);
             }
-            // ЗНАКИ (SIGN) можно добавить аналогично, если есть база знаков
+        } catch (err) {
+            console.error('Error rendering widget:', err);
         }
 
-        i += 3; // Пропускаем тип и параметр
+        lastIndex = match.index + fullMatch.length;
+    }
+
+    // 3. Добавляем оставшийся текст ПОСЛЕ последнего виджета
+    const remainingText = children.substring(lastIndex);
+    if (remainingText.trim()) {
+        elements.push(
+            <div key={`text-end`} className={cn("text-sm leading-relaxed", className)}>
+                <ReactMarkdown
+                    components={{
+                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                        strong: ({ children }) => <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>,
+                        em: ({ children }) => <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>,
+                    }}
+                >
+                    {remainingText}
+                </ReactMarkdown>
+            </div>
+        );
     }
 
     return <div className="space-y-2">{elements}</div>;
