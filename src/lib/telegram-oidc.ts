@@ -26,26 +26,26 @@ function generateState(): string {
 }
 
 export function buildTelegramOAuthUrl(challenge: string, state: string, redirectUri: string): string {
-    const clientId = import.meta.env.VITE_TELEGRAM_BOT_ID;
-    if (!clientId) throw new Error('VITE_TELEGRAM_BOT_ID not set');
+    const rawClientId = import.meta.env.VITE_TELEGRAM_BOT_ID;
+    if (!rawClientId) throw new Error('VITE_TELEGRAM_BOT_ID not set');
     if (!redirectUri) throw new Error('redirectUri is required');
 
-    // nonce — обязательный параметр для OIDC
-    const array = crypto.getRandomValues(new Uint8Array(32));
-    const nonce = base64UrlEncode(array.buffer);
+    // Очищаем ID от возможных кавычек или пробелов
+    const clientId = rawClientId.toString().replace(/['"]/g, '').trim();
 
-    const params = new URLSearchParams({
-        client_id: clientId.toString(),
-        redirect_uri: redirectUri,
-        response_type: 'code',
-        scope: 'openid profile',
-        state: state,
-        nonce: nonce,
-        code_challenge: challenge,
-        code_challenge_method: 'S256',
-    });
+    // Формируем параметры в строгом соответствии с Manual Implementation
+    // Используем ручную склейку, чтобы гарантировать %20 вместо +
+    const params = [
+        `client_id=${clientId}`,
+        `redirect_uri=${encodeURIComponent(redirectUri)}`,
+        `response_type=code`,
+        `scope=openid%20profile`,
+        `state=${state}`,
+        `code_challenge=${challenge}`,
+        `code_challenge_method=S256`
+    ];
 
-    return `https://oauth.telegram.org/auth?${params.toString()}`;
+    return `https://oauth.telegram.org/auth?${params.join('&')}`;
 }
 
 export async function initiateTelegramOIDC(redirectUri: string): Promise<void> {

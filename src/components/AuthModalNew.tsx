@@ -313,7 +313,9 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     if (telegramLoading) return;
     setTelegramLoading(true);
     try {
-      const redirectUri = `${window.location.origin}/auth/telegram/callback`;
+      // Исключаем лишний слеш в конце origin
+      const cleanOrigin = window.location.origin.replace(/\/$/, '');
+      const redirectUri = `${cleanOrigin}/auth/telegram/callback`;
       await initiateTelegramOIDC(redirectUri);
     } catch (err: any) {
       console.error('[Auth] Telegram OIDC init failed:', err);
