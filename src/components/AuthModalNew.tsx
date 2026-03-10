@@ -4,7 +4,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { openTelegramOIDCPopup } from '@/lib/telegram-oidc';
+import { openTelegramLogin } from '@/lib/telegram-oidc';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
@@ -313,15 +313,16 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     if (telegramLoading) return;
     setTelegramLoading(true);
     try {
-      const cleanOrigin = window.location.origin.replace(/\/$/, '');
-      const redirectUri = `${cleanOrigin}/auth/telegram/callback`;
+      const clientId = import.meta.env.VITE_TELEGRAM_BOT_ID;
+      if (!clientId) throw new Error('VITE_TELEGRAM_BOT_ID не настроен');
 
-      const { code, verifier } = await openTelegramOIDCPopup(redirectUri);
+      // Telegram.Login.auth() открывает попап сам, без redirect
+      const idToken = await openTelegramLogin(clientId);
 
       const loadingToast = toast.loading('Входим через Telegram…');
 
       const { data, error: fnError } = await supabase.functions.invoke('telegram-oidc-auth', {
-        body: { code, code_verifier: verifier, redirect_uri: redirectUri },
+        body: { id_token: idToken },
       });
 
       toast.dismiss(loadingToast);

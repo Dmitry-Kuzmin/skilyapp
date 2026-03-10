@@ -1,6 +1,6 @@
-// telegram-oidc-auth: Authorization Code Flow + PKCE
-// Обменивает Telegram OIDC code на полноценную Supabase сессию.
-// Совместим с telegram-auth-v2 — использует тот же email-формат tg_{id}@telegram.auth.
+// telegram-oidc-auth: поддерживает два режима:
+// 1. SDK Mode: { id_token } — от Telegram.Login.auth() JS SDK
+// 2. PKCE Mode: { code, code_verifier, redirect_uri } — Authorization Code Flow
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import * as jose from 'https://deno.land/x/jose@v4.15.4/index.ts';
 
@@ -30,9 +30,8 @@ interface TelegramIdTokenClaims {
     picture?: string;
 }
 
-async function exchangeCodeForTokens(code: string, codeVerifier: string, redirectUri: string): Promise<{ idToken: string }> {
+async function exchangeCodeForIdToken(code: string, codeVerifier: string, redirectUri: string): Promise<string> {
     const credentials = btoa(`${TG_CLIENT_ID}:${TG_CLIENT_SECRET}`);
-
     const body = new URLSearchParams({
         grant_type: 'authorization_code',
         code,
@@ -56,26 +55,17 @@ async function exchangeCodeForTokens(code: string, codeVerifier: string, redirec
     }
 
     const data = await response.json();
-
-    if (!data.id_token) {
-        throw new Error('No id_token in Telegram response');
-    }
-
-    return { idToken: data.id_token };
+    if (!data.id_token) throw new Error('No id_token in Telegram response');
+    return data.id_token;
 }
 
-async function verifyAndDecodeIdToken(idToken: string): Promise<TelegramIdTokenClaims> {
+async function verifyIdToken(idToken: string): Promise<TelegramIdTokenClaims> {
     const JWKS = jose.createRemoteJWKSet(new URL(TELEGRAM_JWKS_URL));
-
     const { payload } = await jose.jwtVerify(idToken, JWKS, {
         issuer: TELEGRAM_ISSUER,
         audience: TG_CLIENT_ID,
     });
-
-    if (!payload.sub) {
-        throw new Error('id_token missing sub claim');
-    }
-
+    if (!payload.sub) throw new Error('id_token missing sub claim');
     return payload as TelegramIdTokenClaims;
 }
 
@@ -85,7 +75,6 @@ async function getOrCreateSupabaseSession(
     claims: TelegramIdTokenClaims,
 ): Promise<{ session: { access_token: string; refresh_token: string }; profileId: string }> {
     const email = `tg_${telegramId}@telegram.auth`;
-    // Пароль детерминирован по bot token — совместимо с telegram-auth-v2
     const password = `tg_secure_${telegramId}_${BOT_TOKEN.substring(0, 10)}`;
 
     const userMeta = {
@@ -97,7 +86,6 @@ async function getOrCreateSupabaseSession(
 
     let userId: string | undefined;
 
-    // Попытка создать — если уже есть, получаем ошибку 422
     const { data: createdData, error: createError } = await supabaseAdmin.auth.admin.createUser({
         email,
         password,
@@ -107,7 +95,6 @@ async function getOrCreateSupabaseSession(
 
     if (createError) {
         if (createError.status === 422 || createError.message.includes('already been registered')) {
-            // Пользователь существует — ищем по telegram_id в profiles
             const { data: prof } = await supabaseAdmin
                 .from('profiles')
                 .select('user_id')
@@ -116,10 +103,8 @@ async function getOrCreateSupabaseSession(
 
             if (prof?.user_id) {
                 userId = prof.user_id;
-                // Обновляем пароль (он мог измениться при ротации bot token)
                 await supabaseAdmin.auth.admin.updateUserById(userId, { password, user_metadata: userMeta });
             } else {
-                // Ищем по email как fallback
                 const { data: { users } } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1, page: 1 } as any);
                 const found = users?.find(u => u.email === email);
                 if (found) {
@@ -136,15 +121,11 @@ async function getOrCreateSupabaseSession(
         userId = createdData?.user?.id;
     }
 
-    if (!userId) {
-        throw new Error('Failed to resolve userId');
-    }
+    if (!userId) throw new Error('Failed to resolve userId');
 
-    // Получаем сессию через signInWithPassword
     const { data: sessionData, error: signInError } = await supabaseAdmin.auth.signInWithPassword({ email, password });
     if (signInError) throw signInError;
 
-    // Синхронизируем профиль
     const profilePayload: Record<string, unknown> = {
         user_id: userId,
         telegram_id: telegramId,
@@ -160,7 +141,7 @@ async function getOrCreateSupabaseSession(
 
     const { data: prof } = await supabaseAdmin
         .from('profiles')
-        .select('id, user_id')
+        .select('id')
         .eq('telegram_id', telegramId)
         .maybeSingle();
 
@@ -201,25 +182,30 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { code, code_verifier, redirect_uri } = await req.json();
+        const body = await req.json();
 
-        if (!code || !code_verifier || !redirect_uri) {
+        let idToken: string;
+
+        if (body.id_token) {
+            // Режим 1: SDK — Telegram.Login.auth() вернул id_token напрямую
+            console.log('[telegram-oidc-auth] SDK mode: using id_token directly');
+            idToken = body.id_token;
+        } else if (body.code && body.code_verifier && body.redirect_uri) {
+            // Режим 2: PKCE — обмен code на id_token
+            console.log('[telegram-oidc-auth] PKCE mode: exchanging code for token');
+            idToken = await exchangeCodeForIdToken(body.code, body.code_verifier, body.redirect_uri);
+        } else {
             return new Response(
-                JSON.stringify({ error: 'Параметры code, code_verifier, redirect_uri обязательны' }),
+                JSON.stringify({ error: 'Требуется либо id_token, либо code + code_verifier + redirect_uri' }),
                 { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
             );
         }
 
-        // 1. Обмен code → id_token
-        const { idToken } = await exchangeCodeForTokens(code, code_verifier, redirect_uri);
-
-        // 2. Верификация и декодирование id_token
-        const claims = await verifyAndDecodeIdToken(idToken);
+        const claims = await verifyIdToken(idToken);
         const telegramId = claims.sub;
 
         console.log(`[telegram-oidc-auth] Verified TG user: ${telegramId} (${claims.preferred_username ?? 'no username'})`);
 
-        // 3. Создаём/находим пользователя и получаем сессию
         const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
         const { session, profileId } = await getOrCreateSupabaseSession(supabaseAdmin, telegramId, claims);
 
