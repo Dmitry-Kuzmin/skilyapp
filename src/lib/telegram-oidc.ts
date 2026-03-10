@@ -69,16 +69,24 @@ export async function openTelegramLogin(clientId: string | number): Promise<stri
     const numericId = parseInt(rawId, 10);
 
     if (isNaN(numericId) || numericId === 0) {
-        console.error('[Telegram OIDC] Invalid numeric clientId:', rawId);
+        console.error('[Telegram OIDC] Invalid numeric clientId:', rawId, 'Original:', clientId);
         throw new Error(`Невалидный VITE_TELEGRAM_BOT_ID: "${rawId}"`);
     }
 
-    console.log('[Telegram OIDC] Calling sdk.auth with client_id:', numericId);
-
     return new Promise((resolve, reject) => {
         try {
+            // ВАЖНО: Telegram.Login.auth может требовать bot_id или client_id в зависимости от версии
+            // Мы передаем оба в строковом формате для максимальной совместимости
+            const options = {
+                client_id: rawId,
+                bot_id: rawId,
+                request_access: ['write']
+            };
+            
+            console.log('[Telegram OIDC] Calling sdk.auth with options:', JSON.stringify(options));
+
             sdk.auth(
-                { client_id: numericId },
+                options as any,
                 (data: { id_token?: string; user?: object; error?: string } | null) => {
                     console.log('[Telegram OIDC] SDK response:', data);
                     
