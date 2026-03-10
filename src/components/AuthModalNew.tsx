@@ -4,7 +4,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { initiateTelegramOIDC } from '@/lib/telegram-oidc';
+import { openTelegramOIDCPopup } from '@/lib/telegram-oidc';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
@@ -313,13 +313,37 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     if (telegramLoading) return;
     setTelegramLoading(true);
     try {
-      // Исключаем лишний слеш в конце origin
       const cleanOrigin = window.location.origin.replace(/\/$/, '');
       const redirectUri = `${cleanOrigin}/auth/telegram/callback`;
-      await initiateTelegramOIDC(redirectUri);
+
+      const { code, verifier } = await openTelegramOIDCPopup(redirectUri);
+
+      const loadingToast = toast.loading('Входим через Telegram…');
+
+      const { data, error: fnError } = await supabase.functions.invoke('telegram-oidc-auth', {
+        body: { code, code_verifier: verifier, redirect_uri: redirectUri },
+      });
+
+      toast.dismiss(loadingToast);
+
+      if (fnError || !data?.session) {
+        throw new Error(data?.error ?? fnError?.message ?? 'Ошибка входа');
+      }
+
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+
+      if (sessionError) throw sessionError;
+
+      toast.success('Вход выполнен!');
+      onClose();
+      navigate('/dashboard');
     } catch (err: any) {
-      console.error('[Auth] Telegram OIDC init failed:', err);
-      toast.error('Не удалось запустить вход через Telegram');
+      console.error('[Auth] Telegram OIDC failed:', err);
+      toast.error(err.message ?? 'Не удалось войти через Telegram');
+    } finally {
       setTelegramLoading(false);
     }
   };

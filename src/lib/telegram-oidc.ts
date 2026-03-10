@@ -1,9 +1,16 @@
-// Утилиты для Telegram OIDC Authorization Code Flow + PKCE
+// Утилиты для Telegram OIDC Authorization Code Flow + PKCE + Popup
 const PKCE_STATE_KEY = 'tg_oidc_pkce';
+const POPUP_CHANNEL = 'telegram-oidc-callback';
 
 interface PKCEState {
     verifier: string;
     state: string;
+}
+
+export interface OIDCCallbackPayload {
+    code: string;
+    state: string;
+    verifier: string;
 }
 
 function base64UrlEncode(buffer: ArrayBuffer): string {
@@ -32,31 +39,91 @@ export function buildTelegramOAuthUrl(challenge: string, state: string, redirect
 
     const clientId = rawClientId.toString().replace(/['"]/g, '').trim();
 
-    const url = new URL('https://oauth.telegram.org/auth');
-    url.searchParams.set('client_id', clientId);
-    url.searchParams.set('redirect_uri', redirectUri);
-    url.searchParams.set('response_type', 'code');
-    url.searchParams.set('scope', 'openid profile');
-    url.searchParams.set('state', state);
-    url.searchParams.set('code_challenge', challenge);
-    url.searchParams.set('code_challenge_method', 'S256');
+    // Строим URL строго по документации Telegram OIDC Manual Flow
+    // redirect_uri не кодируем через searchParams — Telegram может быть
+    // чувствителен к двойному кодированию
+    const parts = [
+        `client_id=${encodeURIComponent(clientId)}`,
+        `redirect_uri=${encodeURIComponent(redirectUri)}`,
+        `response_type=code`,
+        `scope=openid%20profile`,
+        `state=${encodeURIComponent(state)}`,
+        `code_challenge=${encodeURIComponent(challenge)}`,
+        `code_challenge_method=S256`,
+    ];
 
-    // КРИТИЧНО: Telegram OIDC может быть капризным к '+' вместо '%20' в scope
-    const finalUrl = url.toString().replace(/\+/g, '%20');
-
-    console.log('[Telegram OIDC] Generated Auth URL:', finalUrl);
+    const finalUrl = `https://oauth.telegram.org/auth?${parts.join('&')}`;
+    console.log('[Telegram OIDC] Auth URL:', finalUrl);
+    console.log('[Telegram OIDC] Decoded redirect_uri:', redirectUri);
+    console.log('[Telegram OIDC] Client ID:', clientId);
 
     return finalUrl;
 }
 
-export async function initiateTelegramOIDC(redirectUri: string): Promise<void> {
+/**
+ * Открываем авторизацию в POPUP окне.
+ * После успеха popup делает postMessage и закрывается.
+ * Возвращает Promise с данными callback (code + state + verifier).
+ */
+export async function openTelegramOIDCPopup(redirectUri: string): Promise<OIDCCallbackPayload> {
     const { verifier, challenge } = await generatePKCE();
     const state = generateState();
 
     savePKCEState({ verifier, state });
 
     const url = buildTelegramOAuthUrl(challenge, state, redirectUri);
-    window.location.href = url;
+
+    const popup = window.open(
+        url,
+        POPUP_CHANNEL,
+        'width=480,height=640,scrollbars=yes,resizable=yes,toolbar=no,menubar=no,location=no,status=no',
+    );
+
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        throw new Error('Popup заблокирован браузером. Разрешите всплывающие окна для этого сайта.');
+    }
+
+    return new Promise((resolve, reject) => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.origin !== window.location.origin) return;
+            if (event.data?.type !== 'telegram-oidc-success') return;
+
+            window.removeEventListener('message', handleMessage);
+            clearInterval(pollTimer);
+
+            const { code, state: callbackState } = event.data as { type: string; code: string; state: string };
+            const pkce = loadPKCEState();
+            clearPKCEState();
+
+            if (!pkce || pkce.state !== callbackState) {
+                reject(new Error('State mismatch — возможная CSRF атака'));
+                return;
+            }
+
+            resolve({ code, state: callbackState, verifier: pkce.verifier });
+        };
+
+        window.addEventListener('message', handleMessage);
+
+        // Следим за тем, что popup не закрыл пользователь вручную
+        const pollTimer = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(pollTimer);
+                window.removeEventListener('message', handleMessage);
+                clearPKCEState();
+                reject(new Error('Окно авторизации было закрыто'));
+            }
+        }, 500);
+
+        // Таймаут 5 минут
+        setTimeout(() => {
+            clearInterval(pollTimer);
+            window.removeEventListener('message', handleMessage);
+            if (!popup.closed) popup.close();
+            clearPKCEState();
+            reject(new Error('Время авторизации истекло'));
+        }, 5 * 60 * 1000);
+    });
 }
 
 export function savePKCEState(pkce: PKCEState): void {

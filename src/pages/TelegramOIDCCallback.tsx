@@ -5,6 +5,13 @@ import { loadPKCEState, clearPKCEState } from '@/lib/telegram-oidc';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * Страница /auth/telegram/callback
+ *
+ * Работает в двух режимах:
+ * 1. POPUP режим (window.opener существует): шлёт postMessage в родителя и закрывается
+ * 2. REDIRECT режим (прямой переход): устанавливает сессию и переходит в dashboard
+ */
 export default function TelegramOIDCCallback() {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
@@ -14,16 +21,54 @@ export default function TelegramOIDCCallback() {
             const params = new URLSearchParams(window.location.search);
             const code = params.get('code');
             const state = params.get('state');
+            const errorParam = params.get('error');
+            const errorDescription = params.get('error_description');
 
-            if (!code || !state) {
-                setError('Отсутствуют параметры авторизации. Попробуйте войти снова.');
+            // Обрабатываем ошибки от Telegram
+            if (errorParam) {
+                const message = errorDescription ?? errorParam;
+                if (window.opener) {
+                    window.opener.postMessage(
+                        { type: 'telegram-oidc-error', error: message },
+                        window.location.origin,
+                    );
+                    window.close();
+                } else {
+                    setError(message);
+                }
                 return;
             }
 
+            if (!code || !state) {
+                const message = 'Отсутствуют параметры авторизации. Попробуйте снова.';
+                if (window.opener) {
+                    window.opener.postMessage(
+                        { type: 'telegram-oidc-error', error: message },
+                        window.location.origin,
+                    );
+                    window.close();
+                } else {
+                    setError(message);
+                }
+                return;
+            }
+
+            // POPUP режим: отправляем данные родительскому окну
+            // Верификацию state и обмен токенов делает родительское окно
+            if (window.opener) {
+                window.opener.postMessage(
+                    { type: 'telegram-oidc-success', code, state },
+                    window.location.origin,
+                );
+                window.close();
+                return;
+            }
+
+            // REDIRECT режим: классическая обработка
             const pkce = loadPKCEState();
 
             if (!pkce) {
-                setError('Сессия авторизации истекла. Пожалуйста, попробуйте снова.');
+                setError('Сессия авторизации истекла. Попробуйте снова.');
                 return;
             }
 
@@ -86,6 +131,7 @@ export default function TelegramOIDCCallback() {
         );
     }
 
+    // В popup-режиме пользователь видит этот экран лишь долю секунды
     return (
         <div className="min-h-[100dvh] bg-[#09090b] flex flex-col items-center justify-center gap-4">
             <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
