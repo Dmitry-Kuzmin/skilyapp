@@ -1,20 +1,32 @@
 // Утилиты для входа через Telegram Login SDK
-// Документация: https://core.telegram.org/widgets/login
+// Документация: https://oauth.telegram.org
 
-const SDK_URL = 'https://oauth.telegram.org/js/telegram-login.js?73';
+const SDK_URL = 'https://oauth.telegram.org/js/telegram-login.js';
+
 let sdkLoadPromise: Promise<void> | null = null;
 
+type TelegramAuthData = {
+    id_token?: string;
+    user?: object;
+    error?: string;
+};
+
+type InitOptions = {
+    client_id: number;
+    nonce?: string;
+    request_access?: ('phone' | 'write')[];
+    lang?: string;
+};
+
 type TelegramLoginSDK = {
-    auth: (
-        options: { client_id: number; nonce?: string; request_access?: string[]; lang?: string },
-        callback: (data: { id_token?: string; user?: object; error?: string } | null) => void,
-    ) => void;
+    init: (options: InitOptions, callback: (data: TelegramAuthData | null) => void) => void;
+    open: (callback?: (data: TelegramAuthData | null) => void) => void;
+    auth: (options: InitOptions, callback: (data: TelegramAuthData | null) => void) => void;
 };
 
 function getTelegramLogin(): TelegramLoginSDK | undefined {
     return (window as any).Telegram?.Login as TelegramLoginSDK | undefined;
 }
-
 
 function loadTelegramLoginSDK(): Promise<void> {
     if (sdkLoadPromise) return sdkLoadPromise;
@@ -28,10 +40,7 @@ function loadTelegramLoginSDK(): Promise<void> {
         const script = document.createElement('script');
         script.src = SDK_URL;
         script.async = true;
-        script.onload = () => {
-            // Небольшая задержка для инициализации SDK
-            setTimeout(resolve, 150);
-        };
+        script.onload = () => setTimeout(resolve, 200);
         script.onerror = () => {
             sdkLoadPromise = null;
             reject(new Error('Не удалось загрузить Telegram Login SDK'));
@@ -42,40 +51,65 @@ function loadTelegramLoginSDK(): Promise<void> {
     return sdkLoadPromise;
 }
 
+function parseClientId(clientId: string | number): number {
+    const rawId = clientId.toString().replace(/['"\s]/g, '');
+
+    if (!rawId || rawId === 'undefined' || rawId === 'null') {
+        throw new Error(
+            'VITE_TELEGRAM_BOT_ID не задан. ' +
+            'Добавьте переменную в Vercel Dashboard → Settings → Environment Variables.',
+        );
+    }
+
+    const numericId = parseInt(rawId, 10);
+
+    if (isNaN(numericId) || numericId <= 0) {
+        throw new Error(`Невалидный VITE_TELEGRAM_BOT_ID: "${rawId}" (должно быть числовым ID бота)`);
+    }
+
+    return numericId;
+}
+
 /**
  * Открывает официальный попап Telegram Login SDK и возвращает id_token.
- * Не требует redirect_uri — всё обрабатывается внутри SDK.
+ * Использует init() + open() согласно новой документации Telegram OAuth.
  */
 export async function openTelegramLogin(clientId: string | number): Promise<string> {
+    const numericId = parseClientId(clientId);
+
     await loadTelegramLoginSDK();
 
     const sdk = getTelegramLogin();
-    if (!sdk) throw new Error('Telegram Login SDK не инициализирован');
+    if (!sdk) throw new Error('Telegram Login SDK не доступен после загрузки скрипта');
 
-    // Очищаем от кавычек на случай если env-переменная пришла с ними
-    const rawId = clientId.toString().replace(/['"]/g, '').trim();
-    const numericId = parseInt(rawId, 10);
-
-    if (isNaN(numericId) || numericId === 0) {
-        throw new Error(`Невалидный VITE_TELEGRAM_BOT_ID: "${rawId}"`);
-    }
-
-    console.log('[Telegram OIDC] Calling SDK auth with client_id:', numericId);
+    console.log('[Telegram OIDC] SDK loaded, client_id:', numericId);
 
     return new Promise((resolve, reject) => {
-        sdk.auth(
-            { client_id: numericId },
-            (data: { id_token?: string; user?: object; error?: string } | null) => {
-                if (!data || data.error) {
-                    reject(new Error(data?.error ?? 'Авторизация отменена'));
-                    return;
-                }
-                if (!data.id_token) {
-                    reject(new Error('id_token не получен от Telegram'));
-                    return;
-                }
-                resolve(data.id_token);
-            },
-        );
+        const handleResult = (data: TelegramAuthData | null) => {
+            if (!data) {
+                reject(new Error('Авторизация отменена пользователем'));
+                return;
+            }
+            if (data.error) {
+                reject(new Error(data.error));
+                return;
+            }
+            if (!data.id_token) {
+                reject(new Error('id_token не получен от Telegram'));
+                return;
+            }
+            resolve(data.id_token);
+        };
+
+        if (typeof sdk.init === 'function' && typeof sdk.open === 'function') {
+            console.log('[Telegram OIDC] Using init() + open()');
+            sdk.init({ client_id: numericId }, handleResult);
+            sdk.open();
+        } else if (typeof sdk.auth === 'function') {
+            console.log('[Telegram OIDC] Using auth() directly');
+            sdk.auth({ client_id: numericId }, handleResult);
+        } else {
+            reject(new Error('Telegram Login SDK: нет доступных методов (init/open/auth)'));
+        }
     });
 }
