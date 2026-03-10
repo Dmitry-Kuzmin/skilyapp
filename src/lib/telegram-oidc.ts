@@ -43,75 +43,39 @@ function loadTelegramLoginSDK(): Promise<void> {
 }
 
 /**
- * Предварительно загружает SDK, чтобы при клике пользователя не было задержки (и блокировки попапа)
- */
-export function preloadTelegramSDK(): Promise<void> {
-    return loadTelegramLoginSDK();
-}
-
-/**
  * Открывает официальный попап Telegram Login SDK и возвращает id_token.
  * Не требует redirect_uri — всё обрабатывается внутри SDK.
  */
 export async function openTelegramLogin(clientId: string | number): Promise<string> {
-    console.log('[Telegram OIDC] Starting auth flow with clientId:', clientId);
-    
     await loadTelegramLoginSDK();
 
     const sdk = getTelegramLogin();
-    if (!sdk) {
-        console.error('[Telegram OIDC] SDK not found in window.Telegram.Login');
-        throw new Error('Telegram Login SDK не инициализирован');
-    }
+    if (!sdk) throw new Error('Telegram Login SDK не инициализирован');
 
     // Очищаем от кавычек на случай если env-переменная пришла с ними
     const rawId = clientId.toString().replace(/['"]/g, '').trim();
     const numericId = parseInt(rawId, 10);
 
     if (isNaN(numericId) || numericId === 0) {
-        console.error('[Telegram OIDC] Invalid numeric clientId:', rawId, 'Original:', clientId);
         throw new Error(`Невалидный VITE_TELEGRAM_BOT_ID: "${rawId}"`);
     }
 
-    return new Promise((resolve, reject) => {
-        try {
-            // ВАЖНО: JS SDK (telegram-login.js) ожидает ровно 'bot_id' как число.
-            // Использование 'client_id' или строковых ID может приводить к ошибкам "deprecated" или "Bot id required".
-            const options = {
-                bot_id: numericId,
-                request_access: 'write'
-            };
-            
-            console.log('[Telegram OIDC] Calling sdk.auth with options:', options);
+    console.log('[Telegram OIDC] Calling SDK auth with client_id:', numericId);
 
-            sdk.auth(
-                options as any,
-                (data: { id_token?: string; user?: object; error?: string } | null) => {
-                    console.log('[Telegram OIDC] SDK response data:', data);
-                    
-                    if (!data) {
-                        reject(new Error('Авторизация отменена (no data)'));
-                        return;
-                    }
-                    
-                    if (data.error) {
-                        console.error('[Telegram OIDC] SDK error callback:', data.error);
-                        reject(new Error(data.error));
-                        return;
-                    }
-                    
-                    if (!data.id_token) {
-                        console.error('[Telegram OIDC] Missing id_token in response data');
-                        reject(new Error('id_token не получен от Telegram. Убедитесь, что OIDC включен в BotFather.'));
-                        return;
-                    }
-                    
-                    resolve(data.id_token);
-                },
-            );
-        } catch (err: any) {
-            console.error('[Telegram OIDC] Synchronous error calling sdk.auth:', err);
-            reject(new Error(`Ошибка запуска SDK: ${err.message}`));
-        }
+    return new Promise((resolve, reject) => {
+        sdk.auth(
+            { client_id: numericId },
+            (data: { id_token?: string; user?: object; error?: string } | null) => {
+                if (!data || data.error) {
+                    reject(new Error(data?.error ?? 'Авторизация отменена'));
+                    return;
+                }
+                if (!data.id_token) {
+                    reject(new Error('id_token не получен от Telegram'));
+                    return;
+                }
+                resolve(data.id_token);
+            },
+        );
     });
 }

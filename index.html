@@ -40,13 +40,7 @@
       const color = isLanding ? '#0f172a' : '#09090b';
       // Красим html/body немедленно — это влияет на цвет overscroll (bounce area на iOS)
       document.documentElement.style.backgroundColor = color;
-      if (document.body) {
-        document.body.style.backgroundColor = color;
-      } else {
-        window.addEventListener('DOMContentLoaded', () => {
-          document.body.style.backgroundColor = color;
-        });
-      }
+      document.body.style.backgroundColor = color;
       document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
       document.querySelector('meta[name="msapplication-TileColor"]').setAttribute('content', color);
     })();
