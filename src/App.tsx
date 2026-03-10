@@ -51,6 +51,8 @@ const Landing = lazy(() => import("./pages/Landing"));
 // AuthCallback - страница для обработки OAuth callback
 // Должна быть доступна без AppProviders, так как обрабатывает сессию сама
 import { AuthCallback } from "./pages/AuthCallback";
+// TelegramOIDCCallback - OIDC callback, устанавливает сессию сам, не требует AppProviders
+const TelegramOIDCCallback = lazy(() => import("./pages/TelegramOIDCCallback"));
 // Purchase - страница для обработки Paddle checkout
 // Должна быть доступна без AppProviders, так как Paddle редиректит туда до оплаты
 const Purchase = lazy(() => import("./pages/Purchase").then(m => ({ default: m.default })));
@@ -563,6 +565,12 @@ const App = () => {
                   <StartupCurtain />
                   <AuthCallback />
                 </>
+              } />
+              {/* Telegram OIDC callback - обрабатывает PKCE code и устанавливает сессию сам */}
+              <Route path="/auth/telegram/callback" element={
+                <Suspense fallback={null}>
+                  <TelegramOIDCCallback />
+                </Suspense>
               } />
               {/* Paddle purchase - обрабатывает редирект от Paddle, не требует AppProviders */}
               <Route path="/purchase" element={

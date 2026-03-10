@@ -4,13 +4,15 @@ import { UserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { initiateTelegramOIDC } from '@/lib/telegram-oidc';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTelegram } from '@/contexts/TelegramContext';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 // Extracted Components
 import { AuthModalHeader } from './auth/modal/AuthModalHeader';
@@ -307,6 +309,19 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
   const [telegramLoading, setTelegramLoading] = useState(false);
 
+  const handleTelegramOIDCLogin = async () => {
+    if (telegramLoading) return;
+    setTelegramLoading(true);
+    try {
+      const redirectUri = `${window.location.origin}/auth/telegram/callback`;
+      await initiateTelegramOIDC(redirectUri);
+    } catch (err: any) {
+      console.error('[Auth] Telegram OIDC init failed:', err);
+      toast.error('Не удалось запустить вход через Telegram');
+      setTelegramLoading(false);
+    }
+  };
+
   const getPasskeyLabel = () => {
     // Для обычного пользователя "Passkey" – это непонятный термин.
     // Используем понятные названия: Face ID / Touch ID / Отпечаток
@@ -373,6 +388,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 telegramLoading={telegramLoading}
                 onContinue={handleEmailSubmit}
                 onGoogleLogin={handleGoogleLogin}
+                onTelegramLogin={handleTelegramOIDCLogin}
                 getPasskeyLabel={getPasskeyLabel}
                 onClose={onClose}
               />
