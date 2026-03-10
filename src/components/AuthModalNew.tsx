@@ -4,7 +4,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { openTelegramLogin } from '@/lib/telegram-oidc';
+import { openTelegramLogin, preloadTelegramSDK } from '@/lib/telegram-oidc';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
@@ -110,6 +110,17 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     }, 30);
   }, [password]);
 
+  // Предварительная загрузка Telegram Login SDK при открытии модалки
+  useEffect(() => {
+    if (open) {
+      preloadTelegramSDK().then(() => {
+        console.log('[Auth] Telegram OIDC SDK warmed up');
+      }).catch(err => {
+        console.error('[Auth] Telegram OIDC SDK warm up failed:', err);
+      });
+    }
+  }, [open]);
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -146,8 +157,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
           .single();
 
         if (profile) {
-          setUserName(profile.full_name);
-          setUserAvatar(profile.avatar_url);
+          setUserName((profile as any).full_name);
+          setUserAvatar((profile as any).avatar_url);
         }
       }
 
@@ -314,10 +325,16 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     setTelegramLoading(true);
     try {
       const clientId = import.meta.env.VITE_TELEGRAM_BOT_ID;
-      if (!clientId) throw new Error('VITE_TELEGRAM_BOT_ID не настроен');
+      console.log('[Auth] Telegram OIDC start. Client ID:', clientId);
+      
+      if (!clientId) {
+        throw new Error('VITE_TELEGRAM_BOT_ID не настроен. Проверьте переменные окружения.');
+      }
 
-      // Telegram.Login.auth() открывает попап сам, без redirect
+      // Telegram.Login.auth() открывает попап сам, без redirect.
+      // ВАЖНО: Мы вызываем его как можно быстрее в цепочке промисов, чтобы не потерять жест (User Gesture)
       const idToken = await openTelegramLogin(clientId);
+      console.log('[Auth] Telegram OIDC token received');
 
       const loadingToast = toast.loading('Входим через Telegram…');
 
@@ -328,9 +345,11 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       toast.dismiss(loadingToast);
 
       if (fnError || !data?.session) {
-        throw new Error(data?.error ?? fnError?.message ?? 'Ошибка входа');
+        console.error('[Auth] Edge function error:', fnError || data);
+        throw new Error(data?.error ?? fnError?.message ?? 'Ошибка сервера авторизации');
       }
 
+      console.log('[Auth] Telegram OIDC success. Setting session...');
       const { error: sessionError } = await supabase.auth.setSession({
         access_token: data.session.access_token,
         refresh_token: data.session.refresh_token,
@@ -342,8 +361,13 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       onClose();
       navigate('/dashboard');
     } catch (err: any) {
-      console.error('[Auth] Telegram OIDC failed:', err);
-      toast.error(err.message ?? 'Не удалось войти через Telegram');
+      console.error('[Auth] Telegram OIDC fatal error:', err);
+      // Если это ошибка отмены, не показываем её как страшную ошибку
+      if (err.message === 'Авторизация отменена') {
+        toast.info('Вход отменен');
+      } else {
+        toast.error(err.message ?? 'Не удалось войти через Telegram');
+      }
     } finally {
       setTelegramLoading(false);
     }

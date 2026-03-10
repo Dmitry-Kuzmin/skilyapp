@@ -33,8 +33,20 @@ interface WebApp {
       username?: string;
       language_code?: string;
       photo_url?: string;
+      is_premium?: boolean;
     };
   };
+  HapticFeedback?: {
+    notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
+    impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void;
+    selectionChanged: () => void;
+  };
+  showAlert?: (message: string) => void;
+  showConfirm?: (message: string, callback: (confirmed: boolean) => void) => void;
+  showPopup?: (params: any, callback: (buttonId: string) => void) => void;
+  shareToStory?: (media_url: string, params?: any) => void;
+  setHeaderColor?: (color: string) => void;
+  setBackgroundColor?: (color: string) => void;
 }
 
 const TelegramContext = createContext<WebApp | null>(null);
@@ -239,4 +251,3 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 export function useTelegram(): WebApp | null {
   return useContext(TelegramContext);
 }
-
