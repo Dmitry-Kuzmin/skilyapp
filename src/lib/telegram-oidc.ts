@@ -30,22 +30,23 @@ export function buildTelegramOAuthUrl(challenge: string, state: string, redirect
     if (!rawClientId) throw new Error('VITE_TELEGRAM_BOT_ID not set');
     if (!redirectUri) throw new Error('redirectUri is required');
 
-    // Очищаем ID от возможных кавычек или пробелов
     const clientId = rawClientId.toString().replace(/['"]/g, '').trim();
 
-    // Формируем параметры в строгом соответствии с Manual Implementation
-    // Используем ручную склейку, чтобы гарантировать %20 вместо +
-    const params = [
-        `client_id=${clientId}`,
-        `redirect_uri=${encodeURIComponent(redirectUri)}`,
-        `response_type=code`,
-        `scope=openid%20profile`,
-        `state=${state}`,
-        `code_challenge=${challenge}`,
-        `code_challenge_method=S256`
-    ];
+    const url = new URL('https://oauth.telegram.org/auth');
+    url.searchParams.set('client_id', clientId);
+    url.searchParams.set('redirect_uri', redirectUri);
+    url.searchParams.set('response_type', 'code');
+    url.searchParams.set('scope', 'openid profile');
+    url.searchParams.set('state', state);
+    url.searchParams.set('code_challenge', challenge);
+    url.searchParams.set('code_challenge_method', 'S256');
 
-    return `https://oauth.telegram.org/auth?${params.join('&')}`;
+    // КРИТИЧНО: Telegram OIDC может быть капризным к '+' вместо '%20' в scope
+    const finalUrl = url.toString().replace(/\+/g, '%20');
+
+    console.log('[Telegram OIDC] Generated Auth URL:', finalUrl);
+
+    return finalUrl;
 }
 
 export async function initiateTelegramOIDC(redirectUri: string): Promise<void> {
