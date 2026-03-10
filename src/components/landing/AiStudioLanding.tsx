@@ -191,7 +191,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !shouldLoadDemo) {
+          if (entry.isIntersecting) {
             setShouldLoadDemo(true);
             observer.disconnect();
           }
@@ -201,7 +201,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
     );
     observer.observe(demoContainerRef.current);
     return () => observer.disconnect();
-  }, [shouldLoadDemo]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps — монтируется один раз
 
   const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
