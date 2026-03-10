@@ -274,81 +274,83 @@ const LandingRedirect = () => {
 };
 
 const App = () => {
-  // КРИТИЧНО: Проверяем Telegram WebApp только если мы действительно в Telegram Mini App
-  // В браузере window.Telegram может быть моком или заглушкой
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp;
+  useEffect(() => {
+    // КРИТИЧНО: Проверяем Telegram WebApp только если мы действительно в Telegram Mini App
+    // В браузере window.Telegram может быть моком или заглушкой
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
 
-    // Вызываем ready() один раз (даже если это мок или без параметров)
-    if (typeof tg.ready === 'function') {
-      tg.ready();
-    }
-
-    // ============================================================================
-    // GOLDEN RULES v3.0 - RULE 3: The "Chameleon" Protocol
-    // @see ThemeColorManager.tsx
-    // ============================================================================
-    // КРИТИЧНО: Цвета теперь автоматически синхронизируются в ThemeColorManager.tsx
-    // Это обеспечивает плавную смену цветов при навигации между страницами с разным фоном.
-
-    try {
-      // Enable closing confirmation (recommended for better UX)
-      if (typeof tg.enableClosingConfirmation === 'function') {
-        tg.enableClosingConfirmation();
+      // Вызываем ready() один раз (даже если это мок или без параметров)
+      if (typeof tg.ready === 'function') {
+        tg.ready();
       }
-    } catch (error) {
-      console.warn('[App] Error enabling closing confirmation:', error);
-    }
 
-    // ============================================================================
-    // GOLDEN RULES v3.0 - RULE 3.5: requestFullscreen() (Mini Apps 8.0+)
-    // Иммерсивный режим — приложение занимает весь экран, как у BotFather
-    // ============================================================================
+      // ============================================================================
+      // GOLDEN RULES v3.0 - RULE 3: The "Chameleon" Protocol
+      // @see ThemeColorManager.tsx
+      // ============================================================================
+      // КРИТИЧНО: Цвета теперь автоматически синхронизируются в ThemeColorManager.tsx
+      // Это обеспечивает плавную смену цветов при навигации между страницами с разным фоном.
 
-    // 1. Сначала вызываем старый expand() для совместимости
-    const callExpand = () => {
       try {
-        if (typeof tg.expand === 'function' && !tg.isExpanded) {
-          tg.expand();
-          console.debug('[App] ✅ expand() called');
+        // Enable closing confirmation (recommended for better UX)
+        if (typeof tg.enableClosingConfirmation === 'function') {
+          tg.enableClosingConfirmation();
         }
       } catch (error) {
-        console.warn('[App] Error calling expand():', error);
+        console.warn('[App] Error enabling closing confirmation:', error);
       }
-    };
 
-    callExpand();
+      // ============================================================================
+      // GOLDEN RULES v3.0 - RULE 3.5: requestFullscreen() (Mini Apps 8.0+)
+      // Иммерсивный режим — приложение занимает весь экран, как у BotFather
+      // ============================================================================
 
-    // 2. МАГИЯ Mini Apps 8.0+ — иммерсивный режим на полный экран
-    // requestFullscreen() переводит в режим без шторки
-    try {
-      // @ts-expect-error — requestFullscreen добавлен в Mini Apps 8.0, типы могут быть устаревшими
-      if (typeof tg.requestFullscreen === 'function') {
-        // @ts-expect-error
-        tg.requestFullscreen();
-        if (import.meta.env.DEV) console.debug('[App] ✅ requestFullscreen() called - immersive mode enabled');
-      } else {
-        if (import.meta.env.DEV) console.debug('[App] ℹ️ requestFullscreen not available (Mini Apps < 8.0)');
+      // 1. Сначала вызываем старый expand() для совместимости
+      const callExpand = () => {
+        try {
+          if (typeof tg.expand === 'function' && !tg.isExpanded) {
+            tg.expand();
+            console.debug('[App] ✅ expand() called');
+          }
+        } catch (error) {
+          console.warn('[App] Error calling expand():', error);
+        }
+      };
+
+      callExpand();
+
+      // 2. МАГИЯ Mini Apps 8.0+ — иммерсивный режим на полный экран
+      // requestFullscreen() переводит в режим без шторки
+      try {
+        // @ts-expect-error — requestFullscreen добавлен в Mini Apps 8.0, типы могут быть устаревшими
+        if (typeof tg.requestFullscreen === 'function') {
+          // @ts-expect-error
+          tg.requestFullscreen();
+          if (import.meta.env.DEV) console.debug('[App] ✅ requestFullscreen() called - immersive mode enabled');
+        } else {
+          if (import.meta.env.DEV) console.debug('[App] ℹ️ requestFullscreen not available (Mini Apps < 8.0)');
+        }
+      } catch (error) {
+        console.warn('[App] Error calling requestFullscreen():', error);
       }
-    } catch (error) {
-      console.warn('[App] Error calling requestFullscreen():', error);
-    }
 
-    // Слушаем события viewport (fallback)
-    if (typeof tg.onEvent === 'function') {
-      tg.onEvent('viewport_changed', () => {
-        if (!tg.isExpanded) {
-          callExpand();
-        }
-      });
+      // Слушаем события viewport (fallback)
+      if (typeof tg.onEvent === 'function') {
+        const handleExpand = () => {
+          if (!tg.isExpanded) {
+            callExpand();
+          }
+        };
 
-      tg.onEvent('safeAreaChanged', () => {
-        if (!tg.isExpanded) {
-          callExpand();
-        }
-      });
+        tg.onEvent('viewport_changed', handleExpand);
+        tg.onEvent('safeAreaChanged', handleExpand);
+
+        // Мы не отписываемся от этих событий, так как мы хотим
+        // чтобы они работали всё время жизни App (singleton)
+      }
     }
-  }
+  }, []);
 
   // Валидация переменных окружения при старте
   useEffect(() => {

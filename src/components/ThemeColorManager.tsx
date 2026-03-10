@@ -49,6 +49,15 @@ export function ThemeColorManager() {
                 }
             }
 
+            // 4. Обновляем background браузера (для Safari bottom bar / Android Navigation bar)
+            // Это решает проблему белых/чёрных полос при скролле и "обрезанных" страниц снизу
+            try {
+                document.documentElement.style.backgroundColor = color;
+                document.body.style.backgroundColor = color;
+            } catch (e) {
+                console.warn('[ThemeColorManager] Failed to set body bg color:', e);
+            }
+
             if (import.meta.env.DEV) {
                 console.log('[ThemeColorManager] 🦎 Applied color:', color, 'for route:', location.pathname);
             }
