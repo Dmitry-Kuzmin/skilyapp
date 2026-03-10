@@ -52,9 +52,19 @@ export async function openTelegramLogin(clientId: string | number): Promise<stri
     const sdk = getTelegramLogin();
     if (!sdk) throw new Error('Telegram Login SDK не инициализирован');
 
+    // Очищаем от кавычек на случай если env-переменная пришла с ними
+    const rawId = clientId.toString().replace(/['"]/g, '').trim();
+    const numericId = parseInt(rawId, 10);
+
+    if (isNaN(numericId) || numericId === 0) {
+        throw new Error(`Невалидный VITE_TELEGRAM_BOT_ID: "${rawId}"`);
+    }
+
+    console.log('[Telegram OIDC] Calling SDK auth with client_id:', numericId);
+
     return new Promise((resolve, reject) => {
         sdk.auth(
-            { client_id: Number(clientId) },
+            { client_id: numericId },
             (data: { id_token?: string; user?: object; error?: string } | null) => {
                 if (!data || data.error) {
                     reject(new Error(data?.error ?? 'Авторизация отменена'));
