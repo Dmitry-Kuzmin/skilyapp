@@ -15,26 +15,32 @@ function base64UrlEncode(buffer: ArrayBuffer): string {
 
 export async function generatePKCE(): Promise<{ verifier: string; challenge: string }> {
     const array = crypto.getRandomValues(new Uint8Array(64));
-    const verifier = base64UrlEncode(array);
+    const verifier = base64UrlEncode(array.buffer);
     const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
     const challenge = base64UrlEncode(hashBuffer);
     return { verifier, challenge };
 }
 
 function generateState(): string {
-    return base64UrlEncode(crypto.getRandomValues(new Uint8Array(32)));
+    return base64UrlEncode(crypto.getRandomValues(new Uint8Array(32)).buffer);
 }
 
 export function buildTelegramOAuthUrl(challenge: string, state: string, redirectUri: string): string {
     const clientId = import.meta.env.VITE_TELEGRAM_BOT_ID;
     if (!clientId) throw new Error('VITE_TELEGRAM_BOT_ID not set');
+    if (!redirectUri) throw new Error('redirectUri is required');
+
+    // nonce — обязательный параметр для OIDC
+    const array = crypto.getRandomValues(new Uint8Array(32));
+    const nonce = base64UrlEncode(array.buffer);
 
     const params = new URLSearchParams({
-        client_id: clientId,
+        client_id: clientId.toString(),
         redirect_uri: redirectUri,
         response_type: 'code',
         scope: 'openid profile',
-        state,
+        state: state,
+        nonce: nonce,
         code_challenge: challenge,
         code_challenge_method: 'S256',
     });
