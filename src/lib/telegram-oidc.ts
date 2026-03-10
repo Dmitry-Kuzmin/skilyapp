@@ -75,20 +75,19 @@ export async function openTelegramLogin(clientId: string | number): Promise<stri
 
     return new Promise((resolve, reject) => {
         try {
-            // ВАЖНО: Telegram.Login.auth может требовать bot_id или client_id в зависимости от версии
-            // Мы передаем оба в строковом формате для максимальной совместимости
+            // ВАЖНО: JS SDK (telegram-login.js) ожидает ровно 'bot_id' как число.
+            // Использование 'client_id' или строковых ID может приводить к ошибкам "deprecated" или "Bot id required".
             const options = {
-                client_id: rawId,
-                bot_id: rawId,
-                request_access: ['write']
+                bot_id: numericId,
+                request_access: 'write'
             };
             
-            console.log('[Telegram OIDC] Calling sdk.auth with options:', JSON.stringify(options));
+            console.log('[Telegram OIDC] Calling sdk.auth with options:', options);
 
             sdk.auth(
                 options as any,
                 (data: { id_token?: string; user?: object; error?: string } | null) => {
-                    console.log('[Telegram OIDC] SDK response:', data);
+                    console.log('[Telegram OIDC] SDK response data:', data);
                     
                     if (!data) {
                         reject(new Error('Авторизация отменена (no data)'));
@@ -96,14 +95,14 @@ export async function openTelegramLogin(clientId: string | number): Promise<stri
                     }
                     
                     if (data.error) {
-                        console.error('[Telegram OIDC] SDK error:', data.error);
+                        console.error('[Telegram OIDC] SDK error callback:', data.error);
                         reject(new Error(data.error));
                         return;
                     }
                     
                     if (!data.id_token) {
-                        console.error('[Telegram OIDC] Missing id_token in response');
-                        reject(new Error('id_token не получен от Telegram'));
+                        console.error('[Telegram OIDC] Missing id_token in response data');
+                        reject(new Error('id_token не получен от Telegram. Убедитесь, что OIDC включен в BotFather.'));
                         return;
                     }
                     
