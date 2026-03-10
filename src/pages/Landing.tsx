@@ -24,8 +24,8 @@ const PartnerInviteBanner = lazy(() =>
 
 const Landing = () => {
   const webApp = useTelegram();
-  // Стабильный ref — читается внутри эффекта без добавления в deps,
-  // чтобы избежать циклического перезапуска при каждом ререндере TelegramContext.
+  // Стабильный ref — читается внутри эффекта без добавления в deps.
+  // Это ключевой трюк: webApp меняется → ref обновляется → эффект НЕ перезапускается.
   const webAppRef = useRef(webApp);
   webAppRef.current = webApp;
 
@@ -34,13 +34,16 @@ const Landing = () => {
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
+  // КРИТИЧНО: Показываем лендинг немедленно, НЕ ждём Telegram
+  // Только если мы реально в Mini App — перехватываем и редиректим
   const [isCheckingTelegram, setIsCheckingTelegram] = useState(true);
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  // КРИТИЧНО: Проверка Telegram авторизации — только один раз при монтировании.
-  // webApp читается через стабильный ref без попадания в deps-массив эффекта.
+  // КРИТИЧНО: Проверка Telegram авторизации.
+  // ЛОГИКА: Лендинг показывается СРАЗУ если это не Mini App.
+  // Только реальный Telegram Mini App (isMiniApp() === true) делает редирект.
   useEffect(() => {
     if (location.pathname === '/dashboard') {
       setIsCheckingTelegram(false);
@@ -48,9 +51,8 @@ const Landing = () => {
     }
 
     let attempts = 0;
-    const maxAttempts = 20;
+    const maxAttempts = 20; // 5 секунд максимум (20 * 250ms)
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    let webAppDetected = false;
     let hasRedirected = false;
 
     const checkTelegram = () => {
@@ -58,9 +60,17 @@ const Landing = () => {
 
       attempts++;
 
-      const hasWebApp = hasTelegramWebApp() || !!window.Telegram?.WebApp;
-      if (hasWebApp) webAppDetected = true;
+      const isMiniApp = isTelegramMiniApp();
 
+      // Если точно НЕ в Mini App — немедленно показываем лендинг.
+      // Telegram SDK может быть загружен на странице, но это не значит Mini App.
+      if (!isMiniApp) {
+        setIsCheckingTelegram(false);
+        return;
+      }
+
+      // Дальше — мы точно внутри Telegram Mini App.
+      // Проверяем авторизацию для редиректа.
       const currentWebApp = webAppRef.current;
       let telegramUser = null;
 
@@ -79,49 +89,45 @@ const Landing = () => {
       }
 
       const hasAuth = checkTelegramAuth();
-      const isMiniApp = isTelegramMiniApp();
       const hasRealInitData = !!(
         currentWebApp?.initData &&
         currentWebApp.initData !== '' &&
         !currentWebApp.initData.startsWith('mock_')
       );
 
-      // Telegram Mini App — редирект в дашборд
-      if (isMiniApp && (telegramUser || hasAuth || hasRealInitData)) {
+      // Есть данные — редиректим в дашборд
+      if (telegramUser || hasAuth || hasRealInitData) {
         hasRedirected = true;
         navigate('/dashboard', { replace: true });
         return;
       }
 
-      // Обычный браузер — сразу показываем лендинг
-      if (!hasWebApp) {
-        setIsCheckingTelegram(false);
-        return;
-      }
-
-      // WebApp есть, но initData ещё не пришёл — ждём
-      if (!hasRealInitData && attempts < maxAttempts) {
+      // Мы в Mini App, но данных ещё нет — ждём (до 5 секунд)
+      if (attempts < maxAttempts) {
         timeoutId = setTimeout(checkTelegram, 250);
         return;
       }
 
-      // Таймаут истёк и WebApp был — редиректим
-      if (webAppDetected && attempts >= maxAttempts) {
-        hasRedirected = true;
-        navigate('/dashboard', { replace: true });
-        return;
-      }
-
-      setIsCheckingTelegram(false);
+      // Таймаут истёк — редиректим всё равно, UserContext разберётся с авторизацией
+      hasRedirected = true;
+      navigate('/dashboard', { replace: true });
     };
 
+    // Быстрая первая проверка: если точно не Mini App — покажем лендинг без задержки
+    const isMiniAppNow = isTelegramMiniApp();
+    if (!isMiniAppNow) {
+      setIsCheckingTelegram(false);
+      return; // Не запускаем polling вообще
+    }
+
+    // Мы в Mini App — запускаем polling
     checkTelegram();
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]); // navigate стабилен; webApp читается через ref
+  }, [navigate]); // navigate стабилен; webApp через ref (не в deps намеренно)
 
   // Загрузка партнёрской/реферальной информации — только при монтировании
   useEffect(() => {
@@ -170,11 +176,10 @@ const Landing = () => {
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Только при монтировании — sessionStorage не меняется во время сессии
+  }, []); // Только при монтировании — sessionStorage стабилен в сессию
 
   const { selectedCountry } = useCountry();
 
-  // Во время проверки Telegram оставляем HTML-скелетон на экране
   if (isCheckingTelegram) {
     return null;
   }
