@@ -533,7 +533,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     return (
       <div className="min-h-[100dvh] bg-[#09090b] flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md bg-[#09090b] rounded-[3rem] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7)] border border-white/5 relative">
-          {/* Close button for Page Variant */}
+          {/* Close button for Page Variant (Mobile) */}
           <button
             onClick={onClose}
             className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
@@ -544,7 +544,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
           </button>
 
           {/* Subtle top glare for 3D effect */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none z-20" />
           
           {/* Success Animation Overlay */}
           <AnimatePresence>
@@ -575,8 +575,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                     transition={{ delay: 0.3 }}
                     className="text-center"
                   >
-                    <h3 className="text-2xl font-bold text-white mb-1">Success!</h3>
-                    <p className="text-sm text-green-300/80">Redirecting to dashboard...</p>
+                    <h3 className="text-2xl font-bold text-white mb-1">Успешно!</h3>
+                    <p className="text-sm text-green-300/80">Переходим в личный кабинет...</p>
                   </motion.div>
                 </div>
               </motion.div>
@@ -594,9 +594,19 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       open={open}
       onOpenChange={(val) => !val && onClose()}
       dismissible={!isSubmitting}
-      className="p-0 overflow-hidden"
+      className="!border-none !border-0 !outline-none !ring-0 !bg-[#09090b] rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)] p-0 overflow-hidden"
     >
       <div className="relative">
+        {/* Close button for Modal Variant (Mobile) */}
+        <button
+          onClick={onClose}
+          className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md md:hidden"
+          aria-label="Закрыть"
+        >
+          <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
+          <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
+        </button>
+
         {/* Subtle top glare for 3D effect */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none z-20" />
 
@@ -629,8 +639,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                   transition={{ delay: 0.3 }}
                   className="text-center"
                 >
-                  <h3 className="text-2xl font-bold text-white mb-1">Success!</h3>
-                  <p className="text-sm text-green-300/80">Redirecting to dashboard...</p>
+                  <h3 className="text-2xl font-bold text-white mb-1">Успешно!</h3>
+                  <p className="text-sm text-green-300/80">Переходим в личный кабинет...</p>
                 </motion.div>
               </div>
             </motion.div>
