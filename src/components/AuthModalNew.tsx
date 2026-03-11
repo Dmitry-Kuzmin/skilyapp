@@ -620,13 +620,11 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
           <AnimatePresence>
             {showSuccessAnimation && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 z-50 flex items-center justify-center bg-zinc-950/80 backdrop-blur-md overflow-hidden"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.1 }}
+                className="absolute inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-green-950/95 via-emerald-950/95 to-teal-950/95 backdrop-blur-sm"
               >
-                {/* Radial Glow */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,197,94,0.15)_0%,transparent_70%)]" />
                 <div className="flex flex-col items-center gap-4">
                   <motion.div
                     initial={{ scale: 0, rotate: -180 }}
