@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from '@/components/optimized/Motion';
-import { ArrowLeft, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SuccessScreenProps {
@@ -34,13 +34,7 @@ export function SuccessScreen({
             transition={{ duration: 0.5, ease: 'easeInOut' }}
             className="relative text-center"
         >
-            {/* Back Button */}
-            <button
-                onClick={onBack}
-                className="absolute top-7 left-0 w-10 h-10 flex items-center justify-center rounded-full border border-white/10 text-zinc-500/50 hover:text-white hover:bg-white/5 hover:border-white/20 transition-all group z-20"
-            >
-                <ArrowLeft className="w-5 h-5 group-active:scale-95 transition-transform" />
-            </button>
+
 
             {/* Animated Paper Plane Icon */}
             <motion.div
