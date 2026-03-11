@@ -366,13 +366,9 @@
       })(typeof global !== "undefined" ? global : this);
   </script>
 
-  <!-- AdsGram SDK - (async для неблокирующего LCP) -->
-  <script src="https://sad.adsgram.ai/js/sad.min.js" async></script>
+  <!-- AdsGram SDK загружается динамически в src/lib/adsgram.ts -->
 
-  <!-- Google AdSense H5 Games Ads (Approved pub-1758777358223420) -->
-  <script async data-ad-client="ca-pub-1758777358223420" data-ad-frequency-hint="30s"
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js">
-    </script>
+  <!-- Google AdSense SDK загружается динамически в src/lib/adsense.ts -->
 
   <!-- Monetag TMA SDK (загружается динамически по требованию в src/lib/monetag.ts) -->
 

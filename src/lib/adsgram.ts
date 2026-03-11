@@ -32,6 +32,22 @@ const ADSGRAM_CONFIG = {
 let adController: AdsGramAdController | null = null;
 
 /**
+ * Динамическая загрузка AdsGram SDK
+ */
+async function loadAdsGramScript(): Promise<void> {
+  if (window.Adsgram) return;
+
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://sad.adsgram.ai/js/sad.min.js';
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load AdsGram SDK'));
+    document.head.appendChild(script);
+  });
+}
+
+/**
  * Инициализация AdsGram SDK
  * @param userId - ID пользователя (Telegram ID) для серверных уведомлений
  */
@@ -40,13 +56,17 @@ export async function initAdsGram(userId?: string): Promise<AdsGramAdController 
     return null;
   }
 
-  // Скрипт теперь загружается в index.html через <script>
-  if (!window.Adsgram) {
-    console.error('[AdsGram] SDK not found on window. Ensure script is in index.html');
-    return null;
-  }
-
   try {
+    // Загружаем скрипт динамически, если его еще нет
+    if (!window.Adsgram) {
+      await loadAdsGramScript();
+    }
+
+    if (!window.Adsgram) {
+      console.error('[AdsGram] SDK not found even after loading attempt');
+      return null;
+    }
+
     // Инициализация с blockId и userId
     adController = window.Adsgram.init({
       blockId: ADSGRAM_CONFIG.REWARDED_VIDEO_BLOCK_ID,

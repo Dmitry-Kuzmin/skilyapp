@@ -13,10 +13,38 @@ declare global {
 }
 
 /**
+ * Динамическая загрузка Google AdSense H5 SDK
+ */
+async function loadAdSenseScript(): Promise<void> {
+    if (window.adsbygoogle) return;
+
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+        script.async = true;
+        script.dataset.adClient = 'ca-pub-1758777358223420';
+        script.dataset.adFrequencyHint = '30s';
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load AdSense SDK'));
+        document.head.appendChild(script);
+    });
+}
+
+/**
  * Initializes Google AdSense H5 Games Ads
  */
-export function initAdSenseH5(): void {
+export async function initAdSenseH5(): Promise<void> {
     if (typeof window === 'undefined') return;
+
+    // Загружаем скрипт динамически
+    if (!window.adsbygoogle) {
+        try {
+            await loadAdSenseScript();
+        } catch (error) {
+            console.error('[AdSense H5] Script loading failed:', error);
+            return;
+        }
+    }
 
     // Initialize adBreak function if not already present
     // It pushes the configuration to the adsbygoogle array
