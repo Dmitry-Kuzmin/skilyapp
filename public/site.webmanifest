@@ -14,10 +14,10 @@
       "type": "image/png"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/favicon-s.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "display": "standalone",
