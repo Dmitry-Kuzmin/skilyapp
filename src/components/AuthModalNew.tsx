@@ -256,7 +256,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     }
   };
 
-  const handleSendMagicLink = async (isNew: boolean = false) => {
+  const handleSendMagicLink = useCallback(async (isNew: boolean = false) => {
     if (!email || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -287,9 +287,9 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [email, isSubmitting, webApp, t]);
 
-  const handleVerifyOtp = async (token: string) => {
+  const handleVerifyOtp = useCallback(async (token: string) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
@@ -315,7 +315,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [email, isSubmitting, isNewUserForOtp, onClose, navigate, t]);
 
   const handlePasswordRecovery = async () => {
     if (!email || isSubmitting) return;
@@ -412,11 +412,11 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     return 'Windows Hello';
   };
 
-  const handleBackToEmail = () => {
+  const handleBackToEmail = useCallback(() => {
     setStep('email');
     setPassword('');
     setPasswordError(null);
-  };
+  }, []);
 
   // Cooldown timer
   useEffect(() => {
