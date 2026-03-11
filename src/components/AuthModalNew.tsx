@@ -151,13 +151,13 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       if (exists) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, avatar_url')
+          .select('full_name, first_name, photo_url')
           .eq('email', email.trim().toLowerCase())
           .single();
 
         if (profile) {
-          setUserName((profile as any).full_name);
-          setUserAvatar((profile as any).avatar_url);
+          setUserName((profile as any).full_name || (profile as any).first_name);
+          setUserAvatar((profile as any).photo_url);
         }
       }
 
