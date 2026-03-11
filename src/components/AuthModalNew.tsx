@@ -4,7 +4,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { openTelegramLogin } from '@/lib/telegram-oidc';
+import { openTelegramLogin, loadTelegramLoginSDK } from '@/lib/telegram-oidc';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
@@ -72,6 +72,15 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     };
     checkPasskey();
   }, []);
+
+  // Предзагрузка Telegram SDK при открытии модалки (для ускорения клика по кнопке Telegram)
+  useEffect(() => {
+    if (open) {
+      loadTelegramLoginSDK().catch(err => {
+        console.warn('[Telegram OIDC] Ошибка предзагрузки SDK:', err);
+      });
+    }
+  }, [open]);
 
   useEffect(() => {
     if (step === 'password-recovery' && recoverySentAt) {

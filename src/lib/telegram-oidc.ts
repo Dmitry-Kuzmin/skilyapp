@@ -28,7 +28,7 @@ function getTelegramLogin(): TelegramLoginSDK | undefined {
     return (window as any).Telegram?.Login as TelegramLoginSDK | undefined;
 }
 
-function loadTelegramLoginSDK(): Promise<void> {
+export function loadTelegramLoginSDK(): Promise<void> {
     if (sdkLoadPromise) return sdkLoadPromise;
 
     if (getTelegramLogin()) {
