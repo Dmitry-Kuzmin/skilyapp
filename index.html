@@ -29,7 +29,7 @@
     })(document, "script");
   </script>
 
-  <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически -->
+  <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически при переходах -->
   <meta name="theme-color" content="#0f172a">
   <meta name="msapplication-TileColor" content="#0f172a">
   <meta name="color-scheme" content="dark">
@@ -42,19 +42,29 @@
                   path.startsWith('/games') ||
                   path.startsWith('/profile') ||
                   path.startsWith('/settings') ||
-                  path.startsWith('/purchase');
-      var color = isApp ? '#09090b' : '#0f172a';
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
-      document.querySelector('meta[name="msapplication-TileColor"]').setAttribute('content', color);
-      document.documentElement.style.setProperty('background-color', color, 'important');
-      function applyBody() {
-        document.body.style.setProperty('background-color', color, 'important');
-      }
-      if (document.body) { applyBody(); }
-      else { document.addEventListener('DOMContentLoaded', applyBody, { once: true }); }
+                  path.startsWith('/purchase') ||
+                  path.startsWith('/test/') ||
+                  path.startsWith('/topic') ||
+                  path.startsWith('/admin') ||
+                  path.startsWith('/partner');
+
+      var hex   = isApp ? '#09090b' : '#0f172a';
+      var hsl   = isApp ? '240 10% 3.9%' : '222 47% 11%';
+
+      // 1. ГЛАВНОЕ: устанавливаем CSS переменную --background ДО загрузки React.
+      //    Все CSS-правила вида hsl(var(--background)) сразу получат правильное значение.
+      //    Это решает Edge-to-Edge: html и body красятся через CSS, не через JS inline.
+      document.documentElement.style.setProperty('--background', hsl);
+      document.documentElement.style.setProperty('--initial-bg', hex);
+
+      // 2. Meta theme-color: цвет адресной строки / вкладки браузера
+      var metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', hex);
+      var metaTile = document.querySelector('meta[name="msapplication-TileColor"]');
+      if (metaTile) metaTile.setAttribute('content', hex);
     })();
   </script>
-  <!-- Safari iOS: чёрная строка статуса с прозрачностью -->
+  <!-- Safari iOS: чёрная строка статуса с прозрачностью (нужно для viewport-fit=cover) -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- PREMIUM TYPOGRAPHY: Outfit for headings, Inter for body -->
@@ -250,7 +260,7 @@
       color-scheme: dark;
       /* Начальный цвет overscroll (bounce area) на iOS Safari.
          ThemeColorManager перекрасит его при монтировании React. */
-      background-color: #09090b;
+      background-color: var(--initial-bg, #09090b);
     }
 
     body {
@@ -266,7 +276,7 @@
       -moz-osx-font-smoothing: grayscale;
       /* ThemeColorManager динамически перекрасит этот фон при навигации.
          Дефолт — тёмный (дашборд). Лендинг будет установлен сразу из inline-скрипта выше. */
-      background-color: #09090b;
+      background-color: var(--initial-bg, #09090b);
       color: #fafafa;
     }
 
@@ -827,7 +837,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-03-08-13:43';
+      const APP_VERSION = '2026-03-11-16:25';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)

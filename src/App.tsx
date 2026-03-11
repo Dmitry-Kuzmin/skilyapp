@@ -46,8 +46,8 @@ const PWAInstallBanner = lazy(() => import("@/components/pwa").then(m => ({ defa
 const AppProviders = lazy(() => import("@/components/providers/AppProviders").then(m => ({ default: m.AppProviders })));
 const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
 
-// ОПТИМИЗАЦИЯ: Landing теперь lazy для уменьшения initial bundle
-const Landing = lazy(() => import("./pages/Landing"));
+// ОПТИМИЗАЦИЯ: Landing теперь синхронный для ускорения первого рендера (избавляет от водопада lazy)
+import Landing from "./pages/Landing";
 // AuthCallback - страница для обработки OAuth callback
 // Должна быть доступна без AppProviders, так как обрабатывает сессию сама
 import { AuthCallback } from "./pages/AuthCallback";
