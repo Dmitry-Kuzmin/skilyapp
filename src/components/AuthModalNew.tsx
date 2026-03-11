@@ -11,7 +11,7 @@ import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/pass
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTelegram } from '@/contexts/TelegramContext';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, ShieldCheck, X } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Extracted Components
@@ -151,20 +151,20 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
       // Если пользователь существует, пытаемся получить его публичный профиль (аватар/имя)
       if (exists) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id, full_name, first_name, photo_url')
-          .eq('email', email.trim().toLowerCase())
-          .single();
+        const { data: profile } = await supabase.rpc('get_user_profile_by_email', { 
+          p_email: email.trim().toLowerCase() 
+        });
 
         if (profile) {
-          const profileData = profile as any;
-          setUserProfileId(profileData.id);
-          
-          // Фоллбек имени: full_name -> first_name -> email prefix
-          const emailPrefix = email.split('@')[0];
-          setUserName(profileData.full_name || profileData.first_name || emailPrefix);
-          setUserAvatar(profileData.photo_url);
+          const profileData = Array.isArray(profile) ? profile[0] : profile;
+          if (profileData) {
+            setUserProfileId(profileData.id);
+            
+            const emailPrefix = email.split('@')[0];
+            const fullName = profileData.full_name || (profileData.first_name ? `${profileData.first_name} ${profileData.last_name || ''}` : null);
+            setUserName(fullName || profileData.username || emailPrefix);
+            setUserAvatar(profileData.avatar_url || profileData.photo_url);
+          }
         }
       }
 
@@ -542,6 +542,24 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     return (
       <div className="min-h-[100dvh] bg-[#09090b] flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md bg-[#09090b] rounded-[3rem] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7)] border border-white/5 relative">
+          {/* Back button for Page Variant */}
+          <AnimatePresence>
+            {step !== 'email' && (
+              <motion.button
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 0.6, x: 0 }}
+                whileHover={{ opacity: 1, scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                exit={{ opacity: 0, x: -10 }}
+                onClick={handleBackToEmail}
+                className="absolute left-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
+                aria-label="Назад"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
           {/* Close button for Page Variant (Mobile) */}
           <button
             onClick={onClose}
@@ -606,6 +624,24 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       className="!border-none !border-0 !outline-none !ring-0 !bg-[#09090b] rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)] p-0 overflow-hidden"
     >
       <div className="relative">
+        {/* Back button for Modal Variant */}
+        <AnimatePresence>
+          {step !== 'email' && (
+            <motion.button
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 0.6, x: 0 }}
+              whileHover={{ opacity: 1, scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              exit={{ opacity: 0, x: -10 }}
+              onClick={handleBackToEmail}
+              className="absolute left-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
+              aria-label="Назад"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
         {/* Close button for Modal Variant (Mobile) */}
         <button
           onClick={onClose}
