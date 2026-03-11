@@ -586,7 +586,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       dismissible={!isSubmitting}
       className="!border-none !border-0 !outline-none !ring-0 !bg-transparent !shadow-none p-0 overflow-visible"
     >
-      <div className="bg-[#09090b] rounded-[32px] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7),0_10px_20px_rgba(0,0,0,0.4)] border border-white/5 relative">
+      <div className="bg-[#09090b] rounded-[3rem] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7),0_10px_20px_rgba(0,0,0,0.4)] border border-white/5 relative">
         {/* Subtle top glare for 3D effect */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
