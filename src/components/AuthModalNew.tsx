@@ -4,7 +4,7 @@ import { UserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { openTelegramLogin, loadTelegramLoginSDK } from '@/lib/telegram-oidc';
+import { openTelegramLogin, preinitTelegramLogin } from '@/lib/telegram-oidc';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
@@ -73,12 +73,13 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     checkPasskey();
   }, []);
 
-  // Предзагрузка Telegram SDK при открытии модалки (для ускорения клика по кнопке Telegram)
+  // Шаг 2: При открытии модалки вызываем sdk.init() — при клике sdk.open() сработает мгновенно
   useEffect(() => {
     if (open) {
-      loadTelegramLoginSDK().catch(err => {
-        console.warn('[Telegram OIDC] Ошибка предзагрузки SDK:', err);
-      });
+      const clientId = import.meta.env.VITE_TELEGRAM_BOT_ID;
+      if (clientId) {
+        preinitTelegramLogin(clientId);
+      }
     }
   }, [open]);
 

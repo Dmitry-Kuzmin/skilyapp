@@ -239,6 +239,9 @@
   <!-- OIDC: preconnect к oauth.telegram.org для быстрого открытия попапа авторизации -->
   <link rel="preconnect" href="https://oauth.telegram.org" crossorigin />
   <link rel="dns-prefetch" href="https://oauth.telegram.org" />
+  <!-- Telegram Login SDK: загружаем сразу вместе со страницей (по документации) -->
+  <!-- async — не блокирует рендер, но загружается параллельно с основным бандлом -->
+  <script src="https://oauth.telegram.org/js/telegram-login.js" async></script>
   <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
   <link rel="dns-prefetch" href="https://yffjnqegeiorunyvcxkn.supabase.co" />
   <!-- ОПТИМИЗАЦИЯ: noise.svg теперь локальный, preconnect к grainy-gradients удалён -->
