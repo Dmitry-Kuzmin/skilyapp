@@ -111,7 +111,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
               first_name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'User',
               photo_url: supabaseUser.user_metadata?.avatar_url || null,
               platform: supabaseUser.user_metadata?.is_telegram_user ? 'telegram' : 'web',
-              coins: 500,
+              coins: 0,
               xp: 0
             }, {
               onConflict: 'user_id',

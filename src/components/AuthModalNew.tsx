@@ -475,6 +475,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 email={email}
                 isSubmitting={isSubmitting}
                 magicLinkState={magicLinkState}
+                isExistingUser={step === 'magic-link-existing'}
                 onBackToEmail={handleBackToEmail}
                 onSendMagicLink={handleSendMagicLink}
               />

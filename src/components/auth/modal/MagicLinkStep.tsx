@@ -9,6 +9,7 @@ interface MagicLinkStepProps {
     magicLinkState: 'idle' | 'sending' | 'sent';
     onBackToEmail: () => void;
     onSendMagicLink: (newAcc: boolean) => void;
+    isExistingUser?: boolean;
 }
 
 export function MagicLinkStep({
@@ -16,7 +17,8 @@ export function MagicLinkStep({
     isSubmitting,
     magicLinkState,
     onBackToEmail,
-    onSendMagicLink
+    onSendMagicLink,
+    isExistingUser = false
 }: MagicLinkStepProps) {
     const { t } = useLanguage();
 
@@ -60,7 +62,9 @@ export function MagicLinkStep({
                         ) : (
                             <>
                                 <Sparkles className="w-5 h-5 text-amber-200 animate-[pulse_3s_ease-in-out_infinite]" />
-                                {t('auth.createAccountButton') || 'Зарегистрироваться по ссылке'}
+                                {isExistingUser 
+                                    ? (t('auth.loginButton') || 'Войти в аккаунт') 
+                                    : (t('auth.createAccountButton') || 'Создать аккаунт')}
                             </>
                         )}
                     </span>
