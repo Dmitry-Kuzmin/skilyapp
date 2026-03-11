@@ -2,11 +2,13 @@ import { motion, AnimatePresence } from '@/components/optimized/Motion';
 import { ShieldCheck, Rocket, User } from 'lucide-react';
 import { LandingLogo } from '@/components/landing/LandingLogo';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { UserAvatar } from '@/components/UserAvatar';
 
 interface AuthModalHeaderProps {
     step: string;
     userName: string | null;
     userAvatar: string | null;
+    profileId?: string | null;
     email: string;
     onAvatarError: () => void;
 }
@@ -15,6 +17,7 @@ export function AuthModalHeader({
     step,
     userName,
     userAvatar,
+    profileId,
     email,
     onAvatarError
 }: AuthModalHeaderProps) {
@@ -40,7 +43,13 @@ export function AuthModalHeader({
                         <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-500 animate-spin-slow opacity-70 blur-[1px]" />
 
                         <div className="relative rounded-full z-10 bg-zinc-950 p-[2px]">
-                            {userAvatar ? (
+                            {profileId ? (
+                                <UserAvatar
+                                    profileId={profileId}
+                                    size="xl"
+                                    showPremiumGlow={true}
+                                />
+                            ) : userAvatar ? (
                                 <img
                                     src={userAvatar}
                                     alt={userName || "User"}

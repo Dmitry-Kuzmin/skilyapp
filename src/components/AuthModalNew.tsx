@@ -42,6 +42,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
   const [isPasswordShaking, setIsPasswordShaking] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [userProfileId, setUserProfileId] = useState<string | null>(null);
   const [userHasPassword, setUserHasPassword] = useState(true);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
@@ -146,6 +147,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       // Сброс старых данных
       setUserName(null);
       setUserAvatar(null);
+      setUserProfileId(null);
 
       // Если пользователь существует, пытаемся получить его публичный профиль (аватар/имя)
       if (exists) {
@@ -156,6 +158,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
           .single();
 
         if (profile) {
+          setUserProfileId((profile as any).id);
           setUserName((profile as any).full_name || (profile as any).first_name);
           setUserAvatar((profile as any).photo_url);
         }
@@ -406,6 +409,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
           step={step}
           userName={userName}
           userAvatar={userAvatar}
+          profileId={userProfileId}
           email={email}
           onAvatarError={() => setUserAvatar(null)}
         />
