@@ -21,7 +21,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-md transition-all duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-200 data-[state=closed]:duration-150",
+      "fixed inset-0 z-50 bg-black/80 backdrop-blur-[12px] transition-all duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-300 data-[state=closed]:duration-200",
       className,
     )}
     style={{
@@ -151,6 +151,7 @@ const DialogContent = React.forwardRef<
           className={cn(
             // Базовые стили для dialog (премиум стиль)
             "relative z-50 grid w-full gap-4 p-6 duration-200 pointer-events-auto",
+            "bg-[#09090b] border border-white/5 shadow-[0_30px_90px_-20px_rgba(0,0,0,1)]",
             // Максимальная ширина
             sizeConfig.maxWidth || "max-w-lg",
             // Максимальная высота

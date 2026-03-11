@@ -146,9 +146,7 @@ export function ResponsiveModal({
         className={cn(
           defaultMaxWidth,
           fullscreen ? "h-screen rounded-none" : "max-h-[90vh]",
-          "bg-background border-zinc-800/50",
           "flex flex-col p-0",
-          "shadow-[0_8px_40px_rgba(0,0,0,0.2)]",
           className
         )}
         hideCloseButton={hideCloseButton}

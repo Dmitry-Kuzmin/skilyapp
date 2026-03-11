@@ -11,7 +11,7 @@ import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/pass
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTelegram } from '@/contexts/TelegramContext';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Extracted Components
@@ -127,8 +127,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     if (!isValidEmail) {
       setEmailError(t('auth.errors.invalidEmail'));
       setIsEmailShaking(true);
-      if (webApp?.HapticFeedback) {
-        webApp.HapticFeedback.notificationOccurred('error');
+      if ((webApp as any)?.HapticFeedback) {
+        (webApp as any).HapticFeedback.notificationOccurred('error');
       }
       setTimeout(() => setIsEmailShaking(false), 500);
       return;
@@ -156,13 +156,13 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
           .single();
 
         if (profile) {
-          setUserName(profile.full_name);
-          setUserAvatar(profile.avatar_url);
+          setUserName((profile as any).full_name);
+          setUserAvatar((profile as any).avatar_url);
         }
       }
 
-      if (webApp?.HapticFeedback) {
-        webApp.HapticFeedback.notificationOccurred('success');
+      if ((webApp as any)?.HapticFeedback) {
+        (webApp as any).HapticFeedback.notificationOccurred('success');
       }
 
       // Умный роутинг:
@@ -177,8 +177,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       console.error('Email check failed:', err);
       setEmailError(t('auth.errors.checkFailed'));
       setIsEmailShaking(true);
-      if (webApp?.HapticFeedback) {
-        webApp.HapticFeedback.notificationOccurred('error');
+      if ((webApp as any)?.HapticFeedback) {
+        (webApp as any).HapticFeedback.notificationOccurred('error');
       }
       setTimeout(() => setIsEmailShaking(false), 500);
     } finally {
@@ -214,8 +214,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       // 🎉 Показываем красивую success анимацию
       setShowSuccessAnimation(true);
       toast.success(t('auth.success.loggedIn'));
-      if (webApp?.HapticFeedback) {
-        webApp.HapticFeedback.notificationOccurred('success');
+      if ((webApp as any)?.HapticFeedback) {
+        (webApp as any).HapticFeedback.notificationOccurred('success');
       }
 
       // 🚀 Даем время на анимацию, затем редирект на dashboard
@@ -238,8 +238,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       }
 
       setIsPasswordShaking(true);
-      if (webApp?.HapticFeedback) {
-        webApp.HapticFeedback.notificationOccurred('error');
+      if ((webApp as any)?.HapticFeedback) {
+        (webApp as any).HapticFeedback.notificationOccurred('error');
       }
       setTimeout(() => setIsPasswordShaking(false), 500);
     } finally {
@@ -267,8 +267,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       setMagicLinkState('sent');
       setStep('check-email');
       setResendCooldown(60);
-      if (webApp?.HapticFeedback) {
-        webApp.HapticFeedback.notificationOccurred('success');
+      if ((webApp as any)?.HapticFeedback) {
+        (webApp as any).HapticFeedback.notificationOccurred('success');
       }
     } catch (err: any) {
       console.error('Magic link failed:', err);
@@ -532,10 +532,20 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
   if (variant === 'page') {
     return (
       <div className="min-h-[100dvh] bg-[#09090b] flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#09090b] rounded-[32px] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05)] border border-white/5 relative">
+        <div className="w-full max-w-md bg-[#09090b] rounded-[3rem] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7)] border border-white/5 relative">
+          {/* Close button for Page Variant */}
+          <button
+            onClick={onClose}
+            className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
+            aria-label="Вернуться"
+          >
+            <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
+            <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
+          </button>
+
           {/* Subtle top glare for 3D effect */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
-
+          
           {/* Success Animation Overlay */}
           <AnimatePresence>
             {showSuccessAnimation && (
@@ -584,11 +594,11 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       open={open}
       onOpenChange={(val) => !val && onClose()}
       dismissible={!isSubmitting}
-      className="!border-none !border-0 !outline-none !ring-0 !bg-transparent !shadow-none p-0 overflow-visible"
+      className="p-0 overflow-hidden"
     >
-      <div className="bg-[#09090b] rounded-[3rem] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7),0_10px_20px_rgba(0,0,0,0.4)] border border-white/5 relative">
+      <div className="relative">
         {/* Subtle top glare for 3D effect */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none z-20" />
 
         {/* Success Animation Overlay */}
         <AnimatePresence>
