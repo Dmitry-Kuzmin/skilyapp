@@ -153,6 +153,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           setIsPartnershipOpen={setIsPartnershipOpen}
           navigate={navigate}
           handleEnter={handleEnter}
+          referrerInfo={referrerInfo}
         />
       </Suspense>
     </div>

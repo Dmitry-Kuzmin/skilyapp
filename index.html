@@ -558,8 +558,9 @@
     })();
   </script>
 
-  <!-- КРИТИЧНО ДЛЯ OIDC: telegram-widget.js удалён — он перезаписывает window.Telegram.Login
+   <!-- КРИТИЧНО ДЛЯ OIDC: telegram-widget.js удалён — он перезаписывает window.Telegram.Login
        и ломает Telegram Login SDK, используемый для авторизации через OIDC popup. -->
+  <script src="https://oauth.telegram.org/js/telegram-login.js" async defer></script>
 
   <!-- ОПТИМИЗАЦИЯ FONTS: Preload критического шрифта -->
   <!-- Оптимизация шрифтов: загрузка через современный link -->

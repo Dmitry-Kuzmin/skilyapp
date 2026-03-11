@@ -9,6 +9,7 @@ import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { landingTranslations } from "@/translations/landing";
 import { Sparkles, Brain, Timer, Target, School } from "lucide-react";
+import { PartnershipExpansionPortal } from "./PartnershipExpansionPortal";
 
 // Types
 interface ReferrerInfo {
@@ -136,7 +137,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         handleStartEngine={handleStartEngine}
         handleLanguageChange={handleLanguageChange}
         isStarting={isStarting}
-        isPartner={!!partnerInfo}
+        partnerInfo={partnerInfo}
       />
 
       <Suspense fallback={<div className="h-[400px]" />}>
@@ -150,6 +151,11 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           setIsPartnershipOpen={setIsPartnershipOpen}
         />
       </Suspense>
+
+      <PartnershipExpansionPortal
+        isOpen={isPartnershipOpen}
+        onClose={() => setIsPartnershipOpen(false)}
+      />
     </div>
   );
 };

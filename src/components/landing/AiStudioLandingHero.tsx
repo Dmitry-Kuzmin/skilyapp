@@ -1,5 +1,5 @@
 import React from "react";
-import { Zap, Crown, Coins } from "lucide-react";
+import { Zap, Crown, Coins, Gift, ArrowRight } from "lucide-react";
 import { LandingLogo } from "./LandingLogo";
 import { StartEngineButton } from "./StartEngineButton";
 import { CountrySelector } from "./CountrySelector";
@@ -11,11 +11,14 @@ interface HeroProps {
   copy: any;
   selectedCountry: any;
   referrerInfo: any;
+  partnerInfo?: any;
   handleEnter: () => void;
   handleStartEngine: () => void;
   handleLanguageChange: (code: any) => void;
   isStarting: boolean;
-  isPartner?: boolean;
+  isTouchDevice?: boolean;
+  avatarError?: boolean;
+  setAvatarError?: (val: boolean) => void;
 }
 
 export const AiStudioLandingHero: React.FC<HeroProps> = ({
@@ -23,6 +26,7 @@ export const AiStudioLandingHero: React.FC<HeroProps> = ({
   copy,
   selectedCountry,
   referrerInfo,
+  partnerInfo,
   handleEnter,
   handleStartEngine,
   handleLanguageChange,
@@ -63,6 +67,66 @@ export const AiStudioLandingHero: React.FC<HeroProps> = ({
           </button>
         </div>
       </nav>
+
+      {/* Partner Banner */}
+      {partnerInfo && (
+        <div className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto animate-fade-in">
+          <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-amber-500/30 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-yellow-500/10 pointer-events-none" />
+            <div className="relative p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="relative flex-shrink-0">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-amber-500/30 overflow-hidden backdrop-blur-sm">
+                    <span className="bg-gradient-to-br from-amber-400 to-yellow-400 bg-clip-text text-transparent">
+                      {partnerInfo.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg md:text-xl font-black text-white mb-1.5 leading-tight">
+                    {partnerInfo.name} {language === 'ru' ? 'дарит Premium!' : 'regala Premium!'}
+                  </h3>
+                  <p className="text-sm md:text-base text-slate-300">
+                    <span className="font-bold text-amber-400">Premium {language === 'ru' ? 'на 30 дней' : 'for 30 days'}</span> {language === 'ru' ? 'при регистрации' : 'on registration'}
+                  </p>
+                </div>
+              </div>
+              <button onClick={handleEnter} className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-black text-sm md:text-base flex items-center justify-center gap-2">
+                <Crown className="h-4 w-4" />
+                <span>{language === 'ru' ? 'Получить Premium' : 'Get Premium'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Referral Banner */}
+      {!partnerInfo && referrerInfo && (
+        <div className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto animate-fade-in">
+          <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-slate-800/50 shadow-2xl">
+            <div className="relative p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6">
+              <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-white font-black text-xl md:text-2xl shadow-lg border border-slate-700/50 overflow-hidden">
+                  {referrerInfo.photo_url ? (
+                    <img src={referrerInfo.photo_url} alt={referrerInfo.first_name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="bg-gradient-to-br from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">{referrerInfo.first_name.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg md:text-xl font-black text-white mb-1.5 leading-tight">{referrerInfo.first_name} {copy.referral?.invitesYou || "invites you!"}</h3>
+                  <p className="text-sm md:text-base text-slate-300"><span className="font-bold text-indigo-400">+50 {language === 'ru' ? 'монет' : 'coins'}</span> {copy.referral?.coinsOnRegistration || "on registration"}</p>
+                </div>
+              </div>
+              <button onClick={handleEnter} className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white font-black text-sm md:text-base flex items-center justify-center gap-2">
+                <Gift className="h-4 w-4" />
+                <span>{copy.referral?.join || "Join"}</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <section className="relative z-10 px-6 pt-12 pb-8 md:pt-20 md:pb-12 max-w-[1400px] mx-auto flex flex-col items-center text-center min-h-[70vh]">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-5 sm:mb-6 animate-fade-in relative z-20">

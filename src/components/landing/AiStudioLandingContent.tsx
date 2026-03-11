@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FAQItem } from "./FAQItem";
-import { LandingGameModesShowcase } from "./LandingGameModesShowcase";
 import { LandingLogo } from "./LandingLogo";
 import { useNavigate } from "react-router-dom";
-
+const InfiniteMarquee = React.lazy(() => import("./InfiniteMarquee").then(m => ({ default: m.InfiniteMarquee })));
+const LandingGameModesShowcase = React.lazy(() => import("./LandingGameModesShowcase").then(m => ({ default: m.LandingGameModesShowcase })));
 const LandingQuizDemo = React.lazy(() => import("./LandingQuizDemo").then(m => ({ default: m.LandingQuizDemo })));
 
 interface Props {
@@ -114,9 +114,119 @@ export const AiStudioLandingContent: React.FC<Props> = ({
         </div>
       </section>
 
-      <div className="max-w-6xl mx-auto px-6 py-20">
+      <div className="max-w-6xl mx-auto px-6 py-20 group">
         <SkilyComparisonCard copy={copy} />
       </div>
+
+      {/* ECOSYSTEM SECTION */}
+      <section className="px-6 py-24 max-w-[1400px] mx-auto">
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-3xl md:text-5xl font-black text-white">{copy.ecosystem.title}</h2>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">{copy.ecosystem.description}</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-slate-900/40 border border-white/5 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6">
+              <FileText className="text-indigo-400" size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">{copy.ecosystem.cards.totalQuestions}</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">{copy.ecosystem.cards.totalQuestionsDescription}</p>
+          </div>
+          <div className="bg-slate-900/40 border border-white/5 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-sky-500/10 flex items-center justify-center mb-6">
+              <Globe className="text-sky-400" size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">{copy.ecosystem.cards.categoriesTitle}</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">{copy.ecosystem.cards.categoriesDescription}</p>
+          </div>
+          <div className="bg-slate-900/40 border border-white/5 p-8 rounded-[2rem] hover:border-indigo-500/30 transition-colors">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-6">
+              <Target className="text-emerald-400" size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">{copy.ecosystem.cards.simulationTitle}</h3>
+            <p className="text-slate-400 text-sm leading-relaxed">{copy.ecosystem.cards.simulationDescription}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* AI SECTION */}
+      <section className="relative px-6 py-24 max-w-[1400px] mx-auto overflow-hidden">
+        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="flex flex-col lg:flex-row gap-16 items-center">
+          <div className="flex-1 space-y-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-widest">
+              {copy.aiSection.poweredBy}
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">{copy.aiSection.title}</h2>
+            <p className="text-slate-400 text-lg leading-relaxed">{copy.aiSection.description}</p>
+            <ul className="space-y-4">
+              {copy.aiSection.bullets.map((b: string, i: number) => (
+                <li key={i} className="flex gap-3 text-slate-200 font-medium">
+                  <div className="mt-1 w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
+                    <CheckCircle className="text-indigo-400" size={12} />
+                  </div>
+                  {b}
+                </li>
+              ))}
+            </ul>
+            <div className="pt-4">
+              <button 
+                 onClick={handleEnter}
+                 className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20"
+              >
+                {copy.controls.studentAccess}
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 w-full lg:w-auto">
+             <div className="bg-slate-900/60 backdrop-blur-xl border border-white/5 p-8 md:p-12 rounded-[3rem] shadow-2xl relative">
+                <div className="absolute -top-6 -right-6 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl"></div>
+                <div className="space-y-6">
+                   <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-2xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/40">
+                         <Brain className="text-white" size={28} />
+                      </div>
+                      <div>
+                         <h4 className="text-white font-black text-xl">{copy.aiSection.challengeBank}</h4>
+                         <p className="text-indigo-400 text-xs font-bold uppercase tracking-widest">Powered by Gemini</p>
+                      </div>
+                   </div>
+                   <p className="text-slate-300 leading-relaxed">{copy.aiSection.challengeBankDescription}</p>
+                   <div className="pt-8 border-t border-white/5 flex items-center justify-between">
+                      <div className="flex -space-x-2">
+                         {[1,2,3,4].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-[#0f172a] bg-slate-800"></div>)}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">1,200+ active sessions</span>
+                   </div>
+                </div>
+             </div>
+
+              {/* TELEGRAM MINI APP CARD */}
+              <div className="mt-8 bg-gradient-to-br from-indigo-600/20 to-sky-600/20 backdrop-blur-xl border border-white/5 p-8 md:p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+                    <Zap size={80} className="text-white" />
+                 </div>
+                 <div className="relative z-10 space-y-4">
+                    <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                          <Rocket className="text-white" size={20} />
+                       </div>
+                       <h4 className="text-white font-black text-lg">{copy.aiSection.telegramTitle}</h4>
+                    </div>
+                    <p className="text-slate-300 text-sm leading-relaxed max-w-sm">{copy.aiSection.telegramDescription}</p>
+                    <a 
+                      href="https://t.me/skilyapp_bot" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-white font-bold text-xs uppercase tracking-widest hover:gap-3 transition-all"
+                    >
+                      {copy.aiSection.telegramCTA} <ArrowRight size={14} />
+                    </a>
+                 </div>
+              </div>
+           </div>
+        </div>
+      </section>
 
       <div ref={quizDemoContainerRef} className="py-20 px-6 max-w-5xl mx-auto">
         <h2 className="text-3xl md:text-5xl font-black text-center mb-12 text-white">
@@ -132,7 +242,41 @@ export const AiStudioLandingContent: React.FC<Props> = ({
         )}
       </div>
 
-      <LandingGameModesShowcase language={language} />
+      <React.Suspense fallback={<div className="h-[400px]" />}>
+        <LandingGameModesShowcase language={language} />
+      </React.Suspense>
+
+      {/* ARENA GAMES GRID */}
+      <section className="px-6 py-24 max-w-[1400px] mx-auto">
+        <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
+          <div className="max-w-xl">
+            <h2 className="text-3xl md:text-5xl font-black text-white mb-4">{copy.arena.gamesTitle}</h2>
+            <p className="text-slate-400">{copy.arena.bannerDescription}</p>
+          </div>
+          <div className="bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-full border border-emerald-500/20 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            {copy.arena.onlineText}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {copy.arena.games.map((game: any, i: number) => (
+            <div key={i} className="group p-8 rounded-[2.5rem] bg-slate-900/40 border border-white/5 hover:border-indigo-500/30 transition-all duration-300">
+               <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  {i === 0 && <Rocket className="text-indigo-400" size={28} />}
+                  {i === 1 && <Swords className="text-indigo-400" size={28} />}
+                  {i === 2 && <Target className="text-indigo-400" size={28} />}
+                  {i === 3 && <Brain className="text-indigo-400" size={28} />}
+               </div>
+               <h3 className="text-xl font-bold text-white mb-3">{game.title}</h3>
+               <p className="text-slate-400 text-sm leading-relaxed">{game.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <React.Suspense fallback={<div className="h-[200px]" />}>
+        <InfiniteMarquee />
+      </React.Suspense>
 
       {/* PRICING PLANS */}
       <section className="px-6 py-24 max-w-[1400px] mx-auto">
