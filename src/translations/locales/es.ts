@@ -72,6 +72,7 @@ export const es = {
     password: "Contraseña",
     passwordPlaceholder: "Introduce tu contraseña",
     signIn: "Iniciar sesión",
+    loginButton: "Iniciar sesión",
     createAccountButton: "Crear cuenta",
     changeEmail: "Cambiar",
     forgotPassword: "¿Olvidaste tu contraseña?",

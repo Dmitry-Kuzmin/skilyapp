@@ -72,6 +72,7 @@ export const ru = {
     password: "Пароль",
     passwordPlaceholder: "Введите ваш пароль",
     signIn: "Войти",
+    loginButton: "Войти в аккаунт",
     createAccountButton: "Создать аккаунт",
     changeEmail: "Изменить",
     forgotPassword: "Забыли пароль?",

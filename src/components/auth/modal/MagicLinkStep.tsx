@@ -63,8 +63,8 @@ export function MagicLinkStep({
                             <>
                                 <Sparkles className="w-5 h-5 text-amber-200 animate-[pulse_3s_ease-in-out_infinite]" />
                                 {isExistingUser 
-                                    ? (t('auth.loginButton') || 'Войти в аккаунт') 
-                                    : (t('auth.createAccountButton') || 'Создать аккаунт')}
+                                    ? (t('auth.loginButton') === 'auth.loginButton' ? 'Войти в аккаунт' : t('auth.loginButton'))
+                                    : (t('auth.createAccountButton') === 'auth.createAccountButton' ? 'Создать аккаунт' : t('auth.createAccountButton'))}
                             </>
                         )}
                     </span>

@@ -153,14 +153,18 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       if (exists) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('full_name, first_name, photo_url')
+          .select('id, full_name, first_name, photo_url')
           .eq('email', email.trim().toLowerCase())
           .single();
 
         if (profile) {
-          setUserProfileId((profile as any).id);
-          setUserName((profile as any).full_name || (profile as any).first_name);
-          setUserAvatar((profile as any).photo_url);
+          const profileData = profile as any;
+          setUserProfileId(profileData.id);
+          
+          // Фоллбек имени: full_name -> first_name -> email prefix
+          const emailPrefix = email.split('@')[0];
+          setUserName(profileData.full_name || profileData.first_name || emailPrefix);
+          setUserAvatar(profileData.photo_url);
         }
       }
 
