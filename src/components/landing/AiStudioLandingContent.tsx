@@ -15,9 +15,11 @@ interface Props {
   language: any;
   copy: any;
   DEMO_VARIANTS: any;
+  handleEnter: () => void;
+  faqContent: any;
 }
 
-export const AiStudioLandingContent: React.FC<Props> = ({ language, copy, DEMO_VARIANTS }) => {
+export const AiStudioLandingContent: React.FC<Props> = ({ language, copy, DEMO_VARIANTS, handleEnter, faqContent }) => {
   const [demoVariantIndex, setDemoVariantIndex] = useState(0);
   const [shouldLoadQuizDemo, setShouldLoadQuizDemo] = useState(false);
   const quizDemoContainerRef = React.useRef<HTMLDivElement>(null);
@@ -69,23 +71,55 @@ export const AiStudioLandingContent: React.FC<Props> = ({ language, copy, DEMO_V
       </section>
 
       {/* QUIZ DEMO */}
-      <div ref={quizDemoContainerRef}>
+      <div ref={quizDemoContainerRef} className="py-20 px-6 max-w-5xl mx-auto">
+        <h2 className="text-3xl md:text-5xl font-black text-center mb-12 text-white">
+          {DEMO_VARIANTS[language][demoVariantIndex].title}
+        </h2>
         {shouldLoadQuizDemo && (
           <React.Suspense fallback={<div className="h-[600px] flex items-center justify-center"><Sparkles className="animate-spin text-indigo-500" /></div>}>
-            <LandingQuizDemo />
+            <LandingQuizDemo 
+              language={language === 'es' ? 'es' : language === 'ru' ? 'ru' : 'en'} 
+              onRegisterClick={handleEnter} 
+            />
           </React.Suspense>
         )}
       </div>
 
-      {/* FOOTER & FAQ (Simplified for briefness, would normally include all content) */}
-      <section className="py-20 bg-slate-950/50">
-         <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-3xl font-black text-center mb-12">{copy.faq.title}</h2>
-            <div className="space-y-4">
-               {/* FAQ Items would go here */}
-            </div>
-         </div>
+      {/* GAME MODES */}
+      <LandingGameModesShowcase language={language} />
+
+      {/* FAQ SECTION */}
+      <section className="relative z-10 px-6 py-24 max-w-[1400px] mx-auto">
+        <div className="text-center mb-16 space-y-4">
+          <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
+            {faqContent[language].sectionTitle}
+          </h2>
+          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">
+            {faqContent[language].sectionSubtitle}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {faqContent[language].categories.flatMap((cat: any) =>
+            cat.questions.map((q: any) => ({ ...q, category: cat.title }))
+          ).map((item: any, idx: number) => (
+            <FAQItem
+              key={idx}
+              question={item.q}
+              answer={item.a}
+              icon={item.icon}
+              category={item.category}
+            />
+          ))}
+        </div>
       </section>
+
+      {/* FOOTER */}
+      <footer className="relative z-10 border-t border-slate-800 bg-[#0f172a] py-16">
+        <div className="max-w-[1400px] mx-auto px-6 text-center text-slate-500 text-sm">
+           <p>© {new Date().getFullYear()} SkilyApp. All rights reserved.</p>
+        </div>
+      </footer>
     </>
   );
 };

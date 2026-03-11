@@ -5,9 +5,14 @@
   <meta charset="UTF-8" />
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
-  <!-- Axeptio Cookie Consent -->
+  
+  <!-- PRELOAD CRITICAL FONTS -->
+  <link rel="preload" href="https://fonts.gstatic.com/s/outfit/v11/Qdb6He9Abq0EP2GP_TcA5XU.woff2" as="font" type="font/woff2" crossorigin>
+  
+  <!-- Axeptio Cookie Consent (DELAYED FOR PERFORMANCE) -->
   <script>
     window.axeptioSettings = {
       clientId: "69a1acef0a02cdc0f86b3b4e",
@@ -23,11 +28,21 @@
       }
     };
 
-    (function (d, s) {
-      var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
-      e.async = true; e.src = "//static.axept.io/sdk.js";
-      t.parentNode.insertBefore(e, t);
-    })(document, "script");
+    // Load Axeptio after first interaction or 4s
+    function loadAxeptio() {
+        if (window.axeptioLoaded) return;
+        window.axeptioLoaded = true;
+        (function (d, s) {
+          var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
+          e.async = true; e.src = "//static.axept.io/sdk.js";
+          t.parentNode.insertBefore(e, t);
+        })(document, "script");
+    }
+    
+    window.addEventListener('scroll', loadAxeptio, { once: true });
+    window.addEventListener('mousemove', loadAxeptio, { once: true });
+    window.addEventListener('touchstart', loadAxeptio, { once: true });
+    setTimeout(loadAxeptio, 4000);
   </script>
 
   <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически при переходах -->
@@ -59,11 +74,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- PREMIUM TYPOGRAPHY: Outfit for headings, Inter for body -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800;900&display=swap"
-    rel="stylesheet">
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap"
+    rel="stylesheet"
+    media="print" 
+    onload="this.media='all'">
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap" rel="stylesheet">
+  </noscript>
 
   <!-- Favicons -->
   <link rel="icon" type="image/svg+xml" href="/favicon-s.svg" />

@@ -115,7 +115,10 @@ export const LandingRussiaContent: React.FC<Props> = ({
         <div ref={quizDemoContainerRef} className="relative z-10 max-w-5xl mx-auto rounded-[2.5rem] bg-slate-900/50 backdrop-blur-xl border border-white/10 p-4 md:p-8 min-h-[500px]">
           {shouldLoadQuizDemo && (
             <React.Suspense fallback={<div className="h-[500px] flex items-center justify-center"><Sparkles className="animate-spin text-indigo-500" /></div>}>
-              <LandingQuizDemo />
+              <LandingQuizDemo 
+                language={language === 'es' ? 'es' : language === 'ru' ? 'ru' : 'en'} 
+                onRegisterClick={handleEnter} 
+              />
             </React.Suspense>
           )}
         </div>
@@ -125,7 +128,7 @@ export const LandingRussiaContent: React.FC<Props> = ({
       <section ref={demoContainerRef}>
         {shouldLoadDemo && (
           <React.Suspense fallback={<div className="h-[600px]" />}>
-            <LandingDuelPassSection language={language} onRequestAccess={handleEnter} />
+            <LandingDuelPassSection language={language === 'ru' ? 'ru' : 'en'} copy={copy} />
           </React.Suspense>
         )}
       </section>
