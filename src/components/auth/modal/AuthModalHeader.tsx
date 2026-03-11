@@ -28,16 +28,23 @@ export function AuthModalHeader({
     if (isSuccessScreen) return null;
 
     return (
-        <div className={`flex flex-col items-center mb-6 justify-end transition-all duration-500 min-h-[140px]`}>
+        <div className={`flex flex-col items-center mb-4 justify-end transition-all duration-500 min-h-[130px]`}>
             <AnimatePresence mode="wait">
                 {step !== 'email' ? (
                     /* Avatar State - Show for all non-email steps where user is identified */
                     <motion.div
                         key="avatar"
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        className="relative mb-2 mt-2"
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ 
+                            scale: [1, 1.05, 1],
+                            opacity: 1 
+                        }}
+                        transition={{
+                            scale: { repeat: Infinity, duration: 4, ease: "easeInOut" },
+                            opacity: { duration: 0.4 }
+                        }}
+                        exit={{ scale: 0.5, opacity: 0 }}
+                        className="relative mb-1 mt-2"
                     >
                         {/* Rotating Gradient Border */}
                         <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-500 animate-spin-slow opacity-70 blur-[1px]" />
@@ -115,7 +122,7 @@ export function AuthModalHeader({
                             {step === 'check-email' && 'Проверьте почту'}
                         </h2>
 
-                        <p className="text-sm text-zinc-400 mt-4 font-medium">
+                        <p className="text-sm text-zinc-400 mt-2 font-medium">
                             {step === 'email' && t('auth.emailPrompt')}
                             {step === 'password-existing' && (userName ? t('auth.continueProgress') : t('auth.accountVerified'))}
                             {step === 'magic-link-new' && t('auth.newUser')}
