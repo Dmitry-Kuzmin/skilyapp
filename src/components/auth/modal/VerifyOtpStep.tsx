@@ -104,14 +104,6 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
             className="space-y-8 py-2"
         >
             <div className="text-center space-y-4">
-                <motion.div 
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="inline-flex items-center justify-center w-16 h-16 bg-blue-500/10 rounded-2xl border border-blue-500/20 mb-1"
-                >
-                    <ShieldCheck className="w-8 h-8 text-blue-400" />
-                </motion.div>
-                
                 <div className="space-y-2">
                     <h3 className="text-2xl font-bold text-white tracking-tight">
                         {t('auth.enterOtpTitle') || 'Введите код'}
@@ -173,19 +165,30 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
                   onClick={() => onVerify(otp.join(''))}
                   disabled={isSubmitting || otp.some(d => d === '')}
                   className={cn(
-                    "h-14 w-full text-lg font-bold rounded-2xl transition-all duration-500 border-none",
+                    "h-14 w-full text-lg font-bold rounded-2xl transition-all duration-500 border-2 relative overflow-hidden group/btn",
                     otp.every(d => d !== '') 
-                        ? "bg-blue-600 hover:bg-blue-500 text-white shadow-[0_12px_40px_rgba(37,99,235,0.4)] scale-[1.01]" 
-                        : "bg-zinc-800 text-zinc-500"
+                        ? "bg-white text-black border-white shadow-[0_20px_40px_rgba(255,255,255,0.15)] scale-[1.02] active:scale-[0.98]" 
+                        : "bg-white/5 text-zinc-600 border-white/5 grayscale"
                   )}
               >
                   {isSubmitting ? (
                     <Loader2 className="w-6 h-6 animate-spin mx-auto" />
                   ) : (
-                    <span className="flex items-center justify-center gap-2">
-                      {t('auth.verifyCode') || 'Подтвердить'}
-                      <Sparkles className="w-5 h-5 opacity-40 group-hover:opacity-100 transition-opacity" />
-                    </span>
+                    <div className="flex items-center justify-center gap-2 relative z-10">
+                      <span>{t('auth.verifyCode') || 'Подтвердить'}</span>
+                      <motion.div
+                        animate={otp.every(d => d !== '') ? { x: [0, 5, 0] } : {}}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                      >
+                        <Sparkles className={cn(
+                            "w-5 h-5 transition-colors duration-500",
+                            otp.every(d => d !== '') ? "text-amber-500" : "text-zinc-600"
+                        )} />
+                      </motion.div>
+                    </div>
+                  )}
+                  {otp.every(d => d !== '') && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
                   )}
               </Button>
 
