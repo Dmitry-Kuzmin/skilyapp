@@ -1,78 +1,30 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { StartupCurtain } from "@/components/StartupCurtain";
+import { PageLoader } from "@/components/PageLoader";
+
+// ОПТИМИЗАЦИЯ: AuthModal lazy loaded - содержит UserContext и Supabase
+const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
+// ОПТИМИЗАЦИЯ: Тяжелые компоненты лендинга теперь lazy loaded
+const AiStudioLanding = lazy(() => import("@/components/landing/AiStudioLanding").then(m => ({ default: m.AiStudioLanding })));
+const LandingRussia = lazy(() => import("@/components/landing/LandingRussia").then(m => ({ default: m.LandingRussia })));
+// ОПТИМИЗАЦИЯ: PartnerInviteBanner lazy-loaded - использует Button, который тянет Radix UI
+// Это критично для уменьшения initial bundle - Radix UI не должен грузиться на лендинге
+const PartnerInviteBanner = lazy(() => import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner })));
+// ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage)
 import { checkTelegramAuth } from "@/utils/authCheck";
+// ОПТИМИЗАЦИЯ: Убираем статический импорт Supabase - используем сервисные функции с динамическим импортом
 import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo } from "@/services/referralService";
+import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
 import { getTelegramUser } from "@/core/TelegramInit";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
 
-// Скелетон-заглушка: показывается пока AiStudioLanding грузится.
-// Важно: фон совпадает с bg лендинга — пользователь не видит белого мигания.
-const LandingFallback = () => (
-  <div
-    style={{
-      minHeight: '100dvh',
-      width: '100%',
-      background: '#0f172a',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    <div style={{ textAlign: 'center' }}>
-      <div
-        style={{
-          width: 48,
-          height: 48,
-          border: '2px solid rgba(99,102,241,0.2)',
-          borderTopColor: '#6366f1',
-          borderRadius: '50%',
-          animation: 'spin 0.8s linear infinite',
-          margin: '0 auto 16px',
-        }}
-      />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-    </div>
-  </div>
-);
-
-// Lazy loaded компоненты
-const AuthModalNew = lazy(() =>
-  import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew }))
-);
-const AiStudioLanding = lazy(() =>
-  import("@/components/landing/AiStudioLanding").then(m => ({ default: m.AiStudioLanding }))
-);
-const LandingRussia = lazy(() =>
-  import("@/components/landing/LandingRussia").then(m => ({ default: m.LandingRussia }))
-);
-const PartnerInviteBanner = lazy(() =>
-  import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner }))
-);
-
-/**
- * Проверяет, открыт ли сайт ВНУТРИ Telegram Mini App (не просто в браузере с загруженным SDK).
- * Ключевой признак: есть непустой реальный initData (подпись от Telegram).
- */
-function isInsideTelegramMiniApp(): boolean {
-  const tg = window.Telegram?.WebApp;
-  if (!tg) return false;
-
-  // Реальный Mini App всегда имеет непустой initData с подписью
-  const initData = tg.initData;
-  if (!initData || initData === '' || initData.startsWith('mock_')) return false;
-
-  // Дополнительно: реальный пользователь — не мок
-  const user = tg.initDataUnsafe?.user;
-  if (user && user.id === 123456789 && user.username === 'test_user') return false;
-
-  return true;
-}
 
 const Landing = () => {
+  // АРХИТЕКТУРА: Используем TelegramProvider вместо прямого вызова initTelegram()
   const webApp = useTelegram();
-  // Стабильный ref — читается внутри эффекта без добавления в deps.
+  // FIXME ре-рендеры: webApp читаем через стабильный ref, чтобы не триггерить useEffect повторно
   const webAppRef = useRef(webApp);
   webAppRef.current = webApp;
 
@@ -81,99 +33,215 @@ const Landing = () => {
   const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
-
+  // КРИТИЧНО: Состояние проверки Telegram - предотвращает мерцание лендинга
+  const [isCheckingTelegram, setIsCheckingTelegram] = useState(true);
+  const location = useLocation();
   const navigate = useNavigate();
-  const { selectedCountry } = useCountry();
 
-  // КРИТИЧНО: Проверяем реальный Telegram Mini App по наличию initData.
-  // Это происходит сразу синхронно — без задержки и polling.
-  // Обычный браузер с загруженным SDK не имеет initData -> показываем лендинг.
+  // КРИТИЧНО: Проверка Telegram авторизации для автоматического редиректа
+  // В десктопной версии Telegram initData может появиться с задержкой (Race Condition)
   useEffect(() => {
-    if (isInsideTelegramMiniApp()) {
-      // Мы точно внутри Telegram Mini App — редиректим немедленно
-      navigate('/dashboard', { replace: true });
+    // КРИТИЧНО: Проверяем, что мы не на /dashboard, чтобы избежать бесконечного цикла
+    if (location.pathname === '/dashboard') {
+      setIsCheckingTelegram(false);
       return;
     }
 
-    // Дополнительная проверка через checkTelegramAuth (localStorage)
-    // только если есть реальный initData в webAppRef
-    if (checkTelegramAuth()) {
-      const currentWebApp = webAppRef.current;
-      const hasRealInitData = !!(
-        currentWebApp?.initData &&
-        currentWebApp.initData !== '' &&
-        !currentWebApp.initData.startsWith('mock_')
-      );
-      if (hasRealInitData) {
+    let attempts = 0;
+    const maxAttempts = 20; // 5 секунд максимум (20 * 250ms)
+    let timeoutId: NodeJS.Timeout | null = null;
+    let webAppDetected = false;
+    let hasRedirected = false; // Флаг для предотвращения повторных редиректов
+
+    const checkTelegram = () => {
+      // КРИТИЧНО: Если уже редиректили, прекращаем проверки
+      if (hasRedirected || location.pathname === '/dashboard') {
+        return;
+      }
+
+      attempts++;
+
+      // Проверяем наличие Telegram WebApp
+      const hasWebApp = hasTelegramWebApp() || !!window.Telegram?.WebApp;
+      if (hasWebApp) {
+        webAppDetected = true;
+      }
+
+      // АРХИТЕКТУРА: Используем TelegramProvider (Singleton) вместо прямого вызова initTelegram()
+      // Получаем пользователя из уже инициализированного WebApp
+      let telegramUser = null;
+      if (webAppRef.current?.initDataUnsafe?.user) {
+        const userData = webAppRef.current.initDataUnsafe.user;
+        if (userData.id !== 123456789 && userData.username !== 'test_user') {
+          telegramUser = userData;
+        }
+      }
+
+      // Fallback: проверяем другие источники
+      if (!telegramUser) {
+        telegramUser = getTelegramUser();
+        if (telegramUser && (telegramUser.id === 123456789 || telegramUser.username === 'test_user')) {
+          telegramUser = null;
+        }
+      }
+
+      const hasAuth = checkTelegramAuth();
+
+      // КРИТИЧНО: НЕ проверяем hasStoredAuth - это может создать бесконечный цикл
+      // Index (dashboard) сам проверит реальную авторизацию из Supabase
+
+      // АВТО-РЕДИРЕКТ: Только если мы ВНУТРИ Telegram Mini App или имеем реальный initData
+      const isMiniApp = isTelegramMiniApp();
+      const hasRealInitData = webAppRef.current?.initData && webAppRef.current.initData !== '' && !webAppRef.current.initData.startsWith('mock_');
+
+      if (isMiniApp && (telegramUser || hasAuth || hasRealInitData)) {
+        if (!hasRedirected) {
+          console.log('[Landing] Telegram Mini App detected, auto-redirecting to dashboard');
+          hasRedirected = true;
+          navigate('/dashboard', { replace: true });
+        }
+        return;
+      }
+
+      // В обычном браузере (Web) НЕ делаем авто-редирект на основе checkTelegramAuth()
+      // Это предотвращает ситуацию, когда пользователя кидает в старую сессию.
+      console.log('[Landing] Web mode: staying on landing page');
+      setIsCheckingTelegram(false);
+
+      // В. Если WebApp обнаружен, но initData еще нет -> продолжаем попытки
+      if (hasWebApp && !hasRealInitData && attempts < maxAttempts) {
+        console.log(`[Landing] WebApp detected, waiting for initData (attempt ${attempts}/${maxAttempts})`);
+        timeoutId = setTimeout(checkTelegram, 250);
+        return;
+      }
+
+      // Г. Если WebApp был обнаружен, но таймаут истек -> редирект на дашборд
+      // UserContext там обработает авторизацию, когда initData появится
+      if (webAppDetected && attempts >= maxAttempts && !hasRedirected) {
+        console.log('[Landing] WebApp detected but timeout reached, redirecting to dashboard for auth handling');
+        hasRedirected = true;
         navigate('/dashboard', { replace: true });
         return;
       }
-    }
 
-    // Также проверяем через getTelegramUser (fallback для edge cases)
-    const tgUser = getTelegramUser();
-    if (tgUser && tgUser.id !== 123456789 && tgUser.username !== 'test_user') {
-      const currentWebApp = webAppRef.current;
-      const hasRealInitData = !!(
-        currentWebApp?.initData &&
-        !currentWebApp.initData.startsWith('mock_')
-      );
-      if (hasRealInitData) {
-        navigate('/dashboard', { replace: true });
+      // Д. Если нет WebApp и прошло достаточно попыток -> показываем Лендинг
+      if (!hasWebApp && attempts >= 3) {
+        console.log('[Landing] No Telegram WebApp detected, showing landing page');
+        setIsCheckingTelegram(false);
+        return;
       }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]); // Только при монтировании; webApp через ref
 
-  // Загрузка партнёрской/реферальной информации — только при монтировании
+      // Е. Продолжаем попытки на случай задержки загрузки
+      if (attempts < maxAttempts && !hasRedirected) {
+        timeoutId = setTimeout(checkTelegram, 250);
+      } else if (!hasRedirected) {
+        // Финальный fallback - показываем лендинг
+        console.log('[Landing] Max attempts reached, showing landing page');
+        setIsCheckingTelegram(false);
+      }
+    };
+
+    // Начинаем проверку сразу
+    checkTelegram();
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]); // webApp читается через ref — не в deps намеренно, чтобы не создавать бесконечный цикл
+
   useEffect(() => {
+    // КРИТИЧНО: Landing НЕ проверяет авторизацию - это делает Index
+    // Landing просто рендерится на /, а Index на /dashboard редиректит на / если не авторизован
+    // Это предотвращает бесконечный цикл редиректов
+
+    // ОПТИМИЗАЦИЯ: Проверяем коды, но НЕ блокируем рендер лендинга
+    // Лендинг рендерится сразу, а данные загружаются асинхронно когда придут
+
+    // Проверяем партнерский код (приоритет над реферальным)
     const partnerDataStr = sessionStorage.getItem('partner_code');
+    if (import.meta.env.DEV) console.log('[Landing] Checking partner code from sessionStorage:', partnerDataStr);
 
     if (partnerDataStr) {
       try {
         const partnerData = JSON.parse(partnerDataStr);
+        if (import.meta.env.DEV) console.log('[Landing] Parsed partner data:', partnerData);
+
+        // ОПТИМИЗАЦИЯ: Используем сервисную функцию - Supabase загружается динамически
         (async () => {
           setLoadingPartner(true);
           try {
+            console.log('[Landing] Loading partner info for code:', partnerData.code);
             const partner = await loadPartnerInfo(partnerData.code);
+
             if (partner) {
+              console.log('[Landing] Setting partner info:', partner);
               setPartnerInfo(partner);
             } else {
+              console.error('[Landing] Partner not found or not active');
               sessionStorage.removeItem('partner_code');
             }
-          } catch {
+          } catch (error) {
+            console.error('[Landing] Error loading partner:', error);
             sessionStorage.removeItem('partner_code');
           } finally {
             setLoadingPartner(false);
           }
         })();
-        return;
-      } catch {
+
+        return; // Не загружаем реферальную информацию, если есть партнерская
+      } catch (error) {
+        console.error('[Landing] Error parsing partner data:', error);
         sessionStorage.removeItem('partner_code');
       }
     }
 
+    // Получаем код из sessionStorage (сохранен при редиректе с /join/:code)
     const referralCode = sessionStorage.getItem('referral_code');
-    if (!referralCode) return;
 
+    if (!referralCode) {
+      return;
+    }
+
+    // ОПТИМИЗАЦИЯ: Используем сервисную функцию - Supabase загружается динамически
     (async () => {
       setLoadingReferrer(true);
       try {
         const referrer = await loadReferralInfo(referralCode);
+
         if (referrer) {
           setReferrerInfo(referrer);
         } else {
+          console.error('[Landing] Referrer not found');
+          // Удаляем невалидный код
           sessionStorage.removeItem('referral_code');
         }
-      } catch {
+      } catch (error) {
+        console.error('[Landing] Error loading referrer:', error);
         sessionStorage.removeItem('referral_code');
       } finally {
         setLoadingReferrer(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Только при монтировании
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Намеренно: только при монтировании, коды в sessionStorage не меняются во время сессии
 
+  // Если проверка прошла и это обычный браузер -> Рендерим Лендинг
+  const { selectedCountry } = useCountry();
+
+  // КРИТИЧНО: Если идет проверка - показываем лоадер, чтобы избежать мерцания лендинга
+  // Пользователь не должен видеть лендинг, который потом резко исчезнет
+  // UPD: Используем PageLoader, который так же поднимает шторку (StartupCurtain) и показывает красивый спиннер
+  // Это предотвращает "зависание" на HTML скелетоне
+  if (isCheckingTelegram) {
+    // ВАЖНО: Во время проверки Telegram мы НЕ возвращаем PageLoader, так как он поднимет шторку (StartupCurtain).
+    // Мы возвращаем null, чтобы оставить HTML скелетон на экране. Это дает +500мс к визуальному TTI.
+    return null;
+  }
+
+  // Выбираем лендинг в зависимости от страны
   const LandingComponent = selectedCountry.code === 'ru' ? LandingRussia : AiStudioLanding;
 
   return (
@@ -184,15 +252,13 @@ const Landing = () => {
           <PartnerInviteBanner />
         </Suspense>
       )}
-      <Suspense fallback={<LandingFallback />}>
-        <LandingComponent
-          onRequestAccess={() => setAuthModalOpen(true)}
-          referrerInfo={referrerInfo}
-          loadingReferrer={loadingReferrer}
-          partnerInfo={partnerInfo}
-          loadingPartner={loadingPartner}
-        />
-      </Suspense>
+      <LandingComponent
+        onRequestAccess={() => setAuthModalOpen(true)}
+        referrerInfo={referrerInfo}
+        loadingReferrer={loadingReferrer}
+        partnerInfo={partnerInfo}
+        loadingPartner={loadingPartner}
+      />
       <Suspense fallback={null}>
         <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       </Suspense>

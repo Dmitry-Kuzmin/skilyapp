@@ -201,7 +201,8 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
     );
     observer.observe(demoContainerRef.current);
     return () => observer.disconnect();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps — монтируется один раз
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Монтируется один раз — shouldLoadDemo не нужен в deps
 
   const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();

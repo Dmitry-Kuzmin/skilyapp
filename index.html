@@ -30,22 +30,17 @@
   </script>
 
   <!-- Theme color для браузерных панелей - динамическое определение (Chameleon Protocol) -->
-  <meta name="theme-color" content="#0f172a">
-  <meta name="msapplication-TileColor" content="#0f172a">
-  <!-- color-scheme: заставляет браузер рисовать UI (полосы прокрутки, строку поиска) в тёмном стиле -->
-  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#09090b">
+  <meta name="msapplication-TileColor" content="#09090b">
   <script>
     (function () {
-      const isLanding = !window.location.pathname.startsWith('/dashboard');
+      const isLanding = window.location.pathname === '/' || window.location.pathname === '/landing' || !window.location.pathname.startsWith('/dashboard');
       const color = isLanding ? '#0f172a' : '#09090b';
-      // Красим html/body немедленно — это влияет на цвет overscroll (bounce area на iOS)
-      document.documentElement.style.backgroundColor = color;
-      document.body.style.backgroundColor = color;
       document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
       document.querySelector('meta[name="msapplication-TileColor"]').setAttribute('content', color);
     })();
   </script>
-  <!-- Для Safari iOS - черная полупрозрачная строка состояния (нужна для edge-to-edge) -->
+  <!-- Для Safari iOS - черная полупрозрачная строка состояния -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- PREMIUM TYPOGRAPHY: Outfit for headings, Inter for body -->
@@ -217,8 +212,6 @@
   <!-- Preload критических ресурсов для ускорения загрузки -->
   <link rel="preconnect" href="https://telegram.org" crossorigin />
   <link rel="dns-prefetch" href="https://telegram.org" />
-  <link rel="preconnect" href="https://oauth.telegram.org" crossorigin />
-  <link rel="dns-prefetch" href="https://oauth.telegram.org" />
   <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
   <link rel="dns-prefetch" href="https://yffjnqegeiorunyvcxkn.supabase.co" />
   <!-- ОПТИМИЗАЦИЯ: noise.svg теперь локальный, preconnect к grainy-gradients удалён -->
@@ -234,15 +227,11 @@
 
     html {
       overflow-x: hidden;
-      width: 100%;
-      /* Цвет bounce-area на iOS — устанавливается ThemeColorManager динамически */
-      background-color: #0f172a;
-      color-scheme: dark;
-      height: 100%;
+      width: 100%
     }
 
     body {
-      min-height: 100dvh;
+      min-height: 100vh;
       margin: 0;
       padding: 0;
       overflow-x: hidden;
@@ -251,13 +240,12 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      /* Начальный цвет — будет немедленно перекрашен скриптом ниже и ThemeColorManager */
       background: #09090b;
-      color: #fafafa;
+      color: #fafafa
     }
 
     #root {
-      min-height: 100dvh;
+      min-height: 100vh;
       width: 100%;
       position: relative;
     }
@@ -535,7 +523,37 @@
     })();
   </script>
 
-  <!-- telegram-widget.js удалён: он перезаписывал window.Telegram.Login и ломал новый OAuth SDK -->
+  <!-- ОПТИМИЗАЦИЯ: telegram-widget.js откладываем до взаимодействия пользователя -->
+  <!-- Загружается только при скролле или через 3 секунды после загрузки страницы -->
+  <script>
+    (function () {
+      let widgetLoaded = false;
+      const loadWidget = () => {
+        if (widgetLoaded) return;
+        widgetLoaded = true;
+        const script = document.createElement('script');
+        script.src = 'https://telegram.org/js/telegram-widget.js?22';
+        script.defer = true;
+        script.crossOrigin = 'anonymous'; // Для лучшей совместимости с Safari Privacy
+        document.head.appendChild(script);
+      };
+
+      // Загружаем при скролле
+      let scrollTimer;
+      window.addEventListener('scroll', () => {
+        if (!widgetLoaded) {
+          clearTimeout(scrollTimer);
+          scrollTimer = setTimeout(loadWidget, 100);
+        }
+      }, { once: true, passive: true });
+
+      // Загружаем при клике
+      window.addEventListener('click', loadWidget, { once: true });
+
+      // Загружаем через 3 секунды (fallback)
+      setTimeout(loadWidget, 3000);
+    })();
+  </script>
 
   <!-- ОПТИМИЗАЦИЯ FONTS: Preload критического шрифта -->
   <link rel="preload"
@@ -812,7 +830,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-03-10-18:27';
+      const APP_VERSION = '2026-03-08-13:43';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
