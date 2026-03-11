@@ -11,6 +11,36 @@ const LandingRussia = lazy(() => import("@/components/landing/LandingRussia").th
 // ОПТИМИЗАЦИЯ: PartnerInviteBanner lazy-loaded - использует Button, который тянет Radix UI
 // Это критично для уменьшения initial bundle - Radix UI не должен грузиться на лендинге
 const PartnerInviteBanner = lazy(() => import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner })));
+
+// Скелетон-заглушка: показывается пока AiStudioLanding или LandingRussia грузится.
+// Важно: фон совпадает с bg лендинга (#0f172a) — пользователь не видит белого мигания.
+const LandingFallback = () => (
+  <div
+    style={{
+      minHeight: '100dvh',
+      width: '100%',
+      background: '#0f172a',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <div style={{ textAlign: 'center' }}>
+      <div
+        style={{
+          width: 40,
+          height: 40,
+          border: '2px solid rgba(99,102,241,0.1)',
+          borderTopColor: '#6366f1',
+          borderRadius: '50%',
+          animation: 'landing-spin 0.8s linear infinite',
+          margin: '0 auto',
+        }}
+      />
+      <style>{`@keyframes landing-spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  </div>
+);
 // ОПТИМИЗАЦИЯ: Легкая проверка авторизации БЕЗ Supabase (через localStorage)
 import { checkTelegramAuth } from "@/utils/authCheck";
 // ОПТИМИЗАЦИЯ: Убираем статический импорт Supabase - используем сервисные функции с динамическим импортом
@@ -237,8 +267,8 @@ const Landing = () => {
   // Это предотвращает "зависание" на HTML скелетоне
   if (isCheckingTelegram) {
     // ВАЖНО: Во время проверки Telegram мы НЕ возвращаем PageLoader, так как он поднимет шторку (StartupCurtain).
-    // Мы возвращаем null, чтобы оставить HTML скелетон на экране. Это дает +500мс к визуальному TTI.
-    return null;
+    // Мы возвращаем LandingFallback, чтобы сразу задать правильный цвет фона лендинга.
+    return <LandingFallback />;
   }
 
   // Выбираем лендинг в зависимости от страны
@@ -252,13 +282,15 @@ const Landing = () => {
           <PartnerInviteBanner />
         </Suspense>
       )}
-      <LandingComponent
-        onRequestAccess={() => setAuthModalOpen(true)}
-        referrerInfo={referrerInfo}
-        loadingReferrer={loadingReferrer}
-        partnerInfo={partnerInfo}
-        loadingPartner={loadingPartner}
-      />
+      <Suspense fallback={<LandingFallback />}>
+        <LandingComponent
+          onRequestAccess={() => setAuthModalOpen(true)}
+          referrerInfo={referrerInfo}
+          loadingReferrer={loadingReferrer}
+          partnerInfo={partnerInfo}
+          loadingPartner={loadingPartner}
+        />
+      </Suspense>
       <Suspense fallback={null}>
         <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       </Suspense>

@@ -144,6 +144,64 @@ interface AiStudioLandingProps {
   loadingPartner?: boolean;
 }
 
+const SkilyComparisonCard = ({ copy }: { copy: any }) => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  
+  const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  return (
+    <div
+      onMouseMove={handleSpotlightMove}
+      className="relative bg-slate-900/40 backdrop-blur-2xl border border-white/10 border-t-white/20 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_60px_-10px_rgba(99,102,241,0.3),inset_0_0_30px_rgba(255,255,255,0.03)] overflow-hidden transform md:-translate-y-4 hover:border-indigo-500/50 transition-all duration-300 group ring-0"
+    >
+      {/* Spotlight Effect */}
+      <div
+        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[2.5rem] z-0"
+        style={{
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.15), transparent 40%)`
+        }}
+      />
+
+      <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none z-0"></div>
+      <h3 className="relative z-10 text-2xl font-black text-white text-center uppercase tracking-widest mb-10 flex items-center justify-center gap-3">
+        {copy.comparison.skily} <Crown size={24} className="text-amber-400 fill-amber-400/20" />
+      </h3>
+
+      {/* Price */}
+      <div className="text-center relative mx-4">
+        <div className="text-6xl font-black text-white tracking-tight drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]">
+          {copy.comparison.rows[0].skily}
+        </div>
+        <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full mt-4 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+          <Zap size={12} className="fill-current" /> SAVE 95%
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div className="w-1/2 mx-auto border-t border-white/10 my-8"></div>
+
+      {/* Other Rows */}
+      <div className="space-y-8 px-2 relative z-10">
+        {copy.comparison.rows.slice(1).map((row: any, i: number) => (
+          <div key={i} className="flex flex-col items-center justify-center min-h-[4rem] text-center">
+            <span className="flex items-center gap-3 text-white font-black text-xl tracking-tight drop-shadow-lg">
+              {row.skily} <CheckCircle size={24} className="text-indigo-400 fill-indigo-400/20" />
+            </span>
+            {row.skilyDesc && (
+              <span className="text-sm font-medium text-indigo-100/80 mt-1.5 block">
+                {row.skilyDesc}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   onRequestAccess,
   referrerInfo,
@@ -181,7 +239,6 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   const [avatarError, setAvatarError] = useState(false);
   const { language, setLanguage } = useLanguage();
   const { selectedCountry } = useCountry();
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   const [shouldLoadDemo, setShouldLoadDemo] = useState(false);
   const demoContainerRef = React.useRef<HTMLDivElement>(null);
@@ -204,10 +261,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Монтируется один раз — shouldLoadDemo не нужен в deps
 
-  const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
+
 
   // FAQ Types & Content
   interface FAQCategory {
@@ -888,52 +942,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           </div>
 
           {/* RIGHT: SKILY (NEXT GEN) */}
-          <div
-            onMouseMove={handleSpotlightMove}
-            className="relative bg-slate-900/40 backdrop-blur-2xl border border-white/10 border-t-white/20 rounded-[2.5rem] p-8 md:p-12 shadow-[0_0_60px_-10px_rgba(99,102,241,0.3),inset_0_0_30px_rgba(255,255,255,0.03)] overflow-hidden transform md:-translate-y-4 hover:border-indigo-500/50 transition-all duration-300 group ring-0"
-          >
-            {/* Spotlight Effect */}
-            <div
-              className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-[2.5rem] z-0"
-              style={{
-                background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.15), transparent 40%)`
-              }}
-            />
-
-            <div className="absolute inset-0 bg-indigo-500/5 pointer-events-none z-0"></div>
-            <h3 className="relative z-10 text-2xl font-black text-white text-center uppercase tracking-widest mb-10 flex items-center justify-center gap-3">
-              {copy.comparison.skily} <Crown size={24} className="text-amber-400 fill-amber-400/20" />
-            </h3>
-
-            {/* Price */}
-            <div className="text-center relative mx-4">
-              <div className="text-6xl font-black text-white tracking-tight drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]">
-                {copy.comparison.rows[0].skily}
-              </div>
-              <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full mt-4 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
-                <Zap size={12} className="fill-current" /> SAVE 95%
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="w-1/2 mx-auto border-t border-white/10 my-8"></div>
-
-            {/* Other Rows */}
-            <div className="space-y-8 px-2 relative z-10">
-              {copy.comparison.rows.slice(1).map((row, i) => (
-                <div key={i} className="flex flex-col items-center justify-center min-h-[4rem] text-center">
-                  <span className="flex items-center gap-3 text-white font-black text-xl tracking-tight drop-shadow-lg">
-                    {row.skily} <CheckCircle size={24} className="text-indigo-400 fill-indigo-400/20" />
-                  </span>
-                  {row.skilyDesc && (
-                    <span className="text-sm font-medium text-indigo-100/80 mt-1.5 block">
-                      {row.skilyDesc}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          <SkilyComparisonCard copy={copy} />
         </div>
       </section>
 
