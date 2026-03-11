@@ -29,23 +29,32 @@
     })(document, "script");
   </script>
 
-  <!-- Theme color для браузерных панелей - динамическое определение (Chameleon Protocol) -->
-  <meta name="theme-color" content="#09090b">
-  <meta name="msapplication-TileColor" content="#09090b">
+  <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически -->
+  <meta name="theme-color" content="#0f172a">
+  <meta name="msapplication-TileColor" content="#0f172a">
   <meta name="color-scheme" content="dark">
   <script>
     (function () {
-      const isLanding = window.location.pathname === '/' || window.location.pathname === '/landing' || !window.location.pathname.startsWith('/dashboard');
-      const color = isLanding ? '#0f172a' : '#09090b';
-      // 1. Красим мета-теги
+      var path = window.location.pathname;
+      var isApp = path.startsWith('/dashboard') ||
+                  path.startsWith('/tests') ||
+                  path.startsWith('/learning') ||
+                  path.startsWith('/games') ||
+                  path.startsWith('/profile') ||
+                  path.startsWith('/settings') ||
+                  path.startsWith('/purchase');
+      var color = isApp ? '#09090b' : '#0f172a';
       document.querySelector('meta[name="theme-color"]').setAttribute('content', color);
       document.querySelector('meta[name="msapplication-TileColor"]').setAttribute('content', color);
-      // 2. Красим фон немедленно, чтобы не было белой вспышки (Edge-to-Edge)
-      document.documentElement.style.backgroundColor = color;
-      document.body.style.backgroundColor = color;
+      document.documentElement.style.setProperty('background-color', color, 'important');
+      function applyBody() {
+        document.body.style.setProperty('background-color', color, 'important');
+      }
+      if (document.body) { applyBody(); }
+      else { document.addEventListener('DOMContentLoaded', applyBody, { once: true }); }
     })();
   </script>
-  <!-- Для Safari iOS - черная полупрозрачная строка состояния -->
+  <!-- Safari iOS: чёрная строка статуса с прозрачностью -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
   <!-- PREMIUM TYPOGRAPHY: Outfit for headings, Inter for body -->

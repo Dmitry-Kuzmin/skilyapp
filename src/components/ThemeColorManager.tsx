@@ -1,115 +1,82 @@
 import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 
 /**
- * ThemeColorManager (Chameleon Protocol v6)
- * 
- * ОПТИМИЗИРОВАНО:
- * 1. Детерминированное определение цветов по роутам (никаких getComputedStyle).
- * 2. Синхронизация --background CSS переменной (Tailwind bg-background).
- * 3. Синхронизация meta theme-color для вкладок браузера.
- * 4. Синхронизация Telegram WebApp (header_color и background_color).
- * 5. Прямое управление html/body для Edge-to-Edge эффекта.
+ * ThemeColorManager (Chameleon Protocol v7 — CSS-First)
+ *
+ * Стратегия:
+ * 1. Обновляет CSS-переменную --background (HSL).
+ *    → html { background-color: hsl(var(--background)) } в index.css автоматически
+ *      обновит фон для ВСЕГО документа включая области overscroll (Edge-to-Edge).
+ *    → body с @apply bg-background тоже реагирует через CSS, БЕЗ лишних JS-ререндеров.
+ *    → Нижний navbar с bg-background/95 автоматически адаптируется.
+ * 2. Обновляет meta theme-color → цвет вкладки/адресной строки браузера.
+ * 3. Синхронизирует Telegram WebApp (через window напрямую — обходим проблемы типов).
+ *
+ * Никаких getComputedStyle, никаких !important через JS, никакой борьбы с CSS.
  */
 
-const LANDING_BLUE = '#0f172a';
-const LANDING_BLUE_HSL = '222 47% 11.2%';
+// Лендинг: тёмно-синий slate-900
+const LANDING = { hex: '#0f172a', hsl: '222 47% 11%' } as const;
+// Приложение: почти чёрный zinc-950
+const APP = { hex: '#09090b', hsl: '240 10% 3.9%' } as const;
 
-const DASHBOARD_BLACK = '#09090b';
-const DASHBOARD_BLACK_HSL = '240 10% 3.9%';
+const APP_PREFIXES = [
+    '/dashboard', '/tests', '/learning', '/games',
+    '/profile', '/settings', '/purchase', '/topic',
+    '/subtopic', '/test/', '/admin', '/partner',
+] as const;
 
-const ROUTE_COLOR_MAP: Record<string, { hex: string; hsl: string }> = {
-    // Лендинги
-    '/': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-    '/landing': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-    '/landing-ru': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-    '/russia': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-    '/landing-es': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-    '/spain': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-    
-    // Авторизация
-    '/login': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-    '/auth/callback': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-    '/auth/telegram/callback': { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL },
-};
+const EXACT_LANDING_PATHS = new Set([
+    '/', '/landing', '/landing-ru', '/russia',
+    '/landing-es', '/spain', '/login',
+    '/auth/callback', '/auth/telegram/callback',
+]);
+
+function getThemeForPath(path: string) {
+    if (EXACT_LANDING_PATHS.has(path)) return LANDING;
+    if (APP_PREFIXES.some(prefix => path.startsWith(prefix))) return APP;
+    return LANDING; // По умолчанию — лендинг
+}
 
 export const ThemeColorManager = () => {
     const location = useLocation();
 
-    // Определяем основной цвет темы для текущего пути
-    const themeData = useMemo(() => {
-        const path = location.pathname;
-        
-        // 1. Проверяем точное совпадение
-        if (ROUTE_COLOR_MAP[path]) return ROUTE_COLOR_MAP[path];
-        
-        // 2. Если это /dashboard или любая внутренняя страница приложения — DASHBOARD_BLACK
-        if (path.startsWith('/dashboard') || 
-            path.startsWith('/tests') || 
-            path.startsWith('/learning') || 
-            path.startsWith('/games') || 
-            path.startsWith('/profile') ||
-            path.startsWith('/settings') ||
-            path.startsWith('/purchase')) {
-            return { hex: DASHBOARD_BLACK, hsl: DASHBOARD_BLACK_HSL };
-        }
-
-        // 3. По умолчанию для всех остальных страниц (включая 404 на лендинге)
-        return { hex: LANDING_BLUE, hsl: LANDING_BLUE_HSL };
-    }, [location.pathname]);
+    const theme = useMemo(
+        () => getThemeForPath(location.pathname),
+        [location.pathname]
+    );
 
     useEffect(() => {
-        const { hex: color, hsl } = themeData;
+        const { hex, hsl } = theme;
 
-        // КРИТИЧНО: Обновляем CSS-переменную --background для Tailwind
-        // Это заставляет все компоненты с bg-background адаптироваться мгновенно
+        // ── 1. CSS переменная ──────────────────────────────────────────────────
+        // Обновляем --background: html и body подхватят через CSS-правила автоматически.
+        // Это CSS-натив подход — браузер сам перекрасит все bg-background элементы.
         document.documentElement.style.setProperty('--background', hsl);
-        
-        // КРИТИЧНО: Устанавливаем фон для html и body (предотвращает белые полосы при скролле)
-        document.documentElement.style.backgroundColor = color;
-        document.body.style.backgroundColor = color;
 
-        // СИНХРОНИЗАЦИЯ: Meta Theme Color (цвет вкладки в браузере)
-        const updateMeta = (name: string, value: string) => {
-            let meta = document.querySelector(`meta[name="${name}"]`);
-            if (!meta) {
-                meta = document.createElement('meta');
-                meta.setAttribute('name', name);
-                document.head.appendChild(meta);
-            }
-            meta.setAttribute('content', value);
-        };
+        // ── 2. Meta theme-color ──────────────────────────────────────────────
+        // Красит адресную строку / вкладку браузера на Android Chrome и Safari iOS.
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) metaTheme.setAttribute('content', hex);
 
-        updateMeta('theme-color', color);
-        updateMeta('msapplication-TileColor', color);
-        updateMeta('apple-mobile-web-app-status-bar-style', 'black-translucent');
-
-        // СИНХРОНИЗАЦИЯ: Telegram WebApp UI
-        if (isTelegramMiniApp()) {
-            const tg = getTelegramWebApp();
-            if (tg) {
-                try {
-                    // Устанавливаем цвета для UI Telegram
-                    if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor(color as any);
-                    if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(color as any);
-                    
-                    // Сообщаем Telegram о смене темы (важно для некоторых версий)
-                    if (tg.setBottomBarColor) {
-                        tg.setBottomBarColor(color);
-                    }
-                } catch (e) {
-                    console.warn('[ThemeColorManager] Failed to sync with Telegram UI:', e);
-                }
+        // ── 3. Telegram WebApp ───────────────────────────────────────────────
+        // Используем window напрямую (обходим проблемы с типами)
+        const tg = (window as any).Telegram?.WebApp;
+        if (tg) {
+            try {
+                if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor(hex);
+                if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(hex);
+                if (typeof tg.setBottomBarColor === 'function') tg.setBottomBarColor(hex);
+            } catch {
+                // Telegram может не поддерживать эти методы — игнорируем
             }
         }
 
-        // КРИТИЧНО: Логируем для отладки в dev
         if (import.meta.env.DEV) {
-            console.log(`[Chameleon] Theme synchronized: ${location.pathname} -> ${color} (${hsl})`);
+            console.log(`[Chameleon v7] ${location.pathname} → ${hex}`);
         }
-
-    }, [themeData, location.pathname]);
+    }, [theme, location.pathname]);
 
     return null;
 };
