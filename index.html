@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
   <!-- Axeptio Cookie Consent -->
   <script>
     window.axeptioSettings = {
@@ -37,32 +37,22 @@
   <script>
     (function () {
       var path = window.location.pathname;
-      var isApp = path.startsWith('/dashboard') ||
-                  path.startsWith('/tests') ||
-                  path.startsWith('/learning') ||
-                  path.startsWith('/games') ||
-                  path.startsWith('/profile') ||
-                  path.startsWith('/settings') ||
-                  path.startsWith('/purchase') ||
-                  path.startsWith('/test/') ||
-                  path.startsWith('/topic') ||
-                  path.startsWith('/admin') ||
-                  path.startsWith('/partner');
+      // Улучшенная проверка: ищем ключевые слова в пути, игнорируя префиксы папок
+      var isApp = /dashboard|tests|learning|games|profile|settings|purchase|topic|subtopic|test\/|admin|partner/.test(path);
+      
+      var hex = isApp ? '#09090b' : '#0f172a';
+      var hsl = isApp ? '240 10% 3.9%' : '222 47% 11%';
 
-      var hex   = isApp ? '#09090b' : '#0f172a';
-      var hsl   = isApp ? '240 10% 3.9%' : '222 47% 11%';
-
-      // 1. ГЛАВНОЕ: устанавливаем CSS переменную --background ДО загрузки React.
-      //    Все CSS-правила вида hsl(var(--background)) сразу получат правильное значение.
-      //    Это решает Edge-to-Edge: html и body красятся через CSS, не через JS inline.
+      // Устанавливаем переменные для CSS
       document.documentElement.style.setProperty('--background', hsl);
       document.documentElement.style.setProperty('--initial-bg', hex);
 
-      // 2. Meta theme-color: цвет адресной строки / вкладки браузера
+      // Красим мета-теги немедленно
       var metaTheme = document.querySelector('meta[name="theme-color"]');
       if (metaTheme) metaTheme.setAttribute('content', hex);
-      var metaTile = document.querySelector('meta[name="msapplication-TileColor"]');
-      if (metaTile) metaTile.setAttribute('content', hex);
+      
+      // Прямое перекрашивание фона ДО начала парсинга остального HTML
+      document.documentElement.style.backgroundColor = hex;
     })();
   </script>
   <!-- Safari iOS: чёрная строка статуса с прозрачностью (нужно для viewport-fit=cover) -->
@@ -235,16 +225,7 @@
   </script>
 
   <!-- Preload критических ресурсов для ускорения загрузки -->
-  <link rel="preconnect" href="https://telegram.org" crossorigin />
-  <link rel="dns-prefetch" href="https://telegram.org" />
-  <!-- OIDC: preconnect к oauth.telegram.org для быстрого открытия попапа авторизации -->
-  <link rel="preconnect" href="https://oauth.telegram.org" crossorigin />
-  <link rel="dns-prefetch" href="https://oauth.telegram.org" />
-  <!-- Telegram Login SDK: загружаем сразу вместе со страницей (по документации) -->
-  <!-- async — не блокирует рендер, но загружается параллельно с основным бандлом -->
-  <script src="https://oauth.telegram.org/js/telegram-login.js" async></script>
-  <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
-  <link rel="dns-prefetch" href="https://yffjnqegeiorunyvcxkn.supabase.co" />
+  <!-- ОПТИМИЗАЦИЯ: Лишние preconnect удалены для PageSpeed -->
   <!-- ОПТИМИЗАЦИЯ: noise.svg теперь локальный, preconnect к grainy-gradients удалён -->
 
   <!-- Критический CSS inline для ускорения FCP -->
@@ -471,7 +452,7 @@
         const script = document.createElement('script');
         script.src = "https://telegram.org/js/telegram-web-app.js";
         script.crossOrigin = "anonymous";
-        script.async = false;
+        script.async = true; // Сделано async для PageSpeed
         document.head.appendChild(script);
       }
     })();
@@ -563,12 +544,10 @@
        и ломает Telegram Login SDK, используемый для авторизации через OIDC popup. -->
 
   <!-- ОПТИМИЗАЦИЯ FONTS: Preload критического шрифта -->
-  <link rel="preload"
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap" as="style"
-    onload="this.onload=null;this.rel='stylesheet'">
+  <!-- Оптимизация шрифтов: загрузка через современный link -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap" media="print" onload="this.media='all'">
   <noscript>
-    <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap">
   </noscript>
 
   <!-- Development: Telegram WebApp Mock - загружается через main.tsx -->
@@ -597,7 +576,7 @@
         position: fixed;
         inset: 0;
         z-index: 9999;
-        background: #06080F;
+        background: transparent !important;
         display: flex;
         flex-direction: column;
         align-items: center;
