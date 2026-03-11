@@ -155,8 +155,8 @@ const DialogContent = React.forwardRef<
             sizeConfig.maxWidth || "max-w-lg",
             // Максимальная высота
             sizeConfig.maxHeight || "max-h-[88vh]",
-            // Скругление
-            "rounded-xl",
+            // Скругление (Премиум)
+            "rounded-[2.5rem]",
             // Анимации (как было)
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -196,10 +196,10 @@ const DialogContent = React.forwardRef<
           {children}
           {!hideCloseButton && (
             <DialogPrimitive.Close
-              className="absolute right-4 top-4 z-50 rounded-sm opacity-70 ring-offset-background transition-all duration-200 hover:opacity-100 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent/30"
+              className="absolute right-4 top-4 z-50 flex items-center justify-center h-9 w-9 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-70 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-90 shadow-[0_2px_10px_rgba(0,0,0,0.2)] group"
               aria-label="Закрыть модальное окно"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5 transition-transform group-hover:rotate-90" />
               <span className="sr-only">Закрыть</span>
             </DialogPrimitive.Close>
           )}

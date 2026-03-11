@@ -458,19 +458,18 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 
 
   const handleStartEngine = () => {
-    if (isMobile) {
-      playEngineSound();
-      setTimeout(() => navigate('/login'), 300);
-      return;
-    }
     if (isStarting) return; // избегаем двойного триггера во время анимации
     setIsStarting(true);
     playEngineSound();
+    
+    // Даем 1000ms-1500ms на вибрацию двигателя перед переходом
+    const delay = isMobile ? 1200 : 1500;
+    
     setTimeout(() => {
-      onRequestAccess();
-      // сбрасываем состояние, чтобы повторные нажатия снова открывали модалку
+      if (isMobile) navigate('/login');
+      else onRequestAccess();
       setIsStarting(false);
-    }, 1500);
+    }, delay);
   };
 
   const handleEnter = () => {
@@ -888,22 +887,27 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             </div>
 
             {/* TELEGRAM MINI APP CARD */}
-            <div className="bg-gradient-to-br from-indigo-600/20 to-sky-600/20 backdrop-blur-xl border border-white/5 p-8 md:p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group hover:border-indigo-500/30 transition-all cursor-pointer" onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
-               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
-                  <Zap size={80} className="text-white" />
-               </div>
-               <div className="relative z-10 space-y-4">
-                  <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                        <Rocket className="text-white" size={20} />
-                     </div>
-                     <h4 className="text-white font-black text-lg">{copy.aiSection.telegramTitle}</h4>
+            <div className="bg-slate-900/50 border border-slate-800 p-8 md:p-10 rounded-[2.5rem] flex items-center justify-between relative overflow-hidden group mb-6 hover:border-indigo-500/30 transition-all cursor-pointer" onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
+              <div className="relative z-10 max-w-[65%]">
+                <h3 className="font-bold text-xl text-white mb-2">{copy.aiSection.telegramTitle}</h3>
+                <p className="text-slate-400 text-sm mb-4 leading-relaxed">{copy.aiSection.telegramDescription}</p>
+                <div className="inline-flex items-center gap-1 text-sm font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors">
+                  {copy.aiSection.telegramCTA} <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+
+              {/* Phone Mockup (Restored) */}
+              <div className="absolute bottom-[-15%] right-4 w-28 h-48 bg-slate-800 rounded-t-[1.8rem] border-x-4 border-t-4 border-slate-700 shadow-2xl flex flex-col items-center pt-3 opacity-90 group-hover:translate-y-[-10px] transition-transform duration-500">
+                <div className="w-8 h-1 bg-slate-600 rounded-full mb-4"></div>
+                <div className="w-full flex-1 bg-slate-900/50 px-2.5 pt-2.5 space-y-2.5">
+                  <div className="flex gap-2 items-end">
+                    <div className="w-full h-10 bg-indigo-500/20 rounded-lg rounded-bl-sm border border-indigo-500/10"></div>
                   </div>
-                  <p className="text-slate-300 text-sm leading-relaxed max-w-sm">{copy.aiSection.telegramDescription}</p>
-                  <div className="inline-flex items-center gap-2 text-white font-bold text-xs uppercase tracking-widest group-hover:gap-3 transition-all">
-                    {copy.aiSection.telegramCTA} <ArrowRight size={14} />
+                  <div className="flex gap-2 justify-end">
+                    <div className="w-3/4 h-10 bg-slate-700/30 rounded-lg rounded-br-sm border border-white/5"></div>
                   </div>
-               </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

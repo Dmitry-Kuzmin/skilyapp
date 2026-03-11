@@ -18,8 +18,8 @@ import { useLocation } from 'react-router-dom';
 
 // Лендинг: тёмно-синий slate-900
 const LANDING = { hex: '#0f172a', hsl: '222 47% 11%' } as const;
-// Приложение: почти чёрный zinc-950
-const APP = { hex: '#09090b', hsl: '240 10% 3.9%' } as const;
+// Приложение: возвращаем красивый синеватый оттенок (тот же slate-900)
+const APP = { hex: '#0f172a', hsl: '222 47% 11%' } as const;
 
 const APP_PREFIXES = [
     '/dashboard', '/tests', '/learning', '/games',

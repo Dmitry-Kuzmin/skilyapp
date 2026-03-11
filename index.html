@@ -55,8 +55,8 @@
       // Улучшенная проверка: ищем ключевые слова в пути, игнорируя префиксы папок
       var isApp = /dashboard|tests|learning|games|profile|settings|purchase|topic|subtopic|test\/|admin|partner/.test(path);
       
-      var hex = isApp ? '#09090b' : '#0f172a';
-      var hsl = isApp ? '240 10% 3.9%' : '222 47% 11%';
+      var hex = '#0f172a';
+      var hsl = '222 47% 11%';
 
       // Устанавливаем переменные для CSS
       document.documentElement.style.setProperty('--background', hsl);
@@ -264,7 +264,7 @@
       color-scheme: dark;
       /* Начальный цвет overscroll (bounce area) на iOS Safari.
          ThemeColorManager перекрасит его при монтировании React. */
-      background-color: var(--initial-bg, #09090b);
+      background-color: var(--initial-bg, #0f172a);
     }
 
     body {
@@ -280,7 +280,7 @@
       -moz-osx-font-smoothing: grayscale;
       /* ThemeColorManager динамически перекрасит этот фон при навигации.
          Дефолт — тёмный (дашборд). Лендинг будет установлен сразу из inline-скрипта выше. */
-      background-color: var(--initial-bg, #09090b);
+      background-color: var(--initial-bg, #0f172a);
       color: #fafafa;
     }
 
@@ -837,7 +837,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-03-11-18:25';
+      const APP_VERSION = '2026-03-11-18:51';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
@@ -878,7 +878,7 @@
             const root = document.getElementById('root') || document.body;
             root.innerHTML = `
                <div style="
-                 position: fixed; inset: 0; background: #09090b; color: white;
+                 position: fixed; inset: 0; background: #0f172a; color: white;
                  display: flex; flex-direction: column; align-items: center; justify-content: center;
                  font-family: sans-serif; text-align: center; padding: 20px; z-index: 9999;
                ">
