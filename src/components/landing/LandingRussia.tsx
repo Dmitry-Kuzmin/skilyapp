@@ -86,7 +86,10 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   };
 
   useEffect(() => {
-    setDemoVariantIndex(Math.floor(Math.random() * DEMO_VARIANTS[language].length));
+    const currentVariants = DEMO_VARIANTS[language] || DEMO_VARIANTS['en'];
+    if (currentVariants) {
+      setDemoVariantIndex(Math.floor(Math.random() * currentVariants.length));
+    }
   }, [language]);
 
   const handleStartEngine = () => {

@@ -8,7 +8,7 @@ const AiStudioLandingContent = lazy(() => import("./AiStudioLandingContent").the
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { landingTranslations } from "@/translations/landing";
-import { Sparkles, School, Timer, Target, Brain } from "lucide-react";
+import { Sparkles, Brain, Timer, Target, School } from "lucide-react";
 
 // Types
 interface ReferrerInfo {
@@ -42,6 +42,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const [isStarting, setIsStarting] = useState(false);
+  const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const { selectedCountry } = useCountry();
   const navigate = useNavigate();
@@ -76,25 +77,49 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
   const faqContent: any = {
     ru: {
       sectionTitle: 'Почему Skily лучше?',
-      sectionSubtitle: '...',
-      categories: [{ id: '1', title: 'Tech', questions: [{ q: 'AI?', a: 'Yes', icon: Brain }] }]
+      sectionSubtitle: 'Развеиваем мифы о подготовке к экзамену.',
+      categories: [
+        {
+          id: '1', title: 'Технологии',
+          questions: [
+            { q: 'Как AI помогает учить?', a: 'AI не просто показывает ответ, он объясняет ПОЧЕМУ...', icon: Brain },
+            { q: 'Можно ли сдать теорию самостоятельно?', a: 'Да! С умным алгоритмом Skily — от 2 недель...', icon: School }
+          ]
+        }
+      ]
     },
     es: {
-      sectionTitle: '¿Por qué Skily?',
-      sectionSubtitle: '...',
-      categories: [{ id: '1', title: 'Tech', questions: [{ q: '¿IA?', a: 'Sí', icon: Brain }] }]
+      sectionTitle: '¿Por qué Skily es mejor?',
+      sectionSubtitle: 'Rompiendo mitos sobre la preparación del examen.',
+      categories: [
+        {
+          id: '1', title: 'Tecnología',
+          questions: [
+            { q: '¿Cómo ayuda la IA a estudiar?', a: 'La IA не только показывает ответ, она объясняет ПОЧЕМУ...', icon: Brain },
+            { q: '¿Es posible aprobar por libre?', a: '¡Sí! Con el algoritmo inteligente de Skily...', icon: School }
+          ]
+        }
+      ]
     },
     en: {
-      sectionTitle: 'Why Skily?',
-      sectionSubtitle: '...',
-      categories: [{ id: '1', title: 'Tech', questions: [{ q: 'AI?', a: 'Yes', icon: Brain }] }]
+      sectionTitle: 'Why Skily is better?',
+      sectionSubtitle: 'Breaking myths about exam preparation.',
+      categories: [
+        {
+          id: '1', title: 'Technology',
+          questions: [
+            { q: 'How AI helps to study?', a: 'AI doesn\'t just show the answer, it explains WHY...', icon: Brain },
+            { q: 'Can I pass the theory alone?', a: 'Yes! With Skily\'s smart algorithm...', icon: School }
+          ]
+        }
+      ]
     }
   };
 
   const DEMO_VARIANTS: any = {
-    ru: [{ title: 'DGT AI', text: '...' }],
-    es: [{ title: 'IA de DGT', text: '...' }],
-    en: [{ title: 'DGT AI', text: '...' }]
+    ru: [{ title: 'DGT AI', text: 'Skily AI знает каждый подвох в билетах...' }],
+    es: [{ title: 'IA de DGT', text: 'Skily AI conoce cada trampa...' }],
+    en: [{ title: 'DGT AI', text: 'Skily AI knows every trap...' }]
   };
 
   return (
@@ -121,6 +146,8 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
           DEMO_VARIANTS={DEMO_VARIANTS}
           handleEnter={handleEnter}
           faqContent={faqContent}
+          referrerInfo={referrerInfo}
+          setIsPartnershipOpen={setIsPartnershipOpen}
         />
       </Suspense>
     </div>

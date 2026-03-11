@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FAQItem } from "./FAQItem";
+import { LandingLogo } from "./LandingLogo";
 const LandingQuizDemo = React.lazy(() => import("./LandingQuizDemo").then(m => ({ default: m.LandingQuizDemo })));
 const LandingDuelPassSection = React.lazy(() => import('./LandingDuelPassSection').then(module => ({ default: module.LandingDuelPassSection })));
 import { PartnershipExpansionPortal } from "./PartnershipExpansionPortal";
@@ -105,10 +106,10 @@ export const LandingRussiaContent: React.FC<Props> = ({
             LIVE DEMO
           </div>
           <h2 className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight">
-            {DEMO_VARIANTS[language][demoVariantIndex].title}
+            {DEMO_VARIANTS[language]?.[demoVariantIndex]?.title || copy?.hero?.titleBottom}
           </h2>
           <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            {DEMO_VARIANTS[language][demoVariantIndex].text}
+            {DEMO_VARIANTS[language]?.[demoVariantIndex]?.text || copy?.hero?.descriptionRest}
           </p>
         </div>
 
@@ -133,13 +134,46 @@ export const LandingRussiaContent: React.FC<Props> = ({
         )}
       </section>
 
+      {/* PRICING PLANS */}
+      <section className="px-6 py-24 max-w-[1400px] mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold mb-4">{copy.pricing.title}</h2>
+          <p className="text-slate-400">{copy.pricing.description}</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-stretch">
+          {Object.entries(copy.pricing.plans).map(([key, plan]: [string, any]) => {
+            const isHighlighted = key === 'biannual';
+            return (
+              <div key={key} className={cn(
+                "flex flex-col p-6 rounded-[2rem] transition-all duration-300 relative group",
+                isHighlighted ? "bg-indigo-900/40 border-2 border-indigo-500 scale-[1.03] z-10" : "bg-[#11141D] border border-white/5"
+              )}>
+                <h3 className="font-black text-lg mb-2 text-indigo-300">{plan.title}</h3>
+                <div className="text-2xl font-black text-white mb-6">{plan.price}</div>
+                <ul className="space-y-3 mb-8 text-xs flex-grow">
+                  {plan.features.map((f: string) => (
+                    <li key={f} className="flex gap-2 text-slate-300">
+                      <CheckCircle2 size={14} className="shrink-0 text-indigo-400" />
+                      <span className="leading-snug">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={handleEnter} className="w-full py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest bg-blue-600 text-white">
+                  {plan.cta}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {/* FAQ SECTION */}
       <section className="relative z-10 px-6 py-24 max-w-[1400px] mx-auto">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
             {faqContent[language].sectionTitle}
           </h2>
-          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">
+          <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
             {faqContent[language].sectionSubtitle}
           </p>
         </div>
@@ -148,21 +182,49 @@ export const LandingRussiaContent: React.FC<Props> = ({
           {faqContent[language].categories.flatMap((cat: any) =>
             cat.questions.map((q: any) => ({ ...q, category: cat.title }))
           ).map((item: any, idx: number) => (
-            <FAQItem
-              key={idx}
-              question={item.q}
-              answer={item.a}
-              icon={item.icon}
-              category={item.category}
-            />
+            <FAQItem key={idx} question={item.q} answer={item.a} icon={item.icon} category={item.category} />
           ))}
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="relative z-10 border-t border-slate-800 bg-[#0f172a] py-16">
-        <div className="max-w-[1400px] mx-auto px-6 text-center text-slate-500 text-sm">
-           <p>© {new Date().getFullYear()} SkilyApp. All rights reserved.</p>
+      <footer className="relative z-10 border-t border-slate-800 bg-[#0f172a] pt-16 pb-8">
+        <div className="max-w-[1400px] mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div className="md:col-span-2">
+              <LandingLogo theme="dark" variant="bold" />
+              <p className="text-slate-400 text-sm mt-6 max-w-sm">
+                Первая платформа для обучения вождению с ИИ, геймификацией и PvP дуэлями.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-6">Продукт</h4>
+              <ul className="space-y-4">
+                {copy.footer.menu.filter((m: any) => !m.href.includes('/legal/')).map((item: any) => (
+                  <li key={item.label}>
+                    <button onClick={() => item.href === '#partnership' ? setIsPartnershipOpen(true) : navigate(item.href)} className="text-slate-400 hover:text-white text-sm">
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-bold mb-6">Юридическая информация</h4>
+              <ul className="space-y-4">
+                {copy.footer.menu.filter((m: any) => m.href.includes('/legal/')).map((item: any) => (
+                  <li key={item.label}>
+                    <button onClick={() => navigate(item.href)} className="text-slate-400 hover:text-white text-sm">
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="pt-8 border-t border-slate-800 text-slate-500 text-xs text-center uppercase tracking-widest">
+            {copy.footer.note}
+          </div>
         </div>
       </footer>
 
