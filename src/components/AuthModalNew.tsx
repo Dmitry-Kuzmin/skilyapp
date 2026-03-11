@@ -22,6 +22,7 @@ import { PasswordStep } from './auth/modal/PasswordStep';
 import { MagicLinkStep } from './auth/modal/MagicLinkStep';
 import { SuccessScreen } from './auth/modal/SuccessScreen';
 import { ResetPasswordScreen } from './auth/modal/ResetPasswordScreen';
+import { VerifyOtpStep } from './auth/modal/VerifyOtpStep';
 
 interface AuthModalProps {
   open: boolean;
@@ -32,7 +33,7 @@ interface AuthModalProps {
 
 export function AuthModalNew({ open, onClose, initialStep = 'email', variant = 'modal' }: AuthModalProps) {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'email' | 'password-existing' | 'magic-link-new' | 'magic-link-existing' | 'check-email' | 'password-recovery' | 'reset-password' | 'reset-success'>(initialStep);
+  const [step, setStep] = useState<'email' | 'password-existing' | 'magic-link-new' | 'magic-link-existing' | 'check-email' | 'otp-verify' | 'password-recovery' | 'reset-password' | 'reset-success'>(initialStep);
   const [email, setEmail] = useState('');
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [password, setPassword] = useState('');
@@ -56,6 +57,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
   const [showResendRecovery, setShowResendRecovery] = useState(false);
   const [displayedPassword, setDisplayedPassword] = useState('');
   const [isScrambling, setIsScrambling] = useState(false);
+  const [isNewUserForOtp, setIsNewUserForOtp] = useState(false);
 
 
   const { t } = useLanguage();
@@ -259,6 +261,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
     setIsSubmitting(true);
     setMagicLinkState('sending');
+    setIsNewUserForOtp(isNew);
 
     try {
       const { error } = await supabase.auth.signInWithOtp({
@@ -272,15 +275,43 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       if (error) throw error;
 
       setMagicLinkState('sent');
-      setStep('check-email');
+      setStep('otp-verify');
       setResendCooldown(60);
       if ((webApp as any)?.HapticFeedback) {
         (webApp as any).HapticFeedback.notificationOccurred('success');
       }
     } catch (err: any) {
       console.error('Magic link failed:', err);
-      toast.error(err.message || 'Ошибка отправки ссылки');
+      toast.error(err.message || 'Ошибка отправки кода');
       setMagicLinkState('idle');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyOtp = async (token: string) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: isNewUserForOtp ? 'signup' : 'magiclink'
+      });
+
+      if (error) throw error;
+
+      setShowSuccessAnimation(true);
+      toast.success(t('auth.success.loggedIn'));
+      
+      setTimeout(() => {
+        onClose();
+        navigate('/dashboard', { replace: true });
+      }, 1200);
+    } catch (err: any) {
+      console.error('OTP verification failed:', err);
+      toast.error(t('auth.verificationFailed') || 'Неверный код');
     } finally {
       setIsSubmitting(false);
     }
@@ -482,6 +513,18 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 isExistingUser={step === 'magic-link-existing'}
                 onBackToEmail={handleBackToEmail}
                 onSendMagicLink={handleSendMagicLink}
+              />
+            )}
+
+            {step === 'otp-verify' && (
+              <VerifyOtpStep
+                key="otp-verify-step"
+                email={email}
+                isSubmitting={isSubmitting}
+                onVerify={handleVerifyOtp}
+                onResend={() => handleSendMagicLink(false)}
+                resendCooldown={resendCooldown}
+                onBackToEmail={handleBackToEmail}
               />
             )}
 

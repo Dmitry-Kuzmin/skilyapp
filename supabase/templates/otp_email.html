@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="color-scheme" content="light">
+    <meta name="supported-color-schemes" content="light">
+    <title>Skily – Sign in code</title>
+    <style type="text/css">
+        /* Mobile fixes */
+        @media only screen and (max-width: 480px) {
+            .container-padding {
+                padding: 20px 10px !important;
+            }
+
+            .card-padding {
+                padding: 40px 20px !important;
+            }
+
+            .mobile-width {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .otp-code {
+                font-size: 36px !important;
+                letter-spacing: 8px !important;
+            }
+        }
+    </style>
+</head>
+
+<body
+    style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0f172a;">
+
+    <!-- Main Container -->
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0f172a;">
+        <tr>
+            <td align="center" class="container-padding" style="padding: 40px 20px 48px 20px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mobile-width"
+                    style="max-width: 540px;">
+
+                    <!-- Logo Section (Text Only) -->
+                    <tr>
+                        <td align="center" style="padding: 0 0 32px 0;">
+                            <h1
+                                style="margin: 0; font-size: 38px; font-weight: 900; color: #ffffff; letter-spacing: -1px; font-family: -apple-system, sans-serif;">
+                                Skily
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content Card -->
+                    <tr>
+                        <td align="center" style="padding: 0 0 24px 0;">
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                style="background-color: #1e293b; border-radius: 24px; border: 1px solid rgba(99, 102, 241, 0.25); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+
+                                <!-- Top Accent Bar -->
+                                <tr>
+                                    <td height="4"
+                                        style="background: linear-gradient(90deg, #6366f1, #a855f7); line-height: 4px; font-size: 0;">
+                                        &nbsp;</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="card-padding" style="padding: 54px 40px; text-align: center;">
+
+                                        <!-- Headline -->
+                                        <h2
+                                            style="margin: 0 0 16px 0; font-size: 28px; font-weight: 800; color: #ffffff; line-height: 1.2;">
+                                            Your sign-in code 🚀
+                                        </h2>
+
+                                        <!-- Description -->
+                                        <p
+                                            style="margin: 0 0 32px 0; font-size: 16px; line-height: 1.6; color: #cbd5e1;">
+                                            Use the 6-digit code below to sign in to your Skily account.
+                                        </p>
+
+                                        <!-- OTP Code Section -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center" style="padding: 0 0 32px 0;">
+                                                    <div class="otp-code" style="display: inline-block; padding: 24px 40px; background-color: rgba(99, 102, 241, 0.1); color: #ffffff; font-size: 48px; font-weight: 800; letter-spacing: 12px; border-radius: 16px; border: 2px dashed rgba(99, 102, 241, 0.4); font-family: 'SF Mono', Consolas, monospace;">
+                                                        {{ .Token }}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <!-- Security Info -->
+                                        <table border="0" cellpadding="0" cellspacing="0" width="100%"
+                                            style="background-color: rgba(99, 102, 241, 0.1); border-radius: 16px; border: 1px solid rgba(99, 102, 241, 0.2);">
+                                            <tr>
+                                                <td style="padding: 20px; text-align: center;">
+                                                    <p
+                                                        style="margin: 0; font-size: 13px; line-height: 1.5; color: #94a3b8;">
+                                                        🔒 <strong style="color: #ffffff;">This code is valid for 10
+                                                            minutes.</strong> If you didn't request this, please ignore
+                                                        this email.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center">
+                            <!-- Copyright -->
+                            <p style="margin: 0 0 16px 0; font-size: 13px; color: #64748b;">
+                                © 2026 Skily App. All rights reserved.
+                            </p>
+
+                            <!-- Links -->
+                            <table border="0" cellpadding="0" cellspacing="0" align="center">
+                                <tr>
+                                    <td style="padding: 0 12px;">
+                                        <a href="{{ .SiteURL }}"
+                                            style="font-size: 12px; color: #6366f1; text-decoration: none;">Website</a>
+                                    </td>
+                                    <td style="color: #475569;">•</td>
+                                    <td style="padding: 0 12px;">
+                                        <a href="https://skilyapp.com/help"
+                                            style="font-size: 12px; color: #6366f1; text-decoration: none;">Support</a>
+                                    </td>
+                                    <td style="color: #475569;">•</td>
+                                    <td style="padding: 0 12px;">
+                                        <a href="{{ .SiteURL }}/privacy"
+                                            style="font-size: 12px; color: #6366f1; text-decoration: none;">Privacy</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 24px 0 0 0; font-size: 11px; color: #475569; line-height: 1.5;">
+                                This is a transactional email sent by Skily.<br>You received this because you requested
+                                a secure sign-in code to access your account.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>
