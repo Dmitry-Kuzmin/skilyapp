@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2, Hourglass, Snowflake, Timer, Car, AlertTriangle, Users } from "lucide-react";
+import { Swords, Zap, CreditCard, Puzzle, Languages, Shield, Flag, TrendingUp, Crown, Trophy, Brain, Gamepad2, Hourglass, Snowflake, Timer, Car, AlertTriangle, Users, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -422,6 +422,10 @@ const Games = () => {
                   const Icon = game.icon;
                   // Race is still featured but smaller than Duel
                   const isFeatured = game.id === 2;
+                  
+                  // Временная блокировка для разработки (IDs 4 и 9)
+                  const minLevel = [4, 9].includes(game.id) ? 10 : 0;
+                  const isLocked = minLevel > 0;
 
                   // Map game colors to tailwind classes
                   const colorMap: Record<string, {
@@ -480,7 +484,7 @@ const Games = () => {
                     },
                   };
 
-                  const theme = colorMap[game.color] || colorMap.primary;
+                  const theme = isLocked ? colorMap.primary : (colorMap[game.color] || colorMap.primary);
 
                   return (
                     <motion.div
@@ -492,21 +496,18 @@ const Games = () => {
                         ${isFeatured ? 'md:col-span-2' : 'col-span-1'}
                         relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-8 cursor-pointer group
                         bg-card/60 dark:bg-card/40 backdrop-blur-sm border border-border
-                        ${theme.border} hover:bg-card/80 dark:hover:bg-card/60
-                        shadow-lg hover:shadow-xl ${theme.shadow}
-                        transition-colors duration-150
-                        hover:-translate-y-1
+                        ${isLocked ? 'opacity-70 grayscale-[0.4] cursor-not-allowed' : `${theme.border} hover:bg-card/80 dark:hover:bg-card/60 shadow-lg hover:shadow-xl ${theme.shadow} hover:-translate-y-1`}
+                        transition-all duration-300
                       `}
                       style={{
-                        // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
                         pointerEvents: 'auto',
                         touchAction: 'manipulation',
                         WebkitTapHighlightColor: 'transparent'
                       }}
                       onClick={(e) => {
-                        // ОПТИМИЗАЦИЯ: Предотвращаем двойные клики и улучшаем обработку
                         e.preventDefault();
                         e.stopPropagation();
+                        if (isLocked) return;
                         if (game.premium && !isPremium) {
                           setPaywallOpen(true);
                         } else if (game.route) {
@@ -514,45 +515,58 @@ const Games = () => {
                         }
                       }}
                       onTouchStart={(e) => {
-                        // ОПТИМИЗАЦИЯ: Обработка touch событий для мгновенной реакции
                         e.stopPropagation();
                       }}
                     >
-                      {/* Subtle Gradient Background on Hover */}
-                      <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      {/* Interaction Overlay for Locked State */}
+                      {isLocked && (
+                        <div className="absolute inset-0 bg-background/20 backdrop-blur-[2px] z-10" />
+                      )}
 
-                      {/* Premium badge */}
-                      {game.premium && (
-                        <div className="absolute top-4 right-4 z-20">
+                      {/* Subtle Gradient Background on Hover */}
+                      {!isLocked && (
+                        <div className={`absolute inset-0 bg-gradient-to-br ${theme.gradient} via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      )}
+
+                      {/* Top Badges */}
+                      <div className="absolute top-4 right-4 z-20 flex gap-2">
+                        {isLocked && (
+                          <Badge className="bg-slate-900/80 text-slate-100 border-none font-black shadow-xl px-3 py-1.5 flex items-center gap-1.5 backdrop-blur-md ring-1 ring-white/10">
+                            <Lock className="w-3.5 h-3.5 text-indigo-400" />
+                            <span>LVL 10</span>
+                          </Badge>
+                        )}
+                        {game.premium && !isLocked && (
                           <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-none font-bold shadow-lg px-3 py-1">
                             Premium
                           </Badge>
-                        </div>
-                      )}
+                        )}
+                      </div>
 
-                      <div className="relative z-10 flex flex-col h-full justify-between gap-6">
+                      <div className="relative z-20 flex flex-col h-full justify-between gap-6">
                         <div className="flex justify-between items-start">
-                          {/* Icon Container - Dashboard Style */}
                           <div className={`
                               w-14 h-14 rounded-2xl 
-                              ${theme.iconBg}
+                              ${isLocked ? 'bg-slate-800/50 border-slate-700/50 text-slate-500' : `${theme.iconBg} ${theme.icon}`}
                               flex items-center justify-center
-                              group-hover:scale-110 transition-transform duration-300
+                              ${!isLocked && 'group-hover:scale-110'} transition-transform duration-300
                            `}>
-                            <Icon className={`w-7 h-7 ${theme.icon}`} />
+                            <Icon className="w-7 h-7" />
                           </div>
 
-                          <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
-                            {game.difficulty}
-                          </Badge>
+                          {!isLocked && (
+                            <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
+                              {game.difficulty}
+                            </Badge>
+                          )}
                         </div>
 
                         <div>
-                          <h3 className={`text-2xl font-bold text-foreground mb-2 tracking-tight ${theme.titleHover} transition-colors`}>
+                          <h3 className={`text-2xl font-bold text-foreground mb-2 tracking-tight ${!isLocked && theme.titleHover} transition-colors`}>
                             {game.title}
                           </h3>
-                          <p className="text-muted-foreground font-medium text-sm leading-relaxed">
-                            {game.description}
+                          <p className="text-muted-foreground font-medium text-sm leading-relaxed line-clamp-2">
+                            {isLocked ? "Режим в разработке. Прокачайся до 10 уровня, чтобы открыть доступ!" : game.description}
                           </p>
                         </div>
                       </div>

@@ -7,6 +7,36 @@ import { getTelegramUser } from "@/core/TelegramInit";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
 
+// Скелетон-заглушка: показывается пока AiStudioLanding грузится.
+// Важно: фон совпадает с bg лендинга — пользователь не видит белого мигания.
+const LandingFallback = () => (
+  <div
+    style={{
+      minHeight: '100dvh',
+      width: '100%',
+      background: '#0f172a',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <div style={{ textAlign: 'center' }}>
+      <div
+        style={{
+          width: 48,
+          height: 48,
+          border: '2px solid rgba(99,102,241,0.2)',
+          borderTopColor: '#6366f1',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+          margin: '0 auto 16px',
+        }}
+      />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  </div>
+);
+
 // Lazy loaded компоненты
 const AuthModalNew = lazy(() =>
   import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew }))
@@ -154,13 +184,15 @@ const Landing = () => {
           <PartnerInviteBanner />
         </Suspense>
       )}
-      <LandingComponent
-        onRequestAccess={() => setAuthModalOpen(true)}
-        referrerInfo={referrerInfo}
-        loadingReferrer={loadingReferrer}
-        partnerInfo={partnerInfo}
-        loadingPartner={loadingPartner}
-      />
+      <Suspense fallback={<LandingFallback />}>
+        <LandingComponent
+          onRequestAccess={() => setAuthModalOpen(true)}
+          referrerInfo={referrerInfo}
+          loadingReferrer={loadingReferrer}
+          partnerInfo={partnerInfo}
+          loadingPartner={loadingPartner}
+        />
+      </Suspense>
       <Suspense fallback={null}>
         <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       </Suspense>

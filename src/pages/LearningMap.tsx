@@ -4,6 +4,8 @@ import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "@/components/optimized/Motion";
+import { Badge } from "@/components/ui/badge";
 import Layout from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -552,7 +554,48 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
   }
 
   const mapContent = (
-    <div className={wrapperClasses}>
+    <div className={cn(wrapperClasses, "relative")}>
+      {/* Продакшн-заглушка: Учебник нового поколения */}
+      {!import.meta.env.DEV && (
+        <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center p-6 text-center bg-background/60 backdrop-blur-xl rounded-[2.5rem] border-2 border-dashed border-primary/20 m-1 group overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative z-10 space-y-6 max-w-lg"
+          >
+            <div className="relative mx-auto w-24 h-24 flex items-center justify-center">
+              <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-2xl animate-pulse" />
+              <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-2xl">
+                <BookOpen className="w-10 h-10 text-white" />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-4 py-1 text-sm font-bold uppercase tracking-widest">
+                Coming Soon
+              </Badge>
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
+                Учебник нового поколения
+              </h2>
+              <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+                Мы готовим революционный формат обучения ПДД. Интерактивные модули, ИИ-наставник и 3D-сценарии будут доступны совсем скоро.
+              </p>
+            </div>
+
+            <div className="pt-4 flex flex-wrap justify-center gap-3">
+              <div className="px-4 py-2 rounded-xl bg-card border border-border text-xs font-bold text-muted-foreground">
+                🚀 95% готовности
+              </div>
+              <div className="px-4 py-2 rounded-xl bg-card border border-border text-xs font-bold text-muted-foreground">
+                🤖 AI Integration
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       <div className={innerClasses}>
         <section className="flex flex-col gap-6 lg:gap-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

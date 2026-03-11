@@ -235,10 +235,9 @@
     html {
       overflow-x: hidden;
       width: 100%;
-      /* Цвет области overscroll (bounce) на iOS Safari — совпадает с лендингом */
+      /* Цвет bounce-area на iOS — устанавливается ThemeColorManager динамически */
       background-color: #0f172a;
       color-scheme: dark;
-      /* Разрешаем контенту выходить за пределы safe area (edge-to-edge) */
       height: 100%;
     }
 
@@ -252,11 +251,9 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      /* Landing bg — будет перезаписано ThemeColorManager при смене роута */
-      background: #0f172a;
+      /* Начальный цвет — будет немедленно перекрашен скриптом ниже и ThemeColorManager */
+      background: #09090b;
       color: #fafafa;
-      /* overscroll-behavior: none убирает «отскок» страницы при крайнем скролле */
-      overscroll-behavior-y: none;
     }
 
     #root {

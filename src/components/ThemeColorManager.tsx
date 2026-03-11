@@ -2,140 +2,80 @@ import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useLocation } from 'react-router-dom';
 
+// Карта цветов для конкретных роутов
+const ROUTE_COLORS: Record<string, string> = {
+    '/': '#0f172a',
+    '/landing': '#0f172a',
+};
+
+// Цвет по умолчанию для всего приложения (дашборд)
+const DASHBOARD_COLOR = '#09090b';
+
 /**
- * ThemeColorManager - Динамически управляет цветом браузерной панели (theme-color).
- * Адаптируется под текущий фон страницы (Chameleon Effect).
- * @see RULES_LAYOUT.md - RULE 3: The "Chameleon" Protocol
+ * ThemeColorManager — Хамелеон-протокол v4.
+ * Синхронно красит browser chrome (theme-color, body, html, Telegram header)
+ * под цвет текущей страницы при каждом переходе маршрута.
  */
 export function ThemeColorManager() {
     const { resolvedTheme } = useTheme();
     const location = useLocation();
 
     useEffect(() => {
-        // Функция для обновления мета-тега и цвета Telegram
-        const updateThemeColor = (color: string) => {
+        const applyColor = (color: string) => {
             if (!color) return;
 
-            // 1. Обновляем <meta name="theme-color">
-            const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-            if (metaThemeColor) {
-                metaThemeColor.setAttribute('content', color);
-            } else {
-                const meta = document.createElement('meta');
-                meta.name = 'theme-color';
-                meta.content = color;
-                document.head.appendChild(meta);
+            // 1. meta theme-color (браузерная строка сверху, PWA)
+            let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+            if (!metaThemeColor) {
+                metaThemeColor = document.createElement('meta');
+                (metaThemeColor as HTMLMetaElement).name = 'theme-color';
+                document.head.appendChild(metaThemeColor);
             }
+            metaThemeColor.setAttribute('content', color);
 
-            // 2. Обновляем msapplication-TileColor для Windows
-            const metaTileColor = document.querySelector('meta[name="msapplication-TileColor"]');
-            if (metaTileColor) {
-                metaTileColor.setAttribute('content', color);
-            }
+            // 2. Windows/IE TileColor
+            const metaTile = document.querySelector('meta[name="msapplication-TileColor"]');
+            if (metaTile) metaTile.setAttribute('content', color);
 
-            // 3. Обновляем заголовок Telegram (если мы в Mini App)
-            if (window.Telegram?.WebApp) {
+            // 3. Тело страницы — для overscroll area (Safari iOS bounce, Android nav bar)
+            document.documentElement.style.backgroundColor = color;
+            document.body.style.backgroundColor = color;
+
+            // 4. Telegram Mini App header/background
+            const tg = (window as any).Telegram?.WebApp;
+            if (tg) {
                 try {
-                    const tg = window.Telegram.WebApp;
-                    // setHeaderColor принимает HEX или ключевые слова 'bg_color' / 'secondary_bg_color'
-                    if (typeof tg.setHeaderColor === 'function') {
-                        tg.setHeaderColor(color);
-                    }
-                    if (typeof tg.setBackgroundColor === 'function') {
-                        tg.setBackgroundColor(color);
-                    }
-                } catch (e) {
-                    console.warn('[ThemeColorManager] Failed to set TG colors:', e);
-                }
-            }
-
-            // 4. Обновляем background браузера (для Safari bottom bar / Android Navigation bar)
-            // Это решает проблему белых/чёрных полос при скролле и "обрезанных" страниц снизу
-            try {
-                document.documentElement.style.backgroundColor = color;
-                document.body.style.backgroundColor = color;
-            } catch (e) {
-                console.warn('[ThemeColorManager] Failed to set body bg color:', e);
-            }
-
-            if (import.meta.env.DEV) {
-                console.log('[ThemeColorManager] 🦎 Applied color:', color, 'for route:', location.pathname);
+                    if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor(color);
+                    if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(color);
+                } catch { /* ignore */ }
             }
         };
 
-        // Логика определения цвета
-        const detectColor = (): string => {
-            // КРИТИЧНО: Приоритеты для конкретных роутов (Landing и т.д.)
-            if (location.pathname === '/' || location.pathname === '/landing' || !location.pathname.startsWith('/dashboard')) {
-                // Если мы на лендинге или любой внешней странице (не в приложении)
-                // Используем глубокий синий фон лендинга
-                return '#0f172a';
-            }
+        const getColor = (): string => {
+            const path = location.pathname;
 
-            // Для всех остальных страниц (внутри /dashboard/*) стараемся определить динамически
-            const bodyStyle = window.getComputedStyle(document.body);
-            let bgColor = bodyStyle.backgroundColor;
+            // Точное совпадение по роуту
+            if (ROUTE_COLORS[path]) return ROUTE_COLORS[path];
 
-            // Если body прозрачный (бывает при использовании градиентов или в начале рендера)
-            if (!bgColor || bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
-                // Пытаемся найти первый дочерний элемент в #root
-                const firstChild = document.querySelector('#root > div');
-                if (firstChild) {
-                    bgColor = window.getComputedStyle(firstChild).backgroundColor;
-                }
-            }
+            // Лендинг и все публичные страницы (не /dashboard)
+            if (!path.startsWith('/dashboard')) return '#0f172a';
 
-            // Если не удалось определить динамически или это прозрачный фон — используем fallback
-            if (!bgColor || bgColor === 'rgba(0, 0, 0, 0)' || bgColor === 'transparent') {
-                return resolvedTheme === 'dark' ? '#09090b' : '#ffffff';
-            }
-
-            // Преобразуем RGB/RGBA в HEX для лучшей поддержки браузерами
-            return rgbToHex(bgColor);
+            // Для дашборда — фиксированный цвет (надёжнее чем getComputedStyle)
+            return DASHBOARD_COLOR;
         };
 
-        // 1. Мгновенная попытка (для статических страниц)
-        const initialColor = detectColor();
-        updateThemeColor(initialColor);
+        const color = getColor();
 
-        // 2. Попытка через RAF (когда DOM обновился)
-        const rafId = requestAnimationFrame(() => {
-            const rafColor = detectColor();
-            updateThemeColor(rafColor);
+        // Применяем сразу
+        applyColor(color);
 
-            // 3. Отложенная попытка (на случай анимаций смены темы или ленивой загрузки)
-            const timerId = setTimeout(() => {
-                const finalColor = detectColor();
-                updateThemeColor(finalColor);
-            }, 500); // 500мс достаточно для большинства переходов
-
-            return () => clearTimeout(timerId);
+        // Повторно через RAF — после того как React отрисует DOM
+        const raf = requestAnimationFrame(() => {
+            applyColor(color);
         });
 
-        return () => cancelAnimationFrame(rafId);
-    }, [resolvedTheme, location.pathname]);
+        return () => cancelAnimationFrame(raf);
+    }, [location.pathname, resolvedTheme]);
 
     return null;
-}
-
-/**
- * Вспомогательная функция для преобразования rgb/rgba в hex
- * Браузеры всегда возвращают rgb() через getComputedStyle
- */
-function rgbToHex(rgb: string): string {
-    if (rgb.startsWith('#')) return rgb;
-
-    // Регулярка для rgb(r, g, b) или rgba(r, g, b, a)
-    const match = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
-    if (!match) return rgb;
-
-    const r = parseInt(match[1]);
-    const g = parseInt(match[2]);
-    const b = parseInt(match[3]);
-
-    // Если это RGBA и альфа-канал близок к 0, считаем прозрачным
-    const a = match[4] ? parseFloat(match[4]) : 1;
-    if (a < 0.1) return '';
-
-    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
