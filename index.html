@@ -4,8 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- Axeptio Cookie Consent -->
   <script>
     window.axeptioSettings = {
@@ -365,8 +366,8 @@
       })(typeof global !== "undefined" ? global : this);
   </script>
 
-  <!-- AdsGram SDK - Добавлено по официальной инструкции -->
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+  <!-- AdsGram SDK - (async для неблокирующего LCP) -->
+  <script src="https://sad.adsgram.ai/js/sad.min.js" async></script>
 
   <!-- Google AdSense H5 Games Ads (Approved pub-1758777358223420) -->
   <script async data-ad-client="ca-pub-1758777358223420" data-ad-frequency-hint="30s"
@@ -592,7 +593,8 @@
     })();
   </script>
 
-  <div id="root" vaul-drawer-wrapper>
+  <main id="main-content">
+    <div id="root" vaul-drawer-wrapper>
     <!-- ПРЕЛОАДЕР SKILY (STATIC VERSION ДЛЯ МОМЕНТАЛЬНОЙ ЗАГРУЗКИ И LCP) -->
     <style>
       .app-skeleton {
@@ -830,7 +832,7 @@
         <div class="version">SKILY V2.0</div>
       </div>
     </div>
-  </div>
+  </main>
 
   <!-- PWA Service Worker управляется через vite-plugin-pwa -->
   <!-- НЕ удаляем SW вручную - это блокирует offline режим -->

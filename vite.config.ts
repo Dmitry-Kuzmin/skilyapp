@@ -140,98 +140,23 @@ export default defineConfig(({ mode }) => {
           // Это предотвращает проблемы с unstable_scheduleCallback
           preserveModules: false, // Не сохраняем структуру модулей (лучше для React)
           manualChunks: (id) => {
-            // ✅ CORE: React и базовые библиотеки (Критично для работы)
-            if (id.includes('node_modules/react/') ||
-              id.includes('node_modules/react-dom/') ||
-              id.includes('node_modules/scheduler/')) {
+            // ✅ UI: Тяжелые компоненты выносим отдельно
+            if (id.includes('node_modules/framer-motion')) return 'motion-vendor';
+            if (id.includes('node_modules/lucide-react')) return 'icons-vendor';
+            if (id.includes('node_modules/recharts')) return 'charts-vendor';
+            if (id.includes('node_modules/embla-carousel-react')) return 'carousel-vendor';
+
+            // ✅ CORE: React
+            if (id.includes('node_modules/react/') || 
+                id.includes('node_modules/react-dom/') || 
+                id.includes('node_modules/scheduler/')) {
               return 'react-core';
             }
 
-            // ✅ SUPABASE: Инфраструктура бэкенда
-            if (id.includes('node_modules/@supabase/') ||
-              id.includes('node_modules/@postgrest-js/') ||
-              id.includes('node_modules/@gotrue-js/') ||
-              id.includes('node_modules/@realtime-js/') ||
-              id.includes('node_modules/@storage-js/')) {
-              return 'supabase-vendor';
-            }
+            // ✅ INFRA: Supabase
+            if (id.includes('node_modules/@supabase/')) return 'supabase-vendor';
 
-            // ✅ UI: Radix UI компоненты
-            if (id.includes('node_modules/@radix-ui/')) {
-              return 'radix-vendor';
-            }
-
-            // ✅ DATA: TanStack Query
-            if (id.includes('node_modules/@tanstack/')) {
-              return 'tanstack-vendor';
-            }
-
-            // ✅ Tiptap безопасен для выноса (используется только в админке, изолирован)
-            if (id.includes('node_modules/@tiptap') ||
-              id.includes('node_modules/prosemirror')) {
-              return 'tiptap-vendor';
-            }
-
-            // ✅ XLSX безопасен (используется только при импорте, есть lazy loader)
-            if (id.includes('node_modules/xlsx')) {
-              return 'xlsx-vendor';
-            }
-
-            // ✅ Recharts безопасен (используется только в админке)
-            if (id.includes('node_modules/recharts')) {
-              return 'charts';
-            }
-
-            // ✅ Иконки безопасны (можно загрузить параллельно)
-            if (id.includes('node_modules/lucide-react')) {
-              return 'icons-vendor';
-            }
-
-            // ✅ Framer Motion безопасен (используется не везде)
-            if (id.includes('node_modules/framer-motion')) {
-              return 'ui-vendor';
-            }
-
-            // ✅ Специфичные тяжелые библиотеки
-            if (id.includes('node_modules/zod')) {
-              return 'validation-vendor';
-            }
-
-            if (id.includes('node_modules/react-hook-form')) {
-              return 'forms-vendor';
-            }
-
-            if (id.includes('node_modules/embla-carousel-react')) {
-              return 'carousel-vendor';
-            }
-
-            if (id.includes('node_modules/react-markdown') ||
-              id.includes('node_modules/remark-') ||
-              id.includes('node_modules/micromark')) {
-              return 'markdown-vendor';
-            }
-
-            // ✅ Утилиты
-            if (id.includes('node_modules/date-fns')) {
-              return 'date-vendor';
-            }
-
-            if (id.includes('node_modules/zustand')) {
-              return 'state-vendor';
-            }
-
-            if (id.includes('node_modules/react-router')) {
-              return 'router-vendor';
-            }
-
-            if (id.includes('node_modules/sonner')) {
-              return 'toast-vendor';
-            }
-
-            if (id.includes('node_modules/idb-keyval') || id.includes('node_modules/idb/')) {
-              return 'storage-vendor';
-            }
-
+            // ✅ OTHER: Группируем остальное
             if (id.includes('node_modules')) {
               return 'vendor';
             }

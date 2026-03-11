@@ -7,12 +7,9 @@ import { checkTelegramAuth } from "@/utils/authCheck";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
 
-const AiStudioLanding = lazy(() =>
-  import("@/components/landing/AiStudioLanding").then(m => ({ default: m.AiStudioLanding }))
-);
-const LandingRussia = lazy(() =>
-  import("@/components/landing/LandingRussia").then(m => ({ default: m.LandingRussia }))
-);
+import { AiStudioLanding } from "@/components/landing/AiStudioLanding";
+import { LandingRussia } from "@/components/landing/LandingRussia";
+
 const AuthModalNew = lazy(() =>
   import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew }))
 );
