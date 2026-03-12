@@ -12,18 +12,18 @@ interface NotificationToastProps {
 export function NotificationToast({ title, message, icon, onClose }: NotificationToastProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, x: 400, scale: 0.95 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      exit={{ opacity: 0, x: 400, scale: 0.95 }}
+      initial={{ opacity: 0, y: -20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.2}
+      dragElastic={0.7}
       onDragEnd={(_, info) => {
-        if (info.offset.x > 100) {
+        if (Math.abs(info.offset.x) > 80) {
           onClose();
         }
       }}
-      className="relative max-w-sm w-full cursor-grab active:cursor-grabbing"
+      className="relative max-w-sm w-full cursor-grab active:cursor-grabbing touch-none select-none"
     >
       <div className="bg-card border-2 border-primary/30 rounded-2xl shadow-2xl shadow-primary/20 p-4 backdrop-blur-xl">
         <div className="flex items-start gap-3">

@@ -66,11 +66,12 @@ export function DuelOverlays({
             >
                 <AnimatePresence mode="popLayout">
                     {toastNotifications.map((notif) => (
-                        <NotificationToast
-                            key={notif.id}
-                            {...notif}
-                            onClose={() => setToastNotifications(toastNotifications.filter(n => n.id !== notif.id))}
-                        />
+                        <div key={notif.id} className="pointer-events-auto">
+                            <NotificationToast
+                                {...notif}
+                                onClose={() => setToastNotifications(toastNotifications.filter(n => n.id !== notif.id))}
+                            />
+                        </div>
                     ))}
                 </AnimatePresence>
             </div>

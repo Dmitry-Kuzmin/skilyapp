@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { User, AlertTriangle, ShieldCheck, ShieldAlert, TrendingUp, Check, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2, Activity as ActivityIcon, X } from 'lucide-react';
+import { User, AlertTriangle, ShieldCheck, ShieldAlert, TrendingUp, Check, Flame, Zap, Camera, Info, HelpCircle, CheckCircle2, Activity as ActivityIcon, X, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
+import { useSettingsStore } from '@/store/settingsStore';
 import PuntosIndicator from './PuntosIndicator3D';
 
 interface LicenseCardProps {
@@ -51,15 +52,13 @@ const T_MAP = {
         docType: "PERMISO DE CONDUCCIÓN",
         fields: {
             name: "1. 2. APELLIDOS Y NOMBRE",
-            dob: "3. FECHA Y LUGAR DE NAC.",
-            dobVal: "10.05.1995 • MADRID",
+            streak: "3. 🔥 MODO RACHA",
             issue: "4a. FECHA DE EXP. • 4b. VÁL. HASTA",
             issueVal: "01.01.2024 • 01.01.2034",
             issuer: "4c. EXPEDIDO POR",
             issuerVal: "JEFATURA DE TRÁFICO",
             id: "4d. 5. NÚMERO / ID",
             cat: "9. CAT.",
-            streak: "RACHA 🔥",
             pointsLabel: "12. PUNTOS",
         }
     },
@@ -70,16 +69,31 @@ const T_MAP = {
         docType: "ВОДИТЕЛЬСКОЕ УДОСТОВЕРЕНИЕ",
         fields: {
             name: "1. 2. ФАМИЛИЯ ИМЯ",
-            dob: "3. ДАТА И МЕСТО РОЖДЕНИЯ",
-            dobVal: "10.05.1995 • МОСКВА",
+            streak: "3. 🔥 УДАРНЫЙ РЕЖИМ",
             issue: "4a. ДАТА ВЫДАЧИ • 4b. ДЕЙСТВИТЕЛЬНО ДО",
             issueVal: "01.01.2024 • 01.01.2034",
             issuer: "4c. ВЫДАНО МАДИ/ГИБДД",
             issuerVal: "ГУ ОБДД МВД РОССИИ",
             id: "4d. 5. УДОСТОВЕРЕНИЕ №",
             cat: "9. КАТ.",
-            streak: "СТРИК 🔥",
             pointsLabel: "12. ШТРАФНЫЕ БАЛЛЫ",
+        }
+    },
+    en: {
+        bg: "from-blue-500/10 via-indigo-500/10 to-white/5",
+        lightBg: "bg-gradient-to-br from-blue-100 via-white to-indigo-100",
+        header: "UNITED KINGDOM",
+        docType: "DRIVING LICENCE",
+        fields: {
+            name: "1. 2. SURNAME FIRST NAMES",
+            streak: "3. 🔥 STREAK MODE",
+            issue: "4a. DATE OF ISSUE • 4b. VALID UNTIL",
+            issueVal: "01.01.2024 • 01.01.2034",
+            issuer: "4c. ISSUED BY",
+            issuerVal: "DVLA SWANSEA",
+            id: "4d. 5. LICENCE NUMBER",
+            cat: "9. CAT.",
+            pointsLabel: "12. PENALTY POINTS",
         }
     }
 };
@@ -98,6 +112,17 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
     licenseAudit = []
 }) => {
     const isMobile = useIsMobile();
+    const { examDate, openSettings } = useSettingsStore();
+
+    const daysUntilExam = useMemo(() => {
+        if (!examDate) return null;
+        const target = new Date(examDate);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        target.setHours(0, 0, 0, 0);
+        const diff = target.getTime() - now.getTime();
+        return Math.ceil(diff / (1000 * 60 * 60 * 24));
+    }, [examDate]);
     const {
         points,
         rankStyle,
@@ -170,9 +195,9 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
         }
 
         const normCountry = (selectedCountry || 'es').toLowerCase();
-        const effectiveCountry = (normCountry === 'russia' || normCountry === 'ru') ? 'ru' : 'es';
-        const countryCode = effectiveCountry === 'ru' ? 'RUS' : 'E';
-        const localeConfig = T_MAP[effectiveCountry as keyof typeof T_MAP] || T_MAP['es'];
+        const effectiveCountry = (normCountry === 'russia' || normCountry === 'ru') ? 'ru' : (normCountry === 'spain' || normCountry === 'es') ? 'es' : 'en';
+        const countryCode = effectiveCountry === 'ru' ? 'RUS' : effectiveCountry === 'es' ? 'E' : 'UK';
+        const localeConfig = T_MAP[effectiveCountry as keyof typeof T_MAP] || T_MAP['en'];
 
         return {
             points,
@@ -213,13 +238,13 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
         <div className="flex flex-col min-w-0 group/field">
             <span className={cn(
                 "text-[7px] sm:text-[8px] md:text-[9px] font-bold tracking-tight mb-0.5",
-                isDarkTheme ? "text-indigo-200/50" : "text-black/60"
+                isDarkTheme ? "text-slate-400/80" : "text-black/60"
             )}>
                 {label}
             </span>
             <span className={cn(
                 "text-xs sm:text-[13px] md:text-sm font-black truncate leading-tight tracking-tight",
-                isDarkTheme ? "text-zinc-50" : "text-slate-900",
+                isDarkTheme ? "text-white" : "text-slate-900",
                 highlight && (isDarkTheme ? "text-indigo-400 group-hover/field:text-indigo-300 transition-colors" : "text-indigo-600"),
                 valueClassName
             )} title={typeof value === 'string' ? value : undefined}>
@@ -235,11 +260,11 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
         )}>
             {/* The 3D Glassmorphism License Card */}
             <div className={cn(
-                "w-full relative z-10 rounded-[28px] md:rounded-[36px] overflow-hidden border transition-all duration-700 flex flex-col shadow-2xl backdrop-blur-3xl",
+                "w-full relative z-10 rounded-3xl xl:rounded-[2.5rem] overflow-hidden border transition-all duration-700 flex flex-col shadow-lg backdrop-blur-md",
                 isPointsModalOpen && isMobile ? "h-auto" : "h-full",
                 isDarkTheme
-                    ? "bg-zinc-950/80 border-white/5"
-                    : "bg-white/90 border-zinc-200 shadow-indigo-900/10"
+                    ? "bg-slate-800/80 border-slate-700 hover:border-slate-600"
+                    : "bg-white border-slate-200/80 hover:border-slate-300 shadow-[0_20px_45px_rgba(0,0,0,0.06)]"
             )}>
 
                 {/* Spanish EU Pink Gradient Background / Dark Theme Accent */}
@@ -269,7 +294,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 {/* Official Header */}
                 <div className={cn(
                     "relative z-10 flex flex-row items-center px-4 md:px-6 py-2 md:py-3 border-b",
-                    isDarkTheme ? "border-white/10 bg-white/[0.01]" : "border-indigo-900/10 bg-indigo-50/50"
+                    isDarkTheme ? "border-slate-700/50 bg-slate-700/20" : "border-indigo-900/10 bg-indigo-50/50"
                 )}>
                     {/* EU Flag Icon */}
                     <div className="relative flex items-center justify-center w-8 h-6 md:w-10 md:h-7 bg-[#003399] rounded-[4px] md:rounded-md overflow-hidden shrink-0 shadow-inner mr-3 md:mr-4 border-2 border-transparent">
@@ -356,12 +381,53 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                 <Field label={localeConfig.fields.name} value={fullName} />
 
                                 <div className="hidden sm:block">
-                                    <Field label={localeConfig.fields.dob} value={localeConfig.fields.dobVal} />
+                                    <Field 
+                                        label={localeConfig.fields.streak} 
+                                        value={
+                                            <span className="flex items-center gap-1.5">
+                                                <span className="text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">
+                                                    {stats.currentStreak} 
+                                                    {language === 'ru' ? ' ДН.' : language === 'es' ? ' DÍAS' : ' DAYS'}
+                                                </span>
+                                            </span>
+                                        } 
+                                    />
                                 </div>
 
                                 <Field
-                                    label={localeConfig.fields.issue}
-                                    value={localeConfig.fields.issueVal}
+                                    label={daysUntilExam !== null 
+                                        ? (selectedCountry === 'ru' ? "4b. ЭКЗАМЕН ЧЕРЕЗ" : "4b. EXAMEN EN") 
+                                        : (selectedCountry === 'ru' ? "4a. ВЫДАНО • 4b. ЭКЗАМЕН" : "4a. EXP. • 4b. EXAMEN")}
+                                    value={
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                openSettings('general', 'exam-date-section');
+                                            }}
+                                            className={cn(
+                                                "text-left transition-all active:scale-95 group/goal",
+                                                daysUntilExam !== null ? "text-indigo-400 hover:text-indigo-300" : "text-slate-500 hover:text-indigo-400"
+                                            )}
+                                        >
+                                            {daysUntilExam !== null ? (
+                                                <span className="flex items-center gap-1.5">
+                                                    <span className="animate-pulse">
+                                                        {selectedCountry === 'ru' 
+                                                            ? `${daysUntilExam} ${daysUntilExam === 1 ? 'ДЕНЬ' : [2,3,4].includes(daysUntilExam % 10) && ![12,13,14].includes(daysUntilExam % 100) ? 'ДНЯ' : 'ДНЕЙ'}` 
+                                                            : `${daysUntilExam} DÍAS`}
+                                                    </span>
+                                                    <Calendar size={12} className="opacity-30 group-hover/goal:opacity-100 transition-opacity" />
+                                                </span>
+                                            ) : (
+                                                <span className="flex items-center gap-1.5 text-[10px] md:text-xs">
+                                                    <span className="opacity-50">01.01.24 • </span>
+                                                    <span className="border-b border-dashed border-slate-700 group-hover/goal:border-indigo-500 font-bold text-[9px] uppercase tracking-wider">
+                                                        {selectedCountry === 'ru' ? '[УСТАНОВИТЬ ЦЕЛЬ]' : '[ESTABLECER META]'}
+                                                    </span>
+                                                </span>
+                                            )}
+                                        </button>
+                                    }
                                 />
 
                                 <div className="grid grid-cols-2 gap-2 md:gap-4">
@@ -565,7 +631,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                                     <span className="text-[6px] font-bold text-zinc-500 uppercase">Streak</span>
                                                     <div className="flex items-center gap-1">
                                                         <Zap size={8} className="text-amber-500" />
-                                                        <span className="text-[10px] font-black text-amber-500">+{stats.currentStreak || 0}</span>
+                                                        <span className="text-[10px] font-black text-amber-500">{stats.currentStreak || 0}</span>
                                                     </div>
                                                 </div>
                                             </div>

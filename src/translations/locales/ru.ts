@@ -218,6 +218,8 @@ export const ru = {
       sync: "Синхронизация",
       completed: "ЗАВЕРШЕНА",
       globalId: "Global ID",
+      examCountdown: "Экзамен через: {{days}} дн.",
+      setGoal: "Установить цель",
     }
   },
 
@@ -1141,6 +1143,10 @@ export const ru = {
     performance: "Производительность",
     powerSaver: "Экономный режим",
     powerSaverDesc: "Отключает тяжёлые анимации",
+    examDate: "Дата экзамена",
+    examDateDesc: "Установите дату для обратного отсчета",
+    examCountdown: "Экзамен через: {{days}} дн.",
+    setExamGoal: "Установить цель",
     level: "Уровень",
     synced: "Синхронизировано",
     themeToast: {

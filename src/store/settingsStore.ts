@@ -15,6 +15,7 @@ export interface SettingsState {
     // === Modal State ===
     isOpen: boolean;
     activeTab: 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about';
+    scrollTarget: string | null;
 
     // === General Settings ===
     language: LanguageCode;
@@ -28,6 +29,7 @@ export interface SettingsState {
     adasHints: boolean; // Авто-подсказки AI
     smartVocabularyEnabled: boolean; // Умные словарные подсказки в тестах
     duelNotifications: boolean;
+    examDate: string | null; // ISO Date string: "2024-05-15"
 
     // === User Info (cached) ===
     userLevel: number;
@@ -36,9 +38,10 @@ export interface SettingsState {
 
 export interface SettingsActions {
     // Modal controls
-    openSettings: (tab?: 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about') => void;
+    openSettings: (tab?: 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about', scrollTarget?: string | null) => void;
     closeSettings: () => void;
     setActiveTab: (tab: 'account' | 'general' | 'cockpit' | 'notifications' | 'subscription' | 'data' | 'about') => void;
+    setScrollTarget: (target: string | null) => void;
 
     // General settings
     setLanguage: (lang: LanguageCode) => void;
@@ -55,6 +58,7 @@ export interface SettingsActions {
 
     // User info
     setUserInfo: (level: number, title: string) => void;
+    setExamDate: (date: string | null) => void;
 
     // Bulk update
     updateSettings: (settings: Partial<SettingsState>) => void;
@@ -66,6 +70,7 @@ const initialState: SettingsState = {
     // Modal
     isOpen: false,
     activeTab: 'general',
+    scrollTarget: null,
 
     // General
     language: 'ru',
@@ -79,6 +84,7 @@ const initialState: SettingsState = {
     adasHints: true,
     smartVocabularyEnabled: true,
     duelNotifications: true,
+    examDate: null,
 
     // User
     userLevel: 1,
@@ -91,9 +97,10 @@ export const useSettingsStore = create<SettingsStore>()(
             ...initialState,
 
             // === Modal controls ===
-            openSettings: (tab = 'general') => set({ isOpen: true, activeTab: tab }),
-            closeSettings: () => set({ isOpen: false }),
+            openSettings: (tab = 'general', scrollTarget = null) => set({ isOpen: true, activeTab: tab, scrollTarget }),
+            closeSettings: () => set({ isOpen: false, scrollTarget: null }),
             setActiveTab: (tab) => set({ activeTab: tab }),
+            setScrollTarget: (scrollTarget) => set({ scrollTarget }),
 
             // === General settings ===
             setLanguage: (language) => set({ language }),
@@ -110,6 +117,7 @@ export const useSettingsStore = create<SettingsStore>()(
 
             // === User info ===
             setUserInfo: (userLevel, userTitle) => set({ userLevel, userTitle }),
+            setExamDate: (examDate) => set({ examDate }),
 
             // === Bulk update ===
             updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
@@ -127,6 +135,7 @@ export const useSettingsStore = create<SettingsStore>()(
                 adasHints: state.adasHints,
                 smartVocabularyEnabled: state.smartVocabularyEnabled,
                 duelNotifications: state.duelNotifications,
+                examDate: state.examDate,
             }),
         }
     )

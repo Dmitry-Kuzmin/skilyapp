@@ -2,6 +2,7 @@
  * Google AdSense H5 Games Ads Integration
  * 
  * Documentation: https://support.google.com/adsense/answer/10398031
+ * Instruction from Dima: Steps 1-3.
  */
 
 declare global {
@@ -13,46 +14,27 @@ declare global {
 }
 
 /**
- * Динамическая загрузка Google AdSense H5 SDK
+ * Initializes Google AdSense H5 Games Ads environment and proxies.
+ * This should be called once at start.
  */
-async function loadAdSenseScript(): Promise<void> {
-    if (window.adsbygoogle) return;
-
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-        script.async = true;
-        script.dataset.adClient = 'ca-pub-1758777358223420';
-        script.dataset.adFrequencyHint = '30s';
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('Failed to load AdSense SDK'));
-        document.head.appendChild(script);
-    });
-}
-
-/**
- * Initializes Google AdSense H5 Games Ads
- */
-export async function initAdSenseH5(): Promise<void> {
+export function initAdSenseH5(): void {
     if (typeof window === 'undefined') return;
 
-    // Загружаем скрипт динамически
-    if (!window.adsbygoogle) {
-        try {
-            await loadAdSenseScript();
-        } catch (error) {
-            console.error('[AdSense H5] Script loading failed:', error);
-            return;
-        }
-    }
-
-    // Initialize adBreak function if not already present
-    // It pushes the configuration to the adsbygoogle array
+    // Define proxies that push to adsbygoogle array
     window.adsbygoogle = window.adsbygoogle || [];
     window.adBreak = window.adBreak || function (o) { (window.adsbygoogle = window.adsbygoogle || []).push(o); };
     window.adConfig = window.adConfig || function (o) { (window.adsbygoogle = window.adsbygoogle || []).push(o); };
 
-    console.log('[AdSense H5] Initialized Placement API');
+    // IMPORTANT: Call adConfig to initialize the SDK
+    // This turns on preloading and sets up the environment
+    window.adConfig({
+        preloadAdBreaks: 'on',
+        onReady: () => {
+            console.log('[AdSense H5] 🎮 SDK is ready and environment is verified ✅');
+        },
+    });
+
+    console.log('[AdSense H5] 🛠️ Proxies and adConfig established');
 }
 
 /**
@@ -65,42 +47,48 @@ export async function showAdSenseRewardedVideo(options: { name: string } = { nam
     if (typeof window === 'undefined') return false;
 
     return new Promise((resolve) => {
-        // Check if adBreak is available
+        // Ensure proxies are ready
         if (!window.adBreak) {
             initAdSenseH5();
         }
+
+        console.log(`[AdSense H5] 🚀 Requesting ad break: type=reward, name=${options.name}`);
 
         try {
             window.adBreak!({
                 type: 'reward',
                 name: options.name,
                 beforeBreak: () => {
-                    console.log('[AdSense H5] Before break');
-                    // Optional: pause game sounds or logic
+                    console.log('[AdSense H5] ⏸️ beforeBreak: Ad starting...');
+                    // Logic to pause game/sounds if needed
                 },
                 afterBreak: () => {
-                    console.log('[AdSense H5] After break');
-                    // Optional: resume game sounds or logic
+                    console.log('[AdSense H5] ▶️ afterBreak: Ad instance completed');
+                    // Logic to resume game
                 },
                 adViewed: () => {
-                    console.log('[AdSense H5] Ad viewed - Reward granted ✅');
+                    console.log('[AdSense H5] 💎 adViewed: Reward granted ✅');
                     resolve(true);
                 },
                 adDismissed: () => {
-                    console.log('[AdSense H5] Ad dismissed ❌');
+                    console.log('[AdSense H5] ❌ adDismissed: User closed ad early');
                     resolve(false);
                 },
                 adError: () => {
-                    console.error('[AdSense H5] Ad error ❌');
+                    console.error('[AdSense H5] ⚠️ adError: Commercial instance error');
                     resolve(false);
                 },
                 adNoSlot: () => {
-                    console.warn('[AdSense H5] No ad slot available ❌');
+                    console.warn('[AdSense H5] 📭 adNoSlot: No inventory available now');
+                    resolve(false);
+                },
+                adTimeout: () => {
+                    console.warn('[AdSense H5] ⏰ adTimeout: Ad took too long to load');
                     resolve(false);
                 }
             });
         } catch (error) {
-            console.error('[AdSense H5] Error during adBreak:', error);
+            console.error('[AdSense H5] 💥 Exception in adBreak call:', error);
             resolve(false);
         }
     });

@@ -229,6 +229,74 @@ const DashboardContent = memo(function DashboardContent() {
   // Determine effective error state
   const hasError = !!error;
 
+  const calculatedStreak = useMemo(() => {
+    // Получаем текущую дату в формате YYYY-MM-DD (локально)
+    const getISODate = (d: Date) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+    const todayStr = getISODate(new Date());
+
+    if (!dashboardData?.license_audit || dashboardData.license_audit.length === 0) {
+      const dbVal = Math.max(dashboardData?.profile.streak_days || 0, dashboardData?.daily_bonus?.current_streak || 0);
+      if (import.meta.env.DEV) console.log('[Streak] No audit log, using DB value:', dbVal);
+      return dbVal;
+    }
+
+    // Собираем уникальные даты активностей
+    const activeDates = new Set<string>();
+    dashboardData.license_audit.forEach(item => {
+      try {
+        const dateStr = getISODate(new Date(item.created_at));
+        activeDates.add(dateStr);
+      } catch (e) {}
+    });
+
+    if (dashboardData.daily_bonus?.last_claimed_date) {
+      activeDates.add(dashboardData.daily_bonus.last_claimed_date.split('T')[0]);
+    }
+
+    let streak = 0;
+    let checkDate = new Date();
+    
+    // Проверяем сегодняшний день и идем назад
+    while (activeDates.has(getISODate(checkDate))) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+      // Предохранитель от бесконечного цикла
+      if (streak > 365) break;
+    }
+
+    // Если сегодня еще не было активности в логе, проверяем со вчерашнего дня
+    if (streak === 0) {
+      let yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      while (activeDates.has(getISODate(yesterday))) {
+        streak++;
+        yesterday.setDate(yesterday.getDate() - 1);
+        if (streak > 365) break;
+      }
+    }
+
+    const dbStreak = Math.max(dashboardData?.profile.streak_days || 0, dashboardData?.daily_bonus?.current_streak || 0);
+    const finalStreak = Math.max(streak, dbStreak);
+
+    if (import.meta.env.DEV) {
+      console.log('[Streak] Calculation:', {
+        auditCount: dashboardData.license_audit.length,
+        activeDates: Array.from(activeDates),
+        calculated: streak,
+        dbProfile: dashboardData?.profile.streak_days,
+        dbBonus: dashboardData?.daily_bonus?.current_streak,
+        final: finalStreak
+      });
+    }
+
+    return finalStreak;
+  }, [dashboardData]);
+
   return (
     <>
       {showWelcome && !hasError && (
@@ -279,7 +347,7 @@ const DashboardContent = memo(function DashboardContent() {
                 <Dashboard
                   stats={{
                     averageScore: averageScore,
-                    currentStreak: dashboardData.daily_bonus?.current_streak || 0,
+                    currentStreak: calculatedStreak,
                     testsCompleted: dashboardData.stats.tests_completed || 0,
                     accuracy: accuracy,
                     coins: balance || dashboardData.profile.coins || 0,

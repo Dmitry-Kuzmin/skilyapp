@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Sun, Moon, Smartphone, Zap } from 'lucide-react';
+import { Sun, Moon, Smartphone, Zap, Calendar as CalendarIcon } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { useSettingsStore, type ThemeMode, type LanguageCode } from '@/store/settingsStore';
 import { useTheme } from 'next-themes';
@@ -15,6 +15,13 @@ import { triggerHaptic } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 import { CyberSwitch } from '../ui/CyberSwitch';
 import { TonConnectButton } from '@tonconnect/ui-react';
+import { useUserContext } from '@/contexts/UserContext';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
+import { ru, es, enGB } from 'date-fns/locale';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 
 // === COMPONENTS ===
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
@@ -59,6 +66,23 @@ export const GeneralTab: React.FC = () => {
 
     const { setTheme: setNextTheme, resolvedTheme, theme: nextTheme } = useTheme();
     const { t, setLanguage: setContextLanguage, language: contextLanguage } = useLanguage();
+    const { profileId } = useUserContext();
+    const { examDate, setExamDate, scrollTarget, setScrollTarget } = useSettingsStore();
+
+    // Обработка прокрутки к якорю
+    React.useEffect(() => {
+        if (scrollTarget) {
+            const element = document.getElementById(scrollTarget);
+            if (element) {
+                // Небольшая задержка чтобы модалка успела отрендериться
+                const timer = setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setScrollTarget(null); // Очищаем после прокрутки
+                }, 100);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [scrollTarget, setScrollTarget]);
 
     // Синхронизация при монтировании (если настройки изменились в другом месте)
     React.useEffect(() => {
@@ -103,6 +127,38 @@ export const GeneralTab: React.FC = () => {
                 : t('settings.performanceToast.on'),
             { duration: 1500 }
         );
+    };
+
+    const handleExamDateChange = async (date: Date | undefined) => {
+        triggerHaptic('medium');
+        const newDate = date ? format(date, 'yyyy-MM-dd') : null;
+        setExamDate(newDate);
+
+        if (profileId) {
+            try {
+                const { data: currentProfile } = await supabase
+                    .from('profiles')
+                    .select('settings')
+                    .eq('id', profileId)
+                    .single();
+
+                const currentSettings = ((currentProfile as any)?.settings as Record<string, any>) || {};
+                
+                await (supabase as any)
+                    .from('profiles')
+                    .update({ 
+                        settings: { 
+                            ...currentSettings, 
+                            exam_date: newDate 
+                        } 
+                    })
+                    .eq('id', profileId);
+                
+                toast.success(t('toasts.settingsSaved'), { duration: 1500 });
+            } catch (err) {
+                console.error('Failed to sync exam date:', err);
+            }
+        }
     };
 
     return (
@@ -191,6 +247,50 @@ export const GeneralTab: React.FC = () => {
                         checked={performanceMode}
                         onCheckedChange={handlePerformanceToggle}
                     />
+                </SettingRow>
+            </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-700" />
+
+            {/* Дата экзамена */}
+            <div id="exam-date-section">
+                <SectionTitle title={t('unifiedSettings.examDate')} />
+                <SettingRow
+                    icon={<CalendarIcon className="w-4 h-4 text-indigo-500" />}
+                    label={t('unifiedSettings.examDate')}
+                    description={t('unifiedSettings.examDateDesc')}
+                >
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className={cn(
+                                    "w-[180px] justify-start text-left font-normal rounded-xl border-2 transition-all",
+                                    "hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/50",
+                                    !examDate && "text-muted-foreground",
+                                    examDate && "border-indigo-500/30 text-slate-900 dark:text-slate-100"
+                                )}
+                            >
+                                <CalendarIcon className="mr-2 h-4 w-4 text-indigo-500" />
+                                {examDate ? (
+                                    format(new Date(examDate), "PPP", {
+                                        locale: contextLanguage === 'ru' ? ru : contextLanguage === 'es' ? es : enGB
+                                    })
+                                ) : (
+                                    <span>{t('unifiedSettings.examDate')}</span>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-2xl" align="end">
+                            <Calendar
+                                mode="single"
+                                selected={examDate ? new Date(examDate) : undefined}
+                                onSelect={handleExamDateChange}
+                                initialFocus
+                                locale={contextLanguage === 'ru' ? ru : contextLanguage === 'es' ? es : enGB}
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </SettingRow>
             </div>
 
