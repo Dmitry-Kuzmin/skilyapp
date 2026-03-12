@@ -82,11 +82,15 @@ export function useRewardedAd() {
     setLoading(true);
     setError(null);
 
+    console.log(`[useRewardedAd] 🛡️ showAd triggered for placement: "${placement}"`);
+
     try {
       let rewarded: boolean;
 
       const webApp = getTelegramWebApp();
       const isMobileTMA = isTelegramMiniApp() && isTelegramMobilePlatformName(webApp?.platform);
+
+      console.log(`[useRewardedAd] Platform check: isMobileTMA=${isMobileTMA}, platform=${webApp?.platform || 'web'}`);
 
       // В Telegram Mini App на МОБИЛЬНЫХ используем AdsGram (официальный партнер)
       if (isMobileTMA) {
@@ -97,8 +101,9 @@ export function useRewardedAd() {
         // В веб-версии ИЛИ Desktop TMA используем Google AdSense H5 для Криптомайнера
         // Для остальных мест пока оставляем Monetag (или будем переводить постепенно)
         if (placement === 'crypto-miner' || placement === 'CRYPTO MINER') {
-          console.log('[useRewardedAd] Using Google AdSense H5 for placement:', placement);
+          console.log('[useRewardedAd] Attempting Google AdSense H5 for placement:', placement);
           rewarded = await showAdSenseRewardedVideo({ name: 'crypto-miner' });
+          console.log('[useRewardedAd] AdSense outcome:', rewarded);
         } else {
           // В веб-версии ИЛИ Desktop TMA используем Monetag
           // На Desktop TMA AdsGram часто не имеет рекламы (fill), а Monetag работает стабильно
