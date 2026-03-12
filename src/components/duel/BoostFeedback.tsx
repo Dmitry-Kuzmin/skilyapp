@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Zap } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BoostFeedbackProps {
   isActive: boolean;
@@ -8,6 +9,8 @@ interface BoostFeedbackProps {
 }
 
 export const BoostFeedback: React.FC<BoostFeedbackProps> = ({ isActive, boostName, boostType }) => {
+  const { t } = useLanguage();
+  
   // Определяем иконку и цвет в зависимости от типа буста
   const getBoostStyle = () => {
     const isExploit = ['screen_injector', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'].includes(boostType);
@@ -19,7 +22,7 @@ export const BoostFeedback: React.FC<BoostFeedbackProps> = ({ isActive, boostNam
         bgColor: 'bg-red-500/10',
         progressColor: 'bg-red-500',
         scanColor: 'bg-red-500/50',
-        label: 'EXPLOIT'
+        label: t('boostShop.active.exploit')
       };
     }
     
@@ -29,7 +32,7 @@ export const BoostFeedback: React.FC<BoostFeedbackProps> = ({ isActive, boostNam
       bgColor: 'bg-green-500/10',
       progressColor: 'bg-green-500',
       scanColor: 'bg-green-500/50',
-      label: 'UTILITY'
+      label: t('boostShop.active.utility')
     };
   };
 
@@ -73,7 +76,7 @@ export const BoostFeedback: React.FC<BoostFeedbackProps> = ({ isActive, boostNam
 
             {/* Протокол */}
             <div className={`${style.textColor} font-mono text-xs mb-2 tracking-[0.2em] uppercase`}>
-              PROTOCOL: {style.label}
+              {t('boostShop.active.protocol')}: {style.label}
             </div>
             
             {/* Название буста */}
@@ -88,7 +91,7 @@ export const BoostFeedback: React.FC<BoostFeedbackProps> = ({ isActive, boostNam
               transition={{ repeat: Infinity, duration: 1.5 }}
               className="text-lg font-bold text-white mb-4"
             >
-              UPLOADING...
+              {t('boostShop.active.uploading')}
             </motion.div>
             
             {/* Прогресс бар */}

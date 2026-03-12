@@ -15,6 +15,9 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useModal } from '@/hooks/useModal';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Confetti from 'react-confetti';
+import { sounds } from '@/lib/sounds';
+import { haptics } from '@/lib/haptics';
 
 const LABELS = {
   ru: {
@@ -107,6 +110,8 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
     slot_2_boost_type: null,
     slot_3_boost_type: null,
   });
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [ramSlotsUnlocked, setRamSlotsUnlocked] = useState(1);
   const [tempSlotUnlocked, setTempSlotUnlocked] = useState<number | null>(null); // Временная разблокировка через рекламу
   const [userCoins, setUserCoins] = useState(0);
@@ -120,6 +125,14 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
   const isClosingRef = useRef(false);
   const { openModal: openBoostShop } = useModal('BOOST_SHOP');
 
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Загрузка данных
   useEffect(() => {
     if (!profileId) return;
@@ -127,7 +140,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
     const loadData = async () => {
       try {
         // Загружаем профиль (coins, ram_slots_unlocked)
-        const { data: profile } = await supabase
+        const { data: profile } = await (supabase as any)
           .from('profiles')
           .select('coins, ram_slots_unlocked')
           .eq('id', profileId)
@@ -139,7 +152,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         }
 
         // Загружаем доступные бусты (только Root Mode для дуэлей)
-        const { data: boosts } = await supabase
+        const { data: boosts } = await (supabase as any)
           .from('boost_definitions')
           .select('type, name_ru, name_en, name_es, description_ru, description_en, description_es, icon, mode, category, target_type')
           .eq('mode', 'root')
@@ -151,13 +164,13 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
         // Загружаем текущий loadout через RPC функцию (обходит RLS)
         try {
-          const { data: rpcData, error: rpcError } = await supabase
+          const { data: rpcData, error: rpcError } = await (supabase as any)
             .rpc('get_user_loadout', { p_user_id: profileId });
 
           if (rpcError) {
             console.warn('[LoadoutSelector] RPC failed, trying direct query:', rpcError);
             // Fallback: прямой запрос
-            const { data: currentLoadout } = await supabase
+            const { data: currentLoadout } = await (supabase as any)
               .from('user_loadouts')
               .select('slot_1_boost_type, slot_2_boost_type, slot_3_boost_type')
               .eq('user_id', profileId)
@@ -266,7 +279,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         }
 
         // Обновляем профиль (разблокируем слот)
-        const { error: updateError } = await supabase
+        const { error: updateError } = await (supabase as any)
           .from('profiles')
           .update({ ram_slots_unlocked: 2 })
           .eq('id', profileId);
@@ -283,7 +296,15 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
         } else {
           setUserCoins(prev => prev - SLOT_UNLOCK_COST);
         }
-        toast.success('Слот 2 разблокирован!');
+
+        setShowConfetti(true);
+        sounds.victory();
+        haptics.victory();
+        toast.success(l.slot + ' 2 ' + (language === 'ru' ? 'разблокирован! 🎉' : 'unlocked! 🎉'), {
+          description: language === 'ru' ? 'Теперь вы можете использовать больше бустов в бою!' : 'Now you can use more boosts in battle!',
+          duration: 5000,
+        });
+        setTimeout(() => setShowConfetti(false), 5000);
       } catch (error: any) {
         console.error('[LoadoutSelector] Error unlocking slot:', error);
         const errorMessage = error?.message || error?.error || 'Ошибка разблокировки слота';
@@ -300,7 +321,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
       // Разблокируем бесплатно для Premium
       try {
-        await supabase
+        await (supabase as any)
           .from('profiles')
           .update({ ram_slots_unlocked: 3 })
           .eq('id', profileId);
@@ -339,7 +360,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
 
     // Сохраняем в БД через RPC функцию (обходит RLS)
     try {
-      const { error: rpcError } = await supabase.rpc('save_user_loadout', {
+      const { error: rpcError } = await (supabase as any).rpc('save_user_loadout', {
         p_user_id: profileId,
         p_slot_1_boost_type: newLoadout.slot_1_boost_type,
         p_slot_2_boost_type: newLoadout.slot_2_boost_type,
@@ -349,7 +370,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
       if (rpcError) {
         console.error('[LoadoutSelector] Error saving loadout via RPC:', rpcError);
         // Fallback: пробуем через прямой запрос
-        const { error: directError } = await supabase
+        const { error: directError } = await (supabase as any)
           .from('user_loadouts')
           .upsert({
             user_id: profileId,
@@ -617,7 +638,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
             if (!profileId) return;
 
             try {
-              const { data, error } = await supabase.functions.invoke('ad-reward', {
+              const { data, error } = await (supabase as any).functions.invoke('ad-reward', {
                 body: {
                   user_id: profileId,
                   reward_type: 'slot_unlock',
@@ -649,6 +670,18 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           title="OVERCLOCKING"
           description="Посмотри рекламу и разблокируй слот на эту дуэль. Временный root-доступ..."
         />
+
+        {showConfetti && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: 10000 }}>
+            <Confetti
+              width={windowSize.width}
+              height={windowSize.height}
+              recycle={false}
+              numberOfPieces={200}
+              gravity={0.3}
+            />
+          </div>
+        )}
       </Card>
     </>
   );

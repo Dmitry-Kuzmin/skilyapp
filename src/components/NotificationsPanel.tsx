@@ -109,7 +109,7 @@ const NotificationItem = memo(({
                   className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
                 >
                   <ChevronDown className="h-3 w-3" />
-                  Развернуть сообщение
+                  {t('notifications.expand')}
                 </button>
               </>
             ) : shouldTruncate(notification.message) && isExpanded ? (
@@ -125,7 +125,7 @@ const NotificationItem = memo(({
                   className="mt-2 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
                 >
                   <ChevronUp className="h-3 w-3" />
-                  Свернуть сообщение
+                  {t('notifications.collapse')}
                 </button>
               </>
             ) : (
@@ -148,7 +148,7 @@ const NotificationItem = memo(({
                   navigate(`/games/duel?duelId=${notification.duel_id}`);
                 }}
               >
-                Перейти
+                {t('notifications.goTo')}
               </Button>
             )}
           </div>
@@ -612,7 +612,7 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
                 ) : (
                   // Показываем placeholder, пока контейнер не получил реальные размеры
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm py-8">
-                    {flatList.length > 0 ? 'Загрузка...' : 'Нет уведомлений'}
+                    {flatList.length > 0 ? t('notifications.loading') : t('notifications.empty')}
                   </div>
                 )}
               </div>

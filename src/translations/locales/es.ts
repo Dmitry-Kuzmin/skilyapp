@@ -31,6 +31,26 @@ export const es = {
   system: "Sistema",
   sound: "Sonido",
   notificationsLabel: "Notificaciones",
+  notifications: {
+    title: "Notificaciones",
+    markAllAsRead: "Marcar todo como leído",
+    all: "Todo",
+    duels: "Duelos",
+    reminders: "Recordatorios",
+    system: "Sistema",
+    today: "Hoy",
+    yesterday: "Ayer",
+    thisWeek: "Esta semana",
+    thisMonth: "Este mes",
+    emptyAll: "Aún no tienes notificaciones",
+    emptyCategory: "No hay notificaciones en la categoría {{category}}",
+    configureReminders: "Configurar recordatorios",
+    expand: "Expandir mensaje",
+    collapse: "Contraer mensaje",
+    goTo: "Ir",
+    loading: "Cargando...",
+    empty: "Sin notificaciones",
+  },
 
   // Links
   achievements: "Mis logros",
@@ -399,6 +419,44 @@ export const es = {
         name: "Traducción",
         description: "Traduce la pregunta y las respuestas",
       },
+      rewind: {
+        name: "Rebobinar",
+        description: "Da un segundo intento en la pregunta actual",
+      },
+      screen_injector: {
+        name: "Filtración",
+        description: "Resalta la respuesta correcta para el oponente",
+      },
+      input_lag: {
+        name: "Retraso",
+        description: "Ralentiza la respuesta de la interfaz del oponente",
+      },
+      gps_spoofing: {
+        name: "GPS Falso",
+        description: "Altera los indicadores de progreso del oponente",
+      },
+      police_backdoor: {
+        name: "Puerta trasera",
+        description: "Abre acceso a la respuesta correcta",
+      },
+      firewall: {
+        name: "Cortafuegos",
+        description: "Protege contra efectos negativos",
+      },
+      cryptolocker: {
+        name: "Scrembler",
+        description: "Mezcla las respuestas del oponente",
+      },
+    },
+    active: {
+      doubleSp: "Double SP activo",
+      multiplier: "SP x{{multiplier}}",
+      uploading: "CARGANDO...",
+      protocol: "PROTOCOLO",
+      utility: "UTILIDAD",
+      exploit: "EXPLOIT",
+      m: "m",
+      s: "s",
     },
     coins: {
       topUpTitle: "Recarga tu saldo de monedas",
@@ -1122,20 +1180,6 @@ export const es = {
       reloadDesc: "La página se recargará"
     }
   },
-  notifications: {
-    title: "Notificaciones",
-    all: "Todas",
-    duels: "Duelos",
-    reminders: "Recordatorios",
-    system: "Sistema",
-    emptyAll: "Aún no hay notificaciones",
-    emptyCategory: "No hay notificaciones en la categoría \"{{category}}\"",
-    configureReminders: "Configurar recordatorios",
-    today: "Hoy",
-    yesterday: "Ayer",
-    thisWeek: "Esta semana",
-    earlier: "Anteriormente"
-  },
   nav: {
     invite: "Invitar"
   },
@@ -1152,5 +1196,29 @@ export const es = {
     allSystemsGo: "Sistemas en orden",
     noCriticalErrors: "No se detectaron errores críticos.",
     fixNow: "Corregir ahora"
-  }
+  },
+  duel: {
+    loading: "Cargando preguntas...",
+    errorLoading: "Error al cargar la pregunta",
+    offline: "Sin conexión",
+    hint: "Pista",
+    waitingOpponent: "Esperando al oponente...",
+    finished: "¡Duelo terminado!",
+    timeoutPenalty: "Penalización por saltos: -50 puntos",
+    timeoutCritical: "¡Demasiados saltos! -100 puntos",
+    timeoutInfo: "Pregunta omitida ({{count}}/3)",
+    comboToast: "🔥 ¡Combo x{{combo}}! +{{points}} puntos",
+    correctToast: "✅ ¡Correcto! +{{points}} puntos",
+    perfectToast: "⭐ ¡Respuesta perfecta! +{{points}} puntos",
+    wrongToast: "❌ Incorrecto",
+    boostFiftyFifty: "⚡ 50/50: ¡Dos opciones eliminadas!",
+    boostTimeExtend: "⏱️ ¡+{{seconds}} segundos añadidos!",
+    boostHint: "💡 ¡Pista revelada!",
+    boostSkip: "⏭️ ¡Pregunta omitida!",
+    boostTranslate: "🌐 ¡Traducción al {{language}} aplicada!",
+    timeoutNoPoints: "⏭️ Pregunta omitida - 0 puntos",
+    timeoutCorrectHighlight: "La respuesta correcta está resaltada",
+    russian: "Ruso",
+    english: "Inglés",
+  },
 } as const;

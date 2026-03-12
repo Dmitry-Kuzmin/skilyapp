@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X, Droplets, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { memo } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Boost {
   boost_type: string;
@@ -27,6 +28,7 @@ export const DuelBoostsPanel = memo(({
   onBoostUse,
   onTranslatePopoverChange,
 }: DuelBoostsPanelProps) => {
+  const { t } = useLanguage();
   // ОПТИМИЗАЦИЯ: Логируем только в dev режиме
   const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'));
   const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
@@ -41,7 +43,7 @@ export const DuelBoostsPanel = memo(({
           ? 'text-muted-foreground/70 border-muted-foreground/30 bg-muted/20'
           : 'text-muted-foreground/50 border-muted-foreground/20'
           }`}>
-          {isTelegram ? 'Загрузка бустов...' : 'Бусты не загружены (0)'}
+          {isTelegram ? t('notifications.loading') : `${t('boostShop.sections.empty')} (0)`}
         </div>
       )}
       {boosts.map((boost) => {
@@ -68,7 +70,7 @@ export const DuelBoostsPanel = memo(({
 
         // Используем иконку из БД, если она есть, иначе fallback на иконку из конфига
         const displayIcon = boost.icon || null;
-        const displayName = boost.name_ru || boostConfig.label;
+        const displayName = boost.name_ru || t(`boostShop.boostNames.${boost.boost_type}.name`);
 
         // Для translate бустера показываем развернутую версию с выбором языка
         if (boost.boost_type === 'translate' && translatePopoverOpen === boost.boost_type && !isDisabled) {
@@ -138,6 +140,7 @@ export const DuelBoostsPanel = memo(({
               ? 'bg-muted/30 border-border/40 opacity-40 cursor-not-allowed grayscale'
               : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
               }`}
+            title={t(`boostShop.boostNames.${boost.boost_type}.description`)}
           >
             {displayIcon ? (
               <span className="text-lg flex items-center justify-center shrink-0 w-4 h-4 leading-none" title={displayName}>

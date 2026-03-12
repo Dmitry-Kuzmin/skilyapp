@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { Badge } from '@/components/ui/badge';
 import { Zap, Clock, Lightbulb, FastForward, Languages, ChevronDown, Sparkles, Timer, HelpCircle, SkipForward, Globe } from 'lucide-react';
 import { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface BoostButtonProps {
   type: 'fifty_fifty' | 'time_extend' | 'hint' | 'skip' | 'translate';
@@ -19,35 +20,31 @@ const boostConfig = {
     icon: Sparkles,
     gradient: 'from-yellow-400 via-orange-400 to-yellow-500',
     glowColor: 'rgba(251, 191, 36, 0.4)',
-    description: '50/50: Убирает 2 неправильных варианта',
   },
   time_extend: {
     icon: Timer,
     gradient: 'from-blue-400 via-cyan-400 to-blue-500',
     glowColor: 'rgba(59, 130, 246, 0.4)',
-    description: '+30 секунд: Добавляет время',
   },
   hint: {
     icon: HelpCircle,
     gradient: 'from-orange-400 via-amber-400 to-orange-500',
     glowColor: 'rgba(251, 146, 60, 0.4)',
-    description: 'Подсказка: Показывает подсказку к вопросу',
   },
   skip: {
     icon: SkipForward,
     gradient: 'from-blue-400 via-pink-400 to-blue-500',
     glowColor: 'rgba(168, 85, 247, 0.4)',
-    description: 'Пропуск: Пропускает текущий вопрос',
   },
   translate: {
     icon: Globe,
     gradient: 'from-green-400 via-emerald-400 to-green-500',
     glowColor: 'rgba(34, 197, 94, 0.4)',
-    description: 'Перевод: Переводит вопрос на русский или английский',
   },
 };
 
 export function BoostButton({ type, icon, name, available, onUse, disabled }: BoostButtonProps) {
+  const { t } = useLanguage();
   const [isLanguageExpanded, setIsLanguageExpanded] = useState(false);
 
   const handleClick = () => {
@@ -137,7 +134,7 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
             </motion.div>
           </TooltipTrigger>
           <TooltipContent className="bg-card border-2">
-            <p className="text-sm font-medium">{config.description}</p>
+            <p className="text-sm font-medium">{t(`boostShop.boostNames.${type}.description`)}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -203,7 +200,7 @@ export function BoostButton({ type, icon, name, available, onUse, disabled }: Bo
           {buttonContent}
         </TooltipTrigger>
         <TooltipContent className="bg-card border-2">
-          <p className="text-sm font-medium">{config.description}</p>
+          <p className="text-sm font-medium">{t(`boostShop.boostNames.${type}.description`)}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

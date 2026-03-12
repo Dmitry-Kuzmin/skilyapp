@@ -127,8 +127,8 @@ export const DuelScoreBoard = memo(({
 
   return (
     <div className={cn(
-      "flex items-center gap-1.5 md:gap-3 min-w-0 flex-nowrap",
-      isTelegramMobile && "flex-1 justify-center"
+      "flex items-center gap-1 sm:gap-1.5 md:gap-3 min-w-0 flex-nowrap",
+      isTelegramMobile && "flex-1 justify-center px-0.5"
     )}>
       {/* My Score */}
       <motion.div
@@ -201,8 +201,8 @@ export const DuelScoreBoard = memo(({
         </div>
         <div className="min-w-0 flex flex-col items-start gap-0.5">
           <div className="flex items-center gap-1 min-w-0">
-            <p className="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[50px] md:max-w-none" title={myName || 'Ты'}>{myDisplayName}</p>
-            <div className="text-base md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center overflow-visible [transform:translateZ(0)]">
+            <p className="text-[9px] sm:text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[65px] sm:max-w-none" title={myName || 'Ты'}>{myDisplayName}</p>
+            <div className="text-lg md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center overflow-visible [transform:translateZ(0)]">
               <AnimatedCounter value={myScore} />
             </div>
           </div>
@@ -229,11 +229,11 @@ export const DuelScoreBoard = memo(({
       >
         <div className="min-w-0 flex-1 flex flex-col items-end gap-0.5">
           <div className="flex items-center justify-end gap-1 min-w-0">
-            <div className="text-base md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center justify-end overflow-visible [transform:translateZ(0)]">
+            <div className="text-lg md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center justify-end overflow-visible [transform:translateZ(0)]">
               <AnimatedCounter value={opponentScore} />
             </div>
             <p
-              className="text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[50px] md:max-w-[120px]"
+              className="text-[9px] sm:text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[65px] sm:max-w-[120px]"
               title={opponentName}
               key={`opponent-name-${opponentName}`}
             >

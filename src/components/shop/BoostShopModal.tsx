@@ -78,8 +78,8 @@ import {
 } from "@/lib/paddle";
 import type { Paddle } from "@paddle/paddle-js";
 import { useQueryClient } from "@tanstack/react-query";
-import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useModalStore } from "@/store/modalStore";
 
 
 const supabaseClient = supabase as any;
@@ -209,7 +209,7 @@ export function BoostShopModal({
     }
     setPaddleLoading(true);
     getPaddleInstance()
-      .then((instance) => { setPaddle(instance); })
+      .then((instance) => { setPaddle(instance || null); })
       .catch((error) => { console.error('[BoostShopModal] Failed to get Paddle instance:', error); })
       .finally(() => { setPaddleLoading(false); });
   }, [showPaddlePayment]);
@@ -518,6 +518,12 @@ export function BoostShopModal({
         return {
           icon: Zap,
           description: t("boostShop.transactions.coinsSpentDuelEntry"),
+          category: "spend",
+        };
+      case "coins_spent_slot_unlock":
+        return {
+          icon: Zap,
+          description: t("boostShop.transactions.coinsSpentSlotUnlock"),
           category: "spend",
         };
       case "premium_purchase_monthly":
@@ -948,11 +954,11 @@ export function BoostShopModal({
         }
 
         if (data?.error) {
-          console.error("[BoostShop] Error in response:", finalData.error);
+          console.error("[BoostShop] Error in response:", data.error);
           toast({
             title: t("boostShop.toasts.errorTitle"),
             description:
-              finalData.error || t("boostShop.toasts.purchaseErrorDescription"),
+              data.error || t("boostShop.toasts.purchaseErrorDescription"),
             variant: "destructive",
           });
           setPurchaseLoading(null);
@@ -2210,8 +2216,8 @@ export function BoostShopModal({
                                         if (data?.url && data?.orderId) {
                                           setCryptomusPreview({
                                             open: true,
-                                            paymentUrl: finalData.url,
-                                            orderId: finalData.orderId,
+                                            paymentUrl: data.url,
+                                            orderId: data.orderId,
                                             amount: plan.priceValue,
                                             currency: "EUR",
                                             itemName: `Premium: ${plan.title}`,
@@ -2274,7 +2280,7 @@ export function BoostShopModal({
                       onClick={() => {
                         onOpenChange(false);
                         setTimeout(
-                          () => useModalStore.getState().openModal("DUEL_PASS"),
+                          () => useModalStore.getState().openModal("BOOST_SHOP", { initialTab: 'premium' }),
                           150,
                         );
                       }}

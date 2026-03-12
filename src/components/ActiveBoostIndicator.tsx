@@ -3,6 +3,7 @@ import { Zap, Crown, Clock } from "lucide-react";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ActiveBoostIndicatorProps {
   userId: string;
@@ -10,6 +11,7 @@ interface ActiveBoostIndicatorProps {
 }
 
 export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicatorProps) {
+  const { t } = useLanguage();
   const [activeBoosts, setActiveBoosts] = useState<Array<{
     type: string;
     multiplier: number;
@@ -63,11 +65,13 @@ export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicator
 
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
+    const mUnit = t('boostShop.active.m');
+    const sUnit = t('boostShop.active.s');
 
     if (minutes > 0) {
-      return `${minutes}м ${seconds}с`;
+      return `${minutes}${mUnit} ${seconds}${sUnit}`;
     }
-    return `${seconds}с`;
+    return `${seconds}${sUnit}`;
   };
 
   return (
@@ -99,8 +103,10 @@ export function ActiveBoostIndicator({ userId, className }: ActiveBoostIndicator
                   <Zap className="w-4 h-4 fill-current" />
                 </motion.div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-semibold">Double SP активен</span>
-                  <span className="text-[10px] opacity-80">SP x{boost.multiplier} • {timeLeft}</span>
+                  <span className="text-xs font-semibold">{t('boostShop.active.doubleSp')}</span>
+                  <span className="text-[10px] opacity-80">
+                    {t('boostShop.active.multiplier', { multiplier: boost.multiplier })} • {timeLeft}
+                  </span>
                 </div>
               </>
             )}

@@ -14,6 +14,8 @@ import { toast } from 'sonner';
 import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { Swords, Timer, Zap, Trophy, WifiOff, Wifi, Flame } from 'lucide-react';
 import { DuelWaitingReplay } from './DuelWaitingReplay';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getImageUrl } from '@/utils/imageUtils';
 
 interface DuelBattleProps {
   duelId: string;
@@ -21,6 +23,7 @@ interface DuelBattleProps {
 }
 
 export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
+  const { t } = useLanguage();
   const { profileId } = useUserContext();
   const { fetchQuestions, fetchPlayers, fetchBoostInventory } = useDuelData(duelId, profileId);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
@@ -44,15 +47,16 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   const [translationLanguage, setTranslationLanguage] = useState<'ru' | 'en' | null>(null);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const prevOpponentScore = useRef(opponentScore);
-  const lastOpponentActivityRef = useRef(Date.now());
   const [isWaitingForOpponent, setIsWaitingForOpponent] = useState(false);
-  const [myName, setMyName] = useState<string>('Ты');
-  const [opponentName, setOpponentName] = useState<string>('Соперник');
+  const [myName, setMyName] = useState<string>(t('duelPass.table.columns.you'));
+  const [opponentName, setOpponentName] = useState<string>(t('duelPass.table.columns.opponent'));
+  const questionEndTimeRef = useRef<number | null>(null);
+  const TIME_LIMIT_MS = 60000;
 
   const syncBoostInventory = useCallback(async () => {
     try {
       const inventory = await fetchBoostInventory();
-      const boostMap: Record<string, number> = {
+      const boostMap = {
         fifty_fifty: 0,
         time_extend: 0,
         hint: 0,
@@ -61,7 +65,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       };
       inventory.forEach((item) => {
         if (item.boost_type in boostMap) {
-          boostMap[item.boost_type] = item.quantity;
+          (boostMap as any)[item.boost_type] = item.quantity;
         }
       });
       setBoosts(boostMap);
@@ -69,6 +73,242 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
       console.error('[DuelBattle] Error syncing boosts:', error);
     }
   }, [fetchBoostInventory]);
+
+  const finishDuel = useCallback(async () => {
+    try {
+      console.log('[DuelBattle] Finishing duel - I completed all questions');
+      
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'finish_duel',
+          profile_id: profileId,
+          duel_id: duelId,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.finished === true) {
+        console.log('[DuelBattle] Both players finished, going to results');
+        toast.success(t('duel.finished'), { duration: 3000 });
+        onDuelFinished();
+      } else {
+        console.log('[DuelBattle] Waiting for opponent to finish');
+        toast.info(t('duel.waitingOpponent'), { duration: 3000 });
+        setIsWaitingForOpponent(true);
+      }
+    } catch (error) {
+      console.error('Error finishing duel:', error);
+      toast.error(t('errors.generic'));
+    }
+  }, [duelId, profileId, onDuelFinished, t]);
+
+  const handleTimeout = useCallback(async () => {
+    if (answered) return;
+    
+    setAnswered(true);
+    setShowCorrectAnswer(true);
+    
+    const newSkipCount = skipCount + 1;
+    setSkipCount(newSkipCount);
+
+    let penaltyPoints = 0;
+    if (newSkipCount % 2 === 0) {
+      penaltyPoints = -50;
+      toast.warning(t('duel.timeoutPenalty'));
+    }
+    if (newSkipCount >= 4) {
+      penaltyPoints -= 100;
+      toast.error(t('duel.timeoutCritical'));
+    }
+
+    try {
+      const currentQuestion = questions[currentIndex];
+      if (!currentQuestion) return;
+
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'submit_answer',
+          profile_id: profileId,
+          duel_id: duelId,
+          duel_question_id: currentQuestion.id,
+          selected_option_id: null,
+          time_taken_ms: 60000,
+          is_timeout: true,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        if (data.new_score !== undefined) {
+          setMyScore(data.new_score);
+        }
+        const serverCombo = data.combo !== undefined ? data.combo : 0;
+        setCombo(serverCombo);
+        
+        if (penaltyPoints < 0) {
+          setMyScore(prev => Math.max(0, prev + penaltyPoints));
+        }
+      }
+
+      toast.info(t('duel.timeoutInfo', { count: newSkipCount }));
+    } catch (error) {
+      console.error('[DuelBattle] Error submitting timeout:', error);
+    }
+
+    setTimeout(() => {
+      if (currentIndex < questions.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      } else {
+        finishDuel();
+      }
+    }, 3000);
+  }, [answered, currentIndex, questions, skipCount, profileId, duelId, t, finishDuel]);
+
+  const handleAnswer = useCallback(async (optionId: string) => {
+    if (answered) return;
+
+    setAnswered(true);
+    setSelectedOption(optionId);
+
+    const currentQuestion = questions[currentIndex];
+    if (!currentQuestion) return;
+
+    const correctAnswer = currentQuestion.correct_option_ids.includes(optionId);
+    setIsCorrect(correctAnswer);
+
+    const timeTaken = 60000 - timeLeft;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('duel-manager', {
+        body: {
+          action: 'submit_answer',
+          profile_id: profileId,
+          duel_id: duelId,
+          duel_question_id: currentQuestion.id,
+          selected_option_id: optionId,
+          time_taken_ms: timeTaken,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data && data.new_score !== undefined) {
+        setMyScore(data.new_score);
+        const serverCombo = data.combo !== undefined ? data.combo : 0;
+        setCombo(serverCombo);
+        
+        const points = data.points_awarded || 0;
+        if (correctAnswer) {
+          sounds.correctAnswer();
+          haptics.correctAnswer();
+          if (serverCombo > 1) {
+            sounds.combo(serverCombo);
+            haptics.combo();
+            toast.success(t('duel.comboToast', { combo: serverCombo, points }), { duration: 3000 });
+          } else if (points > 150) {
+            toast.success(t('duel.perfectToast', { points }), { duration: 3000 });
+          } else {
+            toast.success(t('duel.correctToast', { points }), { duration: 2500 });
+          }
+        } else {
+          sounds.wrongAnswer();
+          haptics.wrongAnswer();
+          toast.error(t('duel.wrongToast'), { duration: 2000 });
+        }
+      }
+
+      setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(currentIndex + 1);
+        } else {
+          finishDuel();
+        }
+      }, 2500);
+    } catch (error: any) {
+      console.error('[DuelBattle] Error submitting answer:', error);
+      toast.error(error.message || t('errors.generic'));
+      setTimeout(() => {
+        if (currentIndex < questions.length - 1) {
+          setCurrentIndex(currentIndex + 1);
+        } else {
+          finishDuel();
+        }
+      }, 2500);
+    }
+  }, [answered, currentIndex, questions, timeLeft, profileId, duelId, t, finishDuel]);
+
+  const handleUseBoost = useCallback(async (type: string, language?: 'ru' | 'en') => {
+    if (usedBoosts.includes(type) || answered) return;
+
+    const currentQuestion = questions[currentIndex];
+    if (!currentQuestion) return;
+
+    try {
+      const { data: rpcResult, error: rpcError } = await (supabase as any).rpc('use_boost_attack', {
+        p_duel_id: duelId,
+        p_boost_type: type,
+        p_duel_question_id: currentQuestion.id,
+        p_language: language || null,
+        p_profile_id: profileId || null,
+      });
+
+      if (rpcError) throw rpcError;
+      if (!rpcResult?.success) throw new Error(rpcResult?.error || 'Failed to use boost');
+
+      const data = rpcResult.boost_effect || rpcResult;
+
+      if (type === 'fifty_fifty' && data.hidden_options) {
+        sounds.boostFiftyFifty();
+        haptics.boostActivated();
+        setHiddenOptions(data.hidden_options);
+        toast.success(t('duel.boostFiftyFifty'), { duration: 3000 });
+      } else if (type === 'time_extend' && data.time_added_ms) {
+        sounds.boostTimeExtend();
+        haptics.boostActivated();
+        if (questionEndTimeRef.current) {
+          const now = Date.now();
+          const currentRemaining = questionEndTimeRef.current - now;
+          const newEndTime = now + Math.min(currentRemaining + data.time_added_ms, TIME_LIMIT_MS);
+          questionEndTimeRef.current = newEndTime;
+          setTimeLeft(Math.min(currentRemaining + data.time_added_ms, TIME_LIMIT_MS));
+        } else {
+          setTimeLeft(prev => Math.min(prev + data.time_added_ms, TIME_LIMIT_MS));
+        }
+        toast.success(t('duel.boostTimeExtend', { seconds: data.time_added_ms / 1000 }), { duration: 3000 });
+      } else if (type === 'hint' && data.hint) {
+        sounds.boostHint();
+        haptics.boostActivated();
+        setHintText(data.hint);
+        setShowHint(true);
+        toast.success(t('duel.boostHint'), { duration: 3000 });
+      } else if (type === 'skip' && data.skip_confirmed) {
+        sounds.boostSkip();
+        haptics.boostActivated();
+        toast.success(t('duel.boostSkip'), { duration: 2000 });
+        setTimeout(() => {
+          if (currentIndex < questions.length - 1) {
+            setCurrentIndex(currentIndex + 1);
+          } else {
+            finishDuel();
+          }
+        }, 1000);
+      } else if (type === 'translate' && language) {
+        sounds.boostHint();
+        haptics.boostActivated();
+        setTranslationLanguage(language);
+        const langName = language === 'ru' ? t('duel.russian') : t('duel.english');
+        toast.success(t('duel.boostTranslate', { language: langName }), { duration: 3000 });
+      }
+
+      setUsedBoosts(prev => [...prev, type]);
+      setBoosts(prev => ({ ...prev, [type]: Math.max(0, (prev as any)[type] - 1) }));
+      await syncBoostInventory();
+    } catch (error: any) {
+      toast.error(error.message || t('errors.generic'), { duration: 4000 });
+    }
+  }, [usedBoosts, answered, questions, currentIndex, duelId, profileId, t, syncBoostInventory, finishDuel]);
 
   useEffect(() => {
     if (!duelId) return;
@@ -82,7 +322,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         }
       } catch (error) {
         console.error('[DuelBattle] Failed to load questions:', error);
-        toast.error('Не удалось загрузить вопросы');
+        toast.error(t('errors.generic'));
       }
 
       try {
@@ -106,7 +346,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     return () => {
       isMounted = false;
     };
-  }, [duelId, fetchPlayers, fetchQuestions, syncBoostInventory]);
+  }, [duelId, fetchPlayers, fetchQuestions, syncBoostInventory, t]);
 
   useEffect(() => {
     if (!questions.length) return;
@@ -118,141 +358,93 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
     setHiddenOptions([]);
     setUsedBoosts([]);
     setShowCorrectAnswer(false);
-    setTranslationLanguage(null); // Сбрасываем перевод при переходе к следующему вопросу
+    setTranslationLanguage(null);
   }, [currentIndex]);
 
   useEffect(() => {
     if (state.duelFinished) {
       onDuelFinished();
     }
-  }, [state.duelFinished]);
+  }, [state.duelFinished, onDuelFinished]);
 
-  // Sync opponent score from realtime - ALWAYS update when state changes
   useEffect(() => {
     if (typeof state.opponentScore === 'number') {
       if (state.opponentScore !== opponentScore) {
-        console.log('[DuelBattle] ✅ Updating opponent score from realtime:', state.opponentScore, '(was:', opponentScore, ')');
         setOpponentScore(state.opponentScore);
       }
     }
-  }, [state.opponentScore]);
+  }, [state.opponentScore, opponentScore]);
 
-  // Sync my score from realtime - ALWAYS update when state changes
   useEffect(() => {
     if (typeof state.myScore === 'number') {
       if (state.myScore !== myScore) {
-        console.log('[DuelBattle] ✅ Updating my score from realtime:', state.myScore, '(was:', myScore, ')');
         setMyScore(state.myScore);
       }
     }
-  }, [state.myScore]);
-
-  // УБРАНО: Периодическое обновление счета каждые 2 секунды
-  // useDuelRealtime уже обновляет счет через Realtime подписку мгновенно
-  // Это избыточно и создает лишнюю нагрузку на БД и сеть
+  }, [state.myScore, myScore]);
 
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      // Убрано: toast уведомление - статус показывается в индикаторе рядом с аватаром
-    };
-
-    const handleOffline = () => {
-      setIsOnline(false);
-      // Убрано: toast уведомление - статус показывается в индикаторе рядом с аватаром
-    };
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-
-    // Убрано: проверка соединения оппонента с toast уведомлениями
-    // Статус соединения оппонента показывается через CompactConnectionStatusIndicator
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [answered]);
+  }, []);
 
-  // Track opponent score changes with controlled notifications
   useEffect(() => {
     if (opponentScore > prevOpponentScore.current && prevOpponentScore.current > 0) {
       const diff = opponentScore - prevOpponentScore.current;
-      const scoreDiff = opponentScore - myScore;
-      
       if (diff > 100) {
-        toast.warning('🔥 Соперник набрал комбо!', { 
+        toast.warning(t('duel.comboToast', { combo: '?', points: diff }), { 
           duration: 3000,
           icon: '🔥' 
         });
         haptics.warning();
-      } else if (scoreDiff > 0 && scoreDiff <= 200) {
-        // Only show if opponent is slightly ahead (not too spammy)
-        toast.info(`⚡ Соперник впереди на ${scoreDiff} очков`, { 
-          duration: 4000,
-          icon: '⚡',
-          id: 'opponent-ahead' // Prevent duplicates
-        });
-      } else if (scoreDiff > 200) {
-        toast.warning(`🚀 Соперник опережает на ${scoreDiff}!`, {
-          duration: 4000,
-          icon: '🚀',
-          id: 'opponent-far-ahead'
-        });
       }
     }
     prevOpponentScore.current = opponentScore;
-  }, [opponentScore, myScore]);
+  }, [opponentScore, myScore, t]);
 
-  // Timer logic with timestamp fix (endTime pattern) - работает даже при переключении вкладок
-  const questionEndTimeRef = useRef<number | null>(null);
-  const TIME_LIMIT_MS = 60000; // 60 seconds
-
-  // Устанавливаем время окончания при загрузке нового вопроса
   useEffect(() => {
     if (answered) return;
-
-    // Устанавливаем время окончания = Сейчас + 60 секунд
     const targetTime = Date.now() + TIME_LIMIT_MS;
     questionEndTimeRef.current = targetTime;
     setTimeLeft(TIME_LIMIT_MS);
-  }, [currentIndex, answered, setTimeLeft]);
+  }, [currentIndex, answered]);
 
-  // Основной таймер - вычисляет разницу между endTime и текущим временем
   useEffect(() => {
     if (answered || !questionEndTimeRef.current) return;
 
     const timer = setInterval(() => {
       if (questionEndTimeRef.current) {
         const now = Date.now();
-        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000; // В миллисекундах
+        const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
 
         if (secondsRemaining <= 0) {
-          // 🛑 Время вышло
           setTimeLeft(0);
           clearInterval(timer);
           questionEndTimeRef.current = null;
           handleTimeout();
         } else {
-          // ✅ Обновляем UI
           setTimeLeft(secondsRemaining);
-          
-          // Play warning sound at 10 seconds
-          if (secondsRemaining <= 10000 && secondsRemaining > 9900) {
+          if (secondsRemaining <= 10000 && secondsRemaining > 9750) {
             sounds.timeRunningOut();
           }
         }
       }
-    }, 250); // Обновляем 4 раза в секунду для плавности
+    }, 250);
 
     return () => clearInterval(timer);
-  }, [answered, currentIndex, handleTimeout, setTimeLeft]);
+  }, [answered, handleTimeout]);
 
-  // Обработчик visibilitychange - мгновенное обновление при возвращении на вкладку
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && questionEndTimeRef.current && !answered) {
-        // Мгновенный пересчет при возвращении
         const now = Date.now();
         const secondsRemaining = Math.ceil((questionEndTimeRef.current - now) / 1000) * 1000;
         
@@ -268,376 +460,8 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [answered, handleTimeout, setTimeLeft]);
+  }, [answered, handleTimeout]);
 
-  // ============================================================================
-  // CRITICAL: USE SERVER-PROVIDED BOOST EFFECTS ONLY
-  // ============================================================================
-  // All boost logic is calculated on server
-  // Client only displays effects from server response
-  // ============================================================================
-  const handleUseBoost = async (type: string, language?: 'ru' | 'en') => {
-    if (usedBoosts.includes(type) || answered) return;
-
-    try {
-      // Для translate бустера язык передается в метаданных
-      // 🆕 Используем RPC функцию вместо Edge Function для надежности
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('use_boost_attack', {
-        p_duel_id: duelId,
-        p_boost_type: type,
-        p_duel_question_id: currentQuestion.id,
-        p_language: language || null,
-        p_profile_id: profileId || null,  // Передаем profileId для надежности
-      });
-
-      if (rpcError) throw rpcError;
-      if (!rpcResult?.success) throw new Error(rpcResult?.error || 'Failed to use boost');
-
-      const data = rpcResult.boost_effect || rpcResult;
-
-      // Apply server-provided boost effects
-      if (type === 'fifty_fifty' && data.hidden_options) {
-        sounds.boostFiftyFifty();
-        haptics.boostActivated();
-        setHiddenOptions(data.hidden_options);
-        toast.success('⚡ 50/50: Два варианта убраны!', { duration: 3000 });
-      } else if (type === 'time_extend' && data.time_added_ms) {
-        sounds.boostTimeExtend();
-        haptics.boostActivated();
-        // Time extend boost - обновляем endTime
-        if (questionEndTimeRef.current) {
-          const now = Date.now();
-          const currentRemaining = questionEndTimeRef.current - now;
-          const newEndTime = now + Math.min(currentRemaining + data.time_added_ms, TIME_LIMIT_MS);
-          questionEndTimeRef.current = newEndTime;
-          setTimeLeft(Math.min(currentRemaining + data.time_added_ms, TIME_LIMIT_MS));
-        } else {
-          // Если endTime не установлен, просто добавляем время
-          setTimeLeft(prev => Math.min(prev + data.time_added_ms, TIME_LIMIT_MS));
-        }
-        toast.success(`⏱️ +${data.time_added_ms / 1000} секунд добавлено!`, { duration: 3000 });
-      } else if (type === 'hint' && data.hint) {
-        sounds.boostHint();
-        haptics.boostActivated();
-        setHintText(data.hint);
-        setShowHint(true);
-        toast.success('💡 Подсказка открыта!', { duration: 3000 });
-      } else if (type === 'skip' && data.skip_confirmed) {
-        sounds.boostSkip();
-        haptics.boostActivated();
-        toast.success('⏭️ Вопрос пропущен!', { duration: 2000 });
-        setTimeout(() => {
-          if (currentIndex < questions.length - 1) {
-            setCurrentIndex(currentIndex + 1);
-          } else {
-            finishDuel();
-          }
-        }, 1000);
-      } else if (type === 'translate' && language) {
-        sounds.boostHint(); // Используем звук подсказки для перевода
-        haptics.boostActivated();
-        setTranslationLanguage(language);
-        const langName = language === 'ru' ? 'русский' : 'английский';
-        toast.success(`🌐 Перевод на ${langName} применён!`, { duration: 3000 });
-      }
-
-      setUsedBoosts(prev => [...prev, type]);
-      setBoosts(prev => ({ ...prev, [type]: Math.max(0, prev[type as keyof typeof prev] - 1) }));
-      await syncBoostInventory();
-    } catch (error: any) {
-      toast.error(error.message || 'Ошибка использования буста', { duration: 4000 });
-    }
-  };
-
-  const handleAnswer = async (optionId: string) => {
-    // #region agent log (только в dev режиме)
-    // УДАЛЕНО: debug fetch вызовы убраны для стабильности
-    // #endregion
-    if (answered) return;
-
-    setAnswered(true);
-    setSelectedOption(optionId);
-
-    const correctAnswer = currentQuestion.correct_option_ids.includes(optionId);
-    setIsCorrect(correctAnswer);
-
-    const timeTaken = 60000 - timeLeft;
-    // #region agent log (только в dev режиме)
-    // УДАЛЕНО: debug fetch вызовы убраны для стабильности
-    // #endregion
-
-    try {
-      // Retry логика с экспоненциальной задержкой для submit_answer
-      const maxRetries = 3;
-      let data: any = null;
-      let lastError: any = null;
-      
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          // Таймаут 20 секунд на запрос (меньше чем для загрузки вопросов, т.к. это критично)
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
-          });
-
-          const invokePromise = supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'submit_answer',
-          profile_id: profileId,
-          duel_id: duelId,
-          duel_question_id: currentQuestion.id,
-          selected_option_id: optionId,
-          time_taken_ms: timeTaken,
-        },
-      });
-
-          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
-          const { data: resultData, error: resultError } = result;
-
-          if (resultError) {
-            lastError = resultError;
-            console.warn(`[DuelBattle] ⚠️ Submit answer attempt ${attempt + 1} failed:`, resultError?.message);
-            
-            // Если это не последняя попытка, ждем перед повтором
-            if (attempt < maxRetries - 1) {
-              const delay = Math.min(1000 * Math.pow(2, attempt), 5000); // Экспоненциальная задержка: 1s, 2s, 4s (макс 5s)
-              console.log(`[DuelBattle] ⏳ Retrying submit_answer in ${delay}ms...`);
-              await new Promise(resolve => setTimeout(resolve, delay));
-              continue;
-            }
-            throw resultError;
-          }
-
-          // Успешно получили ответ
-          data = resultData;
-          console.log(`[DuelBattle] ✅ Submit answer successful (attempt ${attempt + 1})`);
-          break; // Выходим из цикла retry
-          
-        } catch (attemptError: any) {
-          lastError = attemptError;
-          console.warn(`[DuelBattle] ⚠️ Submit answer attempt ${attempt + 1} exception:`, attemptError?.message);
-          
-          // Если это не последняя попытка, ждем перед повтором
-          if (attempt < maxRetries - 1) {
-            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-            console.log(`[DuelBattle] ⏳ Retrying submit_answer in ${delay}ms...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          } else {
-            // Все попытки не удались - показываем ошибку, но продолжаем игру
-            console.error('[DuelBattle] ❌ All submit_answer attempts failed, continuing anyway');
-            toast.error('Не удалось сохранить ответ, но игра продолжается');
-            // Продолжаем выполнение без данных от сервера
-            data = null;
-          }
-        }
-      }
-
-      if (lastError && !data) {
-        // Если все попытки не удались, продолжаем игру без обновления счета
-        console.warn('[DuelBattle] ⚠️ Continuing without server response');
-      }
-
-      // ============================================================================
-      // CRITICAL: USE SERVER-PROVIDED SCORE ONLY
-      // ============================================================================
-      // Client MUST use new_score from server response
-      // Never calculate score locally - server is source of truth
-      // ============================================================================
-      // #region agent log (только в dev режиме)
-      // УДАЛЕНО: debug fetch вызовы убраны для стабильности
-      // #endregion
-      if (data && data.new_score !== undefined) {
-        setMyScore(data.new_score);
-        
-        // CRITICAL: Always use server-provided combo value, even if it's 0
-        // Server returns 0 when answer is incorrect or skipped - this resets combo
-        const serverCombo = data.combo !== undefined ? data.combo : 0;
-        setCombo(serverCombo);
-        
-        console.log('[DuelBattle] Server response:', {
-          isCorrect: correctAnswer,
-          serverCombo,
-          points: data.points_awarded
-        });
-        
-        if (correctAnswer) {
-          sounds.correctAnswer();
-          haptics.correctAnswer();
-          const points = data.points_awarded || 0;
-          if (serverCombo > 1) {
-            sounds.combo(serverCombo);
-            haptics.combo();
-            toast.success(`🔥 Комбо x${serverCombo}! +${points} очков`, { duration: 3000 });
-          } else if (points > 150) {
-            toast.success(`⭐ Идеальный ответ! +${points} очков`, { duration: 3000 });
-          } else {
-            toast.success(`✅ Правильно! +${points} очков`, { duration: 2500 });
-          }
-        } else {
-          sounds.wrongAnswer();
-          haptics.wrongAnswer();
-          toast.error('❌ Неправильно', { duration: 2000 });
-          // Combo should be 0 after wrong answer
-          if (serverCombo !== 0) {
-            console.warn('[DuelBattle] Warning: Server returned non-zero combo for incorrect answer:', serverCombo);
-          }
-        }
-      }
-
-      // Всегда переходим к следующему вопросу, даже если сервер не ответил
-      setTimeout(() => {
-        if (currentIndex < questions.length - 1) {
-          setCurrentIndex(currentIndex + 1);
-        } else {
-          finishDuel();
-        }
-      }, 2500);
-    } catch (error: any) {
-      console.error('[DuelBattle] Error submitting answer:', error);
-      toast.error(error.message || 'Ошибка отправки ответа');
-      // Даже при ошибке продолжаем игру
-      setTimeout(() => {
-        if (currentIndex < questions.length - 1) {
-          setCurrentIndex(currentIndex + 1);
-        } else {
-          finishDuel();
-        }
-      }, 2500);
-    }
-  };
-
-  const handleTimeout = async () => {
-    if (answered) return;
-    
-    setAnswered(true);
-    setShowCorrectAnswer(true);
-    
-    const newSkipCount = skipCount + 1;
-    setSkipCount(newSkipCount);
-
-    let penaltyPoints = 0;
-    if (newSkipCount % 2 === 0) {
-      penaltyPoints = -50;
-      toast.warning('Штраф за пропуски: -50 очков');
-    }
-    if (newSkipCount >= 4) {
-      penaltyPoints -= 100;
-      toast.error('Слишком много пропусков! -100 очков');
-    }
-
-    try {
-      // Retry логика с экспоненциальной задержкой для timeout
-      const maxRetries = 3;
-      let data: any = null;
-      
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout: Edge Function не ответил за 20 секунд')), 20000);
-          });
-
-          const invokePromise = supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'submit_answer',
-          profile_id: profileId,
-          duel_id: duelId,
-          duel_question_id: currentQuestion.id,
-          selected_option_id: null,
-          time_taken_ms: 60000,
-          is_timeout: true,
-        },
-      });
-
-          const result = await Promise.race([invokePromise, timeoutPromise]) as any;
-          const { data: resultData, error: resultError } = result;
-
-          if (resultError) {
-            if (attempt < maxRetries - 1) {
-              const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-              console.log(`[DuelBattle] ⏳ Retrying timeout submit in ${delay}ms...`);
-              await new Promise(resolve => setTimeout(resolve, delay));
-              continue;
-            }
-            throw resultError;
-          }
-
-          data = resultData;
-          console.log(`[DuelBattle] ✅ Timeout submit successful (attempt ${attempt + 1})`);
-          break;
-        } catch (attemptError: any) {
-          if (attempt < maxRetries - 1) {
-            const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-            await new Promise(resolve => setTimeout(resolve, delay));
-          } else {
-            console.warn('[DuelBattle] ⚠️ Timeout submit failed, continuing anyway');
-            data = null;
-          }
-        }
-      }
-
-      if (data) {
-        // Update score and combo from server
-        if (data.new_score !== undefined) {
-          setMyScore(data.new_score);
-        }
-        // CRITICAL: Always set combo from server, even if 0 (timeout/skip resets combo)
-        const serverCombo = data.combo !== undefined ? data.combo : 0;
-        setCombo(serverCombo);
-        console.log('[DuelBattle] Timeout - Server combo:', serverCombo);
-        
-        if (penaltyPoints < 0) {
-        setMyScore(prev => Math.max(0, prev + penaltyPoints));
-        }
-      }
-
-      toast.info(`⏭️ Вопрос пропущен (${newSkipCount}/3)`);
-    } catch (error) {
-      console.error('[DuelBattle] Error submitting timeout:', error);
-    }
-
-    setTimeout(() => {
-      if (currentIndex < questions.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-      } else {
-        finishDuel();
-      }
-    }, 3000);
-  };
-
-  const finishDuel = async () => {
-    try {
-      console.log('[DuelBattle] Finishing duel - I completed all questions');
-      
-      const { data, error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'finish_duel',
-          profile_id: profileId,
-          duel_id: duelId,
-        },
-      });
-
-      if (error) throw error;
-
-      // Server returns finished: true if both players finished, false if waiting
-      if (data?.finished === true) {
-        // Both finished - go to results immediately
-        console.log('[DuelBattle] Both players finished, going to results');
-        toast.success('🏁 Дуэль завершена!', { duration: 3000 });
-        onDuelFinished();
-      } else {
-        // Wait for opponent - show waiting screen
-        console.log('[DuelBattle] Waiting for opponent to finish');
-        toast.info('⏳ Ожидание соперника...', { duration: 3000 });
-        setIsWaitingForOpponent(true);
-      }
-    } catch (error) {
-      console.error('Error finishing duel:', error);
-      toast.error('Ошибка завершения дуэли');
-    }
-  };
-
-  // ============================================================================
-  // CRITICAL: WAITING FOR OPPONENT - LIVE REPLAY
-  // ============================================================================
   if (isWaitingForOpponent) {
     return (
       <DuelWaitingReplay
@@ -652,7 +476,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   if (questions.length === 0) {
     return (
       <div className="text-center p-8">
-        <p className="text-muted-foreground">Загрузка вопросов...</p>
+        <p className="text-muted-foreground">{t('duel.loading')}</p>
       </div>
     );
   }
@@ -661,7 +485,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
   if (!currentQuestion || !currentQuestion.question_snapshot) {
     return (
       <div className="text-center p-8">
-        <p className="text-destructive">Ошибка загрузки вопроса</p>
+        <p className="text-destructive">{t('duel.errorLoading')}</p>
       </div>
     );
   }
@@ -670,9 +494,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
-      {/* Premium Info Panel */}
       <Card className="p-4 md:p-5 bg-gradient-to-br from-card via-card/98 to-primary/5 border-2 border-primary/20 shadow-2xl backdrop-blur-sm relative overflow-hidden">
-        {/* Animated background */}
         <motion.div
           className="absolute inset-0 opacity-10"
           animate={{
@@ -686,9 +508,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         />
 
         <div className="relative z-10 space-y-3">
-          {/* Top Row: Scores - Premium Design */}
           <div className="flex items-center justify-between gap-4">
-            {/* My Score - Enhanced */}
             <motion.div 
               className="flex items-center gap-3 flex-1 group"
               whileHover={{ scale: 1.02 }}
@@ -709,7 +529,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[100px] md:max-w-none" title={myName}>{myName}</p>
+                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate" title={myName}>{myName}</p>
                 <motion.p 
                   key={myScore}
                   className="text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"
@@ -722,7 +542,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               </div>
             </motion.div>
 
-            {/* Center: Progress & Timer - Enhanced */}
             <div className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-gradient-to-br from-card/80 via-card/60 to-card/40 backdrop-blur-sm border-2 border-primary/20 shadow-lg">
               <div className="text-center">
                 <div className="flex items-center gap-1.5 mb-1.5">
@@ -749,14 +568,13 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               </div>
             </div>
 
-            {/* Opponent Score - Enhanced */}
             <motion.div 
               className="flex items-center gap-3 flex-1 justify-end group"
               whileHover={{ scale: 1.02 }}
               animate={state.opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
             >
               <div className="flex-1 text-right min-w-0">
-                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate max-w-[100px] md:max-w-[120px] ml-auto" title={opponentName}>
+                <p className="text-xs font-medium text-muted-foreground mb-0.5 truncate ml-auto" title={opponentName}>
                   {opponentName}
                 </p>
                 <motion.p 
@@ -794,48 +612,45 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
             </motion.div>
           </div>
 
-          {/* Bottom Row: Boosts + Status */}
           <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/30">
-            {/* Boosts */}
             <div className="flex items-center gap-1.5">
               <BoostButton
                 type="fifty_fifty"
-                name="50/50"
+                name={t('boostShop.boostNames.fifty_fifty.name')}
                 available={boosts.fifty_fifty}
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('fifty_fifty')}
               />
               <BoostButton
                 type="time_extend"
-                name="+30s"
+                name={t('boostShop.boostNames.time_extend.name')}
                 available={boosts.time_extend}
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('time_extend')}
               />
               <BoostButton
                 type="hint"
-                name="Hint"
+                name={t('boostShop.boostNames.hint.name')}
                 available={boosts.hint}
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('hint')}
               />
               <BoostButton
                 type="skip"
-                name="Skip"
+                name={t('boostShop.boostNames.skip.name')}
                 available={boosts.skip}
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('skip')}
               />
               <BoostButton
                 type="translate"
-                name="Translate"
+                name={t('boostShop.boostNames.translate.name')}
                 available={boosts.translate}
                 onUse={handleUseBoost}
                 disabled={usedBoosts.includes('translate')}
               />
             </div>
 
-            {/* Network Status & Combo */}
             <div className="flex items-center gap-2">
               {!isOnline && (
                 <motion.div
@@ -844,7 +659,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                   className="flex items-center gap-1 px-2 py-1 rounded-md bg-destructive/10 text-destructive text-xs font-bold"
                 >
                   <WifiOff className="w-3 h-3" />
-                  Офлайн
+                  {t('duel.offline')}
                 </motion.div>
               )}
               {combo > 1 && (
@@ -858,18 +673,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                     <Flame className="w-3 h-3 animate-pulse" />
                   x{combo}
                   </Badge>
-                  <motion.div
-                    className="absolute -top-1 -right-1 w-2 h-2 bg-orange-400 rounded-full"
-                    animate={{
-                      scale: [1, 1.5, 0],
-                      opacity: [1, 0.5, 0],
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      repeatDelay: 0.5,
-                    }}
-                  />
                 </motion.div>
               )}
               {skipCount > 0 && (
@@ -882,7 +685,6 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         </div>
       </Card>
 
-      {/* Enhanced Question Card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -891,7 +693,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
         <Card className="p-8 shadow-xl border-2">
           {snapshot.image_url && getImageUrl(snapshot.image_url) && (
             <motion.div 
-              className="mb-6"
+              className="mb-6 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -941,7 +743,7 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
                             : 'outline'
                           : isSelected
                           ? 'default'
-                          : 'outline'
+                            : 'outline'
                       }
                       className={`w-full h-auto py-4 px-6 text-left justify-start text-lg transition-all ${
                         showResult && isCorrectOption ? 'ring-2 ring-green-500 ring-offset-2' : ''
@@ -973,19 +775,18 @@ export function DuelBattle({ duelId, onDuelFinished }: DuelBattleProps) {
               animate={{ opacity: 1, y: 0 }}
               className="mt-6 p-4 bg-yellow-500/20 border border-yellow-500 rounded-lg text-center"
             >
-              <p className="text-sm font-medium">⏭️ Вопрос пропущен - 0 очков</p>
-              <p className="text-xs text-muted-foreground mt-1">Правильный ответ выделен</p>
+              <p className="text-sm font-medium">{t('duel.timeoutNoPoints')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('duel.timeoutCorrectHighlight')}</p>
             </motion.div>
           )}
         </Card>
       </motion.div>
 
-      {/* Hint Dialog */}
       <Dialog open={showHint} onOpenChange={setShowHint}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              💡 Подсказка
+              💡 {t('duel.hint')}
             </DialogTitle>
           </DialogHeader>
           <div className="p-4 bg-yellow-500/10 rounded-lg border border-yellow-500/20">
