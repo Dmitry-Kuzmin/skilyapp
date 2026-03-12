@@ -26,7 +26,12 @@ if (typeof window !== 'undefined') {
 
   // Инициализация TON Analytics (максимально рано)
   const tonAnalyticsKey = import.meta.env.VITE_TON_ANALYTICS_KEY;
-  if (tonAnalyticsKey) {
+  const isInsideTelegram = typeof window !== 'undefined' && (
+      window.location.hash.includes('tgWebAppData') || 
+      window.location.search.includes('tgWebAppPlatform')
+  );
+
+  if (tonAnalyticsKey && isInsideTelegram) {
     try {
       TMAAnalytics.init({
         token: tonAnalyticsKey,
@@ -36,6 +41,8 @@ if (typeof window !== 'undefined') {
     } catch (e) {
       console.error('[TMA Analytics] Sync error:', e);
     }
+  } else if (tonAnalyticsKey && !isInsideTelegram) {
+      console.log('[TMA Analytics] Skipped: running outside Telegram environment');
   }
 }
 

@@ -70,7 +70,8 @@ interface DashboardProps {
     photo_url?: string | null;
     rank?: string | null;
     id?: string;
-    license_points?: number; // Added field
+    license_points?: number;
+    referral_code?: string | null;
   };
   licenseHistory?: Array<{
     points: number;

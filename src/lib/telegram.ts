@@ -282,8 +282,37 @@ export const canShareToStory = (): boolean => {
     return false;
   }
 
-  // Проверяем Premium статус
-  return hasTelegramPremium();
+  return true;
+};
+
+/**
+ * Публикация изображения в Telegram Stories
+ * @param mediaUrl - URL изображения (должен быть доступен Telegram) или base64 (зависит от версии)
+ * @param params - параметры сторис (подпись, кнопка перехода)
+ * @returns boolean - true если отправка инициирована
+ */
+export const shareToStory = (
+  mediaUrl: string,
+  params?: {
+    text?: string;
+    widget_link?: {
+      url: string;
+      name?: string;
+    };
+  }
+): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || typeof webApp.shareToStory !== 'function') {
+    return false;
+  }
+
+  try {
+    webApp.shareToStory(mediaUrl, params);
+    return true;
+  } catch (error) {
+    console.error('[Telegram] shareToStory error:', error);
+    return false;
+  }
 };
 
 export const initTelegramApp = () => {

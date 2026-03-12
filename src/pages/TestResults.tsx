@@ -229,6 +229,28 @@ const TestResults = () => {
         await supabase.functions.invoke("duel-pass-xp", {
           body: { user_id: user.id, source_type: "test" },
         });
+
+        // 🎯 Update Daily Quests Progress
+        console.log('[TestResults] Updating Daily Quests...');
+        const questUpdates = [
+          // +X к количеству отвеченных вопросов
+          (supabase as any).rpc('update_daily_quest_progress', { 
+            p_user_id: user.id, p_category: 'questions', p_delta: answers.length 
+          })
+        ];
+
+        // Если тест пройден без ошибок (100% точность)
+        const hasNoErrors = answers.length > 0 && answers.every(a => a.isCorrect);
+        if (hasNoErrors) {
+          questUpdates.push(
+            (supabase as any).rpc('update_daily_quest_progress', { 
+              p_user_id: user.id, p_category: 'accuracy', p_delta: answers.length 
+            })
+          );
+        }
+
+        await Promise.all(questUpdates);
+
       } catch (e) { console.error(e); }
     };
     syncDuelPass();

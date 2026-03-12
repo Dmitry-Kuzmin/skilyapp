@@ -72,12 +72,12 @@
 
   <!-- PREMIUM TYPOGRAPHY: Outfit for headings, Inter for body -->
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&family=La+Belle+Aurore&display=swap"
     rel="stylesheet"
     media="print" 
     onload="this.media='all'">
   <noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&family=La+Belle+Aurore&display=swap" rel="stylesheet">
   </noscript>
 
   <!-- Favicons: Optimized for Dark Mode and Safari -->
@@ -834,7 +834,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-03-11-22:19';
+      const APP_VERSION = '2026-03-12-23:06';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
@@ -988,13 +988,13 @@
 
     // Этот скрипт выполняется после загрузки всех модулей
     window.addEventListener('load', function () {
-      if (window.location.hostname === 'localhost') console.error('[Telegram Expand LOAD] 🚀 window.load event fired');
+      if (window.location.hostname === 'localhost') console.debug('[Telegram Expand LOAD] 🚀 window.load event fired');
       checkAndExpand();
     });
 
     // Также пробуем на DOMContentLoaded
     document.addEventListener('DOMContentLoaded', function () {
-      if (window.location.hostname === 'localhost') console.error('[Telegram Expand DOM] 🚀 DOMContentLoaded event fired');
+      if (window.location.hostname === 'localhost') console.debug('[Telegram Expand DOM] 🚀 DOMContentLoaded event fired');
       checkAndExpand();
     });
   </script>

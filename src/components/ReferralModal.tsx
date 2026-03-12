@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { UnifiedModal } from '@/components/ui/unified-modal';
 import { useModalRoute } from '@/hooks/useModalRoute';
@@ -22,6 +23,7 @@ interface ReferralData {
 }
 
 export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
+  const queryClient = useQueryClient();
   const { profileId } = useUserContext();
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -56,16 +58,23 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
         .eq('id', profileId)
         .single();
 
+      const profileData = data as { referral_code: string | null; total_referrals: number } | null;
+
       if (error) {
         console.error('[ReferralModal] Error loading data:', error);
         toast.error(t('referral.loadError'));
         return;
       }
 
-      if (data) {
+      if (profileData) {
+        const newData: ReferralData = {
+          referral_code: profileData.referral_code || '',
+          total_referrals: profileData.total_referrals || 0
+        };
+
         // If no referral code, try to generate one
-        if (!data.referral_code) {
-          const { data: newCode, error: codeError } = await supabase.rpc('generate_referral_code');
+        if (!profileData.referral_code) {
+          const { data: newCode, error: codeError } = await (supabase as any).rpc('generate_referral_code');
 
           if (!codeError && newCode) {
             await supabase
@@ -73,13 +82,14 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               .update({ referral_code: newCode })
               .eq('id', profileId);
 
-            setReferralData({ ...data, referral_code: newCode });
-          } else {
-            setReferralData(data);
+            newData.referral_code = newCode;
+            
+            // Invalidate dashboard data to update the LicenseCard visually
+            queryClient.invalidateQueries({ queryKey: ['dashboard-data', profileId] });
           }
-        } else {
-          setReferralData(data);
         }
+        
+        setReferralData(newData as ReferralData);
       }
     } catch (error) {
       console.error('[ReferralModal] Exception loading referral data:', error);

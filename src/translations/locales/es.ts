@@ -1132,6 +1132,12 @@ export const es = {
     performance: "Rendimiento",
     powerSaver: "Ahorro de energía",
     powerSaverDesc: "Desactiva las animaciones pesadas",
+    examDate: "Fecha del examen",
+    examDateDesc: "Establece la fecha para la cuenta atrás",
+    examCity: "Ubicación del examen",
+    examCityDesc: "Selecciona la ciudad donde harás el examen",
+    examCountdown: "Examen en: {{days}} días",
+    setExamGoal: "Establecer meta",
     level: "Nivel",
     synced: "Sincronizado",
     themeToast: {

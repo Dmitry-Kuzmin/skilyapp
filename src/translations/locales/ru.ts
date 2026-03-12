@@ -1145,6 +1145,8 @@ export const ru = {
     powerSaverDesc: "Отключает тяжёлые анимации",
     examDate: "Дата экзамена",
     examDateDesc: "Установите дату для обратного отсчета",
+    examCity: "Локация сдачи",
+    examCityDesc: "Выберите город, в котором планируете сдавать экзамен",
     examCountdown: "Экзамен через: {{days}} дн.",
     setExamGoal: "Установить цель",
     level: "Уровень",

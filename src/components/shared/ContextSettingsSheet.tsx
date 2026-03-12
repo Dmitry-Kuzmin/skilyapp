@@ -17,9 +17,9 @@ import { useProfileData } from '@/hooks/useProfileData';
 interface ContextSettingsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  currentCountry: CountryCode;
-  currentCategory: LicenseCategory;
-  onApply: (country: CountryCode, category: LicenseCategory) => void;
+  currentCountry?: CountryCode;
+  currentCategory?: LicenseCategory;
+  onApply?: (country: CountryCode, category: LicenseCategory) => void;
 }
 
 // Маппинг категорий на иконки из lucide-react
@@ -53,18 +53,23 @@ export function ContextSettingsSheet({
   const { resolvedTheme } = useTheme();
   const { t, setLanguage } = useLanguage();
   const { profileData } = useProfileData();
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>(currentCountry);
-  const [selectedCategory, setSelectedCategory] = useState<LicenseCategory>(currentCategory);
+  
+  // Дефолтные значения из профиля или конфига
+  const effectiveCountry = currentCountry || (profileData?.preferred_country as CountryCode) || 'spain';
+  const effectiveCategory = currentCategory || (profileData?.preferred_license_category as LicenseCategory) || 'B';
+
+  const [selectedCountry, setSelectedCountry] = useState<CountryCode>(effectiveCountry);
+  const [selectedCategory, setSelectedCategory] = useState<LicenseCategory>(effectiveCategory);
 
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
 
   // Обновляем состояние при открытии
   useEffect(() => {
     if (open) {
-      setSelectedCountry(currentCountry);
-      setSelectedCategory(currentCategory);
+      setSelectedCountry(effectiveCountry);
+      setSelectedCategory(effectiveCategory);
     }
-  }, [open, currentCountry, currentCategory]);
+  }, [open, effectiveCountry, effectiveCategory]);
 
   // При изменении страны, выбираем первую доступную категорию если текущая недоступна
   useEffect(() => {
@@ -104,7 +109,7 @@ export function ContextSettingsSheet({
     }
 
     // Применяем выбор локально
-    onApply(selectedCountry, selectedCategory);
+    onApply?.(selectedCountry, selectedCategory);
 
     // If switching to Russia, also switch language to Russian automatically
     if (selectedCountry === 'russia') {

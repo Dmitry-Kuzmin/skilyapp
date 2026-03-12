@@ -26,6 +26,7 @@ const HelpFeedbackModal = lazy(() => import('@/components/HelpFeedbackModal').th
 const ReportProblemModal = lazy(() => import('@/components/ReportProblemModal').then(m => ({ default: m.ReportProblemModal })));
 const ReminderConnectModal = lazy(() => import('@/components/notifications/ReminderConnectModal').then(m => ({ default: m.ReminderConnectModal })));
 const CelebrationModal = lazy(() => import('@/components/dashboard-new/CelebrationModal').then(m => ({ default: m.CelebrationModal })));
+const ContextSettingsSheet = lazy(() => import('@/components/shared/ContextSettingsSheet').then(m => ({ default: m.ContextSettingsSheet })));
 
 /**
  * Маппинг типов модалок на компоненты
@@ -47,6 +48,7 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
   REPORT_PROBLEM: ReportProblemModal,
   REMINDER_CONNECT: ReminderConnectModal,
   CELEBRATION: CelebrationModal,
+  CONTEXT_SETTINGS: ContextSettingsSheet,
 };
 
 /**

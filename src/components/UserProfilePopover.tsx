@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ReferralModal } from "@/components/ReferralModal";
+// ReferralModal удален отсюда
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
@@ -106,7 +106,6 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
 
   const [open, setOpen] = useState(false);
   const [telemetryOpen, setTelemetryOpen] = useState(false);
-  const [referralModalOpen, setReferralModalOpen] = useState(false);
   const isMiniApp = isTelegramMiniApp();
   const { unreadCount } = notificationsApi;
 
@@ -200,7 +199,9 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
       key: 'invite',
       icon: Gift,
       label: t('profileMenu.invite'),
-      action: () => setReferralModalOpen(true),
+      action: () => {
+        import('@/store/modalStore').then(m => m.useModalStore.getState().openModal('REFERRAL'));
+      },
       badge: (
         <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black animate-pulse ml-0.5">
           +100
@@ -494,8 +495,6 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
       </Popover>
 
       <TelemetryOverlay open={telemetryOpen} onOpenChange={setTelemetryOpen} />
-      {/* Referral Modal */}
-      <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
     </>
   );
 });

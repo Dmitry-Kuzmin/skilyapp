@@ -22,6 +22,21 @@ import { ru, es, enGB } from 'date-fns/locale';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue 
+} from '@/components/ui/select';
+import { MapPin } from 'lucide-react';
+
+const SPAIN_CITIES = [
+    "ALICANTE", "MADRID", "BARCELONA", "VALENCIA", "SEVILLA", "ZARAGOZA", "MÁLAGA", "MURCIA", "PALMA", "LAS PALMAS", "BILBAO",
+    "CÓRDOBA", "VALLADOLID", "VIGO", "GIJÓN", "VITORIA", "A CORUÑA", "GRANADA", "ELCHE",
+    "OVIEDO", "BADALONA", "TERRASSA", "CARTAGENA", "JEREZ", "SABADELL", "MÓSTOLES", "SANTA CRUZ", "PAMPLONA", "ALMERÍA",
+    "CASTELLÓN", "SANTANDER", "BURGOS", "ALBACETE", "LOGROÑO", "BADAJOZ", "SALAMANCA", "HUELVA", "LLEIDA", "TARRAGONA"
+].sort();
 
 // === COMPONENTS ===
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
@@ -67,7 +82,11 @@ export const GeneralTab: React.FC = () => {
     const { setTheme: setNextTheme, resolvedTheme, theme: nextTheme } = useTheme();
     const { t, setLanguage: setContextLanguage, language: contextLanguage } = useLanguage();
     const { profileId } = useUserContext();
-    const { examDate, setExamDate, scrollTarget, setScrollTarget } = useSettingsStore();
+    const { 
+        examDate, setExamDate, 
+        examCity, setExamCity,
+        scrollTarget, setScrollTarget 
+    } = useSettingsStore();
 
     // Обработка прокрутки к якорю
     React.useEffect(() => {
@@ -157,6 +176,37 @@ export const GeneralTab: React.FC = () => {
                 toast.success(t('toasts.settingsSaved'), { duration: 1500 });
             } catch (err) {
                 console.error('Failed to sync exam date:', err);
+            }
+        }
+    };
+    
+    const handleExamCityChange = async (city: string) => {
+        triggerHaptic('light');
+        setExamCity(city);
+
+        if (profileId) {
+            try {
+                const { data: currentProfile } = await supabase
+                    .from('profiles')
+                    .select('settings')
+                    .eq('id', profileId)
+                    .single();
+
+                const currentSettings = ((currentProfile as any)?.settings as Record<string, any>) || {};
+                
+                await (supabase as any)
+                    .from('profiles')
+                    .update({ 
+                        settings: { 
+                            ...currentSettings, 
+                            exam_city: city 
+                        } 
+                    })
+                    .eq('id', profileId);
+                
+                toast.success(t('toasts.settingsSaved'), { duration: 1500 });
+            } catch (err) {
+                console.error('Failed to sync exam city:', err);
             }
         }
     };
@@ -291,6 +341,36 @@ export const GeneralTab: React.FC = () => {
                             />
                         </PopoverContent>
                     </Popover>
+                </SettingRow>
+            </div>
+
+            <Separator className="bg-slate-200 dark:bg-slate-700" />
+
+            {/* Локация сдачи */}
+            <div>
+                <SectionTitle title={t('unifiedSettings.examCity')} />
+                <SettingRow
+                    icon={<MapPin className="w-4 h-4 text-emerald-500" />}
+                    label={t('unifiedSettings.examCity')}
+                    description={t('unifiedSettings.examCityDesc')}
+                >
+                    <Select value={examCity || ""} onValueChange={handleExamCityChange}>
+                        <SelectTrigger className={cn(
+                            "w-[180px] rounded-xl border-2 transition-all",
+                            "hover:border-emerald-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/50",
+                            !examCity && "text-muted-foreground",
+                            examCity && "border-emerald-500/30 text-slate-900 dark:text-slate-100"
+                        )}>
+                            <SelectValue placeholder={t('unifiedSettings.examCity')} />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-2xl max-h-[300px]">
+                            {SPAIN_CITIES.map((city) => (
+                                <SelectItem key={city} value={city} className="rounded-lg">
+                                    {city}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </SettingRow>
             </div>
 

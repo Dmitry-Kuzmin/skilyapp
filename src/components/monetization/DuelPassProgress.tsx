@@ -8,6 +8,7 @@ import { Info, Trophy, Coins, Sparkles } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { DailyQuestWidget } from "../duel/pass/DailyQuestWidget";
 
 type Reward = {
   level: number;
@@ -230,9 +231,12 @@ export function DuelPassProgress() {
   const progressPercent = Math.min((profile.duel_pass_xp / totalXPNeeded) * 100, 100);
 
   return (
-    <div className="rounded-2xl border p-4 space-y-4 bg-card">
+    <div className="rounded-2xl border p-4 space-y-6 bg-card">
+      {/* Daily Quests Widget */}
+      <DailyQuestWidget />
+
       {/* Header with explanation */}
-      <div className="space-y-2">
+      <div className="space-y-2 border-t pt-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-yellow-500" />

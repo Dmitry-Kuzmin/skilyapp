@@ -22,7 +22,7 @@ import { AchievementsWidget } from "./navigation/AchievementsWidget";
 import { useActiveDuel } from "@/hooks/useActiveDuel";
 import { ActiveDuelWidget } from "./navigation/ActiveDuelWidget";
 import { supabase } from "@/integrations/supabase/client";
-import { ReferralModal } from "./ReferralModal";
+// ReferralModal  удален, так как он глобальный
 import { EdgeSwipeBack } from "./navigation/EdgeSwipeBack";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -113,7 +113,6 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
   const { activeDuel } = useActiveDuel();
   // settingsOpen удалён — используется глобальный UnifiedSettingsDrawer
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [referralModalOpen, setReferralModalOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const isTelegramApp = isTelegramMiniApp();
   const isMobile = useIsMobile();
@@ -392,13 +391,13 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                         type="button"
                         variant="ghost"
                         size="icon"
-                        aria-pressed={referralModalOpen}
-                        onClick={() => setReferralModalOpen(true)}
+                        aria-pressed={false}
+                        onClick={() => {
+                          import('@/store/modalStore').then(m => m.useModalStore.getState().openModal('REFERRAL'));
+                        }}
                         className={cn(
                           "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
-                          referralModalOpen
-                            ? "bg-primary/15 text-primary border-[0.5px] border-white/80 shadow-[0_0_20px_rgba(250,204,21,0.35)]"
-                            : "text-muted-foreground hover:text-primary hover:border-[0.5px] hover:border-white/80 hover:bg-primary/10 hover:h-9 hover:w-9"
+                          "text-muted-foreground hover:text-primary hover:border-[0.5px] hover:border-white/80 hover:bg-primary/10 hover:h-9 hover:w-9"
                         )}
                         title="Реферальная программа"
                       >
@@ -546,8 +545,6 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
       {/* Auth Modal for Web Platform */}
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
 
-      {/* Referral Modal */}
-      <ReferralModal open={referralModalOpen} onOpenChange={setReferralModalOpen} />
     </div >
   );
 });

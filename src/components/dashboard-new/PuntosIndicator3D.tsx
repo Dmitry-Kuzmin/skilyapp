@@ -13,7 +13,7 @@ const getGradientColors = (points: number) => {
     }
 };
 
-const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = true }) => {
+const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = true, isStatic = false }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const radius = 85;
@@ -109,20 +109,20 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
                     strokeLinecap="round"
                     strokeDasharray={circumference}
                     initial={{ strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset: isLoaded ? targetOffset : circumference }}
+                    animate={{ strokeDashoffset: (isLoaded || isStatic) ? targetOffset : circumference }}
                     transition={{
-                        duration: 2.2,
+                        duration: isStatic ? 0 : 2.2,
                         ease: [0.34, 1.56, 0.64, 1]
                     }}
                     mask="url(#capsulesMask3D)"
-                    filter="url(#liquidGlass)"
+                    filter={isStatic ? undefined : "url(#liquidGlass)"}
                     style={{
                         filter: `drop-shadow(0 0 ${isHovered ? '25px' : '15px'} ${colors.shadow})`
                     }}
                     className="group-hover:brightness-125 transition-all duration-300"
                 />
 
-                {isLoaded && (
+                {(isLoaded || isStatic) && (
                     <motion.circle
                         cx="100" cy="100" r={radius}
                         fill="transparent"
@@ -132,7 +132,7 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
                         strokeDasharray="1 1000"
                         initial={{ strokeDashoffset: circumference }}
                         animate={{ strokeDashoffset: targetOffset }}
-                        transition={{ duration: 2.2, ease: [0.34, 1.56, 0.64, 1] }}
+                        transition={{ duration: isStatic ? 0 : 2.2, ease: [0.34, 1.56, 0.64, 1] }}
                         mask="url(#capsulesMask3D)"
                         className="opacity-80"
                     />
@@ -178,8 +178,8 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
                 </div>
             </div>
 
-            {/* 5. ХАОТИЧНЫЕ ИСКРЫ (Облако взлетает при наведении) */}
-            {isLoaded && particleAngles.map((angle, i) => (
+            {/* 5. ХАОТИЧНЫЕ ИСКРЫ (Отключены в статичном режиме) */}
+            {(isLoaded || isStatic) && !isStatic && particleAngles.map((angle, i) => (
                 <motion.div
                     key={i}
                     initial={{ opacity: 0, scale: 0 }}

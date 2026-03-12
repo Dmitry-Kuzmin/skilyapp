@@ -267,6 +267,39 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             queryClient.invalidateQueries({ queryKey: ["profile-data"] });
           }
 
+          // 🎯 Update Daily Quests Progress
+          console.log('[DuelResult] Updating Daily Quests...');
+          const questUpdates = [
+            // Всегда +1 к сыгранным дуэлям
+            (supabase as any).rpc('update_daily_quest_progress', { 
+              p_user_id: profileId, p_category: 'duels', p_delta: 1 
+            }),
+            // +X к количеству отвеченных вопросов
+            (supabase as any).rpc('update_daily_quest_progress', { 
+              p_user_id: profileId, p_category: 'questions', p_delta: myAnswers.length 
+            })
+          ];
+
+          if (results.isWinner) {
+            questUpdates.push(
+              (supabase as any).rpc('update_daily_quest_progress', { 
+                p_user_id: profileId, p_category: 'winners', p_delta: 1 
+              })
+            );
+          }
+
+          // Если дуэль пройдена без единой ошибки - это тоже может быть квестом на точность/идеальность
+          const hasNoErrors = myAnswers.every(a => a.is_correct);
+          if (hasNoErrors && myAnswers.length > 0) {
+            questUpdates.push(
+              (supabase as any).rpc('update_daily_quest_progress', { 
+                p_user_id: profileId, p_category: 'accuracy', p_delta: myAnswers.length 
+              })
+            );
+          }
+
+          await Promise.all(questUpdates);
+
           await supabase.functions.invoke('season-challenges-track', {
             body: { user_id: profileId, source_type: spSource, metadata },
           });

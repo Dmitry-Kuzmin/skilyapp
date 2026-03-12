@@ -30,6 +30,7 @@ export interface SettingsState {
     smartVocabularyEnabled: boolean; // Умные словарные подсказки в тестах
     duelNotifications: boolean;
     examDate: string | null; // ISO Date string: "2024-05-15"
+    examCity: string | null; // Город сдачи экзамена: "ALICANTE"
 
     // === User Info (cached) ===
     userLevel: number;
@@ -59,6 +60,7 @@ export interface SettingsActions {
     // User info
     setUserInfo: (level: number, title: string) => void;
     setExamDate: (date: string | null) => void;
+    setExamCity: (city: string | null) => void;
 
     // Bulk update
     updateSettings: (settings: Partial<SettingsState>) => void;
@@ -85,6 +87,7 @@ const initialState: SettingsState = {
     smartVocabularyEnabled: true,
     duelNotifications: true,
     examDate: null,
+    examCity: null,
 
     // User
     userLevel: 1,
@@ -118,6 +121,7 @@ export const useSettingsStore = create<SettingsStore>()(
             // === User info ===
             setUserInfo: (userLevel, userTitle) => set({ userLevel, userTitle }),
             setExamDate: (examDate) => set({ examDate }),
+            setExamCity: (examCity) => set({ examCity }),
 
             // === Bulk update ===
             updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
@@ -136,6 +140,7 @@ export const useSettingsStore = create<SettingsStore>()(
                 smartVocabularyEnabled: state.smartVocabularyEnabled,
                 duelNotifications: state.duelNotifications,
                 examDate: state.examDate,
+                examCity: state.examCity,
             }),
         }
     )

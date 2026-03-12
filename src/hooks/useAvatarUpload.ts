@@ -20,6 +20,45 @@ export function useAvatarUpload() {
         fileInputRef.current?.click();
     };
 
+    const compressImage = async (file: File, maxWidth = 1200, quality = 0.8): Promise<File> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        reject(new Error('Canvas context not available'));
+                        return;
+                    }
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
+                        } else {
+                            reject(new Error('Canvas toBlob failed'));
+                        }
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = (e) => reject(e);
+            };
+            reader.onerror = (e) => reject(e);
+        });
+    };
+
     const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -40,64 +79,29 @@ export function useAvatarUpload() {
 
             if (isHeic) {
                 try {
-                    try {
-                        const heic2anyModule = await import('heic2any');
-                        const heic2any = (heic2anyModule as any).default || heic2anyModule;
+                    const heic2anyModule = await import('heic2any');
+                    const heic2any = (heic2anyModule as any).default || heic2anyModule;
 
-                        console.log('[AvatarUpload] Attempting heic2any conversion...');
-                        const convertedBlob = await heic2any({
-                            blob: file,
-                            toType: 'image/jpeg',
-                            quality: 0.8
-                        });
+                    console.log('[AvatarUpload] Attempting heic2any conversion...');
+                    const convertedBlob = await heic2any({
+                        blob: file,
+                        toType: 'image/jpeg',
+                        quality: 0.8
+                    });
 
-                        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                        if (blob && blob.size > 0) {
-                            fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
-                            console.log('[AvatarUpload] heic2any success');
-                        } else {
-                            throw new Error('Empty blob from heic2any');
-                        }
-                    } catch (libErr) {
-                        console.warn('[AvatarUpload] heic2any failed, trying native Safari fallback:', libErr);
-
-                        fileToUpload = await new Promise((resolve, reject) => {
-                            const url = URL.createObjectURL(file);
-                            const img = new Image();
-                            img.onload = () => {
-                                URL.revokeObjectURL(url);
-                                const canvas = document.createElement('canvas');
-                                canvas.width = img.naturalWidth;
-                                canvas.height = img.naturalHeight;
-                                const ctx = canvas.getContext('2d');
-                                if (!ctx) {
-                                    reject(new Error('Canvas context not available'));
-                                    return;
-                                }
-                                ctx.drawImage(img, 0, 0);
-                                canvas.toBlob((blob) => {
-                                    if (blob) {
-                                        resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
-                                    } else {
-                                        reject(new Error('Canvas toBlob failed'));
-                                    }
-                                }, 'image/jpeg', 0.9);
-                            };
-                            img.onerror = () => {
-                                URL.revokeObjectURL(url);
-                                reject(new Error('Native rendering failed'));
-                            };
-                            img.src = url;
-                            setTimeout(() => reject(new Error('Timeout')), 5000);
-                        }) as File;
-                        console.log('[AvatarUpload] Native Safari conversion success');
+                    const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+                    if (blob && blob.size > 0) {
+                        fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
                     }
-
-                    toast.loading('Загружаем подготовленное фото...', { id: toastId });
-                } catch (convErr: any) {
-                    console.error('[AvatarUpload] All HEIC conversion attempts failed:', convErr);
-                    throw new Error('Ваш формат фото слишком новый для обработки. Сделайте скриншот этого фото и загрузите его — это сработает мгновенно!');
+                } catch (convErr) {
+                    console.warn('[AvatarUpload] HEIC conversion failed, will try standard compression flow', convErr);
                 }
+            }
+
+            // Always compress if file is large or after HEIC conversion to ensure size limits
+            if (fileToUpload.size > 1024 * 1024 || isHeic) {
+                toast.loading('Оптимизируем размер фото...', { id: toastId });
+                fileToUpload = await compressImage(fileToUpload);
             }
 
             const fileExt = fileToUpload.name.split('.').pop() || 'jpg';
