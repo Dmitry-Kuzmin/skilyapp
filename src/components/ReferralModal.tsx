@@ -196,7 +196,7 @@ export function ReferralModal({ open, onOpenChange }: ReferralModalProps) {
               variant="ghost"
               size="icon"
               className={cn(
-                "h-8 w-8 rounded-full border border-border/60 bg-background/90 transition-all",
+                "h-8 w-8 rounded-full border border-border/60 bg-background/90 transition-all focus:outline-none focus:ring-0",
                 copied
                   ? "text-emerald-600 border-emerald-400/80 bg-emerald-50 dark:bg-emerald-500/10"
                   : "text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/10"

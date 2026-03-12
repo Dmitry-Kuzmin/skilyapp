@@ -232,7 +232,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
             <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-4 translate-y-2">{t('licenseCard.suspended.title')}</h3>
             <button
                 onClick={onRecoverPoints}
-                className="bg-white text-black px-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(239,68,68,0.3)] mt-2"
+                className="bg-white text-black px-8 py-4 rounded-2xl font-black text-sm tracking-widest uppercase transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(239,68,68,0.3)] mt-2 focus:outline-none"
             >
                 {t('licenseCard.suspended.recoverButton')}
             </button>
@@ -410,7 +410,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                                 openSettings('general', 'exam-date-section');
                                             }}
                                             className={cn(
-                                                "text-left transition-all active:scale-95 group/goal",
+                                                "text-left transition-all active:scale-95 group/goal focus:outline-none",
                                                 daysUntilExam !== null ? "text-indigo-400 hover:text-indigo-300" : "text-slate-500 hover:text-indigo-400"
                                             )}
                                         >
@@ -448,7 +448,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                                     toast.success(selectedCountry === 'ru' ? 'Промокод скопирован!' : 'Código copiado!');
                                                     openModal();
                                                 }}
-                                                className="flex items-center gap-1.5 group/promo transition-transform active:scale-95"
+                                                className="flex items-center gap-1.5 group/promo transition-transform active:scale-95 focus:outline-none"
                                             >
                                                 <span className="font-mono text-yellow-400 group-hover:text-yellow-300 transition-colors uppercase text-sm md:text-base font-black tracking-tighter">
                                                     {userProfile?.referral_code || (userProfile?.username ? `${userProfile.username.toUpperCase().slice(0, 5)}-PRO` : globalId)}

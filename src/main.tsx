@@ -6,6 +6,9 @@ import { CountryProvider } from "./contexts/CountryContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import App from "./App.tsx";
 import "./index.css";
+
+// КРИТИЧНО: Лог версии для отладки кеша (UTC)
+console.log("%c Build: 2026-03-12 18:38 UTC ", "background: #1e1b4b; color: #818cf8; font-weight: bold; padding: 4px 8px; border-radius: 4px;");
 // ОПТИМИЗАЦИЯ: animations.css lazy load (не блокирует FCP)
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";

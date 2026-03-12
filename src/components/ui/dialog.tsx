@@ -21,7 +21,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xl transition-all duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-300 data-[state=closed]:duration-200",
+      "fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xl transition-all duration-300 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-300 data-[state=closed]:duration-200",
       className,
     )}
     style={{
@@ -144,69 +144,67 @@ const DialogContent = React.forwardRef<
   return (
     <DialogPortal>
       <DialogOverlay />
-      {/* Обёртка для центрирования без transform (избегаем stacking context проблем) */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-        <DialogPrimitive.Content
-          ref={ref}
-          className={cn(
-            // Базовые стили для dialog (премиум стиль)
-            "relative z-50 grid w-full gap-4 p-6 duration-200 pointer-events-auto",
-            "bg-[#09090b] border border-white/5 shadow-[0_30px_90px_-20px_rgba(0,0,0,1)]",
-            // Максимальная ширина
-            sizeConfig.maxWidth || "max-w-lg",
-            // Максимальная высота
-            sizeConfig.maxHeight || "max-h-[88vh]",
-            // Скругление (Ультра-Премиум)
-            "rounded-[3rem]",
-            // Анимации (как было)
-            "data-[state=open]:animate-in data-[state=closed]:animate-out",
-            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-            // Overflow
-            "overflow-hidden overflow-y-auto",
-            className,
-          )}
-          onInteractOutside={(e) => {
-            // Предотвращаем закрытие при клике вне окна, если preventClose === true
-            if (preventClose) {
-              e.preventDefault();
-            }
-            // Вызываем оригинальный обработчик, если он был передан
-            props.onInteractOutside?.(e);
-          }}
-          onEscapeKeyDown={(e) => {
-            // Предотвращаем закрытие при ESC, если preventClose === true
-            if (preventClose) {
-              e.preventDefault();
-            }
-            // Вызываем оригинальный обработчик, если он был передан
-            props.onEscapeKeyDown?.(e);
-          }}
-          {...props}
-        >
-          {/* КРИТИЧНО: Автоматически добавляем скрытые элементы доступности КАК ПРЯМЫХ ПОТОМКОВ
-            Radix UI требует, чтобы DialogTitle и DialogDescription были прямыми потомками DialogContent
-            Даже если они есть в children внутри DialogHeader, Radix их не видит */}
-          {autoAccessibility && (
-            <>
-              <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
-              <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
-            </>
-          )}
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          // Базовые стили для dialog (премиум стиль)
+          "fixed left-[50%] top-[50%] z-50 grid w-full gap-4 p-6 duration-200 translate-x-[-50%] translate-y-[-50%] pointer-events-auto",
+          "bg-[#09090b] border border-white/5 shadow-[0_30px_90px_-20px_rgba(0,0,0,1)]",
+          // Максимальная ширина
+          sizeConfig.maxWidth || "max-w-lg",
+          // Максимальная высота
+          sizeConfig.maxHeight || "max-h-[88vh]",
+          // Скругление (Ультра-Премиум)
+          "rounded-[3rem]",
+          // Анимации
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[50%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[50%]",
+          // Overflow
+          "overflow-hidden overflow-y-auto",
+          className,
+        )}
+        onInteractOutside={(e) => {
+          // Предотвращаем закрытие при клике вне окна, если preventClose === true
+          if (preventClose) {
+            e.preventDefault();
+          }
+          // Вызываем оригинальный обработчик, если он был передан
+          props.onInteractOutside?.(e);
+        }}
+        onEscapeKeyDown={(e) => {
+          // Предотвращаем закрытие при ESC, если preventClose === true
+          if (preventClose) {
+            e.preventDefault();
+          }
+          // Вызываем оригинальный обработчик, если он был передан
+          props.onEscapeKeyDown?.(e);
+        }}
+        {...props}
+      >
+        {/* КРИТИЧНО: Автоматически добавляем скрытые элементы доступности КАК ПРЯМЫХ ПОТОМКОВ
+          Radix UI требует, чтобы DialogTitle и DialogDescription были прямыми потомками DialogContent
+          Даже если они есть в children внутри DialogHeader, Radix их не видит */}
+        {autoAccessibility && (
+          <>
+            <DialogPrimitive.Title className="sr-only">Диалоговое окно</DialogPrimitive.Title>
+            <DialogPrimitive.Description className="sr-only">Содержимое диалогового окна</DialogPrimitive.Description>
+          </>
+        )}
 
-          {children}
-          {!hideCloseButton && (
-            <DialogPrimitive.Close
-              className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
-              aria-label="Закрыть модальное окно"
-            >
-              <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
-              <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
-              <span className="sr-only">Закрыть</span>
-            </DialogPrimitive.Close>
-          )}
-        </DialogPrimitive.Content>
-      </div>
+        {children}
+        {!hideCloseButton && (
+          <DialogPrimitive.Close
+            className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md focus:outline-none"
+            aria-label="Закрыть модальное окно"
+          >
+            <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
+            <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
+            <span className="sr-only">Закрыть</span>
+          </DialogPrimitive.Close>
+        )}
+      </DialogPrimitive.Content>
     </DialogPortal>
   );
 });

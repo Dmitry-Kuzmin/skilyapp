@@ -126,6 +126,7 @@ export function RewardedAdModal({
   const RewardIcon = info.icon;
 
   const handleShowAd = async () => {
+    console.log(`[RewardedAdModal] 🖱️ handleShowAd clicked for placement: ${placement || title}`);
     try {
       setShowReward(false);
       reset();
@@ -135,7 +136,8 @@ export function RewardedAdModal({
         await onRewardClaimed();
         setTimeout(() => onOpenChange(false), 2500);
       }
-    } catch {
+    } catch (err) {
+      console.error('[RewardedAdModal] Error in handleShowAd:', err);
       // error уже установлен в хуке
     }
   };
@@ -154,7 +156,7 @@ export function RewardedAdModal({
             "z-50 flex items-end sm:items-center justify-center p-0 backdrop-blur-3xl bg-[#0b0d14]",
             inlineOverlay ? "absolute inset-0 rounded-xl overflow-hidden" : "fixed inset-0 sm:p-4"
           )}
-          onClick={() => !loading && onOpenChange(false)}
+          onClick={() => onOpenChange(false)}
         >
           {/* Overlay color if not using backdrop-blur directly on the container */}
           {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14] backdrop-blur-3xl" />}
@@ -179,9 +181,9 @@ export function RewardedAdModal({
 
             {/* Close button - Always visible and at the top right of the modal */}
             <button
-              onClick={() => !loading && onOpenChange(false)}
-              disabled={loading}
-              className="absolute top-2 right-2 p-2 text-white/50 hover:text-white transition-colors disabled:opacity-30 rounded-lg hover:bg-white/10 flex items-center justify-center z-[100]"
+              id="close-rewarded-ad-modal"
+              onClick={() => onOpenChange(false)}
+              className="absolute top-2 right-2 p-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center z-[100]"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
