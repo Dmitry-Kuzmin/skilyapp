@@ -153,11 +153,29 @@ export async function showAdSenseRewardedVideo(options: { name: string } = { nam
                     resolve(false);
                 },
                 adBreakDone: (placementInfo: any) => {
-                    console.log('[AdSense H5] 🏁 adBreakDone:', placementInfo);
-                    // Это вызывается всегда в конце
+                    const status = placementInfo?.breakStatus;
+                    console.log(`[AdSense H5] 🏁 adBreakDone. Status: ${status}`, placementInfo);
+                    
+                    // Логируем понятную причину, если реклама не показалась
+                    const statusMessages: Record<string, string> = {
+                        'notReady': 'API не инициализировано',
+                        'timeout': 'Таймаут размещения',
+                        'invalid': 'Некорректное размещение',
+                        'error': 'Ошибка в скрипте',
+                        'noAdPreloaded': 'Реклама еще не подгрузилась (прелоад)',
+                        'frequencyCapped': 'Превышена частота показов (ограничение Google)',
+                        'ignored': 'Запрос проигнорирован (showAdFn не вызван)',
+                        'other': 'Скрыто по техническим причинам (ресайз/ротация)',
+                        'dismissed': 'Пользователь закрыл рекламу',
+                        'viewed': 'Реклама просмотрена полностью'
+                    };
+
+                    if (status && status !== 'viewed' && status !== 'dismissed') {
+                        console.warn(`[AdSense H5] ℹ️ Причина отсутствия рекламы: ${statusMessages[status] || status}`);
+                    }
+
                     clearTimeout(globalTimeout);
-                    // Важно: если resolve еще не был вызван через adViewed/dismissed, 
-                    // вызываем его здесь как false (значит реклама просто не показалась)
+                    // Если resolve еще не был вызван, завершаем как false
                     setTimeout(() => resolve(false), 100); 
                 },
                 // Fallbacks для старых версий или ошибок
