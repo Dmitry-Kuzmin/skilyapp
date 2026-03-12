@@ -82,32 +82,35 @@ export function useRewardedAd() {
     setLoading(true);
     setError(null);
 
+    // КРИТИЧНО: Крик в консоль для отладки кеша
+    console.log("%c !!! AD SHOW ATTEMPT !!! ", "background: #f59e0b; color: #000; font-weight: bold; font-size: 14px;");
     console.log(`[useRewardedAd] 🛡️ showAd triggered for placement: "${placement}"`);
 
     try {
       let rewarded: boolean;
 
       const webApp = getTelegramWebApp();
+      // Проверяем платформу. Если это десктоп (даже через Telegram Desktop), используем AdSense
       const isMobileTMA = isTelegramMiniApp() && isTelegramMobilePlatformName(webApp?.platform);
 
-      console.log(`[useRewardedAd] Platform check: isMobileTMA=${isMobileTMA}, platform=${webApp?.platform || 'web'}`);
+      console.log(`[useRewardedAd] Environment check: isMobileTMA=${isMobileTMA}, platform=${webApp?.platform || 'web'}`);
 
       // В Telegram Mini App на МОБИЛЬНЫХ используем AdsGram (официальный партнер)
       if (isMobileTMA) {
+        console.log('[useRewardedAd] 📱 Using AdsGram (Mobile TMA)');
         const tgUser = getTelegramUser();
         const userId = tgUser?.id?.toString();
         rewarded = await showAdsGramRewardedVideo(userId);
       } else {
-        // В веб-версии ИЛИ Desktop TMA используем Google AdSense H5 для Криптомайнера
-        // Для остальных мест пока оставляем Monetag (или будем переводить постепенно)
-        if (placement === 'crypto-miner' || placement === 'CRYPTO MINER') {
-          console.log('[useRewardedAd] Attempting Google AdSense H5 for placement:', placement);
+        // В ВЕБ-ВЕРСИИ ИЛИ НА ДЕСКТОПЕ (включая Telegram Desktop)
+        // Для Криптомайнера всегда используем Google AdSense H5
+        if (placement?.toLowerCase() === 'crypto-miner') {
+          console.log('[useRewardedAd] 💻 Attempting Google AdSense H5 (Desktop/Web)');
           rewarded = await showAdSenseRewardedVideo({ name: 'crypto-miner' });
-          console.log('[useRewardedAd] AdSense outcome:', rewarded);
+          console.log(`[useRewardedAd] AdSense Result: ${rewarded}`);
         } else {
-          // В веб-версии ИЛИ Desktop TMA используем Monetag
-          // На Desktop TMA AdsGram часто не имеет рекламы (fill), а Monetag работает стабильно
-          // Передаем profileId как ymid для трекинга и postbacks
+          // Для остальных мест пока оставляем Monetag
+          console.log('[useRewardedAd] 💰 Using Monetag (Standard Placement)');
           rewarded = await showMonetagRewardedVideo({ ymid: profileId || undefined });
         }
       }
