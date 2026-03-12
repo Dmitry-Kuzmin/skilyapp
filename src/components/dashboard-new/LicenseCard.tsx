@@ -6,6 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useSettingsStore } from '@/store/settingsStore';
 import PuntosIndicator from './PuntosIndicator3D';
+import { toast } from '@/lib/toast';
 
 interface LicenseCardProps {
     userProfile?: {
@@ -16,6 +17,7 @@ interface LicenseCardProps {
         rank?: string | null;
         id?: string;
         license_points?: number;
+        referral_code?: string | null;
     };
     stats: {
         xp?: number;
@@ -57,7 +59,7 @@ const T_MAP = {
             issueVal: "01.01.2024 • 01.01.2034",
             issuer: "4c. EXPEDIDO POR",
             issuerVal: "JEFATURA DE TRÁFICO",
-            id: "4d. 5. NÚMERO / ID",
+            id: "4d. CÓDIGO PROMO",
             cat: "9. CAT.",
             pointsLabel: "12. PUNTOS",
         }
@@ -74,7 +76,7 @@ const T_MAP = {
             issueVal: "01.01.2024 • 01.01.2034",
             issuer: "4c. ВЫДАНО МАДИ/ГИБДД",
             issuerVal: "ГУ ОБДД МВД РОССИИ",
-            id: "4d. 5. УДОСТОВЕРЕНИЕ №",
+            id: "4d. ПРОМОКОД",
             cat: "9. КАТ.",
             pointsLabel: "12. ШТРАФНЫЕ БАЛЛЫ",
         }
@@ -91,7 +93,7 @@ const T_MAP = {
             issueVal: "01.01.2024 • 01.01.2034",
             issuer: "4c. ISSUED BY",
             issuerVal: "DVLA SWANSEA",
-            id: "4d. 5. LICENCE NUMBER",
+            id: "4d. PROMO CODE",
             cat: "9. CAT.",
             pointsLabel: "12. PENALTY POINTS",
         }
@@ -432,7 +434,35 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                                 <div className="grid grid-cols-2 gap-2 md:gap-4">
                                     <Field label={localeConfig.fields.issuer} value={localeConfig.fields.issuerVal} />
-                                    <Field label={localeConfig.fields.id} value={<span className="font-mono">{globalId}</span>} highlight />
+                                    <Field 
+                                        label={localeConfig.fields.id} 
+                                        value={
+                                            <button 
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const code = userProfile?.referral_code || userProfile?.username?.toUpperCase() || globalId;
+                                                    navigator.clipboard.writeText(code);
+                                                    toast.success(selectedCountry === 'ru' ? 'Промокод скопирован!' : 'Código copiado!');
+                                                }}
+                                                className="flex flex-col items-start group/promo overflow-visible"
+                                            >
+                                                <span className="font-mono text-indigo-400 group-hover/promo:text-indigo-300 transition-colors uppercase">
+                                                    {userProfile?.referral_code || (userProfile?.username ? `${userProfile.username.toUpperCase().slice(0, 5)}-PRO` : globalId)}
+                                                </span>
+                                                <span className="text-[6px] md:text-[7px] text-zinc-500 font-bold uppercase tracking-tight group-hover/promo:text-emerald-400/80 transition-colors mt-0.5 whitespace-nowrap">
+                                                    {selectedCountry === 'ru' ? 'Нажми, чтобы скопировать' : 'Toca para copiar'}
+                                                </span>
+                                            </button>
+                                        } 
+                                        highlight 
+                                    />
+                                </div>
+                                <div className="mt-1 md:mt-2 px-3 py-1.5 rounded-xl bg-indigo-500/5 border border-indigo-500/10 hidden sm:block">
+                                    <p className="text-[7px] md:text-[8px] text-indigo-400/80 font-medium leading-tight">
+                                        {selectedCountry === 'ru' 
+                                            ? "Приведи друга по этому номеру прав и получите по 100 монет." 
+                                            : "Invita a un amigo y ambos recibiréis 100 monedas."}
+                                    </p>
                                 </div>
                             </div>
 
