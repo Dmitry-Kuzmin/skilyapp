@@ -8,7 +8,7 @@ import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
 import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
 import { useSession } from "@/hooks/useSession";
 import { validateEnv } from "@/utils/envValidation";
-import { isTelegramMiniApp } from "@/lib/telegram";
+import { isTelegramMiniApp, isVersionAtLeast } from "@/lib/telegram";
 import { StartupCurtain } from "@/components/StartupCurtain";
 import { ThemeColorManager } from "@/components/ThemeColorManager";
 
@@ -325,9 +325,7 @@ const App = () => {
       // 2. МАГИЯ Mini Apps 8.0+ — иммерсивный режим на полный экран
       // requestFullscreen() переводит в режим без шторки
       try {
-        // @ts-expect-error — requestFullscreen добавлен в Mini Apps 8.0, типы могут быть устаревшими
-        if (typeof tg.requestFullscreen === 'function') {
-          // @ts-expect-error
+        if (isVersionAtLeast('8.0') && typeof tg.requestFullscreen === 'function') {
           tg.requestFullscreen();
           if (import.meta.env.DEV) console.debug('[App] ✅ requestFullscreen() called - immersive mode enabled');
         } else {

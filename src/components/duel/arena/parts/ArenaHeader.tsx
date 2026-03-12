@@ -7,7 +7,7 @@ import { DuelTimer } from '../../DuelTimer';
 import { DuelScoreBoard } from '../../DuelScoreBoard';
 import { ArenaControls } from './ArenaControls';
 import { Zap, X } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ArenaHeaderProps {
     currentIndex: number;
@@ -118,7 +118,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
     isQuestionBookmarked,
     bookmarkLoading
 }) => {
-    const { t } = useTranslation();
+    const { t } = useLanguage();
     const [showBoostsMobile, setShowBoostsMobile] = React.useState(false);
 
     // Calculate layout paddings

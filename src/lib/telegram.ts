@@ -6,6 +6,28 @@ export const getTelegramWebApp = () => {
 };
 
 /**
+ * Проверяет, поддерживает ли текущая версия Telegram WebApp указанную версию API
+ * @param version - версия для проверки (например, '8.0')
+ * @returns boolean - true если версия поддерживается
+ */
+export const isVersionAtLeast = (version: string): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || !webApp.version) return false;
+  
+  const current = webApp.version.split('.').map(Number);
+  const target = version.split('.').map(Number);
+  
+  for (let i = 0; i < Math.max(current.length, target.length); i++) {
+    const c = current[i] || 0;
+    const t = target[i] || 0;
+    if (c > t) return true;
+    if (c < t) return false;
+  }
+  
+  return true;
+};
+
+/**
  * Устанавливает цвет header (верхней панели) в Telegram Mini App
  * @param color - hex-цвет или 'bg_color'/'secondary_bg_color' для использования темы Telegram
  */
