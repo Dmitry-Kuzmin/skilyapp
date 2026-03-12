@@ -129,7 +129,7 @@ export function QuestionProgressBar({
           />
         </div>
         <div className="flex flex-col leading-none">
-      <span className="text-[7px] xs:text-[8px] font-black text-amber-500/70 uppercase tracking-tighter mb-0.5 text-left">{t('duelPass.table.columns.sp') || 'SP'}</span>
+      <span className="text-[7px] xs:text-[8px] font-black text-amber-500/70 uppercase tracking-tighter mb-0.5 text-left">{t('duel.bank') || 'BANK'}</span>
           <span className="text-[12px] font-black tracking-tight text-amber-600 dark:text-amber-400">
             {betInfo.totalBank}
           </span>

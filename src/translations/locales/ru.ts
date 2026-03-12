@@ -1230,6 +1230,8 @@ export const ru = {
     correctToast: "✅ Правильно! +{{points}} очков",
     perfectToast: "⭐ Идеальный ответ! +{{points}} очков",
     wrongToast: "❌ Неправильно",
+    bank: "Банк",
+    pot: "Приз",
     boostFiftyFifty: "⚡ 50/50: Два варианта убраны!",
     boostTimeExtend: "⏱️ +{{seconds}} секунд добавлено!",
     boostHint: "💡 Подсказка открыта!",

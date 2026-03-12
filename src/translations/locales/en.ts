@@ -1201,6 +1201,8 @@ export const en = {
     correctToast: "✅ Correct! +{{points}} points",
     perfectToast: "⭐ Perfect answer! +{{points}} points",
     wrongToast: "❌ Incorrect",
+    bank: "Bank",
+    pot: "Prize",
     boostFiftyFifty: "⚡ 50/50: Two options removed!",
     boostTimeExtend: "⏱️ +{{seconds}} seconds added!",
     boostHint: "💡 Hint revealed!",

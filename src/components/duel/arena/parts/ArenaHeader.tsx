@@ -6,6 +6,8 @@ import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { DuelTimer } from '../../DuelTimer';
 import { DuelScoreBoard } from '../../DuelScoreBoard';
 import { ArenaControls } from './ArenaControls';
+import { Zap, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ArenaHeaderProps {
     currentIndex: number;
@@ -116,6 +118,8 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
     isQuestionBookmarked,
     bookmarkLoading
 }) => {
+    const { t } = useTranslation();
+    const [showBoostsMobile, setShowBoostsMobile] = React.useState(false);
 
     // Calculate layout paddings
     const totalTopPadding = safeArea.top;
@@ -167,41 +171,82 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                 <div
                     className={cn(
                         "max-w-7xl mx-auto w-full px-2 md:px-4",
-                        "relative flex items-center justify-between gap-2 transition-transform duration-100",
+                        "relative flex items-center justify-between gap-2 transition-all duration-300",
                         screenShake && "animate-shake"
                     )}
                 >
-                    <DuelScoreBoard
-                        myScore={myScore}
-                        opponentScore={opponentScore}
-                        myName={myName}
-                        opponentName={opponentName}
-                        myPhotoUrl={myPhotoUrl ?? null}
-                        opponentPhotoUrl={opponentPhotoUrl ?? null}
-                        myInsuranceActive={myInsuranceActive}
-                        myCoverageDisplay={myCoverageDisplay}
-                        opponentInsuranceActive={opponentInsuranceActive}
-                        opponentCoverageDisplay={opponentCoverageDisplay}
-                        opponentActivityStatus={opponentActivityStatus}
-                        opponentAnswered={opponentAnswered}
-                        betInfo={betInfo}
-                        seasonBonusDisplay={seasonBonusDisplay}
-                        isTelegramMobile={isTelegramMobile}
-                        opponentIsConnected={opponentIsConnected}
-                        opponentLastSeen={opponentLastSeen}
-                        combo={combo}
-                    />
+                    {/* Score Board - Hidden on mobile if boosts are active */}
+                    <div className={cn(
+                        "flex-1 transition-all duration-300",
+                        isTelegramMobile && showBoostsMobile ? "opacity-0 scale-95 pointer-events-none absolute -translate-x-full" : "opacity-100 scale-100"
+                    )}>
+                        <DuelScoreBoard
+                            myScore={myScore}
+                            opponentScore={opponentScore}
+                            myName={myName}
+                            opponentName={opponentName}
+                            myPhotoUrl={myPhotoUrl ?? null}
+                            opponentPhotoUrl={opponentPhotoUrl ?? null}
+                            myInsuranceActive={myInsuranceActive}
+                            myCoverageDisplay={myCoverageDisplay}
+                            opponentInsuranceActive={opponentInsuranceActive}
+                            opponentCoverageDisplay={opponentCoverageDisplay}
+                            opponentActivityStatus={opponentActivityStatus}
+                            opponentAnswered={opponentAnswered}
+                            betInfo={betInfo}
+                            seasonBonusDisplay={seasonBonusDisplay}
+                            isTelegramMobile={isTelegramMobile}
+                            opponentIsConnected={opponentIsConnected}
+                            opponentLastSeen={opponentLastSeen}
+                            combo={combo}
+                        />
+                    </div>
 
                     {/* Boosts - Premium Compact Design */}
-                    <ArenaControls
-                        boosts={boosts}
-                        usedBoosts={usedBoosts}
-                        isAnswered={isAnswered}
-                        translatePopoverOpen={translatePopoverOpen}
-                        onBoostUse={onBoostUse}
-                        setTranslatePopoverOpen={setTranslatePopoverOpen}
-                        isTelegramMobile={isTelegramMobile}
-                    />
+                    <div className={cn(
+                        "transition-all duration-300 flex items-center gap-1",
+                        isTelegramMobile ? (
+                            showBoostsMobile ? "flex-1 opacity-100 scale-100 translate-x-0" : "flex-none opacity-100"
+                        ) : "flex-none"
+                    )}>
+                        {/* Mobile Toggle Button (Zap) */}
+                        {isTelegramMobile && (
+                            <button
+                                onClick={() => setShowBoostsMobile(!showBoostsMobile)}
+                                className={cn(
+                                    "p-2.5 rounded-xl transition-all duration-300 active:scale-90",
+                                    showBoostsMobile 
+                                        ? "bg-zinc-800/80 text-white border border-white/10" 
+                                        : "bg-indigo-600/20 text-indigo-400 border border-indigo-500/30"
+                                )}
+                            >
+                                {showBoostsMobile ? (
+                                    <X className="w-5 h-5" />
+                                ) : (
+                                    <div className="relative">
+                                        <Zap className="w-5 h-5 fill-indigo-400/20" />
+                                        {/* Badge if boost is active or available? Maybe just the icon */}
+                                    </div>
+                                )}
+                            </button>
+                        )}
+
+                        {/* The Boosts themselves */}
+                        <div className={cn(
+                            "transition-all duration-300",
+                            isTelegramMobile && !showBoostsMobile ? "hidden" : "block"
+                        )}>
+                            <ArenaControls
+                                boosts={boosts}
+                                usedBoosts={usedBoosts}
+                                isAnswered={isAnswered}
+                                translatePopoverOpen={translatePopoverOpen}
+                                onBoostUse={onBoostUse}
+                                setTranslatePopoverOpen={setTranslatePopoverOpen}
+                                isTelegramMobile={isTelegramMobile}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </>
