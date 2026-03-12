@@ -1,7 +1,8 @@
 /**
  * Google AdSense H5 Games Ads Integration
  * 
- * Documentation: https://support.google.com/adsense/answer/10398031
+ * Updated according to the latest Ad Placement API documentation (2026)
+ * Documentation: https://developers.google.com/ad-placement/docs/reference
  */
 
 declare global {
@@ -23,13 +24,12 @@ async function loadAdSenseScript(): Promise<void> {
     if (typeof window === 'undefined') return;
     if (isScriptLoaded) return;
     
-    // Если уже грузится, ждем (с таймаутом)
     if (isScriptLoading) {
         return new Promise((resolve) => {
             let attempts = 0;
             const check = setInterval(() => {
                 attempts++;
-                if (isScriptLoaded || attempts > 100) { // 10 секунд макс
+                if (isScriptLoaded || attempts > 100) {
                     clearInterval(check);
                     resolve();
                 }
@@ -41,17 +41,13 @@ async function loadAdSenseScript(): Promise<void> {
 
     return new Promise((resolve, reject) => {
         console.log('[AdSense H5] 📂 Injecting SDK script...');
-        
-        // Создаем скрипт
         const script = document.createElement('script');
         script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
         script.async = true;
-        
-        // Атрибуты для H5 Ads
+        // Используем подтвержденный нами ID
         script.dataset.adClient = 'ca-pub-1758777358223420';
         script.dataset.adFrequencyHint = '30s';
         
-        // Таймаут на загрузку самого скрипта
         const loadTimeout = setTimeout(() => {
             isScriptLoading = false;
             console.error('[AdSense H5] ⏰ Script load timeout');
@@ -86,15 +82,13 @@ export function initAdSenseH5(): void {
 
     console.log('[AdSense H5] 🛠️ Initializing shims and config...');
 
-    // Инициализируем очередь
     window.adsbygoogle = window.adsbygoogle || [];
-    
-    // Переопределяем функции, если они не заданы
     const adsbygoogle = window.adsbygoogle;
+    
+    // Новые прокси согласно документации
     window.adBreak = window.adBreak || function (o) { adsbygoogle.push(o); };
     window.adConfig = window.adConfig || function (o) { adsbygoogle.push(o); };
 
-    // Конфигурация (вызываем один раз)
     window.adConfig({
         preloadAdBreaks: 'on',
         onReady: () => {
@@ -106,17 +100,16 @@ export function initAdSenseH5(): void {
 }
 
 /**
- * Показ рекламы с вознаграждением
+ * Показ рекламы с вознаграждением (Rewarded Ad)
+ * Использует актуальный Flow из документации (2026)
  */
 export async function showAdSenseRewardedVideo(options: { name: string } = { name: 'reward' }): Promise<boolean> {
     if (typeof window === 'undefined') return false;
 
-    console.log(`[AdSense H5] 🚀 showAdSenseRewardedVideo start: ${options.name}`);
+    console.log(`[AdSense H5] 🚀 Rewarded session start: ${options.name}`);
 
-    // Шаг 1: Инициализация прокси
     initAdSenseH5();
     
-    // Шаг 2: Загрузка скрипта
     try {
         await loadAdSenseScript();
     } catch (e) {
@@ -124,25 +117,30 @@ export async function showAdSenseRewardedVideo(options: { name: string } = { nam
         return false;
     }
 
-    // Шаг 3: Запрос adBreak
     return new Promise((resolve) => {
-        console.log(`[AdSense H5] 📡 window.adBreak request: type=reward, name=${options.name}`);
+        console.log(`[AdSense H5] 📡 window.adBreak request: type=reward`);
 
-        // Таймаут на весь процесс показа рекламы (чтобы не висел бесконечно в loading)
         const globalTimeout = setTimeout(() => {
-            console.warn('[AdSense H5] ⏰ Global ad break timeout reached');
+            console.warn('[AdSense H5] ⏰ Global ad break timeout');
             resolve(false);
-        }, 30000); // 30 секунд на всё
+        }, 45000); // Даем больше времени на видео
 
         try {
             window.adBreak!({
                 type: 'reward',
                 name: options.name,
-                beforeBreak: () => {
-                    console.log('[AdSense H5] ⏸️ beforeBreak');
+                // НОВЫЙ СИНТАКСИС ИЗ СКРИНШОТОВ (Detailed Call Sequence)
+                beforeReward: (showAdFn: () => void) => {
+                    console.log('[AdSense H5] 🟢 beforeReward: Ad available, launching...');
+                    // Поскольку наш пользователь уже нажал кнопку в модалке, 
+                    // мы вызываем showAdFn сразу.
+                    showAdFn();
                 },
-                afterBreak: () => {
-                    console.log('[AdSense H5] ▶️ afterBreak');
+                beforeAd: () => {
+                    console.log('[AdSense H5] ⏸️ beforeAd: Pause game logic');
+                },
+                afterAd: () => {
+                    console.log('[AdSense H5] ▶️ afterAd: Resume game logic');
                 },
                 adViewed: () => {
                     console.log('[AdSense H5] 💎 adViewed: Reward granted ✅');
@@ -150,22 +148,26 @@ export async function showAdSenseRewardedVideo(options: { name: string } = { nam
                     resolve(true);
                 },
                 adDismissed: () => {
-                    console.log('[AdSense H5] ❌ adDismissed');
+                    console.log('[AdSense H5] ❌ adDismissed: User skipped');
                     clearTimeout(globalTimeout);
                     resolve(false);
                 },
+                adBreakDone: (placementInfo: any) => {
+                    console.log('[AdSense H5] 🏁 adBreakDone:', placementInfo);
+                    // Это вызывается всегда в конце
+                    clearTimeout(globalTimeout);
+                    // Важно: если resolve еще не был вызван через adViewed/dismissed, 
+                    // вызываем его здесь как false (значит реклама просто не показалась)
+                    setTimeout(() => resolve(false), 100); 
+                },
+                // Fallbacks для старых версий или ошибок
                 adError: () => {
                     console.error('[AdSense H5] ⚠️ adError');
                     clearTimeout(globalTimeout);
                     resolve(false);
                 },
                 adNoSlot: () => {
-                    console.warn('[AdSense H5] 📭 adNoSlot: No ads available');
-                    clearTimeout(globalTimeout);
-                    resolve(false);
-                },
-                adTimeout: () => {
-                    console.warn('[AdSense H5] ⏰ adTimeout: SDK reported timeout');
+                    console.warn('[AdSense H5] 📭 adNoSlot: No ads found');
                     clearTimeout(globalTimeout);
                     resolve(false);
                 }

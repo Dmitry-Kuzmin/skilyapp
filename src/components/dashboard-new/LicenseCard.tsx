@@ -7,6 +7,8 @@ import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { useSettingsStore } from '@/store/settingsStore';
 import PuntosIndicator from './PuntosIndicator3D';
 import { toast } from '@/lib/toast';
+import { useModalRoute } from '@/hooks/useModalRoute';
+import { Copy, Share2 } from 'lucide-react';
 
 interface LicenseCardProps {
     userProfile?: {
@@ -115,6 +117,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 }) => {
     const isMobile = useIsMobile();
     const { examDate, openSettings } = useSettingsStore();
+    const { openModal } = useModalRoute('referral');
 
     const daysUntilExam = useMemo(() => {
         if (!examDate) return null;
@@ -440,29 +443,20 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                             <button 
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    const code = userProfile?.referral_code || userProfile?.username?.toUpperCase() || globalId;
+                                                    const code = userProfile?.referral_code || (userProfile?.username ? `${userProfile.username.toUpperCase().slice(0, 5)}-PRO` : globalId);
                                                     navigator.clipboard.writeText(code);
                                                     toast.success(selectedCountry === 'ru' ? 'Промокод скопирован!' : 'Código copiado!');
+                                                    openModal();
                                                 }}
-                                                className="flex flex-col items-start group/promo overflow-visible"
+                                                className="flex items-center gap-1.5 group/promo transition-transform active:scale-95"
                                             >
-                                                <span className="font-mono text-indigo-400 group-hover/promo:text-indigo-300 transition-colors uppercase">
+                                                <span className="font-mono text-yellow-400 group-hover:text-yellow-300 transition-colors uppercase text-sm md:text-base font-black tracking-tighter">
                                                     {userProfile?.referral_code || (userProfile?.username ? `${userProfile.username.toUpperCase().slice(0, 5)}-PRO` : globalId)}
                                                 </span>
-                                                <span className="text-[6px] md:text-[7px] text-zinc-500 font-bold uppercase tracking-tight group-hover/promo:text-emerald-400/80 transition-colors mt-0.5 whitespace-nowrap">
-                                                    {selectedCountry === 'ru' ? 'Нажми, чтобы скопировать' : 'Toca para copiar'}
-                                                </span>
+                                                <Copy size={13} className="text-zinc-500 group-hover:text-yellow-400 transition-colors shrink-0" />
                                             </button>
                                         } 
-                                        highlight 
                                     />
-                                </div>
-                                <div className="mt-1 md:mt-2 px-3 py-1.5 rounded-xl bg-indigo-500/5 border border-indigo-500/10 hidden sm:block">
-                                    <p className="text-[7px] md:text-[8px] text-indigo-400/80 font-medium leading-tight">
-                                        {selectedCountry === 'ru' 
-                                            ? "Приведи друга по этому номеру прав и получите по 100 монет." 
-                                            : "Invita a un amigo y ambos recibiréis 100 monedas."}
-                                    </p>
                                 </div>
                             </div>
 
