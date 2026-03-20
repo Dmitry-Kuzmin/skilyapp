@@ -120,6 +120,18 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
         }
     };
 
+    const dataUrlToBlob = (dataUrl: string): Blob => {
+        const arr = dataUrl.split(',');
+        const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+    };
+
     const handleSendToBot = async () => {
         if (!userProfile?.telegram_id) {
             toast.error(language === 'ru' ? 'Только для Telegram' : 'Only for Telegram');
@@ -133,8 +145,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             const dataUrl = await generateImage();
             if (!dataUrl) throw new Error('Image generation failed');
 
-            const response = await fetch(dataUrl);
-            const blob = await response.blob();
+            const blob = dataUrlToBlob(dataUrl);
 
             // Загружаем в публичный bucket 'stories' (не 'avatars' — он приватный)
             const fileName = `${userProfile?.id || 'anon'}_bot_${Date.now()}.png`;
@@ -147,6 +158,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             if (!uploadError) {
                 const { data: { publicUrl } } = supabase.storage.from('stories').getPublicUrl(fileName);
                 imageUrl = publicUrl;
+                console.log('[SendToBot] Uploaded to stories:', imageUrl);
             } else {
                 // Фолбэк: base64 dataUrl — Edge Function поддерживает multipart upload
                 console.warn('[SendToBot] stories bucket upload failed, using base64:', uploadError.message);
@@ -187,8 +199,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             const dataUrl = await generateImage();
             if (!dataUrl) throw new Error('Image generation failed');
 
-            const response = await fetch(dataUrl);
-            const blob = await response.blob();
+            const blob = dataUrlToBlob(dataUrl);
             
             const webApp = getTelegramWebApp();
             const platform = webApp?.platform;
@@ -214,7 +225,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
 
                     if (uploadError) {
                         console.warn('[Share] Story storage upload failed:', uploadError.message);
-                        // Фолбэк на base64 если Telegram SDK это переварит (некоторые версии поддерживают)
+                        // Фолбэк на base64 если Telegram SDK это переварит
                         storySuccess = shareToStory(dataUrl, {
                             text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой? 🏎💨' : 'My chance to pass DGT theory is 100%! What about you? 🏎💨',
                             widget_link: {
@@ -227,6 +238,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
                             .from('stories')
                             .getPublicUrl(fileName);
 
+                        console.log('[Share] Story public URL:', publicUrl);
                         storySuccess = shareToStory(publicUrl, {
                             text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой? 🏎💨' : 'My chance to pass DGT theory is 100%! What about you? 🏎💨',
                             widget_link: {
@@ -270,10 +282,16 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             }
 
             // FALLBACK TO DOWNLOAD (десктоп или если всё остальное не сработало)
+            const blobUrl = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.download = `Skily_DGT_Pass_${userProfile?.username || 'user'}.png`;
-            link.href = dataUrl;
+            link.href = blobUrl;
+            document.body.appendChild(link);
             link.click();
+            document.body.removeChild(link);
+            
+            // Очищаем URL через секунду
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 
             toast.dismiss(loadingToastId);
             try {
@@ -298,6 +316,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             setIsGenerating(false);
         }
     };
+
 
     return (
         <div className="relative">
