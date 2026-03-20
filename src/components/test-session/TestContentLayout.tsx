@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { isTelegramMobilePlatformName } from "@/lib/telegram";
 
 interface TestContentLayoutProps {
     children: ReactNode;
@@ -20,6 +21,10 @@ export const TestContentLayout = ({
 }: TestContentLayoutProps) => {
     const isBlitzMode = mode === 'blitz';
     const isExamMode = mode === 'exam' || mode === 'exam-russia';
+
+    const isTelegramMobile = isTelegramApp && isTelegramMobilePlatformName(
+        typeof window !== 'undefined' ? window.Telegram?.WebApp?.platform : undefined
+    );
 
     return (
         <div className={cn(
@@ -54,9 +59,9 @@ export const TestContentLayout = ({
                     isRedemptionMode && !isTelegramApp && "pt-4"
                 )}
                 style={{
-                    paddingTop: isTelegramApp
+                    paddingTop: isTelegramMobile
                         ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), 88px)'
-                        : undefined
+                        : isTelegramApp ? 0 : undefined
                 }}
             >
                 {children}
