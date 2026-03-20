@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence, Motion } from '@/components/optimized/Motion';
 import { Sparkles, Zap, Shield, Trophy, Clock, Target, Swords, AlertCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const IconMap = {
     Sparkles: <Sparkles className="w-5 h-5 text-cyan-400" />,
@@ -11,15 +12,6 @@ const IconMap = {
     Clock: <Clock className="w-5 h-5 text-emerald-400" />,
     Target: <Target className="w-5 h-5 text-rose-400" />
 };
-
-const DUEL_TIPS = [
-    { icon: 'Zap', text: 'Бусты могут переломить ход любой дуэли. Используй их с умом!' },
-    { icon: 'Shield', text: 'Страховка сохранит твои монеты даже в случае поражения.' },
-    { icon: 'Target', text: 'Чем быстрее ты отвечаешь, тем больше очков получаешь.' },
-    { icon: 'Trophy', text: 'Победная серия (Combo) множит твои очки в несколько раз.' },
-    { icon: 'Sparkles', text: 'Премиум игроки получают больше опыта и уникальные бусты.' },
-    { icon: 'Clock', text: 'Следи за временем! Если не успеешь, ответ не зачтется.' }
-];
 
 interface DuelLoadingViewProps {
     loading: boolean;
@@ -32,21 +24,34 @@ interface DuelLoadingViewProps {
 export function DuelLoadingView({
     loading,
     questionsCount = 0,
-    message = 'Подготовка арены...',
+    message,
     onExit,
     isError = false
 }: DuelLoadingViewProps) {
-    const [currentTip, setCurrentTip] = useState(DUEL_TIPS[0]);
+    const { t } = useLanguage();
+
+    const tips = useMemo(() => [
+        { icon: 'Zap', text: t('duelBattle.arena.tips.boosts') },
+        { icon: 'Shield', text: t('duelBattle.arena.tips.insurance') },
+        { icon: 'Target', text: t('duelBattle.arena.tips.speed') },
+        { icon: 'Trophy', text: t('duelBattle.arena.tips.combo') },
+        { icon: 'Sparkles', text: t('duelBattle.arena.tips.premium') },
+        { icon: 'Clock', text: t('duelBattle.arena.tips.time') }
+    ], [t]);
+
+    const [currentTip, setCurrentTip] = useState(tips[0]);
 
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentTip(prev => {
-                const nextIdx = (DUEL_TIPS.indexOf(prev) + 1) % DUEL_TIPS.length;
-                return DUEL_TIPS[nextIdx];
+                const nextIdx = (tips.indexOf(prev) + 1) % tips.length;
+                return tips[nextIdx];
             });
         }, 4000);
         return () => clearInterval(interval);
-    }, []);
+    }, [tips]);
+
+    const displayMessage = message || t('duelBattle.arena.loadingArena');
 
     if (isError) {
         return (
@@ -62,8 +67,8 @@ export function DuelLoadingView({
                         <AlertCircle className="w-12 h-12 text-red-500" />
                     </div>
                     <div className="space-y-3">
-                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Упс! Что-то пошло не так</h3>
-                        <p className="text-zinc-400 text-sm leading-relaxed">Ошибка в процессе дуэли. Пожалуйста, попробуйте перезайти или вернуться на главную.</p>
+                        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">{t('duelBattle.arena.errors.somethingWrong')}</h3>
+                        <p className="text-zinc-400 text-sm leading-relaxed">{t('duelBattle.arena.errors.duelError')}</p>
                     </div>
 
                     <div className="flex flex-col gap-3">
@@ -71,7 +76,7 @@ export function DuelLoadingView({
                             onClick={() => window.location.reload()}
                             className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-bold uppercase tracking-widest text-sm shadow-[0_0_25px_rgba(79,70,229,0.4)] transition-all active:scale-95"
                         >
-                            Перезагрузить
+                            {t('duelBattle.arena.errors.reload')}
                         </Button>
 
                         <Button
@@ -82,7 +87,7 @@ export function DuelLoadingView({
                             variant="outline"
                             className="w-full h-12 bg-white/5 border-white/10 hover:bg-white/10 text-white/70 rounded-2xl uppercase tracking-widest text-xs font-bold transition-all"
                         >
-                            На дашборд
+                            {t('duelBattle.arena.errors.toDashboard')}
                         </Button>
                     </div>
                 </div>
@@ -134,10 +139,10 @@ export function DuelLoadingView({
                                         animate={{ opacity: [0.5, 1, 0.5] }}
                                         transition={{ duration: 1.5, repeat: Infinity }}
                                     >
-                                        {message}
+                                        {displayMessage}
                                     </motion.span>
                                 ) : (
-                                    'БИТВА НАЧИНАЕТСЯ'
+                                    t('duelBattle.arena.battleStarts')
                                 )}
                             </span>
                         </motion.div>
@@ -155,7 +160,7 @@ export function DuelLoadingView({
                             >
                                 <div className="flex items-center gap-3 mb-3 bg-white/5 px-4 py-1.5 rounded-full border border-white/10">
                                     {IconMap[currentTip.icon as keyof typeof IconMap] || <Sparkles className="w-4 h-4 text-cyan-400" />}
-                                    <span className="text-[10px] font-bold tracking-widest text-white/40 uppercase">Совет по дуэли</span>
+                                    <span className="text-[10px] font-bold tracking-widest text-white/40 uppercase">{t('duelBattle.arena.tips.label')}</span>
                                 </div>
                                 <p className="text-sm md:text-base text-zinc-300 max-w-md font-medium leading-relaxed">
                                     {currentTip.text}
@@ -166,7 +171,7 @@ export function DuelLoadingView({
 
                     {/* Progress Text */}
                     <div className="text-[10px] font-mono tracking-[0.4em] text-white/30 uppercase">
-                        {questionsCount > 0 ? `Загружено ${questionsCount} вопросов` : 'Синхронизация данных...'}
+                        {questionsCount > 0 ? t('duelBattle.arena.loadedQuestions', { count: questionsCount }) : t('duelBattle.arena.syncingData')}
                     </div>
                 </div>
 

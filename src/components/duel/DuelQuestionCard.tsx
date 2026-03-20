@@ -4,6 +4,7 @@ import { getImageUrl } from '@/utils/imageUtils';
 import { Scrambler } from '@/utils/scramble';
 import { haptics } from '@/lib/haptics';
 import { ThreeDImageViewer } from "@/components/ui/ThreeDImageViewer";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // КРИТИЧНО: Lazy loading для компонентов атак
 // Это предотвращает циклические зависимости и TDZ ошибки при сборке
@@ -53,6 +54,7 @@ export const DuelQuestionCard = memo(({
   inputLagDelay = 1500,
   cryptolockerActive = false,
 }: DuelQuestionCardProps) => {
+  const { t } = useLanguage();
   const [is3DViewerOpen, setIs3DViewerOpen] = useState(false);
 
   if (!question || !question.question_snapshot) {
@@ -73,7 +75,7 @@ export const DuelQuestionCard = memo(({
       return question.question_snapshot.question_es;
     }
     // 3. Fallback: РФ или EN если испанского нет
-    return question.question_snapshot.question_ru || question.question_snapshot.question_en || 'Текст вопроса отсутствует';
+    return question.question_snapshot.question_ru || question.question_snapshot.question_en || t('duelBattle.arena.questionMissing');
   };
   const questionText = getQuestionText();
 
@@ -161,7 +163,7 @@ export const DuelQuestionCard = memo(({
                   if (translationLanguage === 'en' && option.text_en) return option.text_en;
                   if (option.text_es) return option.text_es;
                   // Fallback для РФ вопросов
-                  return option.text_ru || option.text_en || 'Вариант';
+                  return option.text_ru || option.text_en || t('duelBattle.arena.optionMissing');
                 };
                 const optionText = getOptionText();
 

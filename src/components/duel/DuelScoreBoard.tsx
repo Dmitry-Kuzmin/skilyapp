@@ -6,6 +6,7 @@ import { CompactConnectionStatusIndicator } from './CompactConnectionStatusIndic
 import { memo, useState, useEffect, useRef } from 'react';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Функция для генерации инициалов из имени (оставлена на всякий случай)
 const getInitials = (name: string): string => {
@@ -112,6 +113,7 @@ export const DuelScoreBoard = memo(({
   opponentLastSeen = null,
   combo = 0,
 }: DuelScoreBoardProps) => {
+  const { t } = useLanguage();
 
   // Функция для получения только имени
   const getFirstName = (fullName: string | null) => {
@@ -119,8 +121,8 @@ export const DuelScoreBoard = memo(({
     return fullName.split(' ')[0];
   };
 
-  const myDisplayName = getFirstName(myName) || 'Ты';
-  const opponentDisplayName = getFirstName(opponentName) || 'Соперник';
+  const myDisplayName = getFirstName(myName) || t('duelBattle.arena.you');
+  const opponentDisplayName = getFirstName(opponentName) || t('duelBattle.arena.opponent');
 
   const [myImgError, setMyImgError] = useState(false);
   const [opponentImgError, setOpponentImgError] = useState(false);
@@ -213,7 +215,7 @@ export const DuelScoreBoard = memo(({
               className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1 py-0.5 rounded-full border border-emerald-500/30 w-fit"
             >
               <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Щит</span>
+              <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">{t('duelBattle.arena.shield')}</span>
             </motion.div>
           )}
         </div>
@@ -246,7 +248,7 @@ export const DuelScoreBoard = memo(({
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-1 bg-emerald-500/10 dark:bg-emerald-500/20 px-1 py-0.5 rounded-full border border-emerald-500/30 w-fit ml-auto"
             >
-              <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Щит</span>
+              <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">{t('duelBattle.arena.shield')}</span>
               <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
             </motion.div>
           )}

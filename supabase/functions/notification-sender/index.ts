@@ -37,6 +37,7 @@ interface SendNotificationRequest {
   icon?: string;
   cta_text?: string;
   cta_deeplink?: string;
+  image_url?: string;
   force?: boolean; // игнорировать cooldown и тихие часы
 }
 
@@ -251,7 +252,8 @@ serve(async (req) => {
       message,
       icon,
       ctaText,
-      ctaDeeplink
+      ctaDeeplink,
+      body.image_url
     );
 
     // 2. Отправка PWA Push (параллельно)
@@ -507,10 +509,13 @@ async function sendTelegramNotification(
   message: string,
   icon: string,
   ctaText?: string | null,
-  ctaDeeplink?: string | null
+  ctaDeeplink?: string | null,
+  imageUrl?: string
 ): Promise<{ success: boolean; message_id?: number; error?: string }> {
   try {
-    const text = `${icon} <b>${title}</b>\n\n${message}`;
+    const text = imageUrl 
+      ? `<b>${title}</b>\n\n${message}` // В подписке к фото жирный заголовок смотрится лучше
+      : `${icon} <b>${title}</b>\n\n${message}`;
 
     const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://sdadim-dgt-prep.vercel.app';
 
@@ -527,15 +532,24 @@ async function sendTelegramNotification(
       ]
     } : undefined;
 
-    const response = await fetch(`${TELEGRAM_API}/sendMessage`, {
+    const endpoint = imageUrl ? 'sendPhoto' : 'sendMessage';
+    const body: any = {
+      chat_id: chatId,
+      parse_mode: 'HTML',
+      reply_markup: replyMarkup
+    };
+
+    if (imageUrl) {
+      body.photo = imageUrl;
+      body.caption = text;
+    } else {
+      body.text = text;
+    }
+
+    const response = await fetch(`${TELEGRAM_API}/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: 'HTML',
-        reply_markup: replyMarkup
-      })
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {

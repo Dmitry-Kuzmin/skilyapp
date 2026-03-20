@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Share, Loader2 } from 'lucide-react';
+import { Share, Loader2, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { domToPng } from 'modern-screenshot';
 import { toast } from '@/lib/toast';
@@ -115,6 +115,61 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             console.error('[Share] Error generating image:', error);
             toast.error('Не удалось сгенерировать изображение');
             return null;
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    const handleSendToBot = async () => {
+        if (!userProfile?.telegram_id) {
+            toast.error(language === 'ru' ? 'Только для Telegram' : 'Only for Telegram');
+            return;
+        }
+
+        setIsGenerating(true);
+        const loadingToastId = toast.loading(language === 'ru' ? 'Отправляем в бот...' : 'Sending to bot...');
+
+        try {
+            const dataUrl = await generateImage();
+            if (!dataUrl) throw new Error('Image generation failed');
+
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
+            
+            const fileName = `stories/${userProfile?.id || 'anon'}_bot_${Date.now()}.png`;
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(fileName, blob, {
+                    contentType: 'image/png',
+                    upsert: true
+                });
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(fileName);
+
+            const { error: edgeErr } = await supabase.functions.invoke('notification-sender', {
+                body: {
+                    user_id: userProfile.id,
+                    image_url: publicUrl,
+                    title: language === 'ru' ? 'Твоя карточка готова! 🏎💨' : 'Your card is ready! 🏎💨',
+                    message: language === 'ru' 
+                        ? 'Прикольно? Теперь ты можешь сохранить её или выложить в сторис, чтобы бросить вызов друзьям!' 
+                        : 'Cool? Now you can save it or post to stories to challenge your friends!',
+                    force: true
+                }
+            });
+
+            if (edgeErr) throw edgeErr;
+
+            toast.dismiss(loadingToastId);
+            toast.success(language === 'ru' ? 'Отправили! Проверь сообщения от бота' : 'Sent! Check messages from bot!');
+        } catch (error) {
+            toast.dismiss(loadingToastId);
+            console.error('[SendToBot] Error:', error);
+            toast.error(language === 'ru' ? 'Ошибка отправки' : 'Sending failed');
         } finally {
             setIsGenerating(false);
         }
@@ -239,27 +294,53 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
                 />
             </div>
 
-            <button
-                onClick={handleShare}
-                disabled={isGenerating}
-                className={cn(
-                    "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500 group/share relative overflow-hidden active:scale-90",
-                    isGenerating ? "opacity-70 pointer-events-none" : "hover:scale-110",
-                    "bg-gradient-to-tr from-cyan-400/20 via-fuchsia-500/20 to-yellow-400/20 backdrop-blur-md border border-white/20 shadow-xl"
+            <div className="flex items-center gap-2">
+                {userProfile?.telegram_id && (
+                    <button
+                        onClick={handleSendToBot}
+                        disabled={isGenerating}
+                        className={cn(
+                            "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500 group/bot relative overflow-hidden active:scale-90",
+                            isGenerating ? "opacity-70 pointer-events-none" : "hover:scale-110",
+                            "bg-gradient-to-tr from-green-400/20 via-emerald-500/20 to-teal-400/20 backdrop-blur-md border border-white/20 shadow-xl"
+                        )}
+                        title={language === 'ru' ? "Отправить в бот" : "Send to bot"}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover/bot:translate-x-[100%] transition-transform duration-1000" />
+                        
+                        {isGenerating ? (
+                            <Loader2 size={18} className="animate-spin text-white" />
+                        ) : (
+                            <MessageSquare size={18} className={cn(
+                                "transition-all group-hover/bot:scale-110",
+                                isDarkTheme ? "text-zinc-300" : "text-emerald-600"
+                            )} />
+                        )}
+                    </button>
                 )}
-                title={language === 'ru' ? "Поделиться" : "Compartir"}
-            >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover/share:translate-x-[100%] transition-transform duration-1000" />
-                
-                {isGenerating ? (
-                    <Loader2 size={18} className="animate-spin text-white" />
-                ) : (
-                    <Share size={18} className={cn(
-                        "transition-all group-hover/share:scale-110",
-                        isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-indigo-500"
-                    )} />
-                )}
-            </button>
+
+                <button
+                    onClick={handleShare}
+                    disabled={isGenerating}
+                    className={cn(
+                        "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500 group/share relative overflow-hidden active:scale-90",
+                        isGenerating ? "opacity-70 pointer-events-none" : "hover:scale-110",
+                        "bg-gradient-to-tr from-cyan-400/20 via-fuchsia-500/20 to-yellow-400/20 backdrop-blur-md border border-white/20 shadow-xl"
+                    )}
+                    title={language === 'ru' ? "Поделиться" : "Compartir"}
+                >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover/share:translate-x-[100%] transition-transform duration-1000" />
+                    
+                    {isGenerating ? (
+                        <Loader2 size={18} className="animate-spin text-white" />
+                    ) : (
+                        <Share size={18} className={cn(
+                            "transition-all group-hover/share:scale-110",
+                            isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-indigo-500"
+                        )} />
+                    )}
+                </button>
+            </div>
         </div>
     );
 };
