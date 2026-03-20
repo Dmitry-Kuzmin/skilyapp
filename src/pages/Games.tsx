@@ -30,7 +30,7 @@ const fallbackPlayers = [
 ];
 
 const Games = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { selectedCountry } = useCountry();
   const navigate = useNavigate();
   const { user, profileId, supabaseUser } = useUserContext();
@@ -68,103 +68,97 @@ const Games = () => {
   const games = [
     {
       id: 1,
-      title: "Дуэль с другом",
-      description: "Соревнуйся с другом или ботом на знание ПДД",
+      title: t('gamesPage.gameTitles.duel'),
+      description: t('gamesPage.gameDescriptions.duel'),
       icon: Swords,
       color: "primary",
       premium: false,
-      difficulty: "Средняя",
+      difficulty: t('gamesPage.difficulties.medium'),
       route: "/games/duel",
       featured: true,
       gradient: "from-violet-600 via-purple-600 to-indigo-600",
     },
     {
       id: 2,
-      title: "Гонка",
-      description: "Переведи максимум слов за ограниченное время",
+      title: t('gamesPage.gameTitles.race'),
+      description: t('gamesPage.gameDescriptions.race'),
       icon: Zap,
       color: "secondary",
       premium: false,
-      difficulty: "Лёгкая",
+      difficulty: t('gamesPage.difficulties.easy'),
       route: "/games/race",
       featured: true,
       gradient: "from-cyan-600 via-blue-600 to-indigo-600",
     },
     {
       id: 3,
-      title: "Флэш-карточки",
-      description: "Классический метод изучения с карточками",
+      title: t('gamesPage.gameTitles.flashcards'),
+      description: t('gamesPage.gameDescriptions.flashcards'),
       icon: CreditCard,
       color: "success",
       premium: false,
-      difficulty: "Лёгкая",
+      difficulty: t('gamesPage.difficulties.easy'),
       route: "/games/flashcards",
       gradient: "from-emerald-600 to-teal-600",
     },
     {
       id: 4,
-      title: "Перекрёстки",
-      description: "Разрули пробку! Выбери порядок проезда перекрёстка",
+      title: t('gamesPage.gameTitles.intersections'),
+      description: t('gamesPage.gameDescriptions.intersections'),
       icon: AlertTriangle,
       color: "warning",
       premium: false,
-      difficulty: "Средняя",
+      difficulty: t('gamesPage.difficulties.medium'),
       route: "/games/intersection",
       gradient: "from-orange-600 to-red-600",
       featured: true,
     },
     {
       id: 6,
-      title: "Лексикон",
-      description: "Мастерство перевода. Выбери верное значение ПДД-терминов и прокачивай свой словарный запас.",
+      title: t('gamesPage.gameTitles.lexicon'),
+      description: t('gamesPage.gameDescriptions.lexicon'),
       icon: Brain,
       color: "primary",
       premium: false,
-      difficulty: "Средняя",
+      difficulty: t('gamesPage.difficulties.medium'),
       route: "/games/four-variants",
       gradient: "from-indigo-600 via-purple-600 to-pink-600",
     },
     {
       id: 8,
-      title: "Угадай Знак",
-      description: "Проверь свои знания дорожных знаков в премиум игре",
+      title: t('gamesPage.gameTitles.guessSign'),
+      description: t('gamesPage.gameDescriptions.guessSign'),
       icon: Shield,
       color: "secondary",
       premium: false,
-      difficulty: "Средняя",
+      difficulty: t('gamesPage.difficulties.medium'),
       route: "/games/guess-sign",
       gradient: "from-rose-600 to-red-600",
     },
     {
       id: 9,
-      title: "Дорожная Гонка",
-      description: "Марафон тестов в формате гонки по трассе Испании",
+      title: t('gamesPage.gameTitles.roadRace'),
+      description: t('gamesPage.gameDescriptions.roadRace'),
       icon: Flag,
       color: "primary",
       premium: false,
-      difficulty: "Сложная",
+      difficulty: t('gamesPage.difficulties.hard'),
       route: "/games/road-race",
       gradient: "from-blue-600 to-cyan-600",
     },
     {
       id: 10,
-      title: "Блиц",
-      description: "Успей ответить на максимум вопросов за 5 минут. Каждая ошибка — штраф!",
+      title: t('gamesPage.gameTitles.blitz'),
+      description: t('gamesPage.gameDescriptions.blitz'),
       icon: Zap,
       color: "warning",
       premium: false,
-      difficulty: "Спец",
+      difficulty: t('gamesPage.difficulties.special'),
       route: "/test/blitz?count=20&timer=300",
       gradient: "from-orange-500 via-amber-500 to-yellow-500",
       featured: true,
     },
   ];
-
-  const difficultyColors = {
-    "Лёгкая": "success",
-    "Средняя": "warning",
-    "Сложная": "destructive",
-  };
 
   // Smart Filtering for Games
   const filteredGames = games.filter(game => {
@@ -201,10 +195,10 @@ const Games = () => {
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
               <div>
                 <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-2">
-                  Игровая зона
+                  {t('gamesPage.title')}
                 </h1>
                 <p className="text-muted-foreground font-medium text-lg">
-                  Выбирай режим и прокачивай навыки
+                  {t('gamesPage.subtitle')}
                 </p>
               </div>
 
@@ -214,7 +208,7 @@ const Games = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/10 backdrop-blur-sm shadow-lg shadow-violet-500/5 flex-shrink-0 whitespace-nowrap">
                   <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-violet-600 dark:text-violet-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-violet-700 dark:text-violet-100">
-                    {safeStats.gamesPlayed} <span className="text-violet-600/70 dark:text-violet-300/70 font-normal">игр</span>
+                    {safeStats.gamesPlayed} <span className="text-violet-600/70 dark:text-violet-300/70 font-normal">{t('gamesPage.stats.played')}</span>
                   </span>
                 </div>
 
@@ -222,7 +216,7 @@ const Games = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/10 backdrop-blur-sm shadow-lg shadow-emerald-500/5 flex-shrink-0 whitespace-nowrap">
                   <Brain className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-emerald-700 dark:text-emerald-100">
-                    {safeStats.studiedTerms} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">терминов</span>
+                    {safeStats.studiedTerms} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">{t('gamesPage.stats.terms')}</span>
                   </span>
                 </div>
 
@@ -230,7 +224,7 @@ const Games = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/10 backdrop-blur-sm shadow-lg shadow-amber-500/5 flex-shrink-0 whitespace-nowrap">
                   <TrendingUp className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-amber-700 dark:text-amber-100">
-                    {safeStats.averageResult}% <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">рез.</span>
+                    {safeStats.averageResult}% <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">{t('gamesPage.stats.result')}</span>
                   </span>
                 </div>
               </div>
@@ -317,13 +311,13 @@ const Games = () => {
                         <span className={cn(
                           "text-sm font-bold",
                           duelsEnabled ? "text-white" : "text-cyan-300"
-                        )}>Главный режим</span>
+                        )}>{t('gamesPage.featured.badge')}</span>
                       </div>
                       <h2 className={cn(
                         "text-5xl md:text-7xl font-black tracking-tight leading-[0.9] drop-shadow-lg",
                         duelsEnabled ? "text-white" : "text-cyan-100"
                       )}>
-                        ДУЭЛЬ
+                        {t('gamesPage.featured.title')}
                       </h2>
                       <p className={cn(
                         "text-lg md:text-xl font-medium max-w-md leading-relaxed",
@@ -332,8 +326,8 @@ const Games = () => {
                           : "text-cyan-200/80"
                       )}>
                         {duelsEnabled
-                          ? "Сразись с другом или случайным соперником в битве знаний. Ставки, рейтинг и слава ждут!"
-                          : "❄️ Арена временно замерзла. Слишком много горячих битв! Мы остужаем сервера, чтобы вы могли вернуться в бой с новыми силами."}
+                          ? t('gamesPage.featured.description')
+                          : t('gamesPage.featured.frozenDescription')}
                       </p>
                     </div>
 
@@ -347,7 +341,7 @@ const Games = () => {
                           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-indigo-100/60 to-transparent pointer-events-none" />
                           <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 ring-4 ring-white/30 pointer-events-none" />
                           <Swords className="w-5 h-5 sm:w-6 sm:h-6 relative z-10" />
-                          <span className="relative z-10">Вступить в арену</span>
+                          <span className="relative z-10">{t('gamesPage.featured.button')}</span>
                           <div className="relative z-10 flex items-center gap-1 ml-1 opacity-60">
                             <div className="w-1 h-1 rounded-full bg-indigo-400" />
                             <div className="w-1 h-1 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -360,7 +354,7 @@ const Games = () => {
                           className="mt-6 flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 font-bold tracking-wide cursor-not-allowed backdrop-blur-md shadow-[0_0_15px_rgba(34,211,238,0.1)] hover:bg-cyan-500/15 transition-colors"
                         >
                           <Timer className="w-5 h-5" />
-                          <span>Система остывает ❄️</span>
+                          <span>{t('gamesPage.featured.coolingButton')}</span>
                         </button>
                       )}
 
@@ -414,7 +408,7 @@ const Games = () => {
                 <div className="p-2 rounded-xl bg-card border border-border">
                   <Gamepad2 className="w-6 h-6 text-indigo-400" />
                 </div>
-                Другие режимы
+                {t('gamesPage.otherModes')}
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -566,7 +560,7 @@ const Games = () => {
                             {game.title}
                           </h3>
                           <p className="text-muted-foreground font-medium text-sm leading-relaxed line-clamp-2">
-                            {isLocked ? "Режим в разработке. Прокачайся до 10 уровня, чтобы открыть доступ!" : game.description}
+                            {isLocked ? t('gamesPage.lockedLabel') : game.description}
                           </p>
                         </div>
                       </div>

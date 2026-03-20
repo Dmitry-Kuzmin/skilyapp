@@ -10,6 +10,7 @@ import { AnalyticsPanel } from './AnalyticsPanel';
 import { useTheme } from 'next-themes';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ExamReadinessProps {
   averageScore: number;
@@ -41,6 +42,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
 }) => {
   const { language, t } = useLanguage();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
   const [showLevels, setShowLevels] = useState(false);
@@ -281,8 +283,13 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     : 'bg-gradient-to-b from-indigo-500/10 to-transparent';
 
   return (
-    <div className={`h-full ${containerClass} backdrop-blur-md rounded-3xl xl:rounded-[2.5rem] p-5 md:p-6 xl:p-8 shadow-lg border flex flex-col relative overflow-hidden group transition-all duration-500 ${showLevels ? 'items-start justify-start' : 'items-center justify-center'
-      }`}>
+    <div className={cn(
+      "transition-all duration-500",
+      containerClass,
+      "backdrop-blur-md rounded-3xl xl:rounded-[2.5rem] p-5 md:p-6 xl:p-8 shadow-lg border flex flex-col relative group",
+      showLevels && isMobile ? "h-auto overflow-visible" : "h-full overflow-hidden",
+      showLevels ? 'items-start justify-start' : 'items-center justify-center'
+    )}>
       {/* Hover overlay effect */}
       <div className={`absolute inset-0 ${hoverOverlayClass} opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none`}></div>
 
@@ -310,6 +317,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
         }}
         className={cn(
           "relative w-full transition-all duration-500",
+          showLevels && isMobile ? "hidden" : "block",
           showLevels ? 'opacity-0 scale-95 -translate-y-4 pointer-events-none' : 'opacity-100 scale-100 translate-y-0 cursor-pointer hover:scale-[1.02] active:scale-[0.98]'
         )}
       >
@@ -374,7 +382,11 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
       </div>
 
       {/* Levels Panel - плавное появление с Split View */}
-      <div className={`absolute inset-0 p-4 sm:p-6 transition-all duration-500 ${showLevels ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+      <div className={cn(
+        "transition-all duration-500 w-full",
+        showLevels ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none',
+        isMobile && showLevels ? "relative" : "absolute inset-0 p-4 sm:p-6"
+      )}>
         <div className="h-full flex flex-col overflow-y-auto">
           {/* Title */}
           <div className="mb-4 relative z-10 flex items-center justify-between flex-shrink-0">

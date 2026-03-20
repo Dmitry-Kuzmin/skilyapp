@@ -270,73 +270,75 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                 accept="image/*"
             />
             {/* The 3D Glassmorphism License Card via Visual Component */}
-            <LicenseCardVisual 
-                userProfile={activeProfile}
-                stats={stats}
-                isDarkTheme={isDarkTheme}
-                language={language}
-                selectedCountry={selectedCountry}
-                rankStyle={rankStyle}
-                fullName={fullName}
-                photoUrl={photoUrl}
-                isExpert={isExpert}
-                globalId={globalId}
-                countryCode={countryCode}
-                localeConfig={localeConfig}
-                daysUntilExam={daysUntilExam}
-                examCity={examCity}
-                points={points}
-                t={t}
-                imageError={imageError}
-                setImageError={setImageError}
-                isUploading={isUploading}
-                onPhotoClick={handleAvatarClick}
-                onExamClick={() => openSettings('general', 'exam-date-section')}
-                onPromoClick={() => {
-                    const code = userProfile?.referral_code;
-                    
-                    if (code) {
-                        const referralLink = `${window.location.origin}/join/${code}`;
-                        navigator.clipboard.writeText(referralLink);
-                        toast.success(selectedCountry === 'ru' ? 'Ссылка скопирована!' : '¡Enlace copiado!');
+            {(!isMobile || !isPointsModalOpen) && (
+                <LicenseCardVisual 
+                    userProfile={activeProfile}
+                    stats={stats}
+                    isDarkTheme={isDarkTheme}
+                    language={language}
+                    selectedCountry={selectedCountry}
+                    rankStyle={rankStyle}
+                    fullName={fullName}
+                    photoUrl={photoUrl}
+                    isExpert={isExpert}
+                    globalId={globalId}
+                    countryCode={countryCode}
+                    localeConfig={localeConfig}
+                    daysUntilExam={daysUntilExam}
+                    examCity={examCity}
+                    points={points}
+                    t={t}
+                    imageError={imageError}
+                    setImageError={setImageError}
+                    isUploading={isUploading}
+                    onPhotoClick={handleAvatarClick}
+                    onExamClick={() => openSettings('general', 'exam-date-section')}
+                    onPromoClick={() => {
+                        const code = userProfile?.referral_code;
+                        
+                        if (code) {
+                            const referralLink = `${window.location.origin}/join/${code}`;
+                            navigator.clipboard.writeText(referralLink);
+                            toast.success(selectedCountry === 'ru' ? 'Ссылка скопирована!' : '¡Enlace copiado!');
+                        }
+                        
+                        import('@/store/modalStore').then(m => m.useModalStore.getState().openModal('REFERRAL'));
+                    }}
+                    onPointsClick={() => setIsPointsModalOpen(true)}
+                    shareActionControl={
+                        <React.Suspense fallback={<div className="w-10 h-10 animate-pulse bg-white/5 rounded-full" />}>
+                            <LicenseShareAction 
+                                userProfile={userProfile}
+                                stats={stats}
+                                isDarkTheme={isDarkTheme}
+                                language={language}
+                                cardContent={
+                                    <div className="w-full h-full pointer-events-none">
+                                        <LicenseCardVisual 
+                                            userProfile={userProfile}
+                                            stats={stats}
+                                            isDarkTheme={isDarkTheme}
+                                            language={language}
+                                            selectedCountry={selectedCountry}
+                                            rankStyle={rankStyle}
+                                            fullName={fullName}
+                                            photoUrl={photoUrl}
+                                            isExpert={isExpert}
+                                            globalId={globalId}
+                                            countryCode={countryCode}
+                                            localeConfig={localeConfig}
+                                            daysUntilExam={daysUntilExam}
+                                            points={points}
+                                            t={t}
+                                            isStatic={true}
+                                        />
+                                    </div>
+                                }
+                            />
+                        </React.Suspense>
                     }
-                    
-                    import('@/store/modalStore').then(m => m.useModalStore.getState().openModal('REFERRAL'));
-                }}
-                onPointsClick={() => setIsPointsModalOpen(true)}
-                shareActionControl={
-                    <React.Suspense fallback={<div className="w-10 h-10 animate-pulse bg-white/5 rounded-full" />}>
-                        <LicenseShareAction 
-                            userProfile={userProfile}
-                            stats={stats}
-                            isDarkTheme={isDarkTheme}
-                            language={language}
-                            cardContent={
-                                <div className="w-full h-full pointer-events-none">
-                                    <LicenseCardVisual 
-                                        userProfile={userProfile}
-                                        stats={stats}
-                                        isDarkTheme={isDarkTheme}
-                                        language={language}
-                                        selectedCountry={selectedCountry}
-                                        rankStyle={rankStyle}
-                                        fullName={fullName}
-                                        photoUrl={photoUrl}
-                                        isExpert={isExpert}
-                                        globalId={globalId}
-                                        countryCode={countryCode}
-                                        localeConfig={localeConfig}
-                                        daysUntilExam={daysUntilExam}
-                                        points={points}
-                                        t={t}
-                                        isStatic={true}
-                                    />
-                                </div>
-                            }
-                        />
-                    </React.Suspense>
-                }
-            />
+                />
+            )}
 
             {RecoveryOverlay}
 
@@ -344,14 +346,14 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
             <AnimatePresence>
                 {isPointsModalOpen && (
                     <motion.div
-                        initial={isMobile ? { height: 0, opacity: 0 } : { opacity: 0, scale: 0.95 }}
-                        animate={isMobile ? { height: 'auto', opacity: 1 } : { opacity: 1, scale: 1 }}
-                        exit={isMobile ? { height: 0, opacity: 0 } : { opacity: 0, scale: 0.95 }}
+                        initial={isMobile ? { opacity: 0, y: 10 } : { opacity: 0, scale: 0.95 }}
+                        animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, scale: 1 }}
+                        exit={isMobile ? { opacity: 0, y: 10 } : { opacity: 0, scale: 0.95 }}
                         className={cn(
-                            "absolute z-[150] overflow-hidden",
+                            "z-[150] overflow-hidden",
                             isMobile 
-                                ? "inset-x-0 top-0 rounded-3xl" 
-                                : "inset-0 flex items-center justify-center p-4 backdrop-blur-xl bg-[#0a0a0f]/95 rounded-[2.5rem]"
+                                ? "relative w-full rounded-3xl" 
+                                : "absolute inset-0 flex items-center justify-center p-4 backdrop-blur-xl bg-[#0a0a0f]/95 rounded-[2.5rem]"
                         )}
                     >
                         {isMobile && <div className="absolute inset-0 bg-[#0a0a0f]/95 backdrop-blur-3xl" />}

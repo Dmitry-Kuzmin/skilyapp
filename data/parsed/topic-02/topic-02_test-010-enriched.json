@@ -1229,43 +1229,43 @@
     "question_number": 26,
     "category": "B",
     "question": {
-      "es": "Hasta el 01 de enero del 2026 y en caso de no disponer del dispositivo luminoso V-16. Cuando deba colocarse un triángulo de preseñalización de peligro, ¿en qué lado de la calzada lo hará?",
-      "en": "Until January 1, 2026, and if you do not have the V-16 light device. When a hazard warning triangle must be placed, on which side of the roadway should it be placed?",
-      "ru": "До 1 января 2026 года и в случае отсутствия светового устройства V-16. Если необходимо установить знак аварийной остановки (треугольник), на какой стороне проезжей части его следует разместить?"
+      "es": "Ha colocado la señal luminosa V-16 conectada en el techo de su vehículo averiado. ¿Significa esto que la asistencia (grúa o servicios de emergencia) será avisada automáticamente?",
+      "en": "You have placed a connected V-16 flashing light on the roof of your broken-down vehicle. Does this mean that assistance (tow truck or emergency services) will be called automatically?",
+      "ru": "Вы разместили на крыше сломанного автомобиля подключенный световой сигнал V-16. Означает ли это, что помощь (эвакуатор или спасатели) будет вызвана автоматически?"
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "En el borde derecho de la calzada en el sentido de la marcha.",
-          "en": "On the right edge of the roadway in the direction of travel.",
-          "ru": "На правом краю проезжей части по направлению движения."
+          "ru": "Нет, устройство только передает координаты в систему DGT 3.0 для предупреждения других водителей. Вам все равно нужно позвонить в 112 или в страховую компанию.",
+          "es": "No, el dispositivo solo transmite las coordenadas al sistema DGT 3.0 para advertir a otros conductores. Aún debe llamar al 112 o a su compañía de seguros.",
+          "en": "No, the device only transmits coordinates to the DGT 3.0 system to warn other drivers. You still need to call 112 or your insurance company."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
-          "es": "En cualquier lugar en el que sea visible desde 100 metros, por lo menos.",
-          "en": "In any place where it is visible from at least 100 metres.",
-          "ru": "В любом месте, где он будет виден как минимум со 100 метров."
+          "ru": "Да, сигнал V-16 автоматически связывается с вашей страховой компанией для вызова эвакуатора.",
+          "es": "Sí, la señal V-16 contacta automáticamente con su compañía de seguros para pedir una grúa.",
+          "en": "Yes, the V-16 signal automatically contacts your insurance company to request a tow truck."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
-          "es": "En el centro de la calzada en las vías de doble sentido. En el izquierdo en las vías de un solo sentido.",
-          "en": "In the centre of the roadway on two-way roads. On the left on one-way roads.",
-          "ru": "В центре проезжей части на дорогах с двусторонним движением. Слева на дорогах с односторонним движением."
+          "ru": "Да, как только сигнал будет передан в DGT 3.0, патруль полиции прибудет на место автоматически.",
+          "es": "Sí, en cuanto la señal se transmita a la DGT 3.0, una patrulla de policía acudirá al lugar automáticamente.",
+          "en": "Yes, as soon as the signal is transmitted to DGT 3.0, a police patrol will automatically arrive at the scene."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": "🎓 El triángulo debe colocarse siempre en el borde derecho de la calzada o en el arcén, en el sentido de la marcha. Debe estar a una distancia mínima de 50 metros del vehículo para que sea visible desde al menos 100 metros por los conductores que se aproximan. 💡 Recuerda la regla: En vías de doble sentido (un carril por sentido), pon uno delante y otro detrás. En autopistas o vías de sentido único, ¡solo el de atrás es obligatorio!",
-      "en": "🎓 The triangle must always be placed on the right edge of the roadway or the shoulder, in the direction of travel. It must be at a minimum distance of 50 metres from the vehicle so that it is visible from at least 100 metres by approaching drivers. 💡 Remember the rule: On two-way roads (one lane per direction), place one in front and one behind. On motorways or one-way roads, only the rear one is mandatory!",
-      "ru": "🎓 Знак аварийной остановки всегда устанавливается на правом краю проезжей части или на обочине по направлению движения. Он должен находиться на расстоянии не менее 50 метров от автомобиля, чтобы другие водители могли заметить его минимум за 100 метров. 💡 Запомни правило: на обычных дорогах с двусторонним движением (по одной полосе в каждую сторону) ставим два знака (спереди и сзади). На автомагистралях или дорогах с односторонним движением — только один знак сзади!"
+      "es": "🎓 La baliza V-16 conectada envía su geolocalización a la nube de la DGT 3.0 para avisar a otros conductores a través de navegadores y paneles informativos. Sin embargo, no avisa a los servicios de rescate ni de asistencia en carretera. El conductor debe llamar por su cuenta al 112 (en caso de accidente o peligro) o a su aseguradora.",
+      "en": "🎓 The connected V-16 beacon sends your geolocation to the DGT 3.0 cloud to warn other drivers via navigators and dynamic message signs. However, it does not call rescue or roadside assistance services. The driver must personally call 112 (in case of an accident or danger) or their insurance company.",
+      "ru": "🎓 Подключенный маячок V-16 отправляет вашу геопозицию в облако DGT 3.0, чтобы предупредить других водителей через навигаторы и информационные табло на трассе. Однако он не вызывает спасателей или техническую помощь. Водитель обязан самостоятельно позвонить в 112 (при ДТП или опасности) или в свою страховую компанию."
     },
     "image_url": "https://teorica.practicavial.com/question/18de9367-4e3a-4132-a39c-f41f40b21eac-1657900157-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/18de9367-4e3a-4132-a39c-f41f40b21eac-s-1.jpg",

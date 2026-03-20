@@ -8,6 +8,7 @@ import { useDuelRealtime } from '@/hooks/useDuelRealtime';
 import { useUserContext } from '@/contexts/UserContext';
 import { generateTelegramShareUrl } from '@/utils/duelShare';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DuelLobbyProps {
   duelId: string | null;
@@ -18,6 +19,7 @@ interface DuelLobbyProps {
 }
 
 export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCancel }: DuelLobbyProps) {
+  const { t } = useLanguage();
   const { profileId, platform } = useUserContext();
   const [waitTime, setWaitTime] = useState(0);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'checking'>('checking');
@@ -25,219 +27,123 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
   const [finishedOpponent, setFinishedOpponent] = useState<any>(null);
   const { state } = useDuelRealtime(duelId);
 
-  // Проверяем статус дуэли один раз при монтировании (fallback)
   useEffect(() => {
     if (!duelId) return;
-
     let mounted = true;
-
     const checkInitialStatus = async () => {
       try {
-        console.log('[DuelLobby] Initial status check...');
         const { data, error } = await supabase.functions.invoke('duel-manager', {
-          body: {
-            action: 'get_players',
-            duel_id: duelId,
-            profile_id: profileId
-          }
+          body: { action: 'get_players', duel_id: duelId, profile_id: profileId }
         });
-
         if (!mounted) return;
-
         if (error) {
-          console.error('[DuelLobby] Error checking players:', error);
           setConnectionStatus('connected');
           return;
         }
-
         const players = data?.players || [];
-        console.log('[DuelLobby] Players in duel:', players);
-
-        // Ищем оппонента, который уже закончил
         const finished = players.find((p: any) => p.user_id !== profileId && p.is_finished);
-        if (finished) {
-          console.log('[DuelLobby] 🏁 Found finished opponent:', finished);
-          setFinishedOpponent(finished);
-        }
-
+        if (finished) setFinishedOpponent(finished);
         setConnectionStatus('connected');
       } catch (err) {
-        console.error('[DuelLobby] Exception checking initial status:', err);
-        if (mounted) {
-          setConnectionStatus('connected');
-        }
+        if (mounted) setConnectionStatus('connected');
       }
     };
-
     checkInitialStatus();
+    return () => { mounted = false; };
+  }, [duelId, profileId]);
 
-    return () => {
-      mounted = false;
-    };
-  }, [duelId, profileId, onDuelStarted]);
-
-  // Handle timer - оптимизировано с useMemo
   useEffect(() => {
     if (!duelCode) return;
-
-    const timer = setInterval(() => {
-      setWaitTime(prev => prev + 1);
-    }, 1000);
-
+    const timer = setInterval(() => { setWaitTime(prev => prev + 1); }, 1000);
     return () => clearInterval(timer);
   }, [duelCode]);
 
-  // 🆕 CRITICAL FIX: При присоединении оппонента проверяем статус дуэли и переходим к игре
   useEffect(() => {
     if (state.opponentJoined && duelId && profileId) {
-      console.log('[DuelLobby] Opponent joined! Checking duel status...');
-
-      // Проверяем статус дуэли через Edge Function
       const checkStatusAndStart = async () => {
         try {
           const { data, error } = await supabase.functions.invoke('duel-manager', {
-            body: {
-              action: 'check_status',
-              duel_id: duelId,
-              profile_id: profileId
-            }
+            body: { action: 'check_status', duel_id: duelId, profile_id: profileId }
           });
-
           if (error) {
-            console.error('[DuelLobby] Error checking status after opponent joined:', error);
-            // Пробуем прямой запрос к БД как fallback
-            const { data: duelData } = await supabase
-              .from('duels')
-              .select('status')
-              .eq('id', duelId)
-              .maybeSingle();
-
-            if (duelData?.status === 'active') {
-              console.log('[DuelLobby] ✅ Duel is active (from DB), starting battle...');
-              onDuelStarted();
-            }
+            const { data: duelData } = await supabase.from('duels').select('status').eq('id', duelId).maybeSingle() as { data: { status: string } | null };
+            if (duelData?.status === 'active') onDuelStarted();
             return;
           }
-
-          if (data?.status === 'active') {
-            console.log('[DuelLobby] ✅ Duel is active after opponent joined! Starting battle...');
-            onDuelStarted();
-          } else if (data?.status === 'finished') {
-            console.warn('[DuelLobby] ⚠️ Duel is finished, cannot start');
-            toast.error('Дуэль уже завершена');
-          }
-        } catch (err) {
-          console.error('[DuelLobby] Exception checking status after opponent joined:', err);
-        }
+          if (data?.status === 'active') onDuelStarted();
+          else if (data?.status === 'finished') toast.error(t('duelLobby.toasts.finished'));
+        } catch (err) {}
       };
-
       checkStatusAndStart();
     }
-  }, [state.opponentJoined, duelId, profileId, onDuelStarted]);
+  }, [state.opponentJoined, duelId, profileId, onDuelStarted, t]);
 
-  // Handle duel started from realtime - сразу переходим к битве
   useEffect(() => {
-    if (state.duelStarted) {
-      console.log('[DuelLobby] ✅ Duel started signal from realtime! Starting battle immediately...');
-      onDuelStarted();
-    }
+    if (state.duelStarted) onDuelStarted();
   }, [state.duelStarted, onDuelStarted]);
 
   const handleStartDuel = async () => {
     if (!duelId) return;
-
     try {
       const { error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'start_duel',
-          profile_id: profileId,
-          duel_id: duelId,
-        },
+        body: { action: 'start_duel', profile_id: profileId, duel_id: duelId }
       });
-
       if (error) throw error;
-
-      toast.success('Дуэль началась!');
+      toast.success(t('duelLobby.toasts.started'));
       onDuelStarted();
     } catch (error: any) {
-      toast.error(error.message || 'Ошибка старта дуэли');
+      toast.error(error.message || t('duelLobby.toasts.startError'));
     }
   };
 
   const handleStartAlone = async () => {
     if (!duelId) return;
-
     try {
-      console.log('[DuelLobby] 🚀 Requesting manual start (solo)...');
       const { error } = await supabase.functions.invoke('duel-manager', {
-        body: {
-          action: 'start_duel_now',
-          profile_id: profileId,
-          duel_id: duelId,
-        },
+        body: { action: 'start_duel_now', profile_id: profileId, duel_id: duelId }
       });
-
       if (error) throw error;
-
-      toast.success('Битва начинается!');
+      toast.success(t('duelLobby.toasts.battleStarts'));
       onDuelStarted();
     } catch (error: any) {
-      console.error('[DuelLobby] Error starting duel solo:', error);
-      toast.error(error.message || 'Ошибка запуска игры');
+      toast.error(error.message || t('duelLobby.toasts.battleStartError'));
     }
   };
 
   const handleCopyCode = async () => {
     if (!duelCode) return;
-
     try {
       await navigator.clipboard.writeText(duelCode);
       setCopied(true);
-
-      // КРИТИЧНО: Улучшенная обратная связь для копирования
-      toast.success('🎉 Код скопирован!', {
-        description: 'Отправь его другу, чтобы начать битву',
-        duration: 3000,
-      });
-
-      // Сбрасываем состояние через 2 секунды
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      toast.success(t('duelLobby.toasts.codeCopied'), { description: t('duelLobby.toasts.codeCopiedDesc'), duration: 3000 });
+      setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.log('Clipboard API blocked:', error);
-      toast.error('Не удалось скопировать. Код: ' + duelCode);
+      toast.error(t('duelLobby.toasts.copyError', { code: duelCode }));
     }
   };
 
   const handleShare = async () => {
     if (!duelCode || !window.Telegram?.WebApp) return;
-
     try {
-      // Загружаем информацию о ставке для красивого сообщения
       let betAmount: number | undefined;
       if (duelId) {
-        const { data } = await supabase
-          .from('duels')
-          .select('bet_amount')
-          .eq('id', duelId)
-          .single();
-
+        const { data } = await supabase.from('duels').select('bet_amount').eq('id', duelId).single() as { data: { bet_amount: number } | null };
         betAmount = data?.bet_amount || undefined;
       }
-
-      // Генерируем красивое сообщение с эмодзи и прямой ссылкой
-      const shareUrl = generateTelegramShareUrl(duelCode, betAmount);
-
-      // Открываем шаринг в Telegram
+      const shareTranslations = t('duelLobby.share', undefined, { returnObjects: true }) as any;
+      const shareUrl = generateTelegramShareUrl(duelCode, betAmount, {
+        title: shareTranslations.title,
+        bet: shareTranslations.bet,
+        code: shareTranslations.code,
+        description: shareTranslations.description,
+        cta: shareTranslations.cta
+      });
       (window.Telegram.WebApp as any).openTelegramLink?.(shareUrl);
     } catch (error) {
-      console.error('[DuelLobby] Error sharing duel:', error);
-      toast.error('Ошибка при шаринге дуэли');
+      toast.error('Error sharing duel');
     }
   };
 
-  // Форматируем время один раз через useMemo
   const formattedTime = useMemo(() => {
     const minutes = Math.floor(waitTime / 60);
     const seconds = waitTime % 60;
@@ -247,283 +153,101 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
   if (duelCode) {
     return (
       <div className="max-w-3xl mx-auto space-y-6 p-4 pt-2 md:pt-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md mx-auto"
-        >
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md mx-auto">
           {finishedOpponent ? (
-            /* 🆕 VERSUS SCREEN - Красивый экран вызова */
             <Card className="p-6 text-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border-none shadow-2xl relative overflow-hidden">
-              {/* Animated background effects */}
               <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-0 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
                 <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
               </div>
-
               <div className="relative z-10 space-y-6">
-                {/* VS Header */}
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center justify-center gap-1"
-                >
+                <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-center gap-1">
                   <Swords className="h-5 w-5 text-purple-400" />
-                  <h2 className="text-sm font-bold text-purple-400 uppercase tracking-widest">Дуэль</h2>
+                  <h2 className="text-sm font-bold text-purple-400 uppercase tracking-widest">{t('duelLobby.versus.title')}</h2>
                 </motion.div>
-
-                {/* VS Battle Layout */}
                 <div className="flex items-center justify-center gap-4">
-                  {/* Opponent (Left) - Already Played */}
-                  <motion.div
-                    initial={{ opacity: 0, x: -30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="flex flex-col items-center space-y-3"
-                  >
+                  <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="flex flex-col items-center space-y-3">
                     <div className="relative">
-                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 border-2 border-emerald-400/50">
-                        <span className="text-3xl font-black text-white">
-                          {finishedOpponent.name?.charAt(0)?.toUpperCase() || '?'}
-                        </span>
+                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg border-2 border-emerald-400/50">
+                        <span className="text-3xl font-black text-white">{finishedOpponent.name?.charAt(0)?.toUpperCase() || '?'}</span>
                       </div>
-                      {/* Finished badge */}
-                      <motion.div
-                        animate={{ scale: [1, 1.1, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1.5 border-2 border-slate-900 shadow-lg"
-                      >
-                        <Check className="h-3 w-3 text-white" />
-                      </motion.div>
+                      <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }} className="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1.5 border-2 border-slate-900 shadow-lg"><Check className="h-3 w-3 text-white" /></motion.div>
                     </div>
                     <div className="text-center">
                       <p className="text-white font-bold text-sm truncate max-w-[80px]">{finishedOpponent.name}</p>
-                      <p className="text-emerald-400 text-xs font-medium">Финишировал</p>
+                      <p className="text-emerald-400 text-xs font-medium">{t('duelLobby.versus.opponentFinished')}</p>
                     </div>
-                    {/* Score */}
-                    <div className="bg-emerald-500/20 backdrop-blur-sm px-4 py-2 rounded-xl border border-emerald-500/30">
+                    <div className="bg-emerald-500/20 px-4 py-2 rounded-xl border border-emerald-500/30">
                       <p className="text-2xl font-black text-white">{finishedOpponent.score}</p>
-                      <p className="text-emerald-300 text-[10px] font-bold uppercase tracking-wider">ОЧКОВ</p>
+                      <p className="text-emerald-300 text-[10px] font-bold uppercase tracking-wider">{t('duelLobby.versus.points')}</p>
                     </div>
                   </motion.div>
-
-                  {/* VS Badge */}
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
-                    className="relative"
-                  >
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/50 border-2 border-yellow-300/50">
-                      <span className="text-white font-black text-lg">VS</span>
-                    </div>
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 blur-md opacity-50 animate-pulse" />
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.4, type: 'spring' }} className="relative">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 flex items-center justify-center shadow-lg border-2 border-yellow-300/50"><span className="text-white font-black text-lg">VS</span></div>
+                    <div className="absolute inset-0 rounded-full bg-yellow-400 blur-md opacity-50 animate-pulse" />
                   </motion.div>
-
-                  {/* You (Right) - Ready to Play */}
-                  <motion.div
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                    className="flex flex-col items-center space-y-3"
-                  >
+                  <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="flex flex-col items-center space-y-3">
                     <div className="relative">
-                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 border-2 border-indigo-400/50">
-                        <User className="h-10 w-10 text-white/80" />
-                      </div>
-                      {/* Ready badge */}
-                      <motion.div
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                        className="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full p-1.5 border-2 border-slate-900 shadow-lg"
-                      >
-                        <Zap className="h-3 w-3 text-white" />
-                      </motion.div>
+                      <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg border-2 border-indigo-400/50"><User className="h-10 w-10 text-white/80" /></div>
+                      <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1.5, repeat: Infinity }} className="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full p-1.5 border-2 border-slate-900 shadow-lg"><Zap className="h-3 w-3 text-white" /></motion.div>
                     </div>
                     <div className="text-center">
-                      <p className="text-white font-bold text-sm">Ты</p>
-                      <p className="text-yellow-400 text-xs font-medium">Готов к бою</p>
+                      <p className="text-white font-bold text-sm">{t('duelResult.you')}</p>
+                      <p className="text-yellow-400 text-xs font-medium">{t('duelLobby.versus.youReady')}</p>
                     </div>
-                    {/* Target Score */}
-                    <div className="bg-indigo-500/20 backdrop-blur-sm px-4 py-2 rounded-xl border border-indigo-500/30">
+                    <div className="bg-indigo-500/20 px-4 py-2 rounded-xl border border-indigo-500/30">
                       <p className="text-2xl font-black text-white">?</p>
-                      <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-wider">ЦЕЛЬ: {finishedOpponent.score + 1}</p>
+                      <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-wider">{t('duelLobby.versus.target', { score: finishedOpponent.score + 1 })}</p>
                     </div>
                   </motion.div>
                 </div>
-
-                {/* Motivational Text */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-4"
-                >
-                  <p className="text-white/90 text-sm font-medium">
-                    <span className="text-yellow-400 font-bold">{finishedOpponent.correct_count}/10</span> правильных ответов.
-                    <br />Твоя цель — <span className="text-emerald-400 font-bold">{finishedOpponent.score + 1}</span> очков!
-                  </p>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <p className="text-white/90 text-sm font-medium" dangerouslySetInnerHTML={{ __html: t('duelLobby.versus.motivation', { correct: finishedOpponent.correct_count, target: finishedOpponent.score + 1 }) }} />
                 </motion.div>
-
-                {/* CTA Button */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  <Button
-                    onClick={handleStartAlone}
-                    className="w-full h-14 text-lg font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 hover:from-yellow-500 hover:via-orange-600 hover:to-red-600 text-white shadow-xl shadow-orange-500/30 rounded-xl transition-all active:scale-95 group"
-                  >
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+                  <Button onClick={handleStartAlone} className="w-full h-14 text-lg font-black bg-gradient-to-r from-yellow-400 to-red-500 text-white shadow-xl rounded-xl transition-all group">
                     <Swords className="mr-2 h-6 w-6 group-hover:rotate-12 transition-transform" />
-                    ПРИНЯТЬ ВЫЗОВ
+                    {t('duelLobby.versus.acceptChallenge')}
                   </Button>
                 </motion.div>
-
-                <Button
-                  variant="ghost"
-                  onClick={onCancel}
-                  className="text-white/40 hover:text-white/70 hover:bg-white/5 text-sm"
-                >
-                  Отменить
-                </Button>
+                <Button variant="ghost" onClick={onCancel} className="text-white/40 hover:text-white/70 text-sm">{t('duelLobby.versus.cancel')}</Button>
               </div>
             </Card>
           ) : (
-            /* Normal Lobby - Waiting for player */
             <Card className="p-6 md:p-8 text-center space-y-6 bg-gradient-to-br from-card via-card to-primary/5 border-2 border-primary/20 shadow-xl relative overflow-hidden">
-              {/* Animated background gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-indigo-500/5 opacity-50 animate-pulse" />
-
-              {/* Connection status - Compact */}
-              <div className="flex items-center justify-end mb-3 relative z-10">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="flex items-center gap-1.5"
-                >
-                  <motion.div
-                    animate={{
-                      scale: connectionStatus === 'connected' ? [1, 1.2, 1] : 1,
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}
-                  />
-                  <span className="text-muted-foreground text-xs">
-                    {connectionStatus === 'connected' ? 'Подключено' : 'Подключение...'}
-                  </span>
+               <div className="flex items-center justify-end mb-3 relative z-10">
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex items-center gap-1.5">
+                  <motion.div animate={{ scale: connectionStatus === 'connected' ? [1, 1.2, 1] : 1 }} transition={{ duration: 2, repeat: Infinity }} className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                  <span className="text-muted-foreground text-xs">{connectionStatus === 'connected' ? t('duelLobby.status.connected') : t('duelLobby.status.connecting')}</span>
                 </motion.div>
               </div>
-
-              {/* Header - Compact with Waiting Indicator */}
               <div className="text-center space-y-2 relative z-10">
-                <motion.div
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                  className="w-14 h-14 mx-auto bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 relative"
-                >
-                  {/* Pulsing indicator for waiting */}
-                  {!state.opponentJoined && (
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute inset-0 rounded-2xl bg-emerald-500/30"
-                    />
-                  )}
+                <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }} className="w-14 h-14 mx-auto bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg relative">
+                  {!state.opponentJoined && <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }} transition={{ duration: 2, repeat: Infinity }} className="absolute inset-0 rounded-2xl bg-emerald-500/30" />}
                   <Users className="h-7 w-7 text-white relative z-10" />
                 </motion.div>
                 <div className="space-y-1">
                   <div className="flex items-center justify-center gap-2">
-                    <h2 className="text-xl md:text-2xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                      Ожидание соперника
-                    </h2>
-                    {!state.opponentJoined && (
-                      <motion.div
-                        animate={{ opacity: [0.3, 1, 0.3] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                        className="flex gap-0.5"
-                      >
-                        <span className="text-emerald-600">.</span>
-                        <motion.span
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.2 }}
-                          className="text-emerald-600"
-                        >.</motion.span>
-                        <motion.span
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }}
-                          className="text-emerald-600"
-                        >.</motion.span>
-                      </motion.div>
-                    )}
+                    <h2 className="text-xl md:text-2xl font-black bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent">{t('duelLobby.waiting.title')}</h2>
+                    {!state.opponentJoined && <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.5, repeat: Infinity }} className="flex gap-0.5"><span className="text-emerald-600">.</span><span>.</span><span>.</span></motion.div>}
                   </div>
-                  <p className="text-muted-foreground text-xs">Поделитесь кодом с другом</p>
+                  <p className="text-muted-foreground text-xs">{t('duelLobby.waiting.subtitle')}</p>
                 </div>
               </div>
-
-              {/* Code Display - Improved with Copy Icon */}
               <div className="py-3">
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.2 }}
-                  className="relative bg-gradient-to-br from-white/95 via-emerald-50/90 to-teal-50/90 dark:from-emerald-950/50 dark:via-emerald-950/40 dark:to-teal-950/40 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/50 ring-2 ring-emerald-500/10 cursor-pointer group hover:border-emerald-500/70 hover:ring-emerald-500/20 transition-all duration-200 shadow-md hover:shadow-lg"
-                  onClick={handleCopyCode}
-                  style={{
-                    boxShadow: copied
-                      ? 'rgba(16, 185, 129, 0.35) 0px 0px 30px'
-                      : 'rgba(16, 185, 129, 0.08) 0px 0px 15px'
-                  }}
-                >
-                  {/* Code with Copy Icon - рядом с кодом */}
+                <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white/95 dark:bg-emerald-950/50 p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/50 cursor-pointer hover:border-emerald-500/70 transition-all shadow-md hover:shadow-lg" onClick={handleCopyCode}>
                   <div className="flex items-center justify-center gap-3 mb-3 relative z-10">
-                    <motion.div
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                      className="text-5xl sm:text-6xl md:text-7xl font-black tracking-[0.2em] bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-700 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400 bg-clip-text text-transparent select-all"
-                    >
-                      {duelCode}
-                    </motion.div>
-                    <motion.div
-                      animate={{ scale: copied ? [1, 1.2, 1] : 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex-shrink-0"
-                    >
-                      {copied ? (
-                        <Check className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600 dark:text-emerald-400" />
-                      ) : (
-                        <Copy className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" />
-                      )}
-                    </motion.div>
+                    <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl sm:text-6xl md:text-7xl font-black tracking-[0.2em] bg-gradient-to-r from-emerald-700 to-cyan-700 dark:from-emerald-400 dark:to-cyan-400 bg-clip-text text-transparent select-all">{duelCode}</motion.div>
+                    <motion.div animate={{ scale: copied ? [1, 1.2, 1] : 1 }} transition={{ duration: 0.3 }}>{copied ? <Check className="h-5 w-5 text-emerald-600" /> : <Copy className="h-5 w-5 text-muted-foreground" />}</motion.div>
                   </div>
-
-                  {/* Label in border - рамка с текстом */}
                   <div className="relative z-10">
                     <div className="absolute inset-x-0 -bottom-2 flex items-center justify-center">
-                      <div className="bg-card px-3 rounded-full border border-emerald-500/20 shadow-sm py-0.5">
+                      <div className="bg-card px-3 rounded-full border border-emerald-500/20 py-0.5">
                         <AnimatePresence mode="wait">
                           {copied ? (
-                            <motion.span
-                              key="copied"
-                              initial={{ opacity: 0, y: 5 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -5 }}
-                              className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter"
-                            >
-                              Готово!
-                            </motion.span>
+                            <motion.span key="copied" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">{t('duelLobby.waiting.copied')}</motion.span>
                           ) : (
-                            <motion.span
-                              key="default"
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-60"
-                            >
-                              Код дуэли (нажми)
-                            </motion.span>
+                            <motion.span key="default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-60">{t('duelLobby.waiting.codeLabel')}</motion.span>
                           )}
                         </AnimatePresence>
                       </div>
@@ -531,101 +255,47 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
                   </div>
                 </motion.div>
               </div>
-
-              {/* Stats & Actions - Compact */}
               <div className="space-y-3 relative z-10">
-                {/* Stats */}
                 <div className="flex items-center justify-center gap-3">
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 dark:from-emerald-500/10 dark:to-teal-500/10 px-4 py-2 rounded-xl border border-emerald-500/30 backdrop-blur-sm"
-                  >
-                    <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <motion.div className="flex items-center gap-2 bg-emerald-500/20 px-4 py-2 rounded-xl border border-emerald-500/30 backdrop-blur-sm">
+                    <Users className="h-4 w-4 text-emerald-600" />
                     <div className="flex items-baseline gap-1">
                       <span className="font-black text-lg text-emerald-700 dark:text-emerald-300">{state.opponentJoined ? '2' : '1'}</span>
                       <span className="text-muted-foreground/50 text-sm">/</span>
                       <span className="font-black text-lg text-emerald-700 dark:text-emerald-300">2</span>
-                      <span className="text-xs text-muted-foreground ml-1">игроков</span>
+                      <span className="text-xs text-muted-foreground ml-1">{t('duelLobby.waiting.playersCount')}</span>
                     </div>
                   </motion.div>
-
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.25 }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 dark:from-blue-500/10 dark:to-indigo-500/10 px-4 py-2 rounded-xl border border-blue-500/30 backdrop-blur-sm"
-                  >
-                    <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <motion.div className="flex items-center gap-2 bg-blue-500/20 px-4 py-2 rounded-xl border border-blue-500/30 backdrop-blur-sm">
+                    <Clock className="h-4 w-4 text-blue-600" />
                     <span className="font-mono font-black text-lg text-blue-700 dark:text-blue-300">{formattedTime}</span>
                   </motion.div>
                 </div>
-
-                {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-2">
                   {platform === 'telegram' && (
                     <div className="flex flex-col flex-1 gap-2">
-                      <Button
-                        onClick={handleShare}
-                        size="default"
-                        className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 hover:from-emerald-600 hover:via-teal-700 hover:to-cyan-700 text-white shadow-md hover:shadow-lg transition-all"
-                      >
+                      <Button onClick={handleShare} className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-emerald-500 to-cyan-600 text-white shadow-md transition-all">
                         <Share2 className="mr-2 h-4 w-4" />
-                        Поделиться
+                        {t('duelLobby.actions.share')}
                       </Button>
-
-                      {/* Кнопка "Начать бой сразу" для отложенного старта */}
                       {!state.opponentJoined && (
-                        <Button
-                          onClick={handleStartAlone}
-                          variant="outline"
-                          size="default"
-                          className="w-full h-10 text-sm font-bold border-2 border-emerald-500/50 text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30 shadow-sm"
-                        >
+                        <Button onClick={handleStartAlone} variant="outline" className="w-full h-10 text-sm font-bold border-2 border-emerald-500/50 text-emerald-600 shadow-sm">
                           <Zap className="mr-2 h-4 w-4 fill-current" />
-                          Начать бой сразу
+                          {t('duelLobby.actions.startAlone')}
                         </Button>
                       )}
                     </div>
                   )}
-
-                  <Button
-                    variant="ghost"
-                    onClick={onCancel}
-                    size="default"
-                    className="flex-1 h-10 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Отменить
-                  </Button>
+                  <Button variant="ghost" onClick={onCancel} className="flex-1 h-10 text-sm font-medium text-red-600">{t('duelLobby.actions.cancel')}</Button>
                 </div>
               </div>
-
-              {/* Opponent Joined - Compact */}
               <AnimatePresence>
                 {state.opponentJoined && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="bg-gradient-to-r from-green-500/25 via-emerald-500/25 to-green-500/25 dark:from-green-500/15 dark:via-emerald-500/15 dark:to-green-500/15 border-2 border-green-500/50 rounded-xl p-4 shadow-lg shadow-green-500/20"
-                  >
+                  <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-green-500/20 border-2 border-green-500/50 rounded-xl p-4">
                     <div className="flex items-center justify-center gap-2">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Sparkles className="h-4 w-4 text-green-500" />
-                      </motion.div>
-                      <p className="text-green-700 dark:text-green-300 font-black text-lg">Соперник найден!</p>
-                      <motion.div
-                        animate={{ rotate: -360 }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      >
-                        <Sparkles className="h-4 w-4 text-green-500" />
-                      </motion.div>
+                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Sparkles className="h-4 w-4 text-green-500" /></motion.div>
+                      <p className="text-green-700 dark:text-green-300 font-black text-lg">{t('duelLobby.opponentFound.title')}</p>
+                      <motion.div animate={{ rotate: -360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}><Sparkles className="h-4 w-4 text-green-500" /></motion.div>
                     </div>
                   </motion.div>
                 )}
@@ -636,6 +306,5 @@ export function DuelLobby({ duelId, duelCode, onDuelCreated, onDuelStarted, onCa
       </div>
     );
   }
-
   return null;
 }

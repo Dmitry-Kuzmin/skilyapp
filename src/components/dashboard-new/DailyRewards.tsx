@@ -7,6 +7,8 @@ import { playClickSound, playSuccessSound } from '@/services/audioService';
 import { useCockpitSettings } from '@/hooks/useCockpitSettings';
 import { useDailyBonusDefinitions } from '@/hooks/useStaticData';
 import { useTheme } from 'next-themes';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 interface DailyRewardsProps {
   currentStreak: number;
@@ -28,6 +30,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
 }) => {
   const [isClaiming, setIsClaiming] = useState(false);
   const [showReward, setShowReward] = useState(false);
+  const isMobile = useIsMobile();
   const [showCelebration, setShowCelebration] = useState(false);
   const [showCelebrationModal, setShowCelebrationModal] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -271,11 +274,13 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`h-full relative overflow-hidden rounded-3xl p-4 flex flex-col ${
+      className={cn(
+        "relative rounded-3xl p-4 flex flex-col border shadow-xl",
+        showInfo && isMobile ? "h-auto overflow-visible" : "h-full overflow-hidden",
         isDarkTheme 
           ? 'bg-gradient-to-br from-[#0B1120] via-[#0f172a] to-[#0B1120] border-slate-800' 
           : 'bg-gradient-to-br from-white via-slate-50 to-white border-slate-200'
-      } border shadow-xl`}
+      )}
     >
       {/* Background effects */}
       <div className={`absolute -top-20 -right-20 w-60 h-60 ${isDarkTheme ? 'bg-orange-500/10' : 'bg-orange-200/30'} rounded-full blur-3xl animate-pulse opacity-50`} />
@@ -318,7 +323,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
       )}
 
       {/* HEADER - уменьшенные отступы */}
-      <div className="relative z-10 flex items-center justify-between mb-3">
+      <div className={cn(
+        "relative z-10 flex items-center justify-between mb-3",
+        showInfo && isMobile ? "hidden" : "flex"
+      )}>
         <div className="flex items-center gap-2">
           <div className={`p-1.5 rounded-xl border ${
             isDarkTheme ? 'bg-orange-500/10 border-orange-500/20' : 'bg-orange-100/80 border-orange-300/60'
@@ -350,7 +358,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
       </div>
 
       {/* MAIN CONTENT: Круг + Карточки - уменьшенные отступы */}
-      <div className="relative z-10 flex items-center gap-3 mb-3 flex-1">
+      <div className={cn(
+        "relative z-10 flex items-center gap-3 mb-3 flex-1",
+        showInfo && isMobile ? "hidden" : "flex"
+      )}>
         {/* КРУГ */}
         <div className="flex-shrink-0">
           <div className="relative w-24 h-24">
@@ -482,32 +493,37 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
       </div>
 
       {/* КНОПКА - уменьшенный padding */}
-      <motion.button
-        ref={buttonRef}
-        onClick={handleClaim}
-        disabled={isClaiming || effectiveHasClaimed}
-        whileTap={{ scale: 0.98 }}
-        className={`relative z-10 w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all ${
-          effectiveHasClaimed
-            ? isDarkTheme
-              ? 'bg-slate-800/50 text-slate-500 cursor-default'
-              : 'bg-slate-200/50 text-slate-500 cursor-default'
-            : isDarkTheme
-            ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:shadow-lg hover:shadow-orange-500/50'
-            : 'bg-gradient-to-r from-orange-400 to-red-400 text-white hover:shadow-lg hover:shadow-orange-400/50'
-        }`}
-      >
-        {effectiveHasClaimed ? '✓ Получено сегодня' : 'Получить бонус'}
-      </motion.button>
+      {!showInfo && (
+        <motion.button
+          ref={buttonRef}
+          onClick={handleClaim}
+          disabled={isClaiming || effectiveHasClaimed}
+          whileTap={{ scale: 0.98 }}
+          className={`relative z-10 w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-wider transition-all ${
+            effectiveHasClaimed
+              ? isDarkTheme
+                ? 'bg-slate-800/50 text-slate-500 cursor-default'
+                : 'bg-slate-200/50 text-slate-500 cursor-default'
+              : isDarkTheme
+              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:shadow-lg hover:shadow-orange-500/50'
+              : 'bg-gradient-to-r from-orange-400 to-red-400 text-white hover:shadow-lg hover:shadow-orange-400/50'
+          }`}
+        >
+          {effectiveHasClaimed ? '✓ Получено сегодня' : 'Получить бонус'}
+        </motion.button>
+      )}
 
       {/* Info Panel - ИСПРАВЛЕН z-index и видимость */}
       <AnimatePresence>
         {showInfo && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-50 flex flex-col rounded-3xl overflow-hidden"
+            initial={isMobile ? { opacity: 0, y: 10 } : { opacity: 0 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1 }}
+            exit={isMobile ? { opacity: 0, y: 10 } : { opacity: 0 }}
+            className={cn(
+              "z-50 flex flex-col rounded-3xl overflow-hidden",
+              isMobile ? "relative w-full" : "absolute inset-0"
+            )}
           >
             <div className={`absolute inset-0 ${isDarkTheme ? 'bg-slate-900/98' : 'bg-white/98'} backdrop-blur-xl`} />
             <div className="relative z-10 p-4 overflow-y-auto">

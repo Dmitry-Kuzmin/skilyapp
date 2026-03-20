@@ -300,33 +300,33 @@
     "question": {
       "es": "Debido a una emergencia, un turismo queda inmovilizado en la calzada. ¿Debe su conductor colocar el dispositivo de preseñalización de peligro, como norma general?",
       "en": "Due to an emergency, a car is immobilized on the roadway. Must the driver place the hazard warning device, as a general rule?",
-      "ru": "Из-за чрезвычайной ситуации легковой автомобиль остановлен на проезжей части. Должен ли водитель выставить знак аварийной остановки (или устройство V-16) как общее правило?"
+      "ru": "Из-за чрезвычайной ситуации легковой автомобиль остановлен на проезжей части. Должен ли водитель выставить устройство V-16 как общее правило?"
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Solo debe encender la luz de emergencia y, si procede, las luces de posición.",
-          "en": "They only need to switch on the hazard warning lights and, if appropriate, the position lights.",
-          "ru": "Нужно только включить аварийную сигнализацию и, при необходимости, габаритные огни."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
+          "ru": "Да, даже если включена аварийная сигнализация, габаритные огни или и то, и другое.",
           "es": "Sí, aunque haya encendido la luz de emergencia, la de posición o ambas.",
-          "en": "Yes, even if they have switched on the hazard warning lights, position lights, or both.",
-          "ru": "Да, даже если включена аварийная сигнализация, габаритные огни или и то, и другое."
+          "en": "Yes, even if they have switched on the hazard warning lights, position lights, or both."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
+          "ru": "Нужно только включить аварийную сигнализацию и, при необходимости, габаритные огни.",
+          "es": "Solo debe encender la luz de emergencia y, si procede, las luces de posición.",
+          "en": "They only need to switch on the hazard warning lights and, if appropriate, the position lights."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Нет, за исключением случаев, когда остановка произошла на дороге вне населенного пункта.",
           "es": "No, excepto si la inmovilización se produce en una vía fuera de poblado.",
-          "en": "No, unless the immobilization occurs on a road outside a built-up area.",
-          "ru": "Нет, за исключением случаев, когда остановка произошла на дороге вне населенного пункта."
+          "en": "No, unless the immobilization occurs on a road outside a built-up area."
         },
         "is_correct": false
       }

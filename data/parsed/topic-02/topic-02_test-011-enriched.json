@@ -837,43 +837,43 @@
     "question_number": 18,
     "category": "B",
     "question": {
-      "es": "Hasta el 1 de enero del 2026, en caso de no disponer de dispositivo luminoso, los triángulos de preseñalización de peligro se colocarán a...",
-      "en": "Until January 1, 2026, in case of not having a luminous device, the danger warning triangles must be placed at...",
-      "ru": "До 1 января 2026 года, при отсутствии светового сигнала V-16, знаки аварийной остановки (треугольники) должны быть установлены на расстоянии..."
+      "es": "¿Dónde debe colocarse reglamentariamente la señal luminosa V-16 en caso de inmovilización por avería o accidente?",
+      "en": "Where exactly should the V-16 flashing light be placed in the event of a breakdown or accident?",
+      "ru": "Куда по правилам необходимо крепить световой сигнал V-16 в случае остановки из-за поломки или аварии?"
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "100 metros de distancia, al menos, del vehículo o la carga.",
-          "en": "At least 100 meters away from the vehicle or load.",
-          "ru": "Не менее 100 метров от транспортного средства или груза."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "50 metros de distancia como máximo, del vehículo o la carga.",
-          "en": "A maximum of 50 meters away from the vehicle or load.",
-          "ru": "Максимум 50 метров от транспортного средства или груза."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "c",
-        "text": {
-          "es": "50 metros de distancia, al menos, del vehículo o la carga.",
-          "en": "At least 50 meters away from the vehicle or load.",
-          "ru": "Не менее 50 метров от транспортного средства или груза."
+          "ru": "На самую высокую часть автомобиля (обычно на крышу), а если это невозможно и небезопасно — на дверь со стороны водителя.",
+          "es": "En la parte más alta del vehículo (generalmente en el techo) y, si no es posible ni seguro, en la puerta del conductor.",
+          "en": "On the highest part of the vehicle (usually the roof), and if this is not possible and safe, on the driver's door."
         },
         "is_correct": true
+      },
+      {
+        "id": "opt_1",
+        "text": {
+          "ru": "Строго на капот или багажник, чтобы маячок находился на уровне глаз других водителей.",
+          "es": "Estrictamente en el capó o en el maletero para que la baliza quede a la altura de los ojos de otros conductores.",
+          "en": "Strictly on the hood or trunk so that the beacon is at eye level for other drivers."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Внутри салона на приборную панель, чтобы устройство не намокло под дождем.",
+          "es": "n el interior del habitáculo sobre el salpicadero para evitar que el dispositivo se moje con la lluvia.",
+          "en": " Inside the cabin on the dashboard to prevent the device from getting wet in the rain."
+        },
+        "is_correct": false
       }
     ],
     "explanation": {
-      "es": "🎓 **La regla del 50/100**: Aunque la luz de emergencia V-16 será obligatoria en el futuro, los triángulos siguen siendo válidos hasta 2026. La norma dice que debes colocarlos a **50 metros como mínimo** del vehículo para que sean eficaces. \n\n💡 **Truco para el examen**: No confundas la distancia de *colocación* con la de *visibilidad*. \n🛑 Se **colocan** a 50 metros (mínimo). \n👀 Se deben **ver** desde 100 metros. \n¡Recuerda: 50 pasos para ponerlo, 100 metros para verlo!",
-      "en": "🎓 **The 50/100 Rule**: Even though the V-16 flashing light is replacing triangles, you can still use them until 2026. The rule states you must place the warning triangle **at least 50 meters** away from your vehicle so other drivers have time to react.\n\n💡 **Exam Hack**: Don't mix up *placement* distance with *visibility* distance.\n🛑 **Place** it at: 50 meters (minimum).\n👀 It must be **visible** from: 100 meters.\nThink: You walk 50 meters back, but cars see it from 100 meters away.",
-      "ru": "🎓 **Правило 50/100**: Хотя Испания переходит на проблесковые маячки V-16, треугольники разрешены до 2026 года. Важно запомнить цифры: треугольник ставится на расстоянии **минимум 50 метров** от машины.\n\n💡 **Лайфхак, чтобы не завалить**: В тесте часто пытаются запутать двумя цифрами — 50 и 100.\n🛑 **Ставим**: за 50 метров (минимум).\n👀 **Видим**: с 100 метров.\nЗапомни: 50 метров идешь ногами, чтобы поставить, но другие водители должны заметить его за 100 метров!"
+      "es": "💡 Según las normas de la DGT, la baliza V-16 se coloca en el punto más alto del vehículo (generalmente el techo) para garantizar una visibilidad de 360 grados. Sin embargo, si por las dimensiones del vehículo (por ejemplo, camiones o furgonetas) no es seguro acceder al techo, se permite fijar el dispositivo en la puerta metálica del lado del conductor.",
+      "en": "💡 According to DGT rules, the V-16 beacon must be placed on the highest point of the vehicle (usually the roof) to ensure 360-degree visibility. However, if the dimensions of the vehicle (e.g., trucks or vans) make it unsafe to reach the roof, the device can be attached to the metal door on the driver's side.",
+      "ru": "💡 По правилам DGT маячок V-16 крепится на самую высокую точку транспортного средства (как правило, на крышу) для обеспечения обзора на 360 градусов. Однако, если из-за габаритов (например, у грузовиков или фургонов) безопасно дотянуться до крыши нельзя, устройство разрешается закрепить на металлической двери со стороны водителя."
     },
     "image_url": "https://teorica.practicavial.com/question/5e5e291c-9d4b-4e02-bc8c-44a0d9371a01-1657900423-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/5e5e291c-9d4b-4e02-bc8c-44a0d9371a01-s-1.jpg",
@@ -886,43 +886,43 @@
     "question_number": 19,
     "category": "B",
     "question": {
-      "es": "Hasta el 01 de enero del 2026 y en caso de no disponer del dispositivo luminoso de preseñalización de peligro. Los triángulos de peligro, ¿se pueden colocar a más de 50 metros de un vehículo inmovilizado por avería en la calzada o en el arcén?",
-      "en": "Until January 1, 2026, and in case of not having the V-16 danger warning light. Can the warning triangles be placed more than 50 meters from a vehicle immobilized due to a breakdown on the roadway or shoulder?",
-      "ru": "До 1 января 2026 года и при отсутствии светового сигнала V-16. Можно ли устанавливать знаки аварийной остановки (треугольники) на расстоянии более 50 метров от автомобиля, остановившегося из-за поломки на проезжей части или обочине?"
+      "es": "¿Para qué vehículos no es obligatorio disponer y utilizar la señal luminosa V-16 en caso de avería, aunque la normativa lo recomienda?",
+      "en": "For which vehicles is the possession and use of the V-16 flashing light not mandatory in the event of a breakdown, although the regulations recommend it?",
+      "ru": "Для каких транспортных средств наличие и использование светового маячка V-16 при поломке не является обязательным, хотя и рекомендуется правилами?"
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "Sí, de forma que sean visibles desde 100 metros, al menos, por los conductores que se aproximen.",
-          "en": "Yes, so that they are visible from at least 100 meters by approaching drivers.",
-          "ru": "Да, таким образом, чтобы они были видны приближающимся водителям с расстояния не менее 100 метров."
+          "ru": "Для мотоциклов (а также для транспорта на иностранных номерах в режиме международного движения).",
+          "es": "Para las motocicletas (y vehículos con matrícula extranjera en régimen de tránsito internacional).",
+          "en": "For motorcycles (and vehicles with foreign license plates in international transit)."
         },
         "is_correct": true
       },
       {
-        "id": "b",
+        "id": "opt_1",
         "text": {
-          "es": "No, deben colocar a 50 metros, o menos del vehículo inmovilizado.",
-          "en": "No, they must be placed at 50 meters or less from the immobilized vehicle.",
-          "ru": "Нет, их нужно устанавливать на расстоянии 50 метров или меньше от автомобиля."
+          "ru": "Для легковых автомобилей и транспортных средств смешанного типа.",
+          "es": "Para los turismos y vehículos mixtos.",
+          "en": "For passenger cars and mixed vehicles."
         },
         "is_correct": false
       },
       {
-        "id": "c",
+        "id": "opt_2",
         "text": {
-          "es": "Solo si la inmovilización se produce una vía insuficientemente iluminada.",
-          "en": "Only if the immobilization occurs on an insufficiently lit road.",
-          "ru": "Только если остановка произошла на недостаточно освещенной дороге."
+          "ru": "Использование маячка обязательно абсолютно для всех механических транспортных средств без исключений.",
+          "es": "El uso de la baliza es obligatorio para todos los vehículos de motor sin excepción.",
+          "en": "The use of the beacon is mandatory for all motor vehicles without exception."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": "🎓 La norma establece que los triángulos deben colocarse a **50 metros como mínimo** del vehículo. La palabra clave es 'mínimo': esto significa que SÍ puedes (y a veces debes) ponerlos más lejos si es necesario para cumplir con el requisito de visibilidad (ser vistos desde **100 metros**).\n\n💡 **El truco del instructor:** Imagina que te quedas tirado justo después de una curva cerrada. Si pones el triángulo a 50 metros, quizás quede oculto dentro de la curva. En ese caso, debes caminar más (60, 70 metros...) hasta ponerlo *antes* de la curva para que los demás te vean con tiempo. ¡Más vale pasarse de lejos que quedarse corto! ⚠️",
-      "en": "🎓 The rule states that warning triangles must be placed **at least 50 meters** away from the vehicle. The keyword is 'at least': this means you CAN (and sometimes must) place them further away to ensure they are visible from **100 meters** by approaching traffic.\n\n💡 **Coach's Tip:** Imagine you break down just after a sharp bend. If you place the triangle exactly at 50 meters, it might be hidden around the corner. In that case, you must walk further back (60, 70 meters...) to place it *before* the bend so drivers see it in time. It's better to be too far than too close! ⚠️",
-      "ru": "🎓 Правило гласит: знаки аварийной остановки (треугольники) устанавливаются на расстоянии **минимум 50 метров** от машины. Ключевое слово — 'минимум'. Это значит, что ставить их дальше МОЖНО и НУЖНО, если это требуется для того, чтобы другие водители увидели знак с расстояния **100 метров**.\n\n💡 **Совет наставника:** Представь, что ты сломался сразу за крутым поворотом. Если поставить треугольник ровно в 50 метрах, он может оказаться скрытым за углом. В таком случае нужно отойти дальше (на 60, 70 метров...), чтобы поставить знак *до* начала поворота. Главное — чтобы тебя заметили заранее! ⚠️"
+      "es": "💡 La baliza V-16 es obligatoria para turismos, vehículos mixtos, camiones y autobuses. Para las motocicletas no es obligatoria, pero la DGT recomienda encarecidamente su uso. La ley también hace una excepción para los vehículos con matrícula extranjera que se encuentren en régimen de tránsito internacional.",
+      "en": "💡 The V-16 beacon is mandatory for passenger cars, mixed vehicles, trucks, and buses. It is not mandatory for motorcycles, but the DGT highly recommends its use. The law also makes an exception for vehicles with foreign license plates that are in international transit.",
+      "ru": "💡 Маячок V-16 обязателен для легковых авто, смешанных ТС, грузовиков и автобусов. Для мотоциклов он не обязателен из-за отсутствия места для хранения и сложностей с креплением, но DGT настоятельно рекомендует его использовать. Также закон делает исключение для транспортных средств с иностранными номерами, находящихся в Испании транзитом."
     },
     "image_url": "https://teorica.practicavial.com/question/a9acf85f-d71f-4c2c-b2a2-cb0abc05b8f6-1657900823-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/a9acf85f-d71f-4c2c-b2a2-cb0abc05b8f6-s-1.jpg",

@@ -64,7 +64,7 @@ const detectPreferredLanguage = (): Language => {
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string, params?: Record<string, string | number>) => string;
+  t: (key: string, params?: Record<string, string | number>, options?: { returnObjects?: boolean }) => any;
 }
 
 export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -217,7 +217,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const t = (key: string, params?: Record<string, string | number>): string => {
+  const t = (key: string, params?: Record<string, string | number>, options?: { returnObjects?: boolean }): any => {
+    const baseTranslations = (translations[language] as Record<string, any>) || (translations.en as Record<string, any>);
+    const resolved = resolveFromObject(baseTranslations, key);
+
+    if (options?.returnObjects) {
+      return resolved;
+    }
+
     if (helpCenterTranslations[language] && key in helpCenterTranslations[language]) {
       const value = helpCenterTranslations[language][key];
       return typeof value === 'string' ? applyParams(value, params) : key;
@@ -228,8 +235,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       return applyParams(overrideValue, params);
     }
 
-    const baseTranslations = translations[language] || translations.es;
-    const resolved = resolveFromObject(baseTranslations, key);
     return typeof resolved === 'string' ? applyParams(resolved, params) : key;
   };
 

@@ -3,7 +3,7 @@ import { Share, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { domToPng } from 'modern-screenshot';
 import { toast } from '@/lib/toast';
-import { shareToStory, getTelegramWebApp, isTelegramMobilePlatformName } from '@/lib/telegram';
+import { shareToStory, getTelegramWebApp, isTelegramMobilePlatformName, hasTelegramPremium } from '@/lib/telegram';
 import { LicenseStoryTemplate } from './LicenseStoryTemplate';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -135,68 +135,86 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             const platform = webApp?.platform;
             const isMobileTG = isTelegramMobilePlatformName(platform);
             const isStoryAvailable = typeof webApp?.shareToStory === 'function';
+            const isPremium = hasTelegramPremium();
 
-            if (isMobileTG && isStoryAvailable) {
-                // Если мы в мобильном TG и есть функция отправки в Story, только тогда нам нужен Public URL
-                const fileName = `stories/${userProfile?.id || 'anon'}_${Date.now()}.png`;
-                const { error: uploadError } = await supabase.storage
-                    .from('avatars')
-                    .upload(fileName, blob, {
-                        contentType: 'image/png',
-                        upsert: true
+            let storySuccess = false;
+
+            if (isMobileTG && isStoryAvailable && isPremium) {
+                try {
+                    // Если мы в мобильном TG и есть функция отправки в Story, только тогда нам нужен Public URL
+                    const fileName = `stories/${userProfile?.id || 'anon'}_${Date.now()}.png`;
+                    const { error: uploadError } = await supabase.storage
+                        .from('avatars')
+                        .upload(fileName, blob, {
+                            contentType: 'image/png',
+                            upsert: true
+                        });
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: { publicUrl } } = supabase.storage
+                        .from('avatars')
+                        .getPublicUrl(fileName);
+
+                    storySuccess = shareToStory(publicUrl, {
+                        text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой? 🏎💨' : 'My chance to pass DGT theory is 100%! What about you? 🏎💨',
+                        widget_link: {
+                            url: referralLink,
+                            name: language === 'ru' ? 'Бросить вызов' : 'Challenge me'
+                        }
                     });
 
-                if (uploadError) throw uploadError;
-
-                const { data: { publicUrl } } = supabase.storage
-                    .from('avatars')
-                    .getPublicUrl(fileName);
-
-                const success = shareToStory(publicUrl, {
-                    text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой? 🏎💨' : 'My chance to pass DGT theory is 100%! What about you? 🏎💨',
-                    widget_link: {
-                        url: referralLink,
-                        name: language === 'ru' ? 'Бросить вызов' : 'Challenge me'
+                    if (storySuccess) {
+                        toast.dismiss(loadingToastId);
+                        toast.success(language === 'ru' ? 'Вызов отправлен в сторис!' : 'Challenge sent to stories!');
+                        return; // Успешно выложили в сторис
                     }
-                });
-
-                toast.dismiss(loadingToastId);
-                if (success) {
-                    toast.success(language === 'ru' ? 'Вызов отправлен в сторис!' : 'Challenge sent to stories!');
-                } else {
-                    throw new Error('Telegram story share failed');
+                } catch (storyErr) {
+                    console.error('[Share] Story failed, falling back to native share:', storyErr);
+                    // Не бросаем ошибку, идем к следующему способу (native share)
                 }
-            } else if (navigator.share && /mobile|iphone|ipad|android/i.test(navigator.userAgent)) {
+            }
+
+            // FALLBACK TO NATIVE SHARE (системная шторка)
+            if (navigator.share && /mobile|iphone|ipad|android/i.test(navigator.userAgent)) {
                 const file = new File([blob], 'skily-challenge.png', { type: 'image/png' });
                 toast.dismiss(loadingToastId);
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        title: 'Skily DGT Challenge',
-                        text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой?' : 'My chance to pass DGT theory is 100%! What about you?',
-                    });
-                } else {
-                    throw new Error('Native share failed');
-                }
-            } else {
-                const link = document.createElement('a');
-                link.download = `Skily_DGT_Pass_${userProfile?.username || 'user'}.png`;
-                link.href = dataUrl;
-                link.click();
-
-                toast.dismiss(loadingToastId);
+                
                 try {
-                    await navigator.clipboard.writeText(referralLink);
-                    toast.success(
-                        language === 'ru' 
-                            ? '✔ Картинка скачана, ссылка скопирована!' 
-                            : language === 'es'
-                            ? '¡Imagen guardada y enlace copiado!'
-                            : '✔ Image saved, link copied!'
-                    );
-                } catch (clipErr) {
-                    toast.success(language === 'ru' ? 'Картинка сохранена!' : 'Image saved!');
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Skily DGT Challenge',
+                            text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой?' : 'My chance to pass DGT theory is 100%! What about you?',
+                        });
+                        return;
+                    }
+                } catch (shareErr: any) {
+                    if (shareErr.name === 'AbortError') {
+                        return; // Пользователь сам закрыл шторку
+                    }
+                    console.error('[Share] Native share failed:', shareErr);
                 }
+            }
+
+            // FALLBACK TO DOWNLOAD (десктоп или если всё остальное не сработало)
+            const link = document.createElement('a');
+            link.download = `Skily_DGT_Pass_${userProfile?.username || 'user'}.png`;
+            link.href = dataUrl;
+            link.click();
+
+            toast.dismiss(loadingToastId);
+            try {
+                await navigator.clipboard.writeText(referralLink);
+                toast.success(
+                    language === 'ru' 
+                        ? '✔ Картинка скачана, ссылка скопирована!' 
+                        : language === 'es'
+                        ? '¡Imagen guardada и enlace copiado!'
+                        : '✔ Image saved, link copied!'
+                );
+            } catch (clipErr) {
+                toast.success(language === 'ru' ? 'Картинка сохранена!' : 'Image saved!');
             }
         } catch (error: any) {
             toast.dismiss(loadingToastId);

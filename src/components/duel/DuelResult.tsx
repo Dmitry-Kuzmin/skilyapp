@@ -19,9 +19,9 @@ import { useDuelResults } from '@/hooks/useDuelResults';
 import { clearDuelResultSnapshot, loadDuelResultSnapshot } from '@/utils/duelResultSnapshot';
 import { DataLaunderingButton } from './DataLaunderingButton';
 import { usePremium } from '@/hooks/usePremium';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/SmartDebriefCardV3";
-import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
+import SmartDebriefCard from "@/components/test-results/SmartDebriefCardV3";
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { DuelResultSnapshot } from '@/features/duel/shared';
@@ -35,41 +35,17 @@ interface DuelResultProps {
   duelId: string;
   onRematch: (isBotRematch: boolean, opponentData: { id: string, name: string, isBot: boolean }) => void;
   onBackToMenu: () => void;
-  // 🆕 CRITICAL FIX: Передача данных напрямую из памяти (минуя localStorage)
-  // Это решает race condition на мобильных устройствах
   initialSnapshot?: DuelResultSnapshot | null;
 }
 
 // Разные варианты эффектов фейерверков/салютов
 const confettiEffects = [
-  // Эффект 1: Классический золотой салют
   { numberOfPieces: 200, gravity: 0.25, colors: ['#FFD700', '#FFA500', '#FF6347', '#FF1493'] },
-  // Эффект 2: Радужный фейерверк
   { numberOfPieces: 300, gravity: 0.3, colors: ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'] },
-  // Эффект 3: Синий-фиолетовый взрыв
   { numberOfPieces: 250, gravity: 0.2, colors: ['#4A90E2', '#7B68EE', '#9370DB', '#BA55D3'] },
-  // Эффект 4: Зеленый-желтый салют
   { numberOfPieces: 350, gravity: 0.35, colors: ['#32CD32', '#ADFF2F', '#FFD700', '#FFA500'] },
-  // Эффект 5: Розово-красный фейерверк
   { numberOfPieces: 280, gravity: 0.28, colors: ['#FF69B4', '#FF1493', '#DC143C', '#FF6347'] },
-  // Эффект 6: Многоцветный взрыв
   { numberOfPieces: 400, gravity: 0.4, colors: ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3'] },
-];
-
-const winPhrases = [
-  "Да это было слишком легко! Давай еще раз?",
-  "Повторим? Мне понравилось выигрывать!",
-  "Сдаешься? Или попробуешь отыграться?",
-  "Чистая победа! Хочешь матч-реванш?",
-  "Я сегодня в ударе! Рискнешь еще раз?",
-];
-
-const losePhrases = [
-  "Это была разминка! Требую матча-реванша!",
-  "Неплохо, но я могу лучше. Ещё разок?",
-  "Повезло тебе... Давай переиграем!",
-  "Я просто поддавался. Давай по-серьезному!",
-  "Один-один? Или боишься?",
 ];
 
 const getFallbackAvatar = (name: string) => {
@@ -88,100 +64,53 @@ const getFallbackAvatar = (name: string) => {
 };
 
 export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }: DuelResultProps) {
+  const { t, language } = useLanguage();
   const { profileId } = useUserContext();
   const queryClient = useQueryClient();
   const { isPremium } = usePremium();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const { clearActiveDuel } = useActiveDuel();
 
-  // 🎯 ГИБРИДНАЯ ЛОГИКА: Восстанавливаем snapshot из localStorage при монтировании (если нет в props)
-  // Это решает проблему reload - если пользователь перезагрузил страницу, snapshot будет восстановлен
+  const winPhrases = (t('duelResult.phrases.win', undefined, { returnObjects: true }) || []) as string[];
+  const losePhrases = (t('duelResult.phrases.lose', undefined, { returnObjects: true }) || []) as string[];
+
   const [restoredSnapshot, setRestoredSnapshot] = useState<DuelResultSnapshot | null>(null);
 
   useEffect(() => {
-    // Если нет initialSnapshot в props (reload scenario), пытаемся восстановить из localStorage
     if (!initialSnapshot && duelId) {
       const savedSnapshot = loadDuelResultSnapshot(duelId);
       if (savedSnapshot && savedSnapshot.duelId === duelId) {
-        console.log('[DuelResult] ✅ Restored snapshot from localStorage (reload recovery)');
         setRestoredSnapshot(savedSnapshot);
       }
     }
   }, [duelId, initialSnapshot]);
 
-  // 🎯 Используем каскад: initialSnapshot (props) -> restoredSnapshot (localStorage) -> null (server fetch)
-  // useDuelResults сам обработает этот каскад внутри
   const effectiveSnapshot = initialSnapshot || restoredSnapshot;
-
-  // 🔍 DEBUG: Логируем состояние snapshot для отладки проблемы с Telegram
-  console.log('[DuelResult] 📊 Snapshot status:', {
-    hasInitialSnapshot: !!initialSnapshot,
-    hasRestoredSnapshot: !!restoredSnapshot,
-    hasEffectiveSnapshot: !!effectiveSnapshot,
-    duelId,
-    profileId
-  });
-
   const { data: duelResultsData, isLoading: loading, refetch, error } = useDuelResults(duelId, profileId, effectiveSnapshot);
 
-  // 🔍 DEBUG: Логируем состояние загрузки
-  console.log('[DuelResult] 📊 Loading status:', {
-    loading,
-    hasData: !!duelResultsData,
-    hasResults: !!duelResultsData?.results,
-    error: error?.message
-  });
-
-  // 🔍 DEBUG: Логируем состояние shareToStory для диагностики проблемы
-  const webAppDebug = getTelegramWebApp();
-  console.log('[DuelResult] 📊 ShareToStory Debug:', {
-    isTelegramMiniApp: isTelegramMiniApp(),
-    hasTelegramPremium: hasTelegramPremium(),
-    hasShareToStoryAPI: !!webAppDebug?.shareToStory,
-    canShareToStory: canShareToStory(),
-    webAppVersion: webAppDebug?.version,
-    userIsPremium: webAppDebug?.initDataUnsafe?.user?.is_premium,
-    userData: webAppDebug?.initDataUnsafe?.user ? {
-      id: webAppDebug.initDataUnsafe.user.id,
-      username: webAppDebug.initDataUnsafe.user.username,
-      is_premium: webAppDebug.initDataUnsafe.user.is_premium
-    } : null
-  });
-
-  // Выбираем случайный эффект фейерверка при монтировании компонента
   const [selectedConfettiEffect] = useState(() => {
     return confettiEffects[Math.floor(Math.random() * confettiEffects.length)];
   });
 
-  // 🆕 FIX: Очищаем snapshot при размонтировании компонента (выход с экрана результатов)
   useEffect(() => {
     return () => {
       if (duelId) {
         clearDuelResultSnapshot();
-        console.log('[DuelResult] ✅ Snapshot cleared on exit');
       }
     };
   }, [duelId]);
 
-  // 🆕 FIX: Обработка Telegram BackButton на экране результатов
   useEffect(() => {
     if (!isTelegramMiniApp()) return;
-
     const webApp = getTelegramWebApp();
     if (!webApp || !webApp.BackButton) return;
-
-    // Показываем BackButton
     webApp.BackButton.show();
-
     const handleBack = () => {
-      console.log('[DuelResult] BackButton clicked - going back to menu');
       clearActiveDuel();
       clearDuelResultSnapshot();
       onBackToMenu();
     };
-
     webApp.BackButton.onClick(handleBack);
-
     return () => {
       webApp.BackButton.offClick(handleBack);
     };
@@ -198,21 +127,17 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   const [showBotProposal, setShowBotProposal] = useState(false);
   const [rematchProposalCount, setRematchProposalCount] = useState(0);
 
-  // 🔘 Random phrase for bot rematch
   const proposalPhrase = useMemo(() => {
-    if (!results) return "";
+    if (!results || winPhrases.length === 0 || losePhrases.length === 0) return "";
     const phrases = results.isWinner ? losePhrases : winPhrases;
     const index = (duelId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % phrases.length;
     return phrases[index];
-  }, [results, duelId]);
+  }, [results, duelId, winPhrases, losePhrases]);
 
-  // Обновляем состояние при загрузке данных
   useEffect(() => {
     if (duelResultsData) {
       if (!results) setResults(duelResultsData.results);
       if (myAnswers.length === 0) setMyAnswers(duelResultsData.myAnswers);
-
-      // Отправляем уведомление сопернику
       if (!notificationSentRef.current && duelResultsData.opponentPlayer?.user_id) {
         notificationSentRef.current = true;
         dispatchUserEvent(duelResultsData.opponentPlayer.user_id, 'duel_finished', {
@@ -224,19 +149,12 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     }
   }, [duelResultsData, duelId, results, myAnswers.length]);
 
-  // Получаем общее количество вопросов из данных дуэли
   const totalQuestions = duelResultsData?.duel?.num_questions || myAnswers.length || 10;
-
-  // Автоматическая реклама удалена
-
 
   useEffect(() => {
     if (results && profileId && !rewardsAppliedRef.current) {
       rewardsAppliedRef.current = true;
-
-      // 🏁 Сразу очищаем активную дуэль из контекста, чтобы в меню вернулась кнопка "Игры"
       clearActiveDuel();
-
       const spSource = results.isDraw ? 'duel_draw' : (results.isWinner ? 'duel_win' : 'duel_lose');
       const metadata = {
         duel_id: duelId,
@@ -251,59 +169,32 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           const { data: spData } = await supabase.functions.invoke('season-sp', {
             body: { user_id: profileId, source_type: spSource, metadata },
           });
-
           const { data: xpData } = await supabase.functions.invoke('duel-pass-xp', {
             body: { user_id: profileId, source_type: spSource, metadata },
           });
-
           if (spData && xpData) {
             setRewards(prev => prev ? {
               ...prev,
               sp: spData.sp_added || prev.sp,
               xp: xpData.xp_added || prev.xp
             } : null);
-
-            // 🔄 FORCE REFRESH: Invalidate profile data after rewards
             queryClient.invalidateQueries({ queryKey: ["profile-data"] });
           }
-
-          // 🎯 Update Daily Quests Progress
-          console.log('[DuelResult] Updating Daily Quests...');
           const questUpdates = [
-            // Всегда +1 к сыгранным дуэлям
-            (supabase as any).rpc('update_daily_quest_progress', { 
-              p_user_id: profileId, p_category: 'duels', p_delta: 1 
-            }),
-            // +X к количеству отвеченных вопросов
-            (supabase as any).rpc('update_daily_quest_progress', { 
-              p_user_id: profileId, p_category: 'questions', p_delta: myAnswers.length 
-            })
+            (supabase as any).rpc('update_daily_quest_progress', { p_user_id: profileId, p_category: 'duels', p_delta: 1 }),
+            (supabase as any).rpc('update_daily_quest_progress', { p_user_id: profileId, p_category: 'questions', p_delta: myAnswers.length })
           ];
-
           if (results.isWinner) {
-            questUpdates.push(
-              (supabase as any).rpc('update_daily_quest_progress', { 
-                p_user_id: profileId, p_category: 'winners', p_delta: 1 
-              })
-            );
+            questUpdates.push((supabase as any).rpc('update_daily_quest_progress', { p_user_id: profileId, p_category: 'winners', p_delta: 1 }));
           }
-
-          // Если дуэль пройдена без единой ошибки - это тоже может быть квестом на точность/идеальность
           const hasNoErrors = myAnswers.every(a => a.is_correct);
           if (hasNoErrors && myAnswers.length > 0) {
-            questUpdates.push(
-              (supabase as any).rpc('update_daily_quest_progress', { 
-                p_user_id: profileId, p_category: 'accuracy', p_delta: myAnswers.length 
-              })
-            );
+            questUpdates.push((supabase as any).rpc('update_daily_quest_progress', { p_user_id: profileId, p_category: 'accuracy', p_delta: myAnswers.length }));
           }
-
           await Promise.all(questUpdates);
-
           await supabase.functions.invoke('season-challenges-track', {
             body: { user_id: profileId, source_type: spSource, metadata },
           });
-
           if (xpData?.level_up) {
             const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
               body: { trigger: 'duel_pass_level_up' },
@@ -316,10 +207,9 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           rewardsAppliedRef.current = false;
         }
       };
-
       applyRewards();
     }
-  }, [results, profileId, duelId]);
+  }, [results, profileId, duelId, clearActiveDuel, myAnswers, queryClient]);
 
   useEffect(() => {
     if (results?.isWinner) {
@@ -331,8 +221,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     }
   }, [results]);
 
-  // 🤖 BOT REMATCH LOGIC: Если соперник бот, предлагаем реванш через 3.5 секунды
-  // КРИТИЧНО: двойная проверка is_bot - и из results, и из opponentPlayer - чтобы не показывать при дуэли с другом
   useEffect(() => {
     const isDefinitelyBot = results?.isBot === true && duelResultsData?.opponentPlayer?.is_bot === true;
     if (results && isDefinitelyBot && !showBotProposal && rematchProposalCount < 2) {
@@ -346,26 +234,19 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     }
   }, [results, duelResultsData, showBotProposal, rematchProposalCount]);
 
-  // Вибрация при завершении анимации счетчика (через 1.5 секунды после появления результатов)
   useEffect(() => {
     if (results && !counterAnimationCompleteRef.current) {
       counterAnimationCompleteRef.current = true;
       const timer = setTimeout(() => {
-        // Вибрация успеха при завершении анимации счетчика
         haptics.correctAnswer();
-      }, 1500); // Время анимации счетчика
-
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [results]);
 
-  // Вычисляем bonusCoins из results
   useEffect(() => {
     if (results) {
-      // КРИТИЧНО: Награды должны совпадать с логикой на бэкенде (duel-manager/index.ts)
-      // Для дуэлей без ставок: Победа = 20 монет, Ничья = 10 монет
       const baseReward = results.isWinner ? 20 : (results.isDraw ? 10 : 0);
-
       setRewards(prev => prev ? {
         ...prev,
         bonusCoins: baseReward,
@@ -385,59 +266,44 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   };
 
   const handleShareToStory = async () => {
-    if (!results || !isTelegramMiniApp()) {
-      return;
-    }
-
+    if (!results || !isTelegramMiniApp()) return;
     const webApp = getTelegramWebApp();
     if (!webApp) {
-      toast.error('Telegram WebApp недоступен');
+      toast.error(t('duelResult.stories.notAvailable'));
       return;
     }
-
-    // Проверяем доступность shareToStory (доступна с версии 7.8+)
     if (!webApp.shareToStory) {
-      toast.error('Обновите Telegram для публикации в Stories');
+      toast.error(t('duelResult.stories.updateTelegram'));
       return;
     }
-
     try {
-      // Показываем загрузку
-      toast.loading('Генерируем изображение...', { id: 'share-story' });
-
-      // Генерируем изображение результата
+      toast.loading(t('duelResult.stories.generating'), { id: 'share-story' });
       const imageDataUrl = await generateDuelResultImage({
         myScore: results.myScore,
         opponentScore: results.opponentScore,
-        opponentName: results.opponentName || 'Оппонент',
+        opponentName: results.opponentName || t('duelResult.opponent'),
         isWinner: results.isWinner,
         isDraw: results.isDraw,
       });
 
-      // Telegram shareToStory требует URL медиа (для data URL используем media_url напрямую)
-      // Документация: https://core.telegram.org/bots/webapps#sharetostory
+      const scoreStr = `${results.myScore}:${results.opponentScore}`;
       const shareText = results.isWinner
-        ? `Я выиграл со счетом ${results.myScore}:${results.opponentScore}! 🏆`
+        ? t('duelResult.stories.winText', { score: scoreStr })
         : results.isDraw
-          ? `Ничья ${results.myScore}:${results.opponentScore}! 🤝`
-          : `Результат: ${results.myScore}:${results.opponentScore}`;
+          ? t('duelResult.stories.drawText', { score: scoreStr })
+          : t('duelResult.stories.lossText', { score: scoreStr });
 
-      console.log('[DuelResult] Calling shareToStory with image length:', imageDataUrl.length);
-
-      // Вызываем shareToStory (синтаксис: media_url, optional_params)
       webApp.shareToStory(imageDataUrl, {
         text: shareText,
         widget_link: {
           url: 'https://t.me/skilyapp_bot',
-
-          name: 'Попробуй обыграть меня!'
+          name: t('duelResult.stories.widgetLinkName')
         }
       });
-
-      toast.success('Открываем редактор Stories...', { id: 'share-story' });
+      toast.success(t('duelResult.stories.openingEditor'), { id: 'share-story' });
     } catch (error) {
       console.error('[DuelResult] Error sharing to story:', error);
-      toast.error('Не удалось поделиться в Stories', { id: 'share-story' });
+      toast.error(t('duelResult.stories.error'), { id: 'share-story' });
     }
   };
 
@@ -446,17 +312,11 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
       <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
         <div className="text-center space-y-4 px-6">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-muted-foreground animate-pulse text-lg font-medium">Подсчитываем результаты...</p>
-          <p className="text-xs text-muted-foreground/60">Это может занять несколько секунд</p>
-
-          {/* Скрытая кнопка сброса через 10 секунд ожидания */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 5 }}
-          >
+          <p className="text-muted-foreground animate-pulse text-lg font-medium">{t('duelResult.loading')}</p>
+          <p className="text-xs text-muted-foreground/60">{t('duelResult.loadingDesc')}</p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 5 }}>
             <Button variant="ghost" size="sm" onClick={() => refetch()} className="text-xs">
-              Загрузить принудительно
+              {t('duelResult.forceLoad')}
             </Button>
           </motion.div>
         </div>
@@ -464,7 +324,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     );
   }
 
-  // Error state
   if (error && !results) {
     return (
       <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
@@ -473,22 +332,13 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             <XCircle className="w-10 h-10 text-red-500" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold">Ошибка загрузки</h2>
-            <p className="text-muted-foreground">Не удалось получить результаты дуэли. Попробуйте обновить данные.</p>
+            <h2 className="text-2xl font-bold">{t('duelResult.errorLoading')}</h2>
+            <p className="text-muted-foreground">{t('duelResult.errorDesc')}</p>
           </div>
           <div className="flex flex-col gap-3">
-            <Button onClick={() => refetch()} className="w-full">
-              Повторить попытку
-            </Button>
-            <Button variant="outline" onClick={onBackToMenu} className="w-full">
-              Вернуться в меню
-            </Button>
+            <Button onClick={() => refetch()} className="w-full">{t('duelResult.retry')}</Button>
+            <Button variant="outline" onClick={onBackToMenu} className="w-full">{t('duelResult.backToMenu')}</Button>
           </div>
-          {isDev && (
-            <p className="text-[10px] text-muted-foreground/40 font-mono break-all">
-              {error instanceof Error ? error.message : JSON.stringify(error)}
-            </p>
-          )}
         </div>
       </div>
     );
@@ -496,7 +346,6 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
 
   return (
     <div className="relative w-full z-10 bg-transparent overflow-x-hidden pt-0 pb-24">
-
       <div className="w-full max-w-2xl mx-auto px-4 py-4 space-y-6 relative z-10">
         <AnimatePresence>
           {results.isWinner && (
@@ -512,73 +361,37 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           )}
         </AnimatePresence>
 
-        {/* Header - Animated Result Status */}
         <motion.div
           initial={{ scale: 0.5, opacity: 0, y: -50 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ type: "spring", duration: 0.7, bounce: 0.4 }}
           className="text-center space-y-4 relative pt-0"
         >
-          {/* Animated Trophy/Icon - Classic Bounce Animation Only */}
           <motion.div
-            animate={results.isWinner ? {
-              y: [0, -10, 0],
-              rotate: [0, -3, 3, -3, 0],
-              scale: [1, 1.05, 1]
-            } : results.isDraw ? {
-              y: [0, -5, 0],
-              scale: [1, 1.03, 1]
-            } : {
-              y: [0, -3, 0],
-              scale: [1, 0.98, 1]
-            }}
-            transition={{
-              duration: results.isWinner ? 3 : 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
+            animate={results.isWinner ? { y: [0, -10, 0], rotate: [0, -3, 3, -3, 0], scale: [1, 1.05, 1] } : results.isDraw ? { y: [0, -5, 0], scale: [1, 1.03, 1] } : { y: [0, -3, 0], scale: [1, 0.98, 1] }}
+            transition={{ duration: results.isWinner ? 3 : 4, repeat: Infinity, ease: "easeInOut" }}
             className="relative inline-block"
           >
             {results.isWinner && (
               <div className="relative">
-                {/* Упрощенное статичное свечение для кубка */}
                 <div className="absolute inset-0 bg-yellow-400/30 rounded-full blur-3xl" style={{ width: '120%', height: '120%', left: '-10%', top: '-10%' }} />
                 <Trophy className="relative h-24 w-24 mx-auto text-yellow-600 dark:text-yellow-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]" />
               </div>
             )}
             {!results.isWinner && !results.isDraw && (
               <div className="relative">
-                {/* Subtle glow for defeat */}
                 <div className="absolute inset-0 bg-gradient-to-r from-zinc-500/20 to-zinc-600/20 blur-2xl opacity-30" />
-                <motion.div
-                  className="text-7xl md:text-8xl relative z-10"
-                  animate={{
-                    opacity: [0.6, 0.8, 0.6],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  😔
-                </motion.div>
+                <motion.div className="text-7xl md:text-8xl relative z-10" animate={{ opacity: [0.6, 0.8, 0.6] }} transition={{ duration: 2, repeat: Infinity }}>😔</motion.div>
               </div>
             )}
             {results.isDraw && (
               <div className="relative">
-                {/* Subtle glow for draw */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 blur-2xl opacity-30" />
-                <motion.div
-                  className="text-7xl md:text-8xl relative z-10"
-                  animate={{
-                    opacity: [0.7, 0.9, 0.7],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  🤝
-                </motion.div>
+                <motion.div className="text-7xl md:text-8xl relative z-10" animate={{ opacity: [0.7, 0.9, 0.7] }} transition={{ duration: 2, repeat: Infinity }}>🤝</motion.div>
               </div>
             )}
           </motion.div>
 
-          {/* Status Text */}
           <div className="space-y-3">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
@@ -590,458 +403,161 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
                 results.isDraw && "bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent",
                 !results.isWinner && !results.isDraw && "bg-gradient-to-r from-zinc-400 to-zinc-500 bg-clip-text text-transparent"
               )}
-              style={results.isWinner ? { backgroundSize: "200% 100%" } : {}}
             >
-              {results.isWinner ? 'Победа!' : results.isDraw ? 'Ничья!' : 'Поражение'}
+              {results.isWinner ? t('duelResult.victory') : results.isDraw ? t('duelResult.draw') : t('duelResult.defeat')}
             </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className={cn(
-                "text-lg md:text-xl font-medium",
-                results.isWinner && "text-yellow-500/90 dark:text-yellow-400/80",
-                results.isDraw && "text-blue-500/90 dark:text-blue-400/80",
-                !results.isWinner && !results.isDraw && "text-muted-foreground"
-              )}
-            >
-              {results.isWinner ? 'Отличная игра!' : results.isDraw ? 'Вы на равных' : 'Попробуй ещё раз!'}
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-lg md:text-xl font-medium">
+              {results.isWinner ? t('duelResult.greatGame') : results.isDraw ? t('duelResult.equalMatch') : t('duelResult.tryAgain')}
             </motion.p>
           </div>
         </motion.div>
 
-        {/* Score Cards - Premium Glassmorphism Design */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="grid grid-cols-2 gap-4"
-        >
-          <motion.div
-            initial={{ x: -100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
-            className="relative group"
-          >
-            {/* Hover Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/30 to-indigo-500/30 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            {/* Premium Glass Card - улучшено для светлой темы */}
-            <div className="relative overflow-hidden bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/5 dark:border-white/[0.03]">
-              {/* Inner glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-
-              {/* Noise texture overlay */}
-              <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
-
-              <div className="text-center space-y-3 relative z-10">
-                <AnimatedCounter
-                  value={results.myScore}
-                  duration={1500}
-                  className={cn(
-                    "font-black bg-gradient-to-b from-blue-600 via-blue-500 to-blue-400 dark:from-blue-400 dark:via-blue-300 dark:to-white bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]",
-                    results.myScore > 999 ? "text-5xl md:text-6xl" : "text-6xl md:text-7xl"
-                  )}
-                />
-                <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Вы</div>
-                <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 dark:text-green-400" />
-                  <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">{results.myCorrect}/{totalQuestions}</span>
-                </div>
+        <div className="grid grid-cols-2 gap-4">
+          <motion.div initial={{ x: -100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2, type: "spring", stiffness: 100 }} className="relative overflow-hidden bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/5 dark:border-white/[0.03]">
+            <div className="text-center space-y-3 relative z-10">
+              <AnimatedCounter value={results.myScore} duration={1500} className={cn("font-black bg-gradient-to-b from-blue-600 via-blue-500 to-blue-400 dark:from-blue-400 dark:via-blue-300 dark:to-white bg-clip-text text-transparent", results.myScore > 999 ? "text-5xl md:text-6xl" : "text-6xl md:text-7xl")} />
+              <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">{t('duelResult.you')}</div>
+              <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2">
+                <CheckCircle2 className="w-4 h-4 text-green-500 dark:text-green-400" />
+                <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">{results.myCorrect}/{totalQuestions}</span>
               </div>
             </div>
           </motion.div>
-
-          <motion.div
-            initial={{ x: 100, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 100 }}
-            className="relative group"
-          >
-            {/* Hover Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-500/20 to-zinc-600/20 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            {/* Premium Glass Card - улучшено для светлой темы */}
-            <div className="relative overflow-hidden bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/5 dark:border-white/[0.03]">
-              {/* Inner glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
-
-              {/* Noise texture overlay */}
-              <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
-
-              {/* Subtle animated background */}
-              <motion.div
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.1, 0.15, 0.1],
-                }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-0 right-0 w-32 h-32 bg-zinc-500/20 rounded-full blur-3xl"
-              />
-
-              <div className="text-center space-y-3 relative z-10">
-                <AnimatedCounter
-                  value={results.opponentScore}
-                  duration={1500}
-                  className={cn(
-                    "font-black text-slate-600 dark:text-zinc-300 drop-shadow-[0_0_15px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_15px_rgba(0,0,0,0.3)]",
-                    results.opponentScore > 999 ? "text-5xl md:text-6xl" : "text-6xl md:text-7xl"
-                  )}
-                />
-                <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-500 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName}</div>
-                <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2">
-                  <Target className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-                  <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">{results.opponentCorrect}/{totalQuestions}</span>
-                </div>
+          <motion.div initial={{ x: 100, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.3, type: "spring", stiffness: 100 }} className="relative overflow-hidden bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl rounded-[32px] p-6 border border-white/5 dark:border-white/[0.03]">
+            <div className="text-center space-y-3 relative z-10">
+              <AnimatedCounter value={results.opponentScore} duration={1500} className={cn("font-black text-slate-600 dark:text-zinc-300", results.opponentScore > 999 ? "text-5xl md:text-6xl" : "text-6xl md:text-7xl")} />
+              <div className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-500 truncate px-2 max-w-[150px] md:max-w-none mx-auto" title={results.opponentName}>{results.opponentName || t('duelResult.opponent')}</div>
+              <div className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-xl px-3 py-2">
+                <Target className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                <span className="text-sm font-bold text-slate-700 dark:text-zinc-200">{results.opponentCorrect}/{totalQuestions}</span>
               </div>
             </div>
           </motion.div>
-        </motion.div>
+        </div>
 
-        {/* Rewards Section - Premium Glassmorphism with Sparkles */}
         {rewards && (
-          <motion.div
-            initial={{ y: 30, opacity: 0, scale: 0.95 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-            className="relative overflow-hidden rounded-[32px] bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl p-6 border border-white/5 dark:border-white/[0.03]"
-          >
-            {/* Animated background gradient */}
-            <motion.div
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-              }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-blue-500/5 opacity-40 rounded-[32px] overflow-hidden"
-              style={{ backgroundSize: "200% 200%" }}
-            />
-
-            {/* Subtle mesh gradient overlay */}
-            <div className="absolute inset-0 opacity-30">
-              <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-indigo-500/10 to-transparent rounded-full blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl" />
-            </div>
-
-            {/* Noise texture overlay */}
-            <div className="absolute inset-0 opacity-[0.015] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
-
+          <motion.div initial={{ y: 30, opacity: 0, scale: 0.95 }} animate={{ y: 0, opacity: 1, scale: 1 }} transition={{ delay: 0.5 }} className="relative overflow-hidden rounded-[32px] bg-white/40 dark:bg-[#0b0d14]/40 backdrop-blur-xl p-6 border border-white/5 dark:border-white/[0.03]">
             <div className="relative z-10 space-y-5">
               <div className="flex items-center justify-center gap-2">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                >
-                  <Sparkles className="w-6 h-6 text-indigo-400 drop-shadow-[0_0_10px_rgba(129,140,248,0.5)]" />
-                </motion.div>
-                <h3 className="text-xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                  Награды
-                </h3>
+                <Sparkles className="w-6 h-6 text-indigo-400" />
+                <h3 className="text-xl font-black bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">{t('duelResult.rewards.title')}</h3>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
-                {/* XP */}
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative col-span-1 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 text-center space-y-2 overflow-hidden group"
-                >
-                  {/* Hover glow */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  {/* Rotating glow orb */}
-                  <motion.div
-                    animate={{ rotate: [360, 0] }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute top-0 left-0 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl"
-                  />
-
-                  {/* Sparkle effect on icon */}
-                  <div className="relative z-10">
-                    <Zap className="relative z-10 w-8 h-8 text-indigo-400 mx-auto fill-indigo-500/20 drop-shadow-[0_0_15px_rgba(129,140,248,0.6)]" />
-                  </div>
-
-                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Опыт</div>
-                  <AnimatedCounter
-                    value={rewards.xp}
-                    duration={1500}
-                    prefix="+"
-                    className="relative z-10 text-2xl font-black bg-gradient-to-br from-indigo-400 to-indigo-300 bg-clip-text text-transparent"
-                  />
-                </motion.div>
-
-                {/* Season Points (SP) */}
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="relative col-span-1 bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 text-center space-y-2 overflow-hidden group"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  <div className="relative z-10">
-                    <Trophy className="w-8 h-8 text-amber-500 mx-auto fill-amber-500/20 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)]" />
-                  </div>
-
-                  <div className="relative z-10 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">Season Points</div>
-                  <AnimatedCounter
-                    value={rewards.sp}
-                    duration={1500}
-                    prefix="+"
-                    className="relative z-10 text-2xl font-black bg-gradient-to-br from-amber-400 to-yellow-300 bg-clip-text text-transparent"
-                  />
-                </motion.div>
+                <div className="bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 text-center space-y-2">
+                  <Zap className="w-8 h-8 text-indigo-400 mx-auto fill-indigo-500/20" />
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">{t('duelResult.rewards.xp')}</div>
+                  <AnimatedCounter value={rewards.xp} duration={1500} prefix="+" className="text-2xl font-black bg-gradient-to-br from-indigo-400 to-indigo-300 bg-clip-text text-transparent" />
+                </div>
+                <div className="bg-slate-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-5 text-center space-y-2">
+                  <Trophy className="w-8 h-8 text-amber-500 mx-auto fill-amber-500/20" />
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-zinc-400">{t('duelResult.rewards.sp')}</div>
+                  <AnimatedCounter value={rewards.sp} duration={1500} prefix="+" className="text-2xl font-black bg-gradient-to-br from-amber-400 to-yellow-300 bg-clip-text text-transparent" />
+                </div>
               </div>
             </div>
           </motion.div>
         )}
 
-        {/* Betting Results */}
-        {results.betAmount > 0 && (
-          <motion.div
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="bg-card/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden shadow-lg"
-          >
+        {results?.betAmount > 0 && (
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }} className="bg-card/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden shadow-lg">
             <div className="p-4 bg-muted/30 dark:bg-white/5 flex items-center gap-2">
               <Coins className="w-5 h-5 text-amber-500 dark:text-amber-400" />
-              <h3 className="font-bold text-foreground">Ставка</h3>
+              <h3 className="font-bold text-foreground">{t('duelResult.betting.title')}</h3>
             </div>
             <div className="p-5 space-y-3">
               <div className="flex justify-between items-center bg-muted/30 dark:bg-white/5 rounded-xl p-3">
-                <span className="text-muted-foreground font-medium">Ваша ставка:</span>
+                <span className="text-muted-foreground font-medium">{t('duelResult.betting.yourStake')}</span>
                 <span className="font-bold text-red-500 dark:text-red-400">-{results.betAmount}</span>
               </div>
-
               {results.isWinner && (
                 <>
-                  <motion.div
-                    initial={{ scale: 0.95 }}
-                    animate={{ scale: 1 }}
-                    className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3"
-                  >
-                    <span className="font-bold text-green-600 dark:text-green-400">Выигрыш:</span>
+                  <div className="flex justify-between items-center bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl p-3">
+                    <span className="font-bold text-green-600 dark:text-green-400">{t('duelResult.betting.winnings')}</span>
                     <span className="font-black text-2xl text-green-600 dark:text-green-400">+{results.winnings}</span>
-                  </motion.div>
-
-                  {/* DATA LAUNDERING - Удвоение выигрыша за рекламу */}
-                  <motion.div
-                    initial={{ y: 10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="mt-3"
-                  >
-                    <DataLaunderingButton
-                      winnings={results.winnings}
-                      duelId={duelId}
-                    />
-                  </motion.div>
+                  </div>
+                  <div className="mt-3">
+                    <DataLaunderingButton winnings={results.winnings} duelId={duelId} />
+                  </div>
                 </>
               )}
-
               {!results.isWinner && !results.isDraw && (
                 <div className="flex justify-between items-center bg-red-500/10 rounded-xl p-3">
-                  <span className="font-bold text-red-600 dark:text-red-400">Проигрыш:</span>
+                  <span className="font-bold text-red-600 dark:text-red-400">{t('duelResult.betting.loss')}</span>
                   <span className="font-black text-2xl text-red-600 dark:text-red-400">-{results.betAmount}</span>
                 </div>
               )}
-
               {results.isDraw && (
                 <div className="flex justify-between items-center bg-blue-500/10 rounded-xl p-3">
-                  <span className="font-bold text-blue-600 dark:text-blue-400">Возврат:</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">{t('duelResult.betting.refund')}</span>
                   <span className="font-black text-2xl text-blue-600 dark:text-blue-400">+{results.betAmount}</span>
                 </div>
               )}
-
-              {/* Блок страховки */}
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.7 }}
-                className={cn(
-                  "flex items-center justify-between rounded-xl p-3 border mt-1",
-                  results.insuranceUsed
-                    ? "bg-indigo-500/10 border-indigo-500/20"
-                    : "bg-slate-500/5 border-dashed border-slate-500/20"
-                )}
-              >
+              <div className={cn("flex items-center justify-between rounded-xl p-3 border mt-1", results.insuranceUsed ? "bg-indigo-500/10 border-indigo-500/20" : "bg-slate-500/5 border-dashed border-slate-500/20")}>
                 <div className="flex items-center gap-2.5">
-                  <div className={cn(
-                    "p-1.5 rounded-lg flex items-center justify-center",
-                    results.insuranceUsed ? "bg-indigo-500/20" : "bg-slate-500/10"
-                  )}>
-                    <Shield className={cn(
-                      "w-4 h-4",
-                      results.insuranceUsed ? "text-indigo-500 dark:text-indigo-400" : "text-slate-400"
-                    )} />
-                  </div>
-                  <span className={cn(
-                    "font-semibold text-sm",
-                    results.insuranceUsed ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"
-                  )}>
-                    {results.insuranceUsed ? "Страховка ставки" : "Без страховки"}
-                  </span>
+                  <Shield className={cn("w-4 h-4", results.insuranceUsed ? "text-indigo-500 dark:text-indigo-400" : "text-slate-400")} />
+                  <span className={cn("font-semibold text-sm", results.insuranceUsed ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400")}>{results.insuranceUsed ? t('duelResult.betting.insurance') : t('duelResult.betting.noInsurance')}</span>
                 </div>
-
-                <div className="text-right flex flex-col items-end justify-center">
+                <div className="text-right">
                   {results.insuranceUsed ? (
-                    results.insuranceRefund > 0 ? (
-                      <span className="font-black text-green-600 dark:text-green-400 flex items-center gap-1">
-                        +{results.insuranceRefund} <Coins className="w-3.5 h-3.5" />
-                      </span>
-                    ) : (
-                      <span className="text-xs font-bold text-indigo-500/80 dark:text-indigo-400/80">
-                        Не пригодилась
-                      </span>
-                    )
-                  ) : (
-                    <span className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                      Могла спасти {Math.floor(results.betAmount * (results.insuranceCoverageRate || 0.7))} <Coins className="w-3 h-3" />
-                    </span>
-                  )}
+                    results.insuranceRefund > 0 ? <span className="font-black text-green-600 dark:text-green-400">+{results.insuranceRefund}</span> : <span className="text-xs font-bold text-indigo-500/80">{t('duelResult.betting.notNeeded')}</span>
+                  ) : <span className="text-xs font-medium text-slate-400">{t('duelResult.betting.couldSave', { amount: Math.floor(results.betAmount * (results.insuranceCoverageRate || 0.7)) })}</span>}
                 </div>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         )}
 
-        {/* Bot Rematch Proposal - Ultra-Premium Top-Right Notification */}
         <AnimatePresence>
           {showBotProposal && (
-            <motion.div
-              initial={{ y: -100, opacity: 0, scale: 0.8 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: -100, opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-              className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] pointer-events-none w-[360px] max-w-[calc(100vw-32px)]"
-            >
-              <div
-                className="pointer-events-auto bg-slate-900/90 dark:bg-slate-950/95 backdrop-blur-3xl rounded-[2rem] p-5 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)] relative overflow-hidden group"
-              >
-                {/* Animated Gradient Background Glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 opacity-60" />
-
-                {/* Animated Edge Shine */}
-                <motion.div
-                  animate={{ opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent"
-                />
-
-                <div className="flex items-start gap-4 relative z-10">
-                  <div className="relative shrink-0">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      className="relative w-14 h-14"
-                    >
-                      <div className="absolute inset-0 bg-indigo-500 rounded-2xl blur-md opacity-20 animate-pulse" />
-                      <img
-                        src={results.opponentAvatar || getFallbackAvatar(results.opponentName)}
-                        className="w-full h-full rounded-2xl object-cover border-2 border-white/20 shadow-xl relative z-10"
-                        alt={results.opponentName}
-                      />
-                    </motion.div>
-
-                  </div>
-
-                  <div className="flex-1 min-w-0 space-y-1">
+            <motion.div initial={{ y: -100, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -100, opacity: 0, scale: 0.9 }} className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] w-[360px] max-w-[calc(100vw-32px)]">
+              <div className="bg-slate-900/90 dark:bg-slate-950/95 backdrop-blur-3xl rounded-[2rem] p-5 shadow-2xl relative overflow-hidden">
+                <div className="flex items-start gap-4">
+                  <img src={results.opponentAvatar || getFallbackAvatar(results.opponentName)} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/20" alt="" />
+                  <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <Swords className="w-3.5 h-3.5 text-indigo-400" />
-                        <span className="text-white font-black text-xs uppercase tracking-widest opacity-60">Реванш</span>
-                      </div>
-                      <Sparkles className="w-3.5 h-3.5 text-yellow-400/50 animate-spin-slow" />
+                      <span className="text-white font-black text-xs uppercase tracking-widest opacity-60">{t('duelResult.rematch.title')}</span>
                     </div>
-                    <p className="text-white font-bold text-sm leading-tight pr-2 line-clamp-3">
+                    <p className="text-white font-bold text-sm leading-tight pr-2">
                       <span className="text-indigo-400">{results.opponentName}:</span> "{proposalPhrase}"
                     </p>
                   </div>
                 </div>
-
-                <div className="flex gap-2.5 mt-5 relative z-10">
-                  <Button
-                    onClick={() => {
-                      setShowBotProposal(false);
-                      onRematch(true, { id: results.opponentId || 'bot', name: results.opponentName, isBot: true });
-
-                    }}
-                    className="flex-[2] bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl h-10 shadow-lg shadow-indigo-500/20 border-0 active:scale-95 transition-all text-xs tracking-wider"
-                  >
-                    ПРИНЯТЬ
-                  </Button>
-                  <Button
-                    onClick={() => setShowBotProposal(false)}
-                    variant="ghost"
-                    className="flex-1 text-slate-400 hover:text-white hover:bg-white/5 font-bold rounded-xl h-10 active:scale-95 transition-all text-xs"
-                  >
-                    НЕТ
-                  </Button>
+                <div className="flex gap-2.5 mt-5">
+                  <Button onClick={() => { setShowBotProposal(false); onRematch(true, { id: results.opponentId || 'bot', name: results.opponentName, isBot: true }); }} className="flex-[2] bg-indigo-600 text-white font-black rounded-xl h-10">{t('duelResult.rematch.accept')}</Button>
+                  <Button onClick={() => setShowBotProposal(false)} variant="ghost" className="flex-1 text-slate-400 font-bold rounded-xl h-10">{t('duelResult.rematch.decline')}</Button>
                 </div>
-
-                {/* Progress Indicators */}
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5">
-                  <motion.div
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
-                    transition={{ duration: 8, ease: "linear" }}
-                    onAnimationComplete={() => setShowBotProposal(false)}
-                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                  />
+                  <motion.div initial={{ width: "0%" }} animate={{ width: "100%" }} transition={{ duration: 8, ease: "linear" }} onAnimationComplete={() => setShowBotProposal(false)} className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" />
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Questions Review */}
         {myAnswers.length > 0 && (
-          <motion.div
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.7 }}
-            className="bg-card/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden shadow-lg"
-          >
+          <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.7 }} className="bg-card/80 dark:bg-slate-900/60 backdrop-blur-xl rounded-3xl overflow-hidden shadow-lg">
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="questions" className="border-none">
                 <AccordionTrigger className="px-5 py-4 hover:no-underline bg-muted/30 dark:bg-white/5">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-500/20 rounded-lg">
-                      <Trophy className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
-                    </div>
+                    <Trophy className="w-5 h-5 text-indigo-500" />
                     <div className="text-left">
-                      <h3 className="font-bold text-foreground">Обзор вопросов</h3>
-                      <p className="text-xs text-muted-foreground">{results.myCorrect} правильных из {totalQuestions}</p>
+                      <h3 className="font-bold text-foreground">{t('duelResult.review.title')}</h3>
+                      <p className="text-xs text-muted-foreground">{t('duelResult.stats.correct', { count: results.myCorrect, total: totalQuestions })}</p>
                     </div>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-0 pb-0">
-                  <div className="divide-y divide-border/50 dark:divide-white/5">
+                  <div className="divide-y divide-border/50">
                     {myAnswers.map((answer, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => handleQuestionClick(answer)}
-                        className="p-4 hover:bg-muted/50 dark:hover:bg-white/5 cursor-pointer transition-colors group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <div className={cn(
-                              "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm",
-                              answer.is_correct ? "bg-green-500/20 text-green-600 dark:text-green-400" : "bg-red-500/20 text-red-600 dark:text-red-400"
-                            )}>
-                              {idx + 1}
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm text-foreground/90 line-clamp-2">
-                                {answer.duel_questions?.question_snapshot?.question_ru ||
-                                  answer.duel_questions?.question_ru ||
-                                  'Вопрос'}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {answer.is_correct ? (
-                              <CheckCircle2 className="w-5 h-5 text-green-500 dark:text-green-400" />
-                            ) : (
-                              <XCircle className="w-5 h-5 text-red-500 dark:text-red-400" />
-                            )}
-                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                          </div>
+                      <div key={idx} onClick={() => handleQuestionClick(answer)} className="p-4 hover:bg-muted/50 cursor-pointer flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className={cn("w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm", answer.is_correct ? "bg-green-500/20 text-green-600" : "bg-red-500/20 text-red-600")}>{idx + 1}</div>
+                          <p className="text-sm text-foreground/90 line-clamp-2">{answer.duel_questions?.question_snapshot?.[`question_${language}`] || answer.duel_questions?.question_snapshot?.question_ru || answer.duel_questions?.[`question_${language}`] || answer.duel_questions?.question_ru || t('duelResult.review.question')}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {answer.is_correct ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <XCircle className="w-5 h-5 text-red-500" />}
+                          <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         </div>
                       </div>
                     ))}
@@ -1052,125 +568,53 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           </motion.div>
         )}
 
-        {/* AI Smart Debrief — Анализ ошибок */}
         {results && myAnswers.filter(a => !a.is_correct).length > 0 && (
           <div className="mt-4">
             <SmartDebriefCard
-              failedQuestions={myAnswers
-                .filter(a => !a.is_correct)
-                .map(ans => {
-                  const q = ans.duel_questions;
-                  const snapshot = q?.question_snapshot;
-                  const correctOption = snapshot?.answer_options?.find((opt: any) => opt.is_correct);
-                  const selectedOption = snapshot?.answer_options?.find((opt: any) => opt.id === ans.selected_option_id);
-
-                  return {
-                    questionId: ans.question_id,
-                    questionText: snapshot?.question_ru || q?.question_ru || 'Вопрос',
-                    userAnswer: selectedOption?.text_ru || 'Нет ответа',
-                    correctAnswer: correctOption?.text_ru || 'Неизвестно',
-                    topic: snapshot?.topics?.title_ru || 'Общая тема',
-                    explanation: snapshot?.explanation_ru || q?.explanation_ru || '',
-                    imageUrl: snapshot?.image_url || q?.image_url || null,
-                  };
-                })}
-              country="spain" // Или динамически
+              failedQuestions={myAnswers.filter(a => !a.is_correct).map(ans => {
+                const q = ans.duel_questions;
+                const snapshot = q?.question_snapshot;
+                const correctOption = snapshot?.answer_options?.find((opt: any) => opt.is_correct);
+                const selectedOption = snapshot?.answer_options?.find((opt: any) => opt.id === ans.selected_option_id);
+                return {
+                  questionId: ans.question_id,
+                  questionText: snapshot?.[`question_${language}`] || snapshot?.question_ru || q?.[`question_${language}`] || q?.question_ru || t('duelResult.review.question'),
+                  userAnswer: selectedOption?.[`text_${language}`] || selectedOption?.text_ru || '---',
+                  correctAnswer: correctOption?.[`text_${language}`] || correctOption?.text_ru || '---',
+                  topic: snapshot?.topics?.[`title_${language}`] || snapshot?.topics?.title_ru || 'Topic',
+                  explanation: snapshot?.[`explanation_${language}`] || snapshot?.explanation_ru || q?.[`explanation_${language}`] || q?.explanation_ru || '',
+                  imageUrl: snapshot?.image_url || q?.image_url || null,
+                };
+              })}
+              country={language === 'ru' ? 'russia' : 'spain'} 
             />
           </div>
         )}
 
-        {/* Action Buttons - Premium with Shine Effect */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="space-y-4 pt-4"
-        >
-          {/* Share to Story Button - показываем только если canShareToStory() = true */}
-          {/* Требования: Telegram Mini App + Telegram Premium + shareToStory API */}
+        <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }} className="space-y-4 pt-4">
           {canShareToStory() && (
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.9 }}
-            >
-              <Button
-                onClick={handleShareToStory}
-                size="lg"
-                className={cn(
-                  "relative w-full font-bold h-14 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all border-0 overflow-hidden text-white",
-                  results.isWinner && "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-400 hover:via-purple-400 hover:to-indigo-400",
-                  results.isDraw && "bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-400 hover:via-indigo-400 hover:to-purple-400",
-                  !results.isWinner && !results.isDraw && "bg-gradient-to-r from-slate-500 via-slate-600 to-slate-500 hover:from-slate-400 hover:via-slate-500 hover:to-slate-400"
-                )}
-              >
-                {/* Shimmer effect */}
-                <motion.div
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
-                />
-                <div className="relative z-10 flex items-center justify-center">
-                  <Share2 className="w-5 h-5 mr-2" />
-                  Поделиться в Stories
-                </div>
-              </Button>
-            </motion.div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4">
-            <Button
-              onClick={() => {
-                console.log('[DuelResult] 🧹 Cleaning up activeDuel on rematch');
-                clearActiveDuel();
-                clearDuelResultSnapshot();
-                onRematch(results.isBot, { id: results.opponentId, name: results.opponentName, isBot: results.isBot });
-              }}
-              size="lg"
-              className="relative w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 hover:from-blue-400 hover:via-indigo-400 hover:to-violet-400 text-white font-bold h-14 rounded-2xl shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)] border-0 overflow-hidden"
-            >
-              <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("/noise.svg")' }} />
-              <div className="relative z-10 flex items-center justify-center">
-                {results.isBot ? (
-                  <><RotateCcw className="w-5 h-5 mr-2" />Реванш</>
-                ) : (
-                  <><Swords className="w-5 h-5 mr-2" />Вызов на реванш</>
-                )}
-              </div>
+            <Button onClick={handleShareToStory} size="lg" className={cn("w-full font-bold h-14 rounded-2xl relative overflow-hidden text-white", results.isWinner ? "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500" : "bg-slate-500")}>
+              <Share2 className="w-5 h-5 mr-2 relative z-10" />
+              <span className="relative z-10">{t('duelResult.actions.shareToStory')}</span>
             </Button>
-
-            <Button
-              onClick={() => {
-                // 🆕 CRITICAL FIX: Очищаем activeDuel при выходе с экрана результатов (Delayed Cleanup)
-                console.log('[DuelResult] 🧹 Cleaning up activeDuel on back to menu');
-                clearActiveDuel();
-                clearDuelResultSnapshot();
-
-                // Показываем Interstitial при возврате в меню (только для обычных пользователей, один раз за сессию)
-                if (!isPremium) {
-                  setShouldShowInterstitial(true);
-                }
-                // Небольшая задержка для показа Interstitial перед навигацией
-                setTimeout(() => {
-                  onBackToMenu();
-                }, 100);
-              }}
-              size="lg"
-              variant="ghost"
-              className="bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/15 text-slate-700 dark:text-zinc-200 font-bold h-14 rounded-2xl backdrop-blur-sm shadow-sm"
-            >
+          )}
+          <div className="grid grid-cols-2 gap-4">
+            <Button onClick={() => { clearActiveDuel(); clearDuelResultSnapshot(); onRematch(results.isBot, { id: results.opponentId, name: results.opponentName, isBot: results.isBot }); }} size="lg" className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-bold h-14 rounded-2xl">
+              <Swords className="w-5 h-5 mr-2" />
+              {results.isBot ? t('duelResult.actions.rematch') : t('duelResult.actions.challengeRematch')}
+            </Button>
+            <Button onClick={() => { clearActiveDuel(); clearDuelResultSnapshot(); if (!isPremium) setShouldShowInterstitial(true); setTimeout(onBackToMenu, 100); }} size="lg" variant="ghost" className="bg-slate-100 dark:bg-white/10 font-bold h-14 rounded-2xl">
               <Home className="w-5 h-5 mr-2" />
-              В меню
+              {t('duelResult.actions.backToMenu')}
             </Button>
           </div>
         </motion.div>
       </div>
 
-      {/* AI Widget */}
       {showAIWidget && selectedQuestion && (
         <AIWidget
           id={selectedQuestion?.duel_questions?.id || selectedQuestion?.id}
-          question={selectedQuestion?.question_snapshot?.question_ru || selectedQuestion?.question_ru || 'Вопрос'}
+          question={selectedQuestion?.question_snapshot?.[`question_${language}`] || selectedQuestion?.question_snapshot?.question_ru || selectedQuestion?.[`question_${language}`] || selectedQuestion?.question_ru || ''}
           correctAnswer={selectedQuestion?.duel_questions?.correct_answer || ''}
           isCorrect={selectedQuestion?.is_correct || false}
         />

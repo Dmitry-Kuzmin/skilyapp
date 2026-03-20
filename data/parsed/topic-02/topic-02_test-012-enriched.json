@@ -354,43 +354,43 @@
     "question_number": 8,
     "category": "B",
     "question": {
-      "es": "En una inmovilización por emergencia de un vehículo, en caso de no disponer del dispositivo luminoso, señal V-16, y hasta el 1 de enero del 2026, ¿a qué distancia del mismo deben colocarse los triángulos de preseñalización de peligro?",
+      "es": "For the geolocation to work in the mandatory connected V16 beacon, is it necessary to synchronize it with your mobile phone or pay a monthly data subscription?\n",
       "en": "In an emergency immobilization of a vehicle, if the V-16 luminous device is not available, and until January 1, 2026, at what distance from the vehicle must the hazard warning triangles be placed?",
-      "ru": "При вынужденной остановке в случае чрезвычайной ситуации, если нет светового устройства V-16, на каком расстоянии от транспортного средства должны быть установлены знаки аварийной остановки (треугольники) до 1 января 2026 года?"
+      "ru": "Для работы геолокации в обязательном подключенном маячке V16 требуется ли его синхронизация с вашим мобильным телефоном или оплата ежемесячной подписки за связь?"
     },
     "answers": [
       {
-        "id": "a",
+        "id": "opt_0",
         "text": {
-          "es": "A 50 metros como máximo y deben ser visibles desde, al menos, 100 metros.",
-          "en": "A maximum of 50 meters and they must be visible from at least 100 meters.",
-          "ru": "Не более чем в 50 метрах, и они должны быть видны как минимум со 100 метров."
-        },
-        "is_correct": false
-      },
-      {
-        "id": "b",
-        "text": {
-          "es": "A 50 metros como mínimo y deben ser visibles desde, al menos, 100 metros.",
-          "en": "At least 50 meters away and they must be visible from at least 100 meters.",
-          "ru": "Минимум в 50 метрах, и они должны быть видны как минимум со 100 метров."
+          "ru": "Нет, устройство полностью автономно, имеет встроенную SIM-карту, а стоимость связи включена в цену прибора минимум на 12 лет.",
+          "es": "No, the device is fully autonomous, has a built-in SIM card, and connectivity is included in the price for a minimum of 12 years.",
+          "en": "At least 50 meters away and they must be visible from at least 100 meters."
         },
         "is_correct": true
       },
       {
-        "id": "c",
+        "id": "opt_1",
         "text": {
-          "es": "A 100 metros y deben ser visibles desde, al menos, 150 metros.",
-          "en": "At 100 meters and they must be visible from at least 150 meters.",
-          "ru": "В 100 метрах, и они должны быть видны как минимум со 150 метров."
+          "ru": "Нет, подключение к телефону не нужно, но водитель обязан ежегодно оплачивать тарифный план оператора связи.",
+          "es": "Yes, to transmit coordinates to the DGT 3.0 system, the beacon must be connected to a smartphone via Bluetooth.",
+          "en": "A maximum of 50 meters and they must be visible from at least 100 meters."
+        },
+        "is_correct": false
+      },
+      {
+        "id": "opt_2",
+        "text": {
+          "ru": "Да, для передачи координат в систему DGT 3.0 маячок необходимо подключить к смартфону по Bluetooth.",
+          "es": "No, it does not need to be connected to a phone, but the driver is obliged to pay an annual fee to the telecommunications operator.",
+          "en": "At 100 meters and they must be visible from at least 150 meters."
         },
         "is_correct": false
       }
     ],
     "explanation": {
-      "es": "Según el Reglamento General de Vehículos, en caso de inmovilización por emergencia, los triángulos de preseñalización de peligro deben colocarse a una distancia mínima de 50 metros del vehículo, de forma que sean visibles desde al menos 100 metros por los conductores que se aproximen. En calzadas de doble sentido con dos o tres carriles, es obligatorio colocar uno por delante y otro por detrás. En calzadas de sentido único o con más de tres carriles, solo es necesario el posterior. El uso de triángulos será opcional si se dispone de la señal V-16 conectada, y obligatorio hasta su sustitución definitiva el 1 de enero de 2026.",
+      "es": "💡 The connected V16 beacon is an autonomous device. It has a factory-built GPS chip and SIM card (using NB-IoT networks). The internet connection is included in the purchase price of the device and, by law, is guaranteed for at least 12 years. It requires no mobile phones, apps, or additional tariff payments.",
       "en": "According to the General Vehicle Regulations, in the event of an emergency immobilization, hazard warning triangles must be placed at a minimum distance of 50 meters from the vehicle, ensuring they are visible from at least 100 meters by approaching drivers. On two-way roads with two or three lanes, it is mandatory to place one in front and one behind. On one-way roads or roads with more than three lanes, only the rear one is required. The use of triangles will be optional if the connected V-16 signal is available, and remains mandatory until their definitive replacement on January 1, 2026.",
-      "ru": "🎓 Если твой легковой автомобиль (Turismo) совершил вынужденную остановку, ты обязан выставить знаки аварийной остановки (треугольники), если у тебя нет маячка V-16. Устанавливай их не ближе 50 метров от машины, чтобы другие водители могли заметить их минимум за 100 метров. На дорогах с двусторонним движением (2 или 3 полосы) нужно ставить два знака: спереди и сзади. Если дорога с односторонним движением или имеет более трех полос в одну сторону, достаточно одного знака сзади. Помни, что выходить на обочину (arcén) или проезжую часть (calzada) на междугородних дорогах можно только в светоотражающем жилете. 🇷🇺 В Испании требования строже, чем в РФ: вне зависимости от типа дороги вне города — минимум 50 метров (в РФ — 30 м). 💡 Пятьдесят метров — минимум для знака, чтобы за сто метров тебя увидел всякий!"
+      "ru": "💡 Подключенный маячок V16 является автономным устройством. В него уже на заводе встроен GPS-чип и SIM-карта (использующая сети NB-IoT). Подключение к интернету уже включено в начальную стоимость устройства и, по закону, гарантируется на срок не менее 12 лет. Никаких телефонов, приложений или дополнительных оплат тарифов не требуется."
     },
     "image_url": "https://teorica.practicavial.com/question/88669366-2f7b-42d7-bba3-291a9970c96f-1657900673-i.jpg",
     "schema_url": "https://teorica.practicavial.com/question/88669366-2f7b-42d7-bba3-291a9970c96f-s-1.jpg",

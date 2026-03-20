@@ -21,6 +21,7 @@ import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { AnimatePresence, motion } from '@/components/optimized/Motion';
 import { useUserContext } from '@/contexts/UserContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { isTelegramMiniApp as isTelegramMiniAppRaw, getTelegramWebApp as getTelegramWebAppRaw } from '@/lib/telegram';
 import { cn } from "@/lib/utils";
 import { supabase } from '@/integrations/supabase/client';
@@ -98,6 +99,7 @@ export default function Duel() {
         return 'A_B';
     })();
 
+    const { t } = useLanguage();
     const [mode, setMode] = useState<GameMode>('menu');
     const [duelId, setDuelId] = useState<string | null>(null);
     const [duelCode, setDuelCode] = useState<string | null>(null);
@@ -1495,7 +1497,7 @@ export default function Duel() {
                                                     <Swords className="w-7 h-7 text-primary" />
                                                 </div>
                                                 <div>
-                                                    <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Дуэль</h1>
+                                                    <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">{t('duelMenu.title')}</h1>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                                         <span className="text-xs font-black uppercase tracking-widest text-emerald-500/80">Live Multiplayer</span>
@@ -1503,16 +1505,16 @@ export default function Duel() {
                                                 </div>
                                             </div>
                                             <p className="text-slate-400 text-base sm:text-lg max-w-md font-medium leading-relaxed">
-                                                Сразись с соперниками по всей стране, заработай рейтинг и монеты
+                                                {t('duelMenu.subtitle')}
                                             </p>
                                         </div>
 
                                         {/* Stats Cards (Compact) */}
                                         <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:min-w-[450px]">
                                             {[
-                                                { label: 'Всего', val: dataLoaded ? duelStats.totalDuels : '—', icon: Hash, color: 'text-slate-400' },
-                                                { label: 'Побед', val: dataLoaded ? duelStats.wins : '—', icon: Trophy, color: 'text-yellow-500' },
-                                                { label: 'Монет', val: userCoins, icon: Coins, color: 'text-amber-500' }
+                                                { label: t('duelMenu.stats.total'), val: dataLoaded ? duelStats.totalDuels : '—', icon: Hash, color: 'text-slate-400' },
+                                                { label: t('duelMenu.stats.wins'), val: dataLoaded ? duelStats.wins : '—', icon: Trophy, color: 'text-yellow-500' },
+                                                { label: t('duelMenu.stats.coins'), val: userCoins, icon: Coins, color: 'text-amber-500' }
                                             ].map((stat, i) => (
                                                 <div key={i} className="group relative flex flex-col p-4 rounded-3xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-300">
                                                     <div className="flex items-center gap-2 mb-2">
@@ -1558,9 +1560,9 @@ export default function Duel() {
                                                                 <Search className="w-6 h-6 text-white" />
                                                             </div>
                                                             <div className="space-y-1">
-                                                                <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">Случайный бой</h3>
+                                                                <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">{t('duelMenu.modes.random.title')}</h3>
                                                                 <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
-                                                                    Мгновенный подбор равного по силе врага
+                                                                    {t('duelMenu.modes.random.description')}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -1598,9 +1600,9 @@ export default function Duel() {
                                                                 <Users className="w-6 h-6 text-white" />
                                                             </div>
                                                             <div className="space-y-1">
-                                                                <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">Игра с другом</h3>
+                                                                <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">{t('duelMenu.modes.friend.title')}</h3>
                                                                 <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
-                                                                    Создай комнату и пригласи товарища по коду
+                                                                    {t('duelMenu.modes.friend.description')}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -1609,7 +1611,7 @@ export default function Duel() {
                                                     <div className="relative z-10 mt-6">
                                                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 group-hover:border-amber-500/30 group-hover:bg-amber-500/10 transition-all">
                                                             <span className="text-[11px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
-                                                                Создать лобби <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                                                {t('duelMenu.modes.friend.button')} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                                             </span>
                                                         </div>
                                                     </div>
@@ -1671,10 +1673,10 @@ export default function Duel() {
                                                             </motion.div>
                                                             <div className="min-w-0 flex-1">
                                                                 <h2 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent mb-1.5">
-                                                                    {duelMode === 'random' ? 'Случайный бой' : 'Создать дуэль'}
+                                                                    {duelMode === 'random' ? t('duelMenu.setup.randomTitle') : t('duelMenu.setup.createTitle')}
                                                                 </h2>
                                                                 <p className="text-sm sm:text-base text-muted-foreground/80 leading-relaxed font-medium">
-                                                                    {duelMode === 'random' ? 'Сражайтесь со случайными соперниками' : 'Настройте лобби и пригласите друга'}
+                                                                    {duelMode === 'random' ? t('duelMenu.setup.randomDesc') : t('duelMenu.setup.createDesc')}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -1719,7 +1721,7 @@ export default function Duel() {
                                                                                 className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/20 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors group relative overflow-hidden"
                                                                             >
                                                                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                                                                                <span className="opacity-70">БАЛАНС:</span>
+                                                                                <span className="opacity-70">{t('duelMenu.setup.betting.balance')}</span>
                                                                                 <span className="text-xs">{userCoins.toLocaleString()}</span>
                                                                                 <Coins size={12} className="text-amber-500 ml-0.5 group-hover:rotate-12 transition-transform" />
                                                                                 <div className="w-4 h-4 rounded-full bg-amber-500/20 flex items-center justify-center ml-0.5">
@@ -1770,7 +1772,7 @@ export default function Duel() {
                                                                                         className="mt-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wide flex items-center gap-1.5"
                                                                                     >
                                                                                         <Trophy size={12} className="fill-current" />
-                                                                                        ПРИЗ: {betAmount * 2}
+                                                                                        {t('duelMenu.setup.betting.prize')} {betAmount * 2}
                                                                                     </motion.div>
 
                                                                                     {/* ENTRY FEE BADGE (IF INSURANCE) */}
@@ -1781,7 +1783,7 @@ export default function Duel() {
                                                                                             className="mt-1 flex items-center gap-1.5"
                                                                                         >
                                                                                             <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">
-                                                                                                ВСЕГО К СПИСАНИЮ: <span className="text-foreground font-bold">{hostTotalStake}</span>
+                                                                                                {t('duelMenu.setup.betting.totalStake')} <span className="text-foreground font-bold">{hostTotalStake}</span>
                                                                                             </span>
                                                                                             <Coins size={8} className="text-amber-500" />
                                                                                         </motion.div>
@@ -1868,12 +1870,12 @@ export default function Duel() {
                                                                                 </div>
                                                                                 <div className="flex flex-col">
                                                                                     <div className="flex items-center gap-1.5">
-                                                                                        <span className="text-[10px] font-black uppercase tracking-wide text-foreground">Страховка</span>
+                                                                                        <span className="text-[10px] font-black uppercase tracking-wide text-foreground">{t('duelMenu.setup.betting.insurance')}</span>
                                                                                         {hostInsuranceEnabled && (
-                                                                                            <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-500/10 px-1 rounded leading-none">Активна</span>
+                                                                                            <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-500/10 px-1 rounded leading-none">{t('duelMenu.setup.betting.insuranceActive')}</span>
                                                                                         )}
                                                                                     </div>
-                                                                                    <span className="text-[9px] text-muted-foreground">Возврат {Math.round(COVERAGE_RATE * 100)}% при проигрыше</span>
+                                                                                    <span className="text-[9px] text-muted-foreground">{t('duelMenu.setup.betting.insuranceDesc', { percent: Math.round(COVERAGE_RATE * 100) })}</span>
                                                                                 </div>
                                                                             </div>
                                                                             <div className="flex items-center gap-3">
@@ -1900,8 +1902,8 @@ export default function Duel() {
                                                                                     <Target size={14} />
                                                                                 </div>
                                                                                 <div className="flex flex-col">
-                                                                                    <span className="text-[10px] font-black uppercase tracking-wide text-foreground">Вопросы</span>
-                                                                                    <span className="text-[9px] text-muted-foreground">Длина поединка</span>
+                                                                                    <span className="text-[10px] font-black uppercase tracking-wide text-foreground">{t('duelMenu.setup.questions.title')}</span>
+                                                                                    <span className="text-[9px] text-muted-foreground">{t('duelMenu.setup.questions.desc')}</span>
                                                                                 </div>
                                                                             </div>
 
@@ -1955,8 +1957,8 @@ export default function Duel() {
                                                                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                                                         </svg>
-                                                                                        <span className="hidden sm:inline relative z-10">Поиск соперника...</span>
-                                                                                        <span className="sm:hidden relative z-10">Поиск...</span>
+                                                                                        <span className="hidden sm:inline relative z-10">{t('duelMenu.setup.actions.searching')}</span>
+                                                                                        <span className="sm:hidden relative z-10">{t('duelMenu.setup.actions.searchingShort')}</span>
                                                                                     </>
                                                                                 ) : (
                                                                                     <>
@@ -1965,15 +1967,15 @@ export default function Duel() {
                                                                                             {rematchOpponent ? (
                                                                                                 betAmount > 0
                                                                                                     ? hostTotalStake > userCoins
-                                                                                                        ? `Недостаточно: ${hostTotalStake}`
-                                                                                                        : `Реванш за ${hostTotalStake}`
-                                                                                                    : 'Начать реванш'
+                                                                                                        ? t('duelMenu.setup.actions.insufficient', { amount: hostTotalStake })
+                                                                                                        : t('duelMenu.setup.actions.rematch', { amount: hostTotalStake })
+                                                                                                    : t('duelMenu.setup.actions.startRematch')
                                                                                             ) : (
                                                                                                 betAmount > 0
                                                                                                     ? hostTotalStake > userCoins
-                                                                                                        ? `Недостаточно: ${hostTotalStake}`
-                                                                                                        : `Найти игру за ${hostTotalStake}`
-                                                                                                    : 'Найти игру'
+                                                                                                        ? t('duelMenu.setup.actions.insufficient', { amount: hostTotalStake })
+                                                                                                        : t('duelMenu.setup.actions.findGame', { amount: hostTotalStake })
+                                                                                                    : t('duelMenu.setup.actions.findGameSimple')
                                                                                             )}
                                                                                         </span>
                                                                                         {betAmount > 0 && <Coins size={14} className={cn("ml-1.5 relative z-10", hostTotalStake > userCoins ? "text-zinc-500" : "text-amber-500")} />}
@@ -1997,8 +1999,8 @@ export default function Duel() {
                                                                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                                                         </svg>
-                                                                                        <span className="hidden sm:inline relative z-10">Создание...</span>
-                                                                                        <span className="sm:hidden relative z-10">Создание</span>
+                                                                                        <span className="hidden sm:inline relative z-10">{t('duelMenu.setup.actions.creating')}</span>
+                                                                                        <span className="sm:hidden relative z-10 text-[10px]">{t('duelMenu.setup.actions.creating')}</span>
                                                                                     </>
                                                                                 ) : (
                                                                                     <>
@@ -2006,16 +2008,16 @@ export default function Duel() {
                                                                                         <span className="hidden sm:inline relative z-10">
                                                                                             {betAmount > 0
                                                                                                 ? hostTotalStake > userCoins
-                                                                                                    ? `Недостаточно: ${hostTotalStake}`
-                                                                                                    : `Создать за ${hostTotalStake}`
-                                                                                                : 'Создать дуэль по коду'}
+                                                                                                    ? t('duelMenu.setup.actions.insufficient', { amount: hostTotalStake })
+                                                                                                    : t('duelMenu.setup.actions.createFor', { amount: hostTotalStake })
+                                                                                                : t('duelMenu.setup.actions.createPrivate')}
                                                                                         </span>
                                                                                         <span className="sm:hidden relative z-10">
                                                                                             {betAmount > 0
                                                                                                 ? hostTotalStake > userCoins
-                                                                                                    ? `Нужно ${hostTotalStake}`
-                                                                                                    : `За ${hostTotalStake}`
-                                                                                                : 'Создать'}
+                                                                                                    ? t('duelMenu.setup.actions.insufficientShort', { amount: hostTotalStake })
+                                                                                                    : t('duelMenu.setup.actions.createForShort', { amount: hostTotalStake })
+                                                                                                : t('duelMenu.setup.actions.createSimple')}
                                                                                         </span>
                                                                                         {betAmount > 0 && <Coins size={12} className={cn("ml-1 relative z-10", hostTotalStake > userCoins ? "text-zinc-500" : "text-amber-500")} />}
                                                                                     </>
@@ -2044,7 +2046,7 @@ export default function Duel() {
                                                                                 transition={{ duration: 1, repeat: Infinity }}
                                                                             />
                                                                             <span className="text-muted-foreground text-xs">
-                                                                                {connectionStatus === 'connected' ? 'Подключено' : 'Подключение...'}
+                                                                                {connectionStatus === 'connected' ? t('duelMenu.lobby.connected') : t('duelMenu.lobby.connecting')}
                                                                             </span>
                                                                         </div>
                                                                     </div>
@@ -2069,7 +2071,7 @@ export default function Duel() {
                                                                         <div className="space-y-1">
                                                                             <div className="flex items-center justify-center gap-2">
                                                                                 <h3 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                                                                                    Ожидание соперника
+                                                                                    {t('duelMenu.lobby.waiting')}
                                                                                 </h3>
                                                                                 {!duelState.opponentJoined && (
                                                                                     <motion.div
@@ -2091,7 +2093,7 @@ export default function Duel() {
                                                                                     </motion.div>
                                                                                 )}
                                                                             </div>
-                                                                            <p className="text-sm text-muted-foreground">Поделитесь кодом с другом</p>
+                                                                            <p className="text-sm text-muted-foreground">{t('duelMenu.lobby.hint')}</p>
                                                                         </div>
                                                                     </div>
 
@@ -2151,7 +2153,7 @@ export default function Duel() {
                                                                                                     exit={{ opacity: 0, scale: 0.9 }}
                                                                                                     className="text-xs font-semibold text-emerald-600 dark:text-emerald-400"
                                                                                                 >
-                                                                                                    Скопировано!
+                                                                                                    {t('duelMenu.lobby.copySuccess')}
                                                                                                 </motion.span>
                                                                                             ) : (
                                                                                                 <motion.span
@@ -2161,7 +2163,7 @@ export default function Duel() {
                                                                                                     exit={{ opacity: 0 }}
                                                                                                     className="text-xs text-muted-foreground font-medium uppercase tracking-wide"
                                                                                                 >
-                                                                                                    КОД ДУЭЛИ
+                                                                                                    {t('duelMenu.lobby.codeLabel')}
                                                                                                 </motion.span>
                                                                                             )}
                                                                                         </AnimatePresence>
@@ -2186,7 +2188,7 @@ export default function Duel() {
                                                                                     <span className="font-black text-lg text-emerald-700 dark:text-emerald-300">{duelState.opponentJoined ? '2' : '1'}</span>
                                                                                     <span className="text-muted-foreground/50 text-sm">/</span>
                                                                                     <span className="font-black text-lg text-emerald-700 dark:text-emerald-300">2</span>
-                                                                                    <span className="text-xs text-muted-foreground ml-1">игроков</span>
+                                                                                    <span className="text-xs text-muted-foreground ml-1">{t('duelMenu.lobby.players')}</span>
                                                                                 </div>
                                                                             </motion.div>
 
@@ -2212,7 +2214,7 @@ export default function Duel() {
                                                                                     className="flex-1 h-10 text-sm font-semibold bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 hover:from-emerald-600 hover:via-teal-700 hover:to-cyan-700 text-white shadow-md hover:shadow-lg transition-all"
                                                                                 >
                                                                                     <Share2 className="mr-2 h-4 w-4" />
-                                                                                    Поделиться
+                                                                                    {t('duelMenu.lobby.share')}
                                                                                 </Button>
                                                                             )}
 
@@ -2224,7 +2226,7 @@ export default function Duel() {
                                                                                     className="flex-1 h-10 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/30"
                                                                                 >
                                                                                     <X className="mr-2 h-4 w-4" />
-                                                                                    Отменить
+                                                                                    {t('duelMenu.lobby.cancel')}
                                                                                 </Button>
                                                                             )}
                                                                         </div>
@@ -2248,7 +2250,7 @@ export default function Duel() {
                                                                                         <Sparkles className="h-4 w-4 text-green-500" />
                                                                                     </motion.div>
                                                                                     <p className="text-green-700 dark:text-green-300 font-black text-lg">
-                                                                                        Соперник найден!
+                                                                                        {t('duelMenu.lobby.found')}
                                                                                     </p>
                                                                                     <motion.div
                                                                                         animate={{ rotate: -360 }}
@@ -2263,7 +2265,7 @@ export default function Duel() {
                                                                                     transition={{ delay: 0.3 }}
                                                                                     className="text-foreground/90 font-bold text-base sm:text-lg text-center relative z-10"
                                                                                 >
-                                                                                    Приготовьтесь к битве! Битва начнется через 3 секунды... ⚔️
+                                                                                    {t('duelMenu.lobby.prepare')}
                                                                                 </motion.p>
                                                                             </motion.div>
                                                                         )}
@@ -2299,10 +2301,10 @@ export default function Duel() {
                                                                 </motion.div>
                                                                 <div className="min-w-0 flex-1">
                                                                     <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-1.5 bg-gradient-to-r from-amber-700 to-orange-700 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">
-                                                                        Присоединиться
+                                                                        {t('duelMenu.join.title')}
                                                                     </h3>
                                                                     <p className="text-sm sm:text-base text-muted-foreground/80 leading-relaxed">
-                                                                        Введите код дуэли от друга и начните битву
+                                                                        {t('duelMenu.join.description')}
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -2310,7 +2312,7 @@ export default function Duel() {
                                                             <div className="space-y-4 sm:space-y-5">
                                                                 <div className="space-y-3">
                                                                     <Label htmlFor="join-code" className="text-sm sm:text-base font-bold text-foreground/90">
-                                                                        Код дуэли
+                                                                        {t('duelMenu.join.label')}
                                                                     </Label>
                                                                     <div className="relative">
                                                                         {/* Premium input container */}
@@ -2366,7 +2368,7 @@ export default function Duel() {
                                                                             animate={{ opacity: joinCode.length === 4 ? 1 : 0.6 }}
                                                                             className="text-xs sm:text-sm text-center text-muted-foreground/80 pt-2 px-2 font-medium"
                                                                         >
-                                                                            {joinCode.length < 4 ? 'Введите 4 символа' : joinCode.length === 4 ? '✨ Код принят!' : ''}
+                                                                            {joinCode.length < 4 ? t('duelMenu.join.error4chars') : joinCode.length === 4 ? t('duelMenu.join.codeAccepted') : ''}
                                                                         </motion.p>
                                                                     </div>
                                                                 </div>
@@ -2396,30 +2398,30 @@ export default function Duel() {
                                                                                         {userCoins >= joinTotalRequired ? (
                                                                                             <span className="flex items-center gap-1.5 font-bold">
                                                                                                 <Coins size={14} className="text-amber-500" />
-                                                                                                <span>Дуэль со ставкой!</span>
+                                                                                                <span>{t('duelMenu.join.betWarning')}</span>
                                                                                             </span>
-                                                                                        ) : '⚠️ Недостаточно монет!'}
+                                                                                        ) : t('duelMenu.join.insufficient')}
                                                                                     </p>
                                                                                     <p className="text-xs sm:text-sm text-muted-foreground">
-                                                                                        Ставка: <span className="font-bold text-foreground">{duelPreview.bet_amount}</span> монет
+                                                                                        {t('duelMenu.join.stakeLabel')} <span className="font-bold text-foreground">{duelPreview.bet_amount}</span> {t('duelMenu.join.coins')}
                                                                                     </p>
                                                                                     {joinInsuranceEnabled && (
                                                                                         <p className="text-xs sm:text-sm text-muted-foreground">
-                                                                                            Страховка: <span className="font-bold text-foreground">+{joinInsurancePremiumValue}</span> монет • возврат {Math.round(COVERAGE_RATE * 100)}%
+                                                                                            {t('duelMenu.join.insuranceLabel')} <span className="font-bold text-foreground">+{joinInsurancePremiumValue}</span> {t('duelMenu.join.coins')} • {t('duelMenu.join.returnOnLoss', { percent: Math.round(COVERAGE_RATE * 100) })}
                                                                                         </p>
                                                                                     )}
                                                                                     <p className="text-xs sm:text-sm text-muted-foreground">
-                                                                                        Всего нужно: <span className="font-bold text-foreground">{joinTotalRequired}</span> монет
+                                                                                        {t('duelMenu.join.totalRequired')} <span className="font-bold text-foreground">{joinTotalRequired}</span> {t('duelMenu.join.coins')}
                                                                                     </p>
                                                                                     <p className="text-xs sm:text-sm text-muted-foreground">
-                                                                                        У вас: <span className={`font-bold ${userCoins >= joinTotalRequired ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                                                        {t('duelMenu.join.youHave')} <span className={`font-bold ${userCoins >= joinTotalRequired ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                                                                             {userCoins}
-                                                                                        </span> монет
+                                                                                        </span> {t('duelMenu.join.coins')}
                                                                                     </p>
                                                                                     {userCoins < joinTotalRequired && (
                                                                                         <div className="space-y-4">
                                                                                             <p className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400">
-                                                                                                Нужно ещё {joinTotalRequired - userCoins} монет
+                                                                                                {t('duelMenu.join.needMore', { amount: joinTotalRequired - userCoins })}
                                                                                             </p>
                                                                                             {duelPreview?.id && (
                                                                                                 <DuelHelpRequest
@@ -2455,7 +2457,7 @@ export default function Duel() {
                                                                             </div>
                                                                             <div className="flex-1 min-w-0">
                                                                                 <p className="text-xs sm:text-sm text-muted-foreground/90 leading-relaxed font-medium">
-                                                                                    Попросите друга поделиться кодом из экрана ожидания дуэли
+                                                                                    {t('duelMenu.join.hint')}
                                                                                 </p>
                                                                             </div>
                                                                         </div>
@@ -2485,13 +2487,13 @@ export default function Duel() {
                                                                             </div>
                                                                             <div>
                                                                                 <div className="flex items-center gap-1.5">
-                                                                                    <p className="text-sm font-semibold text-foreground leading-none">Страховка</p>
+                                                                                    <p className="text-sm font-semibold text-foreground leading-none">{t('duelMenu.join.insuranceLabel').replace(':', '')}</p>
                                                                                     {joinInsuranceEnabled && (
-                                                                                        <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-500/10 px-1 rounded leading-none">Активна</span>
+                                                                                        <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-tighter bg-emerald-500/10 px-1 rounded leading-none">{t('duelMenu.join.insuranceActive')}</span>
                                                                                     )}
                                                                                 </div>
                                                                                 <p className="text-xs text-muted-foreground mt-0.5">
-                                                                                    +{joinInsurancePremiumValue} монет • возврат {Math.round(COVERAGE_RATE * 100)}%
+                                                                                    +{joinInsurancePremiumValue} {t('duelMenu.join.coins')} • {t('duelMenu.join.returnOnLoss', { percent: Math.round(COVERAGE_RATE * 100) })}
                                                                                 </p>
                                                                             </div>
                                                                         </div>
@@ -2543,21 +2545,21 @@ export default function Duel() {
                                                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                                                 </svg>
-                                                                                <span className="hidden sm:inline relative z-10">Присоединение...</span>
-                                                                                <span className="sm:hidden relative z-10">Присоединение</span>
+                                                                                <span className="hidden sm:inline relative z-10">{t('duelMenu.join.joining')}</span>
+                                                                                <span className="sm:hidden relative z-10">{t('duelMenu.join.joiningShort')}</span>
                                                                             </>
                                                                         ) : duelPreview && duelPreview.bet_amount > 0 ? (
                                                                             <>
                                                                                 <Coins className="mr-2 h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
                                                                                 <span className="hidden sm:inline relative z-10">
-                                                                                    Присоединиться за {joinTotalRequired} монет
+                                                                                    {t('duelMenu.join.joinFor', { amount: joinTotalRequired })}
                                                                                 </span>
-                                                                                <span className="sm:hidden relative z-10">За {joinTotalRequired}</span>
+                                                                                <span className="sm:hidden relative z-10">{t('duelMenu.join.joinForShort', { amount: joinTotalRequired })}</span>
                                                                             </>
                                                                         ) : (
                                                                             <>
                                                                                 <LogIn className="mr-2 h-4 w-4 sm:h-5 sm:w-5 relative z-10" />
-                                                                                <span className="relative z-10">Присоединиться</span>
+                                                                                <span className="relative z-10">{t('duelMenu.join.button')}</span>
                                                                             </>
                                                                         )}
                                                                     </Button>
@@ -2581,11 +2583,11 @@ export default function Duel() {
                                             <h3 className="text-3xl sm:text-4xl font-black flex items-center gap-3.5">
                                                 <Sparkles className="h-7 w-7 text-primary" />
                                                 <span className="text-white tracking-tight">
-                                                    Как играть
+                                                    {t('duelMenu.howToPlay.title')}
                                                 </span>
                                             </h3>
                                             <p className="text-slate-400 text-sm sm:text-base font-medium max-w-md leading-relaxed">
-                                                Узнайте основные механики дуэлей и начните побеждать прямо сейчас
+                                                {t('duelMenu.howToPlay.subtitle')}
                                             </p>
                                         </div>
 
@@ -2597,10 +2599,10 @@ export default function Duel() {
 
                                     <div className="grid sm:grid-cols-2 gap-4 sm:gap-5">
                                         {[
-                                            { icon: Swords, title: 'Создайте или присоединитесь', desc: 'Пригласите друга или введите секретный код дуэли для начала битвы', color: 'blue' },
-                                            { icon: Zap, title: 'Отвечайте быстрее', desc: 'Чем быстрее ваш ответ, тем больше очков вы получаете', color: 'purple' },
-                                            { icon: Target, title: 'Собирайте комбо', desc: 'Серия правильных ответов активирует множитель очков до x3', color: 'red' },
-                                            { icon: Trophy, title: 'Побеждайте!', desc: 'Получайте награды и поднимайтесь в глобальном рейтинге', color: 'orange' },
+                                            { icon: Swords, title: t('duelMenu.howToPlay.steps.create.title'), desc: t('duelMenu.howToPlay.steps.create.desc'), color: 'blue' },
+                                            { icon: Zap, title: t('duelMenu.howToPlay.steps.speed.title'), desc: t('duelMenu.howToPlay.steps.speed.desc'), color: 'purple' },
+                                            { icon: Target, title: t('duelMenu.howToPlay.steps.combo.title'), desc: t('duelMenu.howToPlay.steps.combo.desc'), color: 'red' },
+                                            { icon: Trophy, title: t('duelMenu.howToPlay.steps.win.title'), desc: t('duelMenu.howToPlay.steps.win.desc'), color: 'orange' },
                                         ].map((item, index) => {
                                             const Icon = item.icon;
                                             const colorClasses: Record<string, string> = {
@@ -2744,9 +2746,9 @@ export default function Duel() {
                                                 <Swords className="w-5 h-5 text-white" />
                                             </div>
                                             <div>
-                                                <h3 className="text-base font-black text-foreground">Реванш!</h3>
+                                                <h3 className="text-base font-black text-foreground">{t('duelMenu.rematch.title')}</h3>
                                                 <p className="text-xs text-muted-foreground font-medium">
-                                                    vs <span className="text-foreground font-bold">{rematchOpponent.name || 'Соперник'}</span>
+                                                    vs <span className="text-foreground font-bold">{rematchOpponent.name || t('duelMenu.rematch.opponent')}</span>
                                                 </p>
                                             </div>
                                             <button
@@ -2763,22 +2765,20 @@ export default function Duel() {
                                     </div>
 
                                     <div className="p-5 space-y-4">
-                                        {/* Условия дуэли */}
                                         <div className="grid grid-cols-2 gap-2.5">
                                             <div className="flex flex-col gap-1 p-3 rounded-xl bg-muted/40 border border-border/40">
-                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Вопросов</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{t('duelMenu.setup.questions.title')}</span>
                                                 <span className="text-lg font-black text-foreground">{numQuestions}</span>
                                             </div>
                                             <div className="flex flex-col gap-1 p-3 rounded-xl bg-muted/40 border border-border/40">
-                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">Ставка</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">{t('duelMenu.setup.betting.title')}</span>
                                                 <div className="flex items-center gap-1.5">
                                                     <Coins className="w-4 h-4 text-amber-500" />
-                                                    <span className="text-lg font-black text-amber-500">{betAmount > 0 ? betAmount : 'Нет'}</span>
+                                                    <span className="text-lg font-black text-amber-500">{betAmount > 0 ? betAmount : t('duelMenu.setup.betting.none')}</span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Страховка */}
                                         {betAmount > 0 && (
                                             <motion.div
                                                 animate={{
@@ -2795,9 +2795,9 @@ export default function Duel() {
                                                         <Shield className={cn("w-4 h-4", rematchInsuranceEnabled ? "text-emerald-500" : "text-muted-foreground")} />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-foreground">Страховка</p>
+                                                        <p className="text-sm font-bold text-foreground">{t('duelMenu.setup.insurance.title')}</p>
                                                         <p className="text-xs text-muted-foreground">
-                                                            +{getInsurancePremium(betAmount)} монет • возврат {Math.round(COVERAGE_RATE * 100)}%
+                                                            +{getInsurancePremium(betAmount)} {t('duelMenu.join.coins')} • {t('duelMenu.join.returnOnLoss', { percent: Math.round(COVERAGE_RATE * 100) })}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -2808,7 +2808,6 @@ export default function Duel() {
                                             </motion.div>
                                         )}
 
-                                        {/* Активная страховка индикатор */}
                                         {betAmount > 0 && rematchInsuranceEnabled && (
                                             <motion.div
                                                 initial={{ opacity: 0, height: 0 }}
@@ -2817,11 +2816,10 @@ export default function Duel() {
                                                 className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium px-1"
                                             >
                                                 <Shield className="w-3.5 h-3.5" />
-                                                <span>Страховка активна — ваш аватар будет в зелёной ауре</span>
+                                                <span>{t('duelMenu.rematch.insuranceActive')}</span>
                                             </motion.div>
                                         )}
 
-                                        {/* Кнопки */}
                                         <div className="flex flex-col gap-2 pt-1">
                                             <Button
                                                 onClick={() => {
@@ -2833,7 +2831,7 @@ export default function Duel() {
                                             >
                                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                                                 <Swords className="w-4 h-4 mr-2 relative z-10" />
-                                                <span className="relative z-10">В бой!</span>
+                                                <span className="relative z-10">{t('duelMenu.rematch.battle')}</span>
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -2845,7 +2843,7 @@ export default function Duel() {
                                                 }}
                                                 className="w-full h-10 text-sm font-medium text-muted-foreground hover:text-foreground rounded-2xl"
                                             >
-                                                Отмена
+                                                {t('duelMenu.rematch.cancel')}
                                             </Button>
                                         </div>
                                     </div>
