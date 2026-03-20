@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { isTelegramMobilePlatformName } from '@/lib/telegram';
 import { ExamHeader } from '@/components/exam/ExamHeader';
 import { BlitzHeader } from '@/components/blitz';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
@@ -114,6 +115,10 @@ export const TestSessionHeader = ({
     onReportProblem,
     handleClose,
 }: TestSessionHeaderProps) => {
+    const isTelegramMobile = isTelegramApp && isTelegramMobilePlatformName(
+        typeof window !== 'undefined' ? window.Telegram?.WebApp?.platform : undefined
+    );
+
     return (
         <div
             className={cn(
@@ -123,9 +128,13 @@ export const TestSessionHeader = ({
                     mode === 'blitz' ? "py-0" : "py-1 sm:py-2"
             )}
             style={{
-                top: isTelegramApp
+                // Только на Telegram Mobile нужен отступ от header-бара Telegram
+                // На Desktop — 0, в браузере — undefined (top-0 через CSS)
+                top: isTelegramMobile
                     ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), 88px)'
-                    : undefined
+                    : isTelegramApp
+                        ? 0
+                        : undefined
             }}
         >
             {mode === 'exam-russia' && russiaExam.state && russiaExam.progress ? (
