@@ -3,7 +3,7 @@ import { ExamHeader } from '@/components/exam/ExamHeader';
 import { BlitzHeader } from '@/components/blitz';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { TestSettingsMenu } from '@/components/TestSettingsMenu';
-import { Clock, Trophy } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import type { TestMode } from '@/store/examStore';
 import type { RussiaExamState } from '@/types/pddExam';
 
@@ -171,62 +171,58 @@ export const TestSessionHeader = ({
                     onReportProblem={onReportProblem}
                     customLeftContent={
                         <>
-                            {/* Compact Dial Timer (New) */}
+                            {/* ─── Ring Timer (экзамены: DGT 30м / ГИБДД 20м / marathon) ─── */}
                             {(mode === "exam" || mode === "exam-russia" || mode === "marathon") && (() => {
-                                const maxTime = 1800; // Assuming 30 minutes for exam
-                                const isWarningTime = (mode === "exam" || mode === "exam-russia") && timeLeft > 0 && timeLeft < 300;
+                                const maxTime = mode === "exam-russia" ? 1200 : mode === "exam" ? 1800 : 600;
+                                const isWarning = timeLeft > 0 && timeLeft <= 120;
+                                const isCritical = timeLeft > 0 && timeLeft <= 30;
                                 const progress = Math.max(0, Math.min(100, (timeLeft / maxTime) * 100));
-                                const circumference = 2 * Math.PI * 14;
+                                const radius = 20;
+                                const circumference = 2 * Math.PI * radius;
                                 const offset = circumference - (progress / 100) * circumference;
+                                const displayValue = timeLeft >= 60
+                                    ? `${Math.floor(timeLeft / 60)}м`
+                                    : `${timeLeft}с`;
+                                const ringColor = isCritical ? '#ef4444' : isWarning ? '#f97316' : '#60a5fa';
 
                                 return (
-                                    <div className={cn(
-                                        "flex items-center gap-2 px-2 py-1 rounded-full border shadow-sm shrink-0 transition-colors duration-300",
-                                        isWarningTime ? "bg-red-500/10 border-red-500/30" : "bg-zinc-900/80 dark:bg-black/60 backdrop-blur-xl border-white/10"
-                                    )}>
-                                        <div className="relative w-5 h-5 flex items-center justify-center">
-                                            <svg className="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox="0 0 32 32">
-                                                <circle cx="16" cy="16" r="14" fill="none" className="stroke-white/10" strokeWidth="4" />
-                                                <circle
-                                                    cx="16" cy="16" r="14" fill="none"
-                                                    className={cn("transition-all duration-1000", isWarningTime ? "stroke-red-500 animate-pulse" : "stroke-blue-400")}
-                                                    strokeWidth="4"
-                                                    strokeDasharray={circumference}
-                                                    strokeDashoffset={offset}
-                                                    strokeLinecap="round"
-                                                />
-                                            </svg>
+                                    <div className="relative shrink-0" style={{ width: 52, height: 52 }}>
+                                        {isCritical && (
+                                            <div
+                                                className="absolute inset-0 rounded-full animate-ping"
+                                                style={{ background: 'rgba(239,68,68,0.25)' }}
+                                            />
+                                        )}
+                                        <svg width="52" height="52" viewBox="0 0 52 52" style={{ transform: 'rotate(-90deg)' }}>
+                                            <circle cx="26" cy="26" r={radius} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="4" />
+                                            <circle
+                                                cx="26" cy="26" r={radius} fill="none"
+                                                stroke={ringColor}
+                                                strokeWidth="4"
+                                                strokeDasharray={circumference}
+                                                strokeDashoffset={offset}
+                                                strokeLinecap="round"
+                                                style={{
+                                                    transition: 'stroke-dashoffset 1s linear, stroke 0.5s ease',
+                                                    filter: isCritical ? `drop-shadow(0 0 4px ${ringColor})` : undefined,
+                                                }}
+                                            />
+                                        </svg>
+                                        <div
+                                            className="absolute inset-0 flex items-center justify-center"
+                                            style={{ color: isCritical ? '#ef4444' : isWarning ? '#f97316' : 'white' }}
+                                        >
+                                            <span
+                                                className="font-bold leading-none"
+                                                style={{
+                                                    fontSize: timeLeft >= 60 ? '11px' : '13px',
+                                                    fontVariantNumeric: 'tabular-nums',
+                                                    animation: isCritical ? 'pulse 1s ease-in-out infinite' : undefined,
+                                                }}
+                                            >
+                                                {displayValue}
+                                            </span>
                                         </div>
-                                        <span className={cn(
-                                            "font-mono font-bold text-xs pr-1 leading-none tracking-tight text-white",
-                                            isWarningTime ? "text-red-400 animate-pulse" : ""
-                                        )}>
-                                            {formatTime(timeLeft)}
-                                        </span>
-                                    </div>
-                                );
-                            })()}
-
-                            {/* Timer (Old) */}
-                            {(mode === "exam" || mode === "exam-russia" || mode === "marathon") && (() => {
-                                const isWarningTime = (mode === "exam" || mode === "exam-russia") && timeLeft > 0 && timeLeft < 300;
-                                return (
-                                    <div className={cn(
-                                        "flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border shadow-sm shrink-0 transition-colors duration-300",
-                                        isWarningTime
-                                            ? "bg-red-500/10 border-red-500/30 animate-pulse"
-                                            : "bg-background/80 backdrop-blur-md border-border/50"
-                                    )}>
-                                        <Clock className={cn(
-                                            "w-4 h-4 sm:w-5 sm:h-5 transition-colors",
-                                            isWarningTime ? "text-red-500" : "text-foreground/70"
-                                        )} />
-                                        <span className={cn(
-                                            "font-mono font-semibold text-xs sm:text-sm transition-colors",
-                                            isWarningTime ? "text-red-600 dark:text-red-400" : "text-foreground"
-                                        )}>
-                                            {formatTime(timeLeft)}
-                                        </span>
                                     </div>
                                 );
                             })()}

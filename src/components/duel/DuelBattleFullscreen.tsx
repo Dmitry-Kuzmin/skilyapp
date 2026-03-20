@@ -18,6 +18,7 @@ import { useUserContext } from '@/contexts/UserContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useSafeArea } from '@/hooks/useSafeArea';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
+import { useModal } from '@/hooks/useModal';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
@@ -249,6 +250,19 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     },
     isFinishingRef,
   });
+
+  // 🔄 AUTO-SYNC: Sync inventory after Shop is closed
+  const { isOpen: isShopOpen } = useModal('BOOST_SHOP');
+  const lastShopOpenRef = useRef(false);
+
+  useEffect(() => {
+    // If shop was open and now it's closed
+    if (lastShopOpenRef.current && !isShopOpen) {
+      log('[DuelBattleFullscreen] 🛒 Shop closed, triggering inventory sync...');
+      syncBoostInventory();
+    }
+    lastShopOpenRef.current = isShopOpen;
+  }, [isShopOpen, syncBoostInventory]);
 
   useEffect(() => {
     const loadPlayers = async () => {
@@ -682,7 +696,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         isWaitingHidden={isWaitingHidden}
         setIsWaitingHidden={setIsWaitingHidden}
         duelId={duelId}
-        duelCode={duelCode}
+        duelCode={duelCode || undefined}
         profileId={profileId}
         myScore={myScore}
         opponentScore={opponentScore}

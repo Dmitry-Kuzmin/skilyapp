@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X, Droplets, Lock } from 'lucide-react';
+import { Sparkles, Timer, HelpCircle, SkipForward, Globe, Zap, ChevronDown, X, Droplets, Lock, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { memo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useModal } from '@/hooks/useModal';
+import { haptics } from '@/lib/haptics';
+import { cn } from '@/lib/utils';
 
 interface Boost {
   boost_type: string;
@@ -29,6 +32,8 @@ export const DuelBoostsPanel = memo(({
   onTranslatePopoverChange,
 }: DuelBoostsPanelProps) => {
   const { t } = useLanguage();
+  const { openModal } = useModal('BOOST_SHOP');
+
   // ОПТИМИЗАЦИЯ: Логируем только в dev режиме
   const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1'));
   const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
@@ -66,7 +71,9 @@ export const DuelBoostsPanel = memo(({
 
         const BoostIcon = boostConfig.icon;
         const isUsed = usedBoosts.includes(boost.boost_type);
-        const isDisabled = isUsed || isAnswered || boost.quantity <= 0;
+        const isEmpty = boost.quantity <= 0;
+        const isDisabled = isUsed || isAnswered;
+        const isClickable = !isDisabled; // Теперь даже при 0 буст кликабелен для покупки
 
         // Используем иконку из БД, если она есть, иначе fallback на иконку из конфига
         const displayIcon = boost.icon || null;
@@ -127,6 +134,14 @@ export const DuelBoostsPanel = memo(({
           <motion.button
             key={boost.boost_type}
             onClick={() => {
+              if (isDisabled) return;
+              
+              if (isEmpty) {
+                haptics.light();
+                openModal({ initialTab: 'boosts' });
+                return;
+              }
+
               if (boost.boost_type === 'translate') {
                 onTranslatePopoverChange(boost.boost_type);
               } else {
@@ -134,13 +149,17 @@ export const DuelBoostsPanel = memo(({
               }
             }}
             disabled={isDisabled}
-            whileHover={!isDisabled ? { scale: 1.05 } : {}}
-            whileTap={!isDisabled ? { scale: 0.95 } : {}}
-            className={`relative h-8 px-1.5 sm:px-2 flex items-center gap-0.5 sm:gap-1 rounded-lg font-bold text-[10px] sm:text-[11px] transition-all shadow-sm border ${isDisabled
-              ? 'bg-muted/30 border-border/40 opacity-40 cursor-not-allowed grayscale'
-              : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
-              }`}
-            title={t(`boostShop.boostNames.${boost.boost_type}.description`)}
+            whileHover={isClickable ? { scale: 1.05 } : {}}
+            whileTap={isClickable ? { scale: 0.95 } : {}}
+            className={cn(
+               "relative h-8 px-1.5 sm:px-2 flex items-center gap-0.5 sm:gap-1 rounded-lg font-bold text-[10px] sm:text-[11px] transition-all shadow-sm border",
+               isDisabled 
+                 ? "bg-muted/30 border-border/40 opacity-40 cursor-not-allowed grayscale" 
+                 : isEmpty
+                   ? "bg-zinc-800/40 border-dashed border-zinc-600/50 text-zinc-400 hover:bg-zinc-800/60 hover:border-zinc-500/80 cursor-pointer"
+                   : `${boostConfig.bg} text-white border-white/25 hover:shadow-md hover:border-white/40`
+            )}
+            title={isEmpty && !isDisabled ? "Купить еще бустов" : t(`boostShop.boostNames.${boost.boost_type}.description`)}
           >
             {displayIcon ? (
               <span className="text-lg flex items-center justify-center shrink-0 w-4 h-4 leading-none" title={displayName}>
@@ -153,9 +172,11 @@ export const DuelBoostsPanel = memo(({
             {boost.boost_type === 'translate' && !isDisabled && (
               <ChevronDown className={`h-2.5 w-2.5 transition-transform duration-200 shrink-0 ${translatePopoverOpen === boost.boost_type ? 'rotate-180' : ''}`} />
             )}
-            <div className={`ml-0.5 h-4 px-1 flex items-center justify-center rounded text-white text-[9px] font-bold min-w-[16px] shrink-0 ${isDisabled ? 'bg-white/10' : 'bg-white/30'
-              }`}>
-              {boost.quantity}
+            <div className={cn(
+              "ml-0.5 h-4 px-1 flex items-center justify-center rounded text-[9px] font-bold min-w-[16px] shrink-0 transition-colors",
+              isDisabled ? "bg-white/10 text-white/50" : isEmpty ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" : "bg-white/30 text-white"
+            )}>
+              {isEmpty && !isDisabled ? <Plus className="w-2.5 h-2.5" /> : boost.quantity}
             </div>
           </motion.button>
         );

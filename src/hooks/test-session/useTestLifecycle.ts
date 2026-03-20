@@ -85,7 +85,7 @@ export const useTestLifecycle = ({
     useEffect(() => {
         if (questionsState.length === 0) return;
 
-        // Режимы с сохранением и восстановлением прогресса (только для марафонских режимов, где это критично)
+        // Восстановление прогресса ТОЛЬКО для nonstop — экзамены всегда начинаются заново!
         const canRestore = mode === 'nonstop';
 
         const doInit = async () => {
@@ -106,7 +106,8 @@ export const useTestLifecycle = ({
                         });
                         savedProgress = {
                             answers: answersRecord,
-                            currentIndex: saved.currentIndex
+                            currentIndex: saved.currentIndex,
+                            startTime: saved.startTime, // Ключевое: сохраняем оригинальное время запуска!
                         };
                         toast.info('Прогресс восстановлен', { icon: '↩️', id: `restore-${testInfo.id}` });
                     }

@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DuelSettingsMenu } from '../../DuelSettingsMenu';
 import { QuestionProgressBar } from '@/components/QuestionProgressBar';
 import { DuelTimer } from '../../DuelTimer';
@@ -136,7 +136,7 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
         <>
             {/* Unified Progress Bar */}
             <div
-                className="relative z-[5] bg-background/95 backdrop-blur-md border-b border-border/30 overflow-hidden"
+                className="relative z-[30] bg-background/95 backdrop-blur-md border-b border-border/30 overflow-visible"
                 style={{
                     paddingTop: isTelegramMobile || isTelegramDesktop ? '4px' : '8px',
                     paddingBottom: isTelegramMobile || isTelegramDesktop ? '4px' : '8px'
@@ -177,86 +177,146 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                 <div
                     className={cn(
                         "max-w-7xl mx-auto w-full px-2 md:px-4",
-                        "relative flex items-center justify-between gap-2 transition-all duration-300 overflow-hidden",
+                        "relative flex items-center justify-between gap-2 transition-all duration-300 overflow-visible",
                         screenShake && "animate-shake"
                     )}
                 >
-                    {/* Score Board - Hidden on mobile if boosts are active */}
-                    <div className={cn(
-                        "flex-1 transition-all duration-300",
-                        isMobileView && showBoostsMobile ? "opacity-0 scale-95 pointer-events-none absolute -translate-x-full" : "opacity-100 scale-100"
-                    )}>
-                        <DuelScoreBoard
-                            myScore={myScore}
-                            opponentScore={opponentScore}
-                            myName={myName}
-                            opponentName={opponentName}
-                            myPhotoUrl={myPhotoUrl ?? null}
-                            opponentPhotoUrl={opponentPhotoUrl ?? null}
-                            myInsuranceActive={myInsuranceActive}
-                            myCoverageDisplay={myCoverageDisplay}
-                            opponentInsuranceActive={opponentInsuranceActive}
-                            opponentCoverageDisplay={opponentCoverageDisplay}
-                            opponentActivityStatus={opponentActivityStatus}
-                            opponentAnswered={opponentAnswered}
-                            betInfo={betInfo}
-                            seasonBonusDisplay={seasonBonusDisplay}
-                            isTelegramMobile={isTelegramMobile}
-                            opponentIsConnected={opponentIsConnected}
-                            opponentLastSeen={opponentLastSeen}
-                            combo={combo}
-                        />
-                    </div>
+                    {isMobileView ? (
+                        <AnimatePresence mode="wait">
+                            {!showBoostsMobile ? (
+                                <motion.div
+                                    key="scoreboard-mobile"
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -10, transition: { duration: 0.15 } }}
+                                    transition={{ duration: 0.25, ease: "easeOut" }}
+                                    className="flex-1 min-w-0"
+                                >
+                                    <DuelScoreBoard
+                                        myScore={myScore}
+                                        opponentScore={opponentScore}
+                                        myName={myName}
+                                        opponentName={opponentName}
+                                        myPhotoUrl={myPhotoUrl ?? null}
+                                        opponentPhotoUrl={opponentPhotoUrl ?? null}
+                                        myInsuranceActive={myInsuranceActive}
+                                        myCoverageDisplay={myCoverageDisplay}
+                                        opponentInsuranceActive={opponentInsuranceActive}
+                                        opponentCoverageDisplay={opponentCoverageDisplay}
+                                        opponentActivityStatus={opponentActivityStatus}
+                                        opponentAnswered={opponentAnswered}
+                                        betInfo={betInfo}
+                                        seasonBonusDisplay={seasonBonusDisplay}
+                                        isTelegramMobile={isTelegramMobile}
+                                        opponentIsConnected={opponentIsConnected}
+                                        opponentLastSeen={opponentLastSeen}
+                                        combo={combo}
+                                    />
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="boostspanel-mobile"
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 10, transition: { duration: 0.15 } }}
+                                    transition={{ duration: 0.25, ease: "easeOut" }}
+                                    className="flex-1 min-w-0 overflow-visible"
+                                >
+                                    <ArenaControls
+                                        boosts={boosts}
+                                        usedBoosts={usedBoosts}
+                                        isAnswered={isAnswered}
+                                        translatePopoverOpen={translatePopoverOpen}
+                                        onBoostUse={onBoostUse}
+                                        setTranslatePopoverOpen={setTranslatePopoverOpen}
+                                        isTelegramMobile={isMobileView}
+                                    />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    ) : (
+                        <>
+                            <div className="flex-1 min-w-0">
+                                <DuelScoreBoard
+                                    myScore={myScore}
+                                    opponentScore={opponentScore}
+                                    myName={myName}
+                                    opponentName={opponentName}
+                                    myPhotoUrl={myPhotoUrl ?? null}
+                                    opponentPhotoUrl={opponentPhotoUrl ?? null}
+                                    myInsuranceActive={myInsuranceActive}
+                                    myCoverageDisplay={myCoverageDisplay}
+                                    opponentInsuranceActive={opponentInsuranceActive}
+                                    opponentCoverageDisplay={opponentCoverageDisplay}
+                                    opponentActivityStatus={opponentActivityStatus}
+                                    opponentAnswered={opponentAnswered}
+                                    betInfo={betInfo}
+                                    seasonBonusDisplay={seasonBonusDisplay}
+                                    isTelegramMobile={isTelegramMobile}
+                                    opponentIsConnected={opponentIsConnected}
+                                    opponentLastSeen={opponentLastSeen}
+                                    combo={combo}
+                                />
+                            </div>
+                            <div className="flex-none">
+                                <ArenaControls
+                                    boosts={boosts}
+                                    usedBoosts={usedBoosts}
+                                    isAnswered={isAnswered}
+                                    translatePopoverOpen={translatePopoverOpen}
+                                    onBoostUse={onBoostUse}
+                                    setTranslatePopoverOpen={setTranslatePopoverOpen}
+                                    isTelegramMobile={isMobileView}
+                                />
+                            </div>
+                        </>
+                    )}
 
-                    <div className={cn(
-                        "transition-all duration-300 flex items-center gap-2",
-                        isMobileView ? (showBoostsMobile ? "flex-1 w-full" : "flex-none") : "flex-none"
-                    )}>
-                        {/* Mobile Toggle Button (Zap) - Now shown for all mobile views */}
-                        {isMobileView && (
-                            <button
-                                onClick={() => {
-                                    setShowBoostsMobile(!showBoostsMobile);
-                                    haptics.light();
-                                }}
-                                className={cn(
-                                    "relative h-11 w-11 flex items-center justify-center rounded-2xl transition-all duration-300 active:scale-95 shadow-lg overflow-visible",
-                                    showBoostsMobile 
-                                        ? "bg-zinc-800/90 text-white border border-white/20" 
-                                        : "bg-indigo-600/90 text-white border border-indigo-400/50 shadow-indigo-500/30"
-                                )}
-                            >
+                    {/* Mobile Toggle Button (Zap) */}
+                    {isMobileView && (
+                        <button
+                            onClick={() => {
+                                setShowBoostsMobile(!showBoostsMobile);
+                                haptics.light();
+                            }}
+                            className={cn(
+                                "relative h-11 w-11 flex-shrink-0 flex items-center justify-center rounded-2xl transition-all duration-300 active:scale-95 shadow-lg overflow-visible",
+                                showBoostsMobile 
+                                    ? "bg-zinc-800/90 text-white border border-white/20" 
+                                    : "bg-indigo-600/90 text-white border border-indigo-400/50 shadow-indigo-500/30"
+                            )}
+                        >
+                            <AnimatePresence mode="wait">
                                 {showBoostsMobile ? (
-                                    <X className="w-5 h-5" />
+                                    <motion.div
+                                        key="icon-x"
+                                        initial={{ scale: 0, rotate: -90 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        exit={{ scale: 0, rotate: 90 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="flex items-center justify-center absolute inset-0"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </motion.div>
                                 ) : (
-                                    <>
+                                    <motion.div
+                                        key="icon-zap"
+                                        initial={{ scale: 0, rotate: 90 }}
+                                        animate={{ scale: 1, rotate: 0 }}
+                                        exit={{ scale: 0, rotate: -90 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="flex items-center justify-center absolute inset-0"
+                                    >
                                         <Zap className="w-5 h-5 fill-white animate-pulse" />
                                         <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                          <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
                                         </span>
-                                    </>
+                                    </motion.div>
                                 )}
-                            </button>
-                        )}
-
-                        {/* The Boosts themselves */}
-                        <div className={cn(
-                            "transition-all duration-300",
-                            isMobileView && !showBoostsMobile ? "hidden" : "block",
-                            isMobileView && showBoostsMobile && "flex-1"
-                        )}>
-                            <ArenaControls
-                                boosts={boosts}
-                                usedBoosts={usedBoosts}
-                                isAnswered={isAnswered}
-                                translatePopoverOpen={translatePopoverOpen}
-                                onBoostUse={onBoostUse}
-                                setTranslatePopoverOpen={setTranslatePopoverOpen}
-                                isTelegramMobile={isMobileView}
-                            />
-                        </div>
-                    </div>
+                            </AnimatePresence>
+                        </button>
+                    )}
                 </div>
             </div>
         </>

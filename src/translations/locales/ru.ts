@@ -1331,12 +1331,17 @@ export const ru = {
       createDesc: "Настройте лобби и пригласите друга",
       randomDesc: "Сражайтесь со случайными соперниками",
       betting: {
+        title: "Ставка",
+        none: "Без ставки",
         balance: "БАЛАНС:",
         prize: "ПРИЗ:",
         totalStake: "ВСЕГО К СПИСАНИЮ:",
         insurance: "Страховка",
         insuranceActive: "Активна",
         insuranceDesc: "Возврат {{percent}}% при проигрыше",
+      },
+      insurance: {
+        title: "Страховка",
       },
       questions: {
         title: "Вопросы",

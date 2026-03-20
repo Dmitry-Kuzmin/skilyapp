@@ -139,8 +139,10 @@ export function DailyQuestWidget() {
     switch (category) {
       case 'questions': return Target;
       case 'duels': return Zap;
+      case 'duel_wins': return Zap;
       case 'accuracy': return Target;
       case 'exams': return Trophy;
+      case 'perfect_exams': return Trophy;
       default: return Flame;
     }
   };

@@ -549,15 +549,15 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 handleEnter();
               }
             }}
-            className="px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-white text-slate-900 text-xs md:text-sm font-bold hover:bg-white/90 transition-all duration-300 hover:scale-105 relative whitespace-nowrap shadow-lg shadow-white/20"
+            className="bg-white text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10"
           >
             {referrerInfo ? (
-              <>
+              <span className="flex items-center">
                 {copy.controls.studentAccess}
                 <span className="ml-2 text-amber-500 inline-flex items-center gap-1">
                   +50 <Coins className="h-4 w-4 inline" />
                 </span>
-              </>
+              </span>
             ) : (
               copy.controls.studentAccess
             )}

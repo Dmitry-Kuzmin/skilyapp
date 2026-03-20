@@ -9,7 +9,7 @@ const DB_NAME = "postgres";
 const DB_USER = `postgres.${PROJECT_ID}`;
 
 const DB_URL = `postgresql://${DB_USER}:${encodeURIComponent(DB_PASSWORD)}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
-const SQL_PATH = '/Users/dimka/Desktop/Sdadim/sdadim-dgt-prep/supabase/migrations/20260312000000_daily_quests_system.sql';
+const SQL_PATH = '/Users/dimka/Desktop/Sdadim/sdadim-dgt-prep/supabase/migrations/categories_fix.sql';
 
 async function applyMigration() {
   const client = new Client({

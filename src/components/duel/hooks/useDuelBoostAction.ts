@@ -32,10 +32,10 @@ interface UseDuelBoostActionProps {
     isAnswered: boolean;
     setIsAnswered: (isAnswered: boolean) => void;
     setUsedBoosts: (boost: string) => void;
-    setEliminatedOptions: (options: number[]) => void;
-    setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
+    setEliminatedOptions: (options: string[]) => void;
+    setTimeLeft: (time: number) => void;
     setTranslationLanguage: (lang: 'ru' | 'en' | null) => void;
-    setSelectedAnswer: (answer: number | null) => void;
+    setSelectedAnswer: (answer: string | null) => void;
     finishDuel: () => void;
     moveToNextQuestion: () => void;
     questionEndTimeRef: React.MutableRefObject<number | null>;
@@ -176,13 +176,13 @@ export function useDuelBoostAction({
             const currentRemaining = useDuelStore.getState().timeLeft;
             const TIME_LIMIT_MS = 15000; // Base time per question roughly? Or from store.
 
-            // Add time
             if (questionEndTimeRef.current) {
                 const newEndTime = questionEndTimeRef.current + 30000; // +30 sec
                 questionEndTimeRef.current = newEndTime;
                 setTimeLeft(Math.min(currentRemaining + 30000, 45000)); // Max cap?
             } else {
-                setTimeLeft(prev => Math.min(prev + 30000, 45000));
+                const currentRemaining = useDuelStore.getState().timeLeft;
+                setTimeLeft(Math.min(currentRemaining + 30000, 45000));
             }
         } else if (boostType === 'hint') {
             sounds.boostHint();

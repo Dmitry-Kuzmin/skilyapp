@@ -62,6 +62,7 @@ export interface StandardExamStats {
 export interface SavedProgress {
     answers: Record<string, { isCorrect: boolean; selectedOptionId: string; answeredAt: number }>;
     currentIndex: number;
+    startTime?: number; // Оригинальное время начала сессии для восстановления таймера
 }
 
 export interface ExamOptions {
@@ -137,6 +138,15 @@ export const useExamStore = create<ExamStore>((set, get) => ({
             const startAnswers = saved?.answers ?? {};
             const hasRestoredAnswer = saved ? !!saved.answers[questions[startIndex]?.id] : false;
 
+            // Если восстанавливаем сессию — берем оригинальный startTime и пересчитываем остаток
+            const restoredStartTime = saved?.startTime ?? Date.now();
+            const elapsedSeconds = saved?.startTime
+                ? Math.floor((Date.now() - saved.startTime) / 1000)
+                : 0;
+            const remainingTime = timeLimit
+                ? Math.max(0, timeLimit - elapsedSeconds)
+                : (saved?.startTime ? Math.floor((Date.now() - saved.startTime) / 1000) : 0);
+
             const standardState: StandardTestState = {
                 questions,
                 currentIndex: startIndex,
@@ -148,9 +158,9 @@ export const useExamStore = create<ExamStore>((set, get) => ({
                     : 'idle',
                 streak: 0,
                 bestStreak: 0,
-                startTime: Date.now(),
+                startTime: restoredStartTime, // Оригинальное время начала
                 timeLimit,
-                timeInfo: timeLimit || 0,
+                timeInfo: remainingTime, // Уже прошедшее/оставшееся — правильное значение
                 status: 'in-progress',
                 mode
             };
@@ -158,6 +168,7 @@ export const useExamStore = create<ExamStore>((set, get) => ({
             set({
                 activeState: { kind: 'standard', data: standardState }
             });
+
         }
     },
 

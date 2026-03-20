@@ -1312,12 +1312,17 @@ export const es = {
       createDesc: "Configura el lobby e invita a un amigo",
       randomDesc: "Lucha contra oponentes aleatorios",
       betting: {
+        title: "Apuesta",
+        none: "Sin apuesta",
         balance: "SALDO:",
         prize: "PREMIO:",
         totalStake: "TOTAL A DEDUCIR:",
         insurance: "Seguro",
         insuranceActive: "Activo",
         insuranceDesc: "{{percent}}% de devolución por pérdida",
+      },
+      insurance: {
+        title: "Seguro",
       },
       questions: {
         title: "Preguntas",

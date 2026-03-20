@@ -16,6 +16,9 @@ import SmartDebriefCard, { FailedQuestion } from "@/components/test-results/Smar
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
+import { useQuestProgress } from "@/hooks/useQuestProgress";
+import type { QuestUpdateParams } from "@/hooks/useQuestProgress";
+import { QuestCompletionOverlay } from "@/components/quests/QuestCompletionOverlay";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -155,6 +158,7 @@ const TestResults = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isPremium } = usePremium();
+  const { completedQuests, updateProgress, clearCompleted } = useQuestProgress();
 
   // State for toggles
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
@@ -166,6 +170,7 @@ const TestResults = () => {
   // Refs
   const hasShownRewardsRef = useRef(false);
   const duelPassSyncRef = useRef(false);
+  const questSyncRef = useRef(false);
 
   // Parse state
   const state = location.state as {
@@ -219,9 +224,9 @@ const TestResults = () => {
     } catch (e) { console.error(e); }
   }, [rewardResult]);
 
-  // Sync Duel Pass
+  // Sync Duel Pass XP (только если есть награды)
   useEffect(() => {
-    const syncDuelPass = async () => {
+    const syncDuelPassXP = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user?.id || !rewardResult || duelPassSyncRef.current) return;
       duelPassSyncRef.current = true;
@@ -229,32 +234,43 @@ const TestResults = () => {
         await supabase.functions.invoke("duel-pass-xp", {
           body: { user_id: user.id, source_type: "test" },
         });
+      } catch (e) { console.error('[TestResults] duel-pass-xp error:', e); }
+    };
+    syncDuelPassXP();
+  }, [rewardResult]);
 
-        // 🎯 Update Daily Quests Progress
-        console.log('[TestResults] Updating Daily Quests...');
-        const questUpdates = [
-          // +X к количеству отвеченных вопросов
-          (supabase as any).rpc('update_daily_quest_progress', { 
-            p_user_id: user.id, p_category: 'questions', p_delta: answers.length 
-          })
-        ];
+  // Sync Daily Quests — ВСЕГДА при показе результатов (не зависит от rewardResult)
+  useEffect(() => {
+    const syncQuests = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id || questSyncRef.current || !state) return;
+      questSyncRef.current = true;
 
-        // Если тест пройден без ошибок (100% точность)
+      try {
         const hasNoErrors = answers.length > 0 && answers.every(a => a.isCorrect);
+        const updates: QuestUpdateParams[] = [];
+
+        if (answers.length > 0) {
+          updates.push({ userId: user.id, category: 'questions', delta: answers.length });
+        }
         if (hasNoErrors) {
-          questUpdates.push(
-            (supabase as any).rpc('update_daily_quest_progress', { 
-              p_user_id: user.id, p_category: 'accuracy', p_delta: answers.length 
-            })
-          );
+          updates.push({ userId: user.id, category: 'accuracy', delta: answers.length });
+        }
+        if (mode === 'exam' || mode === 'exam-russia') {
+          updates.push({ userId: user.id, category: 'exams', delta: 1 });
+          if (passed && hasNoErrors) {
+            updates.push({ userId: user.id, category: 'perfect_exams', delta: 1 });
+          }
         }
 
-        await Promise.all(questUpdates);
-
-      } catch (e) { console.error(e); }
+        if (updates.length > 0) {
+          await updateProgress(updates);
+        }
+      } catch (e) { console.error('[TestResults] Quest sync error:', e); }
     };
-    syncDuelPass();
-  }, [rewardResult]);
+    syncQuests();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   // Invalidate cache
   useEffect(() => {
@@ -418,6 +434,7 @@ const TestResults = () => {
   return (
     <Layout>
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.3} />}
+      <QuestCompletionOverlay quests={completedQuests} onDismiss={clearCompleted} />
 
       <div className="container mx-auto px-4 py-6 max-w-3xl pb-24 sm:pb-8">
         {state.isRedemptionSuccess && (

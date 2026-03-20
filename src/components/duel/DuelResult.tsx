@@ -20,6 +20,8 @@ import { clearDuelResultSnapshot, loadDuelResultSnapshot } from '@/utils/duelRes
 import { DataLaunderingButton } from './DataLaunderingButton';
 import { usePremium } from '@/hooks/usePremium';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useQuestProgress } from '@/hooks/useQuestProgress';
+import { QuestCompletionOverlay } from '@/components/quests/QuestCompletionOverlay';
 
 import SmartDebriefCard from "@/components/test-results/SmartDebriefCardV3";
 import { AnimatedCounter } from '@/components/AnimatedCounter';
@@ -70,6 +72,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   const { isPremium } = usePremium();
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const { clearActiveDuel } = useActiveDuel();
+  const { completedQuests, updateProgress, clearCompleted } = useQuestProgress();
 
   const winPhrases = (t('duelResult.phrases.win', undefined, { returnObjects: true }) || []) as string[];
   const losePhrases = (t('duelResult.phrases.lose', undefined, { returnObjects: true }) || []) as string[];
@@ -180,18 +183,18 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             } : null);
             queryClient.invalidateQueries({ queryKey: ["profile-data"] });
           }
-          const questUpdates = [
-            (supabase as any).rpc('update_daily_quest_progress', { p_user_id: profileId, p_category: 'duels', p_delta: 1 }),
-            (supabase as any).rpc('update_daily_quest_progress', { p_user_id: profileId, p_category: 'questions', p_delta: myAnswers.length })
+          const questParams = [
+            { userId: profileId, category: 'duels', delta: 1 },
+            { userId: profileId, category: 'questions', delta: myAnswers.length },
           ];
           if (results.isWinner) {
-            questUpdates.push((supabase as any).rpc('update_daily_quest_progress', { p_user_id: profileId, p_category: 'winners', p_delta: 1 }));
+            questParams.push({ userId: profileId, category: 'duel_wins', delta: 1 });
           }
           const hasNoErrors = myAnswers.every(a => a.is_correct);
           if (hasNoErrors && myAnswers.length > 0) {
-            questUpdates.push((supabase as any).rpc('update_daily_quest_progress', { p_user_id: profileId, p_category: 'accuracy', p_delta: myAnswers.length }));
+            questParams.push({ userId: profileId, category: 'accuracy', delta: myAnswers.length });
           }
-          await Promise.all(questUpdates);
+          await updateProgress(questParams);
           await supabase.functions.invoke('season-challenges-track', {
             body: { user_id: profileId, source_type: spSource, metadata },
           });
@@ -209,7 +212,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
       };
       applyRewards();
     }
-  }, [results, profileId, duelId, clearActiveDuel, myAnswers, queryClient]);
+  }, [results, profileId, duelId, clearActiveDuel, myAnswers, queryClient, updateProgress]);
 
   useEffect(() => {
     if (results?.isWinner) {
@@ -346,6 +349,7 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
 
   return (
     <div className="relative w-full z-10 bg-transparent overflow-x-hidden pt-0 pb-24">
+      <QuestCompletionOverlay quests={completedQuests} onDismiss={clearCompleted} />
       <div className="w-full max-w-2xl mx-auto px-4 py-4 space-y-6 relative z-10">
         <AnimatePresence>
           {results.isWinner && (

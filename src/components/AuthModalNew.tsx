@@ -645,7 +645,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                     transition={{ delay: 0.3 }}
                     className="text-center"
                   >
-                    <h3 className="text-2xl font-bold text-white mb-1">{t('auth.success.success') || t('common.success')}</h3>
+                    <h3 className="text-2xl font-bold text-white mb-1">{t('common.success')}</h3>
                     <p className="text-sm text-green-300/80">{t('auth.success.redirecting')}</p>
                   </motion.div>
                 </div>
@@ -727,7 +727,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                   transition={{ delay: 0.3 }}
                   className="text-center"
                 >
-                  <h3 className="text-2xl font-bold text-white mb-1">{t('auth.success.success') || t('common.success')}</h3>
+                  <h3 className="text-2xl font-bold text-white mb-1">{t('common.success')}</h3>
                   <p className="text-sm text-green-300/80">{t('auth.success.redirecting')}</p>
                 </motion.div>
               </div>
