@@ -71,7 +71,7 @@ export function MagicLinkStep({
                 </Button>
 
                 <p className="text-[10px] text-zinc-500 text-center mt-6 px-4">
-                    Мы отправим 6-значный код на вашу почту. Пароль не потребуется — это самый безопасный способ входа.
+                    {t('auth.magicLinkDescPasswordless')}
                 </p>
             </div>
         </motion.div>

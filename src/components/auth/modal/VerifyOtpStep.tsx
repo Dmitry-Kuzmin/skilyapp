@@ -109,7 +109,7 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
                         {t('auth.enterOtpTitle') || 'Введите код'}
                     </h3>
                     <p className="text-sm text-zinc-400 max-w-[280px] mx-auto leading-relaxed">
-                        Мы отправили 6 цифр на <br/>
+                        {t('auth.otpSent')} <br/>
                         <span className="text-blue-400/90 font-medium selection:bg-blue-500/30">{email}</span>
                     </p>
                 </div>
@@ -196,8 +196,8 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
                 {resendCooldown > 0 ? (
                   <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white/5 rounded-full border border-white/5 backdrop-blur-sm">
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
-                    <p className="text-[11px] text-zinc-500 font-semibold tracking-wide">
-                      ПОВТОР ЧЕРЕЗ <span className="text-blue-400 font-mono text-xs ml-1">{resendCooldown}с</span>
+                    <p className="text-[11px] text-zinc-500 font-semibold tracking-wide uppercase">
+                      {t('auth.resendIn')} <span className="text-blue-400 font-mono text-xs ml-1">{resendCooldown}s</span>
                     </p>
                   </div>
                 ) : (
@@ -207,7 +207,7 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
                     className="text-[11px] text-zinc-500 hover:text-blue-400 font-bold flex items-center justify-center gap-2 mx-auto transition-all hover:scale-105 active:scale-95"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span className="uppercase tracking-widest">Отправить код еще раз</span>
+                    <span className="uppercase tracking-widest">{t('auth.resendCode')}</span>
                   </button>
                 )}
               </div>

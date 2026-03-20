@@ -11,13 +11,13 @@ export function AuthModalFooter() {
                 <LegalLink
                     href="/terms"
                     label={t('auth.terms')}
-                    title="Пользовательское соглашение"
+                    title={t('common.termsTitle')}
                 />{' '}
-                и{' '}
+                {t('common.and')}{' '}
                 <LegalLink
                     href="/privacy"
                     label={t('auth.privacy')}
-                    title="Политика"
+                    title={t('common.privacyTitle')}
                 />
             </p>
         </div>

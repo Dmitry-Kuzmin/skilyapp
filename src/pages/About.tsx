@@ -38,16 +38,18 @@ const FinalCTA = React.memo(({ onRequestAccess }: { onRequestAccess: () => void 
         <div className="relative z-10 flex flex-col items-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest mb-6 backdrop-blur-md shadow-lg">
             <Sparkles size={12} className="text-yellow-300" />
-            <span>{language === 'ru' ? 'Твой путь к правам' : 'Your Road to License'}</span>
+            <span>{language === 'ru' ? 'Твой путь к правам' : language === 'es' ? 'Tu camino al carnet' : 'Your Road to License'}</span>
           </div>
 
           <h2 className="text-3xl md:text-5xl font-black text-white mb-4 drop-shadow-2xl tracking-tighter leading-tight">
-            {language === 'ru' ? 'Готов сдать экзамен?' : 'Ready to pass the exam?'}
+            {language === 'ru' ? 'Готов сдать экзамен?' : language === 'es' ? '¿Listo para aprobar el examen?' : 'Ready to pass the exam?'}
           </h2>
 
           <p className="text-white/80 text-lg font-light mb-8 max-w-xl mx-auto leading-relaxed">
             {language === 'ru'
               ? 'Присоединяйся к тысячам учеников, которые уже получили права с Skily.'
+              : language === 'es'
+              ? 'Únete a miles de estudiantes que ya han obtenido su carnet con Skily.'
               : 'Join thousands of students who got their license with Skily.'}
           </p>
 
@@ -55,14 +57,14 @@ const FinalCTA = React.memo(({ onRequestAccess }: { onRequestAccess: () => void 
             onClick={onRequestAccess}
             className="group/btn relative px-8 py-3.5 bg-white text-slate-900 rounded-xl font-black text-base hover:scale-105 transition-all duration-300 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]"
           >
-            <span>{language === 'ru' ? 'Начать бесплатно' : 'Start for Free'}</span>
+            <span>{language === 'ru' ? 'Начать бесплатно' : language === 'es' ? 'Empezar gratis' : 'Start for Free'}</span>
             <div className="bg-slate-900 text-white rounded-full p-1 group-hover/btn:translate-x-1 transition-transform">
               <ArrowRight size={14} />
             </div>
           </button>
 
           <p className="mt-4 text-white/40 text-xs font-medium">
-            {language === 'ru' ? 'Карта не требуется' : 'No credit card required'}
+            {language === 'ru' ? 'Карта не требуется' : language === 'es' ? 'No se requiere tarjeta de crédito' : 'No credit card required'}
           </p>
         </div>
       </div>
@@ -104,16 +106,16 @@ const Navbar = React.memo(({ onRequestAccess }: { onRequestAccess: () => void })
 
       <div className="flex items-center gap-4">
         <div className="hidden md:flex gap-6 text-sm font-medium text-slate-300 mr-4">
-          <Link to="/features" className="hover:text-white transition-colors">Features</Link>
-          <Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link>
-          <a href="https://t.me/skilyapp_bot" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Support</a>
+          <Link to="/features" className="hover:text-white transition-colors">{language === 'ru' ? 'Возможности' : language === 'es' ? 'Características' : 'Features'}</Link>
+          <Link to="/pricing" className="hover:text-white transition-colors">{language === 'ru' ? 'Тарифы' : language === 'es' ? 'Precios' : 'Pricing'}</Link>
+          <a href="https://t.me/skilyapp_bot" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">{language === 'ru' ? 'Поддержка' : language === 'es' ? 'Soporte' : 'Support'}</a>
         </div>
 
         <button
           onClick={onRequestAccess}
           className="bg-white text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10"
         >
-          {language === 'ru' ? 'Войти' : 'Login'}
+          {language === 'ru' ? 'Войти' : language === 'es' ? 'Entrar' : 'Login'}
         </button>
       </div>
     </nav>
@@ -200,8 +202,8 @@ const StatsBlock = React.memo(() => {
   const stats = [
     {
       value: 15242,
-      label: language === 'ru' ? "Пройденных тестов" : "Tests Completed",
-      sublabel: language === 'ru' ? "на основе реальных экзаменов" : "based on real exams",
+      label: language === 'ru' ? "Пройденных тестов" : language === 'es' ? "Test Completados" : "Tests Completed",
+      sublabel: language === 'ru' ? "на основе реальных экзаменов" : language === 'es' ? "basados en exámenes reales" : "based on real exams",
       icon: CheckCircle,
       suffix: "+",
       color: "text-blue-400",
@@ -210,8 +212,8 @@ const StatsBlock = React.memo(() => {
     },
     {
       value: 98.4,
-      label: language === 'ru' ? "Успешная сдача" : "Success Rate",
-      sublabel: language === 'ru' ? "среди активных пользователей" : "among active users",
+      label: language === 'ru' ? "Успешная сдача" : language === 'es' ? "Tasa de Aprobado" : "Success Rate",
+      sublabel: language === 'ru' ? "среди активных пользователей" : language === 'es' ? "entre usuarios activos" : "among active users",
       icon: Trophy,
       suffix: "%",
       color: "text-amber-400",
@@ -220,9 +222,9 @@ const StatsBlock = React.memo(() => {
     },
     {
       value: 0,
-      customDisplay: language === 'ru' ? "24/7" : "24/7",
-      label: language === 'ru' ? "Доступность AI" : "AI Availability",
-      sublabel: language === 'ru' ? "мгновенные ответы" : "instant answers",
+      customDisplay: "24/7",
+      label: language === 'ru' ? "Доступность AI" : language === 'es' ? "Disponibilidad IA" : "AI Availability",
+      sublabel: language === 'ru' ? "мгновенные ответы" : language === 'es' ? "respuestas instantáneas" : "instant answers",
       icon: Clock,
       suffix: "",
       color: "text-purple-400",
@@ -339,7 +341,7 @@ const Footer = React.memo(({ copy }: { copy: any }) => {
             <div>
               <h4 className="text-white font-bold mb-6 flex items-center gap-2">
                 <Globe size={16} className="text-blue-500" />
-                Product
+                {language === 'ru' ? 'Продукт' : language === 'es' ? 'Producto' : 'Product'}
               </h4>
               <ul className="space-y-4">
                 {copy.footer.menu.filter((i: any) => !i.href.includes('terms') && !i.href.includes('privacy')).map((item: any) => (
@@ -355,7 +357,7 @@ const Footer = React.memo(({ copy }: { copy: any }) => {
             <div>
               <h4 className="text-white font-bold mb-6 flex items-center gap-2">
                 <FileText size={16} className="text-slate-500" />
-                Legal
+                {language === 'ru' ? 'Правовая информация' : language === 'es' ? 'Legal' : 'Legal'}
               </h4>
               <ul className="space-y-4">
                 {copy.footer.menu.filter((i: any) => i.href.includes('terms') || i.href.includes('privacy')).map((item: any) => (
@@ -371,7 +373,7 @@ const Footer = React.memo(({ copy }: { copy: any }) => {
             <div>
               <h4 className="text-white font-bold mb-6 flex items-center gap-2">
                 <MapPin size={16} className="text-amber-500" />
-                Office
+                {language === 'ru' ? 'Офис' : language === 'es' ? 'Oficina' : 'Office'}
               </h4>
               <address className="not-italic text-slate-400 text-sm space-y-4">
                 <p>Barcelona, Spain<br />Carrer de la Marina</p>
@@ -747,7 +749,7 @@ export default function About() {
         <div className="max-w-[100vw] overflow-hidden">
           <Suspense fallback={
             <div className="mb-32 flex justify-center items-center min-h-[400px]">
-              <div className="text-slate-400 text-sm">Загрузка отзывов...</div>
+              <div className="text-slate-400 text-sm">{language === 'ru' ? 'Загрузка отзывов...' : language === 'es' ? 'Cargando reseñas...' : 'Loading reviews...'}</div>
             </div>
           }>
             <InfiniteMarquee />

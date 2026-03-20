@@ -110,16 +110,16 @@ export function AuthModalHeader({
                         <h2 className="text-2xl font-semibold text-white tracking-tight">
                             {step === 'email' && t('auth.identification')}
                             {step === 'password-existing' && (userName ? t('auth.welcomeBackWithName', { name: userName }) : t('auth.welcomeBack'))}
-                            {step === 'magic-link-new' && 'Регистрация'}
-                            {step === 'magic-link-existing' && 'Вход без пароля'}
-                            {step === 'check-email' && 'Проверьте почту'}
+                            {step === 'magic-link-new' && t('auth.magicLinkNew')}
+                            {step === 'magic-link-existing' && t('auth.magicLinkExisting')}
+                            {step === 'check-email' && t('auth.checkEmail')}
                         </h2>
 
                         <p className="text-sm text-zinc-400 mt-4 font-medium">
                             {step === 'email' && t('auth.emailPrompt')}
                             {step === 'password-existing' && (userName ? t('auth.continueProgress') : t('auth.accountVerified'))}
                             {step === 'magic-link-new' && t('auth.newUser')}
-                            {step === 'magic-link-existing' && 'Мы отправим безопасную ссылку прямо к вам в почтовый ящик'}
+                            {step === 'magic-link-existing' && t('auth.magicLinkExistingDesc')}
                         </p>
                     </motion.div>
                 </AnimatePresence>

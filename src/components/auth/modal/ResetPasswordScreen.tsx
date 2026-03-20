@@ -5,7 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/lib/toast';
+import { toast } from 'sonner';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ResetPasswordScreenProps {
     onSuccess: () => void;
@@ -21,12 +22,12 @@ export function ResetPasswordScreen({
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isFocused, setIsFocused] = useState(false);
-    const toast = useToast();
+    const { t } = useLanguage();
 
     // Validation State
     const requirements = [
-        { id: 'app_len', label: '8+ символов', valid: newPassword.length >= 8 },
-        { id: 'app_num', label: 'Цифра', valid: /\d/.test(newPassword) },
+        { id: 'app_len', label: t('auth.min8Chars'), valid: newPassword.length >= 8 },
+        { id: 'app_num', label: t('auth.oneNumber'), valid: /\d/.test(newPassword) },
         { id: 'app_case', label: 'Aa', valid: /[a-z]/.test(newPassword) && /[A-Z]/.test(newPassword) },
     ];
 
@@ -48,7 +49,7 @@ export function ResetPasswordScreen({
             onSuccess();
         } catch (error: any) {
             console.error('Password reset failed:', error);
-            toast.error(error.message || 'Ошибка обновления пароля');
+            toast.error(error.message || t('auth.errors.updatePasswordFailed'));
         } finally {
             setIsSubmitting(false);
         }
@@ -63,8 +64,8 @@ export function ResetPasswordScreen({
             className="space-y-6 pt-2"
         >
             <div className="text-center space-y-2">
-                <h3 className="text-2xl font-bold text-white">Новый пароль</h3>
-                <p className="text-sm text-zinc-400">Придумайте надежный пароль для защиты аккаунта</p>
+                <h3 className="text-2xl font-bold text-white">{t('auth.newPasswordTitle')}</h3>
+                <p className="text-sm text-zinc-400">{t('auth.newPasswordDesc')}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -72,7 +73,7 @@ export function ResetPasswordScreen({
                 <div className="space-y-2 text-left">
                     <Input
                         type="password"
-                        placeholder="Новый пароль"
+                        placeholder={t('auth.newPasswordPlaceholder')}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         onFocus={() => setIsFocused(true)}
@@ -116,7 +117,7 @@ export function ResetPasswordScreen({
                     )}>
                         <Input
                             type="password"
-                            placeholder="Повторите пароль"
+                            placeholder={t('auth.confirmPasswordPlaceholder')}
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className={cn(
@@ -149,7 +150,7 @@ export function ResetPasswordScreen({
                             : "bg-zinc-800 text-zinc-500"
                     )}
                 >
-                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Сохранить пароль'}
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : t('auth.savePassword')}
                 </Button>
             </form>
         </motion.div>

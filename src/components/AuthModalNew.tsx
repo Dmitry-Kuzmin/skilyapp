@@ -239,7 +239,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       const errorMessage = err.message?.toLowerCase() || '';
 
       if (errorMessage.includes('email not confirmed')) {
-        setPasswordError('Подтвердите email. Проверьте почту и перейдите по ссылке.');
+        setPasswordError(t('auth.success.emailConfirmationRequired'));
       } else if (errorMessage.includes('invalid login credentials') || errorMessage.includes('invalid email or password')) {
         setPasswordError(t('auth.errors.invalidCredentials'));
       } else {
@@ -282,7 +282,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       }
     } catch (err: any) {
       console.error('Magic link failed:', err);
-      toast.error(err.message || 'Ошибка отправки кода');
+      toast.error(err.message || t('auth.errors.sendOtpFailed'));
       setMagicLinkState('idle');
     } finally {
       setIsSubmitting(false);
@@ -311,7 +311,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       }, 1200);
     } catch (err: any) {
       console.error('OTP verification failed:', err);
-      toast.error(t('auth.verificationFailed') || 'Неверный код');
+      toast.error(t('auth.errors.invalidOtp'));
     } finally {
       setIsSubmitting(false);
     }
@@ -330,10 +330,10 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
       setStep('password-recovery');
       setRecoverySentAt(Date.now());
-      toast.success('Инструкции отправлены на почту');
+      toast.success(t('auth.success.recoverySent'));
     } catch (err: any) {
       console.error('Recovery failed:', err);
-      toast.error(err.message || 'Ошибка восстановления пароля');
+      toast.error(err.message || t('auth.errors.recoveryFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -351,7 +351,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       if (error) throw error;
     } catch (err: any) {
       console.error('Google login error:', err);
-      toast.error('Google login failed');
+      toast.error(t('auth.errors.googleLoginFailed'));
     }
   };
 
@@ -367,7 +367,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       // Telegram.Login.auth() открывает попап сам, без redirect
       const idToken = await openTelegramLogin(clientId);
 
-      const loadingToast = toast.loading('Входим через Telegram…');
+      const loadingToast = toast.loading(t('auth.telegramLoginProgress'));
 
       const { data, error: fnError } = await supabase.functions.invoke('telegram-oidc-auth', {
         body: { id_token: idToken },
@@ -376,7 +376,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       toast.dismiss(loadingToast);
 
       if (fnError || !data?.session) {
-        throw new Error(data?.error ?? fnError?.message ?? 'Ошибка входа');
+        throw new Error(data?.error ?? fnError?.message ?? t('auth.errors.telegramLoginFailed'));
       }
 
       const { error: sessionError } = await supabase.auth.setSession({
@@ -386,12 +386,12 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
       if (sessionError) throw sessionError;
 
-      toast.success('Вход выполнен!');
+      toast.success(t('auth.success.telegramLoginSuccess'));
       onClose();
       navigate('/dashboard');
     } catch (err: any) {
       console.error('[Auth] Telegram OIDC failed:', err);
-      toast.error(err.message ?? 'Не удалось войти через Telegram');
+      toast.error(err.message ?? t('auth.errors.telegramLoginFailed'));
     } finally {
       setTelegramLoading(false);
     }
@@ -562,14 +562,14 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                   <ShieldCheck className="w-10 h-10 text-green-400" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-white">Пароль обновлен!</h3>
-                  <p className="text-zinc-400">Теперь вы можете войти в свой аккаунт с новым паролем.</p>
+                  <h3 className="text-2xl font-bold text-white">{t('auth.success.passwordUpdated')}</h3>
+                  <p className="text-zinc-400">{t('auth.success.passwordUpdatedDesc')}</p>
                 </div>
                 <Button
                   onClick={() => setStep('password-existing')}
                   className="bg-blue-600 hover:bg-blue-500 text-white w-full h-12 rounded-xl"
                 >
-                  Вернуться к входу
+                  {t('auth.success.backToLogin')}
                 </Button>
               </motion.div>
             )}
@@ -596,7 +596,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 exit={{ opacity: 0, x: -10 }}
                 onClick={handleBackToEmail}
                 className="absolute left-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
-                aria-label="Назад"
+                aria-label={t('common.back')}
               >
                 <ArrowLeft className="h-5 w-5" />
               </motion.button>
@@ -607,7 +607,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
           <button
             onClick={onClose}
             className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
-            aria-label="Вернуться"
+            aria-label={t('common.close')}
           >
             <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
             <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
@@ -645,8 +645,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                     transition={{ delay: 0.3 }}
                     className="text-center"
                   >
-                    <h3 className="text-2xl font-bold text-white mb-1">Успешно!</h3>
-                    <p className="text-sm text-green-300/80">Переходим в личный кабинет...</p>
+                    <h3 className="text-2xl font-bold text-white mb-1">{t('auth.success.success') || t('common.success')}</h3>
+                    <p className="text-sm text-green-300/80">{t('auth.success.redirecting')}</p>
                   </motion.div>
                 </div>
               </motion.div>
@@ -678,7 +678,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
               exit={{ opacity: 0, x: -10 }}
               onClick={handleBackToEmail}
               className="absolute left-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
-              aria-label="Назад"
+              aria-label={t('common.back')}
             >
               <ArrowLeft className="h-5 w-5" />
             </motion.button>
@@ -689,7 +689,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
         <button
           onClick={onClose}
           className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md md:hidden"
-          aria-label="Закрыть"
+          aria-label={t('common.close')}
         >
           <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
           <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
@@ -727,8 +727,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                   transition={{ delay: 0.3 }}
                   className="text-center"
                 >
-                  <h3 className="text-2xl font-bold text-white mb-1">Успешно!</h3>
-                  <p className="text-sm text-green-300/80">Переходим в личный кабинет...</p>
+                  <h3 className="text-2xl font-bold text-white mb-1">{t('auth.success.success') || t('common.success')}</h3>
+                  <p className="text-sm text-green-300/80">{t('auth.success.redirecting')}</p>
                 </motion.div>
               </div>
             </motion.div>

@@ -58,12 +58,12 @@ export function SuccessScreen({
             >
                 <div className="space-y-2">
                     <h3 className="text-2xl font-extrabold text-white tracking-tight">
-                        {step === 'check-email' ? 'Проверьте почту!' : 'Инструкции отправлены!'}
+                        {step === 'check-email' ? t('auth.success.checkYourEmailGeneric') : t('auth.success.instructionsSent')}
                     </h3>
                     <p className="text-zinc-400 font-medium">
                         {step === 'check-email'
-                            ? 'Мы отправили магическую ссылку для входа'
-                            : (userName ? `${userName.split(' ')[0]}, проверьте вашу почту` : 'Проверьте вашу почту')
+                            ? t('auth.success.magicLinkSentToEmail')
+                            : (userName ? t('auth.success.checkYourEmailName', { name: userName.split(' ')[0] }) : t('auth.success.checkYourEmailGeneric'))
                         }
                     </p>
                 </div>
@@ -82,7 +82,7 @@ export function SuccessScreen({
 
                     <div className="space-y-1">
                         <p className="text-[11px] text-zinc-500 font-medium opacity-80">
-                            Ссылка будет активна 1 час
+                            {t('auth.success.linkActive1Hour')}
                         </p>
 
                         <AnimatePresence>
@@ -94,12 +94,12 @@ export function SuccessScreen({
                                     onClick={onResend}
                                     className="text-[11px] text-blue-500/80 hover:text-blue-400 font-semibold underline underline-offset-4 decoration-blue-500/30 transition-colors"
                                 >
-                                    Не пришло письмо? {step === 'check-email' ? 'Отправить еще раз' : 'Отправить инструкции снова'}
+                                    {t('auth.success.didNotReceiveEmail')} {step === 'check-email' ? t('auth.success.resendAgain') : t('auth.success.resendInstructions')}
                                 </motion.button>
                             )}
                             {step === 'check-email' && resendCooldown > 0 && (
                                 <p className="text-[10px] text-zinc-600">
-                                    Отправить повторно через {resendCooldown}с
+                                    {t('auth.success.resendInSeconds')} {resendCooldown}s
                                 </p>
                             )}
                         </AnimatePresence>
