@@ -30,7 +30,7 @@ import { useSmartHeader } from "@/hooks/useSmartHeader";
 import { liftStartupCurtain } from "@/utils/startup";
 import { GlobalDuelWatcher } from "./duel/GlobalDuelWatcher";
 import { HeaderSkeleton } from "./HeaderSkeleton";
-
+import { PWAInstallPrompt } from "./PWAInstallPrompt";
 
 interface LayoutProps {
   children: ReactNode;
@@ -541,6 +541,9 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Auth Modal for Web Platform */}
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+
+      {/* PWA Install Prompt — только iOS Safari мобайл */}
+      <PWAInstallPrompt />
 
     </div >
   );

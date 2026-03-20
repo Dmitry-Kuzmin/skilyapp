@@ -135,28 +135,31 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
 
             const response = await fetch(dataUrl);
             const blob = await response.blob();
-            
-            const fileName = `stories/${userProfile?.id || 'anon'}_bot_${Date.now()}.png`;
+
+            // Загружаем в публичный bucket 'stories' (не 'avatars' — он приватный)
+            const fileName = `${userProfile?.id || 'anon'}_bot_${Date.now()}.png`;
             const { error: uploadError } = await supabase.storage
-                .from('avatars')
-                .upload(fileName, blob, {
-                    contentType: 'image/png',
-                    upsert: true
-                });
+                .from('stories')
+                .upload(fileName, blob, { contentType: 'image/png', upsert: true });
 
-            if (uploadError) throw uploadError;
+            let imageUrl: string;
 
-            const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(fileName);
+            if (!uploadError) {
+                const { data: { publicUrl } } = supabase.storage.from('stories').getPublicUrl(fileName);
+                imageUrl = publicUrl;
+            } else {
+                // Фолбэк: base64 dataUrl — Edge Function поддерживает multipart upload
+                console.warn('[SendToBot] stories bucket upload failed, using base64:', uploadError.message);
+                imageUrl = dataUrl;
+            }
 
             const { error: edgeErr } = await supabase.functions.invoke('notification-sender', {
                 body: {
                     user_id: userProfile.id,
-                    image_url: publicUrl,
+                    image_url: imageUrl,
                     title: language === 'ru' ? 'Твоя карточка готова! 🏎💨' : 'Your card is ready! 🏎💨',
-                    message: language === 'ru' 
-                        ? 'Прикольно? Теперь ты можешь сохранить её или выложить в сторис, чтобы бросить вызов друзьям!' 
+                    message: language === 'ru'
+                        ? 'Прикольно? Теперь ты можешь сохранить её или выложить в сторис, чтобы бросить вызов друзьям!'
                         : 'Cool? Now you can save it or post to stories to challenge your friends!',
                     force: true
                 }
@@ -174,6 +177,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             setIsGenerating(false);
         }
     };
+
 
     const handleShare = async () => {
         setIsGenerating(true);
