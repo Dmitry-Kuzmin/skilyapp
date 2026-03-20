@@ -196,32 +196,45 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
             const isStoryAvailable = typeof webApp?.shareToStory === 'function';
             const isPremium = hasTelegramPremium();
 
+            console.log('[Share] Sharing debug info:', { platform, isMobileTG, isStoryAvailable, isPremium });
+
             let storySuccess = false;
 
-            if (isMobileTG && isStoryAvailable && isPremium) {
+            // Если есть API сторис и пользователь премиум — пробуем выложить сторис (прежде всего на мобилках)
+            if (isStoryAvailable && isPremium) {
                 try {
-                    // Если мы в мобильном TG и есть функция отправки в Story, только тогда нам нужен Public URL
-                    const fileName = `stories/${userProfile?.id || 'anon'}_${Date.now()}.png`;
+                    // Используем публичный бакет 'stories'
+                    const fileName = `${userProfile?.id || 'anon'}_${Date.now()}.png`;
                     const { error: uploadError } = await supabase.storage
-                        .from('avatars')
+                        .from('stories')
                         .upload(fileName, blob, {
                             contentType: 'image/png',
                             upsert: true
                         });
 
-                    if (uploadError) throw uploadError;
+                    if (uploadError) {
+                        console.warn('[Share] Story storage upload failed:', uploadError.message);
+                        // Фолбэк на base64 если Telegram SDK это переварит (некоторые версии поддерживают)
+                        storySuccess = shareToStory(dataUrl, {
+                            text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой? 🏎💨' : 'My chance to pass DGT theory is 100%! What about you? 🏎💨',
+                            widget_link: {
+                                url: referralLink,
+                                name: language === 'ru' ? 'Бросить вызов' : 'Challenge me'
+                            }
+                        });
+                    } else {
+                        const { data: { publicUrl } } = supabase.storage
+                            .from('stories')
+                            .getPublicUrl(fileName);
 
-                    const { data: { publicUrl } } = supabase.storage
-                        .from('avatars')
-                        .getPublicUrl(fileName);
-
-                    storySuccess = shareToStory(publicUrl, {
-                        text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой? 🏎💨' : 'My chance to pass DGT theory is 100%! What about you? 🏎💨',
-                        widget_link: {
-                            url: referralLink,
-                            name: language === 'ru' ? 'Бросить вызов' : 'Challenge me'
-                        }
-                    });
+                        storySuccess = shareToStory(publicUrl, {
+                            text: language === 'ru' ? 'Мой шанс сдать теорию в DGT — 100%! А твой? 🏎💨' : 'My chance to pass DGT theory is 100%! What about you? 🏎💨',
+                            widget_link: {
+                                url: referralLink,
+                                name: language === 'ru' ? 'Бросить вызов' : 'Challenge me'
+                            }
+                        });
+                    }
 
                     if (storySuccess) {
                         toast.dismiss(loadingToastId);
