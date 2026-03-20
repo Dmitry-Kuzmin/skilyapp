@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerTrigger, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LegalLinkProps {
     href: string;
@@ -10,6 +11,7 @@ interface LegalLinkProps {
 
 export function LegalLink({ href, label, title }: LegalLinkProps) {
     const isMobile = useIsMobile();
+    const { t } = useLanguage();
 
     if (isMobile) {
         return (
@@ -28,22 +30,22 @@ export function LegalLink({ href, label, title }: LegalLinkProps) {
                     </DrawerHeader>
                     <div className="flex-1 overflow-y-auto p-6 text-zinc-400 text-sm leading-relaxed space-y-4">
                         <p>
-                            В соответствии с требованиями законодательства, здесь должен быть представлен полный текст документа "{title}".
+                            {t('auth.legalModal.docText1', { title })}
                         </p>
                         <p>
-                            Мы серьезно относимся к вашей конфиденциальности и защите данных. Вся информация хранится в зашифрованном виде.
+                            {t('auth.legalModal.docText2')}
                         </p>
                         <p>
-                            Используя сервис, вы соглашаетесь с условиями предоставления услуг и политикой обработки персональных данных.
+                            {t('auth.legalModal.docText3')}
                         </p>
                         <p>
-                            Полный текст доступен на нашем веб-сайте в разделе "Юридическая информация".
+                            {t('auth.legalModal.docText4')}
                         </p>
                     </div>
                     <DrawerFooter className="border-t border-white/5 pt-4">
                         <DrawerClose asChild>
                             <Button variant="secondary" className="w-full h-12 text-base font-medium">
-                                Понятно
+                                {t('auth.legalModal.understood')}
                             </Button>
                         </DrawerClose>
                     </DrawerFooter>
