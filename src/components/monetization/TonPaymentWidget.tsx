@@ -89,9 +89,9 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
 
     return (
         <div className={cn(
-            'overflow-hidden transition-all duration-300 relative',
+            'transition-all duration-300 relative',
             mode === 'compact'
-                ? 'rounded-[20px] bg-gradient-to-b from-[#0088cc]/5 to-transparent border border-[#0088cc]/10 p-1.5'
+                ? 'bg-transparent p-0'
                 : 'rounded-3xl border border-border bg-card shadow-sm',
             className
         )}>
@@ -117,7 +117,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
 
             <div className={cn(
                 "flex flex-col relative z-10",
-                mode === 'compact' ? "p-3 gap-3" : "p-5 gap-4"
+                mode === 'compact' ? "p-0" : "p-5 gap-4"
             )}>
                 {/* STATE 1: Compact mode & no wallet connected */}
                 {mode === 'compact' && !address ? (
