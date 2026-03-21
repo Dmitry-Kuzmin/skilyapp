@@ -51,8 +51,12 @@ const DialogContent = React.forwardRef<
   const sizeConfig = (isMobile ? config.mobile : config.desktop) as { maxWidth?: string; maxHeight?: string };
 
   const handleInteractOutside = (e: any) => {
-    // Если TonConnect модал открыт — он добавляет 'tc-disable-scroll' к body
-    if (document.body.classList.contains('tc-disable-scroll')) {
+    // Если TonConnect модал открыт — он добавляет 'tc-disable-scroll' к body или имеет специфичные классы
+    const hasTonClass = document.body.classList.contains('tc-disable-scroll') || 
+                       document.querySelector('.tc-modal-overlay') ||
+                       document.querySelector('.tonconnect-modal-container');
+
+    if (hasTonClass) {
       e.preventDefault();
       return;
     }
@@ -80,6 +84,8 @@ const DialogContent = React.forwardRef<
         elString.includes('tonconnect') ||
         elString.includes('appkit') ||
         elString.includes('sonner') ||
+        elString.includes('portal') ||
+        elString.includes('modal') ||
         elString.includes('go') // CSS-in-JS классы
       );
     });

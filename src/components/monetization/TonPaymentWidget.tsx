@@ -9,6 +9,7 @@ import {
     useBalance,
     useTransferTon,
 } from '@ton/appkit-react';
+import { useTonConnectUI } from '@tonconnect/ui-react'; // Используем стабильный SDK для управления модалкой
 import { Loader2, Zap, Wallet, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -45,6 +46,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     className,
 }) => {
     const address = useAddress();
+    const [tonConnectUI] = useTonConnectUI(); // Работает стабильно
     const { data: balanceData, isLoading: isBalanceLoading } = useBalance();
     const { mutateAsync: transferTon, isPending: isPaying } = useTransferTon();
 
@@ -52,8 +54,26 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         ? (Number(balanceData) / 1e9).toFixed(2)
         : null;
 
-    const handlePay = useCallback(async (amount: string, comment: string) => {
-        if (!address) return; // Should not happen with current button logic
+    const handleManualConnect = useCallback((e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        triggerHapticFeedback('light');
+        tonConnectUI.openModal();
+    }, [tonConnectUI]);
+
+    const handlePay = useCallback(async (amount: string, comment: string, e?: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        if (!address) {
+            handleManualConnect();
+            return;
+        }
+
         try {
             triggerHapticFeedback('light');
             await transferTon({
@@ -68,7 +88,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             toast.error('Ошибка при создании транзакции');
             triggerHapticFeedback('error');
         }
-    }, [address, transferTon]);
+    }, [address, transferTon, handleManualConnect]);
 
     return (
         <div 
@@ -81,28 +101,22 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             )}
         >
             <div className={cn(
-                "flex flex-col relative z-10 isolation-auto",
+                "flex flex-col relative z-20 isolation-auto",
                 mode === 'compact' ? "p-0 min-h-[44px]" : "p-5 gap-4"
             )}>
                 {/* STATE 1: Compact mode & no wallet connected */}
                 {mode === 'compact' && !address ? (
                     <div 
-                        className="relative w-full h-11 overflow-hidden"
-                        onClick={(e) => e.stopPropagation()}
+                        className="relative w-full h-11"
+                        onClick={handleManualConnect}
                         onPointerDown={(e) => e.stopPropagation()}
                     >
-                        {/* 1. Наша красивая кнопка (дизайн) */}
                         <Button 
-                            className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                            className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95 pointer-events-none"
                         >
                             <Wallet className="w-4 h-4" />
                             <span>Connect Wallet</span>
                         </Button>
-                        
-                        {/* 2. Кнопка библиотеки СВЕРХУ, абсолютно прозрачная и блокирует всплытие */}
-                        <div className="absolute inset-0 opacity-0 cursor-pointer z-[999] [&>div]:w-full [&>div]:h-full [&_button]:!w-full [&_button]:!h-full [&_button]:!absolute [&_button]:!inset-0 [&_button]:!z-[999]">
-                            <TonConnectButton />
-                        </div>
                     </div>
                 ) : (
                     // STATE 2: Wallet is connected OR we are in full mode
@@ -162,7 +176,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                         {mode === 'compact' && address && (
                             <Button
                                 disabled={isPaying}
-                                onClick={() => handlePay(defaultAmount, defaultComment)}
+                                onClick={(e) => handlePay(defaultAmount, defaultComment, e)}
                                 className="w-full h-11 bg-gradient-to-r from-[#0088cc] to-[#0077bb] hover:brightness-110 text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                             >
                                 {isPaying ? (
@@ -181,7 +195,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                                     <button
                                         key={plan.amount}
                                         disabled={isPaying || !address}
-                                        onClick={() => handlePay(plan.amount, plan.comment)}
+                                        onClick={(e) => handlePay(plan.amount, plan.comment, e)}
                                         className={cn(
                                             'relative flex flex-col items-center justify-center rounded-2xl py-4 px-2 text-center transition-all active:scale-[0.96] disabled:opacity-40 disabled:active:scale-100 overflow-hidden outline-none',
                                             plan.highlight
