@@ -3,7 +3,7 @@ import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Button } from "@/components/ui/button";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
-import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, CreditCard, Bitcoin } from "lucide-react";
+import { Crown, Check, ShieldCheck, Zap, Star, Sparkles, Trophy, Lock, CreditCard, Bitcoin, Wallet } from "lucide-react";
 import { isTelegramMiniApp, getTelegramWebApp } from "@/lib/telegram";
 import { PRICING_PLANS } from "@/lib/pricing-config";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
 
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
+import { TonPaymentWidget } from "@/components/monetization/TonPaymentWidget";
 
 interface PaywallModalProps {
   open: boolean;
@@ -97,9 +98,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
+  const showTonPayment = isPaymentMethodAvailable('ton', currentPlatform);
 
-  const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus'>(
-    showPaddlePayment ? 'paddle' : 'cryptomus'
+  const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus' | 'ton'>(
+    showPaddlePayment ? 'paddle' : (showCryptomusPayment ? 'cryptomus' : 'ton')
   );
 
   useEffect(() => {
@@ -403,6 +405,20 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                       <span>Крипта</span>
                     </button>
                   )}
+                  {showTonPayment && (
+                    <button
+                      onClick={() => setPaymentMethod('ton')}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all",
+                        paymentMethod === 'ton'
+                          ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
+                          : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                      )}
+                    >
+                      <Wallet className="w-3.5 h-3.5" />
+                      <span>TON</span>
+                    </button>
+                  )}
                 </div>
               </motion.div>
 
@@ -514,16 +530,28 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                         <div className="mt-auto">
                           {isTelegramMiniApp() ? (
                             <div className="space-y-2">
-                              <StarsPaymentButton
-                                packageKey={PLAN_TO_CATALOG[plan.id]}
-                                priceCoins={0}
-                                className={cn(
-                                  "w-full font-bold h-12 rounded-xl transition-all duration-300 shadow-lg",
-                                  isPopular
-                                    ? "bg-white text-slate-900 hover:bg-slate-100 shadow-black/20"
-                                    : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white"
-                                )}
-                              />
+                              {paymentMethod === 'ton' ? (
+                                <TonPaymentWidget
+                                  mode="compact"
+                                  defaultAmount={
+                                    plan.id === 'yearly' ? '9.9' :
+                                      plan.id === 'quarterly' ? '3.9' :
+                                        plan.id === 'lifetime' ? '25' : '1.5'
+                                  }
+                                  defaultComment={`${plan.title} Subscription`}
+                                />
+                              ) : (
+                                <StarsPaymentButton
+                                  packageKey={PLAN_TO_CATALOG[plan.id]}
+                                  priceCoins={0}
+                                  className={cn(
+                                    "w-full font-bold h-12 rounded-xl transition-all duration-300 shadow-lg",
+                                    isPopular
+                                      ? "bg-white text-slate-900 hover:bg-slate-100 shadow-black/20"
+                                      : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white"
+                                  )}
+                                />
+                              )}
                               <button
                                 onClick={(e) => { e.stopPropagation(); handlePurchase(plan.id); }}
                                 className="w-full text-[10px] text-muted-foreground hover:text-violet-500 transition-colors uppercase tracking-widest font-bold text-center"
@@ -531,6 +559,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                                 Оплатить картой / Криптой
                               </button>
                             </div>
+                          ) : paymentMethod === 'ton' ? (
+                            <TonPaymentWidget
+                              mode="compact"
+                              defaultAmount={
+                                plan.id === 'yearly' ? '9.9' :
+                                  plan.id === 'quarterly' ? '3.9' :
+                                    plan.id === 'lifetime' ? '25' : '1.5'
+                              }
+                              defaultComment={`${plan.title} Subscription`}
+                            />
                           ) : (
                             <Button
                               variant="ghost"

@@ -5,7 +5,7 @@
  * в зависимости от юридического статуса и платформы
  */
 
-export type PaymentMethod = 'telegram_stars' | 'paypal' | 'cryptomus' | 'paddle';
+export type PaymentMethod = 'telegram_stars' | 'paypal' | 'cryptomus' | 'paddle' | 'ton';
 
 export interface PaymentConfig {
   /** Включен ли PayPal */
@@ -16,6 +16,8 @@ export interface PaymentConfig {
   paddleEnabled: boolean;
   /** Включен ли Cryptomus */
   cryptomusEnabled: boolean;
+  /** Включен ли TON (AppKit) */
+  tonEnabled: boolean;
 }
 
 /**
@@ -31,6 +33,7 @@ export const PAYMENT_CONFIG: PaymentConfig = {
   telegramStarsEnabled: true,
   cryptomusEnabled: true,
   paddleEnabled: true,
+  tonEnabled: true, // Включаем TON по умолчанию
 };
 
 /**
@@ -64,6 +67,11 @@ export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobil
   if (PAYMENT_CONFIG.paypalEnabled) {
     methods.push('paypal');
   }
+  
+  // TON доступен везде (когда включен)
+  if (PAYMENT_CONFIG.tonEnabled) {
+    methods.push('ton');
+  }
 
   return methods;
 }
@@ -82,6 +90,10 @@ export function isPaymentMethodAvailable(method: PaymentMethod, platform: 'teleg
 
   if (method === 'cryptomus') {
     return true; // Cryptomus не требует клиентского токена (только серверный)
+  }
+
+  if (method === 'ton') {
+    return true; // TON всегда доступен если включен
   }
 
   return true;

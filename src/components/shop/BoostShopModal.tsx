@@ -61,7 +61,9 @@ import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { usePremium } from "@/hooks/usePremium";
 import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
+import { TonPaymentWidget } from "@/components/monetization/TonPaymentWidget";
 import { CryptomusPaymentPreview } from "@/components/monetization/CryptomusPaymentPreview";
+import { useAddress } from "@ton/appkit-react";
 import {
   getTelegramWebApp,
   isTelegramMiniApp,
@@ -185,6 +187,8 @@ export function BoostShopModal({
   const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
+  const showTonPayment = isPaymentMethodAvailable('ton', currentPlatform);
+  const tonAddress = useAddress();
 
   // Логирование для отладки
   useEffect(() => {
@@ -1785,6 +1789,20 @@ export function BoostShopModal({
                                   </>
                                 )}
                               </Button>
+                            )}
+
+                            {showTonPayment && (
+                              <div className="pt-2">
+                                <TonPaymentWidget
+                                  mode="compact"
+                                  defaultAmount={
+                                    pack.amount === 100 ? '0.2' :
+                                      pack.amount === 500 ? '0.8' :
+                                        pack.amount === 1200 ? '1.8' : '3.5'
+                                  }
+                                  defaultComment={`Buying ${pack.amount} coins`}
+                                />
+                              </div>
                             )}
 
                             {/* Крипто как опция (маленькая ссылка) */}
