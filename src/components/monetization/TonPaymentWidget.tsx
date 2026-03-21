@@ -73,13 +73,15 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         <div className={cn('transition-all duration-300 relative', className)}>
             <div className="flex flex-col relative z-20">
                 {!address ? (
-                    <Button 
-                        onClick={handleConnect}
-                        className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
-                    >
-                        <Wallet className="w-4 h-4" />
-                        <span>Connect Wallet</span>
-                    </Button>
+                    mode === 'compact' ? null : (
+                        <Button 
+                            onClick={handleConnect}
+                            className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                        >
+                            <Wallet className="w-4 h-4" />
+                            <span>Connect Wallet</span>
+                        </Button>
+                    )
                 ) : (
                     <Button
                         disabled={isPaying}
