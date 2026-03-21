@@ -377,10 +377,12 @@ export const GeneralTab: React.FC = () => {
             <div className="pt-2">
                 <div className="flex items-center gap-2 mb-4">
                     <div className="w-8 h-8 rounded-lg bg-[#0088CC]/10 flex items-center justify-center shrink-0">
-                        {/* TON official icon from local assets */}
+                        {/* TON official icon - color for light mode, white for dark mode */}
                         <img 
-                            src="/TON%20Logo%20/svg/icon/icon_TON_color.svg" 
-                            className="w-5 h-5 drop-shadow-sm" 
+                            src={resolvedTheme === 'dark' 
+                                ? "/TON%20Logo%20/svg/icon/icon_TON_white.svg" 
+                                : "/TON%20Logo%20/svg/icon/icon_TON_color.svg"} 
+                            className="w-5 h-5 drop-shadow-sm transition-all duration-300" 
                             alt="TON" 
                         />
                     </div>
