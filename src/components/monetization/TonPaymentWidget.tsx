@@ -2,9 +2,9 @@ import React, { useCallback } from "react";
 import { 
     useBalance,
     useTransferTon,
-    useTonConnectUI,
     useAddress,
 } from '@ton/appkit-react';
+import { useTonConnectUI } from '@tonconnect/ui-react';
 import { Loader2, Zap, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
