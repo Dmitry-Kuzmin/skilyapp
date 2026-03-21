@@ -1543,9 +1543,9 @@ export const ru = {
         copyError: "Не удалось скопировать. Скопируйте код вручную: {{code}}",
         enterLobby: "ВОЙТИ В ЛОББИ",
         shareText: "Сразись со мной в дуэли! Код: {{code}}",
-      },
     },
-    duelLobby: {
+  },
+  duelLobby: {
       versus: {
         title: "Дуэль",
         opponentFinished: "Финишировал",
@@ -1589,9 +1589,9 @@ export const ru = {
         battleStartError: "Ошибка запуска игры",
         codeCopied: "🎉 Код скопирован!",
         codeCopiedDesc: "Отправь его другу, чтобы начать битву",
-      },
     },
-    duelBattle: {
+  },
+  duelBattle: {
       arena: {
         pointsAdded: "+{{points}} очков",
         correctAnswer: "Верный ответ!",
@@ -1635,10 +1635,10 @@ export const ru = {
           combo: "Победная серия (Combo) множит твои очки в несколько раз.",
           premium: "Премиум игроки получают больше опыта и уникальные бусты.",
           time: "Следи за временем! Если не успеешь, ответ не зачтется.",
-        },
       },
     },
-    gamesPage: {
+  },
+  gamesPage: {
     title: "Игровая зона",
     subtitle: "Выбирай режим и прокачивай навыки",
     stats: {

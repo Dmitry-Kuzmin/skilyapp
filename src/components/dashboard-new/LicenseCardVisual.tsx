@@ -25,7 +25,8 @@ interface LicenseCardVisualProps {
     t: (key: string) => string;
     // For interactive mode
     onPhotoClick?: () => void;
-    onExamClick?: () => void;
+    onDateClick?: () => void;
+    onLocationClick?: () => void;
     onPromoClick?: () => void;
     onPointsClick?: () => void;
     isUploading?: boolean;
@@ -53,7 +54,8 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
     points,
     t,
     onPhotoClick,
-    onExamClick,
+    onDateClick,
+    onLocationClick,
     onPromoClick,
     onPointsClick,
     isUploading,
@@ -267,7 +269,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                                     label={localeConfig.fields.location} 
                                     value={
                                         <button 
-                                            onClick={!isStatic ? (e) => { e.stopPropagation(); onExamClick?.(); } : undefined}
+                                            onClick={!isStatic ? (e) => { e.stopPropagation(); onLocationClick?.(); } : undefined}
                                             disabled={isStatic}
                                             className={cn(
                                                 "text-left transition-all group/loc focus:outline-none flex items-center gap-1",
@@ -286,7 +288,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                                     label={localeConfig.fields.examDate}
                                     value={
                                         <button 
-                                            onClick={!isStatic ? (e) => { e.stopPropagation(); onExamClick?.(); } : undefined}
+                                            onClick={!isStatic ? (e) => { e.stopPropagation(); onDateClick?.(); } : undefined}
                                             disabled={isStatic}
                                             className={cn(
                                                 "text-left transition-all group/goal focus:outline-none",

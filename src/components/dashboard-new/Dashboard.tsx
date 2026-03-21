@@ -249,27 +249,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             />
           </div>
 
-          {/* 2. EXAM READINESS (Col: 1, Row: 1) - placement adjusted */}
-          <div className={cn(
-            "transition-all duration-500 ease-in-out",
-            examReadinessExpanded
-              ? 'md:col-span-2 xl:col-span-2 xl:row-span-2'
-              : 'md:col-span-1 xl:col-span-1 xl:row-span-2'
-          )}>
+          {/* 2. DUEL PASS INFO - Moved to 2nd place for better visibility */}
+          <div className="md:col-span-1 xl:col-span-1 xl:row-span-2">
             <Suspense fallback={<ComponentSkeleton />}>
-              <ExamReadiness
-                averageScore={stats.averageScore}
-                testsCompleted={stats.testsCompleted}
-                status={readinessStatus?.status}
-                statusText={readinessStatus?.statusText}
-                shortText={readinessStatus?.shortText}
-                description={readinessStatus?.description}
-                profileId={profileId}
-                licensePoints={userProfile?.license_points || 8}
-                onStartTest={handleStartQuiz}
-                onExpandedChange={handleExamReadinessExpanded}
-                onTelemetryClick={() => setTelemetryOpen(true)}
-              />
+              <DuelPassInfo />
             </Suspense>
           </div>
 
@@ -287,10 +270,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 5. DUEL PASS INFO */}
-          <div className="md:col-span-1 xl:col-span-1">
+          {/* 5. EXAM READINESS (Probabilidad) - Now moved to the second row position */}
+          <div className={cn(
+            "transition-all duration-500 ease-in-out",
+            examReadinessExpanded
+              ? 'md:col-span-2 xl:col-span-2'
+              : 'md:col-span-1 xl:col-span-1'
+          )}>
             <Suspense fallback={<ComponentSkeleton />}>
-              <DuelPassInfo />
+              <ExamReadiness
+                averageScore={stats.averageScore}
+                testsCompleted={stats.testsCompleted}
+                status={readinessStatus?.status}
+                statusText={readinessStatus?.statusText}
+                shortText={readinessStatus?.shortText}
+                description={readinessStatus?.description}
+                profileId={profileId}
+                licensePoints={userProfile?.license_points || 8}
+                onStartTest={handleStartQuiz}
+                onExpandedChange={handleExamReadinessExpanded}
+                onTelemetryClick={() => setTelemetryOpen(true)}
+              />
             </Suspense>
           </div>
 

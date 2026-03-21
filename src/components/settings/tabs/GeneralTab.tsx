@@ -93,11 +93,11 @@ export const GeneralTab: React.FC = () => {
         if (scrollTarget) {
             const element = document.getElementById(scrollTarget);
             if (element) {
-                // Небольшая задержка чтобы модалка успела отрендериться
+                // Небольшая задержка чтобы модалка успела отрендериться и анимация завершилась
                 const timer = setTimeout(() => {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     setScrollTarget(null); // Очищаем после прокрутки
-                }, 100);
+                }, 250);
                 return () => clearTimeout(timer);
             }
         }
@@ -347,7 +347,7 @@ export const GeneralTab: React.FC = () => {
             <Separator className="bg-slate-200 dark:bg-slate-700" />
 
             {/* Локация сдачи */}
-            <div>
+            <div id="exam-city-section">
                 <SectionTitle title={t('unifiedSettings.examCity')} />
                 <SettingRow
                     icon={<MapPin className="w-4 h-4 text-emerald-500" />}
@@ -383,7 +383,7 @@ export const GeneralTab: React.FC = () => {
                         <img src="https://ton.org/download/ton_symbol.svg" className="w-5 h-5" alt="TON" />
                     </div>
                     <h3 className="text-xs font-bold text-blue-500 uppercase tracking-widest tracking-tighter">
-                        TON Ecosystem
+                        {t('unifiedSettings.tonTitle')}
                     </h3>
                 </div>
                 <div className="bg-blue-500/5 rounded-2xl border border-blue-500/10 overflow-hidden">
@@ -393,8 +393,8 @@ export const GeneralTab: React.FC = () => {
                                 <Zap className="w-4 h-4 text-blue-500" />
                             </div>
                             <div className="space-y-1">
-                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Smart Payments</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">Подключи кошелек для мгновенных покупок подсказок и Premium в 1 клик через TON.</p>
+                                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t('unifiedSettings.tonSmartPayments')}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('unifiedSettings.tonSmartPaymentsDesc')}</p>
                             </div>
                         </div>
                         <div className="ton-connect-wrapper w-full flex justify-center">

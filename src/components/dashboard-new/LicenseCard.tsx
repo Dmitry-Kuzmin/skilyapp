@@ -292,7 +292,8 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                     setImageError={setImageError}
                     isUploading={isUploading}
                     onPhotoClick={handleAvatarClick}
-                    onExamClick={() => openSettings('general', 'exam-date-section')}
+                    onDateClick={() => openSettings('general', 'exam-date-section')}
+                    onLocationClick={() => openSettings('general', 'exam-city-section')}
                     onPromoClick={() => {
                         const code = userProfile?.referral_code;
                         

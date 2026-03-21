@@ -1180,7 +1180,7 @@ export const es = {
     cockpitDesc: "Sonido y vibración",
     notificationsDesc: "Notificaciones push",
     subscriptionDesc: "Premium",
-    dataDesc: "Caché и almacenamiento",
+    dataDesc: "Caché y almacenamiento",
     aboutDesc: "Versión y ayuda",
     language: "Idioma",
     appearance: "Apariencia",
@@ -1196,6 +1196,9 @@ export const es = {
     examCityDesc: "Selecciona la ciudad donde harás el examen",
     examCountdown: "Examen en: {{days}} días",
     setExamGoal: "Establecer meta",
+    tonTitle: "Ecosistema TON",
+    tonSmartPayments: "Pagos Inteligentes",
+    tonSmartPaymentsDesc: "Conecta tu billetera para compras instantáneas de pistas y Premium en 1 clic a través de TON.",
     level: "Nivel",
     synced: "Sincronizado",
     themeToast: {
@@ -1245,6 +1248,16 @@ export const es = {
     }
   },
   nav: {
+    settings: "Configuración",
+    notifications: "Notificac.",
+    profile: "Perfil",
+    stats: "Estadísticas",
+    account: "Cuenta",
+    about: "Sobre nosotros",
+    help: "Ayuda",
+    privacy: "Privacidad",
+    terms: "Términos",
+    cookies: "Cookies",
     invite: "Invitar"
   },
   telemetry: {
@@ -1289,7 +1302,7 @@ export const es = {
   },
   duelMenu: {
     title: "Duelo",
-    subtitle: "Lucha contra oponentes en todo el país, gana rango и monedas",
+    subtitle: "Lucha contra oponentes en todo el país, gana rango y monedas",
     stats: {
       total: "Total",
       wins: "Victorias",
@@ -1383,12 +1396,12 @@ export const es = {
     },
     howToPlay: {
       title: "Cómo Jugar",
-      subtitle: "Aprende las mecánicas básicas de los duelos и empieza a ganar ahora",
+      subtitle: "Aprende las mecánicas básicas de los duelos y empieza a ganar ahora",
       steps: {
         create: { title: "Crear o Unirse", desc: "Invita a un amigo o introduce un código de duelo secreto para empezar" },
         speed: { title: "Responde Rápido", desc: "Cuanto más rápido respondas, más puntos obtendrás" },
         combo: { title: "Crea Combos", desc: "Una serie de respuestas correctas activa un multiplicador de puntos hasta x3" },
-        win: { title: "¡Gana!", desc: "Gana recompensas и sube en la clasificación global" },
+        win: { title: "¡Gana!", desc: "Gana recompensas y sube en la clasificación global" },
       },
     },
     rematch: {
@@ -1470,7 +1483,7 @@ export const es = {
       ],
       lose: [
         "¡Eso fue solo un calentamiento! ¡Exijo una revancha!",
-        "No estuvo mal, но puedo hacerlo mejor. ¿Una vez más?",
+        "No estuvo mal, no puedo hacerlo mejor. ¿Una vez más?",
         "Tuviste suerte... ¡Juguемы de nuevo!",
         "Solo te lo estaba poniendo fácil. ¡Pongámonos serios!",
         "¿Uno a uno? ¿О tienes miedo?",
@@ -1513,7 +1526,7 @@ export const es = {
       connect: "CONECTAR A SESIÓN",
       orHost: "O ORGANIZA LA TUYA",
       createRoom: "Crear sala segura",
-      createRoomDesc: "Genera un código и envíalo a un amigo para comenzar al instante",
+      createRoomDesc: "Genera un código y envíalo a un amigo para comenzar al instante",
       generateKey: "GENERAR CLAVE",
     },
     success: {
@@ -1560,7 +1573,7 @@ export const es = {
       title: "⚔️ ¡Duelo de conocimientos!\n\n",
       bet: "🪙 Apuesta: {{amount}} monedas\n\n",
       code: "🚀 Código de duelo: {{code}}\n\n",
-      description: "⭐ ¡Únete и demuestra tus conocimientos!\n\n",
+      description: "⭐ ¡Únete y demuestra tus conocimientos!\n\n",
       cta: "👉 Empezar duelo",
     },
     toasts: {
@@ -1616,14 +1629,14 @@ export const es = {
         insurance: "El seguro salvará tus monedas incluso en caso de derrota.",
         speed: "Cuanto más rápido respondas, más puntos obtendrás.",
         combo: "Una racha de victorias (Combo) multiplica tus puntos varias veces.",
-        premium: "Los jugadores Premium obtienen más experiencia и potenciadores únicos.",
-        time: "¡Vigila el tiempo! Si không lo logras, la respuesta không contará.",
+        premium: "Los jugadores Premium obtienen más experiencia y potenciadores únicos.",
+        time: "¡Vigila el tiempo! Si no lo logras, la respuesta no contará.",
       },
     },
   },
   gamesPage: {
     title: "Zona de Juegos",
-    subtitle: "Elige un modo и potencia tus habilidades",
+    subtitle: "Elige un modo y potencia tus habilidades",
     stats: {
       played: "juegos",
       terms: "términos",
@@ -1632,7 +1645,7 @@ export const es = {
     featured: {
       badge: "Modo Principal",
       title: "DUELO",
-      description: "Lucha contra un amigo o un oponente aleatorio en una batalla de conocimientos. ¡Apuestas, rangos и gloria te esperan!",
+      description: "Lucha contra un amigo o un oponente aleatorio en una batalla de conocimientos. ¡Apuestas, rangos y gloria te esperan!",
       frozenDescription: "❄️ La Arena está temporalmente congelada. ¡Demasiadas batallas calientes! Estamos enfriando los servidores para que pronto vuelvas al combate.",
       button: "Entrar en la Arena",
       coolingButton: "Sistema enfriando ❄️",
@@ -1657,7 +1670,7 @@ export const es = {
     },
     gameDescriptions: {
       duel: "Compite con un amigo o un bot sobre conocimientos de tráfico",
-      race: "Traduce tantas palabras как puedas en tiempo limitado",
+      race: "Traduce tantas palabras como puedas en tiempo limitado",
       flashcards: "Método clásico de aprendizaje con tarjetas",
       intersections: "¡Resuelve el tráfico! Elige el orden correcto de paso",
       lexicon: "Maestría en traducción. Elige el significado correcto de los términos de tráfico.",

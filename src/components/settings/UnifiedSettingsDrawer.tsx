@@ -17,6 +17,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { triggerHaptic } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
+import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
+import { Drawer as DrawerPrimitive } from 'vaul';
 
 // === TABS ===
 import {
@@ -143,9 +145,9 @@ export const UnifiedSettingsDrawer: React.FC = () => {
 
     // === MOBILE CONTENT ===
     const MobileContent = () => (
-        <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex flex-col h-full relative">
+            {/* Header - Sticky to ensure close button is always visible */}
+            <div className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0f172a] backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
                         <Settings className="w-4 h-4 text-white" />
@@ -211,10 +213,19 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                 onOpenChange={(open) => !open && closeSettings()}
                 shouldScaleBackground={false}
                 dismissible={true}
-                dismissibleThreshold={0.2} // Легкое закрытие - 20% свайпа достаточно
             >
-                <DrawerContent className="h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-white/10">
-                    <MobileContent />
+                <DrawerContent className="h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-white/10 flex flex-col">
+                    {/* Visual drag handle */}
+                    <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 mt-2.5 mb-1.5" />
+                    
+                    <VisuallyHidden.Root>
+                        <DrawerPrimitive.Title>{t('unifiedSettings.title')}</DrawerPrimitive.Title>
+                        <DrawerPrimitive.Description>Application Settings</DrawerPrimitive.Description>
+                    </VisuallyHidden.Root>
+                    
+                    <div className="flex-1 overflow-hidden flex flex-col">
+                        <MobileContent />
+                    </div>
                 </DrawerContent>
             </Drawer>
         );

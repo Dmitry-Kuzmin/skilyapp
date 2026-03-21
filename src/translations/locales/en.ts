@@ -1191,6 +1191,15 @@ export const en = {
     performance: "Performance",
     powerSaver: "Power Saver",
     powerSaverDesc: "Disables heavy animations",
+    examDate: "Exam Date",
+    examDateDesc: "Set a date for the countdown",
+    examCity: "Exam Location",
+    examCityDesc: "Select the city where you plan to take the exam",
+    examCountdown: "Exam in: {{days}} days",
+    setExamGoal: "Set a goal",
+    tonTitle: "TON Ecosystem",
+    tonSmartPayments: "Smart Payments",
+    tonSmartPaymentsDesc: "Connect your wallet for instant hints and Premium in 1 click via TON.",
     level: "Level",
     synced: "Synced",
     themeToast: {
@@ -1242,7 +1251,15 @@ export const en = {
   nav: {
     settings: "Settings",
     notifications: "Notifications",
-    profile: "Profile"
+    profile: "Profile",
+    stats: "Stats",
+    account: "Account",
+    about: "About",
+    help: "Help",
+    privacy: "Privacy",
+    terms: "Terms",
+    cookies: "Cookies",
+    invite: "Invite"
   },
   duel: {
     loading: "Loading questions...",
@@ -1600,9 +1617,11 @@ export const en = {
         speed: "The faster you answer, the more points you get.",
         combo: "A winning streak (Combo) multiplies your points several times.",
         premium: "Premium players get more experience and unique boosts.",
+        time: "Watch the time! If you run out of time, the answer won't count.",
       },
     },
-    gamesPage: {
+  },
+  gamesPage: {
     title: "Game Zone",
     subtitle: "Choose a mode and power up your skills",
     stats: {
@@ -1646,6 +1665,5 @@ export const en = {
       roadRace: "Test marathon in a race format on Spanish roads",
       blitz: "Answer as many questions as possible in 5 minutes. Every error is a penalty!",
     },
-  },
   },
 };
