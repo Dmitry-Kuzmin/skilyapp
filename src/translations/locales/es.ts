@@ -308,6 +308,17 @@ export const es = {
     inputPlaceholder: "Escribe tu pregunta...",
     analyzing: "Analizando reglas...",
   },
+  monetization: {
+    ton: {
+      pay: "Comprar",
+      processing: "Pagando...",
+      success: "¡Pago exitoso!",
+      failed: "Error en el pago. Inténtalo de nuevo.",
+      cancelled: "Pago cancelado por el usuario",
+      notConnected: "Billetera no conectada",
+      secureLabel: "Pago seguro con TON",
+    }
+  },
   cryptomusPayment: {
     title: "Confirmación de pago",
     description: "Verifique los detalles del pago antes de proceder al pago",

@@ -309,6 +309,17 @@ export const en = {
     inputPlaceholder: "Type your question...",
     analyzing: "Analyzing rules...",
   },
+  monetization: {
+    ton: {
+      pay: "Buy for",
+      processing: "Paying...",
+      success: "Payment successful!",
+      failed: "Payment failed. Please try again.",
+      cancelled: "Payment cancelled by user",
+      notConnected: "Wallet not connected",
+      secureLabel: "Secure TON Payment",
+    }
+  },
   cryptomusPayment: {
     title: "Payment Confirmation",
     description: "Check payment details before proceeding to payment",
