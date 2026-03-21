@@ -17,6 +17,7 @@ import {
 import * as commands from "./commands.ts";
 import * as keyboards from "./keyboards.ts";
 import { t, getUserLanguage, normalizeLanguage, SupportedLanguage, getDaysWord } from "./translations.ts";
+import { handleAIChat } from "./ai-handler.ts";
 
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
@@ -230,9 +231,15 @@ async function handleMessage(message: TelegramMessage) {
         console.error("[Command] Failed to send error message:", e);
       }
     }
-  } else {
-    // Обработка не-команд (если нужно)
-    console.log("[Message] Not a command, skipping");
+  } else if (text) {
+    // Обработка не-команд через AI
+    console.log("[Message] Not a command, calling AI...");
+    try {
+      const lang = await getUserLanguage(user.id, user.language_code, supabase);
+      await handleAIChat(message, supabase, lang);
+    } catch (aiError: unknown) {
+      console.error("[AI] Error in handleAIChat:", aiError);
+    }
   }
 }
 

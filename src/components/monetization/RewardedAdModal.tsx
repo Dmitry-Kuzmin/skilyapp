@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRewardedAd, RewardType } from '@/hooks/useRewardedAd';
 import { Button } from '@/components/ui/button';
 import { Video, Coins, Calendar, Sparkles, CheckCircle2, Zap, Gift, X, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { PremiumPromoAd } from './PremiumPromoAd';
 
 interface RewardedAdModalProps {
   open: boolean;
@@ -37,6 +38,7 @@ export function RewardedAdModal({
 }: RewardedAdModalProps) {
   const { loading, error, isAvailable, showAd, preload, reset } = useRewardedAd();
   const [showReward, setShowReward] = useState(false);
+  const [showPromo, setShowPromo] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -44,6 +46,7 @@ export function RewardedAdModal({
     } else {
       reset();
       setShowReward(false);
+      setShowPromo(false);
     }
   }, [open, preload, reset]);
 
@@ -127,20 +130,21 @@ export function RewardedAdModal({
 
   const handleShowAd = async () => {
     console.log(`[RewardedAdModal] 🖱️ handleShowAd clicked for placement: ${placement || title}`);
-    try {
-      setShowReward(false);
-      reset();
-      const success = await showAd(placement || title);
-      if (success) {
-        setShowReward(true);
-        await onRewardClaimed();
-        setTimeout(() => onOpenChange(false), 2500);
-      }
-    } catch (err) {
-      console.error('[RewardedAdModal] Error in handleShowAd:', err);
-      // error уже установлен в хуке
-    }
+    // Показываем внутреннюю промо-карусель Premium вместо внешней рекламы
+    setShowPromo(true);
   };
+
+  const handlePromoComplete = useCallback(async () => {
+    console.log('[RewardedAdModal] ✅ Promo ad completed — granting reward');
+    setShowPromo(false);
+    setShowReward(true);
+    try {
+      await onRewardClaimed();
+    } catch (err) {
+      console.error('[RewardedAdModal] Error claiming reward:', err);
+    }
+    setTimeout(() => onOpenChange(false), 2500);
+  }, [onRewardClaimed, onOpenChange]);
 
   return (
     <AnimatePresence>
@@ -156,7 +160,7 @@ export function RewardedAdModal({
             "z-50 flex items-end sm:items-center justify-center p-0 backdrop-blur-3xl bg-[#0b0d14]",
             inlineOverlay ? "absolute inset-0 rounded-xl overflow-hidden" : "fixed inset-0 sm:p-4"
           )}
-          onClick={() => onOpenChange(false)}
+          onClick={() => !showPromo && onOpenChange(false)}
         >
           {/* Overlay color if not using backdrop-blur directly on the container */}
           {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14] backdrop-blur-3xl" />}
@@ -179,14 +183,16 @@ export function RewardedAdModal({
             <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.04]" />
             <div className={cn("absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full blur-3xl opacity-30 bg-gradient-to-r", info.gradient)} />
 
-            {/* Close button - Always visible and at the top right of the modal */}
-            <button
-              id="close-rewarded-ad-modal"
-              onClick={() => onOpenChange(false)}
-              className="absolute top-2 right-2 p-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center z-[100]"
-            >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
+            {/* Close button - hidden during promo playback */}
+            {!showPromo && (
+              <button
+                id="close-rewarded-ad-modal"
+                onClick={() => onOpenChange(false)}
+                className="absolute top-2 right-2 p-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center z-[100]"
+              >
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+            )}
 
             {/* Content */}
             <div className={cn(
@@ -194,7 +200,20 @@ export function RewardedAdModal({
               inlineOverlay ? "h-full justify-center overflow-y-auto no-scrollbar" : "overflow-y-auto no-scrollbar pb-6"
             )}>
               <AnimatePresence mode="wait">
-                {!showReward ? (
+                {showPromo ? (
+                  <motion.div
+                    key="ad-promo"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="w-full h-full min-h-[420px]"
+                  >
+                    <PremiumPromoAd
+                      duration={15}
+                      onComplete={handlePromoComplete}
+                    />
+                  </motion.div>
+                ) : !showReward ? (
                   <motion.div
                     key="ad-waiting"
                     initial={{ opacity: 0 }}
@@ -255,49 +274,10 @@ export function RewardedAdModal({
                       )}
                     </div>
 
-                    {/* Progress bar when loading */}
-                    <AnimatePresence>
-                      {loading && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="space-y-2"
-                        >
-                          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                            <motion.div
-                              className={cn("h-full rounded-full bg-gradient-to-r", info.gradient)}
-                              initial={{ width: '0%' }}
-                              animate={{ width: '100%' }}
-                              transition={{ duration: 2.5, ease: 'easeInOut' }}
-                            />
-                          </div>
-                          <p className="text-xs text-center text-white/40">Загрузка рекламы...</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Error / AdBlock notice */}
-                    <AnimatePresence>
-                      {error && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          className="flex items-start gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/20"
-                        >
-                          <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                          <div>
-                            <p className="text-sm font-bold text-red-300">Не удалось показать рекламу</p>
-                            <p className="text-xs text-red-400/80 mt-0.5 leading-relaxed">
-                              {error.includes('AdBlock')
-                                ? 'Обнаружен AdBlock. Отключи его для этого сайта, чтобы получить награду.'
-                                : error}
-                            </p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* Hint */}
+                    <p className="text-[10px] text-white/30 text-center leading-tight">
+                      Посмотри 15-секундную презентацию и получи награду
+                    </p>
 
                     {/* Buttons */}
                     {!isAvailable ? (
@@ -324,7 +304,7 @@ export function RewardedAdModal({
                         <Button
                           variant="ghost"
                           onClick={handleShowAd}
-                          disabled={loading}
+                          disabled={false}
                           className={cn(
                             "w-full rounded-2xl text-white hover:text-white font-black shadow-2xl border-none",
                             "bg-gradient-to-r hover:opacity-90 active:scale-[0.98] transition-all duration-200",
@@ -336,16 +316,10 @@ export function RewardedAdModal({
                         >
                           {/* Shimmer */}
                           <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-                          {loading ? (
-                            <svg className="w-5 h-5 animate-spin relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                            </svg>
-                          ) : (
-                            <span className="relative z-10 flex items-center gap-2">
-                              {info.actionText}
-                            </span>
-                          )}
+                          <span className="relative z-10 flex items-center gap-2">
+                            <Video className="w-4 h-4" />
+                            {info.actionText}
+                          </span>
                         </Button>
 
                         {secondaryAction && (

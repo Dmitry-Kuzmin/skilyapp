@@ -1660,77 +1660,139 @@ export function BoostShopModal({
                       pack.helperKey ?? "boostShop.coins.deliveryHint",
                     );
                     return (
-                      <Card
+                      <motion.div
                         key={idx}
-                        className={cn(
-                          "group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 flex flex-col",
-                          isBestValue
-                            ? "border-violet-500/40 shadow-[0_4px_24px_rgba(139,92,246,0.15)]"
-                            : isHighlighted
-                              ? "border-amber-400/30 shadow-[0_4px_14px_rgba(251,191,36,0.10)]"
-                              : "border-border/50 hover:border-violet-400/25"
-                        )}
+                        whileHover={{ y: -6, scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="h-full relative"
                       >
-                        {/* Акцентная полоска сверху */}
+                        {/* Glow backdrop */}
                         <div className={cn(
-                          "h-[2px] w-full flex-shrink-0",
+                          "absolute inset-0 rounded-2xl blur-xl transition-opacity duration-500 -z-10 opacity-0 group-hover:opacity-100",
                           isBestValue
-                            ? "bg-gradient-to-r from-violet-500 via-fuchsia-400 to-indigo-500"
+                            ? "bg-violet-600/40"
                             : isHighlighted
-                              ? "bg-gradient-to-r from-amber-400 to-orange-400"
-                              : "bg-border/40"
+                              ? "bg-amber-500/30"
+                              : "bg-slate-400/10"
                         )} />
 
-                        {/* Corner badge */}
-                        {isBestValue && (
-                          <div className="absolute top-3 right-3 z-10">
-                            <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-[3px] rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/25">
-                              ХИТ
-                            </span>
-                          </div>
-                        )}
-                        {isHighlighted && !isBestValue && (
-                          <div className="absolute top-3 right-3 z-10">
-                            <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-[3px] rounded-full bg-amber-400/15 text-amber-500 border border-amber-400/25">
-                              VIP
-                            </span>
-                          </div>
-                        )}
+                        <Card
+                          className={cn(
+                            "group relative overflow-hidden rounded-2xl border bg-card transition-all duration-300 flex flex-col h-full",
+                            isBestValue
+                              ? "border-violet-500/50 shadow-[0_8px_32px_rgba(139,92,246,0.25)] hover:shadow-[0_16px_48px_rgba(139,92,246,0.35)]"
+                              : isHighlighted
+                                ? "border-amber-400/40 shadow-[0_8px_24px_rgba(251,191,36,0.2)] hover:shadow-[0_16px_40px_rgba(251,191,36,0.3)]"
+                                : "border-border/60 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.15)]"
+                          )}
+                        >
+                          {/* Shimmer effect на hover */}
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.08] to-white/0 pointer-events-none rounded-2xl"
+                            initial={{ x: '-100%' }}
+                            whileHover={{ x: '200%' }}
+                            transition={{ duration: 0.8 }}
+                          />
 
-                        <div className="p-3 sm:p-4 flex-1 flex flex-col gap-3">
-                          {/* Иконка + лейбл */}
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className={cn(
-                                "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105",
-                                isBestValue
-                                  ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/30"
-                                  : isHighlighted
-                                    ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-400/20"
-                                    : "bg-gradient-to-br from-amber-400/15 to-orange-400/10 border border-amber-400/20"
-                              )}
-                            >
-                              <Coins className={cn("w-5 h-5", !isBestValue && !isHighlighted && "text-amber-500")} />
-                            </div>
-                            <div className="flex-1 min-w-0 pr-8">
-                              <p className="text-sm font-bold text-foreground leading-none truncate">
-                                {t("boostShop.coins.packLabel", { amount: pack.amount })}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Цена — доминирующий элемент */}
-                          <div>
-                            <div className="text-2xl sm:text-3xl font-black text-foreground tabular-nums leading-none">{pack.price}</div>
-                            {pricePerCoin && (
-                              <p className="text-[10px] text-muted-foreground mt-1">
-                                ≈ €{pricePerCoin.toFixed(2)} / монету
-                              </p>
+                          {/* Акцентная полоска сверху — анимированная */}
+                          <motion.div
+                            className={cn(
+                              "h-[2px] w-full flex-shrink-0",
+                              isBestValue
+                                ? "bg-gradient-to-r from-violet-500 via-fuchsia-400 to-indigo-500"
+                                : isHighlighted
+                                  ? "bg-gradient-to-r from-amber-400 to-orange-400"
+                                  : "bg-border/40"
                             )}
-                          </div>
+                            initial={{ scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{ delay: idx * 0.05, duration: 0.4 }}
+                            style={{ transformOrigin: 'left' }}
+                          />
+
+                          {/* Corner badge — с пульсом */}
+                          {(isBestValue || isHighlighted) && (
+                            <motion.div
+                              className="absolute top-3 right-3 z-10"
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ delay: idx * 0.05 + 0.2, type: 'spring', stiffness: 200 }}
+                            >
+                              <motion.span
+                                className={cn(
+                                  "text-[8px] font-black uppercase tracking-widest px-1.5 py-[3px] rounded-full border inline-block",
+                                  isBestValue
+                                    ? "bg-violet-500/15 text-violet-400 border-violet-500/25"
+                                    : "bg-amber-400/15 text-amber-500 border-amber-400/25"
+                                )}
+                                animate={{ scale: [1, 1.08, 1] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                              >
+                                {isBestValue ? '🔥 ХИТ' : '⭐ VIP'}
+                              </motion.span>
+                            </motion.div>
+                          )}
+
+                          <div className="p-3 sm:p-4 flex-1 flex flex-col gap-3 relative z-5">
+                            {/* Иконка + лейбл */}
+                            <div className="flex items-center gap-2.5">
+                              <motion.div
+                                whileHover={{ scale: 1.15, rotateZ: 5 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={cn(
+                                  "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
+                                  isBestValue
+                                    ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/30"
+                                    : isHighlighted
+                                      ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-400/20"
+                                      : "bg-gradient-to-br from-amber-400/15 to-orange-400/10 border border-amber-400/20"
+                                )}
+                              >
+                                <motion.div
+                                  animate={{ rotate: [0, -5, 5, 0] }}
+                                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                                >
+                                  <Coins className={cn("w-5 h-5", !isBestValue && !isHighlighted && "text-amber-500")} />
+                                </motion.div>
+                              </motion.div>
+                              <div className="flex-1 min-w-0 pr-8">
+                                <motion.p
+                                  className="text-sm font-bold text-foreground leading-none truncate"
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  transition={{ delay: idx * 0.05 + 0.1 }}
+                                >
+                                  {t("boostShop.coins.packLabel", { amount: pack.amount })}
+                                </motion.p>
+                              </div>
+                            </div>
+
+                            {/* Цена — доминирующий элемент с анимацией */}
+                            <motion.div
+                              initial={{ opacity: 0, y: 4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.05 + 0.15 }}
+                            >
+                              <motion.div
+                                className="text-2xl sm:text-3xl font-black text-foreground tabular-nums leading-none bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
+                                whileHover={{ scale: 1.05 }}
+                              >
+                                {pack.price}
+                              </motion.div>
+                              {pricePerCoin && (
+                                <p className="text-[10px] text-muted-foreground/70 mt-1 font-medium">
+                                  ≈ €{pricePerCoin.toFixed(2)} / монету
+                                </p>
+                              )}
+                            </motion.div>
 
                           {/* Кнопки */}
-                          <div className="mt-auto space-y-1.5">
+                          <motion.div
+                            className="mt-auto space-y-1.5"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: idx * 0.05 + 0.25 }}
+                          >
                             {/* Stars (Telegram) */}
                             {showStarsPayment && (
                               <StarsPaymentButton
@@ -1770,7 +1832,11 @@ export function BoostShopModal({
 
                             {/* PRIMARY: Криптовалюта */}
                             {showCryptomusPayment && (
-                              <button
+                              <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.96 }}
+                              >
+                                <button
                                 disabled={!profileId}
                                 onClick={async () => {
                                   if (!profileId) {
@@ -1828,7 +1894,8 @@ export function BoostShopModal({
                               >
                                 <span className="text-sm leading-none">₿</span>
                                 <span>Крипта · {pack.price}</span>
-                              </button>
+                                </button>
+                              </motion.div>
                             )}
 
                             {/* SECONDARY: Карта (Paddle) */}
@@ -1856,9 +1923,10 @@ export function BoostShopModal({
                                 Используйте Telegram Mini App
                               </p>
                             )}
-                          </div>
+                          </motion.div>
                         </div>
-                      </Card>
+                        </Card>
+                      </motion.div>
                     );
                   })}
                 </div>

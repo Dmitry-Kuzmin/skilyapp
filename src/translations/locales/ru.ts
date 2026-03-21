@@ -318,6 +318,17 @@ export const ru = {
     inputPlaceholder: "Напиши свой вопрос...",
     analyzing: "Анализирую правила...",
   },
+  monetization: {
+    ton: {
+      pay: "Купить за",
+      processing: "Оплата...",
+      success: "Оплата прошла успешно!",
+      failed: "Ошибка оплаты. Попробуйте еще раз.",
+      cancelled: "Оплата отменена пользователем",
+      notConnected: "Кошелек не подключен",
+      secureLabel: "Защищенная оплата TON",
+    }
+  },
   cryptomusPayment: {
     title: "Подтверждение оплаты",
     description: "Проверьте детали платежа перед переходом к оплате",

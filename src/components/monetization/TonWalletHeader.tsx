@@ -8,10 +8,10 @@ import { Wallet, CheckCircle2 } from 'lucide-react';
 
 export const TonWalletHeader: React.FC = () => {
     const address = useAddress();
-    const { data: balanceData, isLoading: isBalanceLoading } = useBalance();
+    const { balance: rawBalance, isLoading: isBalanceLoading } = useBalance();
 
-    const tonBalance = balanceData
-        ? (Number(balanceData) / 1e9).toFixed(2)
+    const tonBalance = rawBalance
+        ? (Number(rawBalance) / 1e9).toFixed(2)
         : null;
 
     if (!address) {

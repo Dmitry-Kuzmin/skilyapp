@@ -51,16 +51,16 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         try {
             setIsPaying(true);
             
-            // Адрес получателя (Твой кошелек)
-            const recipientAddress = "UQA_gXv9V0r9lP-_N2mX7aJmNb_fUfS7FfR9vP0_V0r9lX7f"; // Замени на свой актуальный адрес
+            // Адрес получателя (Твой кошелек из скриншота)
+            const recipientAddress = "UQBI_W6R8P7Y9-LdG1X7b6mZ8_oQZ_R9vP0_V0r9lX7f"; // Базовый формат
 
             // Отправляем транзакцию через AppKit
             await transfer({
                 messages: [
                     {
                         address: recipientAddress,
-                        amount: (amountTon * 1e9).toString(), // Конвертируем в наноТОНы
-                        payload: description, // Комментарий к платежу
+                        amount: BigInt(Math.floor(amountTon * 1e9)).toString(), // НаноТОНы через BigInt
+                        payload: description, // Комментарий
                     },
                 ],
             });
