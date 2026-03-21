@@ -19,7 +19,7 @@ export const appKit = new AppKit({
     connectors: [
         new TonConnectConnector({
             tonConnectOptions: {
-                manifestUrl: 'https://sdadim.com/tonconnect-manifest.json',
+                manifestUrl: 'https://skilyapp.com/tonconnect-manifest.json',
             },
         }),
     ],
