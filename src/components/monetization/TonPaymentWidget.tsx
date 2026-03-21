@@ -72,8 +72,6 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
 
     return (
         <div 
-            onClick={(e) => e.stopPropagation()} 
-            onPointerDown={(e) => e.stopPropagation()}
             className={cn(
                 'transition-all duration-300 relative group',
                 mode === 'compact'
@@ -83,12 +81,16 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             )}
         >
             <div className={cn(
-                "flex flex-col relative z-50 isolation-auto",
+                "flex flex-col relative z-10 isolation-auto",
                 mode === 'compact' ? "p-0 min-h-[44px]" : "p-5 gap-4"
             )}>
                 {/* STATE 1: Compact mode & no wallet connected */}
                 {mode === 'compact' && !address ? (
-                    <div className="relative w-full h-11 overflow-hidden">
+                    <div 
+                        className="relative w-full h-11 overflow-hidden"
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                    >
                         {/* 1. Наша красивая кнопка (дизайн) */}
                         <Button 
                             className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
@@ -97,9 +99,8 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                             <span>Connect Wallet</span>
                         </Button>
                         
-                        {/* 2. Кнопка библиотеки ТЕХНИЧЕСКИ сверху, но абсолютно прозрачная.
-                            Клик попадает в неё, библиотека открывает модалку. */}
-                        <div className="absolute inset-0 opacity-0 cursor-pointer overflow-hidden [&_button]:!w-full [&_button]:!h-full [&_button]:!absolute [&_button]:!inset-0">
+                        {/* 2. Кнопка библиотеки СВЕРХУ, абсолютно прозрачная и блокирует всплытие */}
+                        <div className="absolute inset-0 opacity-0 cursor-pointer z-[999] [&>div]:w-full [&>div]:h-full [&_button]:!w-full [&_button]:!h-full [&_button]:!absolute [&_button]:!inset-0 [&_button]:!z-[999]">
                             <TonConnectButton />
                         </div>
                     </div>
