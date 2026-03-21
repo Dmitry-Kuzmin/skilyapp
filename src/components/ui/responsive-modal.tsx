@@ -91,6 +91,40 @@ export function ResponsiveModal({
           )}
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
+            const path = e.composedPath();
+            // СВЕРХнадежная проверка (Учитывает SVG-иконки и теневые узлы)
+            const isExternalPortal = path.some((el: any) => {
+              if (!el || !el.tagName) return false;
+              
+              const tagName = (el.tagName || '').toLowerCase();
+              const id = typeof el.id === 'string' ? el.id.toLowerCase() : '';
+              
+              // Безопасное получение класса (если кликнули на SVG, SVGPath и т.д.)
+              let className = '';
+              if (typeof el.className === 'string') {
+                className = el.className.toLowerCase();
+              } else if (el.className && typeof el.className.baseVal === 'string') {
+                className = el.className.baseVal.toLowerCase();
+              }
+              
+              // Собираем все признаки элемента в одну строку
+              const elString = `${tagName} ${id} ${className}`;
+              
+              return (
+                elString.includes('tc-') || 
+                elString.includes('ton-') ||
+                elString.includes('tonconnect') ||
+                elString.includes('appkit') ||
+                elString.includes('sonner') ||
+                elString.includes('go') // CSS-in-JS классы от TonConnect (напр. .go12345)
+              );
+            });
+            
+            // Если кликнули по чему-то из виджетов TON - отменяем закрытие модалки
+            if (isExternalPortal) {
+              e.preventDefault();
+              return;
+            }
             if (preventClose) {
               e.preventDefault();
             }

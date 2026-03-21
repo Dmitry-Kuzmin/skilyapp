@@ -1,4 +1,4 @@
-import { TonConnectButton as TonConnectUIBtn } from '@tonconnect/ui-react';
+import { TonConnectButton as TonConnectUIBtn } from '@ton/appkit-react';
 import { Card } from '@/components/ui/card';
 
 export const TonConnectButton = () => {

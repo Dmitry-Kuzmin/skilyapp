@@ -91,7 +91,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
 
     return (
         <div className={cn(
-            "w-full h-full relative z-10 rounded-3xl xl:rounded-[2.5rem] overflow-hidden border transition-all duration-700 flex flex-col shadow-lg backdrop-blur-md",
+            "w-full relative z-10 rounded-3xl xl:rounded-[2.5rem] overflow-hidden border transition-all duration-700 flex flex-col shadow-lg backdrop-blur-md",
             isDarkTheme
                 ? "bg-slate-800/80 border-slate-700"
                 : "bg-white border-slate-200/80 shadow-[0_20px_45px_rgba(0,0,0,0.06)]"
@@ -218,11 +218,11 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
             </div>
 
             {/* Content Section */}
-            <div className="flex-1 p-3 md:p-5 flex flex-row items-start gap-3 md:gap-5 z-10 relative mt-0">
+            <div className="flex-1 p-3 md:p-4 lg:p-5 flex flex-row items-start gap-2 sm:gap-3 md:gap-4 lg:gap-5 z-10 relative mt-0">
                 {/* Left Side: Photo Area */}
                 <div className="flex flex-col gap-2 shrink-0">
                     <div className={cn(
-                        "w-20 h-28 sm:w-24 sm:h-[120px] md:w-[100px] md:h-[136px] rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
+                        "w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-[128px] lg:w-[100px] lg:h-[136px] rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
                         isDarkTheme ? "border-white/10 bg-black/40" : "border-slate-200/80 bg-slate-50",
                         !isStatic && "cursor-pointer active:scale-[0.98] transition-all",
                         isUploading && "opacity-50"
@@ -259,9 +259,9 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                 </div>
 
                 {/* Right Side Info */}
-                <div className="flex-1 min-w-0 flex flex-col mt-0 md:mt-2">
-                    <div className="flex-1 min-w-0 flex flex-row items-center justify-between gap-4 md:gap-6 overflow-visible">
-                        <div className="grid grid-cols-1 gap-y-2 md:gap-y-3 flex-1 min-w-0 max-w-[65%] sm:max-w-none">
+                <div className="flex-1 min-w-0 flex flex-col mt-0 md:mt-1">
+                    <div className="flex-1 min-w-0 flex flex-row items-start sm:items-center justify-between gap-1 sm:gap-4 md:gap-4 lg:gap-6 overflow-visible">
+                        <div className="grid grid-cols-1 gap-y-1.5 md:gap-y-2 lg:gap-y-3 flex-1 min-w-0 max-w-[60%] sm:max-w-none">
                             <Field label={localeConfig.fields.name} value={fullName} />
 
                             <div className="grid grid-cols-2 gap-2">
@@ -377,15 +377,15 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                         </div>
 
                         {/* Points Indicator & Signature */}
-                        <div className="flex flex-col items-center gap-1 shrink-0 z-20 pr-1 md:pr-4">
+                        <div className="flex flex-col items-center gap-1 shrink-0 z-20 pr-0 sm:pr-2 lg:pr-4">
                             <div
                                 onClick={!isStatic ? onPointsClick : undefined}
                                 className={cn(
-                                    "w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] md:w-[110px] md:h-[110px] flex items-center justify-center overflow-visible",
+                                    "w-[50px] h-[50px] sm:w-[65px] sm:h-[65px] md:w-[85px] md:h-[85px] lg:w-[110px] lg:h-[110px] flex items-center justify-center overflow-visible",
                                     !isStatic && "cursor-pointer transition-transform active:scale-95"
                                 )}
                             >
-                                <div className="scale-[0.28] sm:scale-[0.38] md:scale-[0.55] origin-center shrink-0 overflow-visible">
+                                <div className="scale-[0.25] sm:scale-[0.32] md:scale-[0.42] lg:scale-[0.55] origin-center shrink-0 overflow-visible">
                                     <PuntosIndicator 
                                         currentPoints={points} 
                                         isDarkTheme={isDarkTheme} 

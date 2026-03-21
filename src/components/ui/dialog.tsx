@@ -44,11 +44,49 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, hideCloseButton = false, modalType = 'default', autoAccessibility = true, fullscreen = false, preventClose = false, ...props }, ref) => {
+>(({ className, children, hideCloseButton = false, modalType = 'default', autoAccessibility = true, fullscreen = false, preventClose = false, onInteractOutside, ...props }, ref) => {
   const isMobile = useIsMobile();
   const config = getModalConfig(modalType);
   // Используем приведение типа, чтобы избежать проблем с отсутствующим maxWidth на мобильных
   const sizeConfig = (isMobile ? config.mobile : config.desktop) as { maxWidth?: string; maxHeight?: string };
+
+  const handleInteractOutside = (e: any) => {
+    const path = e.composedPath();
+    // СВЕРХнадежная проверка (Учитывает SVG-иконки и теневые узлы)
+    const isExternalPortal = path.some((el: any) => {
+      if (!el || !el.tagName) return false;
+      
+      const tagName = (el.tagName || '').toLowerCase();
+      const id = typeof el.id === 'string' ? el.id.toLowerCase() : '';
+      
+      let className = '';
+      if (typeof el.className === 'string') {
+        className = el.className.toLowerCase();
+      } else if (el.className && typeof el.className.baseVal === 'string') {
+        className = el.className.baseVal.toLowerCase();
+      }
+      
+      const elString = `${tagName} ${id} ${className}`;
+      
+      return (
+        elString.includes('tc-') || 
+        elString.includes('ton-') ||
+        elString.includes('tonconnect') ||
+        elString.includes('appkit') ||
+        elString.includes('sonner') ||
+        elString.includes('go') // CSS-in-JS классы
+      );
+    });
+    
+    if (isExternalPortal) {
+      e.preventDefault();
+      return;
+    }
+    if (preventClose) {
+      e.preventDefault();
+    }
+    onInteractOutside?.(e);
+  };
 
   // Полноэкранный режим
   if (fullscreen) {
@@ -63,6 +101,7 @@ const DialogContent = React.forwardRef<
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             className,
           )}
+          onInteractOutside={handleInteractOutside}
           {...props}
         >
           {autoAccessibility && (
@@ -113,6 +152,7 @@ const DialogContent = React.forwardRef<
             "pb-safe",
             className,
           )}
+          onInteractOutside={handleInteractOutside}
           {...props}
         >
           {/* Индикатор для свайпа */}
@@ -165,14 +205,7 @@ const DialogContent = React.forwardRef<
           "overflow-hidden overflow-y-auto",
           className,
         )}
-        onInteractOutside={(e) => {
-          // Предотвращаем закрытие при клике вне окна, если preventClose === true
-          if (preventClose) {
-            e.preventDefault();
-          }
-          // Вызываем оригинальный обработчик, если он был передан
-          props.onInteractOutside?.(e);
-        }}
+        onInteractOutside={handleInteractOutside}
         onEscapeKeyDown={(e) => {
           // Предотвращаем закрытие при ESC, если preventClose === true
           if (preventClose) {

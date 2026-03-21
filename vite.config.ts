@@ -39,6 +39,10 @@ export default defineConfig(({ mode }) => {
     // Base path for GitHub Pages (if repo is not in root)
     // For root repo, use '/' or leave empty
     base: process.env.GITHUB_PAGES === 'true' ? '/sdadim-dgt-prep/' : '/',
+    define: {
+      // Buffer polyfill for TON AppKit (official recommendation from docs.ton.org/ecosystem/appkit/init)
+      Buffer: ['buffer', 'Buffer'],
+    },
     server: {
       host: "::",
       port: 8080,
@@ -81,6 +85,8 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        // Buffer polyfill alias for TON AppKit (official AppKit docs recommendation)
+        buffer: 'buffer/',
       },
       dedupe: ['react', 'react-dom'],
     },

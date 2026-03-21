@@ -11,7 +11,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap } from 'lucide-react';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
-import { TonConnectButton as TonConnectUIBtn } from '@tonconnect/ui-react';
+import { TonPaymentWidget } from '@/components/monetization/TonPaymentWidget';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -37,11 +37,23 @@ type MarkdownProps = {
 };
 
 const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
-    // Более надежная регулярка: захватываем [WIDGET:TYPE:PARAM]
-    const WIDGET_REGEX = /\[WIDGET:(SIGN|CTA|TON|MEME):([^\]]+)\]/g;
+    /**
+     * Парсинг виджетов из ответа ИИ.
+     *
+     * Регулярка ловит ВСЕ варианты которые пишет ИИ:
+     *   [WIDGET:SIGN:R-2]     ← правильно
+     *   [W:SIGN:R-2]          ← сокращение (ловим)
+     *   [WTON:CONNECT]        ← опечатка (ловим)
+     *   [WIDGET : TON : CONNECT] ← пробелы (ловим)
+     *
+     * Группы: 1=(type), 2=(param)
+     */
+    const WIDGET_REGEX = /\[\s*(?:WIDGET|W)\s*:\s*(SIGN|CTA|TON|MEME|WTON)\s*:\s*([^\]]+?)\s*\]/gi;
 
-    // Если виджетов нет — просто рендерим Markdown
-    if (!children || !children.includes('[WIDGET:')) {
+    // Проверяем наличие виджета: ищем [WIDGET: или [W: (любой регистр)
+    const lc = children.toLowerCase();
+    const hasWidget = lc.includes('[widget:') || lc.includes('[w:') || lc.includes('wton:');
+    if (!children || !hasWidget) {
         return (
             <div className={cn("text-sm leading-relaxed", className)}>
                 <ReactMarkdown
@@ -97,62 +109,35 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
         const key = `widget-${match.index}`;
 
         try {
-            if (type === 'TON') {
-                if (param === 'CONNECT' || param === 'WALLET:LOGIN') {
+            // TON: CONNECT / WTON:CONNECT (опечатка ИИ) / PAY:
+            const upperType = type.toUpperCase();
+            const upperParam = param.trim().toUpperCase();
+
+            if (upperType === 'TON' || upperType === 'WTON') {
+                if (upperParam === 'CONNECT' || upperParam === 'WALLET:LOGIN' || upperType === 'WTON') {
+                    // Compact-виджет с подключением кошелька и оплатой
                     elements.push(
-                        <div key={key} className="my-4 p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Zap className="w-4 h-4 text-blue-500" />
-                                    <span className="text-xs font-bold text-blue-500 uppercase tracking-wider">TON Ecosystem 2026</span>
-                                </div>
-                                <span className="text-[10px] bg-blue-500/20 text-blue-600 px-2 py-0.5 rounded-full font-bold">ALPHA</span>
-                            </div>
-                            <div className="space-y-3">
-                                <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-blue-200/30 dark:border-white/10">
-                                    <p className="text-[11px] font-bold mb-2 opacity-70">WalletKit Login</p>
-                                    <div className="flex justify-center [&_button]:!h-10">
-                                        <TonConnectUIBtn />
-                                    </div>
-                                </div>
-                                <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-emerald-200/30 dark:border-white/10">
-                                    <p className="text-[11px] font-bold mb-2 text-emerald-600">TON Pay 2.0 (L2)</p>
-                                    <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-10 rounded-xl text-xs font-bold" onClick={() => alert('Демо-платеж TON Pay 2.0!')}>
-                                        Купить Premium (1.5 TON)
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
+                        <TonPaymentWidget
+                            key={key}
+                            mode="compact"
+                            className="my-3 border border-[#0088cc]/20"
+                        />
                     );
-                } else if (param.startsWith('PAY:')) {
-                    const [, amount, ...reasonParts] = param.split(':');
-                    const reason = reasonParts.join(':') || 'Оплата';
+                } else if (upperParam.startsWith('PAY:')) {
+                    const parts = param.split(':');
+                    const amount = parts[1] || '1.5';
+                    const comment = parts.slice(2).join(':') || 'Skily Premium';
                     elements.push(
-                        <div key={key} className="my-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-3">
-                            <div className="flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-emerald-500" />
-                                <span className="text-xs font-bold text-emerald-500 uppercase">TON Pay 2.0</span>
-                            </div>
-                            <p className="text-xs font-medium">{reason}</p>
-                            <Button className="w-full bg-[#0088cc] text-white font-bold h-10 rounded-xl" onClick={() => alert('Платеж запущен!')}>
-                                Оплатить {amount} TON
-                            </Button>
-                        </div>
-                    );
-                } else if (param === 'AGENT:PROGRESS') {
-                    elements.push(
-                        <div key={key} className="my-4 p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 space-y-3">
-                            <div className="flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-purple-500" />
-                                <span className="text-xs font-bold text-purple-500 uppercase">AgenticKit</span>
-                            </div>
-                            <Button variant="outline" className="w-full h-10 rounded-xl text-purple-600 border-purple-200">
-                                Сохранить прогресс в TON
-                            </Button>
-                        </div>
+                        <TonPaymentWidget
+                            key={key}
+                            mode="compact"
+                            defaultAmount={amount}
+                            defaultComment={comment}
+                            className="my-3 border border-[#0088cc]/20"
+                        />
                     );
                 }
-            } else if (type === 'MEME' && param.startsWith('BADGE:')) {
+            } else if (upperType === 'MEME' && param.toUpperCase().startsWith('BADGE:')) {
                 const badgeName = param.split(':')[1] || 'Новичок';
                 elements.push(
                     <div key={key} className="my-4 p-4 rounded-2xl bg-gradient-to-br from-yellow-400/20 via-orange-500/10 to-pink-500/20 border border-orange-200/50 shadow-inner overflow-hidden relative group">
@@ -173,7 +158,7 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
                         </div>
                     </div>
                 );
-            } else if (type === 'CTA' && param.startsWith('PREMIUM')) {
+            } else if (upperType === 'CTA' && param.toUpperCase().startsWith('PREMIUM')) {
                 const ctaText = param.split(':').slice(1).join(':') || 'Активировать Premium';
                 elements.push(
                     <div key={key} className="my-4">
@@ -183,10 +168,8 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
                         </Button>
                     </div>
                 );
-            } else {
-                // Fallback для отладки
-                elements.push(<div key={key} className="text-[10px] text-red-500 border border-red-200 p-1 rounded my-1">Unknown Widget: {fullMatch}</div>);
             }
+            // Неизвестный тип виджета — ничего не рендерим (не засоряем UI)
         } catch (err) {
             console.error('Error rendering widget:', err);
         }

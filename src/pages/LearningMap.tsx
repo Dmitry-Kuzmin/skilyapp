@@ -555,47 +555,6 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
 
   const mapContent = (
     <div className={cn(wrapperClasses, "relative")}>
-      {/* Продакшн-заглушка: Учебник нового поколения */}
-      {!import.meta.env.DEV && (
-        <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center p-6 text-center bg-background/60 backdrop-blur-xl rounded-[2.5rem] border-2 border-dashed border-primary/20 m-1 group overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="relative z-10 space-y-6 max-w-lg"
-          >
-            <div className="relative mx-auto w-24 h-24 flex items-center justify-center">
-              <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-2xl animate-pulse" />
-              <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-2xl">
-                <BookOpen className="w-10 h-10 text-white" />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-4 py-1 text-sm font-bold uppercase tracking-widest">
-                Coming Soon
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-black tracking-tight text-foreground">
-                Учебник нового поколения
-              </h2>
-              <p className="text-lg text-muted-foreground font-medium leading-relaxed">
-                Мы готовим революционный формат обучения ПДД. Интерактивные модули, ИИ-наставник и 3D-сценарии будут доступны совсем скоро.
-              </p>
-            </div>
-
-            <div className="pt-4 flex flex-wrap justify-center gap-3">
-              <div className="px-4 py-2 rounded-xl bg-card border border-border text-xs font-bold text-muted-foreground">
-                🚀 95% готовности
-              </div>
-              <div className="px-4 py-2 rounded-xl bg-card border border-border text-xs font-bold text-muted-foreground">
-                🤖 AI Integration
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
       <div className={innerClasses}>
         <section className="flex flex-col gap-6 lg:gap-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -702,56 +661,98 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
           </div>
         </section>
 
-        {loading || isBuildingCurriculum || (topics.length > 0 && structuredCurriculum.length === 0) ? (
-          (loading || isBuildingCurriculum) ? (
-            <div className="space-y-10">
-              {[1, 2, 3].map((i) => (
-                <Card
-                  key={i}
-                  className="relative overflow-hidden rounded-2xl border border-border bg-card/80 dark:bg-card/90 backdrop-blur-sm px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
-                >
-                  <div className="relative space-y-3 sm:space-y-4">
-                    <div className="relative rounded-xl overflow-hidden p-2.5 sm:p-3 md:p-4 lg:p-5 flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-start sm:items-center gap-2 sm:gap-3">
-                          <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl flex-shrink-0" />
-                          <div className="flex-1 space-y-2">
-                            <Skeleton className="h-3 w-20" />
-                            <Skeleton className="h-5 w-full max-w-xs" />
+        {!import.meta.env.DEV ? (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative rounded-[2rem] border-2 border-dashed border-primary/20 bg-card/30 backdrop-blur-sm p-8 md:p-12 text-center space-y-6 overflow-hidden mt-4"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+            
+            <div className="relative z-10 space-y-6">
+              <div className="relative mx-auto w-16 h-16 flex items-center justify-center">
+                <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl animate-pulse" />
+                <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-xl">
+                  <BookOpen className="w-7 h-7 text-white" />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-2 mb-2">
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-3 py-0.5 text-[10px] font-bold uppercase tracking-widest">
+                    Coming Soon
+                  </Badge>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-black tracking-tight text-foreground">
+                  Учебник нового поколения
+                </h2>
+                <p className="text-base text-muted-foreground font-medium leading-relaxed max-w-md mx-auto">
+                  Мы готовим революционный формат обучения. Интерактивные модули и ИИ-наставник будут доступны совсем скоро.
+                </p>
+              </div>
+
+              <div className="pt-2 flex flex-wrap justify-center gap-2">
+                <div className="px-3 py-1.5 rounded-xl bg-background/50 border border-border/50 text-[10px] font-black uppercase text-muted-foreground tracking-tighter shadow-sm">
+                  🚀 95% готовности
+                </div>
+                <div className="px-3 py-1.5 rounded-xl bg-background/50 border border-border/50 text-[10px] font-black uppercase text-muted-foreground tracking-tighter shadow-sm">
+                  🤖 AI Integration
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          loading || isBuildingCurriculum || (topics.length > 0 && structuredCurriculum.length === 0) ? (
+            (loading || isBuildingCurriculum) ? (
+              <div className="space-y-10">
+                {[1, 2, 3].map((i) => (
+                  <Card
+                    key={i}
+                    className="relative overflow-hidden rounded-2xl border border-border bg-card/80 dark:bg-card/90 backdrop-blur-sm px-3 py-3 sm:px-5 sm:py-4 md:px-6 md:py-5"
+                  >
+                    <div className="relative space-y-3 sm:space-y-4">
+                      <div className="relative rounded-xl overflow-hidden p-2.5 sm:p-3 md:p-4 lg:p-5 flex flex-col gap-2.5 sm:gap-3 md:flex-row md:items-center md:justify-between min-h-[120px] sm:min-h-[140px] md:min-h-[160px]">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-start sm:items-center gap-2 sm:gap-3">
+                            <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl flex-shrink-0" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-3 w-20" />
+                              <Skeleton className="h-5 w-full max-w-xs" />
+                            </div>
                           </div>
+                          <Skeleton className="h-4 w-full max-w-2xl" />
                         </div>
-                        <Skeleton className="h-4 w-full max-w-2xl" />
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto">
-                        <Skeleton className="h-16 sm:h-14 w-full sm:w-32 rounded-lg sm:rounded-xl" />
-                        <Skeleton className="h-10 w-full sm:w-24 rounded-lg sm:rounded-xl" />
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:items-center md:justify-end w-full sm:w-auto">
+                          <Skeleton className="h-16 sm:h-14 w-full sm:w-32 rounded-lg sm:rounded-xl" />
+                          <Skeleton className="h-10 w-full sm:w-24 rounded-lg sm:rounded-xl" />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 text-muted-foreground">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 border border-border mb-4">
-                <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+                  </Card>
+                ))}
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                {t("learningMap.empty.title")}
-              </h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                {t("learningMap.empty.description")}
-              </p>
-            </div>
+            ) : (
+              <div className="text-center py-20 text-muted-foreground">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted/50 border border-border mb-4">
+                  <BookOpen className="w-8 h-8 text-muted-foreground/50" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  {t("learningMap.empty.title")}
+                </h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  {t("learningMap.empty.description")}
+                </p>
+              </div>
+            )
+          ) : (
+            <CurriculumMatrix
+              topics={structuredCurriculum}
+              onSubtopicClick={handleSubtopicClick}
+              onTopicClick={handleTopicClick}
+              onTrainingTestClick={(topicId) => navigate(`/tests?topic=${topicId}`)}
+              onFinalTestClick={(topicId) => navigate(`/test/module/${topicId}`)}
+            />
           )
-        ) : (
-          <CurriculumMatrix
-            topics={structuredCurriculum}
-            onSubtopicClick={handleSubtopicClick}
-            onTopicClick={handleTopicClick}
-            onTrainingTestClick={(topicId) => navigate(`/tests?topic=${topicId}`)}
-            onFinalTestClick={(topicId) => navigate(`/test/module/${topicId}`)}
-          />
         )}
       </div>
     </div>

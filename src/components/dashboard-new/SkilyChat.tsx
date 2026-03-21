@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { SignWidget } from '@/components/chat/SignWidget';
+import { TonPaymentWidget } from '@/components/monetization/TonPaymentWidget';
 
 // Типизация для markdown рендеринга
 type MarkdownProps = {
@@ -310,33 +311,47 @@ export const SkilyChat = React.memo(() => {
                 )}>
                   {msg.role === 'assistant' ? (
                     <div>
-                      {msg.content.split(/(\[WIDGET:[\s\S]*?\])/g).map((part, partIndex) => {
-                        if (part.startsWith('[WIDGET:') && part.endsWith(']')) {
-                          const match = part.match(/\[WIDGET:([^:]+):([^:]+)(?::([\s\S]+))?\]/);
+                      {msg.content.split(/(\[\s*(?:WIDGET|W|WTON)\s*:[^\]]+\])/gi).map((part, partIndex) => {
+                        const isWidget = /^\[\s*(?:WIDGET|W|WTON)\s*:/i.test(part);
+                        if (isWidget) {
+                          const match = part.match(/\[\s*(?:WIDGET|W)\s*:\s*(SIGN|CTA|TON|WTON)\s*:\s*([^\]]+?)(?:\s*:\s*([\s\S]+))?\]/i) || part.match(/\[\s*(WTON)\s*:\s*([^\]]+?)(?:\s*:\s*([\s\S]+))?\]/i);
                           if (match) {
                             const [_, type, param1, param2] = match;
+                            const upperType = type?.toUpperCase();
+                            const upperParam1 = param1?.trim().toUpperCase();
 
-                            if (type === 'SIGN') {
-                              return <SignWidget key={partIndex} code={param1} description={param2} isDarkTheme={isDarkTheme} />;
+                            if (upperType === 'SIGN') {
+                              return <SignWidget key={partIndex} code={param1.trim()} description={param2} isDarkTheme={isDarkTheme} />;
                             }
 
-                            if (type === 'CTA' && param1 === 'PREMIUM') {
+                            if (upperType === 'TON' || upperType === 'WTON') {
+                                if (upperParam1 === 'CONNECT' || upperParam1 === 'WALLET:LOGIN' || upperType === 'WTON') {
+                                    return <TonPaymentWidget key={partIndex} mode="compact" className="my-2 border border-indigo-500/20 shadow-sm" />;
+                                } else if (upperParam1.startsWith('PAY:')) {
+                                    const parts = param1.split(':');
+                                    const amount = parts[1] || '1.5';
+                                    const comment = [parts[2], param2].filter(Boolean).join(':') || 'Skily Premium';
+                                    return <TonPaymentWidget key={partIndex} mode="compact" defaultAmount={amount} defaultComment={comment} className="my-2 border border-indigo-500/20 shadow-sm" />;
+                                }
+                            }
+
+                            if (upperType === 'CTA' && upperParam1 === 'PREMIUM') {
                               return (
                                 <div key={partIndex} className="my-4 p-4 bg-gradient-to-br from-amber-500/10 via-orange-400/5 to-amber-500/10 border border-amber-500/30 dark:border-amber-500/20 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm relative overflow-hidden">
                                   <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                                  <div>
+                                  <div className="relative z-10">
                                     <h4 className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5"><Sparkles className="w-4 h-4" />Skily PRO</h4>
                                     <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">{param2 || "Открой подробные разборы ошибок"}</p>
                                   </div>
-                                  <Button size="sm" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => window.location.href = '/pricing'}>
+                                  <Button size="sm" className="relative z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => window.location.href = '/pricing'}>
                                     Стать PRO
                                   </Button>
                                 </div>
                               );
                             }
                           }
-                          // Fallback if widget parsing fails
-                          return <span key={partIndex} className="text-muted-foreground hidden">{part}</span>;
+                          // Fallback if widget parsing fails or unknown widget type (don't show string to user if it's a known widget format)
+                          return null;
                         }
 
                         // Render text parts 

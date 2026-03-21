@@ -22,6 +22,9 @@ import { useAuthEventListener } from "@/hooks/useAuthEventListener.ts";
 import { preloadPaddle } from "@/lib/paddle";
 import { useIdleInitialization } from "@/hooks/useIdleInitialization";
 import { GlobalSettingsManager } from "@/components/settings";
+import { AppKitProvider } from "@ton/appkit-react";
+import { appKit } from "@/lib/ton-appkit";
+import '@ton/appkit-react/styles.css';
 import { Motion } from "@/components/optimized/Motion";
 import { useSessionManager } from "@/hooks/useSessionManager";
 
@@ -161,16 +164,18 @@ export function AppProviders({ children }: AppProvidersProps) {
           <LanguageProvider>
             <NotificationProvider>
               <PDDProvider>
-                <SessionHandler />
-                <ReconnectHandler />
-                {/* Global Settings Drawer (Zustand controlled) */}
-                <GlobalSettingsManager />
-                {(() => {
-                  if (import.meta.env.DEV) {
-                    console.debug('[AppProviders] 🚀 Rendering children:', !!children);
-                  }
-                  return children;
-                })()}
+                <AppKitProvider appKit={appKit}>
+                  <SessionHandler />
+                  <ReconnectHandler />
+                  {/* Global Settings Drawer (Zustand controlled) */}
+                  <GlobalSettingsManager />
+                  {(() => {
+                    if (import.meta.env.DEV) {
+                      console.debug('[AppProviders] 🚀 Rendering children:', !!children);
+                    }
+                    return children;
+                  })()}
+                </AppKitProvider>
               </PDDProvider>
             </NotificationProvider>
           </LanguageProvider>

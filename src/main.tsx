@@ -1,5 +1,8 @@
+import { Buffer } from 'buffer';
+if (typeof window !== 'undefined') {
+  window.Buffer = Buffer;
+}
 import { createRoot } from "react-dom/client";
-import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { CountryProvider } from "./contexts/CountryContext";
@@ -406,7 +409,6 @@ try {
 
   root.render(
     <ErrorBoundary>
-      <TonConnectUIProvider manifestUrl="https://sdadim.com/tonconnect-manifest.json">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <LanguageProvider>
             <CountryProvider>
@@ -414,7 +416,6 @@ try {
             </CountryProvider>
           </LanguageProvider>
         </ThemeProvider>
-      </TonConnectUIProvider>
     </ErrorBoundary>
   );
 
