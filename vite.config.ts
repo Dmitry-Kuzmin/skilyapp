@@ -40,8 +40,7 @@ export default defineConfig(({ mode }) => {
     // For root repo, use '/' or leave empty
     base: process.env.GITHUB_PAGES === 'true' ? '/sdadim-dgt-prep/' : '/',
     define: {
-      // Buffer polyfill for TON AppKit (official recommendation from docs.ton.org/ecosystem/appkit/init)
-      Buffer: ['buffer', 'Buffer'],
+      // ПРАВИЛЬНЫЙ полифилл делается в main.tsx, а не через массивы Vite define
     },
     server: {
       host: "::",
