@@ -1192,7 +1192,7 @@ export const en = {
     powerSaver: "Power Saver",
     powerSaverDesc: "Disables heavy animations",
     examDate: "Exam Date",
-    examDateDesc: "Set a date for the countdown",
+    examDateDesc: "Minimum 7 days before the exam",
     examCity: "Exam Location",
     examCityDesc: "Select the city where you plan to take the exam",
     examCountdown: "Exam in: {{days}} days",

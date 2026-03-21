@@ -1191,7 +1191,7 @@ export const es = {
     powerSaver: "Ahorro de energía",
     powerSaverDesc: "Desactiva las animaciones pesadas",
     examDate: "Fecha del examen",
-    examDateDesc: "Establece la fecha para la cuenta atrás",
+    examDateDesc: "Mínimo 7 días antes del examen",
     examCity: "Ubicación del examen",
     examCityDesc: "Selecciona la ciudad donde harás el examen",
     examCountdown: "Examen en: {{days}} días",

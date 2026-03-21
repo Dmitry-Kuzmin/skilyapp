@@ -17,7 +17,7 @@ import { CyberSwitch } from '../ui/CyberSwitch';
 import { TonConnectButton } from '@tonconnect/ui-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
+import { format, isBefore, addDays } from 'date-fns';
 import { ru, es, enGB } from 'date-fns/locale';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -321,12 +321,24 @@ export const GeneralTab: React.FC = () => {
                                 mode="single"
                                 selected={examDate ? new Date(examDate) : undefined}
                                 onSelect={handleExamDateChange}
+                                disabled={(date) => isBefore(date, addDays(new Date(), 7))}
                                 initialFocus
                                 locale={contextLanguage === 'ru' ? ru : contextLanguage === 'es' ? es : enGB}
                             />
+                            <div className="p-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
+                                <Zap className="w-3 h-3 text-amber-500 animate-pulse" />
+                                <span className="text-[10px] text-slate-500 font-medium italic">
+                                    {contextLanguage === 'ru' ? 'Рекомендуем брать +30 дней форы' : 
+                                     contextLanguage === 'es' ? 'Recomendamos +30 días de margen' : 
+                                     'We recommend +30 days margin'}
+                                </span>
+                            </div>
                         </PopoverContent>
                     </Popover>
                 </SettingRow>
+                <p className="text-[10px] text-slate-400 mt-[-4px] ml-12 font-medium opacity-80">
+                    {t('unifiedSettings.examDateDesc')}
+                </p>
             </div>
 
             <Separator className="bg-slate-200 dark:bg-slate-700" />
@@ -364,10 +376,15 @@ export const GeneralTab: React.FC = () => {
             {/* TON integration */}
             <div className="pt-2">
                 <div className="flex items-center gap-2 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                        <img src="https://ton.org/download/ton_symbol.svg" className="w-5 h-5" alt="TON" />
+                    <div className="w-8 h-8 rounded-lg bg-[#0088CC]/10 flex items-center justify-center shrink-0">
+                        {/* TON official icon from local assets */}
+                        <img 
+                            src="/TON%20Logo%20/svg/icon/icon_TON_color.svg" 
+                            className="w-5 h-5 drop-shadow-sm" 
+                            alt="TON" 
+                        />
                     </div>
-                    <h3 className="text-xs font-bold text-blue-500 uppercase tracking-widest tracking-tighter">
+                    <h3 className="text-xs font-bold text-[#0088CC] uppercase tracking-widest leading-none">
                         {t('unifiedSettings.tonTitle')}
                     </h3>
                 </div>
