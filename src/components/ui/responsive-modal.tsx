@@ -64,8 +64,27 @@ export function ResponsiveModal({
   fullscreen = false,
   dismissible,
 }: ResponsiveModalProps) {
-  // Основной пропс для управления открытием
   const isMobile = useIsMobile();
+  
+  // КРИТИЧНО: Если открыт TonConnect — отключаем 'modal' режим у Radix, 
+  // чтобы он не блокировал pointer-events у попапа кошелька.
+  const [isTonActive, setIsTonActive] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!open) return;
+    
+    const checkTon = () => {
+      const active = !!(
+        document.querySelector('.tc-modal-overlay') || 
+        document.querySelector('.tonconnect-modal-container') ||
+        document.body.classList.contains('tc-disable-scroll')
+      );
+      setIsTonActive(active);
+    };
+
+    const interval = setInterval(checkTon, 300);
+    return () => clearInterval(interval);
+  }, [open]);
 
   // На мобильных используем Vaul Drawer с нативной физикой
   if (isMobile) {
@@ -79,9 +98,9 @@ export function ResponsiveModal({
         activeSnapPoint={activeSnapPoint}
         setActiveSnapPoint={onSnapPointChange}
         {...(snapPoints ? { fadeFromIndex } as any : {})}
-        modal={true}
-        shouldScaleBackground={false} // Пользователь просил убрать уменьшение контента, но оставить красивое затемнение
-        repositionInputs={true} // Включаем авто-скролл к инпутам
+        modal={!isTonActive} // Dynamic modal state
+        shouldScaleBackground={false}
+        repositionInputs={true}
       >
         <DrawerContent
           className={cn(
@@ -181,7 +200,7 @@ export function ResponsiveModal({
   const defaultMaxWidth = fullscreen ? 'max-w-none w-screen' : (hasMaxWidth ? '' : 'sm:max-w-[500px]');
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={!isTonActive}>
       <DialogContent
         className={cn(
           defaultMaxWidth,

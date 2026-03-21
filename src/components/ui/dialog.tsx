@@ -6,7 +6,9 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { getModalConfig, type ModalType } from "@/lib/modal-config";
 
-const Dialog = DialogPrimitive.Root;
+const Dialog = ({ modal = true, ...props }: React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>) => (
+  <DialogPrimitive.Root modal={modal} {...props} />
+);
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
