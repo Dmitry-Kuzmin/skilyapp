@@ -63,7 +63,7 @@ import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { TonPaymentWidget } from "@/components/monetization/TonPaymentWidget";
 import { CryptomusPaymentPreview } from "@/components/monetization/CryptomusPaymentPreview";
-import { useAddress } from "@ton/appkit-react";
+import { useAddress, TonConnectButton } from "@ton/appkit-react";
 import {
   getTelegramWebApp,
   isTelegramMiniApp,
