@@ -1,3 +1,4 @@
+
 /**
  * AIChatWidget — Глобальный AI чат виджет с Zustand + Vaul
  *
@@ -119,7 +120,10 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
                     elements.push(
                         <TonPaymentWidget
                             key={key}
-                            mode="compact"
+                            mode="full"
+                            packageKey="ton_connect"
+                            amountTon={1.5}
+                            description="Connecting Wallet"
                             className="my-3 border border-[#0088cc]/20"
                         />
                     );
@@ -130,9 +134,10 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
                     elements.push(
                         <TonPaymentWidget
                             key={key}
-                            mode="compact"
-                            defaultAmount={amount}
-                            defaultComment={comment}
+                            mode="full"
+                            packageKey="ai_premium"
+                            amountTon={Number(amount)}
+                            description={comment}
                             className="my-3 border border-[#0088cc]/20"
                         />
                     );

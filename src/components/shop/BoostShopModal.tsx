@@ -1821,12 +1821,12 @@ export function BoostShopModal({
                             {showTonPayment && (
                               <TonPaymentWidget
                                 mode="compact"
-                                defaultAmount={
+                                amountTon={
                                   pack.amount === 100 ? "0.2" :
                                     pack.amount === 500 ? "0.8" :
                                       pack.amount === 1200 ? "1.8" : "3.5"
                                 }
-                                defaultComment={`Buying ${pack.amount} coins`}
+                                description={`Buying ${pack.amount} coins`}
                               />
                             )}
 
@@ -2218,12 +2218,12 @@ export function BoostShopModal({
                                 {showTonPayment && (
                                   <TonPaymentWidget
                                     mode="compact"
-                                    defaultAmount={
+                                    amountTon={
                                       plan.id === 'yearly' ? '9.9' :
                                         plan.id === 'quarterly' ? '3.9' :
                                           plan.id === 'lifetime' ? '25' : '1.5'
                                     }
-                                    defaultComment={`Skily Premium: ${plan.title}`}
+                                    description={`Skily Premium: ${plan.title}`}
                                   />
                                 )}
 
