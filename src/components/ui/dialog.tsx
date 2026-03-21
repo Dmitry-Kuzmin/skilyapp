@@ -51,6 +51,12 @@ const DialogContent = React.forwardRef<
   const sizeConfig = (isMobile ? config.mobile : config.desktop) as { maxWidth?: string; maxHeight?: string };
 
   const handleInteractOutside = (e: any) => {
+    // Если TonConnect модал открыт — он добавляет 'tc-disable-scroll' к body
+    if (document.body.classList.contains('tc-disable-scroll')) {
+      e.preventDefault();
+      return;
+    }
+
     const path = e.composedPath();
     // СВЕРХнадежная проверка (Учитывает SVG-иконки и теневые узлы)
     const isExternalPortal = path.some((el: any) => {

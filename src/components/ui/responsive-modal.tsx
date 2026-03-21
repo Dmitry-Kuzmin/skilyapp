@@ -91,6 +91,12 @@ export function ResponsiveModal({
           )}
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
+            // Если TonConnect модал открыт — он добавляет 'tc-disable-scroll' к body
+            if (document.body.classList.contains('tc-disable-scroll')) {
+              e.preventDefault();
+              return;
+            }
+
             const path = e.composedPath();
             // СВЕРХнадежная проверка (Учитывает SVG-иконки и теневые узлы)
             const isExternalPortal = path.some((el: any) => {
