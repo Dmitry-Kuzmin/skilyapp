@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import type { Plugin } from "vite";
 // SSG: Prerender будет выполняться через отдельный скрипт (scripts/prerender.js)
 // Это более надёжно чем vite-plugin-prerender для сложных проектов
@@ -12,6 +13,7 @@ export default defineConfig(({ mode }) => {
 
   const plugins = [
     react(),
+    nodePolyfills(), // "Золотой стандарт" полифиллов для Web3/TON
     // ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
     // PWA Plugin для Offline-First архитектуры (критично для Telegram Mini App)
     // Раскомментировать при необходимости:
