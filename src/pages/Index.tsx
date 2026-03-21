@@ -12,6 +12,7 @@ import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
+import { useSettingsSync } from "@/hooks/useSettingsSync";
 // ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
 // Все эти компоненты тянут Supabase/Radix, поэтому Layout не должен быть в initial bundle
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
@@ -53,6 +54,9 @@ const DashboardContent = memo(function DashboardContent() {
 
   // Fallback для weeklyRewards если их нет в dashboardData
   const { data: dailyBonusDefinitions = [] } = useDailyBonusDefinitions();
+
+  // Синхронизация настроек (city, date) из профиля Supabase → localStorage
+  useSettingsSync(dashboardData?.profile);
 
   // Get exam readiness
   const { readiness, metrics, loading: readinessLoading } = useExamReadiness(profileId);

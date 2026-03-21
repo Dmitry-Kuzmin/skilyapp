@@ -85,23 +85,8 @@ export const GeneralTab: React.FC = () => {
     const { 
         examDate, setExamDate, 
         examCity, setExamCity,
-        scrollTarget, setScrollTarget 
     } = useSettingsStore();
 
-    // Обработка прокрутки к якорю
-    React.useEffect(() => {
-        if (scrollTarget) {
-            const element = document.getElementById(scrollTarget);
-            if (element) {
-                // Небольшая задержка чтобы модалка успела отрендериться и анимация завершилась
-                const timer = setTimeout(() => {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    setScrollTarget(null); // Очищаем после прокрутки
-                }, 250);
-                return () => clearTimeout(timer);
-            }
-        }
-    }, [scrollTarget, setScrollTarget]);
 
     // Синхронизация при монтировании (если настройки изменились в другом месте)
     React.useEffect(() => {

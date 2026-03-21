@@ -1,15 +1,13 @@
 /**
  * UnifiedSettingsDrawer - Единый центр настроек
- * 
+ *
  * - Desktop: Dialog с sidebar слева
- * - Mobile: Vaul.Drawer
- * - Тактильная отдача
+ * - Mobile: Vaul.Drawer (снизу, полноэкранный, с ручкой)
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Drawer, DrawerContent } from '@/components/ui/drawer';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { X, Settings, User, Gauge, Bell, Sparkles, Database, Info } from 'lucide-react';
 import { useSettingsStore } from '@/store/settingsStore';
@@ -17,8 +15,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { triggerHaptic } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
-import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
-import { Drawer as DrawerPrimitive } from 'vaul';
 
 // === TABS ===
 import {
@@ -60,7 +56,10 @@ export const UnifiedSettingsDrawer: React.FC = () => {
     const isMobile = useIsMobile();
     const { t } = useLanguage();
     const navItems = useNavItems();
-    const { isOpen, closeSettings, userLevel, userTitle, activeTab, setActiveTab } = useSettingsStore();
+    const { isOpen, closeSettings, userLevel, userTitle, activeTab, setActiveTab, scrollTarget, setScrollTarget } = useSettingsStore();
+
+    // Ref на scrollable контейнер (нативный div, не Radix ScrollArea)
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const handleSectionChange = (section: SettingsSection) => {
         triggerHaptic('light');
@@ -71,6 +70,29 @@ export const UnifiedSettingsDrawer: React.FC = () => {
         triggerHaptic('light');
         closeSettings();
     };
+
+    // === ЯКОРНАЯ НАВИГАЦИЯ ===
+    // Скроллим непосредственно по нативному контейнеру, не через scrollIntoView
+    useEffect(() => {
+        if (!scrollTarget || activeTab !== 'general') return;
+
+        const timer = setTimeout(() => {
+            const container = scrollContainerRef.current;
+            if (!container) return;
+
+            const target = container.querySelector(`#${scrollTarget}`);
+            if (!target) return;
+
+            const containerTop = container.getBoundingClientRect().top;
+            const targetTop = target.getBoundingClientRect().top;
+            const offset = targetTop - containerTop + container.scrollTop - 16;
+
+            container.scrollTo({ top: offset, behavior: 'smooth' });
+            setScrollTarget(null);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [scrollTarget, activeTab, setScrollTarget]);
 
     // === RENDER CONTENT ===
     const renderContent = () => {
@@ -89,7 +111,6 @@ export const UnifiedSettingsDrawer: React.FC = () => {
     // === SIDEBAR (Desktop) ===
     const Sidebar = () => (
         <div className="w-56 shrink-0 border-r border-slate-200/60 dark:border-white/5 bg-slate-50/50 dark:bg-white/5 p-4 backdrop-blur-sm">
-            {/* Logo */}
             <div className="flex items-center gap-2 mb-6 px-2">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                     <Settings className="w-4 h-4 text-white" />
@@ -97,7 +118,6 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                 <span className="font-semibold text-slate-900 dark:text-white/90">{t('unifiedSettings.title')}</span>
             </div>
 
-            {/* Nav Items */}
             <nav className="space-y-1">
                 {navItems.map((item) => (
                     <button
@@ -123,9 +143,9 @@ export const UnifiedSettingsDrawer: React.FC = () => {
         </div>
     );
 
-    // === MOBILE NAV (Horizontal) ===
+    // === MOBILE NAV (Horizontal tabs) ===
     const MobileNav = () => (
-        <div className="flex overflow-x-auto px-4 py-2 gap-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+        <div className="flex overflow-x-auto px-4 py-2 gap-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 shrink-0">
             {navItems.map((item) => (
                 <button
                     key={item.id}
@@ -143,69 +163,9 @@ export const UnifiedSettingsDrawer: React.FC = () => {
         </div>
     );
 
-    // === MOBILE CONTENT ===
-    const MobileContent = () => (
-        <div className="flex flex-col h-full relative">
-            {/* Header - Sticky to ensure close button is always visible */}
-            <div className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0f172a] backdrop-blur-md">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                        <Settings className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-base font-semibold text-slate-900 dark:text-white select-none">{t('unifiedSettings.title')}</h2>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                            {t('unifiedSettings.level')} {userLevel} • {userTitle}
-                        </p>
-                    </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={handleClose}>
-                    <X className="w-5 h-5" />
-                </Button>
-            </div>
-
-            <MobileNav />
-
-            <ScrollArea className="flex-1">
-                <div className="p-4">
-                    {renderContent()}
-                </div>
-            </ScrollArea>
-        </div>
-    );
-
-    // === DESKTOP CONTENT ===
-    const DesktopContent = () => (
-        <div className="flex h-[600px] max-h-[80vh]">
-            <Sidebar />
-            <div className="flex-1 flex flex-col bg-transparent">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/50 dark:border-white/5">
-                    <div>
-                        <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                            {navItems.find(n => n.id === activeTab)?.label}
-                        </h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {navItems.find(n => n.id === activeTab)?.description}
-                        </p>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={handleClose} className="hover:bg-slate-200/50 dark:hover:bg-white/10">
-                        <X className="w-5 h-5" />
-                    </Button>
-                </div>
-
-                <ScrollArea className="flex-1">
-                    <div className="p-6">
-                        {renderContent()}
-                    </div>
-                </ScrollArea>
-            </div>
-        </div>
-    );
-
     if (!isOpen) return null;
 
-    // === RENDER ===
+    // === RENDER MOBILE ===
     if (isMobile) {
         return (
             <Drawer
@@ -214,33 +174,86 @@ export const UnifiedSettingsDrawer: React.FC = () => {
                 shouldScaleBackground={false}
                 dismissible={true}
             >
-                <DrawerContent className="h-[92dvh] max-h-[92dvh] p-0 overflow-hidden bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-white/10 flex flex-col">
-                    {/* Visual drag handle */}
-                    <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-slate-200 dark:bg-slate-700 mt-2.5 mb-1.5" />
-                    
-                    <VisuallyHidden.Root>
-                        <DrawerPrimitive.Title>{t('unifiedSettings.title')}</DrawerPrimitive.Title>
-                        <DrawerPrimitive.Description>Application Settings</DrawerPrimitive.Description>
-                    </VisuallyHidden.Root>
-                    
-                    <div className="flex-1 overflow-hidden flex flex-col">
-                        <MobileContent />
+                <DrawerContent className="flex flex-col bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-white/10" style={{ height: '92dvh', maxHeight: '92dvh' }}>
+                    {/* Обязательные скрытые заголовки для a11y (vaul требует) */}
+                    <DrawerTitle className="sr-only">{t('unifiedSettings.title')}</DrawerTitle>
+                    <DrawerDescription className="sr-only">Application settings panel</DrawerDescription>
+
+                    {/* Шапка — всегда видна, не скроллируется */}
+                    <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0f172a] shrink-0">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                                <Settings className="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-base font-semibold text-slate-900 dark:text-white select-none">{t('unifiedSettings.title')}</h2>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    {t('unifiedSettings.level')} {userLevel} • {userTitle}
+                                </p>
+                            </div>
+                        </div>
+                        <Button variant="ghost" size="icon" onClick={handleClose} className="shrink-0">
+                            <X className="w-5 h-5" />
+                        </Button>
+                    </div>
+
+                    {/* Горизонтальная навигация табов */}
+                    <MobileNav />
+
+                    {/* Прокручиваемый контент — нативный overflow-y-auto, не Radix ScrollArea */}
+                    <div
+                        ref={scrollContainerRef}
+                        className="flex-1 overflow-y-auto overscroll-contain"
+                        style={{ WebkitOverflowScrolling: 'touch' }}
+                    >
+                        <div className="p-4 pb-8">
+                            {renderContent()}
+                        </div>
                     </div>
                 </DrawerContent>
             </Drawer>
         );
     }
 
+    // === RENDER DESKTOP ===
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && closeSettings()}>
             <DialogContent
-                className="max-w-4xl p-0 gap-0 overflow-hidden 
-                           bg-white dark:bg-[#0f172a] 
-                           border border-slate-200 dark:border-white/10 
+                className="max-w-4xl p-0 gap-0 overflow-hidden
+                           bg-white dark:bg-[#0f172a]
+                           border border-slate-200 dark:border-white/10
                            shadow-2xl dark:shadow-[0_0_100px_-20px_rgba(0,0,0,0.5)]"
                 hideCloseButton
             >
-                <DesktopContent />
+                <div className="flex h-[600px] max-h-[80vh]">
+                    <Sidebar />
+                    <div className="flex-1 flex flex-col bg-transparent min-w-0">
+                        {/* Шапка */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200/50 dark:border-white/5 shrink-0">
+                            <div>
+                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                    {navItems.find(n => n.id === activeTab)?.label}
+                                </h2>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    {navItems.find(n => n.id === activeTab)?.description}
+                                </p>
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={handleClose} className="hover:bg-slate-200/50 dark:hover:bg-white/10">
+                                <X className="w-5 h-5" />
+                            </Button>
+                        </div>
+
+                        {/* Нативный скролл, без Radix ScrollArea */}
+                        <div
+                            ref={scrollContainerRef}
+                            className="flex-1 overflow-y-auto"
+                        >
+                            <div className="p-6">
+                                {renderContent()}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </DialogContent>
         </Dialog>
     );
