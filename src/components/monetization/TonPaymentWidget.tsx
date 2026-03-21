@@ -96,8 +96,8 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             className
         )}>
             {/* Анимированный блик на фоне для премиальности */}
-            {mode === 'compact' && !address && (
-                <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#0088cc]/10 rounded-full blur-[40px] pointer-events-none" />
+            {mode === 'compact' && (
+                <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#0088cc]/5 rounded-full blur-[40px] pointer-events-none" />
             )}
 
             {/* Header for Full Mode ONLY */}
@@ -121,20 +121,8 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             )}>
                 {/* STATE 1: Compact mode & no wallet connected */}
                 {mode === 'compact' && !address ? (
-                    <div className="flex flex-col items-center justify-center py-3 gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0088cc]/10 to-[#0088cc]/5 border border-[#0088cc]/10 flex items-center justify-center mb-1 shadow-inner">
-                            <Wallet className="w-5 h-5 text-[#0088cc]" />
-                        </div>
-                        <div className="text-center space-y-1.5">
-                            <h4 className="text-[14px] font-extrabold text-foreground tracking-tight">TON Платёж</h4>
-                            <p className="text-[12px] text-muted-foreground leading-snug px-3 max-w-[250px]">
-                                Подключи кошелёк, чтобы моментально оформлять подписку прямо в чате
-                            </p>
-                        </div>
-                        {/* Wrapper for TonConnectButton to center and stretch it properly */}
-                        <div className="w-full flex justify-center mt-3 [&>div]:w-full [&_button]:!h-11 [&_button]:!w-full [&_button]:!min-w-full [&_button]:!rounded-xl [&_button]:!text-[13px] [&_button]:!font-bold [&_button]:!bg-[#0088cc] [&_button]:!text-white hover:[&_button]:!bg-[#0077bb] [&_button]:!transition-colors [&_button]:!shadow-lg [&_button]:!shadow-[#0088cc]/20 active:scale-95 transition-transform">
-                            <TonConnectButton />
-                        </div>
+                    <div className="w-full h-11 flex items-center justify-center [&>div]:w-full [&_button]:!h-11 [&_button]:!w-full [&_button]:!min-w-full [&_button]:!rounded-xl [&_button]:!text-[13px] [&_button]:!font-bold [&_button]:!bg-[#0088cc] [&_button]:!text-white hover:[&_button]:!bg-[#0077bb] [&_button]:!transition-colors [&_button]:!shadow-lg [&_button]:!shadow-[#0088cc]/20 active:scale-95 transition-transform">
+                        <TonConnectButton />
                     </div>
                 ) : (
                     // STATE 2: Wallet is connected OR we are in full mode
@@ -187,20 +175,24 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
 
                         {/* Payment Button for Compact Mode */}
                         {mode === 'compact' && address && (
-                            <Button
-                                disabled={isPaying}
-                                onClick={() => handlePay(defaultAmount, defaultComment)}
-                                className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl text-[13px] shadow-lg shadow-blue-500/25 active:scale-[0.98] transition-all grid grid-cols-[auto_1fr] items-center px-4"
-                            >
-                                <div className="flex items-center justify-center w-5">
+                            <div className="space-y-2">
+                                <Button
+                                    disabled={isPaying}
+                                    onClick={() => handlePay(defaultAmount, defaultComment)}
+                                    className="w-full h-11 bg-gradient-to-r from-[#0088cc] to-[#0077bb] hover:brightness-110 text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                >
                                     {isPaying ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
                                     ) : (
                                         <Zap className="w-4 h-4 fill-white flex-shrink-0" />
                                     )}
-                                </div>
-                                <span className="justify-self-center -ml-5">Оплатить {defaultAmount} TON</span>
-                            </Button>
+                                    <span>Оплатить {defaultAmount} TON</span>
+                                </Button>
+                                <p className="text-[10px] text-center text-muted-foreground flex items-center justify-center gap-1 opacity-60">
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                    Кошелек: {address.slice(0, 4)}…{address.slice(-4)} {tonBalance ? `(${tonBalance} TON)` : ''}
+                                </p>
+                            </div>
                         )}
 
                         {/* Pricing Cards for Full Mode */}
