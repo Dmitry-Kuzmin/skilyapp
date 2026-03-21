@@ -94,7 +94,7 @@ export default defineConfig(({ mode }) => {
       // КРИТИЧНО: Используем esbuild с более консервативными настройками
       // ВАЖНО: terser может быть более стабильным для React, но медленнее
       minify: 'esbuild',
-      target: 'es2015',
+      target: 'es2020', // Изменено с es2015 на es2020 для поддержки BigInt (TON AppKit)
       // Отключаем автоматический modulepreload от Vite, чтобы не тянуть vendor на лендинге
       modulePreload: false,
       // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации для стабильности
