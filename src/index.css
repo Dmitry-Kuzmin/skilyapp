@@ -95,6 +95,18 @@ iframe[id^="telegram-login"] {
   pointer-events: auto !important;
 }
 
+/* 🚀 GOLDEN RULE: Force clickable portals (fixes TON Connect inside Radix Modals) */
+#ton-connect-portal,
+.tc-modal-overlay,
+.tonconnect-modal-container,
+[class*="tonconnect-modal"],
+[id*="tonconnect-modal"],
+.tc-portal,
+.tc-snackbar-container {
+  pointer-events: auto !important;
+  z-index: 2147483647 !important; /* На максимум */
+}
+
 /* Utility to hide native scrollbars but keep scrolling */
 .scrollbar-none {
   -ms-overflow-style: none;

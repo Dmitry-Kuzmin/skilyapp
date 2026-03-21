@@ -107,12 +107,12 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                 {/* STATE 1: Compact mode & no wallet connected */}
                 {mode === 'compact' && !address ? (
                     <div 
-                        className="relative w-full h-11"
+                        className="relative w-full h-11 cursor-pointer"
                         onClick={handleManualConnect}
                         onPointerDown={(e) => e.stopPropagation()}
                     >
                         <Button 
-                            className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95 pointer-events-none"
+                            className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
                         >
                             <Wallet className="w-4 h-4" />
                             <span>Connect Wallet</span>
