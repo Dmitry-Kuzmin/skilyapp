@@ -88,13 +88,17 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     }, [address, transferTon]);
 
     return (
-        <div className={cn(
-            'transition-all duration-300 relative',
-            mode === 'compact'
-                ? 'bg-transparent p-0'
-                : 'rounded-3xl border border-border bg-card shadow-sm',
-            className
-        )}>
+        <div 
+            onClick={(e) => e.stopPropagation()} 
+            onPointerDown={(e) => e.stopPropagation()}
+            className={cn(
+                'transition-all duration-300 relative',
+                mode === 'compact'
+                    ? 'bg-transparent p-0'
+                    : 'rounded-3xl border border-border bg-card shadow-sm',
+                className
+            )}
+        >
             {/* Анимированный блик на фоне для премиальности */}
             {mode === 'compact' && (
                 <div className="absolute -top-10 -right-10 w-24 h-24 bg-[#0088cc]/5 rounded-full blur-[40px] pointer-events-none" />
@@ -116,12 +120,12 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             )}
 
             <div className={cn(
-                "flex flex-col relative z-10",
-                mode === 'compact' ? "p-0" : "p-5 gap-4"
+                "flex flex-col relative z-50 isolation-auto",
+                mode === 'compact' ? "p-0 min-h-[44px]" : "p-5 gap-4"
             )}>
                 {/* STATE 1: Compact mode & no wallet connected */}
                 {mode === 'compact' && !address ? (
-                    <div className="w-full h-11 flex items-center justify-center [&>div]:w-full [&_button]:!h-11 [&_button]:!w-full [&_button]:!min-w-full [&_button]:!rounded-xl [&_button]:!text-[13px] [&_button]:!font-bold [&_button]:!bg-[#0088cc] [&_button]:!text-white hover:[&_button]:!bg-[#0077bb] [&_button]:!transition-colors [&_button]:!shadow-lg [&_button]:!shadow-[#0088cc]/20 active:scale-95 transition-transform">
+                    <div className="w-full h-11 flex items-center justify-center relative z-50 [&>div]:w-full [&_button]:!h-11 [&_button]:!w-full [&_button]:!min-w-full [&_button]:!rounded-xl [&_button]:!text-[13px] [&_button]:!font-bold [&_button]:!bg-[#0088cc] [&_button]:!text-white hover:[&_button]:!bg-[#0077bb] [&_button]:!transition-colors [&_button]:!shadow-lg [&_button]:!shadow-[#0088cc]/20 active:scale-95 transition-transform">
                         <TonConnectButton />
                     </div>
                 ) : (
