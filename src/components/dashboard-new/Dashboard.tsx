@@ -250,7 +250,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           {/* 2. DUEL PASS INFO */}
-          <div className="md:col-span-1 lg:col-span-1">
+          <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
             <Suspense fallback={<ComponentSkeleton />}>
               <DuelPassInfo />
             </Suspense>
