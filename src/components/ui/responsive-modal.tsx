@@ -104,7 +104,7 @@ export function ResponsiveModal({
       >
         <DrawerContent
           className={cn(
-            "flex flex-col fixed bottom-0 left-0 right-0 z-[100001] outline-none transition-transform duration-200 rounded-t-[32px]",
+            "flex flex-col fixed bottom-0 left-0 right-0 z-[99999] outline-none transition-transform duration-200 rounded-t-[32px]",
             "max-h-[96vh] h-auto", // Автоматическая высота с ограничением
             className
           )}
