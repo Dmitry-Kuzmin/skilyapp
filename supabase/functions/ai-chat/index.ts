@@ -2,6 +2,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createPooledSupabaseClient } from '../_shared/supabase-client.ts';
 import { checkRateLimit, getClientIP } from '../_shared/rate-limit.ts';
+import { getSystemPrompt as getSharedSystemPrompt } from '../_shared/ai-prompts.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,49 +27,14 @@ interface UsageData {
   current_count: number;
 }
 
+// System prompt — uses shared module (change in _shared/ai-prompts.ts → applies to bot too)
 const getSystemPrompt = (country: string = 'spain', showComparison: boolean = true, language: string = 'es'): string => {
-  const languageName = language === 'ru' ? 'Russian' : language === 'en' ? 'English' : 'Spanish';
-
-  const widgetRules = `
-## UI WIDGET TAGS
-Output these tags on a separate line. NEVER translate them. NEVER replace them with a URL or text link.
-
-| Intent | Output tag |
-|---|---|
-| Show road sign | [WIDGET:SIGN:CODE] |
-| TON payment / buy Premium | [WIDGET:TON:CONNECT] |
-| Give badge/achievement | [WIDGET:MEME:BADGE:Name] |
-| Premium CTA button | [WIDGET:CTA:PREMIUM:Text] |
-
-### CRITICAL PAYMENT RULE:
-When the user asks to pay, buy premium, pay with TON, or anything about payment → you MUST output [WIDGET:TON:CONNECT] on its own line. Do NOT output a link or URL instead.
-
-### CRITICAL SIGN CODES (Spain DGT):
-- R-1 = Yield / Ceda el paso / Уступи дорогу (inverted triangle)
-- R-2 = STOP sign
-- R-100 = Speed limit (write R-100 through R-114 for 10–140 km/h)
-- P-1 = Crossroads warning
-Always use the exact official code for the sign the user asked about.
-`;
-
-  if (country === 'russia') {
-    return `You are Skily 💡, an elite AI instructor for Russian traffic rules (ПДД РФ).
-Respond in ${languageName}.
-${widgetRules}
-Be friendly, use emojis, and keep answers concise.
-Call get_user_stats tool if asked about stats, XP, coins, or learning progress.`;
-  }
-
-  const comparisonLogic = showComparison
-    ? 'When valuable, briefly compare Spain vs Russia rules (1-2 lines max).'
-    : 'Focus 100% on Spain DGT rules only.';
-
-  return `You are Skily 💡, a friendly AI mentor for the DGT driving exam in Spain.
-${comparisonLogic}
-Respond in ${languageName}.
-${widgetRules}
-Be friendly, use emojis, keep answers concise and accurate.
-Call get_user_stats tool if asked about stats, XP, coins, or learning progress.`;
+  return getSharedSystemPrompt({
+    country,
+    language: language as 'ru' | 'en' | 'es',
+    showComparison,
+    context: 'app',
+  });
 };
 
 async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'llama-3.1-8b-instant', language: string = 'es'): Promise<Response | null> {

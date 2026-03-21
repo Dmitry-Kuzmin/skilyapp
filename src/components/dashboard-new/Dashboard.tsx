@@ -225,10 +225,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
 
         {/* BENTO GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 lg:gap-6 animate-slide-up">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5 lg:gap-6 animate-slide-up">
 
           {/* 1. HERO CARD (LICENSE STYLE - PREMIUM) */}
-          <div className="md:col-span-2 lg:col-span-2">
+          <div className="md:col-span-2 lg:col-span-2 xl:col-span-2">
             <LicenseCard
               userProfile={userProfile}
               stats={stats}
@@ -250,21 +250,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           {/* 2. DUEL PASS INFO */}
-          <div className="md:col-span-1 lg:col-span-1 lg:row-span-2">
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <DuelPassInfo />
             </Suspense>
           </div>
 
           {/* 3. SKILY CHAT */}
-          <div className="md:col-span-1 lg:col-span-1">
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <SkilyChat />
             </Suspense>
           </div>
 
           {/* 4. PREMIUM CARD */}
-          <div className="md:col-span-1 lg:col-span-1">
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
             <Suspense fallback={<ComponentSkeleton />}>
               <PremiumCard onGetPremium={onGetPremium} />
             </Suspense>
@@ -274,8 +274,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className={cn(
             "transition-all duration-500 ease-in-out",
             examReadinessExpanded
-              ? 'md:col-span-2 lg:col-span-3'
-              : 'md:col-span-1 lg:col-span-2'
+              ? 'md:col-span-2 lg:col-span-3 xl:col-span-4'
+              : 'md:col-span-1 lg:col-span-1 xl:col-span-1'
           )}>
             <Suspense fallback={<ComponentSkeleton />}>
               <ExamReadiness

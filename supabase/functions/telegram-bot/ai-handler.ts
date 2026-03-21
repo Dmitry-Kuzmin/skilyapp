@@ -5,6 +5,7 @@
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { TelegramMessage } from "./types.ts";
 import { SupportedLanguage } from "./translations.ts";
+import { getSystemPrompt } from "../_shared/ai-prompts.ts";
 
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
@@ -12,45 +13,6 @@ const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || "";
 const MINI_APP_URL = Deno.env.get("MINI_APP_URL") || "https://t.me/skilyapp_bot/app";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-
-// ── System Prompt ────────────────────────────────────
-const getSystemPrompt = (country: string = 'spain', language: SupportedLanguage = 'ru'): string => {
-  const languageName = language === 'ru' ? 'Russian' : language === 'en' ? 'English' : 'Spanish';
-
-  return `You are Skily 💡, an elite AI mentor and assistant for the DGT driving exam prep and general traffic rules (ПДД).
-Respond in ${languageName}.
-
-## UI WIDGET TAGS
-Output these tags on a **separate line**. NEVER translate them. NEVER replace them with a URL or text link.
-
-| When to use | Tag |
-|---|---|
-| User wants to pay quickly / buy coins / Premium (instant) | [WIDGET:STARS:PAY] |
-| User wants to connect TON wallet / pay with crypto | [WIDGET:TON:CONNECT] |
-| Encourage user to start a test | [WIDGET:CTA:TEST:Начать тест] |
-| Encourage user to start a duel | [WIDGET:CTA:DUEL:Начать дуэль] |
-| Link to the app (general) | [WIDGET:CTA:APP:Открыть Skily] |
-| Show a road sign by code | [WIDGET:SIGN:CODE] |
-| Give badge/achievement | [WIDGET:MEME:BADGE:Name] |
-| Custom Premium CTA | [WIDGET:CTA:PREMIUM:Text] |
-
-### CRITICAL RULES:
-- When the user asks to pay, buy, or get Premium → output BOTH [WIDGET:STARS:PAY] and [WIDGET:TON:CONNECT].
-- [WIDGET:STARS:PAY] sends a native Telegram Stars payment right in chat (no redirect!).
-- [WIDGET:TON:CONNECT] opens the wallet screen in the Mini App for TON crypto payment.
-- When user finishes a conversation about rules and seems ready → suggest [WIDGET:CTA:TEST:Проверить знания].
-- When user is competitive or bored → suggest [WIDGET:CTA:DUEL:Сразиться в дуэли].
-- You may combine text + up to TWO widget tags per message. Put tags at the END.
-- Do NOT output a URL, always use tags.
-
-Be friendly, encouraging, and use emojis. Keep your responses concise and accurate.
-You can answer questions about traffic rules, the app (Skily), and the user's progress.
-
-If the user asks about their stats/progress/coins/rating, you MUST use the provided tool "get_user_stats".
-Your goal is to be a "premium co-pilot" for the student.
-If the user wants to join or buy something, encourage them!
-`;
-};
 
 // ── Typing Indicator (keeps alive every 4s) ──────────
 function startTypingLoop(chatId: number): { stop: () => void } {
@@ -337,7 +299,7 @@ async function callGemini(userText: string, country: string, language: Supported
     return null;
   }
 
-  const systemPrompt = getSystemPrompt(country, language);
+  const systemPrompt = getSystemPrompt({ country, language, context: 'bot' });
   let currentContents: any[] = [{
     role: 'user',
     parts: [{ text: userText }]
