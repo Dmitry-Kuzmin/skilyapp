@@ -62,8 +62,8 @@ import { usePremium } from "@/hooks/usePremium";
 import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { TonPaymentWidget } from "@/components/monetization/TonPaymentWidget";
+import { TonWalletHeader } from "@/components/monetization/TonWalletHeader";
 import { CryptomusPaymentPreview } from "@/components/monetization/CryptomusPaymentPreview";
-import { useAddress, TonConnectButton } from "@ton/appkit-react";
 import {
   getTelegramWebApp,
   isTelegramMiniApp,
@@ -2667,11 +2667,11 @@ export function BoostShopModal({
             </div>
           </div>
 
-          {/* Right: TON Connect + Coin balance + Close button */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right: Balance + Close button */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {showTonPayment && (
-              <div className="scale-75 origin-right">
-                <TonConnectButton />
+              <div className="mr-0.5 sm:mr-1">
+                <TonWalletHeader />
               </div>
             )}
             <button
