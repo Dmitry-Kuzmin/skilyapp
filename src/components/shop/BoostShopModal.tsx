@@ -2202,6 +2202,20 @@ export function BoostShopModal({
                                   )}
                                 </Button>
 
+                                {showTonPayment && (
+                                  <div className="pt-2">
+                                    <TonPaymentWidget
+                                      mode="compact"
+                                      defaultAmount={
+                                        plan.id === 'yearly' ? '9.9' :
+                                          plan.id === 'quarterly' ? '3.9' :
+                                            plan.id === 'lifetime' ? '25' : '1.5'
+                                      }
+                                      defaultComment={`Skily Premium: ${plan.title}`}
+                                    />
+                                  </div>
+                                )}
+
                                 {showCryptomusPayment && (
                                   <button
                                     onClick={async () => {
@@ -2653,8 +2667,13 @@ export function BoostShopModal({
             </div>
           </div>
 
-          {/* Right: Coin balance + Close button */}
+          {/* Right: TON Connect + Coin balance + Close button */}
           <div className="flex items-center gap-2 shrink-0">
+            {showTonPayment && (
+              <div className="scale-75 origin-right">
+                <TonConnectButton />
+              </div>
+            )}
             <button
               onClick={async () => {
                 setActiveTab("history");
