@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Power, Fingerprint, ShieldCheck } from 'lucide-react';
 import { playClickSound, playEngineSound, playBiometricSound } from '@/services/audioService';
 
@@ -12,29 +12,46 @@ type PreloaderMode = 'mechanical' | 'biometric';
 
 export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLoading = false, isPremium = false }) => {
   // Автоматический выбор режима: Bio для премиум, Std для остальных
-  const [mode, setMode] = useState<PreloaderMode>(() => isPremium ? 'biometric' : 'mechanical');
+  const [mode] = useState<PreloaderMode>(() => isPremium ? 'biometric' : 'mechanical');
   const [isIgniting, setIsIgniting] = useState(false);
   const [isLaunched, setIsLaunched] = useState(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const completedRef = useRef(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
-  const handleStart = () => {
-    if (isIgniting) return;
+  // Cleanup all timers on unmount
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const handleStart = useCallback(() => {
+    if (isIgniting || completedRef.current) return;
 
     setIsIgniting(true);
 
-    // Trigger Sound based on mode
-    playClickSound();
-    if (mode === 'mechanical') {
-      playEngineSound();
-    } else if (mode === 'biometric') {
-      playBiometricSound();
-    }
+    // Trigger Sound based on mode (fire and forget, never block the flow)
+    try { playClickSound(); } catch { /* ignore */ }
+    try {
+      if (mode === 'mechanical') playEngineSound();
+      else if (mode === 'biometric') playBiometricSound();
+    } catch { /* ignore */ }
 
-    // Ignition sequence timing
-    setTimeout(() => {
+    // Ignition sequence timing — stored for cleanup
+    const t1 = setTimeout(() => {
       setIsLaunched(true);
-      setTimeout(onComplete, 800); // Fade out after launch
+      const t2 = setTimeout(() => {
+        if (!completedRef.current) {
+          completedRef.current = true;
+          onCompleteRef.current();
+        }
+      }, 800);
+      timersRef.current.push(t2);
     }, 1800);
-  };
+    timersRef.current.push(t1);
+  }, [isIgniting, mode]);
 
   if (isLaunched) {
     // Fade out state
@@ -44,7 +61,7 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30">
+    <div className="fixed inset-0 z-[10000] bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30">
 
       {/* Background Ambiance */}
       <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0f172a] to-[#0f172a]"></div>

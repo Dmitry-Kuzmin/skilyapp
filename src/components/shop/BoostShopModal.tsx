@@ -1751,6 +1751,24 @@ export function BoostShopModal({
                               />
                             )}
 
+                            {showTonPayment && (
+                              <div
+                                className="pt-2 relative z-[100]"
+                                onClick={(e) => e.stopPropagation()}
+                                onPointerDown={(e) => e.stopPropagation()}
+                              >
+                                <TonPaymentWidget
+                                  mode="compact"
+                                  defaultAmount={
+                                    pack.amount === 100 ? '0.2' :
+                                      pack.amount === 500 ? '0.8' :
+                                        pack.amount === 1200 ? '1.8' : '3.5'
+                                  }
+                                  defaultComment={`Buying ${pack.amount} coins`}
+                                />
+                              </div>
+                            )}
+
                             {!showStarsPayment && showPaddlePayment && (
                               <Button
                                 size="sm"
