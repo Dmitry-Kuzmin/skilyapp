@@ -1579,7 +1579,7 @@ export function BoostShopModal({
               {/* Grid Layout для бустов */}
               {filteredRegularBoosts.length > 0 ||
                 filteredPremiumBoosts.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 px-1">
                   {filteredRegularBoosts.map((boost) => (
                     <MarketItem
                       key={boost.id}
@@ -1644,7 +1644,7 @@ export function BoostShopModal({
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4 gap-2 md:gap-3 px-1">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4 gap-2 md:gap-3 px-1">
                   {coinPacks.map((pack, idx) => {
                     // Выделяем пак 500 монет как "Best Value" (лучшее соотношение цена/количество)
                     const isBestValue = pack.amount === 500;
@@ -1662,70 +1662,76 @@ export function BoostShopModal({
                     return (
                       <Card
                         key={idx}
-                        className={`group relative overflow-visible rounded-3xl border bg-card p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${isBestValue
-                          ? "border-violet-500/50 shadow-[0_8px_20px_rgba(139,92,246,0.15)] dark:shadow-[0_8px_20px_rgba(139,92,246,0.25)] ring-1 ring-violet-500/30"
-                          : isHighlighted
-                            ? "border-yellow-400/50 shadow-[0_5px_15px_rgba(251,191,36,0.1)] dark:shadow-[0_8px_20px_rgba(251,191,36,0.15)]"
-                            : "border-border hover:border-violet-500/30"
-                          }`}
+                        className={cn(
+                          "group relative overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 flex flex-col",
+                          isBestValue
+                            ? "border-violet-500/40 shadow-[0_4px_24px_rgba(139,92,246,0.15)]"
+                            : isHighlighted
+                              ? "border-amber-400/30 shadow-[0_4px_14px_rgba(251,191,36,0.10)]"
+                              : "border-border/50 hover:border-violet-400/25"
+                        )}
                       >
-                        {/* Best Value бейдж */}
+                        {/* Акцентная полоска сверху */}
+                        <div className={cn(
+                          "h-[2px] w-full flex-shrink-0",
+                          isBestValue
+                            ? "bg-gradient-to-r from-violet-500 via-fuchsia-400 to-indigo-500"
+                            : isHighlighted
+                              ? "bg-gradient-to-r from-amber-400 to-orange-400"
+                              : "bg-border/40"
+                        )} />
+
+                        {/* Corner badge */}
                         {isBestValue && (
-                          <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap">
-                            <Badge className="bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 text-white border-0 shadow-sm text-[9px] sm:text-[10px] font-black px-2 py-0.5 rounded-full">
-                              🔥 ХИТ
-                            </Badge>
+                          <div className="absolute top-3 right-3 z-10">
+                            <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-[3px] rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/25">
+                              ХИТ
+                            </span>
+                          </div>
+                        )}
+                        {isHighlighted && !isBestValue && (
+                          <div className="absolute top-3 right-3 z-10">
+                            <span className="text-[8px] font-black uppercase tracking-widest px-1.5 py-[3px] rounded-full bg-amber-400/15 text-amber-500 border border-amber-400/25">
+                              VIP
+                            </span>
                           </div>
                         )}
 
-                        <div className="space-y-2">
-                          <div className="flex flex-col items-center text-center gap-2">
+                        <div className="p-3 sm:p-4 flex-1 flex flex-col gap-3">
+                          {/* Иконка + лейбл */}
+                          <div className="flex items-center gap-2.5">
                             <div
-                              className={`relative w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${isBestValue
-                                ? "bg-gradient-to-br from-violet-600 via-purple-500 to-indigo-600 text-white shadow-md shadow-violet-500/20"
-                                : isHighlighted
-                                  ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 text-slate-900 shadow-md shadow-amber-500/20"
-                                  : "bg-gradient-to-br from-yellow-500/10 via-amber-500/20 to-orange-500/10 border border-yellow-500/20"
-                                }`}
+                              className={cn(
+                                "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-105",
+                                isBestValue
+                                  ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/30"
+                                  : isHighlighted
+                                    ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-400/20"
+                                    : "bg-gradient-to-br from-amber-400/15 to-orange-400/10 border border-amber-400/20"
+                              )}
                             >
-                              <Coins
-                                className={`relative w-6 h-6 z-10 ${isBestValue || isHighlighted
-                                  ? "drop-shadow-sm"
-                                  : "text-yellow-500 drop-shadow-sm"
-                                  }`}
-                              />
+                              <Coins className={cn("w-5 h-5", !isBestValue && !isHighlighted && "text-amber-500")} />
                             </div>
-
-                            <div className="w-full space-y-0.5 px-1">
-                              <p className="text-sm sm:text-base font-black text-foreground tracking-tight truncate">
-                                {t("boostShop.coins.packLabel", {
-                                  amount: pack.amount,
-                                })}
-                              </p>
-                              <p className="text-[9px] sm:text-[10px] text-muted-foreground leading-tight line-clamp-2 min-h-[2.2em]">
-                                {description}
+                            <div className="flex-1 min-w-0 pr-8">
+                              <p className="text-sm font-bold text-foreground leading-none truncate">
+                                {t("boostShop.coins.packLabel", { amount: pack.amount })}
                               </p>
                             </div>
                           </div>
 
-                          <div className="flex flex-col items-center gap-0 pt-1">
-                            <span className="text-base sm:text-lg font-black text-foreground drop-shadow-sm leading-none tabular-nums mt-2">
-                              {pack.price}
-                            </span>
+                          {/* Цена — доминирующий элемент */}
+                          <div>
+                            <div className="text-2xl sm:text-3xl font-black text-foreground tabular-nums leading-none">{pack.price}</div>
                             {pricePerCoin && (
-                              <p className="text-[9px] sm:text-[10px] font-medium text-muted-foreground/80 lowercase">
-                                ≈{" "}
-                                {t("boostShop.coins.perCoin", {
-                                  price: pricePerCoin.toFixed(2),
-                                })}
+                              <p className="text-[10px] text-muted-foreground mt-1">
+                                ≈ €{pricePerCoin.toFixed(2)} / монету
                               </p>
                             )}
                           </div>
-                        </div>
 
-                        <div className="mt-auto pt-4 space-y-3">
-                          {/* Главная кнопка покупки */}
-                          <div className="flex flex-col gap-1.5 mt-2">
+                          {/* Кнопки */}
+                          <div className="mt-auto space-y-1.5">
+                            {/* Stars (Telegram) */}
                             {showStarsPayment && (
                               <StarsPaymentButton
                                 packageKey={pack.packageKey}
@@ -1734,200 +1740,123 @@ export function BoostShopModal({
                                   loadData();
                                   toast({
                                     title: t("boostShop.coins.successTitle"),
-                                    description: t(
-                                      "boostShop.coins.successDescription",
-                                      { amount: pack.amount },
-                                    ),
+                                    description: t("boostShop.coins.successDescription", { amount: pack.amount }),
                                     duration: 5000,
                                   });
                                 }}
                                 variant="default"
                                 size="sm"
                                 className={cn(
-                                  "w-full h-8 font-semibold text-xs transition-all duration-200",
+                                  "w-full h-9 font-semibold text-xs transition-all duration-200",
                                   isBestValue || isHighlighted
-                                    ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black shadow-sm font-bold"
-                                    : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm"
+                                    ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black font-bold"
+                                    : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white"
                                 )}
                               />
                             )}
 
-                            {!showStarsPayment && showPaddlePayment && (
-                              <Button
-                                size="sm"
-                                aria-label={t("boostShop.coins.buyPackAria", {
-                                  amount: pack.amount,
-                                })}
-                                onClick={() =>
-                                  handleCoinPurchase(pack.catalogKey)
-                                }
-                                className={cn(
-                                  "w-full h-10 font-bold text-sm sm:h-11 sm:text-base border-0 transition-all duration-200 hover:scale-[1.01]",
-                                  isBestValue || isHighlighted
-                                    ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black hover:brightness-110 shadow-[0_0_20px_rgba(245,158,11,0.4)]"
-                                    : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50",
-                                  isBestValue && "ring-2 ring-amber-400/50",
-                                )}
-                                disabled={
-                                  !profileId ||
-                                  purchaseLoading === pack.catalogKey ||
-                                  paddleLoading
-                                }
-                              >
-                                {purchaseLoading === pack.catalogKey ? (
-                                  <>
-                                    <div className="w-4 h-4 mr-1.5 sm:w-5 sm:h-5 sm:mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin shrink-0" />
-                                    <span className="truncate">
-                                      {t("boostShop.coins.loading").includes("boostShop")
-                                        ? "Загрузка..."
-                                        : t("boostShop.coins.loading")}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <ShoppingBag className="w-4 h-4 mr-1.5 sm:w-5 sm:h-5 sm:mr-2 shrink-0" />
-                                    <span className="truncate">Купить за {pack.price}</span>
-                                  </>
-                                )}
-                              </Button>
-                            )}
-
+                            {/* TON */}
                             {showTonPayment && (
-                              <div className="pt-2">
-                                <TonPaymentWidget
-                                  mode="compact"
-                                  defaultAmount={
-                                    pack.amount === 100 ? '0.2' :
-                                      pack.amount === 500 ? '0.8' :
-                                        pack.amount === 1200 ? '1.8' : '3.5'
-                                  }
-                                  defaultComment={`Buying ${pack.amount} coins`}
-                                />
-                              </div>
+                              <TonPaymentWidget
+                                mode="compact"
+                                defaultAmount={
+                                  pack.amount === 100 ? "0.2" :
+                                    pack.amount === 500 ? "0.8" :
+                                      pack.amount === 1200 ? "1.8" : "3.5"
+                                }
+                                defaultComment={`Buying ${pack.amount} coins`}
+                              />
                             )}
 
-                            {/* Крипто как опция (маленькая ссылка) */}
+                            {/* PRIMARY: Криптовалюта */}
                             {showCryptomusPayment && (
                               <button
+                                disabled={!profileId}
                                 onClick={async () => {
                                   if (!profileId) {
                                     toast({
                                       title: t("boostShop.toasts.errorTitle"),
-                                      description: t(
-                                        "boostShop.toasts.needLogin",
-                                      ),
+                                      description: t("boostShop.toasts.needLogin"),
                                       variant: "destructive",
                                     });
                                     return;
                                   }
-
                                   try {
-                                    const { data, error } = await supabaseClient.functions.invoke(
-                                      "cryptomus-payment",
-                                      {
-                                        body: {
-                                          user_id: profileId,
-                                          catalog_key: pack.catalogKey,
-                                        },
-                                      },
-                                    );
-
+                                    const { data, error } = await supabaseClient.functions.invoke("cryptomus-payment", {
+                                      body: { user_id: profileId, catalog_key: pack.catalogKey },
+                                    });
                                     console.log("[BoostShop] Cryptomus raw response:", { data, error });
-
-                                     // 🛡️ Исправление: если data пришла как строка (JSON), парсим её вручную
-                                     let finalData = data;
-                                     if (typeof data === "string") {
-                                       try {
-                                         finalData = JSON.parse(data);
-                                       } catch (e) {
-                                         console.error("[BoostShop] Error parsing Cryptomus string data:", e);
-                                       }
-                                     }
-
+                                    let finalData = data;
+                                    if (typeof data === "string") {
+                                      try { finalData = JSON.parse(data); } catch (e) {
+                                        console.error("[BoostShop] Error parsing Cryptomus string data:", e);
+                                      }
+                                    }
                                     if (error) {
-                                      console.error(
-                                        "[BoostShop] Cryptomus error:",
-                                        error,
-                                      );
-                                      toast({
-                                        title: t("boostShop.toasts.errorTitle"),
-                                        description:
-                                          error.message ||
-                                          t(
-                                            "boostShop.toasts.purchaseErrorDescription",
-                                          ),
-                                        variant: "destructive",
-                                      });
+                                      console.error("[BoostShop] Cryptomus error:", error);
+                                      toast({ title: t("boostShop.toasts.errorTitle"), description: error.message || t("boostShop.toasts.purchaseErrorDescription"), variant: "destructive" });
                                       return;
                                     }
-
                                     if (finalData?.error) {
-                                      toast({
-                                        title: t("boostShop.toasts.errorTitle"),
-                                        description:
-                                          finalData.error ||
-                                          t(
-                                            "boostShop.toasts.purchaseErrorDescription",
-                                          ),
-                                        variant: "destructive",
-                                      });
+                                      toast({ title: t("boostShop.toasts.errorTitle"), description: finalData.error || t("boostShop.toasts.purchaseErrorDescription"), variant: "destructive" });
                                       return;
                                     }
-
-                                     if (finalData?.url && finalData?.orderId) {
-                                      const amount = pack.priceValue || 0;
-
+                                    if (finalData?.url && finalData?.orderId) {
                                       setCryptomusPreview({
                                         open: true,
                                         paymentUrl: finalData.url,
                                         orderId: finalData.orderId,
-                                        amount: amount,
+                                        amount: pack.priceValue || 0,
                                         currency: "EUR",
                                         itemName: `${pack.amount} монет`,
                                       });
                                     } else {
                                       console.error("[BoostShop] Cryptomus data incomplete:", finalData || data);
-                                      toast({
-                                        title: t("boostShop.toasts.errorTitle"),
-                                        description: t(
-                                          "boostShop.toasts.sessionError",
-                                        ),
-                                        variant: "destructive",
-                                      });
+                                      toast({ title: t("boostShop.toasts.errorTitle"), description: t("boostShop.toasts.sessionError"), variant: "destructive" });
                                     }
                                   } catch (err: any) {
-                                    console.error(
-                                      "[BoostShop] Cryptomus error:",
-                                      err,
-                                    );
-                                    toast({
-                                      title: t("boostShop.toasts.errorTitle"),
-                                      description:
-                                        err?.message ||
-                                        t(
-                                          "boostShop.toasts.purchaseErrorDescription",
-                                        ),
-                                      variant: "destructive",
-                                    });
+                                    console.error("[BoostShop] Cryptomus error:", err);
+                                    toast({ title: t("boostShop.toasts.errorTitle"), description: err?.message || t("boostShop.toasts.purchaseErrorDescription"), variant: "destructive" });
                                   }
                                 }}
-                                className="text-xs text-muted-foreground hover:text-violet-400 transition-colors text-center py-1"
-                                disabled={!profileId}
+                                className={cn(
+                                  "w-full h-9 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all active:scale-[0.97] disabled:opacity-40",
+                                  isBestValue
+                                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:brightness-110 shadow-sm shadow-violet-500/30"
+                                    : "bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-black hover:brightness-105 shadow-sm shadow-amber-400/20"
+                                )}
                               >
-                                или оплатить криптовалютой
+                                <span className="text-sm leading-none">₿</span>
+                                <span>Крипта · {pack.price}</span>
                               </button>
                             )}
-                          </div>
 
-                          {/* Сообщение если нет доступных методов */}
-                          {!showStarsPayment &&
-                            !showCryptomusPayment &&
-                            !showPaddlePayment && (
-                              <div className="text-sm text-muted-foreground text-center py-2 w-full">
-                                Используйте Telegram Mini App для оплаты через
-                                Stars
-                              </div>
+                            {/* SECONDARY: Карта (Paddle) */}
+                            {!showStarsPayment && showPaddlePayment && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                aria-label={t("boostShop.coins.buyPackAria", { amount: pack.amount })}
+                                onClick={() => handleCoinPurchase(pack.catalogKey)}
+                                disabled={!profileId || purchaseLoading === pack.catalogKey || paddleLoading}
+                                className="w-full h-8 text-[11px] gap-1.5 border-border/60 text-muted-foreground hover:text-foreground hover:border-border transition-all"
+                              >
+                                {purchaseLoading === pack.catalogKey ? (
+                                  <div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                                ) : (
+                                  <CreditCard className="w-3.5 h-3.5 shrink-0" />
+                                )}
+                                <span>{pack.price}</span>
+                              </Button>
                             )}
+
+                            {/* Нет методов оплаты */}
+                            {!showStarsPayment && !showCryptomusPayment && !showPaddlePayment && !showTonPayment && (
+                              <p className="text-[10px] text-muted-foreground text-center py-1.5">
+                                Используйте Telegram Mini App
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </Card>
                     );
@@ -2144,7 +2073,7 @@ export function BoostShopModal({
                           </div>
 
                           {/* Action - Кнопки прямой оплаты */}
-                          <div className="mt-4 pt-4 border-t border-dashed border-white/10 dark:border-slate-800 space-y-2">
+                          <div className="mt-4 pt-3 border-t border-dashed border-white/10 dark:border-slate-700/60 space-y-2">
                             {isPremium ? (
                               <Button
                                 variant="ghost"
@@ -2155,10 +2084,11 @@ export function BoostShopModal({
                               </Button>
                             ) : (
                               <>
+                                {/* 1. Stars (Telegram) */}
                                 {showStarsPayment && (
                                   <StarsPaymentButton
                                     packageKey={catalogKey}
-                                    priceCoins={0} // Внутренняя цена из БД по ключе
+                                    priceCoins={0}
                                     variant="default"
                                     className={cn(
                                       "w-full font-bold h-11 rounded-xl shadow-lg",
@@ -2170,83 +2100,26 @@ export function BoostShopModal({
                                       loadData();
                                       toast({
                                         title: "🎉 Premium активирован!",
-                                        description:
-                                          "Наслаждайтесь всеми преимуществами.",
+                                        description: "Наслаждайтесь всеми преимуществами.",
                                         duration: 5000,
                                       });
                                     }}
                                   />
                                 )}
 
-                                <Button
-                                  variant={isPopular ? "default" : "outline"}
-                                  onClick={() => handleCoinPurchase(catalogKey)}
-                                  disabled={
-                                    purchaseLoading === catalogKey ||
-                                    paddleLoading
-                                  }
-                                  className={cn(
-                                    "w-full font-bold h-11 rounded-xl transition-all",
-                                    isPopular && !showStarsPayment
-                                      ? "bg-white text-slate-900 hover:bg-slate-50 shadow-xl"
-                                      : !showStarsPayment
-                                        ? "bg-slate-100 text-slate-900 border-0 hover:bg-slate-200"
-                                        : "bg-transparent border-white/10 text-white hover:bg-white/5 text-[10px] h-8",
-                                  )}
-                                >
-                                  {purchaseLoading === catalogKey ? (
-                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                  ) : showStarsPayment ? (
-                                    "Оплатить картой"
-                                  ) : (
-                                    "Оплатить картой"
-                                  )}
-                                </Button>
-
-                                {showTonPayment && (
-                                  <div className="pt-2">
-                                    <TonPaymentWidget
-                                      mode="compact"
-                                      defaultAmount={
-                                        plan.id === 'yearly' ? '9.9' :
-                                          plan.id === 'quarterly' ? '3.9' :
-                                            plan.id === 'lifetime' ? '25' : '1.5'
-                                      }
-                                      defaultComment={`Skily Premium: ${plan.title}`}
-                                    />
-                                  </div>
-                                )}
-
+                                {/* 2. PRIMARY: Крипта (Cryptomus) */}
                                 {showCryptomusPayment && (
                                   <button
                                     onClick={async () => {
                                       if (!profileId) {
-                                        toast({
-                                          title: t(
-                                            "boostShop.toasts.errorTitle",
-                                          ),
-                                          description: t(
-                                            "boostShop.toasts.needLogin",
-                                          ),
-                                          variant: "destructive",
-                                        });
+                                        toast({ title: t("boostShop.toasts.errorTitle"), description: t("boostShop.toasts.needLogin"), variant: "destructive" });
                                         return;
                                       }
                                       try {
-                                        const { data, error } =
-                                          await supabaseClient.functions.invoke(
-                                            "cryptomus-payment",
-                                            {
-                                              body: {
-                                                user_id: profileId,
-                                                catalog_key: catalogKey,
-                                              },
-                                            },
-                                          );
-                                        if (error || data?.error)
-                                          throw new Error(
-                                            error?.message || data?.error,
-                                          );
+                                        const { data, error } = await supabaseClient.functions.invoke("cryptomus-payment", {
+                                          body: { user_id: profileId, catalog_key: catalogKey },
+                                        });
+                                        if (error || data?.error) throw new Error(error?.message || data?.error);
                                         if (data?.url && data?.orderId) {
                                           setCryptomusPreview({
                                             open: true,
@@ -2258,23 +2131,54 @@ export function BoostShopModal({
                                           });
                                         }
                                       } catch (err: any) {
-                                        toast({
-                                          title: t(
-                                            "boostShop.toasts.errorTitle",
-                                          ),
-                                          description:
-                                            err.message ||
-                                            t(
-                                              "boostShop.toasts.purchaseErrorDescription",
-                                            ),
-                                          variant: "destructive",
-                                        });
+                                        toast({ title: t("boostShop.toasts.errorTitle"), description: err.message || t("boostShop.toasts.purchaseErrorDescription"), variant: "destructive" });
                                       }
                                     }}
-                                    className="w-full text-[9px] text-muted-foreground hover:text-white transition-colors uppercase tracking-widest font-black text-center py-1"
+                                    className={cn(
+                                      "w-full h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
+                                      isPopular
+                                        ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:brightness-110 shadow-lg shadow-violet-500/25"
+                                        : "bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-black hover:brightness-105 shadow-md shadow-amber-400/20"
+                                    )}
                                   >
-                                    Оплатить криптовалютой (BTC/USDT)
+                                    <span className="text-base leading-none">₿</span>
+                                    <span>Крипта · {plan.price}</span>
                                   </button>
+                                )}
+
+                                {/* 3. TON */}
+                                {showTonPayment && (
+                                  <TonPaymentWidget
+                                    mode="compact"
+                                    defaultAmount={
+                                      plan.id === 'yearly' ? '9.9' :
+                                        plan.id === 'quarterly' ? '3.9' :
+                                          plan.id === 'lifetime' ? '25' : '1.5'
+                                    }
+                                    defaultComment={`Skily Premium: ${plan.title}`}
+                                  />
+                                )}
+
+                                {/* 4. SECONDARY: Карта (Paddle) */}
+                                {!showStarsPayment && showPaddlePayment && (
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => handleCoinPurchase(catalogKey)}
+                                    disabled={purchaseLoading === catalogKey || paddleLoading}
+                                    className={cn(
+                                      "w-full h-9 rounded-xl text-xs font-semibold gap-2 transition-all",
+                                      isPopular
+                                        ? "border-white/15 text-slate-300 hover:bg-white/5 hover:text-white"
+                                        : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+                                    )}
+                                  >
+                                    {purchaseLoading === catalogKey ? (
+                                      <div className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                                    ) : (
+                                      <CreditCard className="w-3.5 h-3.5" />
+                                    )}
+                                    Оплатить картой
+                                  </Button>
                                 )}
                               </>
                             )}

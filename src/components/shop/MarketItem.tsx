@@ -392,7 +392,7 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
               <span className="relative z-10 flex items-center gap-1.5">
                 {buttonState === 'processing' ? (
                   <>
-                    <span className="font-mono text-[10px] tracking-tighter animate-pulse">DECRYPTING...</span>
+                    <span className="hidden sm:inline font-mono text-[10px] tracking-tighter animate-pulse">DECRYPTING...</span>
                     <motion.div
                       animate={{ rotate: 360 }}
                       transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
@@ -406,11 +406,11 @@ export const MarketItem = memo(function MarketItem({ boost, inventoryCount, coin
                 ) : buttonState === 'acquired' ? (
                   <>
                     <Check size={12} className="text-emerald-400" />
-                    <span className="text-emerald-400 font-mono tracking-wide">SECURED</span>
+                    <span className="hidden sm:inline text-emerald-400 font-mono tracking-wide">SECURED</span>
                   </>
                 ) : (
                   <>
-                    <span className="font-mono tracking-widest font-bold">ACCESS</span>
+                    <span className="hidden sm:inline font-mono tracking-widest font-bold">ACCESS</span>
                     <Download size={12} className="opacity-70 group-hover:translate-y-0.5 transition-transform" />
                   </>
                 )}
