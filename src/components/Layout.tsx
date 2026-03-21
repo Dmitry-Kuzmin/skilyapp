@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 // SettingsDrawer удалён — используется глобальный UnifiedSettingsDrawer из AppProviders
 import { AuthModalNew as AuthModal } from "./AuthModalNew";
 import { TelegramNavigation } from "./TelegramNavigation";
+import { TelegramBottomButtons } from "./TelegramBottomButtons";
 import { isTelegramMiniApp, isTelegramMobilePlatformName } from "@/lib/telegram";
 const NotificationsPanel = lazy(() => import("./NotificationsPanel").then(m => ({ default: m.NotificationsPanel })));
 const UserProfilePopover = lazy(() => import("./UserProfilePopover").then(m => ({ default: m.UserProfilePopover })));
@@ -324,6 +325,8 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Telegram Navigation Handler */}
       <TelegramNavigation />
+      {/* Telegram Bottom Buttons for premium UX (Bot API 9.5+) */}
+      <TelegramBottomButtons />
       {/* Edge Swipe Back Area (Telegram/Mobile) */}
       <EdgeSwipeBack />
 

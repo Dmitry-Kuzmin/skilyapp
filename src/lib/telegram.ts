@@ -425,7 +425,7 @@ export const showTelegramConfirm = (message: string, title?: string): Promise<bo
 
   try {
     return new Promise((resolve) => {
-      webApp.showConfirm(message, (confirmed: boolean) => {
+      webApp.showConfirm!(message, (confirmed: boolean) => {
         resolve(confirmed);
       });
     });
@@ -454,7 +454,7 @@ export const showTelegramPopup = (
 
   try {
     return new Promise((resolve) => {
-      webApp.showPopup(
+      webApp.showPopup!(
         {
           message,
           buttons: buttons.map(btn => ({
@@ -474,3 +474,63 @@ export const showTelegramPopup = (
     return Promise.resolve(result ? buttons[0]?.id || null : null);
   }
 };
+
+/**
+ * Управление нижней кнопкой (Bottom Button), доступна с Bot API 9.5+
+ */
+export const updateTelegramBottomButton = (params: {
+  text?: string;
+  color?: string;
+  textColor?: string;
+  isVisible?: boolean;
+  isActive?: boolean;
+  hasShineEffect?: boolean;
+  iconCustomEmojiId?: string;
+  onClick?: () => void;
+}) => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || !webApp.BottomButton) return;
+
+  try {
+    const bottomButton = webApp.BottomButton;
+
+    // Устанавливаем параметры
+    bottomButton.setParams({
+      text: params.text,
+      color: params.color,
+      text_color: params.textColor,
+      is_visible: params.isVisible,
+      is_active: params.isActive,
+      has_shine_effect: params.hasShineEffect,
+      icon_custom_emoji_id: params.iconCustomEmojiId,
+    });
+
+    // Обрабатываем клик
+    if (params.onClick) {
+      // Очищаем предыдущие обработчики если нужно (в Telegram SDK обычно нужно вызывать offClick вручную)
+      // В данном хелпере мы предполагаем управление через сетап/стейт
+      bottomButton.onClick(params.onClick);
+    }
+
+    if (params.isVisible) {
+      bottomButton.show();
+    } else {
+      bottomButton.hide();
+    }
+  } catch (error) {
+    console.warn('[Telegram] ⚠️ BottomButton error:', error);
+  }
+};
+
+/**
+ * Скрыть нижнюю кнопку
+ */
+export const hideTelegramBottomButton = () => {
+  const webApp = getTelegramWebApp();
+  if (webApp?.BottomButton) {
+    try {
+      webApp.BottomButton.hide();
+    } catch (e) { /* ignore */ }
+  }
+};
+

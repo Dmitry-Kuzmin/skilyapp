@@ -29,6 +29,9 @@ declare global {
         close: () => void;
         disableVerticalSwipes?: () => void;
         enableVerticalSwipes?: () => void;
+        setHeaderColor?: (color: string) => void;
+        setBackgroundColor?: (color: string) => void;
+        switchInlineQuery?: (query: string, chatTypes?: string[]) => void;
         initData?: string;
         initDataUnsafe?: {
           user?: TelegramUser;
@@ -115,6 +118,32 @@ declare global {
             };
           }
         ) => void;
+        // Bottom Button (Bot API 9.5+)
+        BottomButton?: {
+          text: string;
+          color: string;
+          textColor: string;
+          isVisible: boolean;
+          isActive: boolean;
+          hasShineEffect: boolean;
+          iconCustomEmojiId?: string;
+          setText: (text: string) => void;
+          show: () => void;
+          hide: () => void;
+          onClick: (callback: () => void) => void;
+          offClick: (callback: () => void) => void;
+          enable: () => void;
+          disable: () => void;
+          setParams: (params: {
+            text?: string;
+            color?: string;
+            text_color?: string;
+            is_visible?: boolean;
+            is_active?: boolean;
+            has_shine_effect?: boolean;
+            icon_custom_emoji_id?: string;
+          }) => void;
+        };
       };
     };
   }
