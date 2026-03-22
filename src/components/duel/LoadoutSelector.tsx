@@ -624,7 +624,7 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           open={showOverclockModal}
           onOpenChange={setShowOverclockModal}
           rewardType="slot_unlock"
-          inlineOverlay={true}
+          inlineOverlay={false}
           secondaryAction={{
             text: `Открыть навсегда за ${SLOT_UNLOCK_COST}`,
             subtext: "Слот останется открытым для всех будущих игр",
