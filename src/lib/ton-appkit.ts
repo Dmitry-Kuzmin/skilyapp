@@ -1,13 +1,29 @@
 import { AppKit, Network, TonConnectConnector } from '@ton/appkit';
+import { TonConnect } from '@tonconnect/sdk';
+import { TonConnectUI } from '@tonconnect/ui';
+import { TonCloudStorage } from './ton-cloud-storage';
 
-// Инициализация AppKit согласно официальной документации:
-// https://docs.ton.org/ecosystem/appkit/init
+// ROOT FIX: TonConnect stores session in localStorage,
+// but Telegram Mini Apps can clear localStorage between sessions.
+// Solution: use Telegram CloudStorage (persistent per bot/user) as backend,
+// with localStorage as fast cache layer.
+const cloudStorage = new TonCloudStorage();
+
+// Create low-level TonConnect SDK with custom storage
+const tonConnectSDK = new TonConnect({
+    manifestUrl: 'https://skilyapp.com/tonconnect-manifest.json',
+    storage: cloudStorage,
+});
+
+// Create TonConnectUI with custom connector (inherits CloudStorage)
+const tonConnectUI = new TonConnectUI({
+    connector: tonConnectSDK,
+    restoreConnection: true,
+});
+
+// Create AppKit connector using our pre-configured TonConnectUI
 const tonConnector = new TonConnectConnector({
-    tonConnectOptions: {
-        manifestUrl: 'https://skilyapp.com/tonconnect-manifest.json',
-        // Persist connection across sessions
-        restoreConnection: true,
-    },
+    tonConnectUI: tonConnectUI,
 });
 
 export const appKit = new AppKit({
@@ -24,16 +40,12 @@ export const appKit = new AppKit({
     connectors: [tonConnector],
 });
 
-// Restore TON wallet connection from localStorage on app start.
-// TonConnectUI automatically restores connection — `connectionRestored`
-// is a Promise that resolves when the process completes.
-// We just need to ensure it's awaited / logged for debugging.
+// Log connection restore result for debugging
 try {
-    const tcUI = tonConnector.tonConnectUI;
-    if (tcUI && tcUI.connectionRestored) {
-        tcUI.connectionRestored.then((restored: boolean) => {
+    if (tonConnectUI.connectionRestored) {
+        tonConnectUI.connectionRestored.then((restored: boolean) => {
             if (restored) {
-                console.log('[TON] Wallet connection restored from previous session');
+                console.log('[TON] ✅ Wallet connection restored from CloudStorage');
             } else {
                 console.log('[TON] No previous wallet session found');
             }
