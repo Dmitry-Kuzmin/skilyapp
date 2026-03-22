@@ -1,81 +1,115 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Crown, Zap, Sparkles, Trophy, BookOpen, Shield, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Crown, Zap, BookOpen, Shield, ChevronRight, Brain, Swords, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 
 interface PremiumPromoAdProps {
-  duration?: number;        // Total duration in seconds (default: 15)
+  duration?: number;        // Total duration in seconds
   onComplete: () => void;   // Called when promo finishes
   onTryPremium?: () => void; // Optional: navigate to Premium tab
 }
+
+const SLIDE_DURATION = 3; // 3 seconds per slide
 
 const SLIDES = [
   {
     icon: Crown,
     title: 'Premium подписка',
-    subtitle: 'Максимальное ускорение обучения',
-    features: ['X2 монеты', 'Без рекламы', 'AI-наставник'],
+    subtitle: 'Твой пропуск к успеху на экзамене DGT',
+    features: [
+      { emoji: '⚡', text: 'X2 монеты за всё' },
+      { emoji: '🚫', text: 'Ноль рекламы навсегда' },
+      { emoji: '🤖', text: 'Персональный AI-наставник' },
+    ],
     gradient: 'from-violet-600 via-purple-600 to-indigo-700',
-    glow: 'bg-violet-600/40',
+    glow: 'bg-violet-500',
     iconColor: 'text-amber-300',
-    accentBorder: 'border-violet-400/30',
+    particle: '👑',
+  },
+  {
+    icon: Brain,
+    title: 'AI-разборы ошибок',
+    subtitle: 'Умный анализ каждого неправильного ответа',
+    features: [
+      { emoji: '🎯', text: 'Персональный разбор ошибок' },
+      { emoji: '📊', text: 'Аналитика слабых тем' },
+      { emoji: '💡', text: 'Объяснение на понятном языке' },
+    ],
+    gradient: 'from-cyan-600 via-blue-600 to-indigo-700',
+    glow: 'bg-cyan-500',
+    iconColor: 'text-cyan-300',
+    particle: '🧠',
   },
   {
     icon: Zap,
     title: 'X2 Монеты',
     subtitle: 'Удвоенные награды за каждое действие',
-    features: ['Тесты', 'Дуэли', 'Ежедневные бонусы'],
-    gradient: 'from-amber-600 via-orange-600 to-red-600',
-    glow: 'bg-amber-500/40',
+    features: [
+      { emoji: '🏆', text: 'Двойные за тесты и дуэли' },
+      { emoji: '📅', text: 'Двойные ежедневные бонусы' },
+      { emoji: '⛏️', text: 'Двойной майнинг в CryptoMiner' },
+    ],
+    gradient: 'from-amber-500 via-orange-600 to-red-600',
+    glow: 'bg-amber-500',
     iconColor: 'text-yellow-300',
-    accentBorder: 'border-amber-400/30',
+    particle: '🪙',
   },
   {
-    icon: Sparkles,
-    title: 'Без рекламы',
-    subtitle: 'Чистый интерфейс без отвлечений',
-    features: ['Нулевая реклама', 'Быстрый доступ', 'Фокус на учёбе'],
-    gradient: 'from-sky-600 via-cyan-600 to-teal-600',
-    glow: 'bg-sky-500/40',
-    iconColor: 'text-sky-300',
-    accentBorder: 'border-sky-400/30',
-  },
-  {
-    icon: Trophy,
-    title: 'Турниры & Duel Pass+',
-    subtitle: 'Соревнуйся с лучшими',
-    features: ['Эксклюзивные турниры', 'Уникальные скины', 'Рейтинг PRO'],
-    gradient: 'from-emerald-600 via-green-600 to-teal-600',
-    glow: 'bg-emerald-500/40',
+    icon: Swords,
+    title: '3 слота для бустов',
+    subtitle: 'Преимущество в дуэлях — 3 буста вместо 1',
+    features: [
+      { emoji: '🛡️', text: '3 активных буста одновременно' },
+      { emoji: '⚔️', text: 'Доминируй в PvP-дуэлях' },
+      { emoji: '🏅', text: 'Эксклюзивные скины рейтинга' },
+    ],
+    gradient: 'from-emerald-500 via-green-600 to-teal-700',
+    glow: 'bg-emerald-500',
     iconColor: 'text-emerald-300',
-    accentBorder: 'border-emerald-400/30',
+    particle: '⚔️',
   },
   {
     icon: BookOpen,
-    title: 'Все тесты открыты',
-    subtitle: 'Полный доступ к базе вопросов',
-    features: ['3000+ вопросов', 'AI-разбор ошибок', 'Умные подсказки'],
+    title: 'Все вопросы открыты',
+    subtitle: 'Полный доступ к 3000+ вопросов DGT',
+    features: [
+      { emoji: '📝', text: 'Все темы без ограничений' },
+      { emoji: '🔓', text: 'Закрытые тематические тесты' },
+      { emoji: '🇪🇸', text: 'Актуальная база DGT Испании' },
+    ],
     gradient: 'from-fuchsia-600 via-pink-600 to-rose-600',
-    glow: 'bg-fuchsia-500/40',
+    glow: 'bg-fuchsia-500',
     iconColor: 'text-fuchsia-300',
-    accentBorder: 'border-fuchsia-400/30',
+    particle: '📚',
+  },
+  {
+    icon: Gift,
+    title: '500 монет в подарок',
+    subtitle: 'Бонус при оплате годовой подписки',
+    features: [
+      { emoji: '🎁', text: '500 монет сразу на счёт' },
+      { emoji: '💰', text: 'Экономия 60% за год' },
+      { emoji: '👑', text: 'Все Premium-функции навсегда' },
+    ],
+    gradient: 'from-yellow-500 via-amber-500 to-orange-600',
+    glow: 'bg-yellow-500',
+    iconColor: 'text-yellow-200',
+    particle: '🎁',
   },
 ];
 
 export function PremiumPromoAd({
-  duration = 15,
   onComplete,
   onTryPremium,
 }: PremiumPromoAdProps) {
+  const totalDuration = SLIDES.length * SLIDE_DURATION;
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(duration);
+  const [timeLeft, setTimeLeft] = useState(totalDuration);
   const [progress, setProgress] = useState(0);
   const startTimeRef = useRef(Date.now());
   const completedRef = useRef(false);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
   const slideIntervalRef = useRef<ReturnType<typeof setInterval>>();
-
-  const slideInterval = (duration / SLIDES.length) * 1000; // ms per slide
 
   // Main timer
   useEffect(() => {
@@ -83,8 +117,8 @@ export function PremiumPromoAd({
 
     intervalRef.current = setInterval(() => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      const remaining = Math.max(0, duration - elapsed);
-      const pct = Math.min(100, (elapsed / duration) * 100);
+      const remaining = Math.max(0, totalDuration - elapsed);
+      const pct = Math.min(100, (elapsed / totalDuration) * 100);
 
       setTimeLeft(Math.ceil(remaining));
       setProgress(pct);
@@ -100,30 +134,30 @@ export function PremiumPromoAd({
     return () => {
       clearInterval(intervalRef.current);
     };
-  }, [duration, onComplete]);
+  }, [totalDuration, onComplete]);
 
   // Slide auto-advance
   useEffect(() => {
     slideIntervalRef.current = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % SLIDES.length);
-    }, slideInterval);
+    }, SLIDE_DURATION * 1000);
 
     return () => {
       clearInterval(slideIntervalRef.current);
     };
-  }, [slideInterval]);
+  }, []);
 
   const slide = SLIDES[currentSlide];
   const SlideIcon = slide.icon;
 
   return (
     <motion.div
-      className="relative w-full h-full min-h-[420px] overflow-hidden flex flex-col"
+      className="relative w-full h-full min-h-[100dvh] sm:min-h-[520px] overflow-hidden flex flex-col"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      {/* Animated background gradient */}
+      {/* Animated background gradient — fullscreen */}
       <AnimatePresence mode="wait">
         <motion.div
           key={`bg-${currentSlide}`}
@@ -131,33 +165,65 @@ export function PremiumPromoAd({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8 }}
         />
       </AnimatePresence>
 
-      {/* Decorative elements */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.05]" style={{
+      {/* Decorative layers */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Subtle grid */}
+        <div className="absolute inset-0 opacity-[0.04]" style={{
           backgroundImage: 'linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
+          backgroundSize: '40px 40px',
         }} />
-        {/* Glow orbs */}
+
+        {/* Large glow orbs */}
         <motion.div
-          className={cn("absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-30", slide.glow)}
-          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-          transition={{ duration: 3, repeat: Infinity }}
+          className={cn("absolute -top-32 -right-32 w-80 h-80 sm:w-96 sm:h-96 rounded-full blur-3xl opacity-25", slide.glow)}
+          animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.3, 0.15] }}
+          transition={{ duration: 4, repeat: Infinity }}
         />
         <motion.div
-          className={cn("absolute -bottom-16 -left-16 w-48 h-48 rounded-full blur-3xl opacity-20", slide.glow)}
-          animate={{ scale: [1, 1.15, 1] }}
-          transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+          className={cn("absolute -bottom-24 -left-24 w-64 h-64 sm:w-80 sm:h-80 rounded-full blur-3xl opacity-20", slide.glow)}
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 5, repeat: Infinity, delay: 1.5 }}
         />
+        <motion.div
+          className={cn("absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full blur-3xl opacity-10", slide.glow)}
+          animate={{ scale: [0.8, 1.4, 0.8], opacity: [0.05, 0.15, 0.05] }}
+          transition={{ duration: 6, repeat: Infinity, delay: 0.5 }}
+        />
+
+        {/* Floating particles */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={`p-${currentSlide}-${i}`}
+            className="absolute text-lg sm:text-2xl select-none"
+            initial={{
+              x: `${15 + (i * 15)}%`,
+              y: '110%',
+              opacity: 0,
+              rotate: 0,
+            }}
+            animate={{
+              y: '-10%',
+              opacity: [0, 0.6, 0],
+              rotate: [0, 180 + i * 30],
+            }}
+            transition={{
+              duration: 2.5 + i * 0.3,
+              delay: i * 0.4,
+              ease: 'easeOut',
+            }}
+          >
+            {slide.particle}
+          </motion.div>
+        ))}
       </div>
 
-      {/* Top bar: progress + timer */}
-      <div className="relative z-20 px-4 pt-4 space-y-2">
-        {/* Segment progress */}
+      {/* ═══ Top bar: progress segments + timer ═══ */}
+      <div className="relative z-20 px-4 sm:px-6 pt-4 sm:pt-5 space-y-2.5">
+        {/* Instagram-style progress segments */}
         <div className="flex gap-1">
           {SLIDES.map((_, i) => (
             <div key={i} className="flex-1 h-[3px] rounded-full bg-white/20 overflow-hidden">
@@ -165,7 +231,11 @@ export function PremiumPromoAd({
                 className="h-full bg-white rounded-full"
                 initial={{ width: '0%' }}
                 animate={{
-                  width: i < currentSlide ? '100%' : i === currentSlide ? `${((progress - (i * (100 / SLIDES.length))) / (100 / SLIDES.length)) * 100}%` : '0%',
+                  width: i < currentSlide
+                    ? '100%'
+                    : i === currentSlide
+                      ? `${((progress - (i * (100 / SLIDES.length))) / (100 / SLIDES.length)) * 100}%`
+                      : '0%',
                 }}
                 transition={{ duration: 0.1 }}
               />
@@ -173,59 +243,69 @@ export function PremiumPromoAd({
           ))}
         </div>
 
-        {/* Timer badge */}
+        {/* Badge + timer */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-1.5">
-            <Shield className="w-3 h-3 text-white/60" />
-            <span className="text-[10px] font-bold text-white/60 uppercase tracking-widest">Premium Ad</span>
+            <Shield className="w-3.5 h-3.5 text-white/50" />
+            <span className="text-[10px] sm:text-[11px] font-bold text-white/50 uppercase tracking-[0.15em]">
+              Skily Premium
+            </span>
           </div>
-          <div className="flex items-center gap-1 bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded-full">
+          <div className="flex items-center gap-1.5 bg-black/30 backdrop-blur-sm px-2.5 py-1 rounded-full">
             <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse" />
-            <span className="text-[11px] font-mono font-bold text-white/90 tabular-nums">{timeLeft}s</span>
+            <span className="text-[11px] sm:text-xs font-mono font-bold text-white/90 tabular-nums">
+              {timeLeft}s
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Main slide content */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6">
+      {/* ═══ Main content area — centered ═══ */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 sm:px-10 py-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={`slide-${currentSlide}`}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 30, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center text-center space-y-5"
+            exit={{ opacity: 0, y: -30, scale: 0.92 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center text-center w-full max-w-md space-y-6 sm:space-y-8"
           >
-            {/* Icon with glow */}
+            {/* Icon with glow ring */}
             <motion.div className="relative">
               <motion.div
-                className="w-20 h-20 rounded-3xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-2xl"
-                animate={{ rotateY: [0, 10, -10, 0] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-[2rem] bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center shadow-2xl"
+                animate={{ rotateY: [0, 8, -8, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <SlideIcon className={cn("w-10 h-10", slide.iconColor)} />
+                <SlideIcon className={cn("w-12 h-12 sm:w-14 sm:h-14 drop-shadow-lg", slide.iconColor)} />
               </motion.div>
               {/* Pulsing ring */}
               <motion.div
-                className="absolute inset-0 rounded-3xl border-2 border-white/30"
-                animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 rounded-[2rem] border-2 border-white/30"
+                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+              />
+              {/* Second ring */}
+              <motion.div
+                className="absolute inset-0 rounded-[2rem] border border-white/15"
+                animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 3, repeat: Infinity, delay: 0.5 }}
               />
             </motion.div>
 
-            {/* Text */}
-            <div className="space-y-2">
+            {/* Title + subtitle */}
+            <div className="space-y-2 sm:space-y-3">
               <motion.h2
-                className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight"
-                initial={{ opacity: 0, y: 10 }}
+                className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-none"
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
                 {slide.title}
               </motion.h2>
               <motion.p
-                className="text-sm sm:text-base text-white/70 font-medium max-w-[280px]"
+                className="text-sm sm:text-base text-white/65 font-medium max-w-xs mx-auto leading-relaxed"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -234,58 +314,57 @@ export function PremiumPromoAd({
               </motion.p>
             </div>
 
-            {/* Feature pills */}
+            {/* Feature cards */}
             <motion.div
-              className="flex flex-wrap justify-center gap-2"
-              initial={{ opacity: 0, y: 8 }}
+              className="w-full space-y-2.5 sm:space-y-3"
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
               {slide.features.map((feature, i) => (
-                <motion.span
-                  key={feature}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.35 + i * 0.08 }}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-bold text-white/90 bg-white/10 backdrop-blur-sm border",
-                    slide.accentBorder
-                  )}
+                <motion.div
+                  key={feature.text}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 + i * 0.1 }}
+                  className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 text-left"
                 >
-                  {feature}
-                </motion.span>
+                  <span className="text-xl sm:text-2xl flex-shrink-0">{feature.emoji}</span>
+                  <span className="text-sm sm:text-base font-semibold text-white/90">{feature.text}</span>
+                </motion.div>
               ))}
             </motion.div>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Bottom CTA */}
-      <div className="relative z-20 px-5 pb-5">
+      {/* ═══ Bottom: CTA + dots ═══ */}
+      <div className="relative z-20 px-5 sm:px-8 pb-6 sm:pb-8 space-y-4">
         {onTryPremium && (
           <motion.button
             onClick={onTryPremium}
-            className="w-full py-3 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-white/25 active:scale-[0.98] transition-all"
+            className="w-full py-4 sm:py-4.5 rounded-2xl bg-white text-gray-900 font-black text-base sm:text-lg flex items-center justify-center gap-2.5 active:scale-[0.97] transition-all shadow-2xl shadow-black/30"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
           >
-            <Crown className="w-4 h-4 text-amber-300" />
+            <Crown className="w-5 h-5 text-amber-500" />
             <span>Попробовать Premium</span>
-            <ChevronRight className="w-4 h-4 text-white/60" />
+            <ChevronRight className="w-5 h-5 text-gray-400" />
           </motion.button>
         )}
 
         {/* Dot indicators */}
-        <div className="flex justify-center gap-1.5 mt-3">
+        <div className="flex justify-center gap-2">
           {SLIDES.map((_, i) => (
             <motion.div
               key={i}
               className={cn(
                 "rounded-full transition-all duration-300",
                 i === currentSlide
-                  ? "w-5 h-1.5 bg-white"
-                  : "w-1.5 h-1.5 bg-white/30"
+                  ? "w-6 h-2 bg-white"
+                  : "w-2 h-2 bg-white/30"
               )}
+              layout
             />
           ))}
         </div>

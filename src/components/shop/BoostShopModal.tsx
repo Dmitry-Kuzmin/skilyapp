@@ -170,7 +170,6 @@ export function BoostShopModal({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>(initialTab || 'boosts');
-  const [modalSnapPoint, setModalSnapPoint] = useState<number | string>(0.92);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
 
@@ -1644,7 +1643,7 @@ export function BoostShopModal({
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4 gap-2 md:gap-3 px-1">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4 gap-2.5 md:gap-3">
                   {coinPacks.map((pack, idx) => {
                     // Выделяем пак 500 монет как "Best Value" (лучшее соотношение цена/количество)
                     const isBestValue = pack.amount === 500;
@@ -1820,11 +1819,12 @@ export function BoostShopModal({
                             {/* TON */}
                             {showTonPayment && (
                               <TonPaymentWidget
+                                packageKey={pack.packageKey}
                                 mode="compact"
                                 amountTon={
-                                  pack.amount === 100 ? "0.2" :
-                                    pack.amount === 500 ? "0.8" :
-                                      pack.amount === 1200 ? "1.8" : "3.5"
+                                  pack.amount === 100 ? 0.2 :
+                                    pack.amount === 500 ? 0.8 :
+                                      pack.amount === 1200 ? 1.8 : 3.5
                                 }
                                 description={`Buying ${pack.amount} coins`}
                               />
@@ -2027,10 +2027,10 @@ export function BoostShopModal({
                         ].map((item, i) => (
                           <div
                             key={i}
-                            className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-2 rounded-lg backdrop-blur-sm"
+                            className="flex items-center gap-2 bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 px-3 py-2 rounded-lg backdrop-blur-sm"
                           >
                             <item.icon className={cn("w-4 h-4", item.color)} />
-                            <span className="text-xs font-bold text-slate-200">
+                            <span className="text-xs font-bold text-foreground dark:text-slate-200">
                               {item.text}
                             </span>
                           </div>
@@ -2060,7 +2060,7 @@ export function BoostShopModal({
                             "absolute inset-0 rounded-[20px] blur-xl transition-opacity duration-500 -z-10",
                             isPopular
                               ? "bg-violet-600/30 opacity-60 group-hover:opacity-100"
-                              : "bg-black/5 opacity-0 group-hover:opacity-100 dark:bg-black/40",
+                              : "bg-black/5 dark:bg-black/40 opacity-0 group-hover:opacity-100 dark:bg-black/40",
                           )}
                         />
 
@@ -2068,7 +2068,7 @@ export function BoostShopModal({
                           className={cn(
                             "relative h-full p-5 rounded-[20px] border flex flex-col transition-all duration-300 overflow-hidden",
                             isPopular
-                              ? "bg-[#1E1B2E] border-violet-500/30 text-white"
+                              ? "bg-violet-50 dark:bg-[#10101a] border-violet-500/30 text-foreground dark:text-white"
                               : "bg-card border-border hover:border-violet-300 dark:hover:border-violet-700",
                           )}
                         >
@@ -2217,11 +2217,12 @@ export function BoostShopModal({
                                 {/* 3. TON */}
                                 {showTonPayment && (
                                   <TonPaymentWidget
+                                    packageKey={catalogKey}
                                     mode="compact"
                                     amountTon={
-                                      plan.id === 'yearly' ? '9.9' :
-                                        plan.id === 'quarterly' ? '3.9' :
-                                          plan.id === 'lifetime' ? '25' : '1.5'
+                                      plan.id === 'yearly' ? 9.9 :
+                                        plan.id === 'quarterly' ? 3.9 :
+                                          plan.id === 'lifetime' ? 25 : 1.5
                                     }
                                     description={`Skily Premium: ${plan.title}`}
                                   />
@@ -2261,7 +2262,7 @@ export function BoostShopModal({
                 <motion.div
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#064e3b] to-[#042f2e] border border-emerald-500/30 p-1"
+                  className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-[#064e3b] dark:to-[#042f2e] border border-emerald-500/30 p-1"
                 >
                   {/* Background Shine */}
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent" />
@@ -2702,12 +2703,9 @@ export function BoostShopModal({
         open={open}
         onOpenChange={onOpenChange}
         headerContent={headerContent}
-        className="max-w-5xl h-[85vh] max-h-[85vh] min-h-[600px] md:h-[85vh] md:max-h-[85vh] md:min-h-[700px] flex flex-col"
-        contentClassName="scrollbar-none"
+        className="max-w-5xl h-[92vh] max-h-[97vh] min-h-[600px] md:h-[85vh] md:max-h-[85vh] md:min-h-[700px] flex flex-col"
+        contentClassName="scrollbar-none px-2"
         hideCloseButton={true}
-        snapPoints={[0.92, 1]}
-        activeSnapPoint={modalSnapPoint}
-        onSnapPointChange={(val) => setModalSnapPoint(val as number | string)}
       >
         {loading ? <ModalSkeleton rows={4} /> : <ModalContent />}
       </ResponsiveModal>

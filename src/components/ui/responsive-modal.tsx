@@ -93,7 +93,7 @@ export function ResponsiveModal({
         open={open}
         onOpenChange={onOpenChange}
         dismissible={dismissible !== undefined ? dismissible : !preventClose}
-        dismissibleThreshold={0.25}
+        dismissibleThreshold={0.15}
         snapPoints={snapPoints}
         activeSnapPoint={activeSnapPoint}
         setActiveSnapPoint={onSnapPointChange}
@@ -104,8 +104,8 @@ export function ResponsiveModal({
       >
         <DrawerContent
           className={cn(
-            "flex flex-col fixed bottom-0 left-0 right-0 z-[99999] outline-none transition-transform duration-200 rounded-t-[32px]",
-            "max-h-[96vh] h-auto", // Автоматическая высота с ограничением
+            "flex flex-col fixed bottom-0 left-0 right-0 z-[99999] outline-none transition-transform duration-200",
+            "max-h-[97vh] h-auto",
             className
           )}
           hideHandle={hideHandle}
@@ -155,7 +155,7 @@ export function ResponsiveModal({
             }
           }}
         >
-          <div className="flex-1 flex flex-col w-full bg-background overflow-hidden rounded-t-[32px]">
+          <div className="flex-1 flex flex-col w-full overflow-hidden">
             {/* Header Tray */}
             {title && (
               <DrawerHeader className="text-left shrink-0 pb-2 px-8">
@@ -177,7 +177,7 @@ export function ResponsiveModal({
             {/* Scrollable content */}
             <div
               className={cn(
-                "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none w-full px-4",
+                "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none w-full px-3",
                 contentClassName
               )}
               style={{

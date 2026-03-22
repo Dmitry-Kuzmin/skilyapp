@@ -4,7 +4,7 @@ import {
     useBalance,
     TonConnectButton
 } from '@ton/appkit-react';
-import { Wallet, CheckCircle2 } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 
 export const TonWalletHeader: React.FC = () => {
     const address = useAddress();
@@ -12,32 +12,27 @@ export const TonWalletHeader: React.FC = () => {
 
     const tonBalance = rawBalance
         ? (Number(rawBalance) / 1e9).toFixed(2)
-        : null;
+        : '0.00';
 
+    // Not connected — show compact connect button
     if (!address) {
         return (
-            <div className="flex items-center gap-1.5">
-                <Wallet className="w-3.5 h-3.5 text-muted-foreground hidden xs:block" />
-                <span className="hidden sm:block text-[10px] font-bold text-muted-foreground uppercase tracking-tight whitespace-nowrap">
-                    Not Connected
-                </span>
-                <div className="scale-[0.75] sm:scale-[0.85] origin-right">
+            <div className="flex items-center gap-1">
+                <div className="scale-[0.75] origin-right">
                     <TonConnectButton />
                 </div>
             </div>
         );
     }
 
+    // Connected — show balance + manage button
     return (
-        <div className="flex items-center gap-1.5 pl-2 pr-1 py-1 bg-[#0088cc]/10 dark:bg-[#0088cc]/20 rounded-full border border-[#0088cc]/20 transition-all hover:border-[#0088cc]/40">
-            <CheckCircle2 className="w-3 h-3 text-[#0088cc] flex-shrink-0" />
-            <span className="hidden sm:block text-[10px] font-mono font-bold text-foreground whitespace-nowrap">
-                {address.slice(0, 4)}…{address.slice(-4)}
+        <div className="flex items-center gap-1.5 pl-2.5 pr-1 py-1 bg-[#0088cc]/15 rounded-full border border-[#0088cc]/25 transition-all">
+            <Wallet className="w-3 h-3 text-[#0088cc] flex-shrink-0" />
+            <span className="text-[11px] font-black text-[#0088cc] whitespace-nowrap tabular-nums">
+                {isBalanceLoading ? '···' : `${tonBalance} TON`}
             </span>
-            <span className="hidden md:block text-[9px] font-black text-[#0088cc] whitespace-nowrap">
-                {isBalanceLoading ? '...' : `${tonBalance} TON`}
-            </span>
-            <div className="scale-[0.65] origin-center -ml-1">
+            <div className="scale-[0.6] origin-center -ml-1.5 -mr-1">
                 <TonConnectButton />
             </div>
         </div>

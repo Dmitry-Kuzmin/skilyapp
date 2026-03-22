@@ -16,7 +16,7 @@ type DrawerProps = React.ComponentProps<typeof DrawerPrimitive.Root> & {
 
 const Drawer = ({
   shouldScaleBackground: _shouldScaleBackground, // Игнорируем пришедшее значение
-  dismissibleThreshold = 0.25,
+  dismissibleThreshold = 0.15,
   children,
   ...props
 }: DrawerProps) => (
@@ -44,11 +44,11 @@ const DrawerOverlay = React.forwardRef<
   <DrawerPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-all duration-300",
+      "fixed inset-0 z-50 bg-black/70 transition-opacity duration-300",
       className
     )}
     style={{
-      willChange: "opacity, backdrop-filter",
+      willChange: "opacity",
     }}
     {...props}
   />
@@ -70,17 +70,17 @@ const DrawerContent = React.forwardRef<
       ref={ref}
       className={cn(
         "fixed bottom-0 left-0 right-0 z-50 flex h-auto flex-col w-full",
-        "rounded-t-[24px] border-t border-white/10",
-        "bg-zinc-950",
-        "shadow-[0_-8px_40px_rgba(0,0,0,0.5)]",
+        "rounded-t-[20px] border-t border-white/8",
+        "bg-background",
+        "shadow-[0_-4px_30px_rgba(0,0,0,0.6)]",
         className,
       )}
       {...props}
     >
-      {/* Ручка (Handle) - индикатор свайпа */}
+      {/* Handle — compact, seamless with content */}
       {!hideHandle && (
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="h-1.5 w-12 rounded-full bg-gradient-to-r from-muted-foreground/40 via-muted-foreground/60 to-muted-foreground/40 shadow-sm" />
+        <div className="flex justify-center pt-2.5 pb-1.5">
+          <div className="h-[5px] w-10 rounded-full bg-white/20" />
         </div>
       )}
       {children}

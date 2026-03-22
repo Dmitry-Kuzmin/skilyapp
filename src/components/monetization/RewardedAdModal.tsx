@@ -5,6 +5,7 @@ import { Video, Coins, Calendar, Sparkles, CheckCircle2, Zap, Gift, X, AlertCirc
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { PremiumPromoAd } from './PremiumPromoAd';
+import { isTelegramMiniApp, getTelegramWebApp, isTelegramMobilePlatformName } from '@/lib/telegram';
 
 interface RewardedAdModalProps {
   open: boolean;
@@ -130,7 +131,29 @@ export function RewardedAdModal({
 
   const handleShowAd = async () => {
     console.log(`[RewardedAdModal] 🖱️ handleShowAd clicked for placement: ${placement || title}`);
-    // Показываем внутреннюю промо-карусель Premium вместо внешней рекламы
+
+    const webApp = getTelegramWebApp();
+    const isMobileTMA = isTelegramMiniApp() && isTelegramMobilePlatformName(webApp?.platform);
+
+    // В мобильном Telegram Mini App — пробуем AdsGram (партнёрская реклама)
+    if (isMobileTMA) {
+      try {
+        console.log('[RewardedAdModal] 📱 Trying AdsGram (Mobile TMA)...');
+        const rewarded = await showAd(placement);
+        if (rewarded) {
+          console.log('[RewardedAdModal] ✅ AdsGram rewarded — granting reward');
+          setShowReward(true);
+          try { await onRewardClaimed(); } catch (err) { console.error('[RewardedAdModal] Error claiming reward:', err); }
+          setTimeout(() => onOpenChange(false), 2500);
+          return;
+        }
+      } catch (err) {
+        console.warn('[RewardedAdModal] ⚠️ AdsGram failed, falling back to Premium promo:', err);
+      }
+    }
+
+    // Fallback: десктоп / веб / AdsGram не загрузился → Premium промо-карусель
+    console.log('[RewardedAdModal] 🎬 Showing Premium promo carousel');
     setShowPromo(true);
   };
 
@@ -165,7 +188,7 @@ export function RewardedAdModal({
           {/* Overlay color if not using backdrop-blur directly on the container */}
           {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14] backdrop-blur-3xl" />}
 
-          {/* Modal */}
+          {/* Modal — fullscreen on mobile during promo, popup on desktop */}
           <motion.div
             key="ad-modal-content"
             initial={{ opacity: 0, y: inlineOverlay ? 0 : 40, scale: 0.96 }}
@@ -174,14 +197,22 @@ export function RewardedAdModal({
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
               "relative overflow-hidden shadow-none border-none",
-              inlineOverlay ? "w-full h-full flex flex-col justify-center rounded-xl" : "w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
+              showPromo
+                ? "w-full h-full sm:max-w-lg sm:max-h-[90vh] sm:rounded-3xl flex flex-col"
+                : inlineOverlay
+                  ? "w-full h-full flex flex-col justify-center rounded-xl"
+                  : "w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
             )}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Premium dark background */}
-            <div className={cn("absolute inset-0 bg-gradient-to-br", info.bg)} />
-            <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.04]" />
-            <div className={cn("absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full blur-3xl opacity-30 bg-gradient-to-r", info.gradient)} />
+            {/* Premium dark background — hidden during promo (promo has its own) */}
+            {!showPromo && (
+              <>
+                <div className={cn("absolute inset-0 bg-gradient-to-br", info.bg)} />
+                <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.04]" />
+                <div className={cn("absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full blur-3xl opacity-30 bg-gradient-to-r", info.gradient)} />
+              </>
+            )}
 
             {/* Close button - hidden during promo playback */}
             {!showPromo && (
@@ -206,10 +237,9 @@ export function RewardedAdModal({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="w-full h-full min-h-[420px]"
+                    className="w-full h-full"
                   >
                     <PremiumPromoAd
-                      duration={15}
                       onComplete={handlePromoComplete}
                     />
                   </motion.div>
@@ -276,7 +306,7 @@ export function RewardedAdModal({
 
                     {/* Hint */}
                     <p className="text-[10px] text-white/30 text-center leading-tight">
-                      Посмотри 15-секундную презентацию и получи награду
+                      Посмотри короткую презентацию Premium и получи награду
                     </p>
 
                     {/* Buttons */}
