@@ -11,6 +11,7 @@ export interface DuelPlayer {
 }
 
 export interface ExploitState {
+    id?: string;        // ID из duel_active_exploits (нужен для removeExploit)
     expiresAt: number;
     passed?: boolean;
     receivedAt?: number;
@@ -281,13 +282,14 @@ export const useDuelStore = create<DuelState>()(
                     const isNew = !existing;
 
                     newMap.set(exploit.type, {
+                        id: exploit.id || existing?.id,   // Сохраняем ID для removeExploit
                         expiresAt: exploit.expiresAt,
                         receivedAt: exploit.receivedAt,
                         passed: existing?.passed || false,
                     });
 
                     if (isNew) {
-                        const isAttack = ['screen_injector', 'data_leak', 'oil_spill', 'police_backdoor', 'input_lag', 'gps_spoofing', 'cryptolocker'].includes(exploit.type);
+                        const isAttack = ['screen_injector', 'data_leak', 'oil_spill', 'police_backdoor', 'input_lag', 'gps_spoofing', 'cryptolocker', 'ice_screen', 'sun_glare', 'rain_storm', 'bug_splat', 'fog_screen'].includes(exploit.type);
                         if (isAttack) hasNewAttack = true;
                     }
                 });

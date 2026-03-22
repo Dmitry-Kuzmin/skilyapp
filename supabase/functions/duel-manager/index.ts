@@ -2915,26 +2915,19 @@ Deno.serve(async (req) => {
           });
         }
 
-        // 🔥 FIX: Get correct answer from answer_options directly (don't rely on correct_option_ids)
-        const { data: answerOptions, error: optionsError } = await supabase
-          .from('answer_options')
-          .select('id, is_correct')
-          .eq('question_id', question.question_id);
-
-        if (optionsError) {
-          console.error('[submit_answer] Error fetching answer options:', optionsError);
-          throw optionsError;
-        }
-
-        const correctOption = answerOptions?.find(opt => opt.is_correct);
+        // 🔥 FIX v2: Используем correct_option_ids из duel_questions, а НЕ из answer_options!
+        // Причина: selected_option_id клиент берёт из question_snapshot (снимок на момент создания дуэли).
+        // Если вопросы были переимпортированы, ID в answer_options уже другие и НИКОГДА не совпадут.
+        // correct_option_ids записывается из ТОГО ЖЕ снимка → гарантированное совпадение.
+        const correctOptionIds = (question.correct_option_ids || []) as string[];
         const isSkipped = !selected_option_id || is_timeout;
-        const isCorrect = !isSkipped && selected_option_id && correctOption
-          ? selected_option_id === correctOption.id
+        const isCorrect = !isSkipped && selected_option_id
+          ? correctOptionIds.includes(selected_option_id)
           : false;
 
         console.log('[submit_answer] 🔍 Answer check:', {
           selected: selected_option_id,
-          correct: correctOption?.id,
+          correctIds: correctOptionIds,
           isCorrect
         });
 

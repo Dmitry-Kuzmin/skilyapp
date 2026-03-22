@@ -26,8 +26,15 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
         const NETWORK_LATENCY_BUFFER_MS = 10000; // 10 seconds buffer
         const now = Date.now();
 
-        // activeExploits is a Map<string, ActiveExploit>
-        const exploits = Array.from(activeExploits?.values() || []);
+        // activeExploits is Map<string, ExploitState> — ключ = type, значение = { id, expiresAt, passed, receivedAt }
+        // КРИТИЧНО: используем entries() чтобы получить type из ключа Map
+        const exploits = Array.from(activeExploits?.entries() || []).map(([type, state]) => ({
+            type,
+            id: state.id,
+            expiresAt: state.expiresAt,
+            passed: state.passed,
+            receivedAt: state.receivedAt,
+        }));
 
         const findExploit = (types: string[]) => exploits.find(e => {
             if (!types.includes(e.type)) return false;

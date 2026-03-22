@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Power, Fingerprint, ShieldCheck } from 'lucide-react';
 import { playClickSound, playEngineSound, playBiometricSound } from '@/services/audioService';
 
@@ -10,6 +11,14 @@ interface WelcomeOverlayProps {
 
 type PreloaderMode = 'mechanical' | 'biometric';
 
+/**
+ * WelcomeOverlay — приветственный экран с кнопкой Engine Start.
+ *
+ * КРИТИЧНО: Рендерится через createPortal в document.body чтобы гарантировать
+ * что overlay находится ПОСЛЕДНИМ в DOM и ВЫШЕ всех других порталов
+ * (Sonner toasts, Radix dialogs, sheets и т.д.), которые тоже используют порталы.
+ * z-index: 2147483647 (max 32-bit) — ничто не может быть выше.
+ */
 export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLoading = false, isPremium = false }) => {
   // Автоматический выбор режима: Bio для премиум, Std для остальных
   const [mode] = useState<PreloaderMode>(() => isPremium ? 'biometric' : 'mechanical');
@@ -24,6 +33,20 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
   useEffect(() => {
     return () => {
       timersRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  // 🛡️ При монтировании — отключаем pointer-events на Sonner чтобы не блокировал клики
+  useEffect(() => {
+    const sonnerEl = document.querySelector('[data-sonner-toaster]') as HTMLElement | null;
+    if (sonnerEl) {
+      sonnerEl.style.pointerEvents = 'none';
+    }
+    return () => {
+      // Восстанавливаем при размонтировании
+      if (sonnerEl) {
+        sonnerEl.style.pointerEvents = '';
+      }
     };
   }, []);
 
@@ -51,17 +74,27 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
       timersRef.current.push(t2);
     }, 1800);
     timersRef.current.push(t1);
+
+    // Safety: гарантируем разблокировку даже если таймеры потерялись
+    const safety = setTimeout(() => {
+      if (!completedRef.current) {
+        completedRef.current = true;
+        onCompleteRef.current();
+      }
+    }, 4000);
+    timersRef.current.push(safety);
   }, [isIgniting, mode]);
 
   if (isLaunched) {
-    // Fade out state
-    return (
-      <div className="fixed inset-0 z-[9999] bg-[#0f172a] transition-opacity duration-700 opacity-0 pointer-events-none"></div>
+    // Fade out state — рендерим через портал тоже
+    return createPortal(
+      <div className="fixed inset-0 bg-[#0f172a] transition-opacity duration-700 opacity-0 pointer-events-none" style={{ zIndex: 2147483647 }}></div>,
+      document.body
     );
   }
 
-  return (
-    <div className="fixed inset-0 z-[10000] bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30">
+  return createPortal(
+    <div className="fixed inset-0 bg-[#0f172a] flex flex-col items-center justify-center p-6 transition-all duration-500 overflow-hidden selection:bg-indigo-500/30" style={{ zIndex: 2147483647 }}>
 
       {/* Background Ambiance */}
       <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-[#0f172a] to-[#0f172a]"></div>
@@ -292,7 +325,8 @@ export const WelcomeOverlay: React.FC<WelcomeOverlayProps> = ({ onComplete, isLo
         </div>
       )}
 
-    </div>
+    </div>,
+    document.body
   );
 };
 
