@@ -188,7 +188,7 @@ export function RewardedAdModal({
           {/* Overlay color if not using backdrop-blur directly on the container */}
           {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14] backdrop-blur-3xl" />}
 
-          {/* Modal — fullscreen on mobile during promo, popup on desktop */}
+          {/* Modal — fullscreen on mobile during promo, centered card on desktop */}
           <motion.div
             key="ad-modal-content"
             initial={{ opacity: 0, y: inlineOverlay ? 0 : 40, scale: 0.96 }}
@@ -198,7 +198,7 @@ export function RewardedAdModal({
             className={cn(
               "relative overflow-hidden shadow-none border-none",
               showPromo
-                ? "w-full h-full sm:max-w-lg sm:max-h-[90vh] sm:rounded-3xl flex flex-col"
+                ? "w-full h-full sm:w-[420px] sm:h-[680px] sm:max-h-[90vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-white/10 flex flex-col"
                 : inlineOverlay
                   ? "w-full h-full flex flex-col justify-center rounded-xl"
                   : "w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
@@ -241,6 +241,17 @@ export function RewardedAdModal({
                   >
                     <PremiumPromoAd
                       onComplete={handlePromoComplete}
+                      onSubscribe={() => {
+                        // Navigate to Premium tab in shop
+                        setShowPromo(false);
+                        onOpenChange(false);
+                        // Open shop on Premium tab
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('modal', 'boost-shop');
+                        url.searchParams.set('initialTab', 'premium');
+                        window.history.replaceState({}, '', url.toString());
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                      }}
                     />
                   </motion.div>
                 ) : !showReward ? (
