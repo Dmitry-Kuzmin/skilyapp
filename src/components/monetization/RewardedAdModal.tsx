@@ -209,7 +209,7 @@ export function RewardedAdModal({
             className={cn(
               "relative overflow-hidden shadow-none border-none pointer-events-auto z-[100010]",
               showPromo && !inlineOverlay
-                ? "w-full h-full sm:w-[480px] sm:h-auto sm:min-h-[600px] sm:max-h-[92vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-white/10 flex flex-col"
+                ? "w-full h-full sm:w-[440px] sm:h-[85vh] sm:max-h-[750px] sm:min-h-[480px] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-white/10 flex flex-col"
                 : showPromo && inlineOverlay
                   ? "w-full h-full flex flex-col rounded-xl"
                   : inlineOverlay

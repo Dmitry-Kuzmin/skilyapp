@@ -186,23 +186,16 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
       <div className="relative z-20 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4 pb-2 space-y-2 flex-shrink-0">
         {/* Segmented progress bar */}
         <div className="flex gap-[3px]">
-          {SLIDES.map((_, i) => {
-            const elapsed = (Date.now() - startTimeRef.current) / 1000;
-            const slideStart = i * SLIDE_DURATION;
-            const slideEnd = slideStart + SLIDE_DURATION;
-            let pct = 0;
-            if (elapsed >= slideEnd) pct = 100;
-            else if (elapsed > slideStart) pct = ((elapsed - slideStart) / SLIDE_DURATION) * 100;
-
-            return (
-              <div key={i} className="flex-1 h-[2.5px] rounded-full bg-white/20 overflow-hidden">
-                <div
-                  className="h-full bg-white rounded-full transition-[width] duration-200"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-            );
-          })}
+          {SLIDES.map((_, i) => (
+            <div key={i} className="flex-1 h-[2.5px] sm:h-[3px] rounded-full bg-white/20 overflow-hidden relative">
+              <motion.div
+                className="absolute inset-y-0 left-0 bg-white"
+                initial={{ width: i < currentSlide ? '100%' : '0%' }}
+                animate={{ width: i < currentSlide ? '100%' : i === currentSlide ? '100%' : '0%' }}
+                transition={{ duration: i === currentSlide ? SLIDE_DURATION : 0.2, ease: "linear" }}
+              />
+            </div>
+          ))}
         </div>
 
         {/* Header line */}
@@ -223,7 +216,7 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
       </div>
 
       {/* ═══ Main content ═══ */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-5 sm:px-8 min-h-0">
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-8 min-h-0 overflow-y-auto w-full overflow-x-hidden no-scrollbar py-2 sm:py-4">
         <AnimatePresence mode="wait">
           <motion.div
             key={`slide-${currentSlide}`}
@@ -234,24 +227,24 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
             className="flex flex-col items-center text-center w-full max-w-sm"
           >
             {/* Icon */}
-            <motion.div className="relative mb-5 sm:mb-6">
+            <motion.div className="relative mb-3 sm:mb-5 lg:mb-6 mt-auto">
               <motion.div
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.75rem] bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl"
+                className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 mx-auto rounded-[1.25rem] sm:rounded-[1.75rem] bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl"
                 animate={{ rotateY: [0, 6, -6, 0] }}
                 transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <SlideIcon className={cn("w-10 h-10 sm:w-12 sm:h-12 drop-shadow-lg", slide.iconColor)} />
+                <SlideIcon className={cn("w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 drop-shadow-lg", slide.iconColor)} />
               </motion.div>
               <motion.div
-                className="absolute inset-0 rounded-[1.75rem] border-2 border-white/25"
+                className="absolute inset-x-0 mx-auto w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-[1.25rem] sm:rounded-[1.75rem] border-2 border-white/25"
                 animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0, 0.4] }}
                 transition={{ duration: 2.5, repeat: Infinity }}
               />
-            </motion.div>
+            </motion.div>>
 
             {/* Title */}
             <motion.h2
-              className="text-[2rem] sm:text-4xl font-black text-white tracking-tight leading-none mb-2"
+              className="text-[1.75rem] sm:text-3xl lg:text-[2.25rem] font-black text-white tracking-tight leading-none mb-2"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08 }}
@@ -261,7 +254,7 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
 
             {/* Subtitle */}
             <motion.p
-              className="text-sm sm:text-base text-white/55 font-medium max-w-[280px] leading-relaxed whitespace-pre-line mb-5 sm:mb-6"
+              className="text-xs sm:text-sm lg:text-base text-white/55 font-medium max-w-[280px] leading-relaxed whitespace-pre-line mb-3 sm:mb-4 lg:mb-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.15 }}
@@ -271,7 +264,7 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
 
             {/* Features */}
             <motion.div
-              className="w-full space-y-2"
+              className="w-full space-y-1.5 sm:space-y-2 mb-auto pb-2"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -282,10 +275,10 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
                   initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.25 + i * 0.08 }}
-                  className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/[0.08] backdrop-blur-sm border border-white/[0.08] text-left"
+                  className="flex items-center gap-2.5 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 rounded-xl bg-white/[0.08] backdrop-blur-sm border border-white/[0.08] text-left"
                 >
-                  <span className="text-lg flex-shrink-0">{feature.emoji}</span>
-                  <span className="text-[13px] sm:text-sm font-semibold text-white/85">{feature.text}</span>
+                  <span className="text-base sm:text-lg flex-shrink-0">{feature.emoji}</span>
+                  <span className="text-[12px] sm:text-[13px] lg:text-sm font-semibold text-white/85">{feature.text}</span>
                 </motion.div>
               ))}
             </motion.div>

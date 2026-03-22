@@ -922,19 +922,24 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center border border-sky-500/20 group-hover:scale-110 transition-transform duration-500">
-                    <Smartphone className="text-sky-400" size={24} />
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center border border-sky-500/20 group-hover:scale-110 transition-transform duration-500">
+                      <Smartphone className="text-sky-400" size={24} />
+                    </div>
+                    <h3 className="font-bold text-xl text-white">{copy.aiSection.telegramTitle}</h3>
                   </div>
-                  <h3 className="font-bold text-xl text-white">{copy.aiSection.telegramTitle}</h3>
+                  <div className="hidden sm:block">
+                    <OnlinePlayers baseCount={8430} className="scale-75 origin-right" />
+                  </div>
                 </div>
+
                 <p className="text-slate-400 text-sm mb-6 leading-relaxed max-w-[280px]">{copy.aiSection.telegramDescription}</p>
                 
                 <div className="flex flex-col gap-4">
-                  <OnlinePlayers 
-                    baseCount={8430} 
-                    className="scale-90 origin-left mb-2"
-                  />
+                  <div className="sm:hidden mb-4">
+                    <OnlinePlayers baseCount={8430} className="scale-90 origin-left mb-2" />
+                  </div>
                   
                   <div className="inline-flex items-center gap-1 text-sm font-bold text-sky-400 group-hover:text-sky-300 transition-colors">
                     {copy.aiSection.telegramCTA} <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
