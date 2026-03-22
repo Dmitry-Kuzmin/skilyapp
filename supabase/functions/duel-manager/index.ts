@@ -2880,7 +2880,7 @@ Deno.serve(async (req) => {
         // fetch answers for combo AND check idempotency
         const { data: allAnswers, error: answersError } = await supabase
           .from('duel_answers')
-          .select('id, is_correct, is_skipped, duel_question_id, points_awarded')
+          .select('id, is_correct, is_skipped, duel_question_id, points_awarded, selected_option_id')
           .eq('player_id', player.id)
           .eq('duel_id', duel_id)
           .order('created_at', { ascending: false });
@@ -2888,7 +2888,13 @@ Deno.serve(async (req) => {
         if (answersError) throw answersError;
 
         // Проверка на идемпотентность (уже отвечено)
-        const existingAnswer = allAnswers?.find(a => a.duel_question_id === duel_question_id);
+        // КРИТИЧНО: mark_question_started создаёт placeholder-строку с selected_option_id=NULL, is_skipped=false.
+        // Такие строки НЕ считаются реальным ответом — игнорируем их в idempotency-проверке.
+        // Реальный ответ: selected_option_id != NULL (выбрал вариант) ИЛИ is_skipped = true (таймаут/пропуск).
+        const existingAnswer = allAnswers?.find(a =>
+          a.duel_question_id === duel_question_id &&
+          (a.selected_option_id !== null || a.is_skipped === true)
+        );
 
         if (existingAnswer) {
           console.log('[submit_answer] 🔄 Question already answered, returning current state (idempotency)');
@@ -2989,7 +2995,10 @@ Deno.serve(async (req) => {
         const newCorrectCount = player.correct_count + (isCorrect ? 1 : 0);
 
         const [insertRes, updateRes] = await Promise.all([
-          supabase.from('duel_answers').insert({
+          // UPSERT: mark_question_started создаёт placeholder-строку заранее.
+          // Если строка уже есть (placeholder) — обновляем её с реальным ответом.
+          // Если строки нет (mark_question_started не вызывался) — вставляем новую.
+          supabase.from('duel_answers').upsert({
             duel_id,
             player_id: player.id,
             duel_question_id,
@@ -3000,7 +3009,7 @@ Deno.serve(async (req) => {
             points_awarded: points,
             combo_at_time: combo,
             boost_used: boost_used || null,
-          }),
+          }, { onConflict: 'player_id,duel_question_id' }),
           supabase
             .from('duel_players')
             .update({
