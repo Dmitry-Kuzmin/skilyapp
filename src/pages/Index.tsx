@@ -220,10 +220,10 @@ const DashboardContent = memo(function DashboardContent() {
   }, [navigate]);
 
   // Show Welcome Overlay
-  const readinessPercent = readiness?.percent !== undefined ? Math.min(100, readiness.percent) : undefined;
-  const accuracy = metrics?.accuracy !== undefined
+  const readinessPercent = (readiness?.percent !== undefined && !isNaN(readiness.percent)) ? Math.min(100, readiness.percent) : undefined;
+  const accuracy = (metrics?.accuracy !== undefined && !isNaN(metrics.accuracy))
     ? Math.min(100, Math.round(metrics.accuracy * 100))
-    : Math.min(100, (dashboardData?.stats.accuracy || 0));
+    : Math.min(100, (dashboardData?.stats.accuracy && !isNaN(dashboardData.stats.accuracy)) ? dashboardData.stats.accuracy : 0);
   const averageScore = Math.min(100, readinessPercent !== undefined ? readinessPercent : accuracy);
 
 

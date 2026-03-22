@@ -118,7 +118,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     // ВАЖНО: Используем averageScore из пропсов (это рассчитанная Readiness Percent по формуле),
     // если она есть. analytics.averageScore - это просто средняя точность, она не учитывает объем тестов.
     const effectiveScore = averageScore;
-    const scoreValue = Math.min(100, Math.max(0, Math.round(effectiveScore)));
+    const scoreValue = Math.min(100, Math.max(0, Math.round(effectiveScore || 0)));
 
     // Используем getReadinessStatus для определения статуса
     // ВАЖНО: Если у нас есть analytics (загрузился), мы игнорируем переданный глобальный status,
