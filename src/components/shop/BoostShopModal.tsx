@@ -220,11 +220,8 @@ export function BoostShopModal({
   }, [showPaddlePayment]);
 
   useEffect(() => {
-    if (open) {
-      setModalSnapPoint(0.92);
-      if (initialTab) {
-        setActiveTab(initialTab);
-      }
+    if (open && initialTab) {
+      setActiveTab(initialTab);
     }
   }, [open, initialTab]);
 
