@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config";
@@ -144,10 +145,13 @@ export default function Pricing() {
                 <p className="text-slate-400 mb-8 leading-relaxed">
                   Разблокируй Premium-трек наград, эксклюзивные скины и получай больше опыта в Дуэлях.
                 </p>
-                <button className="flex items-center gap-2 text-amber-400 font-bold hover:text-amber-300 transition-colors group/link">
+                <Link 
+                  to="/help#duel-pass-overview" 
+                  className="flex items-center gap-2 text-amber-400 font-bold hover:text-amber-300 transition-colors group/link"
+                >
                   <span>Подробнее о сезонах</span>
                   <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                </button>
+                </Link>
               </div>
 
               <div className="shrink-0 relative">
