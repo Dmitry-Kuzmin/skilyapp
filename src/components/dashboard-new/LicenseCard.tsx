@@ -400,7 +400,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                                     {points >= 10 ? t('licenseCard.pointsModal.statusReady') : t('licenseCard.pointsModal.statusLocked')}
                                                 </span>
                                                 <span className="text-[8px] md:text-[10px] font-bold text-zinc-500 uppercase truncate">
-                                                    {points >= 10 ? t('licenseCard.pointsModal.descReady') : t('licenseCard.pointsModal.descLocked', { points: 10 - points })}
+                                                    {points >= 10 ? t('licenseCard.pointsModal.descReady') : t('licenseCard.pointsModal.descLocked').replace('{{points}}', String(10 - points))}
                                                 </span>
                                             </div>
                                         </div>
@@ -424,7 +424,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                                         <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.01] border border-white/[0.03]">
                                                             <div className="flex flex-col text-left truncate">
                                                                 <span className="text-[9px] font-black text-zinc-300 uppercase truncate tracking-tighter">
-                                                                    {item.event_type.replace(/_/g, ' ')}
+                                                                    {t(`licenseCard.licenceEvents.${item.event_type}`) || item.event_type.replace(/_/g, ' ')}
                                                                 </span>
                                                                 <span className="text-[7px] text-zinc-500 font-bold">
                                                                     {new Date(item.created_at).toLocaleDateString()}

@@ -201,12 +201,12 @@ export const DuelScoreBoard = memo(({
             )}
           </AnimatePresence>
         </div>
-        <div className="min-w-0 flex flex-col items-start gap-0.5">
-          <div className="flex items-center gap-1 min-w-0">
-            <p className="text-[9px] sm:text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[65px] sm:max-w-none" title={myName || 'Ты'}>{myDisplayName}</p>
-            <div className="text-lg md:text-2xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center overflow-visible [transform:translateZ(0)]">
-              <AnimatedCounter value={myScore} />
-            </div>
+        <div className="min-w-0 flex flex-col items-start">
+          <p className="text-[10px] md:text-xs font-bold text-muted-foreground/60 truncate uppercase tracking-wider mb-[-2px]" title={myName || 'Ты'}>
+            {myDisplayName}
+          </p>
+          <div className="text-2xl md:text-4xl font-black bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex items-center overflow-visible [transform:translateZ(0)] leading-none">
+            <AnimatedCounter value={myScore} />
           </div>
           {myInsuranceActive && (
             <motion.div
@@ -229,18 +229,16 @@ export const DuelScoreBoard = memo(({
         whileHover={{ scale: 1.02 }}
         animate={opponentAnswered ? { scale: [1, 1.05, 1] } : {}}
       >
-        <div className="min-w-0 flex-1 flex flex-col items-end gap-0.5">
-          <div className="flex items-center justify-end gap-1 min-w-0">
-            <div className="text-lg md:text-2xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center justify-end overflow-visible [transform:translateZ(0)]">
-              <AnimatedCounter value={opponentScore} />
-            </div>
-            <p
-              className="text-[9px] sm:text-[10px] md:text-xs font-medium text-muted-foreground truncate max-w-[65px] sm:max-w-[120px]"
-              title={opponentName}
-              key={`opponent-name-${opponentName}`}
-            >
-              {opponentDisplayName || 'Враг'}
-            </p>
+        <div className="min-w-0 flex-1 flex flex-col items-end">
+          <p
+            className="text-[10px] md:text-xs font-bold text-muted-foreground/60 truncate uppercase tracking-wider mb-[-2px]"
+            title={opponentName}
+            key={`opponent-name-${opponentName}`}
+          >
+            {opponentDisplayName || 'Враг'}
+          </p>
+          <div className="text-2xl md:text-4xl font-black bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center justify-end overflow-visible [transform:translateZ(0)] leading-none">
+            <AnimatedCounter value={opponentScore} />
           </div>
           {opponentInsuranceActive && (
             <motion.div

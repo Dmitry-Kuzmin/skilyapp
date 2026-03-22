@@ -429,6 +429,16 @@ export const en = {
       penaltiesDesc: "Errors, over 48h idle.",
       examRequirement: "Need 10 for exam",
     },
+    licenceEvents: {
+      daily_login: "Daily Login",
+      topic_perfect: "Topic Perfect",
+      marathon_completed: "Marathon Completed",
+      exam_pass: "Exam Passed",
+      exam_fail: "Exam Failed",
+      critical_error: "Critical Error",
+      inactivity_decay: "Inactivity Decay",
+      rehabilitation_pass: "Rehab Course",
+    },
   },
 
   // Tests Page

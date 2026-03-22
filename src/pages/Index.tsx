@@ -8,6 +8,7 @@ import Landing from "./Landing";
 import { usePremium } from "@/hooks/usePremium";
 import { useCoins } from "@/hooks/useCoins";
 import { PageLoader } from "@/components/PageLoader";
+import { isTelegramMiniApp } from "@/lib/telegram";
 import { useExamReadiness } from "@/hooks/useExamReadiness";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import { useDashboardData } from "@/hooks/useDashboardData";
@@ -400,12 +401,8 @@ const Index = memo(function Index() {
   const navigate = useNavigate();
   const [redirecting, setRedirecting] = useState(false);
 
-  // КРИТИЧНО: Определяем, находимся ли мы в Telegram Mini App
-  const isInTelegram = useMemo(() => typeof window !== 'undefined' &&
-    window.Telegram?.WebApp &&
-    window.Telegram.WebApp.initData &&
-    window.Telegram.WebApp.initData !== '' &&
-    !window.Telegram.WebApp.initData.startsWith('mock_'), []);
+  // КРИТИЧНО: Используем надежную проверку из библиотеки
+  const isInTelegram = useMemo(() => isTelegramMiniApp(), []);
 
   // КРИТИЧНО: Если не авторизован, редиректим на главную (где Landing рендерится напрямую)
   useEffect(() => {

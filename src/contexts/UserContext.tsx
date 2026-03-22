@@ -508,7 +508,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
 
     initializeAuth();
-  }, []); // АРХИТЕКТУРА: Зависимость от webApp убрана, так как получаем актуальное состояние внутри
+  }, [webApp]); // АРХИТЕКТУРА: webApp добавлен в зависимости для корректного перезапуска после инициализации
 
   const login = useCallback(async (userData: TelegramUser) => {
     console.log("[UserContext] Login started for:", userData.first_name);

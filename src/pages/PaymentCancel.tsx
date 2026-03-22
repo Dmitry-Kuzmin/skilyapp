@@ -43,11 +43,18 @@ export default function PaymentCancel() {
             </p>
           </div>
 
-          <div className="flex gap-4 justify-center">
-            <Button onClick={() => navigate("/dashboard")} size="lg">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-6 w-full max-w-md mx-auto">
+            <Button 
+              onClick={() => navigate("/dashboard")} 
+              className="w-full sm:flex-1 h-12 text-base font-bold bg-white/10 hover:bg-white/20 border-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            >
               На главную
             </Button>
-            <Button onClick={() => navigate(-1)} variant="outline" size="lg">
+            <Button 
+              onClick={() => navigate(-1)} 
+              variant="outline" 
+              className="w-full sm:flex-1 h-12 text-base font-bold border-orange-500/30 text-orange-500 hover:bg-orange-500/10 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            >
               Вернуться назад
             </Button>
           </div>

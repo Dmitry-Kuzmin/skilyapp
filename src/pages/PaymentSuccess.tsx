@@ -70,7 +70,7 @@ export default function PaymentSuccess() {
               .limit(1);
 
             if (recentPurchases && recentPurchases.length > 0) {
-              const recentPurchase = recentPurchases[0];
+              const recentPurchase = recentPurchases[0] as any;
               console.log('[PaymentSuccess] Found recent purchase:', recentPurchase);
 
               // Приоритет: Paddle transaction_id, затем Cryptomus order_id
@@ -107,7 +107,7 @@ export default function PaymentSuccess() {
         console.log('[PaymentSuccess] Processing payment:', { orderId, paddleTransactionId, user: profileId });
 
         // Проверяем статус покупки в БД (Paddle или Cryptomus)
-        let purchase;
+        let purchase: any = null;
         let purchaseError;
 
         if (paddleTransactionId) {
@@ -192,7 +192,7 @@ export default function PaymentSuccess() {
               .eq('id', profileId)
               .single();
 
-            console.log('[PaymentSuccess] User coins:', profile?.coins, 'Expected coins from purchase:', coins);
+            console.log('[PaymentSuccess] User coins:', (profile as any)?.coins, 'Expected coins from purchase:', coins);
 
             // Проверяем транзакцию (Paddle, Cryptomus или Telegram Stars)
             let transactionType = 'coins_purchase_paddle'; // По умолчанию
@@ -200,10 +200,10 @@ export default function PaymentSuccess() {
 
             if (purchase.paddle_transaction_id) {
               transactionType = 'coins_purchase_paddle';
-              transactionKey = { 'metadata->>transaction_id': paddleTransactionId };
+              transactionKey = { 'metadata->>transaction_id': paddleTransactionId as string };
             } else if (purchase.cryptomus_order_id) {
               transactionType = 'coins_purchase_cryptomus';
-              transactionKey = { 'metadata->>order_id': orderId };
+              transactionKey = { 'metadata->>order_id': orderId as string };
             } else if (purchase.metadata?.payment_method === 'telegram_stars' || purchase.metadata?.gateway === 'telegram_stars') {
               transactionType = 'coins_purchase_telegram_stars';
               transactionKey = { 'metadata->>payment_id': purchase.id };
@@ -432,11 +432,18 @@ export default function PaymentSuccess() {
             </ul>
           </div>
 
-          <div className="flex gap-4 justify-center">
-            <Button onClick={() => navigate("/dashboard")} size="lg">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-6 w-full max-w-md mx-auto">
+            <Button 
+              onClick={() => navigate("/dashboard")} 
+              className="w-full sm:flex-1 h-12 text-base font-bold bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 shadow-lg shadow-blue-500/20 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            >
               На главную
             </Button>
-            <Button onClick={() => navigate("/tests")} variant="outline" size="lg">
+            <Button 
+              onClick={() => navigate("/tests")} 
+              variant="outline" 
+              className="w-full sm:flex-1 h-12 text-base font-bold border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            >
               Начать обучение
             </Button>
           </div>
