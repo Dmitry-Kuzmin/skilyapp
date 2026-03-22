@@ -17,7 +17,6 @@ Disallow: /dashboard
 
 # Sitemaps
 Sitemap: https://skilyapp.com/sitemap.xml
-Sitemap: https://skilyapp.com/news-sitemap.xml
 
 # Crawl-delay
 Crawl-delay: 1
