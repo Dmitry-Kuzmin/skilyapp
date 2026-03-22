@@ -8,16 +8,6 @@ import { Wallet, Loader2, RefreshCw } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 
-/**
- * TON Wallet Header — shows balance from live TonConnect OR fetched via API.
- *
- * Flow:
- * 1. App loads → reads saved ton_wallet_address from Supabase profile
- * 2. If saved address exists → fetches balance from toncenter API directly
- * 3. TonConnect tries to restore → if it does, switch to live balance
- * 4. If TonConnect fails after 5s → keep showing API balance
- * 5. Tap badge → opens TonConnect dropdown (reconnect/disconnect)
- */
 export const TonWalletHeader: React.FC = () => {
     const liveAddress = useAddress();
     const { balance: rawBalance, isLoading: isBalanceLoading } = useBalance();
@@ -27,6 +17,8 @@ export const TonWalletHeader: React.FC = () => {
     const [apiBalance, setApiBalance] = useState<string | null>(null);
     const [dbLoaded, setDbLoaded] = useState(false);
     const [restoreTimedOut, setRestoreTimedOut] = useState(false);
+
+    // ALL hooks must be called before any conditional return
 
     // Load saved wallet address from DB on mount
     useEffect(() => {
@@ -47,41 +39,40 @@ export const TonWalletHeader: React.FC = () => {
     // Fetch balance from toncenter API when we have a saved address but no live connection
     useEffect(() => {
         if (!savedAddress || liveAddress) return;
-
-        const fetchBalance = async () => {
+        (async () => {
             try {
                 const res = await fetch(
                     `https://toncenter.com/api/v2/getAddressBalance?address=${savedAddress}`
                 );
                 const data = await res.json();
                 if (data.ok && data.result) {
-                    const bal = (Number(data.result) / 1e9).toFixed(2);
-                    setApiBalance(bal);
+                    setApiBalance((Number(data.result) / 1e9).toFixed(2));
                 }
             } catch {
-                console.log('[TON] Failed to fetch balance from API');
+                // silent
             }
-        };
-
-        fetchBalance();
+        })();
     }, [savedAddress, liveAddress]);
 
     // Timeout: if TonConnect doesn't restore within 5s, stop showing spinner
     useEffect(() => {
         if (!savedAddress || liveAddress) return;
-
-        const timer = setTimeout(() => {
-            setRestoreTimedOut(true);
-        }, 5000);
-
+        const timer = setTimeout(() => setRestoreTimedOut(true), 5000);
         return () => clearTimeout(timer);
     }, [savedAddress, liveAddress]);
 
-    const tonBalance = rawBalance
-        ? (Number(rawBalance) / 1e9).toFixed(2)
-        : null;
+    // Handle tap on the badge — programmatically click hidden TonConnectButton
+    const handleTap = useCallback(() => {
+        const btn = tcRef.current?.querySelector('button') ||
+                    tcRef.current?.querySelector('div[role="button"]') ||
+                    tcRef.current?.firstElementChild;
+        if (btn instanceof HTMLElement) {
+            btn.click();
+        }
+    }, []);
 
-    // Determine display state
+    // Derived state
+    const tonBalance = rawBalance ? (Number(rawBalance) / 1e9).toFixed(2) : null;
     const isLiveConnected = !!liveAddress;
     const hasSavedWallet = !!savedAddress;
     const showConnected = isLiveConnected || hasSavedWallet;
@@ -96,26 +87,13 @@ export const TonWalletHeader: React.FC = () => {
         );
     }
 
-    // Connected or restoring — show balance badge
-    const handleTap = useCallback(() => {
-        const btn = tcRef.current?.querySelector('button') ||
-                    tcRef.current?.querySelector('div[role="button"]') ||
-                    tcRef.current?.firstElementChild;
-        if (btn instanceof HTMLElement) {
-            btn.click();
-        }
-    }, []);
-
     // Choose which balance to show
     let displayBalance: string;
     if (isRestoring) {
         displayBalance = apiBalance ? `${apiBalance} TON` : '···';
     } else if (isLiveConnected) {
-        displayBalance = isBalanceLoading
-            ? '···'
-            : `${tonBalance || '0.00'} TON`;
+        displayBalance = isBalanceLoading ? '···' : `${tonBalance || '0.00'} TON`;
     } else {
-        // Restore timed out, show API balance or saved short address
         displayBalance = apiBalance
             ? `${apiBalance} TON`
             : `${savedAddress!.slice(0, 4)}..${savedAddress!.slice(-4)}`;
