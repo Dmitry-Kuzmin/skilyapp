@@ -95,7 +95,7 @@ iframe[id^="telegram-login"] {
   pointer-events: auto !important;
 }
 
-/* 🚀 GOLDEN RULE: Force clickable portals (fixes TON Connect inside Radix Modals) */
+/* 🚀 GOLDEN RULE: TON Connect portal MUST be above everything (Vaul drawer = z-99999) */
 #ton-connect-portal,
 .tc-modal-overlay,
 .tonconnect-modal-container,
@@ -106,13 +106,22 @@ iframe[id^="telegram-login"] {
 #appkit-portal,
 div[id*="appkit"] {
   pointer-events: auto !important;
-  z-index: 2147483647 !important; /* MAXIMUM POSSIBLE Z-INDEX */
-  position: relative;
+  z-index: 2147483647 !important;
+  position: fixed !important;
 }
 
-/* Фикс для мобильного Vaul: если открыт портал TON, принудительно опускаем шторки */
-body:has(.tc-modal-overlay), 
-body:has(.tonconnect-modal-container) {
+/* TON Connect dialog/action-modal needs isolation from parent stacking contexts */
+[data-tc-wallets-modal-container="true"],
+[data-tc-actions-modal-container="true"] {
+  isolation: isolate !important;
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+/* When TON modal is open — lower the Vaul drawer overlay so TON is on top */
+body:has(.tc-modal-overlay),
+body:has(.tonconnect-modal-container),
+body:has([data-tc-wallets-modal-container="true"]) {
   --vaul-overlay-z-index: 2147483640 !important;
 }
 

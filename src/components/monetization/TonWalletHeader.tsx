@@ -14,25 +14,27 @@ export const TonWalletHeader: React.FC = () => {
         ? (Number(rawBalance) / 1e9).toFixed(2)
         : '0.00';
 
-    // Not connected — show compact connect button
+    // Not connected — just show the TonConnect button
     if (!address) {
         return (
-            <div className="flex items-center gap-1">
-                <div className="scale-[0.75] origin-right">
-                    <TonConnectButton />
-                </div>
+            <div className="scale-[0.78] origin-right">
+                <TonConnectButton />
             </div>
         );
     }
 
-    // Connected — show balance + manage button
+    // Connected — show balance badge, tap opens TonConnect dropdown
     return (
-        <div className="flex items-center gap-1.5 pl-2.5 pr-1 py-1 bg-[#0088cc]/15 rounded-full border border-[#0088cc]/25 transition-all">
-            <Wallet className="w-3 h-3 text-[#0088cc] flex-shrink-0" />
-            <span className="text-[11px] font-black text-[#0088cc] whitespace-nowrap tabular-nums">
-                {isBalanceLoading ? '···' : `${tonBalance} TON`}
-            </span>
-            <div className="scale-[0.6] origin-center -ml-1.5 -mr-1">
+        <div className="relative">
+            {/* Visible balance badge */}
+            <div className="flex items-center gap-1.5 pl-2 pr-2 py-1.5 bg-[#0098EA]/12 rounded-xl border border-[#0098EA]/20">
+                <Wallet className="w-3.5 h-3.5 text-[#0098EA] flex-shrink-0" />
+                <span className="text-[11px] font-bold text-[#0098EA] whitespace-nowrap tabular-nums">
+                    {isBalanceLoading ? '···' : `${tonBalance} TON`}
+                </span>
+            </div>
+            {/* Invisible TonConnect button stretched over the badge — handles tap/disconnect */}
+            <div className="absolute inset-0 opacity-0 overflow-hidden">
                 <TonConnectButton />
             </div>
         </div>
