@@ -181,17 +181,23 @@ export function RewardedAdModal({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            "z-50 flex justify-center p-0 backdrop-blur-3xl bg-[#0b0d14]",
+            "z-[100005] flex justify-center p-0 backdrop-blur-2xl bg-[#0b0d14]/90 modal-portal",
             inlineOverlay
               ? "absolute inset-0 rounded-xl overflow-hidden items-center"
               : showPromo
                 ? "fixed inset-0 items-stretch sm:items-center sm:p-4"
                 : "fixed inset-0 items-end sm:items-center sm:p-4"
           )}
-          onClick={() => !showPromo && onOpenChange(false)}
+          onClick={(e) => {
+            if (!showPromo) {
+              e.stopPropagation();
+              onOpenChange(false);
+            }
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Overlay color if not using backdrop-blur directly on the container */}
-          {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14] backdrop-blur-3xl pointer-events-none" />}
+          {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14]/40 pointer-events-none" />}
 
           {/* Modal — fullscreen on mobile during promo, centered card on desktop */}
           <motion.div
@@ -201,7 +207,7 @@ export function RewardedAdModal({
             exit={{ opacity: 0, y: inlineOverlay ? 0 : 30, scale: 0.96 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
-              "relative overflow-hidden shadow-none border-none",
+              "relative overflow-hidden shadow-none border-none pointer-events-auto z-[100010]",
               showPromo && !inlineOverlay
                 ? "w-full h-full sm:w-[480px] sm:h-auto sm:min-h-[600px] sm:max-h-[92vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-white/10 flex flex-col"
                 : showPromo && inlineOverlay
@@ -211,13 +217,14 @@ export function RewardedAdModal({
                     : "w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
             )}
             onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
           >
             {/* Premium dark background — hidden during promo (promo has its own) */}
             {!showPromo && (
               <>
-                <div className={cn("absolute inset-0 bg-gradient-to-br", info.bg)} />
-                <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.04]" />
-                <div className={cn("absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full blur-3xl opacity-30 bg-gradient-to-r", info.gradient)} />
+                <div className={cn("absolute inset-0 bg-gradient-to-br pointer-events-none", info.bg)} />
+                <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.04] pointer-events-none" />
+                <div className={cn("absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full blur-3xl opacity-30 bg-gradient-to-r pointer-events-none", info.gradient)} />
               </>
             )}
 
@@ -225,8 +232,11 @@ export function RewardedAdModal({
             {!showPromo && (
               <button
                 id="close-rewarded-ad-modal"
-                onClick={() => onOpenChange(false)}
-                className="absolute top-2 right-2 p-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center z-[100]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenChange(false);
+                }}
+                className="absolute top-2 right-2 p-2 text-white/50 hover:text-white transition-colors rounded-lg hover:bg-white/10 flex items-center justify-center z-[100020] cursor-pointer"
               >
                 <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
@@ -352,15 +362,20 @@ export function RewardedAdModal({
                         </Button>
                       </div>
                     ) : (
-                      <div className="space-y-2.5 w-full relative z-10 w-full pt-1">
+                      <div className="space-y-2.5 w-full relative z-20 pt-1">
                         <Button
-                          variant="ghost"
-                          onClick={handleShowAd}
-                          disabled={false}
+                          variant="secondary"
+                          onClick={(e) => {
+                            console.log("[RewardedAdModal] Watch button clicked");
+                            e.stopPropagation();
+                            handleShowAd();
+                          }}
+                          disabled={loading}
+                          loading={loading}
                           className={cn(
-                            "w-full rounded-2xl text-white hover:text-white font-black shadow-2xl border-none",
+                            "w-full rounded-2xl text-white hover:text-white font-black shadow-2xl border-none cursor-pointer",
                             "bg-gradient-to-r hover:opacity-90 active:scale-[0.98] transition-all duration-200",
-                            "relative overflow-hidden group hover:bg-transparent",
+                            "relative overflow-hidden group",
                             inlineOverlay ? "h-11 text-xs" : "h-12 sm:h-14 text-sm sm:text-base",
                             info.gradient,
                             info.glow
