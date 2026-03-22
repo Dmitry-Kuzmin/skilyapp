@@ -177,7 +177,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         description: "Nuestros alumnos aprenden más rápido con IA que personaliza el contenido",
       },
       {
-        value: "1000+",
+        value: "3000+",
         label: "Preguntas",
         description: "Banco oficial DGT actualizado en tiempo real",
       },
@@ -372,7 +372,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         description: "Our students pass the exam on their first attempt with personalized AI",
       },
       {
-        value: "1000+",
+        value: "3000+",
         label: "Questions",
         description: "Official questions with translations and explanations in English",
       },
@@ -552,12 +552,12 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       languageLabel: "Язык",
     },
     hero: {
-      badge: `ГИБДД ${examYear} · Официальные вопросы`,
+      badge: `DGT ${examYear} · Официальные вопросы`,
       titleTop: "Твой путь к правам",
       titleBottom: "начинается здесь",
-      descriptionHighlight: "Забудь про страх экзамена и языковой барьер",
+      descriptionHighlight: "Забудь про скучную зубрежку и страх экзамена",
       descriptionRest:
-        "Интерактивная практика, мгновенные переводы и AI-объяснения на русском. Реалистичные сценарии и персонализированное обучение. Сдай с первого раза.",
+        "Интерактивная практика, разбор ловушек и AI-объяснения на понятном языке. Реалистичные сценарии и персонализированное обучение. Сдай с первого раза.",
       pressStart: "Нажми Start",
     },
     stats: [
@@ -567,9 +567,9 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         description: "Наши студенты сдают экзамен с первого раза благодаря персонализированному AI",
       },
       {
-        value: "1000+",
+        value: "3000+",
         label: "Вопросов",
-        description: "Официальные вопросы с переводами и объяснениями на русском",
+        description: "Официальные вопросы с подробными AI-объяснениями логики правил",
       },
       {
         value: "24/7",
@@ -586,7 +586,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         categoriesTitle: "Все категории",
         categoriesDescription: "Легковые, мотоциклы и профессиональный транспорт.",
         simulationTitle: "Симуляция экзамена",
-        simulationDescription: "Полная имитация условий сдачи. Таймеры, лимит ошибок и интерфейс как в ГИБДД.",
+        simulationDescription: "Полная имитация условий сдачи. Таймеры, лимит ошибок и интерфейс как в DGT.",
         timer: "30 мин",
         passRate: "PRO",
       },
@@ -595,10 +595,10 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       title: "Skily & Skily AI™",
       poweredBy: "На базе Gemini/Groq",
       description:
-        "Технический тренер и эмоциональный наставник, которые объяснят ошибку на русском и испанском.",
+        "Персональный AI-репетитор, который объяснит логику правил дорожного движения простым языком.",
       bullets: [
         "Контекстные подсказки к каждому ответу",
-        "Двуязычные конспекты за секунды",
+        "Понятные конспекты по каждой теме за секунды",
         "Challenge Bank подсказывает, что повторить",
       ],
       challengeBank: "Challenge Bank™",
@@ -615,7 +615,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       traditional: "Традиционные методы",
       skily: "Skilyapp",
       rows: [
-        { feature: "Бюджет", traditional: "€400+", skily: "€4.99", skilyDesc: "/мес (при оплате за год)" },
+        { feature: "Бюджет", traditional: "15,000₽+", skily: "299₽", skilyDesc: "/мес (при оплате за год)" },
         {
           feature: "Метод",
           traditional: "Скучные лекции",
@@ -675,7 +675,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         },
         monthly: {
           title: "Pro (месяц)",
-          price: "€9.99",
+          price: "299₽",
           note: "/мес",
           badge: "ГИБКИЙ",
           features: ["Безлимитные тесты", "Полный Skily AI", "Без рекламы"],
@@ -683,7 +683,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         },
         quarterly: {
           title: "Pro (3 месяца)",
-          price: "€24.99",
+          price: "799₽",
           note: "/3 мес",
           badge: "ВЫГОДНО",
           features: ["Всё из тарифа на месяц", "Экономия 17%", "Приоритетная поддержка"],
@@ -691,7 +691,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         },
         biannual: {
           title: "Pro (6 месяцев)",
-          price: "€39.99",
+          price: "1,499₽",
           note: "/6 мес",
           badge: "ХИТ",
           features: ["Всё из тарифа 3 месяца", "Экономия 33%", "AI Пакет в подарок"],
@@ -699,7 +699,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         },
         yearly: {
           title: "Pro (год)",
-          price: "€59.99",
+          price: "2,499₽",
           note: "/год",
           badge: "ЛУЧШАЯ ЦЕНА",
           features: ["Все функции Premium", "2 месяца в подарок", "Золотой статус"],
@@ -727,9 +727,9 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       heroSubtitle: "Мы верим, что подготовка к экзамену не должна быть скучной или пугающей. Мы создали инструмент, которого нам самим не хватало.",
       storyTitle: "Наша история",
       storyHighlight: "боли",
-      storyParagraph1: "Устаревшие учебники, бюрократический язык, скучные лекции. В новой стране получение прав часто превращается в ад.",
-      storyParagraph2: "Мы — команда экспатов, которые прошли через это. Мы решили исправить это с помощью технологий и геймификации.",
-      storyQuote: "Мы здесь, чтобы вы сдали экзамен играючи, а не страдая.",
+      storyParagraph1: "Устаревшие учебники, сухой юридический язык, скучные лекции. Получение прав часто превращается в бесконечную зубрежку.",
+      storyParagraph2: "Мы — команда, которая прошла через это. Мы решили исправить это с помощью технологий и геймификации.",
+      storyQuote: "Мы здесь, чтобы вы сдали экзамен играючи, а не заучивая.",
       goodLuck: "Удачи",
       founders: "Основатели Skily",
     },

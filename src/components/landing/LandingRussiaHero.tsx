@@ -146,7 +146,7 @@ export const LandingRussiaHero: React.FC<HeroProps> = ({
       <section className="relative z-10 px-6 py-20 md:py-32 max-w-[1400px] mx-auto flex flex-col items-center justify-center text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-5 sm:mb-6 animate-fade-in relative z-20">
           <span className="text-base leading-none">{selectedCountry.flag}</span>
-          {selectedCountry.code === 'ru' ? `ГИБДД ${examYear} · Официальные вопросы` : `DGT Approved · ${examYear}`}
+          {selectedCountry.code === 'ru' ? `DGT ${examYear} · Официальные вопросы` : `DGT Approved · ${examYear}`}
         </div>
 
         <div className="relative mb-4 md:mb-6 w-full flex flex-col items-center">

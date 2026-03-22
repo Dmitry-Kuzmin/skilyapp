@@ -28,7 +28,7 @@ export function AuthModalHeader({
     if (isSuccessScreen) return null;
 
     return (
-        <div className={`flex flex-col items-center mb-6 justify-end transition-all duration-500 min-h-[140px]`}>
+        <div className={`flex flex-col items-center mb-4 justify-end transition-all duration-500 min-h-[90px]`}>
             <AnimatePresence mode="wait">
                 {step !== 'email' ? (
                     /* Avatar State - Show for all non-email steps where user is identified */
@@ -92,7 +92,7 @@ export function AuthModalHeader({
                         exit={{ scale: 0.8, opacity: 0 }}
                         className="mb-4"
                     >
-                        <LandingLogo variant="bold" showText={false} className="mx-auto" />
+                        <LandingLogo variant="minimal" showText={false} className="mx-auto" />
                     </motion.div>
                 )}
             </AnimatePresence>

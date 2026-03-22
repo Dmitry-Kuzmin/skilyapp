@@ -42,6 +42,7 @@ import {
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
 import { StartEngineButton } from "./StartEngineButton";
+import { OnlinePlayers } from "@/components/shared/OnlinePlayers";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "./LanguageSelector";
 import { CountrySelector } from "./CountrySelector";
@@ -65,16 +66,16 @@ import { FAQItem } from "./FAQItem";
 const DEMO_VARIANTS = {
   ru: [
     {
-      title: 'Мы научили AI думать как экзаменатор ГИБДД',
-      text: 'Skily AI знает каждый подвох в билетах ГИБДД. Объясняет сложные юридические термины простым языком за 2 секунды.'
+      title: 'Мы научили AI думать как экзаменатор DGT',
+      text: 'Skily AI знает каждый подвох в билетах DGT. Объясняет сложные юридические термины простым языком за 2 секунды.'
     },
     {
       title: 'Персональный репетитор по ПДД',
-      text: 'Забудь про зубрежку 800 вопросов. AI подстраивается под твои ошибки и объясняет логику правил, а не сухие цитаты из закона.'
+      text: 'Забудь про зубрежку 3000 вопросов DGT. AI подстраивается под твои ошибки и объясняет логику правил, а не сухие цитаты из закона.'
     },
     {
-      title: 'Разбор вопросов с подвохом',
-      text: 'В ГИБДД любят ловушки. Skily AI научит тебя видеть их и не попадаться. Сдашь теорию с первого раза.'
+      title: 'Разбор сценариев с подвохом',
+      text: 'В билетах DGT часто встречаются ловушки. Skily AI научит тебя видеть их и не попадаться. Сдашь теорию в Испании с первого раза.'
     }
   ],
   es: [
@@ -282,8 +283,8 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           title: 'Экономия и Законы',
           questions: [
             {
-              q: 'Можно ли сдать теорию ГИБДД самостоятельно?',
-              a: 'Да! Многие сдают с первого раза, готовясь самостоятельно. Skily даёт структурированную подготовку с AI-объяснениями, что эффективнее обычной зубрежки 800 вопросов.',
+              q: 'Можно ли сдать теорию DGT самостоятельно?',
+              a: 'Да! Многие сдают с первого раза, готовясь самостоятельно. Skily даёт структурированную подготовку с AI-объяснениями, что эффективнее обычной зубрежки тысяч вопросов.',
               icon: School
             },
             {
@@ -293,7 +294,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             },
             {
               q: 'Что делать с вопросами-ловушками?',
-              a: 'В ГИБДД любят подвохи в формулировках. Skily AI разбирает каждую ловушку и объясняет, на что обратить внимание. Ты научишься их видеть.',
+              a: 'В DGT любят подвохи в формулировках. Skily AI разбирает каждую ловушку и объясняет, на что обратить внимание. Ты научишься их видеть.',
               icon: Target
             }
           ]
@@ -309,7 +310,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             },
             {
               q: 'Насколько актуальны вопросы?',
-              a: 'Мы обновляем базу при каждом изменении в ПДД. Если вчера ГИБДД обновила билет — сегодня он уже в Skily с AI-объяснением.',
+              a: 'Мы обновляем базу при каждом изменении в ПДД. Если вчера DGT обновила билет — сегодня он уже в Skily с AI-объяснением.',
               icon: Sparkles
             }
           ]
@@ -452,6 +453,13 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
   }, [referrerInfo?.photo_url]);
   const navigate = useNavigate();
   const copy = landingTranslations[language];
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
 
 
@@ -517,58 +525,41 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         }}
       ></div>
 
-      <nav className="relative z-[100] px-6 md:px-12 pt-[max(2rem,env(safe-area-inset-top))] pb-4 md:pb-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
-        {/* Left Side: Brand + Location */}
-        <div className="flex items-center gap-0 md:gap-4" style={{ overflow: 'visible', position: 'relative' }}>
-          <LandingLogo
-            theme="dark"
-            variant="header"
-            className="scale-90 md:scale-105 origin-left -mr-5 md:mr-0"
-            onInteraction={() => {
-              if (!isEchoActive) {
-                setIsEchoActive(true);
-                setTimeout(() => setIsEchoActive(false), 600);
-              }
-            }}
-          />
+      <nav 
+        className={cn(
+          "fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-6",
+          scrolled ? "py-4 bg-[#020617]/80 backdrop-blur-md border-b border-white/5" : "py-8"
+        )}
+      >
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <LandingLogo theme="dark" variant="bold" />
+            <div className="hidden lg:flex items-center gap-6 ml-8">
+              {copy.footer.menu.slice(0, 3).map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => navigate(item.href)}
+                  className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors"
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          {/* Divider */}
-          <div className="h-4 w-px bg-white/20 self-center mx-0.5" />
-
-          {/* Country Selector */}
-          <CountrySelector />
-        </div>
-
-        {/* Right Side: Actions */}
-        <div className="flex items-center gap-2 md:gap-3 ml-auto">
-          {/* Language selector */}
-          <LanguageSelector
-            language={language}
-            onSelect={handleLanguageChange}
-            label={copy.controls.languageLabel}
-          />
-
-          <button
-            onClick={() => {
-              if (isTouchDevice) {
-                navigate('/login');
-              } else {
-                handleEnter();
-              }
-            }}
-            className="bg-white text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10"
-          >
-            {referrerInfo ? (
-              <span className="flex items-center">
-                {copy.controls.studentAccess}
-                <span className="ml-2 text-amber-500 inline-flex items-center gap-1">
-                  +50 <Coins className="h-4 w-4 inline" />
-                </span>
-              </span>
-            ) : (
-              copy.controls.studentAccess
-            )}
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:block">
+              <CountrySelector />
+            </div>
+            {/* LanguageSelector is hidden for Russia locale by logic in Landing.tsx, 
+                but we manually exclude it here too for safety */}
+            <button
+              onClick={handleEnter}
+              className="bg-white text-black px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95 whitespace-nowrap"
+            >
+              {copy.controls.studentAccess}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -709,7 +700,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         {/* Badge с электрическим синим */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-5 sm:mb-6 animate-fade-in relative z-20">
           <span className="text-base leading-none">{selectedCountry.flag}</span>
-          {selectedCountry.code === 'ru' ? `ГИБДД ${examYear} · Официальные вопросы` : `DGT Approved · ${examYear}`}
+          {selectedCountry.code === 'RU' ? `ГИБДД ${examYear} · Официальные билеты` : `DGT Approved · ${examYear}`}
         </div>
 
         {/* H1 с электрическим градиентом и свечением */}
@@ -887,7 +878,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
 
       {/* AI & Features Section */}
       <section className="relative z-10 px-6 pt-6 pb-16 max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-10 rounded-[2.5rem] relative overflow-hidden">
             <div className="absolute top-0 right-0 p-10 opacity-10">
               <Brain size={300} />
@@ -911,41 +902,57 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-rows-2 gap-6">
-            <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col justify-center relative overflow-hidden">
+          <div className="flex flex-col gap-6">
+            <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-[2.5rem] relative overflow-hidden">
               {/* Background icon */}
               <div className="absolute top-4 right-4 opacity-5">
-                <Bookmark size={120} />
+                <Brain size={120} />
               </div>
               <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <Bookmark className="text-amber-400" size={24} />
-                  <h3 className="font-bold text-xl">{copy.aiSection.challengeBank}</h3>
+                <div className="flex items-center gap-3 mb-3">
+                  <Brain className="text-amber-400" size={24} />
+                  <h3 className="font-bold text-xl text-white">{copy.aiSection.challengeBank}</h3>
                 </div>
-                <p className="text-slate-400">{copy.aiSection.challengeBankDescription}</p>
+                <p className="text-slate-400 text-sm leading-relaxed">{copy.aiSection.challengeBankDescription}</p>
               </div>
             </div>
 
             {/* TELEGRAM MINI APP CARD */}
-            <div className="bg-slate-900/50 border border-slate-800 p-8 md:p-10 rounded-[2.5rem] flex items-center justify-between relative overflow-hidden group mb-6 hover:border-indigo-500/30 transition-all cursor-pointer" onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
-              <div className="relative z-10 max-w-[65%]">
-                <h3 className="font-bold text-xl text-white mb-2">{copy.aiSection.telegramTitle}</h3>
-                <p className="text-slate-400 text-sm mb-4 leading-relaxed">{copy.aiSection.telegramDescription}</p>
-                <div className="inline-flex items-center gap-1 text-sm font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors">
-                  {copy.aiSection.telegramCTA} <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
+            <div className="bg-slate-900/50 border border-slate-800 p-8 md:p-10 rounded-[2.5rem] flex flex-col justify-between relative overflow-hidden group mb-6 hover:border-indigo-500/30 transition-all cursor-pointer transition-all duration-300" onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center border border-sky-500/20 group-hover:scale-110 transition-transform duration-500">
+                    <Smartphone className="text-sky-400" size={24} />
+                  </div>
+                  <h3 className="font-bold text-xl text-white">{copy.aiSection.telegramTitle}</h3>
+                </div>
+                <p className="text-slate-400 text-sm mb-6 leading-relaxed max-w-[280px]">{copy.aiSection.telegramDescription}</p>
+                
+                <div className="flex flex-col gap-4">
+                  <OnlinePlayers 
+                    baseCount={8430} 
+                    className="scale-90 origin-left mb-2"
+                  />
+                  
+                  <div className="inline-flex items-center gap-1 text-sm font-bold text-sky-400 group-hover:text-sky-300 transition-colors">
+                    {copy.aiSection.telegramCTA} <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </div>
 
               {/* Phone Mockup (Restored) */}
-              <div className="absolute bottom-[-15%] right-4 w-28 h-48 bg-slate-800 rounded-t-[1.8rem] border-x-4 border-t-4 border-slate-700 shadow-2xl flex flex-col items-center pt-3 opacity-90 group-hover:translate-y-[-10px] transition-transform duration-500">
-                <div className="w-8 h-1 bg-slate-600 rounded-full mb-4"></div>
-                <div className="w-full flex-1 bg-slate-900/50 px-2.5 pt-2.5 space-y-2.5">
+              <div className="absolute bottom-[-10%] right-[-5%] w-32 h-56 bg-slate-800 rounded-t-[2rem] border-x-[6px] border-t-[6px] border-slate-700 shadow-2xl flex flex-col items-center pt-4 opacity-40 group-hover:opacity-80 group-hover:translate-y-[-15px] transition-all duration-700 rotate-6 group-hover:rotate-0">
+                <div className="w-10 h-1 bg-slate-600 rounded-full mb-5"></div>
+                <div className="w-full flex-1 bg-slate-900/50 px-3 pt-3 space-y-3">
                   <div className="flex gap-2 items-end">
-                    <div className="w-full h-10 bg-indigo-500/20 rounded-lg rounded-bl-sm border border-indigo-500/10"></div>
+                    <div className="w-full h-12 bg-sky-500/20 rounded-xl rounded-bl-sm border border-sky-500/10"></div>
                   </div>
                   <div className="flex gap-2 justify-end">
-                    <div className="w-3/4 h-10 bg-slate-700/30 rounded-lg rounded-br-sm border border-white/5"></div>
+                    <div className="w-3/4 h-12 bg-slate-700/40 rounded-xl rounded-br-sm border border-white/5"></div>
                   </div>
+                  <div className="w-full h-8 bg-sky-500/10 rounded-lg animate-pulse"></div>
                 </div>
               </div>
             </div>

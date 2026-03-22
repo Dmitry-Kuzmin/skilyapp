@@ -69,7 +69,7 @@ export function EmailStep({
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={(e) => onContinue(e)}
-                                className="bg-foreground text-background w-8 h-8 flex items-center justify-center rounded-full hover:bg-foreground/90 transition-colors disabled:opacity-50"
+                                className="bg-indigo-600 text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-indigo-500 transition-colors disabled:opacity-50 shadow-lg shadow-indigo-600/20"
                             >
                                 {checkingEmail ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />

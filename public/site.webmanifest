@@ -1,7 +1,10 @@
 {
-  "name": "Skilyapp",
+  "name": "Skilyapp - Test DGT con IA",
   "short_name": "Skilyapp",
-  "description": "Подготовка к теоретическому экзамену DGT в Испании",
+  "description": "Prepara el examen teórico DGT con IA. App de autoescuela gratis con preguntas oficiales, simulacros y tutor 24/7. Disponible en español, inglés y ruso.",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

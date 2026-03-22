@@ -112,16 +112,23 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
             </div>
 
             {/* Счетчик в том же ряду */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 dark:bg-white/10 border border-border dark:border-white/20 backdrop-blur-md shadow-lg h-9">
-                <div className="flex items-baseline gap-1">
-                    <NumberTicker
-                        value={count}
-                        useSeparator={false}
-                        className="text-[14px] font-black text-foreground dark:text-white"
-                    />
-                    <span className="text-[9px] font-black text-muted-foreground/60 dark:text-white/40 tracking-[0.1em] uppercase ml-1">
-                        В СЕТИ
-                    </span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-500/20 dark:border-indigo-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.2)] h-9 relative group">
+                {/* Анимированный индикатор "Live" */}
+                <div className="flex items-center gap-1.5">
+                    <div className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                        <NumberTicker
+                            value={count}
+                            useSeparator={false}
+                            className="text-[14px] font-black text-indigo-100 dark:text-white"
+                        />
+                        <span className="text-[9px] font-black text-indigo-400/80 dark:text-indigo-300/60 tracking-[0.1em] uppercase ml-1">
+                            В СЕТИ
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

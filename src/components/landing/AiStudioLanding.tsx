@@ -40,6 +40,7 @@ import {
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
 import { StartEngineButton } from "./StartEngineButton";
+import { OnlinePlayers } from "@/components/shared/OnlinePlayers";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "./LanguageSelector";
 import { CountrySelector } from "./CountrySelector";
@@ -525,7 +526,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         {/* Right Side: Actions */}
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
           {/* Language selector hidden for Russia (always Russian) */}
-          {selectedCountry.code !== 'ru' && (
+          {selectedCountry.code !== 'RU' && (
             <LanguageSelector
               language={language}
               onSelect={handleLanguageChange}
@@ -854,7 +855,7 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
 
       {/* AI & Features Section */}
       <section className="relative z-10 px-6 pt-6 pb-16 max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-10 rounded-[2.5rem] relative overflow-hidden">
             <div className="absolute top-0 right-0 p-10 opacity-10">
               <Brain size={300} />
@@ -878,41 +879,59 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-rows-2 gap-6">
-            <div className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col justify-center relative overflow-hidden">
+          <div className="flex flex-col gap-6">
+            <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-[2.5rem] relative overflow-hidden group hover:border-indigo-500/30 transition-all duration-300">
               {/* Background icon */}
-              <div className="absolute top-4 right-4 opacity-5">
-                <Bookmark size={120} />
+              <div className="absolute top-4 right-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <Brain size={120} />
               </div>
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
-                  <Bookmark className="text-amber-400" size={24} />
-                  <h3 className="font-bold text-xl">{copy.aiSection.challengeBank}</h3>
+                  <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                    <Brain className="text-amber-400" size={24} />
+                  </div>
+                  <h3 className="font-bold text-xl text-white">{copy.aiSection.challengeBank}</h3>
                 </div>
-                <p className="text-slate-400">{copy.aiSection.challengeBankDescription}</p>
+                <p className="text-slate-400 text-sm leading-relaxed">{copy.aiSection.challengeBankDescription}</p>
               </div>
             </div>
 
             {/* TELEGRAM MINI APP CARD */}
-            <div className="bg-slate-900/50 border border-slate-800 p-8 md:p-10 rounded-[2.5rem] flex items-center justify-between relative overflow-hidden group mb-6 hover:border-indigo-500/30 transition-all cursor-pointer" onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
-              <div className="relative z-10 max-w-[65%]">
-                <h3 className="font-bold text-xl text-white mb-2">{copy.aiSection.telegramTitle}</h3>
-                <p className="text-slate-400 text-sm mb-4 leading-relaxed">{copy.aiSection.telegramDescription}</p>
-                <div className="inline-flex items-center gap-1 text-sm font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors">
-                  {copy.aiSection.telegramCTA} <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
+            <div className="bg-slate-900/50 border border-slate-800 p-8 md:p-10 rounded-[2.5rem] flex flex-col justify-between relative overflow-hidden group mb-6 hover:border-indigo-500/30 transition-all cursor-pointer transition-all duration-300" onClick={() => window.open("https://t.me/skilyapp_bot", "_blank")}>
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center border border-sky-500/20 group-hover:scale-110 transition-transform duration-500">
+                    <Smartphone className="text-sky-400" size={24} />
+                  </div>
+                  <h3 className="font-bold text-xl text-white">{copy.aiSection.telegramTitle}</h3>
+                </div>
+                <p className="text-slate-400 text-sm mb-6 leading-relaxed max-w-[280px]">{copy.aiSection.telegramDescription}</p>
+                
+                <div className="flex flex-col gap-4">
+                  <OnlinePlayers 
+                    baseCount={8430} 
+                    className="scale-90 origin-left mb-2"
+                  />
+                  
+                  <div className="inline-flex items-center gap-1 text-sm font-bold text-sky-400 group-hover:text-sky-300 transition-colors">
+                    {copy.aiSection.telegramCTA} <ArrowRight size={14} className="ml-1 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
               </div>
 
               {/* Phone Mockup (Restored) */}
-              <div className="absolute bottom-[-15%] right-4 w-28 h-48 bg-slate-800 rounded-t-[1.8rem] border-x-4 border-t-4 border-slate-700 shadow-2xl flex flex-col items-center pt-3 opacity-90 group-hover:translate-y-[-10px] transition-transform duration-500">
-                <div className="w-8 h-1 bg-slate-600 rounded-full mb-4"></div>
-                <div className="w-full flex-1 bg-slate-900/50 px-2.5 pt-2.5 space-y-2.5">
+              <div className="absolute bottom-[-10%] right-[-5%] w-32 h-56 bg-slate-800 rounded-t-[2rem] border-x-[6px] border-t-[6px] border-slate-700 shadow-2xl flex flex-col items-center pt-4 opacity-40 group-hover:opacity-80 group-hover:translate-y-[-15px] transition-all duration-700 rotate-6 group-hover:rotate-0">
+                <div className="w-10 h-1 bg-slate-600 rounded-full mb-5"></div>
+                <div className="w-full flex-1 bg-slate-900/50 px-3 pt-3 space-y-3">
                   <div className="flex gap-2 items-end">
-                    <div className="w-full h-10 bg-indigo-500/20 rounded-lg rounded-bl-sm border border-indigo-500/10"></div>
+                    <div className="w-full h-12 bg-sky-500/20 rounded-xl rounded-bl-sm border border-sky-500/10"></div>
                   </div>
                   <div className="flex gap-2 justify-end">
-                    <div className="w-3/4 h-10 bg-slate-700/30 rounded-lg rounded-br-sm border border-white/5"></div>
+                    <div className="w-3/4 h-12 bg-slate-700/40 rounded-xl rounded-br-sm border border-white/5"></div>
                   </div>
+                  <div className="w-full h-8 bg-sky-500/10 rounded-lg animate-pulse"></div>
                 </div>
               </div>
             </div>

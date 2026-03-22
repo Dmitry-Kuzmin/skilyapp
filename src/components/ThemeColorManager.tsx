@@ -27,6 +27,9 @@ const APP_PREFIXES = [
     '/dashboard', '/tests', '/learning', '/games',
     '/profile', '/settings', '/purchase', '/topic',
     '/subtopic', '/test/', '/admin', '/partner',
+    '/pricing', '/about', '/terms', '/privacy',
+    '/subscription-terms', '/legal', '/purchase',
+    '/success', '/cancel', '/inventory', '/blog', '/article'
 ] as const;
 
 const EXACT_LANDING_PATHS = new Set([
@@ -35,8 +38,15 @@ const EXACT_LANDING_PATHS = new Set([
     '/auth/callback', '/auth/telegram/callback',
 ]);
 
+const ALWAYS_DARK_PATHS = [
+    '/pricing', '/about', '/legal', '/terms', '/privacy',
+    '/subscription-terms', '/success', '/cancel'
+];
+
 function getThemePalette(path: string, mode: 'light' | 'dark') {
-    const palette = THEMES[mode] || THEMES.dark;
+    // FORCE DARK for premium/marketing pages
+    const effectiveMode = ALWAYS_DARK_PATHS.some(p => path.startsWith(p)) ? 'dark' : mode;
+    const palette = THEMES[effectiveMode] || THEMES.dark;
     
     if (EXACT_LANDING_PATHS.has(path)) return palette.landing;
     if (APP_PREFIXES.some(prefix => path.startsWith(prefix))) return palette.app;
@@ -51,6 +61,9 @@ export const ThemeColorManager = () => {
     // Определяем эффективную тему (fallback на dark, если не определено)
     const mode = (resolvedTheme === 'light' ? 'light' : 'dark');
 
+    // КРИТИЧНО: Используем ту же логику что и в getThemePalette для синхронизации классов
+    const effectiveMode = ALWAYS_DARK_PATHS.some(p => location.pathname.startsWith(p)) ? 'dark' : mode;
+
     const colors = useMemo(
         () => getThemePalette(location.pathname, mode),
         [location.pathname, mode]
@@ -62,11 +75,21 @@ export const ThemeColorManager = () => {
         // ── 1. CSS переменная ──────────────────────────────────────────────────
         document.documentElement.style.setProperty('--background', hsl);
 
-        // ── 2. Meta theme-color ──────────────────────────────────────────────
+        // ── 2. Синхронизация .dark класса ─────────────────────────────────────
+        // Если мы в принудительно темном режиме — добавляем класс .dark
+        if (effectiveMode === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.body.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.body.classList.remove('dark');
+        }
+
+        // ── 3. Meta theme-color ──────────────────────────────────────────────
         const metaTheme = document.querySelector('meta[name="theme-color"]');
         if (metaTheme) metaTheme.setAttribute('content', hex);
 
-        // ── 3. Telegram WebApp ───────────────────────────────────────────────
+        // ── 4. Telegram WebApp ───────────────────────────────────────────────
         const tg = (window as any).Telegram?.WebApp;
         if (tg) {
             try {
@@ -79,9 +102,9 @@ export const ThemeColorManager = () => {
         }
 
         if (import.meta.env.DEV) {
-            console.log(`[Chameleon v8] ${location.pathname} [${mode}] → ${hex}`);
+            console.log(`[Chameleon v8] ${location.pathname} [${effectiveMode}] → ${hex}`);
         }
-    }, [colors, location.pathname, mode]);
+    }, [colors, location.pathname, effectiveMode]);
 
     return null;
 };
