@@ -12,9 +12,9 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TonPaymentWidgetProps {
-    packageKey: string;
-    amountTon: number;
-    description: string;
+    packageKey?: string;
+    amountTon?: number;
+    description?: string;
     onSuccess?: () => void;
     className?: string;
     mode?: 'full' | 'compact';
@@ -25,9 +25,9 @@ interface TonPaymentWidgetProps {
  * Работает через официальные хуки для прямой доставки транзакций.
  */
 export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
-    packageKey,
-    amountTon,
-    description,
+    packageKey = "premium_subscription",
+    amountTon = 1.5,
+    description = "Skily Premium",
     onSuccess,
     className,
     mode = 'compact',

@@ -107,9 +107,9 @@ export const GeneralTab: React.FC = () => {
         setTheme(newTheme);
         setNextTheme(newTheme);
         const labels = {
-            dark: t('settings.themeToast.dark'),
-            light: t('settings.themeToast.light'),
-            system: t('settings.themeToast.system')
+            dark: t('unifiedSettings.themeToast.dark'),
+            light: t('unifiedSettings.themeToast.light'),
+            system: t('unifiedSettings.themeToast.system')
         };
         toast.success(labels[newTheme], { duration: 1500 });
     };
@@ -119,7 +119,7 @@ export const GeneralTab: React.FC = () => {
         setLanguage(lang);
         setContextLanguage(lang);
         const labels = { ru: 'Русский', en: 'English', es: 'Español' };
-        toast.success(`${t('settings.language')}: ${labels[lang]}`, { duration: 1500 });
+        toast.success(`${t('language')}: ${labels[lang]}`, { duration: 1500 });
     };
 
     const handlePerformanceToggle = () => {
@@ -127,8 +127,8 @@ export const GeneralTab: React.FC = () => {
         togglePerformanceMode();
         toast.success(
             performanceMode
-                ? t('settings.performanceToast.off')
-                : t('settings.performanceToast.on'),
+                ? t('unifiedSettings.performanceToast.off')
+                : t('unifiedSettings.performanceToast.on'),
             { duration: 1500 }
         );
     };
