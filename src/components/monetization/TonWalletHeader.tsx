@@ -1,21 +1,22 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
     useAddress,
     useBalance,
     TonConnectButton
 } from '@ton/appkit-react';
-import { Wallet, Loader2 } from 'lucide-react';
+import { Wallet, Loader2, RefreshCw } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * TON Wallet Header — shows balance from live TonConnect OR saved DB address.
+ * TON Wallet Header — shows balance from live TonConnect OR fetched via API.
  *
  * Flow:
  * 1. App loads → reads saved ton_wallet_address from Supabase profile
- * 2. Shows "restoring..." state with saved address
- * 3. TonConnect restores session → shows live balance
- * 4. If TonConnect fails → still shows saved address (user knows wallet was connected)
+ * 2. If saved address exists → fetches balance from toncenter API directly
+ * 3. TonConnect tries to restore → if it does, switch to live balance
+ * 4. If TonConnect fails after 5s → keep showing API balance
+ * 5. Tap badge → opens TonConnect dropdown (reconnect/disconnect)
  */
 export const TonWalletHeader: React.FC = () => {
     const liveAddress = useAddress();
@@ -23,7 +24,9 @@ export const TonWalletHeader: React.FC = () => {
     const { profileId } = useUserContext();
     const tcRef = useRef<HTMLDivElement>(null);
     const [savedAddress, setSavedAddress] = useState<string | null>(null);
+    const [apiBalance, setApiBalance] = useState<string | null>(null);
     const [dbLoaded, setDbLoaded] = useState(false);
+    const [restoreTimedOut, setRestoreTimedOut] = useState(false);
 
     // Load saved wallet address from DB on mount
     useEffect(() => {
@@ -41,6 +44,39 @@ export const TonWalletHeader: React.FC = () => {
             });
     }, [profileId, dbLoaded]);
 
+    // Fetch balance from toncenter API when we have a saved address but no live connection
+    useEffect(() => {
+        if (!savedAddress || liveAddress) return;
+
+        const fetchBalance = async () => {
+            try {
+                const res = await fetch(
+                    `https://toncenter.com/api/v2/getAddressBalance?address=${savedAddress}`
+                );
+                const data = await res.json();
+                if (data.ok && data.result) {
+                    const bal = (Number(data.result) / 1e9).toFixed(2);
+                    setApiBalance(bal);
+                }
+            } catch {
+                console.log('[TON] Failed to fetch balance from API');
+            }
+        };
+
+        fetchBalance();
+    }, [savedAddress, liveAddress]);
+
+    // Timeout: if TonConnect doesn't restore within 5s, stop showing spinner
+    useEffect(() => {
+        if (!savedAddress || liveAddress) return;
+
+        const timer = setTimeout(() => {
+            setRestoreTimedOut(true);
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, [savedAddress, liveAddress]);
+
     const tonBalance = rawBalance
         ? (Number(rawBalance) / 1e9).toFixed(2)
         : null;
@@ -49,7 +85,7 @@ export const TonWalletHeader: React.FC = () => {
     const isLiveConnected = !!liveAddress;
     const hasSavedWallet = !!savedAddress;
     const showConnected = isLiveConnected || hasSavedWallet;
-    const isRestoring = hasSavedWallet && !isLiveConnected;
+    const isRestoring = hasSavedWallet && !isLiveConnected && !restoreTimedOut;
 
     // Not connected and no saved wallet — show Connect button
     if (!showConnected) {
@@ -61,20 +97,31 @@ export const TonWalletHeader: React.FC = () => {
     }
 
     // Connected or restoring — show balance badge
-    const handleTap = () => {
+    const handleTap = useCallback(() => {
         const btn = tcRef.current?.querySelector('button') ||
                     tcRef.current?.querySelector('div[role="button"]') ||
                     tcRef.current?.firstElementChild;
         if (btn instanceof HTMLElement) {
             btn.click();
         }
-    };
+    }, []);
 
-    const displayBalance = isRestoring
-        ? '···'
-        : isBalanceLoading
+    // Choose which balance to show
+    let displayBalance: string;
+    if (isRestoring) {
+        displayBalance = apiBalance ? `${apiBalance} TON` : '···';
+    } else if (isLiveConnected) {
+        displayBalance = isBalanceLoading
             ? '···'
             : `${tonBalance || '0.00'} TON`;
+    } else {
+        // Restore timed out, show API balance or saved short address
+        displayBalance = apiBalance
+            ? `${apiBalance} TON`
+            : `${savedAddress!.slice(0, 4)}..${savedAddress!.slice(-4)}`;
+    }
+
+    const showSpinner = isRestoring && !apiBalance;
 
     return (
         <div className="relative">
@@ -82,8 +129,10 @@ export const TonWalletHeader: React.FC = () => {
                 onClick={handleTap}
                 className="flex items-center gap-1.5 pl-2 pr-2 py-1.5 bg-[#0098EA]/12 rounded-xl border border-[#0098EA]/20 active:scale-95 transition-transform"
             >
-                {isRestoring ? (
+                {showSpinner ? (
                     <Loader2 className="w-3.5 h-3.5 text-[#0098EA] flex-shrink-0 animate-spin" />
+                ) : restoreTimedOut && !isLiveConnected ? (
+                    <RefreshCw className="w-3.5 h-3.5 text-[#0098EA]/60 flex-shrink-0" />
                 ) : (
                     <Wallet className="w-3.5 h-3.5 text-[#0098EA] flex-shrink-0" />
                 )}
