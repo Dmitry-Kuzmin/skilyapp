@@ -220,7 +220,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     profileId,
     opponentName,
     setIsWaitingForOpponent: setWaitingForOpponent,
-    transitionToResults
+    transitionToResults,
+    hasTransitionedRef,
   });
 
 
@@ -522,18 +523,15 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
 
   // КРИТИЧНО: Обработка завершения дуэли (когда Realtime говорит, что дуэль закончена)
   useEffect(() => {
-    // 🆕 CRITICAL FIX: Переходим к результатам только если МЫ ТОЖЕ закончили
-    // Если соперник закончил, а мы еще нет - мы НЕ должны блокировать экран
+    // FIX: Переходим к результатам как только сервер подтвердил завершение дуэли.
+    // Не ждём hasFinishedMyQuestions — если дуэль закончена на сервере, игра уже окончена.
+    // hasTransitionedRef.current ставим СРАЗУ (до async-операции) — блокирует повторные вызовы.
     if (realtimeState.duelFinished && !hasTransitionedRef.current) {
-      if (hasFinishedMyQuestions) {
-        log('[DuelBattleFullscreen] 🏁 Realtime: Duel finished and I am finished too. Transitioning...');
-        transitionToResults();
-      } else {
-        log('[DuelBattleFullscreen] ⏳ Realtime: Opponent finished, but I am still playing. Staying in game.');
-        // Мы НЕ ставим setIsWaitingForOpponent(true), так как мы еще играем!
-      }
+      hasTransitionedRef.current = true;
+      log('[DuelBattleFullscreen] 🏁 Realtime: Duel finished. Transitioning to results...');
+      transitionToResults();
     }
-  }, [realtimeState.duelFinished, hasFinishedMyQuestions, transitionToResults]);
+  }, [realtimeState.duelFinished, transitionToResults]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления safe area (должно быть выше useEffect, который их использует)
   const isTelegramMobile = safeArea.platform === 'ios' || safeArea.platform === 'android';

@@ -98,6 +98,13 @@ export function useDuelGame({
       const stored = JSON.parse(savedState);
       if (stored.duelId !== duelId) return;
 
+      // FIX: Если дуэль уже завершена (mode=result) — НЕ восстанавливаем старый индекс вопроса.
+      // Это предотвращает перезапуск дуэли с последнего/первого вопроса после ремаунта компонента.
+      if (stored.mode === 'result') {
+        log('[useDuelGame] ⏭️ Skipping hydration: duel is already finished (mode=result)');
+        return;
+      }
+
       if (stored.mode === 'waiting' && (questionList?.length || 0) > 0) {
         log('[useDuelGame] ⏳ Storing from waiting mode - verified questions exist');
         setCurrentIndex(Math.max((questionList?.length || 1) - 1, 0));

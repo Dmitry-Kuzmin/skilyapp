@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import type React from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { sounds } from '@/lib/sounds';
 import { toast } from 'sonner';
@@ -13,6 +14,7 @@ interface UseDuelFinishProps {
     opponentName: string;
     setIsWaitingForOpponent: (waiting: boolean) => void;
     transitionToResults: (serverData?: any) => void;
+    hasTransitionedRef?: React.MutableRefObject<boolean>;
 }
 
 export function useDuelFinish({
@@ -20,7 +22,8 @@ export function useDuelFinish({
     profileId,
     opponentName,
     setIsWaitingForOpponent,
-    transitionToResults
+    transitionToResults,
+    hasTransitionedRef,
 }: UseDuelFinishProps) {
 
     const finishDuel = useCallback(async (callerHasFinished?: boolean) => {
@@ -46,6 +49,13 @@ export function useDuelFinish({
             // If both players finished (server says so)
             if (data?.finished === true) {
                 log('[DuelFinish] ✅ Both players finished, going to results');
+
+                // FIX: Защита от двойного перехода — Realtime может также вызвать transitionToResults
+                if (hasTransitionedRef && hasTransitionedRef.current) {
+                    log('[DuelFinish] ⏭️ Already transitioning (Realtime beat us), skipping');
+                    return;
+                }
+                if (hasTransitionedRef) hasTransitionedRef.current = true;
 
                 setIsWaitingForOpponent(false);
                 sounds.victory();
