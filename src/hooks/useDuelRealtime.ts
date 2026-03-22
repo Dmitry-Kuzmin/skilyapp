@@ -1105,18 +1105,13 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     // Сбрасываем флаг при монтировании
     pollingStoppedRef.current = false;
 
-    if (!duelId || connectionStatus !== 'connected') {
-      if (!duelId) log('[useDuelRealtime] ⏭️ Polling skipped: no duelId');
-      if (connectionStatus !== 'connected') log('[useDuelRealtime] ⏭️ Polling skipped: not connected');
+    if (!duelId) {
       return;
     }
 
-    log('[useDuelRealtime] 🔄 Starting exploit polling fallback...', {
-      duelId,
-      myPlayerId,
-      profileId,
-      connectionStatus,
-    });
+    // Polling использует REST API (не WebSocket), поэтому НЕ зависит от connectionStatus
+    console.log('[useDuelRealtime] 🔄 Starting exploit polling (duelId:', duelId, ')');
+
 
     // Кэш для загруженного myPlayerId
     let cachedMyPlayerId: string | null = myPlayerId || null;
@@ -1298,7 +1293,7 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         pollingInterval = null;
       }
     };
-  }, [duelId, myPlayerId, profileId, connectionStatus, realtimeEnabled]);
+  }, [duelId, myPlayerId, profileId]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем broadcast функцию
   const broadcast = useCallback((event: string, data: any) => {

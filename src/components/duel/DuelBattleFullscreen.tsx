@@ -877,8 +877,8 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
       style={{
         paddingTop: isInTelegramMiniApp
           ? isTelegramDesktop
-            // Telegram Desktop Mini App: minimal padding (no notch/island)
-            ? 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), 8px)'
+            // Telegram Desktop Mini App: minimal padding (no notch/island, header handled by Telegram)
+            ? '4px'
             // Telegram Mobile Mini App: safe area for notch/island
             : 'max(var(--tg-content-safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px), 88px)'
           // Regular mobile browser

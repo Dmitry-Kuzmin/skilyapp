@@ -166,7 +166,7 @@ export const DuelScoreBoard = memo(({
                 />
               </>
             )}
-            <Avatar className="h-10 w-10 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-10 bg-background">
+            <Avatar className="h-12 w-12 md:h-14 md:w-14 rounded-xl border border-white/10 shadow-sm relative z-10 bg-background">
               <AvatarImage src={(myPhotoUrl && !myImgError) ? myPhotoUrl : getFallbackAvatar(myName)} alt={myName || ''} onError={() => setMyImgError(true)} />
               <AvatarFallback className="bg-slate-800 text-slate-400 font-bold uppercase">
                 {getInitials(myName)}
@@ -279,7 +279,7 @@ export const DuelScoreBoard = memo(({
                 />
               </>
             )}
-            <Avatar className="h-10 w-10 md:h-12 md:w-12 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
+            <Avatar className="h-12 w-12 md:h-14 md:w-14 rounded-xl border border-white/10 shadow-sm relative z-20 bg-background">
               <AvatarImage src={(opponentPhotoUrl && opponentPhotoUrl.trim() !== '' && !opponentPhotoUrl.includes('undefined') && !opponentPhotoUrl.includes('null') && !opponentImgError) ? opponentPhotoUrl : getFallbackAvatar(opponentName)} alt={opponentName || ''} onError={() => setOpponentImgError(true)} />
               <AvatarFallback className="bg-slate-800 text-white font-bold uppercase">
                 {getInitials(opponentName)}
