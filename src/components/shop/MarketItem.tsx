@@ -29,7 +29,7 @@ interface MarketItemProps {
 // Определяем категорию по типу буста
 const getBoostCategory = (type: string): 'utility' | 'exploit' | 'defense' => {
   // Атака (exploit)
-  if (['screen_injector', 'input_lag', 'spam_attack', 'cryptolocker'].includes(type)) {
+  if (['screen_injector', 'input_lag', 'spam_attack', 'cryptolocker', 'ice_screen', 'sun_glare', 'rain_storm', 'bug_splat', 'fog_screen'].includes(type)) {
     return 'exploit';
   }
   // Защита (defense)

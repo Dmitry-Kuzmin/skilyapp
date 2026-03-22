@@ -89,7 +89,7 @@ export function useDuelBoostAction({
         }
 
         // Determine if it's an exploit (Root Mode)
-        const rootModeExploits = ['screen_injector', 'oil_spill', 'data_leak', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker'];
+        const rootModeExploits = ['screen_injector', 'oil_spill', 'data_leak', 'input_lag', 'gps_spoofing', 'police_backdoor', 'firewall', 'cryptolocker', 'ice_screen', 'sun_glare', 'rain_storm', 'bug_splat', 'fog_screen'];
         const isExploit = rootModeExploits.includes(boostType);
 
         // Apply immediate UI effect
@@ -104,7 +104,12 @@ export function useDuelBoostAction({
                 'gps_spoofing': 'GPS SPOOFING',
                 'police_backdoor': 'POLICE BACKDOOR',
                 'firewall': 'FIREWALL',
-                'cryptolocker': 'CRYPTOLOCKER'
+                'cryptolocker': 'CRYPTOLOCKER',
+                'ice_screen': 'ICE SCREEN',
+                'sun_glare': 'SUN GLARE',
+                'rain_storm': 'RAIN STORM',
+                'bug_splat': 'BUG SPLAT',
+                'fog_screen': 'FOG SCREEN'
             };
             setBoostFeedback({
                 isActive: true,
