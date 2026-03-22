@@ -1,121 +1,189 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-  
-  <!-- Главная страница -->
+
+  <!-- Homepage with language alternatives -->
   <url>
     <loc>https://skilyapp.com/</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://skilyapp.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://skilyapp.com/?lang=ru" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
   </url>
-  
-  <!-- Тесты -->
+
+  <!-- Spanish landing variant -->
+  <url>
+    <loc>https://skilyapp.com/?lang=es</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://skilyapp.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://skilyapp.com/?lang=ru" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
+  </url>
+
+  <!-- English landing variant -->
+  <url>
+    <loc>https://skilyapp.com/?lang=en</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://skilyapp.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://skilyapp.com/?lang=ru" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
+  </url>
+
+  <!-- Russian landing variant -->
+  <url>
+    <loc>https://skilyapp.com/?lang=ru</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://skilyapp.com/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="ru" href="https://skilyapp.com/?lang=ru" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
+  </url>
+
+  <!-- Tests / Тесты -->
   <url>
     <loc>https://skilyapp.com/tests</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Игры -->
+
+  <!-- Games / Juegos -->
   <url>
     <loc>https://skilyapp.com/games</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Словарь терминов -->
+
+  <!-- Pricing / Precios -->
+  <url>
+    <loc>https://skilyapp.com/pricing</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Dictionary / Diccionario -->
   <url>
     <loc>https://skilyapp.com/dictionary</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Дорожные знаки -->
+
+  <!-- Road Signs / Señales de tráfico -->
   <url>
     <loc>https://skilyapp.com/road-signs</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Карта обучения -->
+
+  <!-- Learning Map / Mapa de aprendizaje -->
   <url>
     <loc>https://skilyapp.com/learning-map</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Помощник Skily -->
+
+  <!-- AI Assistant / Asistente IA -->
   <url>
     <loc>https://skilyapp.com/ai-assistant</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Достижения -->
+
+  <!-- About / Acerca de -->
+  <url>
+    <loc>https://skilyapp.com/about</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Help / Ayuda -->
+  <url>
+    <loc>https://skilyapp.com/help</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Legal pages -->
+  <url>
+    <loc>https://skilyapp.com/legal/terms</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://skilyapp.com/legal/privacy</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- Achievements / Logros -->
   <url>
     <loc>https://skilyapp.com/achievements</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Реферальная программа -->
+
+  <!-- Referrals -->
   <url>
     <loc>https://skilyapp.com/referrals</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
-  
-  <!-- Центр помощи -->
-  <url>
-    <loc>https://skilyapp.com/help</loc>
-    <lastmod>2024-12-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- Блог -->
+
+  <!-- Blog -->
   <url>
     <loc>https://skilyapp.com/blog</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Статья: Как сдать экзамен DGT с первого раза -->
+
+  <!-- Blog Articles -->
   <url>
     <loc>https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-  
-  <!-- Статья: Топ-10 ошибок на экзамене DGT -->
+
   <url>
     <loc>https://skilyapp.com/blog/top-10-oshibok-na-ekzamene-dgt</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
-  
+
   <!-- RSS Feed -->
   <url>
     <loc>https://skilyapp.com/rss.xml</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2026-03-22</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.5</priority>
   </url>
-  
+
 </urlset>
-
-

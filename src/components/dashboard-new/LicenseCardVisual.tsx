@@ -249,10 +249,10 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
 
                         {/* Premium Corner Frames */}
                         <div className="absolute inset-0 pointer-events-none">
-                            <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-white/50 rounded-tl-[1px]" />
-                            <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-white/50 rounded-tr-[1px]" />
-                            <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-white/50 rounded-bl-[1px]" />
-                            <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-white/50 rounded-br-[1px]" />
+                            <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-white/50 rounded-tl-[5px]" />
+                            <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-white/50 rounded-tr-[5px]" />
+                            <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-white/50 rounded-bl-[5px]" />
+                            <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-white/50 rounded-br-[5px]" />
                         </div>
                     </div>
 

@@ -1213,6 +1213,55 @@ export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
         </div>
       </section>
 
+      {/* SEO Content Section - keyword-rich, crawlable text */}
+      <section className="relative z-10 px-6 py-16 max-w-[1400px] mx-auto">
+        <div className="prose prose-invert prose-sm max-w-4xl mx-auto text-slate-400 leading-relaxed">
+          {language === 'es' ? (
+            <>
+              <h2 className="text-xl font-bold text-white mb-4">Test DGT {examYear} - La mejor app de autoescuela online gratis</h2>
+              <p>
+                Skilyapp es la <strong>app de autoescuela online gratis</strong> más completa para preparar el <strong>examen teórico DGT {examYear}</strong>.
+                Con más de 1000 <strong>preguntas oficiales del test DGT</strong> actualizadas, <strong>simulacros de examen real</strong> con temporizador de 30 minutos,
+                y un <strong>tutor de inteligencia artificial</strong> disponible 24/7. Nuestra plataforma es ideal para obtener el <strong>permiso de conducir en España</strong> —
+                tanto el <strong>permiso B</strong> como otras categorías.
+              </p>
+              <p>
+                ¿Buscas un <strong>test de conducir gratis</strong> o una <strong>autoescuela móvil</strong>? Skilyapp ofrece todo lo que necesitas para <strong>aprobar el examen DGT a la primera</strong>:
+                <strong>test autoescuela DGT</strong> con preguntas reales, explicaciones detalladas de cada error, y un sistema de gamificación que hace
+                el estudio más divertido. Disponible en <strong>español, inglés y ruso</strong> — perfecto para expatriados y extranjeros en España.
+              </p>
+              <p>
+                Nuestro <strong>simulacro examen DGT</strong> replica las condiciones exactas del examen real: 30 preguntas, 30 minutos, necesitas acertar 27 para aprobar.
+                La IA analiza tus errores y crea un plan de estudio personalizado. <strong>El 97% de nuestros alumnos aprueba el carnet de conducir</strong> con Skilyapp.
+              </p>
+            </>
+          ) : language === 'en' ? (
+            <>
+              <h2 className="text-xl font-bold text-white mb-4">Spain DGT Driving Theory Test {examYear} - Best Free App</h2>
+              <p>
+                Skilyapp is the most comprehensive free app for preparing the <strong>Spanish DGT driving theory test {examYear}</strong>.
+                With over 1000 <strong>official DGT exam questions</strong> in English, <strong>real exam simulation</strong> with 30-minute timer,
+                and an <strong>AI tutor available 24/7</strong>. Perfect for expats and foreigners getting their <strong>driving license in Spain</strong>.
+              </p>
+              <p>
+                Looking for a <strong>Spain driving test app</strong>? Skilyapp offers everything you need to <strong>pass the DGT exam on your first try</strong>:
+                official questions with English translations, detailed explanations for every mistake, and gamified learning that makes studying fun.
+                <strong>97% of our students pass</strong> the Spanish driving theory test with Skilyapp.
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold text-white mb-4">Экзамен DGT {examYear} на русском языке - Лучшее приложение</h2>
+              <p>
+                Skilyapp — лучшее приложение для подготовки к <strong>теоретическому экзамену DGT {examYear}</strong> на русском языке.
+                Более 1000 <strong>официальных вопросов DGT</strong> с переводом, <strong>симуляция реального экзамена</strong>,
+                <strong>AI-репетитор 24/7</strong>. <strong>97% наших студентов сдают с первого раза</strong>.
+              </p>
+            </>
+          )}
+        </div>
+      </section>
+
       <footer className="relative z-10 border-t border-slate-800 bg-[#0f172a]">
         <div className="px-6 py-16 max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">

@@ -50,6 +50,10 @@ const OUTPUT_DIR = DIST_DIR;
 // Список публичных страниц для prerender
 const PUBLIC_ROUTES = [
   '/',
+  // Language-specific landing pages for SEO (Spanish, English, Russian)
+  '/?lang=es',
+  '/?lang=en',
+  '/?lang=ru',
   '/blog',
   // Статьи
   '/article/novye-voprosy-dgt-2025',
@@ -314,6 +318,14 @@ async function prerender() {
         let filePath;
         if (route === '/') {
           filePath = join(OUTPUT_DIR, 'index.html');
+        } else if (route.startsWith('/?lang=')) {
+          // Language-specific landing pages: /?lang=es -> lang/es.html
+          const lang = route.replace('/?lang=', '');
+          const langDir = join(OUTPUT_DIR, 'lang');
+          if (!existsSync(langDir)) {
+            mkdirSync(langDir, { recursive: true });
+          }
+          filePath = join(langDir, `${lang}.html`);
         } else if (route.startsWith('/article/')) {
           const slug = route.replace('/article/', '');
           const articleDir = join(OUTPUT_DIR, 'article');

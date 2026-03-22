@@ -53,8 +53,16 @@ const detectNavigatorLanguage = (): Language | null => {
   return null;
 };
 
+const detectUrlLanguage = (): Language | null => {
+  if (!isBrowser) return null;
+  const params = new URLSearchParams(window.location.search);
+  const lang = params.get('lang');
+  return normalizeLanguage(lang);
+};
+
 const detectPreferredLanguage = (): Language => {
   return (
+    detectUrlLanguage() ||
     getStoredLanguage() ||
     detectNavigatorLanguage() ||
     DEFAULT_LANGUAGE

@@ -1,18 +1,23 @@
-# Robots.txt для Skilyapp - Подготовка к экзамену DGT в Испании
+# Robots.txt for Skilyapp - DGT Driving Test Preparation in Spain
+# Autoescuela online con IA - Test DGT gratis
 # https://skilyapp.com
 
 User-agent: *
 Allow: /
+Allow: /?lang=es
+Allow: /?lang=en
+Allow: /?lang=ru
 Disallow: /admin/
 Disallow: /api/
 Disallow: /_next/
 Disallow: /*.json$
 Disallow: /test-session
 Disallow: /test-results
+Disallow: /dashboard
 
 # Sitemaps
 Sitemap: https://skilyapp.com/sitemap.xml
 Sitemap: https://skilyapp.com/news-sitemap.xml
 
-# Crawl-delay для уважения к серверу
+# Crawl-delay
 Crawl-delay: 1
