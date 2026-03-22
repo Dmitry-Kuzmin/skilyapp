@@ -147,7 +147,7 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
   const slideProgress = ((Date.now() - startTimeRef.current) / 1000 - currentSlide * SLIDE_DURATION) / SLIDE_DURATION;
 
   return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden">
+    <div className="relative w-full h-full min-h-[100dvh] sm:min-h-0 flex flex-col overflow-hidden">
       {/* Animated background */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -183,7 +183,7 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
       </div>
 
       {/* ═══ Top: progress bar + timer ═══ */}
-      <div className="relative z-20 px-4 pt-3 sm:pt-4 pb-2 space-y-2 flex-shrink-0">
+      <div className="relative z-20 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-4 pb-2 space-y-2 flex-shrink-0">
         {/* Segmented progress bar */}
         <div className="flex gap-[3px]">
           {SLIDES.map((_, i) => {
@@ -294,7 +294,7 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
       </div>
 
       {/* ═══ Bottom: CTA + dots ═══ */}
-      <div className="relative z-20 px-5 sm:px-8 pb-5 sm:pb-6 space-y-3 flex-shrink-0">
+      <div className="relative z-20 px-5 sm:px-8 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pb-6 space-y-3 flex-shrink-0">
         {/* Subscribe CTA */}
         {onSubscribe && (
           <motion.button

@@ -198,7 +198,7 @@ export function RewardedAdModal({
             className={cn(
               "relative overflow-hidden shadow-none border-none",
               showPromo
-                ? "w-full h-full sm:w-[420px] sm:h-[680px] sm:max-h-[90vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-white/10 flex flex-col"
+                ? "w-full h-full sm:w-[480px] sm:h-auto sm:min-h-[600px] sm:max-h-[92vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-white/10 flex flex-col"
                 : inlineOverlay
                   ? "w-full h-full flex flex-col justify-center rounded-xl"
                   : "w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
@@ -228,7 +228,11 @@ export function RewardedAdModal({
             {/* Content */}
             <div className={cn(
               "relative z-10 flex flex-col items-center w-full",
-              inlineOverlay ? "h-full justify-center overflow-y-auto no-scrollbar" : "overflow-y-auto no-scrollbar pb-6"
+              showPromo
+                ? "h-full flex-1 min-h-0"
+                : inlineOverlay
+                  ? "h-full justify-center overflow-y-auto no-scrollbar"
+                  : "overflow-y-auto no-scrollbar pb-6"
             )}>
               <AnimatePresence mode="wait">
                 {showPromo ? (
@@ -237,7 +241,7 @@ export function RewardedAdModal({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="w-full h-full"
+                    className="w-full h-full flex-1"
                   >
                     <PremiumPromoAd
                       onComplete={handlePromoComplete}
