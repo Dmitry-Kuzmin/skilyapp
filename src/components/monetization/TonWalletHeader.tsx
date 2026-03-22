@@ -1,24 +1,34 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     useAddress,
     useBalance,
-    TonConnectButton
 } from '@ton/appkit-react';
-import { Wallet, Loader2, RefreshCw } from 'lucide-react';
+import { tonConnectUI } from '@/lib/ton-appkit';
+import { Wallet, Loader2, LogOut, Copy, Check, ExternalLink } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 
+/**
+ * TonWalletHeader — compact wallet badge for shop header.
+ *
+ * Uses tonConnectUI directly (not hidden TonConnectButton) for:
+ * - openModal() to connect
+ * - disconnect() to disconnect
+ * - Custom dropdown menu with address, balance, actions
+ *
+ * Server-side persistence via profiles.ton_wallet_address
+ */
 export const TonWalletHeader: React.FC = () => {
     const liveAddress = useAddress();
     const { balance: rawBalance, isLoading: isBalanceLoading } = useBalance();
     const { profileId } = useUserContext();
-    const tcRef = useRef<HTMLDivElement>(null);
+
     const [savedAddress, setSavedAddress] = useState<string | null>(null);
     const [apiBalance, setApiBalance] = useState<string | null>(null);
     const [dbLoaded, setDbLoaded] = useState(false);
     const [restoreTimedOut, setRestoreTimedOut] = useState(false);
-
-    // ALL hooks must be called before any conditional return
+    const [showMenu, setShowMenu] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     // Load saved wallet address from DB on mount
     useEffect(() => {
@@ -61,15 +71,54 @@ export const TonWalletHeader: React.FC = () => {
         return () => clearTimeout(timer);
     }, [savedAddress, liveAddress]);
 
-    // Handle tap on the badge — programmatically click hidden TonConnectButton
-    const handleTap = useCallback(() => {
-        const btn = tcRef.current?.querySelector('button') ||
-                    tcRef.current?.querySelector('div[role="button"]') ||
-                    tcRef.current?.firstElementChild;
-        if (btn instanceof HTMLElement) {
-            btn.click();
+    // Close menu on outside click
+    useEffect(() => {
+        if (!showMenu) return;
+        const handler = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (!target.closest('[data-ton-menu]')) {
+                setShowMenu(false);
+            }
+        };
+        document.addEventListener('click', handler, true);
+        return () => document.removeEventListener('click', handler, true);
+    }, [showMenu]);
+
+    const handleConnect = useCallback(() => {
+        try {
+            tonConnectUI.openModal();
+        } catch (e) {
+            console.error('[TON] Failed to open modal:', e);
         }
     }, []);
+
+    const handleDisconnect = useCallback(async () => {
+        try {
+            await tonConnectUI.disconnect();
+            setSavedAddress(null);
+            setApiBalance(null);
+            setShowMenu(false);
+        } catch (e) {
+            console.error('[TON] Disconnect failed:', e);
+        }
+    }, []);
+
+    const handleCopy = useCallback(() => {
+        const addr = liveAddress || savedAddress;
+        if (addr) {
+            navigator.clipboard.writeText(addr).catch(() => {});
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    }, [liveAddress, savedAddress]);
+
+    const handleExplorer = useCallback(() => {
+        const addr = liveAddress || savedAddress;
+        if (addr) {
+            window.open(`https://tonviewer.com/${addr}`, '_blank');
+            setShowMenu(false);
+        }
+    }, [liveAddress, savedAddress]);
 
     // Derived state
     const tonBalance = rawBalance ? (Number(rawBalance) / 1e9).toFixed(2) : null;
@@ -77,13 +126,18 @@ export const TonWalletHeader: React.FC = () => {
     const hasSavedWallet = !!savedAddress;
     const showConnected = isLiveConnected || hasSavedWallet;
     const isRestoring = hasSavedWallet && !isLiveConnected && !restoreTimedOut;
+    const activeAddress = liveAddress || savedAddress;
 
     // Not connected and no saved wallet — show Connect button
     if (!showConnected) {
         return (
-            <div className="scale-[0.78] origin-right">
-                <TonConnectButton />
-            </div>
+            <button
+                onClick={handleConnect}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0098EA]/15 hover:bg-[#0098EA]/25 rounded-xl border border-[#0098EA]/30 active:scale-95 transition-all"
+            >
+                <Wallet className="w-3.5 h-3.5 text-[#0098EA]" />
+                <span className="text-[11px] font-bold text-[#0098EA]">Connect</span>
+            </button>
         );
     }
 
@@ -100,17 +154,19 @@ export const TonWalletHeader: React.FC = () => {
     }
 
     const showSpinner = isRestoring && !apiBalance;
+    const shortAddr = activeAddress
+        ? `${activeAddress.slice(0, 4)}···${activeAddress.slice(-4)}`
+        : '';
 
     return (
-        <div className="relative">
+        <div className="relative" data-ton-menu>
+            {/* Balance badge */}
             <button
-                onClick={handleTap}
-                className="flex items-center gap-1.5 pl-2 pr-2 py-1.5 bg-[#0098EA]/12 rounded-xl border border-[#0098EA]/20 active:scale-95 transition-transform"
+                onClick={() => setShowMenu(prev => !prev)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#0098EA]/12 hover:bg-[#0098EA]/20 rounded-xl border border-[#0098EA]/25 active:scale-95 transition-all"
             >
                 {showSpinner ? (
                     <Loader2 className="w-3.5 h-3.5 text-[#0098EA] flex-shrink-0 animate-spin" />
-                ) : restoreTimedOut && !isLiveConnected ? (
-                    <RefreshCw className="w-3.5 h-3.5 text-[#0098EA]/60 flex-shrink-0" />
                 ) : (
                     <Wallet className="w-3.5 h-3.5 text-[#0098EA] flex-shrink-0" />
                 )}
@@ -118,14 +174,87 @@ export const TonWalletHeader: React.FC = () => {
                     {displayBalance}
                 </span>
             </button>
-            {/* Hidden TonConnect button — programmatically clicked */}
-            <div
-                ref={tcRef}
-                className="absolute top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none"
-                aria-hidden="true"
-            >
-                <TonConnectButton />
-            </div>
+
+            {/* Dropdown menu */}
+            {showMenu && (
+                <div className="absolute top-full right-0 mt-2 w-56 bg-[#1a1a2e] border border-white/10 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-[10001]"
+                     style={{ animation: 'fadeInDown 0.15s ease-out' }}
+                >
+                    {/* Address header */}
+                    <div className="px-4 pt-3 pb-2 border-b border-white/5">
+                        <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-[#0098EA]/20 flex items-center justify-center flex-shrink-0">
+                                <Wallet className="w-3.5 h-3.5 text-[#0098EA]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
+                                    {isLiveConnected ? 'Подключён' : isRestoring ? 'Восстановление...' : 'Сохранён'}
+                                </p>
+                                <p className="text-[12px] text-white/80 font-mono truncate">
+                                    {shortAddr}
+                                </p>
+                            </div>
+                        </div>
+                        {/* Balance */}
+                        <div className="mt-2.5 mb-1 text-center">
+                            <span className="text-xl font-bold text-white tabular-nums">
+                                {displayBalance}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="p-1.5">
+                        <button
+                            onClick={handleCopy}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/5 active:bg-white/10 transition-colors"
+                        >
+                            {copied ? (
+                                <Check className="w-4 h-4 text-green-400" />
+                            ) : (
+                                <Copy className="w-4 h-4 text-white/50" />
+                            )}
+                            <span className="text-[13px] text-white/70">
+                                {copied ? 'Скопировано!' : 'Копировать адрес'}
+                            </span>
+                        </button>
+
+                        <button
+                            onClick={handleExplorer}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-white/5 active:bg-white/10 transition-colors"
+                        >
+                            <ExternalLink className="w-4 h-4 text-white/50" />
+                            <span className="text-[13px] text-white/70">
+                                Открыть в Tonviewer
+                            </span>
+                        </button>
+
+                        {!isLiveConnected && hasSavedWallet && (
+                            <button
+                                onClick={() => { handleConnect(); setShowMenu(false); }}
+                                className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-[#0098EA]/10 active:bg-[#0098EA]/20 transition-colors"
+                            >
+                                <Wallet className="w-4 h-4 text-[#0098EA]" />
+                                <span className="text-[13px] text-[#0098EA] font-medium">
+                                    Переподключить
+                                </span>
+                            </button>
+                        )}
+
+                        <div className="mx-2 my-1 border-t border-white/5" />
+
+                        <button
+                            onClick={handleDisconnect}
+                            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-red-500/10 active:bg-red-500/20 transition-colors"
+                        >
+                            <LogOut className="w-4 h-4 text-red-400/70" />
+                            <span className="text-[13px] text-red-400/70">
+                                Отключить кошелёк
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

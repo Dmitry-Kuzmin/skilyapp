@@ -26,6 +26,9 @@ const tonConnector = new TonConnectConnector({
     tonConnectUI: tonConnectUI,
 });
 
+// Export tonConnectUI for direct modal/disconnect control
+export { tonConnectUI };
+
 export const appKit = new AppKit({
     networks: {
         [Network.mainnet().chainId]: {
