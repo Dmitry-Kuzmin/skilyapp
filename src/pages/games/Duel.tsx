@@ -380,6 +380,13 @@ export default function Duel() {
 
         // Если нет URL параметра, проверяем activeDuel
         if (activeDuel && activeDuel.duelId) {
+            // FIX: Если уже переходим к результатам — не трогаем mode, только гарантируем 'result'
+            if (activeDuel.mode === 'result') {
+                console.log('[Duel] ✅ activeDuel.mode=result, ensuring mode=result without re-init');
+                setMode('result');
+                return;
+            }
+
             console.log('[Duel] 🔄 Restoring active duel from localStorage:', {
                 duelId: activeDuel.duelId,
                 mode: activeDuel.mode,
@@ -446,7 +453,10 @@ export default function Duel() {
             checkDuelStatusAndRestore();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isChecking, activeDuel, searchParams, dataLoaded, handleDuelStarted]);
+        // FIX: используем activeDuel?.duelId вместо activeDuel — эффект не должен
+        // перезапускаться когда меняется только mode/currentIndex внутри activeDuel.
+        // Это предотвращает гонку: updateActiveDuel({mode:'result'}) → effect re-runs → handleDuelStarted → setMode('battle')
+    }, [isChecking, activeDuel?.duelId, searchParams, dataLoaded, handleDuelStarted]);
 
     useEffect(() => {
         // Показываем уведомления только после полной загрузки данных
@@ -1625,8 +1635,7 @@ export default function Duel() {
                             </motion.div>
 
                             {/* — Поиск и Лобби — */}
-                            <AnimatePresence mode="wait">
-
+                            <AnimatePresence>
 
                                 {/* — Случайный соперник — */}
                                 {(duelMode === 'random' || duelMode === 'friend' || createdCode) && (
@@ -1636,7 +1645,7 @@ export default function Duel() {
                                         initial={{ opacity: 0, y: 16 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -10 }}
-                                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                                     >
                                         {/* Блок настроек лобби */}
 

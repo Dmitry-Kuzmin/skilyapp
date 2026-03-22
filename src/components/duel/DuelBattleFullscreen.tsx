@@ -533,6 +533,32 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     }
   }, [realtimeState.duelFinished, transitionToResults]);
 
+  // FALLBACK: Polling when waiting — catches finish when Realtime fails in Telegram Mini Apps
+  useEffect(() => {
+    if (!isWaitingForOpponent || !duelId || hasTransitionedRef.current) return;
+
+    const checkDuelStatus = async () => {
+      if (hasTransitionedRef.current) return;
+      try {
+        const { data } = await supabase
+          .from('duels')
+          .select('status')
+          .eq('id', duelId)
+          .single();
+        if (data?.status === 'finished' && !hasTransitionedRef.current) {
+          hasTransitionedRef.current = true;
+          log('[DuelBattleFullscreen] 🔄 Polling: Duel finished detected. Transitioning to results...');
+          transitionToResults();
+        }
+      } catch (e) {
+        // ignore poll errors silently
+      }
+    };
+
+    const interval = setInterval(checkDuelStatus, 3000);
+    return () => clearInterval(interval);
+  }, [isWaitingForOpponent, duelId, transitionToResults]);
+
   // ОПТИМИЗАЦИЯ: Мемоизируем вычисления safe area (должно быть выше useEffect, который их использует)
   const isTelegramMobile = safeArea.platform === 'ios' || safeArea.platform === 'android';
 
