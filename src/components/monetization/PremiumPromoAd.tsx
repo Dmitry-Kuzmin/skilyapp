@@ -147,7 +147,7 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
   const slideProgress = ((Date.now() - startTimeRef.current) / 1000 - currentSlide * SLIDE_DURATION) / SLIDE_DURATION;
 
   return (
-    <div className="relative w-full h-full min-h-[100dvh] sm:min-h-0 flex flex-col overflow-hidden">
+    <div className="relative w-full h-full flex flex-col overflow-hidden" style={{ minHeight: 'inherit' }}>
       {/* Animated background */}
       <AnimatePresence mode="wait">
         <motion.div

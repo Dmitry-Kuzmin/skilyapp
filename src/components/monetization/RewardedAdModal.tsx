@@ -180,8 +180,12 @@ export function RewardedAdModal({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            "z-50 flex items-end sm:items-center justify-center p-0 backdrop-blur-3xl bg-[#0b0d14]",
-            inlineOverlay ? "absolute inset-0 rounded-xl overflow-hidden" : "fixed inset-0 sm:p-4"
+            "z-50 flex justify-center p-0 backdrop-blur-3xl bg-[#0b0d14]",
+            inlineOverlay
+              ? "absolute inset-0 rounded-xl overflow-hidden items-center"
+              : showPromo
+                ? "fixed inset-0 items-stretch sm:items-center sm:p-4"
+                : "fixed inset-0 items-end sm:items-center sm:p-4"
           )}
           onClick={() => !showPromo && onOpenChange(false)}
         >
@@ -197,11 +201,13 @@ export function RewardedAdModal({
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
               "relative overflow-hidden shadow-none border-none",
-              showPromo
+              showPromo && !inlineOverlay
                 ? "w-full h-full sm:w-[480px] sm:h-auto sm:min-h-[600px] sm:max-h-[92vh] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-white/10 flex flex-col"
-                : inlineOverlay
-                  ? "w-full h-full flex flex-col justify-center rounded-xl"
-                  : "w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
+                : showPromo && inlineOverlay
+                  ? "w-full h-full flex flex-col rounded-xl"
+                  : inlineOverlay
+                    ? "w-full h-full flex flex-col justify-center rounded-xl"
+                    : "w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl max-h-[85vh] flex flex-col"
             )}
             onClick={(e) => e.stopPropagation()}
           >
