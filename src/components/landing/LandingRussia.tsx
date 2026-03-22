@@ -459,16 +459,23 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
     // Для мобильных устройств (touch + small screen) редирект на /login
     if (isStarting) return; // избегаем двойного триггера во время анимации
     setIsStarting(true);
-    playEngineSound();
-    
+
+    try { playEngineSound(); } catch { /* audio never blocks UI */ }
+
     // Даем 1000ms-1500ms на вибрацию двигателя перед переходом
     const delay = isMobile ? 1200 : 1500;
-    
+
     setTimeout(() => {
-      if (isMobile) navigate('/login');
-      else onRequestAccess();
-      setIsStarting(false);
+      try {
+        if (isMobile) navigate('/login');
+        else onRequestAccess();
+      } finally {
+        setIsStarting(false);
+      }
     }, delay);
+
+    // Safety: гарантируем разблокировку кнопки даже если setTimeout потерялся
+    setTimeout(() => setIsStarting(false), delay + 500);
   };
 
   const handleEnter = () => {
@@ -697,8 +704,8 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         </div>
       )}
 
-      {/* HERO SECTION */}
-      <section className="relative z-10 px-6 py-20 md:py-32 max-w-[1400px] mx-auto flex flex-col items-center justify-center text-center min-h-[600px] h-auto">
+      {/* HERO SECTION — z-[60] чтобы кнопка Engine была ВЫШЕ любых invisible overlays (AdSense, consent и тд) */}
+      <section className="relative z-[60] px-6 py-20 md:py-32 max-w-[1400px] mx-auto flex flex-col items-center justify-center text-center min-h-[600px] h-auto">
         {/* Badge с электрическим синим */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[9px] sm:text-[10px] font-bold tracking-[0.25em] uppercase mb-5 sm:mb-6 animate-fade-in relative z-20">
           <span className="text-base leading-none">{selectedCountry.flag}</span>

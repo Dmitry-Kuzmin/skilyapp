@@ -233,6 +233,24 @@ body:has([data-tc-wallets-modal-container="true"]) {
   }
 }
 
+/* 🛡️ LANDING PAGE CLICK PROTECTION */
+/* Google AdSense/Funding Choices consent overlays + любые внешние скрипты */
+/* Эти элементы могут создавать invisible fixed overlays, блокирующие клики на кнопку Engine */
+.fc-consent-root,
+.fc-dialog-overlay,
+.fc-dialog-container,
+[id^="google_ads_"],
+[id*="google_esf"],
+[class*="fc-consent"],
+[class*="fc-dialog"],
+div[data-google-query-id],
+iframe[id^="google_ads_iframe"],
+iframe[name^="google_ads_iframe"],
+ins.adsbygoogle[data-ad-status] {
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
 /* Telegram WebApp Theme Variables */
 :root {
   --tg-theme-bg-color: var(--background);
