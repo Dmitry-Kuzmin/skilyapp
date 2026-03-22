@@ -36,11 +36,26 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
             receivedAt: state.receivedAt,
         }));
 
+        // 🔴 CRITICAL DEBUG: Логируем состояние Map при каждом пересчёте
+        if (activeExploits?.size > 0) {
+            console.error('[ArenaEffects] 🔴 EXPLOITS IN STORE MAP:', {
+                mapSize: activeExploits.size,
+                mapKeys: Array.from(activeExploits.keys()),
+                exploitsArray: exploits,
+                now,
+            });
+        }
+
         const findExploit = (types: string[]) => exploits.find(e => {
             if (!types.includes(e.type)) return false;
             const isExpired = e.expiresAt <= now;
             const expiredBy = now - e.expiresAt;
-            return !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
+            const found = !isExpired || expiredBy <= NETWORK_LATENCY_BUFFER_MS;
+            // 🔴 CRITICAL DEBUG: Логируем каждый найденный exploit
+            if (found) {
+                console.error('[ArenaEffects] 🔴 EXPLOIT FOUND:', { type: e.type, isExpired, expiredBy, passed: e.passed, id: e.id });
+            }
+            return found;
         });
 
         const screenInjector = findExploit(['screen_injector', 'data_leak', 'oil_spill']);

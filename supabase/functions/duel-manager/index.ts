@@ -2919,16 +2919,31 @@ Deno.serve(async (req) => {
         // Причина: selected_option_id клиент берёт из question_snapshot (снимок на момент создания дуэли).
         // Если вопросы были переимпортированы, ID в answer_options уже другие и НИКОГДА не совпадут.
         // correct_option_ids записывается из ТОГО ЖЕ снимка → гарантированное совпадение.
-        const correctOptionIds = (question.correct_option_ids || []) as string[];
+        // correct_option_ids — JSONB column, Supabase возвращает как parsed JSON (массив строк)
+        const rawCorrectIds = question.correct_option_ids;
+        // Гарантируем что это массив строк (JSONB может вернуть разные типы)
+        const correctOptionIds: string[] = Array.isArray(rawCorrectIds)
+          ? rawCorrectIds.map(String)
+          : typeof rawCorrectIds === 'string'
+            ? [rawCorrectIds]
+            : [];
+
         const isSkipped = !selected_option_id || is_timeout;
-        const isCorrect = !isSkipped && selected_option_id
-          ? correctOptionIds.includes(selected_option_id)
+        const selectedStr = selected_option_id ? String(selected_option_id) : '';
+        const isCorrect = !isSkipped && selectedStr
+          ? correctOptionIds.includes(selectedStr)
           : false;
 
         console.log('[submit_answer] 🔍 Answer check:', {
           selected: selected_option_id,
-          correctIds: correctOptionIds,
-          isCorrect
+          selectedType: typeof selected_option_id,
+          rawCorrectIds: rawCorrectIds,
+          rawType: typeof rawCorrectIds,
+          isArray: Array.isArray(rawCorrectIds),
+          correctOptionIds,
+          isCorrect,
+          question_id: question.question_id,
+          duel_question_id,
         });
 
         // Calculate combo BEFORE this answer (consecutive correct answers from history)

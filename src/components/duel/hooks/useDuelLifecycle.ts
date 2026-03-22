@@ -120,11 +120,16 @@ export function useDuelLifecycle({
     // 4. Realtime Exploits Sync
     useEffect(() => {
         if (!state.activeExploits) return;
+        // 🔴 CRITICAL DEBUG: Логируем ВСЕ вызовы sync (console.error видно в prod)
+        if (state.activeExploits.length > 0) {
+            console.error('[DuelLifecycle] 🔴 SYNCING activeExploits to store:', {
+                count: state.activeExploits.length,
+                types: state.activeExploits.map((e: any) => e.type),
+                ids: state.activeExploits.map((e: any) => e.id),
+                exploits: state.activeExploits,
+            });
+        }
         syncActiveExploits(state.activeExploits);
-        console.log('[DuelLifecycle] 🔄 activeExploits synced to store:', {
-            count: state.activeExploits.length,
-            types: state.activeExploits.map((e: any) => e.type)
-        });
     }, [state.activeExploits, syncActiveExploits]);
 
     // 5. Attack Effects (Screen Shake)

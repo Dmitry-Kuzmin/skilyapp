@@ -274,6 +274,15 @@ export const useDuelStore = create<DuelState>()(
                     return state;
                 }
 
+                // 🔴 CRITICAL DEBUG: Логируем КАЖДЫЙ вызов syncActiveExploits (console.error = видно в prod)
+                console.error('[duelStore] 🔴 syncActiveExploits CALLED:', {
+                    incomingCount: incomingExploits.length,
+                    incomingTypes: incomingExploits.map((e: any) => e.type),
+                    incomingIds: incomingExploits.map((e: any) => e.id),
+                    currentMapSize: state.activeExploits.size,
+                    currentMapKeys: Array.from(state.activeExploits.keys()),
+                });
+
                 const newMap = new Map<string, ExploitState>(state.activeExploits);
                 let hasNewAttack = false;
 
@@ -282,7 +291,7 @@ export const useDuelStore = create<DuelState>()(
                     const isNew = !existing;
 
                     newMap.set(exploit.type, {
-                        id: exploit.id || existing?.id,   // Сохраняем ID для removeExploit
+                        id: (exploit as any).id || existing?.id,   // Сохраняем ID для removeExploit
                         expiresAt: exploit.expiresAt,
                         receivedAt: exploit.receivedAt,
                         passed: existing?.passed || false,
@@ -292,6 +301,14 @@ export const useDuelStore = create<DuelState>()(
                         const isAttack = ['screen_injector', 'data_leak', 'oil_spill', 'police_backdoor', 'input_lag', 'gps_spoofing', 'cryptolocker', 'ice_screen', 'sun_glare', 'rain_storm', 'bug_splat', 'fog_screen'].includes(exploit.type);
                         if (isAttack) hasNewAttack = true;
                     }
+                });
+
+                // 🔴 CRITICAL DEBUG: Логируем результат
+                console.error('[duelStore] 🔴 syncActiveExploits RESULT:', {
+                    newMapSize: newMap.size,
+                    newMapKeys: Array.from(newMap.keys()),
+                    newMapEntries: Array.from(newMap.entries()).map(([k, v]) => ({ type: k, id: v.id, expiresAt: v.expiresAt, passed: v.passed })),
+                    hasNewAttack,
                 });
 
                 return {
