@@ -17,7 +17,6 @@ import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
 import { PaywallModal } from "./PaywallModal";
 import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
-import { PremiumPlanSelector } from "./PremiumPlanSelector";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { DuelPassLeaderboardView } from "@/components/leaderboard/DuelPassLeaderboardModal";
@@ -368,7 +367,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const [cosmeticQueue, setCosmeticQueue] = useState<any[]>([]);
   const [activeCosmeticReward, setActiveCosmeticReward] = useState<any | null>(null);
   const [isApplyingAppearance, setIsApplyingAppearance] = useState(false);
-  const [showPremiumSelector, setShowPremiumSelector] = useState(false);
   const [hasPremiumForever, setHasPremiumForever] = useState(false);
   const [hasPremiumPass, setHasPremiumPass] = useState(false);
   const [rewardDetails, setRewardDetails] = useState<Record<string, RewardDefinitionDetails>>({});
@@ -1857,7 +1855,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setShowPremiumSelector(true);
+                      setShowPaywall(true);
                     }}
                     className="w-full sm:w-auto bg-amber-500 text-amber-950 hover:bg-amber-400 font-bold rounded-xl shadow-md shadow-amber-500/20"
                   >
@@ -2147,7 +2145,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         contentClassName: showUpcoming ? "px-4 sm:px-6 py-4" : "px-0 sm:px-6",
         loading: false, // Управляем лоадингом сами через modalContent для стабильности
       })}
-      <PaywallModal open={showPaywall} onOpenChange={setShowPaywall} />
+      <PaywallModal 
+        open={showPaywall} 
+        onOpenChange={(open) => {
+          setShowPaywall(open);
+          if (!open) {
+            loadSeasonData(true);
+          }
+        }} 
+      />
       {premiumRewardPreview && (
         <PremiumRewardUpsell
           open={!!premiumRewardPreview}
@@ -2178,16 +2184,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           isApplying={isApplyingAppearance}
         />
       )}
-      <PremiumPlanSelector
-        open={showPremiumSelector}
-        onOpenChange={(open) => {
-          setShowPremiumSelector(open);
-          if (!open) {
-            loadSeasonData(true);
-          }
-        }}
-        triggerSource="duel_pass"
-      />
     </>
   );
 }
