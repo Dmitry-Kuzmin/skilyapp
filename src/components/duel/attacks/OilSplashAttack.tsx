@@ -87,16 +87,16 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   }, [cleanPercent]);
 
   // --- Configuration ---
-  // КРИТИЧНО: Адаптивный размер губки - больше на desktop для быстрой очистки
-  const SPONGE_SIZE = isDesktop ? 420 : 80; // Desktop: 420, Mobile: 80 (уменьшено с 100 для более медленной очистки)
-  const REQUIRED_CLEAN_PERCENTAGE = 85; // Увеличено до 85 для более сбалансированной очистки
+  // КРИТИЧНО: Адаптивный размер губки - больше на desktop для экстремально быстрой очистки
+  const SPONGE_SIZE = isDesktop ? 650 : 200; // Увеличено для десктопа (было 420) и мобилок (было 180)
+  const REQUIRED_CLEAN_PERCENTAGE = 80; // Снижено с 85 для более быстрого завершения
   
   // Fluid Physics Config - оптимизировано для desktop
   // КРИТИЧНО: Адаптивный COLUMN_WIDTH - больше на desktop = меньше колонок = быстрее
-  const COLUMN_WIDTH = isDesktop ? 30 : 15; // Удвоено на desktop для уменьшения количества колонок
-  const GRAVITY = isDesktop ? 8.0 : 3.0; // Увеличено с 5.0 до 8.0 для desktop
+  const COLUMN_WIDTH = isDesktop ? 40 : 20; // Увеличено для десктопа для ускорения рендеринга
+  const GRAVITY = isDesktop ? 10.0 : 4.0; // Ускоренное падение масла на десктопе
   const VISCOSITY = 0.5; 
-  const TERMINAL_VELOCITY = isDesktop ? 250 : 120; // Увеличено с 180 до 250 для desktop
+  const TERMINAL_VELOCITY = isDesktop ? 300 : 150; 
 
   // Refs for physics/animation
   const columnsRef = useRef<number[]>([]);
@@ -618,7 +618,7 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   // КРИТИЧНО: Debounce ref для предотвращения слишком частых вызовов
   const checkProgressDebounceRef = useRef<number | null>(null);
   const lastCheckTimeRef = useRef<number>(0);
-  const MIN_CHECK_INTERVAL = 500; // Минимальный интервал между проверками (500ms)
+  const MIN_CHECK_INTERVAL = 150; // Ускорена реакция счетчика (было 500)
   // КРИТИЧНО: Ref для отслеживания монтирования компонента
   const isMountedRef = useRef<boolean>(true);
   
@@ -673,8 +673,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     
     const w = canvas.width;
     const h = canvas.height;
-    // КРИТИЧНО: Увеличиваем stride для еще большей оптимизации (меньше проверок)
-    const stride = isDesktop ? 120 : 100; // Больше stride для desktop
+    // КРИТИЧНО: Уменьшен шаг (stride) для повышения точности на больших разрешениях
+    const stride = isDesktop ? 25 : 30; // Максимальная точность для десктопа
     
     try {
         // КРИТИЧНО: Используем requestAnimationFrame для отложенного чтения
@@ -831,8 +831,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   useEffect(() => {
     if (phase === 'cleaning' && isActive) {
         // КРИТИЧНО: Увеличены интервалы для снижения нагрузки
-        // Проверяем реже, но более эффективно
-        const checkInterval = isDesktop ? 800 : 1000; // Увеличено с 150/300 до 800/1000
+        // КРИТИЧНО: Интервалы проверки оптимизированы для мгновенного отклика
+        const checkInterval = isDesktop ? 600 : 800; // Было 800/1000
         const delayStart = setTimeout(() => {
              // Первая проверка сразу
              checkProgress();
@@ -892,12 +892,11 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
     
     ctx.globalCompositeOperation = 'destination-out';
     const radius = SPONGE_SIZE / 2;
-    // КРИТИЧНО: Увеличенные параметры очистки для desktop - более мощная губка для быстрой очистки
-    // Mobile: уменьшены коэффициенты для более медленной и точной очистки
-    const effectiveRadius = isDesktop ? radius * 1.5 : radius * 0.3; // Desktop: 1.5, Mobile: 0.3 (уменьшено с 0.4)
-    const scrubRadius = isDesktop ? radius * 1.3 : radius * 0.25; // Desktop: 1.3, Mobile: 0.25 (уменьшено с 0.3)
-    const scrubDistance = isDesktop ? radius * 1.1 : radius * 0.15; // Desktop: 1.1, Mobile: 0.15 (уменьшено с 0.2)
-    const scrubCount = isDesktop ? 16 : 2; // Desktop: 16 точек, Mobile: 2 точки (уменьшено с 3)
+    // КРИТИЧНО: Экстремальное усиление мощи губки
+    const effectiveRadius = isDesktop ? radius * 2.2 : radius * 0.9; // Было 1.5 на десктопе
+    const scrubRadius = isDesktop ? radius * 2.0 : radius * 0.8; // Было 1.3 на десктопе
+    const scrubDistance = isDesktop ? radius * 1.8 : radius * 0.6; // Было 1.1 на десктопе
+    const scrubCount = isDesktop ? 24 : 6; // Было 16 на десктопе
     
     // Scrubbing с нормализованными координатами
     ctx.beginPath();
@@ -1223,27 +1222,27 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
             {/* Progress Bar */}
             <div className="absolute top-10 left-0 right-0 flex justify-center pointer-events-none z-30">
                 <div className="bg-zinc-950/80 backdrop-blur-md border border-red-500/30 px-8 py-4 rounded-xl shadow-2xl flex flex-col items-center gap-2">
-                    <div className="flex justify-between w-full text-xs font-mono text-red-400 mb-1">
+                    <div className="flex justify-between w-full text-xs font-mono text-emerald-400 mb-1">
                         <span>ВИДИМОСТЬ</span>
-                        <span>{cleanPercent >= REQUIRED_CLEAN_PERCENTAGE ? 'ВОССТАНОВЛЕНА' : 'КРИТИЧЕСКАЯ'}</span>
+                        <span>{cleanPercent >= REQUIRED_CLEAN_PERCENTAGE ? 'ВОССТАНОВЛЕНА' : 'ВОССТАНОВЛЕНИЕ...'}</span>
                     </div>
                     <div className="flex items-center gap-4 w-80">
                         <div className="flex-1 h-4 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
                             <div 
                                 className={`h-full transition-all duration-300 relative ${
                                   cleanPercent >= REQUIRED_CLEAN_PERCENTAGE 
-                                    ? 'bg-gradient-to-r from-green-600 via-green-500 to-green-400' 
-                                    : 'bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500'
+                                    ? 'bg-gradient-to-r from-emerald-600 to-emerald-400' 
+                                    : 'bg-gradient-to-r from-indigo-600 to-purple-500'
                                 }`}
-                                style={{ width: `${Math.max(0, Math.min(100, 100 - cleanPercent))}%` }} 
+                                style={{ width: `${Math.max(0, Math.min(100, cleanPercent))}%` }} 
                             >
                                 <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:20px_20px] animate-[pulse_1s_infinite]"></div>
                             </div>
                         </div>
                         <span className={`font-mono font-bold text-lg ${
-                          cleanPercent >= REQUIRED_CLEAN_PERCENTAGE ? 'text-green-400' : 'text-white'
+                          cleanPercent >= REQUIRED_CLEAN_PERCENTAGE ? 'text-emerald-400' : 'text-white'
                         }`}>
-                          {Math.round(Math.max(0, Math.min(100, 100 - cleanPercent)))}%
+                          {Math.round(Math.max(0, Math.min(100, cleanPercent)))}%
                         </span>
                     </div>
                 </div>
