@@ -242,6 +242,143 @@ export const en = {
     startButton: "Start",
     level: "Level",
     streak: "Daily Streak",
+    toasts: {
+      suspendedTitle: "License Suspended",
+      suspendedDesc: "Please enroll in a rehabilitation course to recover your points.",
+      rehabCompleteTitle: "Course Completed!",
+      rehabCompleteDesc: "Your points have been recovered (+6). Get ready for the exam!",
+    },
+    examReadiness: {
+      title: "Exam Probability",
+      aiPredict: "AI PREDICTION",
+      telemetryTitle: "TELEMETRY & PREDICTION",
+      levelsTitle: "FLIGHT LEVELS",
+      advancedTelemetryTitle: "ADVANCED TELEMETRY",
+      noData: {
+        shortLabel: "Start training",
+        statusLabel: "No data. Pass your first test to start tracking progress.",
+        description: "You just joined the platform. Pass the first test so the system can evaluate your current readiness and create a personal training plan.",
+      },
+      levels: {
+        start: {
+          title: "START",
+          desc: "Engine starting. The path is just beginning.",
+        },
+        progress: {
+          title: "IN PROGRESS",
+          desc: "Picking up speed. Efforts are already visible.",
+        },
+        near: {
+          title: "ALMOST READY",
+          desc: "Finish line in sight. One last push.",
+        },
+        ready: {
+          title: "READY",
+          desc: "Green light. Sensors show full readiness.",
+        },
+        legend: {
+          title: "LEGEND",
+          desc: "Legend level. You have surpassed perfection.",
+        },
+      },
+    },
+    analytics: {
+      loading: "Loading analytics...",
+      criticalPoint: {
+        title: "CRITICAL POINT",
+        stats: "{{errorRate}}% errors · {{attempts}} attempts",
+      },
+      trend: {
+        title: "Trend",
+        positive: "Positive",
+        negative: "Negative",
+        stable: "Stable",
+      },
+      consistency: {
+        title: "Stability",
+        high: "High",
+        medium: "Medium",
+        low: "Low",
+      },
+      eta: {
+        title: "AI PREDICTION",
+        days: "{{days}} days",
+        desc: "To reach \"READY\" level (85%) at current pace",
+        highConfidence: "High confidence",
+        mediumConfidence: "Medium confidence",
+        lowConfidence: "Low confidence",
+      },
+      focusBattery: {
+        title: "Focus Battery",
+      },
+      activity: {
+        title: "NEURONAL ACTIVITY",
+        last30Days: "LAST 30 DAYS",
+        tests: "{{count}} tests",
+      },
+    },
+    rehab: {
+      title: "Rehabilitation",
+      passed: {
+        title: "COURSE COMPLETED",
+        desc: "Your knowledge has been validated. +6 points awarded.",
+        button: "BACK TO TRAINING",
+      },
+      failed: {
+        title: "TEST FAILED",
+        desc: "To recover, you must answer all questions correctly.",
+        button: "TRY LATER",
+      },
+    },
+    dailyRewards: {
+      title: "Daily Streak",
+      week: "Week {{number}}",
+      days: "DAYS",
+      nextReward: {
+        singular: "{{count}} day to 🎁",
+        plural: "{{count}} days to 🎁",
+        ready: "🎁 Get your weekly reward!",
+      },
+      claimReward: "Claim reward",
+      claimedToday: "Claimed today",
+      weekComplete: "Week complete!",
+      rewardReceived: "Reward received!",
+      rewardReceivedTitle: "Reward received! 🎉",
+      info: {
+        title: "Daily Rewards",
+        day: "Day {{number}}",
+        badge: "Badge",
+        loot: "Loot",
+      },
+    },
+    premium: {
+      loading: "Loading...",
+      checkingStatus: "Checking status",
+      lifetime: {
+        title: "Premium Forever",
+        desc: "Lifetime access to all features",
+      },
+      active: {
+        title: "Premium active",
+        daysRemaining: "{{count}} day remaining",
+        daysRemainingPlural: "{{count}} days remaining",
+        allAccess: "All features available",
+      },
+      unlock: {
+        title: "Unlock everything",
+        desc: "Access to 3,000+ tests and unlimited features",
+      },
+      foreverBadge: "Forever",
+      passBadge: "Premium Pass",
+    },
+    duelPass: {
+      level: "Level {{level}}",
+      nextLevel: "Next level in: {{points}} SP",
+      daysRemaining: "Remaining",
+      days: "{{count}} day",
+      daysPlural: "{{count}} days",
+      duels: "Duels",
+    },
   },
   licenseCard: {
     ranks: {
@@ -274,7 +411,24 @@ export const en = {
       sync: "Synchronization",
       completed: "COMPLETED",
       globalId: "Global ID",
-    }
+    },
+    pointsModal: {
+      title: "DRIVER STATUS",
+      statusReady: "Access open",
+      statusLocked: "Access limited",
+      descReady: "Full functionality available to you",
+      descLocked: "Need {{points}} more points",
+      score: "Score",
+      accuracy: "Accuracy",
+      journalTitle: "Event Journal",
+      emptyJournal: "No entries",
+      systemTitle: "Points System",
+      bonusesTitle: "Bonuses",
+      bonusesDesc: "Logins, duel wins, clean tests.",
+      penaltiesTitle: "Penalties",
+      penaltiesDesc: "Errors, over 48h idle.",
+      examRequirement: "Need 10 for exam",
+    },
   },
 
   // Tests Page
@@ -308,6 +462,8 @@ export const en = {
     modelInfo: "MODEL: GEMINI-3.1-FLASH-LITE-PREVIEW // LATENCY: 21ms",
     inputPlaceholder: "Type your question...",
     analyzing: "Analyzing rules...",
+    becomePro: "Become PRO",
+    proDesc: "Unlock detailed error analysis",
   },
   monetization: {
     ton: {

@@ -74,9 +74,9 @@ export function PasswordStep({
             <div className="flex justify-center">
                 <div
                     onClick={onBackToEmail}
-                    className="group flex items-center justify-center gap-2 bg-zinc-900/50 border border-white/5 rounded-full py-1.5 px-4 cursor-pointer hover:bg-zinc-900 hover:border-white/10 transition-all"
+                    className="group flex items-center justify-center gap-2 bg-muted/50 dark:bg-zinc-900/50 border border-border dark:border-white/5 rounded-full py-1.5 px-4 cursor-pointer hover:bg-muted dark:hover:bg-zinc-900 hover:border-border dark:hover:border-white/10 transition-all"
                 >
-                    <span className="text-zinc-300 text-sm font-medium">{email}</span>
+                    <span className="text-foreground dark:text-zinc-300 text-sm font-medium">{email}</span>
                     <span className="text-[11px] text-sky-400 font-bold group-hover:text-sky-300 transition-colors uppercase tracking-wider">
                         {t('auth.changeEmail')}
                     </span>
@@ -87,14 +87,14 @@ export function PasswordStep({
                 <>
                     <form onSubmit={onFinalSubmit} className="space-y-4">
                         <div className="flex justify-between items-end mb-2 px-1">
-                            <label className="text-sm font-medium text-zinc-400">
+                            <label className="text-sm font-medium text-muted-foreground">
                                 {t('auth.password')}
                             </label>
                             <button
                                 type="button"
                                 onClick={onPasswordRecovery}
                                 disabled={isSubmitting}
-                                className="text-[11px] text-zinc-500 hover:text-blue-400 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
+                                className="text-[11px] text-muted-foreground hover:text-blue-400 cursor-pointer transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-bold"
                             >
                                 {t('auth.forgotPassword') || 'Забыли?'}
                             </button>
@@ -109,13 +109,13 @@ export function PasswordStep({
                             onFocus={() => setIsInputFocused(true)}
                             onBlur={() => setIsInputFocused(false)}
                             error={passwordError ?? undefined}
-                            className={`bg-zinc-900/50 border-zinc-800 h-12 text-lg shadow-inner pr-10 ${isPasswordShaking ? 'animate-shake' : ''}`}
+                            className={`bg-muted/50 dark:bg-zinc-900/50 border-border dark:border-zinc-800 h-12 text-lg shadow-inner pr-10 ${isPasswordShaking ? 'animate-shake' : ''}`}
                             rightElement={
                                 <button
                                     type="button"
                                     tabIndex={-1}
                                     onClick={toggleShowPassword}
-                                    className="text-zinc-500/40 hover:text-zinc-300 transition-all duration-300 focus:outline-none relative group pr-2"
+                                    className="text-muted-foreground/40 dark:text-zinc-500/40 hover:text-foreground dark:hover:text-zinc-300 transition-all duration-300 focus:outline-none relative group pr-2"
                                 >
                                     <AnimatePresence mode="wait">
                                         <motion.div
@@ -225,7 +225,7 @@ export function PasswordStep({
                             )}
                         </span>
                     </Button>
-                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-zinc-500 opacity-0 group-hover/magic:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground opacity-0 group-hover/magic:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
                         {t('auth.magicTooltip')}
                     </div>
                 </div>

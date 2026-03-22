@@ -57,7 +57,7 @@ export function EmailStep({
                     error={emailError ?? undefined}
                     autoFocus
                     className={cn(
-                        'bg-zinc-900/50 border-zinc-800 h-14 text-lg transition-all duration-300',
+                        'bg-muted/50 border-border h-14 text-lg transition-all duration-300',
                         isValidEmail ? 'border-blue-500/50 ring-2 ring-blue-500/10' : '',
                         isEmailShaking ? 'animate-shake border-red-500/50' : '',
                     )}
@@ -69,7 +69,7 @@ export function EmailStep({
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={(e) => onContinue(e)}
-                                className="bg-white text-black w-8 h-8 flex items-center justify-center rounded-full hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                                className="bg-foreground text-background w-8 h-8 flex items-center justify-center rounded-full hover:bg-foreground/90 transition-colors disabled:opacity-50"
                             >
                                 {checkingEmail ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -85,7 +85,7 @@ export function EmailStep({
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-[11px] text-center text-zinc-500 font-medium"
+                        className="text-[11px] text-center text-muted-foreground font-medium"
                     >
                         {t('auth.tapArrow')}
                     </motion.p>
@@ -98,11 +98,11 @@ export function EmailStep({
                 className="pt-0"
             >
                 <div className="relative flex py-2 items-center">
-                    <div className="flex-grow border-t border-zinc-800" />
-                    <span className="flex-shrink-0 mx-4 text-zinc-600 text-[11px] font-medium uppercase tracking-wider">
+                    <div className="flex-grow border-t border-border" />
+                    <span className="flex-shrink-0 mx-4 text-muted-foreground/60 text-[11px] font-medium uppercase tracking-wider">
                         {t('auth.orContinueWith')}
                     </span>
-                    <div className="flex-grow border-t border-zinc-800" />
+                    <div className="flex-grow border-t border-border" />
                 </div>
 
                 <div className={cn('grid gap-3 mt-1', isPasskeyAvailable ? 'grid-cols-3' : 'grid-cols-2')}>
@@ -112,7 +112,7 @@ export function EmailStep({
 
                     <Button
                         variant="secondary"
-                        className="bg-zinc-900 h-11 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all font-bold"
+                        className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
                         onClick={onGoogleLogin}
                     >
                         <GoogleIcon />
@@ -123,7 +123,7 @@ export function EmailStep({
                         variant="secondary"
                         disabled={telegramLoading}
                         onClick={onTelegramLogin}
-                        className="w-full h-11 bg-zinc-900 border-zinc-800 hover:bg-zinc-800 hover:border-zinc-700 transition-all font-bold"
+                        className="w-full h-11 bg-muted dark:bg-zinc-900 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
                     >
                         {telegramLoading ? (
                             <Loader2 className="h-4 w-4 animate-spin" />

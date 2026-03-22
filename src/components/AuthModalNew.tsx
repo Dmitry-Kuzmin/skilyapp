@@ -583,8 +583,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
   if (variant === 'page') {
     return (
-      <div className="min-h-[100dvh] bg-[#09090b] flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md bg-[#09090b] rounded-[3rem] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7)] border border-white/5 relative">
+      <div className="min-h-[100dvh] bg-background flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md bg-card rounded-[3rem] overflow-hidden shadow-[0_0_0_1px_rgba(0,0,0,0.05),0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_20px_50px_rgba(0,0,0,0.7)] border border-border dark:border-white/5 relative">
           {/* Back button for Page Variant */}
           <AnimatePresence>
             {step !== 'email' && (
@@ -595,7 +595,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 whileTap={{ scale: 0.95 }}
                 exit={{ opacity: 0, x: -10 }}
                 onClick={handleBackToEmail}
-                className="absolute left-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
+                className="absolute left-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 rounded-full text-muted-foreground transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
                 aria-label={t('common.back')}
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -606,7 +606,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
           {/* Close button for Page Variant (Mobile) */}
           <button
             onClick={onClose}
-            className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
+            className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 rounded-full text-muted-foreground opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-muted dark:hover:bg-white/10 hover:text-foreground dark:hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
             aria-label={t('common.close')}
           >
             <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
@@ -664,7 +664,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       open={open}
       onOpenChange={(val) => !val && onClose()}
       dismissible={!isSubmitting}
-      className="!border-none !border-0 !outline-none !ring-0 !bg-[#09090b] rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)] p-0 overflow-hidden"
+      className="!border-none !border-0 !outline-none !ring-0 !bg-card dark:!bg-[#09090b] rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[0_30px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)] p-0 overflow-hidden"
     >
       <div className="relative">
         {/* Back button for Modal Variant */}
@@ -677,7 +677,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
               whileTap={{ scale: 0.95 }}
               exit={{ opacity: 0, x: -10 }}
               onClick={handleBackToEmail}
-              className="absolute left-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
+              className="absolute left-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 rounded-full text-muted-foreground transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md"
               aria-label={t('common.back')}
             >
               <ArrowLeft className="h-5 w-5" />
@@ -688,7 +688,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
         {/* Close button for Modal Variant (Mobile) */}
         <button
           onClick={onClose}
-          className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md md:hidden"
+          className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 rounded-full text-muted-foreground opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-muted dark:hover:bg-white/10 hover:text-foreground dark:hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md md:hidden"
           aria-label={t('common.close')}
         >
           <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />

@@ -8,6 +8,7 @@ import { useCockpitSettings } from '@/hooks/useCockpitSettings';
 import { useDailyBonusDefinitions } from '@/hooks/useStaticData';
 import { useTheme } from 'next-themes';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
 interface DailyRewardsProps {
@@ -28,6 +29,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
   hasClaimedToday, 
   onClaim
 }) => {
+  const { t } = useLanguage();
   const [isClaiming, setIsClaiming] = useState(false);
   const [showReward, setShowReward] = useState(false);
   const isMobile = useIsMobile();
@@ -300,14 +302,14 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
         soundType={weekDay === 7 ? celebrationSoundType : 'default'}
         fullScreen={weekDay === 7}
         anchorPosition={flameAnchorPosition || undefined}
-        message={weekDay === 7 ? "🏆 Неделя завершена!" : "🎉 Награда получена!"}
+        message={weekDay === 7 ? t('dashboard.dailyRewards.weekComplete') : t('dashboard.dailyRewards.rewardReceived')}
       />
 
       {/* Модальное окно с поздравлением */}
       <CelebrationModal
         show={showCelebrationModal}
         onClose={() => setShowCelebrationModal(false)}
-        message="🏆 Неделя завершена!"
+        message={t('dashboard.dailyRewards.weekComplete')}
         weekNumber={weekNumber}
         totalStreak={currentStreak}
       />
@@ -335,11 +337,11 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
           </div>
           <div>
             <h3 className={`font-bold text-base leading-tight ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
-              Ежедневная серия
+              {t('dashboard.dailyRewards.title')}
             </h3>
             {weekNumber > 0 && (
               <span className={`text-[10px] ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
-                Неделя {weekNumber}
+                {t('dashboard.dailyRewards.week', { number: weekNumber })}
               </span>
             )}
           </div>
@@ -432,7 +434,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
               <span className={`text-[7px] uppercase font-bold tracking-widest ${
                 isDarkTheme ? 'text-slate-500' : 'text-slate-500'
               }`}>
-                ДНЕЙ
+                {t('dashboard.dailyRewards.days')}
               </span>
             </div>
           </div>
@@ -442,10 +444,10 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
         <div className="flex-1">
           <div className={`text-[10px] mb-1.5 ${isDarkTheme ? 'text-slate-400' : 'text-slate-600'}`}>
             {effectiveHasClaimed 
-              ? `Осталось ${7 - weekDay} ${7 - weekDay === 1 ? 'день' : 'дней'} до 🎁`
+              ? (7 - weekDay === 1 ? t('dashboard.dailyRewards.nextReward.singular', { count: 7 - weekDay }) : t('dashboard.dailyRewards.nextReward.plural', { count: 7 - weekDay }))
               : weekDay === 7
-              ? '🎁 Получите награду за неделю!'
-              : `Осталось ${7 - weekDay + 1} ${7 - weekDay + 1 === 1 ? 'день' : 'дней'} до 🎁`
+              ? t('dashboard.dailyRewards.nextReward.ready')
+              : (7 - weekDay + 1 === 1 ? t('dashboard.dailyRewards.nextReward.singular', { count: 7 - weekDay + 1 }) : t('dashboard.dailyRewards.nextReward.plural', { count: 7 - weekDay + 1 }))
             }
           </div>
           <div className="grid grid-cols-4 gap-1.5">
@@ -509,7 +511,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
               : 'bg-gradient-to-r from-orange-400 to-red-400 text-white hover:shadow-lg hover:shadow-orange-400/50'
           }`}
         >
-          {effectiveHasClaimed ? '✓ Получено сегодня' : 'Получить бонус'}
+          {effectiveHasClaimed ? `✓ ${t('dashboard.dailyRewards.claimedToday')}` : t('dashboard.dailyRewards.claimReward')}
         </motion.button>
       )}
 
@@ -529,7 +531,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
             <div className="relative z-10 p-4 overflow-y-auto">
               <div className="flex items-center justify-between mb-3">
                 <h3 className={`text-lg font-bold ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
-                  📅 Награды по дням
+                  📅 {t('dashboard.dailyRewards.info.title')}
                 </h3>
                 <button
                   onClick={() => setShowInfo(false)}
@@ -555,7 +557,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
                       }`}
                     >
                       <div className={`font-semibold mb-1 ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}>
-                        День {reward.day_number}: {reward.description}
+                        {t('dashboard.dailyRewards.info.day', { number: reward.day_number })}: {reward.description}
                       </div>
                       <div className="flex flex-wrap gap-2 text-xs">
                         {rewardData.xp > 0 && (
@@ -579,13 +581,13 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
                         {rewardData.badge && (
                           <div className={`flex items-center gap-1 ${isDarkTheme ? 'text-blue-400' : 'text-blue-600'}`}>
                             <Trophy className="w-3 h-3" />
-                            <span>Бейдж</span>
+                            <span>{t('dashboard.dailyRewards.info.badge')}</span>
                           </div>
                         )}
                         {rewardData.random_loot && (
                           <div className={`flex items-center gap-1 ${isDarkTheme ? 'text-green-400' : 'text-green-600'}`}>
                             <Gift className="w-3 h-3" />
-                            <span>Лут</span>
+                            <span>{t('dashboard.dailyRewards.info.loot')}</span>
                           </div>
                         )}
                       </div>
@@ -635,7 +637,7 @@ export const DailyRewards = React.memo<DailyRewardsProps>(({
                   transition={{ delay: 0.2 }}
                   className={`text-xl font-bold mb-2 ${isDarkTheme ? 'text-white' : 'text-slate-900'}`}
                 >
-                  Награда получена! 🎉
+                  {t('dashboard.dailyRewards.rewardReceivedTitle')}
                 </motion.h3>
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}

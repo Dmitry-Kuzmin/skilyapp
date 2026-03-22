@@ -53,15 +53,15 @@ function getStatusColor(status: string) {
 
 function KpiCard({ icon: Icon, label, value, sub, accent = false }: any) {
     return (
-        <div className="relative overflow-hidden rounded-2xl bg-white/5 border border-white/5 p-3 md:p-4 backdrop-blur-sm">
+        <div className="relative overflow-hidden rounded-2xl bg-muted/50 dark:bg-white/5 border border-border dark:border-white/5 p-3 md:p-4 backdrop-blur-sm">
             <div className="flex items-start justify-between mb-1.5 md:mb-2">
-                <span className="text-[9px] md:text-xs text-slate-500 uppercase tracking-widest font-semibold">{label}</span>
+                <span className="text-[9px] md:text-xs text-muted-foreground uppercase tracking-widest font-semibold">{label}</span>
                 <Icon className={cn('w-3.5 h-3.5', accent ? 'text-violet-400' : 'text-slate-500')} />
             </div>
-            <div className={cn('text-2xl md:text-3xl font-black tracking-tight', accent ? 'text-violet-300' : 'text-white')}>
+            <div className={cn('text-2xl md:text-3xl font-black tracking-tight', accent ? 'text-violet-600 dark:text-violet-300' : 'text-foreground')}>
                 {value}
             </div>
-            {sub && <div className="mt-0.5 md:mt-1 text-[9px] md:text-xs text-slate-500 truncate">{sub}</div>}
+            {sub && <div className="mt-0.5 md:mt-1 text-[9px] md:text-xs text-muted-foreground truncate">{sub}</div>}
         </div>
     );
 }
@@ -88,8 +88,8 @@ function FlightNavigation({ currentStatus, language }: { currentStatus: string, 
                         <div key={lvl.id} className="flex flex-col items-center gap-1.5 transition-all duration-300">
                             <div className={cn(
                                 "relative w-2 h-2 rounded-full border-2 transition-all duration-700 z-10",
-                                isActive ? "bg-white border-current scale-150 shadow-[0_0_12px_currentColor]" :
-                                    isPast ? "bg-current border-current border-0" : "bg-zinc-950 border-white/10"
+                                isActive ? "bg-foreground dark:bg-white border-current scale-150 shadow-[0_0_12px_currentColor]" :
+                                    isPast ? "bg-current border-current border-0" : "bg-muted dark:bg-zinc-950 border-border dark:border-white/10"
                             )} style={{ color: lvl.color }}>
                                 {isActive && (
                                     <div className="absolute inset-[-3px] rounded-full border border-current opacity-30 animate-ping" />
@@ -98,11 +98,11 @@ function FlightNavigation({ currentStatus, language }: { currentStatus: string, 
                             <div className="flex flex-col items-center gap-0.5">
                                 <span className={cn(
                                     "text-[7px] font-black tracking-[0.2em] uppercase transition-colors duration-500",
-                                    isActive ? "text-white" : "text-slate-600"
+                                    isActive ? "text-foreground dark:text-white" : "text-muted-foreground"
                                 )}>
                                     {lvl.name}
                                 </span>
-                                <span className="text-[6px] font-bold text-slate-800 tabular-nums">{lvl.range}</span>
+                                <span className="text-[6px] font-bold text-muted-foreground tabular-nums">{lvl.range}</span>
                             </div>
                         </div>
                     );
@@ -192,23 +192,23 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     return (
         <div className="flex flex-col space-y-8 pb-10 px-1 md:px-0">
             {/* ── Main Dashboard Hero (Single Unified Block) ── */}
-            <div className="relative rounded-[1.5rem] bg-slate-900/40 backdrop-blur-xl border border-white/10 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <div className="relative rounded-[1.5rem] bg-card dark:bg-slate-900/40 backdrop-blur-xl border border-border dark:border-white/10 overflow-hidden shadow-xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                 {/* Dynamic Ambient Light */}
-                <div className="absolute inset-0 opacity-[0.1]"
+                <div className="absolute inset-0 opacity-[0.1] dark:opacity-[0.1]"
                     style={{ background: `radial-gradient(circle at 30% 20%, ${status.fill} 0%, transparent 60%)` }}
                 />
 
                 <div className="relative">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-white/10 border-b border-white/10">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-border dark:divide-white/10 border-b border-border dark:border-white/10">
                         {/* Left Section: Main Instrument (Gauge) */}
-                        <div className="lg:col-span-6 p-8 md:p-12 flex flex-col items-center justify-center relative bg-white/[0.02]">
+                        <div className="lg:col-span-6 p-8 md:p-12 flex flex-col items-center justify-center relative bg-muted/5 dark:bg-white/[0.02]">
                             <div className="relative w-48 h-48 md:w-56 md:h-56 flex-shrink-0 group">
                                 {/* Gauge Background Glass */}
-                                <div className="absolute inset-0 rounded-full border border-white/5 bg-slate-950/40 shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]" />
+                                <div className="absolute inset-0 rounded-full border border-border dark:border-white/5 bg-background dark:bg-slate-950/40 shadow-sm dark:shadow-[inset_0_0_20px_rgba(0,0,0,0.4)]" />
                                 <div className="absolute inset-[-20px] rounded-full bg-indigo-500/10 blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-1000" />
 
-                                <svg className="w-full h-full transform -rotate-90 drop-shadow-[0_0_15px_rgba(0,0,0,0.4)]" viewBox="0 0 100 100">
-                                    <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
+                                <svg className="w-full h-full transform -rotate-90 drop-shadow-sm dark:drop-shadow-[0_0_15px_rgba(0,0,0,0.4)]" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" className="text-muted dark:text-white/5" strokeWidth="6" />
                                     <circle
                                         cx="50" cy="50" r="44" fill="none"
                                         stroke={status.fill}
@@ -220,17 +220,17 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                         className="drop-shadow-[0_0_12px_currentColor]"
                                     />
                                     {[...Array(24)].map((_, i) => (
-                                        <line key={i} x1="50" y1="6" x2="50" y2="9" transform={`rotate(${i * 15} 50 50)`} stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+                                        <line key={i} x1="50" y1="6" x2="50" y2="9" transform={`rotate(${i * 15} 50 50)`} stroke="currentColor" className="text-muted/50 dark:text-white/15" strokeWidth="1" />
                                     ))}
                                 </svg>
 
                                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                    <motion.span initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-6xl font-black tracking-tighter text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                                    <motion.span initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-6xl font-black tracking-tighter text-foreground dark:text-white drop-shadow-sm">
                                         {score}%
                                     </motion.span>
                                     <div className="mt-1 flex items-center gap-1.5 opacity-40">
                                         <ActivityIcon className="w-3 h-3 text-indigo-400" />
-                                        <span className="text-[8px] font-black uppercase tracking-[0.4em]">PROBABILITY</span>
+                                        <span className="text-[8px] font-black uppercase tracking-[0.4em] text-foreground dark:text-white">PROBABILITY</span>
                                     </div>
                                 </div>
                             </div>
@@ -242,15 +242,15 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="w-6 h-[1px] bg-indigo-500/40" />
-                                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-indigo-400/80">
+                                        <span className="text-[9px] font-black uppercase tracking-[0.4em] text-indigo-600 dark:text-indigo-400/80">
                                             {language === 'ru' ? 'СИСТЕМНЫЙ ВЕРДИКТ' : 'SYSTEM VERDICT'}
                                         </span>
                                     </div>
-                                    <h2 className="text-4xl font-black text-white uppercase tracking-tight leading-none drop-shadow-sm">
+                                    <h2 className="text-4xl font-black text-foreground dark:text-white uppercase tracking-tight leading-none drop-shadow-sm">
                                         {readiness?.shortText || 'Анализ...'}
                                     </h2>
-                                    <div className="bg-white/5 rounded-2xl p-4 border border-white/5 backdrop-blur-sm relative">
-                                        <p className="text-sm text-slate-300 font-medium leading-relaxed italic opacity-90 relative z-10">
+                                    <div className="bg-muted/50 dark:bg-white/5 rounded-2xl p-4 border border-border dark:border-white/5 backdrop-blur-sm relative">
+                                        <p className="text-sm text-foreground/80 dark:text-slate-300 font-medium leading-relaxed italic opacity-90 relative z-10">
                                             "{readiness?.statusText}"
                                         </p>
                                         <Sparkles className="absolute -top-1 -right-1 w-8 h-8 text-indigo-500/10 pointer-events-none" />
@@ -259,18 +259,18 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
                                 <div className="flex items-center gap-8 pt-2">
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIDENCE'}</span>
-                                        <span className="text-2xl font-black text-white tabular-nums drop-shadow-sm">
+                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIDENCE'}</span>
+                                        <span className="text-2xl font-black text-foreground dark:text-white tabular-nums drop-shadow-sm">
                                             {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
                                         </span>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{language === 'ru' ? 'ЦЕЛЬ' : 'TARGET'}</span>
-                                        <span className="text-2xl font-black text-emerald-400 tabular-nums">75%</span>
+                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{language === 'ru' ? 'ЦЕЛЬ' : 'TARGET'}</span>
+                                        <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">75%</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">RANK</span>
-                                        <span className="text-2xl font-black text-amber-500 tabular-nums">#420</span>
+                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">RANK</span>
+                                        <span className="text-2xl font-black text-amber-600 dark:text-amber-500 tabular-nums">#420</span>
                                     </div>
                                 </div>
                             </div>
@@ -278,7 +278,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                     </div>
 
                     {/* Bottom Compact Navigation Path */}
-                    <div className="px-10 py-6 bg-slate-950/40 border-t border-white/5">
+                    <div className="px-10 py-6 bg-muted/30 dark:bg-slate-950/40 border-t border-border dark:border-white/5">
                         <FlightNavigation currentStatus={readiness?.status || 'start'} language={language} />
                     </div>
                 </div>
@@ -296,7 +296,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
             <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="w-4 h-4 text-violet-400" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         {language === 'ru' ? 'Расширенная аналитика' : 'Telemetría extendida'}
                     </span>
                 </div>
@@ -316,10 +316,10 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
             {/* ── Diagnostic Grid ── */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="rounded-2xl bg-white/5 border border-white/5 p-5 md:col-span-1">
+                <div className="rounded-2xl bg-muted/50 dark:bg-white/5 border border-border dark:border-white/5 p-5 md:col-span-1">
                     <div className="flex items-center gap-2 mb-4">
                         <TrendingUp className="w-4 h-4 text-violet-400" />
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                             {language === 'ru' ? 'Радар знаний' : 'Radar de temas'}
                         </span>
                     </div>
@@ -339,30 +339,30 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                         <div className="h-full rounded-2xl border border-red-500/20 bg-red-500/5 p-6 flex flex-col justify-center transition-all hover:bg-red-500/10 cursor-pointer" onClick={() => { onClose(); navigate('/tests/challenge-bank'); }}>
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 rounded-xl bg-red-500/20 border border-red-500/30 flex items-center justify-center flex-shrink-0">
-                                    <AlertTriangle className="w-6 h-6 text-red-400" />
+                                    <AlertTriangle className="w-6 h-6 text-red-500 dark:text-red-400" />
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-red-400">Diagnostic Result</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 dark:text-red-400">Diagnostic Result</span>
                                         <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-red-500/20 text-red-500 border border-red-500/20">
                                             {mistakesCount} ERRORS FOUND
                                         </span>
                                     </div>
-                                    <h3 className="text-lg font-bold text-white uppercase tracking-tight">Критические зоны риска</h3>
+                                    <h3 className="text-lg font-bold text-foreground dark:text-white uppercase tracking-tight">Критические зоны риска</h3>
                                 </div>
                             </div>
-                            <p className="text-sm text-slate-500 leading-relaxed mb-4">
+                            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                                 Мы обнаружили {mistakesCount} критических пробелов в твоих знаниях. Рекомендуем проработать их в Банке Сложных Вопросов перед сдачей.
                             </p>
-                            <Button variant="outline" className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300">
+                            <Button variant="outline" className="w-full border-red-500/30 text-red-500 dark:text-red-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-300">
                                 Исправить ошибки сейчас
                             </Button>
                         </div>
                     ) : (
                         <div className="h-full rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 flex flex-col items-center justify-center text-center">
-                            <CheckCircle className="w-12 h-12 text-emerald-400 mb-4" />
-                            <h3 className="text-lg font-bold text-white uppercase tracking-tight">Все системы в норме</h3>
-                            <p className="text-sm text-slate-500">Ошибок в критических темах не обнаружено. Ты отлично справляешься!</p>
+                            <CheckCircle className="w-12 h-12 text-emerald-500 dark:text-emerald-400 mb-4" />
+                            <h3 className="text-lg font-bold text-foreground dark:text-white uppercase tracking-tight">Все системы в норме</h3>
+                            <p className="text-sm text-muted-foreground">Ошибок в критических темах не обнаружено. Ты отлично справляешься!</p>
                         </div>
                     )}
                 </div>
@@ -377,9 +377,9 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
     if (isMobile) {
         return (
             <Drawer open={open} onOpenChange={onOpenChange}>
-                <DrawerContent className="max-h-[85vh] flex flex-col bg-zinc-950/95 backdrop-blur-2xl border-t border-white/10 shadow-[0_-15px_50px_-10px_rgba(0,0,0,0.9),0_0_100px_-20px_rgba(139,92,246,0.3)] overflow-hidden">
-                    <DrawerHeader className="border-b border-white/5 shrink-0 bg-transparent z-10 py-4 px-6 relative">
-                        <DrawerTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-2">
+                <DrawerContent className="max-h-[85vh] flex flex-col bg-background dark:bg-zinc-950/95 backdrop-blur-2xl border-t border-border dark:border-white/10 shadow-2xl overflow-hidden">
+                    <DrawerHeader className="border-b border-border dark:border-white/5 shrink-0 bg-transparent z-10 py-4 px-6 relative">
+                        <DrawerTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-2 text-foreground">
                             <Gauge className="w-5 h-5 text-violet-500" />
                             Skily Telemetry
                         </DrawerTitle>
@@ -394,9 +394,9 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-zinc-950/95 backdrop-blur-2xl border border-white/10 p-0 shadow-[0_45px_100px_-20px_rgba(0,0,0,1),0_0_80px_-10px_rgba(139,92,246,0.2),inset_0_0_0_1px_rgba(255,255,255,0.05)] sm:rounded-2xl overflow-hidden">
-                <DialogHeader className="p-6 pb-4 border-b border-white/5 shrink-0 bg-transparent z-10 flex flex-row items-center justify-between relative">
-                    <DialogTitle className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
+            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-background dark:bg-zinc-950/95 backdrop-blur-2xl border border-border dark:border-white/10 p-0 shadow-2xl sm:rounded-2xl overflow-hidden">
+                <DialogHeader className="p-6 pb-4 border-b border-border dark:border-white/5 shrink-0 bg-transparent z-10 flex flex-row items-center justify-between relative">
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3 text-foreground">
                         <div className="w-10 h-10 rounded-2xl bg-violet-500/10 flex items-center justify-center">
                             <Gauge className="w-6 h-6 text-violet-500" />
                         </div>

@@ -1546,7 +1546,7 @@ export default function Duel() {
                                                         setRematchOpponent(null);
                                                         setDuelMode('random');
                                                     })}
-                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-white dark:bg-[#151921] border border-slate-200 dark:border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-center shadow-sm hover:shadow-md"
+                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-card dark:bg-[#151921] border border-border dark:border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-center shadow-sm hover:shadow-md"
                                                 >
                                                     {/* Flare */}
                                                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1586,7 +1586,7 @@ export default function Duel() {
                                                         setRematchOpponent(null);
                                                         setDuelMode('friend');
                                                     })}
-                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-white dark:bg-[#151921] border border-slate-200 dark:border-white/[0.05] hover:border-amber-500/40 hover:bg-amber-500/[0.02] transition-all duration-500 overflow-hidden text-center shadow-sm hover:shadow-md"
+                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-card dark:bg-[#151921] border border-border dark:border-white/[0.05] hover:border-amber-500/40 hover:bg-amber-500/[0.02] transition-all duration-500 overflow-hidden text-center shadow-sm hover:shadow-md"
                                                 >
                                                     {/* Flare */}
                                                     <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1743,7 +1743,7 @@ export default function Duel() {
                                                                                     safeGetTelegramWebApp()?.HapticFeedback?.impactOccurred('light');
                                                                                 }}
                                                                                 disabled={betAmount <= 10 || isCreating}
-                                                                                className="w-12 h-12 rounded-full bg-white dark:bg-white/10 shadow-sm border border-black/5 dark:border-white/10 flex items-center justify-center text-muted-foreground hover:text-orange-500 transition-colors disabled:opacity-30 shrink-0"
+                                                                                className="w-12 h-12 rounded-full bg-background dark:bg-white/10 shadow-sm border border-border dark:border-white/10 flex items-center justify-center text-muted-foreground hover:text-orange-500 transition-colors disabled:opacity-30 shrink-0"
                                                                             >
                                                                                 <Minus size={20} />
                                                                             </motion.button>
@@ -1839,7 +1839,7 @@ export default function Duel() {
                                                                                                 ? "bg-orange-500 border-orange-600 text-white shadow-lg shadow-orange-500/20"
                                                                                                 : val === 'MAX'
                                                                                                     ? "bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20"
-                                                                                                    : "bg-white dark:bg-white/5 border-transparent text-muted-foreground hover:bg-black/5 hover:text-foreground disabled:opacity-30"
+                                                                                                    : "bg-background dark:bg-white/5 border-transparent text-muted-foreground hover:bg-black/5 hover:text-foreground disabled:opacity-30"
                                                                                         )}
                                                                                     >
                                                                                         {val}
@@ -1862,7 +1862,7 @@ export default function Duel() {
                                                                             <div className="flex items-center gap-3">
                                                                                 <div className={cn(
                                                                                     "p-2 rounded-xl transition-colors relative",
-                                                                                    hostInsuranceEnabled ? "bg-emerald-500 text-white" : "bg-white/10 text-muted-foreground"
+                                                                                    hostInsuranceEnabled ? "bg-emerald-500 text-white" : "bg-muted dark:bg-white/10 text-muted-foreground"
                                                                                 )}>
                                                                                     <Shield size={14} />
                                                                                     {hostInsuranceEnabled && (
@@ -1899,7 +1899,7 @@ export default function Duel() {
                                                                             className="relative z-10 flex items-center justify-between p-3 rounded-2xl border transition-all mt-2 bg-black/5 dark:bg-white/5 border-transparent"
                                                                         >
                                                                             <div className="flex items-center gap-3">
-                                                                                <div className="p-2 rounded-xl bg-white/50 dark:bg-black/50 text-muted-foreground border border-black/5 dark:border-white/5 shadow-sm">
+                                                                                <div className="p-2 rounded-xl bg-card dark:bg-black/50 text-muted-foreground border border-border dark:border-white/5 shadow-sm">
                                                                                     <Target size={14} />
                                                                                 </div>
                                                                                 <div className="flex flex-col">
@@ -2109,7 +2109,7 @@ export default function Duel() {
                                                                             initial={{ opacity: 0, scale: 0.98 }}
                                                                             animate={{ opacity: 1, scale: 1 }}
                                                                             transition={{ duration: 0.2 }}
-                                                                            className="relative bg-gradient-to-br from-white/95 via-emerald-50/90 to-teal-50/90 dark:from-emerald-950/50 dark:via-emerald-950/40 dark:to-teal-950/40 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/50 ring-2 ring-emerald-500/10 cursor-pointer group hover:border-emerald-500/70 hover:ring-emerald-500/20 transition-all duration-200 shadow-md hover:shadow-lg"
+                                                                            className="relative bg-gradient-to-br from-background via-emerald-50/90 to-teal-50/90 dark:from-emerald-950/50 dark:via-emerald-950/40 dark:to-teal-950/40 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border-2 border-emerald-500/50 ring-2 ring-emerald-500/10 cursor-pointer group hover:border-emerald-500/70 hover:ring-emerald-500/20 transition-all duration-200 shadow-md hover:shadow-lg"
                                                                             onClick={handleCopyCode}
                                                                             style={{
                                                                                 boxShadow: copied

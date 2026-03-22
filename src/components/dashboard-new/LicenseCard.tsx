@@ -300,7 +300,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                         if (code) {
                             const referralLink = `${window.location.origin}/join/${code}`;
                             navigator.clipboard.writeText(referralLink);
-                            toast.success(selectedCountry === 'ru' ? 'Ссылка скопирована!' : '¡Enlace copiado!');
+                            toast.success(t('referral.linkCopied'));
                         }
                         
                         import('@/store/modalStore').then(m => m.useModalStore.getState().openModal('REFERRAL'));
@@ -366,7 +366,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     </div>
                                     <div className="text-left">
                                         <h3 className="text-xs md:text-sm font-black text-white uppercase tracking-tight leading-none mb-1">
-                                            {selectedCountry === 'ru' ? 'СТАТУС ВОДИТЕЛЯ' : 'ESTADO DEL CONDUCTOR'}
+                                            {t('licenseCard.pointsModal.title')}
                                         </h3>
                                         <span className="text-[7px] md:text-[9px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-fuchsia-400">
                                             AUTHENTICATED BLOCKCHAIN RECORD
@@ -397,27 +397,27 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                             </div>
                                             <div className="flex flex-col text-left truncate">
                                                 <span className={cn("text-[10px] md:text-[12px] font-black uppercase tracking-widest", points >= 10 ? "text-emerald-400" : "text-amber-400")}>
-                                                    {points >= 10 ? 'Допуск открыт' : 'Допуск ограничен'}
+                                                    {points >= 10 ? t('licenseCard.pointsModal.statusReady') : t('licenseCard.pointsModal.statusLocked')}
                                                 </span>
                                                 <span className="text-[8px] md:text-[10px] font-bold text-zinc-500 uppercase truncate">
-                                                    {points >= 10 ? 'Вам доступен полный функционал' : `Нужно еще ${10 - points} баллов`}
+                                                    {points >= 10 ? t('licenseCard.pointsModal.descReady') : t('licenseCard.pointsModal.descLocked', { points: 10 - points })}
                                                 </span>
                                             </div>
                                         </div>
-
+ 
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="p-3 rounded-xl border bg-white/[0.02] border-white/5 text-left">
-                                                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest block mb-0.5">Счет</span>
+                                                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest block mb-0.5">{t('licenseCard.pointsModal.score')}</span>
                                                 <span className="text-xl md:text-2xl font-black text-white">{points}</span>
                                             </div>
                                             <div className="p-3 rounded-xl border bg-white/[0.02] border-white/5 text-left">
-                                                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest block mb-0.5">Точность</span>
+                                                <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest block mb-0.5">{t('licenseCard.pointsModal.accuracy')}</span>
                                                 <span className="text-xl md:text-2xl font-black text-white">{stats.accuracy || 100}%</span>
                                             </div>
                                         </div>
-
+ 
                                         <div className="flex flex-col gap-2">
-                                            <h4 className="text-[8px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest text-left">Журнал событий</h4>
+                                            <h4 className="text-[8px] md:text-[10px] font-black text-zinc-500 uppercase tracking-widest text-left">{t('licenseCard.pointsModal.journalTitle')}</h4>
                                             <div className="space-y-1">
                                                 {licenseAudit.length > 0 ? (
                                                     licenseAudit.slice(0, 10).map((item, idx) => (
@@ -436,7 +436,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <div className="py-4 text-center text-zinc-600 text-[8px] uppercase font-black tracking-widest">Записей нет</div>
+                                                    <div className="py-4 text-center text-zinc-600 text-[8px] uppercase font-black tracking-widest">{t('licenseCard.pointsModal.emptyJournal')}</div>
                                                 )}
                                             </div>
                                         </div>
@@ -445,15 +445,15 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                     {/* Right: Rules Information */}
                                     <div className="md:col-span-2 flex flex-col gap-4">
                                         <div className="p-4 rounded-2xl border bg-indigo-500/[0.03] border-indigo-500/10 flex flex-col gap-4">
-                                            <span className="text-[8px] md:text-[10px] font-black text-indigo-500/60 uppercase tracking-widest text-left">Система баллов</span>
+                                            <span className="text-[8px] md:text-[10px] font-black text-indigo-500/60 uppercase tracking-widest text-left">{t('licenseCard.pointsModal.systemTitle')}</span>
                                             <div className="space-y-4">
                                                 <div className="flex items-start gap-3">
                                                     <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
                                                         <span className="text-emerald-500 text-[9px] font-black">+1</span>
                                                     </div>
                                                     <div className="flex flex-col text-left">
-                                                        <span className="text-[9px] font-black text-zinc-200">Бонусы</span>
-                                                        <p className="text-[8px] text-zinc-500 font-medium leading-tight">Вход, победы в дуэлях, чистые тесты.</p>
+                                                        <span className="text-[9px] font-black text-zinc-200">{t('licenseCard.pointsModal.bonusesTitle')}</span>
+                                                        <p className="text-[8px] text-zinc-500 font-medium leading-tight">{t('licenseCard.pointsModal.bonusesDesc')}</p>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-start gap-3">
@@ -461,14 +461,14 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                                         <span className="text-rose-500 text-[9px] font-black">-1</span>
                                                     </div>
                                                     <div className="flex flex-col text-left">
-                                                        <span className="text-[9px] font-black text-zinc-200">Штрафы</span>
-                                                        <p className="text-[8px] text-zinc-500 font-medium leading-tight">Ошибки, простой более 48 часов.</p>
+                                                        <span className="text-[9px] font-black text-zinc-200">{t('licenseCard.pointsModal.penaltiesTitle')}</span>
+                                                        <p className="text-[8px] text-zinc-500 font-medium leading-tight">{t('licenseCard.pointsModal.penaltiesDesc')}</p>
                                                     </div>
                                                 </div>
                                                 <div className="mt-2 pt-3 border-t border-indigo-500/10 text-left">
                                                     <div className="flex items-center gap-2 text-indigo-500/60">
                                                         <HelpCircle size={10} />
-                                                        <span className="text-[8px] font-black uppercase tracking-tighter">Нужно 10 для экзамена</span>
+                                                        <span className="text-[8px] font-black uppercase tracking-tighter">{t('licenseCard.pointsModal.examRequirement')}</span>
                                                     </div>
                                                 </div>
                                             </div>

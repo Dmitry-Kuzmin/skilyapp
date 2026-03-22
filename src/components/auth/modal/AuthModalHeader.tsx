@@ -42,7 +42,7 @@ export function AuthModalHeader({
                         {/* Rotating Gradient Border */}
                         <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-500 animate-spin-slow opacity-70 blur-[1px]" />
 
-                        <div className="relative rounded-full z-10 bg-zinc-950 p-[2px]">
+                        <div className="relative rounded-full z-10 bg-card p-[2px]">
                             {profileId ? (
                                 <UserAvatar
                                     profileId={profileId}
@@ -53,17 +53,17 @@ export function AuthModalHeader({
                                 <img
                                     src={userAvatar}
                                     alt={userName || "User"}
-                                    className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
+                                    className="w-20 h-20 rounded-full border-2 border-border dark:border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.1)] dark:shadow-[0_0_30px_rgba(255,255,255,0.1)] object-cover"
                                     onError={onAvatarError}
                                 />
                             ) : step === 'magic-link-new' ? (
                                 /* Newcomer Rocket Avatar */
-                                <div className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(59,130,246,0.3)] bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center">
+                                <div className="w-20 h-20 rounded-full border-2 border-border dark:border-white/10 shadow-[0_0_30px_rgba(59,130,246,0.3)] bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center">
                                     <Rocket className="w-10 h-10 text-white animate-levitate" />
                                 </div>
                             ) : (
                                 /* Fallback - First Letter Avatar */
-                                <div className="w-20 h-20 rounded-full border-2 border-white/10 shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                                <div className="w-20 h-20 rounded-full border-2 border-border dark:border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.05)] dark:shadow-[0_0_30_rgba(255,255,255,0.1)] bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
                                     <span className="text-3xl font-bold text-white">
                                         {(userName || email || 'U').charAt(0).toUpperCase()}
                                     </span>
@@ -72,7 +72,7 @@ export function AuthModalHeader({
                         </div>
                         {/* Verified Shield Badge - Only for existing users */}
                         {step !== 'magic-link-new' && (
-                            <div className="absolute -bottom-1 -right-1 bg-zinc-950 rounded-full p-1 border border-zinc-800 z-20">
+                            <div className="absolute -bottom-1 -right-1 bg-card dark:bg-zinc-950 rounded-full p-1 border border-border dark:border-zinc-800 z-20">
                                 <ShieldCheck className="w-4 h-4 text-green-500 fill-green-500/20" />
                             </div>
                         )}
@@ -107,7 +107,7 @@ export function AuthModalHeader({
                         exit={{ opacity: 0, y: -10 }}
                         className="flex flex-col items-center"
                     >
-                        <h2 className="text-2xl font-semibold text-white tracking-tight">
+                        <h2 className="text-2xl font-black text-foreground tracking-tight">
                             {step === 'email' && t('auth.identification')}
                             {step === 'password-existing' && (userName ? t('auth.welcomeBackWithName', { name: userName }) : t('auth.welcomeBack'))}
                             {step === 'magic-link-new' && t('auth.magicLinkNew')}
@@ -115,7 +115,7 @@ export function AuthModalHeader({
                             {step === 'check-email' && t('auth.checkEmail')}
                         </h2>
 
-                        <p className="text-sm text-zinc-400 mt-4 font-medium">
+                        <p className="text-sm text-muted-foreground mt-4 font-medium">
                             {step === 'email' && t('auth.emailPrompt')}
                             {step === 'password-existing' && (userName ? t('auth.continueProgress') : t('auth.accountVerified'))}
                             {step === 'magic-link-new' && t('auth.newUser')}

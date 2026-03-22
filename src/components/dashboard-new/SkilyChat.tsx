@@ -341,10 +341,10 @@ export const SkilyChat = React.memo(() => {
                                   <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
                                   <div className="relative z-10">
                                     <h4 className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5"><Sparkles className="w-4 h-4" />Skily PRO</h4>
-                                    <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">{param2 || "Открой подробные разборы ошибок"}</p>
+                                    <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">{param2 || t('skilyChat.proDesc')}</p>
                                   </div>
                                   <Button size="sm" className="relative z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => window.location.href = '/pricing'}>
-                                    Стать PRO
+                                    {t('skilyChat.becomePro')}
                                   </Button>
                                 </div>
                               );

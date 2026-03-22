@@ -3,6 +3,7 @@ import { motion } from "@/components/optimized/Motion";
 import { AlertCircle, TrendingUp, Activity, Brain, Calendar, Target, Zap, Clock } from 'lucide-react';
 import type { TrendData, CriticalPoint } from '@/utils/analytics';
 import { useTheme } from 'next-themes';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
 interface AnalyticsPanelProps {
@@ -28,6 +29,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   loading = false,
   showHeader = true,
 }) => {
+  const { t, language } = useLanguage();
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
 
@@ -39,7 +41,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
       )}>
         <div className="h-full flex items-center justify-center">
           <div className={isDarkTheme ? "text-slate-500" : "text-slate-400"}>
-            Загрузка аналитики...
+            {t('dashboard.analytics.loading')}
           </div>
         </div>
       </div>
@@ -47,7 +49,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
   }
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    return date.toLocaleDateString(language === 'ru' ? 'ru-RU' : language === 'es' ? 'es-ES' : 'en-GB', { day: 'numeric', month: 'short' });
   };
 
   return (
@@ -63,7 +65,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
               "text-xs font-bold uppercase tracking-wider mb-1",
               isDarkTheme ? "text-white" : "text-slate-900"
             )}>
-              TELEMETRÍA AVANZADA
+              {t('dashboard.examReadiness.advancedTelemetryTitle')}
             </h3>
           </div>
         )}
@@ -83,7 +85,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
               <span className={cn(
                 "text-xs font-bold uppercase",
                 isDarkTheme ? "text-white" : "text-slate-900"
-              )}>PUNTO CRÍTICO</span>
+              )}>{t('dashboard.analytics.criticalPoint.title')}</span>
             </div>
             <div className={cn(
               "text-sm font-bold mb-1",
@@ -101,7 +103,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
               />
             </div>
             <div className="text-[10px] text-red-400">
-              {criticalPoint.error_rate}% ошибок · {criticalPoint.attempts} попыток
+              {t('dashboard.analytics.criticalPoint.stats', { errorRate: criticalPoint.error_rate, attempts: criticalPoint.attempts })}
             </div>
           </motion.div>
         )}
@@ -125,7 +127,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
               <span className={cn(
                 "text-xs font-bold uppercase",
                 isDarkTheme ? "text-white" : "text-slate-900"
-              )}>Tendencia</span>
+              )}>{t('dashboard.analytics.trend.title')}</span>
             </div>
             <span
               className={cn(
@@ -137,7 +139,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
                     : (isDarkTheme ? 'bg-slate-500/20 text-slate-400' : 'bg-slate-200 text-slate-500')
               )}
             >
-              {trend.trend === 'positive' ? 'Positiva' : trend.trend === 'negative' ? 'Negativa' : 'Estable'}
+              {trend.trend === 'positive' ? t('dashboard.analytics.trend.positive') : trend.trend === 'negative' ? t('dashboard.analytics.trend.negative') : t('dashboard.analytics.trend.stable')}
             </span>
           </div>
 
@@ -205,9 +207,9 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
               }
             />
             <span className={cn(
-              "text-xs font-bold uppercase",
-              isDarkTheme ? "text-white" : "text-slate-900"
-            )}>Estabilidad</span>
+                "text-xs font-bold uppercase",
+                isDarkTheme ? "text-white" : "text-slate-900"
+              )}>{t('dashboard.analytics.consistency.title')}</span>
           </div>
           <div className="flex items-center gap-3 mb-2">
             <span className={cn(
@@ -222,7 +224,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
                     : 'bg-red-500/20 text-red-400'
                 }`}
             >
-              {consistency.level === 'high' ? 'Alta' : consistency.level === 'medium' ? 'Media' : 'Baja'}
+              {consistency.level === 'high' ? t('dashboard.analytics.consistency.high') : consistency.level === 'medium' ? t('dashboard.analytics.consistency.medium') : t('dashboard.analytics.consistency.low')}
             </span>
           </div>
           <div className={cn(
@@ -252,15 +254,15 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
         >
           <div className="flex items-center gap-2 mb-2">
             <Clock size={14} className="text-emerald-400" />
-            <span className="text-xs font-bold text-white uppercase">PREDICCIÓN AI</span>
+            <span className="text-xs font-bold text-white uppercase">{t('dashboard.analytics.eta.title')}</span>
           </div>
-          <div className="text-2xl font-bold text-white mb-1">{timeToPass.days} días</div>
+          <div className="text-2xl font-bold text-white mb-1">{t('dashboard.analytics.eta.days', { days: timeToPass.days })}</div>
           <div className="text-[10px] text-emerald-400">
-            Para alcanzar el nivel "LISTO" (85%) al ritmo actual
+            {t('dashboard.analytics.eta.desc')}
           </div>
           <div className="text-[9px] text-slate-500 mt-1">
             {formatDate(timeToPass.date)} ·{' '}
-            {timeToPass.confidence === 'high' ? 'Alta confianza' : timeToPass.confidence === 'medium' ? 'Media confianza' : 'Baja confianza'}
+            {timeToPass.confidence === 'high' ? t('dashboard.analytics.eta.highConfidence') : timeToPass.confidence === 'medium' ? t('dashboard.analytics.eta.mediumConfidence') : t('dashboard.analytics.eta.lowConfidence')}
           </div>
         </motion.div>
 
@@ -289,7 +291,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
               <span className={cn(
                 "text-xs font-bold uppercase",
                 isDarkTheme ? "text-white" : "text-slate-900"
-              )}>Focus Battery</span>
+              )}>{t('dashboard.analytics.focusBattery.title')}</span>
             </div>
             <div className="flex items-center gap-2 mb-2">
               <div className={cn(
@@ -334,9 +336,9 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
                 <span className={cn(
                   "text-xs font-bold uppercase",
                   isDarkTheme ? "text-white" : "text-slate-900"
-                )}>ACTIVIDAD NEURONAL</span>
+                )}>{t('dashboard.analytics.activity.title')}</span>
               </div>
-              <span className="text-[9px] text-slate-500">ÚLTIMOS 30 DÍAS</span>
+              <span className="text-[9px] text-slate-500">{t('dashboard.analytics.activity.last30Days')}</span>
             </div>
             <div className="grid grid-cols-10 gap-1">
               {activityHeatmap.slice(-30).map((day, index) => (
@@ -355,7 +357,7 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
                             ? 'bg-emerald-700/70'
                             : 'bg-emerald-600/80'
                     } border border-slate-700/30`}
-                  title={`${formatDate(day.date)}: ${day.count} тестов`}
+                  title={`${formatDate(day.date)}: ${t('dashboard.analytics.activity.tests', { count: day.count })}`}
                 />
               ))}
             </div>

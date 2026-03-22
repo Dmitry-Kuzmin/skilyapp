@@ -1,6 +1,0 @@
-Открой эту ссылку в браузере:
-
-https://github.com/Dmitry-Kuzmin/sdadim-dgt-prep/settings/pages
-
-Это настройки GitHub Pages для твоего репозитория.
-

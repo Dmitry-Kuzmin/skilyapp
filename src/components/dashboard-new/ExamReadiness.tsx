@@ -52,9 +52,9 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     {
       status: 'start' as const,
       range: '0-30%',
-      title: language === 'ru' ? 'СТАРТ' : 'INICIO',
+      title: t('dashboard.examReadiness.levels.start.title'),
       titleColor: 'text-red-400',
-      description: language === 'ru' ? 'Двигатель запускается. Путь только начинается.' : 'Motor en fase de inicio. La ruta acaba de empezar.',
+      description: t('dashboard.examReadiness.levels.start.desc'),
       icon: Rocket,
       color: '#ef4444',
       bgColor: 'bg-red-500/10',
@@ -62,9 +62,9 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     {
       status: 'progress' as const,
       range: '31-70%',
-      title: language === 'ru' ? 'В ПРОЦЕССЕ' : 'EN PROCESO',
+      title: t('dashboard.examReadiness.levels.progress.title'),
       titleColor: 'text-orange-400',
-      description: language === 'ru' ? 'Набираем скорость. Усилия уже заметны.' : 'Ganando velocidad. El esfuerzo es visible.',
+      description: t('dashboard.examReadiness.levels.progress.desc'),
       icon: TrendingUp,
       color: '#f59e0b',
       bgColor: 'bg-orange-500/10',
@@ -72,9 +72,9 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     {
       status: 'near' as const,
       range: '71-84%',
-      title: language === 'ru' ? 'ПОЧТИ ГОТОВО' : 'CASI LISTO',
+      title: t('dashboard.examReadiness.levels.near.title'),
       titleColor: 'text-yellow-400',
-      description: language === 'ru' ? 'Финиш в поле зрения. Последний рывок.' : 'Destino a la vista. Un último acelerón.',
+      description: t('dashboard.examReadiness.levels.near.desc'),
       icon: Target,
       color: '#eab308',
       bgColor: 'bg-yellow-500/10',
@@ -82,9 +82,9 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     {
       status: 'ready' as const,
       range: '85-95%',
-      title: language === 'ru' ? 'ГОТОВ' : 'LISTO',
+      title: t('dashboard.examReadiness.levels.ready.title'),
       titleColor: 'text-emerald-400',
-      description: language === 'ru' ? 'Зеленый свет. Датчики показывают полную готовность.' : 'Semáforo en Verde. Tus sensores indican que estás listo.',
+      description: t('dashboard.examReadiness.levels.ready.desc'),
       icon: Award,
       color: '#10b981',
       bgColor: 'bg-emerald-500/10',
@@ -92,14 +92,14 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     {
       status: 'legend' as const,
       range: '96-100%',
-      title: language === 'ru' ? 'ЛЕГЕНДА' : 'LEYENDA',
+      title: t('dashboard.examReadiness.levels.legend.title'),
       titleColor: 'text-purple-400',
-      description: language === 'ru' ? 'Уровень Легенда. Ты превзошел совершенство.' : 'Nivel Leyenda. Has superado la perfección necesaria.',
+      description: t('dashboard.examReadiness.levels.legend.desc'),
       icon: Sparkles,
       color: '#a855f7',
       bgColor: 'bg-purple-500/10',
     },
-  ], [language]);
+  ], [t]);
 
   const hasNoData = averageScore === 0 && testsCompleted === 0;
 
@@ -146,9 +146,9 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
 
     if (hasNoData) {
       readinessStatusValue = 'start';
-      statusLabel = 'Нет данных. Пройди свой первый тест, чтобы начать отслеживать прогресс.';
-      shortLabel = 'Начни обучение';
-      descriptionText = 'Ты только присоединился к платформе. Пройди первый тест, чтобы система могла оценить твою текущую готовность и составить персональный план обучения.';
+      statusLabel = t('dashboard.examReadiness.noData.statusLabel');
+      shortLabel = t('dashboard.examReadiness.noData.shortLabel');
+      descriptionText = t('dashboard.examReadiness.noData.description');
       color = '#64748b';
       textColorClass = 'text-slate-400';
       bgColorClass = 'bg-slate-500/20';
@@ -323,10 +323,10 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
       >
         <div className="text-center mb-6 relative z-10">
           <h3 className={`font-bold ${textPrimaryClass} mb-1`}>
-            {language === 'ru' ? 'Вероятность сдачи' : 'Probabilidad'}
+            {t('dashboard.examReadiness.title')}
           </h3>
           <p className={`text-xs ${textSecondaryClass}`}>
-            {language === 'ru' ? 'AI ПРОГНОЗ' : 'AI PREDICTION'}
+            {t('dashboard.examReadiness.aiPredict')}
           </p>
         </div>
 
@@ -390,7 +390,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
         <div className="h-full flex flex-col overflow-y-auto">
           {/* Title */}
           <div className="mb-4 relative z-10 flex items-center justify-between flex-shrink-0">
-            <h3 className={`font-bold ${textPrimaryClass} text-base sm:text-lg`}>TELEMETRÍA & PREDICCIÓN</h3>
+            <h3 className={`font-bold ${textPrimaryClass} text-base sm:text-lg`}>{t('dashboard.examReadiness.telemetryTitle')}</h3>
           </div>
 
           {/* Split View: Levels (Left) + Analytics (Right) */}
@@ -399,7 +399,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
             <div className="flex flex-col w-full xl:w-[50%] xl:min-w-[340px] xl:max-w-[450px] min-h-0">
               <div className="mb-4">
                 <h4 className={`text-xs font-bold ${sectionTitleClass} uppercase tracking-wider`}>
-                  {language === 'ru' ? 'УРОВНИ ПОЛЕТА' : 'NIVELES DE VUELO'}
+                  {t('dashboard.examReadiness.levelsTitle')}
                 </h4>
               </div>
 
@@ -485,7 +485,7 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
             <div className="flex flex-col flex-1 min-h-0 w-full xl:min-w-0">
               <div className="mb-4">
                 <h4 className={`text-xs font-bold ${textPrimaryClass} uppercase tracking-wider`}>
-                  {language === 'ru' ? 'РАСШИРЕННАЯ ТЕЛЕМЕТРИЯ' : 'TELEMETRÍA AVANZADA'}
+                  {t('dashboard.examReadiness.advancedTelemetryTitle')}
                 </h4>
               </div>
               <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1">

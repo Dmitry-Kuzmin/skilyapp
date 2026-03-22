@@ -239,6 +239,135 @@ export const es = {
     startButton: "Comenzar",
     level: "Nivel",
     streak: "Racha de días",
+    toasts: {
+      suspendedTitle: "Licencia Suspendida",
+      suspendedDesc: "Por favor, inscríbete en un curso de rehabilitación para recuperar tus puntos.",
+      rehabCompleteTitle: "¡Curso Completado!",
+      rehabCompleteDesc: "Tus puntos han sido recuperados (+6). ¡Prepárate para el examen!",
+    },
+    examReadiness: {
+      title: "Probabilidad de aprobar",
+      aiPredict: "PREDICCIÓN IA",
+      telemetryTitle: "TELEMETRÍA Y PREDICCIÓN",
+      levelsTitle: "NIVELES DE VUELO",
+      advancedTelemetryTitle: "TELEMETRÍA AVANZADA",
+      noData: {
+        shortLabel: "Inicia formación",
+        statusLabel: "Sin datos. Pasa tu primer test para ver tu progreso.",
+        description: "Acabas de unirte. Pasa el primer test para que el sistema evalúe tu nivel y cree un plan personalizado.",
+      },
+      levels: {
+        start: {
+          title: "INICIO",
+          desc: "Motor en fase de inicio. La ruta acaba de empezar.",
+        },
+        progress: {
+          title: "EN PROCESO",
+          desc: "Ganando velocidad. El esfuerzo es visible.",
+        },
+        near: {
+          title: "CASI LISTO",
+          desc: "Destino a la vista. Un último acelerón.",
+        },
+        ready: {
+          title: "LISTO",
+          desc: "Semáforo en Verde. Tus sensores indican que estás listo.",
+        },
+        legend: {
+          title: "LEYENDA",
+          desc: "Nivel Leyenda. Has superado la perfección necesaria.",
+        },
+      },
+    },
+    analytics: {
+      loading: "Cargando analítica...",
+      criticalPoint: {
+        title: "PUNTO CRÍTICO",
+        stats: "{{errorRate}}% errores · {{attempts}} intentos",
+      },
+      trend: {
+        title: "Tendencia",
+        positive: "Positiva",
+        negative: "Negativa",
+        stable: "Estable",
+      },
+      consistency: {
+        title: "Estabilidad",
+        high: "Alta",
+        medium: "Media",
+        low: "Baja",
+      },
+      eta: {
+        title: "PREDICCIÓN IA",
+        days: "{{days}} días",
+        desc: "Para alcanzar el nivel \"LISTO\" (85%) al ritmo actual",
+        highConfidence: "Alta confianza",
+        mediumConfidence: "Media confianza",
+        lowConfidence: "Baja confianza",
+      },
+      focusBattery: {
+        title: "Batería de enfoque",
+      },
+      activity: {
+        title: "ACTIVIDAD NEURONAL",
+        last30Days: "ÚLTIMOS 30 DÍAS",
+        tests: "{{count}} tests",
+      },
+    },
+    rehab: {
+      title: "Rehabilitación",
+      passed: {
+        title: "CURSO COMPLETADO",
+        desc: "Tus conocimientos han sido validados. Se han sumado +6 puntos.",
+        button: "VOLVER AL ENTRENAMIENTO",
+      },
+      failed: {
+        title: "TEST FALLIDO",
+        desc: "Para la recuperación del permiso debes acertar todas las preguntas.",
+        button: "INTENTAR MÁS TARDE",
+      },
+    },
+    dailyRewards: {
+      title: "Racha diaria",
+      week: "Semana {{number}}",
+      days: "DÍAS",
+      nextReward: {
+        singular: "{{count}} día para 🎁",
+        plural: "{{count}} días para 🎁",
+        ready: "🎁 ¡Recibe tu premio semanal!",
+      },
+      claimReward: "Recibir bono",
+      claimedToday: "Recibido hoy",
+      weekComplete: "¡Semana completada!",
+      rewardReceived: "¡Premio recibido!",
+      rewardReceivedTitle: "¡Premio recibido! 🎉",
+      info: {
+        title: "Premios diarios",
+        day: "Día {{number}}",
+        badge: "Insignia",
+        loot: "Botín",
+      },
+    },
+    premium: {
+      loading: "Cargando...",
+      checkingStatus: "Comprobando estado",
+      lifetime: {
+        title: "Premium Forever",
+        desc: "Acceso de por vida a todas las funciones",
+      },
+      active: {
+        title: "Premium activo",
+        daysRemaining: "{{count}} día",
+        daysRemainingPlural: "{{count}} días",
+        allAccess: "Funciones disponibles",
+      },
+      unlock: {
+        title: "Desbloquear todo",
+        desc: "Acceso a 3,000+ tests y funciones ilimitadas",
+      },
+      foreverBadge: "Forever",
+      passBadge: "Premium Pass",
+    },
   },
   licenseCard: {
     ranks: {
@@ -271,7 +400,24 @@ export const es = {
       sync: "Sincronización",
       completed: "COMPLETADA",
       globalId: "Global ID",
-    }
+    },
+    pointsModal: {
+      title: "ESTADO DEL CONDUCTOR",
+      statusReady: "Acceso abierto",
+      statusLocked: "Acceso limitado",
+      descReady: "Funcionalidad completa disponible",
+      descLocked: "Faltan {{points}} puntos",
+      score: "Puntuación",
+      accuracy: "Precisión",
+      journalTitle: "Diario de eventos",
+      emptyJournal: "Sin registros",
+      systemTitle: "Sistema de puntos",
+      bonusesTitle: "Bonos",
+      bonusesDesc: "Inicios de sesión, victorias en duelos, tests limpios.",
+      penaltiesTitle: "Penalizaciones",
+      penaltiesDesc: "Errores, más de 48h de inactividad.",
+      examRequirement: "Necesitas 10 para el examen",
+    },
   },
   online: "En línea",
   xpProgress: "XP hasta siguiente nivel",
@@ -307,6 +453,8 @@ export const es = {
     modelInfo: "MODELO: GEMINI-3.1-FLASH-LITE-PREVIEW // LATENCIA: 21ms",
     inputPlaceholder: "Escribe tu pregunta...",
     analyzing: "Analizando reglas...",
+    becomePro: "Ser PRO",
+    proDesc: "Desbloquea análisis detallado de errores",
   },
   monetization: {
     ton: {

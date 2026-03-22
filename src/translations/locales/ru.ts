@@ -243,6 +243,143 @@ export const ru = {
     startButton: "Поехали",
     level: "Уровень",
     streak: "Серия дней",
+    toasts: {
+      suspendedTitle: "Лицензия аннулирована",
+      suspendedDesc: "Запишитесь на курс переподготовки для восстановления баллов",
+      rehabCompleteTitle: "Курс завершен!",
+      rehabCompleteDesc: "Ваши баллы восстановлены (+6). Готовьтесь к экзамену!",
+    },
+    examReadiness: {
+      title: "Вероятность сдачи",
+      aiPredict: "AI ПРОГНОЗ",
+      telemetryTitle: "ТЕЛЕМЕТРИЯ И ПРОГНОЗ",
+      levelsTitle: "УРОВНИ ПОЛЕТА",
+      advancedTelemetryTitle: "РАСШИРЕННАЯ ТЕЛЕМЕТРИЯ",
+      noData: {
+        shortLabel: "Начни обучение",
+        statusLabel: "Нет данных. Пройди свой первый тест, чтобы начать отслеживать прогресс.",
+        description: "Ты только присоединился к платформе. Пройди первый тест, чтобы система могла оценить твою текущую готовность и составить персональный план обучения.",
+      },
+      levels: {
+        start: {
+          title: "СТАРТ",
+          desc: "Двигатель запускается. Путь только начинается.",
+        },
+        progress: {
+          title: "В ПРОЦЕССЕ",
+          desc: "Набираем скорость. Усилия уже заметны.",
+        },
+        near: {
+          title: "ПОЧТИ ГОТОВО",
+          desc: "Финиш в поле зрения. Последний рывок.",
+        },
+        ready: {
+          title: "ГОТОВ",
+          desc: "Зеленый свет. Датчики показывают полную готовность.",
+        },
+        legend: {
+          title: "ЛЕГЕНДА",
+          desc: "Уровень Легенда. Ты превзошел совершенство.",
+        },
+      },
+    },
+    analytics: {
+      loading: "Загрузка аналитики...",
+      criticalPoint: {
+        title: "КРИТИЧЕСКАЯ ТОЧКА",
+        stats: "{{errorRate}}% ошибок · {{attempts}} попыток",
+      },
+      trend: {
+        title: "Тенденция",
+        positive: "Позитивная",
+        negative: "Негативная",
+        stable: "Стабильная",
+      },
+      consistency: {
+        title: "Стабильность",
+        high: "Высокая",
+        medium: "Средняя",
+        low: "Низкая",
+      },
+      eta: {
+        title: "AI ПРОГНОЗ",
+        days: "{{days}} дн.",
+        desc: "До уровня \"ГОТОВ\" (85%) при текущем темпе",
+        highConfidence: "Высокая уверенность",
+        mediumConfidence: "Средняя уверенность",
+        lowConfidence: "Низкая уверенность",
+      },
+      focusBattery: {
+        title: "Запас концентрации",
+      },
+      activity: {
+        title: "НЕЙРОННАЯ АКТИВНОСТЬ",
+        last30Days: "ПОСЛЕДНИЕ 30 ДНЕЙ",
+        tests: "{{count}} тестов",
+      },
+    },
+    rehab: {
+      title: "Реабилитация",
+      passed: {
+        title: "КУРС ПРОЙДЕН",
+        desc: "Твои знания подтверждены. Начислено +6 баллов.",
+        button: "ВЕРНУТЬСЯ К ОБУЧЕНИЮ",
+      },
+      failed: {
+        title: "ТЕСТ ПРОВАЛЕН",
+        desc: "Для восстановления нужно ответить на все вопросы правильно.",
+        button: "ПОПРОБОВАТЬ ПОЗЖЕ",
+      },
+    },
+    dailyRewards: {
+      title: "Ежедневная серия",
+      week: "Неделя {{number}}",
+      days: "ДНЕЙ",
+      nextReward: {
+        singular: "{{count}} день до 🎁",
+        plural: "{{count}} дней до 🎁",
+        ready: "🎁 Получите награду за неделю!",
+      },
+      claimReward: "Получить бонус",
+      claimedToday: "Получено сегодня",
+      weekComplete: "Неделя завершена!",
+      rewardReceived: "Награда получена!",
+      rewardReceivedTitle: "Награда получена! 🎉",
+      info: {
+        title: "Ежедневные награды",
+        day: "День {{number}}",
+        badge: "Бейдж",
+        loot: "Лут",
+      },
+    },
+    premium: {
+      loading: "Загрузка...",
+      checkingStatus: "Проверка статуса",
+      lifetime: {
+        title: "Premium Forever",
+        desc: "Пожизненный доступ ко всем функциям",
+      },
+      active: {
+        title: "Premium активен",
+        daysRemaining: "{{count}} день",
+        daysRemainingPlural: "{{count}} дня/дней",
+        allAccess: "Все функции доступны",
+      },
+      unlock: {
+        title: "Разблокировать все",
+        desc: "Доступ к 3,000+ тестам и безлимитные возможности",
+      },
+      foreverBadge: "Forever",
+      passBadge: "Premium Pass",
+    },
+    duelPass: {
+      level: "Уровень {{level}}",
+      nextLevel: "До след. уровня: {{points}} SP",
+      daysRemaining: "Осталось",
+      days: "{{count}} день",
+      daysPlural: "{{count}} дня/дней",
+      duels: "Дуэли",
+    },
   },
   licenseCard: {
     ranks: {
@@ -275,9 +412,26 @@ export const ru = {
       sync: "Синхронизация",
       completed: "ЗАВЕРШЕНА",
       globalId: "Global ID",
-      examCountdown: "Экзамен через: {{days}} дн.",
-      setGoal: "Установить цель",
-    }
+    },
+    pointsModal: {
+      title: "СТАТУС ВОДИТЕЛЯ",
+      statusReady: "Допуск открыт",
+      statusLocked: "Допуск ограничен",
+      descReady: "Вам доступен полный функционал",
+      descLocked: "Нужно еще {{points}} баллов",
+      score: "Счет",
+      accuracy: "Точность",
+      journalTitle: "Журнал событий",
+      emptyJournal: "Записей нет",
+      systemTitle: "Система баллов",
+      bonusesTitle: "Бонусы",
+      bonusesDesc: "Вход, победы в дуэлях, чистые тесты.",
+      penaltiesTitle: "Штрафы",
+      penaltiesDesc: "Ошибки, простой более 48 часов.",
+      examRequirement: "Нужно 10 для экзамена",
+    },
+    examCountdown: "Экзамен через: {{days}} дн.",
+    setGoal: "Установить цель",
   },
 
   // Other
@@ -317,6 +471,8 @@ export const ru = {
     modelInfo: "MODEL: GEMINI-3.1-FLASH-LITE-PREVIEW // LATENCY: 21ms",
     inputPlaceholder: "Напиши свой вопрос...",
     analyzing: "Анализирую правила...",
+    becomePro: "Стать PRO",
+    proDesc: "Открой подробные разборы ошибок",
   },
   monetization: {
     ton: {

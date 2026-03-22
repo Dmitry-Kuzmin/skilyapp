@@ -6,7 +6,7 @@ export function AuthModalFooter() {
 
     return (
         <div className="mt-4 text-center">
-            <p className="text-[10px] text-zinc-600/60 leading-relaxed max-w-[280px] mx-auto font-medium">
+            <p className="text-[10px] text-muted-foreground/60 leading-relaxed max-w-[280px] mx-auto font-medium">
                 {t('auth.legalFooter')}{' '}
                 <LegalLink
                     href="/terms"

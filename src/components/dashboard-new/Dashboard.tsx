@@ -28,7 +28,7 @@ const TelemetryOverlay = lazy(() => import('../telemetry/TelemetryOverlay').then
 
 // Fallback component for lazy loading
 const ComponentSkeleton = () => (
-  <div className="h-32 bg-slate-800/50 rounded-2xl animate-pulse" />
+  <div className="h-32 bg-muted/50 dark:bg-slate-800/50 rounded-2xl animate-pulse" />
 );
 
 import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from '@/services/audioService';
@@ -134,8 +134,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     // GATING: License suspended if 0 points
     if (points === 0) {
       toast({
-        title: language === 'ru' ? 'Лицензия аннулирована' : 'Licencia suspendida',
-        description: language === 'ru' ? 'Запишитесь на курс переподготовки для восстановления' : 'Debes realizar el curso de recuperación',
+        title: t("dashboard.toasts.suspendedTitle"),
+        description: t("dashboard.toasts.suspendedDesc"),
         variant: 'destructive',
       });
       return;
@@ -171,8 +171,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
       if (error) throw error;
 
       toast({
-        title: language === 'ru' ? 'Курс завершен!' : '¡Curso completado!',
-        description: language === 'ru' ? 'Ваши баллы восстановлены (+6). Готовьтесь к экзамену!' : 'Tus puntos han sido recuperados (+6). ¡Prepárate para el examen!',
+        title: t("dashboard.toasts.rehabCompleteTitle"),
+        description: t("dashboard.toasts.rehabCompleteDesc"),
       });
 
       setShowRehabTest(false);
@@ -213,8 +213,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 'w-9 h-9 flex items-center justify-center rounded-xl transition-all',
                 'backdrop-blur-sm hover:scale-105 active:scale-95',
                 isDarkTheme
-                  ? 'bg-transparent hover:bg-white/10 text-zinc-400 hover:text-white'
-                  : 'bg-transparent hover:bg-black/5 text-zinc-400 hover:text-black'
+                  ? 'bg-transparent hover:bg-white/10 text-muted-foreground hover:text-white'
+                  : 'bg-transparent hover:bg-black/5 text-muted-foreground hover:text-black'
               )}
               aria-label="Settings"
             >

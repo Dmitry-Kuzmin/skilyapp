@@ -31,7 +31,7 @@ const CircularProgress = ({ progress, size = 32, strokeWidth = 2.5, completed = 
       <svg className="absolute -rotate-90 transform" width={size} height={size}>
         {/* Background track */}
         <circle
-          className="text-white/10"
+          className="text-foreground/10 dark:text-white/10"
           stroke="currentColor"
           strokeWidth={strokeWidth}
           fill="transparent"
@@ -61,9 +61,9 @@ const CircularProgress = ({ progress, size = 32, strokeWidth = 2.5, completed = 
         completed ? "scale-110" : "scale-100"
       )}>
         {completed ? (
-          <Check className="w-4 h-4 text-amber-400" />
+          <Check className="w-4 h-4 text-amber-600 dark:text-amber-400" />
         ) : (
-          <Icon className="w-3.5 h-3.5 text-white/50" />
+          <Icon className="w-3.5 h-3.5 text-muted-foreground/30 dark:text-white/50" />
         )}
       </div>
     </div>
@@ -152,9 +152,9 @@ export function DailyQuestWidget() {
       <div className="space-y-4 py-2 px-1">
         {[1, 2, 3].map(i => (
           <div key={i} className="flex items-center gap-4 animate-pulse">
-            <div className="w-8 h-8 rounded-full bg-white/5" />
-            <div className="flex-1 h-4 bg-white/5 rounded" />
-            <div className="w-12 h-4 bg-white/5 rounded" />
+            <div className="w-8 h-8 rounded-full bg-muted dark:bg-white/5" />
+            <div className="flex-1 h-4 bg-muted dark:bg-white/5 rounded" />
+            <div className="w-12 h-4 bg-muted dark:bg-white/5 rounded" />
           </div>
         ))}
       </div>
@@ -166,10 +166,10 @@ export function DailyQuestWidget() {
   return (
     <div className="py-1">
       <div className="flex items-center justify-between mb-2 px-1">
-        <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-white/20">
+        <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/20 dark:text-white/20">
           Daily Quests
         </h4>
-        <div className="flex items-center gap-1 text-[9px] font-bold text-white/15 uppercase tracking-tight">
+        <div className="flex items-center gap-1 text-[9px] font-bold text-foreground/15 dark:text-white/15 uppercase tracking-tight">
           <Clock className="w-2.5 h-2.5" />
           00:00
         </div>
@@ -180,7 +180,7 @@ export function DailyQuestWidget() {
           <div
             key={quest.id}
             className={cn(
-              "group flex items-center gap-3 py-1.5 border-b border-white/[0.03] last:border-0 transition-opacity",
+              "group flex items-center gap-3 py-1.5 border-b border-border dark:border-white/[0.03] last:border-0 transition-opacity",
               quest.is_claimed && "opacity-40"
             )}
           >
@@ -198,12 +198,12 @@ export function DailyQuestWidget() {
               <div className="flex items-center gap-1.5 overflow-hidden">
                 <span className={cn(
                   "text-[13.5px] font-medium leading-none truncate transition-colors",
-                  quest.is_completed ? "text-amber-400/80" : "text-slate-400"
+                  quest.is_completed ? "text-amber-600 dark:text-amber-400/80" : "text-foreground/80 dark:text-slate-400"
                 )}>
                   {quest.description}
                 </span>
                 {!quest.is_completed && quest.target_value > 1 && (
-                  <span className="text-[9px] font-bold text-slate-500 tabular-nums shrink-0">
+                  <span className="text-[9px] font-bold text-muted-foreground tabular-nums shrink-0">
                     {quest.current_progress}/{quest.target_value}
                   </span>
                 )}
@@ -213,8 +213,8 @@ export function DailyQuestWidget() {
             {/* Награда — Капсула (Pill Badge) */}
             <div className="shrink-0 flex items-center h-full">
               {quest.is_claimed ? (
-                <div className="flex items-center px-1.5 py-0.5 rounded-full bg-white/5">
-                  <span className="text-[9px] font-bold text-white/20 uppercase">{quest.reward_sp} SP</span>
+                <div className="flex items-center px-1.5 py-0.5 rounded-full bg-muted dark:bg-white/5">
+                  <span className="text-[9px] font-bold text-foreground/20 dark:text-white/20 uppercase">{quest.reward_sp} SP</span>
                 </div>
               ) : quest.is_completed ? (
                 <Button
@@ -230,7 +230,7 @@ export function DailyQuestWidget() {
                 </Button>
               ) : (
                 <div className="flex items-center px-2 py-0.5 rounded-full bg-amber-500/15">
-                  <span className="text-[10px] font-black text-amber-500 tabular-nums">
+                  <span className="text-[10px] font-black text-amber-600 dark:text-amber-500 tabular-nums">
                     +{quest.reward_sp} SP
                   </span>
                 </div>

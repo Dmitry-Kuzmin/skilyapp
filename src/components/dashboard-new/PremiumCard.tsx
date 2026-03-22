@@ -3,6 +3,7 @@ import { Crown, ChevronRight, Sparkles } from 'lucide-react';
 import { usePremium } from '@/hooks/usePremium';
 import { playClickSound } from '@/services/audioService';
 import { useTheme } from 'next-themes';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
 interface PremiumCardProps {
@@ -10,6 +11,7 @@ interface PremiumCardProps {
 }
 
 export const PremiumCard: React.FC<PremiumCardProps> = React.memo(({ onGetPremium }) => {
+  const { t } = useLanguage();
   const { isPremium, isLifetime, daysRemaining, loading } = usePremium();
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
@@ -29,41 +31,41 @@ export const PremiumCard: React.FC<PremiumCardProps> = React.memo(({ onGetPremiu
   const statusInfo = useMemo(() => {
     if (loading) {
       return {
-        title: 'Загрузка...',
-        description: 'Проверка статуса',
+        title: t('dashboard.premium.loading'),
+        description: t('dashboard.premium.checkingStatus'),
         badge: null,
       };
     }
 
     if (isLifetime) {
       return {
-        title: 'Premium Forever',
-        description: 'Пожизненный доступ ко всем функциям',
-        badge: 'Forever',
+        title: t('dashboard.premium.lifetime.title'),
+        description: t('dashboard.premium.lifetime.desc'),
+        badge: t('dashboard.premium.foreverBadge'),
       };
     }
 
     if (isPremium) {
       if (daysRemaining !== null && daysRemaining > 0 && daysRemaining < 30) {
         return {
-          title: 'Premium активен',
-          description: `Осталось ${daysRemaining} ${daysRemaining === 1 ? 'день' : daysRemaining < 5 ? 'дня' : 'дней'}`,
-          badge: `${daysRemaining}д`,
+          title: t('dashboard.premium.active.title'),
+          description: daysRemaining === 1 ? t('dashboard.premium.active.daysRemaining', { count: daysRemaining }) : t('dashboard.premium.active.daysRemainingPlural', { count: daysRemaining }),
+          badge: `${daysRemaining}d`,
         };
       }
       return {
-        title: 'Premium активен',
-        description: 'Все функции доступны',
+        title: t('dashboard.premium.active.title'),
+        description: t('dashboard.premium.active.allAccess'),
         badge: null,
       };
     }
 
     return {
-      title: 'Разблокировать все',
-      description: 'Доступ к 3,000+ тестам и безлимитные возможности',
+      title: t('dashboard.premium.unlock.title'),
+      description: t('dashboard.premium.unlock.desc'),
       badge: null,
     };
-  }, [isPremium, isLifetime, daysRemaining, loading]);
+  }, [isPremium, isLifetime, daysRemaining, loading, t]);
 
   return (
     <div
@@ -109,7 +111,7 @@ export const PremiumCard: React.FC<PremiumCardProps> = React.memo(({ onGetPremiu
               "text-xs font-bold tracking-[0.3em] uppercase",
               isDarkTheme ? "text-yellow-500" : "text-yellow-600"
             )}>
-              {isLifetime ? 'Forever' : 'Premium Pass'}
+              {isLifetime ? t('dashboard.premium.foreverBadge') : t('dashboard.premium.passBadge')}
             </span>
           </div>
           <div className="flex items-center gap-2">
