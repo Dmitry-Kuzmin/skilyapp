@@ -416,6 +416,7 @@ export default function Duel() {
                             setDuelId(activeDuel.duelId);
                         }
                         // Переходим к результатам без очистки activeDuel
+                        updateActiveDuel({ mode: 'result' });
                         setMode('result');
                     } else if ((data as any).status === 'active') {
                         // Дуэль активна - проверяем режим сохраненного состояния
@@ -1466,7 +1467,7 @@ export default function Duel() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                className="relative overflow-hidden rounded-[40px] border border-white/[0.05] bg-[#0b0d14] shadow-2xl mb-8"
+                                className="relative overflow-hidden rounded-[40px] border border-border dark:border-white/[0.05] bg-white dark:bg-[#0b0d14] shadow-2xl mb-8"
                             >
                                 {/* Abstract background elements */}
                                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -z-10" />
@@ -1489,22 +1490,22 @@ export default function Duel() {
                                                             navigate('/games');
                                                         }
                                                     }}
-                                                    className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-2xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.1] hover:border-white/[0.15] transition-all duration-300"
+                                                    className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-2xl bg-muted/50 dark:bg-white/[0.03] border border-border dark:border-white/[0.05] hover:bg-muted/70 dark:hover:bg-white/[0.1] transition-all duration-300 shadow-sm"
                                                 >
-                                                    <ArrowLeft className="w-5 h-5 text-slate-300" />
+                                                    <ArrowLeft className="w-5 h-5 text-foreground dark:text-slate-300" />
                                                 </button>
                                                 <div className="w-14 h-14 flex-shrink-0 rounded-2xl bg-gradient-to-br from-primary/20 to-indigo-500/20 border border-primary/30 flex items-center justify-center shadow-lg backdrop-blur-xl hidden sm:flex">
                                                     <Swords className="w-7 h-7 text-primary" />
                                                 </div>
                                                 <div>
-                                                    <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">{t('duelMenu.title')}</h1>
+                                                    <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">{t('duelMenu.title')}</h1>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                                         <span className="text-xs font-black uppercase tracking-widest text-emerald-500/80">Live Multiplayer</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <p className="text-slate-400 text-base sm:text-lg max-w-md font-medium leading-relaxed">
+                                            <p className="text-muted-foreground text-base sm:text-lg max-w-md font-medium leading-relaxed">
                                                 {t('duelMenu.subtitle')}
                                             </p>
                                         </div>
@@ -1516,12 +1517,12 @@ export default function Duel() {
                                                 { label: t('duelMenu.stats.wins'), val: dataLoaded ? duelStats.wins : '—', icon: Trophy, color: 'text-yellow-500' },
                                                 { label: t('duelMenu.stats.coins'), val: userCoins, icon: Coins, color: 'text-amber-500' }
                                             ].map((stat, i) => (
-                                                <div key={i} className="group relative flex flex-col p-4 rounded-3xl bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.06] hover:border-white/[0.1] transition-all duration-300">
+                                                <div key={i} className="group relative flex flex-col p-4 rounded-3xl bg-muted/50 dark:bg-white/[0.03] border border-border dark:border-white/[0.05] hover:bg-muted/70 dark:hover:bg-white/[0.06] hover:border-border/80 dark:hover:border-white/[0.1] transition-all duration-300">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <stat.icon size={12} className={stat.color} />
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{stat.label}</span>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</span>
                                                     </div>
-                                                    <div className="text-xl sm:text-2xl font-black text-white">
+                                                    <div className="text-xl sm:text-2xl font-black text-foreground">
                                                         {stat.val}
                                                     </div>
                                                 </div>
@@ -1545,7 +1546,7 @@ export default function Duel() {
                                                         setRematchOpponent(null);
                                                         setDuelMode('random');
                                                     })}
-                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-center"
+                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-white dark:bg-[#151921] border border-slate-200 dark:border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-center shadow-sm hover:shadow-md"
                                                 >
                                                     {/* Flare */}
                                                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1560,8 +1561,8 @@ export default function Duel() {
                                                                 <Search className="w-6 h-6 text-white" />
                                                             </div>
                                                             <div className="space-y-1">
-                                                                <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">{t('duelMenu.modes.random.title')}</h3>
-                                                                <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
+                                                                <h3 className="text-2xl font-black text-foreground dark:text-white tracking-tight leading-none mb-2">{t('duelMenu.modes.random.title')}</h3>
+                                                                <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
                                                                     {t('duelMenu.modes.random.description')}
                                                                 </p>
                                                             </div>
@@ -1585,7 +1586,7 @@ export default function Duel() {
                                                         setRematchOpponent(null);
                                                         setDuelMode('friend');
                                                     })}
-                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-gradient-to-br from-white/[0.03] to-transparent border border-white/[0.05] hover:border-amber-500/40 hover:bg-amber-500/[0.02] transition-all duration-500 overflow-hidden text-center"
+                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-white dark:bg-[#151921] border border-slate-200 dark:border-white/[0.05] hover:border-amber-500/40 hover:bg-amber-500/[0.02] transition-all duration-500 overflow-hidden text-center shadow-sm hover:shadow-md"
                                                 >
                                                     {/* Flare */}
                                                     <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1600,8 +1601,8 @@ export default function Duel() {
                                                                 <Users className="w-6 h-6 text-white" />
                                                             </div>
                                                             <div className="space-y-1">
-                                                                <h3 className="text-2xl font-black text-white tracking-tight leading-none mb-2">{t('duelMenu.modes.friend.title')}</h3>
-                                                                <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
+                                                                <h3 className="text-2xl font-black text-foreground dark:text-white tracking-tight leading-none mb-2">{t('duelMenu.modes.friend.title')}</h3>
+                                                                <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
                                                                     {t('duelMenu.modes.friend.description')}
                                                                 </p>
                                                             </div>
@@ -1609,7 +1610,7 @@ export default function Duel() {
                                                     </div>
 
                                                     <div className="relative z-10 mt-6">
-                                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/5 border border-white/10 group-hover:border-amber-500/30 group-hover:bg-amber-500/10 transition-all">
+                                                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 group-hover:border-amber-500/30 group-hover:bg-amber-500/10 transition-all">
                                                             <span className="text-[11px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
                                                                 {t('duelMenu.modes.friend.button')} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                                             </span>
@@ -2576,24 +2577,24 @@ export default function Duel() {
 
                             {/* How to Play Section */}
                             <div className="animate-fade-in-up [animation-delay:200ms] relative">
-                                <div className="absolute inset-x-0 -top-16 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-                                <div className="p-8 sm:p-12 bg-[#0b0d14] dark:bg-[#0b0d14] border border-white/[0.04] rounded-[32px] shadow-2xl relative overflow-hidden">
+                                <div className="absolute inset-x-0 -top-16 h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+                                <div className="p-8 sm:p-12 bg-slate-50 dark:bg-[#0b0d14] border border-border dark:border-white/[0.04] rounded-[32px] shadow-2xl relative overflow-hidden">
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10 sm:mb-12">
                                         <div className="space-y-3 text-left">
                                             <h3 className="text-3xl sm:text-4xl font-black flex items-center gap-3.5">
                                                 <Sparkles className="h-7 w-7 text-primary" />
-                                                <span className="text-white tracking-tight">
+                                                <span className="text-foreground dark:text-white tracking-tight">
                                                     {t('duelMenu.howToPlay.title')}
                                                 </span>
                                             </h3>
-                                            <p className="text-slate-400 text-sm sm:text-base font-medium max-w-md leading-relaxed">
+                                            <p className="text-muted-foreground text-sm sm:text-base font-medium max-w-md leading-relaxed">
                                                 {t('duelMenu.howToPlay.subtitle')}
                                             </p>
                                         </div>
 
-                                        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-[#161b26] rounded-full border border-white/5 h-fit">
+                                        <div className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 bg-muted/50 dark:bg-[#161b26] rounded-full border border-border dark:border-white/5 h-fit">
                                             <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                                            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Live Multiplayer</span>
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">{t('duelMenu.liveLabel')}</span>
                                         </div>
                                     </div>
 
@@ -2615,16 +2616,16 @@ export default function Duel() {
                                             return (
                                                 <div
                                                     key={index}
-                                                    className="group/item flex items-center gap-5 p-5 rounded-[22px] bg-[#151921] border border-white/[0.02] hover:bg-[#1a202b] hover:border-white/[0.05] transition-all duration-300 cursor-default"
+                                                    className="group/item flex items-center gap-5 p-5 rounded-[22px] bg-white dark:bg-[#151921] border border-border dark:border-white/[0.02] hover:bg-slate-100 dark:hover:bg-[#1a202b] hover:border-border/80 dark:hover:border-white/[0.05] transition-all duration-300 cursor-default shadow-sm"
                                                 >
                                                     <div className={`flex-shrink-0 w-11 h-11 rounded-[14px] bg-gradient-to-br ${colorClasses[item.color]} flex items-center justify-center shadow-lg`}>
                                                         <Icon className="h-5 w-5 text-white" />
                                                     </div>
                                                     <div className="space-y-0.5">
-                                                        <h4 className="font-bold text-base text-white">
+                                                        <h4 className="font-bold text-base text-foreground dark:text-white">
                                                             {item.title}
                                                         </h4>
-                                                        <p className="text-[12px] text-slate-400 leading-snug">
+                                                        <p className="text-[12px] text-muted-foreground leading-snug">
                                                             {item.desc}
                                                         </p>
                                                     </div>

@@ -1098,62 +1098,37 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
   // 🆕 CRITICAL FIX: Ref для остановки polling при finished статусе
   const pollingStoppedRef = useRef(false);
 
-  // КРИТИЧНО: Polling fallback для Telegram Mini App (если Realtime не работает)
-  // Проверяем новые exploits каждые 2 секунды через прямой запрос к БД
-  // ИЗМЕНЕНО: Теперь работает даже без myPlayerId - загружает его из БД если нужно
+  // КРИТИЧНО: Polling fallback для получения exploits (если Realtime не доставил)
+  // Проверяем новые exploits каждые 3 секунды через прямой запрос к БД
+  // ИЗМЕНЕНО: Работает во ВСЕХ средах (не только Telegram), загружает myPlayerId из БД если нужно
   useEffect(() => {
-    const isTelegram = typeof window !== 'undefined' && window.Telegram?.WebApp;
-
     // Сбрасываем флаг при монтировании
     pollingStoppedRef.current = false;
 
-    // КРИТИЧНО: Логируем все параметры для диагностики
-    console.log('[useDuelRealtime] 🔍 Polling setup check:', {
-      isTelegram,
-      duelId,
-      myPlayerId,
-      profileId,
-      connectionStatus,
-      willStartPolling: isTelegram && duelId && connectionStatus === 'connected'
-    });
-
-    // ИЗМЕНЕНО: Не требуем myPlayerId - загрузим его из БД если нужно
-    if (!isTelegram || !duelId || connectionStatus !== 'connected') {
-      if (!isTelegram) console.log('[useDuelRealtime] ⏭️ Polling skipped: not Telegram');
-      if (!duelId) console.log('[useDuelRealtime] ⏭️ Polling skipped: no duelId');
-      if (connectionStatus !== 'connected') console.log('[useDuelRealtime] ⏭️ Polling skipped: not connected');
+    if (!duelId || connectionStatus !== 'connected') {
+      if (!duelId) log('[useDuelRealtime] ⏭️ Polling skipped: no duelId');
+      if (connectionStatus !== 'connected') log('[useDuelRealtime] ⏭️ Polling skipped: not connected');
       return;
     }
 
-    console.log('[useDuelRealtime] 🔄🔄🔄 Starting polling fallback for Telegram Mini App... 🔄🔄🔄', {
+    log('[useDuelRealtime] 🔄 Starting exploit polling fallback...', {
       duelId,
       myPlayerId,
       profileId,
       connectionStatus,
-      platform: window.Telegram?.WebApp?.platform
     });
 
     // Кэш для загруженного myPlayerId
     let cachedMyPlayerId: string | null = myPlayerId || null;
 
-    // КРИТИЧНО: Функция polling, которую можно вызвать сразу и через интервал
     const performPolling = async () => {
-      // КРИТИЧНО: Логируем каждый вызов polling для диагностики (ВСЕГДА, даже если пропускается)
-      const currentDuelId = duelId;
-      const currentMyPlayerIdFromRef = myPlayerIdRef.current;
-      const currentConnectionStatus = connectionStatus;
-      const currentProfileId = profileId;
-
-
-
-      // 🆕 CRITICAL FIX: Проверяем статус дуэли перед polling
-      // Если дуэль finished, останавливаем polling
-      if (currentDuelId) {
+      // Проверяем статус дуэли перед polling
+      if (duelId) {
         try {
           const { data: duelData } = await supabase
             .from('duels')
             .select('status')
-            .eq('id', currentDuelId)
+            .eq('id', duelId)
             .maybeSingle();
 
           if (duelData?.status === 'finished') {
@@ -1171,13 +1146,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       try {
         let currentMyPlayerId = myPlayerIdRef.current || cachedMyPlayerId;
 
-        // КРИТИЧНО: Если myPlayerId не установлен, загружаем его из БД
+        // Если myPlayerId не установлен, загружаем из БД
         if (!currentMyPlayerId && profileId && duelId) {
-          console.log('[useDuelRealtime] 🔍 Polling: myPlayerId not set, loading from DB...', {
-            profileId,
-            duelId
-          });
-
           try {
             const { data: playerData } = await supabase
               .from('duel_players')
@@ -1190,63 +1160,17 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
               currentMyPlayerId = playerData.id;
               cachedMyPlayerId = playerData.id;
               myPlayerIdRef.current = playerData.id;
-              console.log('[useDuelRealtime] ✅✅✅ Polling: Loaded myPlayerId from DB:', {
-                myPlayerId: currentMyPlayerId,
-                profileId,
-                duelId,
-                timestamp: new Date().toISOString()
-              });
-            } else {
-              console.warn('[useDuelRealtime] ⚠️⚠️⚠️ Polling: Could not find myPlayerId in DB ⚠️⚠️⚠️', {
-                profileId,
-                duelId,
-                playerData,
-                timestamp: new Date().toISOString()
-              });
+              log('[useDuelRealtime] Polling: Loaded myPlayerId from DB:', currentMyPlayerId);
             }
           } catch (loadError) {
-            console.error('[useDuelRealtime] ❌ Polling: Error loading myPlayerId:', loadError);
+            logError('[useDuelRealtime] Polling: Error loading myPlayerId:', loadError);
           }
         }
 
         if (!currentMyPlayerId || !duelId) {
-          console.log('[useDuelRealtime] ⏭️⏭️⏭️ Polling iteration skipped: no myPlayerId or duelId ⏭️⏭️⏭️', {
-            currentMyPlayerId,
-            duelId,
-            profileId,
-            hasMyPlayerId: !!currentMyPlayerId,
-            hasDuelId: !!duelId,
-            myPlayerIdRef: myPlayerIdRef.current,
-            cachedMyPlayerId,
-            timestamp: new Date().toISOString()
-          });
           return;
         }
 
-        // КРИТИЧНО: Логируем успешное прохождение проверок
-        console.log('[useDuelRealtime] ✅✅✅ Polling checks passed, proceeding with query ✅✅✅:', {
-          currentMyPlayerId,
-          duelId,
-          profileId,
-          timestamp: new Date().toISOString()
-        });
-
-        // КРИТИЧНО: Логируем параметры запроса перед выполнением
-        const currentTimeISO = new Date().toISOString();
-        console.log('[useDuelRealtime] 🔍🔍🔍 Polling: About to query exploits:', {
-          duelId,
-          currentMyPlayerId,
-          attackerFilter: `attacker_player_id != '${currentMyPlayerId}'`,
-          currentTimeISO,
-          queryParams: {
-            duel_id: duelId,
-            attacker_player_id_not_equal: currentMyPlayerId,
-            is_active: true,
-            expires_at_greater_than: currentTimeISO
-          }
-        });
-
-        // 🆕 Используем RPC функцию вместо прямого запроса для обхода CORS проблем
         const { data: rpcExploits, error: rpcError } = await supabase.rpc('get_active_exploits', {
           p_duel_id: duelId,
           p_my_player_id: currentMyPlayerId
@@ -1257,17 +1181,16 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
 
         if (rpcError) {
           error = rpcError;
-          console.error('[useDuelRealtime] ❌ RPC get_active_exploits error:', rpcError);
+          logError('[useDuelRealtime] RPC get_active_exploits error:', rpcError);
 
-          // Fallback: если RPC не работает, пробуем прямой запрос
-          console.log('[useDuelRealtime] 🔄 Falling back to direct query...');
+          // Fallback: прямой запрос
           const { data: fallbackExploits, error: fallbackError } = await supabase
             .from('duel_active_exploits')
             .select('*')
             .eq('duel_id', duelId)
             .neq('attacker_player_id', currentMyPlayerId)
             .eq('is_active', true)
-            .gt('expires_at', currentTimeISO)
+            .gt('expires_at', new Date().toISOString())
             .order('activated_at', { ascending: false });
 
           if (fallbackError) {
@@ -1280,11 +1203,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
           newExploits = rpcExploits || [];
         }
 
-        // КРИТИЧНО: Логируем результат запроса ВСЕГДА (не только если найдены exploits)
-
-
         if (error) {
-          console.error('[useDuelRealtime] ❌ Polling error:', error);
+          logError('[useDuelRealtime] Polling error:', error);
           return;
         }
 
@@ -1333,24 +1253,8 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
       }
     };
 
-    // ОПТИМИЗАЦИЯ: Вызываем polling сразу после подключения (не ждем 2 секунды)
-    console.log('[useDuelRealtime] 🚀🚀🚀 Calling polling immediately after connection...', {
-      duelId,
-      myPlayerId: myPlayerIdRef.current,
-      profileId,
-      connectionStatus,
-      timestamp: new Date().toISOString()
-    });
+    // Вызываем polling сразу после подключения
     performPolling();
-
-    // Затем вызываем каждые 2 секунды
-    console.log('[useDuelRealtime] ⏰⏰⏰ Setting up polling interval (every 2 seconds)...', {
-      duelId,
-      myPlayerId: myPlayerIdRef.current,
-      profileId,
-      connectionStatus,
-      timestamp: new Date().toISOString()
-    });
 
     // 🆕 CRITICAL FIX: Сохраняем ссылку на интервал для возможности остановки из performPolling
     let pollingInterval: NodeJS.Timeout | null = null;
@@ -1377,7 +1281,6 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
     };
 
     pollingInterval = setInterval(() => {
-      // 🆕 CRITICAL FIX: Проверяем флаг перед каждым вызовом
       if (pollingStoppedRef.current) {
         if (pollingInterval) {
           clearInterval(pollingInterval);
@@ -1385,16 +1288,10 @@ export function useDuelRealtime(duelId: string | null, myPlayerId?: string | nul
         }
         return;
       }
-
-
       pollingWrapper();
-    }, 2000);
+    }, 3000);
 
     return () => {
-      console.log('[useDuelRealtime] 🛑 Stopping polling fallback...', {
-        duelId,
-        timestamp: new Date().toISOString()
-      });
       pollingStoppedRef.current = true;
       if (pollingInterval) {
         clearInterval(pollingInterval);

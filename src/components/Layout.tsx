@@ -229,7 +229,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
     { name: t("home"), href: isAuthenticated ? "/dashboard" : "/", icon: Home, matchPaths: ["/dashboard"] },
     { name: t("tests"), href: isAuthenticated ? "/tests" : "/", icon: FileText, matchPaths: ["/tests", "/test"] },
     { name: t("learning"), href: isAuthenticated ? "/learning" : "/", icon: BookOpen, matchPaths: ["/learning", "/learning-map", "/topic", "/subtopic"] },
-    (isAuthenticated && activeDuel && activeDuel.mode !== 'result' && (duelStatus === 'active' || duelStatus === 'waiting' || duelStatus === 'unknown'))
+    (isAuthenticated && activeDuel && activeDuel.mode !== 'result' && (duelStatus === 'active' || duelStatus === 'waiting'))
       ? {
         name: "Дуэль",
         href: `/games/duel?duelId=${activeDuel.duelId}`,
