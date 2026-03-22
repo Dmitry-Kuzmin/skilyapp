@@ -30,7 +30,7 @@ export default function Cookies({ embedded = false }: CookiesProps) {
                 },
                 {
                     title: "4. Управление файлами cookie",
-                    content: "Вы можете управлять файлами cookie или отключать их в настройках вашего браузера. Однако это может повлиять на функциональность нашего сервиса. Вы также можете использовать встроенный инструмент согласия (Axeptio) на нашем сайте для настройки ваших предпочтений."
+                    content: "Вы можете управлять файлами cookie или отключать их в настройках вашего браузера. Однако это может повлиять на функциональность нашего сервиса. Вы также можете управлять вашими предпочтениями через настройки Google, если доступны на нашем сайте."
                 }
             ]
         },
@@ -55,7 +55,7 @@ export default function Cookies({ embedded = false }: CookiesProps) {
                 },
                 {
                     title: "4. Gestión de cookies",
-                    content: "Puede gestionar o desactivar las cookies en la configuración de su navegador. Sin embargo, esto puede afectar a la funcionalidad de nuestro servicio. También puede utilizar la herramienta de consentimiento integrada (Axeptio) en nuestro sitio para ajustar sus preferencias."
+                    content: "Puede gestionar o desactivar las cookies en la configuración de su navegador. Sin embargo, esto puede afectar a la funcionalidad de nuestro servicio. También puede gestionar sus preferencias a través de los ajustes de Google si están disponibles en nuestro sitio."
                 }
             ]
         },
@@ -80,7 +80,7 @@ export default function Cookies({ embedded = false }: CookiesProps) {
                 },
                 {
                     title: "4. Managing cookies",
-                    content: "You can manage or disable cookies in your browser settings. However, this may affect the functionality of our service. You can also use the built-in consent tool (Axeptio) on our site to adjust your preferences."
+                    content: "You can manage or disable cookies in your browser settings. However, this may affect the functionality of our service. You can also manage your preferences through Google settings if available on our site."
                 }
             ]
         }

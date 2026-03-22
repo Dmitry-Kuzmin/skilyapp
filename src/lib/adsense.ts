@@ -22,7 +22,12 @@ let adConfigDone = false;
  */
 async function loadAdSenseScript(): Promise<void> {
     if (typeof window === 'undefined') return;
-    if (isScriptLoaded) return;
+    
+    // Check if script is already present in document or window object is initialized
+    if (isScriptLoaded || window.adsbygoogle?.length >= 0 || document.querySelector('script[src*="adsbygoogle.js"]')) {
+        isScriptLoaded = true;
+        return;
+    }
     
     if (isScriptLoading) {
         return new Promise((resolve) => {

@@ -467,10 +467,7 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
                 <button
                   onClick={(e) => {
                     setOpen(false);
-                    const win = window as any;
-                    const sdk = win.axeptioSDK || win.axeptio || win.Axeptio;
-                    if (sdk?.requestConsent) sdk.requestConsent();
-                    else if (sdk?.openConsentModal) sdk.openConsentModal();
+                    navigate("/legal/cookies");
                   }}
                   className="hover:text-foreground transition-colors"
                 >

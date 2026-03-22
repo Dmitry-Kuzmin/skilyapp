@@ -203,7 +203,7 @@ const DialogContent = React.forwardRef<
         className={cn(
           // Базовые стили для dialog (премиум стиль)
           "fixed left-[50%] top-[50%] z-50 grid w-full gap-4 p-6 duration-200 translate-x-[-50%] translate-y-[-50%] pointer-events-auto",
-          "bg-[#09090b] border border-white/5 shadow-[0_30px_90px_-20px_rgba(0,0,0,1)]",
+          "bg-background border border-border shadow-[0_30px_90px_-20px_rgba(0,0,0,0.3)] dark:shadow-[0_30px_90px_-20px_rgba(0,0,0,1)]",
           // Максимальная ширина
           sizeConfig.maxWidth || "max-w-lg",
           // Максимальная высота
@@ -273,7 +273,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight text-zinc-200 select-none", className)}
+    className={cn("text-lg font-semibold leading-none tracking-tight text-foreground select-none", className)}
     {...props}
   />
 ));
@@ -283,7 +283,7 @@ const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Description ref={ref} className={cn("text-sm text-zinc-400", className)} {...props} />
+  <DialogPrimitive.Description ref={ref} className={cn("text-sm text-muted-foreground", className)} {...props} />
 ));
 DialogDescription.displayName = DialogPrimitive.Description.displayName;
 

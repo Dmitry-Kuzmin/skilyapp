@@ -127,12 +127,7 @@ export const AboutTab: React.FC = () => {
                         icon={<FileText className="w-4 h-4 text-slate-400" />}
                         label="Cookies"
                         description="Cookie Settings"
-                        onClick={() => {
-                            const win = window as unknown as Record<string, { requestConsent?: () => void; openConsentModal?: () => void }>;
-                            const sdk = win['axeptioSDK'] ?? win['axeptio'] ?? win['Axeptio'];
-                            if (sdk?.requestConsent) sdk.requestConsent();
-                            else if (sdk?.openConsentModal) sdk.openConsentModal();
-                        }}
+                        onClick={() => handleNavigate('/legal/cookies')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>

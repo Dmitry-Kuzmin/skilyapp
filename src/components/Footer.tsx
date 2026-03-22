@@ -3,20 +3,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { CarFront } from "lucide-react";
 import { toast } from "sonner";
 
-declare global {
-  interface Window {
-    axeptioSDK?: {
-      requestConsent: () => void;
-      openConsentModal: () => void;
-    };
-    axeptio?: {
-      requestConsent: () => void;
-      openConsentModal: () => void;
-    };
-    _axcb?: any[];
-  }
-}
-
 export function Footer() {
   const { t } = useLanguage();
   const location = useLocation();
@@ -39,17 +25,8 @@ export function Footer() {
 
   const handleCookieSettings = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    // НЕ вызываем e.stopPropagation() — это убивает нативный обработчик Axeptio на классе axeptio_authorized_vendors
-
-    const win = window as any;
-    // Прямой вызов SDK — самый надёжный способ
-    const sdk = win.axeptioSDK || win.axeptio || win.Axeptio;
-    if (sdk?.requestConsent) {
-      sdk.requestConsent();
-    } else if (sdk?.openConsentModal) {
-      sdk.openConsentModal();
-    }
-    // Если SDK ещё не загружен — нативный обработчик Axeptio на классе сам откроет баннер
+    // Переход на страницу настроек cookies, так как внешнего CMP Axeptio больше нет
+    navigate("/legal/cookies");
   };
 
   return (

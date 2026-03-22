@@ -43,6 +43,16 @@ export function useActiveDuel() {
   const [activeDuel, setActiveDuel] = useState<ActiveDuelState | null>(initialActiveDuel);
   const [isChecking, setIsChecking] = useState(!!initialActiveDuel); // true только если есть состояние для проверки
 
+  // Синхронизация между несколькими экземплярами хука (Layout + Duel)
+  useEffect(() => {
+    const handleSync = (e: Event) => {
+      const detail = (e as CustomEvent<ActiveDuelState | null>).detail;
+      setActiveDuel(detail);
+    };
+    window.addEventListener('activeDuelSync', handleSync);
+    return () => window.removeEventListener('activeDuelSync', handleSync);
+  }, []);
+
   // КРИТИЧНО: Объявляем checkDuelStatus ПЕРЕД useEffect, который его использует
   // Это предотвращает TDZ (Temporal Dead Zone) ошибки
   const checkDuelStatus = async (duelId: string): Promise<'active' | 'waiting' | 'finished' | 'invalid'> => {
@@ -129,6 +139,7 @@ export function useActiveDuel() {
     try {
       localStorage.setItem(ACTIVE_DUEL_STORAGE_KEY, JSON.stringify(stateWithTimestamp));
       setActiveDuel(stateWithTimestamp);
+      window.dispatchEvent(new CustomEvent('activeDuelSync', { detail: stateWithTimestamp }));
       console.log('[useActiveDuel] ✅ Saved active duel state:', {
         duelId: state.duelId,
         mode: state.mode,
@@ -142,6 +153,7 @@ export function useActiveDuel() {
   const clearActiveDuel = useCallback(() => {
     localStorage.removeItem(ACTIVE_DUEL_STORAGE_KEY);
     setActiveDuel(null);
+    window.dispatchEvent(new CustomEvent('activeDuelSync', { detail: null }));
     console.log('[useActiveDuel] ✅ Cleared active duel state');
   }, []);
 
@@ -157,6 +169,7 @@ export function useActiveDuel() {
     try {
       localStorage.setItem(ACTIVE_DUEL_STORAGE_KEY, JSON.stringify(updated));
       setActiveDuel(updated);
+      window.dispatchEvent(new CustomEvent('activeDuelSync', { detail: updated }));
     } catch (error) {
       console.error('[useActiveDuel] Error updating state:', error);
     }

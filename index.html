@@ -9,38 +9,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
   
-  <!-- Axeptio Cookie Consent (DELAYED FOR PERFORMANCE) -->
+  <!-- Google Consent Mode (GCM) Initial State -->
   <script>
-    window.axeptioSettings = {
-      clientId: "69a1acef0a02cdc0f86b3b4e",
-      cookiesVersion: "a9f70806-d61a-4b9c-897b-f1e641f17590",
-      googleConsentMode: {
-        default: {
-          analytics_storage: "denied",
-          ad_storage: "denied",
-          ad_user_data: "denied",
-          ad_personalization: "denied",
-          wait_for_update: 500
-        }
-      }
-    };
-
-    // Load Axeptio after first interaction or 4s
-    function loadAxeptio() {
-        if (window.axeptioLoaded) return;
-        window.axeptioLoaded = true;
-        (function (d, s) {
-          var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
-          e.async = true; e.src = "//static.axept.io/sdk.js";
-          t.parentNode.insertBefore(e, t);
-        })(document, "script");
-    }
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
     
-    window.addEventListener('scroll', loadAxeptio, { once: true });
-    window.addEventListener('mousemove', loadAxeptio, { once: true });
-    window.addEventListener('touchstart', loadAxeptio, { once: true });
-    setTimeout(loadAxeptio, 4000);
+    // Set default consent to 'denied' as per GDPR best practices
+    gtag('consent', 'default', {
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'wait_for_update': 500
+    });
   </script>
+
+  <!-- Google AdSense SDK (Global for CMP Banner) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1758777358223420"
+     crossorigin="anonymous"></script>
 
   <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически при переходах -->
   <meta name="theme-color" content="#0f172a">

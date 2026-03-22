@@ -1563,7 +1563,7 @@ export function BoostShopModal({
                               : color === "amber"
                                 ? "bg-amber-500/10 border-amber-500/50 text-amber-400 shadow-[0_0_15px_rgba(255,215,0,0.3)]"
                                 : "bg-indigo-500/10 border-indigo-500/50 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)]"
-                        : "bg-zinc-100 dark:bg-white/5 border-zinc-300 dark:border-white/10 text-zinc-700 dark:text-white/60 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-white/10",
+                        : "bg-muted/50 dark:bg-white/5 border-border dark:border-white/10 text-muted-foreground hover:text-foreground hover:bg-muted/70 dark:hover:bg-white/10",
                     )}
                   >
                     <Icon className="w-3 h-3" />
@@ -1941,7 +1941,7 @@ export function BoostShopModal({
             >
               <div className="space-y-6">
                 {/* HERO BANNER: Ultra-Premium Lava Lamp Style */}
-                <div className="relative overflow-hidden rounded-[24px] bg-[#0F121E] border border-white/5 shadow-2xl">
+                <div className="relative overflow-hidden rounded-[24px] bg-slate-900 dark:bg-[#0F121E] border border-border dark:border-white/5 shadow-2xl">
                   {/* Animated Background */}
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <motion.div
@@ -1979,7 +1979,7 @@ export function BoostShopModal({
                         <motion.div
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="inline-flex items-center gap-2 mb-3 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20"
+                          className="inline-flex items-center gap-2 mb-3 bg-white/10 dark:bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 dark:border-white/20"
                         >
                           <Crown className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
                           <span className="text-[10px] font-bold tracking-widest uppercase text-white">
@@ -2057,7 +2057,7 @@ export function BoostShopModal({
                             "absolute inset-0 rounded-[20px] blur-xl transition-opacity duration-500 -z-10",
                             isPopular
                               ? "bg-violet-600/30 opacity-60 group-hover:opacity-100"
-                              : "bg-black/5 dark:bg-black/40 opacity-0 group-hover:opacity-100 dark:bg-black/40",
+                              : "bg-muted/50 dark:bg-black/40 opacity-0 group-hover:opacity-100",
                           )}
                         />
 
@@ -2065,8 +2065,8 @@ export function BoostShopModal({
                           className={cn(
                             "relative h-full p-5 rounded-[20px] border flex flex-col transition-all duration-300 overflow-hidden",
                             isPopular
-                              ? "bg-violet-50 dark:bg-[#10101a] border-violet-500/30 text-foreground dark:text-white"
-                              : "bg-card border-border hover:border-violet-300 dark:hover:border-violet-700",
+                              ? "bg-violet-50 dark:bg-[#10101a] border-violet-500/30 text-foreground dark:text-white shadow-sm"
+                              : "bg-card border-border hover:border-violet-300 dark:hover:border-violet-700 shadow-sm",
                           )}
                         >
                           {/* Shimmer for Popular */}
@@ -2158,7 +2158,7 @@ export function BoostShopModal({
                                     className={cn(
                                       "w-full font-bold h-11 rounded-xl shadow-lg",
                                       isPopular
-                                        ? "bg-white text-slate-900 hover:bg-slate-50"
+                                        ? "bg-primary text-primary-foreground dark:bg-white dark:text-black hover:opacity-90"
                                         : "bg-slate-900 text-white hover:bg-slate-800",
                                     )}
                                     onSuccess={() => {

@@ -1285,8 +1285,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </div>
 
         <h2 className="text-3xl md:text-4xl font-black tracking-tight mb-4">
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-white to-blue-300 animate-gradient-x">
-            Скоро новый сезон
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 dark:from-blue-300 dark:via-white dark:to-blue-300 animate-gradient-x">
+            {dp("upcomingSeason.title")}
           </span>
         </h2>
 
@@ -1297,31 +1297,31 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </p>
 
         {/* Mystery Rewards Teaser */}
-        <div className="flex items-center gap-3 mb-10 px-6 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+        <div className="flex items-center gap-3 mb-10 px-6 py-4 rounded-2xl bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 backdrop-blur-md">
           {[1, 2, 3].map((i) => (
             <div key={i} className="relative group/item">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center border border-white/10 overflow-hidden">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-background/80 to-background/40 dark:from-white/10 dark:to-white/5 flex items-center justify-center border border-border dark:border-white/10 overflow-hidden">
                 <span className="text-lg opacity-30 select-none">?</span>
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]" />
+                <div className="absolute inset-0 bg-muted/40 dark:bg-white/10 backdrop-blur-[2px]" />
               </div>
               {i === 2 && (
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]" />
               )}
             </div>
           ))}
-          <div className="h-8 w-px bg-white/10 mx-1" />
+          <div className="h-8 w-px bg-border dark:bg-white/10 mx-1" />
           <div className="text-left">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Награды</p>
-            <p className="text-xs font-semibold text-white/90">Секретно</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{dp("upcomingSeason.rewards")}</p>
+            <p className="text-xs font-semibold text-foreground/90">{dp("upcomingSeason.secret")}</p>
           </div>
         </div>
 
         <Button
           size="lg"
-          className="rounded-xl bg-white text-black hover:bg-white/90 hover:scale-105 active:scale-95 transition-all duration-300 font-bold px-12 shadow-xl shadow-white/10"
+          className="rounded-xl bg-primary text-primary-foreground dark:bg-white dark:text-black hover:bg-primary/90 dark:hover:bg-white/90 hover:scale-105 active:scale-95 transition-all duration-300 font-bold px-12 shadow-xl shadow-primary/20 dark:shadow-white/10"
           onClick={() => onOpenChange(false)}
         >
-          Жду открытия
+          {dp("upcomingSeason.button")}
         </Button>
       </motion.div>
     </div>
@@ -1456,7 +1456,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         }}
         className={cn(
           "relative rounded-xl border px-2 py-2 transition-all min-h-[44px] sm:min-h-[52px] group overflow-hidden cursor-default shadow-sm",
-          isPremiumCell ? "border-yellow-500/30 bg-yellow-500/5 text-yellow-50" : "border-border bg-muted/40 text-foreground",
+          isPremiumCell ? "border-yellow-500/30 bg-yellow-500/5 text-yellow-900/90 dark:text-yellow-50" : "border-border bg-muted/40 text-foreground",
           canClaim && "border-primary/60 bg-primary/10 shadow-[0_6px_16px_rgba(var(--primary-rgb,59,130,246),0.25)] cursor-pointer ring-1 ring-primary/20",
           canClaim && isPremiumCell && "border-yellow-400/70 bg-yellow-400/15 shadow-[0_6px_20px_rgba(251,191,36,0.30)] ring-1 ring-yellow-400/30",
           options.claimed && "opacity-60 border-green-500/30 bg-green-500/5 shadow-none",

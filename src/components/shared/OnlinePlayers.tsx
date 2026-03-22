@@ -112,14 +112,14 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
             </div>
 
             {/* Счетчик в том же ряду */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md shadow-lg h-9">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/50 dark:bg-white/10 border border-border dark:border-white/20 backdrop-blur-md shadow-lg h-9">
                 <div className="flex items-baseline gap-1">
                     <NumberTicker
                         value={count}
                         useSeparator={false}
-                        className="text-[14px] font-black text-white"
+                        className="text-[14px] font-black text-foreground dark:text-white"
                     />
-                    <span className="text-[9px] font-black text-white/40 tracking-[0.1em] uppercase ml-1">
+                    <span className="text-[9px] font-black text-muted-foreground/60 dark:text-white/40 tracking-[0.1em] uppercase ml-1">
                         В СЕТИ
                     </span>
                 </div>
