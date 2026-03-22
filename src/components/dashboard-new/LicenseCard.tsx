@@ -23,6 +23,8 @@ interface LicenseCardProps {
         id?: string;
         license_points?: number;
         referral_code?: string | null;
+        duel_wins?: number;
+        duel_total?: number;
     };
     stats: {
         xp?: number;

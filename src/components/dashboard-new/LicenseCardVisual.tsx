@@ -262,7 +262,19 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                 <div className="flex-1 min-w-0 flex flex-col mt-0 md:mt-1">
                     <div className="flex-1 min-w-0 flex flex-row items-start sm:items-center justify-between gap-1 sm:gap-4 md:gap-4 lg:gap-6 overflow-visible">
                         <div className="grid grid-cols-1 gap-y-1.5 md:gap-y-2 lg:gap-y-3 flex-1 min-w-0 max-w-[60%] sm:max-w-none">
-                            <Field label={localeConfig.fields.name} value={fullName} />
+                            <div className="flex flex-col gap-1">
+                                <Field label={localeConfig.fields.name} value={fullName} />
+                                {userProfile?.duel_total > 0 && (
+                                    <div className="flex items-center gap-1.5 ml-[1px] -mt-0.5">
+                                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 shadow-sm">
+                                            <span className="text-[8px] font-black text-emerald-500 tabular-nums tracking-tighter uppercase whitespace-nowrap">WIN: {userProfile.duel_wins}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-500/10 border border-rose-500/20 shadow-sm">
+                                            <span className="text-[8px] font-black text-rose-500 tabular-nums tracking-tighter uppercase whitespace-nowrap">LOSS: {userProfile.duel_total - userProfile.duel_wins}</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             <div className="grid grid-cols-2 gap-2">
                                 <Field 

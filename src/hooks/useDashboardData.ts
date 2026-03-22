@@ -54,6 +54,8 @@ interface DashboardStats {
     username?: string | null;
     license_points?: number; // Added field
     referral_code?: string | null; // Added field
+    duel_wins?: number;
+    duel_total?: number;
   };
   stats: {
     tests_completed: number;
@@ -313,9 +315,15 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
         .select('day_number, reward, description')
         .order('day_number', { ascending: true })
         .limit(7),
+
+      supabase
+        .from('duel_stats')
+        .select('total_duels, wins')
+        .eq('user_id', profileId)
+        .maybeSingle(),
     ]);
 
-    const [profileRes, sessionsRes, bonusRes, tasksRes, achievementsRes, definitionsRes] = results;
+    const [profileRes, sessionsRes, bonusRes, tasksRes, achievementsRes, definitionsRes, duelStatsRes] = results;
 
     // [useDashboardData] 📊 Fallback results:
     //   profile: profileRes.status,
@@ -371,6 +379,8 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
         username: (profile as any).username || null,
         photo_url: (profile as any).photo_url || null,
         referral_code: (profile as any).referral_code || null,
+        duel_wins: (duelStatsRes.status === 'fulfilled' ? (duelStatsRes.value as any).data?.wins : 0) || 0,
+        duel_total: (duelStatsRes.status === 'fulfilled' ? (duelStatsRes.value as any).data?.total_duels : 0) || 0,
       },
       stats: {
         tests_completed: testsCompleted,

@@ -72,6 +72,8 @@ interface DashboardProps {
     id?: string;
     license_points?: number;
     referral_code?: string | null;
+    duel_wins?: number;
+    duel_total?: number;
   };
   licenseHistory?: Array<{
     points: number;
