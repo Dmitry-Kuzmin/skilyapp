@@ -29,13 +29,20 @@ import { Motion } from "@/components/optimized/Motion";
 import { useSessionManager } from "@/hooks/useSessionManager";
 
 import { SmartOnboardingFlow } from "@/components/onboarding/SmartOnboardingFlow";
+import { useTonWalletSync } from "@/hooks/useTonWalletSync";
 
 /**
  * Глобальный обработчик сессий.
  */
 const SessionHandler = () => {
   useSessionManager();
-  return <SmartOnboardingFlow />; // Рендерим онбординг рядом с SessionHandler
+  return <SmartOnboardingFlow />;
+};
+
+/** Syncs TON wallet address to Supabase (inside AppKitProvider) */
+const TonWalletSyncHandler = () => {
+  useTonWalletSync();
+  return null;
 };
 
 interface AppProvidersProps {
@@ -166,6 +173,7 @@ export function AppProviders({ children }: AppProvidersProps) {
               <PDDProvider>
                 <AppKitProvider appKit={appKit}>
                   <SessionHandler />
+                  <TonWalletSyncHandler />
                   <ReconnectHandler />
                   {/* Global Settings Drawer (Zustand controlled) */}
                   <GlobalSettingsManager />
