@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useRewardedAd, RewardType } from '@/hooks/useRewardedAd';
 import { Button } from '@/components/ui/button';
 import { Video, Coins, Calendar, Sparkles, CheckCircle2, Zap, Gift, X, AlertCircle } from 'lucide-react';
@@ -169,7 +170,7 @@ export function RewardedAdModal({
     setTimeout(() => onOpenChange(false), 2500);
   }, [onRewardClaimed, onOpenChange]);
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {open && (
         /* Backdrop */
@@ -457,4 +458,9 @@ export function RewardedAdModal({
       }
     </AnimatePresence >
   );
+
+  // Always render to document.body via portal to escape parent overflow/z-index
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(modalContent, document.body);
 }
