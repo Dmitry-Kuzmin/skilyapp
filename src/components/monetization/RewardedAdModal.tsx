@@ -191,7 +191,7 @@ export function RewardedAdModal({
           onClick={() => !showPromo && onOpenChange(false)}
         >
           {/* Overlay color if not using backdrop-blur directly on the container */}
-          {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14] backdrop-blur-3xl" />}
+          {!inlineOverlay && <div className="absolute inset-0 bg-[#0b0d14] backdrop-blur-3xl pointer-events-none" />}
 
           {/* Modal — fullscreen on mobile during promo, centered card on desktop */}
           <motion.div
