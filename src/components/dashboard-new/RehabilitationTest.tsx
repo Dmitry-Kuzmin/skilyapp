@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, CheckCircle2, XCircle, Zap, ArrowRight, Trophy } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { playClickSound, playSuccessSound, playErrorSound } from '@/services/audioService';
 
 interface Question {
@@ -60,13 +61,14 @@ export const RehabilitationTest: React.FC<RehabilitationTestProps> = ({
     onComplete,
     onCancel
 }) => {
+    const { t } = useLanguage();
     const [currentStep, setCurrentStep] = useState(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
     const [isAnswered, setIsAnswered] = useState(false);
     const [score, setScore] = useState(0);
     const [isFinished, setIsFinished] = useState(false);
 
-    const lang = language === 'ru' ? 'ru' : 'es';
+    const lang = (language === 'ru' ? 'ru' : 'es') as 'ru' | 'es';
     const currentQuestion = REHAB_QUESTIONS[currentStep];
 
     const handleOptionSelect = (index: number) => {
@@ -101,7 +103,7 @@ export const RehabilitationTest: React.FC<RehabilitationTestProps> = ({
                 <div className="w-full space-y-6">
                     <div className="flex items-center justify-between mb-2">
                         <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                            Rehabilitación {currentStep + 1}/{REHAB_QUESTIONS.length}
+                            {t('dashboard.rehab.title')} {currentStep + 1}/{REHAB_QUESTIONS.length}
                         </span>
                         <div className="h-1 flex-1 mx-4 bg-zinc-800 rounded-full overflow-hidden">
                             <motion.div
@@ -158,19 +160,17 @@ export const RehabilitationTest: React.FC<RehabilitationTestProps> = ({
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-black text-white uppercase tracking-tighter">
-                                        {language === 'ru' ? 'КУРС ПРОЙДЕН' : 'CURSO COMPLETADO'}
+                                        {t('dashboard.rehab.passed.title')}
                                     </h2>
                                     <p className="text-zinc-400 text-sm mt-2">
-                                        {language === 'ru'
-                                            ? 'Твои знания подтверждены. Начислено +6 баллов.'
-                                            : 'Tus conocimientos han sido validados. Se han sumado +6 puntos.'}
+                                        {t('dashboard.rehab.passed.desc')}
                                     </p>
                                 </div>
                                 <button
                                     onClick={onComplete}
                                     className="w-full bg-emerald-500 hover:bg-emerald-400 text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all active:scale-95 shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
                                 >
-                                    {language === 'ru' ? 'ВЕРНУТЬСЯ К ОБУЧЕНИЮ' : 'VOLVER AL ENTRENAMIENTO'}
+                                    {t('dashboard.rehab.passed.button')}
                                     <ArrowRight size={16} />
                                 </button>
                             </>
@@ -181,19 +181,17 @@ export const RehabilitationTest: React.FC<RehabilitationTestProps> = ({
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-black text-white uppercase tracking-tighter">
-                                        {language === 'ru' ? 'ТЕСТ ПРОВАЛЕН' : 'TEST FALLIDO'}
+                                        {t('dashboard.rehab.failed.title')}
                                     </h2>
                                     <p className="text-zinc-400 text-sm mt-2">
-                                        {language === 'ru'
-                                            ? 'Для восстановления нужно ответить на все вопросы правильно.'
-                                            : 'Para la recuperación del permiso debes acertar todas las preguntas.'}
+                                        {t('dashboard.rehab.failed.desc')}
                                     </p>
                                 </div>
                                 <button
                                     onClick={onCancel}
                                     className="w-full bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all active:scale-95 border border-white/10"
                                 >
-                                    {language === 'ru' ? 'ПОПРОБОВАТЬ ПОЗЖЕ' : 'INTENTAR MÁS TARDE'}
+                                    {t('dashboard.rehab.failed.button')}
                                 </button>
                             </>
                         )}
