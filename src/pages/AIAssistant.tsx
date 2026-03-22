@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Layout from "@/components/Layout";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { usePDDContext } from "@/contexts/PDDContext";
 
 type Message = {
   role: "user" | "assistant";
@@ -16,6 +18,8 @@ const AIAssistant = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { language } = useLanguage();
+  const { selectedCountry } = usePDDContext();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -38,7 +42,11 @@ const AIAssistant = () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ 
+          messages: newMessages,
+          language: language,
+          country: selectedCountry 
+        }),
       });
 
       if (!response.ok || !response.body) {

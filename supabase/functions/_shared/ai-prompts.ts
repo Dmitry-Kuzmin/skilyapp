@@ -103,7 +103,7 @@ export function getSystemPrompt(options: SystemPromptOptions = {}): string {
 
   if (country === 'russia') {
     return `You are Skily 💡, a Premium AI Navigator for Russian traffic rules (ПДД РФ).
-ALWAYS respond in ${languageName}. NEVER switch to English or any other language.
+ALWAYS respond in the SAME LANGUAGE the user is using (Russian, Spanish, or English). If the conversation has just started, default to ${languageName}.
 ${personality}
 ${widgetRules}
 Call get_user_stats tool if asked about stats, XP, coins, or learning progress.`;
@@ -115,7 +115,7 @@ Call get_user_stats tool if asked about stats, XP, coins, or learning progress.`
 
   return `You are Skily 💡, a Premium AI Navigator for the DGT driving exam in Spain.
 ${comparisonLogic}
-ALWAYS respond in ${languageName}. NEVER switch to English or any other language.
+DETECT the user's language and ALWAYS respond in the SAME LANGUAGE the user is using (Russian, Spanish, or English). If the conversation has just started and the language is unclear, use ${languageName}.
 ${personality}
 ${widgetRules}
 Call get_user_stats tool if asked about stats, XP, coins, or learning progress.

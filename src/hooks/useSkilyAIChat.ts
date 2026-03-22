@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CountryCode } from "@/types/pdd";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export type ChatMessage = {
   role: "user" | "assistant";
@@ -11,6 +12,7 @@ export const useSkilyAIChat = (country: CountryCode = 'spain') => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { language } = useLanguage();
 
   const sendMessage = useCallback(async (userMessage: string, context?: string) => {
     setIsLoading(true);
@@ -44,7 +46,8 @@ export const useSkilyAIChat = (country: CountryCode = 'spain') => {
           },
           body: JSON.stringify({
             messages: messagesToSend,
-            country: country // Передаем страну для выбора правильного системного промпта
+            country: country, // Передаем страну для выбора правильного системного промпта
+            language: language // Передаем текущий язык интерфейса как подсказку
           }),
         }
       );
@@ -104,7 +107,7 @@ export const useSkilyAIChat = (country: CountryCode = 'spain') => {
     } finally {
       setIsLoading(false);
     }
-  }, [messages]);
+  }, [messages, language, country]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
