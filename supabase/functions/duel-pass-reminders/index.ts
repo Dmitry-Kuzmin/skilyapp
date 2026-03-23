@@ -202,7 +202,9 @@ serve(async (req) => {
       end_date: activeSeason.end_date,
     });
 
-    // 2. Получаем всех активных пользователей с прогрессом сезона
+    // 2. Получаем активных пользователей с прогрессом сезона
+    // Ограничиваем до активных за последние 30 дней — не спамим неактивным
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const { data: usersWithProgress, error: progressError } = await supabase
       .from('user_season_progress')
       .select(`
@@ -221,7 +223,10 @@ serve(async (req) => {
           license_warning_level
         )
       `)
-      .eq('season_id', activeSeason.id);
+      .eq('season_id', activeSeason.id)
+      .not('profiles.telegram_id', 'is', null)
+      .gte('profiles.last_activity_at', thirtyDaysAgo)
+      .limit(200);
 
     if (progressError) {
       console.error('[DuelPass Reminders] Error fetching progress:', progressError);
@@ -244,68 +249,78 @@ serve(async (req) => {
 
     const daysRemaining = daysRemainingCalc;
 
-    // 4. Обрабатываем каждого пользователя
-    for (const userProgress of usersWithProgress) {
-      const profile = (userProgress as any).profiles;
-      if (!profile?.telegram_id) continue;
+    // 4. Обрабатываем пользователей параллельно батчами по 10 (не перегружаем notification-sender)
+    const BATCH_SIZE = 10;
+    const deadline = Date.now() + 90_000; // жёсткий лимит 90 секунд
 
-      const userId = userProgress.user_id;
-      const currentLevel = userProgress.level ?? 0;
-      const currentSP = userProgress.season_points ?? 0;
-      const lang = getUserLang(profile);
+    for (let i = 0; i < usersWithProgress.length; i += BATCH_SIZE) {
+      if (Date.now() > deadline) {
+        console.warn(`[DuelPass Reminders] Deadline reached at user ${i}, stopping early`);
+        break;
+      }
 
-      try {
-        // === A. Ежедневные квесты (отправляем в 10:00-13:00 и 18:00-21:00 UTC) ===
-        const isDailyQuestTime = (currentHour >= 10 && currentHour <= 13) || (currentHour >= 18 && currentHour <= 21);
-        if (isDailyQuestTime) {
-          const sent = await sendDailyQuestReminder(userId, currentLevel, lang, results);
-          if (sent) results.daily_quests++;
-        }
+      const batch = usersWithProgress.slice(i, i + BATCH_SIZE);
 
-        // === B. Сезон заканчивается ===
-        // <= 10 дней: предупреждение (cooldown 24ч), <= 3 дней: чаще, <= 1: срочно
-        const seasonName = lang === 'es' ? (activeSeason.name_es || activeSeason.name_ru)
-          : lang === 'en' ? (activeSeason.name_en || activeSeason.name_ru)
-          : activeSeason.name_ru;
+      await Promise.all(batch.map(async (userProgress) => {
+        const profile = (userProgress as any).profiles;
+        if (!profile?.telegram_id) return;
 
-        if (daysRemaining <= 10 && daysRemaining > 3) {
-          const sent = await sendSeasonEndingReminder(userId, '3d', currentLevel, seasonName, lang, results);
-          if (sent) results.season_ending++;
-        } else if (daysRemaining <= 3 && daysRemaining > 1) {
-          const sent = await sendSeasonEndingReminder(userId, '1d', currentLevel, seasonName, lang, results);
-          if (sent) results.season_ending++;
-        } else if (daysRemaining <= 1) {
-          const sent = await sendSeasonEndingReminder(userId, 'last_hours', currentLevel, seasonName, lang, results);
-          if (sent) results.season_ending++;
-        }
+        const userId = userProgress.user_id;
+        const currentLevel = userProgress.level ?? 0;
+        const currentSP = userProgress.season_points ?? 0;
+        const lang = getUserLang(profile);
 
-        // === C. Близко к следующему уровню ===
-        if (seasonRewards && seasonRewards.length > 0) {
-          const nextReward = seasonRewards.find((r: any) => r.level === currentLevel + 1);
-          if (nextReward) {
-            const spRemaining = nextReward.sp_required - currentSP;
-            if (spRemaining > 0 && spRemaining <= 50) {
-              const sent = await sendLevelCloseReminder(userId, currentLevel + 1, spRemaining, lang, results);
-              if (sent) results.level_close++;
+        try {
+          // === A. Ежедневные квесты (10:00-13:00 и 18:00-21:00 UTC) ===
+          const isDailyQuestTime = (currentHour >= 10 && currentHour <= 13) || (currentHour >= 18 && currentHour <= 21);
+          if (isDailyQuestTime) {
+            const sent = await sendDailyQuestReminder(userId, currentLevel, lang, results);
+            if (sent) results.daily_quests++;
+          }
+
+          // === B. Сезон заканчивается ===
+          const seasonName = lang === 'es' ? (activeSeason.name_es || activeSeason.name_ru)
+            : lang === 'en' ? (activeSeason.name_en || activeSeason.name_ru)
+            : activeSeason.name_ru;
+
+          if (daysRemaining <= 10 && daysRemaining > 3) {
+            const sent = await sendSeasonEndingReminder(userId, '3d', currentLevel, seasonName, lang, results);
+            if (sent) results.season_ending++;
+          } else if (daysRemaining <= 3 && daysRemaining > 1) {
+            const sent = await sendSeasonEndingReminder(userId, '1d', currentLevel, seasonName, lang, results);
+            if (sent) results.season_ending++;
+          } else if (daysRemaining <= 1) {
+            const sent = await sendSeasonEndingReminder(userId, 'last_hours', currentLevel, seasonName, lang, results);
+            if (sent) results.season_ending++;
+          }
+
+          // === C. Близко к следующему уровню ===
+          if (seasonRewards && seasonRewards.length > 0) {
+            const nextReward = seasonRewards.find((r: any) => r.level === currentLevel + 1);
+            if (nextReward) {
+              const spRemaining = nextReward.sp_required - currentSP;
+              if (spRemaining > 0 && spRemaining <= 50) {
+                const sent = await sendLevelCloseReminder(userId, currentLevel + 1, spRemaining, lang, results);
+                if (sent) results.level_close++;
+              }
             }
           }
-        }
 
-        // === D. Срочные предупреждения о баллах ===
-        if (profile.license_points > 0 && profile.last_activity_at) {
-          const lastActivity = new Date(profile.last_activity_at);
-          const hoursInactive = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
-
-          if (hoursInactive >= 30 && hoursInactive < 48 && profile.license_warning_level !== '1h') {
-            const sent = await sendLicenseUrgentReminder(userId, profile.license_points, lang, results);
-            if (sent) results.license_urgent++;
+          // === D. Срочные предупреждения о баллах ===
+          if (profile.license_points > 0 && profile.last_activity_at) {
+            const lastActivity = new Date(profile.last_activity_at);
+            const hoursInactive = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
+            if (hoursInactive >= 30 && hoursInactive < 48 && profile.license_warning_level !== '1h') {
+              const sent = await sendLicenseUrgentReminder(userId, profile.license_points, lang, results);
+              if (sent) results.license_urgent++;
+            }
           }
-        }
 
-      } catch (error) {
-        console.error(`[DuelPass Reminders] Error for user ${userId}:`, error);
-        results.errors++;
-      }
+        } catch (error) {
+          console.error(`[DuelPass Reminders] Error for user ${userId}:`, error);
+          results.errors++;
+        }
+      }));
     }
 
     console.log('[DuelPass Reminders] Results:', results);
