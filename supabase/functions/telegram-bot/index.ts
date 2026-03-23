@@ -506,18 +506,23 @@ async function setMessageReaction(chatId: number, messageId: number, emoji: stri
   }
 }
 
+// ВАЖНО: Telegram разрешает только определённые эмодзи для реакций:
+// 👍 👎 ❤️ 🔥 🥰 👏 😁 🤔 🤯 😱 🤬 😢 🎉 🤩 🤮 💩 🙏 👌 🕊 🤡 🥱 🥴 😍
+// 🐳 ❤️‍🔥 🌚 🌭 💯 🤣 ⚡ 🍌 🏆 💔 🤨 😐 🍓 🍾 💋 🖕 😈 😴 😭 🤓 👻 👨‍💻
+// 👀 🎃 🙈 😇 😨 🤝 ✍️ 🤗 🫡 🎅 🎄 ☃️ 💅 🤪 🗿 🆒 💘 🙉 🦄 😘 💊 🙊 😎 👾
 function getReactionEmoji(text: string): string {
   const t = text.toLowerCase();
   if (t.startsWith('/start')) return '🎉';
-  if (t.startsWith('/stats')) return '📊';
-  if (t.startsWith('/duel')) return '⚔️';
+  if (t.startsWith('/stats')) return '🤩';
+  if (t.startsWith('/duel')) return '🔥';
   if (t.startsWith('/streak')) return '🔥';
-  if (t.startsWith('/help')) return '💡';
-  if (t.startsWith('/settings')) return '⚙️';
-  if (t.startsWith('/tips')) return '📚';
-  if (t.startsWith('/broadcast') || t.startsWith('/post')) return '📣';
-  if (t.includes('привет') || t.includes('здравствуй') || t.includes('hello')) return '👋';
-  if (t.includes('спасибо') || t.includes('thank')) return '🙏';
+  if (t.startsWith('/help')) return '❤️';
+  if (t.startsWith('/settings')) return '👌';
+  if (t.startsWith('/tips')) return '🤓';
+  if (t.startsWith('/broadcast') || t.startsWith('/post')) return '⚡';
+  if (t.includes('привет') || t.includes('здравствуй') || t.includes('hello') || t.includes('hola')) return '🤗';
+  if (t.includes('спасибо') || t.includes('thank') || t.includes('gracias')) return '🙏';
+  if (t.includes('круто') || t.includes('cool') || t.includes('genial')) return '💯';
   return '👍';
 }
 
