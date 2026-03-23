@@ -154,7 +154,115 @@ export const initTelegramMock = () => {
             },
             setHeaderColor: (color: string) => console.log('[Mock] setHeaderColor', color),
             setBackgroundColor: (color: string) => console.log('[Mock] setBackgroundColor', color),
-            requestFullscreen: () => console.log('[Mock] requestFullscreen'),
+            // Fullscreen (Bot API 8.0)
+            isFullscreen: false,
+            isActive: true,
+            requestFullscreen: () => {
+                console.log('[Mock] requestFullscreen');
+                const m = (window.Telegram?.WebApp as any);
+                m.isFullscreen = true;
+                m._dispatch?.('fullscreenChanged');
+            },
+            exitFullscreen: () => {
+                console.log('[Mock] exitFullscreen');
+                const m = (window.Telegram?.WebApp as any);
+                m.isFullscreen = false;
+                m._dispatch?.('fullscreenChanged');
+            },
+            // Homescreen (Bot API 8.0)
+            addToHomeScreen: () => {
+                console.log('[Mock] addToHomeScreen');
+                localStorage.setItem('mock_homescreen_added', 'true');
+                setTimeout(() => (window.Telegram?.WebApp as any)._dispatch?.('homeScreenAdded'), 500);
+            },
+            checkHomeScreenStatus: () => {
+                console.log('[Mock] checkHomeScreenStatus');
+                const alreadyAdded = localStorage.getItem('mock_homescreen_added') === 'true';
+                setTimeout(() => {
+                    (window.Telegram?.WebApp as any)._dispatch?.('homeScreenChecked', {
+                        status: alreadyAdded ? 'added' : 'missed'
+                    });
+                }, 300);
+            },
+            // Emoji Status (Bot API 8.0)
+            setEmojiStatus: (customEmojiId: string, params?: any) => {
+                console.log('[Mock] setEmojiStatus', customEmojiId, params);
+                setTimeout(() => (window.Telegram?.WebApp as any)._dispatch?.('emojiStatusSet'), 500);
+            },
+            requestEmojiStatusAccess: () => {
+                console.log('[Mock] requestEmojiStatusAccess');
+                setTimeout(() => (window.Telegram?.WebApp as any)._dispatch?.('emojiStatusAccessRequested', { status: 'allowed' }), 500);
+            },
+            // Secondary Button (Bot API 7.10)
+            SecondaryButton: {
+                text: 'SECONDARY',
+                color: '#3e3e3e',
+                textColor: '#ffffff',
+                isVisible: false,
+                isActive: true,
+                hasShineEffect: false,
+                position: 'left',
+                setText: (text: string) => console.log('[Mock] SecondaryButton setText:', text),
+                show: () => console.log('[Mock] SecondaryButton show'),
+                hide: () => console.log('[Mock] SecondaryButton hide'),
+                onClick: (cb: () => void) => { console.log('[Mock] SecondaryButton onClick'); (window as any).mockSecondaryButtonCb = cb; },
+                offClick: (cb: () => void) => { (window as any).mockSecondaryButtonCb = null; },
+                enable: () => console.log('[Mock] SecondaryButton enable'),
+                disable: () => console.log('[Mock] SecondaryButton disable'),
+                setParams: (p: any) => console.log('[Mock] SecondaryButton setParams', p),
+            },
+            // DeviceStorage (Bot API 9.0)
+            DeviceStorage: (() => {
+                const store = new Map<string, string>();
+                return {
+                    setItem: (k: string, v: string, cb?: (e: string | null) => void) => { store.set(k, v); cb?.(null); },
+                    getItem: (k: string, cb: (e: string | null, v: string | null) => void) => cb(null, store.get(k) ?? null),
+                    getItems: (keys: string[], cb: (e: string | null, v: Record<string,string>) => void) => {
+                        const result: Record<string,string> = {};
+                        keys.forEach(k => { const v = store.get(k); if (v != null) result[k] = v; });
+                        cb(null, result);
+                    },
+                    removeItem: (k: string, cb?: (e: string | null) => void) => { store.delete(k); cb?.(null); },
+                    removeItems: (keys: string[], cb?: (e: string | null) => void) => { keys.forEach(k => store.delete(k)); cb?.(null); },
+                    getKeys: (cb: (e: string | null, keys: string[]) => void) => cb(null, Array.from(store.keys())),
+                    clear: (cb?: (e: string | null) => void) => { store.clear(); cb?.(null); },
+                };
+            })(),
+            // SecureStorage (Bot API 9.0) — same interface, separate store
+            SecureStorage: (() => {
+                const store = new Map<string, string>();
+                return {
+                    setItem: (k: string, v: string, cb?: (e: string | null) => void) => { store.set(k, v); cb?.(null); },
+                    getItem: (k: string, cb: (e: string | null, v: string | null) => void) => cb(null, store.get(k) ?? null),
+                    getItems: (keys: string[], cb: (e: string | null, v: Record<string,string>) => void) => {
+                        const result: Record<string,string> = {};
+                        keys.forEach(k => { const v = store.get(k); if (v != null) result[k] = v; });
+                        cb(null, result);
+                    },
+                    removeItem: (k: string, cb?: (e: string | null) => void) => { store.delete(k); cb?.(null); },
+                    removeItems: (keys: string[], cb?: (e: string | null) => void) => { keys.forEach(k => store.delete(k)); cb?.(null); },
+                    getKeys: (cb: (e: string | null, keys: string[]) => void) => cb(null, Array.from(store.keys())),
+                    clear: (cb?: (e: string | null) => void) => { store.clear(); cb?.(null); },
+                };
+            })(),
+            // onEvent/offEvent/dispatch для мока
+            _listeners: {} as Record<string, Function[]>,
+            onEvent: (event: string, cb: Function) => {
+                const m = (window.Telegram?.WebApp as any);
+                m._listeners = m._listeners || {};
+                m._listeners[event] = m._listeners[event] || [];
+                m._listeners[event].push(cb);
+            },
+            offEvent: (event: string, cb: Function) => {
+                const m = (window.Telegram?.WebApp as any);
+                if (m._listeners?.[event]) {
+                    m._listeners[event] = m._listeners[event].filter((f: Function) => f !== cb);
+                }
+            },
+            _dispatch: (event: string, params?: any) => {
+                const m = (window.Telegram?.WebApp as any);
+                (m._listeners?.[event] || []).forEach((cb: Function) => cb(params));
+            },
         };
 
         // @ts-expect-error

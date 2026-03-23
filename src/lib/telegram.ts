@@ -475,6 +475,159 @@ export const showTelegramPopup = (
   }
 };
 
+// ─── Fullscreen (Bot API 8.0) ─────────────────────────────────────────────────
+
+/** Запросить полноэкранный режим. Срабатывает событие fullscreenChanged. */
+export const requestTelegramFullscreen = (): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || typeof (webApp as any).requestFullscreen !== 'function') return false;
+  try {
+    (webApp as any).requestFullscreen();
+    return true;
+  } catch (e) {
+    console.warn('[Telegram] requestFullscreen error:', e);
+    return false;
+  }
+};
+
+/** Выйти из полноэкранного режима. */
+export const exitTelegramFullscreen = (): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || typeof (webApp as any).exitFullscreen !== 'function') return false;
+  try {
+    (webApp as any).exitFullscreen();
+    return true;
+  } catch (e) {
+    console.warn('[Telegram] exitFullscreen error:', e);
+    return false;
+  }
+};
+
+/** Вернуть текущий статус полноэкранного режима. */
+export const isTelegramFullscreen = (): boolean => {
+  const webApp = getTelegramWebApp();
+  return !!(webApp as any)?.isFullscreen;
+};
+
+// ─── Homescreen shortcuts (Bot API 8.0) ───────────────────────────────────────
+
+/** Предложить пользователю добавить мини-апп на домашний экран. */
+export const addToTelegramHomeScreen = (): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || typeof (webApp as any).addToHomeScreen !== 'function') return false;
+  try {
+    (webApp as any).addToHomeScreen();
+    return true;
+  } catch (e) {
+    console.warn('[Telegram] addToHomeScreen error:', e);
+    return false;
+  }
+};
+
+/**
+ * Проверить статус ярлыка на домашнем экране.
+ * Результат придёт через событие homeScreenChecked.
+ */
+export const checkTelegramHomeScreenStatus = (): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || typeof (webApp as any).checkHomeScreenStatus !== 'function') return false;
+  try {
+    (webApp as any).checkHomeScreenStatus();
+    return true;
+  } catch (e) {
+    console.warn('[Telegram] checkHomeScreenStatus error:', e);
+    return false;
+  }
+};
+
+// ─── Emoji Status (Bot API 8.0) ───────────────────────────────────────────────
+
+/**
+ * Предложить пользователю установить кастомный эмодзи-статус.
+ * @param customEmojiId — ID кастомного эмодзи (из стикер-пака)
+ * @param duration — продолжительность статуса в секундах (опционально)
+ */
+export const setTelegramEmojiStatus = (customEmojiId: string, duration?: number): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || typeof (webApp as any).setEmojiStatus !== 'function') return false;
+  try {
+    const params = duration ? { duration } : {};
+    (webApp as any).setEmojiStatus(customEmojiId, params);
+    return true;
+  } catch (e) {
+    console.warn('[Telegram] setEmojiStatus error:', e);
+    return false;
+  }
+};
+
+/**
+ * Запросить разрешение на автоматическое обновление эмодзи-статуса.
+ * Результат придёт через событие emojiStatusAccessRequested.
+ */
+export const requestTelegramEmojiStatusAccess = (): boolean => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || typeof (webApp as any).requestEmojiStatusAccess !== 'function') return false;
+  try {
+    (webApp as any).requestEmojiStatusAccess();
+    return true;
+  } catch (e) {
+    console.warn('[Telegram] requestEmojiStatusAccess error:', e);
+    return false;
+  }
+};
+
+// ─── Persistent Storage (Bot API 9.0) ─────────────────────────────────────────
+
+/** Вернуть DeviceStorage (постоянное хранилище на устройстве) или null. */
+export const getTelegramDeviceStorage = () => {
+  const webApp = getTelegramWebApp();
+  return (webApp as any)?.DeviceStorage ?? null;
+};
+
+/** Вернуть SecureStorage (защищённое хранилище) или null. */
+export const getTelegramSecureStorage = () => {
+  const webApp = getTelegramWebApp();
+  return (webApp as any)?.SecureStorage ?? null;
+};
+
+// ─── Secondary Button (Bot API 7.10) ──────────────────────────────────────────
+
+/** Управление вторичной кнопкой. */
+export const updateTelegramSecondaryButton = (params: {
+  text?: string;
+  color?: string;
+  textColor?: string;
+  isVisible?: boolean;
+  isActive?: boolean;
+  position?: 'left' | 'right' | 'top' | 'bottom';
+  iconCustomEmojiId?: string;
+  onClick?: () => void;
+}) => {
+  const webApp = getTelegramWebApp();
+  if (!webApp || !(webApp as any).SecondaryButton) return;
+  try {
+    const btn = (webApp as any).SecondaryButton;
+    btn.setParams({
+      text: params.text,
+      color: params.color,
+      text_color: params.textColor,
+      is_visible: params.isVisible,
+      is_active: params.isActive,
+      position: params.position,
+      icon_custom_emoji_id: params.iconCustomEmojiId,
+    });
+    if (params.onClick) btn.onClick(params.onClick);
+    if (params.isVisible) btn.show(); else btn.hide();
+  } catch (e) {
+    console.warn('[Telegram] SecondaryButton error:', e);
+  }
+};
+
+export const hideTelegramSecondaryButton = () => {
+  const webApp = getTelegramWebApp();
+  try { (webApp as any)?.SecondaryButton?.hide(); } catch (e) { /* ignore */ }
+};
+
 /**
  * Управление нижней кнопкой (Bottom Button), доступна с Bot API 9.5+
  */

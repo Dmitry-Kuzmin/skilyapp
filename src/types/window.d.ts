@@ -1,3 +1,43 @@
+// ─── Telegram Storage (Bot API 9.0) ───────────────────────────────────────────
+export interface TelegramStorageAPI {
+  setItem: (key: string, value: string, callback?: (error: string | null) => void) => void;
+  getItem: (key: string, callback: (error: string | null, value: string | null) => void) => void;
+  getItems: (keys: string[], callback: (error: string | null, values: Record<string, string>) => void) => void;
+  removeItem: (key: string, callback?: (error: string | null) => void) => void;
+  removeItems: (keys: string[], callback?: (error: string | null) => void) => void;
+  getKeys: (callback: (error: string | null, keys: string[]) => void) => void;
+  clear: (callback?: (error: string | null) => void) => void;
+}
+
+// ─── Telegram SecondaryButton (Bot API 7.10) ─────────────────────────────────
+export interface TelegramSecondaryButton {
+  text: string;
+  color: string;
+  textColor: string;
+  isVisible: boolean;
+  isActive: boolean;
+  hasShineEffect: boolean;
+  position: 'left' | 'right' | 'top' | 'bottom';
+  iconCustomEmojiId?: string;
+  setText: (text: string) => void;
+  show: () => void;
+  hide: () => void;
+  onClick: (callback: () => void) => void;
+  offClick: (callback: () => void) => void;
+  enable: () => void;
+  disable: () => void;
+  setParams: (params: {
+    text?: string;
+    color?: string;
+    text_color?: string;
+    is_visible?: boolean;
+    is_active?: boolean;
+    has_shine_effect?: boolean;
+    position?: 'left' | 'right' | 'top' | 'bottom';
+    icon_custom_emoji_id?: string;
+  }) => void;
+}
+
 export interface TelegramUser {
   id: number;
   first_name: string;
@@ -81,7 +121,24 @@ declare global {
         onEvent: (eventType: string, callback: () => void) => void;
         offEvent: (eventType: string, callback: () => void) => void;
         isVersionAtLeast: (version: string) => boolean;
+        // Fullscreen (Bot API 8.0)
         requestFullscreen?: () => void;
+        exitFullscreen?: () => void;
+        isFullscreen?: boolean;
+        isActive?: boolean;
+        // Homescreen shortcuts (Bot API 8.0)
+        addToHomeScreen?: () => void;
+        checkHomeScreenStatus?: (callback?: (params: { status: 'added' | 'missed' | 'unknown' }) => void) => void;
+        // Emoji status (Bot API 8.0)
+        setEmojiStatus?: (customEmojiId: string, params?: { duration?: number }) => void;
+        requestEmojiStatusAccess?: () => void;
+        // Persistent storage (Bot API 9.0)
+        DeviceStorage?: TelegramStorageAPI;
+        SecureStorage?: TelegramStorageAPI;
+        // Secondary button (Bot API 7.10)
+        SecondaryButton?: TelegramSecondaryButton;
+        // Hide keyboard (Bot API 9.1)
+        hideKeyboard?: () => void;
         openTelegramLink: (url: string) => void;
         // Haptic Feedback
         HapticFeedback?: {

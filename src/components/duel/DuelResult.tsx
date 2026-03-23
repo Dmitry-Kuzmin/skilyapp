@@ -28,6 +28,7 @@ import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useActiveDuel } from '@/hooks/useActiveDuel';
 import type { DuelResultSnapshot } from '@/features/duel/shared';
 import { isTelegramMiniApp, getTelegramWebApp, canShareToStory, hasTelegramPremium } from '@/lib/telegram';
+import { useTelegramEmojiStatus } from '@/hooks/useTelegramEmojiStatus';
 import { generateDuelResultImage } from '@/utils/generateDuelResultImage';
 
 // ОПТИМИЗАЦИЯ: Условное логирование только в development
@@ -73,6 +74,8 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
   const [shouldShowInterstitial, setShouldShowInterstitial] = useState(false);
   const { clearActiveDuel } = useActiveDuel();
   const { completedQuests, updateProgress, clearCompleted } = useQuestProgress();
+  const { isSupported: emojiStatusSupported, setEmojiStatus } = useTelegramEmojiStatus();
+  const [emojiStatusOffered, setEmojiStatusOffered] = useState(false);
 
   const winPhrases = (t('duelResult.phrases.win', undefined, { returnObjects: true }) || []) as string[];
   const losePhrases = (t('duelResult.phrases.lose', undefined, { returnObjects: true }) || []) as string[];
@@ -218,11 +221,26 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     if (results?.isWinner) {
       sounds.victory();
       haptics.victory();
+      // Предложить установить эмодзи-статус победителя (один раз за сессию)
+      if (emojiStatusSupported && !emojiStatusOffered) {
+        setEmojiStatusOffered(true);
+        const alreadyOfferedKey = 'emoji_status_victory_offered';
+        const lastOffered = localStorage.getItem(alreadyOfferedKey);
+        const daysSince = lastOffered ? (Date.now() - parseInt(lastOffered, 10)) / 86_400_000 : 999;
+        if (daysSince >= 3) {
+          setTimeout(() => {
+            // 5368324170671202286 — эмодзи 🏆 (стандартный Telegram custom emoji ID)
+            // Замените на ID из вашего стикер-пака в @BotFather
+            setEmojiStatus('5368324170671202286', { duration: 3600 });
+            localStorage.setItem(alreadyOfferedKey, Date.now().toString());
+          }, 4000);
+        }
+      }
     } else if (results && !results.isDraw) {
       sounds.defeat();
       haptics.defeat();
     }
-  }, [results]);
+  }, [results, emojiStatusSupported, emojiStatusOffered, setEmojiStatus]);
 
   useEffect(() => {
     const isDefinitelyBot = results?.isBot === true && duelResultsData?.opponentPlayer?.is_bot === true;
