@@ -1,0 +1,67 @@
+name: Notification Cron - Smart Reminders
+
+on:
+  schedule:
+    # Каждые 3 часа — оптимальный баланс между своевременностью и лимитами
+    - cron: '15 */3 * * *'
+  workflow_dispatch: # Ручной запуск для тестирования
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger notification-cron Edge Function
+        run: |
+          echo "🔔 Starting notification cron at $(date -u)"
+
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/notification-cron" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"source": "github_actions"}' \
+            --max-time 120)
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ notification-cron completed successfully"
+          else
+            echo "❌ notification-cron failed with code $http_code"
+            exit 1
+          fi
+
+  send-duelpass-reminders:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger duel-pass-reminders Edge Function
+        run: |
+          echo "🏆 Starting Duel Pass reminders at $(date -u)"
+
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/duel-pass-reminders" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"source": "github_actions"}' \
+            --max-time 120)
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ duel-pass-reminders completed successfully"
+          else
+            echo "❌ duel-pass-reminders failed with code $http_code"
+            exit 1
+          fi
+
+      - name: Log completion
+        run: echo "🕐 All notification jobs completed at $(date -u)"

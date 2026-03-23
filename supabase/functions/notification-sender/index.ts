@@ -60,7 +60,59 @@ interface UserProfile {
   telegram_id: number;
   first_name?: string;
   username?: string;
+  language_code?: string;
+  settings?: { language?: string } | null;
 }
+
+type Lang = 'ru' | 'en' | 'es';
+
+function getUserLang(profile: UserProfile): Lang {
+  // 1. Telegram language_code (приоритет — это язык Telegram пользователя)
+  const code = profile?.language_code?.toLowerCase()?.split('-')[0];
+  if (code) {
+    if (['ru', 'uk', 'be', 'kk'].includes(code)) return 'ru';
+    if (['es', 'ca', 'gl'].includes(code)) return 'es';
+    if (['en', 'de', 'fr', 'it', 'pt', 'nl'].includes(code)) return 'en';
+  }
+  // 2. Явный выбор в настройках (fallback)
+  const settingsLang = profile?.settings?.language;
+  if (settingsLang && ['ru', 'en', 'es'].includes(settingsLang)) return settingsLang as Lang;
+  return 'ru';
+}
+
+// Локализованные шаблоны для notification-cron (которые в БД на одном языке)
+const LOCALIZED_TEMPLATES: Record<string, Record<Lang, { title: string; message: string; cta?: string }>> = {
+  inactive_3d: {
+    ru: { title: '📱 Мы скучаем!', message: 'Тебя не было 3 дня. Твой прогресс {progress_percent}% ждёт продолжения. Вернись — не потеряй темп!', cta: 'Продолжить' },
+    en: { title: '📱 We miss you!', message: "You've been away for 3 days. Your {progress_percent}% progress awaits. Come back — don't lose momentum!", cta: 'Continue' },
+    es: { title: '📱 ¡Te echamos de menos!', message: 'Llevas 3 días sin entrar. Tu progreso del {progress_percent}% te espera. ¡Vuelve — no pierdas el ritmo!', cta: 'Continuar' },
+  },
+  inactive_7d: {
+    ru: { title: '🔔 Неделя без практики', message: 'Прошла целая неделя. Серия была {streak_was} дней. Один тест — и ты снова в деле!', cta: 'Вернуться' },
+    en: { title: '🔔 A week without practice', message: "It's been a whole week. Your streak was {streak_was} days. One test — and you're back!", cta: 'Come back' },
+    es: { title: '🔔 Una semana sin practicar', message: 'Ha pasado una semana entera. Tu racha era de {streak_was} días. ¡Un test y vuelves!', cta: 'Volver' },
+  },
+  streak_reminder: {
+    ru: { title: '🔥 Серия под угрозой!', message: 'Твоя серия {streak_days} дней может прерваться сегодня. Пройди один тест чтобы сохранить её!', cta: 'Сохранить серию' },
+    en: { title: '🔥 Streak at risk!', message: 'Your {streak_days}-day streak might break today. Take one test to keep it going!', cta: 'Save streak' },
+    es: { title: '🔥 ¡Racha en peligro!', message: 'Tu racha de {streak_days} días puede romperse hoy. ¡Haz un test para mantenerla!', cta: 'Salvar racha' },
+  },
+  almost_ready: {
+    ru: { title: '🎓 Ты почти готов к экзамену!', message: 'Готовность {readiness_level}% — осталось совсем немного. Финальный рывок!', cta: 'К тестам' },
+    en: { title: '🎓 Almost exam ready!', message: 'Readiness {readiness_level}% — just a little more to go. Final push!', cta: 'To tests' },
+    es: { title: '🎓 ¡Casi listo para el examen!', message: 'Preparación al {readiness_level}% — queda muy poco. ¡Sprint final!', cta: 'A los tests' },
+  },
+  license_warning_12h: {
+    ru: { title: '⚠️ Осталось 12 часов!', message: 'Через 12 часов без активности ты потеряешь {points} балл(ов). Пройди тест прямо сейчас!', cta: 'Пройти тест' },
+    en: { title: '⚠️ 12 hours left!', message: "In 12 hours without activity you'll lose {points} point(s). Take a test now!", cta: 'Take a test' },
+    es: { title: '⚠️ ¡Quedan 12 horas!', message: 'En 12 horas sin actividad perderás {points} punto(s). ¡Haz un test ahora!', cta: 'Hacer test' },
+  },
+  license_warning_1h: {
+    ru: { title: '🚨 Последний час!', message: 'Через 1 час ты потеряешь {points} балл(ов)! Срочно пройди хотя бы один тест!', cta: 'СРОЧНО: Тест' },
+    en: { title: '🚨 Last hour!', message: "In 1 hour you'll lose {points} point(s)! Urgently take at least one test!", cta: 'URGENT: Test' },
+    es: { title: '🚨 ¡Última hora!', message: '¡En 1 hora perderás {points} punto(s)! ¡Haz al menos un test urgentemente!', cta: '¡URGENTE: Test!' },
+  },
+};
 
 // =====================================================
 // Главный обработчик
@@ -93,14 +145,14 @@ serve(async (req) => {
     if (body.user_id) {
       const { data } = await supabase
         .from('profiles')
-        .select('id, telegram_id, first_name, username')
+        .select('id, telegram_id, first_name, username, language_code, settings')
         .eq('id', body.user_id)
         .maybeSingle();
       profile = data as UserProfile | null;
     } else if (body.telegram_id) {
       const { data } = await supabase
         .from('profiles')
-        .select('id, telegram_id, first_name, username')
+        .select('id, telegram_id, first_name, username, language_code, settings')
         .eq('telegram_id', body.telegram_id)
         .maybeSingle();
       profile = data as UserProfile | null;
@@ -217,11 +269,26 @@ serve(async (req) => {
       }
     }
 
+    // Определяем язык пользователя для локализации
+    const userLang = getUserLang(profile);
+    console.log('[Notification Sender] User language:', userLang, 'language_code:', profile.language_code, 'settings.language:', profile.settings?.language);
+
     let title = body.title || template?.title_template || 'Уведомление';
     let message = body.message || template?.message_template || '';
     const icon = body.icon || template?.icon || '📢';
-    const ctaText = body.cta_text || template?.cta_text;
+    let ctaText = body.cta_text || template?.cta_text;
     let ctaDeeplink = body.cta_deeplink || template?.cta_deeplink;
+
+    // Если title/message НЕ переданы явно (идёт из шаблона БД) — используем локализованные версии
+    const templateType = body.template_type || template?.type;
+    if (!body.title && !body.message && templateType && LOCALIZED_TEMPLATES[templateType]) {
+      const localized = LOCALIZED_TEMPLATES[templateType][userLang];
+      if (localized) {
+        title = localized.title;
+        message = localized.message;
+        if (localized.cta && !body.cta_text) ctaText = localized.cta;
+      }
+    }
 
     if (body.variables) {
       title = substituteVariables(title, body.variables);
@@ -253,7 +320,9 @@ serve(async (req) => {
       icon,
       ctaText,
       ctaDeeplink,
-      body.image_url
+      body.image_url,
+      template?.category || 'custom',
+      template?.type || body.template_type
     );
 
     // 2. Отправка PWA Push (параллельно)
@@ -485,7 +554,7 @@ async function sendPWAPushNotification(
         title,
         body,
         icon,
-        url: ctaDeeplink ? (ctaDeeplink.startsWith('http') ? ctaDeeplink : `/dashboard?startapp=${ctaDeeplink.replace(/^\//, '')}`) : '/dashboard',
+        url: ctaDeeplink ? (ctaDeeplink.startsWith('http') ? ctaDeeplink : `/${ctaDeeplink.replace(/^\//, '')}`) : '/dashboard',
         actions: ctaText ? [{ action: 'open', title: ctaText }] : undefined
       })
     });
@@ -503,6 +572,18 @@ async function sendPWAPushNotification(
   }
 }
 
+// Определяем стиль кнопки по категории/типу уведомления
+function getButtonStyle(category?: string, templateType?: string): string | undefined {
+  // Bot API 9.4: style field — 'primary' | 'secondary' | 'success' | 'danger'
+  if (templateType?.includes('license') || templateType?.includes('urgent')) return 'danger';
+  if (templateType?.includes('season_last') || templateType?.includes('warning_1h')) return 'danger';
+  if (templateType?.includes('season_1d') || templateType?.includes('warning_12h')) return 'primary';
+  if (templateType?.includes('level_close') || templateType?.includes('streak')) return 'success';
+  if (category === 'duel') return 'primary';
+  if (category === 'progress') return 'success';
+  return undefined; // default Telegram style
+}
+
 async function sendTelegramNotification(
   chatId: number,
   title: string,
@@ -510,27 +591,49 @@ async function sendTelegramNotification(
   icon: string,
   ctaText?: string | null,
   ctaDeeplink?: string | null,
-  imageUrl?: string
+  imageUrl?: string,
+  category?: string,
+  templateType?: string
 ): Promise<{ success: boolean; message_id?: number; error?: string }> {
   try {
-    const text = imageUrl 
-      ? `<b>${title}</b>\n\n${message}` // В подписке к фото жирный заголовок смотрится лучше
+    const text = imageUrl
+      ? `<b>${title}</b>\n\n${message}`
       : `${icon} <b>${title}</b>\n\n${message}`;
 
-    const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://sdadim-dgt-prep.vercel.app';
+    const BOT_USERNAME = Deno.env.get('TELEGRAM_BOT_USERNAME') || 'skilyapp_bot';
+    const BOT_APP_NAME = Deno.env.get('TELEGRAM_BOT_APP_NAME') || 'skilyapp';
 
-    const replyMarkup = ctaText && ctaDeeplink ? {
-      inline_keyboard: [
-        [{
-          text: ctaText,
-          web_app: {
-            url: ctaDeeplink.startsWith('http')
-              ? ctaDeeplink
-              : `${MINI_APP_URL}?startapp=${ctaDeeplink.replace(/^\//, '')}`
-          }
-        }]
-      ]
-    } : undefined;
+    // Умные deep links: через t.me/bot/appname?startapp= для навигации в Mini App
+    let replyMarkup: any = undefined;
+    if (ctaText) {
+      const buttonStyle = getButtonStyle(category, templateType);
+
+      // Формируем URL: t.me/skilyapp_bot/skilyapp?startapp=XXX
+      let buttonUrl: string;
+      if (ctaDeeplink) {
+        if (ctaDeeplink.startsWith('http')) {
+          buttonUrl = ctaDeeplink;
+        } else {
+          // Конвертируем путь в startapp параметр: dashboard → dashboard, games/duel → games--duel
+          const startParam = ctaDeeplink.replace(/^\//, '').replace(/\//g, '--');
+          buttonUrl = `https://t.me/${BOT_USERNAME}/${BOT_APP_NAME}?startapp=${startParam}`;
+        }
+      } else {
+        buttonUrl = `https://t.me/${BOT_USERNAME}/${BOT_APP_NAME}`;
+      }
+
+      const button: any = {
+        text: ctaText,
+        url: buttonUrl
+      };
+
+      // Добавляем стиль кнопки (Bot API 9.4+)
+      if (buttonStyle) {
+        button.style = buttonStyle;
+      }
+
+      replyMarkup = { inline_keyboard: [[button]] };
+    }
 
     const endpoint = imageUrl ? 'sendPhoto' : 'sendMessage';
     const body: any = {

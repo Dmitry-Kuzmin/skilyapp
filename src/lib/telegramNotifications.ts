@@ -31,6 +31,13 @@ export function parseDeepLink(startParam: string): DeepLinkData | null {
 
   console.log('[Deep Link] Parsing:', startParam);
 
+  // Новый формат: путь с -- разделителем (games--duel → action: 'navigate', params.path: 'games/duel')
+  if (startParam.includes('--')) {
+    const path = startParam.replace(/--/g, '/');
+    console.log('[Deep Link] Parsed path format:', path);
+    return { action: 'navigate', params: { path } };
+  }
+
   // Проверяем формат action_id
   const parts = startParam.split('_');
 
@@ -40,15 +47,19 @@ export function parseDeepLink(startParam: string): DeepLinkData | null {
     return { action, id };
   }
 
-  // Простое действие без ID
+  // Простое действие без ID (dashboard, learn, tests, etc.)
   if (parts.length === 1) {
     const code = parts[0];
 
+    // Известные навигационные действия
+    const navActions = ['dashboard', 'learning', 'learn', 'tests', 'games', 'settings', 'daily-bonus', 'inventory', 'road-signs', 'dictionary'];
+    if (navActions.includes(code)) {
+      console.log('[Deep Link] Parsed navigation action:', code);
+      return { action: code };
+    }
+
     // КРИТИЧНО: Если код без префикса, проверяем, может это партнерский код
-    // Telegram Partner Program может использовать просто код без префикса
-    // Проверяем формат (обычно партнерские коды - это 3-6 символов, реферальные - 6)
     if (code.length >= 3 && code.length <= 6 && /^[A-Z0-9]+$/.test(code.toUpperCase())) {
-      // Это может быть партнерский код - возвращаем как partner
       console.log('[Deep Link] Detected possible partner code (no prefix):', code);
       return { action: 'partner', id: code };
     }

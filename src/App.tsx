@@ -9,6 +9,7 @@ import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
 import { useSession } from "@/hooks/useSession";
 import { validateEnv } from "@/utils/envValidation";
 import { isTelegramMiniApp, isVersionAtLeast } from "@/lib/telegram";
+import { initTelegram } from "@/core/TelegramInit";
 import { StartupCurtain } from "@/components/StartupCurtain";
 import { ThemeColorManager } from "@/components/ThemeColorManager";
 
@@ -277,6 +278,10 @@ const LandingRedirect = () => {
 
 const App = () => {
   useEffect(() => {
+    // КРИТИЧНО: Извлекаем deep link из Telegram start_param ДО рендера
+    // initTelegram() сохраняет deep link в sessionStorage для DeepLinkHandler
+    initTelegram();
+
     // КРИТИЧНО: Проверяем Telegram WebApp только если мы действительно в Telegram Mini App
     // В браузере window.Telegram может быть моком или заглушкой
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {

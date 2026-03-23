@@ -23,24 +23,32 @@ export function DeepLinkHandler() {
 
       // Навигация в зависимости от action
       switch (deepLink.action) {
+        // Прямая навигация по пути (новый формат games--duel → /games/duel)
+        case 'navigate':
+          if (deepLink.params?.path) {
+            const path = '/' + deepLink.params.path.replace(/^\//, '');
+            console.log('[DeepLinkHandler] Navigate to path:', path);
+            navigate(path, { replace: true });
+          }
+          break;
+
         case 'duel':
           if (deepLink.id) {
             if (deepLink.id === 'new') {
-              // Создание новой дуэли
               console.log('[DeepLinkHandler] Navigating to create new duel');
               navigate('/games/duel', { replace: true });
             } else {
-              // Присоединение к существующей дуэли
               console.log('[DeepLinkHandler] Navigating to duel with code:', deepLink.id);
               navigate(`/games/duel?code=${deepLink.id}`, { replace: true });
             }
+          } else {
+            navigate('/games/duel', { replace: true });
           }
           break;
 
         case 'ref':
           if (deepLink.id) {
             console.log('[DeepLinkHandler] Referral code already stored, navigating to dashboard');
-            // Код уже сохранен в TelegramInit, просто переходим на dashboard
             navigate('/dashboard', { replace: true });
           }
           break;
@@ -60,6 +68,7 @@ export function DeepLinkHandler() {
           break;
 
         case 'learn':
+        case 'learning':
           console.log('[DeepLinkHandler] Navigating to learning');
           navigate('/learning', { replace: true });
           break;
@@ -69,14 +78,40 @@ export function DeepLinkHandler() {
           navigate('/dashboard', { replace: true });
           break;
 
+        case 'tests':
         case 'exam-prep':
           console.log('[DeepLinkHandler] Navigating to tests');
           navigate('/tests', { replace: true });
           break;
 
+        case 'games':
+          console.log('[DeepLinkHandler] Navigating to games');
+          navigate('/games', { replace: true });
+          break;
+
         case 'daily-bonus':
           console.log('[DeepLinkHandler] Navigating to daily bonus');
           navigate('/daily-bonus', { replace: true });
+          break;
+
+        case 'settings':
+          console.log('[DeepLinkHandler] Navigating to settings');
+          navigate('/settings', { replace: true });
+          break;
+
+        case 'inventory':
+          console.log('[DeepLinkHandler] Navigating to inventory');
+          navigate('/inventory', { replace: true });
+          break;
+
+        case 'road-signs':
+          console.log('[DeepLinkHandler] Navigating to road signs');
+          navigate('/road-signs', { replace: true });
+          break;
+
+        case 'dictionary':
+          console.log('[DeepLinkHandler] Navigating to dictionary');
+          navigate('/dictionary', { replace: true });
           break;
 
         default:
