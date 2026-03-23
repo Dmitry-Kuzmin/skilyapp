@@ -72,19 +72,18 @@ export const SmartOnboardingFlow: React.FC = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const forceOnboarding = urlParams.get('onboarding') === 'true';
 
-            // Если уже пройден (флаг в localStorage или сохранено в LS) — не показываем снова
-            if (!forceOnboarding) {
-                const savedCountry = localStorage.getItem('pdd_selected_country');
-                const savedCategory = localStorage.getItem('pdd_selected_category');
-                if (savedCountry && savedCategory) {
-                    setIsVisible(false);
-                    return;
-                }
+            // Используем новый отдельный флаг, так как pdd_selected_country ставится автоматически
+            const localCompleted = localStorage.getItem('pdd_onboarding_completed') === 'true';
+
+            // Если уже пройден (флаг в localStorage) — не показываем снова
+            if (!forceOnboarding && localCompleted) {
+                setIsVisible(false);
+                return;
             }
 
             if (forceOnboarding) {
                 if (!autoDetectDone) {
-                    const detected = detectUserCountry();
+                    const detected = await detectUserCountry();
                     setLandingCountry(detected);
                     if (detected.examLanguages.length > 0) setSelectedLang(detected.examLanguages[0]);
                     const isRussian = navigator.language.startsWith('ru');
@@ -106,11 +105,13 @@ export const SmartOnboardingFlow: React.FC = () => {
             if (!error && data) {
                 const hasCountry = data.preferred_country;
                 const hasCategory = data.settings?.license_category || data.preferred_license_category;
+                const completedOnboarding = !!data.settings?.onboarding_completed_at;
 
-                if (hasCountry && hasCategory) {
+                if (completedOnboarding || (hasCountry && hasCategory && localCompleted)) {
+                    localStorage.setItem('pdd_onboarding_completed', 'true');
                     setIsVisible(false);
                 } else if (!autoDetectDone) {
-                    const detected = detectUserCountry();
+                    const detected = await detectUserCountry();
                     setLandingCountry(detected);
                     const isRussian = navigator.language.startsWith('ru');
                     setSmartTranslator(detected.code === 'ES' && isRussian);
@@ -161,6 +162,7 @@ export const SmartOnboardingFlow: React.FC = () => {
             localStorage.setItem('pdd_selected_country', mappedCountry);
             localStorage.setItem('pdd_selected_category', selectedCategory);
             localStorage.setItem('app_language', selectedLang);
+            localStorage.setItem('pdd_onboarding_completed', 'true');
 
             if (profileId) {
                 const settingsUpdate = {

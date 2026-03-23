@@ -37,6 +37,9 @@ export interface TelegramMessage {
   text?: string;
   entities?: TelegramMessageEntity[];
   successful_payment?: TelegramSuccessfulPayment;
+  reply_to_message?: TelegramMessage;
+  photo?: any[];
+  poll?: any;
 }
 
 export interface TelegramMessageEntity {
@@ -79,6 +82,7 @@ export interface TelegramUpdate {
   callback_query?: TelegramCallbackQuery;
   inline_query?: TelegramInlineQuery;
   pre_checkout_query?: TelegramPreCheckoutQuery;
+  poll_answer?: any;
 }
 
 export interface InlineKeyboardButton {

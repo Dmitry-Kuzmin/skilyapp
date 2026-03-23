@@ -67,16 +67,16 @@ interface UserProfile {
 type Lang = 'ru' | 'en' | 'es';
 
 function getUserLang(profile: UserProfile): Lang {
-  // 1. Telegram language_code (приоритет — это язык Telegram пользователя)
+  // 1. Явный выбор в настройках (ПРИОРИТЕТ — пользователь выбрал сам)
+  const settingsLang = profile?.settings?.language;
+  if (settingsLang && ['ru', 'en', 'es'].includes(settingsLang)) return settingsLang as Lang;
+  // 2. Telegram language_code (fallback)
   const code = profile?.language_code?.toLowerCase()?.split('-')[0];
   if (code) {
     if (['ru', 'uk', 'be', 'kk'].includes(code)) return 'ru';
     if (['es', 'ca', 'gl'].includes(code)) return 'es';
     if (['en', 'de', 'fr', 'it', 'pt', 'nl'].includes(code)) return 'en';
   }
-  // 2. Явный выбор в настройках (fallback)
-  const settingsLang = profile?.settings?.language;
-  if (settingsLang && ['ru', 'en', 'es'].includes(settingsLang)) return settingsLang as Lang;
   return 'ru';
 }
 
@@ -312,6 +312,12 @@ serve(async (req) => {
       }
     }
 
+    // 0. Смена аватара бота под тип уведомления
+    const targetAvatar = getAvatarForNotification(template?.category || 'custom', template?.type || body.template_type);
+    await setBotAvatar(targetAvatar).catch(err => {
+      console.error('[Notification Sender] Avatar change failed (non-blocking):', err);
+    });
+
     // 1. Отправка в Telegram
     const telegramResult = await sendTelegramNotification(
       profile.telegram_id,
@@ -348,6 +354,9 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Возвращаем аватар в DEFAULT через 30 сек (non-blocking)
+    resetBotAvatar();
 
     await supabase.from('notification_logs').insert({
       user_id: profile.id,
@@ -572,6 +581,113 @@ async function sendPWAPushNotification(
   }
 }
 
+// =====================================================
+// Динамическая смена аватара бота (Bot API 9.4+)
+// =====================================================
+
+type BotAvatar = 'DEFAULT' | 'ALERT' | 'CELEBRATING' | 'LEARNING' | 'NIGHTMODE' | 'POWERING';
+
+const AVATAR_BASE_URL = `${SUPABASE_URL}/storage/v1/object/public/avatars/bot`;
+
+function getAvatarForNotification(category?: string, templateType?: string): BotAvatar {
+  if (templateType?.includes('license') || templateType?.includes('urgent')) return 'ALERT';
+  if (templateType?.includes('season_last') || templateType?.includes('warning_1h')) return 'ALERT';
+  if (templateType?.includes('level_close') || templateType?.includes('celebrating')) return 'CELEBRATING';
+  if (templateType?.includes('daily_quest') || templateType?.includes('streak')) return 'LEARNING';
+  if (templateType?.includes('season_') || templateType?.includes('boost')) return 'POWERING';
+  if (category === 'progress') return 'CELEBRATING';
+  if (category === 'duel') return 'POWERING';
+  return 'DEFAULT';
+}
+
+// Кеш текущего аватара, чтобы не менять лишний раз
+let currentBotAvatar: BotAvatar | null = null;
+
+async function setBotAvatar(avatar: BotAvatar): Promise<void> {
+  if (currentBotAvatar === avatar) {
+    console.log('[Bot Avatar] Already set to', avatar, '— skipping');
+    return;
+  }
+
+  try {
+    const avatarUrl = `${AVATAR_BASE_URL}/${avatar}.png`;
+    console.log('[Bot Avatar] Changing to:', avatar, avatarUrl);
+
+    // Скачиваем изображение
+    const imageResponse = await fetch(avatarUrl);
+    if (!imageResponse.ok) {
+      console.error('[Bot Avatar] Failed to fetch image:', imageResponse.status);
+      return;
+    }
+    const imageBlob = await imageResponse.blob();
+
+    // Bot API 9.4: setMyProfilePhoto с InputProfilePhoto
+    // Формат: photo = JSON InputProfilePhotoStatic, файл через attach://
+    const formData = new FormData();
+    // InputProfilePhotoStatic: { type: "static", photo: "attach://avatar_file" }
+    formData.append('photo', JSON.stringify({ type: 'static', photo: 'attach://avatar_file' }));
+    formData.append('avatar_file', new File([imageBlob], `${avatar}.png`, { type: 'image/png' }));
+
+    const resp1 = await fetch(`${TELEGRAM_API}/setMyProfilePhoto`, {
+      method: 'POST',
+      body: formData,
+    });
+    const res1 = await resp1.json();
+    console.log('[Bot Avatar] Method 1 (attach://):', resp1.status, JSON.stringify(res1));
+
+    if (resp1.ok && res1.ok) {
+      currentBotAvatar = avatar;
+      console.log('[Bot Avatar] SUCCESS via attach://');
+      return;
+    }
+
+    // Метод 2: photo как прямой InputFile в multipart (без JSON обёртки)
+    const formData2 = new FormData();
+    formData2.append('photo', new File([imageBlob], `${avatar}.png`, { type: 'image/png' }));
+
+    const resp2 = await fetch(`${TELEGRAM_API}/setMyProfilePhoto`, {
+      method: 'POST',
+      body: formData2,
+    });
+    const res2 = await resp2.json();
+    console.log('[Bot Avatar] Method 2 (direct file):', resp2.status, JSON.stringify(res2));
+
+    if (resp2.ok && res2.ok) {
+      currentBotAvatar = avatar;
+      console.log('[Bot Avatar] SUCCESS via direct file');
+      return;
+    }
+
+    // Метод 3: photo как URL (если Telegram принимает URL для InputProfilePhoto)
+    const resp3 = await fetch(`${TELEGRAM_API}/setMyProfilePhoto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        photo: { type: 'static', photo: avatarUrl }
+      }),
+    });
+    const res3 = await resp3.json();
+    console.log('[Bot Avatar] Method 3 (URL in JSON):', resp3.status, JSON.stringify(res3));
+
+    if (resp3.ok && res3.ok) {
+      currentBotAvatar = avatar;
+      console.log('[Bot Avatar] SUCCESS via URL');
+      return;
+    }
+
+    console.error('[Bot Avatar] All methods failed for:', avatar);
+  } catch (error) {
+    console.error('[Bot Avatar] Error:', error);
+  }
+}
+
+async function resetBotAvatar(): Promise<void> {
+  // Через 30 секунд возвращаем DEFAULT
+  setTimeout(async () => {
+    await setBotAvatar('DEFAULT');
+  }, 30000);
+}
+
 // Определяем стиль кнопки по категории/типу уведомления
 function getButtonStyle(category?: string, templateType?: string): string | undefined {
   // Bot API 9.4: style field — 'primary' | 'secondary' | 'success' | 'danger'
@@ -662,11 +778,44 @@ async function sendTelegramNotification(
     }
 
     const result = await response.json();
-    return { success: true, message_id: result.result.message_id };
+    const msgId = result.result?.message_id;
+
+    // Ставим реакцию на уведомление для эффектности
+    if (msgId) {
+      const reactionEmoji = getReactionForNotification(category, templateType);
+      if (reactionEmoji) {
+        fetch(`${TELEGRAM_API}/setMessageReaction`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            message_id: msgId,
+            reaction: [{ type: 'emoji', emoji: reactionEmoji }],
+          }),
+        }).catch(() => {}); // fire-and-forget
+      }
+    }
+
+    return { success: true, message_id: msgId };
 
   } catch (error: unknown) {
     console.error('[Notification Sender] Send error:', error);
     const errorMessage = error instanceof Error ? error.message : String(error);
     return { success: false, error: errorMessage };
   }
+}
+
+// Подбираем реакцию по типу уведомления
+function getReactionForNotification(category?: string, templateType?: string): string | null {
+  if (templateType?.includes('streak')) return '🔥';
+  if (templateType?.includes('level_close') || templateType?.includes('celebrating')) return '🎉';
+  if (templateType?.includes('urgent') || templateType?.includes('warning')) return '⚡';
+  if (templateType?.includes('license') || templateType?.includes('exam')) return '🚗';
+  if (templateType?.includes('daily_quest') || templateType?.includes('quest')) return '📝';
+  if (templateType?.includes('season') || templateType?.includes('boost')) return '🚀';
+  if (templateType?.includes('duel')) return '⚔️';
+  if (category === 'progress') return '💪';
+  if (category === 'engagement') return '👋';
+  if (category === 'duel') return '⚔️';
+  return '✨'; // дефолтная реакция
 }

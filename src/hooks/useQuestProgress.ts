@@ -54,6 +54,14 @@ export function useQuestProgress(): UseQuestProgressResult {
 
       if (newCompleted.length > 0) {
         setCompletedQuests(prev => [...prev, ...newCompleted]);
+
+        // Автообновление закреплённого чеклиста в Telegram
+        const userId = params[0]?.userId;
+        if (userId) {
+          supabase.functions.invoke('update-morning-checklist', {
+            body: { user_id: userId },
+          }).catch(() => {}); // fire-and-forget
+        }
       }
     } catch (err) {
       console.error('[useQuestProgress] Unexpected error:', err);

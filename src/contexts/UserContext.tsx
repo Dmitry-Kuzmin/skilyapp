@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { setGlobalProfileId } from "@/hooks/useRequireProfile";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UserContextType {
   user: TelegramUser | null;
@@ -34,6 +35,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [profileId, setProfileId] = useState<string | null>(null);
   const webApp = useTelegram(); // Получаем webApp из контекста для использования в эффектах
+  const queryClient = useQueryClient();
 
   // Ref to track last processed user to prevent redundant fetches
   const lastProcessedUserRef = useRef<string | null>(null);
@@ -80,6 +82,36 @@ export function UserProvider({ children }: { children: ReactNode }) {
           if (profileId !== actualProfileId) {
             setProfileId(actualProfileId);
             setGlobalProfileId(actualProfileId);
+
+            // 🎁 Process referral code for Web/Auth users (Google OAuth, Magic Link)
+            const refCode = sessionStorage.getItem('referral_code');
+            if (refCode) {
+              console.log("[UserContext] Processing pending referral code for web user:", refCode);
+              (supabase as any).rpc('create_referral', {
+                p_referrer_code: refCode,
+                p_referred_id: actualProfileId
+              }).then(({ data, error }: { data: any, error: any }) => {
+                if (!error && data && data[0]?.success) {
+                  console.log("[UserContext] ✅ Referral applied successfully!");
+                  sessionStorage.removeItem('referral_code');
+                  
+                  // 🎉 Красивое уведомление
+                  toast.success('Начислено +50 монет за приглашение! 🎁', {
+                    description: 'Добро пожаловать в Skily! Используйте их для покупки бустов или дуэлей.',
+                  });
+
+                  // 🔄 Обновляем данные пользователя в UI
+                  queryClient.invalidateQueries({ queryKey: ['profile'] });
+                  queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+                  queryClient.invalidateQueries({ queryKey: ['dashboard-complete'] });
+                } else if (data && data[0] && (data[0].message === 'Already referred by someone' || data[0].message === 'Cannot refer yourself')) {
+                  console.log("[UserContext] Referral skipped:", data[0].message);
+                  sessionStorage.removeItem('referral_code');
+                } else if (error) {
+                  console.error("[UserContext] Error applying referral:", error);
+                }
+              });
+            }
           }
           localStorage.setItem(`profile_${supabaseUser.id}`, actualProfileId);
 

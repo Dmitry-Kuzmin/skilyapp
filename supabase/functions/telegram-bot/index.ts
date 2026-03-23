@@ -54,6 +54,9 @@ serve(async (req) => {
       await handleCallbackQuery(update.callback_query);
     } else if (update.inline_query) {
       await handleInlineQuery(update.inline_query);
+    } else if (update.poll_answer) {
+      // Обработка ответа на quiz poll — ставим реакцию
+      await handlePollAnswer(update.poll_answer);
     }
 
     return new Response("OK", { status: 200 });
@@ -213,11 +216,10 @@ async function handleMessage(message: TelegramMessage) {
         case "tips":
           await commands.handleTips(message, supabase);
           break;
-        case "broadcast": {
-          const broadcastText = parts.slice(1).join(" ");
-          await commands.handleBroadcast(message, broadcastText, supabase);
+        case "broadcast":
+        case "post":
+          await handleBroadcastCommand(message);
           break;
-        }
         default:
           console.log(`[Command] Unknown: ${command}`);
           await commands.sendMessage({
@@ -335,6 +337,17 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         message_id: message.message_id,
         text: t('tips.title', lang),
         reply_markup: keyboards.getTipsMenuKeyboard(lang)
+      });
+    }
+    // Broadcast: подтверждение/отмена рассылки
+    else if (data.startsWith("broadcast_confirm:")) {
+      await executeBroadcast(message.chat.id, message.message_id, data);
+    }
+    else if (data === "broadcast_cancel") {
+      await editMessage({
+        chat_id: message.chat.id,
+        message_id: message.message_id,
+        text: "❌ Рассылка отменена.",
       });
     }
   } catch (e: unknown) {
@@ -489,7 +502,6 @@ async function setMessageReaction(chatId: number, messageId: number, emoji: stri
       })
     });
   } catch (e) {
-    // Реакции — best-effort, не блокируем основной поток
     console.warn('[Reaction] Failed:', e);
   }
 }
@@ -503,11 +515,47 @@ function getReactionEmoji(text: string): string {
   if (t.startsWith('/help')) return '💡';
   if (t.startsWith('/settings')) return '⚙️';
   if (t.startsWith('/tips')) return '📚';
-  if (t.startsWith('/broadcast')) return '📣';
-  // Для обычных текстовых сообщений — AI chat
+  if (t.startsWith('/broadcast') || t.startsWith('/post')) return '📣';
   if (t.includes('привет') || t.includes('здравствуй') || t.includes('hello')) return '👋';
   if (t.includes('спасибо') || t.includes('thank')) return '🙏';
   return '👍';
+}
+
+// =====================================================
+// Poll Answer — Реакция на ответ в quiz
+// =====================================================
+
+async function handlePollAnswer(pollAnswer: any) {
+  try {
+    const user = pollAnswer.user;
+    if (!user) return;
+
+    console.log(`[PollAnswer] User ${user.id} answered poll`);
+
+    // Telegram quiz mode автоматически показывает правильный/неправильный
+    // Мы дополнительно ставим реакцию на сообщение с опросом
+
+    // К сожалению, poll_answer не содержит chat_id и message_id
+    // Реакции уже ставятся при отправке опроса из morning-routine
+    // Здесь можно обновить статистику пользователя
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('telegram_id', user.id)
+      .maybeSingle();
+
+    if (profile) {
+      // Обновляем прогресс daily quest (категория 'questions')
+      await supabase.rpc('update_daily_quest_progress', {
+        p_user_id: profile.id,
+        p_category: 'questions',
+        p_delta: 1,
+      }).catch((e: any) => console.error('[PollAnswer] Quest progress error:', e));
+    }
+  } catch (error) {
+    console.error('[PollAnswer] Error:', error);
+  }
 }
 
 async function editMessage(options: EditMessageTextOptions) {
@@ -523,4 +571,194 @@ async function editMessage(options: EditMessageTextOptions) {
   } catch (error: unknown) {
     console.error("[EditMessage] Fetch fatal error:", error);
   }
+}
+
+// =====================================================
+// BROADCAST — рассылка от админа
+// =====================================================
+// Использование:
+// 1. /broadcast Текст сообщения → рассылает текст всем
+// 2. Ответить на любое сообщение (фото/опрос/текст) командой /broadcast → пересылает всем
+// 3. /post — алиас для /broadcast
+// =====================================================
+
+const ADMIN_TELEGRAM_IDS = [488159880]; // @guapo_pub
+
+async function handleBroadcastCommand(message: TelegramMessage): Promise<void> {
+  const chatId = message.chat.id;
+  const userId = message.from?.id;
+
+  // Проверка админа
+  if (!userId || !ADMIN_TELEGRAM_IDS.includes(userId)) {
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: "⛔ Эта команда доступна только администраторам.",
+    });
+    return;
+  }
+
+  const text = (message.text || "").replace(/^\/(broadcast|post)\s*/i, "").trim();
+  const replyMsg = message.reply_to_message;
+
+  // Считаем получателей
+  const { count } = await supabase
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .not('telegram_id', 'is', null);
+
+  const userCount = count || 0;
+
+  if (replyMsg) {
+    // Режим 2: пересылка сообщения (фото, опрос, текст, что угодно)
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: `📢 <b>Подтвердите рассылку</b>\n\nСообщение выше будет переслано <b>${userCount}</b> пользователям.\n\n⚠️ Это действие нельзя отменить!`,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [[
+          { text: '✅ Отправить всем', callback_data: `broadcast_confirm:forward:${replyMsg.message_id}` },
+          { text: '❌ Отмена', callback_data: 'broadcast_cancel' },
+        ]]
+      }
+    });
+  } else if (text) {
+    // Режим 1: отправить текст
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: `📢 <b>Подтвердите рассылку</b>\n\nТекст:\n<i>${text.substring(0, 500)}</i>\n\nБудет отправлено <b>${userCount}</b> пользователям.`,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [[
+          { text: '✅ Отправить всем', callback_data: `broadcast_confirm:text:0` },
+          { text: '❌ Отмена', callback_data: 'broadcast_cancel' },
+        ]]
+      }
+    });
+
+    // Сохраняем текст для рассылки во временное хранилище (settings)
+    await supabase
+      .from('profiles')
+      .update({ settings: { ...(await getAdminSettings()), _broadcast_text: text } })
+      .eq('telegram_id', userId);
+  } else {
+    await commands.sendMessage({
+      chat_id: chatId,
+      text: `📢 <b>Как использовать /broadcast:</b>\n\n` +
+        `1️⃣ <code>/broadcast Текст сообщения</code>\n   → Отправит текст всем пользователям\n\n` +
+        `2️⃣ Ответьте на любое сообщение (фото, опрос, текст) командой <code>/broadcast</code>\n   → Перешлёт это сообщение всем\n\n` +
+        `👥 Активных получателей: <b>${userCount}</b>`,
+      parse_mode: 'HTML',
+    });
+  }
+}
+
+async function getAdminSettings(): Promise<Record<string, any>> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('settings')
+    .eq('telegram_id', ADMIN_TELEGRAM_IDS[0])
+    .single();
+  return data?.settings || {};
+}
+
+async function executeBroadcast(chatId: number, confirmMsgId: number, callbackData: string): Promise<void> {
+  const parts = callbackData.split(':');
+  const mode = parts[1]; // 'forward' or 'text'
+  const msgId = parseInt(parts[2]) || 0;
+
+  // Обновляем сообщение подтверждения
+  await editMessage({
+    chat_id: chatId,
+    message_id: confirmMsgId,
+    text: '⏳ Рассылка запущена...',
+  });
+
+  // Получаем всех пользователей с telegram_id
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('telegram_id')
+    .not('telegram_id', 'is', null);
+
+  if (!profiles || profiles.length === 0) {
+    await editMessage({
+      chat_id: chatId,
+      message_id: confirmMsgId,
+      text: '❌ Нет пользователей для рассылки.',
+    });
+    return;
+  }
+
+  let sent = 0;
+  let errors = 0;
+
+  if (mode === 'forward' && msgId) {
+    // Пересылаем сообщение
+    for (const p of profiles) {
+      try {
+        const resp = await fetch(`${TELEGRAM_API}/copyMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: p.telegram_id,
+            from_chat_id: chatId,
+            message_id: msgId,
+          }),
+        });
+        if (resp.ok) sent++;
+        else errors++;
+      } catch {
+        errors++;
+      }
+      // Rate limiting
+      await new Promise(r => setTimeout(r, 50));
+    }
+  } else if (mode === 'text') {
+    // Берём текст из settings
+    const settings = await getAdminSettings();
+    const broadcastText = settings._broadcast_text;
+
+    if (!broadcastText) {
+      await editMessage({
+        chat_id: chatId,
+        message_id: confirmMsgId,
+        text: '❌ Текст рассылки не найден.',
+      });
+      return;
+    }
+
+    for (const p of profiles) {
+      try {
+        const resp = await fetch(`${TELEGRAM_API}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: p.telegram_id,
+            text: broadcastText,
+            parse_mode: 'HTML',
+          }),
+        });
+        if (resp.ok) sent++;
+        else errors++;
+      } catch {
+        errors++;
+      }
+      await new Promise(r => setTimeout(r, 50));
+    }
+
+    // Чистим временный текст
+    const cleanSettings = { ...settings };
+    delete cleanSettings._broadcast_text;
+    await supabase
+      .from('profiles')
+      .update({ settings: cleanSettings })
+      .eq('telegram_id', ADMIN_TELEGRAM_IDS[0]);
+  }
+
+  // Итоговый отчёт
+  await editMessage({
+    chat_id: chatId,
+    message_id: confirmMsgId,
+    text: `✅ <b>Рассылка завершена!</b>\n\n📨 Отправлено: ${sent}\n❌ Ошибок: ${errors}\n👥 Всего: ${profiles.length}`,
+    parse_mode: 'HTML',
+  });
 }

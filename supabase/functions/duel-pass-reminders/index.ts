@@ -26,16 +26,16 @@ console.log('[DuelPass Reminders] Service started');
 type Lang = 'ru' | 'en' | 'es';
 
 function getUserLang(profile: any): Lang {
-  // 1. Telegram language_code (приоритет для уведомлений бота — это язык Telegram пользователя)
+  // 1. Явный выбор в настройках (ПРИОРИТЕТ — пользователь выбрал сам)
+  const settingsLang = profile?.settings?.language;
+  if (settingsLang && ['ru', 'en', 'es'].includes(settingsLang)) return settingsLang as Lang;
+  // 2. Telegram language_code (fallback)
   const code = profile?.language_code?.toLowerCase()?.split('-')[0];
   if (code) {
     if (['ru', 'uk', 'be', 'kk'].includes(code)) return 'ru';
     if (['es', 'ca', 'gl'].includes(code)) return 'es';
     if (['en', 'de', 'fr', 'it', 'pt', 'nl'].includes(code)) return 'en';
   }
-  // 2. Явный выбор в настройках (fallback)
-  const settingsLang = profile?.settings?.language;
-  if (settingsLang && ['ru', 'en', 'es'].includes(settingsLang)) return settingsLang as Lang;
   return 'ru';
 }
 
@@ -335,7 +335,7 @@ async function sendDailyQuestReminder(
     message: msg.message,
     icon: '🎯',
     ctaText: CTA_TEXTS.daily_quest[lang],
-    ctaDeeplink: 'dashboard', // → startapp=dashboard → /dashboard (Duel Pass виден)
+    ctaDeeplink: 'games--duel', // → startapp=games--duel → /games/duel
   });
 }
 
@@ -363,7 +363,7 @@ async function sendSeasonEndingReminder(
     message,
     icon: icons[urgency],
     ctaText,
-    ctaDeeplink: 'dashboard',
+    ctaDeeplink: 'games--duel', // → startapp=games--duel → /games/duel
   });
 }
 
@@ -385,7 +385,7 @@ async function sendLevelCloseReminder(
     message,
     icon: '🏆',
     ctaText: CTA_TEXTS.level_up[lang],
-    ctaDeeplink: 'dashboard',
+    ctaDeeplink: 'games--duel', // → startapp=games--duel → /games/duel (level up через дуэли)
   });
 }
 
