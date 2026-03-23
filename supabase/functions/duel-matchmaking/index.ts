@@ -404,7 +404,7 @@ Deno.serve(async (req) => {
 
                 const { data: player } = await supabase
                     .from('duel_players')
-                    .insert({
+                    .upsert({
                         duel_id: duel.id,
                         user_id: profileId,
                         is_bot: false,
@@ -413,7 +413,7 @@ Deno.serve(async (req) => {
                         insurance_enabled: joinerInsurance.enabled,
                         insurance_premium: joinerInsurance.premium,
                         insurance_coverage_rate: joinerInsurance.coverageRate,
-                    })
+                    }, { onConflict: 'duel_id,user_id' })
                     .select()
                     .single();
 
@@ -568,20 +568,21 @@ Deno.serve(async (req) => {
                         throw rematchDuelError || new Error('Failed to create rematch duel');
                     }
 
-                    // Добавляем хоста в duel_players (без этого дуэль пуста)
+                    // Добавляем хоста в duel_players (триггер мог уже вставить запись без insurance-данных,
+                    // поэтому используем upsert чтобы обновить insurance поля если запись уже есть)
                     const { error: hostPlayerError } = await supabase
                         .from('duel_players')
-                        .insert({
+                        .upsert({
                             duel_id: rematchDuel.id,
                             user_id: profileId,
                             is_bot: false,
                             insurance_enabled: hostInsurance.enabled,
                             insurance_premium: hostInsurance.premium,
                             insurance_coverage_rate: hostInsurance.coverageRate,
-                        });
+                        }, { onConflict: 'duel_id,user_id' });
 
                     if (hostPlayerError) {
-                        console.error('[find_match] ❌ Failed to insert host player for rematch:', hostPlayerError);
+                        console.error('[find_match] ❌ Failed to upsert host player for rematch:', hostPlayerError);
                         throw hostPlayerError;
                     }
 

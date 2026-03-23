@@ -17,8 +17,8 @@ export function AddToHomeScreenPrompt() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!isSupported) return;
-    if (status === 'added' || status === 'unsupported' || status === 'unknown') return;
+    // Показываем только когда точно знаем что ещё не добавлено
+    if (!isSupported || status !== 'missed') return;
 
     const dismissedAt = localStorage.getItem(STORAGE_KEY);
     if (dismissedAt) {

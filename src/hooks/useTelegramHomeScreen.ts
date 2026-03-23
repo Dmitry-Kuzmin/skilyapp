@@ -1,40 +1,40 @@
 import { useState, useEffect, useCallback } from 'react';
-import { addToTelegramHomeScreen, checkTelegramHomeScreenStatus, isVersionAtLeast, getTelegramWebApp } from '@/lib/telegram';
+import { getTelegramWebApp } from '@/lib/telegram';
 
 type HomeScreenStatus = 'unsupported' | 'unknown' | 'added' | 'missed';
 
 /**
  * Управление ярлыком мини-аппа на домашнем экране (Bot API 8.0+).
- *
- * Использование:
- *   const { status, isSupported, addToHomeScreen } = useTelegramHomeScreen();
- *   if (isSupported && status === 'missed') addToHomeScreen();
+ * Не требует проверки версии — просто проверяем наличие методов.
  */
 export function useTelegramHomeScreen() {
-  const [status, setStatus] = useState<HomeScreenStatus>('unknown');
+  const webApp = getTelegramWebApp() as any;
+  const isSupported = typeof webApp?.addToHomeScreen === 'function';
 
-  const isSupported = isVersionAtLeast('8.0') && typeof (getTelegramWebApp() as any)?.addToHomeScreen === 'function';
+  const [status, setStatus] = useState<HomeScreenStatus>(isSupported ? 'unknown' : 'unsupported');
 
   useEffect(() => {
-    if (!isSupported) {
-      setStatus('unsupported');
-      return;
-    }
-
-    const webApp = getTelegramWebApp() as any;
+    if (!isSupported) return;
 
     const handleChecked = (params: { status: string }) => {
-      setStatus((params?.status as HomeScreenStatus) || 'unknown');
+      const s = params?.status as HomeScreenStatus;
+      console.log('[useTelegramHomeScreen] homeScreenChecked:', s);
+      setStatus(s || 'unknown');
     };
     const handleAdded = () => {
+      console.log('[useTelegramHomeScreen] homeScreenAdded');
       setStatus('added');
     };
 
     webApp?.onEvent?.('homeScreenChecked', handleChecked);
     webApp?.onEvent?.('homeScreenAdded', handleAdded);
 
-    // Запрашиваем статус сразу
-    checkTelegramHomeScreenStatus();
+    // Запрашиваем статус
+    try {
+      webApp?.checkHomeScreenStatus?.();
+    } catch (e) {
+      console.warn('[useTelegramHomeScreen] checkHomeScreenStatus error:', e);
+    }
 
     return () => {
       webApp?.offEvent?.('homeScreenChecked', handleChecked);
@@ -43,8 +43,12 @@ export function useTelegramHomeScreen() {
   }, [isSupported]);
 
   const addToHomeScreen = useCallback(() => {
-    addToTelegramHomeScreen();
-  }, []);
+    try {
+      webApp?.addToHomeScreen?.();
+    } catch (e) {
+      console.warn('[useTelegramHomeScreen] addToHomeScreen error:', e);
+    }
+  }, [webApp]);
 
   return { status, isSupported, addToHomeScreen };
 }

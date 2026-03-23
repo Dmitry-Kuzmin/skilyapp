@@ -1,35 +1,49 @@
 import { useEffect } from 'react';
-import { requestTelegramFullscreen, exitTelegramFullscreen, isVersionAtLeast, getTelegramWebApp } from '@/lib/telegram';
+import { getTelegramWebApp } from '@/lib/telegram';
 
 /**
- * Автоматически входит в fullscreen при монтировании компонента и выходит при размонтировании.
+ * Автоматически входит в fullscreen при монтировании и выходит при размонтировании.
  * Используется в DuelBattleFullscreen для иммерсивного режима дуэли.
- * Требует Bot API 8.0+.
+ * Не требует проверки версии — просто проверяем наличие метода.
  */
 export function useDuelFullscreen() {
   useEffect(() => {
-    if (!isVersionAtLeast('8.0')) return;
+    const webApp = getTelegramWebApp() as any;
+    if (!webApp) return;
 
-    const entered = requestTelegramFullscreen();
-    if (entered) {
-      console.log('[useDuelFullscreen] ✅ Fullscreen activated for duel');
+    if (typeof webApp.requestFullscreen !== 'function') {
+      console.log('[useDuelFullscreen] requestFullscreen не поддерживается этой версией Telegram');
+      return;
     }
 
-    const webApp = getTelegramWebApp() as any;
-    const handleFullscreenChanged = () => {
-      console.log('[useDuelFullscreen] fullscreenChanged, isFullscreen:', webApp?.isFullscreen);
+    try {
+      webApp.requestFullscreen();
+      console.log('[useDuelFullscreen] ✅ Fullscreen запрошен');
+    } catch (e) {
+      console.warn('[useDuelFullscreen] requestFullscreen error:', e);
+    }
+
+    const handleChanged = () => {
+      console.log('[useDuelFullscreen] fullscreenChanged, isFullscreen:', webApp.isFullscreen);
     };
-    const handleFullscreenFailed = () => {
-      console.warn('[useDuelFullscreen] fullscreenFailed — device may not support it');
+    const handleFailed = () => {
+      console.warn('[useDuelFullscreen] fullscreenFailed — устройство не поддерживает');
     };
 
-    webApp?.onEvent?.('fullscreenChanged', handleFullscreenChanged);
-    webApp?.onEvent?.('fullscreenFailed', handleFullscreenFailed);
+    webApp.onEvent?.('fullscreenChanged', handleChanged);
+    webApp.onEvent?.('fullscreenFailed', handleFailed);
 
     return () => {
-      exitTelegramFullscreen();
-      webApp?.offEvent?.('fullscreenChanged', handleFullscreenChanged);
-      webApp?.offEvent?.('fullscreenFailed', handleFullscreenFailed);
+      try {
+        if (typeof webApp.exitFullscreen === 'function') {
+          webApp.exitFullscreen();
+          console.log('[useDuelFullscreen] ✅ Fullscreen завершён');
+        }
+      } catch (e) {
+        console.warn('[useDuelFullscreen] exitFullscreen error:', e);
+      }
+      webApp.offEvent?.('fullscreenChanged', handleChanged);
+      webApp.offEvent?.('fullscreenFailed', handleFailed);
     };
   }, []);
 }

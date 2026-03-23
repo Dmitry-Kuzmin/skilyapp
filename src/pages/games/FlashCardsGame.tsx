@@ -35,6 +35,7 @@ import Confetti from "react-confetti";
 import { useUserContext } from "@/contexts/UserContext";
 import { updateTermProgress } from "@/lib/termProgress";
 import { cn } from "@/lib/utils";
+import { useShakeDetector } from "@/hooks/useShakeDetector";
 
 interface LanguageTerm {
   id: string;
@@ -402,6 +403,18 @@ const FlashCardsGame = () => {
       currentCard: prev.currentCard + 1,
     }));
   };
+
+  // 🥚 Easter egg: встряхни телефон → случайная карточка
+  useShakeDetector(() => {
+    if (!isGameActive || isGameOver || cards.length < 2) return;
+    const randomIndex = Math.floor(Math.random() * cards.length);
+    setCurrentCardIndex(randomIndex);
+    setIsFlipped(false);
+    setIsAnswering(false);
+    setStats(prev => ({ ...prev, currentCard: randomIndex + 1 }));
+    haptics.boostActivated();
+    toast('🎲 Случайная карточка!', { duration: 1500 });
+  }, { threshold: 18, cooldown: 2000 });
 
   const endGame = async () => {
     setIsGameActive(false);

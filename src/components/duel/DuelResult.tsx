@@ -221,26 +221,20 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     if (results?.isWinner) {
       sounds.victory();
       haptics.victory();
-      // Предложить установить эмодзи-статус победителя (один раз за сессию)
+      // Показываем кнопку для emoji статуса (требует явного нажатия пользователем)
       if (emojiStatusSupported && !emojiStatusOffered) {
-        setEmojiStatusOffered(true);
         const alreadyOfferedKey = 'emoji_status_victory_offered';
         const lastOffered = localStorage.getItem(alreadyOfferedKey);
         const daysSince = lastOffered ? (Date.now() - parseInt(lastOffered, 10)) / 86_400_000 : 999;
         if (daysSince >= 3) {
-          setTimeout(() => {
-            // 5368324170671202286 — эмодзи 🏆 (стандартный Telegram custom emoji ID)
-            // Замените на ID из вашего стикер-пака в @BotFather
-            setEmojiStatus('5368324170671202286', { duration: 3600 });
-            localStorage.setItem(alreadyOfferedKey, Date.now().toString());
-          }, 4000);
+          setEmojiStatusOffered(true);
         }
       }
     } else if (results && !results.isDraw) {
       sounds.defeat();
       haptics.defeat();
     }
-  }, [results, emojiStatusSupported, emojiStatusOffered, setEmojiStatus]);
+  }, [results, emojiStatusSupported, emojiStatusOffered]);
 
   useEffect(() => {
     const isDefinitelyBot = results?.isBot === true && duelResultsData?.opponentPlayer?.is_bot === true;
@@ -431,6 +425,28 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-lg md:text-xl font-medium">
               {results.isWinner ? t('duelResult.greatGame') : results.isDraw ? t('duelResult.equalMatch') : t('duelResult.tryAgain')}
             </motion.p>
+
+            {/* Кнопка эмодзи-статуса — только при победе, требует явного нажатия */}
+            {emojiStatusOffered && emojiStatusSupported && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1.2, type: 'spring' }}
+                onClick={() => {
+                  // Telegram требует вызов СТРОГО из обработчика клика пользователя
+                  setEmojiStatus('5368324170671202286', {
+                    duration: 3600,
+                    onSet: () => {
+                      localStorage.setItem('emoji_status_victory_offered', Date.now().toString());
+                      setEmojiStatusOffered(false);
+                    },
+                  });
+                }}
+                className="mt-2 px-4 py-2 rounded-full bg-yellow-400/10 border border-yellow-400/30 text-yellow-400 text-sm font-medium hover:bg-yellow-400/20 transition-colors"
+              >
+                🏆 Поставить статус победителя
+              </motion.button>
+            )}
           </div>
         </motion.div>
 

@@ -139,6 +139,25 @@ declare global {
         SecondaryButton?: TelegramSecondaryButton;
         // Hide keyboard (Bot API 9.1)
         hideKeyboard?: () => void;
+        // Device motion (Bot API 8.0)
+        Accelerometer?: {
+          x: number; y: number; z: number;
+          start: (params?: { refresh_rate?: number }) => void;
+          stop: () => void;
+        };
+        Gyroscope?: {
+          x: number; y: number; z: number;
+          start: (params?: { refresh_rate?: number }) => void;
+          stop: () => void;
+        };
+        DeviceOrientation?: {
+          alpha: number; beta: number; gamma: number; absolute: boolean;
+          start: () => void;
+          stop: () => void;
+        };
+        isOrientationLocked?: boolean;
+        lockOrientation?: () => void;
+        unlockOrientation?: () => void;
         openTelegramLink: (url: string) => void;
         // Haptic Feedback
         HapticFeedback?: {
