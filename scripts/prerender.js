@@ -54,6 +54,10 @@ const PUBLIC_ROUTES = [
   '/?lang=es',
   '/?lang=en',
   '/?lang=ru',
+  // Публичные страницы контента (критично для AdSense — Google должен видеть реальный контент)
+  '/about',
+  '/pricing',
+  '/help',
   '/blog',
   // Статьи
   '/article/novye-voprosy-dgt-2025',
@@ -67,6 +71,12 @@ const PUBLIC_ROUTES = [
   '/article/mikrotreningi-dgt-na-telefone',
   '/article/kak-sdat-ekzamen-dgt-s-pervogo-raza',
   '/article/top-10-oshibok-na-ekzamene-dgt',
+  // Legal pages (критично для AdSense — Google должен видеть контент)
+  '/legal/terms',
+  '/legal/privacy',
+  '/legal/cookies',
+  '/legal/subscription',
+  '/legal/refund',
 ];
 
 async function prerender() {
@@ -333,6 +343,13 @@ async function prerender() {
             mkdirSync(articleDir, { recursive: true });
           }
           filePath = join(articleDir, `${slug}.html`);
+        } else if (route.startsWith('/legal/')) {
+          const tab = route.replace('/legal/', '');
+          const legalDir = join(OUTPUT_DIR, 'legal');
+          if (!existsSync(legalDir)) {
+            mkdirSync(legalDir, { recursive: true });
+          }
+          filePath = join(legalDir, `${tab}.html`);
         } else {
           // Для /blog создаём blog.html
           const fileName = route.replace('/', '') || 'index';

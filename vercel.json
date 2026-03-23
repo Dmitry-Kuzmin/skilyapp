@@ -68,6 +68,30 @@
   ],
   "rewrites": [
     {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing.html"
+    },
+    {
+      "source": "/help",
+      "destination": "/help.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog.html"
+    },
+    {
+      "source": "/article/:slug",
+      "destination": "/article/:slug.html"
+    },
+    {
+      "source": "/legal/:tab",
+      "destination": "/legal/:tab.html"
+    },
+    {
       "source": "/((?!assets|favicon|manifest|robot\\.txt|sitemap\\.xml|sw\\.js|workbox-.*\\.js|.*\\.js|.*\\.map|.*\\.css|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.ico|.*\\.svg|.*\\.webp|.*\\.mp3|.*\\.wav|.*\\.json).*)",
       "destination": "/index.html"
     }
