@@ -36,7 +36,14 @@ export function useTelegramHomeScreen() {
       console.warn('[useTelegramHomeScreen] checkHomeScreenStatus error:', e);
     }
 
+    // Fallback: если через 5 секунд статус всё ещё 'unknown' (событие не пришло
+    // или Telegram вернул unknown) — считаем что приложение ещё не добавлено
+    const fallback = setTimeout(() => {
+      setStatus(prev => prev === 'unknown' ? 'missed' : prev);
+    }, 5000);
+
     return () => {
+      clearTimeout(fallback);
       webApp?.offEvent?.('homeScreenChecked', handleChecked);
       webApp?.offEvent?.('homeScreenAdded', handleAdded);
     };

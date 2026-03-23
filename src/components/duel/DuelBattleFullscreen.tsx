@@ -35,7 +35,6 @@ import { useDuelSettings } from '@/hooks/useDuelSettings';
 import { useQuestionBookmark } from '@/hooks/useQuestionBookmark';
 
 import type { DuelResultSnapshot } from '@/features/duel/shared';
-import { useDuelFullscreen } from '@/hooks/useDuelFullscreen';
 import { useDuelGame } from '@/hooks/useDuelGame';
 import { useBotOpponent } from '@/hooks/useBotOpponent';
 import { GRACE_PERIOD_MS, UNSTABLE_THRESHOLD_MS, AUTO_WIN_TIMEOUT_MS } from '@/features/duel/shared';
@@ -142,9 +141,6 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
   // 6. Config & Settings
   const { voiceOver, setVoiceOver, ambientMusic, setAmbientMusic, fontSize, setFontSize } = useDuelSettings();
   const safeArea = useSafeArea();
-
-  // Fullscreen mode for immersive duel experience (Bot API 8.0+)
-  useDuelFullscreen();
 
   // 7. Callbacks & Derived State
   // REMOVED redundant setIsAnswered/setUsedBoosts causing collisions

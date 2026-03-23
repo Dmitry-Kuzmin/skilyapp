@@ -31,12 +31,18 @@ export function getMainMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeybo
       [
         {
           text: t('keyboard.openApp', lang),
-          web_app: { url: MINI_APP_URL }
+          web_app: { url: MINI_APP_URL },
+          // Bot API 7.0+ — анимированная ракета как иконка кнопки
+          icon_custom_emoji_id: '5408846744727334538'
         }
       ],
       [
         { text: t('keyboard.profile', lang), callback_data: 'profile' },
-        { text: t('keyboard.challengeFriend', lang), callback_data: 'duel_inline' }
+        {
+          text: t('keyboard.challengeFriend', lang),
+          callback_data: 'duel_inline',
+          icon_custom_emoji_id: '5368324170671202286'
+        }
       ]
     ]
   };

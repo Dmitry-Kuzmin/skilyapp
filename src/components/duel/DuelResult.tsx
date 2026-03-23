@@ -280,6 +280,24 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
     setShowAIWidget(true);
   };
 
+  const handleInviteFriend = () => {
+    const webApp = getTelegramWebApp() as any;
+    if (!webApp || !isTelegramMiniApp()) {
+      // Fallback для не-Telegram окружения — копируем ссылку
+      const refLink = `https://t.me/skilyapp_bot?start=ref_${profileId}`;
+      navigator.clipboard?.writeText(refLink).then(() => toast.success('Ссылка скопирована!'));
+      return;
+    }
+    // switchInlineQuery открывает список чатов для выбора куда поделиться
+    if (typeof webApp.switchInlineQuery === 'function') {
+      webApp.switchInlineQuery(`ref_${profileId}`, ['users', 'groups', 'channels']);
+    } else {
+      // Fallback: открываем бота с реферальным параметром
+      const refLink = `https://t.me/skilyapp_bot?start=ref_${profileId}`;
+      webApp.openTelegramLink?.(refLink);
+    }
+  };
+
   const handleShareToStory = async () => {
     if (!results || !isTelegramMiniApp()) return;
     const webApp = getTelegramWebApp();
@@ -630,6 +648,24 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
         )}
 
         <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8 }} className="space-y-4 pt-4">
+          {/* Реферальная кнопка — всегда видна в Telegram */}
+          {isTelegramMiniApp() && profileId && (
+            <Button
+              onClick={handleInviteFriend}
+              size="lg"
+              className={cn(
+                "w-full font-bold h-14 rounded-2xl relative overflow-hidden text-white",
+                results.isWinner
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-500"
+                  : "bg-gradient-to-r from-blue-500 to-cyan-500"
+              )}
+            >
+              <Share2 className="w-5 h-5 mr-2 relative z-10" />
+              <span className="relative z-10">
+                {results.isWinner ? '🏆 Поделиться победой' : '⚔️ Вызвать друга на дуэль'}
+              </span>
+            </Button>
+          )}
           {canShareToStory() && (
             <Button onClick={handleShareToStory} size="lg" className={cn("w-full font-bold h-14 rounded-2xl relative overflow-hidden text-white", results.isWinner ? "bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500" : "bg-slate-500")}>
               <Share2 className="w-5 h-5 mr-2 relative z-10" />

@@ -156,6 +156,95 @@ export async function handleSettings(message: TelegramMessage, supabase: Supabas
   });
 }
 
+export async function handleBroadcast(
+  message: TelegramMessage,
+  text: string,
+  supabase: SupabaseClient
+): Promise<void> {
+  const user = message.from;
+  if (!user) return;
+
+  // Список telegram_id администраторов (из env или hard-coded)
+  const adminIdsRaw = Deno.env.get('ADMIN_TELEGRAM_IDS') || '';
+  const adminIds = adminIdsRaw.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+
+  if (!adminIds.includes(user.id)) {
+    await sendMessage({
+      chat_id: message.chat.id,
+      text: '⛔ У тебя нет прав администратора для этой команды.'
+    });
+    return;
+  }
+
+  if (!text || text.trim().length < 3) {
+    await sendMessage({
+      chat_id: message.chat.id,
+      text: '❗ Укажи текст для рассылки:\n/broadcast <текст сообщения>'
+    });
+    return;
+  }
+
+  await sendMessage({
+    chat_id: message.chat.id,
+    text: `📣 Начинаю рассылку...\nТекст: <b>${text}</b>`,
+    parse_mode: 'HTML'
+  });
+
+  // Получаем всех пользователей с telegram_id
+  const { data: profiles, error } = await supabase
+    .from('profiles')
+    .select('telegram_id, first_name')
+    .not('telegram_id', 'is', null)
+    .limit(5000);
+
+  if (error || !profiles) {
+    await sendMessage({
+      chat_id: message.chat.id,
+      text: `❌ Ошибка получения пользователей: ${error?.message}`
+    });
+    return;
+  }
+
+  let sent = 0;
+  let failed = 0;
+
+  for (const profile of profiles) {
+    if (!profile.telegram_id) continue;
+    try {
+      const resp = await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: profile.telegram_id,
+          text,
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[{
+              text: '🚀 Открыть Skilyapp',
+              web_app: { url: Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com' }
+            }]]
+          }
+        })
+      });
+      if (resp.ok) {
+        sent++;
+      } else {
+        failed++;
+      }
+    } catch (_e) {
+      failed++;
+    }
+    // Небольшая задержка чтобы не словить rate-limit Telegram (30 msg/sec)
+    if (sent % 25 === 0) await new Promise(r => setTimeout(r, 1000));
+  }
+
+  await sendMessage({
+    chat_id: message.chat.id,
+    text: `✅ Рассылка завершена!\n\n📬 Отправлено: <b>${sent}</b>\n❌ Ошибок: <b>${failed}</b>\n👥 Всего: <b>${profiles.length}</b>`,
+    parse_mode: 'HTML'
+  });
+}
+
 export async function handleTips(message: TelegramMessage, supabase: SupabaseClient): Promise<void> {
   const user = message.from;
   if (!user) return;

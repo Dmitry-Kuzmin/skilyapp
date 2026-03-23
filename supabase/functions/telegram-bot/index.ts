@@ -168,6 +168,12 @@ async function handleMessage(message: TelegramMessage) {
 
   console.log(`[Message] @${user.username || user.id} text: "${text}"`);
 
+  // Ставим реакцию на сообщение (Bot API 7.0+, best-effort)
+  if (message.message_id && message.chat?.id) {
+    const emoji = getReactionEmoji(text);
+    setMessageReaction(message.chat.id, message.message_id, emoji).catch(() => {});
+  }
+
   // Обворачиваем каждый этап в try-catch
   try {
     console.log("[Auth] Authenticating user...");
@@ -207,6 +213,11 @@ async function handleMessage(message: TelegramMessage) {
         case "tips":
           await commands.handleTips(message, supabase);
           break;
+        case "broadcast": {
+          const broadcastText = parts.slice(1).join(" ");
+          await commands.handleBroadcast(message, broadcastText, supabase);
+          break;
+        }
         default:
           console.log(`[Command] Unknown: ${command}`);
           await commands.sendMessage({
@@ -339,7 +350,41 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
     const duelCode = Math.random().toString(36).substring(2, 6).toUpperCase();
     const duelUrl = `${MINI_APP_URL}/games/duel?code=${duelCode}`;
 
+    // Реферальный режим: пользователь делится результатом дуэли через shareMessage
+    const isReferral = query.query.startsWith('ref_');
+    const refProfileId = isReferral ? query.query.replace('ref_', '') : null;
+
+    let referralCard = null;
+    if (isReferral && refProfileId) {
+      const refStartUrl = `${MINI_APP_URL}/?start=ref_${refProfileId}`;
+      const senderName = query.from.first_name || 'Игрок';
+      referralCard = {
+        type: "article",
+        id: `ref_${refProfileId}_${Date.now()}`,
+        title: lang === 'en'
+          ? `⚔️ ${senderName} challenges you to a duel!`
+          : `⚔️ ${senderName} вызывает тебя на дуэль по ПДД!`,
+        description: lang === 'en'
+          ? "Test your traffic rules knowledge in a real-time battle"
+          : "Проверь знание ПДД в битве в реальном времени",
+        thumbnail_url: "https://skilyapp.com/og-image.png",
+        input_message_content: {
+          message_text: lang === 'en'
+            ? `⚔️ <b>${senderName}</b> is challenging you to a duel!\n\n🚗 Test your traffic rules knowledge and beat them!\n\n🏆 Play now and earn coins for your victory!`
+            : `⚔️ <b>${senderName}</b> вызывает тебя на дуэль по ПДД!\n\n🚗 Докажи что знаешь правила лучше!\n\n🏆 Победи и получи монеты!`,
+          parse_mode: "HTML"
+        },
+        reply_markup: {
+          inline_keyboard: [[{
+            text: lang === 'en' ? '⚔️ Accept the challenge!' : '⚔️ Принять вызов!',
+            web_app: { url: refStartUrl }
+          }]]
+        }
+      };
+    }
+
     const results = [
+      ...(referralCard ? [referralCard] : []),
       {
         type: "article",
         id: `duel_${duelCode}`,
@@ -426,6 +471,43 @@ async function authenticateUser(user: TelegramUser) {
     console.error("[Auth] Upsert error:", error);
     throw error;
   }
+}
+
+// =====================================================
+// РЕАКЦИИ НА СООБЩЕНИЯ (Bot API 7.0+)
+// =====================================================
+async function setMessageReaction(chatId: number, messageId: number, emoji: string) {
+  try {
+    await fetch(`${TELEGRAM_API}/setMessageReaction`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        message_id: messageId,
+        reaction: [{ type: 'emoji', emoji }],
+        is_big: false
+      })
+    });
+  } catch (e) {
+    // Реакции — best-effort, не блокируем основной поток
+    console.warn('[Reaction] Failed:', e);
+  }
+}
+
+function getReactionEmoji(text: string): string {
+  const t = text.toLowerCase();
+  if (t.startsWith('/start')) return '🎉';
+  if (t.startsWith('/stats')) return '📊';
+  if (t.startsWith('/duel')) return '⚔️';
+  if (t.startsWith('/streak')) return '🔥';
+  if (t.startsWith('/help')) return '💡';
+  if (t.startsWith('/settings')) return '⚙️';
+  if (t.startsWith('/tips')) return '📚';
+  if (t.startsWith('/broadcast')) return '📣';
+  // Для обычных текстовых сообщений — AI chat
+  if (t.includes('привет') || t.includes('здравствуй') || t.includes('hello')) return '👋';
+  if (t.includes('спасибо') || t.includes('thank')) return '🙏';
+  return '👍';
 }
 
 async function editMessage(options: EditMessageTextOptions) {

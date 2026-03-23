@@ -88,6 +88,10 @@ export interface InlineKeyboardButton {
   web_app?: { url: string };
   switch_inline_query?: string;
   switch_inline_query_current_chat?: string;
+  /** Bot API 7.0+ — анимированный custom emoji как иконка кнопки */
+  icon_custom_emoji_id?: string;
+  /** Bot API 7.0+ — цвет фона кнопки */
+  style?: string;
 }
 
 export interface InlineKeyboardMarkup {
