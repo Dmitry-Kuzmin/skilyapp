@@ -26,16 +26,16 @@ console.log('[DuelPass Reminders] Service started');
 type Lang = 'ru' | 'en' | 'es';
 
 function getUserLang(profile: any): Lang {
-  // 1. Явный выбор в настройках (ПРИОРИТЕТ — пользователь выбрал сам)
-  const settingsLang = profile?.settings?.language;
-  if (settingsLang && ['ru', 'en', 'es'].includes(settingsLang)) return settingsLang as Lang;
-  // 2. Telegram language_code (fallback)
+  // 1. Telegram language_code (приоритет для уведомлений бота — это язык Telegram пользователя)
   const code = profile?.language_code?.toLowerCase()?.split('-')[0];
   if (code) {
     if (['ru', 'uk', 'be', 'kk'].includes(code)) return 'ru';
     if (['es', 'ca', 'gl'].includes(code)) return 'es';
     if (['en', 'de', 'fr', 'it', 'pt', 'nl'].includes(code)) return 'en';
   }
+  // 2. Явный выбор в настройках (fallback)
+  const settingsLang = profile?.settings?.language;
+  if (settingsLang && ['ru', 'en', 'es'].includes(settingsLang)) return settingsLang as Lang;
   return 'ru';
 }
 
@@ -202,45 +202,45 @@ serve(async (req) => {
       end_date: activeSeason.end_date,
     });
 
-    // 2. Получаем активных пользователей с прогрессом сезона
-    // Ограничиваем до активных за последние 30 дней — не спамим неактивным
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { data: usersWithProgress, error: progressError } = await supabase
+    // 2. Получаем прогресс сезона (только id/points/level — без join)
+    const { data: progressRows, error: progressError } = await supabase
       .from('user_season_progress')
-      .select(`
-        user_id,
-        season_points,
-        level,
-        season_id,
-        profiles!inner (
-          id,
-          telegram_id,
-          first_name,
-          language_code,
-          settings,
-          last_activity_at,
-          license_points,
-          license_warning_level
-        )
-      `)
+      .select('user_id, season_points, level')
       .eq('season_id', activeSeason.id)
-      .not('profiles.telegram_id', 'is', null)
-      .gte('profiles.last_activity_at', thirtyDaysAgo)
-      .limit(200);
+      .limit(500);
 
     if (progressError) {
       console.error('[DuelPass Reminders] Error fetching progress:', progressError);
       return jsonResponse({ error: progressError.message }, 500);
     }
 
-    if (!usersWithProgress || usersWithProgress.length === 0) {
-      console.log('[DuelPass Reminders] No users with season progress');
+    if (!progressRows || progressRows.length === 0) {
       return jsonResponse({ success: true, message: 'No users', results });
     }
 
+    // 2b. Профили отдельно (без join) — только активные за 30 дней с telegram_id
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const userIds = progressRows.map((p: any) => p.user_id);
+
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, telegram_id, first_name, language_code, settings, last_activity_at')
+      .in('id', userIds.slice(0, 300))
+      .not('telegram_id', 'is', null)
+      .gte('last_activity_at', thirtyDaysAgo);
+
+    if (!profiles || profiles.length === 0) {
+      return jsonResponse({ success: true, message: 'No active telegram users', results });
+    }
+
+    const profileMap = new Map((profiles as any[]).map((p: any) => [p.id, p]));
+    const usersWithProgress = progressRows
+      .filter((p: any) => profileMap.has(p.user_id))
+      .map((p: any) => ({ ...p, profile: profileMap.get(p.user_id) }));
+
     console.log(`[DuelPass Reminders] Processing ${usersWithProgress.length} users`);
 
-    // 3. Получаем награды сезона для расчёта "близко к уровню"
+    // 3. Получаем награды сезона
     const { data: seasonRewards } = await supabase
       .from('duel_pass_season_rewards')
       .select('level, sp_required')
@@ -248,75 +248,74 @@ serve(async (req) => {
       .order('level', { ascending: true });
 
     const daysRemaining = daysRemainingCalc;
+    const deadline = Date.now() + 400_000; // 400s — в запасе до Supabase лимита
 
-    // 4. Обрабатываем пользователей параллельно батчами по 10 (не перегружаем notification-sender)
+    // 4. Обрабатываем батчами по 10 параллельно
     const BATCH_SIZE = 10;
-    const deadline = Date.now() + 90_000; // жёсткий лимит 90 секунд
-
     for (let i = 0; i < usersWithProgress.length; i += BATCH_SIZE) {
       if (Date.now() > deadline) {
-        console.warn(`[DuelPass Reminders] Deadline reached at user ${i}, stopping early`);
+        console.warn(`[DuelPass Reminders] Deadline at user ${i}, stopping`);
         break;
       }
-
       const batch = usersWithProgress.slice(i, i + BATCH_SIZE);
-
-      await Promise.all(batch.map(async (userProgress) => {
-        const profile = (userProgress as any).profiles;
+      await Promise.all(batch.map(async (userProgress: any) => {
+        const profile = userProgress.profile;
         if (!profile?.telegram_id) return;
 
-        const userId = userProgress.user_id;
-        const currentLevel = userProgress.level ?? 0;
-        const currentSP = userProgress.season_points ?? 0;
-        const lang = getUserLang(profile);
+      const userId = userProgress.user_id;
+      const currentLevel = userProgress.level ?? 0;
+      const currentSP = userProgress.season_points ?? 0;
+      const lang = getUserLang(profile);
 
-        try {
-          // === A. Ежедневные квесты (10:00-13:00 и 18:00-21:00 UTC) ===
-          const isDailyQuestTime = (currentHour >= 10 && currentHour <= 13) || (currentHour >= 18 && currentHour <= 21);
-          if (isDailyQuestTime) {
-            const sent = await sendDailyQuestReminder(userId, currentLevel, lang, results);
-            if (sent) results.daily_quests++;
-          }
+      try {
+        // === A. Ежедневные квесты (отправляем в 10:00-13:00 и 18:00-21:00 UTC) ===
+        const isDailyQuestTime = (currentHour >= 10 && currentHour <= 13) || (currentHour >= 18 && currentHour <= 21);
+        if (isDailyQuestTime) {
+          const sent = await sendDailyQuestReminder(userId, currentLevel, lang, results);
+          if (sent) results.daily_quests++;
+        }
 
-          // === B. Сезон заканчивается ===
-          const seasonName = lang === 'es' ? (activeSeason.name_es || activeSeason.name_ru)
-            : lang === 'en' ? (activeSeason.name_en || activeSeason.name_ru)
-            : activeSeason.name_ru;
+        // === B. Сезон заканчивается ===
+        // <= 10 дней: предупреждение (cooldown 24ч), <= 3 дней: чаще, <= 1: срочно
+        const seasonName = lang === 'es' ? (activeSeason.name_es || activeSeason.name_ru)
+          : lang === 'en' ? (activeSeason.name_en || activeSeason.name_ru)
+          : activeSeason.name_ru;
 
-          if (daysRemaining <= 10 && daysRemaining > 3) {
-            const sent = await sendSeasonEndingReminder(userId, '3d', currentLevel, seasonName, lang, results);
-            if (sent) results.season_ending++;
-          } else if (daysRemaining <= 3 && daysRemaining > 1) {
-            const sent = await sendSeasonEndingReminder(userId, '1d', currentLevel, seasonName, lang, results);
-            if (sent) results.season_ending++;
-          } else if (daysRemaining <= 1) {
-            const sent = await sendSeasonEndingReminder(userId, 'last_hours', currentLevel, seasonName, lang, results);
-            if (sent) results.season_ending++;
-          }
+        if (daysRemaining <= 10 && daysRemaining > 3) {
+          const sent = await sendSeasonEndingReminder(userId, '3d', currentLevel, seasonName, lang, results);
+          if (sent) results.season_ending++;
+        } else if (daysRemaining <= 3 && daysRemaining > 1) {
+          const sent = await sendSeasonEndingReminder(userId, '1d', currentLevel, seasonName, lang, results);
+          if (sent) results.season_ending++;
+        } else if (daysRemaining <= 1) {
+          const sent = await sendSeasonEndingReminder(userId, 'last_hours', currentLevel, seasonName, lang, results);
+          if (sent) results.season_ending++;
+        }
 
-          // === C. Близко к следующему уровню ===
-          if (seasonRewards && seasonRewards.length > 0) {
-            const nextReward = seasonRewards.find((r: any) => r.level === currentLevel + 1);
-            if (nextReward) {
-              const spRemaining = nextReward.sp_required - currentSP;
-              if (spRemaining > 0 && spRemaining <= 50) {
-                const sent = await sendLevelCloseReminder(userId, currentLevel + 1, spRemaining, lang, results);
-                if (sent) results.level_close++;
-              }
+        // === C. Близко к следующему уровню ===
+        if (seasonRewards && seasonRewards.length > 0) {
+          const nextReward = seasonRewards.find((r: any) => r.level === currentLevel + 1);
+          if (nextReward) {
+            const spRemaining = nextReward.sp_required - currentSP;
+            if (spRemaining > 0 && spRemaining <= 50) {
+              const sent = await sendLevelCloseReminder(userId, currentLevel + 1, spRemaining, lang, results);
+              if (sent) results.level_close++;
             }
           }
+        }
 
-          // === D. Срочные предупреждения о баллах ===
-          if (profile.license_points > 0 && profile.last_activity_at) {
-            const lastActivity = new Date(profile.last_activity_at);
-            const hoursInactive = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
-            if (hoursInactive >= 30 && hoursInactive < 48 && profile.license_warning_level !== '1h') {
-              const sent = await sendLicenseUrgentReminder(userId, profile.license_points, lang, results);
-              if (sent) results.license_urgent++;
-            }
+        // === D. Срочные предупреждения о баллах ===
+        if (profile.license_points > 0 && profile.last_activity_at) {
+          const lastActivity = new Date(profile.last_activity_at);
+          const hoursInactive = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
+
+          if (hoursInactive >= 30 && hoursInactive < 48 && profile.license_warning_level !== '1h') {
+            const sent = await sendLicenseUrgentReminder(userId, profile.license_points, lang, results);
+            if (sent) results.license_urgent++;
           }
+        }
 
-        } catch (error) {
+      } catch (error) {
           console.error(`[DuelPass Reminders] Error for user ${userId}:`, error);
           results.errors++;
         }
@@ -350,7 +349,7 @@ async function sendDailyQuestReminder(
     message: msg.message,
     icon: '🎯',
     ctaText: CTA_TEXTS.daily_quest[lang],
-    ctaDeeplink: 'games--duel', // → startapp=games--duel → /games/duel
+    ctaDeeplink: 'dashboard', // → startapp=dashboard → /dashboard (Duel Pass виден)
   });
 }
 
@@ -378,7 +377,7 @@ async function sendSeasonEndingReminder(
     message,
     icon: icons[urgency],
     ctaText,
-    ctaDeeplink: 'games--duel', // → startapp=games--duel → /games/duel
+    ctaDeeplink: 'dashboard',
   });
 }
 
@@ -400,7 +399,7 @@ async function sendLevelCloseReminder(
     message,
     icon: '🏆',
     ctaText: CTA_TEXTS.level_up[lang],
-    ctaDeeplink: 'games--duel', // → startapp=games--duel → /games/duel (level up через дуэли)
+    ctaDeeplink: 'dashboard',
   });
 }
 

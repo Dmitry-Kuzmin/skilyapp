@@ -37,7 +37,7 @@ jobs:
 
   send-duelpass-reminders:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Trigger duel-pass-reminders Edge Function
         run: |
@@ -48,7 +48,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{"source": "github_actions"}' \
-            --max-time 120)
+            --max-time 480)
 
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | sed '$d')
