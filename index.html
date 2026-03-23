@@ -31,9 +31,20 @@
     gtag('config', 'GT-K48G2WH');
   </script>
 
-  <!-- Google AdSense SDK (Global for CMP Banner) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1758777358223420"
-     crossorigin="anonymous"></script>
+  <!-- Google AdSense H5 Game Ads SDK -->
+  <script async
+    data-ad-client="ca-pub-1758777358223420"
+    data-ad-frequency-hint="30s"
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+    crossorigin="anonymous"></script>
+  <script>
+    // H5 Game Ads: adBreak/adConfig shims (must be in <head> before SDK loads)
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adBreak = window.adBreak || function(o) { adsbygoogle.push(o); };
+    window.adConfig = window.adConfig || function(o) { adsbygoogle.push(o); };
+    // Pre-configure: enable preloading
+    adConfig({ preloadAdBreaks: 'on' });
+  </script>
 
   <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически при переходах -->
   <meta name="theme-color" content="#0f172a">

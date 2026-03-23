@@ -84,6 +84,7 @@ import type { Paddle } from "@paddle/paddle-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useModalStore } from "@/store/modalStore";
+import { showAdSenseRewardedVideo } from "@/lib/adsense";
 
 
 const supabaseClient = supabase as any;
@@ -172,6 +173,7 @@ export function BoostShopModal({
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>(initialTab || 'boosts');
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
+  const [adTestLoading, setAdTestLoading] = useState(false);
 
 
   const modalContentRef = useRef<HTMLDivElement>(null);
@@ -2668,6 +2670,39 @@ export function BoostShopModal({
                 className="text-sm font-bold font-mono text-amber-600 dark:text-yellow-400"
                 shouldFlash={true}
               />
+            </button>
+
+            {/* AD TEST BUTTON */}
+            <button
+              onClick={async () => {
+                setAdTestLoading(true);
+                console.log('[AD TEST] Starting H5 Game Ad test...');
+                try {
+                  const result = await showAdSenseRewardedVideo({ name: 'test-button' });
+                  console.log(`[AD TEST] Result: ${result}`);
+                  if (result) {
+                    toast.success('Ad viewed successfully!');
+                  } else {
+                    toast.error('Ad not shown (check console for details)');
+                  }
+                } catch (err) {
+                  console.error('[AD TEST] Error:', err);
+                  toast.error('Ad error: ' + (err as Error).message);
+                } finally {
+                  setAdTestLoading(false);
+                }
+              }}
+              disabled={adTestLoading}
+              className={cn(
+                "p-2 rounded-lg relative z-[100]",
+                "bg-green-500/20 hover:bg-green-500/40 border border-green-500/30",
+                "text-green-400 hover:text-green-300",
+                "transition-all duration-200",
+                adTestLoading && "animate-pulse",
+              )}
+              title="Test H5 Game Ad"
+            >
+              <TestTube className="w-5 h-5 md:w-4 md:h-4" />
             </button>
 
             <button
