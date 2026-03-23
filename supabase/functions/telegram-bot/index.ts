@@ -369,7 +369,9 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
 
     let referralCard = null;
     if (isReferral && refProfileId) {
-      const refStartUrl = `${MINI_APP_URL}/?start=ref_${refProfileId}`;
+      // IMPORTANT: web_app buttons don't work in inline results!
+      // Use t.me deep link instead → opens Mini App via bot
+      const refDeepLink = `https://t.me/skilyapp_bot/app?startapp=ref_${refProfileId}`;
       const senderName = query.from.first_name || 'Игрок';
       referralCard = {
         type: "article",
@@ -390,7 +392,7 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
         reply_markup: {
           inline_keyboard: [[{
             text: lang === 'en' ? '⚔️ Accept the challenge!' : '⚔️ Принять вызов!',
-            web_app: { url: refStartUrl }
+            url: refDeepLink
           }]]
         }
       };
@@ -408,7 +410,7 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
           parse_mode: "HTML"
         },
         reply_markup: {
-          inline_keyboard: [[{ text: t('inline.duel.button', lang), web_app: { url: duelUrl } }]]
+          inline_keyboard: [[{ text: t('inline.duel.button', lang), url: `https://t.me/skilyapp_bot/app?startapp=duel_${duelCode}` }]]
         }
       }
     ];
