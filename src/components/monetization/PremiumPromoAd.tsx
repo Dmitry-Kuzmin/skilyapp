@@ -240,7 +240,7 @@ export function PremiumPromoAd({ onComplete, onSubscribe }: PremiumPromoAdProps)
                 animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0, 0.4] }}
                 transition={{ duration: 2.5, repeat: Infinity }}
               />
-            </motion.div>>
+            </motion.div>
 
             {/* Title */}
             <motion.h2
