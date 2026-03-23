@@ -233,7 +233,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                                 <img
                                     src={photoUrl}
                                     alt="Driver"
-                                    crossOrigin="anonymous"
+                                    {...(photoUrl.includes('supabase') ? { crossOrigin: "anonymous" as const } : {})}
                                     className="w-full h-full object-cover transition-all"
                                     onError={() => setImageError && setImageError(true)}
                                 />
