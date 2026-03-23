@@ -50,7 +50,7 @@ export function AddToHomeScreenPrompt() {
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: 'spring', damping: 20, stiffness: 300 }}
           className={cn(
-            'fixed bottom-24 left-4 right-4 z-40',
+            'fixed bottom-[5.5rem] left-4 right-4 z-[60]',
             'bg-card border border-border rounded-2xl shadow-2xl p-4',
             'flex items-center gap-3'
           )}
