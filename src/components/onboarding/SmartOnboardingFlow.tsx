@@ -107,7 +107,12 @@ export const SmartOnboardingFlow: React.FC = () => {
                 const hasCountry = data.preferred_country;
                 const hasCategory = data.settings?.license_category || data.preferred_license_category;
 
-                if (hasCountry && hasCategory) {
+                if (hasCountry) {
+                    // Existing user with country set — sync to localStorage and skip onboarding
+                    localStorage.setItem('pdd_selected_country', data.preferred_country);
+                    if (hasCategory) {
+                        localStorage.setItem('pdd_selected_category', hasCategory);
+                    }
                     setIsVisible(false);
                 } else if (!autoDetectDone) {
                     const detected = detectUserCountry();
