@@ -98,7 +98,7 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
   if (cleaned.includes('[WIDGET:TON:CONNECT]')) {
     cleaned = cleaned.replace(/\[WIDGET:TON:CONNECT\]/g, '').trim();
     buttons.push([
-      { text: "👛 Подключить TON кошелёк", web_app: { url: `${MINI_APP_URL}/dashboard?modal=ton-pay` }, style: "primary" },
+      { text: "💎 Стать PRO / TON", web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` }, style: "primary" },
     ]);
   }
 
@@ -108,7 +108,7 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
     const amount = tonPay[1]; 
     cleaned = cleaned.replace(tonPay[0], '').trim();
     buttons.push([
-      { text: `💎 Оплатить ${amount} TON`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=ton-pay&amount=${amount}&autoPay=true` }, style: "success" },
+      { text: `💎 Оплатить ${amount} TON`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=ton-pay&amount=${amount}` }, style: "success" },
     ]);
   }
 
