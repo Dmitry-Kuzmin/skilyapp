@@ -91,14 +91,17 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         }
     }, [tonConnectUI]);
 
-    // Авто-оплата или авто-коннект при монтировании
+    // Авто-оплата при монтировании (только если кошелек УЖЕ подключен)
     useEffect(() => {
         if (autoPay && address && !isPaying) {
             handlePayment();
         } else if (autoPay && !address) {
-            handleConnect();
+            // Если запрошена авто-оплата, но кошелек не подключен — 
+            // НЕ открываем модалку автоматически (это раздражает),
+            // а просто уведомляем пользователя, что нужно подключение.
+            // console.log('[TON] Auto-pay requested but wallet not connected');
         }
-    }, [autoPay, address, handlePayment, handleConnect]);
+    }, [autoPay, address, handlePayment]); // Убрали handleConnect из зависимостей
 
     // Если кошелек не подключен - в компактном режиме ничего не рендерим (согласно UX правилу)
     if (!address && mode === 'compact') {
@@ -114,7 +117,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                         className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
                     >
                         <Wallet className="w-4 h-4" />
-                        <span>Connect Wallet</span>
+                        <span>{t('monetization.ton.connect') || 'Connect TON'}</span>
                     </Button>
                 ) : (
                     <Button

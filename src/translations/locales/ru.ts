@@ -487,6 +487,7 @@ export const ru = {
   monetization: {
     ton: {
       pay: "Купить за",
+      connect: "Подключить TON",
       processing: "Оплата...",
       success: "Оплата прошла успешно!",
       failed: "Ошибка оплаты. Попробуйте еще раз.",

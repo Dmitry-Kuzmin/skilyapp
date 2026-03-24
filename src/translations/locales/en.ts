@@ -478,6 +478,7 @@ export const en = {
   monetization: {
     ton: {
       pay: "Buy for",
+      connect: "Connect TON",
       processing: "Paying...",
       success: "Payment successful!",
       failed: "Payment failed. Please try again.",
