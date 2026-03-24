@@ -44,6 +44,7 @@ const NotificationItem = memo(({
   getCachedTime,
   shouldTruncate,
   navigate,
+  t,
 }: {
   notification: DuelNotification;
   isExpanded: boolean;
@@ -52,6 +53,7 @@ const NotificationItem = memo(({
   getCachedTime: (createdAt: string) => string;
   shouldTruncate: (message: string) => boolean;
   navigate: (path: string) => void;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }) => {
   return (
     <div
@@ -605,6 +607,7 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
                           getCachedTime={getCachedTime}
                           shouldTruncate={shouldTruncate}
                           navigate={navigate}
+                          t={t}
                         />
                       </div>
                     );
@@ -642,6 +645,7 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
                         getCachedTime={getCachedTime}
                         shouldTruncate={shouldTruncate}
                         navigate={navigate}
+                        t={t}
                       />
                     ))}
                   </div>

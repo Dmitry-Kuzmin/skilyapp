@@ -357,40 +357,46 @@ if (!rootElement) {
 // ☠️ SERVICE WORKER KILLER
 // --------------------------------------------------------
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    let killed = false;
-    const promises = [];
+  try {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      let killed = false;
+      const promises = [];
 
-    for (const registration of registrations) {
-      const scriptURL = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL || '';
+      for (const registration of registrations) {
+        const scriptURL = registration.active?.scriptURL || registration.installing?.scriptURL || registration.waiting?.scriptURL || '';
 
-      // Оставляем только наш Push SW
-      if (scriptURL.includes('sw-push.js')) {
-        console.log('[Main] ✅ Keeping Push Service Worker:', scriptURL);
-        continue;
+        // Оставляем только наш Push SW
+        if (scriptURL.includes('sw-push.js')) {
+          console.log('[Main] ✅ Keeping Push Service Worker:', scriptURL);
+          continue;
+        }
+
+        console.warn('[Main] ☠️ Killing stale/ad Service Worker:', scriptURL);
+        const p = registration.unregister().then(success => {
+          if (success) killed = true;
+        });
+        promises.push(p);
       }
 
-      console.warn('[Main] ☠️ Killing stale/ad Service Worker:', scriptURL);
-      const p = registration.unregister().then(success => {
-        if (success) killed = true;
-      });
-      promises.push(p);
-    }
-
-    // Если убили старый SW - перезагружаем страницу
-    if (promises.length > 0) {
-      Promise.all(promises).then(() => {
-        if (killed) {
-          console.log('[Main] 🔄 Stale SW removed. Reloading page...');
-          const lastReload = parseInt(localStorage.getItem('sw_clean_reload') || '0');
-          if (Date.now() - lastReload > 5000) {
-            localStorage.setItem('sw_clean_reload', Date.now().toString());
-            window.location.reload();
+      // Если убили старый SW - перезагружаем страницу
+      if (promises.length > 0) {
+        Promise.all(promises).then(() => {
+          if (killed) {
+            console.log('[Main] 🔄 Stale SW removed. Reloading page...');
+            const lastReload = parseInt(localStorage.getItem('sw_clean_reload') || '0');
+            if (Date.now() - lastReload > 5000) {
+              localStorage.setItem('sw_clean_reload', Date.now().toString());
+              window.location.reload();
+            }
           }
-        }
-      });
-    }
-  });
+        });
+      }
+    }).catch(() => {
+      // Ignore: can happen in crawlers or when document is in invalid state
+    });
+  } catch {
+    // Ignore: serviceWorker API not fully available (bots, old browsers)
+  }
 }
 // --------------------------------------------------------
 
