@@ -37,7 +37,11 @@ serve(async (req) => {
     }
 
     const update: TelegramUpdate = await req.json();
-    console.log(`[Update] Received update_id: ${update.update_id}`);
+    const updateKeys = Object.keys(update).filter(k => k !== 'update_id');
+    console.log(`[Update] id=${update.update_id} types=[${updateKeys.join(',')}]`);
+    if (update.poll_answer) {
+      console.log(`[Update] POLL_ANSWER received! user=${update.poll_answer.user?.id} options=${JSON.stringify(update.poll_answer.option_ids)}`);
+    }
 
     // =====================================================
     // ПЛАТЕЖИ: pre_checkout_query и successful_payment
@@ -244,9 +248,9 @@ async function handleMessage(message: TelegramMessage) {
         console.error("[Command] Failed to send error message:", e);
       }
     }
-  } else if (text) {
-    // Обработка не-команд через AI
-    console.log("[Message] Not a command, calling AI...");
+  } else if (text || message.photo) {
+    // Обработка не-команд или фото через AI
+    console.log("[Message] Not a command or contains photo, calling AI...");
     try {
       const lang = await getUserLanguage(user.id, user.language_code, supabase);
       await handleAIChat(message, supabase, lang);
@@ -323,7 +327,10 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
     }
     else if (data.startsWith("set_language_")) {
       const newLang = data.replace("set_language_", "");
-      await supabase.from("profiles").update({ settings: { language: newLang } }).eq("telegram_id", user.id);
+      // ВАЖНО: мержим settings, а не заменяем (чтобы не стереть checklist_msg_id и др.)
+      const { data: currentProfile } = await supabase.from("profiles").select("settings").eq("telegram_id", user.id).single();
+      const currentSettings = (typeof currentProfile?.settings === 'object' && currentProfile.settings) || {};
+      await supabase.from("profiles").update({ settings: { ...currentSettings, language: newLang } }).eq("telegram_id", user.id);
       await editMessage({
         chat_id: message.chat.id,
         message_id: message.message_id,
@@ -338,6 +345,23 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         text: t('tips.title', lang),
         reply_markup: keyboards.getTipsMenuKeyboard(lang)
       });
+    }
+    // Quest info — клик по кнопке квеста в чеклисте
+    else if (data.startsWith("quest_info:")) {
+      // Показываем popup с деталями
+      const parts = data.split(':');
+      const questId = parts[2] || '';
+      try {
+        await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            callback_query_id: query.id,
+            text: `🎯 Открой Skily чтобы выполнить задачу!`,
+            show_alert: false,
+          }),
+        });
+      } catch {}
     }
     // Broadcast: подтверждение/отмена рассылки
     else if (data.startsWith("broadcast_confirm:")) {
@@ -535,34 +559,250 @@ function getReactionEmoji(text: string): string {
 async function handlePollAnswer(pollAnswer: any) {
   try {
     const user = pollAnswer.user;
-    if (!user) return;
+    if (!user) {
+      console.error("[PollAnswer] No user in pollAnswer:", pollAnswer);
+      return;
+    }
 
-    console.log(`[PollAnswer] User ${user.id} answered poll`);
+    console.log(`[PollAnswer] Processing answer from ${user.id} (${user.username})`);
 
-    // Telegram quiz mode автоматически показывает правильный/неправильный
-    // Мы дополнительно ставим реакцию на сообщение с опросом
+    // DEBUG: Отправляем уведомление пользователю что мы получили ответ
+    /*
+    await fetch(`${TELEGRAM_API}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: user.id,
+        text: `🔍 Системное: Обрабатываю ваш ответ на опрос... (User ID: ${user.id})`
+      })
+    }).catch(() => {});
+    */
 
-    // К сожалению, poll_answer не содержит chat_id и message_id
-    // Реакции уже ставятся при отправке опроса из morning-routine
-    // Здесь можно обновить статистику пользователя
-
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, settings')
       .eq('telegram_id', user.id)
       .maybeSingle();
 
-    if (profile) {
-      // Обновляем прогресс daily quest (категория 'questions')
-      await supabase.rpc('update_daily_quest_progress', {
-        p_user_id: profile.id,
-        p_category: 'questions',
-        p_delta: 1,
-      }).catch((e: any) => console.error('[PollAnswer] Quest progress error:', e));
+    if (!profile) {
+      console.log(`[PollAnswer] No profile found for telegram_id=${user.id}, error=${profileError?.message}`);
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: user.id,
+          text: `❌ Ошибка: Профиль не найден в базе данных (ID: ${user.id}). Попробуйте /start`
+        })
+      }).catch(() => {});
+      return;
+    }
+
+    // Последовательный квиз: проверяем сессию
+    let settings = profile.settings || {};
+    if (typeof settings === 'string') {
+      try { settings = JSON.parse(settings); } catch { settings = {}; }
+    }
+
+    const quiz = settings.morning_quiz;
+    if (!quiz || !quiz.questions) {
+      console.log(`[PollAnswer] No active quiz session for profile ${profile.id}`);
+      /*
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: user.id,
+          text: `⏹️ Сессия викторины не найдена. Возможно, она уже завершена.`
+        })
+      }).catch(() => {});
+      */
+      return;
+    }
+
+    const chatId = quiz.chat_id || user.id;
+    const current = quiz.current || 0;
+    const questions = quiz.questions;
+    const total = questions.length;
+
+    // Проверяем правильность ответа
+    const isCorrect = pollAnswer.option_ids?.[0] === questions[current]?.correct_idx;
+
+    // Сохраняем результат текущего вопроса для финального анализа
+    if (!quiz.results) quiz.results = [];
+    quiz.results.push({
+      index: current,
+      isCorrect,
+      text: questions[current].text,
+      explanation: questions[current].explanation
+    });
+
+    const isCorrectCurrent = isCorrect;
+    if (isCorrectCurrent) quiz.correct = (quiz.correct || 0) + 1;
+
+    // Ждём 0.5 секунды чтобы работало мгновенно
+    await new Promise(r => setTimeout(r, 500));
+
+    // Удаляем текущие сообщения (фото + poll)
+    if (quiz.photo_msg_id) await tgDelete(chatId, quiz.photo_msg_id);
+    if (quiz.poll_msg_id) await tgDelete(chatId, quiz.poll_msg_id);
+
+    const nextIdx = current + 1;
+
+    if (nextIdx >= total) {
+      // Финальный итог
+      const correct = quiz.correct || 0;
+      const pct = Math.round((correct / total) * 100);
+      const grade = pct === 100 ? '🏆' : pct >= 66 ? '💪' : '📚';
+      
+      const dots = quiz.results.map((r: any) => r.isCorrect ? '✅' : '❌').join(' ');
+
+      const lines = [
+        `🏁 <b>Разминка завершена!</b>`,
+        '',
+        `📊 <b>Результат:</b> ${dots} (${correct}/${total})`,
+        '───────────────',
+        ''
+      ];
+
+      // Детальный разбор
+      quiz.results.forEach((r: any, i: number) => {
+        lines.push(`${r.isCorrect ? '✅' : '❌'} <b>Вопрос ${i + 1}:</b> ${r.text}`);
+        if (r.explanation) {
+          lines.push(`<blockquote>📖 ${r.explanation}</blockquote>`);
+        }
+        lines.push('');
+      });
+
+      lines.push('───────────────');
+      lines.push(
+        pct === 100 ? '🚀 <b>Идеально!</b> Вы полностью готовы к экзамену. Так держать!' :
+        pct >= 66 ? '✨ <b>Хороший результат!</b> Ещё немного практики, и будет 100%.' :
+        '📚 <b>Нужно подтянуться.</b> Рекомендуем разобрать ошибки в приложении.'
+      );
+
+      console.log(`[PollAnswer] Quiz finished! ${correct}/${total}`);
+      
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: lines.join('\n'),
+          parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '🚀 Открыть Skilyapp', web_app: { url: MINI_APP_URL } }],
+              [{ text: '🏠 В главное меню', callback_data: 'main_menu' }]
+            ]
+          }
+        }),
+      });
+
+      // Очищаем сессию
+      delete settings.morning_quiz;
+      const { error: clearErr } = await supabase.from('profiles').update({ settings }).eq('id', profile.id);
+      if (clearErr) console.error('[PollAnswer] Failed to clear quiz session:', clearErr.message);
+    } else {
+      // Следующий вопрос
+      const nextQ = questions[nextIdx];
+      console.log(`[PollAnswer] Sending next question ${nextIdx + 1}/${total}`);
+      const msgIds = await sendQuizQuestionFromBot(chatId, nextQ, nextIdx, total, quiz.botLang || 'ru');
+      console.log(`[PollAnswer] Next question sent: photo=${msgIds?.photoMsgId}, poll=${msgIds?.pollMsgId}`);
+
+      // Обновляем сессию
+      quiz.current = nextIdx;
+      quiz.photo_msg_id = msgIds?.photoMsgId || null;
+      quiz.poll_msg_id = msgIds?.pollMsgId || null;
+      settings.morning_quiz = quiz;
+      const { error: updateErr } = await supabase.from('profiles').update({ settings }).eq('id', profile.id);
+      if (updateErr) console.error('[PollAnswer] Failed to update quiz session:', updateErr.message);
+      else console.log(`[PollAnswer] Session updated: current=${nextIdx}`);
     }
   } catch (error) {
     console.error('[PollAnswer] Error:', error);
   }
+}
+
+// Отправляет один вопрос квиза (фото + poll) из бота
+async function sendQuizQuestionFromBot(
+  chatId: number, q: any, index: number, total: number, botLang: string
+): Promise<{ photoMsgId: number | null; pollMsgId: number } | null> {
+  let photoMsgId: number | null = null;
+
+  if (q.image_url) {
+    const pr = await fetch(`${TELEGRAM_API}/sendPhoto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        photo: q.image_url,
+        caption: `❓ ${botLang === 'ru' ? `Вопрос ${index + 1} из ${total}` : `Question ${index + 1} of ${total}`}`,
+      }),
+    });
+    const prResult = await pr.json();
+    if (pr.ok) {
+      photoMsgId = prResult.result?.message_id;
+      if (photoMsgId) {
+        fetch(`${TELEGRAM_API}/setMessageReaction`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId, message_id: photoMsgId,
+            reaction: [{ type: 'emoji', emoji: '🚗' }],
+          }),
+        }).catch(() => {});
+      }
+    }
+  }
+
+  const pollBody: any = {
+    chat_id: chatId,
+    question: q.text,
+    options: q.options.map((text: string) => ({ text })),
+    type: 'quiz',
+    correct_option_id: q.correct_idx,
+    is_anonymous: false,
+  };
+  if (q.explanation?.trim()) {
+    pollBody.explanation = q.explanation;
+    pollBody.explanation_parse_mode = 'HTML';
+  }
+
+  const pollResp = await fetch(`${TELEGRAM_API}/sendPoll`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(pollBody),
+  });
+  const pollResult = await pollResp.json();
+
+  if (!pollResp.ok) {
+    console.error('[PollAnswer] sendPoll failed:', pollResult.description);
+    return null;
+  }
+
+  const pollMsgId = pollResult.result?.message_id;
+  if (pollMsgId) {
+    fetch(`${TELEGRAM_API}/setMessageReaction`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId, message_id: pollMsgId,
+        reaction: [{ type: 'emoji', emoji: '🤓' }],
+      }),
+    }).catch(() => {});
+  }
+
+  return { photoMsgId, pollMsgId };
+}
+
+async function tgDelete(chatId: number, messageId: number) {
+  try {
+    await fetch(`${TELEGRAM_API}/deleteMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, message_id: messageId }),
+    });
+  } catch {}
 }
 
 async function editMessage(options: EditMessageTextOptions) {
@@ -589,17 +829,26 @@ async function editMessage(options: EditMessageTextOptions) {
 // 3. /post — алиас для /broadcast
 // =====================================================
 
-const ADMIN_TELEGRAM_IDS = [488159880]; // @guapo_pub
+// Админы: хардкод + из env переменной
+const ADMIN_TELEGRAM_IDS_HARDCODED = [488159880]; // @guapo_pub
+function getAdminTelegramIds(): number[] {
+  const envIds = (Deno.env.get('ADMIN_TELEGRAM_IDS') || '').split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+  return [...new Set([...ADMIN_TELEGRAM_IDS_HARDCODED, ...envIds])];
+}
 
 async function handleBroadcastCommand(message: TelegramMessage): Promise<void> {
   const chatId = message.chat.id;
   const userId = message.from?.id;
+  const adminIds = getAdminTelegramIds();
+
+  console.log(`[Broadcast] userId=${userId} (type: ${typeof userId}), adminIds=${JSON.stringify(adminIds)}, includes=${adminIds.includes(userId!)}`);
 
   // Проверка админа
-  if (!userId || !ADMIN_TELEGRAM_IDS.includes(userId)) {
+  if (!userId || !adminIds.includes(userId)) {
     await commands.sendMessage({
       chat_id: chatId,
-      text: "⛔ Эта команда доступна только администраторам.",
+      text: `⛔ Эта команда доступна только администраторам.\n\n<i>Debug: your id=${userId}</i>`,
+      parse_mode: 'HTML',
     });
     return;
   }
@@ -663,7 +912,7 @@ async function getAdminSettings(): Promise<Record<string, any>> {
   const { data } = await supabase
     .from('profiles')
     .select('settings')
-    .eq('telegram_id', ADMIN_TELEGRAM_IDS[0])
+    .eq('telegram_id', ADMIN_TELEGRAM_IDS_HARDCODED[0])
     .single();
   return data?.settings || {};
 }
@@ -758,7 +1007,7 @@ async function executeBroadcast(chatId: number, confirmMsgId: number, callbackDa
     await supabase
       .from('profiles')
       .update({ settings: cleanSettings })
-      .eq('telegram_id', ADMIN_TELEGRAM_IDS[0]);
+      .eq('telegram_id', ADMIN_TELEGRAM_IDS_HARDCODED[0]);
   }
 
   // Итоговый отчёт
@@ -769,3 +1018,4 @@ async function executeBroadcast(chatId: number, confirmMsgId: number, callbackDa
     parse_mode: 'HTML',
   });
 }
+

@@ -39,6 +39,7 @@ export interface TelegramMessage {
   successful_payment?: TelegramSuccessfulPayment;
   reply_to_message?: TelegramMessage;
   photo?: any[];
+  caption?: string;
   poll?: any;
 }
 

@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
+import { useSearchParams } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { PageLoader } from "@/components/PageLoader";
 
@@ -24,9 +25,11 @@ interface RoadSign {
 
 export default function RoadSigns() {
   const { profileId } = useUserContext();
+  const [searchParams] = useSearchParams();
+  const initialSearch = searchParams.get("search") || "";
   const [signs, setSigns] = useState<RoadSign[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedType, setSelectedType] = useState("all");
 
   // ОПТИМИЗАЦИЯ: useTransition для неблокирующих обновлений UI

@@ -36,7 +36,11 @@ export function AddToHomeScreenPrompt() {
   };
 
   const handleAdd = () => {
-    addToHomeScreen();
+    console.log('[AddToHomeScreenPrompt] handleAdd clicked');
+    const result = addToHomeScreen();
+    if (result === false) {
+      console.error('[AddToHomeScreenPrompt] addToHomeScreen returned false');
+    }
     setVisible(false);
     localStorage.setItem(STORAGE_KEY, Date.now().toString());
   };

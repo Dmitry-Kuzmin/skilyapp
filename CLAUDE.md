@@ -126,6 +126,77 @@ Express.js server (`validator-server.js`) for admin image generation/validation.
 - `src/services/audioService.ts` — Audio context management
 - `index.html` — App skeleton + startup CSS (z-index 9999, `pointer-events: none`)
 
+## File Map by Feature
+
+**Auth & User:**
+- `src/contexts/UserContext.tsx` — profileId, session, isPremium, balance
+- `src/contexts/TelegramContext.tsx` — Telegram.WebApp, haptics, theme
+- `src/components/AuthModalNew.tsx` — login/signup modal
+- `src/hooks/useProfile.ts` — profile React Query hook
+
+**Duel / PvP:**
+- `src/components/duel/Duel.tsx` — main duel UI
+- `src/hooks/useDuelGame.ts` — answer logic, combo, win detection
+- `src/hooks/useActiveDuel.ts` — get/create duelId
+- `src/hooks/duel-realtime/` — Supabase subscription
+- `src/store/duelStore.ts` — Zustand game state
+
+**Tests / Exam:**
+- `src/pages/TestSession.tsx` — test flow controller
+- `src/pages/Tests.tsx` — test list
+- `src/components/test-session/` — test UI components
+- `src/hooks/useDGTExamQuestions.ts` — question fetching
+
+**Shop / Payments:**
+- `src/components/shop/BoostShopModal.tsx` — main shop
+- `src/lib/payment-config.ts` — provider toggles
+- `src/lib/paddle.ts` — Paddle init
+- `src/components/monetization/` — upsell components
+- `supabase/functions/cryptomus-payment/` — crypto Edge Function
+
+**Learning / Flashcards:**
+- `src/pages/Learning.tsx` — learning hub
+- `src/components/FlashCards.tsx` — flashcard UI
+- `src/pages/TopicDetail.tsx` — topic page
+- `src/pages/Dictionary.tsx` — term dictionary
+
+**Notifications:**
+- `src/contexts/NotificationContext.tsx` — notification state
+- `src/components/NotificationsPanel.tsx` — panel UI
+- `src/components/NotificationToast.tsx` — toast component
+
+**AI Features:**
+- `src/hooks/useAIChat.ts` — AI tutor chat
+- `src/components/ai/` — AI UI components
+- `src/components/AIWidget.tsx` — floating AI widget
+- `supabase/functions/ai-chat/` — AI Edge Function
+
+**Onboarding:**
+- `src/components/onboarding/` — onboarding flow components
+- `src/components/PasskeyOnboardingWrapper.tsx` — passkey flow
+
+**Navigation / Layout:**
+- `src/components/navigation/` — bottom nav, tab bar
+- `src/components/layout/` — page layout wrappers
+- `src/components/AppRoutes.tsx` — authenticated route definitions
+
+**i18n:**
+- `src/i18n/locales/` — translation JSON files (es, ru, en, etc.)
+- `src/contexts/LanguageContext.tsx` — `t()` provider
+
+**Supabase:**
+- `src/integrations/supabase/types.ts` — generated DB types (never edit manually)
+- `supabase/functions/` — Edge Functions
+- `supabase/migrations/` — DB migrations
+
+## Efficiency Rules for Claude
+
+**Before reading files:** Check this File Map first — go directly to the right file, don't Glob/Explore.
+**Minimal reads:** Read only the specific file mentioned in the task. Don't read related files unless the fix requires it.
+**No broad exploration:** Never use Explore agent for navigation — use Grep with a specific pattern instead.
+**Edit don't rewrite:** Prefer targeted Edit over full file rewrites.
+**Trust the user:** If the user says "bug in X file at line Y" — go there directly, don't verify by reading surrounding files.
+
 ## Environment Variables
 
 Required:

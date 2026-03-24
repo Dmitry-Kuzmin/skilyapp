@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { 
     useBalance,
     useTransferTon,
@@ -17,6 +17,7 @@ interface TonPaymentWidgetProps {
     description?: string;
     onSuccess?: () => void;
     className?: string;
+    autoPay?: boolean;
     mode?: 'full' | 'compact';
 }
 
@@ -31,11 +32,14 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     onSuccess,
     className,
     mode = 'compact',
+    autoPay = false,
 }) => {
     const { t } = useLanguage();
     const address = useAddress();
-    const { balance } = useBalance();
-    const { transfer } = useTransferTon();
+    const balanceRes = useBalance() as any;
+    const transferRes = useTransferTon() as any;
+    const balance = balanceRes?.balance;
+    const transfer = transferRes?.transfer;
     const [tonConnectUI] = useTonConnectUI();
     
     // Состояние локальной загрузки
@@ -52,15 +56,15 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             setIsPaying(true);
             
             // Адрес получателя (Твой кошелек из скриншота)
-            const recipientAddress = "UQBI_W6R8P7Y9-LdG1X7b6mZ8_oQZ_R9vP0_V0r9lX7f"; // Базовый формат
+            const recipientAddress = "UQBI_W6R8P7Y9-LdG1X7b6mZ8_oQZ_R9vP0_V0r9lX7f"; 
 
             // Отправляем транзакцию через AppKit
             await transfer({
                 messages: [
                     {
                         address: recipientAddress,
-                        amount: BigInt(Math.floor(amountTon * 1e9)).toString(), // НаноТОНы через BigInt
-                        payload: description, // Комментарий
+                        amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
+                        payload: description,
                     },
                 ],
             });
@@ -70,7 +74,6 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         } catch (error: any) {
             console.error('[TON Payment Error]:', error);
             
-            // Обработка отмены пользователем
             if (error?.message?.includes('User rejects') || error?.toString()?.includes('User rejected')) {
                 toast.info(t('monetization.ton.cancelled'));
             } else {
@@ -87,6 +90,15 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             await tonConnectUI.openModal();
         }
     }, [tonConnectUI]);
+
+    // Авто-оплата или авто-коннект при монтировании
+    useEffect(() => {
+        if (autoPay && address && !isPaying) {
+            handlePayment();
+        } else if (autoPay && !address) {
+            handleConnect();
+        }
+    }, [autoPay, address, handlePayment, handleConnect]);
 
     // Если кошелек не подключен - в компактном режиме ничего не рендерим (согласно UX правилу)
     if (!address && mode === 'compact') {

@@ -34,7 +34,7 @@ async function setWebhook() {
       },
       body: JSON.stringify({
         url: WEBHOOK_URL,
-        allowed_updates: ['message', 'callback_query'],
+        allowed_updates: ['message', 'callback_query', 'inline_query', 'pre_checkout_query', 'poll_answer'],
         drop_pending_updates: true // Очистить старые обновления
       })
     });

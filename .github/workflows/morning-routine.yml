@@ -1,0 +1,36 @@
+name: Morning Routine - DGT Quiz + Duel Pass Checklist
+
+on:
+  schedule:
+    # Каждый день в 7:00 UTC = 9:00 по Мадриду (CET+2 летом / CET+1 зимой)
+    - cron: '0 7 * * *'
+  workflow_dispatch: # Ручной запуск для тестирования
+
+jobs:
+  morning-routine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger morning-routine Edge Function
+        run: |
+          echo "☀️ Starting morning routine at $(date -u)"
+
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/morning-routine" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"source": "github_actions"}' \
+            --max-time 300)
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Morning routine completed successfully"
+          else
+            echo "❌ Morning routine failed with code $http_code"
+            exit 1
+          fi

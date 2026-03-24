@@ -1,53 +1,49 @@
-# DGT Prep - Подготовка к экзамену DGT
+# 🏆 Skily: AI-Powered Driving Instructor (TON AI Hackathon)
 
-## Как редактировать код?
+![Skily Banner](https://skilyapp.com/og-image.png)
 
-**Используйте ваш IDE**
+> **Participating in IdentityHub AI Hackathon 2026** — *The future of AI-driven education on the TON blockchain.*
 
-Если вы хотите работать локально, клонируйте репозиторий и внесите изменения.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📌 О проекте
+**Skily** — это премиальное Telegram Mini App (TMA), которое помогает студентам в Испании готовиться к экзамену DGT. Это не просто сборник тестов, а **AI-наставник**, который анализирует ошибки, объясняет правила и ведет по индивидуальному пути обучения.
 
-Follow these steps:
+## 🚀 Ключевые особенности
+
+### 🤖 Агентный ИИ (Gemini 1.5 Flash)
+- **Tool-Calling:** ИИ имеет доступ к статистике пользователя (XP, монеты, готовность) и дает персонализированные советы.
+- **Стриминг ответов:** Плавный вывод текста в Telegram через `sendMessageDraft`.
+- **Интерактивные виджеты:** ИИ может присылать дорожные знаки и кнопки оплаты прямо в чат.
+
+### 💎 Интеграция с TON
+- **TON Connect:** Бесшовное подключение кошельков (Tonkeeper, Wallet в TG).
+- **Крипто-платежи:** Быстрая покупка Premium и Coins через нативные виджеты.
+- **Persistent Storage:** Сессия кошелька надежно хранится в Telegram CloudStorage.
+
+## 🛠 Технологический стек
+- **Frontend:** React + Vite + Tailwind CSS + Framer Motion.
+- **Backend:** Supabase (Auth, DB, Storage).
+- **AI Integration:** Google Gemini (Edge Functions).
+- **Web3:** `@ton/appkit`, `@tonconnect/ui`.
+
+---
+
+## ⚡ Быстрый старт
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+# Установка зависимостей
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Запуск в режиме разработки
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📄 Спецификация для хакатона
+Детальное описание проекта, архитектуры и преимуществ для судей доступно в файле: [HACKATHON.md](./HACKATHON.md)
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## Как деплоить проект?
-
-Проект деплоится через Vercel или другие платформы. См. документацию по деплою в проекте.
+*Разработано Димой и Antigravity AI для IdentityHub AI Hackathon 2026.*

@@ -24,6 +24,8 @@ export type ModalType =
   | 'REMINDER_CONNECT'
   | 'CELEBRATION'
   | 'PADDLE_CHECKOUT'
+  | 'TON_PAY'
+  | 'PREMIUM'
   | string; // Для кастомных модалок
 
 /**
@@ -48,6 +50,8 @@ const MODAL_URL_MAP: Record<string, string> = {
   REPORT_PROBLEM: 'report-problem',
   REMINDER_CONNECT: 'reminder-connect',
   CELEBRATION: 'celebration',
+  TON_PAY: 'ton-pay',
+  PREMIUM: 'premium',
 };
 
 /**

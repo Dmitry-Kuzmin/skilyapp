@@ -27,6 +27,7 @@ const ReportProblemModal = lazy(() => import('@/components/ReportProblemModal').
 const ReminderConnectModal = lazy(() => import('@/components/notifications/ReminderConnectModal').then(m => ({ default: m.ReminderConnectModal })));
 const CelebrationModal = lazy(() => import('@/components/dashboard-new/CelebrationModal').then(m => ({ default: m.CelebrationModal })));
 const ContextSettingsSheet = lazy(() => import('@/components/shared/ContextSettingsSheet').then(m => ({ default: m.ContextSettingsSheet })));
+const TonPaymentModal = lazy(() => import('@/components/monetization/TonPaymentModal').then(m => ({ default: m.TonPaymentModal })));
 
 /**
  * Маппинг типов модалок на компоненты
@@ -49,6 +50,8 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
   REMINDER_CONNECT: ReminderConnectModal,
   CELEBRATION: CelebrationModal,
   CONTEXT_SETTINGS: ContextSettingsSheet,
+  TON_PAY: TonPaymentModal,
+  PREMIUM: PaywallModal,
 };
 
 /**
@@ -83,79 +86,36 @@ export const GlobalModalManager = () => {
     };
   }, [openModal]);
 
-  // Синхронизация URL -> модалки при монтировании и изменении URL
-  // ВАЖНО: не открываем модалки пока WelcomeOverlay активен (иначе блокирует кнопку запуска)
   useEffect(() => {
     const modalParam = searchParams.get('modal');
-    if (!modalParam) {
-      return;
-    }
+    // Синхронизация URL -> модалки при монтировании и изменении URL
+    if (modalParam) {
+      // Находим тип модалки по URL-ключу (обратный поиск)
+      const modalType = (Object.keys(MODAL_COMPONENTS) as ModalType[]).find(
+        (type) => {
+          const urlKey = getModalUrlKey(type);
+          return urlKey === modalParam;
+        }
+      );
 
-    // Проверяем, показывается ли сейчас WelcomeOverlay
-    const isWelcomeActive = (() => {
-      try {
-        const lastWelcomeDate = localStorage.getItem('welcome_shown_date');
-        const today = new Date().toDateString();
-        return lastWelcomeDate !== today; // WelcomeOverlay показывается если дата не совпадает
-      } catch {
-        return false;
-      }
-    })();
-
-    if (isWelcomeActive) {
-      // Откладываем открытие модалки — ждём пока WelcomeOverlay завершится
-      // Слушаем изменение localStorage (WelcomeOverlay сохраняет дату при завершении)
-      const checkInterval = setInterval(() => {
-        try {
-          const lastDate = localStorage.getItem('welcome_shown_date');
-          const today = new Date().toDateString();
-          if (lastDate === today) {
-            clearInterval(checkInterval);
-            // WelcomeOverlay завершился — теперь можно открыть модалку
-            const currentStack = useModalStore.getState().stack;
-            const mt = (Object.keys(MODAL_COMPONENTS) as ModalType[]).find(
-              (type) => getModalUrlKey(type) === modalParam
-            );
-            if (mt && !currentStack.some(m => m.type === mt)) {
-              const props: Record<string, any> = {};
-              searchParams.forEach((value, key) => {
-                if (key !== 'modal') props[key] = value;
-              });
-              openModal(mt, props, false);
-            }
+      // КРИТИЧНО: Проверяем, что модалка еще не открыта и не закрывается
+      if (modalType && !stack.some(m => m.type === modalType)) {
+        const props: Record<string, any> = {};
+        searchParams.forEach((value, key) => {
+          if (key !== 'modal') {
+            props[key] = value;
           }
-        } catch { /* silent */ }
-      }, 500);
-      // Safety: не ждём дольше 30 секунд
-      setTimeout(() => clearInterval(checkInterval), 30000);
-      return () => clearInterval(checkInterval);
-    }
+        });
 
-    // Находим тип модалки по URL-ключу (обратный поиск)
-    const modalType = (Object.keys(MODAL_COMPONENTS) as ModalType[]).find(
-      (type) => {
-        const urlKey = getModalUrlKey(type);
-        return urlKey === modalParam;
+        const rafId = requestAnimationFrame(() => {
+          const currentStack = useModalStore.getState().stack;
+          if (!currentStack.some(m => m.type === modalType)) {
+            openModal(modalType, props, false);
+          }
+        });
       }
-    );
-
-    // КРИТИЧНО: Проверяем, что модалка еще не открыта и не закрывается
-    if (modalType && !stack.some(m => m.type === modalType)) {
-      const props: Record<string, any> = {};
-      searchParams.forEach((value, key) => {
-        if (key !== 'modal') {
-          props[key] = value;
-        }
-      });
-
-      const rafId = requestAnimationFrame(() => {
-        const currentStack = useModalStore.getState().stack;
-        if (!currentStack.some(m => m.type === modalType)) {
-          openModal(modalType, props, false);
-        }
-      });
     }
-  }, [searchParams, openModal]); // ОПТИМИЗАЦИЯ: убрали stack из зависимостей
+  }, [searchParams, openModal]);
   // Обработка кнопки "Назад" на Android/PWA
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {

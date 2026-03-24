@@ -104,8 +104,8 @@ export function CryptoMinerAdButton({ className }: CryptoMinerAdButtonProps) {
       if (error) throw error;
 
       if (data.success) {
-        // Обновляем баланс в кэше
-        await queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
+        // Обновляем баланс в кэше немедленно
+        await queryClient.refetchQueries({ queryKey: ['profile-data', profileId] });
 
         // Обновляем статус рекламы
         await refetch();

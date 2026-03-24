@@ -7,7 +7,7 @@ set -e
 
 TELEGRAM_BOT_TOKEN="${1:-$TELEGRAM_BOT_TOKEN}"
 SUPABASE_PROJECT_REF="yffjnqegeiorunyvcxkn"
-WEBHOOK_URL="https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/telegram-stars-payment"
+WEBHOOK_URL="https://${SUPABASE_PROJECT_REF}.supabase.co/functions/v1/telegram-bot"
 
 if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
   echo "❌ Ошибка: TELEGRAM_BOT_TOKEN не указан"
@@ -26,7 +26,7 @@ RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/se
   -H "Content-Type: application/json" \
   -d "{
     \"url\": \"${WEBHOOK_URL}\",
-    \"allowed_updates\": [\"pre_checkout_query\", \"message\"]
+    \"allowed_updates\": [\"message\", \"callback_query\", \"inline_query\", \"pre_checkout_query\", \"poll_answer\"]
   }")
 
 echo "Ответ от Telegram API:"
@@ -40,4 +40,3 @@ echo "$CHECK_RESPONSE" | jq '.' 2>/dev/null || echo "$CHECK_RESPONSE"
 
 echo ""
 echo "✅ Готово! Webhook настроен."
-

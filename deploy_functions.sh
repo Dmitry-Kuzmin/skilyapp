@@ -33,6 +33,7 @@ supabase functions deploy purchase-webhook
 supabase functions deploy duel-pass-xp
 supabase functions deploy duel-pass-claim
 supabase functions deploy assistant-suggest
+supabase functions deploy telegram-bot
 
 echo ""
 echo "✅ Развертывание завершено!"
