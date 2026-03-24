@@ -78,13 +78,13 @@ export const SmartOnboardingFlow: React.FC = () => {
     // Compute steps dynamically
     const steps = useMemo((): Step[] => {
         const s: Step[] = ['welcome', 'category', 'details'];
-        if (selectedCountry.code === 'ES') s.push('language');
+        if (selectedCountry?.code === 'ES') s.push('language');
         const notifSupported = typeof window !== 'undefined' && 'Notification' in window;
         if (!isTelegramMiniApp() && notifSupported && notifPermission !== 'granted') {
             s.push('notifications');
         }
         return s;
-    }, [selectedCountry.code, notifPermission]);
+    }, [selectedCountry?.code, notifPermission]);
 
     const currentStepIndex = steps.indexOf(currentStep);
 
@@ -113,15 +113,17 @@ export const SmartOnboardingFlow: React.FC = () => {
 
             if (!profileId && !forceOnboarding) return;
 
-            // If force mode — just show with detected country
-            if (forceOnboarding && !autoDetectDone) {
-                const detected = detectUserCountry();
-                setLandingCountry(detected);
-                if (detected.examLanguages.length > 0) setSelectedLang(detected.examLanguages[0]);
-                setSmartTranslator(detected.code === 'ES' && navigator.language.startsWith('ru'));
-                setIsVisible(true);
-                setAutoDetectDone(true);
-                return;
+            // If force mode — show with detected country, never run DB check
+            if (forceOnboarding) {
+                if (!autoDetectDone) {
+                    const detected = detectUserCountry();
+                    setLandingCountry(detected);
+                    if (detected.examLanguages?.length > 0) setSelectedLang(detected.examLanguages[0]);
+                    setSmartTranslator(detected.code === 'ES' && navigator.language.startsWith('ru'));
+                    setIsVisible(true);
+                    setAutoDetectDone(true);
+                }
+                return; // Never reach DB check in force mode
             }
 
             if (!profileId) return;
@@ -255,7 +257,7 @@ export const SmartOnboardingFlow: React.FC = () => {
         }
     };
 
-    if (!isVisible) return null;
+    if (!isVisible || !selectedCountry) return null;
 
     const isLastStep = currentStepIndex === steps.length - 1;
 
