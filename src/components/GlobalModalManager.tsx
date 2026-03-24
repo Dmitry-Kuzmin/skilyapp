@@ -256,9 +256,13 @@ export const GlobalModalManager = () => {
 
   // КРИТИЧНО: Модалки, которые сами создают портал (ResponsiveModal, CelebrationModal и т.д.)
   // не нужно оборачивать в дополнительный div, так как это блокирует клики
-  // Проверяем, создает ли модалка свой портал
-  const createsOwnPortal = topModal.type === 'BOOST_SHOP' ||
-    topModal.type === 'CELEBRATION';
+  const createsOwnPortal = 
+    topModal.type === 'BOOST_SHOP' ||
+    topModal.type === 'CELEBRATION' ||
+    topModal.type === 'TON_PAY' ||
+    topModal.type === 'PAYWALL' ||
+    topModal.type === 'PREMIUM' ||
+    topModal.type === 'DUEL_PASS';
 
   if (createsOwnPortal) {
     // Модалка сама создает портал, просто рендерим её
