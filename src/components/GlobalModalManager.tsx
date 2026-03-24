@@ -87,32 +87,52 @@ export const GlobalModalManager = () => {
   }, [openModal]);
 
   useEffect(() => {
-    const modalParam = searchParams.get('modal');
     // Синхронизация URL -> модалки при монтировании и изменении URL
+    const modalParam = searchParams.get('modal');
     if (modalParam) {
-      // Находим тип модалки по URL-ключу (обратный поиск)
       const modalType = (Object.keys(MODAL_COMPONENTS) as ModalType[]).find(
-        (type) => {
-          const urlKey = getModalUrlKey(type);
-          return urlKey === modalParam;
-        }
+        (type) => getModalUrlKey(type) === modalParam
       );
 
-      // КРИТИЧНО: Проверяем, что модалка еще не открыта и не закрывается
       if (modalType && !stack.some(m => m.type === modalType)) {
+        // Проверяем, активен ли велком-экран (Engine Start)
+        // КРИТИЧНО: Модалки (Radix) блокируют клики на фоне, поэтому нельзя открывать их до запуска Engine.
+        const isWelcomeActive = (() => {
+          try {
+            const lastWelcomeDate = localStorage.getItem('welcome_shown_date');
+            const today = new Date().toDateString();
+            // Если мы на дашборде и велком еще не был показан сегодня
+            return window.location.pathname.startsWith('/dashboard') && lastWelcomeDate !== today;
+          } catch { return false; }
+        })();
+
         const props: Record<string, any> = {};
         searchParams.forEach((value, key) => {
-          if (key !== 'modal') {
-            props[key] = value;
-          }
+          if (key !== 'modal') props[key] = value;
         });
 
-        const rafId = requestAnimationFrame(() => {
+        const openLater = () => {
           const currentStack = useModalStore.getState().stack;
           if (!currentStack.some(m => m.type === modalType)) {
             openModal(modalType, props, false);
           }
-        });
+        };
+
+        if (isWelcomeActive) {
+          // Ждем события 'welcome_complete' от Index.tsx
+          const handleWelcome = () => {
+            window.removeEventListener('welcome_complete', handleWelcome);
+            openLater();
+          };
+          window.addEventListener('welcome_complete', handleWelcome);
+          
+          // Safety fallback: 15 сек макс
+          setTimeout(handleWelcome, 15000);
+          return () => window.removeEventListener('welcome_complete', handleWelcome);
+        } else {
+          // Открываем сразу
+          openLater();
+        }
       }
     }
   }, [searchParams, openModal]);

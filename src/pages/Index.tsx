@@ -213,6 +213,8 @@ const DashboardContent = memo(function DashboardContent() {
     if (typeof window !== 'undefined') {
       const today = new Date().toDateString();
       localStorage.setItem('welcome_shown_date', today);
+      // Уведомляем систему о завершении велком-экрана
+      window.dispatchEvent(new CustomEvent('welcome_complete'));
     }
   }, []);
 
