@@ -80,8 +80,48 @@
       "destination": "/help.html"
     },
     {
+      "source": "/features",
+      "destination": "/features.html"
+    },
+    {
+      "source": "/partners",
+      "destination": "/partners.html"
+    },
+    {
       "source": "/blog",
       "destination": "/blog.html"
+    },
+    {
+      "source": "/tests",
+      "destination": "/tests.html"
+    },
+    {
+      "source": "/games",
+      "destination": "/games.html"
+    },
+    {
+      "source": "/road-signs",
+      "destination": "/road-signs.html"
+    },
+    {
+      "source": "/dictionary",
+      "destination": "/dictionary.html"
+    },
+    {
+      "source": "/learning-map",
+      "destination": "/learning-map.html"
+    },
+    {
+      "source": "/achievements",
+      "destination": "/achievements.html"
+    },
+    {
+      "source": "/referrals",
+      "destination": "/referrals.html"
+    },
+    {
+      "source": "/dgt-tests",
+      "destination": "/dgt-tests.html"
     },
     {
       "source": "/article/:slug",

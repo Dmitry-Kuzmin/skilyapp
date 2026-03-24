@@ -54,11 +54,22 @@ const PUBLIC_ROUTES = [
   '/?lang=es',
   '/?lang=en',
   '/?lang=ru',
-  // Публичные страницы контента (критично для AdSense — Google должен видеть реальный контент)
+  // Основные публичные страницы
   '/about',
   '/pricing',
   '/help',
+  '/features',
+  '/partners',
   '/blog',
+  // Контентные страницы (открыты без логина — ценный контент для Google)
+  '/tests',
+  '/games',
+  '/road-signs',
+  '/dictionary',
+  '/learning-map',
+  '/achievements',
+  '/referrals',
+  '/dgt-tests',
   // Статьи
   '/article/novye-voprosy-dgt-2025',
   '/article/analitika-dgt-progress',
@@ -71,7 +82,7 @@ const PUBLIC_ROUTES = [
   '/article/mikrotreningi-dgt-na-telefone',
   '/article/kak-sdat-ekzamen-dgt-s-pervogo-raza',
   '/article/top-10-oshibok-na-ekzamene-dgt',
-  // Legal pages (критично для AdSense — Google должен видеть контент)
+  // Legal pages
   '/legal/terms',
   '/legal/privacy',
   '/legal/cookies',

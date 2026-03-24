@@ -117,12 +117,36 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- Features -->
+  <url>
+    <loc>https://skilyapp.com/features</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Partners / Партнёры -->
+  <url>
+    <loc>https://skilyapp.com/partners</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <!-- Help / Ayuda -->
   <url>
     <loc>https://skilyapp.com/help</loc>
     <lastmod>2026-03-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+
+  <!-- DGT Tests Simple -->
+  <url>
+    <loc>https://skilyapp.com/dgt-tests</loc>
+    <lastmod>2026-03-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <!-- Legal pages -->
