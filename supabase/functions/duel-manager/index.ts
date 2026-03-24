@@ -4226,7 +4226,6 @@ Deno.serve(async (req) => {
         } else if (boostType === 'cryptolocker') {
           // already handled in attackEffects
           void 0;
-          };
         }
 
         // Получаем информацию о бусте из БД
