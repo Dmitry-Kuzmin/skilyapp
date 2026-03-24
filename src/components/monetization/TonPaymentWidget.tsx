@@ -2,9 +2,8 @@ import React, { useCallback, useEffect } from "react";
 import { 
     useBalance,
     useTransferTon,
-    useAddress,
 } from '@ton/appkit-react';
-import { useTonConnectUI } from '@tonconnect/ui-react';
+import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
 import { Loader2, Zap, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -35,7 +34,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     autoPay = false,
 }) => {
     const { t } = useLanguage();
-    const address = useAddress();
+    const address = useTonAddress();
     const balanceRes = useBalance() as any;
     const transferRes = useTransferTon() as any;
     const balance = balanceRes?.balance;

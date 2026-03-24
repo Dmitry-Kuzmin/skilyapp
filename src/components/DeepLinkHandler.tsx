@@ -109,7 +109,7 @@ export function DeepLinkHandler() {
       case 'premium':
       case 'paywall':
         console.log('[DeepLinkHandler] Opening premium/paywall via deep link');
-        navigate('/dashboard?modal=paywall', { replace: true });
+        navigate('/dashboard?modal=boost-shop&initialTab=premium', { replace: true });
         break;
 
       case 'ton-pay':
