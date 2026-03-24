@@ -1638,7 +1638,7 @@ export function BoostShopModal({
                 {/* CRYPTO MINER V2 - Advanced Edition с анимациями и частицами */}
                 {!isPremium && (
                   <div className="px-1">
-                    <CryptoMinerAdvanced />
+                    <CryptoMinerAdvanced onRewardClaimed={loadData} />
                   </div>
                 )}
 

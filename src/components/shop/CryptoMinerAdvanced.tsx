@@ -14,6 +14,7 @@ import { isTelegramMiniApp } from '@/lib/telegram';
 
 interface CryptoMinerAdvancedProps {
     className?: string;
+    onRewardClaimed?: () => void;
 }
 
 /**
@@ -21,7 +22,7 @@ interface CryptoMinerAdvancedProps {
  * Премиальный баннер для заработка монет за рекламу
  * Отлично смотрится как в темной, так и в светлой теме
  */
-export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
+export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerAdvancedProps) {
     const { profileId } = useUserContext();
     const queryClient = useQueryClient();
     const [showAdModal, setShowAdModal] = useState(false);
@@ -90,7 +91,7 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
             if (error) throw error;
             if (!data.success) throw new Error(data.error || 'Ошибка майнинга');
 
-            await queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
+            await queryClient.refetchQueries({ queryKey: ['profile-data', profileId] });
             await refetch();
 
             sounds.correctAnswer();
@@ -98,6 +99,8 @@ export function CryptoMinerAdvanced({ className }: CryptoMinerAdvancedProps) {
 
             setShowSuccess(true);
             setTimeout(() => setShowSuccess(false), 2500);
+
+            onRewardClaimed?.();
 
             toast({ title: '⚡ CRYPTO MINED!', description: `+25 монет добыто!` });
         } catch (err: any) {
