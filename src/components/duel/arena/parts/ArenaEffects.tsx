@@ -131,7 +131,10 @@ export const ArenaEffects: React.FC<ArenaEffectsProps> = ({ feedbackEffect, remo
                 <Suspense fallback={null}>
                     <PoliceBackdoorAttack
                         isActive={true}
-                        onUnlock={() => {
+                        expiresAt={policeRaid.expiresAt}
+                        exploitId={policeRaid.id}
+                        onCleaned={() => {
+                            if (policeRaid.id) removeExploit(policeRaid.id);
                             setExploitPassed('police_backdoor');
                         }}
                     />

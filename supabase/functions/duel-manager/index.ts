@@ -4102,34 +4102,44 @@ Deno.serve(async (req) => {
 
         const botDifficulty = botPlayer.bot_difficulty || 'medium';
 
-        // Определяем доступные бусты для бота в зависимости от сложности
+        // Определяем доступные АТАКИ для бота (только opponent-targeting, без self-бустов)
+        // Self-бусты (fifty_fifty, hint) убраны — они не создают exploit и игрок ничего не видит
         const availableBoosts: { type: string; weight: number }[] = [];
 
         if (botDifficulty === 'easy') {
-          // Easy: в основном утилиты, редкие атаки
+          // Easy: лёгкие атаки — погодные
           availableBoosts.push(
-            { type: 'fifty_fifty', weight: 50 },
-            { type: 'hint', weight: 40 },
-            { type: 'screen_injector', weight: 10 }
+            { type: 'fog_screen', weight: 25 },
+            { type: 'rain_storm', weight: 25 },
+            { type: 'sun_glare', weight: 20 },
+            { type: 'bug_splat', weight: 15 },
+            { type: 'ice_screen', weight: 15 },
           );
         } else if (botDifficulty === 'medium') {
-          // Medium: сбалансировано
+          // Medium: все погодные + базовые хакерские
           availableBoosts.push(
-            { type: 'fifty_fifty', weight: 30 },
-            { type: 'hint', weight: 20 },
-            { type: 'screen_injector', weight: 20 },
-            { type: 'input_lag', weight: 20 },
-            { type: 'gps_spoofing', weight: 10 }
+            { type: 'fog_screen', weight: 15 },
+            { type: 'rain_storm', weight: 15 },
+            { type: 'sun_glare', weight: 15 },
+            { type: 'bug_splat', weight: 12 },
+            { type: 'ice_screen', weight: 12 },
+            { type: 'screen_injector', weight: 15 },
+            { type: 'input_lag', weight: 10 },
+            { type: 'police_backdoor', weight: 6 },
           );
         } else {
-          // Hard/Insane: агрессивные атаки
+          // Hard/Insane: все атаки, акцент на тяжёлые
           availableBoosts.push(
-            { type: 'screen_injector', weight: 30 },
-            { type: 'input_lag', weight: 25 },
-            { type: 'gps_spoofing', weight: 20 },
-            { type: 'police_backdoor', weight: 15 },
-            { type: 'fifty_fifty', weight: 5 },
-            { type: 'hint', weight: 5 }
+            { type: 'screen_injector', weight: 15 },
+            { type: 'police_backdoor', weight: 12 },
+            { type: 'ice_screen', weight: 12 },
+            { type: 'input_lag', weight: 10 },
+            { type: 'fog_screen', weight: 10 },
+            { type: 'rain_storm', weight: 10 },
+            { type: 'sun_glare', weight: 10 },
+            { type: 'bug_splat', weight: 10 },
+            { type: 'gps_spoofing', weight: 6 },
+            { type: 'cryptolocker', weight: 5 },
           );
         }
 
@@ -4165,9 +4175,25 @@ Deno.serve(async (req) => {
 
         const boostType = selectedBoost.type;
 
-        // Обработка эффектов бустов
-        let boostEffect: { success: boolean; boost_type: string; eliminated_options?: string[]; time_added_ms?: number; message?: string } = { success: true, boost_type: boostType };
+        // Обработка эффектов бустов — только атаки (opponent-targeting)
+        // Маппинг типа атаки → эффект с duration_ms (критично для создания exploit)
+        const attackEffects: Record<string, any> = {
+          screen_injector: { success: true, boost_type: 'screen_injector', popup_count: 3, duration_ms: 45000 },
+          input_lag: { success: true, boost_type: 'input_lag', delay_ms: 1500, duration_ms: 5000 },
+          gps_spoofing: { success: true, boost_type: 'gps_spoofing', shuffle_duration_ms: 1000, duration_ms: 10000 },
+          police_backdoor: { success: true, boost_type: 'police_backdoor', block_duration_ms: 20000, captcha_required: true, duration_ms: 20000 },
+          cryptolocker: { success: true, boost_type: 'cryptolocker', encrypted: true, duration_ms: 30000 },
+          // Новые погодные/дорожные атаки
+          ice_screen: { success: true, boost_type: 'ice_screen', grid_cells: 9, duration_ms: 30000 },
+          sun_glare: { success: true, boost_type: 'sun_glare', visor_required: true, duration_ms: 20000 },
+          rain_storm: { success: true, boost_type: 'rain_storm', swipes_required: 10, duration_ms: 15000 },
+          bug_splat: { success: true, boost_type: 'bug_splat', hold_duration_ms: 2000, duration_ms: 25000 },
+          fog_screen: { success: true, boost_type: 'fog_screen', clear_threshold: 85, duration_ms: 20000 },
+        };
 
+        let boostEffect: any = attackEffects[boostType] || { success: true, boost_type: boostType, duration_ms: 15000 };
+
+        // Fallback для self-бустов (не должны попадать сюда, но на всякий случай)
         if (boostType === 'fifty_fifty' && duel_question_id) {
           const { data: question } = await supabase
             .from('duel_questions')
@@ -4197,39 +4223,9 @@ Deno.serve(async (req) => {
             const hint = snapshot.explanation_ru || snapshot.explanation_es || snapshot.explanation_en || 'Подсказка недоступна';
             boostEffect.hint = hint;
           }
-        } else if (boostType === 'screen_injector') {
-          boostEffect = {
-            success: true,
-            boost_type: 'screen_injector',
-            popup_count: 3,
-            duration_ms: 10000,
-          };
-        } else if (boostType === 'input_lag') {
-          boostEffect = {
-            success: true,
-            boost_type: 'input_lag',
-            delay_ms: 1500,
-            duration_ms: 5000,
-          };
-        } else if (boostType === 'gps_spoofing') {
-          boostEffect = {
-            success: true,
-            boost_type: 'gps_spoofing',
-            shuffle_duration_ms: 1000,
-          };
-        } else if (boostType === 'police_backdoor') {
-          boostEffect = {
-            success: true,
-            boost_type: 'police_backdoor',
-            block_duration_ms: 8000,
-            captcha_required: true,
-          };
         } else if (boostType === 'cryptolocker') {
-          boostEffect = {
-            success: true,
-            boost_type: 'cryptolocker',
-            encrypted: true,
-            duration_ms: 30000,
+          // already handled in attackEffects
+          void 0;
           };
         }
 
@@ -4244,11 +4240,11 @@ Deno.serve(async (req) => {
         if (boostDef && (boostDef.target_type === 'opponent' || boostDef.target_type === 'both')) {
           const { data: players } = await supabase
             .from('duel_players')
-            .select('id, user_id')
+            .select('id, user_id, is_bot')
             .eq('duel_id', duel_id);
 
           if (players && players.length >= 2) {
-            const opponent = players.find(p => p.user_id !== null && !p.is_bot);
+            const opponent = players.find(p => p.user_id !== null && p.is_bot === false);
 
             if (opponent) {
               const durationMs = boostEffect.duration_ms || 10000;
@@ -4291,13 +4287,18 @@ Deno.serve(async (req) => {
             await createNotification({
               duel_id,
               type: 'boost',
-              title: `⚠️ ${botName} использовал буст!`,
+              title: `⚠️ ${botName} атакует!`,
               message: boostType === 'screen_injector' ? 'Data Leak активирован! 🛢️' :
-                boostType === 'input_lag' ? 'Input Lag активирован!' :
-                  boostType === 'gps_spoofing' ? 'GPS Spoofing активирован!' :
-                    boostType === 'police_backdoor' ? 'Police Backdoor активирован!' :
+                boostType === 'input_lag' ? 'Input Lag активирован! 🕸️' :
+                  boostType === 'gps_spoofing' ? 'GPS Spoofing активирован! 📡' :
+                    boostType === 'police_backdoor' ? 'Полицейский рейд! 🚔' :
                       boostType === 'cryptolocker' ? 'Cryptolocker активирован! 🔒' :
-                        'Бот использовал буст!',
+                        boostType === 'ice_screen' ? 'Заморозка стекла! ❄️' :
+                          boostType === 'sun_glare' ? 'Ослепляющее солнце! ☀️' :
+                            boostType === 'rain_storm' ? 'Ливень! 🌧️' :
+                              boostType === 'bug_splat' ? 'Мошкара на стекле! 🪰' :
+                                boostType === 'fog_screen' ? 'Туман! 🌫️' :
+                                  `${boostType} активирован!`,
               icon: '⚡',
               metadata: {
                 boost_type: boostType,
