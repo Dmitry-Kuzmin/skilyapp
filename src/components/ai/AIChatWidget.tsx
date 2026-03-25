@@ -750,8 +750,9 @@ export function AIChatWidget() {
                     <DrawerContent
                         className="overflow-hidden flex flex-col focus:outline-none"
                         style={{
-                            height: '92dvh',
-                            maxHeight: '92dvh',
+                            height: drawerHeight ? `${drawerHeight}px` : '92dvh',
+                            maxHeight: drawerHeight ? `${drawerHeight}px` : '92dvh',
+                            transition: 'height 0.2s ease',
                         }}
                     >
                         {chatContent}
