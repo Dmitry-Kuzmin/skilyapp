@@ -20,6 +20,8 @@ interface TonPaymentWidgetProps {
     mode?: 'full' | 'compact';
 }
 
+import { useSavedTonAddress } from "@/hooks/useTonWalletSync";
+
 /**
  * TonPaymentWidget - Финальная версия на базе AppKit (Alpha).
  * Работает через официальные хуки для прямой доставки транзакций.
@@ -35,6 +37,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
 }) => {
     const { t } = useLanguage();
     const address = useTonAddress();
+    const savedAddress = useSavedTonAddress();
     const balanceRes = useBalance() as any;
     const transferRes = useTransferTon() as any;
     const balance = balanceRes?.balance;
@@ -47,7 +50,13 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     // Функция оплаты
     const handlePayment = useCallback(async () => {
         if (!address) {
-            toast.error(t('monetization.ton.notConnected'));
+            // Если сессия не активна, но есть сохраненный адрес — 
+            // сначала вызываем коннект, а оплата пойдет через useEffect после коннекта
+            if (tonConnectUI) {
+                await tonConnectUI.openModal();
+            } else {
+                toast.error(t('monetization.ton.notConnected'));
+            }
             return;
         }
 
@@ -81,7 +90,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         } finally {
             setIsPaying(false);
         }
-    }, [address, amountTon, description, transfer, onSuccess, t]);
+    }, [address, amountTon, description, transfer, onSuccess, t, tonConnectUI]);
 
     // Функция открытия модалки подключения
     const handleConnect = useCallback(async () => {
@@ -94,26 +103,28 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     useEffect(() => {
         if (autoPay && address && !isPaying) {
             handlePayment();
-        } else if (autoPay && !address) {
-            // Если запрошена авто-оплата, но кошелек не подключен — 
-            // НЕ открываем модалку автоматически (это раздражает),
-            // а просто уведомляем пользователя, что нужно подключение.
-            // console.log('[TON] Auto-pay requested but wallet not connected');
         }
-    }, [autoPay, address, handlePayment]); // Убрали handleConnect из зависимостей
+    }, [autoPay, address, handlePayment]); 
 
-    // Если кошелек не подключен - в компактном режиме ничего не рендерим (согласно UX правилу)
-    if (!address && mode === 'compact') {
+    // Если кошелек не подключен - в компактном режиме ничего не рендерим (согласно UX правилу),
+    // но если мы имеем сохраненный адрес, то пользователь "тепленький" - показываем кнопку всё равно.
+    if (!address && !savedAddress && mode === 'compact') {
         return null;
     }
+
+    const isRestoring = !address && !!savedAddress;
 
     return (
         <div className={cn('transition-all duration-300 relative', className)}>
             <div className="flex flex-col relative z-20">
-                {!address ? (
+                {!address && !savedAddress ? (
                     <Button 
                         onClick={handleConnect}
-                        className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                        className={cn(
+                            "w-full font-bold shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95",
+                            "bg-[#0088cc] hover:bg-[#1098dc] text-white",
+                            mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-12 text-[14px] rounded-2xl"
+                        )}
                     >
                         <Wallet className="w-4 h-4" />
                         <span>{t('monetization.ton.connect') || 'Connect TON'}</span>
@@ -124,14 +135,19 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                         onClick={handlePayment}
                         className={cn(
                             "w-full font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
-                            "bg-[#0088cc] hover:bg-[#1098dc] text-white",
-                            mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-11 text-[13px] rounded-xl"
+                            isRestoring ? "bg-amber-500 hover:bg-amber-600 text-black px-8" : "bg-[#0088cc] hover:bg-[#1098dc] text-white",
+                            mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-12 text-[14px] rounded-2xl"
                         )}
                     >
                         {isPaying ? (
                             <>
                                 <Loader2 className="w-4 h-4 animate-spin" />
                                 <span>{t('monetization.ton.processing')}</span>
+                            </>
+                        ) : isRestoring ? (
+                            <>
+                                <Wallet className="w-4 h-4 mr-1" />
+                                <span>Восстановить & Оплатить {amountTon} TON</span>
                             </>
                         ) : (
                             <>

@@ -88,10 +88,12 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
   const buttons: any[][] = [];
   let sendStarsInvoice = false;
 
-  // [WIDGET:STARS:PAY] — native Telegram Stars payment
+  // [WIDGET:STARS:PAY] — show Stars payment button
   if (cleaned.includes('[WIDGET:STARS:PAY]')) {
     cleaned = cleaned.replace(/\[WIDGET:STARS:PAY\]/g, '').trim();
-    sendStarsInvoice = true;
+    buttons.push([
+      { text: "⭐ Оплатить Telegram Stars", callback_data: "pay_stars", style: "primary" },
+    ]);
   }
 
   // [WIDGET:TON:CONNECT] — deep-link to wallet screen
@@ -108,7 +110,7 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
     const amount = tonPay[1]; 
     cleaned = cleaned.replace(tonPay[0], '').trim();
     buttons.push([
-      { text: `💎 Оплатить ${amount} TON`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=ton-pay&amount=${amount}` }, style: "success" },
+      { text: `💎 Оплатить ${amount} TON (Premium на 1 месяц)`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=ton-pay&amount=${amount}` }, style: "success" },
     ]);
   }
 
@@ -166,7 +168,7 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
 }
 
 // ── Stars Invoice Handler ───────────────────────────
-async function sendStarsInvoice(chatId: number, telegramId: number) {
+export async function sendStarsInvoice(chatId: number, telegramId: number, userId: string = "") {
   try {
     const packages = [
       { key: 'premium_month', label: '1 месяц Premium', price: 99 },
@@ -186,7 +188,7 @@ async function sendStarsInvoice(chatId: number, telegramId: number) {
         },
         body: JSON.stringify({
           action: 'create_invoice',
-          user_id: userId || '',
+          user_id: userId,
           package_key: pkg.key,
           telegram_user_id: telegramId,
         }),
@@ -205,8 +207,8 @@ async function sendStarsInvoice(chatId: number, telegramId: number) {
 
     if (invoiceButtons.length > 0) {
       const rows = [];
-      for (let i = 0; i < invoiceButtons.length; i += 2) {
-        rows.push(invoiceButtons.slice(i, i + 2));
+      for (let i = 0; i < invoiceButtons.length; i += 1) { // Одна кнопка в ряд — нагляднее
+        rows.push(invoiceButtons.slice(i, i + 1));
       }
 
       await fetch(`${TELEGRAM_API}/sendMessage`, {
@@ -214,7 +216,7 @@ async function sendStarsInvoice(chatId: number, telegramId: number) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `🌟 <b>Выберите подходящий тариф Premium</b>\n\n🎁 Включает: X2 монеты, без рекламы, AI-наставник и расширенную статистику.`,
+          text: `🌟 <b>Оплата Telegram Stars</b> очень просто! Это самый быстрый способ получить Premium прямо сейчас:\n\n1. Просто выбери тариф ниже.\n2. Откроется стандартное окно Telegram для подтверждения платежа.\n3. Подтверди оплату, и доступ к Premium-функциям активируется <b>автоматически!</b>\n\n🎯 <i>Если у тебя недостаточно звезд, Telegram предложит докупить их прямо в процессе оплаты.</i>`,
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: rows,
@@ -601,10 +603,6 @@ export async function handleAIChat(message: TelegramMessage, supabase: SupabaseC
 
     if (processedText) {
       await sendFinalMessage(chatId, processedText, buttons);
-    }
-
-    if (shouldSendInvoice) {
-      await sendStarsInvoice(chatId, telegramId);
     }
   } catch (err) {
     console.error('[AI Chat] Error:', err);

@@ -17,7 +17,7 @@ import {
 import * as commands from "./commands.ts";
 import * as keyboards from "./keyboards.ts";
 import { t, getUserLanguage, normalizeLanguage, SupportedLanguage, getDaysWord, formatMarkdown } from "./translations.ts";
-import { handleAIChat } from "./ai-handler.ts";
+import { handleAIChat, sendStarsInvoice } from "./ai-handler.ts";
 
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
@@ -345,6 +345,11 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         text: t('tips.title', lang),
         reply_markup: keyboards.getTipsMenuKeyboard(lang)
       });
+    }
+    else if (data === "pay_stars") {
+      // Получаем внутренний userId пользователя для привязки платежа
+      const { data: profile } = await supabase.from("profiles").select("user_id").eq("telegram_id", user.id).maybeSingle();
+      await sendStarsInvoice(message.chat.id, user.id, profile?.user_id || "");
     }
     // Quest info — клик по кнопке квеста в чеклисте
     else if (data.startsWith("quest_info:")) {
