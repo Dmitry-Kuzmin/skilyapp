@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Smartphone } from 'lucide-react';
 import { useTelegramHomeScreen } from '@/hooks/useTelegramHomeScreen';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const STORAGE_KEY = 'homescreen_prompt_dismissed_at';
 const SHOW_AFTER_DAYS = 7;
@@ -37,10 +38,14 @@ export function AddToHomeScreenPrompt() {
 
   const handleAdd = () => {
     console.log('[AddToHomeScreenPrompt] handleAdd clicked');
+    toast.info('Вызываем системное окно Telegram...');
+    
     const result = addToHomeScreen();
     if (result === false) {
       console.error('[AddToHomeScreenPrompt] addToHomeScreen returned false');
+      toast.error('Функция не поддерживается вашим клиентом');
     }
+    
     setVisible(false);
     localStorage.setItem(STORAGE_KEY, Date.now().toString());
   };
