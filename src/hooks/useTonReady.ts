@@ -1,40 +1,28 @@
 import { useEffect, useState } from 'react';
-import { tonConnectUI, tonConnectionRestored } from '@/lib/ton-appkit';
+import { useAddress } from '@ton/appkit-react';
+import { tonConnectionRestored } from '@/lib/ton-appkit';
 
 /**
- * Waits for TonConnect session restoration before exposing the wallet address.
+ * Wraps AppKit's useAddress() with a readiness gate.
  *
- * Problem this solves:
- * - useAddress() from AppKit returns null on first render (restoration is async).
- * - Components checking !address immediately open the connect modal, interrupting
- *   an in-flight CloudStorage restore that would have succeeded on its own.
+ * Problem: useAddress() returns null on first render because TonConnect
+ * restoration from CloudStorage is async (~100-500ms). Components that
+ * check !address immediately fire openModal(), interrupting a restore
+ * that would have succeeded on its own.
  *
- * How it works:
- * - Subscribes to tonConnectUI.onStatusChange directly (no AppKit propagation lag).
- * - Sets isReady=true only after tonConnectionRestored resolves.
- * - Until isReady, address is always null regardless of actual state.
+ * Fix: expose address only after tonConnectionRestored resolves.
+ * AppKit's useAddress() is the authoritative source (same state shown
+ * in TonWalletHeader). We do NOT use tonConnectUI.wallet directly
+ * because AppKit manages its own internal state separately.
  */
 export function useTonReady(): { isReady: boolean; address: string | null } {
     const [isReady, setIsReady] = useState(false);
-    const [address, setAddress] = useState<string | null>(null);
+    // AppKit's hook — same source as TonWalletHeader, correct once restored
+    const address = useAddress();
 
     useEffect(() => {
-        // Subscribe to live wallet status changes
-        const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
-            setAddress(wallet?.account?.address ?? null);
-        });
-
-        // Mark ready only after restoration completes (success or failure)
-        tonConnectionRestored.finally(() => {
-            setIsReady(true);
-            // Sync current state after restoration resolves
-            setAddress(tonConnectUI.wallet?.account?.address ?? null);
-        });
-
-        return () => {
-            unsubscribe();
-        };
+        tonConnectionRestored.finally(() => setIsReady(true));
     }, []);
 
-    return { isReady, address };
+    return { isReady, address: isReady ? (address ?? null) : null };
 }
