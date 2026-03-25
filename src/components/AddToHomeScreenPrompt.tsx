@@ -36,9 +36,13 @@ export function AddToHomeScreenPrompt() {
     localStorage.setItem(STORAGE_KEY, Date.now().toString());
   };
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     console.log('[AddToHomeScreenPrompt] handleAdd clicked');
-    toast.info('Вызываем системное окно Telegram...');
+    const version = (window as any).Telegram?.WebApp?.version || 'unknown';
+    toast.info(`Вызываем окно... (SDK: ${version})`);
     
     const result = addToHomeScreen();
     if (result === false) {
