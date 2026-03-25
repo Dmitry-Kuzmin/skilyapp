@@ -170,7 +170,9 @@ async function sendStarsInvoice(chatId: number, telegramId: number) {
   try {
     const packages = [
       { key: 'premium_month', label: '1 месяц Premium', price: 99 },
-      { key: 'premium_year', label: '1 год Premium', price: 599 },
+      { key: 'premium_3months', label: '3 месяца Premium', price: 249 },
+      { key: 'premium_6months', label: '6 месяцев Premium', price: 449 },
+      { key: 'premium_year', label: '1 год Premium', price: 799 },
     ];
 
     const invoiceButtons: any[] = [];
@@ -184,7 +186,7 @@ async function sendStarsInvoice(chatId: number, telegramId: number) {
         },
         body: JSON.stringify({
           action: 'create_invoice',
-          user_id: '', // handleAIChat provides real ID
+          user_id: userId || '',
           package_key: pkg.key,
           telegram_user_id: telegramId,
         }),
@@ -244,9 +246,10 @@ async function callGeminiStreaming(
   const walletStatus = hasWallet ? "Wallet is ALREADY connected." : "Wallet is NOT connected yet - user must connect first.";
   const systemPrompt = getSystemPrompt({ country, language, context: 'bot' }) + 
     `\n\nUSER STATE: ${walletStatus}\n` +
-    `If asked about TON payment/premium:\n` +
-    `- IF wallet is NOT connected, MUST use [WIDGET:TON:CONNECT]\n` +
-    `- IF wallet IS connected, MUST use [WIDGET:TON:PAY:amount:description]\n\n` +
+    `PAYMENT INFO:\n` +
+    `- Use [WIDGET:STARS:PAY] if user wants to pay with Telegram Stars (easiest for mobile).\n` +
+    `- Use [WIDGET:TON:CONNECT] (if not connected) or [WIDGET:TON:PAY:amount:description] (if connected) for TON native payments.\n` +
+    `- Mention that regular bank cards (Stripe/Paddle) are accepted inside our Mini App - use [WIDGET:CTA:PREMIUM:Открыть магазин] to direct them there.\n\n` +
     "IMPORTANT: Use ONLY Telegram-supported HTML tags: <b>bold</b>, <i>italic</i>, <u>underline</u>, <code>code</code>. \n" +
     "DO NOT use <ul>, <li>, <div> or <p> tags - they are NOT supported and will break the message. \n" +
     "For lists, use bullet point characters like '•' or emojis. Ensure the response is premium and visually spaced well with new lines.";

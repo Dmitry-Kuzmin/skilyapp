@@ -608,3 +608,10 @@ export function getDaysWord(count: number, lang: SupportedLanguage): string {
             : cases[count % 10 < 5 ? count % 10 : 5]
     ];
 }
+// Форматирование Markdown в HTML для Telegram
+export function formatMarkdown(text: string): string {
+    if (!text) return '';
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold: **text** -> <b>$1</b>
+        .replace(/\*(.*?)\*/g, '<i>$1</i>');    // Italic: *text* -> <i>$1</i>
+}

@@ -16,7 +16,7 @@ import {
 } from "./types.ts";
 import * as commands from "./commands.ts";
 import * as keyboards from "./keyboards.ts";
-import { t, getUserLanguage, normalizeLanguage, SupportedLanguage, getDaysWord } from "./translations.ts";
+import { t, getUserLanguage, normalizeLanguage, SupportedLanguage, getDaysWord, formatMarkdown } from "./translations.ts";
 import { handleAIChat } from "./ai-handler.ts";
 
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
@@ -632,8 +632,8 @@ async function handlePollAnswer(pollAnswer: any) {
     quiz.results.push({
       index: current,
       isCorrect,
-      text: questions[current].text,
-      explanation: questions[current].explanation
+      text: formatMarkdown(questions[current].text),
+      explanation: formatMarkdown(questions[current].explanation)
     });
 
     const isCorrectCurrent = isCorrect;
@@ -660,7 +660,7 @@ async function handlePollAnswer(pollAnswer: any) {
         `🏁 <b>Разминка завершена!</b>`,
         '',
         `📊 <b>Результат:</b> ${dots} (${correct}/${total})`,
-        '───────────────',
+        '─────────────',
         ''
       ];
 
@@ -673,7 +673,7 @@ async function handlePollAnswer(pollAnswer: any) {
         lines.push('');
       });
 
-      lines.push('───────────────');
+      lines.push('─────────────');
       lines.push(
         pct === 100 ? '🚀 <b>Идеально!</b> Вы полностью готовы к экзамену. Так держать!' :
         pct >= 66 ? '✨ <b>Хороший результат!</b> Ещё немного практики, и будет 100%.' :
@@ -764,7 +764,8 @@ async function sendQuizQuestionFromBot(
     is_anonymous: false,
   };
   if (q.explanation?.trim()) {
-    pollBody.explanation = q.explanation;
+    // В полле Telegram лимит 200 символов, обрезаем только тут!
+    pollBody.explanation = formatMarkdown(q.explanation).substring(0, 200);
     pollBody.explanation_parse_mode = 'HTML';
   }
 

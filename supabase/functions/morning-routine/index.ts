@@ -110,17 +110,27 @@ serve(async (req) => {
       const contentLang = getContentLang(profile);
       results.debug_langs[profile.first_name] = { botLang, contentLang };
 
-      try {
-        // A. Утренняя разминка — 3 вопроса inline
-        const quizOk = await sendMorningQuiz(supabase, profile, botLang, contentLang);
-        if (quizOk) results.quizzes_sent++;
+      const chatId = profile.telegram_id;
 
-        // B. Чеклист задач
+      try {
+        // 0. Приветствие
+        const introMsg = GREETINGS[botLang][Math.floor(Math.random() * GREETINGS[botLang].length)];
+        await tgFetch('sendMessage', {
+          chat_id: chatId,
+          text: `👋 ${profile.first_name ? `${profile.first_name}, ` : ''}${formatMarkdown(introMsg)}`,
+          parse_mode: 'HTML'
+        });
+
+        // A. Чеклист задач
         if (activeSeason) {
           const cl = await sendDailyChecklist(supabase, profile, activeSeason, botLang);
           if (cl.sent) { results.checklists_sent++; results.checklists_text++; }
           if (cl.error) results.checklist_errors.push(`${profile.first_name}: ${cl.error}`);
         }
+
+        // B. Утренняя разминка — 3 вопроса inline
+        const quizOk = await sendMorningQuiz(supabase, profile, botLang, contentLang);
+        if (quizOk) results.quizzes_sent++;
 
         await new Promise(r => setTimeout(r, 100));
       } catch (error) {
@@ -137,6 +147,16 @@ serve(async (req) => {
     return jsonResponse({ error: error.message }, 500);
   }
 });
+
+// =====================================================
+// Форматирование Markdown в HTML для Telegram
+// =====================================================
+function formatMarkdown(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold: **text** -> <b>$1</b>
+    .replace(/\*(.*?)\*/g, '<i>$1</i>');    // Italic: *text* -> <i>$1</i>
+}
 
 // =====================================================
 // Quiz — Последовательные вопросы (1 за раз)
@@ -160,12 +180,13 @@ async function sendMorningQuiz(
   try {
     const chatId = profile.telegram_id;
 
-    // Берём 50 случайных вопросов с картинками
+    // Берём 50 случайных вопросов с картинками на нужном языке (чтобы не было микса ru/es)
+    const langCol = contentLang === 'es' ? 'question_es' : contentLang === 'en' ? 'question_en' : 'question_ru';
     const { data: questions, error: qErr } = await supabase
       .from('questions_new')
       .select('id, question_es, question_ru, question_en, explanation_es, explanation_ru, explanation_en, image_url')
       .not('image_url', 'is', null)
-      .not('question_ru', 'is', null)
+      .not(langCol, 'is', null)
       .limit(50);
 
     if (qErr || !questions || questions.length < QUIZ_QUESTIONS_COUNT) {
@@ -189,19 +210,37 @@ async function sendMorningQuiz(
       const correctIdx = answers.findIndex((a: any) => a.is_correct);
       if (correctIdx === -1) continue;
 
-      const qText = contentLang === 'es' ? (q.question_es || q.question_ru)
-        : contentLang === 'en' ? (q.question_en || q.question_ru)
-        : (q.question_ru || q.question_es);
+      // Формируем текст вопроса: если юзер на русском, а учит на исп — даем оба
+      let qText = '';
+      if (contentLang === 'es') {
+        qText = q.question_es || q.question_ru || '❓';
+        if (botLang === 'ru' && q.question_ru && q.question_ru !== q.question_es) {
+          qText = `${qText}\n\n🌐 ${q.question_ru}`;
+        }
+      } else if (contentLang === 'en') {
+        qText = q.question_en || q.question_ru || '❓';
+        if (botLang === 'ru' && q.question_ru && q.question_ru !== q.question_en) {
+          qText = `${qText}\n\n🇷🇺 ${q.question_ru}`;
+        }
+      } else {
+        qText = q.question_ru || q.question_es || '❓';
+      }
 
-      const explanation = contentLang === 'es' ? (q.explanation_es || '')
-        : contentLang === 'en' ? (q.explanation_en || q.explanation_es || '')
-        : (q.explanation_ru || q.explanation_es || '');
+      // Объяснение: для русскоязычных даем на русском (если есть), иначе по контенту
+      let explanation = '';
+      if (botLang === 'ru') {
+        explanation = q.explanation_ru || q.explanation_es || '';
+      } else {
+        explanation = contentLang === 'es' ? (q.explanation_es || '')
+          : contentLang === 'en' ? (q.explanation_en || q.explanation_es || '')
+          : (q.explanation_ru || q.explanation_es || '');
+      }
 
       prepared.push({
         id: q.id,
-        text: (qText || '❓').substring(0, 300),
+        text: formatMarkdown(qText).substring(0, 300),
         image_url: q.image_url,
-        explanation: (explanation || '').substring(0, 200),
+        explanation: formatMarkdown(explanation) || '', // БЕЗ ОБРЕЗКИ (обрежем только в полле)
         options: answers.map((a: any) => {
           const t = contentLang === 'es' ? (a.text_es || a.text_ru)
             : contentLang === 'en' ? (a.text_en || a.text_ru)
@@ -282,7 +321,8 @@ export async function sendQuizQuestion(
     is_anonymous: false,
   };
   if (q.explanation?.trim()) {
-    pollBody.explanation = q.explanation;
+    // В полле Telegram лимит 200 символов, обрезаем только тут!
+    pollBody.explanation = q.explanation.substring(0, 200);
     pollBody.explanation_parse_mode = 'HTML';
   }
 
@@ -368,7 +408,7 @@ export function buildChecklistMessage(quests: any[], lang: Lang): string {
     lines.push(`⏰ Resets in: ${tl}`);
   }
   lines.push('');
-  lines.push('━━━━━━━━━━━━━━━━━━━━');
+  lines.push('─────────────');
   lines.push('');
 
   // Квесты
@@ -396,7 +436,7 @@ export function buildChecklistMessage(quests: any[], lang: Lang): string {
     lines.push('');
   });
 
-  lines.push('━━━━━━━━━━━━━━━━━━━━');
+  lines.push('─────────────');
 
   // Итого
   if (allDone) {
