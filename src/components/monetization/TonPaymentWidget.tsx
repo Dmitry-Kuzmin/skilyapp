@@ -2,13 +2,15 @@ import React, { useCallback, useEffect } from "react";
 import { 
     useBalance,
     useTransferTon,
+    useAddress,
 } from '@ton/appkit-react';
-import { useTonConnectUI, useTonAddress } from '@tonconnect/ui-react';
+import { useTonConnectUI } from '@tonconnect/ui-react';
 import { Loader2, Zap, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSavedTonAddress } from "@/hooks/useTonWalletSync";
 
 interface TonPaymentWidgetProps {
     packageKey?: string;
@@ -20,7 +22,6 @@ interface TonPaymentWidgetProps {
     mode?: 'full' | 'compact';
 }
 
-import { useSavedTonAddress } from "@/hooks/useTonWalletSync";
 
 /**
  * TonPaymentWidget - Финальная версия на базе AppKit (Alpha).
@@ -36,7 +37,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     autoPay = false,
 }) => {
     const { t } = useLanguage();
-    const address = useTonAddress();
+    const address = useAddress();
     const savedAddress = useSavedTonAddress();
     const balanceRes = useBalance() as any;
     const transferRes = useTransferTon() as any;
