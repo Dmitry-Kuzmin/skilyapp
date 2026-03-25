@@ -4,6 +4,18 @@ import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
+ * Module-level cache of the current TON wallet address.
+ * Populated by TonWalletSyncHandler (always mounted inside AppKitProvider).
+ * Lets late-mounted components (TonPaymentModal) get the address without
+ * relying on useAddress() which misses events fired before component mounts.
+ */
+let _globalTonAddress: string | null = null;
+
+export function getGlobalTonAddress(): string | null {
+    return _globalTonAddress;
+}
+
+/**
  * Syncs TON wallet address to Supabase profiles.
  * - When wallet connects → saves address to DB
  * - When wallet disconnects → clears address from DB
@@ -13,6 +25,11 @@ export function useTonWalletSync() {
   const address = useAddress();
   const { profileId } = useUserContext();
   const lastSyncedRef = useRef<string | null>(null);
+
+  // Keep global cache in sync — used by late-mounted components (useTonReady)
+  useEffect(() => {
+    _globalTonAddress = address ?? null;
+  }, [address]);
 
   useEffect(() => {
     if (!profileId) return;
