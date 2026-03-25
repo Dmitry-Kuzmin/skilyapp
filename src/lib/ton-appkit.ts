@@ -43,19 +43,18 @@ export const appKit = new AppKit({
     connectors: [tonConnector],
 });
 
-// Log connection restore result for debugging
-try {
-    if (tonConnectUI.connectionRestored) {
-        tonConnectUI.connectionRestored.then((restored: boolean) => {
-            if (restored) {
-                console.log('[TON] ✅ Wallet connection restored from CloudStorage');
-            } else {
-                console.log('[TON] No previous wallet session found');
-            }
-        }).catch(() => {
-            console.log('[TON] Connection restore skipped (no session)');
-        });
-    }
-} catch {
-    // First time — no connection to restore
-}
+// Exported promise — resolves to true/false once restoration completes.
+// Components must await this before deciding whether a wallet is connected.
+export const tonConnectionRestored: Promise<boolean> =
+    (tonConnectUI.connectionRestored as Promise<boolean> | undefined)
+    ?? Promise.resolve(false);
+
+tonConnectionRestored
+    .then((restored) => {
+        console.log(restored
+            ? '[TON] ✅ Wallet connection restored from CloudStorage'
+            : '[TON] No previous wallet session found');
+    })
+    .catch(() => {
+        console.log('[TON] Connection restore skipped (no session)');
+    });

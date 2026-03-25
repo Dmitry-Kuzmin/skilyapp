@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect } from "react";
-import { 
+import {
     useBalance,
     useTransferTon,
-    useAddress,
 } from '@ton/appkit-react';
 import { tonConnectUI } from '@/lib/ton-appkit';
+import { useTonReady } from '@/hooks/useTonReady';
 import { Loader2, Zap, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -37,21 +37,24 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     autoPay = false,
 }) => {
     const { t } = useLanguage();
-    const address = useAddress();
+    // useTonReady waits for connectionRestored before exposing address,
+    // preventing premature openModal() calls during CloudStorage restore.
+    const { isReady, address } = useTonReady();
     const savedAddress = useSavedTonAddress();
     const balanceRes = useBalance() as any;
     const transferRes = useTransferTon() as any;
     const balance = balanceRes?.balance;
     const transfer = transferRes?.transfer;
-    
+
     // Состояние локальной загрузки
     const [isPaying, setIsPaying] = React.useState(false);
 
     // Функция оплаты
     const handlePayment = useCallback(async () => {
+        // Don't act until restoration is confirmed — prevents false "not connected" state
+        if (!isReady) return;
+
         if (!address) {
-            // Если сессия не активна, но есть сохраненный адрес — 
-            // сначала вызываем коннект, а оплата пойдет через useEffect после коннекта
             if (tonConnectUI) {
                 await tonConnectUI.openModal();
             } else {
@@ -90,7 +93,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         } finally {
             setIsPaying(false);
         }
-    }, [address, amountTon, description, transfer, onSuccess, t, tonConnectUI]);
+    }, [isReady, address, amountTon, description, transfer, onSuccess, t]);
 
     // Функция открытия модалки подключения
     const handleConnect = useCallback(async () => {
@@ -106,8 +109,27 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         }
     }, [autoPay, address, handlePayment]); 
 
-    // Если кошелек не подключен - в компактном режиме ничего не рендерим (согласно UX правилу),
-    // но если мы имеем сохраненный адрес, то пользователь "тепленький" - показываем кнопку всё равно.
+    // While restoration is in progress, show spinner (never null/connect prematurely)
+    if (!isReady) {
+        if (mode === 'compact' && !savedAddress) return null;
+        return (
+            <div className={cn('transition-all duration-300', className)}>
+                <Button
+                    disabled
+                    className={cn(
+                        "w-full font-bold flex items-center justify-center gap-2",
+                        "bg-[#0088cc]/50 text-white",
+                        mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-12 text-[14px] rounded-2xl"
+                    )}
+                >
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Восстановление...</span>
+                </Button>
+            </div>
+        );
+    }
+
+    // After restoration: if no wallet at all in compact mode — hide
     if (!address && !savedAddress && mode === 'compact') {
         return null;
     }
