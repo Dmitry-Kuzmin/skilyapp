@@ -25,6 +25,7 @@ import { GlobalSettingsManager } from "@/components/settings";
 import { AppKitProvider } from "@ton/appkit-react";
 import { appKit } from "@/lib/ton-appkit";
 import '@ton/appkit-react/styles.css';
+import { TonAddressProvider } from '@/contexts/TonAddressContext';
 import { Motion } from "@/components/optimized/Motion";
 import { useSessionManager } from "@/hooks/useSessionManager";
 
@@ -172,6 +173,7 @@ export function AppProviders({ children }: AppProvidersProps) {
             <NotificationProvider>
               <PDDProvider>
                 <AppKitProvider appKit={appKit}>
+                  <TonAddressProvider>
                   <SessionHandler />
                   <TonWalletSyncHandler />
                   <ReconnectHandler />
@@ -183,6 +185,7 @@ export function AppProviders({ children }: AppProvidersProps) {
                     }
                     return children;
                   })()}
+                  </TonAddressProvider>
                 </AppKitProvider>
               </PDDProvider>
             </NotificationProvider>

@@ -49,6 +49,12 @@ export const tonConnectionRestored: Promise<boolean> =
     (tonConnectUI.connectionRestored as Promise<boolean> | undefined)
     ?? Promise.resolve(false);
 
+// Synchronous flag — true once restoration has completed.
+// Lets useTonReady initialize isReady=true immediately for late-mounted components
+// (e.g. TonPaymentModal opened after the wallet was already restored on startup).
+export let tonConnectionIsRestored = false;
+tonConnectionRestored.finally(() => { tonConnectionIsRestored = true; });
+
 tonConnectionRestored
     .then((restored) => {
         console.log(restored

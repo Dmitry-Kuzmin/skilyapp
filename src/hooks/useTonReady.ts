@@ -1,48 +1,27 @@
-import { useEffect, useState } from 'react';
-import { useAddress } from '@ton/appkit-react';
-import { tonConnectUI, tonConnectionRestored } from '@/lib/ton-appkit';
-import { getGlobalTonAddress } from '@/hooks/useTonWalletSync';
+import { useState, useEffect } from 'react';
+import { useTonAddress } from '@/contexts/TonAddressContext';
+import { tonConnectionRestored, tonConnectionIsRestored } from '@/lib/ton-appkit';
 
 /**
- * Reliable wallet address hook for Telegram Mini App TonConnect.
+ * Reliable wallet-ready hook for TonPaymentWidget / TonPaymentModal.
  *
- * Why useAddress() alone fails:
- *   AppKit's useAddress() hook initializes as null and updates only via events.
- *   TonWalletHeader (mounted early) receives the "wallet connected" event → works.
- *   TonPaymentModal (mounted later) misses the event → useAddress() stays null
- *   → payment button opens connect modal even though wallet IS connected.
+ * address — read from TonAddressContext (React Context set by TonAddressProvider
+ *   which lives in AppKitProvider and always receives wallet events first).
+ *   Late-mounted components get the CURRENT context value on first render,
+ *   unlike calling useAddress() directly which starts null and waits for events.
  *
- * Three-source strategy (first non-null wins):
- *   1. useAddress() from AppKit — reactive, updates on future events
- *   2. getGlobalTonAddress() — populated by TonWalletSyncHandler (always mounted
- *      early in AppKitProvider), guaranteed to have seen the connection event
- *   3. tonConnectUI.onStatusChange — catches live connect/disconnect events
- *
- * isReady gates everything until connectionRestored resolves.
+ * isReady — starts true if restoration already completed (tonConnectionIsRestored
+ *   sync flag), so no spinner flashes when user opens modal after startup.
+ *   Otherwise waits for tonConnectionRestored promise before gating payments.
  */
 export function useTonReady(): { isReady: boolean; address: string | null } {
-    const [isReady, setIsReady] = useState(false);
-    const appKitAddress = useAddress(); // Source 1: reactive AppKit hook
-    const [nativeAddress, setNativeAddress] = useState<string | null>(null); // Source 3
+    const [isReady, setIsReady] = useState(tonConnectionIsRestored);
+    const address = useTonAddress();
 
     useEffect(() => {
-        // Source 3: subscribe to live TonConnect events
-        const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
-            setNativeAddress(wallet?.account?.address ?? null);
-        });
-
-        tonConnectionRestored.finally(() => {
-            // Source 2: read from global cache (TonWalletSyncHandler sees events first)
-            const cached = getGlobalTonAddress();
-            if (cached) setNativeAddress(cached);
-            setIsReady(true);
-        });
-
-        return () => unsubscribe();
+        if (isReady) return;
+        tonConnectionRestored.finally(() => setIsReady(true));
     }, []);
-
-    // Take whichever source has the address
-    const address = appKitAddress ?? nativeAddress;
 
     return { isReady, address: isReady ? address : null };
 }
