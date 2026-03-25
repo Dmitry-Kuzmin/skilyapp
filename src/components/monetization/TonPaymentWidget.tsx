@@ -54,12 +54,13 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         // Don't act until restoration is confirmed — prevents false "not connected" state
         if (!isReady) return;
 
-        if (!address) {
-            if (tonConnectUI) {
-                await tonConnectUI.openModal();
-            } else {
-                toast.error(t('monetization.ton.notConnected'));
-            }
+        // useAddress() hook may miss the initial connected state if this component
+        // mounted after the wallet was already connected (event already fired).
+        // Always do a synchronous fallback check via tonConnectUI.wallet at click time.
+        const effectiveAddress = address || tonConnectUI.wallet?.account?.address;
+
+        if (!effectiveAddress) {
+            await tonConnectUI.openModal();
             return;
         }
 
