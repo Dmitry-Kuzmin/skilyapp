@@ -4,7 +4,7 @@ import {
     useTransferTon,
     useAddress,
 } from '@ton/appkit-react';
-import { useTonConnectUI } from '@tonconnect/ui-react';
+import { tonConnectUI } from '@/lib/ton-appkit';
 import { Loader2, Zap, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -43,7 +43,6 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     const transferRes = useTransferTon() as any;
     const balance = balanceRes?.balance;
     const transfer = transferRes?.transfer;
-    const [tonConnectUI] = useTonConnectUI();
     
     // Состояние локальной загрузки
     const [isPaying, setIsPaying] = React.useState(false);
