@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAddress } from '@ton/appkit-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,10 +44,10 @@ export function useTonWalletSync() {
  */
 export function useSavedTonAddress(): string | null {
   const { profileId } = useUserContext();
-  const savedRef = useRef<string | null>(null);
+  const [address, setAddress] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!profileId || savedRef.current !== null) return;
+    if (!profileId || address !== null) return;
 
     supabase
       .from('profiles')
@@ -56,11 +56,11 @@ export function useSavedTonAddress(): string | null {
       .maybeSingle()
       .then(({ data }) => {
         if (data?.ton_wallet_address) {
-          savedRef.current = data.ton_wallet_address;
+          setAddress(data.ton_wallet_address);
           console.log('[TON Sync] Loaded saved address:', data.ton_wallet_address.slice(0, 8) + '...');
         }
       });
-  }, [profileId]);
+  }, [profileId, address]);
 
-  return savedRef.current;
+  return address;
 }
