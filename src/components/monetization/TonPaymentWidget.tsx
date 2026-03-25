@@ -67,8 +67,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         try {
             setIsPaying(true);
             
-            // Адрес получателя (Твой кошелек из скриншота)
-            const recipientAddress = "UQBI_W6R8P7Y9-LdG1X7b6mZ8_oQZ_R9vP0_V0r9lX7f"; 
+            const recipientAddress = "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m";
 
             // Отправляем транзакцию через AppKit
             await transfer({
