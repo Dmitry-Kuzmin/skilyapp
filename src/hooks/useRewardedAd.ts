@@ -65,7 +65,8 @@ export function useRewardedAd() {
       const userId = tgUser?.id?.toString();
       initAdsGram(userId).catch(console.error);
     } else {
-      initMonetag();
+      // Monetag disabled — SDK script not loaded, causes console spam
+      // initMonetag();
       initAdSenseH5();
     }
   }, [isAvailable]);
@@ -109,9 +110,9 @@ export function useRewardedAd() {
           rewarded = await showAdSenseRewardedVideo({ name: 'crypto-miner' });
           console.log(`[useRewardedAd] AdSense Result: ${rewarded}`);
         } else {
-          // Для остальных мест пока оставляем Monetag
-          console.log('[useRewardedAd] 💰 Using Monetag (Standard Placement)');
-          rewarded = await showMonetagRewardedVideo({ ymid: profileId || undefined });
+          // Monetag disabled — fallback to AdSense for all placements
+          console.log('[useRewardedAd] 💻 Using AdSense H5 (fallback, Monetag disabled)');
+          rewarded = await showAdSenseRewardedVideo({ name: placement || 'default' });
         }
       }
 
