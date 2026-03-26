@@ -132,9 +132,11 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             return;
         }
 
-        // Not connected — set pending flag and open connect modal
-        // onStatusChange callback (in useEffect) will trigger doTransfer when wallet connects
-        console.log('[TON Payment] Opening connect modal...');
+        // Not connected — need to reconnect.
+        // Show a helpful toast so user understands why the connect popup appears.
+        console.log('[TON Payment] Wallet not connected, opening connect modal...');
+        toast.info(t('monetization.ton.reconnect') || 'Подключите кошелёк для оплаты', { duration: 3000 });
+
         pendingPayRef.current = true;
         setIsPaying(true);
 

@@ -143,6 +143,8 @@ export const TonWalletHeader: React.FC = () => {
 
     // Choose which balance to show
     let displayBalance: string;
+    // Session is saved in DB but not live — user needs to reconnect for payments
+    const isStale = hasSavedWallet && !isLiveConnected && restoreTimedOut;
     if (isRestoring) {
         displayBalance = apiBalance ? `${apiBalance} TON` : '···';
     } else if (isLiveConnected) {
@@ -163,14 +165,18 @@ export const TonWalletHeader: React.FC = () => {
             {/* Balance badge */}
             <button
                 onClick={() => setShowMenu(prev => !prev)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#0098EA]/12 hover:bg-[#0098EA]/20 rounded-xl border border-[#0098EA]/25 active:scale-95 transition-all"
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border active:scale-95 transition-all ${
+                    isStale
+                        ? 'bg-amber-500/12 hover:bg-amber-500/20 border-amber-500/25'
+                        : 'bg-[#0098EA]/12 hover:bg-[#0098EA]/20 border-[#0098EA]/25'
+                }`}
             >
                 {showSpinner ? (
                     <Loader2 className="w-3.5 h-3.5 text-[#0098EA] flex-shrink-0 animate-spin" />
                 ) : (
-                    <Wallet className="w-3.5 h-3.5 text-[#0098EA] flex-shrink-0" />
+                    <Wallet className={`w-3.5 h-3.5 flex-shrink-0 ${isStale ? 'text-amber-400' : 'text-[#0098EA]'}`} />
                 )}
-                <span className="text-[11px] font-bold text-[#0098EA] whitespace-nowrap tabular-nums">
+                <span className={`text-[11px] font-bold whitespace-nowrap tabular-nums ${isStale ? 'text-amber-400' : 'text-[#0098EA]'}`}>
                     {displayBalance}
                 </span>
             </button>
@@ -187,8 +193,8 @@ export const TonWalletHeader: React.FC = () => {
                                 <Wallet className="w-3.5 h-3.5 text-[#0098EA]" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
-                                    {isLiveConnected ? 'Подключён' : isRestoring ? 'Восстановление...' : 'Сохранён'}
+                                <p className={`text-[10px] font-medium uppercase tracking-wider ${isStale ? 'text-amber-400/70' : 'text-white/40'}`}>
+                                    {isLiveConnected ? 'Подключён' : isRestoring ? 'Восстановление...' : 'Требуется переподключение'}
                                 </p>
                                 <p className="text-[12px] text-white/80 font-mono truncate">
                                     {shortAddr}
