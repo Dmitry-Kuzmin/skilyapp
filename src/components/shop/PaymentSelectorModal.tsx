@@ -122,18 +122,16 @@ export function PaymentSelectorModal({
             />
           </div>
         )}
-
         {/* TON Wallet */}
         {availability.ton && (
-          <div className="relative">
+          <div className="relative overflow-hidden rounded-[20px]">
             <PaymentItem
               icon={Wallet}
               title="TON Wallet"
               subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
               color="blue"
-              className="relative"
               rightElement={
-                <div className="scale-75 origin-right">
+                <div className="scale-75 origin-right pointer-events-none">
                    <TonPaymentWidget
                       packageKey={pack.packageKey || pack.catalogKey}
                       mode="compact"
@@ -144,8 +142,19 @@ export function PaymentSelectorModal({
                 </div>
               }
             />
+            {/* Прозрачный слой поверх для ловли кликов, если виджет не среагировал */}
+            <div className="absolute inset-0 z-10">
+               <TonPaymentWidget
+                  packageKey={pack.packageKey || pack.catalogKey}
+                  mode="compact"
+                  amountTon={pack.priceValue / 5}
+                  description={pack.title}
+                  className="w-full h-full !bg-transparent !p-0 opacity-0 cursor-pointer"
+                />
+            </div>
           </div>
         )}
+
 
         {/* Cryptocurrency (Cryptomus) */}
         {availability.crypto && (

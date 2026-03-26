@@ -1084,10 +1084,7 @@ export function BoostShopModal({
         {
           body: {
             user_id: profileId,
-            package_key: catalogKey,
-            title: itemName,
-            amount: priceValue,
-            currency: 'EUR'
+            catalog_key: catalogKey,
           },
         },
       );
