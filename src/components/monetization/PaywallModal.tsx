@@ -217,20 +217,26 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           },
         });
 
-        if (error || data?.error || !data?.url) {
-          console.error("[PaywallModal] Cryptomus purchase error:", error || data?.error);
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+
+        if (error || parsed?.error || !parsed?.url) {
+          console.error("[PaywallModal] Cryptomus purchase error:", error || parsed?.error);
           toast({
             title: "Ошибка оплаты (Cryptomus)",
-            description: (error?.message || data?.error || "Попробуйте позже"),
+            description: (error?.message || parsed?.error || "Попробуйте позже"),
             variant: "destructive"
           });
           setSelectedPlanId(null);
           return;
         }
 
-        // Перенаправляем на страницу оплаты Cryptomus
-        window.location.href = data.url;
-      }
+        // Открываем страницу оплаты Cryptomus
+        const webApp = (window as any).Telegram?.WebApp;
+        if (webApp?.openLink) {
+          webApp.openLink(parsed.url);
+        } else {
+          window.open(parsed.url, '_blank');
+        }
     } catch (err: any) {
       console.error("[PaywallModal] Global error:", err);
       toast({ title: "Ошибка", description: err?.message || "Непредвиденная ошибка. Попробуйте позже.", variant: "destructive" });
