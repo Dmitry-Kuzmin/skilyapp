@@ -122,7 +122,7 @@ export function PaymentSelectorModal({
             />
           </div>
         )}
-        {/* TON Wallet */}
+        {/* TON Wallet — один виджет, кликабельный поверх PaymentItem */}
         {availability.ton && (
           <div className="relative overflow-hidden rounded-[20px]">
             <PaymentItem
@@ -131,26 +131,18 @@ export function PaymentSelectorModal({
               subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
               color="blue"
               rightElement={
-                <div className="scale-75 origin-right pointer-events-none">
-                   <TonPaymentWidget
-                      packageKey={pack.packageKey || pack.catalogKey}
-                      mode="compact"
-                      amountTon={pack.priceValue / 5}
-                      description={pack.title}
-                      className="!bg-transparent !p-0 shadow-none border-none"
-                    />
-                </div>
+                <span className="text-xs font-bold text-blue-400">{(pack.priceValue / 5).toFixed(1)} TON</span>
               }
             />
-            {/* Прозрачный слой поверх для ловли кликов, если виджет не среагировал */}
+            {/* Единственный TonPaymentWidget — прозрачный оверлей для обработки кликов */}
             <div className="absolute inset-0 z-10">
-               <TonPaymentWidget
-                  packageKey={pack.packageKey || pack.catalogKey}
-                  mode="compact"
-                  amountTon={pack.priceValue / 5}
-                  description={pack.title}
-                  className="w-full h-full !bg-transparent !p-0 opacity-0 cursor-pointer"
-                />
+              <TonPaymentWidget
+                packageKey={pack.packageKey || pack.catalogKey}
+                mode="compact"
+                amountTon={pack.priceValue / 5}
+                description={pack.title}
+                className="w-full h-full !bg-transparent !p-0 opacity-0 cursor-pointer"
+              />
             </div>
           </div>
         )}

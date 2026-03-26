@@ -1006,21 +1006,8 @@ export function BoostShopModal({
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        // Telegram Mini App — открываем через Telegram.openLink
-        if (isTelegramMiniApp()) {
-          const webApp = getTelegramWebApp();
-          const url = data.checkout_url;
-          if (url && webApp?.openLink) {
-            webApp.openLink(url);
-          } else if (url) {
-            window.open(url, "_blank");
-          }
-          onOpenChange(false);
-          return;
-        }
-
-        // Веб (мобилка + десктоп) — открываем Paddle Overlay НАПРяМУЮ
-        // (overlay будет поверх нашего UI, не уходим со страницы)
+        // Paddle Overlay работает и в Telegram Mini App, и в браузере —
+        // открываем SDK overlay прямо внутри приложения, без редиректа
         let paddleForCheckout = paddle || getPaddleInstanceSync();
         if (!paddleForCheckout) paddleForCheckout = await getPaddleInstance();
 
