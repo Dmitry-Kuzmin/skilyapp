@@ -66,7 +66,7 @@ import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { TonPaymentWidget } from "@/components/monetization/TonPaymentWidget";
 import { TonWalletHeader } from "@/components/monetization/TonWalletHeader";
-import { CryptomusPaymentPreview } from "@/components/monetization/CryptomusPaymentPreview";
+// CryptomusPaymentPreview merged into PaymentSelectorModal
 import { useAddress } from "@ton/appkit-react";
 import {
   getTelegramWebApp,
@@ -157,14 +157,6 @@ export function BoostShopModal({
   const [boosts, setBoosts] = useState<Boost[]>([]);
   const [inventory, setInventory] = useState<BoostInventory[]>([]);
   const [coins, setCoins] = useState(0);
-  const [cryptomusPreview, setCryptomusPreview] = useState<{
-    open: boolean;
-    paymentUrl: string;
-    orderId: string;
-    amount: number;
-    currency: string;
-    itemName: string;
-  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [showHistory, setShowHistory] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -1059,46 +1051,40 @@ export function BoostShopModal({
   );
 
   const handleCryptomusPurchase = useCallback(async () => {
-    if (!selectedPack || !profileId) return;
-    
-    try {
-      const itemName = selectedPack.title;
-      const priceValue = selectedPack.priceValue;
-      const catalogKey = selectedPack.catalogKey;
+    if (!selectedPack || !profileId) throw new Error("No pack selected");
 
-      const { data, error } = await supabaseClient.functions.invoke(
-        "cryptomus-payment",
-        {
-          body: {
-            user_id: profileId,
-            catalog_key: catalogKey,
-          },
+    const itemName = selectedPack.title;
+    const priceValue = selectedPack.priceValue;
+    const catalogKey = selectedPack.catalogKey;
+
+    const { data, error } = await supabaseClient.functions.invoke(
+      "cryptomus-payment",
+      {
+        body: {
+          user_id: profileId,
+          catalog_key: catalogKey,
         },
-      );
+      },
+    );
 
-      const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-      console.log("[BoostShop] Cryptomus response:", parsed);
-      if (error || !parsed?.url) {
-        throw error || new Error("No payment URL");
-      }
-
-      setCryptomusPreview({
-        open: true,
-        paymentUrl: parsed.url,
-        orderId: parsed.orderId,
-        amount: priceValue,
-        currency: 'EUR',
-        itemName: itemName
+    const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+    console.log("[BoostShop] Cryptomus response:", parsed);
+    if (error || !parsed?.url) {
+      toast({
+        title: t("boostShop.toasts.errorTitle"),
+        description: t("boostShop.toasts.purchaseErrorDescription"),
+        variant: "destructive"
       });
-      setIsPaymentSelectorOpen(false);
-    } catch (err: any) {
-      console.error("[BoostShop] Cryptomus error:", err);
-      toast({ 
-        title: t("boostShop.toasts.errorTitle"), 
-        description: err?.message || t("boostShop.toasts.purchaseErrorDescription"), 
-        variant: "destructive" 
-      });
+      throw error || new Error("No payment URL");
     }
+
+    return {
+      paymentUrl: parsed.url,
+      orderId: parsed.orderId,
+      amount: priceValue,
+      currency: 'EUR',
+      itemName: itemName,
+    };
   }, [selectedPack, profileId, t]);
 
   const handleCardPurchase = useCallback(() => {
@@ -2059,28 +2045,6 @@ export function BoostShopModal({
       {/* Nested Modals - рендерим только когда нужно */}
       {paywallOpen && (
         <PaywallModal open={paywallOpen} onOpenChange={setPaywallOpen} />
-      )}
-
-      {cryptomusPreview && (
-        <CryptomusPaymentPreview
-          open={cryptomusPreview.open}
-          onOpenChange={(open) => {
-            if (!open) {
-              setCryptomusPreview(null);
-            }
-          }}
-          paymentUrl={cryptomusPreview.paymentUrl}
-          orderId={cryptomusPreview.orderId}
-          amount={cryptomusPreview.amount}
-          currency={cryptomusPreview.currency}
-          itemName={cryptomusPreview.itemName}
-          onPaymentComplete={() => {
-            loadData();
-          }}
-          onCancel={() => {
-            // Ничего не делаем при отмене
-          }}
-        />
       )}
 
       {/* Rewarded Ad Modal */}
