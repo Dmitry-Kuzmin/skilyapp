@@ -230,13 +230,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           return;
         }
 
-        // Открываем страницу оплаты Cryptomus
-        const webApp = (window as any).Telegram?.WebApp;
-        if (webApp?.openLink) {
-          webApp.openLink(parsed.url);
-        } else {
-          window.open(parsed.url, '_blank');
-        }
+        // Открываем страницу оплаты Cryptomus — window.open opens
+        // Telegram's internal browser without confirmation dialog
+        window.open(parsed.url, '_blank');
       }
     } catch (err: any) {
       console.error("[PaywallModal] Global error:", err);

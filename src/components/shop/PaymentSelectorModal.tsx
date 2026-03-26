@@ -7,7 +7,7 @@ import { CreditCard, Sparkles, Wallet, Bitcoin, ChevronRight, ArrowLeft, Shield,
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useUserContext } from "@/contexts/UserContext";
-import { getTelegramWebApp, isTelegramMiniApp } from "@/lib/telegram";
+// telegram imports removed — using window.open for universal behavior
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/lib/toast";
 
@@ -55,7 +55,7 @@ export function PaymentSelectorModal({
   availability
 }: PaymentSelectorModalProps) {
   const { t } = useLanguage();
-  const { profileId, platform } = useUserContext();
+  const { profileId } = useUserContext();
 
   // Step state
   const [step, setStep] = useState<'select' | 'cryptomus'>('select');
@@ -159,24 +159,14 @@ export function PaymentSelectorModal({
     }
   }, [onCryptoClick]);
 
-  // Open Cryptomus payment URL
+  // Open Cryptomus payment URL — window.open works in both browser and
+  // Telegram Mini App (opens internal browser without confirmation dialog)
   const handleProceedToPayment = useCallback(() => {
     if (!cryptomusData?.paymentUrl) return;
-
     setIsNavigating(true);
-    const webApp = getTelegramWebApp();
-    const isTelegram = platform === 'telegram' && isTelegramMiniApp();
-
-    if (isTelegram && webApp?.openLink) {
-      webApp.openLink(cryptomusData.paymentUrl);
-    } else {
-      const newWindow = window.open(cryptomusData.paymentUrl, '_blank', 'noopener,noreferrer');
-      if (!newWindow) {
-        window.location.href = cryptomusData.paymentUrl;
-      }
-    }
+    window.open(cryptomusData.paymentUrl, '_blank');
     setTimeout(() => setIsNavigating(false), 5000);
-  }, [cryptomusData, platform]);
+  }, [cryptomusData]);
 
   if (!pack) return null;
 
