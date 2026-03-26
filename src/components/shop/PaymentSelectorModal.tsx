@@ -238,7 +238,7 @@ export function PaymentSelectorModal({
 
       {/* Step 2: Fullscreen Cryptomus overlay (no modal wrapper) */}
       {step === 'cryptomus' && cryptomusData && createPortal(
-        <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
+        <div className="fixed inset-0 z-[100000] bg-black flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
           {/* Top bar */}
           <div className="flex items-center justify-between px-4 py-3 bg-black/90 shrink-0">
             <button
