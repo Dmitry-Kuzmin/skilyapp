@@ -125,6 +125,20 @@ body:has([data-tc-wallets-modal-container="true"]) {
   --vaul-overlay-z-index: 2147483640 !important;
 }
 
+/* 🔥 Safari fix: When TonConnect is active, disable Radix overlay/focus-trap pointer capture.
+   Safari doesn't respect dynamic modal={false} on Radix Dialog, so we force it via CSS. */
+body.tonconnect-modal-open [data-radix-dialog-overlay],
+body.tonconnect-modal-open [data-radix-focus-guard],
+body.tonconnect-modal-open [role="dialog"] + [data-aria-hidden="true"] {
+  pointer-events: none !important;
+}
+body.tonconnect-modal-open {
+  pointer-events: auto !important;
+}
+body.tonconnect-modal-open [data-radix-dialog-content] {
+  pointer-events: auto !important;
+}
+
 /* Utility to hide native scrollbars but keep scrolling */
 .scrollbar-none {
   -ms-overflow-style: none;

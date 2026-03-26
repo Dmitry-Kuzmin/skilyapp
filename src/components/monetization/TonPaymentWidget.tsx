@@ -38,6 +38,8 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         try {
             setIsPaying(true);
             console.log('[TON Payment] Sending transaction...');
+            // Signal that TonConnect will show transaction confirmation popup
+            document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{
@@ -58,6 +60,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             }
         } finally {
             setIsPaying(false);
+            document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
         }
     }, [amountTon, onSuccess, t]);
     const doTransferRef = useRef(doTransfer);
@@ -97,15 +100,23 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     useEffect(() => {
         const unsub = tonConnectUI.onModalStateChange((state: any) => {
             console.log('[TON Payment] Modal state:', state?.status);
-            if (state?.status === 'closed' && pendingPayRef.current) {
-                // Grace period — onStatusChange may fire AFTER modal closes
-                setTimeout(() => {
-                    if (pendingPayRef.current && !tonConnectUI.wallet) {
-                        console.log('[TON Payment] Modal closed without connection, resetting');
-                        pendingPayRef.current = false;
-                        setIsPaying(false);
-                    }
-                }, 2500);
+            if (state?.status === 'closed') {
+                // Signal ResponsiveModal that TonConnect modal is gone
+                document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
+
+                if (pendingPayRef.current) {
+                    // Grace period — onStatusChange may fire AFTER modal closes
+                    setTimeout(() => {
+                        if (pendingPayRef.current && !tonConnectUI.wallet) {
+                            console.log('[TON Payment] Modal closed without connection, resetting');
+                            pendingPayRef.current = false;
+                            setIsPaying(false);
+                        }
+                    }, 2500);
+                }
+            } else if (state?.status === 'opened') {
+                // Ensure modal mode is off while TonConnect is open
+                document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
             }
         });
         return unsub;
@@ -127,12 +138,16 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         pendingPayRef.current = true;
         setIsPaying(true);
 
+        // Signal ResponsiveModal BEFORE opening TonConnect — so it disables modal mode instantly
+        document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
+
         try {
             await tonConnectUI.openModal();
         } catch (err) {
             console.error('[TON Payment] Failed to open modal:', err);
             pendingPayRef.current = false;
             setIsPaying(false);
+            document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
         }
     }, [doTransfer]);
 

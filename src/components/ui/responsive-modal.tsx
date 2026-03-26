@@ -66,24 +66,46 @@ export function ResponsiveModal({
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
   
-  // КРИТИЧНО: Если открыт TonConnect — отключаем 'modal' режим у Radix, 
+  // КРИТИЧНО: Если открыт TonConnect — отключаем 'modal' режим у Radix,
   // чтобы он не блокировал pointer-events у попапа кошелька.
   const [isTonActive, setIsTonActive] = React.useState(false);
 
   React.useEffect(() => {
     if (!open) return;
-    
-    const checkTon = () => {
+
+    const setTon = (active: boolean) => {
+      setIsTonActive(active);
+      // Body class for CSS overrides (Safari doesn't respect dynamic modal={false} from Radix)
+      if (active) {
+        document.body.classList.add('tonconnect-modal-open');
+      } else {
+        document.body.classList.remove('tonconnect-modal-open');
+      }
+    };
+
+    // 1. Instant signal from TonPaymentWidget (fires BEFORE TonConnect renders)
+    const handleTonEvent = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setTon(!!detail?.open);
+    };
+    document.addEventListener('tonconnect-modal', handleTonEvent);
+
+    // 2. MutationObserver as fallback — detects TonConnect DOM appearing/disappearing
+    const observer = new MutationObserver(() => {
       const active = !!(
-        document.querySelector('.tc-modal-overlay') || 
+        document.querySelector('.tc-modal-overlay') ||
         document.querySelector('.tonconnect-modal-container') ||
         document.body.classList.contains('tc-disable-scroll')
       );
-      setIsTonActive(active);
-    };
+      setTon(active);
+    });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
 
-    const interval = setInterval(checkTon, 300);
-    return () => clearInterval(interval);
+    return () => {
+      document.removeEventListener('tonconnect-modal', handleTonEvent);
+      observer.disconnect();
+      document.body.classList.remove('tonconnect-modal-open');
+    };
   }, [open]);
 
   // На мобильных используем Vaul Drawer с нативной физикой
