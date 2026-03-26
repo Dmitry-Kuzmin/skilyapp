@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  ArrowLeft,
   Coins,
   X,
   ShoppingBag,
@@ -2516,26 +2517,66 @@ export function BoostShopModal({
         })()}
       {/* Fullscreen Paddle checkout portal */}
       {paddleCheckoutUrl && createPortal(
-        <div className="fixed inset-0 z-[100000] bg-black flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          <div className="flex items-center justify-between px-4 py-3 bg-black/90 shrink-0">
-            <span className="text-sm text-white/70 font-medium">Paddle Checkout</span>
-            <button
-              onClick={() => setPaddleCheckoutUrl(null)}
-              className="p-1.5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <iframe
-            src={paddleCheckoutUrl}
-            className="flex-1 w-full border-0"
-            allow="payment"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
-            title="Paddle Checkout"
-          />
-        </div>,
+        <PaddleFullscreenCheckout url={paddleCheckoutUrl} onClose={() => setPaddleCheckoutUrl(null)} />,
         document.body
       )}
     </>
+  );
+}
+
+/** Fullscreen Paddle checkout with Telegram BackButton + swipe-back */
+function PaddleFullscreenCheckout({ url, onClose }: { url: string; onClose: () => void }) {
+  const startRef = useRef({ x: 0, y: 0, active: false });
+
+  // Telegram BackButton
+  useEffect(() => {
+    const webApp = getTelegramWebApp();
+    if (!webApp?.BackButton) return;
+
+    webApp.BackButton.show();
+    webApp.BackButton.onClick(onClose);
+    return () => { webApp.BackButton.offClick(onClose); };
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[100000] bg-black flex flex-col" style={{ paddingTop: 'var(--app-content-top, env(safe-area-inset-top))', paddingBottom: 'var(--app-safe-bottom, env(safe-area-inset-bottom))' }}>
+      <div className="flex items-center justify-between px-4 py-3 bg-black/90 shrink-0">
+        <button onClick={onClose} className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          Назад
+        </button>
+        <button onClick={onClose} className="p-1.5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+      <div className="flex-1 relative">
+        <iframe
+          src={url}
+          className="absolute inset-0 w-full h-full border-0"
+          allow="payment"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+          title="Paddle Checkout"
+        />
+        {/* Left edge swipe-back zone */}
+        <div
+          style={{ position: 'absolute', top: 0, left: 0, width: 20, height: '100%', zIndex: 10, touchAction: 'pan-y', background: 'transparent' }}
+          onTouchStart={(e) => {
+            const t = e.touches[0];
+            if (t.clientX <= 20) startRef.current = { x: t.clientX, y: t.clientY, active: true };
+          }}
+          onTouchMove={(e) => {
+            if (!startRef.current.active) return;
+            const t = e.touches[0];
+            if (t.clientX - startRef.current.x > 60 && Math.abs(t.clientY - startRef.current.y) < 50) {
+              startRef.current.active = false;
+              onClose();
+            }
+          }}
+          onTouchEnd={() => { startRef.current.active = false; }}
+          onTouchCancel={() => { startRef.current.active = false; }}
+          aria-hidden="true"
+        />
+      </div>
+    </div>
   );
 }

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useUserContext } from "@/contexts/UserContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/lib/toast";
+import { getTelegramWebApp } from "@/lib/telegram";
 
 interface PaymentSelectorModalProps {
   open: boolean;
@@ -157,7 +158,22 @@ export function PaymentSelectorModal({
     }
   }, [onCryptoClick]);
 
-  // handleProceedToPayment removed — Cryptomus now embedded in iframe
+  // Telegram BackButton support for fullscreen overlays
+  useEffect(() => {
+    if (step !== 'cryptomus') return;
+    const webApp = getTelegramWebApp();
+    if (!webApp?.BackButton) return;
+
+    const handleBack = () => {
+      setStep('select');
+      setPaymentStatus('pending');
+    };
+    webApp.BackButton.show();
+    webApp.BackButton.onClick(handleBack);
+    return () => {
+      webApp.BackButton.offClick(handleBack);
+    };
+  }, [step]);
 
   if (!pack) return null;
 
@@ -238,7 +254,7 @@ export function PaymentSelectorModal({
 
       {/* Step 2: Fullscreen Cryptomus overlay (no modal wrapper) */}
       {step === 'cryptomus' && cryptomusData && createPortal(
-        <div className="fixed inset-0 z-[100000] bg-black flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="fixed inset-0 z-[100000] bg-black flex flex-col" style={{ paddingTop: 'var(--app-content-top, env(safe-area-inset-top))', paddingBottom: 'var(--app-safe-bottom, env(safe-area-inset-bottom))' }}>
           {/* Top bar */}
           <div className="flex items-center justify-between px-4 py-3 bg-black/90 shrink-0">
             <button
@@ -270,13 +286,17 @@ export function PaymentSelectorModal({
           </div>
 
           {/* Fullscreen iframe */}
-          <iframe
-            src={cryptomusData.paymentUrl}
-            className="flex-1 w-full border-0"
-            allow="payment; clipboard-write"
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
-            title="Cryptomus Payment"
-          />
+          <div className="flex-1 relative">
+            <iframe
+              src={cryptomusData.paymentUrl}
+              className="absolute inset-0 w-full h-full border-0"
+              allow="payment; clipboard-write"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+              title="Cryptomus Payment"
+            />
+            {/* Left edge swipe-back zone */}
+            <SwipeBackZone onSwipeBack={() => { setStep('select'); setPaymentStatus('pending'); }} />
+          </div>
         </div>,
         document.body
       )}
@@ -340,5 +360,44 @@ function PaymentItem({
         <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
       </div>
     </motion.button>
+  );
+}
+
+/** Left-edge swipe zone for going back (works over iframes) */
+function SwipeBackZone({ onSwipeBack }: { onSwipeBack: () => void }) {
+  const startRef = useRef({ x: 0, y: 0, active: false });
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: 20,
+        height: '100%',
+        zIndex: 10,
+        touchAction: 'pan-y',
+        background: 'transparent',
+      }}
+      onTouchStart={(e) => {
+        const t = e.touches[0];
+        if (t.clientX <= 20) {
+          startRef.current = { x: t.clientX, y: t.clientY, active: true };
+        }
+      }}
+      onTouchMove={(e) => {
+        if (!startRef.current.active) return;
+        const t = e.touches[0];
+        const dx = t.clientX - startRef.current.x;
+        const dy = Math.abs(t.clientY - startRef.current.y);
+        if (dx > 60 && dy < 50) {
+          startRef.current.active = false;
+          onSwipeBack();
+        }
+      }}
+      onTouchEnd={() => { startRef.current.active = false; }}
+      onTouchCancel={() => { startRef.current.active = false; }}
+      aria-hidden="true"
+    />
   );
 }
