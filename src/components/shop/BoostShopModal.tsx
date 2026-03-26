@@ -1076,15 +1076,16 @@ export function BoostShopModal({
         },
       );
 
-      console.log("[BoostShop] Cryptomus response:", { data, error });
-      if (error || !data?.url) {
-        throw error || new Error(`No payment URL. Response: ${JSON.stringify(data)}`);
+      const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log("[BoostShop] Cryptomus response:", parsed);
+      if (error || !parsed?.url) {
+        throw error || new Error("No payment URL");
       }
 
       setCryptomusPreview({
         open: true,
-        paymentUrl: data.url,
-        orderId: data.orderId,
+        paymentUrl: parsed.url,
+        orderId: parsed.orderId,
         amount: priceValue,
         currency: 'EUR',
         itemName: itemName
