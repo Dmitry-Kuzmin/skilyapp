@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from "@/lib/utils";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
-import { CreditCard, Sparkles, Wallet, Bitcoin, ChevronRight, ArrowLeft, CheckCircle2, RefreshCw, Loader2 } from "lucide-react";
+import { CreditCard, Sparkles, Wallet, Bitcoin, ChevronRight, ArrowLeft, X, CheckCircle2, RefreshCw, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useUserContext } from "@/contexts/UserContext";
-// telegram imports removed — Cryptomus embedded in iframe
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/lib/toast";
 
@@ -162,126 +162,125 @@ export function PaymentSelectorModal({
   if (!pack) return null;
 
   return (
-    <ResponsiveModal
-      open={open}
-      onOpenChange={onOpenChange}
-      title={step === 'select' ? (t('boostShop.payment.selectorTitle') || "Выберите способ оплаты") : undefined}
-      description={step === 'select' ? (pack.title ? `${pack.title} — ${pack.price}` : undefined) : undefined}
-      className={step === 'cryptomus' ? "max-w-md !p-0" : "max-w-md"}
-    >
-      <AnimatePresence mode="wait">
-        {step === 'select' ? (
-          <motion.div
-            key="select"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-            className="flex flex-col gap-3 px-2 pb-4 pt-1"
-          >
-            {/* Telegram Stars */}
-            {availability.stars && (
-              <div className="relative">
-                <StarsPaymentButton
-                  packageKey={pack.packageKey || pack.catalogKey}
-                  priceCoins={pack.priceCoins || 0}
-                  onSuccess={() => {
-                    onSuccess();
-                    onOpenChange(false);
-                  }}
-                  variant="ghost"
-                  className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
-                />
-                <PaymentItem
-                  icon={Sparkles}
-                  title="Telegram Stars"
-                  subtitle={t('boostShop.payment.starsSubtitle') || "Мгновенно через Telegram"}
-                  color="gold"
-                  rightElement={
-                    <span className="text-xs font-black text-amber-500">⭐ {pack.priceCoins || '...'}</span>
-                  }
-                />
-              </div>
-            )}
-
-            {/* TON Wallet */}
-            {availability.ton && (
+    <>
+      {/* Step 1: Payment method selector modal */}
+      <ResponsiveModal
+        open={open && step === 'select'}
+        onOpenChange={onOpenChange}
+        title={t('boostShop.payment.selectorTitle') || "Выберите способ оплаты"}
+        description={pack.title ? `${pack.title} — ${pack.price}` : undefined}
+        className="max-w-md"
+      >
+        <div className="flex flex-col gap-3 px-2 pb-4 pt-1">
+          {/* Telegram Stars */}
+          {availability.stars && (
+            <div className="relative">
+              <StarsPaymentButton
+                packageKey={pack.packageKey || pack.catalogKey}
+                priceCoins={pack.priceCoins || 0}
+                onSuccess={() => {
+                  onSuccess();
+                  onOpenChange(false);
+                }}
+                variant="ghost"
+                className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
+              />
               <PaymentItem
-                icon={Wallet}
-                title="TON Wallet"
-                subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
-                color="blue"
-                onClick={onTonClick}
+                icon={Sparkles}
+                title="Telegram Stars"
+                subtitle={t('boostShop.payment.starsSubtitle') || "Мгновенно через Telegram"}
+                color="gold"
                 rightElement={
-                  <span className="text-xs font-bold text-blue-400">{(pack.priceValue / 5).toFixed(1)} TON</span>
+                  <span className="text-xs font-black text-amber-500">⭐ {pack.priceCoins || '...'}</span>
                 }
               />
-            )}
+            </div>
+          )}
 
-            {/* Cryptocurrency (Cryptomus) */}
-            {availability.crypto && (
-              <PaymentItem
-                icon={Bitcoin}
-                title="Cryptocurrency"
-                subtitle={t('boostShop.payment.cryptoSubtitle') || "BTC, USDT, ETH и другие"}
-                color="orange"
-                onClick={handleCryptoClick}
-                loading={cryptoLoading}
-              />
-            )}
+          {/* TON Wallet */}
+          {availability.ton && (
+            <PaymentItem
+              icon={Wallet}
+              title="TON Wallet"
+              subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
+              color="blue"
+              onClick={onTonClick}
+              rightElement={
+                <span className="text-xs font-bold text-blue-400">{(pack.priceValue / 5).toFixed(1)} TON</span>
+              }
+            />
+          )}
 
-            {/* Bank Card (Paddle) */}
-            {availability.card && (
-              <PaymentItem
-                icon={CreditCard}
-                title={t('boostShop.payment.cardTitle') || "Банковская карта"}
-                subtitle={t('boostShop.payment.cardSubtitle') || "Visa, Mastercard, Stripe"}
-                color="gray"
-                onClick={onCardClick}
-              />
-            )}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="cryptomus"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="relative"
-            style={{ height: '80vh', maxHeight: '700px' }}
-          >
-            {/* Floating back button over iframe */}
+          {/* Cryptocurrency (Cryptomus) */}
+          {availability.crypto && (
+            <PaymentItem
+              icon={Bitcoin}
+              title="Cryptocurrency"
+              subtitle={t('boostShop.payment.cryptoSubtitle') || "BTC, USDT, ETH и другие"}
+              color="orange"
+              onClick={handleCryptoClick}
+              loading={cryptoLoading}
+            />
+          )}
+
+          {/* Bank Card (Paddle) */}
+          {availability.card && (
+            <PaymentItem
+              icon={CreditCard}
+              title={t('boostShop.payment.cardTitle') || "Банковская карта"}
+              subtitle={t('boostShop.payment.cardSubtitle') || "Visa, Mastercard, Stripe"}
+              color="gray"
+              onClick={onCardClick}
+            />
+          )}
+        </div>
+      </ResponsiveModal>
+
+      {/* Step 2: Fullscreen Cryptomus overlay (no modal wrapper) */}
+      {step === 'cryptomus' && cryptomusData && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-black flex flex-col">
+          {/* Top bar */}
+          <div className="flex items-center justify-between px-4 py-3 bg-black/90 shrink-0">
             <button
               onClick={() => { setStep('select'); setPaymentStatus('pending'); }}
-              className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-black/70 backdrop-blur-sm text-white/80 hover:text-white text-xs font-medium transition-colors"
+              className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <ArrowLeft className="w-4 h-4" />
               {t('common.back') || 'Назад'}
             </button>
 
-            {/* Status badge */}
-            {paymentStatus === 'completed' && (
-              <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-green-600/90 backdrop-blur-sm text-white text-xs font-medium">
-                <CheckCircle2 className="h-3 w-3" />
+            {paymentStatus === 'completed' ? (
+              <div className="flex items-center gap-1.5 text-xs text-green-400 font-medium">
+                <CheckCircle2 className="h-3.5 w-3.5" />
                 {t('cryptomusPayment.paymentCompleted') || 'Оплачено!'}
               </div>
-            )}
+            ) : paymentStatus === 'checking' ? (
+              <div className="flex items-center gap-1.5 text-xs text-white/50">
+                <RefreshCw className="h-3 w-3 animate-spin" />
+                {t('cryptomusPayment.checkingStatus') || 'Проверяем...'}
+              </div>
+            ) : null}
 
-            {/* Full-bleed Cryptomus iframe */}
-            {cryptomusData && (
-              <iframe
-                src={cryptomusData.paymentUrl}
-                className="w-full h-full border-0 rounded-t-2xl"
-                allow="payment; clipboard-write"
-                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
-                title="Cryptomus Payment"
-              />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </ResponsiveModal>
+            <button
+              onClick={() => { setStep('select'); setPaymentStatus('pending'); onOpenChange(false); }}
+              className="p-1.5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Fullscreen iframe */}
+          <iframe
+            src={cryptomusData.paymentUrl}
+            className="flex-1 w-full border-0"
+            allow="payment; clipboard-write"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+            title="Cryptomus Payment"
+          />
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
 
