@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { tonConnectUI } from '@/lib/ton-appkit';
+import { tonConnectUI, tonConnectionRestored, tonConnectionIsRestored } from '@/lib/ton-appkit';
 import { Loader2, Zap, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -39,6 +39,8 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     const { t } = useLanguage();
     const [wallet, setWallet] = useState(() => tonConnectUI.wallet);
     const [isPaying, setIsPaying] = useState(false);
+    // Wait for CloudStorage restoration before showing connect button
+    const [isRestoring, setIsRestoring] = useState(() => !tonConnectionIsRestored);
     const autoPayTriggered = useRef(false);
 
     // Subscribe to wallet state — fires immediately with current wallet if connected
@@ -47,6 +49,13 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         const unsub = tonConnectUI.onStatusChange((w) => {
             setWallet(w ?? null);
         });
+        // Mark restoration complete so we show correct button state
+        if (!tonConnectionIsRestored) {
+            tonConnectionRestored.finally(() => {
+                setWallet(tonConnectUI.wallet);
+                setIsRestoring(false);
+            });
+        }
         return unsub;
     }, []);
 
@@ -113,7 +122,26 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     }, [autoPay, wallet, doTransfer]);
 
     // В compact-режиме без кошелька — скрываем (кнопка Connect есть в шапке)
-    if (mode === 'compact' && !wallet) return null;
+    if (mode === 'compact' && !wallet && !isRestoring) return null;
+
+    // Пока ждём восстановления сессии — не показываем кнопки
+    if (isRestoring) {
+        return (
+            <div className={cn('transition-all duration-300', className)}>
+                <Button
+                    disabled
+                    className={cn(
+                        "w-full font-bold flex items-center justify-center gap-2",
+                        "bg-[#0088cc]/40 text-white",
+                        mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-12 text-[14px] rounded-2xl"
+                    )}
+                >
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Проверка кошелька...</span>
+                </Button>
+            </div>
+        );
+    }
 
     return (
         <div className={cn('transition-all duration-300', className)}>
