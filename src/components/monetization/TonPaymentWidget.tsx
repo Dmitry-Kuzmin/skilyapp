@@ -90,19 +90,21 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             // Кошелёк подключён — сразу отправляем транзакцию
             await doTransfer();
         } else {
-            // Кошелёк не подключён — открываем модал и после подключения
-            // автоматически отправляем транзакцию
+            // Кошелёк не подключён — открываем модал коннекта.
+            // После подключения даём TonConnect UI закрыть свой модал (setTimeout 0),
+            // затем вызываем sendTransaction — иначе TonConnect открывает новый флоу
+            // поверх незакрытого модала коннекта и выглядит как повторный коннект.
             setIsPaying(true);
-            const unsub = tonConnectUI.onStatusChange(async (w) => {
+            const unsub = tonConnectUI.onStatusChange((w) => {
                 if (!w) {
-                    // Пользователь закрыл модал без подключения
                     setIsPaying(false);
                     unsub();
                     return;
                 }
                 unsub();
                 setWallet(w);
-                await doTransfer();
+                // Ждём закрытия модала коннекта перед sendTransaction
+                setTimeout(() => { doTransfer(); }, 500);
             });
             try {
                 await tonConnectUI.openModal();
