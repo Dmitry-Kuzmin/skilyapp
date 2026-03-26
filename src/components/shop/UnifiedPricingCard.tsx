@@ -20,7 +20,9 @@ interface UnifiedPricingCardProps {
   icon?: 'coins' | 'premium' | 'zap' | 'shield';
   savings?: string;
   bonusCoins?: number;
+  giftLabel?: string;
   pricePerDay?: string;
+  pricePerUnit?: string;
   className?: string;
 }
 
@@ -37,7 +39,9 @@ export function UnifiedPricingCard({
   icon = 'coins',
   savings,
   bonusCoins,
+  giftLabel,
   pricePerDay,
+  pricePerUnit,
   className
 }: UnifiedPricingCardProps) {
   const { t } = useLanguage();
@@ -149,23 +153,36 @@ export function UnifiedPricingCard({
                 </span>
               )}
             </div>
-            {pricePerDay && (
-              <div className="text-[10px] font-medium text-muted-foreground/60 mt-1 uppercase tracking-wider">
-                {pricePerDay}
-              </div>
-            )}
             
-            {/* Бонусные монеты */}
-            {bonusCoins && (
+            <div className="flex flex-col gap-0.5 mt-1">
+              {pricePerDay && (
+                <div className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                  {pricePerDay}
+                </div>
+              )}
+              {pricePerUnit && (
+                <div className="text-[9px] font-bold text-indigo-400/70 uppercase tracking-widest">
+                  {pricePerUnit}
+                </div>
+              )}
+            </div>
+            
+            {/* Подарок / Бонусные монеты */}
+            {(bonusCoins || giftLabel) && (
               <motion.div 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="inline-flex items-center gap-1.5 mt-2 px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-500"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400/10 to-orange-400/10 border border-amber-400/20 text-amber-500"
               >
-                <Star className="w-3 h-3 fill-current" />
-                <span className="text-[11px] font-black italic uppercase">
-                  {t('boostShop.coins.bonusCoinsBenefit', { amount: bonusCoins })}
-                </span>
+                <div className="flex items-center justify-center p-1 rounded-md bg-amber-400 text-black">
+                   <Zap className="w-2.5 h-2.5 fill-current" />
+                </div>
+                <div className="flex flex-col">
+                  {giftLabel && <span className="text-[8px] font-black uppercase tracking-tighter opacity-70 leading-none">{giftLabel}</span>}
+                  <span className="text-[11px] font-black italic uppercase leading-none mt-0.5">
+                    {bonusCoins ? t('boostShop.coins.bonusCoinsBenefit', { amount: bonusCoins }) : savings}
+                  </span>
+                </div>
               </motion.div>
             )}
           </div>

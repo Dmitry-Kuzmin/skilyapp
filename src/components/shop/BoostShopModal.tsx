@@ -1669,6 +1669,9 @@ export function BoostShopModal({
                   {COIN_PACKS.map((pack) => {
                     const isBestValue = pack.coins === 500;
                     const isHighlighted = pack.highlight;
+                    
+                    // Расчет цены за монету
+                    const pricePerCoin = (pack.priceValue / pack.totalCoins).toFixed(3);
 
                     return (
                       <UnifiedPricingCard
@@ -1685,10 +1688,12 @@ export function BoostShopModal({
                           catalogKey: pack.id,
                           packageKey: pack.id,
                           title: `${pack.coins} монет`,
-                          priceCoins: pack.coins * 10 
+                          priceValue: pack.priceValue
                         })}
                         icon="coins"
-                        savings={pack.bonus > 0 ? `+${pack.bonus}` : undefined}
+                        bonusCoins={pack.bonus > 0 ? pack.bonus : undefined}
+                        giftLabel={pack.bonus > 0 ? '🎁 GIFT' : undefined}
+                        pricePerUnit={`€${pricePerCoin} / coin`}
                       />
                     );
                   })}
