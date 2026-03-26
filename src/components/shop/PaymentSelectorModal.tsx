@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
-import { TonPaymentWidget } from "@/components/monetization/TonPaymentWidget";
 import { CreditCard, Sparkles, Wallet, Bitcoin, ChevronRight, ArrowLeft, Shield, CheckCircle2, XCircle, RefreshCw, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
@@ -26,6 +25,7 @@ interface PaymentSelectorModalProps {
     priceCoins?: number;
   } | null;
   onSuccess: () => void;
+  onTonClick: () => void;
   onCryptoClick: () => Promise<{ paymentUrl: string; orderId: string; amount: number; currency: string; itemName: string }>;
   onCardClick: () => void;
   availability: {
@@ -49,6 +49,7 @@ export function PaymentSelectorModal({
   onOpenChange,
   pack,
   onSuccess,
+  onTonClick,
   onCryptoClick,
   onCardClick,
   availability
@@ -233,26 +234,16 @@ export function PaymentSelectorModal({
 
             {/* TON Wallet */}
             {availability.ton && (
-              <div className="relative overflow-hidden rounded-[20px]">
-                <PaymentItem
-                  icon={Wallet}
-                  title="TON Wallet"
-                  subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
-                  color="blue"
-                  rightElement={
-                    <span className="text-xs font-bold text-blue-400">{(pack.priceValue / 5).toFixed(1)} TON</span>
-                  }
-                />
-                <div className="absolute inset-0 z-10">
-                  <TonPaymentWidget
-                    packageKey={pack.packageKey || pack.catalogKey}
-                    mode="compact"
-                    amountTon={pack.priceValue / 5}
-                    description={pack.title}
-                    className="w-full h-full !bg-transparent !p-0 opacity-0 cursor-pointer"
-                  />
-                </div>
-              </div>
+              <PaymentItem
+                icon={Wallet}
+                title="TON Wallet"
+                subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
+                color="blue"
+                onClick={onTonClick}
+                rightElement={
+                  <span className="text-xs font-bold text-blue-400">{(pack.priceValue / 5).toFixed(1)} TON</span>
+                }
+              />
             )}
 
             {/* Cryptocurrency (Cryptomus) */}

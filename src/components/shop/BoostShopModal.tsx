@@ -64,7 +64,6 @@ import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { usePremium } from "@/hooks/usePremium";
 import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
-import { TonPaymentWidget } from "@/components/monetization/TonPaymentWidget";
 import { TonWalletHeader } from "@/components/monetization/TonWalletHeader";
 // CryptomusPaymentPreview merged into PaymentSelectorModal
 import { useAddress } from "@ton/appkit-react";
@@ -1094,6 +1093,71 @@ export function BoostShopModal({
     }
   }, [selectedPack, handleCoinPurchase]);
 
+  // TON payment — close our modal first, then SDK shows its own popup
+  const handleTonPurchase = useCallback(async () => {
+    if (!selectedPack) return;
+    setIsPaymentSelectorOpen(false);
+
+    const amountTon = selectedPack.priceValue / 5;
+    const { tonConnectUI, tonConnectionRestored, tonConnectionIsRestored } = await import('@/lib/ton-appkit');
+
+    // Ensure restoration is complete
+    if (!tonConnectionIsRestored) {
+      await tonConnectionRestored;
+    }
+
+    const liveWallet = tonConnectUI.wallet;
+
+    const doTransfer = async () => {
+      document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
+      try {
+        await tonConnectUI.sendTransaction({
+          validUntil: Math.floor(Date.now() / 1000) + 300,
+          messages: [{
+            address: "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m",
+            amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
+          }],
+        });
+        toast({ title: "TON", description: "✅ Оплата отправлена!" });
+        loadData();
+      } catch (err: any) {
+        const msg = err?.message ?? String(err);
+        if (!msg.includes('User rejects') && !msg.includes('User rejected') && !msg.includes('Reject request')) {
+          console.error('[TON Payment]', err);
+          toast({ title: "TON", description: "Ошибка оплаты", variant: "destructive" });
+        }
+      } finally {
+        document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
+      }
+    };
+
+    if (liveWallet) {
+      await doTransfer();
+      return;
+    }
+
+    // Not connected — open connect modal, then pay after connection
+    document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
+    const unsub = tonConnectUI.onStatusChange((w) => {
+      if (w) {
+        unsub();
+        setTimeout(() => doTransfer(), 800);
+      }
+    });
+    tonConnectUI.onModalStateChange((state: any) => {
+      if (state?.status === 'closed' && !tonConnectUI.wallet) {
+        unsub();
+        document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
+      }
+    });
+    try {
+      await tonConnectUI.openModal();
+    } catch {
+      unsub();
+      document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
+    }
+  }, [selectedPack, loadData]);
+
   // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
   const handlePurchase = useCallback(
     async (boost: Boost) => {
@@ -2032,6 +2096,7 @@ export function BoostShopModal({
           loadData();
           setIsPaymentSelectorOpen(false);
         }}
+        onTonClick={handleTonPurchase}
         onCryptoClick={handleCryptomusPurchase}
         onCardClick={handleCardPurchase}
         availability={{
