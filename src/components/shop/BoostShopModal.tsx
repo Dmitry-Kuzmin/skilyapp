@@ -185,7 +185,8 @@ export function BoostShopModal({
   const platform = userContext?.platform ?? 'web';
   const dateLocale = localeMap[language] || 'en-US';
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
-  const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
+  // Use live Telegram detection — userContext.platform may be stale/wrong on desktop
+  const currentPlatform = isTelegramMiniApp() ? 'telegram' : (platform === 'telegram' ? 'telegram' : 'web');
   const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
@@ -1819,7 +1820,7 @@ export function BoostShopModal({
                             {showTonPayment && (
                               <TonPaymentWidget
                                 packageKey={pack.packageKey}
-                                mode="compact"
+                                mode="full"
                                 amountTon={
                                   pack.amount === 100 ? 0.2 :
                                     pack.amount === 500 ? 0.8 :
@@ -2217,7 +2218,7 @@ export function BoostShopModal({
                                 {showTonPayment && (
                                   <TonPaymentWidget
                                     packageKey={catalogKey}
-                                    mode="compact"
+                                    mode="full"
                                     amountTon={
                                       plan.id === 'yearly' ? 9.9 :
                                         plan.id === 'quarterly' ? 3.9 :
