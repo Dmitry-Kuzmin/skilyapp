@@ -177,7 +177,7 @@ export function PaymentSelectorModal({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
-            className="flex flex-col gap-3 p-1"
+            className="flex flex-col gap-3 px-2 pb-4 pt-1"
           >
             {/* Telegram Stars */}
             {availability.stars && (
