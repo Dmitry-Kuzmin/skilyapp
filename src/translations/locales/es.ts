@@ -620,6 +620,14 @@ export const es = {
       premium: "Premium",
       history: "Historial",
     },
+    payment: {
+      selectorTitle: "Elige el método de pago",
+      starsSubtitle: "Instantáneo vía Telegram Stars",
+      tonSubtitle: "Vía Tonkeeper o Wallet",
+      cryptoSubtitle: "BTC, USDT, ETH y más",
+      cardTitle: "Tarjeta bancaria",
+      cardSubtitle: "Visa, Mastercard, Stripe",
+    },
     sections: {
       popular: "Impulsos populares",
       premium: "Impulsos premium",
@@ -696,7 +704,8 @@ export const es = {
       successDescription: "Recibiste {{amount}} monedas",
       purpose: "Para boosts, duelos y entradas premium",
       perCoin: "€{{price}} / moneda",
-      deliveryHint: "Entrega instantánea · Pagos seguros",
+      bonusCoinsBenefit: "+{{amount}} de regalo",
+      deliveryHint: "Entrega instantánea · Pago seguro",
       buyPackAria: "Comprar paquete de {{amount}} monedas",
       tags: {
         starter: "Ideal para empezar",
@@ -718,6 +727,7 @@ export const es = {
     premium: {
       title: "Suscripción Premium",
       subtitle: "Obtén el máximo de tu aprendizaje",
+      pricePerDay: "solo {{price}} al día",
       activeBadge: "Activa",
       benefits: {
         unlimitedTests: "Acceso ilimitado a todos los tests",
@@ -743,6 +753,12 @@ export const es = {
       button: "Abrir Duel Pass",
       toastTitle: "Duel Pass",
       toastDescription: "Abre Duel Pass en la página principal",
+      oneTime: "pago único",
+      features: {
+        rareSkins: "Skins raras",
+        lootChests: "Cofres de botín",
+        expBoosts: "Potenciadores XP",
+      },
     },
     history: {
       title: "Historial de monedas",

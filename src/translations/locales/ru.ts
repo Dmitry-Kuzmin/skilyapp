@@ -637,6 +637,14 @@ export const ru = {
       premium: "Premium",
       history: "История",
     },
+    payment: {
+      selectorTitle: "Выбери способ оплаты",
+      starsSubtitle: "Мгновенно через Telegram Stars",
+      tonSubtitle: "Через Tonkeeper или Wallet",
+      cryptoSubtitle: "BTC, USDT, ETH и другие",
+      cardTitle: "Банковская карта",
+      cardSubtitle: "Visa, Mastercard, Stripe",
+    },
     sections: {
       popular: "Популярные бусты",
       premium: "Премиум бусты",
@@ -713,6 +721,7 @@ export const ru = {
       successDescription: "Вы получили {{amount}} монет",
       purpose: "Для бустов, дуэлей и премиум-доступа",
       perCoin: "€{{price}} за монету",
+      bonusCoinsBenefit: "+{{amount}} в подарок",
       deliveryHint: "Мгновенное зачисление · Безопасная оплата",
       buyPackAria: "Купить пакет на {{amount}} монет",
       tags: {
@@ -735,6 +744,7 @@ export const ru = {
     premium: {
       title: "Premium подписка",
       subtitle: "Получите максимум от обучения",
+      pricePerDay: "всего {{price}} в день",
       activeBadge: "Активна",
       benefits: {
         unlimitedTests: "Безлимитный доступ ко всем тестам",
@@ -758,8 +768,13 @@ export const ru = {
       subtitle: "Соревнуйся и получай эксклюзивные награды",
       description: "Получайте эксклюзивные награды за каждый уровень! Premium удваивает все награды.",
       button: "Открыть Duel Pass",
-      toastTitle: "Duel Pass",
       toastDescription: "Откройте Duel Pass на главной странице",
+      oneTime: "единоразово",
+      features: {
+        rareSkins: "Редкие скины",
+        lootChests: "Сундуки с лутом",
+        expBoosts: "Ускорители опыта",
+      },
     },
     history: {
       title: "История монет",

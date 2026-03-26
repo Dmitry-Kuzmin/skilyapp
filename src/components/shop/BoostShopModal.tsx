@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { PRICING_PLANS } from "@/lib/pricing-config";
+import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config";
 import {
   useState,
   useEffect,
@@ -48,6 +48,7 @@ import {
   Heart,
   LayoutGrid,
   Pickaxe,
+  Box,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext, UserContext } from "@/contexts/UserContext";
@@ -89,7 +90,6 @@ import { useModalStore } from "@/store/modalStore";
 import { showAdSenseRewardedVideo } from "@/lib/adsense";
 import { UnifiedPricingCard } from "./UnifiedPricingCard";
 import { PaymentSelectorModal } from "./PaymentSelectorModal";
-import { COIN_PACKS } from "@/lib/pricing-config";
 
 
 const supabaseClient = supabase as any;
@@ -1701,32 +1701,39 @@ export function BoostShopModal({
             {/* Premium Tab */}
             <TabsContent
               value="premium"
-              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
+              className="flex-1 overflow-y-auto p-3 md:p-4 space-y-6 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
             >
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                   {PRICING_PLANS.map((plan) => {
                     const isPopular = plan.popular;
-                    const isTotalValue = plan.savings === "50%";
+                    const isBestValue = plan.savings === "50%";
                     const catalogKey = PLAN_TO_CATALOG[plan.id];
+                    
+                    // Расчет цены в день
+                    let perDayPrice = "";
+                    if (plan.id === 'monthly') perDayPrice = "€0.33";
+                    else if (plan.id === 'quarterly') perDayPrice = "€0.27";
+                    else if (plan.id === 'biannual') perDayPrice = "€0.22";
+                    else if (plan.id === 'yearly') perDayPrice = "€0.16";
 
                     return (
                       <UnifiedPricingCard
                         key={plan.id}
                         title={plan.title}
                         price={plan.price}
-                        subtitle={plan.subtitle}
-                        benefits={plan.features}
-                        badge={isPopular ? '🔥 POPULAR' : isTotalValue ? '👑 BEST VALUE' : undefined}
+                        pricePerDay={perDayPrice ? t('boostShop.premium.pricePerDay', { price: perDayPrice }) : undefined}
+                        benefits={plan.features.slice(0, 3)} // Берем только самое важное
+                        badge={isPopular ? '🔥 ПОПУЛЯРНО' : isBestValue ? '⭐ ВЫГОДНО' : undefined}
                         isPopular={isPopular}
-                        isVip={plan.id === 'lifetime'}
-                        accentColor={isPopular ? 'violet' : isTotalValue ? 'emerald' : 'blue'}
+                        isVip={isBestValue}
+                        accentColor={isPopular ? 'violet' : isBestValue ? 'emerald' : 'blue'}
                         onBuy={() => handleBuyClick({
                           ...plan,
                           catalogKey,
                           packageKey: catalogKey,
                           title: `Premium ${plan.title}`,
-                          priceCoins: plan.priceValue * 10 
+                          priceValue: plan.priceValue
                         })}
                         icon="premium"
                         savings={plan.savings}
@@ -1735,34 +1742,82 @@ export function BoostShopModal({
                   })}
                 </div>
 
-                {/* DUEL PASS CARD */}
-                <motion.div
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-[#064e3b] dark:to-[#042f2e] border border-emerald-500/30 p-1"
-                >
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent" />
-                  <div className="relative bg-[#022c22]/80 backdrop-blur-xl rounded-[20px] p-5 flex flex-col sm:flex-row items-center gap-5">
-                    <div className="relative w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30 shrink-0">
-                      <Trophy className="w-7 h-7 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+                {/* REDESIGNED DUEL PASS CARD */}
+                <div className="relative group p-[1px] rounded-[32px] overflow-hidden">
+                  {/* Внешнее свечение */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-cyan-500/20 to-emerald-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  
+                  <motion.div
+                    whileHover={{ y: -2 }}
+                    className="relative overflow-hidden rounded-[31px] bg-[#022c22] border border-emerald-500/20"
+                  >
+                    {/* Фон с паттерном */}
+                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_2px_2px,_rgba(255,255,255,0.05)_1px,_transparent_0)] bg-[length:24px_24px]" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-cyan-500/5" />
+                    
+                    <div className="relative p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+                      {/* Левая часть: Иконка и Бейдж */}
+                      <div className="relative shrink-0">
+                        <div className="w-20 h-20 rounded-[24px] bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 flex items-center justify-center border border-emerald-500/30 shadow-2xl shadow-emerald-500/10 transition-transform duration-500 group-hover:scale-110">
+                          <Trophy className="w-10 h-10 text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.6)]" />
+                        </div>
+                        <div className="absolute -bottom-2 -right-2 px-2 py-0.5 rounded-md bg-emerald-500 text-[#022c22] text-[10px] font-black uppercase tracking-tighter shadow-lg">
+                          NEW
+                        </div>
+                      </div>
+
+                      {/* Центральная часть: Контент */}
+                      <div className="flex-1 text-center md:text-left space-y-4">
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-center md:justify-start gap-2">
+                            <h3 className="text-2xl font-black text-white tracking-tight italic uppercase">Duel Pass</h3>
+                            <span className="text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full border border-emerald-400/20">
+                              SEASON 1
+                            </span>
+                          </div>
+                          <p className="text-sm text-emerald-100/60 font-medium max-w-md">
+                            Уникальный путь прогресса: открывай сундуки, получай редкие скины и доминируй в дуэлях.
+                          </p>
+                        </div>
+
+                        {/* Мини-преимущества */}
+                        <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                          {[
+                            { icon: Sparkles, text: t('boostShop.duelPass.features.rareSkins') },
+                            { icon: Box, text: t('boostShop.duelPass.features.lootChests') },
+                            { icon: Zap, text: t('boostShop.duelPass.features.expBoosts') }
+                          ].map((feat, i) => (
+                            <div key={i} className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-200/40 uppercase tracking-widest">
+                              <feat.icon className="w-3.5 h-3.5 text-emerald-400/60" />
+                              {feat.text}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Правая часть: Цена и Кнопка */}
+                      <div className="shrink-0 flex flex-col items-center md:items-end gap-3 min-w-[140px]">
+                        <div className="text-center md:text-right">
+                          <div className="text-2xl font-black text-white">{DUEL_PASS_PRICE.price}</div>
+                          <div className="text-[10px] font-bold text-emerald-400/60 uppercase tracking-widest">{t('boostShop.duelPass.oneTime')}</div>
+                        </div>
+                        <Button
+                          className="bg-emerald-500 hover:bg-emerald-400 text-[#022c22] font-black uppercase tracking-widest text-xs px-8 h-12 rounded-[18px] border-0 shadow-[0_8px_30px_-5px_rgba(16,185,129,0.4)] transition-all hover:-translate-y-1"
+                          onClick={() => {
+                            handleBuyClick({
+                              id: 'duel_pass',
+                              title: 'Duel Pass Season 1',
+                              priceValue: DUEL_PASS_PRICE.priceValue,
+                              catalogKey: 'duel_pass'
+                            });
+                          }}
+                        >
+                          {t('boostShop.buttons.buy')}
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex-1 text-center sm:text-left">
-                      <h3 className="text-lg font-bold text-white">Duel Pass</h3>
-                      <p className="text-xs text-emerald-200/80 mt-1 max-w-sm mx-auto sm:mx-0">
-                        Открывайте сундуки, получайте эксклюзивные скины и соревнуйтесь в сезоне.
-                      </p>
-                    </div>
-                    <Button
-                      className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold border-0 shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] w-full sm:w-auto px-6 h-10 rounded-xl"
-                      onClick={() => {
-                        onOpenChange(false);
-                        setTimeout(() => useModalStore.getState().openModal("BOOST_SHOP", { initialTab: 'premium' }), 150);
-                      }}
-                    >
-                      Открыть
-                    </Button>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                </div>
               </div>
             </TabsContent>
 

@@ -629,6 +629,14 @@ export const en = {
       premium: "Premium",
       history: "History",
     },
+    payment: {
+      selectorTitle: "Choose Payment Method",
+      starsSubtitle: "Instant via Telegram Stars",
+      tonSubtitle: "Via Tonkeeper or Wallet",
+      cryptoSubtitle: "BTC, USDT, ETH and more",
+      cardTitle: "Bank Card",
+      cardSubtitle: "Visa, Mastercard, Stripe",
+    },
     sections: {
       popular: "Popular boosts",
       premium: "Premium boosts",
@@ -705,6 +713,7 @@ export const en = {
       successDescription: "You received {{amount}} coins",
       purpose: "For boosts, duels and premium entries",
       perCoin: "€{{price}} / coin",
+      bonusCoinsBenefit: "+{{amount}} as a gift",
       deliveryHint: "Instant delivery · Secure payments",
       buyPackAria: "Buy {{amount}} coin pack",
       tags: {
@@ -727,6 +736,7 @@ export const en = {
     premium: {
       title: "Premium subscription",
       subtitle: "Get the most out of your learning",
+      pricePerDay: "only {{price}} per day",
       activeBadge: "Active",
       benefits: {
         unlimitedTests: "Unlimited access to every test",
@@ -752,6 +762,12 @@ export const en = {
       button: "Open Duel Pass",
       toastTitle: "Duel Pass",
       toastDescription: "Open Duel Pass on the home page",
+      oneTime: "one-time",
+      features: {
+        rareSkins: "Rare skins",
+        lootChests: "Loot chests",
+        expBoosts: "Exp boosters",
+      },
     },
     history: {
       title: "Coin history",

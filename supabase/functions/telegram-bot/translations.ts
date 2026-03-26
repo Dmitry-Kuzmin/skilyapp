@@ -621,9 +621,9 @@ Empieza a practicar cada día para:
         es: 'Elige el método de pago'
     },
     'boostShop.payment.starsSubtitle': {
-        ru: 'Мгновенно через Telegram',
-        en: 'Instant via Telegram',
-        es: 'Instantáneo vía Telegram'
+        ru: 'Мгновенно через Telegram Stars',
+        en: 'Instant via Telegram Stars',
+        es: 'Instantáneo vía Telegram Stars'
     },
     'boostShop.payment.tonSubtitle': {
         ru: 'Через Tonkeeper или Wallet',
@@ -641,7 +641,7 @@ Empieza a practicar cada día para:
         es: 'Tarjeta bancaria'
     },
     'boostShop.payment.cardSubtitle': {
-        ru: 'Stripe / Карта РФ и мира',
+        ru: 'Visa, Mastercard, Stripe',
         en: 'Visa, Mastercard, Stripe',
         es: 'Visa, Mastercard, Stripe'
     },
