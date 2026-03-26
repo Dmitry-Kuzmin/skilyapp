@@ -42,7 +42,6 @@ export function PaddleCheckoutModal({
     const paddleRef = useRef<Paddle | null>(null);
     const initDoneRef = useRef<string | null>(null);
     const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
-    const successUrl = `${window.location.origin}/purchase/success?transaction_id={transaction_id}`;
 
     // Открытие Overlay на десктопе (не уходим со страницы)
     const openOverlay = useCallback(async () => {
@@ -58,7 +57,6 @@ export function PaddleCheckoutModal({
                     displayMode: "overlay",
                     theme: "dark",
                     locale,
-                    successUrl,
                 },
                 // @ts-expect-error eventCallback not in types but works per docs
                 eventCallback: (event: any) => {
@@ -72,13 +70,11 @@ export function PaddleCheckoutModal({
                     }
                 },
             });
-            // Закрываем нашу оболочку — overlay отрисован поверх
-            onOpenChange(false);
         } catch (err: any) {
             setErrorMsg(err.message || "Не удалось открыть форму оплаты");
             setStatus("error");
         }
-    }, [transactionId, locale, successUrl, onSuccess, onOpenChange]);
+    }, [transactionId, locale, onSuccess, onOpenChange]);
 
     // Открытие Inline внутри Drawer (мобилка)
     const openInline = useCallback(async () => {
@@ -118,8 +114,7 @@ export function PaddleCheckoutModal({
                     frameStyle: "width: 100%; border: none; background: transparent;",
                     theme: "dark",
                     locale,
-                    successUrl,
-                },
+                                    },
                 eventCallback: (event: any) => {
                     console.log("[PaddleCheckoutModal] Event:", event.name, event.data);
                     switch (event.name) {
@@ -145,7 +140,7 @@ export function PaddleCheckoutModal({
             setErrorMsg(err.message || "Не удалось загрузить форму оплаты");
             setStatus("error");
         }
-    }, [transactionId, locale, successUrl, onSuccess, onOpenChange, openOverlay]);
+    }, [transactionId, locale, onSuccess, onOpenChange, openOverlay]);
 
     useEffect(() => {
         if (!open || !transactionId) return;

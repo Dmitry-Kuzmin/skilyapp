@@ -1010,14 +1010,13 @@ export function BoostShopModal({
 
         if (paddleForCheckout) {
           const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
-          const successUrl = `${window.location.origin}/purchase/success?transaction_id={transaction_id}`;
 
           (paddleForCheckout.Checkout.open as (opts: any) => void)({
             transactionId: data.transaction_id,
             settings: {
               displayMode: "overlay",
+              theme: "dark",
               locale,
-              successUrl,
             },
             eventCallback: (event: any) => {
               if (event.name === "checkout.completed") {
@@ -1026,13 +1025,10 @@ export function BoostShopModal({
                 onOpenChange(false);
               }
               if (event.name === "checkout.closed") {
-                onOpenChange(false);
+                // User closed Paddle overlay — keep shop open
               }
             },
           });
-          // Даём Paddle 100ms чтобы инжектировать overlay в body,
-          // только потом закрываем нашу модалку (иначе backdrop блокирует клики)
-          setTimeout(() => onOpenChange(false), 100);
         } else {
           // Фоллбэк — открываем checkout_url если Paddle SDK недоступен
           const url = data.checkout_url;

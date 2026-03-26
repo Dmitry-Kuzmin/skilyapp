@@ -197,7 +197,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 frameTarget: "paddle-checkout-container", // Target our custom container
                 frameInitialHeight: 450,
                 frameStyle: "width:100%; min-width:312px; background-color: transparent; border: none;",
-                successUrl: `${window.location.origin}/purchase/success`,
+                // No successUrl — handle via eventCallback to avoid page navigation
               },
             });
             setSelectedPlanId(null);
