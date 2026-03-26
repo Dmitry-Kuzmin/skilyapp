@@ -8,6 +8,7 @@ import {
   useMemo,
   useCallback,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   ResponsiveModal,
   ModalSkeleton,
@@ -167,6 +168,7 @@ export function BoostShopModal({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterCategory, setFilterCategory] = useState<'all' | 'earn' | 'spend' | 'purchase' | 'reward'>('all');
   const [activeTab, setActiveTab] = useState<'boosts' | 'coins' | 'premium' | 'history'>(initialTab || 'boosts');
+  const [paddleCheckoutUrl, setPaddleCheckoutUrl] = useState<string | null>(null);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
   const [adTestLoading, setAdTestLoading] = useState(false);
@@ -997,43 +999,9 @@ export function BoostShopModal({
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        // Paddle Overlay работает и в Telegram Mini App, и в браузере —
-        // открываем SDK overlay прямо внутри приложения, без редиректа
-        let paddleForCheckout = paddle || getPaddleInstanceSync();
-        if (!paddleForCheckout) paddleForCheckout = await getPaddleInstance();
-
-        if (paddleForCheckout) {
-          const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
-
-          // Disable Radix modal focus trap so Paddle iframe receives pointer events
-          document.dispatchEvent(new CustomEvent('paddle-checkout', { detail: { open: true } }));
-
-          (paddleForCheckout.Checkout.open as (opts: any) => void)({
-            transactionId: data.transaction_id,
-            settings: {
-              displayMode: "overlay",
-              theme: "dark",
-              locale,
-            },
-            eventCallback: (event: any) => {
-              if (event.name === "checkout.completed") {
-                document.dispatchEvent(new CustomEvent('paddle-checkout', { detail: { open: false } }));
-                toast({ title: t("boostShop.coins.successTitle"), description: "Оплата прошла успешно! 🎉" });
-                loadData();
-                onOpenChange(false);
-              }
-              if (event.name === "checkout.closed") {
-                // Re-enable modal focus trap when Paddle overlay closes
-                document.dispatchEvent(new CustomEvent('paddle-checkout', { detail: { open: false } }));
-              }
-            },
-          });
-        } else {
-          // Фоллбэк — открываем checkout_url если Paddle SDK недоступен
-          const url = data.checkout_url;
-          if (url) window.open(url, "_blank");
-          onOpenChange(false);
-        }
+        // Open Paddle checkout as fullscreen iframe portal
+        const checkoutUrl = data.checkout_url || `https://checkout.paddle.com/transaction/${data.transaction_id}`;
+        setPaddleCheckoutUrl(checkoutUrl);
       } catch (err: any) {
         console.error("[BoostShop] Purchase error:", err);
         toast({
@@ -2546,6 +2514,28 @@ export function BoostShopModal({
             </ResponsiveModal>
           );
         })()}
+      {/* Fullscreen Paddle checkout portal */}
+      {paddleCheckoutUrl && createPortal(
+        <div className="fixed inset-0 z-[100000] bg-black flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          <div className="flex items-center justify-between px-4 py-3 bg-black/90 shrink-0">
+            <span className="text-sm text-white/70 font-medium">Paddle Checkout</span>
+            <button
+              onClick={() => setPaddleCheckoutUrl(null)}
+              className="p-1.5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <iframe
+            src={paddleCheckoutUrl}
+            className="flex-1 w-full border-0"
+            allow="payment"
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+            title="Paddle Checkout"
+          />
+        </div>,
+        document.body
+      )}
     </>
   );
 }
