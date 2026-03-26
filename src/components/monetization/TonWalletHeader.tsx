@@ -7,6 +7,7 @@ import { tonConnectUI } from '@/lib/ton-appkit';
 import { Wallet, Loader2, LogOut, Copy, Check, ExternalLink } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
  * TonWalletHeader — compact wallet badge for shop header.
@@ -20,8 +21,11 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export const TonWalletHeader: React.FC = () => {
     const liveAddress = useAddress();
-    const { balance: rawBalance, isLoading: isBalanceLoading } = useBalance();
+    const balanceData = useBalance();
+    const rawBalance = balanceData && 'balance' in balanceData ? (balanceData as any).balance : null;
+    const isBalanceLoading = (balanceData as any).isLoading;
     const { profileId } = useUserContext();
+    const { t } = useLanguage();
 
     const [savedAddress, setSavedAddress] = useState<string | null>(null);
     const [apiBalance, setApiBalance] = useState<string | null>(null);
@@ -38,7 +42,7 @@ export const TonWalletHeader: React.FC = () => {
             .select('ton_wallet_address')
             .eq('id', profileId)
             .maybeSingle()
-            .then(({ data }) => {
+            .then(({ data }: { data: any }) => {
                 if (data?.ton_wallet_address) {
                     setSavedAddress(data.ton_wallet_address);
                 }
@@ -65,10 +69,21 @@ export const TonWalletHeader: React.FC = () => {
         })();
     }, [savedAddress, liveAddress]);
 
-    // Timeout: if TonConnect doesn't restore within 5s, stop showing spinner
+    // Timeout: if TonConnect doesn't restore within 15s, stop showing spinner
     useEffect(() => {
-        if (!savedAddress || liveAddress) return;
-        const timer = setTimeout(() => setRestoreTimedOut(true), 5000);
+        if (!savedAddress || liveAddress) {
+            if (liveAddress) setRestoreTimedOut(false);
+            return;
+        }
+        
+        // Increased timeout to 15s for better reliability on mobile networks
+        const timer = setTimeout(() => {
+          if (!liveAddress) {
+            console.warn('[TON] Restoration timed out after 15s');
+            setRestoreTimedOut(true);
+          }
+        }, 15000); 
+        
         return () => clearTimeout(timer);
     }, [savedAddress, liveAddress]);
 
@@ -86,6 +101,7 @@ export const TonWalletHeader: React.FC = () => {
     }, [showMenu]);
 
     const handleConnect = useCallback(() => {
+        if ((tonConnectUI.modal as any).open) return;
         try {
             tonConnectUI.openModal();
         } catch (e) {
@@ -137,7 +153,9 @@ export const TonWalletHeader: React.FC = () => {
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0098EA]/15 hover:bg-[#0098EA]/25 rounded-xl border border-[#0098EA]/30 active:scale-95 transition-all"
             >
                 <Wallet className="w-3.5 h-3.5 text-[#0098EA]" />
-                <span className="text-[11px] font-bold text-[#0098EA]">Connect</span>
+                <span className="text-[11px] font-bold text-[#0098EA]">
+                    {t('wallet.connect')}
+                </span>
             </button>
         );
     }
@@ -195,7 +213,7 @@ export const TonWalletHeader: React.FC = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className={`text-[10px] font-medium uppercase tracking-wider ${isStale ? 'text-amber-400/70' : 'text-white/40'}`}>
-                                    {isLiveConnected ? 'Подключён' : isRestoring ? 'Восстановление...' : 'Требуется переподключение'}
+                                    {isLiveConnected ? t('wallet.connected') : isRestoring ? t('wallet.restoring') : t('wallet.reconnectRequired')}
                                 </p>
                                 <p className="text-[12px] text-white/80 font-mono truncate">
                                     {shortAddr}
@@ -222,7 +240,7 @@ export const TonWalletHeader: React.FC = () => {
                                 <Copy className="w-4 h-4 text-white/50" />
                             )}
                             <span className="text-[13px] text-white/70">
-                                {copied ? 'Скопировано!' : 'Копировать адрес'}
+                                {copied ? t('wallet.copied') : t('wallet.copyAddress')}
                             </span>
                         </button>
 
@@ -232,7 +250,7 @@ export const TonWalletHeader: React.FC = () => {
                         >
                             <ExternalLink className="w-4 h-4 text-white/50" />
                             <span className="text-[13px] text-white/70">
-                                Открыть в Tonviewer
+                                {t('wallet.openExplorer')}
                             </span>
                         </button>
 
@@ -243,7 +261,7 @@ export const TonWalletHeader: React.FC = () => {
                             >
                                 <Wallet className="w-4 h-4 text-[#0098EA]" />
                                 <span className="text-[13px] text-[#0098EA] font-medium">
-                                    Переподключить
+                                    {t('wallet.reconnect')}
                                 </span>
                             </button>
                         )}
@@ -256,7 +274,7 @@ export const TonWalletHeader: React.FC = () => {
                         >
                             <LogOut className="w-4 h-4 text-red-400/70" />
                             <span className="text-[13px] text-red-400/70">
-                                Отключить кошелёк
+                                {t('wallet.disconnect')}
                             </span>
                         </button>
                     </div>

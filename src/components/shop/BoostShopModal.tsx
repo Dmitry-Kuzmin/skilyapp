@@ -1,3 +1,4 @@
+```
 import { cn } from "@/lib/utils";
 import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config";
 import {
@@ -1027,6 +1028,9 @@ export function BoostShopModal({
         if (paddleForCheckout) {
           const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
 
+          // Disable Radix modal focus trap so Paddle iframe receives pointer events
+          document.dispatchEvent(new CustomEvent('paddle-checkout', { detail: { open: true } }));
+
           (paddleForCheckout.Checkout.open as (opts: any) => void)({
             transactionId: data.transaction_id,
             settings: {
@@ -1036,12 +1040,14 @@ export function BoostShopModal({
             },
             eventCallback: (event: any) => {
               if (event.name === "checkout.completed") {
+                document.dispatchEvent(new CustomEvent('paddle-checkout', { detail: { open: false } }));
                 toast({ title: t("boostShop.coins.successTitle"), description: "Оплата прошла успешно! 🎉" });
                 loadData();
                 onOpenChange(false);
               }
               if (event.name === "checkout.closed") {
-                // User closed Paddle overlay — keep shop open
+                // Re-enable modal focus trap when Paddle overlay closes
+                document.dispatchEvent(new CustomEvent('paddle-checkout', { detail: { open: false } }));
               }
             },
           });
