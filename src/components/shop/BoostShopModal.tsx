@@ -46,6 +46,8 @@ import {
   Download,
   Lock,
   Heart,
+  LayoutGrid,
+  Pickaxe,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext, UserContext } from "@/contexts/UserContext";
@@ -85,6 +87,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useModalStore } from "@/store/modalStore";
 import { showAdSenseRewardedVideo } from "@/lib/adsense";
+import { UnifiedPricingCard } from "./UnifiedPricingCard";
+import { PaymentSelectorModal } from "./PaymentSelectorModal";
+import { COIN_PACKS } from "@/lib/pricing-config";
 
 
 const supabaseClient = supabase as any;
@@ -174,6 +179,10 @@ export function BoostShopModal({
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [showRewardedAdModal, setShowRewardedAdModal] = useState(false);
   const [adTestLoading, setAdTestLoading] = useState(false);
+  
+  // Новое состояние для унифицированной оплаты
+  const [selectedPack, setSelectedPack] = useState<any>(null);
+  const [isPaymentSelectorOpen, setIsPaymentSelectorOpen] = useState(false);
 
 
   const modalContentRef = useRef<HTMLDivElement>(null);
@@ -192,6 +201,13 @@ export function BoostShopModal({
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showTonPayment = isPaymentMethodAvailable('ton', currentPlatform);
   const tonAddress = useAddress();
+
+  const handleBuyClick = useCallback((pack: any) => {
+    setSelectedPack(pack);
+    setIsPaymentSelectorOpen(true);
+    triggerHapticFeedback('light');
+  }, []);
+
 
   // Логирование для отладки
   useEffect(() => {
@@ -1047,8 +1063,59 @@ export function BoostShopModal({
         setPurchaseLoading(null);
       }
     },
-    [profileId, purchaseLoading, paddle, showPaddlePayment, language, t],
+    [profileId, paddle, showPaddlePayment, toast, t, loadData],
   );
+
+  const handleCryptomusPurchase = useCallback(async () => {
+    if (!selectedPack || !profileId) return;
+    
+    try {
+      const itemName = selectedPack.title;
+      const priceValue = selectedPack.priceValue;
+      const catalogKey = selectedPack.catalogKey;
+
+      const { data, error } = await supabaseClient.functions.invoke(
+        "cryptomus-payment",
+        {
+          body: {
+            user_id: profileId,
+            package_key: catalogKey,
+            title: itemName,
+            amount: priceValue,
+            currency: 'EUR'
+          },
+        },
+      );
+
+      if (error || !data?.payment_url) {
+        throw error || new Error("No payment URL");
+      }
+
+      setCryptomusPreview({
+        open: true,
+        paymentUrl: data.payment_url,
+        orderId: data.order_id,
+        amount: priceValue,
+        currency: 'EUR',
+        itemName: itemName
+      });
+      setIsPaymentSelectorOpen(false);
+    } catch (err: any) {
+      console.error("[BoostShop] Cryptomus error:", err);
+      toast({ 
+        title: t("boostShop.toasts.errorTitle"), 
+        description: err?.message || t("boostShop.toasts.purchaseErrorDescription"), 
+        variant: "destructive" 
+      });
+    }
+  }, [selectedPack, profileId, t]);
+
+  const handleCardPurchase = useCallback(() => {
+    if (selectedPack) {
+      handleCoinPurchase(selectedPack.catalogKey);
+      setIsPaymentSelectorOpen(false);
+    }
+  }, [selectedPack, handleCoinPurchase]);
 
   // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
   const handlePurchase = useCallback(
@@ -1545,7 +1612,6 @@ export function BoostShopModal({
                   <button
                     key={value}
                     onClick={(e) => {
-                      // ОПТИМИЗАЦИЯ: Предотвращаем множественные клики
                       e.preventDefault();
                       e.stopPropagation();
                       setCategoryFilter(value as typeof categoryFilter);
@@ -1572,58 +1638,23 @@ export function BoostShopModal({
               </div>
 
               {/* Grid Layout для бустов */}
-              {filteredRegularBoosts.length > 0 ||
-                filteredPremiumBoosts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 px-1">
-                  {filteredRegularBoosts.map((boost) => (
-                    <MarketItem
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4 gap-2.5 md:gap-3">
+                {boosts
+                  .filter((b: any) =>
+                    categoryFilter === "all"
+                      ? true
+                      : getBoostCategory(b.type) === categoryFilter,
+                  )
+                  .map((boost: any) => (
+                    <BoostCard
                       key={boost.id}
                       boost={boost}
-                      inventoryCount={getInventoryCount(boost.type)}
-                      coins={coins}
                       onPurchase={() => handlePurchase(boost)}
-                      onInspect={() => {
-                        console.log(
-                          "[BoostShopModal] Setting selectedBoostForInspect:",
-                          boost.type,
-                        );
-                        setSelectedBoostForInspect(boost);
-                      }}
-                      category={getBoostCategory(boost.type)}
-                      isPurchasing={boostPurchaseLoading === boost.type}
-                      onPurchaseComplete={() => {
-                        // Callback после завершения анимации покупки
-                      }}
+                      coins={coins}
+                      inventoryCount={getInventoryCount(boost.type)}
                     />
                   ))}
-                  {filteredPremiumBoosts.map((boost) => (
-                    <MarketItem
-                      key={boost.id}
-                      boost={boost}
-                      inventoryCount={getInventoryCount(boost.type)}
-                      coins={coins}
-                      onPurchase={() => handlePurchase(boost)}
-                      onInspect={() => {
-                        console.log(
-                          "[BoostShopModal] Setting selectedBoostForInspect:",
-                          boost.type,
-                        );
-                        setSelectedBoostForInspect(boost);
-                      }}
-                      category={getBoostCategory(boost.type)}
-                      isPurchasing={boostPurchaseLoading === boost.type}
-                      onPurchaseComplete={() => {
-                        // Callback после завершения анимации покупки
-                      }}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Zap className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">{t("boostShop.sections.empty")}</p>
-                </div>
-              )}
+              </div>
             </TabsContent>
 
             {/* Coins Tab */}
@@ -1631,298 +1662,32 @@ export function BoostShopModal({
               value="coins"
               className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
             >
-              <div className="space-y-4">
-                {/* CRYPTO MINER V2 - Advanced Edition с анимациями и частицами */}
-                {!isPremium && (
-                  <div className="px-1">
-                    <CryptoMinerAdvanced onRewardClaimed={loadData} />
-                  </div>
-                )}
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
+                  {COIN_PACKS.map((pack) => {
+                    const isBestValue = pack.coins === 500;
+                    const isHighlighted = pack.highlight;
 
-                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4 gap-2.5 md:gap-3">
-                  {coinPacks.map((pack, idx) => {
-                    // Выделяем пак 500 монет как "Best Value" (лучшее соотношение цена/количество)
-                    const isBestValue = pack.amount === 500;
-                    const isHighlighted = Boolean((pack as any).highlight);
-                    const pricePerCoin =
-                      pack.priceValue && pack.priceCoins
-                        ? pack.priceValue / pack.priceCoins
-                        : null;
-                    const description = t(
-                      pack.descriptionKey ?? "boostShop.coins.purpose",
-                    );
-                    const helperText = t(
-                      pack.helperKey ?? "boostShop.coins.deliveryHint",
-                    );
                     return (
-                      <motion.div
-                        key={idx}
-                        whileHover={{ y: -6, scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="h-full relative"
-                      >
-                        {/* Glow backdrop */}
-                        <div className={cn(
-                          "absolute inset-0 rounded-2xl blur-xl transition-opacity duration-500 -z-10 opacity-0 group-hover:opacity-100",
-                          isBestValue
-                            ? "bg-violet-600/40"
-                            : isHighlighted
-                              ? "bg-amber-500/30"
-                              : "bg-slate-400/10"
-                        )} />
-
-                        <Card
-                          className={cn(
-                            "group relative overflow-hidden rounded-2xl border bg-card transition-all duration-300 flex flex-col h-full",
-                            isBestValue
-                              ? "border-violet-500/50 shadow-[0_8px_32px_rgba(139,92,246,0.25)] hover:shadow-[0_16px_48px_rgba(139,92,246,0.35)]"
-                              : isHighlighted
-                                ? "border-amber-400/40 shadow-[0_8px_24px_rgba(251,191,36,0.2)] hover:shadow-[0_16px_40px_rgba(251,191,36,0.3)]"
-                                : "border-border/60 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.15)]"
-                          )}
-                        >
-                          {/* Shimmer effect на hover */}
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/[0.08] to-white/0 pointer-events-none rounded-2xl"
-                            initial={{ x: '-100%' }}
-                            whileHover={{ x: '200%' }}
-                            transition={{ duration: 0.8 }}
-                          />
-
-                          {/* Акцентная полоска сверху — анимированная */}
-                          <motion.div
-                            className={cn(
-                              "h-[2px] w-full flex-shrink-0",
-                              isBestValue
-                                ? "bg-gradient-to-r from-violet-500 via-fuchsia-400 to-indigo-500"
-                                : isHighlighted
-                                  ? "bg-gradient-to-r from-amber-400 to-orange-400"
-                                  : "bg-border/40"
-                            )}
-                            initial={{ scaleX: 0 }}
-                            animate={{ scaleX: 1 }}
-                            transition={{ delay: idx * 0.05, duration: 0.4 }}
-                            style={{ transformOrigin: 'left' }}
-                          />
-
-                          {/* Corner badge — с пульсом */}
-                          {(isBestValue || isHighlighted) && (
-                            <motion.div
-                              className="absolute top-3 right-3 z-10"
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ scale: 1, opacity: 1 }}
-                              transition={{ delay: idx * 0.05 + 0.2, type: 'spring', stiffness: 200 }}
-                            >
-                              <motion.span
-                                className={cn(
-                                  "text-[8px] font-black uppercase tracking-widest px-1.5 py-[3px] rounded-full border inline-block",
-                                  isBestValue
-                                    ? "bg-violet-500/15 text-violet-400 border-violet-500/25"
-                                    : "bg-amber-400/15 text-amber-500 border-amber-400/25"
-                                )}
-                                animate={{ scale: [1, 1.08, 1] }}
-                                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                              >
-                                {isBestValue ? '🔥 ХИТ' : '⭐ VIP'}
-                              </motion.span>
-                            </motion.div>
-                          )}
-
-                          <div className="p-3 sm:p-4 flex-1 flex flex-col gap-3 relative z-5">
-                            {/* Иконка + лейбл */}
-                            <div className="flex items-center gap-2.5">
-                              <motion.div
-                                whileHover={{ scale: 1.15, rotateZ: 5 }}
-                                whileTap={{ scale: 0.95 }}
-                                className={cn(
-                                  "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
-                                  isBestValue
-                                    ? "bg-gradient-to-br from-violet-600 to-indigo-600 text-white shadow-md shadow-violet-500/30"
-                                    : isHighlighted
-                                      ? "bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-md shadow-amber-400/20"
-                                      : "bg-gradient-to-br from-amber-400/15 to-orange-400/10 border border-amber-400/20"
-                                )}
-                              >
-                                <motion.div
-                                  animate={{ rotate: [0, -5, 5, 0] }}
-                                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                                >
-                                  <Coins className={cn("w-5 h-5", !isBestValue && !isHighlighted && "text-amber-500")} />
-                                </motion.div>
-                              </motion.div>
-                              <div className="flex-1 min-w-0 pr-8">
-                                <motion.p
-                                  className="text-sm font-bold text-foreground leading-none truncate"
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  transition={{ delay: idx * 0.05 + 0.1 }}
-                                >
-                                  {t("boostShop.coins.packLabel", { amount: pack.amount })}
-                                </motion.p>
-                              </div>
-                            </div>
-
-                            {/* Цена — доминирующий элемент с анимацией */}
-                            <motion.div
-                              initial={{ opacity: 0, y: 4 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: idx * 0.05 + 0.15 }}
-                            >
-                              <motion.div
-                                className="text-2xl sm:text-3xl font-black text-foreground tabular-nums leading-none bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
-                                whileHover={{ scale: 1.05 }}
-                              >
-                                {pack.price}
-                              </motion.div>
-                              {pricePerCoin && (
-                                <p className="text-[10px] text-muted-foreground/70 mt-1 font-medium">
-                                  ≈ €{pricePerCoin.toFixed(2)} / монету
-                                </p>
-                              )}
-                            </motion.div>
-
-                          {/* Кнопки */}
-                          <motion.div
-                            className="mt-auto space-y-1.5"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: idx * 0.05 + 0.25 }}
-                          >
-                            {/* Stars (Telegram) */}
-                            {showStarsPayment && (
-                              <StarsPaymentButton
-                                packageKey={pack.packageKey}
-                                priceCoins={pack.priceCoins}
-                                onSuccess={() => {
-                                  loadData();
-                                  toast({
-                                    title: t("boostShop.coins.successTitle"),
-                                    description: t("boostShop.coins.successDescription", { amount: pack.amount }),
-                                    duration: 5000,
-                                  });
-                                }}
-                                variant="default"
-                                size="sm"
-                                className={cn(
-                                  "w-full h-9 font-semibold text-xs transition-all duration-200",
-                                  isBestValue || isHighlighted
-                                    ? "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 text-black font-bold"
-                                    : "bg-gradient-to-r from-cyan-500 to-blue-600 text-white"
-                                )}
-                              />
-                            )}
-
-                            {/* TON */}
-                            {showTonPayment && (
-                              <TonPaymentWidget
-                                packageKey={pack.packageKey}
-                                mode="full"
-                                amountTon={
-                                  pack.amount === 100 ? 0.2 :
-                                    pack.amount === 500 ? 0.8 :
-                                      pack.amount === 1200 ? 1.8 : 3.5
-                                }
-                                description={`Buying ${pack.amount} coins`}
-                              />
-                            )}
-
-                            {/* PRIMARY: Криптовалюта */}
-                            {showCryptomusPayment && (
-                              <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.96 }}
-                              >
-                                <button
-                                disabled={!profileId}
-                                onClick={async () => {
-                                  if (!profileId) {
-                                    toast({
-                                      title: t("boostShop.toasts.errorTitle"),
-                                      description: t("boostShop.toasts.needLogin"),
-                                      variant: "destructive",
-                                    });
-                                    return;
-                                  }
-                                  try {
-                                    const { data, error } = await supabaseClient.functions.invoke("cryptomus-payment", {
-                                      body: { user_id: profileId, catalog_key: pack.catalogKey },
-                                    });
-                                    console.log("[BoostShop] Cryptomus raw response:", { data, error });
-                                    let finalData = data;
-                                    if (typeof data === "string") {
-                                      try { finalData = JSON.parse(data); } catch (e) {
-                                        console.error("[BoostShop] Error parsing Cryptomus string data:", e);
-                                      }
-                                    }
-                                    if (error) {
-                                      console.error("[BoostShop] Cryptomus error:", error);
-                                      toast({ title: t("boostShop.toasts.errorTitle"), description: error.message || t("boostShop.toasts.purchaseErrorDescription"), variant: "destructive" });
-                                      return;
-                                    }
-                                    if (finalData?.error) {
-                                      toast({ title: t("boostShop.toasts.errorTitle"), description: finalData.error || t("boostShop.toasts.purchaseErrorDescription"), variant: "destructive" });
-                                      return;
-                                    }
-                                    if (finalData?.url && finalData?.orderId) {
-                                      setCryptomusPreview({
-                                        open: true,
-                                        paymentUrl: finalData.url,
-                                        orderId: finalData.orderId,
-                                        amount: pack.priceValue || 0,
-                                        currency: "EUR",
-                                        itemName: `${pack.amount} монет`,
-                                      });
-                                    } else {
-                                      console.error("[BoostShop] Cryptomus data incomplete:", finalData || data);
-                                      toast({ title: t("boostShop.toasts.errorTitle"), description: t("boostShop.toasts.sessionError"), variant: "destructive" });
-                                    }
-                                  } catch (err: any) {
-                                    console.error("[BoostShop] Cryptomus error:", err);
-                                    toast({ title: t("boostShop.toasts.errorTitle"), description: err?.message || t("boostShop.toasts.purchaseErrorDescription"), variant: "destructive" });
-                                  }
-                                }}
-                                className={cn(
-                                  "w-full h-9 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all active:scale-[0.97] disabled:opacity-40",
-                                  isBestValue
-                                    ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:brightness-110 shadow-sm shadow-violet-500/30"
-                                    : "bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-black hover:brightness-105 shadow-sm shadow-amber-400/20"
-                                )}
-                              >
-                                <span className="text-sm leading-none">₿</span>
-                                <span>Крипта · {pack.price}</span>
-                                </button>
-                              </motion.div>
-                            )}
-
-                            {/* SECONDARY: Карта (Paddle) */}
-                            {!showStarsPayment && showPaddlePayment && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                aria-label={t("boostShop.coins.buyPackAria", { amount: pack.amount })}
-                                onClick={() => handleCoinPurchase(pack.catalogKey)}
-                                disabled={!profileId || purchaseLoading === pack.catalogKey || paddleLoading}
-                                className="w-full h-8 text-[11px] gap-1.5 border-border/60 text-muted-foreground hover:text-foreground hover:border-border transition-all"
-                              >
-                                {purchaseLoading === pack.catalogKey ? (
-                                  <div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-                                ) : (
-                                  <CreditCard className="w-3.5 h-3.5 shrink-0" />
-                                )}
-                                <span>{pack.price}</span>
-                              </Button>
-                            )}
-
-                            {/* Нет методов оплаты */}
-                            {!showStarsPayment && !showCryptomusPayment && !showPaddlePayment && !showTonPayment && (
-                              <p className="text-[10px] text-muted-foreground text-center py-1.5">
-                                Используйте Telegram Mini App
-                              </p>
-                            )}
-                          </motion.div>
-                        </div>
-                        </Card>
-                      </motion.div>
+                      <UnifiedPricingCard
+                        key={pack.id}
+                        title={t("boostShop.coins.packLabel", { amount: pack.coins })}
+                        price={pack.price}
+                        subtitle={t(pack.descriptionKey || "boostShop.coins.purpose")}
+                        badge={isBestValue ? '🔥 ХИТ' : isHighlighted ? '⭐ VIP' : undefined}
+                        isPopular={isBestValue}
+                        isVip={isHighlighted}
+                        accentColor={isBestValue ? 'violet' : isHighlighted ? 'amber' : 'blue'}
+                        onBuy={() => handleBuyClick({
+                          ...pack,
+                          catalogKey: pack.id,
+                          packageKey: pack.id,
+                          title: `${pack.coins} монет`,
+                          priceCoins: pack.coins * 10 
+                        })}
+                        icon="coins"
+                        savings={pack.bonus > 0 ? `+${pack.bonus}` : undefined}
+                      />
                     );
                   })}
                 </div>
@@ -1933,359 +1698,65 @@ export function BoostShopModal({
               </div>
             </TabsContent>
 
-            {/* Premium & Duel Pass Tab */}
+            {/* Premium Tab */}
             <TabsContent
               value="premium"
               className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
             >
               <div className="space-y-6">
-                {/* HERO BANNER: Ultra-Premium Lava Lamp Style */}
-                <div className="relative overflow-hidden rounded-[24px] bg-slate-900 dark:bg-[#0F121E] border border-border dark:border-white/5 shadow-2xl">
-                  {/* Animated Background */}
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.3, 0.6, 0.3],
-                        x: [0, 20, 0],
-                      }}
-                      transition={{
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                      className="absolute -top-24 -left-24 w-96 h-96 bg-violet-600 rounded-full blur-[100px] mix-blend-screen"
-                    />
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.1, 1],
-                        opacity: [0.2, 0.5, 0.2],
-                        x: [0, -30, 0],
-                      }}
-                      transition={{
-                        duration: 10,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 1,
-                      }}
-                      className="absolute top-1/2 -right-24 w-80 h-80 bg-indigo-500 rounded-full blur-[80px] mix-blend-screen"
-                    />
-                  </div>
-
-                  <div className="relative z-10 p-6 sm:p-8">
-                    <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
-                      <div>
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="inline-flex items-center gap-2 mb-3 bg-white/10 dark:bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 dark:border-white/20"
-                        >
-                          <Crown className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
-                          <span className="text-[10px] font-bold tracking-widest uppercase text-white">
-                            Premium Status
-                          </span>
-                        </motion.div>
-                        <h3 className="text-3xl font-black text-white mb-2 tracking-tight">
-                          Premium{" "}
-                          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
-                            подписка
-                          </span>
-                        </h3>
-                        <p className="text-slate-300 text-sm max-w-md leading-relaxed">
-                          Максимальное ускорение обучения. AI-наставник,
-                          отключение рекламы и доступ ко всем тестам.
-                        </p>
-                      </div>
-
-                      {/* Features Grid inside Banner */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full sm:w-auto">
-                        {[
-                          {
-                            icon: Zap,
-                            text: "X2 Монеты",
-                            color: "text-amber-400",
-                          },
-                          {
-                            icon: Crown,
-                            text: "Duel Pass+",
-                            color: "text-fuchsia-400",
-                          },
-                          {
-                            icon: Sparkles,
-                            text: "Без рекламы",
-                            color: "text-sky-400",
-                          },
-                          {
-                            icon: Trophy,
-                            text: "Турниры",
-                            color: "text-emerald-400",
-                          },
-                        ].map((item, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center gap-2 bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 px-3 py-2 rounded-lg backdrop-blur-sm"
-                          >
-                            <item.icon className={cn("w-4 h-4", item.color)} />
-                            <span className="text-xs font-bold text-foreground dark:text-slate-200">
-                              {item.text}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* PRICING GRID: The Shiny New Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {PRICING_PLANS.map((plan) => {
                     const isPopular = plan.popular;
-                    const isBestValue = plan.savings === "50%";
+                    const isTotalValue = plan.savings === "50%";
                     const catalogKey = PLAN_TO_CATALOG[plan.id];
 
                     return (
-                      <motion.div
+                      <UnifiedPricingCard
                         key={plan.id}
-                        whileHover={{ y: -5, scale: 1.01 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="group relative"
-                      >
-                        {/* Shadow Glow */}
-                        <div
-                          className={cn(
-                            "absolute inset-0 rounded-[20px] blur-xl transition-opacity duration-500 -z-10",
-                            isPopular
-                              ? "bg-violet-600/30 opacity-60 group-hover:opacity-100"
-                              : "bg-muted/50 dark:bg-black/40 opacity-0 group-hover:opacity-100",
-                          )}
-                        />
-
-                        <div
-                          className={cn(
-                            "relative h-full p-5 rounded-[20px] border flex flex-col transition-all duration-300 overflow-hidden",
-                            isPopular
-                              ? "bg-violet-50 dark:bg-[#10101a] border-violet-500/30 text-foreground dark:text-white shadow-sm"
-                              : "bg-card border-border hover:border-violet-300 dark:hover:border-violet-700 shadow-sm",
-                          )}
-                        >
-                          {/* Shimmer for Popular */}
-                          {isPopular && (
-                            <div className="absolute inset-0 overflow-hidden rounded-[20px] pointer-events-none mix-blend-overlay">
-                              <motion.div
-                                animate={{ x: ["-100%", "200%"] }}
-                                transition={{
-                                  duration: 4,
-                                  repeat: Infinity,
-                                  ease: "linear",
-                                  repeatDelay: 0.5,
-                                }}
-                                className="absolute top-0 bottom-0 w-[40%] -skew-x-[25deg] bg-gradient-to-r from-transparent via-white/10 to-transparent blur-md"
-                              />
-                            </div>
-                          )}
-
-                          {/* Header */}
-                          <div className="flex justify-between items-start mb-4">
-                            {isPopular ? (
-                              <Badge className="bg-gradient-to-r from-violet-600 to-fuchsia-600 border-0 text-[10px] font-bold px-2.5 py-0.5 animate-pulse shadow-lg shadow-violet-500/20">
-                                🔥 POPULAR
-                              </Badge>
-                            ) : isBestValue ? (
-                              <Badge
-                                variant="secondary"
-                                className="bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border-0 font-bold text-[10px] px-2.5 py-0.5"
-                              >
-                                👑 BEST VALUE
-                              </Badge>
-                            ) : (
-                              <div />
-                            )}
-                          </div>
-
-                          {/* Content */}
-                          <div className="flex-1">
-                            <h4
-                              className={cn(
-                                "text-xs font-bold uppercase tracking-widest mb-1",
-                                isPopular
-                                  ? "text-violet-200"
-                                  : "text-muted-foreground",
-                              )}
-                            >
-                              {plan.title}
-                            </h4>
-                            <div className="flex items-baseline gap-1 mb-1">
-                              <span
-                                className={cn(
-                                  "text-3xl font-black",
-                                  isPopular ? "text-white" : "text-foreground",
-                                )}
-                              >
-                                {plan.price}
-                              </span>
-                            </div>
-                            <p
-                              className={cn(
-                                "text-[10px] font-semibold",
-                                isPopular
-                                  ? "text-violet-300"
-                                  : "text-violet-600 dark:text-violet-400",
-                              )}
-                            >
-                              {plan.pricePerMonth} / месяц
-                            </p>
-                          </div>
-
-                          {/* Action - Кнопки прямой оплаты */}
-                          <div className="mt-4 pt-3 border-t border-dashed border-white/10 dark:border-slate-700/60 space-y-2">
-                            {isPremium ? (
-                              <Button
-                                variant="ghost"
-                                disabled
-                                className="w-full font-bold h-10 rounded-xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                              >
-                                {t("boostShop.premium.activeLink") || "Активен"}
-                              </Button>
-                            ) : (
-                              <>
-                                {/* 1. Stars (Telegram) */}
-                                {showStarsPayment && (
-                                  <StarsPaymentButton
-                                    packageKey={catalogKey}
-                                    priceCoins={0}
-                                    variant="default"
-                                    className={cn(
-                                      "w-full font-bold h-11 rounded-xl shadow-lg",
-                                      isPopular
-                                        ? "bg-primary text-primary-foreground dark:bg-white dark:text-black hover:opacity-90"
-                                        : "bg-slate-900 text-white hover:bg-slate-800",
-                                    )}
-                                    onSuccess={() => {
-                                      loadData();
-                                      toast({
-                                        title: "🎉 Premium активирован!",
-                                        description: "Наслаждайтесь всеми преимуществами.",
-                                        duration: 5000,
-                                      });
-                                    }}
-                                  />
-                                )}
-
-                                {/* 2. PRIMARY: Крипта (Cryptomus) */}
-                                {showCryptomusPayment && (
-                                  <button
-                                    onClick={async () => {
-                                      if (!profileId) {
-                                        toast({ title: t("boostShop.toasts.errorTitle"), description: t("boostShop.toasts.needLogin"), variant: "destructive" });
-                                        return;
-                                      }
-                                      try {
-                                        const { data, error } = await supabaseClient.functions.invoke("cryptomus-payment", {
-                                          body: { user_id: profileId, catalog_key: catalogKey },
-                                        });
-                                        if (error || data?.error) throw new Error(error?.message || data?.error);
-                                        if (data?.url && data?.orderId) {
-                                          setCryptomusPreview({
-                                            open: true,
-                                            paymentUrl: data.url,
-                                            orderId: data.orderId,
-                                            amount: plan.priceValue,
-                                            currency: "EUR",
-                                            itemName: `Premium: ${plan.title}`,
-                                          });
-                                        }
-                                      } catch (err: any) {
-                                        toast({ title: t("boostShop.toasts.errorTitle"), description: err.message || t("boostShop.toasts.purchaseErrorDescription"), variant: "destructive" });
-                                      }
-                                    }}
-                                    className={cn(
-                                      "w-full h-11 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.98]",
-                                      isPopular
-                                        ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:brightness-110 shadow-lg shadow-violet-500/25"
-                                        : "bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-black hover:brightness-105 shadow-md shadow-amber-400/20"
-                                    )}
-                                  >
-                                    <span className="text-base leading-none">₿</span>
-                                    <span>Крипта · {plan.price}</span>
-                                  </button>
-                                )}
-
-                                {/* 3. TON */}
-                                {showTonPayment && (
-                                  <TonPaymentWidget
-                                    packageKey={catalogKey}
-                                    mode="full"
-                                    amountTon={
-                                      plan.id === 'yearly' ? 9.9 :
-                                        plan.id === 'quarterly' ? 3.9 :
-                                          plan.id === 'lifetime' ? 25 : 1.5
-                                    }
-                                    description={`Skily Premium: ${plan.title}`}
-                                  />
-                                )}
-
-                                {/* 4. SECONDARY: Карта (Paddle) */}
-                                {!showStarsPayment && showPaddlePayment && (
-                                  <Button
-                                    variant="outline"
-                                    onClick={() => handleCoinPurchase(catalogKey)}
-                                    disabled={purchaseLoading === catalogKey || paddleLoading}
-                                    className={cn(
-                                      "w-full h-9 rounded-xl text-xs font-semibold gap-2 transition-all",
-                                      isPopular
-                                        ? "border-white/15 text-slate-300 hover:bg-white/5 hover:text-white"
-                                        : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
-                                    )}
-                                  >
-                                    {purchaseLoading === catalogKey ? (
-                                      <div className="w-3.5 h-3.5 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-                                    ) : (
-                                      <CreditCard className="w-3.5 h-3.5" />
-                                    )}
-                                    Оплатить картой
-                                  </Button>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
+                        title={plan.title}
+                        price={plan.price}
+                        subtitle={plan.subtitle}
+                        benefits={plan.features}
+                        badge={isPopular ? '🔥 POPULAR' : isTotalValue ? '👑 BEST VALUE' : undefined}
+                        isPopular={isPopular}
+                        isVip={plan.id === 'lifetime'}
+                        accentColor={isPopular ? 'violet' : isTotalValue ? 'emerald' : 'blue'}
+                        onBuy={() => handleBuyClick({
+                          ...plan,
+                          catalogKey,
+                          packageKey: catalogKey,
+                          title: `Premium ${plan.title}`,
+                          priceCoins: plan.priceValue * 10 
+                        })}
+                        icon="premium"
+                        savings={plan.savings}
+                      />
                     );
                   })}
                 </div>
 
-                {/* DUEL PASS CARD: Matching Aesthetic */}
+                {/* DUEL PASS CARD */}
                 <motion.div
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-[#064e3b] dark:to-[#042f2e] border border-emerald-500/30 p-1"
                 >
-                  {/* Background Shine */}
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-emerald-400/20 via-transparent to-transparent" />
-
                   <div className="relative bg-[#022c22]/80 backdrop-blur-xl rounded-[20px] p-5 flex flex-col sm:flex-row items-center gap-5">
                     <div className="relative w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30 shrink-0">
                       <Trophy className="w-7 h-7 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
                     </div>
-
                     <div className="flex-1 text-center sm:text-left">
-                      <h3 className="text-lg font-black text-white">
-                        Duel Pass
-                      </h3>
+                      <h3 className="text-lg font-bold text-white">Duel Pass</h3>
                       <p className="text-xs text-emerald-200/80 mt-1 max-w-sm mx-auto sm:mx-0">
-                        Открывайте сундуки, получайте эксклюзивные скины и
-                        соревнуйтесь в сезоне.
+                        Открывайте сундуки, получайте эксклюзивные скины и соревнуйтесь в сезоне.
                       </p>
                     </div>
-
                     <Button
                       className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold border-0 shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] w-full sm:w-auto px-6 h-10 rounded-xl"
                       onClick={() => {
                         onOpenChange(false);
-                        setTimeout(
-                          () => useModalStore.getState().openModal("BOOST_SHOP", { initialTab: 'premium' }),
-                          150,
-                        );
+                        setTimeout(() => useModalStore.getState().openModal("BOOST_SHOP", { initialTab: 'premium' }), 150);
                       }}
                     >
                       Открыть
@@ -2307,293 +1778,69 @@ export function BoostShopModal({
                     {t("boostShop.history.title")}
                   </h4>
                   <span className="text-xs text-muted-foreground">
-                    {t("boostShop.history.operationsCount", {
-                      count: transactions.length,
-                    })}
+                    {t("boostShop.history.operationsCount", { count: transactions.length })}
                   </span>
                 </div>
 
-                {/* Filters */}
                 <div className="flex items-center gap-1 flex-wrap">
-                  <Button
-                    variant={filterCategory === "all" ? "default" : "outline"}
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => setFilterCategory("all")}
-                  >
-                    {t("boostShop.history.filters.all")}
-                  </Button>
-                  <Button
-                    variant={filterCategory === "earn" ? "default" : "outline"}
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => setFilterCategory("earn")}
-                  >
-                    <TrendingUp className="h-3 w-3 mr-1" />
-                    {t("boostShop.history.filters.earn")}
-                  </Button>
-                  <Button
-                    variant={filterCategory === "spend" ? "default" : "outline"}
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => setFilterCategory("spend")}
-                  >
-                    <TrendingDown className="h-3 w-3 mr-1" />
-                    {t("boostShop.history.filters.spend")}
-                  </Button>
-                  <Button
-                    variant={
-                      filterCategory === "purchase" ? "default" : "outline"
-                    }
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => setFilterCategory("purchase")}
-                  >
-                    <CreditCard className="h-3 w-3 mr-1" />
-                    {t("boostShop.history.filters.purchase")}
-                  </Button>
-                  <Button
-                    variant={
-                      filterCategory === "reward" ? "default" : "outline"
-                    }
-                    size="sm"
-                    className="h-7 text-xs"
-                    onClick={() => setFilterCategory("reward")}
-                  >
-                    <Gift className="h-3 w-3 mr-1" />
-                    {t("boostShop.history.filters.reward")}
-                  </Button>
+                  {['all', 'earn', 'spend', 'purchase', 'reward'].map((cat) => (
+                    <Button
+                      key={cat}
+                      variant={filterCategory === cat ? "default" : "outline"}
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setFilterCategory(cat as any)}
+                    >
+                      {cat === 'earn' && <TrendingUp className="h-3 w-3 mr-1" />}
+                      {cat === 'spend' && <TrendingDown className="h-3 w-3 mr-1" />}
+                      {cat === 'purchase' && <CreditCard className="h-3 w-3 mr-1" />}
+                      {cat === 'reward' && <Gift className="h-3 w-3 mr-1" />}
+                      {t(`boostShop.history.filters.${cat}`)}
+                    </Button>
+                  ))}
                 </div>
               </div>
 
-              <div
-                className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-4"
-                data-vaul-no-drag
-                style={{ WebkitOverflowScrolling: "touch" }}
-              >
+              <div className="flex-1 overflow-y-auto p-3 md:p-4">
                 {loadingHistory ? (
                   <div className="space-y-3">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div
-                        key={i}
-                        className="relative flex items-center gap-3 p-3 bg-muted/20 rounded-xl border border-border/30 overflow-hidden"
-                      >
-                        {/* Shimmer effect */}
-                        <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-
-                        <div className="w-10 h-10 bg-muted/40 rounded-lg shrink-0" />
-                        <div className="flex-1 space-y-2">
-                          <div className="h-3 bg-muted/40 rounded w-2/3" />
-                          <div className="h-2 bg-muted/30 rounded w-1/3" />
-                        </div>
-                        <div className="h-4 bg-muted/40 rounded w-12" />
-                      </div>
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="h-16 bg-muted/20 rounded-xl animate-pulse" />
                     ))}
                   </div>
                 ) : (
-                  (() => {
-                    const filtered =
-                      filterCategory === "all"
-                        ? transactions
-                        : transactions.filter(
-                          (tx) => tx.category === filterCategory,
-                        );
-
-                    if (filtered.length === 0) {
-                      return (
-                        <div className="text-center py-12 text-muted-foreground">
-                          <div className="space-y-3">
-                            {filterCategory === "all" ? (
-                              <>
-                                <Coins className="h-12 w-12 mx-auto opacity-30" />
-                                <div>
-                                  <p className="text-sm font-medium mb-1">
-                                    {t("boostShop.history.empty.all.title")}
-                                  </p>
-                                  <p className="text-xs">
-                                    {t(
-                                      "boostShop.history.empty.all.description",
-                                    )}
-                                  </p>
-                                </div>
-                                {!isPremium && (
-                                  <div className="pt-2">
-                                    <Badge
-                                      variant="secondary"
-                                      className="text-xs"
-                                    >
-                                      {t(
-                                        "boostShop.history.empty.all.premiumHint",
-                                      )}
-                                    </Badge>
-                                  </div>
-                                )}
-                              </>
-                            ) : filterCategory === "earn" ? (
-                              <>
-                                <TrendingUp className="h-12 w-12 mx-auto opacity-30" />
-                                <div>
-                                  <p className="text-sm font-medium mb-1">
-                                    {t("boostShop.history.empty.earn.title")}
-                                  </p>
-                                  <p className="text-xs">
-                                    {t(
-                                      "boostShop.history.empty.earn.description",
-                                    )}
-                                  </p>
-                                </div>
-                              </>
-                            ) : filterCategory === "spend" ? (
-                              <>
-                                <TrendingDown className="h-12 w-12 mx-auto opacity-30" />
-                                <div>
-                                  <p className="text-sm font-medium mb-1">
-                                    {t("boostShop.history.empty.spend.title")}
-                                  </p>
-                                  <p className="text-xs">
-                                    {t(
-                                      "boostShop.history.empty.spend.description",
-                                    )}
-                                  </p>
-                                </div>
-                              </>
-                            ) : filterCategory === "purchase" ? (
-                              <>
-                                <CreditCard className="h-12 w-12 mx-auto opacity-30" />
-                                <div>
-                                  <p className="text-sm font-medium mb-1">
-                                    {t(
-                                      "boostShop.history.empty.purchase.title",
-                                    )}
-                                  </p>
-                                  <p className="text-xs">
-                                    {t(
-                                      "boostShop.history.empty.purchase.description",
-                                    )}
-                                  </p>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <Gift className="h-12 w-12 mx-auto opacity-30" />
-                                <div>
-                                  <p className="text-sm font-medium mb-1">
-                                    {t("boostShop.history.empty.reward.title")}
-                                  </p>
-                                  <p className="text-xs">
-                                    {t(
-                                      "boostShop.history.empty.reward.description",
-                                    )}
-                                  </p>
-                                </div>
-                              </>
-                            )}
-                            {filterCategory !== "all" && (
-                              <p className="text-xs mt-2 pt-2 border-t border-border/50">
-                                {t("boostShop.history.tryOtherFilter")}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div className="space-y-2 pb-4">
-                        {filtered.map((tx, idx) => {
-                          const IconComponent =
-                            tx.icon ||
-                            (tx.amount > 0 ? TrendingUp : TrendingDown);
-                          const isPositive = tx.amount > 0;
-                          const isPurchase = tx.category === "purchase";
-                          const isReward = tx.category === "reward";
-
-                          return (
-                            <div
-                              key={tx.id || idx}
-                              className="group relative overflow-hidden rounded-xl border border-border/50 bg-card hover:bg-card hover:border-border hover:shadow-sm transition-colors duration-150"
-                              style={{
-                                animation: `fadeIn 0.2s ease-out ${Math.min(idx * 0.01, 0.3)}s both`,
-                              }}
-                            >
-                              <div className="flex items-center justify-between p-3">
-                                <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                                  {/* Иконка - упрощенная версия */}
-                                  <div
-                                    className={`flex-shrink-0 ${isPositive
-                                      ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                                      : isPurchase
-                                        ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                                        : isReward
-                                          ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                                          : "bg-red-500/10 text-red-600 dark:text-red-400"
-                                      } p-2 rounded-lg`}
-                                  >
-                                    <IconComponent className="h-4 w-4" />
-                                  </div>
-
-                                  {/* Описание */}
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-foreground truncate">
-                                      {tx.description}
-                                    </p>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                      <p className="text-xs text-muted-foreground">
-                                        {formatTransactionDate(tx.created_at)}
-                                      </p>
-                                      {tx.category &&
-                                        (isPurchase || isReward) && (
-                                          <Badge
-                                            variant="secondary"
-                                            className={`text-xs h-4 px-1.5 ${isPurchase
-                                              ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                                              : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                                              }`}
-                                          >
-                                            {isPurchase
-                                              ? t(
-                                                "boostShop.history.badges.purchase",
-                                              )
-                                              : t(
-                                                "boostShop.history.badges.reward",
-                                              )}
-                                          </Badge>
-                                        )}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Сумма */}
-                                <div className="flex-shrink-0 ml-2">
-                                  {tx.metadata?.price && tx.amount === 0 ? (
-                                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                                      €{tx.metadata.price}
-                                    </span>
-                                  ) : (
-                                    <span
-                                      className={`text-sm font-bold ${isPositive
-                                        ? "text-green-600 dark:text-green-400"
-                                        : "text-red-600 dark:text-red-400"
-                                        }`}
-                                    >
-                                      {isPositive ? "+" : ""}
-                                      {tx.amount}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
+                  <div className="space-y-2 pb-4">
+                    {transactions
+                      .filter((tx) => filterCategory === "all" ? true : tx.category === filterCategory)
+                      .map((tx, idx) => (
+                        <div
+                          key={tx.id || idx}
+                          className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-card"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              "p-2 rounded-lg",
+                              tx.amount > 0 ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                            )}>
+                              {tx.amount > 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                             </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })()
+                            <div>
+                              <p className="text-sm font-medium">{tx.description}</p>
+                              <p className="text-[10px] text-muted-foreground">{formatTransactionDate(tx.created_at)}</p>
+                            </div>
+                          </div>
+                          <span className={cn("font-bold text-sm", tx.amount > 0 ? "text-green-500" : "text-red-500")}>
+                            {tx.amount > 0 ? "+" : ""}{tx.amount}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
                 )}
               </div>
             </TabsContent>
           </Tabs>
         </div>
-      </div >
+      </div>
     );
   };
 
@@ -2738,6 +1985,25 @@ export function BoostShopModal({
       >
         {loading ? <ModalSkeleton rows={4} /> : <ModalContent />}
       </ResponsiveModal>
+
+      {/* Payment Selector Modal */}
+      <PaymentSelectorModal
+        open={isPaymentSelectorOpen}
+        onOpenChange={setIsPaymentSelectorOpen}
+        pack={selectedPack}
+        onSuccess={() => {
+          loadData();
+          setIsPaymentSelectorOpen(false);
+        }}
+        onCryptoClick={handleCryptomusPurchase}
+        onCardClick={handleCardPurchase}
+        availability={{
+          stars: isPaymentMethodAvailable('telegram_stars', platform),
+          ton: isPaymentMethodAvailable('ton', platform),
+          crypto: isPaymentMethodAvailable('cryptomus', platform),
+          card: isPaymentMethodAvailable('paddle', platform)
+        }}
+      />
 
       {/* Nested Modals - рендерим только когда нужно */}
       {paywallOpen && (

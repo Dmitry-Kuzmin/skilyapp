@@ -576,7 +576,75 @@ Empieza a practicar cada día para:
         ru: 'дней',
         en: 'days',
         es: 'días'
-    }
+    },
+
+    // =====================================================
+    // Оплата Stars
+    // =====================================================
+    'stars.invoice.title': {
+        ru: '🌟 <b>Оплата Telegram Stars</b>',
+        en: '🌟 <b>Telegram Stars Payment</b>',
+        es: '🌟 <b>Pago con Telegram Stars</b>'
+    },
+    'stars.invoice.description': {
+        ru: `Оплата через Stars — это очень просто! Это самый быстрый способ получить Premium прямо сейчас:
+
+1. Просто выбери тариф ниже.
+2. Откроется стандартное окно Telegram для подтверждения платежа.
+3. Подтверди оплату, и доступ к Premium-функциям активируется <b>автоматически!</b>
+
+🎯 <i>Если у тебя недостаточно звезд, Telegram предложит докупить их прямо в процессе оплаты.</i>`,
+        en: `Paying with Stars is very simple! It's the fastest way to get Premium right now:
+
+1. Just choose a plan below.
+2. A standard Telegram window will open to confirm the payment.
+3. Confirm the payment, and access to Premium features will be activated <b>automatically!</b>
+
+🎯 <i>If you don't have enough stars, Telegram will offer to buy more during the payment process.</i>`,
+        es: `¡Pagar con Stars es muy sencillo! Es la forma más rápida de obtener Premium ahora mismo:
+
+1. Solo elige un plan a continuación.
+2. Se abrirá una ventana estándar de Telegram para confirmar el pago.
+3. Confirma el pago y el acceso a las funciones Premium se activará <b>¡automáticamente!</b>
+
+🎯 <i>Si no tienes suficientes estrellas, Telegram te ofrecerá comprar más durante el proceso de pago.</i>`
+    },
+    'stars.invoice.back': {
+        ru: '← Другие способы оплаты',
+        en: '← Other payment methods',
+        es: '← Otros métodos de pago'
+    },
+
+    'boostShop.payment.selectorTitle': {
+        ru: 'Выбери способ оплаты',
+        en: 'Choose Payment Method',
+        es: 'Elige el método de pago'
+    },
+    'boostShop.payment.starsSubtitle': {
+        ru: 'Мгновенно через Telegram',
+        en: 'Instant via Telegram',
+        es: 'Instantáneo vía Telegram'
+    },
+    'boostShop.payment.tonSubtitle': {
+        ru: 'Через Tonkeeper или Wallet',
+        en: 'Via Tonkeeper or Wallet',
+        es: 'Vía Tonkeeper o Wallet'
+    },
+    'boostShop.payment.cryptoSubtitle': {
+        ru: 'BTC, USDT, ETH и другие',
+        en: 'BTC, USDT, ETH and more',
+        es: 'BTC, USDT, ETH y más'
+    },
+    'boostShop.payment.cardTitle': {
+        ru: 'Банковская карта',
+        en: 'Bank Card',
+        es: 'Tarjeta bancaria'
+    },
+    'boostShop.payment.cardSubtitle': {
+        ru: 'Stripe / Карта РФ и мира',
+        en: 'Visa, Mastercard, Stripe',
+        es: 'Visa, Mastercard, Stripe'
+    },
 };
 
 // Функция перевода

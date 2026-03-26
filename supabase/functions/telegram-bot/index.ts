@@ -348,8 +348,12 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
     }
     else if (data === "pay_stars") {
       // Получаем внутренний userId пользователя для привязки платежа
-      const { data: profile } = await supabase.from("profiles").select("user_id").eq("telegram_id", user.id).maybeSingle();
-      await sendStarsInvoice(message.chat.id, user.id, profile?.user_id || "");
+      const { data: profile } = await supabase.from("profiles").select("id").eq("telegram_id", user.id).maybeSingle();
+      // Передаем message_id для замены текста сообщения (edit вместо send)
+      await sendStarsInvoice(message.chat.id, user.id, profile?.id || "", message.message_id, lang);
+    }
+    else if (data === "payment_methods") {
+     await showPaymentMethods(message.chat.id, lang, message.message_id);
     }
     // Quest info — клик по кнопке квеста в чеклисте
     else if (data.startsWith("quest_info:")) {
@@ -494,6 +498,44 @@ async function showProfile(chatId: number, telegramId: number, lang: SupportedLa
     });
   } catch (error: unknown) {
     console.error("[Profile] Error showing profile:", error);
+  }
+}
+
+async function showPaymentMethods(chatId: number, lang: SupportedLanguage, messageId?: number) {
+  const text = lang === 'en' 
+    ? "💎 <b>Choose Payment Method</b>\n\nSelect how you want to pay for Premium access:"
+    : lang === 'es'
+    ? "💎 <b>Elige el método de pago</b>\n\nSelecciona cómo quieres pagar tu acceso Premium:"
+    : "💎 <b>Выбери способ оплаты</b>\n\nВыбери удобный способ получения Premium-доступа:";
+  
+  const keyboard = {
+    inline_keyboard: [
+      [{ text: "⭐ Telegram Stars", callback_data: "pay_stars" }],
+      [{ text: "💎 TON (Wallet)", web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` } }],
+      [{ text: "💳 Bank Card / Stripe", web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` } }],
+      [{ text: t('keyboard.backToMenu', lang), callback_data: "main_menu" }]
+    ]
+  };
+
+  if (messageId) {
+    await editMessage({
+      chat_id: chatId,
+      message_id: messageId,
+      text,
+      parse_mode: 'HTML',
+      reply_markup: keyboard
+    });
+  } else {
+    await fetch(`${TELEGRAM_API}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "HTML",
+        reply_markup: keyboard
+      })
+    });
   }
 }
 

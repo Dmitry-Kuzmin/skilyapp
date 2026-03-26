@@ -6,7 +6,7 @@
 
 import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { TelegramMessage } from "./types.ts";
-import { SupportedLanguage } from "./translations.ts";
+import { t, SupportedLanguage } from "./translations.ts";
 import { getSystemPrompt } from "../_shared/ai-prompts.ts";
 
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
@@ -88,79 +88,82 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
   const buttons: any[][] = [];
   let sendStarsInvoice = false;
 
-  // [WIDGET:STARS:PAY] — show Stars payment button
-  if (cleaned.includes('[WIDGET:STARS:PAY]')) {
-    cleaned = cleaned.replace(/\[WIDGET:STARS:PAY\]/g, '').trim();
+  // [WIDGET:STARS:PAY] — show Stars payment button and trigger invoice
+  const starsPayMatch = cleaned.match(/\[WIDGET:\s*STARS:\s*PAY\]/i);
+  if (starsPayMatch) {
+    cleaned = cleaned.replace(starsPayMatch[0], '').trim();
+    sendStarsInvoice = true;
     buttons.push([
-      { text: "⭐ Оплатить Telegram Stars", callback_data: "pay_stars", style: "primary" },
+      { text: "⭐ Оплатить Telegram Stars", callback_data: "pay_stars" },
     ]);
   }
 
   // [WIDGET:TON:CONNECT] — deep-link to wallet screen
-  if (cleaned.includes('[WIDGET:TON:CONNECT]')) {
-    cleaned = cleaned.replace(/\[WIDGET:TON:CONNECT\]/g, '').trim();
+  const tonConnectMatch = cleaned.match(/\[WIDGET:\s*TON:\s*CONNECT\]/i);
+  if (tonConnectMatch) {
+    cleaned = cleaned.replace(tonConnectMatch[0], '').trim();
     buttons.push([
-      { text: "💎 Стать PRO / TON", web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` }, style: "primary" },
+      { text: "💎 Стать PRO / TON", web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` } },
     ]);
   }
 
   // [WIDGET:TON:PAY:amount:comment] — direct payment request
-  const tonPay = cleaned.match(/\[WIDGET:TON:PAY:(.*?):(.*?)\]/);
+  const tonPay = cleaned.match(/\[WIDGET:\s*TON:\s*PAY:(.*?):(.*?)\]/i);
   if (tonPay) {
     const amount = tonPay[1]; 
     cleaned = cleaned.replace(tonPay[0], '').trim();
     buttons.push([
-      { text: `💎 Оплатить ${amount} TON (Premium на 1 месяц)`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=ton-pay&amount=${amount}` }, style: "success" },
+      { text: `💎 Оплатить ${amount} TON`, web_app: { url: `${MINI_APP_URL}/dashboard?modal=ton-pay&amount=${amount}` } },
     ]);
   }
 
   // [WIDGET:SIGN:id] — road sign lookup
-  const signWidget = cleaned.match(/\[WIDGET:SIGN:(.*?)\]/);
+  const signWidget = cleaned.match(/\[WIDGET:\s*SIGN:(.*?)\]/i);
   if (signWidget) {
     const signId = signWidget[1];
     cleaned = cleaned.replace(signWidget[0], '').trim();
     buttons.push([
-      { text: `🚦 Знак ${signId}`, web_app: { url: `${MINI_APP_URL}/road-signs?search=${signId}` }, style: "secondary" },
+      { text: `🚦 Знак ${signId}`, web_app: { url: `${MINI_APP_URL}/road-signs?search=${signId}` } },
     ]);
   }
 
   // [WIDGET:CTA:TEST:label]
-  const testCta = cleaned.match(/\[WIDGET:CTA:TEST:(.*?)\]/);
+  const testCta = cleaned.match(/\[WIDGET:\s*CTA:\s*TEST:(.*?)\]/i);
   if (testCta) {
     const label = testCta[1];
     cleaned = cleaned.replace(testCta[0], '').trim();
     buttons.push([
-      { text: `📝 ${label}`, web_app: { url: `${MINI_APP_URL}/tests` }, style: "primary" },
+      { text: `📝 ${label}`, web_app: { url: `${MINI_APP_URL}/tests` } },
     ]);
   }
 
   // [WIDGET:CTA:DUEL:label]
-  const duelCta = cleaned.match(/\[WIDGET:CTA:DUEL:(.*?)\]/);
+  const duelCta = cleaned.match(/\[WIDGET:\s*CTA:\s*DUEL:(.*?)\]/i);
   if (duelCta) {
     const label = duelCta[1];
     cleaned = cleaned.replace(duelCta[0], '').trim();
     buttons.push([
-      { text: `⚔️ ${label}`, web_app: { url: `${MINI_APP_URL}/games/duel` }, style: "primary" },
+      { text: `⚔️ ${label}`, web_app: { url: `${MINI_APP_URL}/games/duel` } },
     ]);
   }
 
   // [WIDGET:CTA:APP:label]
-  const appCta = cleaned.match(/\[WIDGET:CTA:APP:(.*?)\]/);
+  const appCta = cleaned.match(/\[WIDGET:\s*CTA:\s*APP:(.*?)\]/i);
   if (appCta) {
     const label = appCta[1];
     cleaned = cleaned.replace(appCta[0], '').trim();
     buttons.push([
-      { text: `🚀 ${label}`, url: `${MINI_APP_BASE}`, style: "primary" },
+      { text: `🚀 ${label}`, url: `${MINI_APP_BASE}` },
     ]);
   }
 
   // [WIDGET:CTA:PREMIUM:label]
-  const premiumCta = cleaned.match(/\[WIDGET:CTA:PREMIUM:(.*?)\]/);
+  const premiumCta = cleaned.match(/\[WIDGET:\s*CTA:\s*PREMIUM:(.*?)\]/i);
   if (premiumCta) {
     const label = premiumCta[1];
     cleaned = cleaned.replace(premiumCta[0], '').trim();
     buttons.push([
-      { text: `💎 ${label}`, url: `${MINI_APP_BASE}?startapp=premium`, style: "success" },
+      { text: `💎 ${label}`, url: `${MINI_APP_BASE}?startapp=premium` },
     ]);
   }
 
@@ -168,13 +171,13 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
 }
 
 // ── Stars Invoice Handler ───────────────────────────
-export async function sendStarsInvoice(chatId: number, telegramId: number, userId: string = "") {
+export async function sendStarsInvoice(chatId: number, telegramId: number, userId: string = "", messageId?: number, lang: SupportedLanguage = 'ru') {
   try {
     const packages = [
-      { key: 'premium_month', label: '1 месяц Premium', price: 99 },
-      { key: 'premium_3months', label: '3 месяца Premium', price: 249 },
-      { key: 'premium_6months', label: '6 месяцев Premium', price: 449 },
-      { key: 'premium_year', label: '1 год Premium', price: 799 },
+      { key: 'premium_monthly', label: '1 месяц Premium', price: 99 },
+      { key: 'premium_quarterly', label: '3 месяца Premium', price: 249 },
+      { key: 'premium_biannual', label: '6 месяцев Premium', price: 449 },
+      { key: 'premium_yearly', label: '1 год Premium', price: 799 },
     ];
 
     const invoiceButtons: any[] = [];
@@ -202,26 +205,40 @@ export async function sendStarsInvoice(chatId: number, telegramId: number, userI
             url: data.invoice_link
           });
         }
+      } else {
+        const errText = await response.text();
+        console.error(`[Stars] Failed to fetch invoice for ${pkg.key}: ${errText}`);
       }
     }
 
+
     if (invoiceButtons.length > 0) {
       const rows = [];
-      for (let i = 0; i < invoiceButtons.length; i += 1) { // Одна кнопка в ряд — нагляднее
+      for (let i = 0; i < invoiceButtons.length; i += 1) { 
         rows.push(invoiceButtons.slice(i, i + 1));
       }
 
-      await fetch(`${TELEGRAM_API}/sendMessage`, {
+      // Добавляем навигацию
+      rows.push([{ text: t('stars.invoice.back', lang), callback_data: "payment_methods" }]);
+
+      const method = messageId ? 'editMessageText' : 'sendMessage';
+      const body: any = {
+        chat_id: chatId,
+        text: `${t('stars.invoice.title', lang)}\n\n${t('stars.invoice.description', lang)}`,
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: rows,
+        },
+      };
+
+      if (messageId) {
+        body.message_id = messageId;
+      }
+
+      await fetch(`${TELEGRAM_API}/${method}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: `🌟 <b>Оплата Telegram Stars</b> очень просто! Это самый быстрый способ получить Premium прямо сейчас:\n\n1. Просто выбери тариф ниже.\n2. Откроется стандартное окно Telegram для подтверждения платежа.\n3. Подтверди оплату, и доступ к Premium-функциям активируется <b>автоматически!</b>\n\n🎯 <i>Если у тебя недостаточно звезд, Telegram предложит докупить их прямо в процессе оплаты.</i>`,
-          parse_mode: 'HTML',
-          reply_markup: {
-            inline_keyboard: rows,
-          },
-        }),
+        body: JSON.stringify(body),
       });
     }
   } catch (err) {
@@ -401,6 +418,7 @@ async function callGeminiStreaming(
 
               const now = Date.now();
               if (fullText.length > 0 && !functionCallDetected && (now - lastDraftTime >= DRAFT_INTERVAL_MS)) {
+                // Ensure widget tags are visually stripped in draft stream
                 const draftPreview = fullText.replace(/\[WIDGET:.*?\]/g, '').trim();
                 if (draftPreview.length > 0) {
                   await sendDraft(chatId, draftId, `${draftPreview} ▍`);
@@ -554,7 +572,6 @@ export async function handleAIChat(message: TelegramMessage, supabase: SupabaseC
 
     // Сохраняем в историю в фоновом режиме (не ждем завершения для скорости ответа)
     if (profile?.user_id) {
-      // Пытаемся найти последний conversation_id для этого юзера или создаем новый
       const convId = crypto.randomUUID(); 
       
       // Мы не знаем точно conversationId из стриминга здесь без доп. логики, 
@@ -603,6 +620,12 @@ export async function handleAIChat(message: TelegramMessage, supabase: SupabaseC
 
     if (processedText) {
       await sendFinalMessage(chatId, processedText, buttons);
+    }
+
+    if (shouldSendInvoice) {
+      // КРИТИЧНО: НЕ вызываем автоматически (sendStarsInvoice), так как мы уже добавили кнопку pay_stars.
+      // Это предотвращает дублирование сообщений. Пользователь сам нажмет на кнопку.
+      console.log(`[AI] Star invoice requested by AI result, but skipped auto-send (button is present).`);
     }
   } catch (err) {
     console.error('[AI Chat] Error:', err);

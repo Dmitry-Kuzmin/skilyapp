@@ -76,6 +76,7 @@ export class TonCloudStorage implements IStorage {
     }
 
     async setItem(key: string, value: string): Promise<void> {
+        console.log('[TON Storage] setItem:', key.slice(0, 50), '→', value.slice(0, 60) + '...');
         // Always write to localStorage (fast cache)
         try { localStorage.setItem(key, value); } catch { /* quota exceeded */ }
 
@@ -89,20 +90,26 @@ export class TonCloudStorage implements IStorage {
         // Try localStorage first (fast)
         try {
             const local = localStorage.getItem(key);
-            if (local !== null) return local;
+            if (local !== null) {
+                console.log('[TON Storage] getItem HIT localStorage:', key.slice(0, 50), '→', local.slice(0, 60) + '...');
+                return local;
+            }
         } catch { /* blocked */ }
 
         // Fallback to CloudStorage (persistent)
         if (this.useCloud) {
+            console.log('[TON Storage] getItem MISS localStorage, trying CloudStorage:', key.slice(0, 50));
             const cloud = await cloudGet(key);
             if (cloud !== null) {
                 // Restore to localStorage for next read
                 try { localStorage.setItem(key, cloud); } catch {}
-                console.log('[TON Storage] Restored from CloudStorage:', key.slice(0, 30));
+                console.log('[TON Storage] Restored from CloudStorage:', key.slice(0, 50), '→', cloud.slice(0, 60) + '...');
                 return cloud;
             }
+            console.log('[TON Storage] MISS CloudStorage too:', key.slice(0, 50));
         }
 
+        console.log('[TON Storage] getItem NULL:', key.slice(0, 50));
         return null;
     }
 
