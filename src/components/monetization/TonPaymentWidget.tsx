@@ -18,18 +18,6 @@ interface TonPaymentWidgetProps {
     mode?: 'full' | 'compact';
 }
 
-/**
- * TonPaymentWidget — прямая оплата через tonConnectUI.sendTransaction().
- *
- * Не использует AppKit hooks (useAddress, useTransferTon) — они имеют
- * race condition при восстановлении сессии.
- *
- * Флоу подключения:
- *   1. openModal() — открывает QR/выбор кошелька
- *   2. onStatusChange(wallet) — ловим момент подключения
- *   3. onModalStateChange(closed) — ловим закрытие без подключения
- *   4. sendTransaction() — отправляем транзакцию после подключения
- */
 export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     amountTon = 1.5,
     description = "Skily Premium",
@@ -43,25 +31,13 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     const [isPaying, setIsPaying] = useState(false);
     const [isRestoring, setIsRestoring] = useState(() => !tonConnectionIsRestored);
     const autoPayTriggered = useRef(false);
+    const pendingPayRef = useRef(false);
 
-    // Subscribe to wallet state
-    useEffect(() => {
-        setWallet(tonConnectUI.wallet);
-        const unsub = tonConnectUI.onStatusChange((w) => {
-            setWallet(w ?? null);
-        });
-        if (!tonConnectionIsRestored) {
-            tonConnectionRestored.finally(() => {
-                setWallet(tonConnectUI.wallet);
-                setIsRestoring(false);
-            });
-        }
-        return unsub;
-    }, []);
-
+    // Ref to always access latest doTransfer without re-subscribing
     const doTransfer = useCallback(async () => {
         try {
             setIsPaying(true);
+            console.log('[TON Payment] Sending transaction...');
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{
@@ -84,58 +60,78 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             setIsPaying(false);
         }
     }, [amountTon, onSuccess, t]);
+    const doTransferRef = useRef(doTransfer);
+    doTransferRef.current = doTransfer;
+
+    // Subscribe to wallet state + auto-pay after connect
+    useEffect(() => {
+        setWallet(tonConnectUI.wallet);
+
+        const unsub = tonConnectUI.onStatusChange((w) => {
+            console.log('[TON Payment] onStatusChange:', w ? 'connected' : 'null');
+            setWallet(w ?? null);
+
+            // If user just connected and we have a pending payment — trigger it
+            if (w && pendingPayRef.current) {
+                pendingPayRef.current = false;
+                console.log('[TON Payment] Wallet connected, triggering pending payment...');
+                // Delay to let TonConnect close its connect modal
+                setTimeout(() => {
+                    doTransferRef.current();
+                }, 800);
+            }
+        });
+
+        // Wait for CloudStorage restoration
+        if (!tonConnectionIsRestored) {
+            tonConnectionRestored.finally(() => {
+                setWallet(tonConnectUI.wallet);
+                setIsRestoring(false);
+            });
+        }
+
+        return unsub;
+    }, []);
+
+    // Reset isPaying when connect modal closes without connection (UI cleanup only)
+    useEffect(() => {
+        const unsub = tonConnectUI.onModalStateChange((state: any) => {
+            console.log('[TON Payment] Modal state:', state?.status);
+            if (state?.status === 'closed' && pendingPayRef.current) {
+                // Grace period — onStatusChange may fire AFTER modal closes
+                setTimeout(() => {
+                    if (pendingPayRef.current && !tonConnectUI.wallet) {
+                        console.log('[TON Payment] Modal closed without connection, resetting');
+                        pendingPayRef.current = false;
+                        setIsPaying(false);
+                    }
+                }, 2500);
+            }
+        });
+        return unsub;
+    }, []);
 
     const handlePayment = useCallback(async () => {
-        // Always check live state — React state may lag behind
-        if (tonConnectUI.wallet) {
-            setWallet(tonConnectUI.wallet);
+        // Always check live TonConnect state
+        const liveWallet = tonConnectUI.wallet;
+        if (liveWallet) {
+            console.log('[TON Payment] Wallet already connected, paying directly');
+            setWallet(liveWallet);
             await doTransfer();
             return;
         }
 
-        // Not connected — open connect modal, wait for result
+        // Not connected — set pending flag and open connect modal
+        // onStatusChange callback (in useEffect) will trigger doTransfer when wallet connects
+        console.log('[TON Payment] Opening connect modal...');
+        pendingPayRef.current = true;
         setIsPaying(true);
 
         try {
-            await new Promise<void>((resolve, reject) => {
-                let settled = false;
-
-                // 1. Listen for wallet connection (ignore initial null replay)
-                const unsubStatus = tonConnectUI.onStatusChange((w) => {
-                    if (w && !settled) {
-                        settled = true;
-                        unsubStatus();
-                        unsubModal();
-                        setWallet(w);
-                        resolve();
-                    }
-                });
-
-                // 2. Listen for modal close without connecting
-                const unsubModal = tonConnectUI.onModalStateChange((state) => {
-                    if (state.status === 'closed' && !tonConnectUI.wallet && !settled) {
-                        settled = true;
-                        unsubStatus();
-                        unsubModal();
-                        reject(new Error('cancelled'));
-                    }
-                });
-
-                tonConnectUI.openModal().catch((err) => {
-                    if (!settled) {
-                        settled = true;
-                        unsubStatus();
-                        unsubModal();
-                        reject(err);
-                    }
-                });
-            });
-
-            // Connected! Wait for TonConnect to close its modal, then send tx
-            await new Promise(r => setTimeout(r, 600));
-            await doTransfer();
-        } catch {
-            // User closed modal or error — just reset
+            await tonConnectUI.openModal();
+        } catch (err) {
+            console.error('[TON Payment] Failed to open modal:', err);
+            pendingPayRef.current = false;
             setIsPaying(false);
         }
     }, [doTransfer]);
@@ -148,10 +144,9 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         }
     }, [autoPay, wallet, doTransfer]);
 
-    // Compact mode without wallet — hide (Connect button is in header)
+    // Compact mode without wallet — hide
     if (mode === 'compact' && !wallet && !isRestoring) return null;
 
-    // Restoring session — show spinner
     if (isRestoring) {
         return (
             <div className={cn('transition-all duration-300', className)}>
