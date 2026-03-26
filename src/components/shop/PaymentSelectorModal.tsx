@@ -161,22 +161,13 @@ export function PaymentSelectorModal({
 
   if (!pack) return null;
 
-  // Dynamic title based on step
-  const modalTitle = step === 'select'
-    ? (t('boostShop.payment.selectorTitle') || "Выберите способ оплаты")
-    : (t('cryptomusPayment.title') || "Оплата криптовалютой");
-
-  const modalDescription = step === 'select'
-    ? (pack.title ? `${pack.title} — ${pack.price}` : undefined)
-    : (t('cryptomusPayment.description') || undefined);
-
   return (
     <ResponsiveModal
       open={open}
       onOpenChange={onOpenChange}
-      title={modalTitle}
-      description={modalDescription}
-      className="max-w-md"
+      title={step === 'select' ? (t('boostShop.payment.selectorTitle') || "Выберите способ оплаты") : undefined}
+      description={step === 'select' ? (pack.title ? `${pack.title} — ${pack.price}` : undefined) : undefined}
+      className={step === 'cryptomus' ? "max-w-md !p-0" : "max-w-md"}
     >
       <AnimatePresence mode="wait">
         {step === 'select' ? (
@@ -253,47 +244,39 @@ export function PaymentSelectorModal({
         ) : (
           <motion.div
             key="cryptomus"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.2 }}
-            className="space-y-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="relative"
+            style={{ height: '80vh', maxHeight: '700px' }}
           >
-            {/* Header with back button + status */}
-            <div className="flex items-center justify-between px-1">
-              <button
-                onClick={() => { setStep('select'); setPaymentStatus('pending'); }}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                {t('common.back') || 'Назад'}
-              </button>
+            {/* Floating back button over iframe */}
+            <button
+              onClick={() => { setStep('select'); setPaymentStatus('pending'); }}
+              className="absolute top-2 left-2 z-10 flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-black/70 backdrop-blur-sm text-white/80 hover:text-white text-xs font-medium transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              {t('common.back') || 'Назад'}
+            </button>
 
-              {paymentStatus === 'checking' && (
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <RefreshCw className="h-3 w-3 animate-spin" />
-                  <span>{t('cryptomusPayment.checkingStatus') || 'Проверяем...'}</span>
-                </div>
-              )}
-              {paymentStatus === 'completed' && (
-                <div className="flex items-center gap-1.5 text-xs text-green-500">
-                  <CheckCircle2 className="h-3 w-3" />
-                  <span>{t('cryptomusPayment.paymentCompleted') || 'Оплачено!'}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Cryptomus iframe — embedded payment page */}
-            {cryptomusData && (
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black" style={{ height: '70vh', maxHeight: '600px' }}>
-                <iframe
-                  src={cryptomusData.paymentUrl}
-                  className="w-full h-full border-0"
-                  allow="payment; clipboard-write"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
-                  title="Cryptomus Payment"
-                />
+            {/* Status badge */}
+            {paymentStatus === 'completed' && (
+              <div className="absolute top-2 right-2 z-10 flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-green-600/90 backdrop-blur-sm text-white text-xs font-medium">
+                <CheckCircle2 className="h-3 w-3" />
+                {t('cryptomusPayment.paymentCompleted') || 'Оплачено!'}
               </div>
+            )}
+
+            {/* Full-bleed Cryptomus iframe */}
+            {cryptomusData && (
+              <iframe
+                src={cryptomusData.paymentUrl}
+                className="w-full h-full border-0 rounded-t-2xl"
+                allow="payment; clipboard-write"
+                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+                title="Cryptomus Payment"
+              />
             )}
           </motion.div>
         )}
