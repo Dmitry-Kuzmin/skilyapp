@@ -22,11 +22,13 @@ interface TonPaymentWidgetProps {
  * TonPaymentWidget — прямая оплата через tonConnectUI.sendTransaction().
  *
  * Не использует AppKit hooks (useAddress, useTransferTon) — они имеют
- * race condition при восстановлении сессии и показывают null для
- * компонентов смонтированных после события подключения.
+ * race condition при восстановлении сессии.
  *
- * tonConnectUI.onStatusChange() возвращает текущий стейт сразу при подписке
- * (если кошелёк подключён), поэтому мы всегда видим актуальный стейт.
+ * Флоу подключения:
+ *   1. openModal() — открывает QR/выбор кошелька
+ *   2. onStatusChange(wallet) — ловим момент подключения
+ *   3. onModalStateChange(closed) — ловим закрытие без подключения
+ *   4. sendTransaction() — отправляем транзакцию после подключения
  */
 export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     amountTon = 1.5,
@@ -39,17 +41,15 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     const { t } = useLanguage();
     const [wallet, setWallet] = useState(() => tonConnectUI.wallet);
     const [isPaying, setIsPaying] = useState(false);
-    // Wait for CloudStorage restoration before showing connect button
     const [isRestoring, setIsRestoring] = useState(() => !tonConnectionIsRestored);
     const autoPayTriggered = useRef(false);
 
-    // Subscribe to wallet state — fires immediately with current wallet if connected
+    // Subscribe to wallet state
     useEffect(() => {
         setWallet(tonConnectUI.wallet);
         const unsub = tonConnectUI.onStatusChange((w) => {
             setWallet(w ?? null);
         });
-        // Mark restoration complete so we show correct button state
         if (!tonConnectionIsRestored) {
             tonConnectionRestored.finally(() => {
                 setWallet(tonConnectUI.wallet);
@@ -86,39 +86,61 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     }, [amountTon, onSuccess, t]);
 
     const handlePayment = useCallback(async () => {
-        if (wallet) {
-            // Кошелёк подключён — сразу отправляем транзакцию
+        // Always check live state — React state may lag behind
+        if (tonConnectUI.wallet) {
+            setWallet(tonConnectUI.wallet);
             await doTransfer();
-        } else {
-            // Кошелёк не подключён — открываем модал коннекта.
-            // onStatusChange() fires IMMEDIATELY with current state (null),
-            // so we must skip the initial null and only react to actual connects.
-            setIsPaying(true);
-            let modalOpened = false;
-            const unsub = tonConnectUI.onStatusChange((w) => {
-                if (!modalOpened) return; // skip initial replay of current (null) state
-                if (!w) {
-                    // User closed modal without connecting
-                    setIsPaying(false);
-                    unsub();
-                    return;
-                }
-                unsub();
-                setWallet(w);
-                // Ждём закрытия модала коннекта перед sendTransaction
-                setTimeout(() => { doTransfer(); }, 500);
-            });
-            try {
-                await tonConnectUI.openModal();
-                modalOpened = true;
-            } catch {
-                setIsPaying(false);
-                unsub();
-            }
+            return;
         }
-    }, [wallet, doTransfer]);
 
-    // Авто-оплата при монтировании (только если кошелёк уже подключён)
+        // Not connected — open connect modal, wait for result
+        setIsPaying(true);
+
+        try {
+            await new Promise<void>((resolve, reject) => {
+                let settled = false;
+
+                // 1. Listen for wallet connection (ignore initial null replay)
+                const unsubStatus = tonConnectUI.onStatusChange((w) => {
+                    if (w && !settled) {
+                        settled = true;
+                        unsubStatus();
+                        unsubModal();
+                        setWallet(w);
+                        resolve();
+                    }
+                });
+
+                // 2. Listen for modal close without connecting
+                const unsubModal = tonConnectUI.onModalStateChange((state) => {
+                    if (state.status === 'closed' && !tonConnectUI.wallet && !settled) {
+                        settled = true;
+                        unsubStatus();
+                        unsubModal();
+                        reject(new Error('cancelled'));
+                    }
+                });
+
+                tonConnectUI.openModal().catch((err) => {
+                    if (!settled) {
+                        settled = true;
+                        unsubStatus();
+                        unsubModal();
+                        reject(err);
+                    }
+                });
+            });
+
+            // Connected! Wait for TonConnect to close its modal, then send tx
+            await new Promise(r => setTimeout(r, 600));
+            await doTransfer();
+        } catch {
+            // User closed modal or error — just reset
+            setIsPaying(false);
+        }
+    }, [doTransfer]);
+
+    // Auto-pay on mount (only if wallet already connected)
     useEffect(() => {
         if (autoPay && wallet && !autoPayTriggered.current) {
             autoPayTriggered.current = true;
@@ -126,23 +148,19 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         }
     }, [autoPay, wallet, doTransfer]);
 
-    // В compact-режиме без кошелька — скрываем (кнопка Connect есть в шапке)
+    // Compact mode without wallet — hide (Connect button is in header)
     if (mode === 'compact' && !wallet && !isRestoring) return null;
 
-    // Пока ждём восстановления сессии — не показываем кнопки
+    // Restoring session — show spinner
     if (isRestoring) {
         return (
             <div className={cn('transition-all duration-300', className)}>
                 <Button
                     disabled
-                    className={cn(
-                        "w-full font-bold flex items-center justify-center gap-2",
-                        "bg-[#0088cc]/40 text-white",
-                        mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-12 text-[14px] rounded-2xl"
-                    )}
+                    className="w-full h-9 text-[11px] rounded-xl font-bold flex items-center justify-center gap-2 bg-[#0088cc]/40 text-white"
                 >
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Проверка кошелька...</span>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>TON...</span>
                 </Button>
             </div>
         );
@@ -150,57 +168,33 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
 
     return (
         <div className={cn('transition-all duration-300', className)}>
-            {wallet ? (
-                <Button
-                    disabled={isPaying}
-                    onClick={handlePayment}
-                    className={cn(
-                        "w-full font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
-                        "bg-[#0088cc] hover:bg-[#1098dc] text-white",
-                        mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-12 text-[14px] rounded-2xl"
-                    )}
-                >
-                    {isPaying ? (
-                        <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>{t('monetization.ton.processing') || 'Обработка...'}</span>
-                        </>
-                    ) : (
-                        <>
-                            <Zap className="w-4 h-4" />
-                            <span>{t('monetization.ton.pay') || 'Оплатить'} {amountTon} TON</span>
-                        </>
-                    )}
-                </Button>
-            ) : (
-                <Button
-                    disabled={isPaying}
-                    onClick={handlePayment}
-                    className={cn(
-                        "w-full font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
-                        "bg-[#0088cc]/70 hover:bg-[#0088cc] text-white",
-                        mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-12 text-[14px] rounded-2xl"
-                    )}
-                >
-                    {isPaying ? (
-                        <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Подключение...</span>
-                        </>
-                    ) : (
-                        <>
-                            <Wallet className="w-4 h-4" />
-                            <span>Подключить & Оплатить {amountTon} TON</span>
-                        </>
-                    )}
-                </Button>
-            )}
-
-            {mode === 'full' && (
-                <div className="mt-3 text-center">
-                    <p className="text-[10px] text-muted-foreground opacity-60">Secure TON Payment</p>
-                </div>
-            )}
+            <Button
+                disabled={isPaying}
+                onClick={handlePayment}
+                className={cn(
+                    "w-full h-9 text-[11px] rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
+                    wallet
+                        ? "bg-[#0088cc] hover:bg-[#1098dc] text-white"
+                        : "bg-[#0088cc]/70 hover:bg-[#0088cc] text-white"
+                )}
+            >
+                {isPaying ? (
+                    <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>{wallet ? (t('monetization.ton.processing') || 'Обработка...') : 'Подключение...'}</span>
+                    </>
+                ) : (
+                    <>
+                        {wallet ? <Zap className="w-3.5 h-3.5" /> : <Wallet className="w-3.5 h-3.5" />}
+                        <span>
+                            {wallet
+                                ? `${t('monetization.ton.pay') || 'Оплатить'} ${amountTon} TON`
+                                : `TON · ${amountTon}`
+                            }
+                        </span>
+                    </>
+                )}
+            </Button>
         </div>
     );
 };
