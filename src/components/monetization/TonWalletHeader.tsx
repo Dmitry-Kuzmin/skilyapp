@@ -46,13 +46,14 @@ export const TonWalletHeader: React.FC = () => {
             });
     }, [profileId, dbLoaded]);
 
-    // Fetch balance from toncenter API when we have a saved address but no live connection
+    // Fetch balance from toncenter API as fallback (AppKit balance may be null initially)
     useEffect(() => {
-        if (!savedAddress || liveAddress) return;
+        const addr = liveAddress || savedAddress;
+        if (!addr) return;
         (async () => {
             try {
                 const res = await fetch(
-                    `https://toncenter.com/api/v2/getAddressBalance?address=${savedAddress}`
+                    `https://toncenter.com/api/v2/getAddressBalance?address=${addr}`
                 );
                 const data = await res.json();
                 if (data.ok && data.result) {
@@ -148,7 +149,7 @@ export const TonWalletHeader: React.FC = () => {
     if (isRestoring) {
         displayBalance = apiBalance ? `${apiBalance} TON` : '···';
     } else if (isLiveConnected) {
-        displayBalance = isBalanceLoading ? '···' : `${tonBalance || '0.00'} TON`;
+        displayBalance = isBalanceLoading ? (apiBalance ? `${apiBalance} TON` : '···') : `${tonBalance || apiBalance || '0.00'} TON`;
     } else {
         displayBalance = apiBalance
             ? `${apiBalance} TON`

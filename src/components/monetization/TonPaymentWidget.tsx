@@ -45,7 +45,6 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                 messages: [{
                     address: RECIPIENT,
                     amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
-                    payload: '',
                 }],
             });
             toast.success('✅ Premium активирован!');
