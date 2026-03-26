@@ -1076,8 +1076,9 @@ export function BoostShopModal({
         },
       );
 
+      console.log("[BoostShop] Cryptomus response:", { data, error });
       if (error || !data?.url) {
-        throw error || new Error("No payment URL");
+        throw error || new Error(`No payment URL. Response: ${JSON.stringify(data)}`);
       }
 
       setCryptomusPreview({
