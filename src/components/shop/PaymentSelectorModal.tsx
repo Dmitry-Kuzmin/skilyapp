@@ -3,11 +3,11 @@ import { cn } from "@/lib/utils";
 import { ResponsiveModal } from "@/components/ui/responsive-modal";
 import { Button } from "@/components/ui/button";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
-import { CreditCard, Sparkles, Wallet, Bitcoin, ChevronRight, ArrowLeft, Shield, CheckCircle2, XCircle, RefreshCw, Loader2 } from "lucide-react";
+import { CreditCard, Sparkles, Wallet, Bitcoin, ChevronRight, ArrowLeft, CheckCircle2, RefreshCw, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useUserContext } from "@/contexts/UserContext";
-// telegram imports removed — using window.open for universal behavior
+// telegram imports removed — Cryptomus embedded in iframe
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/lib/toast";
 
@@ -64,7 +64,6 @@ export function PaymentSelectorModal({
 
   // Cryptomus payment status polling
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'completed' | 'failed'>('pending');
-  const [isNavigating, setIsNavigating] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Reset when modal closes or opens
@@ -76,7 +75,6 @@ export function PaymentSelectorModal({
         setCryptomusData(null);
         setCryptoLoading(false);
         setPaymentStatus('pending');
-        setIsNavigating(false);
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
           intervalRef.current = null;
@@ -159,14 +157,7 @@ export function PaymentSelectorModal({
     }
   }, [onCryptoClick]);
 
-  // Open Cryptomus payment URL — window.open works in both browser and
-  // Telegram Mini App (opens internal browser without confirmation dialog)
-  const handleProceedToPayment = useCallback(() => {
-    if (!cryptomusData?.paymentUrl) return;
-    setIsNavigating(true);
-    window.open(cryptomusData.paymentUrl, '_blank');
-    setTimeout(() => setIsNavigating(false), 5000);
-  }, [cryptomusData]);
+  // handleProceedToPayment removed — Cryptomus now embedded in iframe
 
   if (!pack) return null;
 
@@ -266,81 +257,44 @@ export function PaymentSelectorModal({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             transition={{ duration: 0.2 }}
-            className="p-1 space-y-4"
+            className="space-y-2"
           >
-            {/* Back button */}
-            <button
-              onClick={() => { setStep('select'); setPaymentStatus('pending'); }}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {t('common.back') || 'Назад'}
-            </button>
+            {/* Header with back button + status */}
+            <div className="flex items-center justify-between px-1">
+              <button
+                onClick={() => { setStep('select'); setPaymentStatus('pending'); }}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                {t('common.back') || 'Назад'}
+              </button>
 
-            {/* Payment details */}
+              {paymentStatus === 'checking' && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <RefreshCw className="h-3 w-3 animate-spin" />
+                  <span>{t('cryptomusPayment.checkingStatus') || 'Проверяем...'}</span>
+                </div>
+              )}
+              {paymentStatus === 'completed' && (
+                <div className="flex items-center gap-1.5 text-xs text-green-500">
+                  <CheckCircle2 className="h-3 w-3" />
+                  <span>{t('cryptomusPayment.paymentCompleted') || 'Оплачено!'}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Cryptomus iframe — embedded payment page */}
             {cryptomusData && (
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground text-sm">{t('cryptomusPayment.item') || 'Товар'}:</span>
-                  <span className="font-medium text-sm">{cryptomusData.itemName}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground text-sm">{t('cryptomusPayment.amount') || 'Сумма'}:</span>
-                  <span className="font-bold text-lg">
-                    {cryptomusData.amount.toFixed(2)} {cryptomusData.currency.toUpperCase()}
-                  </span>
-                </div>
-
-                {/* Status indicator */}
-                {paymentStatus === 'checking' && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground pt-2 border-t border-white/10">
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                    <span>{t('cryptomusPayment.checkingStatus') || 'Проверяем оплату...'}</span>
-                  </div>
-                )}
-                {paymentStatus === 'completed' && (
-                  <div className="flex items-center gap-2 text-sm text-green-500 pt-2 border-t border-white/10">
-                    <CheckCircle2 className="h-4 w-4" />
-                    <span>{t('cryptomusPayment.paymentCompleted') || 'Оплата получена!'}</span>
-                  </div>
-                )}
-                {paymentStatus === 'failed' && (
-                  <div className="flex items-center gap-2 text-sm text-red-500 pt-2 border-t border-white/10">
-                    <XCircle className="h-4 w-4" />
-                    <span>{t('cryptomusPayment.paymentFailed') || 'Оплата не прошла'}</span>
-                  </div>
-                )}
-
-                {/* Security info */}
-                <div className="flex items-start gap-2 text-xs text-muted-foreground pt-2 border-t border-white/10">
-                  <Shield className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                  <span className="leading-relaxed">
-                    {t('cryptomusPayment.securityInfo') || 'Безопасная оплата через Cryptomus'}
-                  </span>
-                </div>
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-black" style={{ height: '70vh', maxHeight: '600px' }}>
+                <iframe
+                  src={cryptomusData.paymentUrl}
+                  className="w-full h-full border-0"
+                  allow="payment; clipboard-write"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+                  title="Cryptomus Payment"
+                />
               </div>
             )}
-
-            {/* Action button */}
-            <Button
-              onClick={handleProceedToPayment}
-              disabled={isNavigating || paymentStatus === 'completed'}
-              className="w-full h-12 text-base font-bold rounded-2xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
-            >
-              {isNavigating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('cryptomusPayment.navigating') || 'Переход...'}
-                </>
-              ) : paymentStatus === 'completed' ? (
-                <>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  {t('cryptomusPayment.paymentCompleted') || 'Оплачено!'}
-                </>
-              ) : (
-                t('cryptomusPayment.proceedToPayment') || 'Перейти к оплате'
-              )}
-            </Button>
           </motion.div>
         )}
       </AnimatePresence>
