@@ -237,6 +237,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         } else {
           window.open(parsed.url, '_blank');
         }
+      }
     } catch (err: any) {
       console.error("[PaywallModal] Global error:", err);
       toast({ title: "Ошибка", description: err?.message || "Непредвиденная ошибка. Попробуйте позже.", variant: "destructive" });
