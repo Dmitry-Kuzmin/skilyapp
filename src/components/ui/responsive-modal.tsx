@@ -66,22 +66,23 @@ export function ResponsiveModal({
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
   
-  // КРИТИЧНО: Если открыт TonConnect — отключаем 'modal' режим у Radix,
-  // чтобы он не блокировал pointer-events у попапа кошелька.
-  const [isTonActive, setIsTonActive] = React.useState(false);
+  // КРИТИЧНО: Если открыт TonConnect или Paddle — отключаем 'modal' режим у Radix,
+  // чтобы он не блокировал pointer-events у внешних оверлеев.
+  const [isExternalOverlay, setIsExternalOverlay] = React.useState(false);
 
   React.useEffect(() => {
     if (!open) return;
 
-    // TonPaymentWidget dispatches this event BEFORE opening TonConnect modal
-    const handleTonEvent = (e: Event) => {
+    const handleOverlayEvent = (e: Event) => {
       const isOpen = !!(e as CustomEvent).detail?.open;
-      setIsTonActive(isOpen);
+      setIsExternalOverlay(isOpen);
     };
-    document.addEventListener('tonconnect-modal', handleTonEvent);
+    document.addEventListener('tonconnect-modal', handleOverlayEvent);
+    document.addEventListener('paddle-checkout', handleOverlayEvent);
 
     return () => {
-      document.removeEventListener('tonconnect-modal', handleTonEvent);
+      document.removeEventListener('tonconnect-modal', handleOverlayEvent);
+      document.removeEventListener('paddle-checkout', handleOverlayEvent);
     };
   }, [open]);
 
@@ -97,7 +98,7 @@ export function ResponsiveModal({
         activeSnapPoint={activeSnapPoint}
         setActiveSnapPoint={onSnapPointChange}
         {...(snapPoints ? { fadeFromIndex } as any : {})}
-        modal={!isTonActive} // Dynamic modal state
+        modal={!isExternalOverlay} // Dynamic: disabled when TonConnect/Paddle overlay is open
         shouldScaleBackground={false}
         repositionInputs={true}
       >
@@ -135,11 +136,12 @@ export function ResponsiveModal({
               const elString = `${tagName} ${id} ${className}`;
               
               return (
-                elString.includes('tc-') || 
+                elString.includes('tc-') ||
                 elString.includes('ton-') ||
                 elString.includes('tonconnect') ||
                 elString.includes('appkit') ||
                 elString.includes('sonner') ||
+                elString.includes('paddle') ||
                 elString.includes('go') // CSS-in-JS классы от TonConnect (напр. .go12345)
               );
             });
@@ -199,7 +201,7 @@ export function ResponsiveModal({
   const defaultMaxWidth = fullscreen ? 'max-w-none w-screen' : (hasMaxWidth ? '' : 'sm:max-w-[500px]');
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={!isTonActive}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={!isExternalOverlay}>
       <DialogContent
         className={cn(
           defaultMaxWidth,

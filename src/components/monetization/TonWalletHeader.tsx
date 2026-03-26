@@ -23,7 +23,8 @@ export const TonWalletHeader: React.FC = () => {
     const liveAddress = useAddress();
     const balanceData = useBalance();
     const rawBalance = balanceData && 'balance' in balanceData ? (balanceData as any).balance : null;
-    const isBalanceLoading = (balanceData as any).isLoading;
+    const isBalanceLoading = balanceData && 'isLoading' in balanceData ? (balanceData as any).isLoading : false;
+    
     const { profileId } = useUserContext();
     const { t } = useLanguage();
 
@@ -42,9 +43,10 @@ export const TonWalletHeader: React.FC = () => {
             .select('ton_wallet_address')
             .eq('id', profileId)
             .maybeSingle()
-            .then(({ data }: { data: any }) => {
-                if (data?.ton_wallet_address) {
-                    setSavedAddress(data.ton_wallet_address);
+            .then(({ data }) => {
+                const profile = data as any;
+                if (profile?.ton_wallet_address) {
+                    setSavedAddress(profile.ton_wallet_address);
                 }
                 setDbLoaded(true);
             });
@@ -78,10 +80,10 @@ export const TonWalletHeader: React.FC = () => {
         
         // Increased timeout to 15s for better reliability on mobile networks
         const timer = setTimeout(() => {
-          if (!liveAddress) {
-            console.warn('[TON] Restoration timed out after 15s');
-            setRestoreTimedOut(true);
-          }
+            if (!liveAddress) {
+                console.warn('[TON] Restoration timed out after 15s');
+                setRestoreTimedOut(true);
+            }
         }, 15000); 
         
         return () => clearTimeout(timer);
@@ -101,7 +103,6 @@ export const TonWalletHeader: React.FC = () => {
     }, [showMenu]);
 
     const handleConnect = useCallback(() => {
-        if ((tonConnectUI.modal as any).open) return;
         try {
             tonConnectUI.openModal();
         } catch (e) {
@@ -153,9 +154,7 @@ export const TonWalletHeader: React.FC = () => {
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-[#0098EA]/15 hover:bg-[#0098EA]/25 rounded-xl border border-[#0098EA]/30 active:scale-95 transition-all"
             >
                 <Wallet className="w-3.5 h-3.5 text-[#0098EA]" />
-                <span className="text-[11px] font-bold text-[#0098EA]">
-                    {t('wallet.connect')}
-                </span>
+                <span className="text-[11px] font-bold text-[#0098EA]">{t('wallet.connect')}</span>
             </button>
         );
     }

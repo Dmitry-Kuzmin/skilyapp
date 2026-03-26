@@ -1,4 +1,3 @@
-```
 import { cn } from "@/lib/utils";
 import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config";
 import {
