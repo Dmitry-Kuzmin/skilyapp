@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { landingTranslations } from "@/translations/landing";
+import { Page } from "@/components/Page";
 
 // Lazy load heavy components
 const AuthModalNew = lazy(() => import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew })));
@@ -591,7 +592,7 @@ export default function About() {
   const titleParts = copy.about.heroTitle.split('. ');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0f172a] text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
+    <Page className="min-h-screen flex flex-col bg-[#0f172a] text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
       {/* Enhanced Background with Noise + Grid */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {/* Grid pattern */}
@@ -777,6 +778,6 @@ export default function About() {
       <Suspense fallback={null}>
         <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       </Suspense>
-    </div>
+    </Page>
   );
 }

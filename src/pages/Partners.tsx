@@ -35,6 +35,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
+import { Page } from "@/components/Page";
 
 export default function Partners() {
   const navigate = useNavigate();
@@ -418,7 +419,7 @@ export default function Partners() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white font-sans overflow-x-hidden selection:bg-primary/30">
+    <Page className="min-h-screen bg-[#0f172a] text-white font-sans overflow-x-hidden selection:bg-primary/30">
       {/* Background effects */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03] z-0"
@@ -923,6 +924,6 @@ export default function Partners() {
       </footer>
 
       <AuthModal open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
-    </div>
+    </Page>
   );
 }

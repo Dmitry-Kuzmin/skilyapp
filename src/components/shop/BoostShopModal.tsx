@@ -2554,7 +2554,6 @@ function PaddleFullscreenCheckout({ url, onClose }: { url: string; onClose: () =
           src={url}
           className="absolute inset-0 w-full h-full border-0"
           allow="payment"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
           title="Paddle Checkout"
         />
         {/* Left edge swipe-back zone */}

@@ -16,6 +16,7 @@ import { motion } from "@/components/optimized/Motion";
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { getTelegramWebApp } from '@/lib/telegram';
 import { NotificationIcon } from './NotificationIcon';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import type { DuelNotification } from '@/hooks/useNotifications';
@@ -174,6 +175,21 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
   const [reminderModalOpen, setReminderModalOpen] = useState(false);
   const navigate = useNavigate();
   const parentRef = useRef<HTMLDivElement | null>(null);
+
+  // Telegram BackButton support — close sheet when back is pressed
+  const isOpen = typeof open === 'boolean' ? open : false;
+  useEffect(() => {
+    if (!isOpen) return;
+    const webApp = getTelegramWebApp();
+    if (!webApp?.BackButton) return;
+    const handleBack = () => {
+      onOpenChange?.(false);
+    };
+    webApp.BackButton.onClick(handleBack);
+    return () => {
+      webApp.BackButton.offClick(handleBack);
+    };
+  }, [isOpen, onOpenChange]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчик для предотвращения лишних ре-рендеров
   const toggleNotificationExpansion = useCallback((notificationId: string) => {
@@ -465,7 +481,7 @@ export const NotificationsPanel = ({ notificationsApi, open, onOpenChange, rende
           {trigger ?? defaultTrigger}
         </SheetTrigger>
       )}
-      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col pt-[env(safe-area-inset-top)]">
+      <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col" style={{ paddingTop: 'var(--app-content-top, env(safe-area-inset-top, 0px))' }}>
         <SheetHeader className="p-6 pb-4 border-b pt-6">
           <div className="flex items-center justify-between mb-4">
             <SheetTitle className="text-2xl font-bold flex items-center gap-2">
