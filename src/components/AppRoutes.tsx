@@ -3,10 +3,23 @@
  * Обернуты в AppProviders для lazy loading
  */
 
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { PageLoader } from "@/components/PageLoader";
 import { PageSkeleton } from "@/components/PageSkeleton";
+import { TelegramNavigation } from "@/components/TelegramNavigation";
+import { EdgeSwipeBack } from "@/components/navigation/EdgeSwipeBack";
+
+/** Lightweight wrapper for public pages that need Telegram BackButton + swipe-back + safe-area */
+function TelegramShell({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <TelegramNavigation />
+      <EdgeSwipeBack />
+      {children}
+    </>
+  );
+}
 
 // Lazy load всех страниц приложения
 const Index = lazy(() => {
@@ -375,12 +388,12 @@ export function AppRoutes() {
       <Route path="/refund-policy" element={<Navigate to="/legal/refund" replace />} />
       <Route path="/about" element={
         <Suspense fallback={<PageSkeleton />}>
-          <About />
+          <TelegramShell><About /></TelegramShell>
         </Suspense>
       } />
       <Route path="/features" element={
         <Suspense fallback={<PageSkeleton />}>
-          <Features />
+          <TelegramShell><Features /></TelegramShell>
         </Suspense>
       } />
       <Route path="/pricing" element={
@@ -390,27 +403,27 @@ export function AppRoutes() {
       } />
       <Route path="/help/changelog" element={
         <Suspense fallback={<PageSkeleton />}>
-          <Changelog />
+          <TelegramShell><Changelog /></TelegramShell>
         </Suspense>
       } />
       <Route path="/help" element={
         <Suspense fallback={<PageSkeleton />}>
-          <HelpCenter />
+          <TelegramShell><HelpCenter /></TelegramShell>
         </Suspense>
       } />
       <Route path="/partners" element={
         <Suspense fallback={<PageSkeleton />}>
-          <Partners />
+          <TelegramShell><Partners /></TelegramShell>
         </Suspense>
       } />
       <Route path="/blog" element={
         <Suspense fallback={<PageSkeleton />}>
-          <Blog />
+          <TelegramShell><Blog /></TelegramShell>
         </Suspense>
       } />
       <Route path="/blog/:slug" element={
         <Suspense fallback={<PageSkeleton />}>
-          <Article />
+          <TelegramShell><Article /></TelegramShell>
         </Suspense>
       } />
       <Route path="/stats" element={<Navigate to="/" replace />} />
