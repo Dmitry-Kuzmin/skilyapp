@@ -91,12 +91,14 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             await doTransfer();
         } else {
             // Кошелёк не подключён — открываем модал коннекта.
-            // После подключения даём TonConnect UI закрыть свой модал (setTimeout 0),
-            // затем вызываем sendTransaction — иначе TonConnect открывает новый флоу
-            // поверх незакрытого модала коннекта и выглядит как повторный коннект.
+            // onStatusChange() fires IMMEDIATELY with current state (null),
+            // so we must skip the initial null and only react to actual connects.
             setIsPaying(true);
+            let modalOpened = false;
             const unsub = tonConnectUI.onStatusChange((w) => {
+                if (!modalOpened) return; // skip initial replay of current (null) state
                 if (!w) {
+                    // User closed modal without connecting
                     setIsPaying(false);
                     unsub();
                     return;
@@ -108,6 +110,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             });
             try {
                 await tonConnectUI.openModal();
+                modalOpened = true;
             } catch {
                 setIsPaying(false);
                 unsub();
