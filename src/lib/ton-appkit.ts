@@ -31,10 +31,17 @@ export const appKit = new AppKit({
 });
 
 // Exported promise — resolves to true/false once restoration completes.
-// Components must await this before deciding whether a wallet is connected.
-export const tonConnectionRestored: Promise<boolean> =
-    (tonConnectUI.connectionRestored as Promise<boolean> | undefined)
+// Wraps SDK promise with a 5s timeout so UI never hangs on slow bridge.
+const sdkRestored = (tonConnectUI.connectionRestored as Promise<boolean> | undefined)
     ?? Promise.resolve(false);
+
+export const tonConnectionRestored: Promise<boolean> = Promise.race([
+    sdkRestored,
+    new Promise<boolean>((resolve) => setTimeout(() => {
+        console.warn('[TON] Restoration timed out after 5s — treating as no session');
+        resolve(false);
+    }, 5000)),
+]);
 
 // Synchronous flag — true once restoration has completed.
 export let tonConnectionIsRestored = false;

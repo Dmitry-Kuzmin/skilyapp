@@ -163,12 +163,18 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     // Compact mode without wallet — hide
 
 
+    // Detect overlay mode — parent sets opacity-0 + w-full h-full
+    const isOverlay = className?.includes('opacity-0');
+
     if (isRestoring) {
         return (
             <div className={cn('transition-all duration-300', className)}>
                 <Button
                     disabled
-                    className="w-full h-9 text-[11px] rounded-xl font-bold flex items-center justify-center gap-2 bg-[#0088cc]/40 text-white"
+                    className={cn(
+                        "w-full text-[11px] rounded-xl font-bold flex items-center justify-center gap-2 bg-[#0088cc]/40 text-white",
+                        isOverlay ? "h-full" : "h-9"
+                    )}
                 >
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     <span>TON...</span>
@@ -183,7 +189,8 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                 disabled={isPaying}
                 onClick={handlePayment}
                 className={cn(
-                    "w-full h-9 text-[11px] rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
+                    "w-full text-[11px] rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
+                    isOverlay ? "h-full" : "h-9",
                     wallet
                         ? "bg-[#0088cc] hover:bg-[#1098dc] text-white"
                         : "bg-[#0088cc]/70 hover:bg-[#0088cc] text-white"
