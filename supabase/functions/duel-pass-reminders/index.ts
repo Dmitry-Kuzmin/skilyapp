@@ -444,6 +444,7 @@ async function sendNotification(params: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
       },
+      signal: AbortSignal.timeout(8000),
       body: JSON.stringify({
         user_id: params.userId,
         template_type: params.templateType,

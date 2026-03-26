@@ -388,7 +388,8 @@ async function dispatchEvent(params: {
         user_id: params.userId,
         event_type: params.eventType,
         payload: params.payload
-      })
+      }),
+      signal: AbortSignal.timeout(8000),
     });
 
     const result = await response.json().catch(() => ({}));
