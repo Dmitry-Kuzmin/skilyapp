@@ -1,27 +1,13 @@
 import { AppKit, Network, TonConnectConnector } from '@ton/appkit';
-import { TonConnect } from '@tonconnect/sdk';
 import { TonConnectUI } from '@tonconnect/ui';
-import { TonCloudStorage } from './ton-cloud-storage';
 
-// ROOT FIX: TonConnect stores session in localStorage,
-// but Telegram Mini Apps can clear localStorage between sessions.
-// Solution: use Telegram CloudStorage (persistent per bot/user) as backend,
-// with localStorage as fast cache layer.
-const cloudStorage = new TonCloudStorage();
-
-// Create low-level TonConnect SDK with custom storage
-const tonConnectSDK = new TonConnect({
-    manifestUrl: 'https://skilyapp.com/tonconnect-manifest.json',
-    storage: cloudStorage,
-});
-
-// Create TonConnectUI with custom connector (inherits CloudStorage)
+// Initialize TonConnectUI directly, allowing it to use its native default storage (localStorage)
+// which is robust and standard across all regular TON applications.
 const tonConnectUI = new TonConnectUI({
-    connector: tonConnectSDK,
-    restoreConnection: true,
+    manifestUrl: 'https://skilyapp.com/tonconnect-manifest.json',
 });
 
-// Create AppKit connector using our pre-configured TonConnectUI
+// Create AppKit connector using our standard TonConnectUI
 const tonConnector = new TonConnectConnector({
     tonConnectUI: tonConnectUI,
 });
@@ -55,12 +41,21 @@ export const tonConnectionRestored: Promise<boolean> =
 export let tonConnectionIsRestored = false;
 tonConnectionRestored.finally(() => { tonConnectionIsRestored = true; });
 
+console.log('[TON] connectionRestored type:', typeof tonConnectUI.connectionRestored);
+console.log('[TON] wallet right after init:', tonConnectUI.wallet ? 'connected' : 'null');
+console.log('[TON] UI connected:', tonConnectUI.connected);
+
 tonConnectionRestored
     .then((restored) => {
         console.log(restored
-            ? '[TON] ✅ Wallet connection restored from CloudStorage'
-            : '[TON] No previous wallet session found');
+            ? '[TON] ✅ Wallet connection restored from storage'
+            : '[TON] ❌ No previous wallet session found');
+        console.log('[TON] wallet after restore:', tonConnectUI.wallet ? JSON.stringify({
+            address: tonConnectUI.wallet.account?.address?.slice(0, 20) + '...',
+            chain: tonConnectUI.wallet.account?.chain,
+        }) : 'null');
+        console.log('[TON] UI connected after restore:', tonConnectUI.connected);
     })
-    .catch(() => {
-        console.log('[TON] Connection restore skipped (no session)');
+    .catch((err) => {
+        console.error('[TON] Connection restore FAILED:', err);
     });
