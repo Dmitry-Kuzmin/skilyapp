@@ -161,7 +161,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     }, [autoPay, wallet, doTransfer]);
 
     // Compact mode without wallet — hide
-    if (mode === 'compact' && !wallet && !isRestoring) return null;
+
 
     if (isRestoring) {
         return (

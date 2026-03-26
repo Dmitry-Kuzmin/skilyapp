@@ -1089,14 +1089,14 @@ export function BoostShopModal({
         },
       );
 
-      if (error || !data?.payment_url) {
+      if (error || !data?.url) {
         throw error || new Error("No payment URL");
       }
 
       setCryptomusPreview({
         open: true,
-        paymentUrl: data.payment_url,
-        orderId: data.order_id,
+        paymentUrl: data.url,
+        orderId: data.orderId,
         amount: priceValue,
         currency: 'EUR',
         itemName: itemName
