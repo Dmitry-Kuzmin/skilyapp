@@ -10,14 +10,15 @@ import { PageSkeleton } from "@/components/PageSkeleton";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
 import { EdgeSwipeBack } from "@/components/navigation/EdgeSwipeBack";
 
-/** Lightweight wrapper for public pages that need Telegram BackButton + swipe-back + safe-area */
+/** Lightweight wrapper for public pages that need Telegram BackButton + swipe-back + safe-area.
+ *  Applies global safe-area padding via CSS class so individual pages don't need <Page> wrappers. */
 function TelegramShell({ children }: { children: ReactNode }) {
   return (
-    <>
+    <div className="telegram-public-page">
       <TelegramNavigation />
       <EdgeSwipeBack />
       {children}
-    </>
+    </div>
   );
 }
 

@@ -602,9 +602,12 @@ All colors MUST be HSL.
    * ============================================================================ */
 
   /* Глобальный padding для Telegram Mobile через CSS */
-  /* Используем .telegram-main-content для main элемента в Layout.tsx */
+  /* .telegram-main-content — Layout.tsx main element (authenticated pages with nav) */
+  /* .telegram-public-page — TelegramShell wrapper (public pages without Layout) */
   html.telegram-mobile-app .telegram-main-content,
-  body.telegram-mobile-app .telegram-main-content {
+  body.telegram-mobile-app .telegram-main-content,
+  html.telegram-mobile-app .telegram-public-page,
+  body.telegram-mobile-app .telegram-public-page {
     /* 
      * Вычисляем padding как максимум из:
      * 1. --tg-content-safe-area-inset-top (плашка Telegram)

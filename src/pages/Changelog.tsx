@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { Sparkles, Zap, Palette, Wrench, ChevronRight, ArrowLeft, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LandingLogo } from '@/components/landing/LandingLogo';
-import { Page } from '@/components/Page';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CHANGELOG, ChangeCategory } from '@/data/changelog';
 
@@ -17,7 +16,7 @@ const CATEGORY_META: Record<ChangeCategory, { label: string; color: string; icon
 
 export default function Changelog() {
     return (
-        <Page className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
             {/* Header */}
             <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -137,6 +136,6 @@ export default function Changelog() {
                     </p>
                 </div>
             </main>
-        </Page>
+        </div>
     );
 }

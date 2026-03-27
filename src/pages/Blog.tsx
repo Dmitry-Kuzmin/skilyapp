@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LandingLogo } from "@/components/landing/LandingLogo";
-import { Page } from "@/components/Page";
+
 
 interface Article {
   slug: string;
@@ -192,7 +192,7 @@ const Blog = () => {
   });
 
   return (
-    <Page className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm" style={{ overflow: 'visible' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ overflow: 'visible' }}>
