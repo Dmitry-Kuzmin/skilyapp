@@ -267,24 +267,20 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
 
   console.log(`[Callback] @${user.username || user.id} -> ${data}`);
 
-  // Убираем часики сразу
-  try {
-    await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ callback_query_id: query.id })
-    });
-  } catch (e: unknown) {
-    console.error("[Callback] answerCallbackQuery failed:", e);
-  }
+  // Убираем часики мгновенно (без await, чтобы не ждать ответа API)
+  fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ callback_query_id: query.id })
+  }).catch((e) => console.error("[Callback] answerCallbackQuery failed:", e));
 
   if (!message) return;
 
   try {
-    const lang = await getUserLanguage(user.id, user.language_code, supabase);
-    console.log(`[Callback] User language: ${lang}`);
+    const langPromise = getUserLanguage(user.id, user.language_code, supabase);
 
     if (data === "main_menu") {
+      const lang = await langPromise;
       await editMessage({
         chat_id: message.chat.id,
         message_id: message.message_id,
@@ -293,9 +289,11 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       });
     }
     else if (data === "profile") {
+      const lang = await langPromise;
       await showProfile(message.chat.id, user.id, lang);
     }
     else if (data === "duel_inline") {
+      const lang = await langPromise;
       await editMessage({
         chat_id: message.chat.id,
         message_id: message.message_id,
@@ -310,6 +308,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       });
     }
     else if (data === "settings") {
+      const lang = await langPromise;
       await editMessage({
         chat_id: message.chat.id,
         message_id: message.message_id,
@@ -318,6 +317,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       });
     }
     else if (data === "settings_language") {
+      const lang = await langPromise;
       await editMessage({
         chat_id: message.chat.id,
         message_id: message.message_id,
@@ -339,6 +339,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       });
     }
     else if (data === "tips_menu") {
+      const lang = await langPromise;
       await editMessage({
         chat_id: message.chat.id,
         message_id: message.message_id,
@@ -347,13 +348,15 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       });
     }
     else if (data === "pay_stars") {
+      const lang = await langPromise;
       // Получаем внутренний userId пользователя для привязки платежа
       const { data: profile } = await supabase.from("profiles").select("id").eq("telegram_id", user.id).maybeSingle();
       // Передаем message_id для замены текста сообщения (edit вместо send)
       await sendStarsInvoice(message.chat.id, user.id, profile?.id || "", message.message_id, lang);
     }
     else if (data === "payment_methods") {
-     await showPaymentMethods(message.chat.id, lang, message.message_id);
+      const lang = await langPromise;
+      await showPaymentMethods(message.chat.id, lang, message.message_id);
     }
     // Quest info — клик по кнопке квеста в чеклисте
     else if (data.startsWith("quest_info:")) {
