@@ -142,7 +142,7 @@ export function UnifiedPricingCard({
                 <h3 className="text-sm font-black text-foreground leading-tight tracking-tight uppercase">{title}</h3>
                 {bonusCoins && (
                   <Badge variant="outline" className="h-4 px-1.5 py-0 border-amber-500/50 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-tighter shrink-0">
-                    +{bonusCoins} {(t('boostShop.coins.bonusLabel') || 'БОНУС').replace('{{BONUS}}', '').replace(/^\+/, '').trim()}
+                    +{bonusCoins} БОНУС
                   </Badge>
                 )}
               </div>

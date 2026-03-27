@@ -110,20 +110,29 @@ export function StarsPaymentButton({
         telegram_user_id: user.id
       });
 
-      // Создать invoice через Edge Function
-      const { data, error } = await supabase.functions.invoke('telegram-stars-payment', {
-        body: {
+      // Создать invoice через Edge Function с получением детальной ошибки
+      const response = await fetch(`${(supabase as any).functions.url}/telegram-stars-payment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(supabase as any).supabaseKey || ''}`
+        },
+        body: JSON.stringify({
           action: 'create_invoice',
           user_id: profileId,
           package_key: packageKey,
           telegram_user_id: user.id
-        }
+        })
       });
 
-      if (error) {
-        console.error('[Stars Payment] Error creating invoice:', error);
-        throw new Error(error.message || 'Не удалось создать счет на оплату');
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('[Stars Payment] Server error:', result);
+        throw new Error(result.error || `Ошибка сервера: ${response.status}`);
       }
+
+      const data = result;
 
       if (!data?.success || !data?.invoice_link) {
         console.error('[Stars Payment] Invalid response:', data);
@@ -222,4 +231,3 @@ export function StarsPaymentButton({
     </Button>
   );
 }
-

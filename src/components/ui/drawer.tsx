@@ -15,14 +15,14 @@ type DrawerProps = React.ComponentProps<typeof DrawerPrimitive.Root> & {
 }
 
 const Drawer = ({
-  shouldScaleBackground: _shouldScaleBackground, // Игнорируем пришедшее значение
+  shouldScaleBackground = true,
   dismissibleThreshold = 0.15,
   children,
   ...props
 }: DrawerProps) => (
   <DrawerPrimitive.Root
     {...props}
-    shouldScaleBackground={false} // ВСЕГДА false — пользователь не хочет scale эффект
+    shouldScaleBackground={shouldScaleBackground}
     dismissible={true}
     closeThreshold={dismissibleThreshold}
   >
