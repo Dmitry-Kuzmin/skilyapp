@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
-import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { useTonConnectUI } from '@tonconnect/ui-react';
+import { useTonAddress } from '@/contexts/TonAddressContext';
 
 import { Loader2, Zap, Wallet, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -60,7 +61,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     mode = 'compact',
 }) => {
     const { t } = useLanguage();
-    const wallet = useTonWallet();
+    const address = useTonAddress();
     const [tonConnectUI] = useTonConnectUI();
     const { status, subscribe, reset } = useTonStreaming();
 
@@ -80,8 +81,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     }, []);
 
     const handlePayment = useCallback(async () => {
-        const addr = wallet?.account?.address;
-        if (!addr) {
+        if (!address) {
             toast.error(t('monetization.ton.notConnected'));
             return;
         }
@@ -93,7 +93,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
 
             // Start streaming subscription before sending
             const apiKey = import.meta.env.VITE_TONCENTER_API_KEY as string | undefined;
-            subscribe(addr, apiKey);
+            subscribe(address, apiKey);
 
             // Directly call sendTransaction instead of transfer() from AppKit
             await tonConnectUI.sendTransaction({
@@ -120,7 +120,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         } finally {
             setIsPaying(false);
         }
-    }, [wallet, amountTon, description, tonConnectUI, subscribe, reset, t]);
+    }, [address, amountTon, description, tonConnectUI, subscribe, reset, t]);
 
     // When finalized — call onSuccess once
     const finalizedRef = useRef(false);
@@ -139,7 +139,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         if (tonConnectUI) await tonConnectUI.openModal();
     }, [tonConnectUI]);
 
-    const isConnected = !!wallet;
+    const isConnected = !!address;
     if (!isConnected && mode === 'compact') return null;
 
     const statusInfo = STATUS_CONFIG[status];

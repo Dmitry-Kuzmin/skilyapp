@@ -99,13 +99,16 @@ export function PaymentSelectorModal({
           .eq('cryptomus_order_id', cryptomusData.orderId)
           .maybeSingle();
 
+        const purchaseData = data as any;
+        console.log('[PaymentSelector] Cloud check:', { data: purchaseData, error });
+
         if (error) {
           console.error('[PaymentSelector] Status check error:', error);
           setPaymentStatus('pending');
           return;
         }
 
-        if (data?.status === 'completed') {
+        if (purchaseData?.status === 'completed') {
           setPaymentStatus('completed');
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -116,7 +119,7 @@ export function PaymentSelectorModal({
             onSuccess();
             onOpenChange(false);
           }, 2000);
-        } else if (data?.status === 'failed' || data?.status === 'cancelled') {
+        } else if (purchaseData?.status === 'failed' || purchaseData?.status === 'cancelled') {
           setPaymentStatus('failed');
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -125,7 +128,8 @@ export function PaymentSelectorModal({
         } else {
           setPaymentStatus('pending');
         }
-      } catch {
+      } catch (err) {
+        console.error('[PaymentSelector] Status check catch:', err);
         setPaymentStatus('pending');
       }
     };
@@ -221,6 +225,7 @@ export function PaymentSelectorModal({
               subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
               color="blue"
               onClick={onTonClick}
+              className="relative z-20"
               rightElement={
                 <span className="text-xs font-bold text-blue-400">{(pack.priceValue / 5).toFixed(1)} TON</span>
               }
@@ -235,6 +240,7 @@ export function PaymentSelectorModal({
               subtitle={t('boostShop.payment.cryptoSubtitle') || "BTC, USDT, ETH и другие"}
               color="orange"
               onClick={handleCryptoClick}
+              className="relative z-20"
               loading={cryptoLoading}
             />
           )}
@@ -246,6 +252,7 @@ export function PaymentSelectorModal({
               title={t('boostShop.payment.cardTitle') || "Банковская карта"}
               subtitle={t('boostShop.payment.cardSubtitle') || "Visa, Mastercard, Stripe"}
               color="gray"
+              className="relative z-20"
               onClick={onCardClick}
             />
           )}

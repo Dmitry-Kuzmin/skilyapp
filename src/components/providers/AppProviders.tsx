@@ -174,17 +174,11 @@ export function AppProviders({ children }: AppProvidersProps) {
               <PDDProvider>
                 <AppKitProvider appKit={appKit}>
                   <TonAddressProvider>
-                  <SessionHandler />
-                  <TonWalletSyncHandler />
-                  <ReconnectHandler />
-                  {/* Global Settings Drawer (Zustand controlled) */}
-                  <GlobalSettingsManager />
-                  {(() => {
-                    if (import.meta.env.DEV) {
-                      console.debug('[AppProviders] 🚀 Rendering children:', !!children);
-                    }
-                    return children;
-                  })()}
+                    <SessionHandler />
+                    <TonWalletSyncHandler />
+                    <ReconnectHandler />
+                    <GlobalSettingsManager />
+                    {children}
                   </TonAddressProvider>
                 </AppKitProvider>
               </PDDProvider>

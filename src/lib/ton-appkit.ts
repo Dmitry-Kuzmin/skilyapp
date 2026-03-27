@@ -4,7 +4,6 @@ import { TonConnectUI } from '@tonconnect/ui';
 import { TonCloudStorage } from './ton-cloud-storage';
 
 // Custom storage: Telegram CloudStorage (persistent across Mini App sessions)
-// + localStorage as fast local cache.
 const cloudStorage = new TonCloudStorage();
 
 // Low-level TonConnect with custom persistent storage
@@ -14,18 +13,39 @@ const tonConnectSDK = new TonConnect({
 });
 
 // TonConnectUI wraps the SDK.
-// IMPORTANT: do NOT pass restoreConnection: true here —
-// AppKit's TonConnectConnector.initialize() already calls
-// connector.restoreConnection() internally.
-// Double-calling it caused a race condition that dropped restored sessions.
 const tonConnectUI = new TonConnectUI({
     connector: tonConnectSDK,
+    restoreConnection: true,
+    // Mobile optimization for Telegram:
+    actionsConfiguration: {
+        returnStrategy: 'back', 
+    }
 });
 
 export { tonConnectUI };
 
-const tonConnector = new TonConnectConnector({ tonConnectUI });
+// Restoration state tracking
+let tonConnectionIsRestored = false;
+const tonConnectionRestored = tonConnectUI.connectionRestored
+    ? tonConnectUI.connectionRestored
+        .then((restored: boolean) => {
+            tonConnectionIsRestored = true;
+            console.log(restored
+                ? '[TON] ✅ Wallet connection restored successfully'
+                : '[TON] No previous wallet session found');
+            return restored;
+        })
+        .catch((err) => {
+            tonConnectionIsRestored = true;
+            console.error('[TON] Restore connection failed:', err);
+            return false;
+        })
+    : Promise.resolve(false);
 
+export { tonConnectionRestored, tonConnectionIsRestored };
+
+// AppKit integration (keeps existing parts working)
+const tonConnector = new TonConnectConnector({ tonConnectUI });
 export const appKit = new AppKit({
     networks: {
         [Network.mainnet().chainId]: {
@@ -39,15 +59,3 @@ export const appKit = new AppKit({
     },
     connectors: [tonConnector],
 });
-
-try {
-    if (tonConnectUI.connectionRestored) {
-        tonConnectUI.connectionRestored
-            .then((restored: boolean) => {
-                console.log(restored
-                    ? '[TON] ✅ Wallet connection restored'
-                    : '[TON] No previous wallet session found');
-            })
-            .catch(() => {});
-    }
-} catch {}

@@ -1,26 +1,75 @@
-import { createContext, useContext, ReactNode } from 'react';
-import { useAddress } from '@ton/appkit-react';
+import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { tonConnectUI } from '@/lib/ton-appkit';
 
 /**
  * TonAddressContext — React Context for the connected TON wallet address.
- *
- * Why this exists instead of calling useAddress() directly:
- *   useAddress() from @ton/appkit-react initializes as null and only updates
- *   via subscription events. Components mounted BEFORE the wallet-connected event
- *   (like TonWalletHeader) work fine. Components mounted AFTER (like TonPaymentModal)
- *   miss the event and stay null forever — even though the wallet IS connected.
- *
- *   React Context solves this: TonAddressProvider (always mounted in AppKitProvider
- *   as a parent) holds the current address. Late-mounted children read the CURRENT
- *   context value immediately on their first render — no event needed.
+ * 
+ * Replaces AppKit's useAddress() and @tonconnect/ui-react hooks 
+ * with direct subscription to the global TonConnectUI instance.
+ * 
+ * This guarantees the address is always sync with the SDK state, 
+ * bypassing any React Context provider hierarchy issues.
  */
 
 const TonAddressContext = createContext<string | null>(null);
 
 export function TonAddressProvider({ children }: { children: ReactNode }) {
-    const address = useAddress();
+    // Immediate initialization from existing session
+    const [address, setAddress] = useState<string | null>(() => {
+        return tonConnectUI?.wallet?.account?.address || null;
+    });
+
+    useEffect(() => {
+        if (!tonConnectUI) return;
+
+        // Reactive sync with wallet events
+        const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
+            const newAddr = wallet?.account?.address || null;
+            console.log(`[TonAddressContext] 🔄 Status Changed:`, {
+                connected: !!wallet,
+                address: newAddr,
+                platform: (window as any).Telegram?.WebApp?.platform || 'unknown'
+            });
+            setAddress(newAddr);
+        });
+
+        // Forced refresh when returning to tab or app
+        const handleSync = () => {
+            const currentAddr = tonConnectUI.wallet?.account?.address || null;
+            console.log(`[TonAddressContext] 🛡️ Sync Triggered - Current SDK Address:`, currentAddr);
+            setAddress(currentAddr);
+        };
+
+        window.addEventListener('focus', handleSync);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                console.log('[TonAddressContext] 📱 Visibility Changed -> sync');
+                handleSync();
+            }
+        });
+
+        // TMA specific event for returning to app
+        const webApp = (window as any).Telegram?.WebApp;
+        if (webApp) {
+            try {
+                // If WebApp has a dedicated 'back to app' or such
+                // Some versions use 'activated' or 'visibilityChanged'
+                webApp.onEvent('activated', handleSync);
+            } catch (e) {
+                console.warn('[TonAddressContext] WebApp onEvent error:', e);
+            }
+        }
+
+        return () => {
+            unsubscribe();
+            window.removeEventListener('focus', handleSync);
+            document.removeEventListener('visibilitychange', handleSync);
+            if (webApp) try { webApp.offEvent('activated', handleSync); } catch {}
+        };
+    }, []);
+    
     return (
-        <TonAddressContext.Provider value={address ?? null}>
+        <TonAddressContext.Provider value={address}>
             {children}
         </TonAddressContext.Provider>
     );

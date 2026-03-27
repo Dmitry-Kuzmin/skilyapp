@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-    useAddress,
-    useBalance,
-} from '@ton/appkit-react';
-import { tonConnectUI } from '@/lib/ton-appkit';
+import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import { Wallet, Loader2, LogOut, Copy, Check, ExternalLink } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,19 +7,11 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
  * TonWalletHeader — compact wallet badge for shop header.
- *
- * Uses tonConnectUI directly (not hidden TonConnectButton) for:
- * - openModal() to connect
- * - disconnect() to disconnect
- * - Custom dropdown menu with address, balance, actions
- *
- * Server-side persistence via profiles.ton_wallet_address
  */
 export const TonWalletHeader: React.FC = () => {
-    const liveAddress = useAddress();
-    const balanceData = useBalance();
-    const rawBalance = balanceData && 'balance' in balanceData ? (balanceData as any).balance : null;
-    const isBalanceLoading = balanceData && 'isLoading' in balanceData ? (balanceData as any).isLoading : false;
+    const wallet = useTonWallet();
+    const [tonConnectUI] = useTonConnectUI();
+    const liveAddress = wallet?.account?.address;
     
     const { profileId } = useUserContext();
     const { t } = useLanguage();
@@ -139,7 +127,7 @@ export const TonWalletHeader: React.FC = () => {
     }, [liveAddress, savedAddress]);
 
     // Derived state
-    const tonBalance = rawBalance ? (Number(rawBalance) / 1e9).toFixed(2) : null;
+    const tonBalance = apiBalance;
     const isLiveConnected = !!liveAddress;
     const hasSavedWallet = !!savedAddress;
     const showConnected = isLiveConnected || hasSavedWallet;
@@ -166,7 +154,7 @@ export const TonWalletHeader: React.FC = () => {
     if (isRestoring) {
         displayBalance = apiBalance ? `${apiBalance} TON` : '···';
     } else if (isLiveConnected) {
-        displayBalance = isBalanceLoading ? (apiBalance ? `${apiBalance} TON` : '···') : `${tonBalance || apiBalance || '0.00'} TON`;
+        displayBalance = tonBalance ? `${tonBalance} TON` : '···';
     } else {
         displayBalance = apiBalance
             ? `${apiBalance} TON`

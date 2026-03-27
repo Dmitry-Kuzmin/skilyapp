@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config";
+import { useTonAddress } from "@/contexts/TonAddressContext";
 import {
   useState,
   useEffect,
@@ -194,7 +195,7 @@ export function BoostShopModal({
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showTonPayment = isPaymentMethodAvailable('ton', currentPlatform);
-  const tonAddress = useAddress();
+  const tonAddress = useTonAddress();
 
   const handleBuyClick = useCallback((pack: any) => {
     setSelectedPack(pack);
@@ -1025,6 +1026,7 @@ export function BoostShopModal({
     const priceValue = selectedPack.priceValue;
     const catalogKey = selectedPack.catalogKey;
 
+    console.log("[BoostShop] Starting Cryptomus purchase for:", catalogKey);
     const { data, error } = await supabaseClient.functions.invoke(
       "cryptomus-payment",
       {
@@ -1036,7 +1038,7 @@ export function BoostShopModal({
     );
 
     const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-    console.log("[BoostShop] Cryptomus response:", parsed);
+    console.log("[BoostShop] Cryptomus response:", { data: parsed, error });
     if (error || !parsed?.url) {
       toast({
         title: t("boostShop.toasts.errorTitle"),
@@ -1068,31 +1070,23 @@ export function BoostShopModal({
     setIsPaymentSelectorOpen(false);
 
     const amountTon = selectedPack.priceValue / 5;
-    const { tonConnectUI, tonConnectionRestored, tonConnectionIsRestored } = await import('@/lib/ton-appkit');
-
-    // Ensure restoration is complete
-    if (!tonConnectionIsRestored) {
-      await tonConnectionRestored;
-    }
-
-    const liveWallet = tonConnectUI.wallet;
+    const { tonConnectUI } = await import('@/lib/ton-appkit');
 
     const doTransfer = async () => {
       document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
       try {
         await tonConnectUI.sendTransaction({
-          validUntil: Math.floor(Date.now() / 1000) + 300,
+          validUntil: Math.floor(Date.now() / 1000) + 360,
           messages: [{
             address: "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m",
             amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
+            payload: `Purchase: ${selectedPack.title}`
           }],
         });
         toast({ title: "TON", description: "✅ Оплата отправлена!" });
-        loadData();
       } catch (err: any) {
         const msg = err?.message ?? String(err);
-        if (!msg.includes('User rejects') && !msg.includes('User rejected') && !msg.includes('Reject request')) {
-          console.error('[TON Payment]', err);
+        if (!msg.includes('User rejects') && !msg.includes('User rejected')) {
           toast({ title: "TON", description: "Ошибка оплаты", variant: "destructive" });
         }
       } finally {
@@ -1100,32 +1094,28 @@ export function BoostShopModal({
       }
     };
 
-    if (liveWallet) {
+    if (tonAddress) {
       await doTransfer();
       return;
     }
 
-    // Not connected — open connect modal, then pay after connection
-    document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
+    // Not connected — open connect modal and auto-pay when status changes to connected
+    console.log("[TON] Wallet not connected, opening modal...");
     const unsub = tonConnectUI.onStatusChange((w) => {
       if (w) {
+        console.log("[TON] Connection detected via onStatusChange, triggering pay...");
         unsub();
-        setTimeout(() => doTransfer(), 800);
+        setTimeout(() => doTransfer(), 1000); // Small delay for state settle
       }
     });
-    tonConnectUI.onModalStateChange((state: any) => {
-      if (state?.status === 'closed' && !tonConnectUI.wallet) {
-        unsub();
-        document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
-      }
-    });
+
     try {
       await tonConnectUI.openModal();
-    } catch {
+    } catch (e) {
+      console.error('[TON] Modal error:', e);
       unsub();
-      document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
     }
-  }, [selectedPack, loadData]);
+  }, [selectedPack, tonAddress]);
 
   // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
   const handlePurchase = useCallback(
@@ -1738,6 +1728,7 @@ export function BoostShopModal({
                         title={plan.title}
                         price={plan.price}
                         pricePerDay={perDayPrice ? t('boostShop.premium.pricePerDay', { price: perDayPrice }) : undefined}
+                        pricePerMonth={plan.pricePerMonth ? `${plan.pricePerMonth} / ${t('common.month') || 'мес'}` : undefined}
                         benefits={plan.features.slice(0, 3)} // Берем только самое важное
                         badge={isPopular ? '🔥 ПОПУЛЯРНО' : isBestValue ? '⭐ ВЫГОДНО' : undefined}
                         isPopular={isPopular}

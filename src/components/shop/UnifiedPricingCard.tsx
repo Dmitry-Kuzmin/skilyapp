@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "@/components/optimized/Motion";
-import { Coins, Crown, Zap, Star, Shield, Check } from "lucide-react";
+import { Coins, Crown, Zap, Star, Shield, Check, Gift } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface UnifiedPricingCardProps {
@@ -22,6 +22,7 @@ interface UnifiedPricingCardProps {
   bonusCoins?: number;
   giftLabel?: string;
   pricePerDay?: string;
+  pricePerMonth?: string;
   pricePerUnit?: string;
   className?: string;
 }
@@ -41,6 +42,7 @@ export function UnifiedPricingCard({
   bonusCoins,
   giftLabel,
   pricePerDay,
+  pricePerMonth,
   pricePerUnit,
   className
 }: UnifiedPricingCardProps) {
@@ -160,8 +162,13 @@ export function UnifiedPricingCard({
                   {pricePerDay}
                 </div>
               )}
+              {pricePerMonth && (
+                <div className="text-[10px] font-bold text-violet-400/80 uppercase tracking-wider mb-0.5">
+                  {pricePerMonth}
+                </div>
+              )}
               {pricePerUnit && (
-                <div className="text-[9px] font-bold text-indigo-400/70 uppercase tracking-widest">
+                <div className="text-[11px] font-black text-indigo-400 dark:text-indigo-300 uppercase tracking-widest mt-1">
                   {pricePerUnit}
                 </div>
               )}
@@ -172,15 +179,15 @@ export function UnifiedPricingCard({
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400/10 to-orange-400/10 border border-amber-400/20 text-amber-500"
+                className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400/20 to-orange-500/20 border border-amber-400/30 text-amber-500 shadow-lg shadow-amber-500/5 animate-shimmer"
               >
-                <div className="flex items-center justify-center p-1 rounded-md bg-amber-400 text-black">
-                   <Zap className="w-2.5 h-2.5 fill-current" />
+                <div className="flex items-center justify-center p-1.5 rounded-lg bg-amber-400 text-black shadow-inner animate-pulse">
+                   <Gift className="w-3.5 h-3.5 fill-current" />
                 </div>
                 <div className="flex flex-col">
-                  {giftLabel && <span className="text-[8px] font-black uppercase tracking-tighter opacity-70 leading-none">{giftLabel}</span>}
-                  <span className="text-[11px] font-black italic uppercase leading-none mt-0.5">
-                    {bonusCoins ? t('boostShop.coins.bonusCoinsBenefit', { amount: bonusCoins }) : savings}
+                  {giftLabel && <span className="text-[9px] font-black uppercase tracking-tighter opacity-80 leading-none">{giftLabel}</span>}
+                  <span className="text-[12px] font-black italic uppercase leading-none mt-0.5 drop-shadow-sm">
+                    {bonusCoins ? `+${bonusCoins} ${t('boostShop.coins.bonusLabel') || 'БОНУС'}` : savings}
                   </span>
                 </div>
               </motion.div>
