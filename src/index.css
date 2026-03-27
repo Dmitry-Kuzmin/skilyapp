@@ -95,33 +95,30 @@ iframe[id^="telegram-login"] {
   pointer-events: auto !important;
 }
 
-/* 🚀 GOLDEN RULE: TON Connect portal MUST be above everything (Vaul drawer = z-99999) */
-#ton-connect-portal,
-.tc-modal-overlay,
-.tonconnect-modal-container,
-[class*="tonconnect-modal"],
-[id*="tonconnect-modal"],
-.tc-portal,
-.tc-snackbar-container,
-#appkit-portal,
-div[id*="appkit"] {
+/* 🚀 GOLDEN RULE: TON Connect root MUST be above everything.
+   TonConnect appends <div id="tc-widget-root"> to document.body.
+   We set it as a fixed, full-screen, transparent wrapper with max z-index. */
+#tc-widget-root {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important; /* transparent — content inside handles its own events */
+}
+
+/* All interactive content inside the root must receive pointer events */
+#tc-widget-root tc-root,
+#tc-widget-root [data-tc-wallets-modal-container],
+#tc-widget-root [data-tc-actions-modal-container],
+#tc-widget-root [data-tc-dropdown-container] {
   pointer-events: auto !important;
-  z-index: 2147483647 !important;
-  position: fixed !important;
 }
 
-/* TON Connect dialog/action-modal needs isolation from parent stacking contexts */
-[data-tc-wallets-modal-container="true"],
-[data-tc-actions-modal-container="true"] {
-  isolation: isolate !important;
-  z-index: 2147483647 !important;
-  position: fixed !important;
-}
-
-/* When TON modal is open — lower the Vaul drawer overlay so TON is on top */
-body:has(.tc-modal-overlay),
-body:has(.tonconnect-modal-container),
-body:has([data-tc-wallets-modal-container="true"]) {
+/* When TON modal is open — lower the Vaul drawer overlay so TON stays on top */
+body:has(#tc-widget-root [data-tc-wallets-modal-container]),
+body:has(#tc-widget-root [data-tc-actions-modal-container]) {
   --vaul-overlay-z-index: 2147483640 !important;
 }
 

@@ -74,10 +74,11 @@ export function ResponsiveModal({
     if (!open) return;
     
     const checkTon = () => {
+      const tcRoot = document.getElementById('tc-widget-root');
       const active = !!(
-        document.querySelector('.tc-modal-overlay') || 
-        document.querySelector('.tonconnect-modal-container') ||
-        document.body.classList.contains('tc-disable-scroll')
+        document.body.classList.contains('tc-disable-scroll') ||
+        tcRoot?.querySelector('[data-tc-wallets-modal-container]') ||
+        tcRoot?.querySelector('[data-tc-actions-modal-container]')
       );
       setIsTonActive(active);
     };
@@ -110,8 +111,13 @@ export function ResponsiveModal({
           )}
           hideHandle={hideHandle}
           onInteractOutside={(e) => {
-            // Если TonConnect модал открыт — он добавляет 'tc-disable-scroll' к body
-            if (document.body.classList.contains('tc-disable-scroll')) {
+            // TonConnect открыт: добавляет 'tc-disable-scroll' к body или data-атрибуты в #tc-widget-root
+            const tcRoot = document.getElementById('tc-widget-root');
+            if (
+              document.body.classList.contains('tc-disable-scroll') ||
+              tcRoot?.querySelector('[data-tc-wallets-modal-container]') ||
+              tcRoot?.querySelector('[data-tc-actions-modal-container]')
+            ) {
               e.preventDefault();
               return;
             }

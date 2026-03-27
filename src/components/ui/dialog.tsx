@@ -53,10 +53,12 @@ const DialogContent = React.forwardRef<
   const sizeConfig = (isMobile ? config.mobile : config.desktop) as { maxWidth?: string; maxHeight?: string };
 
   const handleInteractOutside = (e: any) => {
-    // Если TonConnect модал открыт — он добавляет 'tc-disable-scroll' к body или имеет специфичные классы
-    const hasTonClass = document.body.classList.contains('tc-disable-scroll') || 
-                       document.querySelector('.tc-modal-overlay') ||
-                       document.querySelector('.tonconnect-modal-container');
+    // TonConnect добавляет 'tc-disable-scroll' к body когда модал открыт.
+    // Также проверяем реальные data-атрибуты внутри #tc-widget-root (реальный DOM id)
+    const tcRoot = document.getElementById('tc-widget-root');
+    const hasTonClass = document.body.classList.contains('tc-disable-scroll') ||
+                       !!(tcRoot?.querySelector('[data-tc-wallets-modal-container]')) ||
+                       !!(tcRoot?.querySelector('[data-tc-actions-modal-container]'));
 
     if (hasTonClass) {
       e.preventDefault();

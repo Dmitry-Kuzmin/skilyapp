@@ -185,8 +185,9 @@ export function BoostShopModal({
   const platform = userContext?.platform ?? 'web';
   const dateLocale = localeMap[language] || 'en-US';
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
-  const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
-  const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
+  const isTWA = isTelegramMiniApp() || !!getTelegramWebApp();
+  const currentPlatform: 'telegram' | 'web' = isTWA ? 'telegram' : (platform === 'telegram' ? 'telegram' : 'web');
+  const showStarsPayment = isTWA || isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showTonPayment = isPaymentMethodAvailable('ton', currentPlatform);
