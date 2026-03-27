@@ -212,7 +212,7 @@ export function PaymentSelectorModal({
                 color="gold"
                 rightElement={
                   <span className="text-xs font-black text-amber-500">
-                    ⭐ {pack.priceCoins ? Math.round(pack.priceCoins / 0.5) : (pack.id === 'coins_pack_100' ? 198 : '...')}
+                    ⭐ {pack.priceCoins ? Math.round(pack.priceCoins * 1.98) : (pack.id === 'coins_pack_100' ? 198 : '...')}
                   </span>
                 }
               />

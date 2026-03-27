@@ -59,17 +59,17 @@ export function StarsPaymentButton({
 
         if (!error && data) {
           const pricingData = data as any;
-          const stars = pricingData.price_stars || Math.round(pricingData.price_coins / 0.5);
+          const stars = pricingData.price_stars || Math.round(pricingData.price_coins * 1.98);
           console.log('[StarsPaymentButton] DB Price found:', stars);
           setStarsAmount(stars);
         } else {
-          const fallbackStars = Math.round(priceCoins / 0.5);
+          const fallbackStars = Math.round(priceCoins * 1.98);
           console.log('[StarsPaymentButton] DB Price not found, using fallback:', fallbackStars);
           setStarsAmount(fallbackStars || 198); // Safe default for 100 coins
         }
       } catch (err) {
         console.error('[StarsPaymentButton] Error loading stars price:', err);
-        setStarsAmount(Math.round(priceCoins / 0.5) || 198);
+        setStarsAmount(Math.round(priceCoins * 1.98) || 198);
       }
     };
 
