@@ -379,7 +379,7 @@ const Blog = () => {
           </main>
         </div>
       </div>
-    </Page>
+    </div>
   );
 };
 
