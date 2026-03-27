@@ -137,8 +137,15 @@ export function UnifiedPricingCard({
             )}>
               <IconComponent />
             </div>
-            <div>
-              <h3 className="text-sm font-bold text-foreground leading-tight tracking-tight">{title}</h3>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-black text-foreground leading-tight tracking-tight uppercase">{title}</h3>
+                {bonusCoins && (
+                  <Badge variant="outline" className="h-4 px-1.5 py-0 border-amber-500/50 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-tighter shrink-0">
+                    +{bonusCoins} {(t('boostShop.coins.bonusLabel') || 'БОНУС').replace('{{BONUS}}', '').replace(/^\+/, '').trim()}
+                  </Badge>
+                )}
+              </div>
               {subtitle && <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{subtitle}</p>}
             </div>
           </div>
@@ -174,24 +181,6 @@ export function UnifiedPricingCard({
               )}
             </div>
             
-            {/* Подарок / Бонусные монеты */}
-            {(bonusCoins || giftLabel) && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400/10 to-orange-500/10 border border-amber-400/20 text-amber-500 shadow-sm"
-              >
-                <div className="flex items-center justify-center p-1.5 rounded-lg bg-amber-400 text-black shadow-inner">
-                   <Gift className="w-3.5 h-3.5 fill-current" />
-                </div>
-                <div className="flex flex-col">
-                  {giftLabel && <span className="text-[9px] font-black uppercase tracking-tighter opacity-80 leading-none">{giftLabel}</span>}
-                  <span className="text-[12px] font-black italic uppercase leading-none mt-0.5 drop-shadow-sm">
-                    {bonusCoins ? `+${bonusCoins} ${t('boostShop.coins.bonusLabel') || 'БОНУС'}` : savings}
-                  </span>
-                </div>
-              </motion.div>
-            )}
           </div>
 
           {/* Фишки (Benefits) */}
