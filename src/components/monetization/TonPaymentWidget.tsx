@@ -1,11 +1,12 @@
 import React, { useCallback } from "react";
-import { useTonConnectUI } from '@tonconnect/ui-react';
+import { useAddress } from '@ton/appkit-react';
 import { createCommentPayloadBase64 } from '@ton/walletkit';
 import { Loader2, Zap, Wallet, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { tonConnectUI } from '@/lib/ton-appkit';
 import { useTonStreaming, type TonTxStatus } from '@/hooks/useTonStreaming';
 
 interface TonPaymentWidgetProps {
@@ -47,18 +48,12 @@ const STATUS_CONFIG: Record<TonTxStatus, { label: string; icon: React.ReactNode;
 };
 
 /**
- * TonPaymentWidget — bypasses AppKit state entirely.
+ * TonPaymentWidget — uses AppKit's useAddress() for reactive wallet state.
  *
- * Root cause of infinite-connect loop:
- *   AppKit's useTransferTon() → sendTransaction() → getSelectedWallet(appKit)
- *   AppKit wallet state is NOT updated when connection goes through
- *   tonConnectUI.openModal() directly (AppKit receives CONNECTED event only after
- *   its TonConnectConnector.initialize() subscriptions are fully set up, which
- *   can race with user interaction).
- *
- * Fix: use tonConnectUI.sendTransaction() directly — bypasses AppKit state.
- * Connection detection: own onStatusChange subscription + visibilitychange refresh
- * so state is always current when user returns from Telegram Wallet app.
+ * useAddress() from @ton/appkit-react reads AppKit's TonConnectConnector state,
+ * which is driven by the tonConnectUI singleton. This is the correct pattern —
+ * do NOT use useTonConnectUI() from @tonconnect/ui-react (requires TonConnectUIProvider
+ * which is not in this project's provider tree).
  */
 export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     packageKey = "premium_subscription",
@@ -69,34 +64,15 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     mode = 'compact',
 }) => {
     const { t } = useLanguage();
-    const [tonConnectUI] = useTonConnectUI();
+    const walletAddress = useAddress(); // reactive, from AppKit/TonConnect singleton
     const { status, subscribe, reset } = useTonStreaming();
 
-    // Own reactive wallet state — subscribes to onStatusChange + refreshes on visibilitychange
-    // (when user returns from Telegram Wallet after approving connection)
-    const [wallet, setWallet] = React.useState(() => tonConnectUI?.wallet ?? null);
-
-    React.useEffect(() => {
-        if (!tonConnectUI) return;
-        setWallet(tonConnectUI.wallet);
-        const unsub = tonConnectUI.onStatusChange(setWallet);
-        const onVisible = () => {
-            if (!document.hidden) setWallet(tonConnectUI.wallet);
-        };
-        document.addEventListener('visibilitychange', onVisible);
-        return () => {
-            unsub?.();
-            document.removeEventListener('visibilitychange', onVisible);
-        };
-    }, [tonConnectUI]);
-
-    const isConnected = !!wallet;
-    const walletAddress = wallet?.account?.address ?? null;
+    const isConnected = !!walletAddress;
 
     const [isPaying, setIsPaying] = React.useState(false);
 
     const handlePayment = useCallback(async () => {
-        if (!isConnected || !walletAddress || !tonConnectUI) {
+        if (!isConnected || !walletAddress) {
             toast.error(t('monetization.ton.notConnected'));
             return;
         }
@@ -111,7 +87,6 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             // Subscribe BEFORE sending to catch the `pending` SSE event
             subscribe(walletAddress, apiKey);
 
-            // sendTransaction() directly on tonConnectUI — no AppKit wallet state needed
             await tonConnectUI.sendTransaction({
                 validUntil: Math.floor(Date.now() / 1000) + 600,
                 messages: [{
@@ -134,7 +109,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         } finally {
             setIsPaying(false);
         }
-    }, [isConnected, walletAddress, tonConnectUI, amountTon, description, subscribe, reset, t]);
+    }, [isConnected, walletAddress, amountTon, description, subscribe, reset, t]);
 
     // When finalized — call onSuccess once
     const finalizedRef = React.useRef(false);
@@ -149,9 +124,9 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         }
     }, [status, onSuccess, t]);
 
-    const handleConnect = useCallback(async () => {
-        if (tonConnectUI) await tonConnectUI.openModal();
-    }, [tonConnectUI]);
+    const handleConnect = useCallback(() => {
+        tonConnectUI.openModal();
+    }, []);
 
     if (!isConnected && mode === 'compact') return null;
 
