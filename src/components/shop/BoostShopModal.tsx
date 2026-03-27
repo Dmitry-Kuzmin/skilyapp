@@ -1094,7 +1094,10 @@ export function BoostShopModal({
       }
     };
 
-    if (tonAddress) {
+    const effectiveAddress = tonAddress || tonConnectUI.wallet?.account?.address;
+    console.log("[TON] Final address check before pay:", { reactState: tonAddress, sdkState: tonConnectUI.wallet?.account?.address, effectiveAddress });
+
+    if (effectiveAddress) {
       await doTransfer();
       return;
     }
@@ -2060,10 +2063,10 @@ export function BoostShopModal({
         onCryptoClick={handleCryptomusPurchase}
         onCardClick={handleCardPurchase}
         availability={{
-          stars: isPaymentMethodAvailable('telegram_stars', platform),
-          ton: isPaymentMethodAvailable('ton', platform),
-          crypto: isPaymentMethodAvailable('cryptomus', platform),
-          card: isPaymentMethodAvailable('paddle', platform)
+          stars: isPaymentMethodAvailable('telegram_stars', currentPlatform),
+          ton: isPaymentMethodAvailable('ton', currentPlatform),
+          crypto: isPaymentMethodAvailable('cryptomus', currentPlatform),
+          card: isPaymentMethodAvailable('paddle', currentPlatform)
         }}
       />
 
