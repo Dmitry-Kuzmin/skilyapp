@@ -6,9 +6,12 @@ import { TonCloudStorage } from './ton-cloud-storage';
 // Custom storage: Telegram CloudStorage (persistent across Mini App sessions)
 const cloudStorage = new TonCloudStorage();
 
+// Get the origin dynamically to avoid manifest mismatch errors on different domains
+const origin = typeof window !== 'undefined' ? window.location.origin : 'https://skilyapp.com';
+
 // Low-level TonConnect with custom persistent storage
 const tonConnectSDK = new TonConnect({
-    manifestUrl: 'https://skilyapp.com/tonconnect-manifest.json',
+    manifestUrl: `${origin}/tonconnect-manifest.json`,
     storage: cloudStorage,
 });
 

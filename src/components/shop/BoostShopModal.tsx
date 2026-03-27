@@ -2072,7 +2072,7 @@ export function BoostShopModal({
         onCryptoClick={handleCryptomusPurchase}
         onCardClick={handleCardPurchase}
         availability={{
-          stars: currentPlatform === 'telegram' || isTelegramMiniApp(),
+          stars: showStarsPayment,
           ton: isPaymentMethodAvailable('ton', currentPlatform),
           crypto: isPaymentMethodAvailable('cryptomus', currentPlatform),
           card: isPaymentMethodAvailable('paddle', currentPlatform)
