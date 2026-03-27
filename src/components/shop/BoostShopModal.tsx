@@ -189,14 +189,10 @@ export function BoostShopModal({
   const platform = userContext?.platform ?? 'web';
   const dateLocale = localeMap[language] || 'en-US';
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
-  // Use live Telegram detection — userContext.platform may be stale/wrong on desktop
-  // Используем живую детекцию Telegram — userContext.platform может лагать на десктопе
-  const webApp = getTelegramWebApp();
-  const isInTelegram = !!webApp;
-  const currentPlatform = isInTelegram ? 'telegram' : (platform === 'telegram' ? 'telegram' : 'web');
+  // platform из UserContext может запоздать; payment-config теперь делает живую проверку window.Telegram
+  const currentPlatform: 'telegram' | 'web' | 'mobile' = platform === 'telegram' ? 'telegram' : 'web';
   
-  // Принудительно показываем звезды в среде Telegram
-  const showStarsPayment = isInTelegram || isPaymentMethodAvailable('telegram_stars', currentPlatform);
+  const showStarsPayment = isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showTonPayment = isPaymentMethodAvailable('ton', currentPlatform);

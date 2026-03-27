@@ -42,9 +42,13 @@ export const PAYMENT_CONFIG: PaymentConfig = {
 export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobile'): PaymentMethod[] {
   const methods: PaymentMethod[] = [];
 
-  // Telegram Stars доступен только в Telegram Mini App
-  if (PAYMENT_CONFIG.telegramStarsEnabled && platform === 'telegram') {
-    methods.push('telegram_stars');
+  // Telegram Stars: доступны когда включены И (платформа telegram ИЛИ WebApp присутствует в window)
+  // НЕ полагаемся на строку platform — она может прийти с задержкой из UserContext
+  if (PAYMENT_CONFIG.telegramStarsEnabled) {
+    const isTWA = typeof window !== 'undefined' && !!(window as any).Telegram?.WebApp?.version;
+    if (platform === 'telegram' || isTWA) {
+      methods.push('telegram_stars');
+    }
   }
 
   // Cryptomus доступен везде (когда включен и токен есть)
