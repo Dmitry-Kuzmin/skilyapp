@@ -71,8 +71,11 @@ export function ResponsiveModal({
   const [isTonActive, setIsTonActive] = React.useState(false);
 
   React.useEffect(() => {
-    if (!open) return;
-    
+    if (!open) {
+      setIsTonActive(false);
+      return;
+    }
+
     const checkTon = () => {
       const tcRoot = document.getElementById('tc-widget-root');
       const active = !!(
@@ -83,8 +86,28 @@ export function ResponsiveModal({
       setIsTonActive(active);
     };
 
-    const interval = setInterval(checkTon, 300);
-    return () => clearInterval(interval);
+    // Immediate check
+    checkTon();
+
+    // MutationObserver — zero-delay detection (replaces 300ms setInterval)
+    const observer = new MutationObserver(checkTon);
+    // Watch body class changes (tc-disable-scroll)
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+      childList: false,
+      subtree: false,
+    });
+    // Watch #tc-widget-root for modal containers appearing/disappearing
+    const tcRoot = document.getElementById('tc-widget-root');
+    if (tcRoot) {
+      observer.observe(tcRoot, { childList: true, subtree: true });
+    } else {
+      // tc-widget-root doesn't exist yet — watch body for it to be added
+      observer.observe(document.body, { childList: true, subtree: false });
+    }
+
+    return () => observer.disconnect();
   }, [open]);
 
   // На мобильных используем Vaul Drawer с нативной физикой

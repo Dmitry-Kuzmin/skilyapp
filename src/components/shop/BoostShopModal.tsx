@@ -68,6 +68,7 @@ import { useAddress } from "@ton/appkit-react";
 import {
   getTelegramWebApp,
   isTelegramMiniApp,
+  IS_TELEGRAM_ENV,
   triggerHapticFeedback,
 } from "@/lib/telegram";
 import { NumberTicker } from "@/components/ui/NumberTicker";
@@ -185,7 +186,8 @@ export function BoostShopModal({
   const platform = userContext?.platform ?? 'web';
   const dateLocale = localeMap[language] || 'en-US';
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
-  const isTWA = isTelegramMiniApp() || !!getTelegramWebApp();
+  // IS_TELEGRAM_ENV: computed once at module load from URL params — immune to async SDK timing
+  const isTWA = IS_TELEGRAM_ENV || isTelegramMiniApp() || !!getTelegramWebApp();
   const currentPlatform: 'telegram' | 'web' = isTWA ? 'telegram' : (platform === 'telegram' ? 'telegram' : 'web');
   const showStarsPayment = isTWA || isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);

@@ -6,6 +6,32 @@ export const getTelegramWebApp = () => {
 };
 
 /**
+ * IS_TELEGRAM_ENV — computed ONCE at module load time.
+ *
+ * Why this is reliable:
+ * - Telegram injects tgWebApp* params into the URL BEFORE any JS runs
+ * - The URL is the same even on hard reload inside Telegram
+ * - Does NOT depend on the async telegram-web-app.js SDK loading
+ *
+ * Official Telegram URL format:
+ *   https://app.example.com/#tgWebAppData=...&tgWebAppVersion=...&tgWebAppPlatform=...
+ */
+export const IS_TELEGRAM_ENV: boolean = (() => {
+  if (typeof window === 'undefined') return false;
+  // Primary: URL-based check — always present when inside Telegram WebApp
+  const urlStr = window.location.href;
+  if (urlStr.includes('tgWebAppData') || urlStr.includes('tgWebAppPlatform') || urlStr.includes('tgWebAppVersion')) {
+    return true;
+  }
+  // Fallback: Telegram SDK already loaded (sync path — works if SDK loaded before this module)
+  const wa = window.Telegram?.WebApp;
+  if (!wa?.version || !wa?.platform) return false;
+  const isMock = wa.initData === 'mock_init_data' || !!wa.initData?.startsWith('mock_') ||
+    (wa.initDataUnsafe?.user?.id === 123456789 && wa.initDataUnsafe?.user?.username === 'test_user');
+  return !isMock;
+})();
+
+/**
  * Проверяет, поддерживает ли текущая версия Telegram WebApp указанную версию API
  * @param version - версия для проверки (например, '8.0')
  * @returns boolean - true если версия поддерживается
