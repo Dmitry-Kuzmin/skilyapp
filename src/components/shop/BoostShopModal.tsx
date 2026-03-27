@@ -1073,7 +1073,7 @@ export function BoostShopModal({
     const { tonConnectUI } = await import('@/lib/ton-appkit');
 
     const doTransfer = async () => {
-      document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
+      console.log("[TON] Executing doTransfer for:", selectedPack.title);
       try {
         await tonConnectUI.sendTransaction({
           validUntil: Math.floor(Date.now() / 1000) + 360,
@@ -1085,37 +1085,35 @@ export function BoostShopModal({
         });
         toast({ title: "TON", description: "✅ Оплата отправлена!" });
       } catch (err: any) {
+        console.error("[TON] Transaction failure:", err);
         const msg = err?.message ?? String(err);
         if (!msg.includes('User rejects') && !msg.includes('User rejected')) {
           toast({ title: "TON", description: "Ошибка оплаты", variant: "destructive" });
         }
-      } finally {
-        document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
       }
     };
 
     const effectiveAddress = tonAddress || tonConnectUI.wallet?.account?.address;
-    console.log("[TON] Final address check before pay:", { reactState: tonAddress, sdkState: tonConnectUI.wallet?.account?.address, effectiveAddress });
+    console.log("[TON] Address check:", { react: tonAddress, sdk: tonConnectUI.wallet?.account?.address });
 
     if (effectiveAddress) {
       await doTransfer();
       return;
     }
 
-    // Not connected — open connect modal and auto-pay when status changes to connected
-    console.log("[TON] Wallet not connected, opening modal...");
+    // Not connected — open modal and subscribe
     const unsub = tonConnectUI.onStatusChange((w) => {
       if (w) {
-        console.log("[TON] Connection detected via onStatusChange, triggering pay...");
         unsub();
-        setTimeout(() => doTransfer(), 1000); // Small delay for state settle
+        console.log("[TON] Connected! Sending tx...");
+        setTimeout(() => doTransfer(), 500);
       }
     });
 
     try {
       await tonConnectUI.openModal();
     } catch (e) {
-      console.error('[TON] Modal error:', e);
+      console.error('[TON] Modal prompt error:', e);
       unsub();
     }
   }, [selectedPack, tonAddress]);
@@ -1694,7 +1692,8 @@ export function BoostShopModal({
                           catalogKey: pack.id,
                           packageKey: pack.id,
                           title: `${pack.coins} монет`,
-                          priceValue: pack.priceValue
+                          priceValue: pack.priceValue,
+                          priceCoins: pack.coins
                         })}
                         icon="coins"
                         bonusCoins={pack.bonus > 0 ? pack.bonus : undefined}

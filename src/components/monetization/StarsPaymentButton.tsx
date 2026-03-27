@@ -48,23 +48,28 @@ export function StarsPaymentButton({
   useEffect(() => {
     // Загружаем price_stars из БД
     const loadStarsPrice = async () => {
+      console.log('[StarsPaymentButton] Loading price for:', packageKey, 'Fallback coins:', priceCoins);
       try {
         const { data, error } = await supabase
           .from('pricing_packages')
           .select('price_stars, price_coins')
           .eq('package_key', packageKey)
           .eq('is_active', true)
-          .single();
+          .maybeSingle();
 
         if (!error && data) {
-          const stars = data.price_stars || Math.round(data.price_coins / 0.5);
+          const pricingData = data as any;
+          const stars = pricingData.price_stars || Math.round(pricingData.price_coins / 0.5);
+          console.log('[StarsPaymentButton] DB Price found:', stars);
           setStarsAmount(stars);
         } else {
-          setStarsAmount(Math.round(priceCoins / 0.5));
+          const fallbackStars = Math.round(priceCoins / 0.5);
+          console.log('[StarsPaymentButton] DB Price not found, using fallback:', fallbackStars);
+          setStarsAmount(fallbackStars || 198); // Safe default for 100 coins
         }
       } catch (err) {
         console.error('[StarsPaymentButton] Error loading stars price:', err);
-        setStarsAmount(Math.round(priceCoins / 0.5));
+        setStarsAmount(Math.round(priceCoins / 0.5) || 198);
       }
     };
 
@@ -126,9 +131,14 @@ export function StarsPaymentButton({
       }
 
       console.log('[Stars Payment] Invoice created, opening:', data.invoice_link);
+      
+      const twa = webApp as any;
+      if (!twa.openInvoice) {
+        throw new Error('Метод openInvoice не поддерживается в этой версии Telegram');
+      }
 
       // Открыть нативное окно Telegram Stars
-      webApp.openInvoice(data.invoice_link, (status) => {
+      twa.openInvoice(data.invoice_link, (status: string) => {
         setLoading(false);
 
         console.log('[Stars Payment] Invoice callback:', status);
