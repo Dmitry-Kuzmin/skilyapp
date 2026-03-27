@@ -63,9 +63,48 @@ export function PaymentSelectorModal({
   const [cryptoLoading, setCryptoLoading] = useState(false);
   const [cryptomusData, setCryptomusData] = useState<CryptomusData | null>(null);
 
-  // Cryptomus payment status polling
+  // Price states
+  const [starsPrice, setStarsPrice] = useState<number | null>(null);
+  const [tonPrice, setTonPrice] = useState<number | null>(null);
+
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'checking' | 'completed' | 'failed'>('pending');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load actual prices from DB
+  useEffect(() => {
+    if (!open || !pack) return;
+
+    const loadPrices = async () => {
+      try {
+        const finalKey = pack.packageKey.startsWith('coins_pack_') 
+          ? pack.packageKey.replace('coins_pack_', 'coins_') 
+          : pack.packageKey;
+
+        const { data, error } = await supabase
+          .from('pricing_packages')
+          .select('price_stars, price_coins')
+          .eq('package_key', finalKey)
+          .maybeSingle();
+
+        if (data && !error) {
+          const pricing = data as any;
+          if (pricing.price_stars) {
+            setStarsPrice(pricing.price_stars);
+          } else {
+            // Fallback to heuristic
+            setStarsPrice(Math.round(pack.priceCoins! * 1.98));
+          }
+        } else {
+          // Heuristic fallback
+          setStarsPrice(Math.round(pack.priceCoins! * 1.98));
+        }
+      } catch (err) {
+        console.error('[PaymentSelector] Price load error:', err);
+      }
+    };
+
+    loadPrices();
+  }, [open, pack?.packageKey, pack?.priceCoins]);
 
   // Reset when modal closes or opens
   useEffect(() => {
@@ -212,7 +251,7 @@ export function PaymentSelectorModal({
                 color="gold"
                 rightElement={
                   <span className="text-xs font-black text-amber-500">
-                    ⭐ {pack.priceCoins ? Math.round(pack.priceCoins * 1.98) : (pack.id === 'coins_pack_100' ? 198 : '...')}
+                    ⭐ {starsPrice || '...'}
                   </span>
                 }
               />
