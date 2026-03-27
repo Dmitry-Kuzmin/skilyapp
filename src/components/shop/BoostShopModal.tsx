@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config";
 import { useTonAddress } from "@/contexts/TonAddressContext";
+import { beginCell } from "@ton/core";
 import {
   useState,
   useEffect,
@@ -1079,12 +1080,19 @@ export function BoostShopModal({
     const doTransfer = async () => {
       console.log("[TON] Executing doTransfer for:", selectedPack.title);
       try {
+        const commentBoc = beginCell()
+          .storeUint(0, 32)
+          .storeStringTail(`Purchase: ${selectedPack.title}`)
+          .endCell()
+          .toBoc()
+          .toString('base64');
+
         await tonConnectUI.sendTransaction({
-          validUntil: Math.floor(Date.now() / 1000) + 360,
+          validUntil: Math.floor(Date.now() / 1000) + 300,
           messages: [{
             address: "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m",
             amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
-            payload: `Purchase: ${selectedPack.title}`
+            payload: commentBoc,
           }],
         });
         toast({ title: "TON", description: "✅ Оплата отправлена!" });
