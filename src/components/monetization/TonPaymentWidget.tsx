@@ -1,9 +1,5 @@
 import React, { useCallback } from "react";
-import {
-    useBalance,
-    useTransferTon,
-    useAddress,
-} from '@ton/appkit-react';
+import { useTransferTon } from '@ton/appkit-react';
 import { useTonConnectUI } from '@tonconnect/ui-react';
 import { Loader2, Zap, Wallet, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -64,16 +60,19 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     mode = 'compact',
 }) => {
     const { t } = useLanguage();
-    const address = useAddress();
-    const { balance } = useBalance();
     const { transfer } = useTransferTon();
     const [tonConnectUI] = useTonConnectUI();
     const { status, subscribe, reset } = useTonStreaming();
 
+    // Use TonConnectUI directly — AppKit's useAddress() (alpha 0.0.4) doesn't
+    // reliably sync after connect, causing an infinite "connect" loop.
+    const isConnected = tonConnectUI?.connected ?? false;
+    const walletAddress = tonConnectUI?.account?.address ?? null;
+
     const [isPaying, setIsPaying] = React.useState(false);
 
     const handlePayment = useCallback(async () => {
-        if (!address) {
+        if (!isConnected || !walletAddress) {
             toast.error(t('monetization.ton.notConnected'));
             return;
         }
@@ -87,7 +86,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
             // Start streaming subscription before sending —
             // avoids missing the `pending` event
             const apiKey = import.meta.env.VITE_TONCENTER_API_KEY as string | undefined;
-            subscribe(address, apiKey);
+            subscribe(walletAddress, apiKey);
 
             await transfer({
                 messages: [
@@ -112,7 +111,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         } finally {
             setIsPaying(false);
         }
-    }, [address, amountTon, description, transfer, subscribe, reset, t]);
+    }, [isConnected, walletAddress, amountTon, description, transfer, subscribe, reset, t]);
 
     // When finalized — call onSuccess once
     const finalizedRef = React.useRef(false);
@@ -131,14 +130,14 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         if (tonConnectUI) await tonConnectUI.openModal();
     }, [tonConnectUI]);
 
-    if (!address && mode === 'compact') return null;
+    if (!isConnected && mode === 'compact') return null;
 
     const statusInfo = STATUS_CONFIG[status];
 
     return (
         <div className={cn('transition-all duration-300 relative', className)}>
             <div className="flex flex-col relative z-20">
-                {!address ? (
+                {!isConnected ? (
                     <Button
                         onClick={handleConnect}
                         className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
