@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useTransferTon } from '@ton/appkit-react';
-import { useTonConnectUI } from '@tonconnect/ui-react';
+import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
 import { Loader2, Zap, Wallet, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -62,12 +62,12 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     const { t } = useLanguage();
     const { transfer } = useTransferTon();
     const [tonConnectUI] = useTonConnectUI();
+    // useTonWallet() is reactive — re-renders on connect/disconnect (unlike tonConnectUI.connected snapshot)
+    const wallet = useTonWallet();
     const { status, subscribe, reset } = useTonStreaming();
 
-    // Use TonConnectUI directly — AppKit's useAddress() (alpha 0.0.4) doesn't
-    // reliably sync after connect, causing an infinite "connect" loop.
-    const isConnected = tonConnectUI?.connected ?? false;
-    const walletAddress = tonConnectUI?.account?.address ?? null;
+    const isConnected = !!wallet;
+    const walletAddress = wallet?.account?.address ?? null;
 
     const [isPaying, setIsPaying] = React.useState(false);
 
