@@ -47,6 +47,16 @@ const tonConnectionRestored = tonConnectUI.connectionRestored
 
 export { tonConnectionRestored, tonConnectionIsRestored };
 
+// Dispatch tonconnect-modal event so ResponsiveModal knows to set modal={false}
+// (prevents Vaul/Radix overlay from swallowing clicks on TonConnect popup)
+if (tonConnectUI.onModalStateChange) {
+    tonConnectUI.onModalStateChange((state: { status: string }) => {
+        document.dispatchEvent(new CustomEvent('tonconnect-modal', {
+            detail: { open: state.status !== 'closed' }
+        }));
+    });
+}
+
 // AppKit integration (keeps existing parts working)
 const tonConnector = new TonConnectConnector({ tonConnectUI });
 export const appKit = new AppKit({

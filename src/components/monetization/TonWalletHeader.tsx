@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+import { tonConnectUI } from '@/lib/ton-appkit';
+import { useTonAddress } from '@/contexts/TonAddressContext';
 import { Wallet, Loader2, LogOut, Copy, Check, ExternalLink } from 'lucide-react';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,9 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
  * TonWalletHeader — compact wallet badge for shop header.
  */
 export const TonWalletHeader: React.FC = () => {
-    const wallet = useTonWallet();
-    const [tonConnectUI] = useTonConnectUI();
-    const liveAddress = wallet?.account?.address;
+    const liveAddress = useTonAddress();
     
     const { profileId } = useUserContext();
     const { t } = useLanguage();
