@@ -1391,7 +1391,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         </div>
 
         {/* SEO Schema */}
-        <script type="application/ld+json">
+        <script id="faq-jsonld" type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",

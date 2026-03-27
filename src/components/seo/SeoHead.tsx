@@ -220,107 +220,6 @@ const SEO_CONFIG: Record<Language, SeoConfig> = {
   },
 };
 
-// FAQ structured data for rich snippets in Google
-const FAQ_STRUCTURED_DATA: Record<Language, object> = {
-  es: {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "¿Cómo preparar el examen teórico DGT gratis?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Con Skilyapp puedes preparar el examen teórico DGT gratis con preguntas oficiales actualizadas, simulacros de examen real y un tutor IA que te explica cada error. Disponible en español, inglés y ruso."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "¿Cuál es la mejor app de autoescuela para el test DGT?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Skilyapp es la app de autoescuela más completa con IA: preguntas oficiales DGT actualizadas, simulacros reales, tutor IA 24/7, juegos educativos y seguimiento de progreso. El 97% de nuestros alumnos aprueba."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "¿Puedo hacer el test DGT del permiso B online?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sí, con Skilyapp puedes practicar el test DGT del permiso B online con preguntas oficiales. Simula el examen real con temporizador de 30 minutos y las mismas condiciones que en la DGT."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "¿Skilyapp tiene las preguntas oficiales del examen DGT actualizadas?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": `Sí, Skilyapp tiene más de 1000 preguntas oficiales del examen DGT ${examYear} actualizadas automáticamente. El banco de preguntas coincide al 100% con el examen real.`
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "¿Puedo hacer el examen teórico DGT en inglés o ruso?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Sí, Skilyapp ofrece las preguntas del examen DGT con traducciones instantáneas al inglés y ruso. El tutor IA también explica los errores en tu idioma preferido."
-        }
-      }
-    ]
-  },
-  en: {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How can I prepare for the Spanish DGT driving theory test in English?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Skilyapp offers the official DGT driving theory test questions with English translations, AI explanations, and real exam simulation. 97% of our students pass on their first attempt."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What is the best app for the Spain driving test?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Skilyapp is the most complete AI-powered app for Spain's DGT driving theory test. It includes official questions in English, real exam simulation, 24/7 AI tutor, educational games, and progress tracking."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Can I take the DGT driving test in English in Spain?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The official DGT exam is available in Spanish and some other languages. Skilyapp helps you prepare by offering all questions with English translations and AI explanations in English."
-        }
-      }
-    ]
-  },
-  ru: {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Как подготовиться к экзамену DGT на русском языке?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Skilyapp предлагает полную подготовку к экзамену DGT на русском языке: официальные вопросы с переводом, AI-репетитор, объясняющий ошибки на русском, симуляция реального экзамена и игры для обучения."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Какое приложение лучше для подготовки к экзамену по вождению в Испании?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Skilyapp — лучшее приложение для подготовки к теоретическому экзамену DGT с поддержкой русского языка. AI-репетитор 24/7, официальные вопросы, геймификация. 97% наших студентов сдают с первого раза."
-        }
-      }
-    ]
-  },
-};
 
 function setMetaTag(attr: string, key: string, content: string) {
   let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
@@ -402,7 +301,6 @@ export function SeoHead() {
 
     // JSON-LD Structured Data
     setOrCreateJsonLd("seo-jsonld-app", config.jsonLd);
-    setOrCreateJsonLd("seo-jsonld-faq", FAQ_STRUCTURED_DATA[language]);
 
     // Hreflang tags
     setHreflangTags();

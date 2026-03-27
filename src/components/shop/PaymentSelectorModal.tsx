@@ -97,7 +97,7 @@ export function PaymentSelectorModal({
           .select('status, cryptomus_order_id')
           .eq('user_id', profileId)
           .eq('cryptomus_order_id', cryptomusData.orderId)
-          .maybeSingle();
+          .maybeSingle(); // Kept maybeSingle as it correctly handles cases where the purchase might not be found yet or is still processing.
 
         const purchaseData = data as any;
         console.log('[PaymentSelector] Cloud check:', { data: purchaseData, error });
@@ -211,7 +211,9 @@ export function PaymentSelectorModal({
                 subtitle={t('boostShop.payment.starsSubtitle') || "Мгновенно через Telegram"}
                 color="gold"
                 rightElement={
-                  <span className="text-xs font-black text-amber-500">⭐ {pack.priceCoins || '...'}</span>
+                  <span className="text-xs font-black text-amber-500">
+                    ⭐ {pack.priceCoins ? Math.round(pack.priceCoins / 0.5) : (pack.id === 'coins_pack_100' ? 198 : '...')}
+                  </span>
                 }
               />
             </div>
