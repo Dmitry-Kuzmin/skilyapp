@@ -81,16 +81,12 @@ serve(async (req) => {
       return jsonResponse({ error: profilesError?.message || 'No profiles' });
     }
 
-    // 🧪 ТЕСТОВЫЙ РЕЖИМ
-    const TEST_MODE = true;
-    const TEST_TELEGRAM_IDS = [488159880, 5887012745];
-
-    const activeProfiles = TEST_MODE
-      ? profiles.filter((p: any) => TEST_TELEGRAM_IDS.includes(p.telegram_id))
-      : profiles.filter((p: any) => {
-          const d = new Date(); d.setDate(d.getDate() - 30);
-          return p.last_activity_at && new Date(p.last_activity_at) > d;
-        });
+    // Фильтруем только активных пользователей (заходили в последние 30 дней)
+    const activeProfiles = profiles.filter((p: any) => {
+      const d = new Date(); 
+      d.setDate(d.getDate() - 30);
+      return p.last_activity_at && new Date(p.last_activity_at) > d;
+    });
 
     // Сезон для чеклиста
     const { data: seasons } = await supabase

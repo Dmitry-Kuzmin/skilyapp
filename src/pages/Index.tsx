@@ -389,8 +389,8 @@ const DashboardContent = memo(function DashboardContent() {
           </div>
           {/* Поднимаем шторку только когда данные загружены или показан скелетон */}
           {!loading && <StartupCurtain />}
-          {/* Предложение добавить на главный экран (Bot API 8.0+, 1 раз в 7 дней) */}
-          <AddToHomeScreenPrompt />
+
+
         </Layout>
       </Suspense>
     </>

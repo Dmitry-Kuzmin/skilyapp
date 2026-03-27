@@ -61,6 +61,7 @@ export function PaymentSelectorModal({
   // Step state
   const [step, setStep] = useState<'select' | 'cryptomus'>('select');
   const [cryptoLoading, setCryptoLoading] = useState(false);
+  const [starsLoading, setStarsLoading] = useState(false);
   const [cryptomusData, setCryptomusData] = useState<CryptomusData | null>(null);
 
   // Price states
@@ -114,6 +115,7 @@ export function PaymentSelectorModal({
         setStep('select');
         setCryptomusData(null);
         setCryptoLoading(false);
+        setStarsLoading(false);
         setPaymentStatus('pending');
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
@@ -241,14 +243,16 @@ export function PaymentSelectorModal({
                   onSuccess();
                   onOpenChange(false);
                 }}
+                onLoadingChange={setStarsLoading}
                 variant="ghost"
-                className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer"
+                className="absolute inset-0 w-full h-full opacity-0 disabled:opacity-0 z-10 cursor-pointer"
               />
               <PaymentItem
                 icon={Sparkles}
                 title="Telegram Stars"
                 subtitle={t('boostShop.payment.starsSubtitle') || "Мгновенно через Telegram"}
                 color="gold"
+                loading={starsLoading}
                 rightElement={
                   <span className="text-xs font-black text-amber-500">
                     ⭐ {starsPrice || '...'}
