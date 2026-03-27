@@ -213,20 +213,22 @@ export const isTelegramMiniApp = () => {
   }
 
   // На десктопе initData может быть пустым или появляться с задержкой,
-  // поэтому проверяем наличие платформы и версии (они всегда есть в реальном SDK)
+  // поэтому проверяем наличие платформы
   const platform = webApp.platform;
   const isValidPlatform = platform === 'web' ||
+    platform === 'weba' ||
     platform === 'ios' ||
     platform === 'android' ||
     platform === 'tdesktop' ||
     platform === 'macos' ||
     platform === 'windows' ||
-    platform === 'linux';
+    platform === 'linux' ||
+    platform === 'unknown';
 
-  const hasVersion = !!(webApp.version && typeof webApp.version === 'string');
-
-  // Если есть платформа и версия — это уже 99% Telegram WebApp
-  return isValidPlatform && hasVersion;
+  // Для мобильных и web мы можем ожидать версию, но для десктопа (macos/tdesktop)
+  // версия может быть недоступна при начальном рендере.
+  // Достаточно убедиться, что платформа определилась и данные - не мок.
+  return !!platform && platform !== 'unknown' ? isValidPlatform : !!(webApp.version && typeof webApp.version === 'string');
 };
 
 export const getTelegramUser = () => {
