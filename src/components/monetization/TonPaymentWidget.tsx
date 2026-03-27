@@ -1,12 +1,16 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { tonConnectUI, tonConnectionRestored, tonConnectionIsRestored } from '@/lib/ton-appkit';
-import { Loader2, Zap, Wallet } from 'lucide-react';
+import React, { useCallback } from "react";
+import {
+    useBalance,
+    useTransferTon,
+    useAddress,
+} from '@ton/appkit-react';
+import { useTonConnectUI } from '@tonconnect/ui-react';
+import { Loader2, Zap, Wallet, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-const RECIPIENT = "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m";
+import { useTonStreaming, type TonTxStatus } from '@/hooks/useTonStreaming';
 
 interface TonPaymentWidgetProps {
     packageKey?: string;
@@ -14,205 +18,188 @@ interface TonPaymentWidgetProps {
     description?: string;
     onSuccess?: () => void;
     className?: string;
-    autoPay?: boolean;
     mode?: 'full' | 'compact';
 }
 
+const STATUS_CONFIG: Record<TonTxStatus, { label: string; icon: React.ReactNode; className: string } | null> = {
+    idle: null,
+    pending: {
+        label: 'Транзакция отправлена...',
+        icon: <Loader2 className="w-3.5 h-3.5 animate-spin" />,
+        className: 'text-blue-400',
+    },
+    confirmed: {
+        label: 'Включена в блок ✓',
+        icon: <Clock className="w-3.5 h-3.5" />,
+        className: 'text-yellow-400',
+    },
+    finalized: {
+        label: 'Подтверждено ✓✓',
+        icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+        className: 'text-green-400',
+    },
+    trace_invalidated: {
+        label: 'Транзакция отменена',
+        icon: <XCircle className="w-3.5 h-3.5" />,
+        className: 'text-red-400',
+    },
+    error: {
+        label: 'Ошибка получения статуса',
+        icon: <XCircle className="w-3.5 h-3.5" />,
+        className: 'text-red-400',
+    },
+};
+
+/**
+ * TonPaymentWidget — с поддержкой TON Center Streaming API v2.
+ * Показывает статус транзакции в реальном времени:
+ * idle → pending → confirmed → finalized (sub-second после Catchain 2.0)
+ */
 export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
+    packageKey = "premium_subscription",
     amountTon = 1.5,
     description = "Skily Premium",
     onSuccess,
     className,
     mode = 'compact',
-    autoPay = false,
 }) => {
     const { t } = useLanguage();
-    const [wallet, setWallet] = useState(() => tonConnectUI.wallet);
-    const [isPaying, setIsPaying] = useState(false);
-    const [isRestoring, setIsRestoring] = useState(() => !tonConnectionIsRestored);
-    const autoPayTriggered = useRef(false);
-    const pendingPayRef = useRef(false);
+    const address = useAddress();
+    const { balance } = useBalance();
+    const { transfer } = useTransferTon();
+    const [tonConnectUI] = useTonConnectUI();
+    const { status, subscribe, reset } = useTonStreaming();
 
-    // Ref to always access latest doTransfer without re-subscribing
-    const doTransfer = useCallback(async () => {
-        try {
-            setIsPaying(true);
-            console.log('[TON Payment] Sending transaction...');
-            // Signal that TonConnect will show transaction confirmation popup
-            document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
-            await tonConnectUI.sendTransaction({
-                validUntil: Math.floor(Date.now() / 1000) + 300,
-                messages: [{
-                    address: RECIPIENT,
-                    amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
-                }],
-            });
-            toast.success('✅ Premium активирован!');
-            onSuccess?.();
-        } catch (err: any) {
-            const msg = err?.message ?? String(err);
-            if (msg.includes('User rejects') || msg.includes('User rejected') || msg.includes('Reject request')) {
-                toast.info(t('monetization.ton.cancelled') || 'Оплата отменена');
-            } else {
-                console.error('[TON Payment]', err);
-                toast.error(t('monetization.ton.failed') || 'Ошибка оплаты. Попробуй ещё раз.');
-            }
-        } finally {
-            setIsPaying(false);
-            document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
-        }
-    }, [amountTon, onSuccess, t]);
-    const doTransferRef = useRef(doTransfer);
-    doTransferRef.current = doTransfer;
-
-    // Subscribe to wallet state + auto-pay after connect
-    useEffect(() => {
-        setWallet(tonConnectUI.wallet);
-
-        const unsub = tonConnectUI.onStatusChange((w) => {
-            console.log('[TON Payment] onStatusChange:', w ? 'connected' : 'null');
-            setWallet(w ?? null);
-
-            // If user just connected and we have a pending payment — trigger it
-            if (w && pendingPayRef.current) {
-                pendingPayRef.current = false;
-                console.log('[TON Payment] Wallet connected, triggering pending payment...');
-                // Delay to let TonConnect close its connect modal
-                setTimeout(() => {
-                    doTransferRef.current();
-                }, 800);
-            }
-        });
-
-        // Wait for CloudStorage restoration
-        if (!tonConnectionIsRestored) {
-            tonConnectionRestored.finally(() => {
-                setWallet(tonConnectUI.wallet);
-                setIsRestoring(false);
-            });
-        }
-
-        return unsub;
-    }, []);
-
-    // Reset isPaying when connect modal closes without connection (UI cleanup only)
-    useEffect(() => {
-        const unsub = tonConnectUI.onModalStateChange((state: any) => {
-            console.log('[TON Payment] Modal state:', state?.status);
-            if (state?.status === 'closed') {
-                // Signal ResponsiveModal that TonConnect modal is gone
-                document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
-
-                if (pendingPayRef.current) {
-                    // Grace period — onStatusChange may fire AFTER modal closes
-                    setTimeout(() => {
-                        if (pendingPayRef.current && !tonConnectUI.wallet) {
-                            console.log('[TON Payment] Modal closed without connection, resetting');
-                            pendingPayRef.current = false;
-                            setIsPaying(false);
-                        }
-                    }, 2500);
-                }
-            } else if (state?.status === 'opened') {
-                // Ensure modal mode is off while TonConnect is open
-                document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
-            }
-        });
-        return unsub;
-    }, []);
+    const [isPaying, setIsPaying] = React.useState(false);
 
     const handlePayment = useCallback(async () => {
-        // Always check live TonConnect state
-        const liveWallet = tonConnectUI.wallet;
-        if (liveWallet) {
-            console.log('[TON Payment] Wallet already connected, paying directly');
-            setWallet(liveWallet);
-            await doTransfer();
+        if (!address) {
+            toast.error(t('monetization.ton.notConnected'));
             return;
         }
 
-        // Not connected — need to reconnect.
-        // Show a helpful toast so user understands why the connect popup appears.
-        console.log('[TON Payment] Wallet not connected, opening connect modal...');
-        toast.info(t('monetization.ton.reconnect') || 'Подключите кошелёк для оплаты', { duration: 3000 });
-
-        pendingPayRef.current = true;
-        setIsPaying(true);
-
-        // Signal ResponsiveModal BEFORE opening TonConnect — so it disables modal mode instantly
-        document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: true } }));
-
         try {
-            await tonConnectUI.openModal();
-        } catch (err) {
-            console.error('[TON Payment] Failed to open modal:', err);
-            pendingPayRef.current = false;
+            setIsPaying(true);
+            reset();
+
+            const recipientAddress = "UQBI_W6R8P7Y9-LdG1X7b6mZ8_oQZ_R9vP0_V0r9lX7f";
+
+            // Start streaming subscription before sending —
+            // avoids missing the `pending` event
+            const apiKey = import.meta.env.VITE_TONCENTER_API_KEY as string | undefined;
+            subscribe(address, apiKey);
+
+            await transfer({
+                messages: [
+                    {
+                        address: recipientAddress,
+                        amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
+                        payload: description,
+                    },
+                ],
+            });
+
+        } catch (error: unknown) {
+            console.error('[TON Payment Error]:', error);
+            reset();
+
+            const msg = (error as { message?: string })?.message ?? String(error);
+            if (msg.includes('User rejects') || msg.includes('User rejected')) {
+                toast.info(t('monetization.ton.cancelled'));
+            } else {
+                toast.error(t('monetization.ton.failed'));
+            }
+        } finally {
             setIsPaying(false);
-            document.dispatchEvent(new CustomEvent('tonconnect-modal', { detail: { open: false } }));
         }
-    }, [doTransfer]);
+    }, [address, amountTon, description, transfer, subscribe, reset, t]);
 
-    // Auto-pay on mount (only if wallet already connected)
-    useEffect(() => {
-        if (autoPay && wallet && !autoPayTriggered.current) {
-            autoPayTriggered.current = true;
-            doTransfer();
+    // When finalized — call onSuccess once
+    const finalizedRef = React.useRef(false);
+    React.useEffect(() => {
+        if (status === 'finalized' && !finalizedRef.current) {
+            finalizedRef.current = true;
+            toast.success(t('monetization.ton.success'));
+            onSuccess?.();
         }
-    }, [autoPay, wallet, doTransfer]);
+        if (status === 'idle') {
+            finalizedRef.current = false;
+        }
+    }, [status, onSuccess, t]);
 
-    // Compact mode without wallet — hide
+    const handleConnect = useCallback(async () => {
+        if (tonConnectUI) await tonConnectUI.openModal();
+    }, [tonConnectUI]);
 
+    if (!address && mode === 'compact') return null;
 
-    // Detect overlay mode — parent sets opacity-0 + w-full h-full
-    const isOverlay = className?.includes('opacity-0');
-
-    if (isRestoring) {
-        return (
-            <div className={cn('transition-all duration-300', className)}>
-                <Button
-                    disabled
-                    className={cn(
-                        "w-full text-[11px] rounded-xl font-bold flex items-center justify-center gap-2 bg-[#0088cc]/40 text-white",
-                        isOverlay ? "h-full" : "h-9"
-                    )}
-                >
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>TON...</span>
-                </Button>
-            </div>
-        );
-    }
+    const statusInfo = STATUS_CONFIG[status];
 
     return (
-        <div className={cn('transition-all duration-300', className)}>
-            <Button
-                disabled={isPaying}
-                onClick={handlePayment}
-                className={cn(
-                    "w-full text-[11px] rounded-xl font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
-                    isOverlay ? "h-full" : "h-9",
-                    wallet
-                        ? "bg-[#0088cc] hover:bg-[#1098dc] text-white"
-                        : "bg-[#0088cc]/70 hover:bg-[#0088cc] text-white"
-                )}
-            >
-                {isPaying ? (
-                    <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>{wallet ? (t('monetization.ton.processing') || 'Обработка...') : 'Подключение...'}</span>
-                    </>
+        <div className={cn('transition-all duration-300 relative', className)}>
+            <div className="flex flex-col relative z-20">
+                {!address ? (
+                    <Button
+                        onClick={handleConnect}
+                        className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                    >
+                        <Wallet className="w-4 h-4" />
+                        <span>Connect Wallet</span>
+                    </Button>
                 ) : (
                     <>
-                        {wallet ? <Zap className="w-3.5 h-3.5" /> : <Wallet className="w-3.5 h-3.5" />}
-                        <span>
-                            {wallet
-                                ? `${t('monetization.ton.pay') || 'Оплатить'} ${amountTon} TON`
-                                : `TON · ${amountTon}`
-                            }
-                        </span>
+                        <Button
+                            disabled={isPaying || status === 'pending' || status === 'confirmed'}
+                            onClick={handlePayment}
+                            className={cn(
+                                "w-full font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
+                                status === 'finalized'
+                                    ? "bg-green-600 hover:bg-green-600 text-white"
+                                    : status === 'trace_invalidated' || status === 'error'
+                                    ? "bg-red-600 hover:bg-red-700 text-white"
+                                    : "bg-[#0088cc] hover:bg-[#1098dc] text-white",
+                                mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-11 text-[13px] rounded-xl"
+                            )}
+                        >
+                            {isPaying || status === 'pending' || status === 'confirmed' ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>{t('monetization.ton.processing')}</span>
+                                </>
+                            ) : status === 'finalized' ? (
+                                <>
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    <span>Оплачено!</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Zap className="w-4 h-4" />
+                                    <span>{t('monetization.ton.pay')} {amountTon} TON</span>
+                                </>
+                            )}
+                        </Button>
+
+                        {/* Real-time status indicator */}
+                        {statusInfo && (
+                            <div className={cn(
+                                "mt-2 flex items-center justify-center gap-1.5 text-[10px] font-medium",
+                                statusInfo.className,
+                            )}>
+                                {statusInfo.icon}
+                                <span>{statusInfo.label}</span>
+                            </div>
+                        )}
                     </>
                 )}
-            </Button>
+
+                {mode === 'full' && (
+                    <div className="mt-3 text-center">
+                        <p className="text-[10px] text-muted-foreground opacity-60">
+                            {t('monetization.ton.secureLabel') || "Оплата через TON Connect (Blockchain)"}
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
