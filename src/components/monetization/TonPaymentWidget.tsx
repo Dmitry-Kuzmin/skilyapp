@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import { tonConnectUI } from '@/lib/ton-appkit';
-import { useTonAddress } from '@/contexts/TonAddressContext';
+import { useTonReady } from '@/hooks/useTonReady';
 import { beginCell } from '@ton/core';
 
 import { Loader2, Zap, Wallet, CheckCircle2, XCircle, Clock } from 'lucide-react';
@@ -62,7 +62,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     mode = 'compact',
 }) => {
     const { t } = useLanguage();
-    const address = useTonAddress();
+    const { isReady, address } = useTonReady();
     const { status, subscribe, reset } = useTonStreaming();
 
     const [isPaying, setIsPaying] = useState(false);
@@ -147,6 +147,20 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     }, []);
 
     const isConnected = !!address;
+
+    // During restoration phase: hide in compact, show spinner in full mode
+    if (!isReady) {
+        if (mode === 'compact') return null;
+        return (
+            <div className={cn('transition-all duration-300 relative', className)}>
+                <Button disabled className="w-full h-11 bg-[#0088cc]/50 text-white font-bold rounded-xl text-[13px]">
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <span>Проверка кошелька...</span>
+                </Button>
+            </div>
+        );
+    }
+
     if (!isConnected && mode === 'compact') return null;
 
     const statusInfo = STATUS_CONFIG[status];

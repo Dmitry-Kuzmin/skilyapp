@@ -1075,7 +1075,7 @@ export function BoostShopModal({
     setIsPaymentSelectorOpen(false);
 
     const amountTon = selectedPack.priceValue / 5;
-    const { tonConnectUI } = await import('@/lib/ton-appkit');
+    const { tonConnectUI, tonConnectionRestored } = await import('@/lib/ton-appkit');
 
     const doTransfer = async () => {
       console.log("[TON] Executing doTransfer for:", selectedPack.title);
@@ -1105,15 +1105,21 @@ export function BoostShopModal({
       }
     };
 
-    const effectiveAddress = tonAddress || tonConnectUI.wallet?.account?.address;
-    console.log("[TON] Address check:", { react: tonAddress, sdk: tonConnectUI.wallet?.account?.address });
+    // Wait for session restoration before checking wallet state.
+    // Without this, tonConnectUI.wallet is null during the first seconds
+    // even if the session is being restored — causing the connect modal
+    // to open unnecessarily every time.
+    await tonConnectionRestored;
+
+    const effectiveAddress = tonConnectUI.wallet?.account?.address;
+    console.log("[TON] Address check after restore:", { sdk: effectiveAddress });
 
     if (effectiveAddress) {
       await doTransfer();
       return;
     }
 
-    // Not connected — open modal and subscribe
+    // Not connected even after restoration — open connect modal
     const unsub = tonConnectUI.onStatusChange((w) => {
       if (w) {
         unsub();
@@ -1128,7 +1134,7 @@ export function BoostShopModal({
       console.error('[TON] Modal prompt error:', e);
       unsub();
     }
-  }, [selectedPack, tonAddress]);
+  }, [selectedPack]);
 
   // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
   const handlePurchase = useCallback(
