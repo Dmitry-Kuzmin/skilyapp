@@ -1,20 +1,30 @@
 import { AppKit, Network, TonConnectConnector } from '@ton/appkit';
+import { TonConnect } from '@tonconnect/sdk';
 import { TonConnectUI } from '@tonconnect/ui';
+import { TonCloudStorage } from './ton-cloud-storage';
 
-// Standard TonConnectUI initialization — uses native localStorage.
-// No custom storage needed: TonConnect SDK stores session keypairs in localStorage
-// out of the box, and restoreConnection silently reconnects the bridge on load.
-const tonConnectUI = new TonConnectUI({
+// Custom storage: Telegram CloudStorage (persistent across Mini App sessions)
+// + localStorage as fast local cache.
+const cloudStorage = new TonCloudStorage();
+
+// Low-level TonConnect with custom persistent storage
+const tonConnectSDK = new TonConnect({
     manifestUrl: 'https://skilyapp.com/tonconnect-manifest.json',
+    storage: cloudStorage,
 });
 
-// Create AppKit connector using our TonConnectUI
-const tonConnector = new TonConnectConnector({
-    tonConnectUI: tonConnectUI,
+// TonConnectUI wraps the SDK.
+// IMPORTANT: do NOT pass restoreConnection: true here —
+// AppKit's TonConnectConnector.initialize() already calls
+// connector.restoreConnection() internally.
+// Double-calling it caused a race condition that dropped restored sessions.
+const tonConnectUI = new TonConnectUI({
+    connector: tonConnectSDK,
 });
 
-// Export tonConnectUI for direct modal/disconnect control
 export { tonConnectUI };
+
+const tonConnector = new TonConnectConnector({ tonConnectUI });
 
 export const appKit = new AppKit({
     networks: {
@@ -30,29 +40,14 @@ export const appKit = new AppKit({
     connectors: [tonConnector],
 });
 
-// Exported promise — resolves to true/false once restoration completes.
-// Wraps SDK promise with a 5s timeout so UI never hangs on slow bridge.
-const sdkRestored = (tonConnectUI.connectionRestored as Promise<boolean> | undefined)
-    ?? Promise.resolve(false);
-
-export const tonConnectionRestored: Promise<boolean> = Promise.race([
-    sdkRestored,
-    new Promise<boolean>((resolve) => setTimeout(() => {
-        console.warn('[TON] Restoration timed out after 5s — treating as no session');
-        resolve(false);
-    }, 5000)),
-]);
-
-// Synchronous flag — true once restoration has completed.
-export let tonConnectionIsRestored = false;
-tonConnectionRestored.finally(() => { tonConnectionIsRestored = true; });
-
-tonConnectionRestored
-    .then((restored) => {
-        console.log(restored
-            ? '[TON] ✅ Session restored'
-            : '[TON] No previous session');
-    })
-    .catch((err) => {
-        console.error('[TON] Restore failed:', err);
-    });
+try {
+    if (tonConnectUI.connectionRestored) {
+        tonConnectUI.connectionRestored
+            .then((restored: boolean) => {
+                console.log(restored
+                    ? '[TON] ✅ Wallet connection restored'
+                    : '[TON] No previous wallet session found');
+            })
+            .catch(() => {});
+    }
+} catch {}
