@@ -1,10 +1,6 @@
-import React, { useCallback } from "react";
-import {
-    useBalance,
-    useTransferTon,
-    useAddress,
-} from '@ton/appkit-react';
-import { useTonConnectUI } from '@tonconnect/ui-react';
+import React, { useCallback, useEffect, useState, useRef } from "react";
+import { useTonConnectUI, useTonWallet } from '@tonconnect/ui-react';
+
 import { Loader2, Zap, Wallet, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -64,16 +60,28 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
     mode = 'compact',
 }) => {
     const { t } = useLanguage();
-    const address = useAddress();
-    const { balance } = useBalance();
-    const { transfer } = useTransferTon();
+    const wallet = useTonWallet();
     const [tonConnectUI] = useTonConnectUI();
     const { status, subscribe, reset } = useTonStreaming();
 
-    const [isPaying, setIsPaying] = React.useState(false);
+    const [isPaying, setIsPaying] = useState(false);
+    const [, setRefreshToken] = useState(0);
+
+    // Refresh state when coming back to the app (handle stale wallet data)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                console.log('[TON SDK] Syncing connection state on visibilitychange...');
+                setRefreshToken(prev => prev + 1);
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
 
     const handlePayment = useCallback(async () => {
-        if (!address) {
+        const addr = wallet?.account?.address;
+        if (!addr) {
             toast.error(t('monetization.ton.notConnected'));
             return;
         }
@@ -81,15 +89,15 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         try {
             setIsPaying(true);
             reset();
+            const recipientAddress = "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m";
 
-            const recipientAddress = "UQBI_W6R8P7Y9-LdG1X7b6mZ8_oQZ_R9vP0_V0r9lX7f";
-
-            // Start streaming subscription before sending —
-            // avoids missing the `pending` event
+            // Start streaming subscription before sending
             const apiKey = import.meta.env.VITE_TONCENTER_API_KEY as string | undefined;
-            subscribe(address, apiKey);
+            subscribe(addr, apiKey);
 
-            await transfer({
+            // Directly call sendTransaction instead of transfer() from AppKit
+            await tonConnectUI.sendTransaction({
+                validUntil: Math.floor(Date.now() / 1000) + 360,
                 messages: [
                     {
                         address: recipientAddress,
@@ -112,11 +120,11 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         } finally {
             setIsPaying(false);
         }
-    }, [address, amountTon, description, transfer, subscribe, reset, t]);
+    }, [wallet, amountTon, description, tonConnectUI, subscribe, reset, t]);
 
     // When finalized — call onSuccess once
-    const finalizedRef = React.useRef(false);
-    React.useEffect(() => {
+    const finalizedRef = useRef(false);
+    useEffect(() => {
         if (status === 'finalized' && !finalizedRef.current) {
             finalizedRef.current = true;
             toast.success(t('monetization.ton.success'));
@@ -131,14 +139,15 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
         if (tonConnectUI) await tonConnectUI.openModal();
     }, [tonConnectUI]);
 
-    if (!address && mode === 'compact') return null;
+    const isConnected = !!wallet;
+    if (!isConnected && mode === 'compact') return null;
 
     const statusInfo = STATUS_CONFIG[status];
 
     return (
         <div className={cn('transition-all duration-300 relative', className)}>
             <div className="flex flex-col relative z-20">
-                {!address ? (
+                {!isConnected ? (
                     <Button
                         onClick={handleConnect}
                         className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
