@@ -102,11 +102,18 @@ export function StarsPaymentButton({
     }
 
     setLoading(true);
+    
+    // Мэппинг ключей пакетов для обратной совместимости с БД
+    // БД ожидает 'coins_100', 'coins_500' и т.д.
+    // Фронтенд шлет 'coins_pack_100', 'coins_pack_500' и т.д.
+    const finalPackageKey = packageKey.startsWith('coins_pack_') 
+      ? packageKey.replace('coins_pack_', 'coins_') 
+      : packageKey;
 
     try {
       console.log('[Stars Payment] Creating invoice:', {
         user_id: profileId,
-        package_key: packageKey,
+        package_key: finalPackageKey,
         telegram_user_id: user.id
       });
 
@@ -120,7 +127,7 @@ export function StarsPaymentButton({
         body: JSON.stringify({
           action: 'create_invoice',
           user_id: profileId,
-          package_key: packageKey,
+          package_key: finalPackageKey,
           telegram_user_id: user.id
         })
       });
