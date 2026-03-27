@@ -15,7 +15,7 @@ type DrawerProps = React.ComponentProps<typeof DrawerPrimitive.Root> & {
 }
 
 const Drawer = ({
-  shouldScaleBackground = true,
+  shouldScaleBackground = false,
   dismissibleThreshold = 0.15,
   children,
   ...props
@@ -44,11 +44,11 @@ const DrawerOverlay = React.forwardRef<
   <DrawerPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/70 transition-opacity duration-300",
+      "fixed inset-0 z-50 bg-black/80 backdrop-blur-md transition-opacity duration-300",
       className
     )}
     style={{
-      willChange: "opacity",
+      willChange: "opacity, backdrop-filter",
     }}
     {...props}
   />
