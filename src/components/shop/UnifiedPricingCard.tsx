@@ -179,9 +179,9 @@ export function UnifiedPricingCard({
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400/20 to-orange-500/20 border border-amber-400/30 text-amber-500 shadow-lg shadow-amber-500/5 animate-shimmer"
+                className="inline-flex items-center gap-2 mt-4 px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-400/10 to-orange-500/10 border border-amber-400/20 text-amber-500 shadow-sm"
               >
-                <div className="flex items-center justify-center p-1.5 rounded-lg bg-amber-400 text-black shadow-inner animate-pulse">
+                <div className="flex items-center justify-center p-1.5 rounded-lg bg-amber-400 text-black shadow-inner">
                    <Gift className="w-3.5 h-3.5 fill-current" />
                 </div>
                 <div className="flex flex-col">
