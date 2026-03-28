@@ -70,6 +70,8 @@ const PUBLIC_ROUTES = [
   '/achievements',
   '/referrals',
   '/dgt-tests',
+  // Лендинг курса (Google Ads)
+  '/curso',
   // Статьи
   '/article/novye-voprosy-dgt-2025',
   '/article/analitika-dgt-progress',

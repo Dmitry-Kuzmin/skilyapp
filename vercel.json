@@ -68,6 +68,10 @@
   ],
   "rewrites": [
     {
+      "source": "/curso",
+      "destination": "/curso.html"
+    },
+    {
       "source": "/about",
       "destination": "/about.html"
     },

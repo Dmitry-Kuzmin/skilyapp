@@ -58,6 +58,7 @@ const TelegramOIDCCallback = lazy(() => import("./pages/TelegramOIDCCallback"));
 // Должна быть доступна без AppProviders, так как Paddle редиректит туда до оплаты
 const Purchase = lazy(() => import("./pages/Purchase").then(m => ({ default: m.default })));
 const Login = lazy(() => import("./pages/Login"));
+const CourseLanding = lazy(() => import("./pages/CourseLanding"));
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
@@ -589,6 +590,12 @@ const App = () => {
                     <StartupCurtain />
                     <Login />
                   </AppProviders>
+                </Suspense>
+              } />
+              {/* Лендинг курса — публичный, без AppProviders (быстрая загрузка для рекламы) */}
+              <Route path="/curso" element={
+                <Suspense fallback={null}>
+                  <CourseLanding />
                 </Suspense>
               } />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
