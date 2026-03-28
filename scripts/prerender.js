@@ -73,6 +73,7 @@ const PUBLIC_ROUTES = [
   // Лендинг курса (Google Ads)
   '/curso',
   // Статьи
+  '/blog/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen',
   '/article/novye-voprosy-dgt-2025',
   '/article/analitika-dgt-progress',
   '/article/ispanskie-znaki-kotorye-pytayut',
