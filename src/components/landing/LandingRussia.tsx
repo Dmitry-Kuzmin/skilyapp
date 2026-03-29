@@ -1386,7 +1386,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 </div>
                 <div>
                   <h3 className="text-white font-black text-xl md:text-2xl mb-1 text-shadow-sm">
-                    {language === 'ru' ? 'Не нашли ответ? Свяжитесь с базой.' : 'Questions left? Contact Base.'}
+                    {effectiveLanguage === 'ru' ? 'Не нашли ответ? Свяжитесь с базой.' : 'Questions left? Contact Base.'}
                   </h3>
                   <p className="text-blue-100 font-medium text-sm md:text-base">
                     {language === 'ru' ? 'Живая поддержка ответит за 2 минуты (24/7).' : 'Live support replies in 2 minutes (24/7).'}
