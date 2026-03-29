@@ -7,6 +7,7 @@ import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
 import { checkTelegramAuth } from "@/utils/authCheck";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const LandingSpain = lazy(() =>
   import("@/components/landing/LandingSpain").then(m => ({ default: m.LandingSpain }))
