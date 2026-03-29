@@ -93,6 +93,7 @@ import { useModalStore } from "@/store/modalStore";
 import { showAdSenseRewardedVideo } from "@/lib/adsense";
 import { UnifiedPricingCard } from "./UnifiedPricingCard";
 import { PaymentSelectorModal } from "./PaymentSelectorModal";
+import { useTonStreaming } from "@/hooks/useTonStreaming";
 
 
 const supabaseClient = supabase as any;
