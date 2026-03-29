@@ -204,7 +204,7 @@ const SkilyComparisonCard = ({ copy }: { copy: any }) => {
   );
 };
 
-export const AiStudioLanding: React.FC<AiStudioLandingProps> = ({
+export const LandingSpain: React.FC<LandingSpainProps> = ({
   onRequestAccess,
   referrerInfo,
   loadingReferrer = false,
