@@ -62,7 +62,7 @@ const tonConnectUI = new TonConnectUI({
     // Mobile optimization for Telegram:
     // Use 'none' in Mini App to avoid navigation issues, 'back' in regular mobile
     actionsConfiguration: {
-        returnStrategy: isInTelegramMiniApp() ? 'none' : 'back',
+        returnStrategy: isInMiniApp() ? 'none' : 'back',
     }
 });
 
