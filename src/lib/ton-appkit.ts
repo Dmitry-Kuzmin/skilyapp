@@ -3,6 +3,24 @@ import { TonConnect } from '@tonconnect/sdk';
 import { TonConnectUI } from '@tonconnect/ui';
 import { TonCloudStorage } from './ton-cloud-storage';
 
+// Ensure Telegram.WebApp is ready before initializing
+const initializeTelegramApp = (): void => {
+    try {
+        if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
+            const webApp = (window as any).Telegram.WebApp;
+            if (typeof webApp.ready === 'function') {
+                webApp.ready();
+                console.log('[TON] Telegram.WebApp.ready() called');
+            }
+        }
+    } catch (e) {
+        console.warn('[TON] Failed to initialize Telegram.WebApp:', e);
+    }
+};
+
+// Initialize Telegram app immediately
+initializeTelegramApp();
+
 // Custom storage: Telegram CloudStorage (persistent across Mini App sessions)
 const cloudStorage = new TonCloudStorage();
 
