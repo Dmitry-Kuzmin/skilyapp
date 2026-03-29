@@ -797,7 +797,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         <div className="relative z-10 text-center mb-16 max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-widest">
             <Sparkles className="w-3 h-3" />
-            {language === 'ru' ? 'Live Demo' : 'Live Demo'}
+            {effectiveLanguage === 'ru' ? 'Live Demo' : 'Live Demo'}
           </div>
           <h2 style={{ textWrap: 'balance' }} className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight min-h-[1.2em] animate-fade-in">
             {DEMO_VARIANTS[effectiveLanguage][demoVariantIndex].title}
