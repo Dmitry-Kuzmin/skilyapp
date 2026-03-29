@@ -59,14 +59,11 @@ const Landing = () => {
   const { selectedCountry } = useCountry();
   const { language, setLanguage } = useLanguage();
 
-  // KRITIKO: Force language based on selected country (don't let individual landings fight over it)
+  // Force language to RU only on Russia landing (Spain landing allows all three languages)
   useEffect(() => {
     if (selectedCountry.code === 'RU' && language !== 'ru') {
       setLanguage('ru');
       console.log('[Landing] Forced language to RU for Russia landing');
-    } else if (selectedCountry.code === 'ES' && language !== 'es') {
-      setLanguage('es');
-      console.log('[Landing] Forced language to ES for Spain landing');
     }
   }, [selectedCountry.code, language, setLanguage]);
 
