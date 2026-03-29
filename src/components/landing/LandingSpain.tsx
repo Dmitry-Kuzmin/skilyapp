@@ -1111,109 +1111,128 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
         <InfiniteMarquee />
       </React.Suspense>
 
-      {/* LIVE CLASS SECTION */}
-      <section className="relative z-10 px-6 py-20 max-w-[1500px] mx-auto">
-        <div className="rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-blue-900/30 via-slate-900/20 to-slate-900 backdrop-blur-sm shadow-2xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-            {/* LEFT: Content */}
-            <div className="p-8 md:p-12 flex flex-col justify-center">
-              <div className="inline-flex items-center gap-2 w-fit mb-4 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                </span>
-                <span className="text-blue-300 text-sm font-semibold">{copy.liveClass.badge}</span>
-              </div>
+      {/* LIVE CLASS SECTION - RUSSIAN ONLY */}
+      {language === 'ru' && (
+        <section className="relative z-10 px-6 py-20 max-w-[1500px] mx-auto">
+          {/* Background effects */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          </div>
 
-              <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">
-                {copy.liveClass.title}
-              </h3>
+          <div className="rounded-3xl overflow-hidden border border-white/20 bg-gradient-to-br from-blue-950/60 via-slate-900/60 to-slate-950/80 backdrop-blur-xl shadow-2xl">
+            {/* Glow effect overlay */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/0 via-transparent to-cyan-500/0 pointer-events-none"></div>
 
-              <p className="text-slate-300 text-base md:text-lg mb-6 leading-relaxed">
-                {copy.liveClass.description}
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 relative">
+              {/* LEFT: Content */}
+              <div className="p-8 md:p-12 flex flex-col justify-center relative">
+                <div className="inline-flex items-center gap-2 w-fit mb-6 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/50 backdrop-blur-sm">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-400"></span>
+                  </span>
+                  <span className="text-blue-200 text-sm font-bold tracking-wide">{copy.liveClass.badge}</span>
+                </div>
 
-              <div className="flex items-center gap-2 text-blue-300 mb-8 text-sm font-medium">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {copy.liveClass.schedule}
-              </div>
+                <h3 className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent">
+                  {copy.liveClass.title}
+                </h3>
 
-              {/* Features List */}
-              <div className="space-y-3 mb-8">
-                {copy.liveClass.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-slate-200 text-sm md:text-base">{feature}</span>
-                  </div>
-                ))}
-              </div>
+                <p className="text-slate-300 text-base md:text-lg mb-8 leading-relaxed">
+                  {copy.liveClass.description}
+                </p>
 
-              <a
-                href="/courses/live"
-                onClick={(e) => {
-                  e.preventDefault();
-                  playClickSound().catch(() => {});
-                  navigate('/courses/live');
-                }}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/50 w-fit group"
-              >
-                {copy.liveClass.cta}
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </a>
-            </div>
+                <div className="flex items-center gap-3 mb-8 px-4 py-3 rounded-xl bg-blue-500/10 border border-blue-500/30 w-fit">
+                  <svg className="w-5 h-5 text-blue-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-blue-200 font-semibold text-sm">{copy.liveClass.schedule}</span>
+                </div>
 
-            {/* RIGHT: Visual */}
-            <div className="relative p-8 md:p-12 flex items-center justify-center bg-gradient-to-br from-blue-500/10 to-transparent">
-              <div className="relative w-full max-w-sm">
-                {/* Animated circle background */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/20 to-transparent blur-3xl animate-pulse"></div>
-
-                {/* Main card */}
-                <div className="relative rounded-2xl border border-blue-500/30 bg-slate-800/60 backdrop-blur-sm p-6">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center">
-                      <svg className="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" />
+                {/* Features List */}
+                <div className="space-y-3 mb-10">
+                  {copy.liveClass.features.map((feature, i) => (
+                    <div key={i} className="flex items-start gap-3 group">
+                      <svg className="w-6 h-6 text-cyan-400 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
+                      <span className="text-slate-200 text-sm md:text-base font-medium">{feature}</span>
                     </div>
-                    <div>
-                      <p className="text-white font-semibold text-sm">Próxima clase</p>
-                      <p className="text-slate-400 text-xs">Este martes a las 19:00</p>
-                    </div>
-                  </div>
+                  ))}
+                </div>
 
-                  <div className="h-1 bg-gradient-to-r from-blue-500 to-transparent rounded-full mb-6"></div>
+                <a
+                  href="https://t.me/skilyapp_bot"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => {
+                    playClickSound().catch(() => {});
+                  }}
+                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/50 w-fit group hover:scale-105 active:scale-95"
+                >
+                  {copy.liveClass.cta}
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
+              </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-slate-300 text-sm">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      <span>Tema: Señales de tráfico avanzadas</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-300 text-sm">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      <span>Duración: 45-50 minutos</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-slate-300 text-sm">
-                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                      <span>+45 estudiantes inscritos</span>
-                    </div>
-                  </div>
+              {/* RIGHT: Visual - Enhanced Card */}
+              <div className="relative p-8 md:p-12 flex items-center justify-center bg-gradient-to-bl from-blue-500/5 via-transparent to-cyan-500/10 md:border-l border-white/10">
+                <div className="relative w-full max-w-sm">
+                  {/* Animated gradient background */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-600/30 via-cyan-500/20 to-blue-600/10 blur-2xl animate-pulse"></div>
+                  <div className="absolute -top-4 -right-4 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl animate-pulse delay-700"></div>
 
-                  <div className="mt-6 pt-6 border-t border-white/5">
-                    <p className="text-xs text-slate-400">Transmisión en vivo • Acceso vitalicio a grabaciones</p>
+                  {/* Main card with enhanced styling */}
+                  <div className="relative rounded-2xl border border-blue-400/50 bg-gradient-to-br from-slate-800/80 via-slate-800/60 to-slate-900/80 backdrop-blur-xl p-8 shadow-2xl">
+                    {/* Card header - Next class */}
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-blue-500/30 to-cyan-500/20 border border-blue-400/50 flex items-center justify-center flex-shrink-0">
+                        <div className="absolute inset-0 rounded-full bg-blue-500/10 animate-pulse"></div>
+                        <svg className="w-7 h-7 text-blue-300 relative z-10" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold text-base">Следующий класс</p>
+                        <p className="text-cyan-300 text-sm font-semibold">Автоматическое расписание</p>
+                      </div>
+                    </div>
+
+                    {/* Animated divider */}
+                    <div className="relative h-1 mb-8 rounded-full overflow-hidden bg-slate-700/50">
+                      <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-blue-500 via-cyan-400 to-transparent animate-pulse"></div>
+                    </div>
+
+                    {/* Info items with enhanced styling */}
+                    <div className="space-y-4 mb-8">
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:border-blue-400/40 transition-all group">
+                        <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+                        <span className="text-slate-200 text-sm font-medium group-hover:text-white transition-colors">2 раза в неделю (вт, чт)</span>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 hover:border-cyan-400/40 transition-all group">
+                        <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-400"></div>
+                        <span className="text-slate-200 text-sm font-medium group-hover:text-white transition-colors">Начало: 1-й вторник месяца</span>
+                      </div>
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:border-blue-400/40 transition-all group">
+                        <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+                        <span className="text-slate-200 text-sm font-medium group-hover:text-white transition-colors">45-50 минут интерактива</span>
+                      </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="pt-6 border-t border-white/10">
+                      <p className="text-xs text-cyan-300/80 font-semibold">📹 Прямой эфир + Запись вечно</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* PRICING SECTION */}
       <section className="relative z-10 px-6 py-20 pb-32 max-w-[1500px] mx-auto">
