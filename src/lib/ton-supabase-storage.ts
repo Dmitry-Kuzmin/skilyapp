@@ -1,5 +1,4 @@
 import type { IStorage } from '@tonconnect/sdk';
-import { supabase } from '@/integrations/supabase/client';
 
 /**
  * SupabaseStorage adapter for TonConnect
