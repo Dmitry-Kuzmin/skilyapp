@@ -501,6 +501,20 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { title: "Tournament Cups", description: "Become a legend" },
       ],
     },
+    liveClass: {
+      badge: "Live Classes",
+      title: "Learn from a certified instructor",
+      description: "Interactive sessions twice a week with a DGT-certified teacher. Get your questions answered in real-time and accelerate your learning.",
+      schedule: "Tuesday & Thursday • 19:00 CET",
+      features: [
+        "2 live classes per week",
+        "DGT-certified instructor",
+        "Real-time Q&A",
+        "Access to recordings",
+        "Downloadable materials"
+      ],
+      cta: "Enroll now"
+    },
     pricing: {
       title: "Choose your plan",
       description: "Start free, upgrade only if you need extra focus features.",
