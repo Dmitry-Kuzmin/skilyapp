@@ -15,13 +15,23 @@ const tonConnectSDK = new TonConnect({
     storage: cloudStorage,
 });
 
+// Detect if running in Telegram Mini App
+const isInTelegramMiniApp = (): boolean => {
+    try {
+        return !!(window as any).Telegram?.WebApp?.platform;
+    } catch {
+        return false;
+    }
+};
+
 // TonConnectUI wraps the SDK.
 const tonConnectUI = new TonConnectUI({
     connector: tonConnectSDK,
     restoreConnection: true,
     // Mobile optimization for Telegram:
+    // Use 'none' in Mini App to avoid navigation issues, 'back' in regular mobile
     actionsConfiguration: {
-        returnStrategy: 'back', 
+        returnStrategy: isInTelegramMiniApp() ? 'none' : 'back',
     }
 });
 
