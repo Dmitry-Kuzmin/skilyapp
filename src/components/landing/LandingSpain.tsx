@@ -57,6 +57,37 @@ import {
   LANGUAGE_OPTIONS,
 } from "@/translations/landing";
 
+// Helper function to get the first Tuesday of current month
+const getFirstTuesdayOfMonth = (): Date => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+
+  const firstDay = new Date(year, month, 1);
+  let dayOfWeek = firstDay.getDay();
+
+  // Convert Sunday (0) to 7 for calculation
+  if (dayOfWeek === 0) dayOfWeek = 7;
+
+  // Tuesday is 2, so we need to add (2 - dayOfWeek) days if positive, else add (9 - dayOfWeek)
+  const daysUntilTuesday = dayOfWeek <= 2 ? (2 - dayOfWeek) : (9 - dayOfWeek);
+  const firstTuesday = new Date(year, month, 1 + daysUntilTuesday);
+
+  return firstTuesday;
+};
+
+// Format date for Russian display
+const formatTuesdayRu = (): string => {
+  const date = getFirstTuesdayOfMonth();
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  };
+  const formatted = new Intl.DateTimeFormat('ru-RU', options).format(date);
+  return `Начало: ${formatted[0].toUpperCase()}${formatted.slice(1)}`;
+};
+
 const DEMO_VARIANTS = {
   ru: [
     {
