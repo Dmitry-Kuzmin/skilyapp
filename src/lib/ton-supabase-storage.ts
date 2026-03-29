@@ -118,6 +118,10 @@ export class TonSupabaseStorage implements IStorage {
         }
 
         // Try Supabase
+        return await this.getFromSupabase(key);
+    }
+
+    private async getFromSupabase(key: string): Promise<string | null> {
         const userId = await this.ensureProfileSession();
         if (!userId) {
             console.log('[TON Supabase Storage] No session, cannot fetch from Supabase');
@@ -125,6 +129,12 @@ export class TonSupabaseStorage implements IStorage {
         }
 
         try {
+            const supabase = await this.getSupabase();
+            if (!supabase) {
+                console.warn('[TON Supabase Storage] Supabase unavailable');
+                return null;
+            }
+
             console.log('[TON Supabase Storage] Fetching from Supabase:', key.slice(0, 50));
             const { data, error } = await supabase
                 .from(TonSupabaseStorage.TABLE)
