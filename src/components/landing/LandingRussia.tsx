@@ -1067,7 +1067,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 <div className="text-slate-500 text-sm font-bold animate-pulse">Загрузка арены...</div>
               </div>
             }>
-              <LandingDuelPassSection language={language === 'ru' ? 'ru' : 'en'} copy={copy} />
+              <LandingDuelPassSection language={effectiveLanguage} copy={copy} />
             </React.Suspense>
           ) : (
             <div className="text-slate-800 text-sm italic opacity-0 transition-opacity duration-700">Загрузка интерактивного блока...</div>
