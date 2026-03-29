@@ -2596,26 +2596,37 @@ export function BoostShopModal({
             </ResponsiveModal>
           );
         })()}
-      {/* Paddle checkout modal */}
-      <ResponsiveModal
-        open={!!paddleCheckoutUrl}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) setPaddleCheckoutUrl(null);
-        }}
-        title="Bank Card Payment"
-        className="max-w-2xl"
-      >
-        {paddleCheckoutUrl && (
-          <div className="relative w-full h-[600px]">
+      {/* Paddle checkout fullscreen */}
+      {paddleCheckoutUrl && createPortal(
+        <div className="fixed inset-0 z-[100000] bg-black flex flex-col" style={{ paddingTop: 'var(--app-content-top, env(safe-area-inset-top))', paddingBottom: 'var(--app-safe-bottom, env(safe-area-inset-bottom))' }}>
+          {/* Top bar with back button */}
+          <div className="flex items-center justify-between px-4 py-3 bg-black/90 shrink-0">
+            <button
+              onClick={() => setPaddleCheckoutUrl(null)}
+              className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Назад
+            </button>
+            <button
+              onClick={() => setPaddleCheckoutUrl(null)}
+              className="p-1.5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          {/* Fullscreen iframe */}
+          <div className="flex-1 relative">
             <iframe
               src={paddleCheckoutUrl}
-              className="absolute inset-0 w-full h-full border-0 rounded-lg"
+              className="absolute inset-0 w-full h-full border-0"
               allow="payment"
               title="Paddle Checkout"
             />
           </div>
-        )}
-      </ResponsiveModal>
+        </div>,
+        document.body
+      )}
     </>
   );
 }
