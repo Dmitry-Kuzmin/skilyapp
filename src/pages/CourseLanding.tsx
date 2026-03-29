@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { SeoHead } from "@/components/seo/SeoHead";
-import { supabase } from "@/integrations/supabase/client";
 import {
   CheckCircle2,
   Globe,
@@ -811,21 +810,23 @@ const CourseLanding = () => {
                       currency: "EUR",
                     });
                   }
-                  
-                  // Submit lead to Telegram bot
+
+                  // Submit lead to Telegram bot (verify_jwt = false — публичная функция)
                   const formData = new FormData(e.currentTarget);
                   try {
-                    await supabase.functions.invoke("curso-lead", {
-                      body: {
+                    await fetch("https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/curso-lead", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
                         name: formData.get("name"),
                         phone: formData.get("phone"),
                         message: formData.get("message") || "",
-                      },
+                      }),
                     });
                   } catch (err) {
                     console.error("Failed to submit lead", err);
                   }
-                  
+
                   setFormSent(true);
                 }}
                 className="space-y-4"
