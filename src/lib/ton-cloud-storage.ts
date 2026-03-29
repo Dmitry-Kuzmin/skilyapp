@@ -155,21 +155,28 @@ export class TonCloudStorage implements IStorage {
         try {
             const local = localStorage.getItem(key);
             if (local !== null) {
+                console.log('[TON Storage] Got from localStorage:', key.slice(0, 50));
                 return local;
             }
-        } catch { /* blocked */ }
+        } catch (e) {
+            console.warn('[TON Storage] localStorage blocked:', e);
+        }
 
         // Fallback to CloudStorage (persistent)
         if (this.useCloud) {
+            console.log('[TON Storage] Trying CloudStorage for:', key.slice(0, 50));
             const cloud = await cloudGet(key);
             if (cloud !== null) {
                 // Restore to localStorage for next read
                 try { localStorage.setItem(key, cloud); } catch {}
-                console.log('[TON Storage] Restored from CloudStorage:', key.slice(0, 50));
+                console.log('[TON Storage] ✅ Restored from CloudStorage:', key.slice(0, 50));
                 return cloud;
             }
+        } else {
+            console.warn('[TON Storage] CloudStorage unavailable, no fallback for:', key.slice(0, 50));
         }
 
+        console.log('[TON Storage] ❌ Nothing found:', key.slice(0, 50));
         return null;
     }
 
