@@ -1086,8 +1086,8 @@ export function BoostShopModal({
     const { tonConnectUI, tonConnectionRestored } = await import('@/lib/ton-appkit');
     const apiKey = import.meta.env.VITE_TONCENTER_API_KEY || undefined;
 
-    const doTransfer = async (tonAddress: string, isRetry = false) => {
-      console.log("[TON] Executing doTransfer for:", selectedPack.title, "isRetry:", isRetry);
+    const doTransfer = async (tonAddress: string) => {
+      console.log("[TON] Executing doTransfer for:", selectedPack.title);
       resetTonStatus();
 
       try {
@@ -1099,7 +1099,7 @@ export function BoostShopModal({
           .toString('base64');
 
         const now = Math.floor(Date.now() / 1000);
-        const validUntil = now + 300; // 5 minutes standard
+        const validUntil = now + 300; // 5 minutes
         console.log("[TON] Sending transaction - Now:", now, "Valid until:", validUntil);
 
         const result = await tonConnectUI.sendTransaction({
@@ -1114,55 +1114,54 @@ export function BoostShopModal({
         console.log("[TON] ✅ Transaction sent to network, BOC:", result?.boc?.slice(0, 50));
         toast({ title: "TON", description: "📤 Оплата отправлена в сеть..." });
 
-        // Now track the actual blockchain status using real-time streaming
+        // Track real-time blockchain status via TON Center Streaming API
+        // This provides sub-second finality feedback (pending → confirmed → finalized)
         console.log("[TON] Subscribing to transaction status for address:", tonAddress);
         await subscribeTonStatus(tonAddress, apiKey, false);
-
-        // Wait for status to reach finalized/error using a promise that monitors the ref
-        console.log("[TON] Subscription started, waiting for finalization...");
+        console.log("[TON] Subscription started, monitoring blockchain...");
 
         return new Promise<void>((resolve, reject) => {
-          let timeoutId: ReturnType<typeof setTimeout> | null = null;
+          let checkTimeout: ReturnType<typeof setTimeout> | null = null;
+          const overallTimeout = setTimeout(() => {
+            if (checkTimeout) clearTimeout(checkTimeout);
+            console.warn("[TON] ⚠️ 45s timeout - transaction may still complete on-chain");
+            toast({ title: "TON", description: "⚠️ Таймаут. Платеж может быть обработан позже.", variant: "destructive" });
+            reject(new Error('Timeout'));
+          }, 45000);
 
           const checkStatus = () => {
             const currentStatus = tonTxStatusRef.current;
-            console.log("[TON] Checking transaction status:", currentStatus);
 
             if (currentStatus === 'finalized') {
-              console.log("[TON] ✅ Transaction finalized successfully!");
-              if (timeoutId) clearTimeout(timeoutId);
+              clearTimeout(overallTimeout);
+              if (checkTimeout) clearTimeout(checkTimeout);
+              console.log("[TON] ✅ Transaction finalized!");
               toast({ title: "TON", description: "✅ Оплата подтверждена!" });
               resolve();
               return;
             }
 
             if (currentStatus === 'trace_invalidated') {
-              console.error("[TON] ❌ Transaction invalidated (rollback)");
-              if (timeoutId) clearTimeout(timeoutId);
+              clearTimeout(overallTimeout);
+              if (checkTimeout) clearTimeout(checkTimeout);
+              console.error("[TON] ❌ Transaction rolled back");
               toast({ title: "TON", description: "❌ Транзакция отменена", variant: "destructive" });
               reject(new Error('Transaction invalidated'));
               return;
             }
 
             if (currentStatus === 'error') {
+              clearTimeout(overallTimeout);
+              if (checkTimeout) clearTimeout(checkTimeout);
               console.error("[TON] ❌ Streaming error");
-              if (timeoutId) clearTimeout(timeoutId);
               toast({ title: "TON", description: "❌ Ошибка отслеживания платежа", variant: "destructive" });
               reject(new Error('Streaming error'));
               return;
             }
 
-            // Keep checking every 500ms
-            timeoutId = setTimeout(checkStatus, 500);
+            // Still pending/confirmed, keep polling
+            checkTimeout = setTimeout(checkStatus, 500);
           };
-
-          // Set overall timeout of 45 seconds
-          const overallTimeout = setTimeout(() => {
-            if (timeoutId) clearTimeout(timeoutId);
-            console.warn("[TON] ⚠️ Timeout waiting for finalization (45s)");
-            toast({ title: "TON", description: "⚠️ Таймаут. Платеж может быть обработан позже.", variant: "destructive" });
-            reject(new Error('Timeout'));
-          }, 45000);
 
           checkStatus();
         });
@@ -1170,65 +1169,7 @@ export function BoostShopModal({
       } catch (err: any) {
         console.error("[TON] Transaction failure:", err);
         const msg = err?.message ?? String(err);
-        const isTransactionNotSent = msg.includes('Transaction was not sent');
         const isUserReject = msg.includes('User rejects') || msg.includes('User rejected');
-
-        console.log("[TON] Error details:", {
-          message: msg,
-          code: err?.code,
-          isUserReject,
-          isTransactionNotSent,
-          isRetry,
-        });
-
-        // КРИТИЧНО: "Transaction was not sent" при восстановленном адресе = мертвый bridge
-        // Это случается когда адрес восстановлен из localStorage, но bridge соединение на сервере уже закрыто
-        // Решение: очистить storage и принудительно переподключить
-        if (isTransactionNotSent && !isRetry) {
-          console.warn("[TON] 🔧 Dead bridge detected. Clearing storage and forcing reconnection...");
-
-          // Очищаем все данные bridge из storage (но оставляем адрес кошелька)
-          try {
-            localStorage.removeItem('ton-connect-storage_bridge-connection');
-            localStorage.removeItem('ton-connect-storage_http-bridge-gateway::https://w');
-            console.log("[TON] ✅ Bridge storage cleared");
-          } catch (storageErr) {
-            console.warn("[TON] Could not clear storage:", storageErr);
-          }
-
-          // Отключаемся полностью и переподключаемся заново
-          try {
-            await tonConnectUI.disconnect();
-            console.log("[TON] Disconnected, reconnecting...");
-          } catch (e) {
-            console.warn("[TON] Disconnect error:", e);
-          }
-
-          // Даем время на очистку и переподключаемся через модаль
-          await new Promise(r => setTimeout(r, 200));
-
-          let retryUnsub = tonConnectUI.onStatusChange((w) => {
-            if (w && w.account?.address) {
-              retryUnsub();
-              console.log("[TON] 🔄 Fresh connection established. Retrying transfer...");
-              doTransfer(w.account.address, true).catch(err => {
-                console.error("[TON] Retry transfer failed:", err);
-                toast({ title: "TON", description: "❌ Ошибка оплаты (повторная попытка)", variant: "destructive" });
-              });
-            }
-          });
-
-          try {
-            console.log("[TON] Opening reconnect modal...");
-            await tonConnectUI.openModal();
-          } catch (e) {
-            console.error("[TON] Could not open modal:", e);
-            retryUnsub();
-            toast({ title: "TON", description: "❌ Ошибка подключения кошелька", variant: "destructive" });
-          }
-
-          return;
-        }
 
         if (!isUserReject) {
           toast({ title: "TON", description: "❌ Ошибка оплаты", variant: "destructive" });
