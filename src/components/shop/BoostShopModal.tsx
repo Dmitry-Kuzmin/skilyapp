@@ -1088,7 +1088,7 @@ export function BoostShopModal({
           .toString('base64');
 
         await tonConnectUI.sendTransaction({
-          validUntil: Math.floor(Date.now() / 1000) + 300,
+          validUntil: Math.floor(Date.now() / 1000) + 600,
           messages: [{
             address: "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m",
             amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
