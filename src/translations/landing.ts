@@ -292,6 +292,20 @@ export const landingTranslations: Record<Language, LandingCopy> = {
         { title: "Copas de Torneo", description: "Conviértete en leyenda" },
       ],
     },
+    liveClass: {
+      badge: "Cursos en vivo",
+      title: "Aprende con instructor en directo",
+      description: "Sesiones interactivas 2 veces por semana con un profesor certificado. Resuelve dudas en tiempo real y acelera tu aprendizaje.",
+      schedule: "Martes y jueves • 19:00 CET",
+      features: [
+        "Clases en directo 2x/semana",
+        "Profesor certificado DGT",
+        "Resuelve dudas en tiempo real",
+        "Acceso a grabaciones",
+        "Material descargable"
+      ],
+      cta: "Inscribirse al curso"
+    },
     pricing: {
       title: "Elige tu plan",
       description: "Comienza gratis y desbloquea funciones avanzadas cuando lo necesites.",
