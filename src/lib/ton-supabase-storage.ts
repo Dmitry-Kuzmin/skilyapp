@@ -12,16 +12,35 @@ const TB_PREFIX = 'tc_supabase_';
 export class TonSupabaseStorage implements IStorage {
     private static readonly TABLE = 'ton_storage';
     private localCache = new Map<string, string>();
+    private supabaseClient: any = null;
 
     constructor() {
         console.log('[TON Supabase Storage] Initialized');
     }
 
+    private async getSupabase() {
+        if (this.supabaseClient) return this.supabaseClient;
+        try {
+            const { supabase } = await import('@/integrations/supabase/client');
+            this.supabaseClient = supabase;
+            return supabase;
+        } catch (e) {
+            console.error('[TON Supabase Storage] Failed to load Supabase:', e);
+            return null;
+        }
+    }
+
     private async ensureProfileSession(): Promise<string | null> {
         try {
+            const supabase = await this.getSupabase();
+            if (!supabase) {
+                console.warn('[TON Supabase Storage] Supabase unavailable');
+                return null;
+            }
+
             const { data } = await supabase.auth.getSession();
             if (!data?.session?.user?.id) {
-                console.warn('[TON Supabase Storage] No session');
+                console.warn('[TON Supabase Storage] No auth session');
                 return null;
             }
             return data.session.user.id;
