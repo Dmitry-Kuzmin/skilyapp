@@ -1128,13 +1128,18 @@ export function BoostShopModal({
     const unsub = tonConnectUI.onStatusChange((w) => {
       if (w) {
         unsub();
-        console.log("[TON] Connected! Sending tx...");
+        console.log("[TON] Connected! Wallet:", w.account?.address);
+        console.log("[TON] Sending tx in 500ms...");
         setTimeout(() => doTransfer(), 500);
+      } else {
+        console.log("[TON] Wallet disconnected during modal");
       }
     });
 
     try {
+      console.log("[TON] Opening wallet connection modal...");
       await tonConnectUI.openModal();
+      console.log("[TON] Modal closed");
     } catch (e) {
       console.error('[TON] Modal prompt error:', e);
       unsub();
