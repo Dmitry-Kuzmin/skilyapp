@@ -106,12 +106,20 @@ export const TonWalletHeader: React.FC = () => {
     }, [showMenu]);
 
     const handleConnect = useCallback(() => {
+        // CRITICAL: Prevent rapid successive reconnect attempts (debounce to 1s)
+        const now = Date.now();
+        if (now - lastConnectAttempt < 1000) {
+            console.warn('[TON] Reconnect attempt debounced (too soon)');
+            return;
+        }
+        setLastConnectAttempt(now);
+
         try {
             tonConnectUI.openModal();
         } catch (e) {
             console.error('[TON] Failed to open modal:', e);
         }
-    }, []);
+    }, [lastConnectAttempt]);
 
     const handleDisconnect = useCallback(async () => {
         try {
