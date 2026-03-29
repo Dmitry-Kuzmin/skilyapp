@@ -1426,7 +1426,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         <div className="max-w-4xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider">
             <Sparkles className="w-3 h-3" />
-            <span>{language === 'ru' ? 'SaaS / Mobile Gaming / EdTech' : language === 'es' ? 'SaaS / Juegos Móviles / EdTech' : 'SaaS / Mobile Gaming / EdTech'}</span>
+            <span>{effectiveLanguage === 'ru' ? 'SaaS / Mobile Gaming / EdTech' : effectiveLanguage === 'es' ? 'SaaS / Juegos Móviles / EdTech' : 'SaaS / Mobile Gaming / EdTech'}</span>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed">
             {language === 'ru' ?
