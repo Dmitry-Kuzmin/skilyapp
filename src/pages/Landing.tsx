@@ -57,6 +57,18 @@ const Landing = () => {
   const [loadingPartner, setLoadingPartner] = useState(false);
 
   const { selectedCountry } = useCountry();
+  const { language, setLanguage } = useLanguage();
+
+  // KRITIKO: Force language based on selected country (don't let individual landings fight over it)
+  useEffect(() => {
+    if (selectedCountry.code === 'RU' && language !== 'ru') {
+      setLanguage('ru');
+      console.log('[Landing] Forced language to RU for Russia landing');
+    } else if (selectedCountry.code === 'ES' && language !== 'es') {
+      setLanguage('es');
+      console.log('[Landing] Forced language to ES for Spain landing');
+    }
+  }, [selectedCountry.code, language, setLanguage]);
 
   // Проверка Telegram — только если WebApp был обнаружен при монтировании
   useEffect(() => {
