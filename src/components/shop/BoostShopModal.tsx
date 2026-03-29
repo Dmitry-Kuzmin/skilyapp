@@ -1087,8 +1087,13 @@ export function BoostShopModal({
           .toBoc()
           .toString('base64');
 
+        // Используем 5 минут (300 секунд) вместо 10 минут - это более стандартно
+        const now = Math.floor(Date.now() / 1000);
+        const validUntil = now + 300;
+        console.log("[TON] Time check - Now:", now, "Valid until:", validUntil, "Difference:", 300);
+
         await tonConnectUI.sendTransaction({
-          validUntil: Math.floor(Date.now() / 1000) + 600,
+          validUntil: validUntil,
           messages: [{
             address: "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m",
             amount: BigInt(Math.floor(amountTon * 1e9)).toString(),
