@@ -52,17 +52,8 @@ const origin = typeof window !== 'undefined' ? window.location.origin : 'https:/
 // Low-level TonConnect with custom persistent storage
 const tonConnectSDK = new TonConnect({
     manifestUrl: `${origin}/tonconnect-manifest.json`,
-    storage: cloudStorage,
+    storage: tonStorage,
 });
-
-// Detect if running in Telegram Mini App
-const isInTelegramMiniApp = (): boolean => {
-    try {
-        return !!(window as any).Telegram?.WebApp?.platform;
-    } catch {
-        return false;
-    }
-};
 
 // TonConnectUI wraps the SDK.
 const tonConnectUI = new TonConnectUI({
