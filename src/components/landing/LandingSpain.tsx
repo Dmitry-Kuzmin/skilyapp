@@ -1245,7 +1245,7 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
                       </div>
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20 hover:border-cyan-400/40 transition-all group">
                         <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-cyan-400 to-blue-400"></div>
-                        <span className="text-slate-200 text-sm font-medium group-hover:text-white transition-colors">Начало: 1-й вторник месяца</span>
+                        <span className="text-slate-200 text-sm font-medium group-hover:text-white transition-colors">{formatTuesdayRu()}</span>
                       </div>
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 hover:border-blue-400/40 transition-all group">
                         <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
