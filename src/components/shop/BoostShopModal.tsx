@@ -1072,6 +1072,11 @@ export function BoostShopModal({
 
   // TON payment with real-time transaction status tracking
   const { subscribe: subscribeTonStatus, status: tonTxStatus, reset: resetTonStatus } = useTonStreaming();
+  const tonTxStatusRef = useRef<string>('idle');
+
+  useEffect(() => {
+    tonTxStatusRef.current = tonTxStatus;
+  }, [tonTxStatus]);
 
   const handleTonPurchase = useCallback(async () => {
     if (!selectedPack) return;
@@ -1113,50 +1118,51 @@ export function BoostShopModal({
         console.log("[TON] Subscribing to transaction status for address:", tonAddress);
         await subscribeTonStatus(tonAddress, apiKey, false);
 
-        // The subscribeTonStatus will update tonTxStatus reactively
-        // Status flow: pending → confirmed → finalized (or trace_invalidated)
+        // Wait for status to reach finalized/error using a promise that monitors the ref
         console.log("[TON] Subscription started, waiting for finalization...");
 
-        // Wait for finalization in a simple way: check every 500ms for up to 45 seconds
-        // (The useTonStreaming hook updates status automatically via SSE)
-        let attempts = 0;
-        const maxAttempts = 90; // 45 seconds
-
         return new Promise<void>((resolve, reject) => {
-          const checkStatus = () => {
-            attempts++;
+          let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-            if (tonTxStatus === 'finalized') {
+          const checkStatus = () => {
+            const currentStatus = tonTxStatusRef.current;
+            console.log("[TON] Checking transaction status:", currentStatus);
+
+            if (currentStatus === 'finalized') {
               console.log("[TON] ✅ Transaction finalized successfully!");
+              if (timeoutId) clearTimeout(timeoutId);
               toast({ title: "TON", description: "✅ Оплата подтверждена!" });
               resolve();
               return;
             }
 
-            if (tonTxStatus === 'trace_invalidated') {
+            if (currentStatus === 'trace_invalidated') {
               console.error("[TON] ❌ Transaction invalidated (rollback)");
+              if (timeoutId) clearTimeout(timeoutId);
               toast({ title: "TON", description: "❌ Транзакция отменена", variant: "destructive" });
               reject(new Error('Transaction invalidated'));
               return;
             }
 
-            if (tonTxStatus === 'error') {
-              console.error("[TON] ❌ Streaming error or timeout");
+            if (currentStatus === 'error') {
+              console.error("[TON] ❌ Streaming error");
+              if (timeoutId) clearTimeout(timeoutId);
               toast({ title: "TON", description: "❌ Ошибка отслеживания платежа", variant: "destructive" });
               reject(new Error('Streaming error'));
               return;
             }
 
-            if (attempts >= maxAttempts) {
-              console.warn("[TON] ⚠️ Timeout waiting for finalization");
-              toast({ title: "TON", description: "⚠️ Таймаут. Платеж может быть обработан позже.", variant: "destructive" });
-              reject(new Error('Timeout'));
-              return;
-            }
-
-            // Status still pending/confirmed or idle, keep waiting
-            setTimeout(checkStatus, 500);
+            // Keep checking every 500ms
+            timeoutId = setTimeout(checkStatus, 500);
           };
+
+          // Set overall timeout of 45 seconds
+          const overallTimeout = setTimeout(() => {
+            if (timeoutId) clearTimeout(timeoutId);
+            console.warn("[TON] ⚠️ Timeout waiting for finalization (45s)");
+            toast({ title: "TON", description: "⚠️ Таймаут. Платеж может быть обработан позже.", variant: "destructive" });
+            reject(new Error('Timeout'));
+          }, 45000);
 
           checkStatus();
         });
@@ -1236,7 +1242,7 @@ export function BoostShopModal({
       if (timeoutHandle) clearTimeout(timeoutHandle);
       unsub();
     }
-  }, [selectedPack, subscribeTonStatus, resetTonStatus, tonTxStatus]);
+  }, [selectedPack, subscribeTonStatus, resetTonStatus]);
 
   // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
   const handlePurchase = useCallback(
