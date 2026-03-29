@@ -11,7 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
  */
 export const TonWalletHeader: React.FC = () => {
     const liveAddress = useTonAddress();
-    
+
     const { profileId } = useUserContext();
     const { t } = useLanguage();
 
@@ -21,6 +21,8 @@ export const TonWalletHeader: React.FC = () => {
     const [restoreTimedOut, setRestoreTimedOut] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [copied, setCopied] = useState(false);
+    // CRITICAL: Prevent rapid reconnect attempts
+    const [lastConnectAttempt, setLastConnectAttempt] = useState(0);
 
     // Load saved wallet address from DB on mount
     useEffect(() => {
