@@ -138,7 +138,7 @@ interface PartnerInfo {
   total_link_activations: number;
 }
 
-interface AiStudioLandingProps {
+interface LandingSpainProps {
   onRequestAccess: () => void;
   referrerInfo?: ReferrerInfo | null;
   loadingReferrer?: boolean;
