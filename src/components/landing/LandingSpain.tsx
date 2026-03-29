@@ -461,6 +461,7 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
   let copy = landingTranslations[language];
 
   // Override pricing for Spain landing: ALWAYS use EUR regardless of language
+  // Keep text translations in their language, but use EUR currency prices
   copy = {
     ...copy,
     pricing: {
@@ -472,22 +473,18 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
         monthly: {
           ...copy.pricing.plans.monthly,
           price: "€9.99",
-          note: "/month",
         },
         quarterly: {
           ...copy.pricing.plans.quarterly,
           price: "€24.99",
-          note: "/3 months",
         },
         biannual: {
           ...copy.pricing.plans.biannual,
           price: "€39.99",
-          note: "/6 months",
         },
         yearly: {
           ...copy.pricing.plans.yearly,
           price: "€59.99",
-          note: "/year",
         },
       },
     },
