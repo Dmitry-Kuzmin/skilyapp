@@ -2,6 +2,7 @@ import { AppKit, Network, TonConnectConnector } from '@ton/appkit';
 import { TonConnect } from '@tonconnect/sdk';
 import { TonConnectUI } from '@tonconnect/ui';
 import { TonCloudStorage } from './ton-cloud-storage';
+import { TonSupabaseStorage } from './ton-supabase-storage';
 
 // Ensure Telegram.WebApp is ready before initializing
 const initializeTelegramApp = (): void => {
@@ -21,8 +22,29 @@ const initializeTelegramApp = (): void => {
 // Initialize Telegram app immediately
 initializeTelegramApp();
 
-// Custom storage: Telegram CloudStorage (persistent across Mini App sessions)
-const cloudStorage = new TonCloudStorage();
+// Detect if in Mini App
+const isInMiniApp = (): boolean => {
+    try {
+        return !!(window as any).Telegram?.WebApp?.platform;
+    } catch {
+        return false;
+    }
+};
+
+// Choose storage backend based on environment
+// Mini App: Use Supabase storage (CloudStorage unreliable)
+// Web: Use Telegram CloudStorage if available, localStorage otherwise
+const getStorageBackend = () => {
+    if (isInMiniApp()) {
+        console.log('[TON] Using Supabase storage for Mini App');
+        return new TonSupabaseStorage();
+    } else {
+        console.log('[TON] Using Telegram CloudStorage for web');
+        return new TonCloudStorage();
+    }
+};
+
+const tonStorage = getStorageBackend();
 
 // Get the origin dynamically to avoid manifest mismatch errors on different domains
 const origin = typeof window !== 'undefined' ? window.location.origin : 'https://skilyapp.com';
