@@ -32,8 +32,8 @@ const isInMiniApp = (): boolean => {
 };
 
 // Choose storage backend based on environment
-// Mini App: Use Supabase storage (CloudStorage unreliable)
-// Web: Use Telegram CloudStorage if available, localStorage otherwise
+// Mini App: Use Supabase storage (persists across sessions)
+// Web: Use Telegram CloudStorage (falls back to localStorage)
 const getStorageBackend = () => {
     if (isInMiniApp()) {
         console.log('[TON] Using Supabase storage for Mini App');
@@ -45,6 +45,36 @@ const getStorageBackend = () => {
 };
 
 const tonStorage = getStorageBackend();
+
+// КРИТИЧНО для Web версии: очищаем bridge соединение из localStorage
+// При каждой новой сессии (перезагрузке) bridge на серверах TON Connect уже закрыт
+// Восстановленное соединение будет мертвым, вызывая "Transaction was not sent"
+// Решение: начинать каждую новую сессию со СВЕЖЕГО соединения
+if (!isInMiniApp()) {
+    try {
+        // Ключи bridge соединения которые должны быть свежими для каждой сессии
+        const bridgeKeys = [
+            'ton-connect-storage_bridge-connection',
+            'ton-connect-storage_http-bridge-gateway::https://w', // может быть разным
+            'tc_bridge-connection',
+            'tc_http-bridge-gateway'
+        ];
+
+        let cleanedAny = false;
+        for (const key of bridgeKeys) {
+            if (localStorage.getItem(key)) {
+                localStorage.removeItem(key);
+                cleanedAny = true;
+            }
+        }
+
+        if (cleanedAny) {
+            console.log('[TON] ✅ Cleaned stale bridge data from Web localStorage - starting with fresh connection');
+        }
+    } catch (e) {
+        console.warn('[TON] Could not clean bridge storage:', e);
+    }
+}
 
 // Get the origin dynamically to avoid manifest mismatch errors on different domains
 const origin = typeof window !== 'undefined' ? window.location.origin : 'https://skilyapp.com';
