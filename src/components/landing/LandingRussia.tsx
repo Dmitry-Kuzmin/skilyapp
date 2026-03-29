@@ -800,7 +800,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             {language === 'ru' ? 'Live Demo' : 'Live Demo'}
           </div>
           <h2 style={{ textWrap: 'balance' }} className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight min-h-[1.2em] animate-fade-in">
-            {DEMO_VARIANTS[language][demoVariantIndex].title}
+            {DEMO_VARIANTS[effectiveLanguage][demoVariantIndex].title}
           </h2>
           <p style={{ textWrap: 'balance' }} className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto mb-8 min-h-[3.5em] animate-fade-in">
             {DEMO_VARIANTS[language][demoVariantIndex].text}
