@@ -142,11 +142,20 @@ export class TonCloudStorage implements IStorage {
 
     async setItem(key: string, value: string): Promise<void> {
         // Always write to localStorage (fast cache)
-        try { localStorage.setItem(key, value); } catch { /* quota exceeded */ }
+        try {
+            localStorage.setItem(key, value);
+            console.log('[TON Storage] ✅ Saved to localStorage:', key.slice(0, 50), `(${value.length} bytes)`);
+        } catch (e) {
+            console.warn('[TON Storage] localStorage save failed:', e);
+        }
 
         // Also write to CloudStorage (persistent)
         if (this.useCloud) {
+            console.log('[TON Storage] 📤 Saving to CloudStorage:', key.slice(0, 50));
             await cloudSet(key, value);
+            console.log('[TON Storage] ✅ CloudStorage save completed');
+        } else {
+            console.warn('[TON Storage] ⚠️ CloudStorage unavailable, only localStorage saved');
         }
     }
 
