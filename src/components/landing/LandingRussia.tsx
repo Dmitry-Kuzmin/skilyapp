@@ -56,6 +56,7 @@ import { examYear } from "@/utils/dateUtils";
 import {
   landingTranslations,
   LANGUAGE_OPTIONS,
+  RUSSIA_LANGUAGE_OPTIONS,
 } from "@/translations/landing";
 
 // ВРЕМЕННО: прямой импорт вместо lazy для дебага
