@@ -11,9 +11,16 @@ import type { IStorage } from '@tonconnect/sdk';
  */
 
 const TC_PREFIX = 'tc_';
+
+/**
+ * Check if Telegram CloudStorage is available and ready.
+ * In Mini App, CloudStorage might not be initialized immediately.
+ */
 const isTelegramCloudAvailable = (): boolean => {
     try {
-        return !!(window as any).Telegram?.WebApp?.CloudStorage;
+        const cs = (window as any).Telegram?.WebApp?.CloudStorage;
+        // CloudStorage is available if it has the required methods
+        return !!(cs && typeof cs.getItem === 'function' && typeof cs.setItem === 'function');
     } catch {
         return false;
     }
