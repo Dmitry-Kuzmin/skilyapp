@@ -1395,7 +1395,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               </div>
 
               <button className="whitespace-nowrap px-8 py-4 rounded-xl bg-white text-blue-700 font-black text-sm uppercase tracking-wider hover:bg-blue-50 transition-colors shadow-lg flex items-center gap-2 group/btn">
-                {language === 'ru' ? 'Открыть чат Telegram' : 'Open Telegram Chat'}
+                {effectiveLanguage === 'ru' ? 'Открыть чат Telegram' : 'Open Telegram Chat'}
                 <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
