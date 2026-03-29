@@ -1440,7 +1440,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             onClick={() => navigate('/about')}
             className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
           >
-            {language === 'ru' ? 'Подробнее о нас' : language === 'es' ? 'Más sobre nosotros' : 'Learn more about us'}
+            {effectiveLanguage === 'ru' ? 'Подробнее о нас' : effectiveLanguage === 'es' ? 'Más sobre nosotros' : 'Learn more about us'}
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
