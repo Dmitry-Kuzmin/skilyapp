@@ -5,7 +5,7 @@
 import { TelegramMessage, SendMessageOptions } from './types.ts';
 import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import * as keyboards from './keyboards.ts';
-import { t, getUserLanguage, getDaysWord, SupportedLanguage } from './translations.ts';
+import { t, getUserLanguage, getDaysWord, SupportedLanguage, E } from './translations.ts';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
@@ -52,8 +52,6 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
   const lang = await getUserLanguage(user.id, user.language_code, supabase);
   const { data: profile } = await supabase.from('profiles').select('id, first_name').eq('telegram_id', user.id).maybeSingle();
   const { data: metrics } = await supabase.from('user_metrics').select('streak_days, readiness_level').eq('user_id', profile?.id).maybeSingle();
-  const { data: activeSeason } = await supabase.from('duel_pass_seasons').select('name_ru, name_en, name_es').eq('is_active', true).maybeSingle();
-  const activeSeasonName = activeSeason ? (activeSeason[`name_${lang}` as keyof typeof activeSeason] as string ?? activeSeason.name_ru) : null;
 
   const userName = profile?.first_name || user.first_name || 'Pilot';
   const streakDays = metrics?.streak_days || 0;
@@ -64,7 +62,7 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
     ? t('start.welcome.new', lang, { name: userName })
     : t('start.welcome.returning', lang, {
       name: userName,
-      streakEmoji: streakDays > 7 ? '🔥' : '✨',
+      streakEmoji: streakDays > 7 ? E.rocket : E.sparkles,
       streak: streakDays,
       readiness,
       motivation: streakDays === 0 ? t('start.motivation.noStreak', lang) : t('start.motivation.hasStreak', lang)
@@ -74,7 +72,7 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
     chat_id: message.chat.id,
     text: welcomeText,
     parse_mode: 'HTML',
-    reply_markup: keyboards.getMainMenuKeyboard(lang, activeSeasonName)
+    reply_markup: keyboards.getMainMenuKeyboard(lang)
   });
 }
 
@@ -173,7 +171,7 @@ export async function handleBroadcast(
   if (!adminIds.includes(user.id)) {
     await sendMessage({
       chat_id: message.chat.id,
-      text: '⛔ У тебя нет прав администратора для этой команды.'
+      text: `${E.block} У тебя нет прав администратора для этой команды.`
     });
     return;
   }
@@ -181,14 +179,14 @@ export async function handleBroadcast(
   if (!text || text.trim().length < 3) {
     await sendMessage({
       chat_id: message.chat.id,
-      text: '❗ Укажи текст для рассылки:\n/broadcast <текст сообщения>'
+      text: `${E.neutral} Укажи текст для рассылки:\n/broadcast <текст сообщения>`
     });
     return;
   }
 
   await sendMessage({
     chat_id: message.chat.id,
-    text: `📣 Начинаю рассылку...\nТекст: <b>${text}</b>`,
+    text: `${E.rocket} Начинаю рассылку...\nТекст: <b>${text}</b>`,
     parse_mode: 'HTML'
   });
 
@@ -202,7 +200,7 @@ export async function handleBroadcast(
   if (error || !profiles) {
     await sendMessage({
       chat_id: message.chat.id,
-      text: `❌ Ошибка получения пользователей: ${error?.message}`
+      text: `${E.block} Ошибка получения пользователей: ${error?.message}`
     });
     return;
   }
@@ -242,7 +240,7 @@ export async function handleBroadcast(
 
   await sendMessage({
     chat_id: message.chat.id,
-    text: `✅ Рассылка завершена!\n\n📬 Отправлено: <b>${sent}</b>\n❌ Ошибок: <b>${failed}</b>\n👥 Всего: <b>${profiles.length}</b>`,
+    text: `${E.check} Рассылка завершена!\n\n${E.bell} Отправлено: <b>${sent}</b>\n${E.block} Ошибок: <b>${failed}</b>\n${E.invisible} Всего: <b>${profiles.length}</b>`,
     parse_mode: 'HTML'
   });
 }
@@ -258,53 +256,4 @@ export async function handleTips(message: TelegramMessage, supabase: SupabaseCli
     parse_mode: 'HTML',
     reply_markup: keyboards.getTipsMenuKeyboard(lang)
   });
-}
-
-// =====================================================
-// Тест нового API: Checklist (Bot API 9.0+)
-// =====================================================
-export async function handleChecklist(message: TelegramMessage): Promise<void> {
-  const chatId = message.chat.id;
-
-  try {
-    const resp = await fetch(`${TELEGRAM_API}/sendChecklist`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        checklist: {
-          title: '🗺 Skily Bot — Идеальное меню',
-          tasks: [
-            { id: 1,  text: '🏠 Главное меню — точка входа' },
-            { id: 2,  text: '👤 Профиль — статистика, серия, точность' },
-            { id: 3,  text: '⚔️ Дуэли — вызов, рейтинг, история' },
-            { id: 4,  text: '📚 Учёба — тесты, карточки, темы' },
-            { id: 5,  text: '🤖 AI-помощник — вопросы по ПДД' },
-            { id: 6,  text: '🎮 Duel Pass — сезон и награды' },
-            { id: 7,  text: '⭐ Сезон — активная кнопка сезона' },
-            { id: 8,  text: '⚙️ Настройки — язык, уведомления' },
-            { id: 9,  text: '💎 Premium — способы оплаты' },
-            { id: 10, text: '🔔 Ежедневный квест — чеклист задач' },
-            { id: 11, text: '📊 Детальная статистика — web_app' },
-            { id: 12, text: '🏆 Достижения — бейджи и прогресс' }
-          ],
-          others_can_mark_tasks_as_done: true,
-          others_can_add_tasks: false
-        }
-      })
-    });
-    const result = await resp.json();
-    console.log('[Checklist] Result:', JSON.stringify(result));
-
-    if (!result.ok) {
-      // Fallback: sendChecklist не поддерживается в этой версии
-      await sendMessage({
-        chat_id: chatId,
-        text: `❌ <b>sendChecklist</b> не поддерживается в текущей версии Bot API.\n\nОтвет: <code>${result.description || 'unknown error'}</code>`,
-        parse_mode: 'HTML'
-      });
-    }
-  } catch (e) {
-    console.error('[Checklist] Error:', e);
-  }
 }

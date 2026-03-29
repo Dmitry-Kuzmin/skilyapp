@@ -171,9 +171,9 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                 {!isConnected ? (
                     <Button
                         onClick={handleConnect}
-                        className="w-full h-11 bg-[#0088cc] hover:bg-[#1098dc] text-white font-bold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/20 transition-all flex items-center justify-center gap-2 active:scale-95"
+                        className="w-full h-11 bg-gradient-to-r from-[#0088cc] to-[#00a3ee] hover:from-[#0099e6] hover:to-[#00b3ff] text-white font-extrabold rounded-xl text-[13px] shadow-lg shadow-[#0088cc]/30 transition-all flex items-center justify-center gap-2 active:scale-95 border-none uppercase tracking-wider"
                     >
-                        <Wallet className="w-4 h-4" />
+                        <Wallet className="w-4 h-4 animate-pulse" />
                         <span>Connect Wallet</span>
                     </Button>
                 ) : (
@@ -182,12 +182,12 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                             disabled={isPaying || status === 'pending' || status === 'confirmed'}
                             onClick={handlePayment}
                             className={cn(
-                                "w-full font-bold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg",
+                                "w-full font-extrabold transition-all flex items-center justify-center gap-2 active:scale-95 shadow-lg border-none uppercase tracking-wider",
                                 status === 'finalized'
-                                    ? "bg-green-600 hover:bg-green-600 text-white"
+                                    ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
                                     : status === 'trace_invalidated' || status === 'error'
-                                    ? "bg-red-600 hover:bg-red-700 text-white"
-                                    : "bg-[#0088cc] hover:bg-[#1098dc] text-white",
+                                    ? "bg-gradient-to-r from-red-500 to-red-600 text-white"
+                                    : "bg-gradient-to-r from-[#0088cc] to-[#00a3ee] hover:from-[#0099e6] hover:to-[#00b3ff] text-white shadow-[#0088cc]/30",
                                 mode === 'compact' ? "h-9 text-[11px] rounded-lg" : "h-11 text-[13px] rounded-xl"
                             )}
                         >
@@ -203,7 +203,7 @@ export const TonPaymentWidget: React.FC<TonPaymentWidgetProps> = ({
                                 </>
                             ) : (
                                 <>
-                                    <Zap className="w-4 h-4" />
+                                    <Zap className="w-4 h-4 fill-white" />
                                     <span>{t('monetization.ton.pay')} {amountTon} TON</span>
                                 </>
                             )}

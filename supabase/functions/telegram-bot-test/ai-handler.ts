@@ -173,23 +173,15 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
 // ── Stars Invoice Handler ───────────────────────────
 export async function sendStarsInvoice(chatId: number, telegramId: number, userId: string = "", messageId?: number, lang: SupportedLanguage = 'ru') {
   try {
-    // Локализованные короткие названия тарифов
-    const packageLabels: Record<string, Record<SupportedLanguage, string>> = {
-      premium_monthly:   { ru: '1 мес',   en: '1 mo',   es: '1 mes'    },
-      premium_quarterly: { ru: '3 мес',   en: '3 mo',   es: '3 meses'  },
-      premium_biannual:  { ru: '6 мес',   en: '6 mo',   es: '6 meses'  },
-      premium_yearly:    { ru: '1 год',   en: '1 year', es: '1 año'    },
-    };
-
     const packages = [
-      { key: 'premium_monthly',   price: 99  },
-      { key: 'premium_quarterly', price: 249 },
-      { key: 'premium_biannual',  price: 449 },
-      { key: 'premium_yearly',    price: 799 },
+      { key: 'premium_monthly', label: '1 месяц Premium', price: 99 },
+      { key: 'premium_quarterly', label: '3 месяца Premium', price: 249 },
+      { key: 'premium_biannual', label: '6 месяцев Premium', price: 449 },
+      { key: 'premium_yearly', label: '1 год Premium', price: 799 },
     ];
 
     const invoiceButtons: any[] = [];
-
+    
     for (const pkg of packages) {
       const response = await fetch(`${SUPABASE_URL}/functions/v1/telegram-stars-payment`, {
         method: 'POST',
@@ -208,13 +200,9 @@ export async function sendStarsInvoice(chatId: number, telegramId: number, userI
       if (response.ok) {
         const data = await response.json();
         if (data.invoice_link) {
-          const label = packageLabels[pkg.key]?.[lang] ?? packageLabels[pkg.key]?.ru ?? pkg.key;
-          const isYearly = pkg.key === 'premium_yearly';
           invoiceButtons.push({
-            text: `${label} · ${data.stars_amount} ⭐`,
-            url: data.invoice_link,
-            // Стиль: зелёный (самый выгодный) для годового, синий для остальных
-            ...(isYearly ? { style: 'success' } : { style: 'primary' })
+            text: `⭐ ${pkg.label} (${data.stars_amount} ⭐️)`,
+            url: data.invoice_link
           });
         }
       } else {
@@ -223,15 +211,15 @@ export async function sendStarsInvoice(chatId: number, telegramId: number, userI
       }
     }
 
+
     if (invoiceButtons.length > 0) {
       const rows = [];
-      // 2 кнопки в ряд: [ 1 мес | 3 мес ] [ 6 мес | 1 год ]
-      for (let i = 0; i < invoiceButtons.length; i += 2) {
-        rows.push(invoiceButtons.slice(i, i + 2));
+      for (let i = 0; i < invoiceButtons.length; i += 1) { 
+        rows.push(invoiceButtons.slice(i, i + 1));
       }
 
-      // Назад → в меню Премиум
-      rows.push([{ text: t('stars.invoice.back', lang), callback_data: "premium_menu" }]);
+      // Добавляем навигацию
+      rows.push([{ text: t('stars.invoice.back', lang), callback_data: "payment_methods" }]);
 
       const method = messageId ? 'editMessageText' : 'sendMessage';
       const body: any = {

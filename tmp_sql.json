@@ -1,0 +1,4 @@
+
+{
+  "sql": "CREATE OR REPLACE FUNCTION get_random_questions_with_images(lim integer) RETURNS json AS $$ DECLARE result json; BEGIN SELECT json_agg(t) INTO result FROM (SELECT q.id, q.text, q.image_url, (SELECT string_agg(tag, ', ') FROM question_tags WHERE question_id = q.id) as tags, q.explanation, (SELECT json_agg(json_build_object('text', o.text, 'is_correct', o.is_correct)) FROM answer_options o WHERE o.question_id = q.id) as answer_options FROM questions q WHERE q.image_url IS NOT NULL AND q.image_url <> '' ORDER BY random() LIMIT lim) t; RETURN result; END; $$ LANGUAGE plpgsql;"
+}

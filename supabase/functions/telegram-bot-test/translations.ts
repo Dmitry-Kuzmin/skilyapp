@@ -44,60 +44,55 @@ export async function getUserLanguage(
     return normalizeLanguage(telegramLangCode);
 }
 
+// Словарь анимированных эмодзи
+export const E = {
+    star: '<tg-emoji emoji-id="6005661956931850799">⭐️</tg-emoji>',
+    battery: '<tg-emoji emoji-id="4904626998745237074">🔋</tg-emoji>',
+    check: '<tg-emoji emoji-id="5123163417326126159">✅</tg-emoji>',
+    dislike: '<tg-emoji emoji-id="5121063440311386962">👎</tg-emoji>',
+    click: '<tg-emoji emoji-id="4918408122868958076">🖱️</tg-emoji>',
+    foot: '<tg-emoji emoji-id="4918465056955434053">🦶</tg-emoji>',
+    helicopter: '<tg-emoji emoji-id="4916090902113420509">🚁</tg-emoji>',
+    neutral: '<tg-emoji emoji-id="5105344272324887540">😐</tg-emoji>',
+    lock: '<tg-emoji emoji-id="4904500559203009298">🔒</tg-emoji>',
+    sparkles: '<tg-emoji emoji-id="4911241630633165627">✨</tg-emoji>',
+    new: '<tg-emoji emoji-id="4918438965029110683">🆕</tg-emoji>',
+    bell: '<tg-emoji emoji-id="4915820259044230152">🔔</tg-emoji>',
+    bellOff: '<tg-emoji emoji-id="4918087434840834979">🔕</tg-emoji>',
+    link: '<tg-emoji emoji-id="4916086774649848789">🔗</tg-emoji>',
+    block: '<tg-emoji emoji-id="4918014360267260850">⛔️</tg-emoji>',
+    diamond: '<tg-emoji emoji-id="5462902520215002477">💎</tg-emoji>',
+    rocket: '<tg-emoji emoji-id="5188481279963715781">🚀</tg-emoji>',
+    stats: '<tg-emoji emoji-id="5190806721286657692">📊</tg-emoji>',
+    exchange: '<tg-emoji emoji-id="5312441427764989435">💱</tg-emoji>',
+    calendar: '<tg-emoji emoji-id="5274055917766202507">🗓</tg-emoji>',
+    tag: '<tg-emoji emoji-id="5240228673738527951">🏷</tg-emoji>',
+    money: '<tg-emoji emoji-id="5287231198098117669">💰</tg-emoji>',
+    card: '<tg-emoji emoji-id="5445353829304387411">💳</tg-emoji>',
+    coin: '<tg-emoji emoji-id="5379773896352355687">🪙</tg-emoji>',
+    hundred: '<tg-emoji emoji-id="5307495098613773492">💯</tg-emoji>',
+    tired: '<tg-emoji emoji-id="5307866755018798904">😫</tg-emoji>',
+    facepalm: '<tg-emoji emoji-id="5307819226910700816">🤦‍♂️</tg-emoji>',
+    shocked: '<tg-emoji emoji-id="5251397349644706382">🫢</tg-emoji>',
+    invisible: '<tg-emoji emoji-id="5246885387716011812">🫥</tg-emoji>',
+    welcome: '👋',
+};
+
 // Словарь переводов
 const translations: Record<string, Record<SupportedLanguage, string>> = {
     // =====================================================
     // /start - Приветствие
     // =====================================================
     'start.welcome.new': {
-        ru: `<b>Привет, {name}!</b> 👋
-
-Я — твой штурман в мире ПДД.
-
-🏎 <b>Skily</b> — это не скучные тесты, а гонки, дуэли и прокачка.
-
-<i>Тебя ждут 2000+ вопросов, AI-помощник и дуэли с друзьями.</i>
-
-Готов сдать на права играючи?`,
-        en: `<b>Hi, {name}!</b> 👋
-
-I'm your navigator in the world of traffic rules.
-
-🏎 <b>Skily</b> — not boring tests, but races, duels and leveling up.
-
-<i>2000+ questions, AI assistant and duels with friends await you.</i>
-
-Ready to get your license while having fun?`,
-        es: `<b>¡Hola, {name}!</b> 👋
-
-Soy tu navegador en el mundo de las normas de tráfico.
-
-🏎 <b>Skily</b> — no son tests aburridos, sino carreras, duelos y mejoras.
-
-<i>Te esperan más de 2000 preguntas, asistente IA y duelos con amigos.</i>
-
-¿Listo para sacarte el carnet jugando?`
+        ru: `<b>Привет, {name}!</b> ${E.welcome}\n\nЯ — твой штурман в мире ПДД.\n\n${E.helicopter} <b>Skily</b> — это не скучные тесты, а гонки, дуэли и прокачка.\n\n<i>Тебя ждут 2000+ вопросов, AI-помощник и дуэли с друзьями.</i>\n\nГотов сдать на права играючи?`,
+        en: `<b>Hi, {name}!</b> ${E.welcome}\n\nI'm your navigator in the world of traffic rules.\n\n${E.helicopter} <b>Skily</b> — not boring tests, but races, duels and leveling up.\n\n<i>2000+ questions, AI assistant and duels with friends await you.</i>\n\nReady to get your license while having fun?`,
+        es: `<b>¡Hola, {name}!</b> ${E.welcome}\n\nSoy tu navegador en el mundo de las normas de tráfico.\n\n${E.helicopter} <b>Skily</b> — no son tests aburridos, sino carreras, duelos y mejoras.\n\n<i>Te esperan más de 2000 preguntas, asistente IA y duelos con amigos.</i>\n\n¿Listo para sacarte el carnet jugando?`
     },
 
     'start.welcome.returning': {
-        ru: `<b>С возвращением, {name}!</b> 👋
-
-{streakEmoji} Серия: <b>{streak} дней</b>
-🎯 Готовность: <b>{readiness}%</b>
-
-{motivation}`,
-        en: `<b>Welcome back, {name}!</b> 👋
-
-{streakEmoji} Streak: <b>{streak} days</b>
-🎯 Readiness: <b>{readiness}%</b>
-
-{motivation}`,
-        es: `<b>¡Bienvenido de nuevo, {name}!</b> 👋
-
-{streakEmoji} Racha: <b>{streak} días</b>
-🎯 Preparación: <b>{readiness}%</b>
-
-{motivation}`
+        ru: `<b>С возвращением, {name}!</b> ${E.welcome}\n\n{streakEmoji} Серия: <b>{streak} дней</b>\n🎯 Готовность: <b>{readiness}%</b>\n\n{motivation}`,
+        en: `<b>Welcome back, {name}!</b> ${E.welcome}\n\n{streakEmoji} Streak: <b>{streak} days</b>\n🎯 Readiness: <b>{readiness}%</b>\n\n{motivation}`,
+        es: `<b>¡Bienvenido de nuevo, {name}!</b> ${E.welcome}\n\n{streakEmoji} Racha: <b>{streak} días</b>\n🎯 Preparación: <b>{readiness}%</b>\n\n{motivation}`
     },
 
     'start.motivation.noStreak': {
@@ -116,9 +111,9 @@ Soy tu navegador en el mundo de las normas de tráfico.
     // /stats - Статистика
     // =====================================================
     'stats.title': {
-        ru: '📊 <b>Твоя статистика</b>',
-        en: '📊 <b>Your Statistics</b>',
-        es: '📊 <b>Tus Estadísticas</b>'
+        ru: `${E.stats} <b>Твоя статистика</b>`,
+        en: `${E.stats} <b>Your Statistics</b>`,
+        es: `${E.stats} <b>Tus Estadísticas</b>`
     },
 
     'stats.readiness': {
@@ -182,96 +177,45 @@ Soy tu navegador en el mundo de las normas de tráfico.
     },
 
     'stats.noStats': {
-        ru: '📊 У тебя пока нет статистики. Начни обучение в приложении!',
-        en: '📊 No statistics yet. Start learning in the app!',
-        es: '📊 Aún no tienes estadísticas. ¡Empieza a aprender en la app!'
+        ru: `${E.stats} У тебя пока нет статистики. Начни обучение в приложении!`,
+        en: `${E.stats} No statistics yet. Start learning in the app!`,
+        es: `${E.stats} Aún no tienes estadísticas. ¡Empieza a aprender en la app!`
     },
 
     // =====================================================
     // /duel - Дуэли
     // =====================================================
     'duel.title': {
-        ru: '⚔️ <b>Дуэли на Skilyapp</b>',
-        en: '⚔️ <b>Duels on Skilyapp</b>',
-        es: '⚔️ <b>Duelos en Skilyapp</b>'
+        ru: `⚔️ <b>Дуэли на Skilyapp</b>`,
+        en: `⚔️ <b>Duels on Skilyapp</b>`,
+        es: `⚔️ <b>Duelos en Skilyapp</b>`
     },
 
     'duel.description': {
-        ru: `Создавай дуэль, кидай код другу и сражайся прямо в приложении.
-Все дуэли, рейтинги и реванши теперь на <a href="{url}/duels">skilyapp.com/duels</a>.
-
-Выбери действие ниже или жми "Создать дуэль", чтобы открыть веб-приложение. 🚀`,
-        en: `Create a duel, share the code with a friend and battle in the app.
-All duels, ratings and rematches are at <a href="{url}/duels">skilyapp.com/duels</a>.
-
-Choose an action below or tap "Create duel" to open the web app. 🚀`,
-        es: `Crea un duelo, comparte el código con un amigo y lucha en la app.
-Todos los duelos, rankings y revanchas en <a href="{url}/duels">skilyapp.com/duels</a>.
-
-Elige una acción o toca "Crear duelo" para abrir la app. 🚀`
+        ru: `Создавай дуэль, кидай код другу и сражайся прямо в приложении.\nВсе дуэли, рейтинги и реванши теперь на <a href="{url}/duels">skilyapp.com/duels</a>.\n\nВыбери действие ниже или жми "Создать дуэль", чтобы открыть веб-приложение. ${E.rocket}`,
+        en: `Create a duel, share the code with a friend and battle in the app.\nAll duels, ratings and rematches are at <a href="{url}/duels">skilyapp.com/duels</a>.\n\nChoose an action below or tap "Create duel" to open the web app. ${E.rocket}`,
+        es: `Crea un duelo, comparte el código con un amigo y lucha en la app.\nTodos los duelos, rankings y revanchas en <a href="{url}/duels">skilyapp.com/duels</a>.\n\nElige una acción o toca "Crear duelo" para abrir la app. ${E.rocket}`
     },
 
     'duel.invite': {
-        ru: `⚔️ <b>Вызов на дуэль!</b>
-
-Чтобы бросить вызов, напиши в любом чате:
-
-<code>@skilyapp_bot дуэль</code>
-
-Я создам красивую карточку с приглашением! 🎴
-
-После выбора — твой друг откроет приложение и примет вызов.`,
-        en: `⚔️ <b>Duel Challenge!</b>
-
-To challenge someone, write in any chat:
-
-<code>@skilyapp_bot duel</code>
-
-I'll create a beautiful invite card! 🎴
-
-After selection — your friend will open the app and accept the challenge.`,
-        es: `⚔️ <b>¡Reto a duelo!</b>
-
-Para retar a alguien, escribe en cualquier chat:
-
-<code>@skilyapp_bot duelo</code>
-
-¡Crearé una tarjeta de invitación bonita! 🎴
-
-Después de seleccionar — tu amigo abrirá la app y aceptará el reto.`
+        ru: `⚔️ <b>Вызов на дуэль!</b>\n\nЧтобы бросить вызов, напиши в любом чате:\n\n<code>@skilyapp_bot дуэль</code>\n\nЯ создам красивую карточку с приглашением! 🎴\n\nПосле выбора — твой друг откроет приложение и примет вызов.`,
+        en: `⚔️ <b>Duel Challenge!</b>\n\nTo challenge someone, write in any chat:\n\n<code>@skilyapp_bot duel</code>\n\nI'll create a beautiful invite card! 🎴\n\nAfter selection — your friend will open the app and accept the challenge.`,
+        es: `⚔️ <b>¡Reto a duelo!</b>\n\nPara retar a alguien, escribe en cualquier chat:\n\n<code>@skilyapp_bot duelo</code>\n\n¡Crearé una tarjeta de invitación bonita! 🎴\n\nПосле выбора — твой друг откроет приложение и примет вызов.`
     },
 
     // =====================================================
     // /help - Помощь
     // =====================================================
     'help.title': {
-        ru: '❓ <b>Помощь</b>',
-        en: '❓ <b>Help</b>',
-        es: '❓ <b>Ayuda</b>'
+        ru: `${E.neutral} <b>Помощь</b>`,
+        en: `${E.neutral} <b>Help</b>`,
+        es: `${E.neutral} <b>Ayuda</b>`
     },
 
     'help.commands': {
-        ru: `<b>Доступные команды:</b>
-/start — Главное меню
-/stats — Твоя статистика
-/duel — Начать дуэль
-/streak — Серия дней
-/settings — Настройки
-/help — Эта справка`,
-        en: `<b>Available commands:</b>
-/start — Main menu
-/stats — Your statistics
-/duel — Start a duel
-/streak — Day streak
-/settings — Settings
-/help — This help`,
-        es: `<b>Comandos disponibles:</b>
-/start — Menú principal
-/stats — Tus estadísticas
-/duel — Iniciar un duelo
-/streak — Racha de días
-/settings — Configuración
-/help — Esta ayuda`
+        ru: `<b>Доступные команды:</b>\n/start — Главное меню\n/stats — Твоя статистика\n/duel — Начать дуэль\n/streak — Серия дней\n/settings — Настройки\n/help — Эта справка`,
+        en: `<b>Available commands:</b>\n/start — Main menu\n/stats — Your statistics\n/duel — Start a duel\n/streak — Day streak\n/settings — Settings\n/help — This help`,
+        es: `<b>Comandos disponibles:</b>\n/start — Menú principal\n/stats — Tus estadísticas\n/duel — Iniciar un duelo\n/streak — Racha de días\n/settings — Configuración\n/help — Esta ayuda`
     },
 
     'help.about': {
@@ -290,9 +234,9 @@ Después de seleccionar — tu amigo abrirá la app y aceptará el reto.`
     // /settings - Настройки
     // =====================================================
     'settings.title': {
-        ru: '⚙️ <b>Настройки</b>',
-        en: '⚙️ <b>Settings</b>',
-        es: '⚙️ <b>Configuración</b>'
+        ru: `${E.sparkles} <b>Настройки</b>`,
+        en: `${E.sparkles} <b>Settings</b>`,
+        es: `${E.sparkles} <b>Configuración</b>`
     },
 
     'settings.description': {
@@ -311,30 +255,9 @@ Después de seleccionar — tu amigo abrirá la app y aceptará el reto.`
     },
 
     'streak.noStreak': {
-        ru: `У тебя пока нет активной серии.
-
-Начни заниматься каждый день, чтобы:
-• Получать бонусы
-• Улучшать результаты
-• Быстрее подготовиться к экзамену
-
-Начни прямо сейчас! 💪`,
-        en: `You don't have an active streak yet.
-
-Start practicing every day to:
-• Earn bonuses
-• Improve results
-• Prepare faster for the exam
-
-Start now! 💪`,
-        es: `Aún no tienes una racha activa.
-
-Empieza a practicar cada día para:
-• Ganar bonos
-• Mejorar resultados
-• Prepararte más rápido para el examen
-
-¡Empieza ahora! 💪`
+        ru: `У тебя пока нет активной серии.\n\nНачни заниматься каждый день, чтобы:\n• Получать бонусы\n• Улучшать результаты\n• Быстрее подготовиться к экзамену\n\nНачни прямо сейчас! ${E.battery}`,
+        en: `You don't have an active streak yet.\n\nStart practicing every day to:\n• Earn bonuses\n• Improve results\n• Prepare faster for the exam\n\nStart now! ${E.battery}`,
+        es: `Aún no tienes una racha activa.\n\nEmpieza a practicar cada día para:\n• Ganar bonos\n• Mejorar resultados\n• Prepararte más rápido para el examen\n\n¡Empieza ahora! ${E.battery}`
     },
 
     'streak.current': {
@@ -344,9 +267,9 @@ Empieza a practicar cada día para:
     },
 
     'streak.todayActive': {
-        ru: '✅ Сегодня ты уже позанимался',
-        en: '✅ You already practiced today',
-        es: '✅ Ya practicaste hoy'
+        ru: `${E.check} Сегодня ты уже позанимался`,
+        en: `${E.check} You already practiced today`,
+        es: `${E.check} Ya practicaste hoy`
     },
 
     'streak.todayInactive': {
@@ -356,9 +279,9 @@ Empieza a practicar cada día para:
     },
 
     'streak.motivation.30': {
-        ru: 'Невероятно! 🏆',
-        en: 'Incredible! 🏆',
-        es: '¡Increíble! 🏆'
+        ru: `Невероятно! ${E.hundred}`,
+        en: `Incredible! ${E.hundred}`,
+        es: `¡Increíble! ${E.hundred}`
     },
 
     'streak.motivation.14': {
@@ -383,9 +306,9 @@ Empieza a practicar cada día para:
     // Профиль
     // =====================================================
     'profile.title': {
-        ru: '👤 <b>Твой профиль</b>',
-        en: '👤 <b>Your Profile</b>',
-        es: '👤 <b>Tu Perfil</b>'
+        ru: `${E.welcome} <b>Твой профиль</b>`,
+        en: `${E.welcome} <b>Your Profile</b>`,
+        es: `${E.welcome} <b>Tu Perfil</b>`
     },
 
     'profile.rank': {
@@ -419,15 +342,15 @@ Empieza a practicar cada día para:
     },
 
     'profile.accuracy': {
-        ru: '✓ Точность',
-        en: '✓ Accuracy',
-        es: '✓ Precisión'
+        ru: `${E.check} Точность`,
+        en: `${E.check} Accuracy`,
+        es: `${E.check} Precisión`
     },
 
     'profile.detailedStats': {
-        ru: '📊 Детальная статистика',
-        en: '📊 Detailed Statistics',
-        es: '📊 Estadísticas Detalladas'
+        ru: `${E.stats} Детальная статистика`,
+        en: `${E.stats} Detailed Statistics`,
+        es: `${E.stats} Estadísticas Detalladas`
     },
 
     // Ранги
@@ -492,88 +415,21 @@ Empieza a practicar cada día para:
     // Кнопки клавиатуры
     // =====================================================
     'keyboard.openApp': {
-        ru: 'Открыть Skily',
-        en: 'Open Skily',
-        es: 'Abrir Skily'
+        ru: '🚀 Открыть Skily',
+        en: '🚀 Open Skily',
+        es: '🚀 Abrir Skily'
     },
 
     'keyboard.profile': {
-        ru: 'Профиль',
-        en: 'Profile',
-        es: 'Perfil'
+        ru: `${E.welcome} Профиль`,
+        en: `${E.welcome} Profile`,
+        es: `${E.welcome} Perfil`
     },
 
     'keyboard.challengeFriend': {
-        ru: 'Вызвать друга',
-        en: 'Challenge Friend',
-        es: 'Retar Amigo'
-    },
-
-    'keyboard.duelPass': {
-        ru: 'Duel Pass',
-        en: 'Duel Pass',
-        es: 'Duel Pass'
-    },
-
-    'keyboard.duels': { ru: 'Дуэли', en: 'Duels', es: 'Duelos' },
-    'keyboard.learning': { ru: 'Обучение', en: 'Learning', es: 'Aprendizaje' },
-    'keyboard.premium': { ru: 'Премиум', en: 'Premium', es: 'Premium' },
-    'keyboard.help': { ru: 'Помощь', en: 'Help', es: 'Ayuda' },
-    'keyboard.statistics': { ru: 'Детальная статистика', en: 'Detailed Statistics', es: 'Estadísticas' },
-    'keyboard.achievements': { ru: 'Достижения', en: 'Achievements', es: 'Logros' },
-    'keyboard.settings': { ru: 'Настройки', en: 'Settings', es: 'Ajustes' },
-    'keyboard.randomTest': { ru: 'Случайный тест', en: 'Random Test', es: 'Test aleatorio' },
-    'keyboard.examOpen': { ru: 'Экзамен', en: 'Exam', es: 'Examen' },
-    'keyboard.examLocked': { ru: 'Экзамен', en: 'Exam', es: 'Examen' },
-    'keyboard.aiAssistant': { ru: 'AI-помощник', en: 'AI Assistant', es: 'Asistente IA' },
-    'keyboard.randomBattle': { ru: 'Случайный бой', en: 'Random Battle', es: 'Batalla aleatoria' },
-    'keyboard.leaderboard': { ru: 'Рейтинг', en: 'Leaderboard', es: 'Clasificación' },
-    'keyboard.documentation': { ru: 'Документация', en: 'Documentation', es: 'Documentación' },
-    'keyboard.supportChat': { ru: 'Написать поддержке', en: 'Contact Support', es: 'Contactar soporte' },
-    'keyboard.backToLearning': { ru: '← Обучение', en: '← Learning', es: '← Aprendizaje' },
-
-    'learning.title': {
-        ru: '📚 <b>Обучение</b>',
-        en: '📚 <b>Learning</b>',
-        es: '📚 <b>Aprendizaje</b>'
-    },
-    'learning.examLockedPopup': {
-        ru: '🔒 Экзамен заблокирован\n\nДля доступа нужно набрать минимум 10 баллов в карточке прав. Продолжай проходить тесты!',
-        en: '🔒 Exam is locked\n\nYou need at least 10 points to unlock the exam. Keep practicing!',
-        es: '🔒 Examen bloqueado\n\nNecesitas al menos 10 puntos para desbloquear el examen. ¡Sigue practicando!'
-    },
-    'learning.testSize': {
-        ru: '📝 Выбери количество вопросов:',
-        en: '📝 Choose number of questions:',
-        es: '📝 Elige el número de preguntas:'
-    },
-
-    'duels.menuTitle': {
-        ru: '⚔️ <b>Дуэли</b>\n\nВыбери режим:',
-        en: '⚔️ <b>Duels</b>\n\nChoose mode:',
-        es: '⚔️ <b>Duelos</b>\n\nElige el modo:'
-    },
-
-    'premium.title': {
-        ru: '💎 <b>Премиум</b>\n\nБезлимитные дуэли и AI-помощник 24/7.\nВыбери способ оплаты:',
-        en: '💎 <b>Premium</b>\n\nUnlimited duels and AI assistant 24/7.\nChoose payment method:',
-        es: '💎 <b>Premium</b>\n\nDuelos ilimitados y asistente IA 24/7.\nElige el método de pago:'
-    },
-
-    'help.title': {
-        ru: '♥️ <b>Помощь</b>',
-        en: '♥️ <b>Help</b>',
-        es: '♥️ <b>Ayuda</b>'
-    },
-    'help.supportPrompt': {
-        ru: '💬 Напиши свой вопрос следующим сообщением — мы передадим его команде Skily:',
-        en: '💬 Send your question in the next message — we\'ll forward it to the Skily team:',
-        es: '💬 Envía tu pregunta en el siguiente mensaje — la transmitiremos al equipo de Skily:'
-    },
-    'help.supportSent': {
-        ru: '✅ Вопрос передан в поддержку! Ответим в ближайшее время.',
-        en: '✅ Your question has been sent to support! We\'ll reply soon.',
-        es: '✅ ¡Tu pregunta fue enviada al soporte! Te responderemos pronto.'
+        ru: '⚔️ Вызвать друга',
+        en: '⚔️ Challenge Friend',
+        es: '⚔️ Retar Amigo'
     },
 
     'keyboard.backToMenu': {
@@ -583,9 +439,9 @@ Empieza a practicar cada día para:
     },
 
     'keyboard.notifications': {
-        ru: '🔔 Уведомления',
-        en: '🔔 Notifications',
-        es: '🔔 Notificaciones'
+        ru: `${E.bell} Уведомления`,
+        en: `${E.bell} Notifications`,
+        es: `${E.bell} Notificaciones`
     },
 
     'keyboard.language': {
@@ -612,16 +468,16 @@ Empieza a practicar cada día para:
     'tips.intro': {
         ru: 'Выбери тему, а я дам короткий инсайт, который помогает на тестах и в реальных сценариях. Никакой воды — только практика.',
         en: 'Choose a topic and I\'ll give you a quick insight that helps on tests and in real scenarios. No fluff — just practice.',
-        es: 'Elige un tema y te daré un consejo rápido que ayuda en los tests y en escenarios reales. Sin relleno — solo práctica.'
+        es: 'Elige un tema y te daré un consejo rápido que ayuda en los tests и в escenarios reales. Sin relleno — solo práctica.'
     },
 
     // =====================================================
     // Уведомления о настройках языка
     // =====================================================
     'language.changed': {
-        ru: '✅ Язык изменён: Русский',
-        en: '✅ Language changed: English',
-        es: '✅ Idioma cambiado: Español'
+        ru: `${E.check} Язык изменён: Русский`,
+        en: `${E.check} Language changed: English`,
+        es: `${E.check} Idioma cambiado: Español`
     },
 
     // =====================================================
@@ -649,32 +505,14 @@ Empieza a practicar cada día para:
     // Оплата Stars
     // =====================================================
     'stars.invoice.title': {
-        ru: '🌟 <b>Оплата Telegram Stars</b>',
-        en: '🌟 <b>Telegram Stars Payment</b>',
-        es: '🌟 <b>Pago con Telegram Stars</b>'
+        ru: `${E.star} <b>Оплата Telegram Stars</b>`,
+        en: `${E.star} <b>Telegram Stars Payment</b>`,
+        es: `${E.star} <b>Pago con Telegram Stars</b>`
     },
     'stars.invoice.description': {
-        ru: `Оплата через Stars — это очень просто! Это самый быстрый способ получить Premium прямо сейчас:
-
-1. Просто выбери тариф ниже.
-2. Откроется стандартное окно Telegram для подтверждения платежа.
-3. Подтверди оплату, и доступ к Premium-функциям активируется <b>автоматически!</b>
-
-🎯 <i>Если у тебя недостаточно звезд, Telegram предложит докупить их прямо в процессе оплаты.</i>`,
-        en: `Paying with Stars is very simple! It's the fastest way to get Premium right now:
-
-1. Just choose a plan below.
-2. A standard Telegram window will open to confirm the payment.
-3. Confirm the payment, and access to Premium features will be activated <b>automatically!</b>
-
-🎯 <i>If you don't have enough stars, Telegram will offer to buy more during the payment process.</i>`,
-        es: `¡Pagar con Stars es muy sencillo! Es la forma más rápida de obtener Premium ahora mismo:
-
-1. Solo elige un plan a continuación.
-2. Se abrirá una ventana estándar de Telegram para confirmar el pago.
-3. Confirma el pago y el acceso a las funciones Premium se activará <b>¡automáticamente!</b>
-
-🎯 <i>Si no tienes suficientes estrellas, Telegram te ofrecerá comprar más durante el proceso de pago.</i>`
+        ru: `Оплата через Stars — это очень просто! Это самый быстрый способ получить Premium прямо сейчас:\n\n1. Просто выбери тариф ниже.\n2. Откроется стандартное окно Telegram для подтверждения платежа.\n3. Подтверди оплату, и доступ к Premium-функциям активируется <b>автоматически!</b>\n\n${E.click} <i>Если у тебя недостаточно звезд, Telegram предложит докупить их прямо в процессе оплаты.</i>`,
+        en: `Paying with Stars is very simple! It's the fastest way to get Premium right now:\n\n1. Just choose a plan below.\n2. A standard Telegram window will open to confirm the payment.\n3. Confirm the payment, and access to Premium features will be activated <b>automatically!</b>\n\n${E.click} <i>If you don't have enough stars, Telegram will offer to buy more during the payment process.</i>`,
+        es: `¡Pagar con Stars es muy sencillo! Es la forma más rápida de obtener Premium ahora mismo:\n\n1. Solo elige un plan a continuación.\n2. Se abrirá una ventana estándar de Telegram para confirmar el pago.\n3. Confirma el pago и el acceso a las funciones Premium se activará <b>¡automáticamente!</b>\n\n${E.click} <i>Si no tienes suficientes estrellas, Telegram te ofrecerá comprar más durante el proceso de pago.</i>`
     },
     'stars.invoice.back': {
         ru: '← Другие способы оплаты',
@@ -747,6 +585,6 @@ export function getDaysWord(count: number, lang: SupportedLanguage): string {
 export function formatMarkdown(text: string): string {
     if (!text) return '';
     return text
-        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') // Bold: **text** -> <b>$1</b>
-        .replace(/\*(.*?)\*/g, '<i>$1</i>');    // Italic: *text* -> <i>$1</i>
+        .replace(/\\*\\*(.*?)\\*\\*/g, '<b>$1</b>') // Bold: **text** -> <b>$1</b>
+        .replace(/\\*(.*?)\\*/g, '<i>$1</i>');    // Italic: *text* -> <i>$1</i>
 }

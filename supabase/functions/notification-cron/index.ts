@@ -26,74 +26,55 @@ function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promi
 // =====================================================
 
 serve(async (req) => {
-  try {
-    const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-    
-    if (!SUPABASE_SERVICE_KEY) {
-      throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY');
-    }
+  const authHeader = req.headers.get('Authorization');
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    console.log('[Notification CRON] Running scheduled task...');
-
-    const supabase = createPooledSupabaseClient(SUPABASE_SERVICE_KEY);
-
-    // Результаты отправки
-    const results = {
-      total_checked: 0,
-      sent: 0,
-      skipped: 0,
-      errors: 0,
-      breakdown: {
-        inactive_3d: 0,
-        inactive_7d: 0,
-        streak_reminder: 0,
-        almost_ready: 0,
-        license_warning_12h: 0,
-        license_warning_1h: 0
-      }
-    };
-
-    const runTasks = async () => {
-      console.log('[Notification CRON] Starting tasks sequence...');
-      // 1. Напоминания неактивным пользователям (3 дня)
-      console.log('[Notification CRON] Task 1: inactive_3d');
-      await sendInactivityReminders(supabase, 3, 'inactive_3d', results);
-
-      // 2. Напоминания неактивным пользователям (7 дней)
-      console.log('[Notification CRON] Task 2: inactive_7d');
-      await sendInactivityReminders(supabase, 7, 'inactive_7d', results);
-
-      // 3. Напоминания о поддержании streak
-      console.log('[Notification CRON] Task 3: streak');
-      await sendStreakReminders(supabase, results);
-
-      // 4. Мотивационные напоминания для почти готовых
-      console.log('[Notification CRON] Task 4: almost_ready');
-      await sendAlmostReadyReminders(supabase, results);
-
-      // 5. Предупреждения о потере баллов (12ч и 1ч)
-      console.log('[Notification CRON] Task 5: license_warning');
-      await sendLicensePointLossReminders(supabase, results);
-    };
-
-    // Запускаем все задачи с общим таймаутом в 35 секунд
-    await withTimeout(runTasks(), 35000, 'Overall execution time exceeded');
-
-    console.log('[Notification CRON] Results:', results);
-
-    return new Response(
-      JSON.stringify({ success: true, results }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
-
-  } catch (error) {
-    console.error('[Notification CRON] Critical Error:', error);
-    const errMessage = error instanceof Error ? error.message : String(error);
-    return new Response(
-      JSON.stringify({ error: errMessage }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+  if (authHeader !== `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
+
+  if (!SUPABASE_SERVICE_ROLE_KEY) {
+    return new Response(JSON.stringify({ error: 'Missing SUPABASE_SERVICE_ROLE_KEY' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const supabase = createPooledSupabaseClient(SUPABASE_SERVICE_ROLE_KEY);
+
+  const results = {
+    total_checked: 0, sent: 0, skipped: 0, errors: 0,
+    breakdown: { inactive_3d: 0, inactive_7d: 0, streak_reminder: 0, almost_ready: 0, license_warning_12h: 0, license_warning_1h: 0 }
+  };
+
+  const runTasks = async () => {
+    console.log('[Notification CRON] Starting background tasks...');
+    try {
+      await sendInactivityReminders(supabase, 3, 'inactive_3d', results);
+      await sendInactivityReminders(supabase, 7, 'inactive_7d', results);
+      await sendStreakReminders(supabase, results);
+      await sendAlmostReadyReminders(supabase, results);
+      await sendLicensePointLossReminders(supabase, results);
+      console.log('[Notification CRON] Done:', results);
+    } catch (e) {
+      console.error('[Notification CRON] Background error:', e);
+    }
+  };
+
+  // Запускаем в фоне — GitHub Actions получает 200 немедленно и не таймаутит
+  if (typeof (globalThis as any).EdgeRuntime !== 'undefined') {
+    (globalThis as any).EdgeRuntime.waitUntil(runTasks());
+  } else {
+    runTasks(); // fallback для локального запуска
+  }
+
+  return new Response(
+    JSON.stringify({ ok: true, status: 'processing_started', ts: new Date().toISOString() }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } }
+  );
 });
 
 // =====================================================

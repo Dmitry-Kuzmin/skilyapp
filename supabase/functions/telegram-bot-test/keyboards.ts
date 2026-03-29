@@ -23,160 +23,27 @@ export type NotificationKeyboardState = {
 };
 
 // =====================================================
-// Главное меню
+// Главное меню (Modern 2025 - минимализм)
 // =====================================================
-export function getMainMenuKeyboard(lang: SupportedLanguage = 'ru', activeSeasonName: string | null = null): InlineKeyboardMarkup {
-  const rows = [
-    // Row 1: Главная кнопка — запуск приложения
-    [{
-      text: t('keyboard.openApp', lang),
-      web_app: { url: MINI_APP_URL },
-      icon_custom_emoji_id: '5188481279963715781'
-    }],
-    // Row 2: Профиль + Дуэли
-    [
-      { text: t('keyboard.profile', lang),  callback_data: 'profile',      icon_custom_emoji_id: '5105344272324887540' },
-      { text: t('keyboard.duels', lang),    callback_data: 'duels_menu',   icon_custom_emoji_id: '5116175844837950263' }
-    ],
-    // Row 3: Обучение + Премиум
-    [
-      { text: t('keyboard.learning', lang), callback_data: 'learning_menu', icon_custom_emoji_id: '5307495098613773492' },
-      { text: t('keyboard.premium', lang),  callback_data: 'premium_menu',  icon_custom_emoji_id: '5462902520215002477' }
-    ],
-    // Row 4: Помощь
-    [{ text: t('keyboard.help', lang), callback_data: 'help_menu', icon_custom_emoji_id: '5116368680279606270' }]
-  ];
-
-  // Row 5 (если активен сезон)
-  if (activeSeasonName) {
-    rows.push([{ text: activeSeasonName, callback_data: 'season_dashboard', icon_custom_emoji_id: '6005661956931850799' }]);
-  }
-
-  return { inline_keyboard: rows };
-}
-
-// =====================================================
-// Профиль — подменю
-// =====================================================
-export function getProfileKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: t('keyboard.statistics', lang), web_app: { url: `${MINI_APP_URL}/dashboard` }, icon_custom_emoji_id: '5190806721286657692' }],
-      [{ text: t('keyboard.achievements', lang), web_app: { url: `${MINI_APP_URL}/achievements` }, icon_custom_emoji_id: '5267500801240092311' }],
-      [{ text: t('keyboard.settings', lang), callback_data: 'settings', icon_custom_emoji_id: '4918408122868958076' }],
-      [{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]
-    ]
-  };
-}
-
-// =====================================================
-// Обучение — подменю
-// =====================================================
-export function getLearningKeyboard(lang: SupportedLanguage = 'ru', examUnlocked = false): InlineKeyboardMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: t('keyboard.randomTest', lang), callback_data: 'test_size_menu', icon_custom_emoji_id: '5123163417326126159' }],
-      [{
-        text: examUnlocked ? t('keyboard.examOpen', lang) : t('keyboard.examLocked', lang),
-        callback_data: examUnlocked ? 'exam_open' : 'exam_locked',
-        icon_custom_emoji_id: examUnlocked ? '5104960787579929462' : '4904500559203009298'
-      }],
-      [{ text: t('keyboard.aiAssistant', lang), web_app: { url: `${MINI_APP_URL}/ai` }, icon_custom_emoji_id: '5188481279963715781' }],
-      [{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]
-    ]
-  };
-}
-
-// =====================================================
-// Выбор размера теста
-// =====================================================
-export function getTestSizeKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
-  const q = lang === 'ru' ? 'вопросов' : lang === 'es' ? 'preguntas' : 'questions';
+export function getMainMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
   return {
     inline_keyboard: [
       [
-        { text: `10 ${q}`, callback_data: 'test_10' },
-        { text: `20 ${q}`, callback_data: 'test_20' },
-        { text: `30 ${q}`, callback_data: 'test_30' }
-      ],
-      [{ text: t('keyboard.backToLearning', lang), callback_data: 'learning_menu' }]
-    ]
-  };
-}
-
-// =====================================================
-// Дуэли — подменю
-// =====================================================
-export function getDuelsMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: t('keyboard.challengeFriend', lang), callback_data: 'duel_inline', icon_custom_emoji_id: '5116175844837950263' }],
-      [{ text: t('keyboard.randomBattle', lang), web_app: { url: `${MINI_APP_URL}/duels` }, icon_custom_emoji_id: '5118744200921219799' }],
-      [
-        { text: t('keyboard.duelPass', lang), web_app: { url: `${MINI_APP_URL}/duel-pass` }, icon_custom_emoji_id: '5118744200921219799' },
-        { text: t('keyboard.leaderboard', lang), web_app: { url: `${MINI_APP_URL}/leaderboard` }, icon_custom_emoji_id: '5267500801240092311' }
-      ],
-      [{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]
-    ]
-  };
-}
-
-// =====================================================
-// Премиум — подменю
-// =====================================================
-export function getPremiumKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: 'Telegram Stars', callback_data: 'pay_stars', icon_custom_emoji_id: '5267500801240092311' }],
-      [{ text: 'TON', web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` }, icon_custom_emoji_id: '5379773896352355687' }],
-      [{ text: lang === 'ru' ? 'Банковская карта' : lang === 'es' ? 'Tarjeta bancaria' : 'Bank Card', web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` }, icon_custom_emoji_id: '5472250091332993630' }],
-      [{ text: 'Crypto USDT', web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=premium` }, icon_custom_emoji_id: '5312441427764989435' }],
-      [{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]
-    ]
-  };
-}
-
-// =====================================================
-// Stars — тарифы (мгновенно, без запросов к API)
-// Цены захардкожены — при изменении обновить здесь
-// =====================================================
-const STARS_PRICES: Record<string, { stars: number; labelRu: string; labelEn: string; labelEs: string }> = {
-  monthly:   { stars: 660,  labelRu: '1 мес',   labelEn: '1 mo',    labelEs: '1 mes'   },
-  quarterly: { stars: 1650, labelRu: '3 мес',   labelEn: '3 mo',    labelEs: '3 meses' },
-  biannual:  { stars: 2650, labelRu: '6 мес',   labelEn: '6 mo',    labelEs: '6 meses' },
-  yearly:    { stars: 3990, labelRu: '1 год',   labelEn: '1 year',  labelEs: '1 año'   },
-};
-
-export function getStarsTiersKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
-  const label = (key: string) => {
-    const p = STARS_PRICES[key];
-    const name = lang === 'en' ? p.labelEn : lang === 'es' ? p.labelEs : p.labelRu;
-    return `${name} · ${p.stars} ⭐`;
-  };
-  return {
-    inline_keyboard: [
-      [
-        { text: label('monthly'),   callback_data: 'stars_monthly',   style: 'primary' },
-        { text: label('quarterly'), callback_data: 'stars_quarterly', style: 'primary' },
+        {
+          text: t('keyboard.openApp', lang),
+          web_app: { url: MINI_APP_URL },
+          // Bot API 7.0+ — анимированная ракета как иконка кнопки
+          icon_custom_emoji_id: '5408846744727334538'
+        }
       ],
       [
-        { text: label('biannual'),  callback_data: 'stars_biannual',  style: 'primary' },
-        { text: label('yearly'),    callback_data: 'stars_yearly',    style: 'success' },
-      ],
-      [{ text: t('keyboard.backToMenu', lang), callback_data: 'premium_menu' }]
-    ]
-  };
-}
-
-// =====================================================
-// Помощь — подменю
-// =====================================================
-export function getHelpKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: t('keyboard.documentation', lang), web_app: { url: `${MINI_APP_URL}/help` }, icon_custom_emoji_id: '5134469678214677470' }],
-      [{ text: t('keyboard.supportChat', lang), callback_data: 'support_chat', icon_custom_emoji_id: '5134472688986756318' }],
-      [{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]
+        { text: t('keyboard.profile', lang), callback_data: 'profile' },
+        {
+          text: t('keyboard.challengeFriend', lang),
+          callback_data: 'duel_inline',
+          icon_custom_emoji_id: '5368324170671202286'
+        }
+      ]
     ]
   };
 }

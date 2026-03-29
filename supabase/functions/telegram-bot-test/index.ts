@@ -33,7 +33,7 @@ console.log(`[Bot] MINI_APP_URL: ${MINI_APP_URL}`);
 serve(async (req) => {
   try {
     if (req.method === "GET") {
-      return new Response(JSON.stringify({ ok: true, bot: "SkilyBot" }), { headers: { "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ ok: true, bot: "SkilyBot", version: "2.0-ANIMATED" }), { headers: { "Content-Type": "application/json" } });
     }
 
     const update: TelegramUpdate = await req.json();
@@ -148,13 +148,14 @@ async function handleSuccessfulPayment(message: TelegramMessage) {
 
     // Отправляем пользователю сообщение об успехе
     if (message.chat?.id) {
+      const starEmoji = '<tg-emoji emoji-id="6005661956931850799">⭐️</tg-emoji>';
       await fetch(`${TELEGRAM_API}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           chat_id: message.chat.id,
-          text: `🎉 *Оплата успешна!*\n\nСпасибо за поддержку! Ваши награды уже начислены.\n\n⭐ Потрачено: ${payment.total_amount} Stars`,
-          parse_mode: 'Markdown',
+          text: `🎉 <b>Оплата успешна!</b>\n\nСпасибо за поддержку! Ваши награды уже начислены.\n\n${starEmoji} Потрачено: ${payment.total_amount} Stars`,
+          parse_mode: 'HTML',
         }),
       });
     }
@@ -220,9 +221,6 @@ async function handleMessage(message: TelegramMessage) {
         case "tips":
           await commands.handleTips(message, supabase);
           break;
-        case "checklist":
-          await commands.handleChecklist(message);
-          break;
         case "broadcast":
         case "post":
           await handleBroadcastCommand(message);
@@ -252,64 +250,6 @@ async function handleMessage(message: TelegramMessage) {
       }
     }
   } else if (text || message.photo) {
-    const ADMIN_CHAT_ID = 488159880; // @guapo_pub
-
-    // ── Если это ADMIN отвечает на сообщение с меткой — пересылаем юзеру ──
-    if (user.id === ADMIN_CHAT_ID && message.reply_to_message) {
-      const replyText = message.reply_to_message.text || message.reply_to_message.caption || '';
-      const match = replyText.match(/\[user_chat_id:(\d+)\]/);
-      if (match) {
-        const userChatId = parseInt(match[1]);
-        await fetch(`${TELEGRAM_API}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: userChatId,
-            text: `💬 <b>Поддержка Skily:</b>\n\n${text || ''}`,
-            parse_mode: 'HTML',
-            reply_markup: keyboards.getBackToMenuKeyboard('ru')
-          })
-        });
-        // Подтверждаем admin что ответ отправлен
-        await fetch(`${TELEGRAM_API}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: `✅ Ответ отправлен пользователю (${userChatId})` })
-        });
-        return;
-      }
-    }
-
-    // ── Проверяем support_mode — если включён, пересылаем в поддержку ──
-    try {
-      const { data: profile } = await supabase.from('profiles').select('settings').eq('telegram_id', user.id).maybeSingle();
-      const settings = (typeof profile?.settings === 'object' && profile?.settings) as Record<string, unknown> | null;
-      if (settings?.support_mode === true) {
-        const senderName = `${user.first_name || ''}${user.last_name ? ' ' + user.last_name : ''}`.trim() || 'User';
-        const username = user.username ? ` @${user.username}` : '';
-        const lang = await getUserLanguage(user.id, user.language_code, supabase);
-
-        // Сначала шлём метку с chat_id — admin будет отвечать именно на неё (reply)
-        await fetch(`${TELEGRAM_API}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: ADMIN_CHAT_ID,
-            text: `📩 <b>Вопрос в поддержку</b>\n👤 ${senderName}${username}\n\n<i>${text || '[фото/медиа]'}</i>\n\n<b>↩️ Ответь на это сообщение чтобы написать пользователю</b>\n[user_chat_id:${message.chat.id}]`,
-            parse_mode: 'HTML'
-          })
-        });
-
-        // Сбрасываем support_mode
-        const currentSettings = { ...settings, support_mode: false };
-        await supabase.from('profiles').update({ settings: currentSettings }).eq('telegram_id', user.id);
-        // Подтверждаем пользователю
-        await commands.sendMessage({ chat_id: message.chat.id, text: t('help.supportSent', lang), reply_markup: keyboards.getBackToMenuKeyboard(lang) });
-        return;
-      }
-    } catch (supportErr) {
-      console.error('[Support] Error:', supportErr);
-    }
     // Обработка не-команд или фото через AI
     console.log("[Message] Not a command or contains photo, calling AI...");
     try {
@@ -342,90 +282,16 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
 
     if (data === "main_menu") {
       const lang = await langPromise;
-      const { data: activeSeason } = await supabase.from('duel_pass_seasons').select('name_ru, name_en, name_es').eq('is_active', true).maybeSingle();
-      const activeSeasonName = activeSeason ? ((activeSeason as Record<string, string>)[`name_${lang}`] ?? activeSeason.name_ru) : null;
       await editMessage({
         chat_id: message.chat.id,
         message_id: message.message_id,
         text: lang === 'es' ? '🏠 Menú Principal' : lang === 'en' ? '🏠 Main Menu' : '🏠 Главное меню',
-        reply_markup: keyboards.getMainMenuKeyboard(lang, activeSeasonName)
+        reply_markup: keyboards.getMainMenuKeyboard(lang)
       });
     }
     else if (data === "profile") {
       const lang = await langPromise;
-      await showProfile(message.chat.id, user.id, lang, message.message_id);
-    }
-    // ── Обучение ──
-    else if (data === "learning_menu") {
-      const lang = await langPromise;
-      const { data: prof } = await supabase.from('profiles').select('id').eq('telegram_id', user.id).maybeSingle();
-      const { data: metrics } = prof ? await supabase.from('user_metrics').select('readiness_level').eq('user_id', prof.id).maybeSingle() : { data: null };
-      const examUnlocked = (metrics?.readiness_level ?? 0) >= 10;
-      await editMessage({
-        chat_id: message.chat.id,
-        message_id: message.message_id,
-        text: t('learning.title', lang),
-        parse_mode: 'HTML',
-        reply_markup: keyboards.getLearningKeyboard(lang, examUnlocked)
-      });
-    }
-    else if (data === "test_size_menu") {
-      const lang = await langPromise;
-      await editMessage({
-        chat_id: message.chat.id,
-        message_id: message.message_id,
-        text: t('learning.testSize', lang),
-        parse_mode: 'HTML',
-        reply_markup: keyboards.getTestSizeKeyboard(lang)
-      });
-    }
-    else if (data === "test_10" || data === "test_20" || data === "test_30") {
-      const count = data.replace('test_', '');
-      // Открываем mini app с нужным количеством вопросов
-      await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          callback_query_id: query.id,
-          url: `${MINI_APP_URL}/tests?mode=random&count=${count}`,
-        })
-      });
-      return;
-    }
-    else if (data === "exam_locked") {
-      const lang = await langPromise;
-      await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          callback_query_id: query.id,
-          text: t('learning.examLockedPopup', lang),
-          show_alert: true,
-        })
-      });
-      return;
-    }
-    else if (data === "exam_open") {
-      await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          callback_query_id: query.id,
-          url: `${MINI_APP_URL}/exam`,
-        })
-      });
-      return;
-    }
-    // ── Дуэли ──
-    else if (data === "duels_menu") {
-      const lang = await langPromise;
-      await editMessage({
-        chat_id: message.chat.id,
-        message_id: message.message_id,
-        text: t('duels.menuTitle', lang),
-        parse_mode: 'HTML',
-        reply_markup: keyboards.getDuelsMenuKeyboard(lang)
-      });
+      await showProfile(message.chat.id, user.id, lang);
     }
     else if (data === "duel_inline") {
       const lang = await langPromise;
@@ -437,48 +303,11 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         reply_markup: {
           inline_keyboard: [
             [{ text: t('keyboard.challengeFriend', lang), switch_inline_query: (lang === 'en' ? 'duel' : lang === 'es' ? 'duelo' : 'дуэль') }],
-            [{ text: t('keyboard.backToMenu', lang), callback_data: 'duels_menu' }]
+            [{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]
           ]
         }
       });
     }
-    // ── Премиум ──
-    else if (data === "premium_menu" || data === "payment_methods") {
-      const lang = await langPromise;
-      await editMessage({
-        chat_id: message.chat.id,
-        message_id: message.message_id,
-        text: t('premium.title', lang),
-        parse_mode: 'HTML',
-        reply_markup: keyboards.getPremiumKeyboard(lang)
-      });
-    }
-    // ── Помощь ──
-    else if (data === "help_menu") {
-      const lang = await langPromise;
-      await editMessage({
-        chat_id: message.chat.id,
-        message_id: message.message_id,
-        text: t('help.title', lang),
-        parse_mode: 'HTML',
-        reply_markup: keyboards.getHelpKeyboard(lang)
-      });
-    }
-    else if (data === "support_chat") {
-      const lang = await langPromise;
-      // Устанавливаем флаг support_mode в профиле
-      const { data: currentProfile } = await supabase.from('profiles').select('settings').eq('telegram_id', user.id).maybeSingle();
-      const currentSettings = (typeof currentProfile?.settings === 'object' && currentProfile?.settings) || {};
-      await supabase.from('profiles').update({ settings: { ...currentSettings, support_mode: true } }).eq('telegram_id', user.id);
-      await editMessage({
-        chat_id: message.chat.id,
-        message_id: message.message_id,
-        text: t('help.supportPrompt', lang),
-        parse_mode: 'HTML',
-        reply_markup: { inline_keyboard: [[{ text: t('keyboard.backToMenu', lang), callback_data: 'help_menu' }]] }
-      });
-    }
-    // ── Настройки ──
     else if (data === "settings") {
       const lang = await langPromise;
       await editMessage({
@@ -520,46 +349,11 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       });
     }
     else if (data === "pay_stars") {
-      // Мгновенно — никаких API-запросов, цены захардкожены
       const lang = await langPromise;
-      const titleText = lang === 'es'
-        ? '⭐ <b>Telegram Stars</b>\n\nElige tu plan Premium:'
-        : lang === 'en'
-        ? '⭐ <b>Telegram Stars</b>\n\nChoose your Premium plan:'
-        : '⭐ <b>Telegram Stars</b>\n\nВыбери тариф Premium:';
-      await editMessage({
-        chat_id: message.chat.id,
-        message_id: message.message_id,
-        text: titleText,
-        parse_mode: 'HTML',
-        reply_markup: keyboards.getStarsTiersKeyboard(lang)
-      });
-    }
-    // Выбор конкретного тарифа Stars — создаём 1 инвойс по клику
-    else if (data.startsWith("stars_")) {
-      const tier = data.replace("stars_", ""); // monthly | quarterly | biannual | yearly
-      const packageKey = `premium_${tier}`;
-      const lang = await langPromise;
+      // Получаем внутренний userId пользователя для привязки платежа
       const { data: profile } = await supabase.from("profiles").select("id").eq("telegram_id", user.id).maybeSingle();
-      try {
-        const resp = await fetch(`${SUPABASE_URL}/functions/v1/telegram-stars-payment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
-          body: JSON.stringify({ action: 'create_invoice', user_id: profile?.id || "", package_key: packageKey, telegram_user_id: user.id })
-        });
-        const result = await resp.json();
-        if (result.invoice_link) {
-          // Открываем инвойс через answerCallbackQuery url
-          await fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ callback_query_id: query.id, url: result.invoice_link })
-          });
-          return;
-        }
-      } catch (e) {
-        console.error('[Stars] Invoice create error:', e);
-      }
+      // Передаем message_id для замены текста сообщения (edit вместо send)
+      await sendStarsInvoice(message.chat.id, user.id, profile?.id || "", message.message_id, lang);
     }
     else if (data === "payment_methods") {
       const lang = await langPromise;
@@ -680,7 +474,7 @@ async function handleInlineQuery(query: TelegramInlineQuery) {
   }
 }
 
-async function showProfile(chatId: number, telegramId: number, lang: SupportedLanguage, messageId?: number) {
+async function showProfile(chatId: number, telegramId: number, lang: SupportedLanguage) {
   try {
     const { data: profile } = await supabase.from("profiles").select("id, first_name").eq("telegram_id", telegramId).maybeSingle();
     if (!profile) {
@@ -690,39 +484,22 @@ async function showProfile(chatId: number, telegramId: number, lang: SupportedLa
 
     const { data: metrics } = await supabase.from("user_metrics").select("*").eq("user_id", profile.id).maybeSingle();
     const userName = profile.first_name || "Pilot";
-    const readiness = Math.round(metrics?.readiness_level || 0);
+    const readiness = metrics?.readiness_level || 0;
     const streak = metrics?.streak_days || 0;
-    const tests = metrics?.total_tests_completed || 0;
-    const correct = metrics?.correct_answers || 0;
-    const total = metrics?.total_questions_answered || 0;
-    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
 
-    const text = `👤 <b>${t('profile.title', lang)}</b>\n\n<b>${userName}</b>\n\n🎯 ${t('profile.readiness', lang)}: <b>${readiness}%</b>\n🔥 ${t('profile.streak', lang)}: <b>${streak} ${getDaysWord(streak, lang)}</b>\n📋 ${lang === 'ru' ? 'Тестов пройдено' : lang === 'es' ? 'Tests completados' : 'Tests completed'}: <b>${tests}</b>\n✅ ${lang === 'ru' ? 'Точность' : lang === 'es' ? 'Precisión' : 'Accuracy'}: <b>${accuracy}%</b>\n\n<a href="${MINI_APP_URL}/dashboard">${t('profile.detailedStats', lang)}</a>`;
+    const text = `👤 <b>${t('profile.title', lang)}</b>\n\n<b>${userName}</b>\n🎯 ${t('profile.readiness', lang)}: ${readiness}%\n🔥 ${t('profile.streak', lang)}: ${streak} ${getDaysWord(streak, lang)}\n\n<a href="${MINI_APP_URL}/dashboard">${t('profile.detailedStats', lang)}</a>`;
 
-    const backKeyboard = keyboards.getProfileKeyboard(lang);
-
-    if (messageId) {
-      await editMessage({
+    await fetch(`${TELEGRAM_API}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         chat_id: chatId,
-        message_id: messageId,
         text,
         parse_mode: "HTML",
-        reply_markup: backKeyboard,
+        reply_markup: keyboards.getQuickMenuKeyboard(lang),
         disable_web_page_preview: true
-      });
-    } else {
-      await fetch(`${TELEGRAM_API}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text,
-          parse_mode: "HTML",
-          reply_markup: backKeyboard,
-          disable_web_page_preview: true
-        })
-      });
-    }
+      })
+    });
   } catch (error: unknown) {
     console.error("[Profile] Error showing profile:", error);
   }

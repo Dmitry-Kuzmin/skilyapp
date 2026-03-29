@@ -40,6 +40,15 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // Проверка авторизации (безопасность для публичного репо)
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader !== `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
 
     console.log('[EventDispatcher] 📥 New request:', {

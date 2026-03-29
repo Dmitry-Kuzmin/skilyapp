@@ -123,8 +123,17 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // Проверка авторизации (безопасность для публичного репо)
+  const authHeader = req.headers.get('Authorization');
+  if (authHeader !== `Bearer ${SUPABASE_SERVICE_KEY}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
-    const supabase = createPooledSupabaseClient();
+    const supabase = createPooledSupabaseClient(SUPABASE_SERVICE_KEY);
     const body: SendNotificationRequest = await req.json();
 
     console.log('[Notification Sender] Request:', {

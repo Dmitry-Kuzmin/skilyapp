@@ -156,10 +156,23 @@ const CTA_TEXTS: Record<string, Record<Lang, string>> = {
 // =====================================================
 
 serve(async (req) => {
-  try {
+  const authHeader = req.headers.get('Authorization');
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (authHeader !== `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Запускаем обработку в фоне, сразу возвращаем 200
+  // GitHub Actions не таймаутит, Supabase продолжает выполнение через waitUntil
+  const runBackground = async () => {
+    try {
     console.log('[DuelPass Reminders] Running...');
 
-    const supabase = createPooledSupabaseClient();
+    const supabase = createPooledSupabaseClient(SUPABASE_SERVICE_ROLE_KEY!);
     const now = new Date();
     const currentHour = now.getUTCHours();
 
@@ -323,12 +336,22 @@ serve(async (req) => {
     }
 
     console.log('[DuelPass Reminders] Results:', results);
-    return jsonResponse({ success: true, results });
+    } catch (error: any) {
+      console.error('[DuelPass Reminders] Fatal error:', error);
+    }
+  };
 
-  } catch (error: any) {
-    console.error('[DuelPass Reminders] Fatal error:', error);
-    return jsonResponse({ error: error.message }, 500);
+  // Запускаем в фоне — ответ уходит немедленно
+  if (typeof (globalThis as any).EdgeRuntime !== 'undefined') {
+    (globalThis as any).EdgeRuntime.waitUntil(runBackground());
+  } else {
+    runBackground();
   }
+
+  return new Response(
+    JSON.stringify({ ok: true, status: 'processing_started', ts: new Date().toISOString() }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } }
+  );
 });
 
 // =====================================================

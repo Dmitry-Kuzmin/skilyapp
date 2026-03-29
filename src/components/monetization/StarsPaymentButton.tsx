@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Star } from 'lucide-react';
+import { Sparkles, Star, Loader2 } from 'lucide-react';
 import { getTelegramWebApp, isTelegramMiniApp } from '@/lib/telegram';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 import { toast } from '@/lib/toast';
 
 interface StarsPaymentButtonProps {
@@ -221,21 +222,24 @@ export function StarsPaymentButton({
         handlePurchase();
       }}
       disabled={loading}
-      className={className}
-      variant={variant}
+      className={cn(
+        "relative overflow-hidden transition-all duration-300 active:scale-95 shadow-lg",
+        "bg-gradient-to-r from-[#FFD700] via-[#FFCC00] to-[#FFA500] hover:from-[#FFE44D] hover:to-[#FFB733]",
+        "text-black font-extrabold border-none",
+        "shadow-yellow-500/20 hover:shadow-yellow-500/40",
+        className
+      )}
+      variant={variant === 'outline' ? 'default' : variant}
       size={size}
     >
       {loading ? (
-        <svg className="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
+        <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
         <>
-          <Sparkles className="w-4 h-4 mr-1.5" />
-          <span className="flex items-center gap-1">
+          <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
+          <span className="flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
             Оплатить {starsAmount}
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+            <Star className="w-4 h-4 fill-black text-black" />
           </span>
         </>
       )}

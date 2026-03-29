@@ -30,6 +30,56 @@ npm run generate:images             # Batch generate question images via AI
 
 **Do not modify:** `package.json`, `vite.config.ts`, `tsconfig.json` — these are locked per `.cursorrules`.
 
+## 🤖 Telegram Bot — ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА
+
+### Файлы бота
+```
+supabase/functions/telegram-bot/
+  index.ts        — webhook handler, роутинг всех обновлений
+  keyboards.ts    — ВСЕ inline-клавиатуры. ВСЕГДА импортировать InlineKeyboardButton и InlineKeyboardMarkup из ./types.ts
+  commands.ts     — обработчики команд (/start, /stats, /help, ...)
+  translations.ts — переводы ru/en/es. Добавлять ключ ДО использования в keyboards.ts
+  types.ts        — TypeScript типы. НЕ редактировать вручную
+  season.ts       — логика сезонов Duel Pass
+```
+
+### КРИТИЧНО: После любых изменений в боте — ВСЕГДА деплоить
+```bash
+export PATH="/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:$PATH"
+/opt/homebrew/bin/supabase functions deploy telegram-bot
+```
+**Без деплоя изменения не применяются.** Локальный git ≠ продакшн.
+
+### Структура главного меню (getMainMenuKeyboard)
+```
+Row 1: [🚀 Открыть Skily]          ← web_app, icon: 5188481279963715781
+Row 2: [👤 Профиль] [⚔️ Вызвать]  ← callback: profile / duel_inline
+Row 3: [🎮 Duel Pass]              ← web_app → /duel-pass, icon: 5118744200921219799
+Row 4: [🏎 Сезон: NAME]            ← только если activeSeasonName != null
+```
+
+### Иконки кнопок (icon_custom_emoji_id)
+- `5188481279963715781` — ракета (Открыть Skily)
+- `5105344272324887540` — лицо/профиль (Профиль)
+- `5116175844837950263` — Вызвать друга
+- `5118744200921219799` — Duel Pass
+- `6005661956931850799` — золотая звезда (Сезон)
+
+### Доступ к БД (без пароля, через linked project)
+```bash
+export PATH="/opt/homebrew/bin:$PATH"
+./scripts/db.sh "SELECT * FROM profiles LIMIT 5"
+./scripts/db.sh profiles              # таблица целиком (20 строк)
+./scripts/db.sh tables                # список всех таблиц
+/opt/homebrew/bin/supabase db query "SQL" --linked
+```
+
+### Project info
+- Project ref: `yffjnqegeiorunyvcxkn`
+- URL: `https://yffjnqegeiorunyvcxkn.supabase.co`
+- Bot: `@skilyapp_bot` (telegram_id: 8526928539)
+- Mini App URL: `https://skilyapp.com`
+
 **Safe to modify:** `components/`, `pages/`, `hooks/`, `contexts/`, `lib/`, `utils/`, `types/`, `integrations/`, `core/`, `data/`, `supabase/`.
 
 ## Architecture

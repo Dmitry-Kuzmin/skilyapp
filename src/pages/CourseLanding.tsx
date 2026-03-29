@@ -31,18 +31,20 @@ import { cn } from "@/lib/utils";
 /* ─────────────────────────────────────────────
    Scroll-reveal hook (IntersectionObserver)
    ───────────────────────────────────────────── */
-function useReveal(threshold = 0.15) {
+function useReveal(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // Fallback: force visible after 1.5s in case IntersectionObserver doesn't fire
+    const fallback = setTimeout(() => setVisible(true), 1500);
     const io = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); io.disconnect(); } },
-      { threshold }
+      ([e]) => { if (e.isIntersecting) { setVisible(true); io.disconnect(); clearTimeout(fallback); } },
+      { threshold, rootMargin: "0px 0px 100px 0px" }
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => { io.disconnect(); clearTimeout(fallback); };
   }, [threshold]);
   return { ref, visible };
 }
