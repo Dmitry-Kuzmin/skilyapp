@@ -1139,7 +1139,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20">
                 <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">
-                  {language === 'ru' ? 'НОВЫЙ СЕЗОН СТАРТУЕТ ЧЕРЕЗ 5 ДНЕЙ' : 'NEW SEASON STARTS IN 5 DAYS'}
+                  {effectiveLanguage === 'ru' ? 'НОВЫЙ СЕЗОН СТАРТУЕТ ЧЕРЕЗ 5 ДНЕЙ' : 'NEW SEASON STARTS IN 5 DAYS'}
                 </span>
               </div>
             </div>
