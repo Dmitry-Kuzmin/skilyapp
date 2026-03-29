@@ -30,44 +30,103 @@ const getCloudStorage = () => (window as any).Telegram?.WebApp?.CloudStorage;
 
 /**
  * Promisified wrapper around Telegram CloudStorage API
+ * CRITICAL: Add timeouts because CloudStorage callbacks might never fire in Mini App
  */
+const CLOUD_TIMEOUT = 3000; // 3 second timeout for each operation
+
 const cloudGet = (key: string): Promise<string | null> => {
-    return new Promise((resolve) => {
-        try {
-            const cs = getCloudStorage();
-            if (!cs) { resolve(null); return; }
-            cs.getItem(TC_PREFIX + key, (err: any, value: string) => {
-                if (err) { resolve(null); return; }
-                resolve(value || null);
-            });
-        } catch {
-            resolve(null);
-        }
-    });
+    return Promise.race([
+        new Promise<string | null>((resolve) => {
+            try {
+                const cs = getCloudStorage();
+                if (!cs) {
+                    console.log('[TON Storage] CloudStorage not available for get');
+                    resolve(null);
+                    return;
+                }
+                cs.getItem(TC_PREFIX + key, (err: any, value: string) => {
+                    if (err) {
+                        console.warn('[TON Storage] CloudGet error:', err);
+                        resolve(null);
+                        return;
+                    }
+                    resolve(value || null);
+                });
+            } catch (e) {
+                console.error('[TON Storage] CloudGet exception:', e);
+                resolve(null);
+            }
+        }),
+        // Timeout fallback
+        new Promise<string | null>((resolve) => {
+            setTimeout(() => {
+                console.warn(`[TON Storage] CloudGet timeout after ${CLOUD_TIMEOUT}ms`);
+                resolve(null);
+            }, CLOUD_TIMEOUT);
+        }),
+    ]);
 };
 
 const cloudSet = (key: string, value: string): Promise<void> => {
-    return new Promise((resolve) => {
-        try {
-            const cs = getCloudStorage();
-            if (!cs) { resolve(); return; }
-            cs.setItem(TC_PREFIX + key, value, () => resolve());
-        } catch {
-            resolve();
-        }
-    });
+    return Promise.race([
+        new Promise<void>((resolve) => {
+            try {
+                const cs = getCloudStorage();
+                if (!cs) {
+                    console.log('[TON Storage] CloudStorage not available for set');
+                    resolve();
+                    return;
+                }
+                cs.setItem(TC_PREFIX + key, value, (err: any) => {
+                    if (err) {
+                        console.warn('[TON Storage] CloudSet error:', err);
+                    }
+                    resolve();
+                });
+            } catch (e) {
+                console.error('[TON Storage] CloudSet exception:', e);
+                resolve();
+            }
+        }),
+        // Timeout fallback
+        new Promise<void>((resolve) => {
+            setTimeout(() => {
+                console.warn(`[TON Storage] CloudSet timeout after ${CLOUD_TIMEOUT}ms`);
+                resolve();
+            }, CLOUD_TIMEOUT);
+        }),
+    ]);
 };
 
 const cloudRemove = (key: string): Promise<void> => {
-    return new Promise((resolve) => {
-        try {
-            const cs = getCloudStorage();
-            if (!cs) { resolve(); return; }
-            cs.removeItem(TC_PREFIX + key, () => resolve());
-        } catch {
-            resolve();
-        }
-    });
+    return Promise.race([
+        new Promise<void>((resolve) => {
+            try {
+                const cs = getCloudStorage();
+                if (!cs) {
+                    console.log('[TON Storage] CloudStorage not available for remove');
+                    resolve();
+                    return;
+                }
+                cs.removeItem(TC_PREFIX + key, (err: any) => {
+                    if (err) {
+                        console.warn('[TON Storage] CloudRemove error:', err);
+                    }
+                    resolve();
+                });
+            } catch (e) {
+                console.error('[TON Storage] CloudRemove exception:', e);
+                resolve();
+            }
+        }),
+        // Timeout fallback
+        new Promise<void>((resolve) => {
+            setTimeout(() => {
+                console.warn(`[TON Storage] CloudRemove timeout after ${CLOUD_TIMEOUT}ms`);
+                resolve();
+            }, CLOUD_TIMEOUT);
+        }),
+    ]);
 };
 
 export class TonCloudStorage implements IStorage {
