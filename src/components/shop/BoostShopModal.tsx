@@ -1238,10 +1238,6 @@ export function BoostShopModal({
       }
     };
 
-    // Ref для отслеживания открытия модали (чтобы не зацикливаться)
-    const modalWasOpenedRef = useRef(false);
-    modalWasOpenedRef.current = false;
-
     // Wait for session restoration
     await tonConnectionRestored;
 
