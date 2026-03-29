@@ -22,15 +22,24 @@ export function TonAddressProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (!tonConnectUI) return;
 
+        let lastAddr: string | null = null;
+
         // Reactive sync with wallet events
+        // CRITICAL: Only update if address actually changed to prevent rapid reconnect loops
         const unsubscribe = tonConnectUI.onStatusChange((wallet) => {
             const newAddr = wallet?.account?.address || null;
-            console.log(`[TonAddressContext] 🔄 Status Changed:`, {
-                connected: !!wallet,
-                address: newAddr,
-                platform: (window as any).Telegram?.WebApp?.platform || 'unknown'
-            });
-            setAddress(newAddr);
+
+            // Only log and update if address actually changed
+            if (newAddr !== lastAddr) {
+                console.log(`[TonAddressContext] 🔄 Status Changed:`, {
+                    connected: !!wallet,
+                    address: newAddr,
+                    platform: (window as any).Telegram?.WebApp?.platform || 'unknown',
+                    wasAddress: lastAddr
+                });
+                lastAddr = newAddr;
+                setAddress(newAddr);
+            }
         });
 
         // Forced refresh when returning to tab or app
