@@ -601,7 +601,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                     <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-                      {language === 'ru' ? 'Партнер' : language === 'es' ? 'Socio' : 'Partner'}
+                      {effectiveLanguage === 'ru' ? 'Партнер' : effectiveLanguage === 'es' ? 'Socio' : 'Partner'}
                     </span>
                   </div>
                   <h3 className="text-lg md:text-xl font-black text-white mb-1.5 leading-tight">
