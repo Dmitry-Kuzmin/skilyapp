@@ -1456,9 +1456,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 <LandingLogo theme="dark" variant="footer" />
               </div>
               <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-                {language === 'ru' ?
+                {effectiveLanguage === 'ru' ?
                   'Первая в мире платформа подготовки водителей с искусственным интеллектом, геймификацией и PvP-дуэлями.' :
-                  language === 'es' ?
+                  effectiveLanguage === 'es' ?
                     'La primera plataforma de formación vial del mundo con inteligencia artificial, gamificación y duelos PvP.' :
                     'The world\'s first driver training platform with artificial intelligence, gamification and PvP duels.'
                 }
