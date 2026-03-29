@@ -55,6 +55,7 @@ import { examYear } from "@/utils/dateUtils";
 import {
   landingTranslations,
   LANGUAGE_OPTIONS,
+  SPAIN_LANGUAGE_OPTIONS,
 } from "@/translations/landing";
 
 const DEMO_VARIANTS = {
