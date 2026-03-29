@@ -1148,6 +1148,7 @@ export function BoostShopModal({
 
     try {
       console.log("[TON] Opening wallet connection modal...");
+
       // Set timeout - if modal doesn't resolve in 45 seconds, close it
       timeoutHandle = setTimeout(() => {
         console.warn("[TON] Modal timeout - closing modal");
@@ -1156,8 +1157,40 @@ export function BoostShopModal({
         tonConnectUI.closeModal?.();
       }, 45000);
 
+      // Listen for app regaining focus after external wallet app
+      const handleFocus = () => {
+        console.log("[TON] App regained focus from external wallet");
+        // Check if wallet got connected during the external app
+        if (tonConnectUI.wallet && !modalDismissed) {
+          console.log("[TON] Wallet connected while in external app");
+          unsub(); // Stop listening to modal changes
+          modalDismissed = true;
+          if (timeoutHandle) clearTimeout(timeoutHandle);
+          setTimeout(() => doTransfer(), 100); // Small delay to ensure bridge is ready
+        }
+      };
+
+      const handleVisibility = () => {
+        if (document.visibilityState === 'visible') {
+          console.log("[TON] Document visibility changed to visible");
+          handleFocus();
+        }
+      };
+
+      window.addEventListener('focus', handleFocus);
+      document.addEventListener('visibilitychange', handleVisibility);
+
+      // Telegram Mini App event
+      if ((window as any).Telegram?.WebApp?.onEvent) {
+        (window as any).Telegram.WebApp.onEvent('activated', handleFocus);
+      }
+
       await tonConnectUI.openModal();
       console.log("[TON] Modal closed");
+
+      // Cleanup listeners
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
 
       // If we get here and wallet wasn't selected, show error
       if (!modalDismissed) {
