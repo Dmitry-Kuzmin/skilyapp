@@ -304,53 +304,53 @@ export function PaymentSelectorModal({
         </div>
       </ResponsiveModal>
 
-      {/* Step 2: Fullscreen Cryptomus overlay (no modal wrapper) */}
-      {step === 'cryptomus' && cryptomusData && createPortal(
-        <div className="fixed inset-0 z-[100000] bg-black flex flex-col" style={{ paddingTop: 'var(--app-content-top, env(safe-area-inset-top))', paddingBottom: 'var(--app-safe-bottom, env(safe-area-inset-bottom))' }}>
-          {/* Top bar */}
-          <div className="flex items-center justify-between px-4 py-3 bg-black/90 shrink-0">
-            <button
-              onClick={() => { setStep('select'); setPaymentStatus('pending'); }}
-              className="flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              {t('common.back') || 'Назад'}
-            </button>
-
-            {paymentStatus === 'completed' ? (
-              <div className="flex items-center gap-1.5 text-xs text-green-400 font-medium">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                {t('cryptomusPayment.paymentCompleted') || 'Оплачено!'}
-              </div>
-            ) : paymentStatus === 'checking' ? (
-              <div className="flex items-center gap-1.5 text-xs text-white/50">
-                <RefreshCw className="h-3 w-3 animate-spin" />
-                {t('cryptomusPayment.checkingStatus') || 'Проверяем...'}
-              </div>
-            ) : null}
-
-            <button
-              onClick={() => { setStep('select'); setPaymentStatus('pending'); onOpenChange(false); }}
-              className="p-1.5 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Fullscreen iframe */}
-          <div className="flex-1 relative">
+      {/* Step 2: Cryptomus in Modal (not fullscreen) */}
+      <ResponsiveModal
+        open={open && step === 'cryptomus' && !!cryptomusData}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) {
+            setStep('select');
+            setPaymentStatus('pending');
+          }
+        }}
+        title="Cryptocurrency Payment"
+        description={cryptomusData?.itemName}
+        className="max-w-2xl"
+      >
+        <div className="relative w-full h-[600px]">
+          {cryptomusData && (
             <iframe
               src={cryptomusData.paymentUrl}
-              className="absolute inset-0 w-full h-full border-0"
+              className="absolute inset-0 w-full h-full border-0 rounded-lg"
               allow="payment; clipboard-write"
               title="Cryptomus Payment"
             />
-            {/* Left edge swipe-back zone */}
-            <SwipeBackZone onSwipeBack={() => { setStep('select'); setPaymentStatus('pending'); }} />
-          </div>
-        </div>,
-        document.body
-      )}
+          )}
+
+          {/* Status overlay */}
+          {paymentStatus === 'completed' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-lg">
+              <div className="flex flex-col items-center gap-3 text-center">
+                <CheckCircle2 className="h-12 w-12 text-green-400" />
+                <div className="text-sm font-semibold text-green-400">
+                  {t('cryptomusPayment.paymentCompleted') || 'Оплачено!'}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {paymentStatus === 'checking' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm rounded-lg">
+              <div className="flex flex-col items-center gap-3">
+                <RefreshCw className="h-8 w-8 text-white/70 animate-spin" />
+                <div className="text-xs text-white/70">
+                  {t('cryptomusPayment.checkingStatus') || 'Проверяем статус...'}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </ResponsiveModal>
     </>
   );
 }
