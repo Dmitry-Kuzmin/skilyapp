@@ -76,6 +76,14 @@ export interface LandingCopy {
       description: string;
     }>;
   };
+  liveClass: {
+    badge: string;
+    title: string;
+    description: string;
+    schedule: string;
+    features: string[];
+    cta: string;
+  };
   pricing: {
     title: string;
     description: string;
