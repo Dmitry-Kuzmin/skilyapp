@@ -14,6 +14,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   language,
   onSelect,
   label,
+  options = LANGUAGE_OPTIONS,
 }) => {
   const [open, setOpen] = React.useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
