@@ -59,21 +59,35 @@ export const TonWalletHeader: React.FC = () => {
     }, [savedAddress, liveAddress]);
 
     // Timeout: if TonConnect doesn't restore within 15s, stop showing spinner
+    // CRITICAL FIX: Don't set timeout multiple times or it creates reconnect loop
     useEffect(() => {
-        if (!savedAddress || liveAddress) {
-            if (liveAddress) setRestoreTimedOut(false);
+        // If wallet just connected (liveAddress appeared), clear timeout
+        if (liveAddress) {
+            setRestoreTimedOut(false);
             return;
         }
-        
-        // Increased timeout to 15s for better reliability on mobile networks
+
+        // If no saved address, nothing to restore
+        if (!savedAddress) {
+            setRestoreTimedOut(false);
+            return;
+        }
+
+        // Only set timer if we have a saved address but no live connection
+        console.log('[TON] Starting restoration timeout (15s)', { savedAddress });
         const timer = setTimeout(() => {
-            if (!liveAddress) {
-                console.warn('[TON] Restoration timed out after 15s');
-                setRestoreTimedOut(true);
-            }
-        }, 15000); 
-        
-        return () => clearTimeout(timer);
+            // Only mark as timed out if still no live address
+            setRestoreTimedOut(prev => {
+                if (!prev) {
+                    console.warn('[TON] Restoration timed out after 15s');
+                }
+                return true;
+            });
+        }, 15000);
+
+        return () => {
+            clearTimeout(timer);
+        };
     }, [savedAddress, liveAddress]);
 
     // Close menu on outside click
