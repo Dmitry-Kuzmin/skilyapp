@@ -2596,11 +2596,26 @@ export function BoostShopModal({
             </ResponsiveModal>
           );
         })()}
-      {/* Fullscreen Paddle checkout portal */}
-      {paddleCheckoutUrl && createPortal(
-        <PaddleFullscreenCheckout url={paddleCheckoutUrl} onClose={() => setPaddleCheckoutUrl(null)} />,
-        document.body
-      )}
+      {/* Paddle checkout modal */}
+      <ResponsiveModal
+        open={!!paddleCheckoutUrl}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setPaddleCheckoutUrl(null);
+        }}
+        title="Bank Card Payment"
+        className="max-w-2xl"
+      >
+        {paddleCheckoutUrl && (
+          <div className="relative w-full h-[600px]">
+            <iframe
+              src={paddleCheckoutUrl}
+              className="absolute inset-0 w-full h-full border-0 rounded-lg"
+              allow="payment"
+              title="Paddle Checkout"
+            />
+          </div>
+        )}
+      </ResponsiveModal>
     </>
   );
 }
