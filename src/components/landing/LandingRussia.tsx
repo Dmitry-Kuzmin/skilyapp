@@ -681,7 +681,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                     {referrerInfo.first_name} {copy.referral.invitesYou}
                   </h3>
                   <p className="text-sm md:text-base text-slate-300">
-                    <span className="font-bold text-indigo-400">+50 {language === 'ru' ? 'монет' : language === 'es' ? 'monedas' : 'coins'}</span> {copy.referral.coinsOnRegistration}
+                    <span className="font-bold text-indigo-400">+50 {effectiveLanguage === 'ru' ? 'монет' : effectiveLanguage === 'es' ? 'monedas' : 'coins'}</span> {copy.referral.coinsOnRegistration}
                   </p>
                 </div>
               </div>
