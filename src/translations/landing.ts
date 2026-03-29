@@ -293,18 +293,18 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       ],
     },
     liveClass: {
-      badge: "Cursos en vivo",
-      title: "Aprende con instructor en directo",
-      description: "Sesiones interactivas 2 veces por semana con un profesor certificado. Resuelve dudas en tiempo real y acelera tu aprendizaje.",
+      badge: "🔴 CLASES EN VIVO",
+      title: "Aprende en directo",
+      description: "Sesiones interactivas 2 veces por semana en vivo con el instructor. Resuelve dudas en tiempo real, domina los temas complejos y acelera tu preparación. Primera clase el primer martes del mes.",
       schedule: "Martes y jueves • 19:00 CET",
       features: [
-        "Clases en directo 2x/semana",
-        "Profesor certificado DGT",
-        "Resuelve dudas en tiempo real",
-        "Acceso a grabaciones",
-        "Material descargable"
+        "Transmisión en directo 2x/semana",
+        "Preguntas y respuestas interactivas",
+        "Análisis de exámenes reales del DGT",
+        "Acceso vitalicio a las grabaciones",
+        "PDFs y materiales descargables"
       ],
-      cta: "Inscribirse al curso"
+      cta: "Únete en Telegram"
     },
     pricing: {
       title: "Elige tu plan",
