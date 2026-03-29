@@ -455,7 +455,18 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
     }
   }, [referrerInfo?.photo_url, referrerInfo]);
   const navigate = useNavigate();
-  const copy = landingTranslations[language];
+
+  // KRITIKO: Spain landing ВСЕГДА показывает EUR, независимо от языка
+  // Если выбран Russian (ru) → переключаем на Spanish (es)
+  const effectiveLanguage = (language === 'ru' ? 'es' : language) as Language;
+  React.useEffect(() => {
+    if (language === 'ru') {
+      setLanguage('es');
+      console.log('[LandingSpain] Switched to ES (EUR prices only)');
+    }
+  }, [language, setLanguage]);
+
+  const copy = landingTranslations[effectiveLanguage];
 
 
   const handleStartEngine = () => {
