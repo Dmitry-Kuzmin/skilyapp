@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { motion } from "framer-motion";
+import { TestimonialsColumn } from "@/components/ui/testimonials-columns";
 import {
   CheckCircle2,
   Globe,
@@ -9,7 +11,6 @@ import {
   Zap,
   MessageCircle,
   Shield,
-  Star,
   ChevronDown,
   ArrowRight,
   ArrowDown,
@@ -235,24 +236,64 @@ const FAQ_DATA = [
 
 const TESTIMONIALS = [
   {
-    name: "Анна К.",
-    city: "Барселона",
-    text: "Сдала теорию с первой попытки! До курса даже не понимала, как записаться на экзамен. Всё разложили по полочкам.",
-    rating: 5,
+    text: "Три раза подходила к экзамену с книжкой на испанском — не понимала ничего. Тут прошла за 5 недель и с первого раза. Даже не верится.",
+    image: "https://randomuser.me/api/portraits/women/44.jpg",
+    name: "Ольга Семёнова",
+    role: "Барселона · домохозяйка",
   },
   {
-    name: "Михаил Д.",
-    city: "Мадрид",
-    text: "Пробовал готовиться сам — завалил 2 раза. После курса — сдал на 29/30. Реально работает система.",
-    rating: 5,
+    text: "Работаю в стройке, времени нет вообще. Учился по 15-20 минут в обед со смартфона. Сдал. Куратор реально помог с бумагами в DGT.",
+    image: "https://randomuser.me/api/portraits/men/32.jpg",
+    name: "Виктор Лученко",
+    role: "Мадрид · строитель",
   },
   {
-    name: "Елена В.",
-    city: "Валенсия",
-    text: "Больше всего ценю поддержку куратора. Перед экзаменом были вопросы — получила ответ за 5 минут.",
-    rating: 5,
+    text: "Я уже 54 и боялась, что мозг не потянет. Всё объяснено так просто, что даже страхи ушли. Сдала с 28 правильными из 30.",
+    image: "https://randomuser.me/api/portraits/women/62.jpg",
+    name: "Наталья Воронцова",
+    role: "Аликанте · пенсионерка",
+  },
+  {
+    text: "Я студент, денег в обрез. Автошкола просила 280€ только за теорию. Тут заплатил в 10 раз меньше и сдал лучше, чем те, кто ходил на курсы.",
+    image: "https://randomuser.me/api/portraits/men/18.jpg",
+    name: "Артём Ковалёв",
+    role: "Валенсия · студент",
+  },
+  {
+    text: "Переехала с двумя детьми, муж в командировках. Без прав — как без рук. Спасибо, что есть поддержка на русском, прям выдыхаешь.",
+    image: "https://randomuser.me/api/portraits/women/29.jpg",
+    name: "Марина Фёдорова",
+    role: "Малага · мама в декрете",
+  },
+  {
+    text: "Права с Украины не меняют. Пришлось сдавать с нуля в 38 лет. Честно, думал всё — провалюсь. Но нет, с первого раза. Система работает.",
+    image: "https://randomuser.me/api/portraits/men/41.jpg",
+    name: "Олег Бондаренко",
+    role: "Бильбао · инженер",
+  },
+  {
+    text: "Испанский у меня так себе. Но экзамен сдала на испанском — потому что учила именно те слова из вопросов, а не грамматику. Спасибо за точность.",
+    image: "https://randomuser.me/api/portraits/women/11.jpg",
+    name: "Светлана Журавлёва",
+    role: "Севилья · переводчик",
+  },
+  {
+    text: "Открываю свой бизнес, нужно ездить к клиентам. Прошёл курс параллельно с работой, никаких офлайн прогулок в автошколу не потребовалось.",
+    image: "https://randomuser.me/api/portraits/men/55.jpg",
+    name: "Дмитрий Прохоров",
+    role: "Мадрид · предприниматель",
+  },
+  {
+    text: "Мне 22, сдала первый раз — вроде норм. Но главное — не надо было платить автошколе. Всё ясно, быстро, без воды. Рекомендую девчонкам.",
+    image: "https://randomuser.me/api/portraits/women/22.jpg",
+    name: "Катя Миронова",
+    role: "Барселона · официантка",
   },
 ];
+
+const testimonialsCol1 = TESTIMONIALS.slice(0, 3);
+const testimonialsCol2 = TESTIMONIALS.slice(3, 6);
+const testimonialsCol3 = TESTIMONIALS.slice(6, 9);
 
 /* ─────────────────────────────────────────────
    SECTION WRAPPER with reveal animation
@@ -690,43 +731,39 @@ const CourseLanding = () => {
       </Section>
 
       {/* ═══════════════════════════════════════════
-          BLOCK 7: TESTIMONIALS
+          BLOCK 7: TESTIMONIALS (animated columns)
           ═══════════════════════════════════════════ */}
-      <Section className="max-w-5xl mx-auto px-4 py-24">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/15 text-yellow-400 text-xs font-medium uppercase tracking-wider mb-6">
-            Отзывы
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-bold">
-            Наши ученики уже за рулём
-          </h2>
+      <section className="relative py-24 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-yellow-500/[0.03] rounded-full blur-[140px]" />
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-5">
-          {TESTIMONIALS.map((t) => (
-            <GlowCard key={t.name} className="p-6 hover:border-yellow-500/15 transition-all">
-              {/* Stars */}
-              <div className="flex items-center gap-0.5 mb-5">
-                {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <p className="text-sm text-zinc-300 leading-relaxed mb-6 italic">
-                &laquo;{t.text}&raquo;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-white/[0.1] flex items-center justify-center text-sm font-bold text-blue-300">
-                  {t.name.charAt(0)}
-                </div>
-                <div>
-                  <div className="text-sm font-medium">{t.name}</div>
-                  <div className="text-xs text-zinc-500">{t.city}</div>
-                </div>
-              </div>
-            </GlowCard>
-          ))}
+        <div className="relative max-w-5xl mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true }}
+            className="text-center mb-14"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/15 text-yellow-400 text-xs font-medium uppercase tracking-wider mb-6">
+              Отзывы
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-bold mb-3">
+              Наши ученики уже за рулём
+            </h2>
+            <p className="text-zinc-500 text-sm max-w-md mx-auto">
+              Реальные люди из разных городов Испании — разный возраст, разные обстоятельства, один результат.
+            </p>
+          </motion.div>
+
+          <div className="flex justify-center gap-5 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)] max-h-[680px] overflow-hidden">
+            <TestimonialsColumn testimonials={testimonialsCol1} duration={18} />
+            <TestimonialsColumn testimonials={testimonialsCol2} duration={22} className="hidden md:block" />
+            <TestimonialsColumn testimonials={testimonialsCol3} duration={16} className="hidden lg:block" />
+          </div>
         </div>
-      </Section>
+      </section>
 
       {/* ═══════════════════════════════════════════
           BLOCK 8: FAQ
