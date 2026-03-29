@@ -1130,23 +1130,42 @@ export function BoostShopModal({
     }
 
     // Not connected even after restoration — open connect modal
+    let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
+    let modalDismissed = false;
+
     const unsub = tonConnectUI.onStatusChange((w) => {
+      if (timeoutHandle) clearTimeout(timeoutHandle);
       if (w) {
         unsub();
-        console.log("[TON] Connected! Wallet:", w.account?.address);
-        console.log("[TON] Sending tx in 500ms...");
-        setTimeout(() => doTransfer(), 500);
+        modalDismissed = true;
+        console.log("[TON] ✅ Connected! Wallet:", w.account?.address);
+        console.log("[TON] Sending transaction...");
+        doTransfer();
       } else {
-        console.log("[TON] Wallet disconnected during modal");
+        console.log("[TON] ⚠️ Wallet disconnected during modal");
       }
     });
 
     try {
       console.log("[TON] Opening wallet connection modal...");
+      // Set timeout - if modal doesn't resolve in 45 seconds, close it
+      timeoutHandle = setTimeout(() => {
+        console.warn("[TON] Modal timeout - closing modal");
+        modalDismissed = true;
+        unsub();
+        tonConnectUI.closeModal?.();
+      }, 45000);
+
       await tonConnectUI.openModal();
       console.log("[TON] Modal closed");
+
+      // If we get here and wallet wasn't selected, show error
+      if (!modalDismissed) {
+        console.log("[TON] No wallet was selected in modal");
+      }
     } catch (e) {
-      console.error('[TON] Modal prompt error:', e);
+      console.error('[TON] Modal error:', e);
+      if (timeoutHandle) clearTimeout(timeoutHandle);
       unsub();
     }
   }, [selectedPack]);
