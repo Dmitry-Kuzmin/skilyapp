@@ -458,7 +458,40 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
 
   // Language is now forced by Landing.tsx based on selectedCountry
   // LandingSpain will always get 'es' language set by parent Landing component
-  const copy = landingTranslations[language];
+  let copy = landingTranslations[language];
+
+  // Override pricing for Spain landing: ALWAYS use EUR regardless of language
+  copy = {
+    ...copy,
+    pricing: {
+      ...copy.pricing,
+      plans: {
+        cadet: {
+          ...copy.pricing.plans.cadet,
+        },
+        monthly: {
+          ...copy.pricing.plans.monthly,
+          price: "€9.99",
+          note: "/month",
+        },
+        quarterly: {
+          ...copy.pricing.plans.quarterly,
+          price: "€24.99",
+          note: "/3 months",
+        },
+        biannual: {
+          ...copy.pricing.plans.biannual,
+          price: "€39.99",
+          note: "/6 months",
+        },
+        yearly: {
+          ...copy.pricing.plans.yearly,
+          price: "€59.99",
+          note: "/year",
+        },
+      },
+    },
+  };
 
 
   const handleStartEngine = () => {
