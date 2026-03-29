@@ -7,6 +7,7 @@ interface LanguageSelectorProps {
   language: Language;
   onSelect: (lang: Language) => void;
   label: string;
+  options?: Array<{ code: Language; label: string }>;
 }
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
