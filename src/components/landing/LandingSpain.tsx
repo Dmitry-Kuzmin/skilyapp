@@ -488,6 +488,21 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
         },
       },
     },
+    // Also override comparison section pricing for Spain landing
+    comparison: {
+      ...copy.comparison,
+      rows: copy.comparison.rows.map((row, index) => {
+        if (index === 0) {
+          // First row is the pricing comparison - always show EUR prices
+          return {
+            ...row,
+            traditional: "€400+",
+            skily: "€4.99",
+          };
+        }
+        return row;
+      }),
+    },
   };
 
 
