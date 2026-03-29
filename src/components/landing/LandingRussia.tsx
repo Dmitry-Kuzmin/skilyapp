@@ -631,7 +631,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 <Crown className="h-4 w-4 relative z-10" />
-                <span className="relative z-10">{language === 'ru' ? 'Получить Premium' : language === 'es' ? 'Obtener Premium' : 'Get Premium'}</span>
+                <span className="relative z-10">{effectiveLanguage === 'ru' ? 'Получить Premium' : effectiveLanguage === 'es' ? 'Obtener Premium' : 'Get Premium'}</span>
                 <ArrowRight className="h-4 w-4 relative z-10 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
