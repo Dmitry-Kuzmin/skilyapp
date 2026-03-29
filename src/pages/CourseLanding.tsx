@@ -85,7 +85,7 @@ const LANDING_STYLES = `
 .curso-shimmer { background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.04) 50%, transparent 100%); background-size: 200% 100%; animation: curso-shimmer 3s ease-in-out infinite; }
 .curso-border-glow { animation: curso-border-glow 3s ease-in-out infinite; }
 .curso-card { position:relative; overflow:hidden; }
-.curso-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity .4s; background:radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(59,130,246,.06), transparent 40%); }
+.curso-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity .4s; pointer-events:none; background:radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(59,130,246,.06), transparent 40%); }
 .curso-card:hover::before { opacity:1; }
 .curso-reveal { opacity:0; transform:translateY(32px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
 .curso-reveal.visible { opacity:1; transform:translateY(0); }
