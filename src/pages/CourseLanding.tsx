@@ -733,35 +733,36 @@ const CourseLanding = () => {
       {/* ═══════════════════════════════════════════
           BLOCK 7: TESTIMONIALS (animated columns)
           ═══════════════════════════════════════════ */}
-      <section className="relative py-24 overflow-hidden">
+      <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-yellow-500/[0.03] rounded-full blur-[140px]" />
         </div>
 
-        <div className="relative max-w-5xl mx-auto px-4">
+        {/* Header — constrained width */}
+        <div className="relative max-w-2xl mx-auto px-4 text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             viewport={{ once: true }}
-            className="text-center mb-14"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/15 text-yellow-400 text-xs font-medium uppercase tracking-wider mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/15 text-yellow-400 text-xs font-medium uppercase tracking-wider mb-5">
               Отзывы
             </div>
             <h2 className="text-2xl sm:text-4xl font-bold mb-3">
               Наши ученики уже за рулём
             </h2>
-            <p className="text-zinc-500 text-sm max-w-md mx-auto">
+            <p className="text-zinc-500 text-sm">
               Реальные люди из разных городов Испании — разный возраст, разные обстоятельства, один результат.
             </p>
           </motion.div>
+        </div>
 
-          <div className="flex justify-center gap-5 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)] max-h-[680px] overflow-hidden">
-            <TestimonialsColumn testimonials={testimonialsCol1} duration={18} />
-            <TestimonialsColumn testimonials={testimonialsCol2} duration={22} className="hidden md:block" />
-            <TestimonialsColumn testimonials={testimonialsCol3} duration={16} className="hidden lg:block" />
-          </div>
+        {/* Columns — no width constraint to fill screen naturally */}
+        <div className="flex justify-center gap-6 mt-10 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[740px] overflow-hidden px-4">
+          <TestimonialsColumn testimonials={testimonialsCol1} duration={25} />
+          <TestimonialsColumn testimonials={testimonialsCol2} duration={30} className="hidden md:block" />
+          <TestimonialsColumn testimonials={testimonialsCol3} duration={20} className="hidden lg:block" />
         </div>
       </section>
 
