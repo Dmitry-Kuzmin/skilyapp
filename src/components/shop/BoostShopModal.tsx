@@ -1186,11 +1186,9 @@ export function BoostShopModal({
     console.log("[TON] Address check after restore:", { sdk: effectiveAddress });
 
     if (effectiveAddress) {
-      try {
-        await doTransfer(effectiveAddress);
-      } catch (err) {
+      doTransfer(effectiveAddress).catch(err => {
         console.error("[TON] Purchase failed:", err);
-      }
+      });
       return;
     }
 
@@ -1200,18 +1198,13 @@ export function BoostShopModal({
 
     const unsub = tonConnectUI.onStatusChange((w) => {
       if (timeoutHandle) clearTimeout(timeoutHandle);
-      if (w) {
+      if (w?.account?.address) {
         unsub();
         modalDismissed = true;
-        console.log("[TON] ✅ Connected! Wallet:", w.account?.address);
-        const walletAddress = w.account?.address;
-        if (walletAddress) {
-          doTransfer(walletAddress).catch(err => {
-            console.error("[TON] Transfer after connection failed:", err);
-          });
-        }
-      } else {
-        console.log("[TON] ⚠️ Wallet disconnected during modal");
+        console.log("[TON] ✅ Wallet connected:", w.account.address);
+        doTransfer(w.account.address).catch(err => {
+          console.error("[TON] Transfer failed:", err);
+        });
       }
     });
 
