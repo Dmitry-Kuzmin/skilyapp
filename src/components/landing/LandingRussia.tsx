@@ -593,14 +593,14 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                     <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-                      {effectiveLanguage === 'ru' ? 'Партнер' : effectiveLanguage === 'es' ? 'Socio' : 'Partner'}
+                      {language === 'ru' ? 'Партнер' : language === 'es' ? 'Socio' : 'Partner'}
                     </span>
                   </div>
                   <h3 className="text-lg md:text-xl font-black text-white mb-1.5 leading-tight">
-                    {partnerInfo.name} {effectiveLanguage === 'ru' ? 'дарит Premium!' : effectiveLanguage === 'es' ? 'regala Premium!' : 'gives Premium!'}
+                    {partnerInfo.name} {language === 'ru' ? 'дарит Premium!' : language === 'es' ? 'regala Premium!' : 'gives Premium!'}
                   </h3>
                   <p className="text-sm md:text-base text-slate-300">
-                    <span className="font-bold text-amber-400">Premium на 30 дней</span> {effectiveLanguage === 'ru' ? 'при регистрации' : effectiveLanguage === 'es' ? 'al registrarse' : 'on registration'}
+                    <span className="font-bold text-amber-400">Premium на 30 дней</span> {language === 'ru' ? 'при регистрации' : language === 'es' ? 'al registrarse' : 'on registration'}
                   </p>
                   {partnerInfo.channel_name && (
                     <p className="text-xs text-slate-400 mt-1">
@@ -623,7 +623,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 <Crown className="h-4 w-4 relative z-10" />
-                <span className="relative z-10">{effectiveLanguage === 'ru' ? 'Получить Premium' : effectiveLanguage === 'es' ? 'Obtener Premium' : 'Get Premium'}</span>
+                <span className="relative z-10">{language === 'ru' ? 'Получить Premium' : language === 'es' ? 'Obtener Premium' : 'Get Premium'}</span>
                 <ArrowRight className="h-4 w-4 relative z-10 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -673,7 +673,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                     {referrerInfo.first_name} {copy.referral.invitesYou}
                   </h3>
                   <p className="text-sm md:text-base text-slate-300">
-                    <span className="font-bold text-indigo-400">+50 {effectiveLanguage === 'ru' ? 'монет' : effectiveLanguage === 'es' ? 'monedas' : 'coins'}</span> {copy.referral.coinsOnRegistration}
+                    <span className="font-bold text-indigo-400">+50 {language === 'ru' ? 'монет' : language === 'es' ? 'monedas' : 'coins'}</span> {copy.referral.coinsOnRegistration}
                   </p>
                 </div>
               </div>
@@ -789,17 +789,17 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         <div className="relative z-10 text-center mb-16 max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold uppercase tracking-widest">
             <Sparkles className="w-3 h-3" />
-            {effectiveLanguage === 'ru' ? 'Live Demo' : 'Live Demo'}
+            {language === 'ru' ? 'Live Demo' : 'Live Demo'}
           </div>
           <h2 style={{ textWrap: 'balance' }} className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight min-h-[1.2em] animate-fade-in">
-            {DEMO_VARIANTS[effectiveLanguage][demoVariantIndex].title}
+            {DEMO_VARIANTS[language][demoVariantIndex].title}
           </h2>
           <p style={{ textWrap: 'balance' }} className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto mb-8 min-h-[3.5em] animate-fade-in">
-            {DEMO_VARIANTS[effectiveLanguage][demoVariantIndex].text}
+            {DEMO_VARIANTS[language][demoVariantIndex].text}
           </p>
 
           <div className="flex flex-wrap justify-center gap-3 md:gap-6 animate-fade-in mb-8">
-            {FEATURE_PILLS[effectiveLanguage].map((pill, i) => (
+            {FEATURE_PILLS[language].map((pill, i) => (
               <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700/50 text-slate-300 text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition-colors cursor-default">
                 <pill.icon className={cn("w-3.5 h-3.5", pill.color)} />
                 {pill.text}
@@ -1059,7 +1059,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 <div className="text-slate-500 text-sm font-bold animate-pulse">Загрузка арены...</div>
               </div>
             }>
-              <LandingDuelPassSection language={effectiveLanguage} copy={copy} />
+              <LandingDuelPassSection language={language} copy={copy} />
             </React.Suspense>
           ) : (
             <div className="text-slate-800 text-sm italic opacity-0 transition-opacity duration-700">Загрузка интерактивного блока...</div>
@@ -1075,7 +1075,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               <div>
                 <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter italic">Duel Pass <span className="text-orange-500">Season 1</span></h4>
                 <p className="text-sm text-slate-400 max-w-sm">
-                  {effectiveLanguage === 'ru'
+                  {language === 'ru'
                     ? 'Играй в дуэли, копи опыт и забирай эксклюзивные награды каждый сезон.'
                     : 'Play duels, gain XP, and claim exclusive rewards every season.'}
                 </p>
@@ -1131,7 +1131,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20">
                 <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">
-                  {effectiveLanguage === 'ru' ? 'НОВЫЙ СЕЗОН СТАРТУЕТ ЧЕРЕЗ 5 ДНЕЙ' : 'NEW SEASON STARTS IN 5 DAYS'}
+                  {language === 'ru' ? 'НОВЫЙ СЕЗОН СТАРТУЕТ ЧЕРЕЗ 5 ДНЕЙ' : 'NEW SEASON STARTS IN 5 DAYS'}
                 </span>
               </div>
             </div>
@@ -1343,15 +1343,15 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
       <section className="relative z-10 px-6 py-24 max-w-[1400px] mx-auto">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
-            {faqContent[effectiveLanguage].sectionTitle}
+            {faqContent[language].sectionTitle}
           </h2>
           <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">
-            {faqContent[effectiveLanguage].sectionSubtitle}
+            {faqContent[language].sectionSubtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {faqContent[effectiveLanguage].categories.flatMap(cat =>
+          {faqContent[language].categories.flatMap(cat =>
             cat.questions.map(q => ({ ...q, category: cat.title }))
           ).map((item, idx) => (
             <FAQItem
@@ -1378,16 +1378,16 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 </div>
                 <div>
                   <h3 className="text-white font-black text-xl md:text-2xl mb-1 text-shadow-sm">
-                    {effectiveLanguage === 'ru' ? 'Не нашли ответ? Свяжитесь с базой.' : 'Questions left? Contact Base.'}
+                    {language === 'ru' ? 'Не нашли ответ? Свяжитесь с базой.' : 'Questions left? Contact Base.'}
                   </h3>
                   <p className="text-blue-100 font-medium text-sm md:text-base">
-                    {effectiveLanguage === 'ru' ? 'Живая поддержка ответит за 2 минуты (24/7).' : 'Live support replies in 2 minutes (24/7).'}
+                    {language === 'ru' ? 'Живая поддержка ответит за 2 минуты (24/7).' : 'Live support replies in 2 minutes (24/7).'}
                   </p>
                 </div>
               </div>
 
               <button className="whitespace-nowrap px-8 py-4 rounded-xl bg-white text-blue-700 font-black text-sm uppercase tracking-wider hover:bg-blue-50 transition-colors shadow-lg flex items-center gap-2 group/btn">
-                {effectiveLanguage === 'ru' ? 'Открыть чат Telegram' : 'Open Telegram Chat'}
+                {language === 'ru' ? 'Открыть чат Telegram' : 'Open Telegram Chat'}
                 <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
               </button>
             </div>
@@ -1399,7 +1399,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": faqContent[effectiveLanguage].categories.flatMap(cat =>
+            "mainEntity": faqContent[language].categories.flatMap(cat =>
               cat.questions.map(q => ({
                 "@type": "Question",
                 "name": q.q,
@@ -1418,12 +1418,12 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         <div className="max-w-4xl mx-auto text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider">
             <Sparkles className="w-3 h-3" />
-            <span>{effectiveLanguage === 'ru' ? 'SaaS / Mobile Gaming / EdTech' : effectiveLanguage === 'es' ? 'SaaS / Juegos Móviles / EdTech' : 'SaaS / Mobile Gaming / EdTech'}</span>
+            <span>{language === 'ru' ? 'SaaS / Mobile Gaming / EdTech' : language === 'es' ? 'SaaS / Juegos Móviles / EdTech' : 'SaaS / Mobile Gaming / EdTech'}</span>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed">
-            {effectiveLanguage === 'ru' ?
+            {language === 'ru' ?
               'SkilyApp — это программная платформа с собственными играми, AI-технологиями и системой геймификации. Мы не продаем доступ к экзаменам или сертификаты. Все наши игры, алгоритмы и интерактивный опыт являются нашей собственной интеллектуальной собственностью.' :
-              effectiveLanguage === 'es' ?
+              language === 'es' ?
                 'SkilyApp es una plataforma de software con juegos propios, tecnologías de IA y sistema de gamificación. No vendemos acceso a exámenes ni certificados. Todos nuestros juegos, algoritmos y experiencia interactiva son nuestra propiedad intelectual.' :
                 'SkilyApp is a software platform with proprietary games, AI technologies, and gamification system. We do not sell exam access or certificates. All our games, algorithms, and interactive experience are our own intellectual property.'
             }
@@ -1432,7 +1432,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             onClick={() => navigate('/about')}
             className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
           >
-            {effectiveLanguage === 'ru' ? 'Подробнее о нас' : effectiveLanguage === 'es' ? 'Más sobre nosotros' : 'Learn more about us'}
+            {language === 'ru' ? 'Подробнее о нас' : language === 'es' ? 'Más sobre nosotros' : 'Learn more about us'}
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -1448,9 +1448,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 <LandingLogo theme="dark" variant="footer" />
               </div>
               <p className="text-slate-400 text-sm leading-relaxed max-w-sm">
-                {effectiveLanguage === 'ru' ?
+                {language === 'ru' ?
                   'Первая в мире платформа подготовки водителей с искусственным интеллектом, геймификацией и PvP-дуэлями.' :
-                  effectiveLanguage === 'es' ?
+                  language === 'es' ?
                     'La primera plataforma de formación vial del mundo con inteligencia artificial, gamificación y duelos PvP.' :
                     'The world\'s first driver training platform with artificial intelligence, gamification and PvP duels.'
                 }
