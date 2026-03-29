@@ -502,18 +502,18 @@ export const landingTranslations: Record<Language, LandingCopy> = {
       ],
     },
     liveClass: {
-      badge: "Live Classes",
-      title: "Learn from a certified instructor",
-      description: "Interactive sessions twice a week with a DGT-certified teacher. Get your questions answered in real-time and accelerate your learning.",
+      badge: "🔴 LIVE CLASSES",
+      title: "Learn live with an instructor",
+      description: "Interactive sessions twice a week streaming live with your instructor. Get your questions answered in real-time, master complex topics, and accelerate your exam prep. First class the first Tuesday of the month.",
       schedule: "Tuesday & Thursday • 19:00 CET",
       features: [
-        "2 live classes per week",
-        "DGT-certified instructor",
-        "Real-time Q&A",
-        "Access to recordings",
-        "Downloadable materials"
+        "Live streaming 2x per week",
+        "Interactive Q&A sessions",
+        "Real DGT exam analysis",
+        "Lifetime access to recordings",
+        "PDFs and downloadable resources"
       ],
-      cta: "Enroll now"
+      cta: "Join on Telegram"
     },
     pricing: {
       title: "Choose your plan",
