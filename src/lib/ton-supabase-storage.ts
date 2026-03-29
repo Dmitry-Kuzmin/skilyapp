@@ -51,7 +51,6 @@ export class TonSupabaseStorage implements IStorage {
     }
 
     async setItem(key: string, value: string): Promise<void> {
-        const userId = await this.ensureProfileSession();
         this.localCache.set(key, value);
 
         // Always save to localStorage as fast fallback
@@ -62,13 +61,23 @@ export class TonSupabaseStorage implements IStorage {
             console.warn('[TON Supabase Storage] localStorage failed:', e);
         }
 
+        // Try to save to Supabase (async, non-blocking)
+        this.saveToSupabase(key, value).catch(e => {
+            console.warn('[TON Supabase Storage] Async save failed:', e);
+        });
+    }
+
+    private async saveToSupabase(key: string, value: string): Promise<void> {
+        const userId = await this.ensureProfileSession();
         if (!userId) {
-            console.warn('[TON Supabase Storage] No user session, skipping Supabase save');
+            console.warn('[TON Supabase Storage] No user session for Supabase save');
             return;
         }
 
-        // Also save to Supabase
         try {
+            const supabase = await this.getSupabase();
+            if (!supabase) return;
+
             const { error } = await supabase
                 .from(TonSupabaseStorage.TABLE)
                 .upsert({
