@@ -1351,15 +1351,15 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
       <section className="relative z-10 px-6 py-24 max-w-[1400px] mx-auto">
         <div className="text-center mb-16 space-y-4">
           <h2 className="text-3xl md:text-5xl font-black text-white leading-tight">
-            {faqContent[language].sectionTitle}
+            {faqContent[effectiveLanguage].sectionTitle}
           </h2>
           <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto">
-            {faqContent[language].sectionSubtitle}
+            {faqContent[effectiveLanguage].sectionSubtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {faqContent[language].categories.flatMap(cat =>
+          {faqContent[effectiveLanguage].categories.flatMap(cat =>
             cat.questions.map(q => ({ ...q, category: cat.title }))
           ).map((item, idx) => (
             <FAQItem
@@ -1407,7 +1407,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            "mainEntity": faqContent[language].categories.flatMap(cat =>
+            "mainEntity": faqContent[effectiveLanguage].categories.flatMap(cat =>
               cat.questions.map(q => ({
                 "@type": "Question",
                 "name": q.q,
