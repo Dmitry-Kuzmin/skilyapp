@@ -453,7 +453,18 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
     }
   }, [referrerInfo?.photo_url]);
   const navigate = useNavigate();
-  const copy = landingTranslations[language];
+
+  // KRITIKO: Russia landing ВСЕГДА показывает RU, независимо от выбора пользователя
+  // Переходящие со Spain landing с es/en → переключаем на Russian (ru)
+  const effectiveLanguage = 'ru' as Language;
+  React.useEffect(() => {
+    if (language !== 'ru') {
+      setLanguage('ru');
+      console.log('[LandingRussia] Forced to RU (RUB prices only)');
+    }
+  }, [language, setLanguage]);
+
+  const copy = landingTranslations[effectiveLanguage];
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
