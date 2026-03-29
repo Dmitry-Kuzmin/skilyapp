@@ -537,12 +537,13 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
-          {/* Language selector hidden for Russia (always Russian) */}
+          {/* Language selector: only ES and EN for Spain */}
           {selectedCountry.code !== 'RU' && (
             <LanguageSelector
               language={language}
               onSelect={handleLanguageChange}
               label={copy.controls.languageLabel}
+              options={SPAIN_LANGUAGE_OPTIONS}
             />
           )}
 
