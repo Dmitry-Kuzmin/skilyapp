@@ -172,11 +172,20 @@ export class TonSupabaseStorage implements IStorage {
             // silent
         }
 
-        // Remove from Supabase
+        // Remove from Supabase (async, non-blocking)
+        this.removeFromSupabase(key).catch(e => {
+            console.warn('[TON Supabase Storage] Async remove failed:', e);
+        });
+    }
+
+    private async removeFromSupabase(key: string): Promise<void> {
         const userId = await this.ensureProfileSession();
         if (!userId) return;
 
         try {
+            const supabase = await this.getSupabase();
+            if (!supabase) return;
+
             await supabase
                 .from(TonSupabaseStorage.TABLE)
                 .delete()
