@@ -1083,7 +1083,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
               <div>
                 <h4 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter italic">Duel Pass <span className="text-orange-500">Season 1</span></h4>
                 <p className="text-sm text-slate-400 max-w-sm">
-                  {language === 'ru'
+                  {effectiveLanguage === 'ru'
                     ? 'Играй в дуэли, копи опыт и забирай эксклюзивные награды каждый сезон.'
                     : 'Play duels, gain XP, and claim exclusive rewards every season.'}
                 </p>
