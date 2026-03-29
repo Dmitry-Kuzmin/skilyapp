@@ -608,7 +608,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                     {partnerInfo.name} {effectiveLanguage === 'ru' ? 'дарит Premium!' : effectiveLanguage === 'es' ? 'regala Premium!' : 'gives Premium!'}
                   </h3>
                   <p className="text-sm md:text-base text-slate-300">
-                    <span className="font-bold text-amber-400">Premium на 30 дней</span> {language === 'ru' ? 'при регистрации' : language === 'es' ? 'al registrarse' : 'on registration'}
+                    <span className="font-bold text-amber-400">Premium на 30 дней</span> {effectiveLanguage === 'ru' ? 'при регистрации' : effectiveLanguage === 'es' ? 'al registrarse' : 'on registration'}
                   </p>
                   {partnerInfo.channel_name && (
                     <p className="text-xs text-slate-400 mt-1">
