@@ -1070,16 +1070,21 @@ export function BoostShopModal({
     }
   }, [selectedPack, handleCoinPurchase]);
 
-  // TON payment — close our modal first, then SDK shows its own popup
+  // TON payment with real-time transaction status tracking
+  const { subscribe: subscribeTonStatus, status: tonTxStatus, reset: resetTonStatus } = useTonStreaming();
+
   const handleTonPurchase = useCallback(async () => {
     if (!selectedPack) return;
     setIsPaymentSelectorOpen(false);
 
     const amountTon = selectedPack.priceValue / 5;
     const { tonConnectUI, tonConnectionRestored } = await import('@/lib/ton-appkit');
+    const apiKey = import.meta.env.VITE_TONCENTER_API_KEY || undefined;
 
-    const doTransfer = async () => {
+    const doTransfer = async (tonAddress: string) => {
       console.log("[TON] Executing doTransfer for:", selectedPack.title);
+      resetTonStatus();
+
       try {
         const commentBoc = beginCell()
           .storeUint(0, 32)
@@ -1088,12 +1093,11 @@ export function BoostShopModal({
           .toBoc()
           .toString('base64');
 
-        // Используем 5 минут (300 секунд) вместо 10 минут - это более стандартно
         const now = Math.floor(Date.now() / 1000);
-        const validUntil = now + 300;
-        console.log("[TON] Time check - Now:", now, "Valid until:", validUntil, "Difference:", 300);
+        const validUntil = now + 300; // 5 minutes standard
+        console.log("[TON] Sending transaction - Now:", now, "Valid until:", validUntil);
 
-        await tonConnectUI.sendTransaction({
+        const result = await tonConnectUI.sendTransaction({
           validUntil: validUntil,
           messages: [{
             address: "UQBIEbX1WnJ-tVNvR9AqzsLGueW8K9idJlDFSBkm6xJiT6-m",
@@ -1101,7 +1105,62 @@ export function BoostShopModal({
             payload: commentBoc,
           }],
         });
-        toast({ title: "TON", description: "✅ Оплата отправлена!" });
+
+        console.log("[TON] ✅ Transaction sent to network, BOC:", result?.boc?.slice(0, 50));
+        toast({ title: "TON", description: "📤 Оплата отправлена в сеть..." });
+
+        // Now track the actual blockchain status using real-time streaming
+        console.log("[TON] Subscribing to transaction status for address:", tonAddress);
+        await subscribeTonStatus(tonAddress, apiKey, false);
+
+        // The subscribeTonStatus will update tonTxStatus reactively
+        // Status flow: pending → confirmed → finalized (or trace_invalidated)
+        console.log("[TON] Subscription started, waiting for finalization...");
+
+        // Wait for finalization in a simple way: check every 500ms for up to 45 seconds
+        // (The useTonStreaming hook updates status automatically via SSE)
+        let attempts = 0;
+        const maxAttempts = 90; // 45 seconds
+
+        return new Promise<void>((resolve, reject) => {
+          const checkStatus = () => {
+            attempts++;
+
+            if (tonTxStatus === 'finalized') {
+              console.log("[TON] ✅ Transaction finalized successfully!");
+              toast({ title: "TON", description: "✅ Оплата подтверждена!" });
+              resolve();
+              return;
+            }
+
+            if (tonTxStatus === 'trace_invalidated') {
+              console.error("[TON] ❌ Transaction invalidated (rollback)");
+              toast({ title: "TON", description: "❌ Транзакция отменена", variant: "destructive" });
+              reject(new Error('Transaction invalidated'));
+              return;
+            }
+
+            if (tonTxStatus === 'error') {
+              console.error("[TON] ❌ Streaming error or timeout");
+              toast({ title: "TON", description: "❌ Ошибка отслеживания платежа", variant: "destructive" });
+              reject(new Error('Streaming error'));
+              return;
+            }
+
+            if (attempts >= maxAttempts) {
+              console.warn("[TON] ⚠️ Timeout waiting for finalization");
+              toast({ title: "TON", description: "⚠️ Таймаут. Платеж может быть обработан позже.", variant: "destructive" });
+              reject(new Error('Timeout'));
+              return;
+            }
+
+            // Status still pending/confirmed or idle, keep waiting
+            setTimeout(checkStatus, 500);
+          };
+
+          checkStatus();
+        });
+
       } catch (err: any) {
         console.error("[TON] Transaction failure:", err);
         const msg = err?.message ?? String(err);
@@ -1110,27 +1169,31 @@ export function BoostShopModal({
           code: err?.code,
           isUserReject: msg.includes('User rejects') || msg.includes('User rejected'),
         });
+
         if (!msg.includes('User rejects') && !msg.includes('User rejected')) {
-          toast({ title: "TON", description: "Ошибка оплаты", variant: "destructive" });
+          toast({ title: "TON", description: "❌ Ошибка оплаты", variant: "destructive" });
         }
+
+        throw err;
       }
     };
 
-    // Wait for session restoration before checking wallet state.
-    // Without this, tonConnectUI.wallet is null during the first seconds
-    // even if the session is being restored — causing the connect modal
-    // to open unnecessarily every time.
+    // Wait for session restoration
     await tonConnectionRestored;
 
     const effectiveAddress = tonConnectUI.wallet?.account?.address;
     console.log("[TON] Address check after restore:", { sdk: effectiveAddress });
 
     if (effectiveAddress) {
-      await doTransfer();
+      try {
+        await doTransfer(effectiveAddress);
+      } catch (err) {
+        console.error("[TON] Purchase failed:", err);
+      }
       return;
     }
 
-    // Not connected even after restoration — open connect modal
+    // Not connected — open connect modal
     let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
     let modalDismissed = false;
 
@@ -1140,8 +1203,12 @@ export function BoostShopModal({
         unsub();
         modalDismissed = true;
         console.log("[TON] ✅ Connected! Wallet:", w.account?.address);
-        console.log("[TON] Sending transaction...");
-        doTransfer();
+        const walletAddress = w.account?.address;
+        if (walletAddress) {
+          doTransfer(walletAddress).catch(err => {
+            console.error("[TON] Transfer after connection failed:", err);
+          });
+        }
       } else {
         console.log("[TON] ⚠️ Wallet disconnected during modal");
       }
@@ -1158,42 +1225,9 @@ export function BoostShopModal({
         tonConnectUI.closeModal?.();
       }, 45000);
 
-      // Listen for app regaining focus after external wallet app
-      const handleFocus = () => {
-        console.log("[TON] App regained focus from external wallet");
-        // Check if wallet got connected during the external app
-        if (tonConnectUI.wallet && !modalDismissed) {
-          console.log("[TON] Wallet connected while in external app");
-          unsub(); // Stop listening to modal changes
-          modalDismissed = true;
-          if (timeoutHandle) clearTimeout(timeoutHandle);
-          setTimeout(() => doTransfer(), 100); // Small delay to ensure bridge is ready
-        }
-      };
-
-      const handleVisibility = () => {
-        if (document.visibilityState === 'visible') {
-          console.log("[TON] Document visibility changed to visible");
-          handleFocus();
-        }
-      };
-
-      window.addEventListener('focus', handleFocus);
-      document.addEventListener('visibilitychange', handleVisibility);
-
-      // Telegram Mini App event
-      if ((window as any).Telegram?.WebApp?.onEvent) {
-        (window as any).Telegram.WebApp.onEvent('activated', handleFocus);
-      }
-
       await tonConnectUI.openModal();
       console.log("[TON] Modal closed");
 
-      // Cleanup listeners
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibility);
-
-      // If we get here and wallet wasn't selected, show error
       if (!modalDismissed) {
         console.log("[TON] No wallet was selected in modal");
       }
@@ -1202,7 +1236,7 @@ export function BoostShopModal({
       if (timeoutHandle) clearTimeout(timeoutHandle);
       unsub();
     }
-  }, [selectedPack]);
+  }, [selectedPack, subscribeTonStatus, resetTonStatus, tonTxStatus]);
 
   // ОПТИМИЗАЦИЯ: useCallback для предотвращения лишних ререндеров дочерних компонентов
   const handlePurchase = useCallback(
