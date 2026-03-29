@@ -1086,8 +1086,8 @@ export function BoostShopModal({
     const { tonConnectUI, tonConnectionRestored } = await import('@/lib/ton-appkit');
     const apiKey = import.meta.env.VITE_TONCENTER_API_KEY || undefined;
 
-    const doTransfer = async (tonAddress: string) => {
-      console.log("[TON] Executing doTransfer for:", selectedPack.title);
+    const doTransfer = async (tonAddress: string, isRetry = false) => {
+      console.log("[TON] Executing doTransfer for:", selectedPack.title, "isRetry:", isRetry);
       resetTonStatus();
 
       try {
