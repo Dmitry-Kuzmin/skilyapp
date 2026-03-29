@@ -803,7 +803,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             {DEMO_VARIANTS[effectiveLanguage][demoVariantIndex].title}
           </h2>
           <p style={{ textWrap: 'balance' }} className="text-lg md:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto mb-8 min-h-[3.5em] animate-fade-in">
-            {DEMO_VARIANTS[language][demoVariantIndex].text}
+            {DEMO_VARIANTS[effectiveLanguage][demoVariantIndex].text}
           </p>
 
           <div className="flex flex-wrap justify-center gap-3 md:gap-6 animate-fade-in mb-8">
