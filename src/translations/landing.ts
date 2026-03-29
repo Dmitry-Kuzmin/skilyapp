@@ -154,6 +154,17 @@ export const LANGUAGE_OPTIONS: Array<{ code: Language; label: string }> = [
   { code: "ru", label: "RU" },
 ];
 
+// Spain landing: только ES и EN (всегда EUR)
+export const SPAIN_LANGUAGE_OPTIONS: Array<{ code: Language; label: string }> = [
+  { code: "es", label: "ES" },
+  { code: "en", label: "EN" },
+];
+
+// Russia landing: только RU (всегда RUB)
+export const RUSSIA_LANGUAGE_OPTIONS: Array<{ code: Language; label: string }> = [
+  { code: "ru", label: "RU" },
+];
+
 export const landingTranslations: Record<Language, LandingCopy> = {
   es: {
     controls: {
