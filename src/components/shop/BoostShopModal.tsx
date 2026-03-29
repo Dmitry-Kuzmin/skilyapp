@@ -1170,19 +1170,80 @@ export function BoostShopModal({
       } catch (err: any) {
         console.error("[TON] Transaction failure:", err);
         const msg = err?.message ?? String(err);
+        const isTransactionNotSent = msg.includes('Transaction was not sent');
+        const isUserReject = msg.includes('User rejects') || msg.includes('User rejected');
+
         console.log("[TON] Error details:", {
           message: msg,
           code: err?.code,
-          isUserReject: msg.includes('User rejects') || msg.includes('User rejected'),
+          isUserReject,
+          isTransactionNotSent,
+          isRetry,
         });
 
-        if (!msg.includes('User rejects') && !msg.includes('User rejected')) {
+        // КРИТИЧНО: "Transaction was not sent" при восстановленном адресе = мертвый bridge
+        // Решение: очистить storage и переподключить заново
+        if (isTransactionNotSent && !isRetry && effectiveAddress && !modalWasOpenedRef.current) {
+          console.warn("[TON] 🔧 Dead bridge detected (restored from old session). Clearing storage and reconnecting...");
+
+          // Очищаем все данные bridge из storage
+          try {
+            const { tonConnectSDK } = await import('@/lib/ton-appkit');
+            const storage = tonConnectSDK.storage;
+            // Очищаем ключи bridge соединения
+            await storage?.removeItem?.('ton-connect-storage_bridge-connection');
+            await storage?.removeItem?.('ton-connect-storage_http-bridge-gateway::https://w');
+            localStorage.removeItem('ton-connect-storage_bridge-connection');
+            localStorage.removeItem('ton-connect-storage_http-bridge-gateway::https://w');
+            console.log("[TON] ✅ Storage cleared, reconnecting...");
+          } catch (storageErr) {
+            console.warn("[TON] Could not clear storage:", storageErr);
+          }
+
+          // Отключаемся и открываем модаль заново для переподключения
+          await tonConnectUI.disconnect();
+          tonConnectUI.closeModal?.();
+
+          // Отметим что собираемся открыть модаль
+          modalWasOpenedRef.current = true;
+
+          // Даем время на очистку state
+          await new Promise(r => setTimeout(r, 300));
+
+          // Переподключаемся через модаль и повторяем попытку
+          let retryUnsub = tonConnectUI.onStatusChange((w) => {
+            if (w) {
+              retryUnsub();
+              console.log("[TON] 🔄 Reconnected after bridge clear. Retrying transfer...");
+              doTransfer(w.account.address, true).catch(err => {
+                console.error("[TON] Retry transfer failed:", err);
+                toast({ title: "TON", description: "❌ Ошибка оплаты (повторная попытка)", variant: "destructive" });
+              });
+            }
+          });
+
+          try {
+            await tonConnectUI.openModal();
+          } catch (e) {
+            console.error("[TON] Could not reopen modal:", e);
+            retryUnsub();
+            toast({ title: "TON", description: "❌ Ошибка подключения кошелька", variant: "destructive" });
+          }
+
+          return;
+        }
+
+        if (!isUserReject) {
           toast({ title: "TON", description: "❌ Ошибка оплаты", variant: "destructive" });
         }
 
         throw err;
       }
     };
+
+    // Ref для отслеживания открытия модали (чтобы не зацикливаться)
+    const modalWasOpenedRef = useRef(false);
+    modalWasOpenedRef.current = false;
 
     // Wait for session restoration
     await tonConnectionRestored;
