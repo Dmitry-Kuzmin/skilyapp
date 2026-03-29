@@ -307,6 +307,17 @@ const CourseLanding = () => {
       style.textContent = LANDING_STYLES;
       document.head.appendChild(style);
     }
+    // load Google Ads gtag.js
+    if (!document.getElementById("gtag-script")) {
+      const gtagScript = document.createElement("script");
+      gtagScript.id = "gtag-script";
+      gtagScript.async = true;
+      gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=AW-18034090184";
+      document.head.appendChild(gtagScript);
+      const gtagInit = document.createElement("script");
+      gtagInit.textContent = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','AW-18034090184');`;
+      document.head.appendChild(gtagInit);
+    }
     requestAnimationFrame(() => setHeroReady(true));
     return () => { document.getElementById("curso-styles")?.remove(); };
   }, []);
@@ -792,16 +803,22 @@ const CourseLanding = () => {
                   // Track conversion for Google Ads
                   if (typeof window !== "undefined" && (window as any).gtag) {
                     (window as any).gtag("event", "conversion", {
-                      send_to: "AW-CONVERSION_ID/CONVERSION_LABEL",
+                      send_to: "AW-18034090184/_KkqCNiSzZEcEMjBqZdD",
+                      value: 250.0,
+                      currency: "EUR",
                     });
                   }
                   setFormSent(true);
-                  // Submit form data
+                  // Submit lead to Telegram bot
                   const formData = new FormData(e.currentTarget);
-                  fetch("https://formspree.io/f/PLACEHOLDER", {
+                  fetch("https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/curso-lead", {
                     method: "POST",
-                    body: formData,
-                    headers: { Accept: "application/json" },
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name: formData.get("name"),
+                      phone: formData.get("phone"),
+                      message: formData.get("message") || "",
+                    }),
                   });
                 }}
                 className="space-y-4"
@@ -817,16 +834,24 @@ const CourseLanding = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-zinc-400 mb-1.5 font-medium">Email</label>
+                  <label className="block text-sm text-zinc-400 mb-1.5 font-medium">Телефон / WhatsApp</label>
                   <input
-                    type="email"
-                    name="email"
+                    type="tel"
+                    name="phone"
                     required
-                    placeholder="your@email.com"
+                    placeholder="+34 6XX XXX XXX"
                     className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                   />
                 </div>
-                <input type="hidden" name="_subject" value="Новая заявка с /curso" />
+                <div>
+                  <label className="block text-sm text-zinc-400 mb-1.5 font-medium">Сообщение <span className="text-zinc-600">(необязательно)</span></label>
+                  <textarea
+                    name="message"
+                    rows={2}
+                    placeholder="Вопросы, пожелания..."
+                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
+                  />
+                </div>
                 <button
                   type="submit"
                   className="group w-full py-4 rounded-xl font-semibold text-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
