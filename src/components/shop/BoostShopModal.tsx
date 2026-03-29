@@ -1099,6 +1099,11 @@ export function BoostShopModal({
       } catch (err: any) {
         console.error("[TON] Transaction failure:", err);
         const msg = err?.message ?? String(err);
+        console.log("[TON] Error details:", {
+          message: msg,
+          code: err?.code,
+          isUserReject: msg.includes('User rejects') || msg.includes('User rejected'),
+        });
         if (!msg.includes('User rejects') && !msg.includes('User rejected')) {
           toast({ title: "TON", description: "Ошибка оплаты", variant: "destructive" });
         }
