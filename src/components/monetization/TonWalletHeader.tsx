@@ -27,15 +27,24 @@ export const TonWalletHeader: React.FC = () => {
     // Load saved wallet address from DB on mount
     useEffect(() => {
         if (!profileId || dbLoaded) return;
+        console.log('[TON Wallet] Loading saved address from DB for profile:', profileId);
         supabase
             .from('profiles')
             .select('ton_wallet_address')
             .eq('id', profileId)
             .maybeSingle()
-            .then(({ data }) => {
+            .then(({ data, error }) => {
+                if (error) {
+                    console.error('[TON Wallet] DB error:', error);
+                    setDbLoaded(true);
+                    return;
+                }
                 const profile = data as any;
                 if (profile?.ton_wallet_address) {
+                    console.log('[TON Wallet] ✅ Loaded saved address:', profile.ton_wallet_address.slice(0, 10) + '...');
                     setSavedAddress(profile.ton_wallet_address);
+                } else {
+                    console.log('[TON Wallet] No saved address in DB');
                 }
                 setDbLoaded(true);
             });
