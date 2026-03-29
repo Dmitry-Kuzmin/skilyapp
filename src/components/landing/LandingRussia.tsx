@@ -807,7 +807,7 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           </p>
 
           <div className="flex flex-wrap justify-center gap-3 md:gap-6 animate-fade-in mb-8">
-            {FEATURE_PILLS[language].map((pill, i) => (
+            {FEATURE_PILLS[effectiveLanguage].map((pill, i) => (
               <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/50 border border-slate-700/50 text-slate-300 text-xs font-bold uppercase tracking-wider hover:bg-slate-800 transition-colors cursor-default">
                 <pill.icon className={cn("w-3.5 h-3.5", pill.color)} />
                 {pill.text}
