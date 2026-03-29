@@ -1429,9 +1429,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             <span>{effectiveLanguage === 'ru' ? 'SaaS / Mobile Gaming / EdTech' : effectiveLanguage === 'es' ? 'SaaS / Juegos Móviles / EdTech' : 'SaaS / Mobile Gaming / EdTech'}</span>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed">
-            {language === 'ru' ?
+            {effectiveLanguage === 'ru' ?
               'SkilyApp — это программная платформа с собственными играми, AI-технологиями и системой геймификации. Мы не продаем доступ к экзаменам или сертификаты. Все наши игры, алгоритмы и интерактивный опыт являются нашей собственной интеллектуальной собственностью.' :
-              language === 'es' ?
+              effectiveLanguage === 'es' ?
                 'SkilyApp es una plataforma de software con juegos propios, tecnologías de IA y sistema de gamificación. No vendemos acceso a exámenes ni certificados. Todos nuestros juegos, algoritmos y experiencia interactiva son nuestra propiedad intelectual.' :
                 'SkilyApp is a software platform with proprietary games, AI technologies, and gamification system. We do not sell exam access or certificates. All our games, algorithms, and interactive experience are our own intellectual property.'
             }
