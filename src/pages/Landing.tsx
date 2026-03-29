@@ -136,7 +136,7 @@ const Landing = () => {
 
   if (!ready) return <LandingFallback />;
 
-  const LandingComponent = selectedCountry.code === 'RU' ? LandingRussia : AiStudioLanding;
+  const LandingComponent = selectedCountry.code === 'RU' ? LandingRussia : LandingSpain;
 
   return (
     <>
