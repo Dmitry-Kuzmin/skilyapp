@@ -59,10 +59,12 @@ const tonConnectSDK = new TonConnect({
 const tonConnectUI = new TonConnectUI({
     connector: tonConnectSDK,
     restoreConnection: true,
+    enableAndroid: true,
     // Mobile optimization for Telegram:
     // Use 'none' in Mini App to avoid navigation issues, 'back' in regular mobile
     actionsConfiguration: {
         returnStrategy: isInMiniApp() ? 'none' : 'back',
+        skipRedirectToWallet: 'always',
     }
 });
 
