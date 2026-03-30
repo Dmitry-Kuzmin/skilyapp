@@ -571,6 +571,20 @@ const CourseLanding = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [heroReady, setHeroReady] = useState(false);
   const [formSent, setFormSent] = useState(false);
+  const [dbPrices, setDbPrices] = useState<DbPlanPrices | undefined>(undefined);
+
+  // Загружаем цены из course_plans — единый источник правды с ботом
+  useEffect(() => {
+    getSupabaseClient().then((sb) =>
+      sb.from('course_plans' as never).select('id, price_eur, original_price_eur, payment_link').eq('active', true)
+    ).then(({ data }) => {
+      if (!data || !Array.isArray(data)) return;
+      const map: DbPlanPrices = {};
+      (data as { id: string; price_eur: number; original_price_eur: number | null; payment_link: string | null }[])
+        .forEach((p) => { map[p.id] = p; });
+      setDbPrices(map);
+    }).catch(() => { /* fallback to hardcoded */ });
+  }, []);
 
   useEffect(() => {
     // inject styles
