@@ -85,6 +85,12 @@ const adminNavItems = [
     path: "/admin/pdd-russia",
   },
   {
+    id: "streams",
+    label: "Потоки курса DGT",
+    icon: Users,
+    path: "/admin/streams",
+  },
+  {
     id: "mission-control",
     label: "Mission Control 🚀",
     icon: Rocket,
