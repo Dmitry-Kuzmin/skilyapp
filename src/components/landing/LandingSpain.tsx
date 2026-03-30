@@ -604,6 +604,19 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
 
         {/* Right Side: Actions */}
         <div className="flex items-center gap-2 md:gap-3 ml-auto">
+          {language === 'ru' && (
+            <button
+              onClick={() => navigate('/curso')}
+              className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 text-blue-200 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider hover:from-blue-500/20 hover:to-cyan-500/20 transition-all mr-0 md:mr-2 group shadow-lg shadow-blue-500/5 backdrop-blur-md"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              Живой курс
+            </button>
+          )}
+
           {/* Language selector: all three languages available */}
           {selectedCountry.code !== 'RU' && (
             <LanguageSelector
@@ -1193,20 +1206,18 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
                   ))}
                 </div>
 
-                <a
-                  href="https://t.me/skilyapp_bot"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => {
-                    playClickSound().catch(() => {});
+                <button
+                  onClick={() => {
+                    playClickSound();
+                    navigate('/curso');
                   }}
-                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/50 w-fit group hover:scale-105 active:scale-95"
+                  className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold transition-all duration-300 hover:shadow-2xl hover:shadow-blue-600/50 w-fit group hover:scale-105 active:scale-95 text-lg"
                 >
-                  {copy.liveClass.cta}
+                  Оформить заявку
                   <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
-                </a>
+                </button>
               </div>
 
               {/* RIGHT: Visual - Enhanced Card */}

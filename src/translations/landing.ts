@@ -771,6 +771,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
     footer: {
       menu: [
         { label: "О нас", href: "/about" },
+        { label: "Живой курс", href: "/curso" },
         { label: "Условия", href: "/legal/terms" },
         { label: "Политика", href: "/legal/privacy" },
         { label: "Cookies", href: "/legal/cookies" },

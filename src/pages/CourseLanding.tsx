@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { SeoHead } from "@/components/seo/SeoHead";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns";
+import { ArcGalleryHero } from "@/components/ui/arc-gallery-hero";
+import { FAQ } from "@/components/ui/faq-tabs";
+import { PricingCards } from "@/components/ui/pricing-cards";
 import {
   CheckCircle2,
   Globe,
@@ -28,6 +31,8 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const ARC_IMAGES = Array.from({ length: 12 }, (_, i) => `/assets/landing/arc/img-${String(i + 1).padStart(2, '0')}.png`);
 
 /* ─────────────────────────────────────────────
    Scroll-reveal hook (IntersectionObserver)
@@ -103,9 +108,9 @@ const HERO_STATS = [
 ];
 
 const TRUST_PILLS = [
-  { text: "Любой город Испании", icon: Globe },
-  { text: "С телефона или ПК", icon: Smartphone },
-  { text: "Актуальная база DGT 2026", icon: Zap },
+  { text: "Живой курс: 2 месяца", icon: Clock },
+  { text: "Оформление документов под ключ", icon: FileText },
+  { text: "Зачет стажа из стран СНГ", icon: BadgeCheck },
 ];
 
 const PAIN_POINTS = [
@@ -151,7 +156,6 @@ const ADVANTAGES = [
     desc: "Поможем с медкомиссией, документами и записью на экзамен в вашем регионе.",
   },
 ];
-
 const STEPS = [
   {
     icon: GraduationCap,
@@ -178,6 +182,70 @@ const STEPS = [
     desc: "Идёте в любую местную автошколу для практического вождения и финального экзамена.",
   },
 ];
+
+const FAQ_CATEGORIES = {
+  general: "Общая информация",
+  course: "О курсе",
+};
+
+const NEW_FAQ_DATA = {
+  general: [
+    {
+      question: "Нужно ли знать испанский для сдачи?",
+      answer: "Теоретический экзамен доступен на нескольких языках (испанский, английский, французский, немецкий), но вождение сдается исключительно на испанском. Наш курс ведется на русском языке с постепенным погружением в испанскую терминологию. Вы без труда выучите все необходимые автомобильные термины и сможете уверенно сдать теорию на испанском, не прибегая к словарю."
+    },
+    {
+      question: "Можно ли сдать теорию и вождение в один день?",
+      answer: "Нет. Сначала необходимо успешно сдать теоретическую часть. Как правило, результаты теории публикуются в тот же или на следующий рабочий день. Только после официального подтверждения сдачи теории автошкола может записать вас на практический экзамен по вождению."
+    },
+    {
+      question: "Какой минимальный возраст для получения прав?",
+      answer: "Права категории B в Испании выдаются с 18 лет. Однако сдавать теоретический экзамен можно заранее — начиная с 17 лет и 9 месяцев. Практический экзамен доступен строго после совершеннолетия (18 лет)."
+    },
+    {
+      question: "Нужно ли заново сдавать на права резидентам?",
+      answer: "Да. Испания и РФ не имеют договора о взаимном признании водительских удостоверений. Поэтому резидентам необходимо пройти обучение, сдать теорию и практику для получения местных прав. Иностранными правами можно пользоваться не более 6 месяцев с момента получения ВНЖ в Испании."
+    },
+    {
+      question: "Нужно ли проходить медицинское обследование?",
+      answer: "Обязательно (справка Psicotécnico). Перед допуском к экзаменам необходимо пройти медкомиссию (проверка зрения, координации, общего состояния здоровья). Справка действительна 90 дней, поэтому ее стоит получать ближе к дате подачи документов в DGT."
+    },
+    {
+      question: "Сколько практических уроков вождения потребуется?",
+      answer: "Минимального обязательного количества часов по закону нет. Однако мы рекомендуем брать не менее 10–12 занятий. Провал на практике влечет дополнительные расходы: вам придется заново оплачивать пошлину DGT (Tasa DGT) и услуги автошколы по оформлению документов. Дешевле взять больше уроков и сдать с первого раза."
+    },
+    {
+      question: "С какими документами можно сдавать экзамен?",
+      answer: "DGT требует легального статуса нахождения в стране. Подходят: карточка резидента TIE (Arraigo, No lucrativa, виза инвестора и др.), регистрация гражданина ЕС (одного NIE недостаточно), вид на жительство по учебе (срок более 6 месяцев), красная карта беженца (через 6 месяцев после подачи) или испанский DNI."
+    }
+  ],
+  course: [
+    {
+      question: "Как происходит оплата курса?",
+      answer: "Оплата делится на две части для вашего удобства. 50% стоимости (предоплата) вносится при бронировании места и заключении договора. Оставшиеся 50% оплачиваются непосредственно перед стартом занятий. Это гарантирует вам место в группе и бронирует доступ к платформе."
+    },
+    {
+      question: "На каком языке проходит экзамен в автошколе?",
+      answer: "По умолчанию в DGT экзамен сдается на испанском (в ряде регионов доступен английский, французский или немецкий). Наш курс сфокусирован на подготовке к сдаче именно на испанском языке, выстраивая базу терминологии так, чтобы вам не потребовался переводчик."
+    },
+    {
+      question: "Сколько времени занимает обучение?",
+      answer: "Интенсивный курс рассчитан на 2 месяца живых эфиров (2 раза в неделю по 2 часа). Благодаря грамотному расписанию и нашей AI-платформе с базой DGT, в среднем студенты готовы к успешной сдаче через 6–8 недель регулярной практики."
+    },
+    {
+      question: "Могу ли я учить теорию у вас, а практику в своем городе?",
+      answer: "Абсолютно! Экзамен сдается в государственном органе DGT. Результат успешной сдачи теории закрепляется за вами в базе DGT по всей Испании. Вы можете пройти теоретическую подготовку онлайн с нами, а затем выбрать любую удобную автошколу в своем регионе."
+    },
+    {
+      question: "Подойдет ли курс, если я уже пытался сдать и провалился?",
+      answer: "Да, этот курс идеально вам подойдет. Живой формат с преподавателем позволяет разобрать конкретные ошибки и закрыть пробелы, которые мешали сдать. Многие студенты приходят именно после неудачных самостоятельных попыток и благополучно сдают теорию с нашей помощью."
+    },
+    {
+      question: "Подходит ли курс для других категорий (мотоцикл)?",
+      answer: "Курс полностью закрывает 'Общую теорию' (Тест Común), которая идентична для категорий B (легковое авто) и A1/A2 (мотоциклы). Однако для мотоцикла нужно сдавать еще дополнительный специфический тест, который в рамки данного курса не входит. Для категории B этот курс является исчерпывающим."
+    }
+  ]
+};
 
 const ELIGIBILITY = [
   { icon: UserCheck, text: "ВНЖ (резиденция) или студенческая виза" },
@@ -211,28 +279,6 @@ const PLAN_PREMIUM = {
   ],
 };
 
-const FAQ_DATA = [
-  {
-    q: "Могу ли я учить теорию с вами, а практику сдавать в своем городе?",
-    a: "Да, абсолютно. Сертификат о сдаче теории действителен на всей территории Испании. Вы можете выбрать любую автошколу рядом с домом для уроков вождения.",
-  },
-  {
-    q: "На каком языке проходит реальный экзамен?",
-    a: "Экзамен в DGT можно сдавать на испанском (в некоторых регионах — на английском, французском или немецком). Наш курс готовит вас к пониманию испанских вопросов без словаря.",
-  },
-  {
-    q: "Сколько времени занимает подготовка?",
-    a: "В среднем наши студенты готовы к экзамену за 4-6 недель регулярных занятий на платформе.",
-  },
-  {
-    q: "А если я уже проваливал экзамен?",
-    a: "Тем более подходит. Разберём ваши ошибки и закроем пробелы. Многие ученики сдали именно после 2-3 неудачных попыток самостоятельной подготовки.",
-  },
-  {
-    q: "Подходит ли курс для категории B?",
-    a: "Да, курс покрывает полную подготовку к теоретическому экзамену DGT категории B (легковые автомобили).",
-  },
-];
 
 const TESTIMONIALS = [
   {
@@ -337,6 +383,189 @@ function GlowCard({ children, className }: { children: React.ReactNode; classNam
 /* ─────────────────────────────────────────────
    MAIN COMPONENT
    ───────────────────────────────────────────── */
+// ─────────────────────────────────────────────
+// COMPONENT: RotatingHeroBadge
+// ─────────────────────────────────────────────
+const RotatingHeroBadge = () => {
+  const [index, setIndex] = useState(0);
+
+  // Compute next first Tuesday dynamically
+  const getNextFirstTuesday = () => {
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth();
+
+    const getFirstTuesday = (y: number, m: number) => {
+      const d = new Date(y, m, 1);
+      const day = d.getDay(); // 0-Sun.. 2-Tue
+      const offset = (2 - day + 7) % 7;
+      d.setDate(1 + offset);
+      return d;
+    };
+
+    let nextTuesday = getFirstTuesday(year, month);
+    // If today is past the Tuesday, bump to next month
+    if (now.getTime() > nextTuesday.getTime() + 24 * 60 * 60 * 1000) {
+      if (month === 11) {
+        month = 0;
+        year++;
+      } else {
+        month++;
+      }
+      nextTuesday = getFirstTuesday(year, month);
+    }
+    return nextTuesday;
+  };
+
+  const nextDate = getNextFirstTuesday();
+  const dateFormatted = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(nextDate);
+
+  // Derive stream number assuming March 2026 is stream 50
+  const buildStreamNumber = () => {
+     let currentStream = 50 + (nextDate.getFullYear() - 2026) * 12 + (nextDate.getMonth() - 2); 
+     return currentStream;
+  };
+
+  const streamNum = buildStreamNumber();
+
+  const badges = [
+    {
+      id: 0,
+      content: (
+        <div className="flex items-center gap-2 px-4 py-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+          </span>
+          <span className="text-blue-200 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-sm">Набор на {streamNum} поток открыт</span>
+        </div>
+      ),
+      className: "bg-blue-500/10 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)] hover:bg-blue-500/20",
+    },
+    {
+      id: 1,
+      content: (
+        <div className="group flex items-center gap-3 px-1.5 py-1.5 pr-4">
+          <div className="bg-white/10 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/10 flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+            LIVE
+          </div>
+          <span className="text-zinc-300 text-xs sm:text-sm font-medium tracking-wide">Старт потока: {dateFormatted}</span>
+          <div className="h-4 w-px bg-white/10 hidden sm:block mx-1"></div>
+          <span className="text-zinc-500 hidden sm:flex items-center gap-1 text-xs font-semibold">
+            Забронировать
+            <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform text-zinc-400" />
+          </span>
+        </div>
+      ),
+      className: "bg-white/[0.03] border-white/5 shadow-[0_0_15px_rgba(255,255,255,0.02)] hover:bg-white/10",
+    },
+    {
+      id: 2,
+      content: (
+        <div className="flex items-center gap-2 px-4 py-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+          </span>
+          <span className="text-orange-200 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-sm">Успейте занять место: набор скоро закроется</span>
+        </div>
+      ),
+      className: "bg-orange-500/10 border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.1)] hover:bg-orange-500/20",
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % badges.length);
+    }, 4500); 
+    return () => clearInterval(timer);
+  }, [badges.length]);
+
+  const activeBadge = badges[index];
+
+  return (
+    <div 
+      className="relative flex justify-center items-center h-12 w-full mb-6 cursor-pointer"
+      onClick={() => {
+        const form = document.getElementById('enroll-form');
+        if (form) form.scrollIntoView({ behavior: 'smooth' });
+      }}
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeBadge.id}
+          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className={`absolute flex justify-center items-center rounded-full border backdrop-blur-md transition-colors ${activeBadge.className}`}
+        >
+          {activeBadge.content}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────────
+   COMPONENT: PricingCountdown
+   Считает время до ближайшего первого вторника
+   ───────────────────────────────────────────── */
+const PricingCountdown = () => {
+  const getNextFirstTuesday = () => {
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth();
+    const getFirst = (y: number, m: number) => {
+      const d = new Date(y, m, 1);
+      const offset = (2 - d.getDay() + 7) % 7;
+      d.setDate(1 + offset);
+      return d;
+    };
+    let target = getFirst(year, month);
+    if (now.getTime() > target.getTime() + 24 * 60 * 60 * 1000) {
+      month = month === 11 ? (year++, 0) : month + 1;
+      target = getFirst(year, month);
+    }
+    return target;
+  };
+
+  const calcDiff = () => {
+    const diff = getNextFirstTuesday().getTime() - Date.now();
+    if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
+    const s = Math.floor(diff / 1000);
+    return {
+      d: Math.floor(s / 86400),
+      h: Math.floor((s % 86400) / 3600),
+      m: Math.floor((s % 3600) / 60),
+      s: s % 60,
+    };
+  };
+
+  const [time, setTime] = useState(calcDiff);
+
+  useEffect(() => {
+    const t = setInterval(() => setTime(calcDiff()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return (
+    <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-orange-300">
+      <span className="text-zinc-500 font-sans font-normal text-[10px] mr-1 hidden sm:block">До старта:</span>
+      <span>{time.d}д</span>
+      <span className="text-zinc-600">:</span>
+      <span>{pad(time.h)}ч</span>
+      <span className="text-zinc-600">:</span>
+      <span>{pad(time.m)}м</span>
+      <span className="text-zinc-600">:</span>
+      <span>{pad(time.s)}с</span>
+    </div>
+  );
+};
+
 const CourseLanding = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [heroReady, setHeroReady] = useState(false);
@@ -377,107 +606,136 @@ const CourseLanding = () => {
     <div className="min-h-screen bg-[#060a14] text-white antialiased selection:bg-blue-500/30">
       <SeoHead
         title="Водительские права в Испании — сдайте теорию DGT с первого раза | Skilyapp"
-        description="Онлайн-подготовка к экзамену DGT на русском языке. 9 из 10 сдают с первой попытки. Полное сопровождение: от теории до получения прав. Бесплатный демо-доступ."
+        description="Запись на живой онлайн-курс по теории DGT на русском языке. 9 из 10 сдают с первой попытки. Полное сопровождение: от документов до получения прав."
         canonicalUrl="https://skilyapp.com/curso"
       />
 
       {/* ═══════════════════════════════════════════
-          BLOCK 1: HERO
+          BLOCK 1: HERO — Arc Gallery
           ═══════════════════════════════════════════ */}
-      <header className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden px-4">
+      <header className="relative min-h-[100dvh] flex flex-col items-center overflow-hidden">
         {/* Ambient background */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[700px] bg-blue-600/[0.08] rounded-full blur-[140px] curso-glow-pulse" />
           <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-cyan-500/[0.05] rounded-full blur-[120px]" />
           <div className="absolute top-[20%] left-[-5%] w-[300px] h-[300px] bg-violet-500/[0.04] rounded-full blur-[100px]" />
-          {/* Grid pattern */}
           <div className="absolute inset-0 opacity-[0.03]" style={{
             backgroundImage: "linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)",
             backgroundSize: "64px 64px",
           }} />
         </div>
 
-        <div className="relative max-w-4xl w-full text-center">
-          {/* Logo / brand */}
-          <div className={cn(
-            "mb-8 transition-all duration-700",
-            heroReady ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-6"
-          )}>
-            <a href="/" className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white/80 hover:text-white transition-colors">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-sm font-black">S</div>
-              Skilyapp
+        {/* Navbar */}
+        <nav className={cn(
+          "relative z-50 flex items-center justify-between w-full px-6 py-6 md:px-10 max-w-[1325px] mx-auto transition-all duration-700",
+          heroReady ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-6"
+        )}>
+          <a href="/" className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white/90 hover:text-white transition-colors">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-sm font-black shadow-lg shadow-blue-500/20 text-white">S</div>
+            Skilyapp
+          </a>
+
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400 mr-2">
+              <button onClick={scrollToHowItWorks} className="hover:text-white transition-colors">Формат курса</button>
+              <button onClick={() => {
+                const form = document.getElementById('enroll-form');
+                if (form) form.scrollIntoView({ behavior: 'smooth' });
+              }} className="hover:text-white transition-colors">Для кого</button>
+              <a href="https://t.me/skilyapp_bot" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Отзывы</a>
+            </div>
+
+            <a
+              href="https://t.me/skilyapp_bot"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:inline-flex bg-white/10 border border-white/10 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md shadow-lg items-center gap-2"
+            >
+              Задать вопрос
             </a>
           </div>
+        </nav>
 
+        {/* Arc Gallery */}
+        <ArcGalleryHero
+          images={ARC_IMAGES}
+          startAngle={15}
+          endAngle={165}
+          radiusLg={620}
+          radiusMd={440}
+          radiusSm={280}
+          cardSizeLg={110}
+          cardSizeMd={90}
+          cardSizeSm={64}
+          overlapLg={-450}
+          overlapMd={-300}
+          overlapSm={-180}
+        >
+          {/* Content inside the arc curve */}
           {/* Badge */}
           <div className={cn(
-            "flex justify-center mb-8 transition-all duration-700 delay-100",
+            "transition-all duration-700 delay-100",
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/[0.08] text-zinc-400 text-sm backdrop-blur-sm">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,.6)]" />
-              Набор на новый поток открыт
-            </div>
+            <RotatingHeroBadge />
           </div>
 
           {/* H1 */}
           <h1 className={cn(
-            "text-[2.25rem] sm:text-5xl lg:text-[3.75rem] font-extrabold leading-[1.1] tracking-tight mb-6 transition-all duration-700 delay-200",
+            "max-w-4xl mx-auto text-4xl sm:text-5xl lg:text-6xl xl:text-[4.25rem] font-extrabold leading-[1.1] tracking-tight mb-6 transition-all duration-700 delay-200",
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
-            Водительские права в Испании:
-            <br />
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent curso-gradient-x">
-              сдайте теорию с первого раза
+            Сдаем теорию DGT.
+            <br className="hidden sm:block" />
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent curso-gradient-x sm:mt-2 inline-block">
+              Вместе и с первой попытки.
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className={cn(
-            "text-base sm:text-lg lg:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-700 delay-300",
+            "max-w-3xl mx-auto text-base sm:text-lg lg:text-xl text-zinc-400 mb-10 leading-relaxed transition-all duration-700 delay-300 font-medium",
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
-            Пошаговая онлайн-подготовка к экзамену DGT на русском языке.
-            {" "}Никаких скучных лекций на непонятном испанском — учитесь в своем темпе,
-            а бюрократию мы возьмем на себя.
+            Забудьте про страх перед испанской бюрократией и терминологией. Получите доступ к премиальному курсу, где вас будут сопровождать от первого урока до успешной сдачи экзамена в Trafico.
           </p>
 
           {/* CTA buttons */}
           <div className={cn(
-            "flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 transition-all duration-700 delay-[400ms]",
+            "flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 transition-all duration-700 delay-[400ms]",
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
             <button
               onClick={scrollToForm}
-              className="group relative w-full sm:w-auto px-8 py-4 rounded-2xl font-semibold text-lg overflow-hidden transition-all active:scale-[0.97]"
+              className="group relative w-full sm:w-auto px-7 py-3.5 rounded-2xl font-semibold text-base overflow-hidden transition-all active:scale-[0.97]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 transition-all group-hover:brightness-110" />
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-r from-blue-400 to-cyan-400" />
               <span className="relative flex items-center justify-center gap-2">
-                Получить демо-доступ
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                Забронировать место
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </button>
             <button
               onClick={scrollToHowItWorks}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl font-semibold text-lg border border-white/[0.1] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all active:scale-[0.97] flex items-center justify-center gap-2 backdrop-blur-sm"
+              className="w-full sm:w-auto px-7 py-3.5 rounded-2xl font-semibold text-base border border-white/[0.1] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all active:scale-[0.97] flex items-center justify-center gap-2 backdrop-blur-sm"
             >
               Как это работает?
-              <ArrowDown className="w-5 h-5" />
+              <ArrowDown className="w-4 h-4" />
             </button>
           </div>
 
           {/* Trust pills */}
           <div className={cn(
-            "flex flex-wrap items-center justify-center gap-3 mb-14 transition-all duration-700 delay-500",
+            "flex flex-wrap items-center justify-center gap-2.5 mb-10 transition-all duration-700 delay-500",
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
             {TRUST_PILLS.map((pill) => (
               <div
                 key={pill.text}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/[0.06] text-sm text-zinc-400"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-xs text-zinc-400"
               >
-                <pill.icon className="w-4 h-4 text-blue-400" />
+                <pill.icon className="w-3.5 h-3.5 text-blue-400" />
                 {pill.text}
               </div>
             ))}
@@ -485,23 +743,23 @@ const CourseLanding = () => {
 
           {/* Animated stats */}
           <div className={cn(
-            "grid grid-cols-3 gap-6 max-w-md mx-auto transition-all duration-700 delay-[600ms]",
+            "grid grid-cols-3 gap-5 max-w-sm mx-auto transition-all duration-700 delay-[600ms]",
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
             {HERO_STATS.map((s) => (
               <div key={s.label} className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
+                <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
                   <AnimatedNumber value={s.value} suffix={s.suffix} />
                 </div>
-                <div className="text-xs sm:text-sm text-zinc-500 mt-1.5">{s.label}</div>
+                <div className="text-[11px] sm:text-xs text-zinc-500 mt-1">{s.label}</div>
               </div>
             ))}
           </div>
-        </div>
+        </ArcGalleryHero>
 
         {/* Scroll indicator */}
         <div className={cn(
-          "absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 delay-[800ms]",
+          "absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 delay-[800ms] z-20",
           heroReady ? "opacity-60" : "opacity-0"
         )}>
           <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-1.5">
@@ -513,7 +771,7 @@ const CourseLanding = () => {
       {/* ═══════════════════════════════════════════
           BLOCK 2: PAIN POINTS
           ═══════════════════════════════════════════ */}
-      <Section className="max-w-5xl mx-auto px-4 py-24">
+      <Section className="max-w-[1325px] mx-auto px-4 py-24">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/15 text-red-400 text-xs font-medium uppercase tracking-wider mb-6">
             Проблема
@@ -552,7 +810,7 @@ const CourseLanding = () => {
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-blue-500/[0.04] rounded-full blur-[120px]" />
         </div>
-        <div className="relative max-w-5xl mx-auto px-4">
+        <div className="relative max-w-[1325px] mx-auto px-4">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/15 text-blue-400 text-xs font-medium uppercase tracking-wider mb-6">
               Преимущества
@@ -583,7 +841,7 @@ const CourseLanding = () => {
       {/* ═══════════════════════════════════════════
           BLOCK 4: HOW IT WORKS (Steps)
           ═══════════════════════════════════════════ */}
-      <Section id="how-it-works" className="max-w-5xl mx-auto px-4 py-24">
+      <Section id="how-it-works" className="max-w-[1325px] mx-auto px-4 py-24">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/15 text-emerald-400 text-xs font-medium uppercase tracking-wider mb-6">
             4 шага
@@ -656,79 +914,63 @@ const CourseLanding = () => {
       </Section>
 
       {/* ═══════════════════════════════════════════
-          BLOCK 6: PRICING (2 tiers)
+          BLOCK 6: PRICING (3 tiers)
           ═══════════════════════════════════════════ */}
-      <Section className="relative py-24">
+      <Section className="relative py-24" id="pricing">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-blue-500/[0.04] rounded-full blur-[140px]" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-blue-500/[0.04] rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 left-1/4 w-[400px] h-[300px] bg-violet-500/[0.03] rounded-full blur-[120px]" />
         </div>
-        <div className="relative max-w-4xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-400 text-xs font-medium uppercase tracking-wider mb-6">
-              Тарифы
+
+        <div className="relative max-w-[1325px] mx-auto px-4">
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-400 text-xs font-bold uppercase tracking-widest mb-6">
+              Специальное предложение потока
             </div>
-            <h2 className="text-2xl sm:text-4xl font-bold">
-              Выберите свой формат подготовки
+            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4">
+              Выберите свой формат
             </h2>
+            <p className="text-zinc-400 text-base max-w-lg mx-auto">
+              Все тарифы включают 2 месяца живых занятий и доступ к платформе Skilyapp в подарок
+            </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6 items-start">
-            {/* Basic */}
-            <GlowCard className="p-7 hover:border-white/[0.12] transition-all">
-              <h3 className="text-xl font-bold mb-1">{PLAN_BASIC.name}</h3>
-              <p className="text-sm text-zinc-400 mb-6">{PLAN_BASIC.subtitle}</p>
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold">€10</span>
-                <span className="text-zinc-500">/мес</span>
+          {/* Urgency bar */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl px-5 py-3 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                <span className="text-zinc-300 text-sm font-medium">Набор в поток открыт</span>
+                <span className="hidden sm:inline text-zinc-700">·</span>
+                <span className="hidden sm:inline text-orange-400 text-sm font-semibold">
+                  4 места из 8
+                </span>
               </div>
-              <ul className="space-y-3 mb-8">
-                {PLAN_BASIC.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm">
-                    <Check className="w-4 h-4 text-zinc-500 shrink-0 mt-0.5" />
-                    <span className="text-zinc-300">{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={scrollToForm}
-                className="w-full py-3.5 rounded-xl font-semibold border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] transition-all active:scale-[0.98]"
-              >
-                Выбрать Базовый
-              </button>
-            </GlowCard>
-
-            {/* Premium */}
-            <div className="relative">
-              <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-blue-500/30 via-cyan-500/20 to-transparent curso-border-glow" style={{ borderRadius: "1rem" }} />
-              <GlowCard className="relative p-7 bg-white/[0.05] border-blue-500/20 hover:border-blue-500/30 transition-all">
-                <div className="absolute -top-3 right-6 px-3 py-1 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 text-xs font-bold shadow-lg shadow-blue-500/20">
-                  {PLAN_PREMIUM.badge}
-                </div>
-                <h3 className="text-xl font-bold mb-1">{PLAN_PREMIUM.name}</h3>
-                <p className="text-sm text-zinc-400 mb-6">{PLAN_PREMIUM.subtitle}</p>
-                <div className="flex items-baseline gap-1 mb-6">
-                  <span className="text-4xl font-bold">€250</span>
-                  <span className="text-zinc-500">разово</span>
-                </div>
-                <ul className="space-y-3 mb-8">
-                  {PLAN_PREMIUM.features.map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-sm">
-                      <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-                      <span className="text-zinc-200">{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  onClick={scrollToForm}
-                  className="w-full py-3.5 rounded-xl font-semibold bg-gradient-to-r from-blue-500 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-[0.98]"
-                >
-                  Выбрать Премиум
-                </button>
-              </GlowCard>
+              <PricingCountdown />
             </div>
           </div>
+
+          {/* Three cards */}
+          <PricingCards onBooking={scrollToForm} />
+
+          {/* Trust footer */}
+          <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-zinc-600 text-xs">
+            <span className="flex items-center gap-1.5">🔒 Цена фиксируется при бронировании</span>
+            <span className="flex items-center gap-1.5">💳 Предоплата 50% · остаток перед стартом</span>
+            <span className="flex items-center gap-1.5">🔁 Без скрытых платежей</span>
+          </div>
+
+          {/* Platform-only note */}
+          <p className="text-center text-zinc-600 text-sm mt-6">
+            Нужен только доступ к платформе без живого курса?{" "}
+            <a href="/app" className="text-zinc-400 underline underline-offset-4 hover:text-white transition-colors">
+              Самостоятельная подготовка от €10/мес →
+            </a>
+          </p>
         </div>
       </Section>
+
 
       {/* ═══════════════════════════════════════════
           BLOCK 7: TESTIMONIALS (animated columns)
@@ -766,46 +1008,24 @@ const CourseLanding = () => {
         </div>
       </section>
 
+      {/* ─────────────────────────────────────────────
+          DIVIDER
+          ───────────────────────────────────────────── */}
+      <div className="relative w-full h-px max-w-[1325px] mx-auto my-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-[2px] bg-gradient-to-r from-transparent via-blue-500/20 to-transparent blur-[2px]" />
+      </div>
+
       {/* ═══════════════════════════════════════════
           BLOCK 8: FAQ
           ═══════════════════════════════════════════ */}
-      <Section className="max-w-2xl mx-auto px-4 py-24">
-        <div className="text-center mb-16">
-          <h2 className="text-2xl sm:text-4xl font-bold">
-            Остались вопросы?
-          </h2>
-        </div>
-        <div className="space-y-3">
-          {FAQ_DATA.map((faq, i) => (
-            <button
-              key={i}
-              onClick={() => setOpenFaq(openFaq === i ? null : i)}
-              className={cn(
-                "w-full text-left rounded-2xl border transition-all duration-300",
-                openFaq === i
-                  ? "bg-white/[0.04] border-blue-500/20 shadow-lg shadow-blue-500/5"
-                  : "bg-white/[0.02] border-white/[0.06] hover:border-white/[0.1]"
-              )}
-            >
-              <div className="flex items-center justify-between gap-4 p-5">
-                <span className="font-medium text-[15px]">{faq.q}</span>
-                <ChevronDown className={cn(
-                  "w-5 h-5 text-zinc-500 shrink-0 transition-transform duration-300",
-                  openFaq === i && "rotate-180 text-blue-400"
-                )} />
-              </div>
-              <div className={cn(
-                "overflow-hidden transition-all duration-300",
-                openFaq === i ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
-              )}>
-                <p className="px-5 pb-5 text-sm text-zinc-400 leading-relaxed">
-                  {faq.a}
-                </p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </Section>
+      <FAQ 
+        id="faq"
+        title="Остались вопросы?"
+        subtitle="FAQ"
+        categories={FAQ_CATEGORIES}
+        faqData={NEW_FAQ_DATA}
+      />
 
       {/* ═══════════════════════════════════════════
           BLOCK 9: SIGNUP FORM + FINAL CTA
@@ -821,7 +1041,7 @@ const CourseLanding = () => {
               Хватит откладывать свободу<br />передвижения по Испании
             </h2>
             <p className="text-zinc-400">
-              Получите бесплатный демо-доступ и пройдите первый урок прямо сейчас
+              Количество мест в группе ограничено. Оставьте заявку, чтобы закрепить за собой место и получить бесплатную консультацию.
             </p>
           </div>
 
@@ -833,7 +1053,7 @@ const CourseLanding = () => {
                 </div>
                 <h3 className="text-xl font-bold mb-2">Заявка отправлена!</h3>
                 <p className="text-sm text-zinc-400">
-                  Мы свяжемся с вами в течение 24 часов для предоставления демо-доступа.
+                  Мы свяжемся с вами в течение 24 часов, чтобы подтвердить место и ответить на все вопросы.
                 </p>
               </div>
             ) : (
@@ -903,7 +1123,7 @@ const CourseLanding = () => {
                   className="group w-full py-4 rounded-xl font-semibold text-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <Send className="w-5 h-5" />
-                  Получить демо-доступ
+                  Забронировать место
                 </button>
                 <p className="text-xs text-zinc-500 text-center">
                   Нажимая кнопку, вы соглашаетесь с{" "}
@@ -921,7 +1141,7 @@ const CourseLanding = () => {
           FOOTER
           ═══════════════════════════════════════════ */}
       <footer className="border-t border-white/[0.05] py-10">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-[1325px] mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <a href="/" className="flex items-center gap-2 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">
               <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-black text-white">S</div>
