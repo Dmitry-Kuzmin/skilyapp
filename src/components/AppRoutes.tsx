@@ -344,6 +344,11 @@ export function AppRoutes() {
             <AdminMissionControl />
           </Suspense>
         } />
+        <Route path="streams" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <AdminStreams />
+          </Suspense>
+        } />
       </Route >
       <Route path="/road-signs" element={
         <Suspense fallback={<PageSkeleton />}>
