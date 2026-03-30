@@ -163,6 +163,9 @@ const AdminSecurityMonitoring = lazy(() =>
 const AdminPartners = lazy(() =>
   import("./pages/admin/AdminPartners").then((module) => ({ default: module.AdminPartners }))
 );
+const AdminStreams = lazy(() =>
+  import("./pages/admin/AdminStreams").then((module) => ({ default: module.AdminStreams }))
+);
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const ModernPartnerDashboard = lazy(() => import("./pages/ModernPartnerDashboard"));
 const PartnerLinkRedirect = lazy(() => import("./pages/PartnerLinkRedirect"));
