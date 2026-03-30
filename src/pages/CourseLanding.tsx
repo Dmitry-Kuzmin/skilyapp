@@ -570,17 +570,26 @@ const CourseLanding = () => {
   const [heroReady, setHeroReady] = useState(false);
   const [formSent, setFormSent] = useState(false);
   const [dbPrices, setDbPrices] = useState<DbPlanPrices | undefined>(undefined);
+  const [dbStreams, setDbStreams] = useState<StreamInfo[] | null>(null);
 
-  // Загружаем цены из course_plans — единый источник правды с ботом
+  // Загружаем ЦЕНЫ и ПОТОКИ из БД — единый источник правды с ботом
   useEffect(() => {
-    getSupabaseClient().then((sb) =>
-      sb.from('course_plans' as never).select('id, price_eur, original_price_eur, payment_link').eq('active', true)
-    ).then(({ data }) => {
-      if (!data || !Array.isArray(data)) return;
-      const map: DbPlanPrices = {};
-      (data as { id: string; price_eur: number; original_price_eur: number | null; payment_link: string | null }[])
-        .forEach((p) => { map[p.id] = p; });
-      setDbPrices(map);
+    getSupabaseClient().then(async (sb) => {
+      const [plansRes, streamsRes] = await Promise.all([
+        sb.from('course_plans' as never).select('id, price_eur, original_price_eur, payment_link').eq('active', true),
+        sb.from('course_streams' as never).select('number, start_date, spots_total, spots_enrolled').eq('status', 'open').order('start_date', { ascending: true }).limit(3),
+      ]);
+
+      if (plansRes.data && Array.isArray(plansRes.data)) {
+        const map: DbPlanPrices = {};
+        (plansRes.data as { id: string; price_eur: number; original_price_eur: number | null; payment_link: string | null }[])
+          .forEach((p) => { map[p.id] = p; });
+        setDbPrices(map);
+      }
+
+      if (streamsRes.data && Array.isArray(streamsRes.data)) {
+        setDbStreams(streamsRes.data as StreamInfo[]);
+      }
     }).catch(() => { /* fallback to hardcoded */ });
   }, []);
 
