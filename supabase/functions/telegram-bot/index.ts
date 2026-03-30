@@ -583,6 +583,18 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         });
       } catch {}
     }
+    // ── Воронка курса DGT ──────────────────────────────
+    else if (data.startsWith("course_")) {
+      await handleCourseCallback(
+        data,
+        message.chat.id,
+        message.message_id,
+        user.id,
+        user.first_name || 'друг',
+        user.username,
+        supabase
+      );
+    }
     // Broadcast: подтверждение/отмена рассылки
     else if (data.startsWith("broadcast_confirm:")) {
       await executeBroadcast(message.chat.id, message.message_id, data);
