@@ -34,6 +34,11 @@ import {
   Sparkles,
   Send,
   Check,
+  Lock,
+  Calendar,
+  Users,
+  Flame,
+  Menu,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -399,7 +404,7 @@ function GlowCard({ children, className }: { children: React.ReactNode; classNam
 // COMPONENT: RotatingHeroBadge
 // Данные берутся из БД (course_streams) через props
 // ─────────────────────────────────────────────
-type StreamInfo = { number: number; start_date: string; spots_total: number; spots_enrolled: number };
+type StreamInfo = { id?: string; number: number; start_date: string; spots_total: number; spots_enrolled: number; status?: string; };
 
 const RotatingHeroBadge = ({ stream }: { stream?: StreamInfo | null }) => {
   const [index, setIndex] = useState(0);
@@ -497,8 +502,8 @@ const RotatingHeroBadge = ({ stream }: { stream?: StreamInfo | null }) => {
     <div
       className="relative flex justify-center items-center h-12 w-full mb-6 cursor-pointer"
       onClick={() => {
-        const form = document.getElementById('enroll-form');
-        if (form) form.scrollIntoView({ behavior: 'smooth' });
+        const el = document.getElementById('pricing');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
       }}
     >
       <AnimatePresence mode="wait">
@@ -518,11 +523,25 @@ const RotatingHeroBadge = ({ stream }: { stream?: StreamInfo | null }) => {
 };
 
 /* ─────────────────────────────────────────────
-   COMPONENT: PricingCountdown
-   Считает время до ближайшего первого вторника
+   COMPONENT: StreamSelectorBanner
+   Интерактивный баннер выбора потока с выпадающим списком (dropdown)
    ───────────────────────────────────────────── */
-const PricingCountdown = () => {
-  const getNextFirstTuesday = () => {
+const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Fallbacks if dbStreams is null
+  const activeStream = dbStreams?.[selectedIndex];
+  const isCompleted = activeStream?.status === 'finished' || activeStream?.status === 'closed';
+  const spotsTotal = activeStream?.spots_total ?? 8;
+  // If completed, SpotsLeft = 0 naturally.
+  const spotsLeft = isCompleted ? 0 : Math.max(0, spotsTotal - (activeStream?.spots_enrolled ?? 0));
+  const isFewSpots = !isCompleted && spotsLeft <= 2 && spotsLeft > 0;
+  const isSFull = isCompleted || spotsLeft <= 0;
+  const streamNum = activeStream?.number ?? 51;
+  const hasMore = dbStreams && dbStreams.length > 1;
+
+  const getFallbackDate = () => {
     const now = new Date();
     let year = now.getFullYear();
     let month = now.getMonth();
@@ -540,37 +559,153 @@ const PricingCountdown = () => {
     return target;
   };
 
-  const calcDiff = () => {
-    const diff = getNextFirstTuesday().getTime() - Date.now();
-    if (diff <= 0) return { d: 0, h: 0, m: 0, s: 0 };
-    const s = Math.floor(diff / 1000);
-    return {
-      d: Math.floor(s / 86400),
-      h: Math.floor((s % 86400) / 3600),
-      m: Math.floor((s % 3600) / 60),
-      s: s % 60,
-    };
-  };
-
-  const [time, setTime] = useState(calcDiff);
-
-  useEffect(() => {
-    const t = setInterval(() => setTime(calcDiff()), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const targetDate = activeStream?.start_date ? new Date(activeStream.start_date + 'T00:00:00') : getFallbackDate();
+  const dateFormatted = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(targetDate);
 
   return (
-    <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-orange-300">
-      <span className="text-zinc-500 font-sans font-normal text-[10px] mr-1 hidden sm:block">До старта:</span>
-      <span>{time.d}д</span>
-      <span className="text-zinc-600">:</span>
-      <span>{pad(time.h)}ч</span>
-      <span className="text-zinc-600">:</span>
-      <span>{pad(time.m)}м</span>
-      <span className="text-zinc-600">:</span>
-      <span>{pad(time.s)}с</span>
+    <div className="max-w-[700px] mx-auto mb-10 w-full relative z-20">
+      <div 
+        className={cn(
+          "relative overflow-hidden rounded-2xl bg-white/[0.03] border backdrop-blur-md transition-colors duration-300",
+          isOpen ? "border-white/20" : "border-white/10"
+        )}
+      >
+        {/* Subtle Top Gradient Line */}
+        <div className={cn("absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r via-white/50 to-transparent opacity-30", isSFull ? "from-red-500" : isFewSpots ? "from-orange-500" : "from-blue-500")} />
+        
+        {/* Main Banner row */}
+        <div 
+          className={cn(
+            "p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 select-none",
+            hasMore && "cursor-pointer hover:bg-white/[0.02]"
+          )}
+          onClick={() => hasMore && setIsOpen(!isOpen)}
+        >
+          {/* Stream Info Box */}
+          <div className="flex items-center gap-3">
+            <div className={cn("flex flex-col items-center justify-center bg-white/5 border rounded-xl w-12 h-12 shrink-0 relative overflow-hidden", isSFull ? "border-red-500/30" : "border-white/10")}>
+              <div className={cn("absolute bottom-0 w-full transition-all duration-700", isSFull ? "bg-red-500/20" : isFewSpots ? "bg-orange-500/20" : "bg-blue-500/20")} style={{ height: `${( (spotsTotal - spotsLeft) / spotsTotal ) * 100}%` }} />
+              <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest relative z-10 leading-none mb-0.5">Поток</span>
+              <span className="text-lg font-black text-white relative z-10 leading-none">{streamNum}</span>
+            </div>
+            
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2 mb-1">
+                <div className={cn("w-1.5 h-1.5 rounded-full", isSFull ? "bg-red-500" : isFewSpots ? "bg-orange-500 animate-pulse" : "bg-emerald-500 animate-pulse")} />
+                <span className="text-sm font-semibold text-zinc-200">
+                  {isSFull ? "Набор закрыт" : isFewSpots ? "Закрытие набора" : "Набор открыт"}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-1.5 text-xs">
+                {isSFull ? (
+                  <Lock className="w-3.5 h-3.5 text-red-400" />
+                ) : isFewSpots ? (
+                  <Flame className="w-3.5 h-3.5 text-orange-400" />
+                ) : (
+                  <Users className="w-3.5 h-3.5 text-zinc-500" />
+                )}
+                <span className={cn("font-medium", isSFull ? "text-red-400" : isFewSpots ? "text-orange-400" : "text-zinc-500")}>
+                  {isSFull ? "Мест нет" : `${spotsLeft} из ${spotsTotal} мест свободно`}
+                </span>
+                {hasMore && (
+                  <>
+                    <span className="text-zinc-700 hidden sm:inline">·</span>
+                    <span className="text-zinc-500 hidden sm:inline underline decoration-dotted underline-offset-4 hover:text-white transition-colors">
+                      {isOpen ? "Свернуть" : `Выбрать дату старта`}
+                    </span>
+                    <ChevronDown className={cn("w-3.5 h-3.5 text-zinc-500 hidden sm:inline transition-transform duration-300", isOpen && "rotate-180")} />
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* Right side Data */}
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl whitespace-nowrap">
+            <Calendar className="w-4 h-4 text-blue-400" />
+            <span className="text-zinc-400 text-xs font-medium uppercase tracking-wider">Старт:</span>
+            <span className="text-white text-sm font-bold tracking-wide">{dateFormatted}</span>
+          </div>
+        </div>
+
+        {/* Expanded list of streams */}
+        <AnimatePresence>
+          {isOpen && hasMore && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="border-t border-white/5 bg-black/40 overflow-hidden"
+            >
+              <div className="p-3 grid grid-cols-1 gap-1.5">
+                <div className="text-xs text-zinc-500 font-medium px-2 py-1 uppercase tracking-widest mb-1">
+                  План запусков на ближайшее время:
+                </div>
+                {dbStreams.map((s, idx) => {
+                  const sIsCompleted = s.status === 'finished' || s.status === 'closed';
+                  const sSpotsLeft = sIsCompleted ? 0 : Math.max(0, s.spots_total - s.spots_enrolled);
+                  const isSFull = sIsCompleted || sSpotsLeft <= 0;
+                  const isSelected = idx === selectedIndex;
+                  const sDate = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date(s.start_date + 'T00:00:00'));
+                  
+                  return (
+                    <div 
+                      key={s.id}
+                      onClick={() => {
+                        if (isSFull) return;
+                        setSelectedIndex(idx);
+                        setIsOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center justify-between p-3 rounded-xl transition-all border",
+                        isSelected 
+                          ? "bg-blue-500/10 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]" 
+                          : "bg-white/5 border-transparent hover:bg-white/10 hover:border-white/10",
+                        isSFull ? "opacity-50 cursor-pointer" : "cursor-pointer" // No longer hiding full streams, lets show them as unselectable
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-10 h-10 rounded-lg flex items-center justify-center font-bold font-mono text-sm shadow-inner transition-colors",
+                          isSelected ? "bg-blue-500 text-white" : isSFull ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-white/10 text-zinc-400"
+                        )}>
+                          {s.number}
+                        </div>
+                        <div className="flex flex-col">
+                           <span className={cn("text-sm font-bold tracking-wide", isSelected ? "text-white" : "text-zinc-300")}>
+                             {sDate}
+                           </span>
+                           <span className={cn("text-[11px] font-medium", isSFull ? "text-red-400/80" : "text-zinc-500")}>
+                             {isSFull ? "Мест нет" : `Осталось мест: ${sSpotsLeft}`}
+                           </span>
+                        </div>
+                      </div>
+                      
+                      {isSelected ? (
+                        <div className="flex items-center gap-1.5 text-blue-400 text-xs font-bold mr-2 uppercase tracking-widest">
+                          <Check className="w-4 h-4" />
+                          <span>Выбран</span>
+                        </div>
+                      ) : isSFull ? (
+                        <div className="flex items-center gap-1.5 text-red-500/60 text-xs font-bold mr-2 uppercase tracking-widest">
+                          <Lock className="w-3.5 h-3.5" />
+                          <span>Закрыт</span>
+                        </div>
+                      ) : (
+                        <div className="text-zinc-600 text-xs mr-2 group-hover:text-zinc-400 transition-colors">
+                          Выбрать
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
@@ -579,6 +714,8 @@ const CourseLanding = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [heroReady, setHeroReady] = useState(false);
   const [formSent, setFormSent] = useState(false);
+  const [formModalOpen, setFormModalOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dbPrices, setDbPrices] = useState<DbPlanPrices | undefined>(undefined);
   const [dbStreams, setDbStreams] = useState<StreamInfo[] | null>(null);
 
@@ -587,7 +724,7 @@ const CourseLanding = () => {
     getSupabaseClient().then(async (sb) => {
       const [plansRes, streamsRes] = await Promise.all([
         sb.from('course_plans' as never).select('id, price_eur, original_price_eur, payment_link').eq('active', true),
-        sb.from('course_streams' as never).select('number, start_date, spots_total, spots_enrolled').eq('status', 'open').order('start_date', { ascending: true }).limit(3),
+        sb.from('course_streams' as never).select('id, status, number, start_date, spots_total, spots_enrolled').gte('start_date', new Date().toISOString().split('T')[0]).order('start_date', { ascending: true }).limit(4),
       ]);
 
       if (plansRes.data && Array.isArray(plansRes.data)) {
@@ -671,22 +808,102 @@ const CourseLanding = () => {
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400 mr-2">
               <button onClick={scrollToHowItWorks} className="hover:text-white transition-colors">Формат курса</button>
               <button onClick={() => {
-                const form = document.getElementById('enroll-form');
-                if (form) form.scrollIntoView({ behavior: 'smooth' });
-              }} className="hover:text-white transition-colors">Для кого</button>
-              <a href="https://t.me/skilyapp_bot" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">Отзывы</a>
+                const el = document.getElementById('pricing');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }} className="hover:text-white transition-colors">Тарифы</button>
+              <button onClick={() => {
+                const el = document.getElementById('faq');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }} className="hover:text-white transition-colors">FAQ</button>
             </div>
 
-            <a
-              href="https://t.me/skilyapp_bot"
-              target="_blank"
-              rel="noreferrer"
-              className="hidden sm:inline-flex bg-white/10 border border-white/10 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-white/20 transition-all active:scale-95 backdrop-blur-md shadow-lg items-center gap-2"
+            <button
+              onClick={() => {
+                const el = document.getElementById('pricing');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="hidden sm:inline-flex bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95 shadow-[0_0_15px_rgba(59,130,246,0.2)] items-center gap-2"
             >
-              Задать вопрос
-            </a>
+              Начать учиться
+            </button>
+
+            {/* Mobile Burger */}
+            <button
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 text-zinc-400 hover:text-white transition-colors"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
           </div>
         </nav>
+
+        {/* Mobile Flyout Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-0 left-0 w-full z-[100] bg-[#060a14]/95 backdrop-blur-3xl border-b border-white/10 px-6 py-8 shadow-2xl flex flex-col h-auto"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <a href="/" className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white/90">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-sm font-black shadow-lg shadow-blue-500/20 text-white">S</div>
+                  Skilyapp
+                </a>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 text-zinc-400 hover:text-white transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-6 text-lg font-medium text-zinc-300">
+                <button 
+                  onClick={() => { setMobileMenuOpen(false); scrollToHowItWorks(); }}
+                  className="text-left w-full hover:text-white transition-colors"
+                >
+                  Формат курса
+                </button>
+                <button 
+                  onClick={() => { 
+                    setMobileMenuOpen(false); 
+                    const el = document.getElementById('pricing');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="text-left w-full hover:text-white transition-colors"
+                >
+                  Тарифы
+                </button>
+                <button 
+                  onClick={() => { 
+                    setMobileMenuOpen(false); 
+                    const el = document.getElementById('faq');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="text-left w-full hover:text-white transition-colors"
+                >
+                  Частые вопросы
+                </button>
+                
+                <hr className="border-white/10 my-2" />
+                
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    const el = document.getElementById('pricing');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-4 rounded-xl font-semibold text-center mt-2 shadow-[0_0_15px_rgba(59,130,246,0.2)]"
+                >
+                  Найти место
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Arc Gallery */}
         <ArcGalleryHero
@@ -845,43 +1062,26 @@ const CourseLanding = () => {
             </p>
           </div>
 
-          {/* Urgency bar — данные из course_streams */}
-          {(() => {
-            const nextStream = dbStreams?.[0];
-            const spotsLeft = nextStream ? nextStream.spots_total - nextStream.spots_enrolled : 4;
-            const spotsTotal = nextStream?.spots_total ?? 8;
-            const streamNum = nextStream?.number ?? 51;
-            return (
-              <div className="max-w-2xl mx-auto mb-8">
-                <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl px-5 py-3 flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex items-center gap-2.5 flex-wrap">
-                    <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
-                    <span className="text-zinc-300 text-sm font-medium">Поток {streamNum} — набор открыт</span>
-                    <span className="hidden sm:inline text-zinc-700">·</span>
-                    <span className={cn("hidden sm:inline text-sm font-semibold", spotsLeft <= 2 ? "text-rose-400" : "text-orange-400")}>
-                      {spotsLeft} из {spotsTotal} мест
-                    </span>
-                    {dbStreams && dbStreams.length > 1 && (
-                      <>
-                        <span className="text-zinc-700">·</span>
-                        <span className="text-zinc-500 text-xs">+{dbStreams.length - 1} следующих потока</span>
-                      </>
-                    )}
-                  </div>
-                  <PricingCountdown />
-                </div>
-              </div>
-            );
-          })()}
+          {/* Premium Urgency Banner (Interactive) */}
+          <StreamSelectorBanner dbStreams={dbStreams} />
 
           {/* Three cards */}
           <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
 
           {/* Trust footer */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-zinc-600 text-xs">
-            <span className="flex items-center gap-1.5">🔒 Цена фиксируется при бронировании</span>
-            <span className="flex items-center gap-1.5">💳 Предоплата 50% · остаток перед стартом</span>
-            <span className="flex items-center gap-1.5">🔁 Без скрытых платежей</span>
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 mt-12 text-zinc-400 text-xs sm:text-sm">
+            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.05] shadow-inner">
+              <Lock className="w-4 h-4 text-amber-500/80" />
+              Цена фиксируется при бронировании
+            </span>
+            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.05] shadow-inner">
+              <CreditCard className="w-4 h-4 text-blue-400/80" />
+              Предоплата 50% · остаток перед стартом
+            </span>
+            <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.05] shadow-inner">
+              <BadgeCheck className="w-4 h-4 text-emerald-400/80" />
+              Без скрытых платежей
+            </span>
           </div>
 
           {/* Platform-only note */}
@@ -950,123 +1150,146 @@ const CourseLanding = () => {
         faqData={NEW_FAQ_DATA}
       />
 
-      {/* ═══════════════════════════════════════════
-          BLOCK 9: SIGNUP FORM + FINAL CTA
-          ═══════════════════════════════════════════ */}
-      <Section id="signup-form" className="relative py-24">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-blue-500/[0.06] rounded-full blur-[140px]" />
-        </div>
+      {/* ─── Lead Form Modal ─────────────────────────────────────── */}
+      <AnimatePresence>
+        {formModalOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+              onClick={() => setFormModalOpen(false)}
+            />
 
-        <div className="relative max-w-lg mx-auto px-4">
-          <div className="text-center mb-10 mt-10">
-            <div className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/15 text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">
-              Бронирование места
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white px-2 tracking-tight text-center mb-4">
-              Начни учиться сегодня
-            </h2>
-            <p className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl mx-auto text-center font-light mb-12 px-4">
-              Хватит откладывать свободу передвижения по Испании. Оставьте заявку чтобы закрепить за собой место в группе и получить помощь методиста.
-            </p>
-          </div>
+            {/* Modal — bottom sheet on mobile, centered dialog on desktop */}
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 60 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="fixed z-50 inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center pointer-events-none"
+            >
+              <div className="pointer-events-auto w-full md:w-auto md:min-w-[440px] md:max-w-lg bg-zinc-900 border border-white/10 rounded-t-3xl md:rounded-3xl shadow-2xl px-6 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pb-6 mx-0 md:mx-4">
+                {/* Handle (mobile only) */}
+                <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-5 md:hidden" />
 
-          <GlowCard className="p-8 border-blue-500/15">
-            {formSent ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-lg font-black text-white">Оставить заявку</h3>
+                    <p className="text-xs text-zinc-500 mt-0.5">Ответим в течение 24 часов</p>
+                  </div>
+                  <button
+                    onClick={() => setFormModalOpen(false)}
+                    className="w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/[0.12] flex items-center justify-center transition-colors text-zinc-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
                 </div>
-                <h3 className="text-xl font-bold mb-2">Заявка отправлена!</h3>
-                <p className="text-sm text-zinc-400">
-                  Мы свяжемся с вами в течение 24 часов, чтобы подтвердить место и ответить на все вопросы.
-                </p>
+
+                {formSent ? (
+                  <div className="text-center py-8">
+                    <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="w-7 h-7 text-emerald-400" />
+                    </div>
+                    <h4 className="text-lg font-bold text-white mb-1">Заявка отправлена!</h4>
+                    <p className="text-sm text-zinc-400">Мы свяжемся с вами в течение 24 часов.</p>
+                    <button
+                      onClick={() => { setFormSent(false); setFormModalOpen(false); }}
+                      className="mt-5 text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+                    >
+                      Закрыть
+                    </button>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (typeof window !== "undefined" && (window as any).gtag) {
+                        (window as any).gtag("event", "conversion", {
+                          send_to: "AW-18034090184/_KkqCNiSzZEcEMjBqZdD",
+                          value: 250.0,
+                          currency: "EUR",
+                        });
+                      }
+                      const formData = new FormData(e.currentTarget);
+                      try {
+                        await fetch("https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/curso-lead", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            name: formData.get("name"),
+                            phone: formData.get("phone"),
+                            message: formData.get("message") || "",
+                          }),
+                        });
+                      } catch (err) {
+                        console.error("Failed to submit lead", err);
+                      }
+                      setFormSent(true);
+                    }}
+                    className="space-y-3"
+                  >
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Имя</label>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        placeholder="Как вас зовут?"
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Телефон / WhatsApp</label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        required
+                        placeholder="+34 6XX XXX XXX"
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
+                        Сообщение <span className="text-zinc-600">(необязательно)</span>
+                      </label>
+                      <textarea
+                        name="message"
+                        rows={2}
+                        placeholder="Вопросы, пожелания..."
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all resize-none text-sm"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full py-3.5 rounded-xl font-semibold text-base bg-gradient-to-r from-blue-500 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Забронировать место
+                    </button>
+                    <p className="text-[10px] text-zinc-600 text-center">
+                      Нажимая кнопку, вы соглашаетесь с{" "}
+                      <a href="/legal/privacy" className="underline hover:text-zinc-400 transition-colors">
+                        политикой конфиденциальности
+                      </a>
+                    </p>
+                  </form>
+                )}
               </div>
-            ) : (
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  // Track conversion for Google Ads
-                  if (typeof window !== "undefined" && (window as any).gtag) {
-                    (window as any).gtag("event", "conversion", {
-                      send_to: "AW-18034090184/_KkqCNiSzZEcEMjBqZdD",
-                      value: 250.0,
-                      currency: "EUR",
-                    });
-                  }
-
-                  // Submit lead to Telegram bot (verify_jwt = false — публичная функция)
-                  const formData = new FormData(e.currentTarget);
-                  try {
-                    await fetch("https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/curso-lead", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        name: formData.get("name"),
-                        phone: formData.get("phone"),
-                        message: formData.get("message") || "",
-                      }),
-                    });
-                  } catch (err) {
-                    console.error("Failed to submit lead", err);
-                  }
-
-                  setFormSent(true);
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-sm text-zinc-400 mb-1.5 font-medium">Имя</label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    placeholder="Как вас зовут?"
-                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-zinc-400 mb-1.5 font-medium">Телефон / WhatsApp</label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    required
-                    placeholder="+34 6XX XXX XXX"
-                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm text-zinc-400 mb-1.5 font-medium">Сообщение <span className="text-zinc-600">(необязательно)</span></label>
-                  <textarea
-                    name="message"
-                    rows={2}
-                    placeholder="Вопросы, пожелания..."
-                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="group w-full py-4 rounded-xl font-semibold text-lg bg-gradient-to-r from-blue-500 to-cyan-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-                >
-                  <Send className="w-5 h-5" />
-                  Забронировать место
-                </button>
-                <p className="text-xs text-zinc-500 text-center">
-                  Нажимая кнопку, вы соглашаетесь с{" "}
-                  <a href="/legal/privacy" className="underline hover:text-zinc-400 transition-colors">
-                    политикой конфиденциальности
-                  </a>
-                </p>
-              </form>
-            )}
-          </GlowCard>
-        </div>
-      </Section>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ═══════════════════════════════════════════
           CINEMATIC CTA FOOTER
           ═══════════════════════════════════════════ */}
-      <CinematicHero />
+      <CinematicHero onOpenForm={() => setFormModalOpen(true)} />
 
 
     </div>

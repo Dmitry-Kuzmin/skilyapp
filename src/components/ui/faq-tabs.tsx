@@ -26,7 +26,7 @@ export const FAQ = ({
   return (
     <div 
       className={cn(
-        "relative overflow-hidden bg-transparent px-4 py-24 text-white",
+        "relative bg-transparent px-4 py-24 text-white",
         className
       )}
       {...props}
@@ -64,32 +64,34 @@ const FAQTabs = ({
   selected: string; 
   setSelected: (k: string) => void;
 }) => (
-  <div className="relative z-10 flex md:flex-wrap items-center md:justify-center gap-2 mb-12 overflow-x-auto pb-4 md:pb-0 px-1 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
-    {Object.entries(categories).map(([key, label]) => (
-      <button
-        key={key}
-        onClick={() => setSelected(key)}
-        className={cn(
-          "relative overflow-hidden whitespace-nowrap rounded-full border px-5 py-2 text-sm font-semibold transition-colors duration-500 shrink-0 snap-start",
-          selected === key
-            ? "border-blue-500/50 text-white"
-            : "border-white/10 bg-white/[0.02] text-zinc-400 hover:text-white hover:bg-white/[0.05]"
-        )}
-      >
-        <span className="relative z-10">{label}</span>
-        <AnimatePresence>
-          {selected === key && (
-            <motion.span
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0 z-0 bg-blue-500/20 backdrop-blur-sm"
-            />
+  <div className="relative z-10 flex w-full justify-start md:justify-center mb-12">
+    <div className="flex items-center gap-2 overflow-x-auto pb-4 md:pb-0 px-4 md:px-0 max-w-full snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+      {Object.entries(categories).map(([key, label]) => (
+        <button
+          key={key}
+          onClick={() => setSelected(key)}
+          className={cn(
+            "relative overflow-hidden whitespace-nowrap rounded-full border px-5 py-2 text-sm font-semibold transition-colors duration-500 shrink-0 snap-center md:snap-start",
+            selected === key
+              ? "border-blue-500/50 text-white"
+              : "border-white/10 bg-white/[0.02] text-zinc-400 hover:text-white hover:bg-white/[0.05]"
           )}
-        </AnimatePresence>
-      </button>
-    ))}
+        >
+          <span className="relative z-10">{label}</span>
+          <AnimatePresence>
+            {selected === key && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0 z-0 bg-blue-500/20 backdrop-blur-sm"
+              />
+            )}
+          </AnimatePresence>
+        </button>
+      ))}
+    </div>
   </div>
 );
 

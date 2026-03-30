@@ -1,17 +1,30 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Check, X, Sparkles } from "lucide-react";
+import { 
+  ChevronDown, 
+  Check, 
+  X, 
+  Sparkles,
+  Target,
+  BookOpen,
+  Layers,
+  Gamepad2,
+  Swords,
+  Bot,
+  Flame,
+  Trophy
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PLATFORM_FEATURES = [
-  { icon: "🎯", text: "Экзамен DGT — полная симуляция (30 вопросов, 30 мин)" },
-  { icon: "📚", text: "3 000+ вопросов с подробными объяснениями" },
-  { icon: "🗂️", text: "Тесты по темам и тест на ошибки" },
-  { icon: "🃏", text: "Флеш-карточки и интерактивные игры" },
-  { icon: "⚔️", text: "Дуэли, Гонка, Блиц, Угадай Знак" },
-  { icon: "🤖", text: "Адаптивное обучение с ИИ" },
-  { icon: "🔥", text: "Ежедневные серии, сезоны и рейтинг" },
-  { icon: "🏆", text: "Достижения, значки и уровни" },
+  { icon: <Target className="w-[14px] h-[14px] text-red-400" />, text: "Экзамен DGT — полная симуляция (30 вопросов, 30 мин)" },
+  { icon: <BookOpen className="w-[14px] h-[14px] text-blue-400" />, text: "3 000+ вопросов с подробными объяснениями" },
+  { icon: <Layers className="w-[14px] h-[14px] text-amber-400" />, text: "Тесты по темам и тест на ошибки" },
+  { icon: <Gamepad2 className="w-[14px] h-[14px] text-emerald-400" />, text: "Флеш-карточки и интерактивные игры" },
+  { icon: <Swords className="w-[14px] h-[14px] text-zinc-400" />, text: "Дуэли, Гонка, Блиц, Угадай Знак" },
+  { icon: <Bot className="w-[14px] h-[14px] text-cyan-400" />, text: "Адаптивное обучение с ИИ" },
+  { icon: <Flame className="w-[14px] h-[14px] text-orange-400" />, text: "Ежедневные серии, сезоны и рейтинг" },
+  { icon: <Trophy className="w-[14px] h-[14px] text-yellow-400" />, text: "Достижения, значки и уровни" },
 ];
 
 interface Plan {
@@ -41,12 +54,12 @@ const BASE_PLANS: Plan[] = [
     accentColor: "zinc",
     cta: "Занять место",
     features: [
-      { text: "8 живых эфиров (2 мес × 2/нед × 2ч)", included: true },
+      { text: "16 живых эфиров (2 мес × 2/нед × 2ч)", included: true },
       { text: "Платформа Skilyapp на 3 мес в подарок", included: true },
-      { text: "Записи всех занятий (30 дней)", included: true },
-      { text: "Групповой Telegram-чат", included: true },
-      { text: "Консультация по документам (Cita, Tasa)", included: false },
-      { text: "Запись на экзамен в DGT за вас", included: false },
+      { text: "Записи занятий (доступ 30 дней)", included: true },
+      { text: "Общий Telegram-чат учеников", included: true },
+      { text: "Пошаговые инструкции по сбору документов", included: false },
+      { text: "Полное ведение и запись на экзамен (помощь)", included: false },
     ],
   },
   {
@@ -62,13 +75,13 @@ const BASE_PLANS: Plan[] = [
     cta: "Занять место",
     botParam: "buy_pro",
     features: [
-      { text: "8 живых эфиров (2 мес × 2/нед × 2ч)", included: true },
+      { text: "16 живых эфиров (2 мес × 2/нед × 2ч)", included: true },
       { text: "Платформа Skilyapp на 6 мес", included: true },
-      { text: "Записи всех занятий (30 дней)", included: true },
-      { text: "Групповой Telegram-чат", included: true },
+      { text: "Записи занятий (сохраняются на 6 месяцев)", included: true },
+      { text: "Закрытый чат с кураторами и преподавателем", included: true },
       { text: "Испанский для водителей (мини-курс)", included: true },
-      { text: "Консультация по Cita Previa, Tasa DGT, Psicotécnico", included: true },
-      { text: "Запись на экзамен в DGT за вас", included: false },
+      { text: "Пошаговые инструкции по сбору документов", included: true },
+      { text: "Полное ведение и запись на экзамен (помощь)", included: false },
     ],
   },
   {
@@ -84,13 +97,13 @@ const BASE_PLANS: Plan[] = [
     cta: "Занять место VIP",
     botParam: "buy_vip",
     features: [
-      { text: "8 живых эфиров (2 мес × 2/нед × 2ч)", included: true },
-      { text: "Платформа Skilyapp на 12 мес", included: true },
-      { text: "Записи всех занятий (30 дней)", included: true },
-      { text: "Групповой Telegram-чат", included: true },
+      { text: "16 живых эфиров (2 мес × 2/нед × 2ч)", included: true },
+      { text: "Платформа Skilyapp на 12 мес (Unlimited)", included: true },
+      { text: "Записи занятий (сохраняются на 12 месяцев)", included: true },
+      { text: "VIP-чат: личная поддержка 24/7", included: true },
       { text: "Испанский для водителей (мини-курс)", included: true },
-      { text: "Консультация по Cita Previa, Tasa DGT, Psicotécnico", included: true },
-      { text: "Мы сами записываем тебя на экзамен в DGT", included: true },
+      { text: "Индивидуальный разбор твоих документов", included: true },
+      { text: "Полное ведение и запись на экзамен (помощь)", included: true },
     ],
   },
 ];
@@ -152,7 +165,7 @@ function PlatformAccordion({ accentColor }: { accentColor: keyof typeof ACCENT }
             <div className="px-4 pb-4 grid grid-cols-1 gap-2">
               {PLATFORM_FEATURES.map((f) => (
                 <div key={f.text} className="flex items-start gap-2.5 text-xs text-zinc-400">
-                  <span className="shrink-0 text-sm leading-tight">{f.icon}</span>
+                  <span className="shrink-0 mt-[1px]">{f.icon}</span>
                   <span className="leading-relaxed">{f.text}</span>
                 </div>
               ))}
