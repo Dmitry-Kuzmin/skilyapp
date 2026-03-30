@@ -584,6 +584,16 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       } catch {}
     }
     // ── Воронка курса DGT ──────────────────────────────
+    else if (data === "course_start") {
+      // Кнопка из главного меню — запускаем воронку новым сообщением
+      await handleCourseStart(
+        message.chat.id,
+        user.first_name || 'друг',
+        user.id,
+        user.username,
+        supabase
+      );
+    }
     else if (data.startsWith("course_")) {
       await handleCourseCallback(
         data,
