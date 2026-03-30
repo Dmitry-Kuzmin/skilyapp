@@ -17,9 +17,9 @@ const ADMIN_CHAT_ID = 488159880; // @guapo_pub
 
 // Дефолтные тарифы (если таблица course_plans недоступна)
 const DEFAULT_PLANS: Record<string, CoursePlan> = {
-  basic: { id: 'basic', label_ru: 'Только теория',       price_eur: 199, original_price_eur: 199, stripe_link: null },
-  pro:   { id: 'pro',   label_ru: 'С сопровождением 🚀', price_eur: 259, original_price_eur: 324, stripe_link: null },
-  vip:   { id: 'vip',   label_ru: 'VIP — Под ключ 👑',   price_eur: 349, original_price_eur: 437, stripe_link: null },
+  basic: { id: 'basic', label_ru: 'Только теория',       price_eur: 199, original_price_eur: 199, payment_link: null },
+  pro:   { id: 'pro',   label_ru: 'С сопровождением 🚀', price_eur: 259, original_price_eur: 324, payment_link: null },
+  vip:   { id: 'vip',   label_ru: 'VIP — Под ключ 👑',   price_eur: 349, original_price_eur: 437, payment_link: null },
 };
 
 export type CoursePlan = {
