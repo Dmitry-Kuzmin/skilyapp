@@ -385,49 +385,43 @@ function GlowCard({ children, className }: { children: React.ReactNode; classNam
    MAIN COMPONENT
    ───────────────────────────────────────────── */
 // ─────────────────────────────────────────────
-// COMPONENT: RotatingHeroBadge
 // ─────────────────────────────────────────────
-const RotatingHeroBadge = () => {
+// COMPONENT: RotatingHeroBadge
+// Данные берутся из БД (course_streams) через props
+// ─────────────────────────────────────────────
+type StreamInfo = { number: number; start_date: string; spots_total: number; spots_enrolled: number };
+
+const RotatingHeroBadge = ({ stream }: { stream?: StreamInfo | null }) => {
   const [index, setIndex] = useState(0);
 
-  // Compute next first Tuesday dynamically
-  const getNextFirstTuesday = () => {
+  // Форматирование даты из ISO string
+  const formatDate = (iso: string) =>
+    new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(new Date(iso + 'T00:00:00'));
+
+  // Fallback: вычислить ближайший первый вторник
+  const getFallbackDate = (): { dateFormatted: string; streamNum: number } => {
     const now = new Date();
-    let year = now.getFullYear();
-    let month = now.getMonth();
-
+    let year = now.getFullYear(); let month = now.getMonth();
     const getFirstTuesday = (y: number, m: number) => {
-      const d = new Date(y, m, 1);
-      const day = d.getDay(); // 0-Sun.. 2-Tue
-      const offset = (2 - day + 7) % 7;
-      d.setDate(1 + offset);
-      return d;
+      const d = new Date(y, m, 1); const day = d.getDay();
+      d.setDate(1 + (2 - day + 7) % 7); return d;
     };
-
     let nextTuesday = getFirstTuesday(year, month);
-    // If today is past the Tuesday, bump to next month
-    if (now.getTime() > nextTuesday.getTime() + 24 * 60 * 60 * 1000) {
-      if (month === 11) {
-        month = 0;
-        year++;
-      } else {
-        month++;
-      }
+    if (now.getTime() > nextTuesday.getTime() + 86400000) {
+      month === 11 ? (year++, month = 0) : month++;
       nextTuesday = getFirstTuesday(year, month);
     }
-    return nextTuesday;
+    return {
+      dateFormatted: new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(nextTuesday),
+      streamNum: 50 + (nextTuesday.getFullYear() - 2026) * 12 + (nextTuesday.getMonth() - 2),
+    };
   };
 
-  const nextDate = getNextFirstTuesday();
-  const dateFormatted = new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(nextDate);
+  const { dateFormatted, streamNum } = stream
+    ? { dateFormatted: formatDate(stream.start_date), streamNum: stream.number }
+    : getFallbackDate();
 
-  // Derive stream number assuming March 2026 is stream 50
-  const buildStreamNumber = () => {
-     let currentStream = 50 + (nextDate.getFullYear() - 2026) * 12 + (nextDate.getMonth() - 2); 
-     return currentStream;
-  };
-
-  const streamNum = buildStreamNumber();
+  const spotsLeft = stream ? stream.spots_total - stream.spots_enrolled : 4;
 
   const badges = [
     {
@@ -438,7 +432,9 @@ const RotatingHeroBadge = () => {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
           </span>
-          <span className="text-blue-200 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-sm">Набор на {streamNum} поток открыт</span>
+          <span className="text-blue-200 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-sm">
+            Набор на {streamNum} поток открыт · {spotsLeft} мест
+          </span>
         </div>
       ),
       className: "bg-blue-500/10 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)] hover:bg-blue-500/20",
@@ -469,7 +465,9 @@ const RotatingHeroBadge = () => {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
           </span>
-          <span className="text-orange-200 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-sm">Успейте занять место: набор скоро закроется</span>
+          <span className="text-orange-200 text-xs sm:text-sm font-semibold tracking-wide backdrop-blur-sm">
+            {spotsLeft <= 2 ? `⚠️ Осталось ${spotsLeft} места — торопись!` : 'Успейте занять место: набор скоро закроется'}
+          </span>
         </div>
       ),
       className: "bg-orange-500/10 border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.1)] hover:bg-orange-500/20",
