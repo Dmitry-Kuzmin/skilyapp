@@ -95,6 +95,9 @@ const BASE_PLANS: Plan[] = [
   },
 ];
 
+// Map DB plan id → index in BASE_PLANS
+const DB_ID_MAP: Record<string, number> = { theory: 0, basic: 0, pro: 1, vip: 2 };
+
 const ACCENT = {
   blue: {
     border: "border-blue-500/40",
