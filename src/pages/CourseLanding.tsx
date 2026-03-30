@@ -699,7 +699,7 @@ const CourseLanding = () => {
             "transition-all duration-700 delay-100",
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
-            <RotatingHeroBadge />
+            <RotatingHeroBadge stream={dbStreams?.[0] ?? null} />
           </div>
 
           {/* H1 */}
