@@ -54,7 +54,7 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
   const parts = message.text?.split(' ') || [];
   const startParam = parts[1] || '';
 
-  if (startParam === 'course') {
+  if (startParam === 'course' || startParam === 'course_qualify') {
     await handleCourseStart(
       message.chat.id,
       user.first_name || 'друг',
