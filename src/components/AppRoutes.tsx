@@ -57,6 +57,9 @@ const AdminSecurityMonitoring = lazy(() =>
 const AdminPartners = lazy(() =>
   import("../pages/admin/AdminPartners").then((module) => ({ default: module.AdminPartners }))
 );
+const AdminStreams = lazy(() =>
+  import("../pages/admin/AdminStreams").then((module) => ({ default: module.AdminStreams }))
+);
 const AdminMarketingMaterials = lazy(() =>
   import("../pages/admin/AdminMarketingMaterials").then((module) => ({ default: module.AdminMarketingMaterials }))
 );
