@@ -164,11 +164,31 @@ function PlatformAccordion({ accentColor }: { accentColor: keyof typeof ACCENT }
   );
 }
 
-interface PricingCardsProps {
-  onBooking: () => void;
+export interface DbPlanPrices {
+  [planId: string]: { price_eur: number; original_price_eur: number | null; payment_link?: string | null };
 }
 
-export function PricingCards({ onBooking }: PricingCardsProps) {
+interface PricingCardsProps {
+  onBooking: () => void;
+  dbPrices?: DbPlanPrices;
+}
+
+export function PricingCards({ onBooking, dbPrices }: PricingCardsProps) {
+  // Merge DB prices into BASE_PLANS (DB wins if available)
+  const PLANS = BASE_PLANS.map((plan) => {
+    const dbKey = Object.keys(DB_ID_MAP).find((k) => DB_ID_MAP[k] === BASE_PLANS.indexOf(plan));
+    const dbPlan = dbKey && dbPrices?.[dbKey];
+    if (dbPlan) {
+      return {
+        ...plan,
+        price: dbPlan.price_eur,
+        oldPrice: dbPlan.original_price_eur ?? plan.oldPrice,
+        paymentLink: dbPlan.payment_link ?? undefined,
+      };
+    }
+    return plan;
+  });
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-[1325px] mx-auto px-4">
       {PLANS.map((plan) => {
