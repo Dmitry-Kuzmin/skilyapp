@@ -399,6 +399,7 @@ export async function handleCourseCallback(
         [{ text: '🔴 Нет, начинаю с нуля',         callback_data: 'course_s2_new' }],
         [{ text: '🟡 Пробовал — не получилось',     callback_data: 'course_s2_failed' }],
         [{ text: '🔵 Хочу сдать как можно быстрее', callback_data: 'course_s2_fast' }],
+        [{ text: '« Назад',                         callback_data: 'course_back_s1' }],
       ]}
     );
     return;
@@ -415,8 +416,25 @@ export async function handleCourseCallback(
         [{ text: '🔴 Нет, начинаю с нуля',         callback_data: 'course_s2_new' }],
         [{ text: '🟡 Пробовал — не получилось',     callback_data: 'course_s2_failed' }],
         [{ text: '🔵 Хочу сдать как можно быстрее', callback_data: 'course_s2_fast' }],
+        [{ text: '« Назад',                         callback_data: 'course_back_s1' }],
       ]}
     );
+    return;
+  }
+
+  // ── Возврат на шаг 1 ──────────────────────────────
+  if (data === 'course_back_s1') {
+    const text =
+      `🚗 <b>Привет, ${firstName}!</b>\n\n` +
+      `👇 <b>У тебя есть легальный статус в Испании?</b>`;
+    await edit(chatId, messageId, text, {
+      inline_keyboard: [
+        [{ text: '✅ Да — ВНЖ / резидент',  callback_data: 'course_s1_vnj' }],
+        [{ text: '🎓 Студенческая виза',     callback_data: 'course_s1_visa' }],
+        [{ text: '❓ Пока нет / не уверен',  callback_data: 'course_s1_unsure' }],
+        [{ text: '← Главное меню',           callback_data: 'main_menu' }],
+      ],
+    });
     return;
   }
 
