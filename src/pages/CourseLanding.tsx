@@ -967,7 +967,7 @@ const CourseLanding = () => {
           </div>
 
           {/* Three cards */}
-          <PricingCards onBooking={scrollToForm} />
+          <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
 
           {/* Trust footer */}
           <div className="flex flex-wrap items-center justify-center gap-6 mt-10 text-zinc-600 text-xs">
