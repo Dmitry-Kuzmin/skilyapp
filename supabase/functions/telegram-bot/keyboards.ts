@@ -43,7 +43,9 @@ export function getMainMenuKeyboard(lang: SupportedLanguage = 'ru', activeSeason
       { text: t('keyboard.learning', lang), callback_data: 'learning_menu', icon_custom_emoji_id: '5307495098613773492' },
       { text: t('keyboard.premium', lang),  callback_data: 'premium_menu',  icon_custom_emoji_id: '5462902520215002477' }
     ],
-    // Row 4: Помощь
+    // Row 4: Курс DGT (синяя кнопка)
+    [{ text: lang === 'es' ? '▶️ Curso Teórico DGT' : lang === 'en' ? '▶️ DGT Theory Course' : '▶️ Курс теории DGT', callback_data: 'course_start', icon_custom_emoji_id: '5264919878082509254' }],
+    // Row 5: Помощь
     [{ text: t('keyboard.help', lang), callback_data: 'help_menu', icon_custom_emoji_id: '5116368680279606270' }]
   ];
 
