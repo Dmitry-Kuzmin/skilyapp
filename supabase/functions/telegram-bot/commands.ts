@@ -50,6 +50,43 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
   const user = message.from;
   if (!user || !message.chat) return;
 
+  // ── Обработка deep-link параметров (/start <param>) ──
+  const parts = message.text?.split(' ') || [];
+  const startParam = parts[1] || '';
+
+  if (startParam === 'course') {
+    await handleCourseStart(
+      message.chat.id,
+      user.first_name || 'друг',
+      user.id,
+      user.username,
+      supabase
+    );
+    return;
+  }
+  if (startParam === 'buy_pro') {
+    await handleCourseBuyDirect(
+      message.chat.id,
+      user.first_name || 'друг',
+      user.id,
+      user.username,
+      'pro',
+      supabase
+    );
+    return;
+  }
+  if (startParam === 'buy_vip') {
+    await handleCourseBuyDirect(
+      message.chat.id,
+      user.first_name || 'друг',
+      user.id,
+      user.username,
+      'vip',
+      supabase
+    );
+    return;
+  }
+
   const lang = await getUserLanguage(user.id, user.language_code, supabase);
   const { data: profile } = await supabase.from('profiles').select('id, first_name').eq('telegram_id', user.id).maybeSingle();
   const { data: metrics } = await supabase.from('user_metrics').select('streak_days, readiness_level').eq('user_id', profile?.id).maybeSingle();
