@@ -278,6 +278,7 @@ async function sendPaymentStep(
       [{ text: '🇷🇺 Карта РФ / СБП',            callback_data: `course_pay_rub_${plan.id}` }],
       [{ text: '💎 Крипто (USDT / TON)',         callback_data: `course_pay_crypto_${plan.id}` }],
       [{ text: '❓ Помогите с оплатой',          callback_data: `course_pay_help_${plan.id}` }],
+      [{ text: '« Назад к тарифам',             callback_data: `course_buy_${plan.id}` }],
     ],
   };
 
