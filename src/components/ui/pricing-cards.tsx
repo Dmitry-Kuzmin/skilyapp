@@ -29,7 +29,7 @@ interface Plan {
   accentColor: string;
 }
 
-const PLANS: Plan[] = [
+const BASE_PLANS: Plan[] = [
   {
     id: "theory",
     name: "Теория",
