@@ -958,20 +958,34 @@ const CourseLanding = () => {
             </p>
           </div>
 
-          {/* Urgency bar */}
-          <div className="max-w-2xl mx-auto mb-8">
-            <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl px-5 py-3 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
-                <span className="text-zinc-300 text-sm font-medium">Набор в поток открыт</span>
-                <span className="hidden sm:inline text-zinc-700">·</span>
-                <span className="hidden sm:inline text-orange-400 text-sm font-semibold">
-                  4 места из 8
-                </span>
+          {/* Urgency bar — данные из course_streams */}
+          {(() => {
+            const nextStream = dbStreams?.[0];
+            const spotsLeft = nextStream ? nextStream.spots_total - nextStream.spots_enrolled : 4;
+            const spotsTotal = nextStream?.spots_total ?? 8;
+            const streamNum = nextStream?.number ?? 51;
+            return (
+              <div className="max-w-2xl mx-auto mb-8">
+                <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl px-5 py-3 flex flex-wrap items-center justify-between gap-4">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                    <span className="text-zinc-300 text-sm font-medium">Поток {streamNum} — набор открыт</span>
+                    <span className="hidden sm:inline text-zinc-700">·</span>
+                    <span className={cn("hidden sm:inline text-sm font-semibold", spotsLeft <= 2 ? "text-rose-400" : "text-orange-400")}>
+                      {spotsLeft} из {spotsTotal} мест
+                    </span>
+                    {dbStreams && dbStreams.length > 1 && (
+                      <>
+                        <span className="text-zinc-700">·</span>
+                        <span className="text-zinc-500 text-xs">+{dbStreams.length - 1} следующих потока</span>
+                      </>
+                    )}
+                  </div>
+                  <PricingCountdown />
+                </div>
               </div>
-              <PricingCountdown />
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Three cards */}
           <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
