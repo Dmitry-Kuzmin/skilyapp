@@ -87,7 +87,10 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
     return;
   }
 
-  const lang = await getUserLanguage(user.id, user.language_code, supabase);
+  const [lang, courseLabel] = await Promise.all([
+    getUserLanguage(user.id, user.language_code, supabase),
+    getMenuCourseLabel(supabase),
+  ]);
   const { data: profile } = await supabase.from('profiles').select('id, first_name').eq('telegram_id', user.id).maybeSingle();
   const { data: metrics } = await supabase.from('user_metrics').select('streak_days, readiness_level').eq('user_id', profile?.id).maybeSingle();
   const { data: activeSeason } = await supabase.from('duel_pass_seasons').select('name_ru, name_en, name_es').eq('is_active', true).maybeSingle();
@@ -112,7 +115,7 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
     chat_id: message.chat.id,
     text: welcomeText,
     parse_mode: 'HTML',
-    reply_markup: keyboards.getMainMenuKeyboard(lang, activeSeasonName)
+    reply_markup: keyboards.getMainMenuKeyboard(lang, activeSeasonName, courseLabel)
   });
 }
 
