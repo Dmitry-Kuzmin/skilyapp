@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns";
 import { ArcGalleryHero } from "@/components/ui/arc-gallery-hero";
 import { FAQ } from "@/components/ui/faq-tabs";
-import { PricingCards } from "@/components/ui/pricing-cards";
+import { PricingCards, type DbPlanPrices } from "@/components/ui/pricing-cards";
+import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import {
   CheckCircle2,
   Globe,
