@@ -220,7 +220,7 @@ export function PricingCards({ onBooking, dbPrices }: PricingCardsProps) {
         const isRecommended = recommendedPlanId === plan.id;
         const isFlashing = flashPlanId === plan.id;
         return (
-          <div key={plan.id} className="relative flex flex-col">
+          <div key={plan.id} id={`plan-${plan.id}`} className="relative flex flex-col">
             {/* Glow border */}
             {plan.highlight && (
               <div className={cn("absolute -inset-[1px] rounded-3xl bg-gradient-to-b blur-[1px]", acc.glow)} />

@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FAQProps {
+  id?: string;
   title?: string;
   subtitle?: string;
   categories: Record<string, string>;
@@ -63,13 +64,13 @@ const FAQTabs = ({
   selected: string; 
   setSelected: (k: string) => void;
 }) => (
-  <div className="relative z-10 flex flex-wrap items-center justify-center gap-2 mb-12">
+  <div className="relative z-10 flex md:flex-wrap items-center md:justify-center gap-2 mb-12 overflow-x-auto pb-4 md:pb-0 px-1 snap-x scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
     {Object.entries(categories).map(([key, label]) => (
       <button
         key={key}
         onClick={() => setSelected(key)}
         className={cn(
-          "relative overflow-hidden whitespace-nowrap rounded-full border px-5 py-2 text-sm font-semibold transition-colors duration-500",
+          "relative overflow-hidden whitespace-nowrap rounded-full border px-5 py-2 text-sm font-semibold transition-colors duration-500 shrink-0 snap-start",
           selected === key
             ? "border-blue-500/50 text-white"
             : "border-white/10 bg-white/[0.02] text-zinc-400 hover:text-white hover:bg-white/[0.05]"
@@ -131,7 +132,7 @@ const FAQItem = ({ question, answer }: { question: string; answer: string }) => 
     <motion.div
       animate={isOpen ? "open" : "closed"}
       className={cn(
-        "rounded-2xl border transition-all duration-300",
+        "rounded-2xl border transition-all duration-300 overflow-hidden",
         isOpen ? "bg-white/[0.04] border-blue-500/30 shadow-lg shadow-blue-500/5" : "bg-white/[0.02] border-white/5 hover:border-white/10"
       )}
     >
@@ -163,17 +164,19 @@ const FAQItem = ({ question, answer }: { question: string; answer: string }) => 
           />
         </motion.span>
       </button>
-      <motion.div
-        initial={false}
-        animate={{ 
-          height: isOpen ? "auto" : "0px", 
-          opacity: isOpen ? 1 : 0 
-        }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="overflow-hidden px-5"
-      >
-        <p className="text-sm text-zinc-400 pb-5 leading-relaxed">{answer}</p>
-      </motion.div>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="px-5"
+          >
+            <p className="text-sm text-zinc-400 pb-5 leading-relaxed whitespace-pre-line">{answer}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

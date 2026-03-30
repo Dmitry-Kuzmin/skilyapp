@@ -9,7 +9,7 @@ const timelineData: TimelineItem[] = [
     content: "Чтобы успешно сдать экзамен, нужно тщательно подготовиться. Наш курс разработан совместно с испанскими автошколами и включает: актуальную лексику, разбор ловушек DGT, тренировочные тесты и пошаговый план.",
     category: "Planning",
     icon: GraduationCap,
-    relatedIds: [2, 3],
+    relatedIds: [2],
     status: "completed",
     energy: 100,
   },

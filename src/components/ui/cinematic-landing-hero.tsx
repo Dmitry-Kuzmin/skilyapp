@@ -359,7 +359,7 @@ export function CinematicHero({
   return (
     <div
       ref={containerRef}
-      className={cn("relative w-screen h-screen overflow-hidden flex items-center justify-center bg-background text-foreground font-sans antialiased", className)}
+      className={cn("relative w-screen h-screen overflow-hidden flex items-center justify-center bg-[#09090b] text-foreground font-sans antialiased", className)}
       style={{ perspective: "1500px" }}
       {...props}
     >
@@ -367,12 +367,12 @@ export function CinematicHero({
       <div className="film-grain" aria-hidden="true" />
       <div className="bg-grid-theme absolute inset-0 z-0 pointer-events-none opacity-50" aria-hidden="true" />
 
-      {/* BACKGROUND LAYER: Hero Texts */}
+      {/* BACKGROUND LAYER: Hero Texts — видны ДО того как карточка поднялась */}
       <div className="hero-text-wrapper absolute z-10 flex flex-col items-center justify-center text-center w-screen px-4 will-change-transform transform-style-3d">
-        <h1 className="text-track gsap-reveal text-3d-matte text-5xl md:text-7xl lg:text-[6rem] font-bold tracking-tight mb-2">
+        <h1 className="text-track gsap-reveal text-white text-5xl md:text-7xl lg:text-[6rem] font-black tracking-tight mb-2 drop-shadow-2xl">
           {tagline1}
         </h1>
-        <h1 className="text-days gsap-reveal text-silver-matte text-5xl md:text-7xl lg:text-[6rem] font-extrabold tracking-tighter">
+        <h1 className="text-days gsap-reveal text-white/60 text-5xl md:text-7xl lg:text-[6rem] font-black tracking-tighter">
           {tagline2}
         </h1>
       </div>
@@ -385,7 +385,9 @@ export function CinematicHero({
           className="bg-[#050B14]"
         >
           <div className="flex flex-col items-center justify-center h-full relative px-4 text-center pointer-events-auto z-10">
-             <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold mb-10 tracking-tight text-white drop-shadow-lg">
+           {/* Фраза-наживка внутри финального экрана */}
+             <p className="text-zinc-500 text-sm md:text-base uppercase tracking-[0.25em] font-semibold mb-4">{tagline1}</p>
+             <h2 className="text-4xl md:text-5xl lg:text-7xl font-black mb-10 tracking-tight text-white drop-shadow-lg">
                {ctaHeading}
              </h2>
 

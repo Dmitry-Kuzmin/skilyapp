@@ -194,7 +194,7 @@ function getRecommendation(answers: Record<string, number>): PackageInfo {
   };
 }
 
-// ─── Tag Variant Styles ───────────────────────────────────────────────────────
+// ─── Tag & Choice Styles ──────────────────────────────────────────────────────
 
 const TAG_STYLES = {
   danger: "bg-rose-500/15 text-rose-400 border border-rose-500/25",
@@ -219,10 +219,9 @@ export function CourseChecklist() {
   const totalSteps = QUESTIONS.length;
   const question = QUESTIONS[currentStep];
   const answeredCount = Object.keys(answers).length;
-  const progress = ((currentStep) / totalSteps) * 100;
+  const progress = (currentStep / totalSteps) * 100;
   const recommendation = getRecommendation(answers);
 
-  // Show panel after 2nd answer
   useEffect(() => {
     if (answeredCount >= 2 && !panelVisible) {
       const t = setTimeout(() => setPanelVisible(true), 150);
@@ -241,9 +240,7 @@ export function CourseChecklist() {
   }
 
   function handleBack() {
-    if (currentStep > 0) {
-      setCurrentStep((s) => s - 1);
-    }
+    if (currentStep > 0) setCurrentStep((s) => s - 1);
   }
 
   function handleInfoNext() {
@@ -255,57 +252,54 @@ export function CourseChecklist() {
   }
 
   function scrollToPricingWithHighlight() {
-    // Store recommended plan so PricingCards can highlight it
+    // Диспатчим событие сразу
     sessionStorage.setItem("recommendedPlan", recommendation.planId);
     window.dispatchEvent(new CustomEvent("recommendPlan", { detail: { planId: recommendation.planId } }));
 
-    const el = document.getElementById("pricing");
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth" });
-
-    // Gold glow on the entire pricing section briefly
+    // Небольшая задержка — событие успевает обработаться, карточка получает id
     setTimeout(() => {
-      el.style.transition = "box-shadow 0.6s ease";
-      el.style.boxShadow = "0 0 80px 15px rgba(245,158,11,0.25)";
-      setTimeout(() => { el.style.boxShadow = ""; }, 2200);
-    }, 700);
+      // Скроллим к конкретной карточке тарифа
+      const card = document.getElementById(`plan-${recommendation.planId}`);
+      const section = document.getElementById("pricing");
+      const target = card ?? section;
+      if (!target) return;
+
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 80);
   }
 
   const riskScore = Object.values(answers).reduce((a, b) => a + b, 0);
   const showPanel = panelVisible || completed;
 
   return (
-    <div className={`w-full mx-auto px-4 py-20 relative z-10 transition-all duration-700 ease-in-out ${showPanel ? "max-w-[1325px]" : "max-w-[900px]"}`} id="smart-checklist">
+    <div className="w-full max-w-[1100px] mx-auto px-4 py-24 relative z-10" id="smart-checklist">
       {/* Header */}
       <div className="text-center mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold uppercase tracking-wider mb-5">
-          <ShieldAlert className="w-3.5 h-3.5" />
-          Оценка шансов на сдачу
+        <div className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/15 text-violet-400 text-xs font-bold uppercase tracking-widest mb-4">
+          <Sparkles className="w-3.5 h-3.5" />
+          Подбор тарифа
         </div>
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-3 tracking-tight">
-          Умный чек-лист готовности
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 tracking-tight text-center px-2">
+          Подберём тариф под вас
         </h2>
-        <p className="text-zinc-400 max-w-lg mx-auto text-sm">
-          Ответьте на {totalSteps} вопросов — получите персональную рекомендацию
+        <p className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl mx-auto text-center font-light px-4">
+          Ответьте на {totalSteps} вопросов — получите точный план и подходящий тариф
         </p>
       </div>
 
-      {/* Layout container - flex, shifts left when panel appears */}
-      <div className="flex flex-col lg:flex-row gap-5 items-start">
+      {/* Единая карточка */}
+      <motion.div
+        layout
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="w-full bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/40"
+      >
+        <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-white/[0.06]">
 
-        {/* LEFT: Wizard */}
-        <motion.div
-          layout
-          transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="w-full lg:flex-1 min-w-0"
-        >
-          <div className="bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
-
-            {/* Progress bar */}
+          {/* LEFT: Wizard — 55% */}
+          <motion.div layout transition={{ duration: 0.5 }} className="flex-1 lg:basis-[55%] min-w-0">
             {!completed && (
               <div className="px-6 pt-5 pb-0">
                 <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
-                  {/* Back button */}
                   <button
                     onClick={handleBack}
                     disabled={currentStep === 0}
@@ -318,7 +312,7 @@ export function CourseChecklist() {
                 </div>
                 <div className="h-[3px] bg-zinc-800 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-sky-500 to-blue-500 rounded-full"
+                    className="h-full bg-gradient-to-r from-violet-500 to-blue-500 rounded-full"
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: 0.45, ease: "easeOut" }}
                   />
@@ -326,7 +320,6 @@ export function CourseChecklist() {
               </div>
             )}
 
-            {/* Question area */}
             <div className="p-6 sm:p-8 min-h-[320px] flex flex-col justify-center">
               <AnimatePresence mode="wait">
                 {!completed ? (
@@ -337,20 +330,16 @@ export function CourseChecklist() {
                     exit={{ opacity: 0, x: -18 }}
                     transition={{ duration: 0.22, ease: "easeOut" }}
                   >
-                    {/* Icon + title */}
                     <div className="mb-6">
-                      <div className={`w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center mb-4`}>
+                      <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center mb-4">
                         <question.Icon className={`w-5 h-5 ${question.iconColor}`} />
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-1.5 leading-snug">
-                        {question.title}
-                      </h3>
+                      <h3 className="text-xl font-bold text-white mb-1.5 leading-snug">{question.title}</h3>
                       {question.subtitle && (
                         <p className="text-sm text-zinc-500 leading-relaxed">{question.subtitle}</p>
                       )}
                     </div>
 
-                    {/* Choices */}
                     {question.type === "choice" && question.choices && (
                       <div className="space-y-2">
                         {question.choices.map((choice, idx) => (
@@ -382,10 +371,9 @@ export function CourseChecklist() {
                       </div>
                     )}
 
-                    {/* Info card — Psicotécnico */}
                     {question.type === "info" && (
                       <div className="space-y-4">
-                        <div className="bg-teal-500/8 border border-teal-500/20 rounded-xl p-4 space-y-3">
+                        <div className="bg-teal-500/[0.08] border border-teal-500/20 rounded-xl p-4 space-y-3">
                           <div className="flex items-start gap-3">
                             <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
                             <div className="text-sm text-zinc-300 leading-relaxed">
@@ -393,16 +381,11 @@ export function CourseChecklist() {
                             </div>
                           </div>
                           <div className="pl-7 space-y-2 text-sm text-zinc-400">
-                            <p>
-                              <span className="text-amber-400 font-medium">Действует всего 3 месяца</span> — её сдают ближе к экзамену, не в начале подготовки.
-                            </p>
-                            <p>
-                              <span className="text-emerald-400 font-medium">Если только начинаете</span> — пока не нужна. Мы напомним и поможем с записью.
-                            </p>
+                            <p><span className="text-amber-400 font-medium">Действует всего 3 месяца</span> — её сдают ближе к экзамену, не в начале подготовки.</p>
+                            <p><span className="text-emerald-400 font-medium">Если только начинаете</span> — пока не нужна. Мы напомним и поможем с записью.</p>
                             <p className="text-zinc-600 text-xs">Стоит ~€30 в любом Centro de Reconocimiento. Можно пройти за 15 минут.</p>
                           </div>
                         </div>
-
                         <button
                           onClick={handleInfoNext}
                           className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
@@ -413,7 +396,6 @@ export function CourseChecklist() {
                     )}
                   </motion.div>
                 ) : (
-                  /* Completed */
                   <motion.div
                     key="done"
                     initial={{ opacity: 0, scale: 0.96 }}
@@ -429,7 +411,6 @@ export function CourseChecklist() {
                        riskScore >= 2 ? <AlertTriangle className="w-7 h-7 text-amber-400" /> :
                        <CheckCircle2 className="w-7 h-7 text-emerald-400" />}
                     </div>
-
                     <h3 className="text-xl font-black text-white mb-2">
                       {riskScore >= 5 ? "Есть серьёзные пробелы" :
                        riskScore >= 2 ? "Небольшие риски — исправимо" : "Отличный старт!"}
@@ -441,8 +422,6 @@ export function CourseChecklist() {
                         ? "Один-два пробела, которые куратор поможет закрыть за пару недель."
                         : "Хорошая база. Практика на платформе — и вы готовы!"}
                     </p>
-
-                    {/* Answer summary */}
                     <div className="flex flex-wrap justify-center gap-2 mb-6">
                       {QUESTIONS.slice(0, -1).map((q) => {
                         const risk = answers[q.id] ?? 0;
@@ -456,16 +435,14 @@ export function CourseChecklist() {
                         );
                       })}
                     </div>
-
                     <button
                       onClick={scrollToPricingWithHighlight}
                       className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm bg-gradient-to-r ${recommendation.gradient} text-white hover:opacity-90 hover:shadow-xl transition-all`}
                     >
                       <Sparkles className="w-4 h-4" />
-                      Посмотреть рекомендованный тариф
+                      Перейти к рекомендованному тарифу
                       <ArrowRight className="w-4 h-4" />
                     </button>
-
                     <button
                       onClick={() => { setCurrentStep(0); setAnswers({}); setCompleted(false); setPanelVisible(false); }}
                       className="block mt-3 mx-auto text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
@@ -476,86 +453,81 @@ export function CourseChecklist() {
                 )}
               </AnimatePresence>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        {/* RIGHT: Recommendation panel — appears after 2 answers */}
-        <AnimatePresence>
-          {showPanel && (
-            <motion.div
-              key="panel"
-              initial={{ opacity: 0, x: 30, width: 0 }}
-              animate={{ opacity: 1, x: 0, width: "auto" }}
-              exit={{ opacity: 0, x: 30, width: 0 }}
-              transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="w-full lg:w-[320px] shrink-0"
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={recommendation.planId}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.25 }}
-                  className="bg-zinc-900/70 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-xl"
-                >
-                  {/* Gradient top bar */}
-                  <div className={`px-4 py-2.5 bg-gradient-to-r ${recommendation.gradient} flex items-center gap-2`}>
-                    <recommendation.Icon className="w-4 h-4 text-white" />
+          {/* RIGHT: Recommendation panel — внутри той же карточки */}
+          <AnimatePresence>
+            {showPanel && (
+              <motion.div
+                key="panel"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                style={{ overflow: "hidden" }}
+                className="shrink-0 lg:w-[45%] w-full"
+              >
+                <div className="p-6 sm:p-8 h-full flex flex-col">
+                  <div className={`inline-flex items-center self-start gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${recommendation.gradient} mb-5`}>
+                    <recommendation.Icon className="w-3.5 h-3.5 text-white" />
                     <span className="text-xs font-bold text-white uppercase tracking-wider">
                       {completed ? "Ваш тариф" : "Предварительно"}
                     </span>
                   </div>
 
-                  <div className="p-5">
-                    <div className="flex items-start gap-2 mb-1">
-                      <span className="font-black text-white text-lg leading-tight">{recommendation.name}</span>
-                    </div>
-                    <div className="text-2xl font-black text-white mb-3">{recommendation.price}</div>
-
-                    {/* Reason box */}
-                    <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2.5 mb-4">
-                      <p className="text-xs text-zinc-400 leading-relaxed">{recommendation.reason}</p>
-                    </div>
-
-                    {/* Features */}
-                    <ul className="space-y-2 mb-5">
-                      {recommendation.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-zinc-300">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* CTA */}
-                    <button
-                      onClick={scrollToPricingWithHighlight}
-                      className={`w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r ${recommendation.gradient} hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={recommendation.planId}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25 }}
+                      className="flex flex-col flex-1"
                     >
-                      {recommendation.cta}
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
+                      <div className="font-black text-white text-xl leading-tight mb-1">{recommendation.name}</div>
+                      <div className="text-3xl font-black text-white mb-4">{recommendation.price}</div>
 
-                    {!completed && (
-                      <p className="text-center text-[10px] text-zinc-600 mt-2.5">
-                        Рекомендация уточняется по мере ответов
-                      </p>
-                    )}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2.5 mb-4">
+                        <p className="text-xs text-zinc-400 leading-relaxed">{recommendation.reason}</p>
+                      </div>
 
-              {/* Trust note */}
-              <div className="mt-3 px-3 py-2.5 bg-white/[0.02] border border-white/[0.05] rounded-xl">
-                <p className="text-[11px] text-zinc-500 text-center leading-relaxed">
-                  <span className="text-zinc-400 font-medium">9 из 10</span> студентов сдают с первой попытки с&nbsp;VIP&nbsp;или&nbsp;Сопровождением
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                      <ul className="space-y-2 mb-5 flex-1">
+                        {recommendation.features.map((f, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-zinc-300">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+
+                      <button
+                        onClick={scrollToPricingWithHighlight}
+                        className={`w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r ${recommendation.gradient} hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}
+                      >
+                        {recommendation.cta}
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+
+                      {!completed && (
+                        <p className="text-center text-[10px] text-zinc-600 mt-2.5">
+                          Рекомендация уточняется по мере ответов
+                        </p>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Trust footer */}
+        <div className="px-6 py-3 border-t border-white/[0.05] bg-white/[0.01]">
+          <p className="text-[11px] text-zinc-600 text-center">
+            <span className="text-zinc-500 font-medium">9 из 10</span> студентов сдают с первой попытки с&nbsp;сопровождением куратора
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 }

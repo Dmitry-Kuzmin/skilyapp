@@ -156,7 +156,7 @@ export default function RadialOrbitalTimeline({
 
   return (
     <div
-      className="w-full relative h-[650px] md:h-screen min-h-[600px] max-h-[850px] flex flex-col items-center justify-center bg-transparent overflow-hidden"
+      className="w-full relative h-[650px] md:h-[750px] flex flex-col items-center justify-center bg-transparent overflow-hidden"
       ref={containerRef}
       onClick={handleContainerClick}
     >
@@ -181,10 +181,18 @@ export default function RadialOrbitalTimeline({
             transform: `translate(${centerOffset.x}px, ${centerOffset.y}px)`,
           }}
         >
-          <div className="absolute w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-indigo-500/20 via-blue-500/20 to-teal-500/20 animate-pulse-slow flex items-center justify-center z-10 shadow-[0_0_40px_rgba(59,130,246,0.3)]">
-            <div className="absolute w-28 h-28 md:w-32 md:h-32 rounded-full border border-sky-400/20 animate-ping opacity-70"></div>
+          <div 
+            className="absolute w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-indigo-500/20 via-blue-500/20 to-teal-500/20 animate-pulse-slow flex items-center justify-center z-10 shadow-[0_0_40px_rgba(59,130,246,0.3)] cursor-pointer hover:scale-105 transition-transform"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (timelineData.length > 0) {
+                toggleItem(timelineData[0].id);
+              }
+            }}
+          >
+            <div className="absolute w-28 h-28 md:w-32 md:h-32 rounded-full border border-sky-400/20 animate-ping opacity-70 cursor-pointer"></div>
             <div
-              className="absolute w-36 h-36 md:w-40 md:h-40 rounded-full border border-sky-400/10 animate-ping opacity-50"
+              className="absolute w-36 h-36 md:w-40 md:h-40 rounded-full border border-sky-400/10 animate-ping opacity-50 cursor-pointer"
               style={{ animationDelay: "0.5s" }}
             ></div>
             <img 
@@ -235,7 +243,7 @@ export default function RadialOrbitalTimeline({
 
                 <div
                   className={`
-                  w-10 md:w-12 h-10 md:h-12 rounded-full flex items-center justify-center
+                  w-14 md:w-16 h-14 md:h-16 rounded-full flex items-center justify-center
                   ${
                     isExpanded
                       ? "bg-white text-black"
@@ -253,13 +261,13 @@ export default function RadialOrbitalTimeline({
                   ${isExpanded ? "scale-[1.3] md:scale-150" : ""}
                 `}
                 >
-                  <Icon className="w-4 h-4 md:w-5 md:h-5" />
+                  <Icon className="w-6 h-6 md:w-7 md:h-7" />
                 </div>
 
                 <div
                   className={`
-                  absolute top-12 md:top-14 whitespace-nowrap
-                  text-[10px] md:text-xs font-bold tracking-widest uppercase
+                  absolute top-16 md:top-20 whitespace-nowrap
+                  text-[11px] md:text-sm font-bold tracking-widest uppercase
                   transition-all duration-300
                   ${isExpanded ? "text-white scale-110 md:scale-125" : "text-white/70"}
                   left-1/2 -translate-x-1/2
