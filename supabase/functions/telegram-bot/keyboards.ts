@@ -25,7 +25,11 @@ export type NotificationKeyboardState = {
 // =====================================================
 // Главное меню
 // =====================================================
-export function getMainMenuKeyboard(lang: SupportedLanguage = 'ru', activeSeasonName: string | null = null): InlineKeyboardMarkup {
+export function getMainMenuKeyboard(
+  lang: SupportedLanguage = 'ru',
+  activeSeasonName: string | null = null,
+  courseLabel: string | null = null
+): InlineKeyboardMarkup {
   const rows = [
     // Row 1: Главная кнопка — запуск приложения
     [{
