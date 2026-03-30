@@ -421,13 +421,13 @@ export async function handleCourseCallback(
 
     await upsertLead(supabase, telegramId, { payment_method: 'card' });
 
-    if (plan?.stripe_link) {
+    if (plan?.payment_link) {
       await edit(chatId, messageId,
         `💳 <b>Оплата картой</b>\n\nНажми кнопку ниже — откроется безопасная страница оплаты Stripe.\n\n` +
         `После оплаты ты сразу получишь доступ к платформе. 🎉`,
         {
           inline_keyboard: [
-            [{ text: `💳 Перейти к оплате €${plan.price_eur}`, url: plan.stripe_link }],
+            [{ text: `💳 Перейти к оплате €${plan.price_eur}`, url: plan.payment_link }],
             [{ text: '« Назад', callback_data: `course_buy_${planId}` }],
           ],
         }
