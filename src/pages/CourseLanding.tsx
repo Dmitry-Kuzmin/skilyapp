@@ -823,13 +823,13 @@ const CourseLanding = () => {
         <div className="relative max-w-[1325px] mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-400 text-xs font-bold uppercase tracking-widest mb-6">
+            <div className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/15 text-amber-400 text-xs font-bold uppercase tracking-widest mb-4">
               Специальное предложение потока
             </div>
-            <h2 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 tracking-tight px-2">
               Выберите свой формат
             </h2>
-            <p className="text-zinc-400 text-base max-w-lg mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl mx-auto font-light px-4">
               Все тарифы включают 2 месяца живых занятий и доступ к платформе Skilyapp в подарок
             </p>
           </div>
@@ -887,7 +887,7 @@ const CourseLanding = () => {
       {/* ═══════════════════════════════════════════
           BLOCK 7: TESTIMONIALS (animated columns)
           ═══════════════════════════════════════════ */}
-      <section className="relative py-20 overflow-hidden">
+      <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-yellow-500/[0.03] rounded-full blur-[140px]" />
         </div>
@@ -900,13 +900,13 @@ const CourseLanding = () => {
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/15 text-yellow-400 text-xs font-medium uppercase tracking-wider mb-5">
+            <div className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/15 text-yellow-400 text-xs font-bold uppercase tracking-widest mb-4">
               Отзывы
             </div>
-            <h2 className="text-2xl sm:text-4xl font-bold mb-3">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 tracking-tight px-2 text-center">
               Наши ученики уже за рулём
             </h2>
-            <p className="text-zinc-500 text-sm">
+            <p className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl mx-auto font-light px-4 text-center">
               Реальные люди из разных городов Испании — разный возраст, разные обстоятельства, один результат.
             </p>
           </motion.div>
@@ -948,12 +948,15 @@ const CourseLanding = () => {
         </div>
 
         <div className="relative max-w-lg mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">
-              Хватит откладывать свободу<br />передвижения по Испании
+          <div className="text-center mb-10 mt-10">
+            <div className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/15 text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">
+              Бронирование места
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white px-2 tracking-tight text-center mb-4">
+              Начни учиться сегодня
             </h2>
-            <p className="text-zinc-400">
-              Количество мест в группе ограничено. Оставьте заявку, чтобы закрепить за собой место и получить бесплатную консультацию.
+            <p className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl mx-auto text-center font-light mb-12 px-4">
+              Хватит откладывать свободу передвижения по Испании. Оставьте заявку чтобы закрепить за собой место в группе и получить помощь методиста.
             </p>
           </div>
 

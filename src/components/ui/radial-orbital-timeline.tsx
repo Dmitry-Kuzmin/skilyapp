@@ -115,7 +115,7 @@ export default function RadialOrbitalTimeline({
     const angle = ((index / total) * 360 + rotationAngle) % 360;
     // Adapt radius for mobile/desktop
     const isMobile = window.innerWidth < 768;
-    const radius = isMobile ? 140 : 200;
+    const radius = isMobile ? 160 : 200;
     const radian = (angle * Math.PI) / 180;
 
     const x = radius * Math.cos(radian) + centerOffset.x;
@@ -156,25 +156,25 @@ export default function RadialOrbitalTimeline({
 
   return (
     <div
-      className="w-full relative h-[600px] md:h-screen min-h-[500px] max-h-[800px] flex flex-col items-center justify-center bg-transparent overflow-hidden"
+      className="w-full relative h-[650px] md:h-screen min-h-[600px] max-h-[850px] flex flex-col items-center justify-center bg-transparent overflow-hidden"
       ref={containerRef}
       onClick={handleContainerClick}
     >
-      <div className="absolute top-10 text-center z-10 pointer-events-none px-4 max-w-2xl">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/15 text-blue-400 text-xs font-medium uppercase tracking-wider mb-4">
+      <div className="absolute top-10 text-center z-10 pointer-events-none px-4 w-full">
+        <div className="inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/15 text-blue-400 text-xs font-medium uppercase tracking-wider mb-4">
           План действий
         </div>
-        <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 tracking-tight text-center">
           Этапы получения прав
         </h2>
-        <p className="text-sm md:text-base text-zinc-400 max-w-lg mx-auto">
+        <p className="text-sm sm:text-base md:text-lg text-zinc-400 max-w-2xl mx-auto text-center font-light mb-12">
           Простой путь от первого урока до заветных прав
         </p>
       </div>
 
-      <div className="relative w-full max-w-4xl h-full flex items-center justify-center mt-12">
+      <div className="relative w-full max-w-4xl h-full flex items-center justify-center mt-16 md:mt-12">
         <div
-          className="absolute w-full h-full flex items-center justify-center transform scale-[0.8] md:scale-100"
+          className="absolute w-full h-full flex items-center justify-center transform scale-[0.9] md:scale-100"
           ref={orbitRef}
           style={{
             perspective: "1000px",
@@ -194,7 +194,7 @@ export default function RadialOrbitalTimeline({
             />
           </div>
 
-          <div className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full border border-white/10"></div>
+          <div className="absolute w-80 h-80 md:w-96 md:h-96 rounded-full border border-white/10"></div>
 
           {timelineData.map((item, index) => {
             const position = calculateNodePosition(index, timelineData.length);

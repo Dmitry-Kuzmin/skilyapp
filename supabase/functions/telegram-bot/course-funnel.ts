@@ -311,7 +311,8 @@ export async function handleCourseStart(
   firstName: string,
   telegramId: number,
   telegramUser: string | undefined,
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  messageId?: number
 ): Promise<void> {
   await upsertLead(supabase, telegramId, {
     first_name: firstName,
@@ -326,13 +327,20 @@ export async function handleCourseStart(
     `Но сперва уточни одну вещь.\n\n` +
     `👇 <b>У тебя есть легальный статус в Испании?</b>`;
 
-  await send(chatId, text, {
+  const keyboard = {
     inline_keyboard: [
       [{ text: '✅ Да — ВНЖ / резидент',  callback_data: 'course_s1_vnj' }],
       [{ text: '🎓 Студенческая виза',     callback_data: 'course_s1_visa' }],
       [{ text: '❓ Пока нет / не уверен',  callback_data: 'course_s1_unsure' }],
+      [{ text: '← Главное меню',           callback_data: 'main_menu' }],
     ],
-  });
+  };
+
+  if (messageId) {
+    await edit(chatId, messageId, text, keyboard);
+  } else {
+    await send(chatId, text, keyboard);
+  }
 }
 
 // ─────────────────────────────────────────────────────
