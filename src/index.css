@@ -2229,3 +2229,16 @@ html {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.4);
 }
+/* Radial Orbital Timeline Styles */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+
+/* Custom transforms */
+.scale-125 { transform: scale(1.25); }
+.scale-150 { transform: scale(1.5); }

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Check, X } from "lucide-react";
+import { ChevronDown, Check, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PLATFORM_FEATURES = [
@@ -174,6 +174,30 @@ interface PricingCardsProps {
 }
 
 export function PricingCards({ onBooking, dbPrices }: PricingCardsProps) {
+  const [recommendedPlanId, setRecommendedPlanId] = useState<string | null>(() =>
+    sessionStorage.getItem("recommendedPlan")
+  );
+  const [flashPlanId, setFlashPlanId] = useState<string | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    function handleRecommend(e: Event) {
+      const planId = (e as CustomEvent<{ planId: string }>).detail.planId;
+      setRecommendedPlanId(planId);
+      // Remove flash from all, then set on target
+      setFlashPlanId(null);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setFlashPlanId(planId);
+          if (flashTimer.current) clearTimeout(flashTimer.current);
+          flashTimer.current = setTimeout(() => setFlashPlanId(null), 4000);
+        });
+      });
+    }
+    window.addEventListener("recommendPlan", handleRecommend);
+    return () => window.removeEventListener("recommendPlan", handleRecommend);
+  }, []);
+
   // Merge DB prices into BASE_PLANS (DB wins if available)
   const PLANS = BASE_PLANS.map((plan) => {
     const dbKey = Object.keys(DB_ID_MAP).find((k) => DB_ID_MAP[k] === BASE_PLANS.indexOf(plan));
@@ -193,6 +217,8 @@ export function PricingCards({ onBooking, dbPrices }: PricingCardsProps) {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-[1325px] mx-auto px-4">
       {PLANS.map((plan) => {
         const acc = ACCENT[plan.accentColor as keyof typeof ACCENT];
+        const isRecommended = recommendedPlanId === plan.id;
+        const isFlashing = flashPlanId === plan.id;
         return (
           <div key={plan.id} className="relative flex flex-col">
             {/* Glow border */}
@@ -202,18 +228,42 @@ export function PricingCards({ onBooking, dbPrices }: PricingCardsProps) {
 
             <div
               className={cn(
-                "relative flex flex-col flex-1 rounded-3xl bg-[#080e1c] border backdrop-blur-sm overflow-hidden",
+                "relative flex flex-col flex-1 rounded-3xl border backdrop-blur-sm overflow-hidden",
                 acc.border,
-                plan.highlight && "ring-1 ring-blue-500/20"
+                plan.highlight && "ring-1 ring-blue-500/20",
+                isRecommended && !isFlashing && "ring-1 ring-amber-500/30"
               )}
+              style={{
+                backgroundColor: isFlashing ? "rgba(245, 158, 11, 0.2)" : "#080e1c",
+                boxShadow: isFlashing
+                  ? "0 0 0 2px rgba(245,158,11,0.6), 0 0 50px 10px rgba(245,158,11,0.25), inset 0 0 60px 0 rgba(245,158,11,0.15)"
+                  : isRecommended
+                  ? "0 0 0 1px rgba(245,158,11,0.2)"
+                  : "none",
+                transition: "background-color 0.7s ease, box-shadow 0.7s ease",
+              }}
             >
               {/* Card header */}
               <div className="p-6 pb-0">
-                {plan.badge && (
-                  <div className={cn("inline-flex px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest mb-4", acc.badge)}>
-                    {plan.badge}
-                  </div>
-                )}
+                {/* Badges row */}
+                <div className="flex items-center gap-2 flex-wrap mb-4">
+                  {plan.badge && (
+                    <div className={cn("inline-flex px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest", acc.badge)}>
+                      {plan.badge}
+                    </div>
+                  )}
+                  {isRecommended && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/40 text-amber-400"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      Рекомендуем
+                    </motion.div>
+                  )}
+                </div>
+                {!plan.badge && !isRecommended && <div className="h-[26px]" />}
                 <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
                 <p className="text-zinc-500 text-sm mb-5">{plan.subtitle}</p>
 

@@ -5,6 +5,10 @@ import { TestimonialsColumn } from "@/components/ui/testimonials-columns";
 import { ArcGalleryHero } from "@/components/ui/arc-gallery-hero";
 import { FAQ } from "@/components/ui/faq-tabs";
 import { PricingCards, type DbPlanPrices } from "@/components/ui/pricing-cards";
+import { CourseComparison } from "@/components/ui/course/CourseComparison";
+import { CourseTimeline } from "@/components/ui/course/CourseTimeline";
+import { CourseChecklist } from "@/components/ui/course/CourseChecklist";
+import { CinematicHero } from "@/components/ui/cinematic-landing-hero";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import {
   CheckCircle2,
@@ -144,80 +148,75 @@ const ADVANTAGES = [
   {
     icon: Brain,
     title: "Сложное — простым языком",
-    desc: "Перевели всю терминологию: Matricula, Psicotecnico, Jurado. Вы понимаете логику, а не зубрите.",
-  },
-  {
-    icon: Shield,
-    title: "Эмуляция реального экзамена",
-    desc: "30 вопросов, 30 минут, максимум 3 ошибки — как на настоящем экзамене DGT. Придёте без стресса.",
-  },
-  {
-    icon: MessageCircle,
-    title: "Полное сопровождение",
-    desc: "Поможем с медкомиссией, документами и записью на экзамен в вашем регионе.",
-  },
-];
-const STEPS = [
-  {
-    icon: GraduationCap,
-    color: "from-blue-500 to-cyan-500",
-    title: "Подготовка на Skilyapp",
-    desc: "Интерактивные уроки и тесты на русском языке на нашей онлайн-платформе.",
+    desc: "Перевели всю терминологию DGT на понятный русский язык. Объясняем ПДД, а не заставляем зубрить.",
   },
   {
     icon: Stethoscope,
-    color: "from-emerald-500 to-green-500",
-    title: "Медкомиссия",
-    desc: "Быстрый психофизический тест (Psicotecnico) в авторизованном центре вашего города.",
-  },
-  {
-    icon: FileText,
-    color: "from-violet-500 to-purple-500",
-    title: "Сдача теории в DGT",
-    desc: "Официальный экзамен. 9 из 10 наших студентов сдают с первого раза.",
-  },
-  {
-    icon: Car,
-    color: "from-orange-500 to-red-500",
-    title: "Практика и права",
-    desc: "Идёте в любую местную автошколу для практического вождения и финального экзамена.",
+    title: "Тесты по официальной базе",
+    desc: "Более 16.000 актуальных вопросов от Генерального управления транзитом (DGT).",
   },
 ];
 
 const FAQ_CATEGORIES = {
-  general: "Общая информация",
-  course: "О курсе",
+  process: "Получение прав в Испании",
+  theory: "Теоретический экзамен",
+  practice: "Практика и вождение",
+  course: "О курсе и платформе",
 };
 
 const NEW_FAQ_DATA = {
-  general: [
+  process: [
     {
-      question: "Нужно ли знать испанский для сдачи?",
-      answer: "Теоретический экзамен доступен на нескольких языках (испанский, английский, французский, немецкий), но вождение сдается исключительно на испанском. Наш курс ведется на русском языке с постепенным погружением в испанскую терминологию. Вы без труда выучите все необходимые автомобильные термины и сможете уверенно сдать теорию на испанском, не прибегая к словарю."
-    },
-    {
-      question: "Можно ли сдать теорию и вождение в один день?",
-      answer: "Нет. Сначала необходимо успешно сдать теоретическую часть. Как правило, результаты теории публикуются в тот же или на следующий рабочий день. Только после официального подтверждения сдачи теории автошкола может записать вас на практический экзамен по вождению."
-    },
-    {
-      question: "Какой минимальный возраст для получения прав?",
-      answer: "Права категории B в Испании выдаются с 18 лет. Однако сдавать теоретический экзамен можно заранее — начиная с 17 лет и 9 месяцев. Практический экзамен доступен строго после совершеннолетия (18 лет)."
-    },
-    {
-      question: "Нужно ли заново сдавать на права резидентам?",
-      answer: "Да. Испания и РФ не имеют договора о взаимном признании водительских удостоверений. Поэтому резидентам необходимо пройти обучение, сдать теорию и практику для получения местных прав. Иностранными правами можно пользоваться не более 6 месяцев с момента получения ВНЖ в Испании."
-    },
-    {
-      question: "Нужно ли проходить медицинское обследование?",
-      answer: "Обязательно (справка Psicotécnico). Перед допуском к экзаменам необходимо пройти медкомиссию (проверка зрения, координации, общего состояния здоровья). Справка действительна 90 дней, поэтому ее стоит получать ближе к дате подачи документов в DGT."
-    },
-    {
-      question: "Сколько практических уроков вождения потребуется?",
-      answer: "Минимального обязательного количества часов по закону нет. Однако мы рекомендуем брать не менее 10–12 занятий. Провал на практике влечет дополнительные расходы: вам придется заново оплачивать пошлину DGT (Tasa DGT) и услуги автошколы по оформлению документов. Дешевле взять больше уроков и сдать с первого раза."
+      question: "Как вообще получить права в Испании?",
+      answer: "Всё зависит от вашей ситуации:\n1. Права из стран ЕС: можно пользоваться без обмена.\n2. Обмен (Canje): возможен, если между странами есть соглашение (Украина, Молдова, Грузия и др.) и права были получены ДО вашей первой резиденции в Испании.\n3. Остальные случаи (Россия, Беларусь, Казахстан и др.): после 6 месяцев легального пребывания в Испании ваши права перестают действовать. Стаж не дает привилегий на экзаменах — вам придется сдавать теорию и практику на общих основаниях."
     },
     {
       question: "С какими документами можно сдавать экзамен?",
-      answer: "DGT требует легального статуса нахождения в стране. Подходят: карточка резидента TIE (Arraigo, No lucrativa, виза инвестора и др.), регистрация гражданина ЕС (одного NIE недостаточно), вид на жительство по учебе (срок более 6 месяцев), красная карта беженца (через 6 месяцев после подачи) или испанский DNI."
+      answer: "DGT требует подтверждения легального статуса. Подойдут: карточка резидента TIE (Arraigo, No lucrativa, виза инвестора и др.), регистрация гражданина ЕС (одного NIE недостаточно), ВНЖ по учебе (на срок более 6 месяцев), красная карта беженца (через 6 месяцев после подачи) или DNI."
+    },
+    {
+      question: "Можно купить водительское удостоверение?",
+      answer: "Нет, мы не связываемся с криминалом. Покупка прав не даст никаких гарантий: вы будете бояться каждой проверки, а поддельные или купленные в обход системы документы рано или поздно аннулируются полицией. Кроме того, предлагаемые в сети «схемы» стоят во много раз дороже реального обучения. Получить права легально и сдать экзамены с нами — это надёжно и гораздо дешевле."
+    },
+    {
+      question: "Какой минимальный возраст для получения прав?",
+      answer: "Права категории B в Испании выдаются строго с 18 лет. Однако готовиться и сдавать теоретический экзамен можно досрочно — начиная с 17 лет и 9 месяцев. Практика вождения доступна только после совершеннолетия."
+    }
+  ],
+  theory: [
+    {
+      question: "Как проводят экзамен теории?",
+      answer: "Для категории B теоретический экзамен состоит из 30 вопросов. На их решение отводится 30 минут, для успешной сдачи допускается максимум 3 ошибки. Как правило, всё проходит в компьютерных залах DGT (Дорожной полиции). Исключением являются некоторые региональные центры, где экзамены всё ещё могут проводить на бумажных бланках."
+    },
+    {
+      question: "Можно ли сдать теорию без автошколы?",
+      answer: "Да! Вы можете подготовиться с нами и записаться на теоретический экзамен самостоятельно, не привязываясь к автошколе. Оформить документы можно онлайн: необходимо получить запись (Cita) и уплатить госпошлину DGT (чуть больше 94 евро). Мы предоставляем нашим студентам четкие инструкции, как это сделать правильно и без нервов. (А вот для практического экзамена уже понадобится местная автошкола)."
+    },
+    {
+      question: "Можно вызубрить наизусть ответы на тесты?",
+      answer: "Официальная база DGT насчитывает более 16 000 вопросов. В испанских тестах очень много хитрых формулировок и «ловушек». Чтобы уверенно отвечать на экзамене, необходимо понимать логику правил, а не механически заучивать ответы к тестам. Именно поэтому мы детально разбираем каждую тему — от устройства автомобиля до сложных ситуаций на перекрестках."
+    },
+    {
+      question: "Зачем так много учить теорию?",
+      answer: "Наш курс адаптирован в том числе для студентов, которые не владеют испанским языком. В процессе подготовки мы параллельно разбираем специфические испанские термины и все каверзные вопросы. Мы систематизируем знания так, чтобы максимально сократить время вашей подготовки и дать всю теорию испанских ПДД в сжатые и понятные сроки."
+    }
+  ],
+  practice: [
+    {
+      question: "Как проводят экзамен вождения?",
+      answer: "Экзамен сдается в реальных условиях дорожного движения и длится от 25 до 30 минут (для категории B «площадку» не сдают). Экзаменатор от DGT сидит на заднем сиденье вашей учебной машины, а инструктор находится рядом с двойными педалями, но помогать он не имеет права. Экзамены обычно проходят в первую половину дня."
+    },
+    {
+      question: "У меня многолетний опыт вождения. Можно сдать без уроков?",
+      answer: "Нет, совсем без уроков не получится — DGT обязывает вас взять как минимум одно практическое занятие перед экзаменом. Почти всегда одного занятия не хватает даже крайне опытным водителям. Экзамен требует строгого соблюдения испанских нюансов: активного контроля слепых зон (angulos muertos) и круговых перекрестков. За 3-4 урока мы помогаем опытным водителям скорректировать их привычки и пройтись непосредственно по зонам сдачи экзамена."
+    },
+    {
+      question: "Сколько практических уроков нужно новичкам?",
+      answer: "Минимальной часовой нормы по закону нет. Новичкам мы рекомендуем рассчитывать от 10-15 и более уроков, всё очень индивидуально. Важно помнить, что каждая пересдача увеличивает итоговые траты (новая пошлина DGT и оплата автошколе за переоформление). Поэтому выгоднее брать оптимальное число уроков и сдавать уверенно."
+    },
+    {
+      question: "Можно ли сдать теорию и вождение в один день?",
+      answer: "Нет. Сначала вы должны успешно сдать теорию. Только после того, как в системе DGT появится официальный статус о сдаче (обычно на следующий рабочий день), вы сможете подать заявку на прохождение практического экзамена."
     }
   ],
   course: [
@@ -791,149 +790,26 @@ const CourseLanding = () => {
       </header>
 
       {/* ═══════════════════════════════════════════
-          BLOCK 2: PAIN POINTS
+          BLOCK 2: COMPARISON (Evolution)
           ═══════════════════════════════════════════ */}
-      <Section className="max-w-[1325px] mx-auto px-4 py-24">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/15 text-red-400 text-xs font-medium uppercase tracking-wider mb-6">
-            Проблема
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-bold mb-4">
-            Испанская автошкола без подготовки —<br className="hidden sm:block" />
-            <span className="text-zinc-400">это потеря времени и денег</span>
-          </h2>
+      <Section className="relative py-24 px-4 w-full overflow-hidden">
+        {/* Abstract background blur for right side highlights */}
+        <div className="absolute inset-0 pointer-events-none z-0">
+          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-sky-500/[0.03] rounded-full blur-[120px]" />
+          <div className="absolute top-1/2 right-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-indigo-500/[0.02] rounded-full blur-[100px]" />
         </div>
-
-        <div className="grid sm:grid-cols-3 gap-5">
-          {PAIN_POINTS.map((p, i) => (
-            <GlowCard key={p.title} className="p-6 hover:border-white/[0.12] transition-all duration-500 group" >
-              <div className={cn("w-12 h-12 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform", p.color)}>
-                <p.icon className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-lg font-bold mb-2">{p.title}</h3>
-              <p className="text-sm text-zinc-400 leading-relaxed">{p.desc}</p>
-            </GlowCard>
-          ))}
-        </div>
-
-        {/* Solution line */}
-        <div className="mt-12 p-6 rounded-2xl bg-gradient-to-r from-blue-500/[0.08] to-cyan-500/[0.08] border border-blue-500/[0.12]">
-          <p className="text-center text-sm sm:text-base text-zinc-300 leading-relaxed">
-            <span className="font-semibold text-white">Со Skilyapp</span> вы получаете выжимку правил,
-            понятные объяснения на родном языке и чёткий план действий до самого получения прав.
-          </p>
-        </div>
-      </Section>
-
-      {/* ═══════════════════════════════════════════
-          BLOCK 3: ADVANTAGES
-          ═══════════════════════════════════════════ */}
-      <Section className="relative py-24">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-blue-500/[0.04] rounded-full blur-[120px]" />
-        </div>
-        <div className="relative max-w-[1325px] mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/15 text-blue-400 text-xs font-medium uppercase tracking-wider mb-6">
-              Преимущества
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-bold">
-              Ваш самый короткий путь к правам
-            </h2>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-5">
-            {ADVANTAGES.map((a, i) => (
-              <GlowCard key={a.title} className="p-6 hover:border-blue-500/20 transition-all duration-500 group">
-                <div className="flex gap-5">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0 group-hover:bg-blue-500/15 group-hover:border-blue-500/30 transition-all">
-                    <a.icon className="w-6 h-6 text-blue-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold mb-1.5">{a.title}</h3>
-                    <p className="text-sm text-zinc-400 leading-relaxed">{a.desc}</p>
-                  </div>
-                </div>
-              </GlowCard>
-            ))}
-          </div>
-        </div>
+        <CourseComparison />
       </Section>
 
       {/* ═══════════════════════════════════════════
           BLOCK 4: HOW IT WORKS (Steps)
           ═══════════════════════════════════════════ */}
-      <Section id="how-it-works" className="max-w-[1325px] mx-auto px-4 py-24">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/15 text-emerald-400 text-xs font-medium uppercase tracking-wider mb-6">
-            4 шага
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-bold">
-            Путь к европейскому водительскому удостоверению
-          </h2>
-        </div>
-
-        <div className="relative">
-          {/* Connecting line */}
-          <div className="hidden lg:block absolute top-[3.5rem] left-[calc(12.5%+1.5rem)] right-[calc(12.5%+1.5rem)] h-px bg-gradient-to-r from-blue-500/30 via-emerald-500/30 via-violet-500/30 to-orange-500/30" />
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {STEPS.map((step, i) => (
-              <div key={step.title} className="relative text-center lg:text-left">
-                {/* Step number ring */}
-                <div className="flex justify-center lg:justify-start mb-5">
-                  <div className={cn("relative w-14 h-14 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-lg", step.color)}>
-                    <step.icon className="w-7 h-7 text-white" />
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[#060a14] border-2 border-zinc-700 flex items-center justify-center text-[10px] font-bold text-zinc-400">
-                      {i + 1}
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-base font-bold mb-2">{step.title}</h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+      <Section id="how-it-works" className="max-w-[1400px] mx-auto py-24">
+        <CourseTimeline />
       </Section>
 
-      {/* ═══════════════════════════════════════════
-          BLOCK 5: ELIGIBILITY
-          ═══════════════════════════════════════════ */}
-      <Section className="max-w-3xl mx-auto px-4 py-24">
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/15 text-violet-400 text-xs font-medium uppercase tracking-wider mb-6">
-            Требования DGT
-          </div>
-          <h2 className="text-2xl sm:text-4xl font-bold mb-3">
-            Проверьте, готовы ли вы
-          </h2>
-          <p className="text-zinc-400">Для получения прав категории B в Испании необходимо:</p>
-        </div>
 
-        <div className="space-y-4 mb-10">
-          {ELIGIBILITY.map((e) => (
-            <GlowCard key={e.text} className="p-5 hover:border-emerald-500/20 transition-all">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                  <e.icon className="w-5 h-5 text-emerald-400" />
-                </div>
-                <span className="font-medium">{e.text}</span>
-              </div>
-            </GlowCard>
-          ))}
-        </div>
-
-        <div className="text-center">
-          <button
-            onClick={scrollToForm}
-            className="group px-8 py-4 rounded-2xl font-semibold bg-gradient-to-r from-emerald-500 to-cyan-500 hover:shadow-lg hover:shadow-emerald-500/20 transition-all active:scale-[0.97]"
-          >
-            Всё сходится? Начать обучение
-            <ArrowRight className="inline ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
-      </Section>
+      <CourseChecklist />
 
       {/* ═══════════════════════════════════════════
           BLOCK 6: PRICING (3 tiers)
@@ -1174,26 +1050,11 @@ const CourseLanding = () => {
       </Section>
 
       {/* ═══════════════════════════════════════════
-          FOOTER
+          CINEMATIC CTA FOOTER
           ═══════════════════════════════════════════ */}
-      <footer className="border-t border-white/[0.05] py-10">
-        <div className="max-w-[1325px] mx-auto px-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <a href="/" className="flex items-center gap-2 text-sm font-semibold text-zinc-400 hover:text-white transition-colors">
-              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-[10px] font-black text-white">S</div>
-              Skilyapp
-            </a>
-            <div className="flex items-center gap-6 text-sm text-zinc-500">
-              <a href="/legal/terms" className="hover:text-zinc-300 transition-colors">Оферта</a>
-              <a href="/legal/privacy" className="hover:text-zinc-300 transition-colors">Конфиденциальность</a>
-              <a href="https://t.me/skilyapp_bot" target="_blank" rel="noopener" className="hover:text-zinc-300 transition-colors">Telegram</a>
-            </div>
-          </div>
-          <div className="mt-6 text-center text-xs text-zinc-600">
-            &copy; {new Date().getFullYear()} Skilyapp. Все права защищены.
-          </div>
-        </div>
-      </footer>
+      <CinematicHero />
+
+      
     </div>
   );
 };
