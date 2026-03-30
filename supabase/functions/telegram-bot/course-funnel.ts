@@ -27,7 +27,7 @@ export type CoursePlan = {
   label_ru: string;
   price_eur: number;
   original_price_eur: number | null;
-  stripe_link: string | null;
+  payment_link: string | null;
 };
 
 // ─────────────────────────────────────────────────────
