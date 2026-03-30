@@ -18,6 +18,7 @@ import * as commands from "./commands.ts";
 import * as keyboards from "./keyboards.ts";
 import { t, getUserLanguage, normalizeLanguage, SupportedLanguage, getDaysWord, formatMarkdown } from "./translations.ts";
 import { handleAIChat, sendStarsInvoice } from "./ai-handler.ts";
+import { handleCourseCallback } from "./course-funnel.ts";
 
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
