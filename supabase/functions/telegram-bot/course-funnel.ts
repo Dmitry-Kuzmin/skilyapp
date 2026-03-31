@@ -590,6 +590,7 @@ export async function handleCourseCallback(
     const plans = await getCoursePlans(supabase);
     const plan = plans[planId] || DEFAULT_PLANS[planId as keyof typeof DEFAULT_PLANS];
     await upsertLead(supabase, telegramId, { payment_method: 'card' });
+    logBotEvent(supabase, telegramId, telegramUser, 'payment_method_selected', { plan: planId, method: 'card', amount: plan?.price_eur });
 
     if (plan?.payment_link) {
       await edit(chatId, messageId,
