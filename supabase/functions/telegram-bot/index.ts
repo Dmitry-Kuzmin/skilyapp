@@ -51,6 +51,30 @@ function logMsg(
 // Экспортируем чтобы ai-handler мог использовать
 export { logMsg, supabase as supabaseClient };
 
+const ADMIN_CHAT_ID = 488159880; // @guapo_pub
+
+// Уведомляем тебя в Telegram о новом входящем сообщении (fire-and-forget)
+function notifyAdminNewMessage(telegramId: number, username: string | undefined, text: string): void {
+  const userLabel = username ? `@${username}` : `ID ${telegramId}`;
+  const preview = text.length > 120 ? text.slice(0, 120) + '…' : text;
+  const adminUrl = `https://skilyapp.com/admin/bot-chats`;
+
+  fetch(`${TELEGRAM_API}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: ADMIN_CHAT_ID,
+      text: `💬 <b>Новое сообщение</b>\n<b>От:</b> ${userLabel} (<code>${telegramId}</code>)\n\n<i>${preview}</i>\n\n<a href="${adminUrl}">Открыть чат в админке →</a>`,
+      parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [[
+          { text: '✍️ Ответить в админке', url: adminUrl },
+        ]],
+      },
+    }),
+  }).catch(() => {});
+}
+
 console.log("[Bot] Initializing bot handler...");
 console.log(`[Bot] MINI_APP_URL: ${MINI_APP_URL}`);
 
