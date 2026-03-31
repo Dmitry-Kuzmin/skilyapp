@@ -452,6 +452,7 @@ export async function handleCourseCallback(
 
   if (data === 'course_s1_unsure') {
     await upsertLead(supabase, telegramId, { status: 'qualified', qualification: { status_answer: 'unsure' } });
+    logBotEvent(supabase, telegramId, telegramUser, 'step1_status', { choice: 'unsure' });
     await edit(chatId, messageId,
       `<b>Ничего страшного.</b>\n\n` +
       `Для сдачи теории DGT нужны: ВНЖ (NIE), студенческая виза или вид на жительство.\n\n` +
