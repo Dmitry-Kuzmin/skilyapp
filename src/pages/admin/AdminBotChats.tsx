@@ -117,6 +117,17 @@ export function AdminBotChats() {
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // Inject AI message styles once
+  useEffect(() => {
+    if (!document.getElementById("ai-msg-styles")) {
+      const s = document.createElement("style");
+      s.id = "ai-msg-styles";
+      s.textContent = AI_MSG_STYLES;
+      document.head.appendChild(s);
+    }
+    return () => { document.getElementById("ai-msg-styles")?.remove(); };
+  }, []);
+
   // ── Load user list ────────────────────────────────────────────────────────
   const loadUsers = async () => {
     setLoadingUsers(true);
