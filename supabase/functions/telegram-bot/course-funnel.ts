@@ -200,6 +200,22 @@ async function notifyAdmin(text: string): Promise<void> {
   }).catch(() => {});
 }
 
+// Fire-and-forget: не блокирует воронку, не ломает при ошибке
+function logBotEvent(
+  supabase: SupabaseClient,
+  telegramId: number,
+  username: string | undefined,
+  event: string,
+  data?: Record<string, unknown>
+): void {
+  supabase.from('bot_events').insert({
+    telegram_id: telegramId,
+    username: username ?? null,
+    event,
+    data: data ?? null,
+  }).then().catch(() => {});
+}
+
 // ─────────────────────────────────────────────────────
 // Блок тарифов (используется в нескольких местах)
 // ─────────────────────────────────────────────────────
