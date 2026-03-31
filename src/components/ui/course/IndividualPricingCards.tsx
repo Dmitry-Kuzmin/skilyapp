@@ -1,33 +1,56 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { motion } from "framer-motion";
 import { MessageCircle, Users, User, Zap, FileText, Globe, CheckCircle2, Clock } from "lucide-react";
 
 // ─── Animated price counter ───────────────────────────────────────────────────
+// Direct DOM update via rAF — zero React re-renders, butter smooth
 
 function AnimatedPrice({ value, isDark }: { value: number; isDark?: boolean }) {
-  const count = useMotionValue(value);
-  const rounded = useTransform(count, (v) => `€${Math.round(v)}`);
-  const isFirstRender = useRef(true);
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const displayedRef = useRef(value); // tracks what's currently shown
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      count.set(value);
-      return;
-    }
-    const controls = animate(count, value, {
-      duration: 0.45,
-      ease: [0.16, 1, 0.3, 1],
-    });
-    return controls.stop;
-  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+    const from = displayedRef.current;
+    const to = value;
+    if (from === to) return;
+
+    // cancel any in-flight animation
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+
+    const duration = 380; // ms
+    const startTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      // ease-out expo
+      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+      const current = Math.round(from + (to - from) * eased);
+      displayedRef.current = current;
+      if (spanRef.current) spanRef.current.textContent = `€${current}`;
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        displayedRef.current = to;
+        if (spanRef.current) spanRef.current.textContent = `€${to}`;
+        rafRef.current = null;
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
+  }, [value]);
 
   return (
-    <motion.span className={`text-4xl font-black tracking-tight tabular-nums ${isDark ? "text-white" : "text-zinc-900"}`}>
-      {rounded}
-    </motion.span>
+    <span
+      ref={spanRef}
+      className={`text-4xl font-black tracking-tight tabular-nums ${isDark ? "text-white" : "text-zinc-900"}`}
+    >
+      €{value}
+    </span>
   );
 }
 
