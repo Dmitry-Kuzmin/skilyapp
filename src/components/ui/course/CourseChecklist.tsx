@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldAlert, ArrowRight, ArrowLeft, CheckCircle2, Info,
   ChevronRight, CreditCard, Calendar, Car, Globe,
   AlertTriangle, Clock, Stethoscope, Sparkles, Crown, Star, Zap,
-  Heart
+  Heart, Calculator, Receipt
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -20,6 +20,7 @@ interface Choice {
   tag?: string;
   tagVariant?: "danger" | "warning" | "success";
   special?: string;
+  calcValue?: string;
 }
 
 interface Question {
@@ -87,6 +88,19 @@ const QUESTIONS: Question[] = [
     ],
   },
   {
+    id: "driving_lessons",
+    type: "choice",
+    Icon: Car,
+    iconColor: "text-purple-400",
+    title: "Уроки вождения в автошколе",
+    subtitle: "Для справки — мы не предоставляем уроки вождения, но учтём в общем расчёте затрат",
+    choices: [
+      { label: "Не нужны", sublabel: "Уже умею водить", risk: 0, calcValue: "none" },
+      { label: "Немного уроков", sublabel: "5–10 занятий", risk: 0, calcValue: "few" },
+      { label: "С нуля", sublabel: "15–25 занятий", risk: 0, calcValue: "many" },
+    ],
+  },
+  {
     id: "spanish_level",
     type: "choice",
     Icon: Globe,
@@ -113,19 +127,6 @@ const QUESTIONS: Question[] = [
     ],
   },
   {
-    id: "regularity",
-    type: "choice",
-    Icon: Clock,
-    iconColor: "text-blue-400",
-    title: "Готовы ли вы заниматься регулярно?",
-    subtitle: "Для сдачи с первой попытки нужно минимум 30 минут в день",
-    choices: [
-      { label: "Да, каждый день — не проблема", risk: 0 },
-      { label: "Постараюсь, бывают перебои", risk: 1, tag: "куратор поможет", tagVariant: "warning" },
-      { label: "Сложно с дисциплиной", risk: 2, tag: "нужно сопровождение", tagVariant: "danger" },
-    ],
-  },
-  {
     id: "psicotecnico",
     type: "info",
     Icon: Stethoscope,
@@ -140,7 +141,7 @@ const QUESTIONS: Question[] = [
 interface PackageInfo {
   planId: "theory" | "pro" | "vip";
   name: string;
-  price: string;
+  price: number;
   features: string[];
   reason: string;
   cta: string;
@@ -153,7 +154,7 @@ function getRecommendation(answers: Record<string, number>, isTourist: boolean):
     return {
       planId: "pro",
       name: "Готовьтесь заранее!",
-      price: "от €259",
+      price: 259,
       reason: "Туристическая виза не даёт права сдавать DGT. Но подготовку можно начать уже сейчас — и сдать сразу после получения ВНЖ.",
       features: [
         "Доступ к платформе сразу после записи",
@@ -167,15 +168,13 @@ function getRecommendation(answers: Record<string, number>, isTourist: boolean):
       Icon: Heart,
     };
   }
-
   const spanishRisk = answers["spanish_level"] ?? -1;
   const totalRisk = Object.values(answers).reduce((a, b) => a + b, 0);
-
   if (spanishRisk === 2 || totalRisk >= 5) {
     return {
       planId: "vip",
       name: "VIP — Под ключ",
-      price: "от €349",
+      price: 349,
       reason: spanishRisk === 2
         ? "Слабый испанский — главный барьер на экзамене DGT. VIP включает мини-курс языка для водителей."
         : "Ваш профиль показывает несколько рисков. Индивидуальное сопровождение сильно увеличит шансы.",
@@ -191,12 +190,11 @@ function getRecommendation(answers: Record<string, number>, isTourist: boolean):
       Icon: Crown,
     };
   }
-
   if (totalRisk >= 2) {
     return {
       planId: "pro",
       name: "С сопровождением",
-      price: "от €259",
+      price: 259,
       reason: "Небольшие пробелы есть — куратор поможет их закрыть и не даст сдаться на полпути.",
       features: [
         "Полная база DGT (16 000 вопросов)",
@@ -210,11 +208,10 @@ function getRecommendation(answers: Record<string, number>, isTourist: boolean):
       Icon: Zap,
     };
   }
-
   return {
     planId: "theory",
     name: "Теория",
-    price: "от €199",
+    price: 199,
     reason: "Хороший испанский и готовность заниматься — вы справитесь с базовым курсом.",
     features: [
       "8 живых эфиров с преподавателем",
@@ -225,6 +222,101 @@ function getRecommendation(answers: Record<string, number>, isTourist: boolean):
     gradient: "from-emerald-500 to-teal-600",
     Icon: Star,
   };
+}
+
+// ─── Cost calculator ──────────────────────────────────────────────────────────
+
+interface CostLine {
+  label: string;
+  amount: number;
+  sub?: string;
+  dim?: boolean;
+}
+
+interface CostBreakdown {
+  withoutUs: CostLine[];
+  withUs: CostLine[];
+  totalWithoutUs: number;
+  totalWithUs: number;
+  savings: number;
+  retakesWithoutUs: number;
+}
+
+function getCostBreakdown(
+  answers: Record<string, number>,
+  isTourist: boolean,
+  calcData: Record<string, string>
+): CostBreakdown {
+  const riskScore = Object.values(answers).reduce((a, b) => a + b, 0);
+  const spanishRisk = answers["spanish_level"] ?? 0;
+
+  // Среднее кол-во попыток без нас
+  const retakesWithoutUs = riskScore >= 6 ? 3.0 : riskScore >= 4 ? 2.4 : riskScore >= 2 ? 1.8 : 1.2;
+  const retakesWithUs = 1.05;
+
+  const dgtFee = 94;
+  const psico = 30;
+
+  const rec = getRecommendation(answers, isTourist);
+  const ourPrice = rec.price;
+
+  // Традиционная автошкола — теория
+  const traditionalTheory = spanishRisk === 2 ? 450 : 350;
+  const languageExtra = spanishRisk === 2 ? 200 : 0;
+
+  // Уроки вождения (для справки)
+  const lessons = calcData["driving_lessons"] ?? "none";
+  const lessonCost = lessons === "many" ? 650 : lessons === "few" ? 320 : 0;
+  const practicalExam = lessons !== "none" ? 150 : 0;
+
+  const withoutUs: CostLine[] = [
+    { label: "Курс теории (автошкола / онлайн)", amount: traditionalTheory },
+    ...(languageExtra > 0 ? [{ label: "Доп. занятия испанским", amount: languageExtra, sub: "из-за низкого уровня языка" }] : []),
+    { label: `Экзамен DGT теория`, amount: Math.round(dgtFee * retakesWithoutUs), sub: `≈ ${retakesWithoutUs.toFixed(1)} попытки × €${dgtFee}` },
+    { label: "Псикотехника", amount: psico },
+    ...(lessonCost > 0 ? [{ label: "Уроки вождения", amount: lessonCost, sub: lessons === "many" ? "≈ 20 уроков × €30–35" : "≈ 8 уроков × €35–40" }] : []),
+    ...(practicalExam > 0 ? [{ label: "Практический экзамен", amount: practicalExam }] : []),
+  ];
+
+  const withUs: CostLine[] = [
+    { label: `Курс Skilyapp — ${rec.name}`, amount: ourPrice },
+    { label: "Экзамен DGT теория", amount: Math.round(dgtFee * retakesWithUs), sub: "обычно 1 попытка" },
+    { label: "Псикотехника", amount: psico },
+    ...(lessonCost > 0 ? [{ label: "Уроки вождения*", amount: lessonCost, sub: "*в автошколе вашего города", dim: true }] : []),
+    ...(practicalExam > 0 ? [{ label: "Практический экзамен*", amount: practicalExam, dim: true }] : []),
+  ];
+
+  const totalWithoutUs = withoutUs.reduce((a, b) => a + b.amount, 0);
+  const totalWithUs = withUs.reduce((a, b) => a + b.amount, 0);
+
+  return { withoutUs, withUs, totalWithoutUs, totalWithUs, savings: totalWithoutUs - totalWithUs, retakesWithoutUs };
+}
+
+// ─── Animated number ──────────────────────────────────────────────────────────
+
+function AnimatedNumber({ value, prefix = "€" }: { value: number; prefix?: string }) {
+  const [displayed, setDisplayed] = useState(value);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const start = displayed;
+    const end = value;
+    if (start === end) return;
+    const duration = 500;
+    const startTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayed(Math.round(start + (end - start) * eased));
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return <>{prefix}{displayed}</>;
 }
 
 // ─── Tag & Choice Styles ──────────────────────────────────────────────────────
@@ -246,17 +338,20 @@ const CHOICE_STYLES = {
 export function CourseChecklist() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [calcData, setCalcData] = useState<Record<string, string>>({});
   const [completed, setCompleted] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
   const [touristInterstitial, setTouristInterstitial] = useState(false);
   const [isTourist, setIsTourist] = useState(false);
   const [trustIndex, setTrustIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<"tariff" | "calc">("tariff");
 
   const totalSteps = QUESTIONS.length;
   const question = QUESTIONS[currentStep];
   const answeredCount = Object.keys(answers).length;
   const progress = (currentStep / totalSteps) * 100;
   const recommendation = getRecommendation(answers, isTourist);
+  const costBreakdown = getCostBreakdown(answers, isTourist, calcData);
 
   useEffect(() => {
     if (answeredCount >= 2 && !panelVisible) {
@@ -266,15 +361,17 @@ export function CourseChecklist() {
   }, [answeredCount, panelVisible]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTrustIndex((i) => (i + 1) % TRUST_PHRASES.length);
-    }, 3500);
+    const timer = setInterval(() => setTrustIndex((i) => (i + 1) % TRUST_PHRASES.length), 3500);
     return () => clearInterval(timer);
   }, []);
 
   function handleChoice(choice: Choice) {
     const newAnswers = { ...answers, [question.id]: choice.risk };
     setAnswers(newAnswers);
+
+    if (choice.calcValue) {
+      setCalcData((prev) => ({ ...prev, [question.id]: choice.calcValue! }));
+    }
 
     if (choice.special === "tourist") {
       setIsTourist(true);
@@ -321,19 +418,104 @@ export function CourseChecklist() {
   function scrollToPricingWithHighlight() {
     sessionStorage.setItem("recommendedPlan", recommendation.planId);
     window.dispatchEvent(new CustomEvent("recommendPlan", { detail: { planId: recommendation.planId } }));
-
     setTimeout(() => {
       const card = document.getElementById(`plan-${recommendation.planId}`);
       const section = document.getElementById("pricing");
-      const target = card ?? section;
-      if (!target) return;
-      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      (card ?? section)?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 80);
   }
 
   const riskScore = Object.values(answers).reduce((a, b) => a + b, 0);
   const showPanel = panelVisible || completed;
   const phrase = TRUST_PHRASES[trustIndex];
+
+  // ── Вкладка Калькулятор ──────────────────────────────────────────────────
+
+  const CalcTab = () => (
+    <div className="flex flex-col h-full">
+      <div className="text-[11px] text-zinc-600 mb-3 uppercase tracking-widest font-semibold">Расчёт затрат</div>
+
+      {/* Две колонки */}
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        {/* Без нас */}
+        <div className="bg-rose-500/[0.05] border border-rose-500/15 rounded-xl p-3">
+          <div className="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-2">Без нас</div>
+          <div className="space-y-1.5">
+            {costBreakdown.withoutUs.map((line, i) => (
+              <div key={i} className="flex items-start justify-between gap-1">
+                <span className="text-[10px] text-zinc-500 leading-tight">{line.label}</span>
+                <span className="text-[10px] font-semibold text-rose-300 shrink-0">
+                  <AnimatedNumber value={line.amount} />
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 pt-2 border-t border-rose-500/15 flex items-center justify-between">
+            <span className="text-[10px] text-zinc-500 font-semibold">Итого</span>
+            <span className="text-sm font-black text-rose-400">
+              <AnimatedNumber value={costBreakdown.totalWithoutUs} />
+            </span>
+          </div>
+        </div>
+
+        {/* С нами */}
+        <div className="bg-emerald-500/[0.05] border border-emerald-500/20 rounded-xl p-3">
+          <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-2">С нами</div>
+          <div className="space-y-1.5">
+            {costBreakdown.withUs.map((line, i) => (
+              <div key={i} className="flex items-start justify-between gap-1">
+                <span className={`text-[10px] leading-tight ${line.dim ? "text-zinc-600" : "text-zinc-400"}`}>{line.label}</span>
+                <span className={`text-[10px] font-semibold shrink-0 ${line.dim ? "text-zinc-600" : "text-emerald-300"}`}>
+                  <AnimatedNumber value={line.amount} />
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 pt-2 border-t border-emerald-500/15 flex items-center justify-between">
+            <span className="text-[10px] text-zinc-500 font-semibold">Итого</span>
+            <span className="text-sm font-black text-emerald-400">
+              <AnimatedNumber value={costBreakdown.totalWithUs} />
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Экономия */}
+      {costBreakdown.savings > 0 && (
+        <motion.div
+          layout
+          className="bg-gradient-to-r from-emerald-500/15 to-teal-500/10 border border-emerald-500/25 rounded-xl p-3 text-center mb-3"
+        >
+          <div className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold mb-0.5">Ваша экономия</div>
+          <div className="text-2xl font-black text-emerald-400">
+            <AnimatedNumber value={costBreakdown.savings} />
+          </div>
+          <div className="text-[10px] text-zinc-500 mt-0.5">
+            + экзамен с первого раза вместо {costBreakdown.retakesWithoutUs.toFixed(1)} попыток
+          </div>
+        </motion.div>
+      )}
+
+      {/* Штраф-виджет */}
+      <div className="bg-amber-500/[0.06] border border-amber-500/15 rounded-xl px-3 py-2 mb-3">
+        <p className="text-[10px] text-zinc-500 leading-relaxed">
+          <span className="text-amber-400 font-semibold">⚠️ Штраф</span> за езду без испанских прав — от <span className="text-amber-400 font-bold">€200</span> до <span className="text-amber-400 font-bold">€500</span>. Курс окупается с первого же штрафа.
+        </p>
+      </div>
+
+      {calcData["driving_lessons"] && calcData["driving_lessons"] !== "none" && (
+        <p className="text-[9px] text-zinc-700 leading-snug">
+          * Уроки вождения — для справки. Skilyapp занимается только теорией DGT.
+        </p>
+      )}
+
+      {!completed && (
+        <p className="text-center text-[10px] text-zinc-700 mt-auto pt-2">
+          Расчёт уточняется по мере ответов
+        </p>
+      )}
+    </div>
+  );
 
   return (
     <div className="w-full max-w-[1100px] mx-auto px-4 py-24 relative z-10" id="smart-checklist">
@@ -351,7 +533,7 @@ export function CourseChecklist() {
         </p>
       </div>
 
-      {/* Единая карточка */}
+      {/* Карточка */}
       <motion.div
         layout
         transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -359,7 +541,7 @@ export function CourseChecklist() {
       >
         <div className={`grid grid-cols-1 divide-white/[0.06] ${showPanel ? "lg:grid-cols-[60%_40%] lg:divide-x" : ""}`}>
 
-          {/* LEFT: Wizard — 60% */}
+          {/* LEFT: Wizard */}
           <motion.div layout transition={{ duration: 0.5 }} className="min-w-0 w-full">
             {!completed && (
               <div className="px-6 pt-5 pb-0">
@@ -394,7 +576,6 @@ export function CourseChecklist() {
                     exit={{ opacity: 0, x: -18 }}
                     transition={{ duration: 0.22, ease: "easeOut" }}
                   >
-                    {/* Tourist visa interstitial */}
                     {touristInterstitial ? (
                       <div className="space-y-4">
                         <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center mb-4">
@@ -513,7 +694,7 @@ export function CourseChecklist() {
                        riskScore >= 5 ? "Есть серьёзные пробелы" :
                        riskScore >= 2 ? "Небольшие риски — исправимо" : "Отличный старт!"}
                     </h3>
-                    <p className="text-zinc-400 text-sm mb-6 max-w-sm mx-auto leading-relaxed">
+                    <p className="text-zinc-400 text-sm mb-5 max-w-sm mx-auto leading-relaxed">
                       {isTourist
                         ? "Пока идут документы — изучайте теорию DGT. Сдадите сразу после получения ВНЖ."
                         : riskScore >= 5
@@ -522,19 +703,17 @@ export function CourseChecklist() {
                         ? "Один-два пробела, которые куратор поможет закрыть за пару недель."
                         : "Хорошая база. Практика на платформе — и вы готовы!"}
                     </p>
-                    <div className="flex flex-wrap justify-center gap-2 mb-6">
-                      {QUESTIONS.slice(0, -1).map((q) => {
-                        const risk = answers[q.id] ?? 0;
-                        return (
-                          <span key={q.id} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium
-                            ${risk === 2 ? "bg-rose-500/15 text-rose-400 border border-rose-500/20"
-                            : risk === 1 ? "bg-amber-500/15 text-amber-400 border border-amber-500/20"
-                            : "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20"}`}>
-                            <q.Icon className="w-3 h-3" />
-                          </span>
-                        );
-                      })}
-                    </div>
+
+                    {/* Итоговая экономия в финале */}
+                    {costBreakdown.savings > 0 && (
+                      <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/25 rounded-xl px-4 py-2 mb-5">
+                        <Receipt className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span className="text-sm text-zinc-300">
+                          Экономия с нами: <span className="text-emerald-400 font-black">€<AnimatedNumber value={costBreakdown.savings} prefix="" /></span> vs стандартный путь
+                        </span>
+                      </div>
+                    )}
+
                     <button
                       onClick={scrollToPricingWithHighlight}
                       className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm bg-gradient-to-r ${recommendation.gradient} text-white hover:opacity-90 hover:shadow-xl transition-all`}
@@ -544,7 +723,7 @@ export function CourseChecklist() {
                       <ArrowRight className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => { setCurrentStep(0); setAnswers({}); setCompleted(false); setPanelVisible(false); setIsTourist(false); setTouristInterstitial(false); }}
+                      onClick={() => { setCurrentStep(0); setAnswers({}); setCalcData({}); setCompleted(false); setPanelVisible(false); setIsTourist(false); setTouristInterstitial(false); setActiveTab("tariff"); }}
                       className="block mt-3 mx-auto text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
                     >
                       Пройти заново
@@ -555,7 +734,7 @@ export function CourseChecklist() {
             </div>
           </motion.div>
 
-          {/* RIGHT: Recommendation panel */}
+          {/* RIGHT: Panel with tabs */}
           <AnimatePresence>
             {showPanel && (
               <motion.div
@@ -567,52 +746,102 @@ export function CourseChecklist() {
                 className="w-full"
               >
                 <div className="p-6 sm:p-8 h-full flex flex-col">
-                  <div className={`inline-flex items-center self-start gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${recommendation.gradient} mb-5`}>
-                    <recommendation.Icon className="w-3.5 h-3.5 text-white" />
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">
-                      {completed ? "Ваш тариф" : "Предварительно"}
-                    </span>
+                  {/* Tabs */}
+                  <div className="flex gap-1 bg-white/[0.04] border border-white/[0.07] rounded-xl p-1 mb-5">
+                    <button
+                      onClick={() => setActiveTab("tariff")}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+                        activeTab === "tariff"
+                          ? "bg-white/[0.08] text-white"
+                          : "text-zinc-500 hover:text-zinc-300"
+                      }`}
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      Тариф
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("calc")}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all ${
+                        activeTab === "calc"
+                          ? "bg-white/[0.08] text-white"
+                          : "text-zinc-500 hover:text-zinc-300"
+                      }`}
+                    >
+                      <Calculator className="w-3 h-3" />
+                      Затраты
+                    </button>
                   </div>
 
                   <AnimatePresence mode="wait">
-                    <motion.div
-                      key={recommendation.planId + String(isTourist)}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -6 }}
-                      transition={{ duration: 0.25 }}
-                      className="flex flex-col flex-1"
-                    >
-                      <div className="font-black text-white text-xl leading-tight mb-1">{recommendation.name}</div>
-                      <div className="text-3xl font-black text-white mb-4">{recommendation.price}</div>
-
-                      <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2.5 mb-4">
-                        <p className="text-xs text-zinc-400 leading-relaxed">{recommendation.reason}</p>
-                      </div>
-
-                      <ul className="space-y-2 mb-5 flex-1">
-                        {recommendation.features.map((f, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs text-zinc-300">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-
-                      <button
-                        onClick={scrollToPricingWithHighlight}
-                        className={`w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r ${recommendation.gradient} hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}
+                    {activeTab === "tariff" ? (
+                      <motion.div
+                        key="tariff-tab"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.18 }}
+                        className="flex flex-col flex-1"
                       >
-                        {recommendation.cta}
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                        <div className={`inline-flex items-center self-start gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${recommendation.gradient} mb-5`}>
+                          <recommendation.Icon className="w-3.5 h-3.5 text-white" />
+                          <span className="text-xs font-bold text-white uppercase tracking-wider">
+                            {completed ? "Ваш тариф" : "Предварительно"}
+                          </span>
+                        </div>
 
-                      {!completed && (
-                        <p className="text-center text-[10px] text-zinc-600 mt-2.5">
-                          Рекомендация уточняется по мере ответов
-                        </p>
-                      )}
-                    </motion.div>
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={recommendation.planId + String(isTourist)}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ duration: 0.25 }}
+                            className="flex flex-col flex-1"
+                          >
+                            <div className="font-black text-white text-xl leading-tight mb-1">{recommendation.name}</div>
+                            <div className="text-3xl font-black text-white mb-4">от €{recommendation.price}</div>
+
+                            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-3 py-2.5 mb-4">
+                              <p className="text-xs text-zinc-400 leading-relaxed">{recommendation.reason}</p>
+                            </div>
+
+                            <ul className="space-y-2 mb-5 flex-1">
+                              {recommendation.features.map((f, i) => (
+                                <li key={i} className="flex items-start gap-2 text-xs text-zinc-300">
+                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                                  {f}
+                                </li>
+                              ))}
+                            </ul>
+
+                            <button
+                              onClick={scrollToPricingWithHighlight}
+                              className={`w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r ${recommendation.gradient} hover:opacity-90 transition-opacity flex items-center justify-center gap-2`}
+                            >
+                              {recommendation.cta}
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+
+                            {!completed && (
+                              <p className="text-center text-[10px] text-zinc-600 mt-2.5">
+                                Рекомендация уточняется по мере ответов
+                              </p>
+                            )}
+                          </motion.div>
+                        </AnimatePresence>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="calc-tab"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.18 }}
+                        className="flex-1 flex flex-col"
+                      >
+                        <CalcTab />
+                      </motion.div>
+                    )}
                   </AnimatePresence>
                 </div>
               </motion.div>
@@ -620,7 +849,7 @@ export function CourseChecklist() {
           </AnimatePresence>
         </div>
 
-        {/* Trust footer — rotating phrases */}
+        {/* Trust footer */}
         <div className="px-6 py-3 border-t border-white/[0.05] bg-white/[0.01] overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.p
@@ -631,8 +860,7 @@ export function CourseChecklist() {
               transition={{ duration: 0.4, ease: "easeInOut" }}
               className="text-[11px] text-zinc-600 text-center"
             >
-              <span className="text-zinc-400 font-semibold">{phrase.stat}</span>
-              {" "}{phrase.text}
+              <span className="text-zinc-400 font-semibold">{phrase.stat}</span>{" "}{phrase.text}
             </motion.p>
           </AnimatePresence>
         </div>

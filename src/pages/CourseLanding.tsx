@@ -727,6 +727,37 @@ const CourseLanding = () => {
   const [dbPrices, setDbPrices] = useState<DbPlanPrices | undefined>(undefined);
   const [dbStreams, setDbStreams] = useState<StreamInfo[] | null>(null);
 
+  // Smart form state
+  const [contactMethod, setContactMethod] = useState<'phone_es' | 'phone_ru' | 'tg'>('phone_es');
+  const [contactValue, setContactValue] = useState('+34 ');
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    if (contactMethod === 'phone_es') {
+      const digits = val.replace(/\D/g, '');
+      if (digits.startsWith('34')) {
+        val = '+34 ' + digits.slice(2);
+      } else {
+        val = '+34 ' + digits;
+      }
+    } else if (contactMethod === 'phone_ru') {
+      const digits = val.replace(/\D/g, '');
+      if (digits.startsWith('7')) {
+        val = '+7 ' + digits.slice(1);
+      } else {
+        val = '+7 ' + digits;
+      }
+    } else if (contactMethod === 'tg') {
+      const username = val.replace(/[^a-zA-Z0-9_@]/g, '');
+      if (username.startsWith('@')) {
+        val = '@' + username.slice(1).replace(/@/g, '');
+      } else {
+        val = '@' + username.replace(/@/g, '');
+      }
+    }
+    setContactValue(val);
+  };
+
   // Загружаем ЦЕНЫ и ПОТОКИ из БД — единый источник правды с ботом
   useEffect(() => {
     getSupabaseClient().then(async (sb) => {
@@ -1255,13 +1286,38 @@ const CourseLanding = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Телефон / WhatsApp</label>
+                      <label className="block text-xs text-zinc-400 mb-2 font-medium">Способ связи</label>
+                      <div className="flex bg-white/[0.04] border border-white/[0.08] rounded-xl p-1 mb-3">
+                        <button 
+                          type="button" 
+                          onClick={() => { setContactMethod('phone_es'); setContactValue('+34 '); }} 
+                          className={cn("flex-1 text-xs py-2 rounded-lg transition-all font-medium", contactMethod === 'phone_es' ? "bg-white/10 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+                        >
+                          🇪🇸 Испания
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => { setContactMethod('phone_ru'); setContactValue('+7 '); }} 
+                          className={cn("flex-1 text-xs py-2 rounded-lg transition-all font-medium", contactMethod === 'phone_ru' ? "bg-white/10 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+                        >
+                          🇷🇺 РФ
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => { setContactMethod('tg'); setContactValue('@'); }} 
+                          className={cn("flex-1 text-xs py-2 rounded-lg transition-all font-medium", contactMethod === 'tg' ? "bg-[#2AABEE]/20 text-[#2AABEE] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+                        >
+                          Telegram
+                        </button>
+                      </div>
                       <input
-                        type="tel"
+                        type={contactMethod === 'tg' ? "text" : "tel"}
                         name="phone"
                         required
-                        placeholder="+34 6XX XXX XXX"
-                        className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
+                        value={contactValue}
+                        onChange={handleContactChange}
+                        placeholder={contactMethod === 'phone_es' ? "+34 6XX XXX XXX" : contactMethod === 'phone_ru' ? "+7 9XX XXX XX XX" : "@username"}
+                        className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm font-medium tracking-wide"
                       />
                     </div>
                     <div>
