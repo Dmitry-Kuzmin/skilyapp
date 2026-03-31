@@ -203,6 +203,12 @@ async function handleMessage(message: TelegramMessage) {
   if (text) {
     const isCommand = text.startsWith('/');
     logMsg(user.id, user.username, 'in', isCommand ? 'command' : 'text', text);
+
+    // Уведомляем тебя в Telegram о новом сообщении (fire-and-forget)
+    // Чтобы не спамить — только если это не сам admin и не команды типа /start
+    if (user.id !== ADMIN_CHAT_ID && !isCommand) {
+      notifyAdminNewMessage(user.id, user.username, text);
+    }
   }
 
   // Ставим реакцию на сообщение (Bot API 7.0+, best-effort)
