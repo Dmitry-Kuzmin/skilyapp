@@ -7,6 +7,7 @@ import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import * as keyboards from './keyboards.ts';
 import { t, getUserLanguage, getDaysWord, SupportedLanguage } from './translations.ts';
 import { handleCourseStart, handleCourseBuyDirect, getMenuCourseLabel } from './course-funnel.ts';
+import { handleCourseSupportStart } from './course-support.ts';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
@@ -62,6 +63,13 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
       user.username,
       supabase
     );
+    return;
+  }
+  if (startParam === 'support') {
+    const { data: currentProfile } = await supabase.from('profiles').select('settings').eq('telegram_id', user.id).maybeSingle();
+    const currentSettings = (typeof currentProfile?.settings === 'object' && currentProfile?.settings) || {};
+    await supabase.from('profiles').update({ settings: { ...currentSettings, course_support_mode: true } }).eq('telegram_id', user.id);
+    await handleCourseSupportStart(message.chat.id, user.first_name || 'друг');
     return;
   }
   if (startParam === 'buy_pro') {

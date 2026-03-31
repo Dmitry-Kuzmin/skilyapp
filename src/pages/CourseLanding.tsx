@@ -892,15 +892,14 @@ const CourseLanding = () => {
               }} className="hover:text-white transition-colors">FAQ</button>
             </div>
 
-            <button
-              onClick={() => {
-                const el = document.getElementById('pricing');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
+            <a
+              href="https://t.me/skilyapp_bot?start=course"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hidden sm:inline-flex bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95 shadow-[0_0_15px_rgba(59,130,246,0.2)] items-center gap-2"
             >
               Начать учиться
-            </button>
+            </a>
 
             {/* Mobile Burger */}
             <button
@@ -965,16 +964,15 @@ const CourseLanding = () => {
                 
                 <hr className="border-white/10 my-2" />
                 
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    const el = document.getElementById('pricing');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-4 rounded-xl font-semibold text-center mt-2 shadow-[0_0_15px_rgba(59,130,246,0.2)]"
+                <a 
+                  href="https://t.me/skilyapp_bot?start=course"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-4 rounded-xl font-semibold text-center mt-2 shadow-[0_0_15px_rgba(59,130,246,0.2)] block"
                 >
-                  Найти место
-                </button>
+                  Занять место
+                </a>
               </div>
             </motion.div>
           )}

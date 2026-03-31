@@ -19,6 +19,7 @@ import * as keyboards from "./keyboards.ts";
 import { t, getUserLanguage, normalizeLanguage, SupportedLanguage, getDaysWord, formatMarkdown } from "./translations.ts";
 import { handleAIChat, sendStarsInvoice } from "./ai-handler.ts";
 import { handleCourseCallback, handleCourseStart } from "./course-funnel.ts";
+import { handleCourseSupportStart, handleCourseSupportMessage, handleSupportRequestManager } from "./course-support.ts";
 
 const BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
@@ -281,6 +282,18 @@ async function handleMessage(message: TelegramMessage) {
       }
     }
 
+    // ── Проверяем course_support_mode — если включён, отправляем через ИИ курса ──
+    try {
+      const { data: profile } = await supabase.from('profiles').select('settings').eq('telegram_id', user.id).maybeSingle();
+      const settings = (typeof profile?.settings === 'object' && profile?.settings) as Record<string, unknown> | null;
+      if (settings?.course_support_mode === true) {
+        await handleCourseSupportMessage(message, supabase);
+        return;
+      }
+    } catch (courseSupportErr) {
+      console.error('[CourseSupport] Error:', courseSupportErr);
+    }
+
     // ── Проверяем support_mode — если включён, пересылаем в поддержку ──
     try {
       const { data: profile } = await supabase.from('profiles').select('settings').eq('telegram_id', user.id).maybeSingle();
@@ -467,7 +480,6 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
     }
     else if (data === "support_chat") {
       const lang = await langPromise;
-      // Устанавливаем флаг support_mode в профиле
       const { data: currentProfile } = await supabase.from('profiles').select('settings').eq('telegram_id', user.id).maybeSingle();
       const currentSettings = (typeof currentProfile?.settings === 'object' && currentProfile?.settings) || {};
       await supabase.from('profiles').update({ settings: { ...currentSettings, support_mode: true } }).eq('telegram_id', user.id);
@@ -478,6 +490,16 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         parse_mode: 'HTML',
         reply_markup: { inline_keyboard: [[{ text: t('keyboard.backToMenu', lang), callback_data: 'help_menu' }]] }
       });
+    }
+    else if (data === "support_request_manager") {
+      await handleSupportRequestManager(
+        message.chat.id,
+        user.id,
+        user.first_name || 'друг',
+        user.username,
+        supabase,
+        message.message_id
+      );
     }
     // ── Настройки ──
     else if (data === "settings") {

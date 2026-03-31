@@ -167,6 +167,33 @@ function parseWidgetButtons(text: string): { cleanText: string; buttons: any[][]
     ]);
   }
 
+  // ── ГОРЯЧИЕ ВИДЖЕТЫ КУРСА ──
+
+  // [WIDGET:ENROLL]
+  if (cleaned.includes('[WIDGET:ENROLL]')) {
+    cleaned = cleaned.replace(/\[WIDGET:ENROLL\]/g, '').trim();
+    // Ведём сразу на выбор способов оплаты, как просил юзер
+    buttons.push([{ text: "💳 Выбрать способ оплаты", callback_data: "payment_methods" }]);
+  }
+
+  // [WIDGET:MANAGER]
+  if (cleaned.includes('[WIDGET:MANAGER]')) {
+    cleaned = cleaned.replace(/\[WIDGET:MANAGER\]/g, '').trim();
+    buttons.push([{ text: "💬 Позвать менеджера", callback_data: "support_request_manager" }]);
+  }
+
+  // [WIDGET:BUTTONS] или дефолт для курса (если в режиме suffix)
+  if (cleaned.includes('[WIDGET:BUTTONS]')) {
+    cleaned = cleaned.replace(/\[WIDGET:BUTTONS\]/g, '').trim();
+    // Мы не добавляем кнопки тут, так как они обычно дублируют ENROLL/MANAGER.
+    // Но если кнопок нет вообще — добавим базовые
+  }
+
+  if (buttons.length === 0 && cleaned.length > 0) {
+    // В режиме поддержки курса всегда полезно иметь кнопки
+    // Но мы не знаем тут, в режиме ли мы. Оставим как есть.
+  }
+
   return { cleanText: cleaned, buttons, sendStarsInvoice };
 }
 
@@ -268,22 +295,28 @@ async function callGeminiStreaming(
   userId?: string,
   imageData?: { data: string; mimeType: string } | null,
   hasWallet?: boolean,
-): Promise<{ text: string; model: string } | null> {
+  systemPromptSuffix?: string,
+): Promise<{ text: string; model: string; conversationId: string } | null> {
   if (!GEMINI_API_KEY) {
     console.error('[Gemini] No API Key found');
     return null;
   }
 
   const walletStatus = hasWallet ? "Wallet is ALREADY connected." : "Wallet is NOT connected yet - user must connect first.";
-  const systemPrompt = getSystemPrompt({ country, language, context: 'bot' }) + 
-    `\n\nUSER STATE: ${walletStatus}\n` +
-    `PAYMENT INFO:\n` +
-    `- Use [WIDGET:STARS:PAY] if user wants to pay with Telegram Stars (easiest for mobile).\n` +
-    `- Use [WIDGET:TON:CONNECT] (if not connected) or [WIDGET:TON:PAY:amount:description] (if connected) for TON native payments.\n` +
-    `- Mention that regular bank cards (Stripe/Paddle) are accepted inside our Mini App - use [WIDGET:CTA:PREMIUM:Открыть магазин] to direct them there.\n\n` +
-    "IMPORTANT: Use ONLY Telegram-supported HTML tags: <b>bold</b>, <i>italic</i>, <u>underline</u>, <code>code</code>. \n" +
-    "DO NOT use <ul>, <li>, <div> or <p> tags - they are NOT supported and will break the message. \n" +
-    "For lists, use bullet point characters like '•' or emojis. Ensure the response is premium and visually spaced well with new lines.";
+  let systemPrompt: string;
+  if (systemPromptSuffix) {
+    systemPrompt = systemPromptSuffix;
+  } else {
+    systemPrompt = getSystemPrompt({ country, language, context: 'bot' }) + 
+      `\n\nUSER STATE: ${walletStatus}\n` +
+      `PAYMENT INFO:\n` +
+      `- Use [WIDGET:STARS:PAY] if user wants to pay with Telegram Stars (easiest for mobile).\n` +
+      `- Use [WIDGET:TON:CONNECT] (if not connected) or [WIDGET:TON:PAY:amount:description] (if connected) for TON native payments.\n` +
+      `- Mention that regular bank cards (Stripe/Paddle) are accepted inside our Mini App - use [WIDGET:CTA:PREMIUM:Открыть магазин] to direct them there.\n\n` +
+      "IMPORTANT: Use ONLY Telegram-supported HTML tags: <b>bold</b>, <i>italic</i>, <u>underline</u>, <code>code</code>. \n" +
+      "DO NOT use <ul>, <li>, <div> or <p> tags - they are NOT supported and will break the message. \n" +
+      "For lists, use bullet point characters like '•' or emojis. Ensure the response is premium and visually spaced well with new lines.";
+  }
   const parts: any[] = [];
   
   if (imageData) {
@@ -302,7 +335,7 @@ async function callGeminiStreaming(
   }
 
   let currentContents: any[] = [];
-  let conversationId = "00000000-0000-0000-0000-000000000000"; // Fallback
+  let conversationId = crypto.randomUUID(); // Генерируем новый, если истории нет
 
   // 1. Загружаем историю (контекст)
   if (userId) {
@@ -312,7 +345,7 @@ async function callGeminiStreaming(
         .select('role, content, conversation_id')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .limit(6); // Последние 3 диалога
+        .limit(20); // Увеличиваем лимит истории до 20 сообщений для длинных диалогов продаж
 
       if (history && history.length > 0) {
         conversationId = history[0].conversation_id;
@@ -469,17 +502,16 @@ async function callGeminiStreaming(
           continue;
         }
 
-        await sendDraft(chatId, draftId, '');
-        return { text: fullText, model };
+        return { text: fullText, model, conversationId };
       } catch (err) {
         console.error('[Streaming] Error:', err);
-        return { text: fullText, model };
+        return { text: fullText, model, conversationId };
       }
     } else {
       const data = await response.json();
       const parts = data?.candidates?.[0]?.content?.parts;
       const textResult = parts?.map((p: any) => p.text || '').join('') || '';
-      return { text: textResult, model };
+      return { text: textResult, model, conversationId };
     }
   }
   return null;
@@ -515,7 +547,12 @@ async function sendFinalMessage(chatId: number, text: string, buttons: any[][]):
 }
 
 // ── Main Entry Point ─────────────────────────────────
-export async function handleAIChat(message: TelegramMessage, supabase: SupabaseClient, lang: SupportedLanguage) {
+export async function handleAIChat(
+  message: TelegramMessage,
+  supabase: SupabaseClient,
+  lang: SupportedLanguage,
+  options?: { systemPromptSuffix?: string },
+) {
   const telegramId = message.from.id;
   const chatId = message.chat.id;
   const text = message.text || message.caption || "";
@@ -571,40 +608,35 @@ export async function handleAIChat(message: TelegramMessage, supabase: SupabaseC
       lang, 
       supabase, 
       chatId, 
-      profile?.user_id, // Используем auth.users ID если есть
+      profile?.user_id,
       imageData,
-      hasWallet
+      hasWallet,
+      options?.systemPromptSuffix,
     );
 
     if (!resultObj) {
       throw new Error("Gemini returned null result");
     }
 
-    const { text: resultText, model: actualModel } = resultObj;
+    const { text: resultText, model: actualModel, conversationId: actualConvId } = resultObj;
 
-    // Сохраняем в историю в фоновом режиме (не ждем завершения для скорости ответа)
+    // Сохраняем в историю
     if (profile?.user_id) {
-      const convId = crypto.randomUUID(); 
-      
-      // Мы не знаем точно conversationId из стриминга здесь без доп. логики, 
-      // но можем просто сохранить под новым если история была пуста, 
-      // или передать его из callGeminiStreaming (что мы и сделаем).
-      // Для простоты пока просто сохраняем факт диалога.
       supabase.from('ai_chat_history').insert([
         { 
           user_id: profile.user_id, 
           role: 'user', 
           content: text || (imageData ? "[Анализ фото]" : ""),
-          conversation_id: convId, 
-          message_index: 0,
+          conversation_id: actualConvId, 
+          message_index: Date.now(), // Используем время для индекса если нет точного счетчика
           model_used: actualModel
         },
         { 
           user_id: profile.user_id, 
           role: 'assistant', 
           content: resultText,
-          conversation_id: convId, 
-          message_index: 1,
+          conversation_id: actualConvId, 
+          message_index: Date.now() + 1,
           model_used: actualModel
         }
       ]).then(({ error }) => {
@@ -634,10 +666,10 @@ export async function handleAIChat(message: TelegramMessage, supabase: SupabaseC
       await sendFinalMessage(chatId, processedText, buttons);
     }
 
-    if (shouldSendInvoice) {
-      // КРИТИЧНО: НЕ вызываем автоматически (sendStarsInvoice), так как мы уже добавили кнопку pay_stars.
-      // Это предотвращает дублирование сообщений. Пользователь сам нажмет на кнопку.
-      console.log(`[AI] Star invoice requested by AI result, but skipped auto-send (button is present).`);
+    // КРИТИЧНО: Если вызван менеджер — уведомляем админа СРАЗУ
+    if (resultText.includes('[WIDGET:MANAGER]')) {
+      const { data: profile } = await supabase.from('profiles').select('first_name').eq('telegram_id', telegramId).maybeSingle();
+      notifyAdminOfSupportRequest(supabase, telegramId, profile?.first_name || 'Guapo', text || 'Запрос менеджеру');
     }
   } catch (err) {
     console.error('[AI Chat] Error:', err);
@@ -651,4 +683,20 @@ export async function handleAIChat(message: TelegramMessage, supabase: SupabaseC
       }),
     });
   }
+} // Закрывающая скобка handleAIChat
+
+// ── Уведомление админа о запросе менеджера ──────────
+async function notifyAdminOfSupportRequest(supabase: SupabaseClient, userId: number, firstName: string, question: string) {
+  const ADMIN_CHAT_ID = 488159880; // @guapo_pub
+  const text = `🚨 <b>Запрос менеджера!</b>\n\n👤 Юзер: <b>${firstName}</b> (${userId})\n❓ Вопрос: <i>${question}</i>\n\n[user_chat_id:${userId}]`;
+  
+  await fetch(`${TELEGRAM_API}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: ADMIN_CHAT_ID,
+      text,
+      parse_mode: 'HTML',
+    }),
+  });
 }
