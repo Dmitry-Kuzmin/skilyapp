@@ -25,6 +25,18 @@ export type CoursePlan = {
   price_eur: number;
   original_price_eur: number | null;
   payment_link: string | null;
+  format?: string;        // 'group' | 'mini_group' | 'individual'
+  promo_label?: string;   // 'Акция старта -20%'
+  promo_until?: string;   // ISO timestamp
+  features?: string[];
+};
+
+export type CourseAddon = {
+  addon_key: string;
+  label: string;
+  description: string | null;
+  price_group: number;
+  price_individual: number;
 };
 
 export type CourseStream = {
