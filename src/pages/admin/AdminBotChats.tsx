@@ -127,7 +127,10 @@ export function AdminBotChats() {
   const [search, setSearch] = useState("");
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Inject AI message styles once
   useEffect(() => {
