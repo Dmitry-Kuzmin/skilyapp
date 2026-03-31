@@ -48,6 +48,9 @@ if (typeof window !== 'undefined') {
   } else if (tonAnalyticsKey && !isInsideTelegram) {
       console.log('[TMA Analytics] Skipped: running outside Telegram environment');
   }
+
+  // PostHog — инициализация ДО первого рендера (захватываем $pageview с первой страницы)
+  initPostHog();
 }
 
 // ОПТИМИЗАЦИЯ DEV: Дросселируем console.log чтобы 1925 логов не фризили JS-поток
