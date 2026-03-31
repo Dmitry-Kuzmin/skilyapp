@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { animate } from "framer-motion";
 import { MessageCircle, Users, User, Zap, FileText, Globe, CheckCircle2, Clock } from "lucide-react";
+import { Analytics } from "@/lib/posthog";
 
 // ─── Animated price counter ───────────────────────────────────────────────────
 // animate(from, to, { onUpdate }) — framer-motion independent value animation.
