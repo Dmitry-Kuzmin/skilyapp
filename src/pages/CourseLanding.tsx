@@ -830,6 +830,10 @@ const CourseLanding = () => {
       document.head.appendChild(gtagInit);
     }
     requestAnimationFrame(() => setHeroReady(true));
+
+    // PostHog: фиксируем факт просмотра лендинга курса
+    Analytics.landingViewed();
+
     return () => { document.getElementById("curso-styles")?.remove(); };
   }, []);
 
