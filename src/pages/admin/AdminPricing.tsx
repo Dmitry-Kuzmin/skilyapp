@@ -123,12 +123,14 @@ export function AdminPricing() {
       ? (raw === "" ? null : Number(raw))
       : raw === "" ? null : raw;
 
-    const { error } = await (supabase as any)
+    const { error, count } = await (supabase as any)
       .from("course_plans")
       .update({ [field]: value, updated_at: new Date().toISOString() })
-      .eq("id", id);
+      .eq("id", id)
+      .select("id", { count: "exact", head: true });
 
-    if (error) { toast.error("Ошибка сохранения"); return; }
+    if (error) { toast.error(`Ошибка: ${error.message}`); return; }
+    if (count === 0) { toast.error("Не сохранено — нет прав доступа"); return; }
     toast.success("Сохранено");
     setPlans((prev) => prev.map((p) => p.id === id ? { ...p, [field]: value } : p));
   };
