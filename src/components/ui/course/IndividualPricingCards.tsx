@@ -1,62 +1,42 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { animate } from "framer-motion";
 import { MessageCircle, Users, User, Zap, FileText, Globe, CheckCircle2, Clock } from "lucide-react";
 
 // ─── Animated price counter ───────────────────────────────────────────────────
-// No React children on the span — React can't overwrite textContent mid-animation.
-// useLayoutEffect sets initial value synchronously before paint.
-// rAF loop updates DOM directly at 60fps.
-
-import { useLayoutEffect } from "react";
+// animate(from, to, { onUpdate }) — framer-motion independent value animation.
+// React state drives the display — no rAF tricks, no DOM bypassing.
 
 function AnimatedPrice({ value, isDark }: { value: number; isDark?: boolean }) {
-  const spanRef = useRef<HTMLSpanElement>(null);
-  const rafRef = useRef<number | null>(null);
-  const displayedRef = useRef(value);
-
-  // Set initial value before first paint — no flash
-  useLayoutEffect(() => {
-    if (spanRef.current) spanRef.current.textContent = `€${value}`;
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const [displayed, setDisplayed] = useState(value);
+  const currentRef = useRef(value); // tracks last visual value for chained animations
 
   useEffect(() => {
-    const from = displayedRef.current;
+    const from = currentRef.current;
     const to = value;
-    if (from === to) return;
 
-    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    const controls = animate(from, to, {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate(v) {
+        const rounded = Math.round(v);
+        currentRef.current = rounded;
+        setDisplayed(rounded);
+      },
+      onComplete() {
+        currentRef.current = to;
+        setDisplayed(to);
+      },
+    });
 
-    const duration = 380;
-    const startTime = performance.now();
+    return controls.stop;
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const t = Math.min(elapsed / duration, 1);
-      const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-      const current = Math.round(from + (to - from) * eased);
-      displayedRef.current = current;
-      if (spanRef.current) spanRef.current.textContent = `€${current}`;
-      if (t < 1) {
-        rafRef.current = requestAnimationFrame(tick);
-      } else {
-        displayedRef.current = to;
-        if (spanRef.current) spanRef.current.textContent = `€${to}`;
-        rafRef.current = null;
-      }
-    };
-
-    rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
-  }, [value]);
-
-  // No children — React won't touch textContent after mount
   return (
-    <span
-      ref={spanRef}
-      className={`text-4xl font-black tracking-tight tabular-nums ${isDark ? "text-white" : "text-zinc-900"}`}
-    />
+    <span className={`text-4xl font-black tracking-tight tabular-nums ${isDark ? "text-white" : "text-zinc-900"}`}>
+      €{displayed}
+    </span>
   );
 }
 
