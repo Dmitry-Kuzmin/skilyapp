@@ -44,6 +44,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Analytics } from "@/lib/posthog";
 
 const ARC_IMAGES = Array.from({ length: 12 }, (_, i) => `/assets/landing/arc/img-${String(i + 1).padStart(2, '0')}.png`);
 
