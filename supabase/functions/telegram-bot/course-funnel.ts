@@ -486,7 +486,9 @@ export async function handleCourseCallback(
 
   // ── Шаг 2: попытки → персональный текст + тарифы ──
   if (data === 'course_s2_new' || data === 'course_s2_failed' || data === 'course_s2_fast') {
-    await upsertLead(supabase, telegramId, { qualification: { attempt_answer: data.replace('course_s2_', '') } });
+    const attempt = data.replace('course_s2_', '');
+    await upsertLead(supabase, telegramId, { qualification: { attempt_answer: attempt } });
+    logBotEvent(supabase, telegramId, telegramUser, 'step2_attempt', { choice: attempt });
 
     const [plans, streams] = await Promise.all([getCoursePlans(supabase), getOpenStreams(supabase, 1)]);
     const { text: tariffsText, keyboard } = buildTariffsBlock(plans, streams[0] || null);
