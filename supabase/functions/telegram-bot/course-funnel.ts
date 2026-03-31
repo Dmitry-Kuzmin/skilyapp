@@ -362,6 +362,7 @@ export async function handleCourseStart(
     telegram_user: telegramUser,
     status: 'new',
   });
+  logBotEvent(supabase, telegramId, telegramUser, 'funnel_start', { via: messageId ? 'inline' : 'command' });
 
   const text =
     `🚗 <b>Привет, ${firstName}!</b>\n\n` +
