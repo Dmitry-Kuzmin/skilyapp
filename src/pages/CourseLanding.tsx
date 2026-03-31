@@ -727,6 +727,7 @@ const CourseLanding = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dbPrices, setDbPrices] = useState<DbPlanPrices | undefined>(undefined);
   const [pricingTab, setPricingTab] = useState<"groups" | "individual">("groups");
+  const [dbAddons, setDbAddons] = useState<{ addon_key: string; label: string; price_group: number; price_individual: number }[]>([]);
   const [dbStreams, setDbStreams] = useState<StreamInfo[] | null>(null);
 
   // Smart form state
