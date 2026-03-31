@@ -123,24 +123,43 @@ function Addon({
   );
 }
 
+// ─── Addon type ───────────────────────────────────────────────────────────────
+
+interface DbAddon {
+  addon_key: string;
+  label: string;
+  price_group: number;
+  price_individual: number;
+}
+
+// Fallback addons if DB is unavailable
+const FALLBACK_ADDONS: DbAddon[] = [
+  { addon_key: 'spanish',       label: 'Испанский для водителей', price_group: 60, price_individual: 80 },
+  { addon_key: 'documents',     label: 'Помощь с документами',    price_group: 50, price_individual: 50 },
+  { addon_key: 'extra_session', label: 'Дополнительная сессия',   price_group: 40, price_individual: 60 },
+];
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function IndividualPricingCards({ onBooking }: { onBooking?: () => void }) {
-  // Mini-group addons
-  const [mgSpanish, setMgSpanish] = useState(false);
-  const [mgDocs, setMgDocs] = useState(false);
-  const [mgUrgent, setMgUrgent] = useState(false);
+export function IndividualPricingCards({
+  onBooking,
+  mgBasePrice = 499,
+  indBasePrice = 799,
+  addons: addonsFromDb,
+}: {
+  onBooking?: () => void;
+  mgBasePrice?: number;
+  indBasePrice?: number;
+  addons?: DbAddon[];
+}) {
+  const addons = (addonsFromDb && addonsFromDb.length > 0) ? addonsFromDb : FALLBACK_ADDONS;
 
-  // Individual addons
-  const [indSpanish, setIndSpanish] = useState(false);
-  const [indDocs, setIndDocs] = useState(false);
-  const [indUrgent, setIndUrgent] = useState(false);
+  // Toggle state per addon_key
+  const [mgEnabled, setMgEnabled] = useState<Record<string, boolean>>({});
+  const [indEnabled, setIndEnabled] = useState<Record<string, boolean>>({});
 
-  const mgBase = 499;
-  const indBase = 799;
-
-  const mgTotal = mgBase + (mgSpanish ? 60 : 0) + (mgDocs ? 50 : 0) + (mgUrgent ? 40 : 0);
-  const indTotal = indBase + (indSpanish ? 80 : 0) + (indDocs ? 50 : 0) + (indUrgent ? 60 : 0);
+  const mgTotal = addons.reduce((sum, a) => sum + (mgEnabled[a.addon_key] ? a.price_group : 0), mgBasePrice);
+  const indTotal = addons.reduce((sum, a) => sum + (indEnabled[a.addon_key] ? a.price_individual : 0), indBasePrice);
 
   const mgFeatures = [
     "8 живых сессий с преподавателем",
