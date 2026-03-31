@@ -208,12 +208,33 @@ function logBotEvent(
   event: string,
   data?: Record<string, unknown>
 ): void {
+  // 1. Supabase bot_events (для просмотра в дашборде)
   supabase.from('bot_events').insert({
     telegram_id: telegramId,
     username: username ?? null,
     event,
     data: data ?? null,
   }).then().catch(() => {});
+
+  // 2. PostHog HTTP API (retention, funnels, cohorts)
+  const posthogKey = Deno.env.get('POSTHOG_KEY');
+  if (posthogKey) {
+    fetch('https://eu.i.posthog.com/capture/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: posthogKey,
+        event: `bot_${event}`,
+        distinct_id: `tg_${telegramId}`,
+        properties: {
+          $lib: 'telegram-bot',
+          telegram_id: telegramId,
+          username: username ?? null,
+          ...data,
+        },
+      }),
+    }).catch(() => {});
+  }
 }
 
 // ─────────────────────────────────────────────────────
