@@ -352,6 +352,11 @@ export function AppRoutes() {
             <AdminStreams />
           </Suspense>
         } />
+        <Route path="pricing" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <AdminPricing />
+          </Suspense>
+        } />
       </Route >
       <Route path="/road-signs" element={
         <Suspense fallback={<PageSkeleton />}>
