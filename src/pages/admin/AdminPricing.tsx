@@ -145,9 +145,13 @@ export function AdminPricing() {
   const updateAddon = async (id: number, field: keyof Addon, raw: string) => {
     const value = field === "price_group" || field === "price_individual"
       ? Number(raw) : raw;
-    const { error } = await (supabase as any)
-      .from("course_addons").update({ [field]: value, updated_at: new Date().toISOString() }).eq("id", id);
-    if (error) { toast.error("Ошибка"); return; }
+    const { error, count } = await (supabase as any)
+      .from("course_addons")
+      .update({ [field]: value, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select("id", { count: "exact", head: true });
+    if (error) { toast.error(`Ошибка: ${error.message}`); return; }
+    if (count === 0) { toast.error("Не сохранено — нет прав доступа"); return; }
     toast.success("Сохранено");
     setAddons((prev) => prev.map((a) => a.id === id ? { ...a, [field]: value } : a));
   };
