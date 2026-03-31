@@ -370,6 +370,11 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
 
   console.log(`[Callback] @${user.username || user.id} -> ${data}`);
 
+  // Логируем нажатие кнопки в историю чатов
+  logMsg(user.id, user.username, 'in', 'callback', data, {
+    msg_preview: message?.text?.slice(0, 120) ?? null,
+  });
+
   // Убираем часики мгновенно (без await, чтобы не ждать ответа API)
   fetch(`${TELEGRAM_API}/answerCallbackQuery`, {
     method: "POST",
