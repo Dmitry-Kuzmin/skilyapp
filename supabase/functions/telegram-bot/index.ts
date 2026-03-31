@@ -199,6 +199,12 @@ async function handleMessage(message: TelegramMessage) {
 
   console.log(`[Message] @${user.username || user.id} text: "${text}"`);
 
+  // Логируем входящее сообщение в историю чатов
+  if (text) {
+    const isCommand = text.startsWith('/');
+    logMsg(user.id, user.username, 'in', isCommand ? 'command' : 'text', text);
+  }
+
   // Ставим реакцию на сообщение (Bot API 7.0+, best-effort)
   if (message.message_id && message.chat?.id) {
     const emoji = getReactionEmoji(text);
