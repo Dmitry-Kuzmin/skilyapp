@@ -10,6 +10,18 @@ import { MessageSquare, Search, RefreshCw, Bot, User, MousePointerClick, Termina
 import { formatDistanceToNow, format } from "date-fns";
 import { ru } from "date-fns/locale";
 
+// Инжектируем стили для рендеринга HTML из ИИ-ответов (один раз)
+const AI_MSG_STYLES = `
+.ai-msg b, .ai-msg strong { font-weight: 600; color: #e4e4e7; }
+.ai-msg i, .ai-msg em { font-style: italic; color: #d4d4d8; }
+.ai-msg u { text-decoration: underline; }
+.ai-msg ul { list-style: disc; padding-left: 1.2em; margin: 6px 0; }
+.ai-msg ol { list-style: decimal; padding-left: 1.2em; margin: 6px 0; }
+.ai-msg li { margin: 2px 0; }
+.ai-msg p { margin: 4px 0; }
+.ai-msg code { font-family: monospace; font-size: 0.85em; background: rgba(255,255,255,0.07); padding: 1px 4px; border-radius: 3px; }
+`;
+
 type ChatUser = {
   telegram_id: number;
   username: string | null;
