@@ -5,28 +5,35 @@ import { motion } from "framer-motion";
 import { MessageCircle, Users, User, Zap, FileText, Globe, CheckCircle2, Clock } from "lucide-react";
 
 // ─── Animated price counter ───────────────────────────────────────────────────
-// Direct DOM update via rAF — zero React re-renders, butter smooth
+// No React children on the span — React can't overwrite textContent mid-animation.
+// useLayoutEffect sets initial value synchronously before paint.
+// rAF loop updates DOM directly at 60fps.
+
+import { useLayoutEffect } from "react";
 
 function AnimatedPrice({ value, isDark }: { value: number; isDark?: boolean }) {
   const spanRef = useRef<HTMLSpanElement>(null);
   const rafRef = useRef<number | null>(null);
-  const displayedRef = useRef(value); // tracks what's currently shown
+  const displayedRef = useRef(value);
+
+  // Set initial value before first paint — no flash
+  useLayoutEffect(() => {
+    if (spanRef.current) spanRef.current.textContent = `€${value}`;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const from = displayedRef.current;
     const to = value;
     if (from === to) return;
 
-    // cancel any in-flight animation
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
 
-    const duration = 380; // ms
+    const duration = 380;
     const startTime = performance.now();
 
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const t = Math.min(elapsed / duration, 1);
-      // ease-out expo
       const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
       const current = Math.round(from + (to - from) * eased);
       displayedRef.current = current;
@@ -44,13 +51,12 @@ function AnimatedPrice({ value, isDark }: { value: number; isDark?: boolean }) {
     return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
   }, [value]);
 
+  // No children — React won't touch textContent after mount
   return (
     <span
       ref={spanRef}
       className={`text-4xl font-black tracking-tight tabular-nums ${isDark ? "text-white" : "text-zinc-900"}`}
-    >
-      €{value}
-    </span>
+    />
   );
 }
 
