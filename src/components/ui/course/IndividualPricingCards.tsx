@@ -320,7 +320,10 @@ export function IndividualPricingCards({
                   label={a.label}
                   price={`€${a.price_individual}`}
                   enabled={!!indEnabled[a.addon_key]}
-                  onChange={(v) => setIndEnabled((prev) => ({ ...prev, [a.addon_key]: v }))}
+                  onChange={(v) => {
+                    setIndEnabled((prev) => ({ ...prev, [a.addon_key]: v }));
+                    Analytics.addonToggled(a.addon_key, v, "individual");
+                  }}
                   isDark
                 />
               ))}
