@@ -98,6 +98,12 @@ const adminNavItems = [
     path: "/admin/pricing",
   },
   {
+    id: "bot-chats",
+    label: "Чаты с ботом",
+    icon: MessageSquare,
+    path: "/admin/bot-chats",
+  },
+  {
     id: "mission-control",
     label: "Mission Control 🚀",
     icon: Rocket,
