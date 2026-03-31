@@ -248,7 +248,10 @@ export function IndividualPricingCards({
                   label={a.label}
                   price={`€${a.price_group}`}
                   enabled={!!mgEnabled[a.addon_key]}
-                  onChange={(v) => setMgEnabled((prev) => ({ ...prev, [a.addon_key]: v }))}
+                  onChange={(v) => {
+                    setMgEnabled((prev) => ({ ...prev, [a.addon_key]: v }));
+                    Analytics.addonToggled(a.addon_key, v, "mini_group");
+                  }}
                 />
               ))}
             </div>
