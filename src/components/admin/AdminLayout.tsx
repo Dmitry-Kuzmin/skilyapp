@@ -92,6 +92,12 @@ const adminNavItems = [
     path: "/admin/streams",
   },
   {
+    id: "pricing",
+    label: "Цены курса DGT",
+    icon: CircleDollarSign,
+    path: "/admin/pricing",
+  },
+  {
     id: "mission-control",
     label: "Mission Control 🚀",
     icon: Rocket,
