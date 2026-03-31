@@ -357,7 +357,7 @@ export function CourseChecklist() {
         transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="w-full bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/40"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] divide-y lg:divide-y-0 lg:divide-x divide-white/[0.06]">
+        <div className={`grid grid-cols-1 divide-white/[0.06] ${showPanel ? "lg:grid-cols-[60%_40%] lg:divide-x" : ""}`}>
 
           {/* LEFT: Wizard — 60% */}
           <motion.div layout transition={{ duration: 0.5 }} className="min-w-0 w-full">
