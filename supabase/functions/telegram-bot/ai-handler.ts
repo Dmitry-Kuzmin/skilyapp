@@ -664,6 +664,15 @@ export async function handleAIChat(
 
     if (processedText) {
       await sendFinalMessage(chatId, processedText, buttons);
+      // Логируем ИИ-ответ в историю чатов (fire-and-forget)
+      supabase.from('bot_messages').insert({
+        telegram_id: telegramId,
+        username: null,
+        direction: 'out',
+        type: 'ai',
+        content: processedText.slice(0, 4000),
+        extra: null,
+      }).then().catch(() => {});
     }
 
     // КРИТИЧНО: Если вызван менеджер — уведомляем админа СРАЗУ
