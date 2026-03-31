@@ -297,8 +297,8 @@ export function IndividualPricingCards({ onBooking }: { onBooking?: () => void }
               />
               <Addon
                 icon={Zap}
-                label="Срочный формат (3 нед)"
-                price="€150"
+                label="Дополнительная сессия"
+                price="€60"
                 enabled={indUrgent}
                 onChange={setIndUrgent}
                 isDark
