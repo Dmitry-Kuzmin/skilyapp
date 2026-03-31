@@ -1157,30 +1157,13 @@ const CourseLanding = () => {
             </button>
           </div>
 
-          {/* Cards */}
-          <AnimatePresence mode="wait">
-            {pricingTab === "groups" ? (
-              <motion.div
-                key="groups"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-              >
-                <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="individual"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}
-              >
-                <IndividualPricingCards onBooking={scrollToForm} />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* Cards — both stay mounted, no remount freeze */}
+          <div className={pricingTab === "groups" ? "block" : "hidden"}>
+            <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
+          </div>
+          <div className={pricingTab === "individual" ? "block" : "hidden"}>
+            <IndividualPricingCards onBooking={scrollToForm} />
+          </div>
 
           {/* Trust footer */}
           <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 mt-12 text-zinc-400 text-xs sm:text-sm">
