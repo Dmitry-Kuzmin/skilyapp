@@ -10,7 +10,6 @@ import { CourseComparison } from "@/components/ui/course/CourseComparison";
 import { CourseTimeline } from "@/components/ui/course/CourseTimeline";
 import { CourseChecklist } from "@/components/ui/course/CourseChecklist";
 import { CinematicHero } from "@/components/ui/cinematic-landing-hero";
-import { PulseBeamsFirstDemo } from "@/components/ui/pulse-beams";
 import { useCrispChat } from "@/hooks/useCrispChat";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import {
@@ -1406,17 +1405,6 @@ const CourseLanding = () => {
           CINEMATIC CTA FOOTER
           ═══════════════════════════════════════════ */}
       <CinematicHero onOpenForm={() => setFormModalOpen(true)} />
-      
-      {/* ═══════════════════════════════════════════
-          NEW PULSE BEAMS FOOTER (For Comparison)
-          ═══════════════════════════════════════════ */}
-      <PulseBeamsFirstDemo onOpenForm={() => {
-        // scroll to pricing instead, like the other button? Or open form. 
-        // The demo just said "Connect". I'll open form for symmetry.
-        setFormModalOpen(true);
-      }} />
-
-
     </div>
   );
 };
