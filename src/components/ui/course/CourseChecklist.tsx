@@ -560,12 +560,11 @@ export function CourseChecklist() {
             {showPanel && (
               <motion.div
                 key="panel"
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                style={{ overflow: "hidden" }}
-                className="shrink-0 lg:w-[45%] w-full"
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 12 }}
+                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="w-full border-t lg:border-t-0 border-white/[0.06]"
               >
                 <div className="p-6 sm:p-8 h-full flex flex-col">
                   <div className={`inline-flex items-center self-start gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r ${recommendation.gradient} mb-5`}>
