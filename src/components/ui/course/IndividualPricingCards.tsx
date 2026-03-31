@@ -103,7 +103,7 @@ export function IndividualPricingCards({ onBooking }: { onBooking?: () => void }
   const mgBase = 499;
   const indBase = 799;
 
-  const mgTotal = mgBase + (mgSpanish ? 60 : 0) + (mgDocs ? 50 : 0) + (mgUrgent ? 100 : 0);
+  const mgTotal = mgBase + (mgSpanish ? 60 : 0) + (mgDocs ? 50 : 0) + (mgUrgent ? 40 : 0);
   const indTotal = indBase + (indSpanish ? 80 : 0) + (indDocs ? 50 : 0) + (indUrgent ? 150 : 0);
 
   const mgFeatures = [
