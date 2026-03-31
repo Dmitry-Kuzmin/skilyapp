@@ -9,6 +9,7 @@ import { PricingCards, type DbPlanPrices } from "@/components/ui/pricing-cards";
 import { CourseComparison } from "@/components/ui/course/CourseComparison";
 import { CourseTimeline } from "@/components/ui/course/CourseTimeline";
 import { CourseChecklist } from "@/components/ui/course/CourseChecklist";
+import { IndividualPricingCards } from "@/components/ui/course/IndividualPricingCards";
 import { CinematicHero } from "@/components/ui/cinematic-landing-hero";
 import { useCrispChat } from "@/hooks/useCrispChat";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
