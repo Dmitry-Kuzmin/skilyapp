@@ -263,17 +263,10 @@ export function IndividualPricingCards({ onBooking }: { onBooking?: () => void }
 
               {/* Price */}
               <div className="flex items-end gap-1 mb-1">
-                <motion.span
-                  key={indTotal}
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-4xl font-black text-white tracking-tight"
-                >
-                  €{indTotal}
-                </motion.span>
+                <AnimatedPrice value={indTotal} isDark />
                 <span className="text-zinc-500 text-base mb-1">/разово</span>
               </div>
-              <p className="text-xs text-zinc-600 mb-6">Полная оплата при бронировании</p>
+              <p className="text-xs text-zinc-600 mb-6">За человека · полная оплата при бронировании</p>
 
               {/* CTA */}
               <button
