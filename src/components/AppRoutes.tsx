@@ -63,6 +63,9 @@ const AdminStreams = lazy(() =>
 const AdminPricing = lazy(() =>
   import("../pages/admin/AdminPricing").then((module) => ({ default: module.AdminPricing }))
 );
+const AdminBotChats = lazy(() =>
+  import("../pages/admin/AdminBotChats").then((module) => ({ default: module.AdminBotChats }))
+);
 const AdminMarketingMaterials = lazy(() =>
   import("../pages/admin/AdminMarketingMaterials").then((module) => ({ default: module.AdminMarketingMaterials }))
 );
