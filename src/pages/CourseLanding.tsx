@@ -466,7 +466,7 @@ const RotatingHeroBadge = ({ stream }: { stream?: StreamInfo | null }) => {
           <span className="text-zinc-300 text-xs sm:text-sm font-medium tracking-wide">Старт потока: {dateFormatted}</span>
           <div className="h-4 w-px bg-white/10 hidden sm:block mx-1"></div>
           <span className="text-zinc-500 hidden sm:flex items-center gap-1 text-xs font-semibold">
-            Забронировать
+            Подобрать тариф
             <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform text-zinc-400" />
           </span>
         </div>
@@ -530,6 +530,13 @@ const RotatingHeroBadge = ({ stream }: { stream?: StreamInfo | null }) => {
 const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (dbStreams && dbStreams.length > 0) {
+      const idx = dbStreams.findIndex(s => s.status === 'open');
+      if (idx !== -1) setSelectedIndex(idx);
+    }
+  }, [dbStreams]);
 
   // Fallbacks if dbStreams is null
   const activeStream = dbStreams?.[selectedIndex];
@@ -767,7 +774,7 @@ const CourseLanding = () => {
   }, []);
 
   const scrollToForm = () => {
-    document.getElementById("signup-form")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("smart-checklist")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const scrollToHowItWorks = () => {
@@ -929,7 +936,7 @@ const CourseLanding = () => {
             "transition-all duration-700 delay-100",
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
-            <RotatingHeroBadge stream={dbStreams?.[0] ?? null} />
+            <RotatingHeroBadge stream={dbStreams?.find(s => s.status === 'open') ?? dbStreams?.[0] ?? null} />
           </div>
 
           {/* H1 */}
@@ -964,7 +971,7 @@ const CourseLanding = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 transition-all group-hover:brightness-110" />
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-r from-blue-400 to-cyan-400" />
               <span className="relative flex items-center justify-center gap-2">
-                Забронировать место
+                Подобрать тариф
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </span>
             </button>

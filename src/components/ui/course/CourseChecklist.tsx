@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   ShieldAlert, ArrowRight, ArrowLeft, CheckCircle2, Info,
   ChevronRight, CreditCard, Calendar, Car, Globe,
-  AlertTriangle, Clock, Stethoscope, Sparkles, Crown, Star, Zap
+  AlertTriangle, Clock, Stethoscope, Sparkles, Crown, Star, Zap,
+  Heart
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -18,6 +19,7 @@ interface Choice {
   risk: number;
   tag?: string;
   tagVariant?: "danger" | "warning" | "success";
+  special?: string;
 }
 
 interface Question {
@@ -29,6 +31,17 @@ interface Question {
   subtitle?: string;
   choices?: Choice[];
 }
+
+// ─── Trust phrases (rotating footer) ────────────────────────────────────────
+
+const TRUST_PHRASES = [
+  { stat: "9 из 10", text: "студентов сдают с первой попытки с сопровождением куратора" },
+  { stat: "4.9 ★", text: "средний рейтинг курса по отзывам наших студентов" },
+  { stat: "< €350", text: "курс дешевле одного штрафа за езду без испанских прав" },
+  { stat: "6 недель", text: "средний срок от нуля до сдачи экзамена DGT" },
+  { stat: "94%", text: "тех, кто провалился сам — сдали с нами с первого раза" },
+  { stat: "16 000+", text: "вопросов DGT с разбором на платформе Skilyapp" },
+];
 
 // ─── Questions ────────────────────────────────────────────────────────────────
 
@@ -43,8 +56,9 @@ const QUESTIONS: Question[] = [
     choices: [
       { label: "Да, есть ВНЖ (TIE)", risk: 0 },
       { label: "Студенческая виза (estancia)", sublabel: "от 6 месяцев в стране", risk: 0 },
-      { label: "В процессе оформления", risk: 1, tag: "скоро", tagVariant: "warning" },
-      { label: "Нет, только туристическая", risk: 2, tag: "барьер", tagVariant: "danger" },
+      { label: "Карта беженца / защиты", sublabel: "Tarjeta roja — международная защита", risk: 0, tag: "принимаем", tagVariant: "success" },
+      { label: "В процессе оформления", sublabel: "ВНЖ / резидентура", risk: 1, tag: "скоро", tagVariant: "warning" },
+      { label: "Нет, только туристическая", sublabel: "Шенген / виза туриста", risk: 2, tag: "барьер", tagVariant: "danger", special: "tourist" },
     ],
   },
   {
@@ -81,7 +95,7 @@ const QUESTIONS: Question[] = [
     subtitle: "Экзамен DGT строго на испанском — словари и телефоны запрещены",
     choices: [
       { label: "A0–A1 — почти не знаю", sublabel: "Сложные тексты читаю с трудом", risk: 2, tag: "VIP нужен", tagVariant: "danger" },
-      { label: "A2–B1 — базовый", sublabel: "Понимаю, но сложная грамматика даётся тяжело", risk: 1, tag: "поддержка", tagVariant: "warning" },
+      { label: "A2–B1 — базовый", sublabel: "Понимаю, но сложная грамматика тяжело", risk: 1, tag: "поддержка", tagVariant: "warning" },
       { label: "B2+ — свободно", sublabel: "Читаю сложные тексты без словаря", risk: 0 },
     ],
   },
@@ -91,7 +105,7 @@ const QUESTIONS: Question[] = [
     Icon: AlertTriangle,
     iconColor: "text-orange-400",
     title: "Знакомы ли вы со спецификой испанских ПДД?",
-    subtitle: "Приоритеты на круговых, Carril VAO, ловушки с двойными отрицаниями в вопросах",
+    subtitle: "Приоритеты на круговых, Carril VAO, ловушки с двойными отрицаниями",
     choices: [
       { label: "Да, изучал(а) правила Испании", risk: 0 },
       { label: "Частично, не уверен(а)", risk: 1, tag: "разборы нужны", tagVariant: "warning" },
@@ -107,8 +121,8 @@ const QUESTIONS: Question[] = [
     subtitle: "Для сдачи с первой попытки нужно минимум 30 минут в день",
     choices: [
       { label: "Да, каждый день — не проблема", risk: 0 },
-      { label: "Постараюсь, но бывают перебои", risk: 1, tag: "куратор поможет", tagVariant: "warning" },
-      { label: "Сложно с дисциплиной и расписанием", risk: 2, tag: "нужно сопровождение", tagVariant: "danger" },
+      { label: "Постараюсь, бывают перебои", risk: 1, tag: "куратор поможет", tagVariant: "warning" },
+      { label: "Сложно с дисциплиной", risk: 2, tag: "нужно сопровождение", tagVariant: "danger" },
     ],
   },
   {
@@ -134,7 +148,26 @@ interface PackageInfo {
   Icon: React.ElementType;
 }
 
-function getRecommendation(answers: Record<string, number>): PackageInfo {
+function getRecommendation(answers: Record<string, number>, isTourist: boolean): PackageInfo {
+  if (isTourist) {
+    return {
+      planId: "pro",
+      name: "Готовьтесь заранее!",
+      price: "от €259",
+      reason: "Туристическая виза не даёт права сдавать DGT. Но подготовку можно начать уже сейчас — и сдать сразу после получения ВНЖ.",
+      features: [
+        "Доступ к платформе сразу после записи",
+        "16 000+ вопросов DGT с разбором",
+        "Куратор поможет с оформлением ВНЖ",
+        "Подготовитесь — пока идут документы",
+        "Разборы ловушек и типичных ошибок",
+      ],
+      cta: "Записаться заранее",
+      gradient: "from-sky-500 to-blue-600",
+      Icon: Heart,
+    };
+  }
+
   const spanishRisk = answers["spanish_level"] ?? -1;
   const totalRisk = Object.values(answers).reduce((a, b) => a + b, 0);
 
@@ -215,12 +248,15 @@ export function CourseChecklist() {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [completed, setCompleted] = useState(false);
   const [panelVisible, setPanelVisible] = useState(false);
+  const [touristInterstitial, setTouristInterstitial] = useState(false);
+  const [isTourist, setIsTourist] = useState(false);
+  const [trustIndex, setTrustIndex] = useState(0);
 
   const totalSteps = QUESTIONS.length;
   const question = QUESTIONS[currentStep];
   const answeredCount = Object.keys(answers).length;
   const progress = (currentStep / totalSteps) * 100;
-  const recommendation = getRecommendation(answers);
+  const recommendation = getRecommendation(answers, isTourist);
 
   useEffect(() => {
     if (answeredCount >= 2 && !panelVisible) {
@@ -229,9 +265,32 @@ export function CourseChecklist() {
     }
   }, [answeredCount, panelVisible]);
 
-  function handleChoice(risk: number) {
-    const newAnswers = { ...answers, [question.id]: risk };
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTrustIndex((i) => (i + 1) % TRUST_PHRASES.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  function handleChoice(choice: Choice) {
+    const newAnswers = { ...answers, [question.id]: choice.risk };
     setAnswers(newAnswers);
+
+    if (choice.special === "tourist") {
+      setIsTourist(true);
+      setTouristInterstitial(true);
+      return;
+    }
+
+    if (currentStep < QUESTIONS.length - 1) {
+      setCurrentStep((s) => s + 1);
+    } else {
+      setCompleted(true);
+    }
+  }
+
+  function handleTouristContinue() {
+    setTouristInterstitial(false);
     if (currentStep < QUESTIONS.length - 1) {
       setCurrentStep((s) => s + 1);
     } else {
@@ -240,6 +299,14 @@ export function CourseChecklist() {
   }
 
   function handleBack() {
+    if (touristInterstitial) {
+      setTouristInterstitial(false);
+      setIsTourist(false);
+      const newAnswers = { ...answers };
+      delete newAnswers[question.id];
+      setAnswers(newAnswers);
+      return;
+    }
     if (currentStep > 0) setCurrentStep((s) => s - 1);
   }
 
@@ -252,24 +319,21 @@ export function CourseChecklist() {
   }
 
   function scrollToPricingWithHighlight() {
-    // Диспатчим событие сразу
     sessionStorage.setItem("recommendedPlan", recommendation.planId);
     window.dispatchEvent(new CustomEvent("recommendPlan", { detail: { planId: recommendation.planId } }));
 
-    // Небольшая задержка — событие успевает обработаться, карточка получает id
     setTimeout(() => {
-      // Скроллим к конкретной карточке тарифа
       const card = document.getElementById(`plan-${recommendation.planId}`);
       const section = document.getElementById("pricing");
       const target = card ?? section;
       if (!target) return;
-
       target.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 80);
   }
 
   const riskScore = Object.values(answers).reduce((a, b) => a + b, 0);
   const showPanel = panelVisible || completed;
+  const phrase = TRUST_PHRASES[trustIndex];
 
   return (
     <div className="w-full max-w-[1100px] mx-auto px-4 py-24 relative z-10" id="smart-checklist">
@@ -293,16 +357,16 @@ export function CourseChecklist() {
         transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
         className="w-full bg-zinc-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/40"
       >
-        <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-white/[0.06]">
+        <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] divide-y lg:divide-y-0 lg:divide-x divide-white/[0.06]">
 
-          {/* LEFT: Wizard — 55% */}
-          <motion.div layout transition={{ duration: 0.5 }} className="flex-1 lg:basis-[55%] min-w-0">
+          {/* LEFT: Wizard — 60% */}
+          <motion.div layout transition={{ duration: 0.5 }} className="min-w-0 w-full">
             {!completed && (
               <div className="px-6 pt-5 pb-0">
                 <div className="flex items-center justify-between text-xs text-zinc-500 mb-2">
                   <button
                     onClick={handleBack}
-                    disabled={currentStep === 0}
+                    disabled={currentStep === 0 && !touristInterstitial}
                     className="flex items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" />
@@ -324,75 +388,106 @@ export function CourseChecklist() {
               <AnimatePresence mode="wait">
                 {!completed ? (
                   <motion.div
-                    key={question.id}
+                    key={touristInterstitial ? "tourist-info" : question.id}
                     initial={{ opacity: 0, x: 18 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -18 }}
                     transition={{ duration: 0.22, ease: "easeOut" }}
                   >
-                    <div className="mb-6">
-                      <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center mb-4">
-                        <question.Icon className={`w-5 h-5 ${question.iconColor}`} />
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-1.5 leading-snug">{question.title}</h3>
-                      {question.subtitle && (
-                        <p className="text-sm text-zinc-500 leading-relaxed">{question.subtitle}</p>
-                      )}
-                    </div>
-
-                    {question.type === "choice" && question.choices && (
-                      <div className="space-y-2">
-                        {question.choices.map((choice, idx) => (
-                          <motion.button
-                            key={idx}
-                            onClick={() => handleChoice(choice.risk)}
-                            className={`w-full flex items-center justify-between px-4 py-3.5 rounded-xl border text-left transition-all duration-200 group ${CHOICE_STYLES[choice.risk as 0 | 1 | 2]}`}
-                            whileTap={{ scale: 0.985 }}
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                          >
-                            <div>
-                              <div className="font-medium text-sm leading-snug">{choice.label}</div>
-                              {choice.sublabel && (
-                                <div className="text-xs text-zinc-600 mt-0.5">{choice.sublabel}</div>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 shrink-0 ml-3">
-                              {choice.tag && choice.tagVariant && (
-                                <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full ${TAG_STYLES[choice.tagVariant]}`}>
-                                  {choice.tag}
-                                </span>
-                              )}
-                              <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-300 transition-colors" />
-                            </div>
-                          </motion.button>
-                        ))}
-                      </div>
-                    )}
-
-                    {question.type === "info" && (
+                    {/* Tourist visa interstitial */}
+                    {touristInterstitial ? (
                       <div className="space-y-4">
-                        <div className="bg-teal-500/[0.08] border border-teal-500/20 rounded-xl p-4 space-y-3">
-                          <div className="flex items-start gap-3">
-                            <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                            <div className="text-sm text-zinc-300 leading-relaxed">
-                              <span className="font-semibold text-white">Psicotécnico</span> — медицинская комиссия DGT: проверка зрения, реакции и координации.
-                            </div>
-                          </div>
-                          <div className="pl-7 space-y-2 text-sm text-zinc-400">
-                            <p><span className="text-amber-400 font-medium">Действует всего 3 месяца</span> — её сдают ближе к экзамену, не в начале подготовки.</p>
-                            <p><span className="text-emerald-400 font-medium">Если только начинаете</span> — пока не нужна. Мы напомним и поможем с записью.</p>
-                            <p className="text-zinc-600 text-xs">Стоит ~€30 в любом Centro de Reconocimiento. Можно пройти за 15 минут.</p>
-                          </div>
+                        <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center mb-4">
+                          <Heart className="w-5 h-5 text-sky-400" />
+                        </div>
+                        <h3 className="text-xl font-bold text-white leading-snug">
+                          Туристическая виза — пока барьер, но не приговор
+                        </h3>
+                        <div className="bg-sky-500/[0.07] border border-sky-500/20 rounded-xl p-4 space-y-3 text-sm text-zinc-300 leading-relaxed">
+                          <p>
+                            <span className="text-white font-semibold">Да, сдать экзамен DGT</span> с туристической визой официально нельзя — DGT требует ВНЖ или студенческую визу.
+                          </p>
+                          <p>
+                            <span className="text-sky-400 font-semibold">Но вот в чём фишка:</span> большинство наших студентов <b>начинают готовиться заранее</b> — пока оформляют документы. Это самый умный ход.
+                          </p>
+                          <p className="text-zinc-500 text-xs">
+                            Процесс получения ВНЖ занимает месяцы — и всё это время можно учиться, чтобы сдать с первого раза, как только откроется окно.
+                          </p>
                         </div>
                         <button
-                          onClick={handleInfoNext}
-                          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                          onClick={handleTouristContinue}
+                          className="w-full py-3.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
                         >
-                          Понятно, продолжить <ArrowRight className="w-4 h-4" />
+                          <Heart className="w-4 h-4" />
+                          Хочу готовиться заранее
+                          <ArrowRight className="w-4 h-4" />
                         </button>
+                        <p className="text-center text-xs text-zinc-600">
+                          Мы поможем с оформлением ВНЖ — и встретим вас на старте потока
+                        </p>
                       </div>
+                    ) : (
+                      <>
+                        <div className="mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center mb-4">
+                            <question.Icon className={`w-5 h-5 ${question.iconColor}`} />
+                          </div>
+                          <h3 className="text-xl font-bold text-white mb-1.5 leading-snug">{question.title}</h3>
+                          {question.subtitle && (
+                            <p className="text-sm text-zinc-500 leading-relaxed">{question.subtitle}</p>
+                          )}
+                        </div>
+
+                        {question.type === "choice" && question.choices && (
+                          <div className="grid grid-cols-2 gap-2">
+                            {question.choices.map((choice, idx) => (
+                              <motion.button
+                                key={idx}
+                                onClick={() => handleChoice(choice)}
+                                className={`flex flex-col items-start px-3 py-3 rounded-xl border text-left transition-all duration-200 ${CHOICE_STYLES[choice.risk as 0 | 1 | 2]}`}
+                                whileTap={{ scale: 0.985 }}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: idx * 0.05 }}
+                              >
+                                <div className="font-medium text-sm leading-snug">{choice.label}</div>
+                                {choice.sublabel && (
+                                  <div className="text-[11px] text-zinc-600 mt-0.5 leading-snug">{choice.sublabel}</div>
+                                )}
+                                {choice.tag && choice.tagVariant && (
+                                  <span className={`mt-1.5 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full ${TAG_STYLES[choice.tagVariant]}`}>
+                                    {choice.tag}
+                                  </span>
+                                )}
+                              </motion.button>
+                            ))}
+                          </div>
+                        )}
+
+                        {question.type === "info" && (
+                          <div className="space-y-4">
+                            <div className="bg-teal-500/[0.08] border border-teal-500/20 rounded-xl p-4 space-y-3">
+                              <div className="flex items-start gap-3">
+                                <Info className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+                                <div className="text-sm text-zinc-300 leading-relaxed">
+                                  <span className="font-semibold text-white">Psicotécnico</span> — медицинская комиссия DGT: проверка зрения, реакции и координации.
+                                </div>
+                              </div>
+                              <div className="pl-7 space-y-2 text-sm text-zinc-400">
+                                <p><span className="text-amber-400 font-medium">Действует всего 3 месяца</span> — её сдают ближе к экзамену, не в начале подготовки.</p>
+                                <p><span className="text-emerald-400 font-medium">Если только начинаете</span> — пока не нужна. Мы напомним и поможем с записью.</p>
+                                <p className="text-zinc-600 text-xs">Стоит ~€30 в любом Centro de Reconocimiento. Можно пройти за 15 минут.</p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={handleInfoNext}
+                              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+                            >
+                              Понятно, продолжить <ArrowRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </motion.div>
                 ) : (
@@ -403,20 +498,25 @@ export function CourseChecklist() {
                     className="text-center py-2"
                   >
                     <div className={`w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center ${
+                      isTourist ? "bg-sky-500/15 border border-sky-500/25" :
                       riskScore >= 5 ? "bg-rose-500/15 border border-rose-500/25" :
                       riskScore >= 2 ? "bg-amber-500/15 border border-amber-500/25" :
                       "bg-emerald-500/15 border border-emerald-500/25"
                     }`}>
-                      {riskScore >= 5 ? <ShieldAlert className="w-7 h-7 text-rose-400" /> :
+                      {isTourist ? <Heart className="w-7 h-7 text-sky-400" /> :
+                       riskScore >= 5 ? <ShieldAlert className="w-7 h-7 text-rose-400" /> :
                        riskScore >= 2 ? <AlertTriangle className="w-7 h-7 text-amber-400" /> :
                        <CheckCircle2 className="w-7 h-7 text-emerald-400" />}
                     </div>
                     <h3 className="text-xl font-black text-white mb-2">
-                      {riskScore >= 5 ? "Есть серьёзные пробелы" :
+                      {isTourist ? "Начните готовиться сейчас!" :
+                       riskScore >= 5 ? "Есть серьёзные пробелы" :
                        riskScore >= 2 ? "Небольшие риски — исправимо" : "Отличный старт!"}
                     </h3>
                     <p className="text-zinc-400 text-sm mb-6 max-w-sm mx-auto leading-relaxed">
-                      {riskScore >= 5
+                      {isTourist
+                        ? "Пока идут документы — изучайте теорию DGT. Сдадите сразу после получения ВНЖ."
+                        : riskScore >= 5
                         ? "Несколько красных флагов — особенно языковой барьер. VIP даст максимальный шанс."
                         : riskScore >= 2
                         ? "Один-два пробела, которые куратор поможет закрыть за пару недель."
@@ -444,7 +544,7 @@ export function CourseChecklist() {
                       <ArrowRight className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => { setCurrentStep(0); setAnswers({}); setCompleted(false); setPanelVisible(false); }}
+                      onClick={() => { setCurrentStep(0); setAnswers({}); setCompleted(false); setPanelVisible(false); setIsTourist(false); setTouristInterstitial(false); }}
                       className="block mt-3 mx-auto text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
                     >
                       Пройти заново
@@ -455,7 +555,7 @@ export function CourseChecklist() {
             </div>
           </motion.div>
 
-          {/* RIGHT: Recommendation panel — внутри той же карточки */}
+          {/* RIGHT: Recommendation panel */}
           <AnimatePresence>
             {showPanel && (
               <motion.div
@@ -477,7 +577,7 @@ export function CourseChecklist() {
 
                   <AnimatePresence mode="wait">
                     <motion.div
-                      key={recommendation.planId}
+                      key={recommendation.planId + String(isTourist)}
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -6 }}
@@ -521,11 +621,21 @@ export function CourseChecklist() {
           </AnimatePresence>
         </div>
 
-        {/* Trust footer */}
-        <div className="px-6 py-3 border-t border-white/[0.05] bg-white/[0.01]">
-          <p className="text-[11px] text-zinc-600 text-center">
-            <span className="text-zinc-500 font-medium">9 из 10</span> студентов сдают с первой попытки с&nbsp;сопровождением куратора
-          </p>
+        {/* Trust footer — rotating phrases */}
+        <div className="px-6 py-3 border-t border-white/[0.05] bg-white/[0.01] overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={trustIndex}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="text-[11px] text-zinc-600 text-center"
+            >
+              <span className="text-zinc-400 font-semibold">{phrase.stat}</span>
+              {" "}{phrase.text}
+            </motion.p>
+          </AnimatePresence>
         </div>
       </motion.div>
     </div>
