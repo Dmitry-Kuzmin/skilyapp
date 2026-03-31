@@ -360,6 +360,11 @@ export function AppRoutes() {
             <AdminPricing />
           </Suspense>
         } />
+        <Route path="bot-chats" element={
+          <Suspense fallback={<PageSkeleton />}>
+            <AdminBotChats />
+          </Suspense>
+        } />
       </Route >
       <Route path="/road-signs" element={
         <Suspense fallback={<PageSkeleton />}>
