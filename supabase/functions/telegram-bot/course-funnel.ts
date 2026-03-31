@@ -579,6 +579,7 @@ export async function handleCourseCallback(
     }
 
     await upsertLead(supabase, telegramId, { stream_id: streamId });
+    logBotEvent(supabase, telegramId, telegramUser, 'stream_selected', { plan: planId, stream: stream.number });
     await sendPaymentStep(chatId, messageId, firstName, plan, stream);
     return;
   }
