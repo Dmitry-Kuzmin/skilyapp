@@ -236,44 +236,8 @@ async function callGemini(
   }
 }
 
-// ── Парсинг виджетов ─────────────────────────────────
-function parseWidgets(text: string): {
-  clean: string;
-  showEnroll: boolean;
-  showManager: boolean;
-  showButtons: boolean;
-} {
-  let clean = text;
-  let showEnroll = false;
-  let showManager = false;
-  let showButtons = true; // по умолчанию показываем
-
-  if (clean.includes("[WIDGET:ENROLL]")) {
-    showEnroll = true;
-    showButtons = false;
-    clean = clean.replace(/\[WIDGET:ENROLL\]/g, "").trim();
-  }
-  if (clean.includes("[WIDGET:MANAGER]")) {
-    showManager = true;
-    showButtons = false;
-    clean = clean.replace(/\[WIDGET:MANAGER\]/g, "").trim();
-  }
-  clean = clean.replace(/\[WIDGET:BUTTONS\]/g, "").trim();
-
-  return { clean, showEnroll, showManager, showButtons };
-}
-
-// ── Постобработка HTML ───────────────────────────────
-function postprocess(text: string): string {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-    .replace(/\*(.*?)\*/g, "<i>$1</i>")
-    .replace(/__(.*?)__/g, "<u>$1</u>")
-    .replace(/<ul>/g, "").replace(/<\/ul>/g, "")
-    .replace(/<li>/g, "• ").replace(/<\/li>/g, "\n")
-    .replace(/<p>/g, "").replace(/<\/p>/g, "\n\n")
-    .replace(/<div>/g, "").replace(/<\/div>/g, "\n");
-}
+// Вся логика парсинга виджетов и постобработки теперь вынесена в ai-handler.ts
+// для обеспечения единого поведения во всех режимах бота.
 
 // ── PUBLIC: приветствие при входе в поддержку ────────
 export async function handleCourseSupportStart(

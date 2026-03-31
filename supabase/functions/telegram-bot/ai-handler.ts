@@ -17,7 +17,20 @@ const MINI_APP_BASE = "https://t.me/skilyapp_bot/skilyapp";
 const MINI_APP_URL = "https://skilyapp.com";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+// ── Telegram Actions ────────────────────────────────
+async function sendChatAction(chat_id: number, action: 'typing' | 'upload_photo' | 'record_video' | 'record_voice' | 'upload_document' | 'choose_sticker' | 'find_location' | 'record_video_note' | 'upload_video_note' = 'typing') {
+  try {
+    await fetch(`${TELEGRAM_API}/sendChatAction`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id, action }),
+    });
+  } catch (e) {
+    console.error("[ChatAction] Error:", e);
+  }
+}
 
+// ── Telegram Media ──────────────────────────────────
 // Unique draft_id counter (per-request, non-zero)
 let draftCounter = 1;
 function nextDraftId(): number {
@@ -557,6 +570,9 @@ export async function handleAIChat(
   const chatId = message.chat.id;
   const text = message.text || message.caption || "";
   let imageData: { data: string; mimeType: string } | null = null;
+
+  // Сразу показываем статус "печатает" в шапке бота
+  sendChatAction(chatId, 'typing').catch(() => {});
 
   try {
     if (message.photo && message.photo.length > 0) {

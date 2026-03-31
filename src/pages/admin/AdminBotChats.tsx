@@ -64,7 +64,7 @@ function MessageBubble({ msg }: { msg: BotMessage }) {
         )}
 
         <div className={cn(
-          "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed break-words whitespace-pre-wrap",
+          "rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed break-words",
           isUser
             ? isCallback
               ? "bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-tr-sm"
@@ -75,7 +75,12 @@ function MessageBubble({ msg }: { msg: BotMessage }) {
         )}>
           {isCallback
             ? <code className="font-mono text-xs text-amber-300">{msg.content}</code>
-            : msg.content || <span className="opacity-40 italic">пусто</span>
+            : isAI
+              ? <div
+                  className="prose-sm prose-invert max-w-none [&_b]:font-semibold [&_i]:italic [&_u]:underline"
+                  dangerouslySetInnerHTML={{ __html: msg.content ?? "" }}
+                />
+              : <span className="whitespace-pre-wrap">{msg.content || <span className="opacity-40 italic">пусто</span>}</span>
           }
         </div>
 
