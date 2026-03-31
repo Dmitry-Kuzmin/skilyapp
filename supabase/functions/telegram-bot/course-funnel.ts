@@ -539,6 +539,7 @@ export async function handleCourseCallback(
   if (data === 'course_buy_pro' || data === 'course_buy_vip' || data === 'course_buy_basic') {
     const planId = data.replace('course_buy_', '') as 'pro' | 'vip' | 'basic';
     await upsertLead(supabase, telegramId, { status: 'plan_selected', plan_id: planId });
+    logBotEvent(supabase, telegramId, telegramUser, 'plan_selected', { plan: planId });
 
     const streams = await getOpenStreams(supabase, 3);
     if (streams.length === 1) {
