@@ -1134,10 +1134,10 @@ const CourseLanding = () => {
             <button
               onClick={() => setPricingTab("groups")}
               className={[
-                "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all duration-200",
+                "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold",
                 pricingTab === "groups"
                   ? "bg-white text-zinc-900 shadow"
-                  : "text-zinc-400 hover:text-zinc-200",
+                  : "text-zinc-400",
               ].join(" ")}
             >
               <Users className="w-3.5 h-3.5" />
@@ -1146,10 +1146,10 @@ const CourseLanding = () => {
             <button
               onClick={() => setPricingTab("individual")}
               className={[
-                "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all duration-200",
+                "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold",
                 pricingTab === "individual"
                   ? "bg-white text-zinc-900 shadow"
-                  : "text-zinc-400 hover:text-zinc-200",
+                  : "text-zinc-400",
               ].join(" ")}
             >
               <UserCheck className="w-3.5 h-3.5" />
