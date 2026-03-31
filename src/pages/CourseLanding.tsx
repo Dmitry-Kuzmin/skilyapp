@@ -837,7 +837,8 @@ const CourseLanding = () => {
     return () => { document.getElementById("curso-styles")?.remove(); };
   }, []);
 
-  const scrollToForm = () => {
+  const scrollToForm = (location = "unknown") => {
+    Analytics.ctaClicked(location);
     document.getElementById("smart-checklist")?.scrollIntoView({ behavior: "smooth" });
   };
 
