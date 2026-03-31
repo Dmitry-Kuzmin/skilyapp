@@ -25,6 +25,7 @@ const PremiumCard = lazy(() => import('./PremiumCard').then(m => ({ default: m.P
 const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m.DuelPassInfo })));
 const DuelPassSeasonModal = lazy(() => import('../monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
 const TelemetryOverlay = lazy(() => import('../telemetry/TelemetryOverlay').then(m => ({ default: m.TelemetryOverlay })));
+const CourseBanner = lazy(() => import('./CourseBanner').then(m => ({ default: m.CourseBanner })));
 
 // Fallback component for lazy loading
 const ComponentSkeleton = () => (
@@ -272,7 +273,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 5. EXAM READINESS */}
+          {/* 5½. COURSE BANNER */}
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
+            <Suspense fallback={<ComponentSkeleton />}>
+              <CourseBanner />
+            </Suspense>
+          </div>
+
+          {/* 6. EXAM READINESS */}
           <div className={cn(
             "transition-all duration-500 ease-in-out",
             examReadinessExpanded

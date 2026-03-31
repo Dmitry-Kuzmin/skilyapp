@@ -10,6 +10,7 @@ import { CourseComparison } from "@/components/ui/course/CourseComparison";
 import { CourseTimeline } from "@/components/ui/course/CourseTimeline";
 import { CourseChecklist } from "@/components/ui/course/CourseChecklist";
 import { CinematicHero } from "@/components/ui/cinematic-landing-hero";
+import { useCrispChat } from "@/hooks/useCrispChat";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import {
   CheckCircle2,
@@ -739,6 +740,8 @@ const CourseLanding = () => {
       }
     }).catch(() => { /* fallback to hardcoded */ });
   }, []);
+
+  useCrispChat();
 
   useEffect(() => {
     // inject styles

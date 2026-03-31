@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { StartupCurtain } from "@/components/StartupCurtain";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { useCrispChat } from "@/hooks/useCrispChat";
 import { loadReferralInfo, loadPartnerInfo, type ReferrerInfo, type PartnerInfo } from "@/services/referralService";
 import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
 import { checkTelegramAuth } from "@/utils/authCheck";
@@ -33,6 +34,8 @@ const Landing = () => {
   const webApp = useTelegram();
   const webAppRef = useRef(webApp);
   webAppRef.current = webApp;
+
+  useCrispChat();
 
   /**
    * КЛЮЧЕВОЕ РЕШЕНИЕ: определяем начальное состояние синхронно.
