@@ -1129,8 +1129,58 @@ const CourseLanding = () => {
           {/* Premium Urgency Banner (Interactive) */}
           <StreamSelectorBanner dbStreams={dbStreams} />
 
-          {/* Three cards */}
-          <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
+          {/* Tab switcher */}
+          <div className="flex gap-1 bg-white/[0.04] border border-white/[0.07] rounded-xl p-1 mb-8 max-w-xs mx-auto">
+            <button
+              onClick={() => setPricingTab("groups")}
+              className={[
+                "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all duration-200",
+                pricingTab === "groups"
+                  ? "bg-white text-zinc-900 shadow"
+                  : "text-zinc-400 hover:text-zinc-200",
+              ].join(" ")}
+            >
+              <Users className="w-3.5 h-3.5" />
+              Группы
+            </button>
+            <button
+              onClick={() => setPricingTab("individual")}
+              className={[
+                "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all duration-200",
+                pricingTab === "individual"
+                  ? "bg-white text-zinc-900 shadow"
+                  : "text-zinc-400 hover:text-zinc-200",
+              ].join(" ")}
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              Индивидуально
+            </button>
+          </div>
+
+          {/* Cards */}
+          <AnimatePresence mode="wait">
+            {pricingTab === "groups" ? (
+              <motion.div
+                key="groups"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="individual"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                <IndividualPricingCards onBooking={scrollToForm} />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Trust footer */}
           <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 mt-12 text-zinc-400 text-xs sm:text-sm">
