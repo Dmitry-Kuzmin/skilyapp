@@ -432,10 +432,12 @@ export async function handleCourseCallback(
 
   // ── Шаг 1: статус ──────────────────────────────────
   if (data === 'course_s1_vnj' || data === 'course_s1_visa') {
+    const choice = data === 'course_s1_vnj' ? 'vnj' : 'visa';
     await upsertLead(supabase, telegramId, {
       status: 'qualified',
-      qualification: { status_answer: data === 'course_s1_vnj' ? 'vnj' : 'visa' },
+      qualification: { status_answer: choice },
     });
+    logBotEvent(supabase, telegramId, telegramUser, 'step1_status', { choice });
     await edit(chatId, messageId,
       `✅ <b>Отлично!</b> Скажи честно — ты уже пробовал сдавать теорию DGT?`,
       { inline_keyboard: [
