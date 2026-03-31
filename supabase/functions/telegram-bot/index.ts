@@ -312,8 +312,6 @@ async function handleMessage(message: TelegramMessage) {
       }
     }
   } else if (text || message.photo) {
-    const ADMIN_CHAT_ID = 488159880; // @guapo_pub
-
     // ── Если это ADMIN отвечает на сообщение с меткой — пересылаем юзеру ──
     if (user.id === ADMIN_CHAT_ID && message.reply_to_message) {
       const replyText = message.reply_to_message.text || message.reply_to_message.caption || '';
