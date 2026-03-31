@@ -60,6 +60,9 @@ const AdminPartners = lazy(() =>
 const AdminStreams = lazy(() =>
   import("../pages/admin/AdminStreams").then((module) => ({ default: module.AdminStreams }))
 );
+const AdminPricing = lazy(() =>
+  import("../pages/admin/AdminPricing").then((module) => ({ default: module.AdminPricing }))
+);
 const AdminMarketingMaterials = lazy(() =>
   import("../pages/admin/AdminMarketingMaterials").then((module) => ({ default: module.AdminMarketingMaterials }))
 );
