@@ -226,20 +226,23 @@ function getRecommendation(answers: Record<string, number>, isTourist: boolean):
 
 // ─── Cost calculator ──────────────────────────────────────────────────────────
 
-interface CostLine {
+interface CostRow {
+  emoji: string;
   label: string;
-  amount: number;
-  sub?: string;
-  dim?: boolean;
+  withoutUs: number | null;   // null = "включено"
+  withUs: number | null;      // null = "включено"
+  withoutUsSub?: string;
+  withUsSub?: string;
+  practical?: boolean;        // true = не входит в наш курс
 }
 
 interface CostBreakdown {
-  withoutUs: CostLine[];
-  withUs: CostLine[];
+  rows: CostRow[];
   totalWithoutUs: number;
   totalWithUs: number;
   savings: number;
   retakesWithoutUs: number;
+  hasPractical: boolean;
 }
 
 function getCostBreakdown(
@@ -250,46 +253,75 @@ function getCostBreakdown(
   const riskScore = Object.values(answers).reduce((a, b) => a + b, 0);
   const spanishRisk = answers["spanish_level"] ?? 0;
 
-  // Среднее кол-во попыток без нас
   const retakesWithoutUs = riskScore >= 6 ? 3.0 : riskScore >= 4 ? 2.4 : riskScore >= 2 ? 1.8 : 1.2;
   const retakesWithUs = 1.05;
-
   const dgtFee = 94;
   const psico = 30;
 
   const rec = getRecommendation(answers, isTourist);
   const ourPrice = rec.price;
-
-  // Традиционная автошкола — теория
   const traditionalTheory = spanishRisk === 2 ? 450 : 350;
   const languageExtra = spanishRisk === 2 ? 200 : 0;
 
-  // Уроки вождения (для справки)
   const lessons = calcData["driving_lessons"] ?? "none";
   const lessonCost = lessons === "many" ? 650 : lessons === "few" ? 320 : 0;
   const practicalExam = lessons !== "none" ? 150 : 0;
+  const hasPractical = lessons !== "none";
 
-  const withoutUs: CostLine[] = [
-    { label: "Курс теории (автошкола / онлайн)", amount: traditionalTheory },
-    ...(languageExtra > 0 ? [{ label: "Доп. занятия испанским", amount: languageExtra, sub: "из-за низкого уровня языка" }] : []),
-    { label: `Экзамен DGT теория`, amount: Math.round(dgtFee * retakesWithoutUs), sub: `≈ ${retakesWithoutUs.toFixed(1)} попытки × €${dgtFee}` },
-    { label: "Псикотехника", amount: psico },
-    ...(lessonCost > 0 ? [{ label: "Уроки вождения", amount: lessonCost, sub: lessons === "many" ? "≈ 20 уроков × €30–35" : "≈ 8 уроков × €35–40" }] : []),
-    ...(practicalExam > 0 ? [{ label: "Практический экзамен", amount: practicalExam }] : []),
+  const rows: CostRow[] = [
+    {
+      emoji: "📚",
+      label: "Курс теории DGT",
+      withoutUs: traditionalTheory,
+      withoutUsSub: "автошкола / онлайн",
+      withUs: ourPrice,
+      withUsSub: `Skilyapp ${rec.name}`,
+    },
+    ...(languageExtra > 0 ? [{
+      emoji: "🇪🇸",
+      label: "Занятия испанским",
+      withoutUs: languageExtra,
+      withoutUsSub: "отдельные курсы",
+      withUs: null,
+      withUsSub: rec.planId === "vip" ? "входит в VIP" : "мини-курс включён",
+    }] : []),
+    {
+      emoji: "📋",
+      label: "Экзамен DGT (теория)",
+      withoutUs: Math.round(dgtFee * retakesWithoutUs),
+      withoutUsSub: `≈ ${retakesWithoutUs.toFixed(1)} попытки`,
+      withUs: Math.round(dgtFee * retakesWithUs),
+      withUsSub: "обычно 1 раз",
+    },
+    {
+      emoji: "🏥",
+      label: "Псикотехника",
+      withoutUs: psico,
+      withUs: psico,
+    },
+    ...(lessonCost > 0 ? [{
+      emoji: "🚗",
+      label: "Уроки вождения",
+      withoutUs: lessonCost,
+      withoutUsSub: lessons === "many" ? "≈ 20 уроков" : "≈ 8 уроков",
+      withUs: lessonCost,
+      withUsSub: "в вашей автошколе",
+      practical: true,
+    }] : []),
+    ...(practicalExam > 0 ? [{
+      emoji: "🏁",
+      label: "Практический экзамен",
+      withoutUs: practicalExam,
+      withUs: practicalExam,
+      practical: true,
+    }] : []),
   ];
 
-  const withUs: CostLine[] = [
-    { label: `Курс Skilyapp — ${rec.name}`, amount: ourPrice },
-    { label: "Экзамен DGT теория", amount: Math.round(dgtFee * retakesWithUs), sub: "обычно 1 попытка" },
-    { label: "Псикотехника", amount: psico },
-    ...(lessonCost > 0 ? [{ label: "Уроки вождения*", amount: lessonCost, sub: "*в автошколе вашего города", dim: true }] : []),
-    ...(practicalExam > 0 ? [{ label: "Практический экзамен*", amount: practicalExam, dim: true }] : []),
-  ];
+  // Считаем totals только по не-null значениям
+  const totalWithoutUs = rows.reduce((a, r) => a + (r.withoutUs ?? 0), 0);
+  const totalWithUs = rows.reduce((a, r) => a + (r.withUs ?? 0), 0);
 
-  const totalWithoutUs = withoutUs.reduce((a, b) => a + b.amount, 0);
-  const totalWithUs = withUs.reduce((a, b) => a + b.amount, 0);
-
-  return { withoutUs, withUs, totalWithoutUs, totalWithUs, savings: totalWithoutUs - totalWithUs, retakesWithoutUs };
+  return { rows, totalWithoutUs, totalWithUs, savings: totalWithoutUs - totalWithUs, retakesWithoutUs, hasPractical };
 }
 
 // ─── Animated number ──────────────────────────────────────────────────────────

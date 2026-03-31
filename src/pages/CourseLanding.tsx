@@ -10,6 +10,7 @@ import { CourseComparison } from "@/components/ui/course/CourseComparison";
 import { CourseTimeline } from "@/components/ui/course/CourseTimeline";
 import { CourseChecklist } from "@/components/ui/course/CourseChecklist";
 import { CinematicHero } from "@/components/ui/cinematic-landing-hero";
+import { PulseBeamsFirstDemo } from "@/components/ui/pulse-beams";
 import { useCrispChat } from "@/hooks/useCrispChat";
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import {
@@ -728,34 +729,55 @@ const CourseLanding = () => {
   const [dbStreams, setDbStreams] = useState<StreamInfo[] | null>(null);
 
   // Smart form state
-  const [contactMethod, setContactMethod] = useState<'phone_es' | 'phone_ru' | 'tg'>('phone_es');
+  const [nameValue, setNameValue] = useState('');
+  const [contactCategory, setContactCategory] = useState<'whatsapp' | 'telegram'>('whatsapp');
+  const [phoneCountry, setPhoneCountry] = useState<'es' | 'ru'>('es');
   const [contactValue, setContactValue] = useState('+34 ');
 
-  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only text and spaces, no numbers or strange symbols
+    const val = e.target.value.replace(/[0-9!@#$%^&*()_+=[\]{};:"\\|,<.>?]/g, '');
+    setNameValue(val);
+  };
+
+  const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
-    if (contactMethod === 'phone_es') {
-      const digits = val.replace(/\D/g, '');
-      if (digits.startsWith('34')) {
-        val = '+34 ' + digits.slice(2);
-      } else {
-        val = '+34 ' + digits;
-      }
-    } else if (contactMethod === 'phone_ru') {
-      const digits = val.replace(/\D/g, '');
-      if (digits.startsWith('7')) {
-        val = '+7 ' + digits.slice(1);
-      } else {
-        val = '+7 ' + digits;
-      }
-    } else if (contactMethod === 'tg') {
-      const username = val.replace(/[^a-zA-Z0-9_@]/g, '');
-      if (username.startsWith('@')) {
-        val = '@' + username.slice(1).replace(/@/g, '');
-      } else {
-        val = '@' + username.replace(/@/g, '');
-      }
+    const digits = val.replace(/\D/g, ''); 
+    
+    if (phoneCountry === 'es') {
+      let number = digits;
+      if (number.startsWith('34')) number = number.slice(2);
+      number = number.slice(0, 9); // Spain gets 9 digits
+      
+      let formatted = '+34';
+      if (number.length > 0) formatted += ' ' + number.slice(0, 3);
+      if (number.length > 3) formatted += ' ' + number.slice(3, 6);
+      if (number.length > 6) formatted += ' ' + number.slice(6, 9);
+      
+      setContactValue(formatted || '+34 ');
+    } else {
+      let number = digits;
+      if (number.startsWith('7') || number.startsWith('8')) number = number.slice(1);
+      number = number.slice(0, 10); // RF gets 10 digits
+      
+      let formatted = '+7';
+      if (number.length > 0) formatted += ' ' + number.slice(0, 3);
+      if (number.length > 3) formatted += ' ' + number.slice(3, 6);
+      if (number.length > 6) formatted += ' ' + number.slice(6, 8);
+      if (number.length > 8) formatted += ' ' + number.slice(8, 10);
+      
+      setContactValue(formatted || '+7 ');
     }
-    setContactValue(val);
+  };
+
+  const handleTelegramChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    let username = val.replace(/[^a-zA-Z0-9_@]/g, '');
+    if (username.startsWith('@')) {
+      username = username.slice(1);
+    }
+    username = username.replace(/@/g, '');
+    setContactValue('@' + username);
   };
 
   // Загружаем ЦЕНЫ и ПОТОКИ из БД — единый источник правды с ботом
@@ -1281,6 +1303,8 @@ const CourseLanding = () => {
                         type="text"
                         name="name"
                         required
+                        value={nameValue}
+                        onChange={handleNameChange}
                         placeholder="Как вас зовут?"
                         className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm"
                       />
@@ -1290,35 +1314,61 @@ const CourseLanding = () => {
                       <div className="flex bg-white/[0.04] border border-white/[0.08] rounded-xl p-1 mb-3">
                         <button 
                           type="button" 
-                          onClick={() => { setContactMethod('phone_es'); setContactValue('+34 '); }} 
-                          className={cn("flex-1 text-xs py-2 rounded-lg transition-all font-medium", contactMethod === 'phone_es' ? "bg-white/10 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+                          onClick={() => { setContactCategory('whatsapp'); setPhoneCountry('es'); setContactValue('+34 '); }} 
+                          className={cn("flex-1 text-xs py-2 rounded-lg transition-all font-medium flex items-center justify-center gap-1.5", contactCategory === 'whatsapp' ? "bg-emerald-500/20 text-emerald-400 shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
                         >
-                          🇪🇸 Испания
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M11.996 0A12.003 12.003 0 0 0 0 12.003a12.007 12.007 0 0 0 1.6 6.03L.004 23.996l6.095-1.595A11.97 11.97 0 0 0 11.996 24 12.005 12.005 0 0 0 24 11.996 12.002 12.002 0 0 0 12 0Zm0 21.996a9.966 9.966 0 0 1-5.076-1.39l-.364-.216-3.774.985.992-3.67-.234-.378A9.973 9.973 0 0 1 2.004 12a10.003 10.003 0 0 1 10.001-10 9.998 9.998 0 0 1 9.995 9.997 10.003 10.003 0 0 1-9.995 9.995Zm5.445-7.447c-.297-.15-1.765-.87-2.038-.97-.272-.1-4.71-.15-5.698 1.332-.1.148-1.127 1.1-.148 1.128 1.258.077-.346-.11.45.698 1.259 1.026 2.015 1.154 2.312 1.303.297.15.474.13.655-.07.18-.2.775-.904.98-1.213.204-.308.406-.258.675-.158.272.1 1.765.832 2.065.98.3.15.5.22.574.343.076.126.076.732-.22 1.256Z"/></svg>
+                          WhatsApp
                         </button>
                         <button 
                           type="button" 
-                          onClick={() => { setContactMethod('phone_ru'); setContactValue('+7 '); }} 
-                          className={cn("flex-1 text-xs py-2 rounded-lg transition-all font-medium", contactMethod === 'phone_ru' ? "bg-white/10 text-white shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
+                          onClick={() => { setContactCategory('telegram'); setContactValue('@'); }} 
+                          className={cn("flex-1 text-xs py-2 rounded-lg transition-all font-medium flex items-center justify-center gap-1.5", contactCategory === 'telegram' ? "bg-[#2AABEE]/20 text-[#2AABEE] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
                         >
-                          🇷🇺 РФ
-                        </button>
-                        <button 
-                          type="button" 
-                          onClick={() => { setContactMethod('tg'); setContactValue('@'); }} 
-                          className={cn("flex-1 text-xs py-2 rounded-lg transition-all font-medium", contactMethod === 'tg' ? "bg-[#2AABEE]/20 text-[#2AABEE] shadow-sm" : "text-zinc-500 hover:text-zinc-300")}
-                        >
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.699 1.203-1.206 1.249-.168.016-.388.01-.585-.044-.216-.06-.52-.164-.783-.284-.467-.215-2.996-1.928-3.953-2.607-.225-.16-.49-.401-.013-.824.125-.11 2.29-2.146 4.197-4.04.22-.22.427-.674-.251-.215-2.226 1.503-4.484 3.033-5.044 3.413-.505.342-1.127.42-1.638.16l-.037-.02c-.521-.295-1.506-.615-2.238-.857-.899-.297-1.517-.45-1.458-.949.03-.255.337-.514.922-.777 3.614-1.626 6.025-2.673 7.234-3.181 3.442-1.446 4.156-1.696 4.542-1.704z"/></svg>
                           Telegram
                         </button>
                       </div>
-                      <input
-                        type={contactMethod === 'tg' ? "text" : "tel"}
-                        name="phone"
-                        required
-                        value={contactValue}
-                        onChange={handleContactChange}
-                        placeholder={contactMethod === 'phone_es' ? "+34 6XX XXX XXX" : contactMethod === 'phone_ru' ? "+7 9XX XXX XX XX" : "@username"}
-                        className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-blue-500/40 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm font-medium tracking-wide"
-                      />
+
+                      {contactCategory === 'whatsapp' ? (
+                        <div className="flex bg-white/[0.04] border border-white/[0.08] rounded-xl overflow-hidden focus-within:border-emerald-500/40 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                           <div className="flex bg-white/5 border-r border-white/[0.08]">
+                             <button
+                               type="button"
+                               onClick={() => { setPhoneCountry('es'); setContactValue('+34 '); }}
+                               className={cn("px-3 py-3 text-xs flex items-center gap-1.5 transition-colors font-medium border-b-2", phoneCountry === 'es' ? "bg-white/10 text-white border-emerald-400" : "text-zinc-500 hover:text-zinc-300 border-transparent")}
+                             >
+                               🇪🇸
+                             </button>
+                             <button
+                               type="button"
+                               onClick={() => { setPhoneCountry('ru'); setContactValue('+7 '); }}
+                               className={cn("px-3 py-3 text-xs flex items-center gap-1.5 transition-colors font-medium border-b-2", phoneCountry === 'ru' ? "bg-white/10 text-white border-emerald-400" : "text-zinc-500 hover:text-zinc-300 border-transparent")}
+                             >
+                               🇷🇺
+                             </button>
+                           </div>
+                           <input
+                             type="tel"
+                             name="phone"
+                             required
+                             value={contactValue}
+                             onChange={handleWhatsAppChange}
+                             placeholder={phoneCountry === 'es' ? "+34 600 000 000" : "+7 900 000 00 00"}
+                             className="flex-1 w-full min-w-0 bg-transparent px-4 py-3 text-white placeholder:text-zinc-600 focus:outline-none text-sm font-medium tracking-wide"
+                           />
+                        </div>
+                      ) : (
+                        <input
+                          type="text"
+                          name="phone"
+                          required
+                          value={contactValue}
+                          onChange={handleTelegramChange}
+                          placeholder="@username"
+                          className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder:text-zinc-600 focus:border-[#2AABEE]/40 focus:outline-none focus:ring-2 focus:ring-[#2AABEE]/20 transition-all text-sm font-medium tracking-wide"
+                        />
+                      )}
                     </div>
                     <div>
                       <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
@@ -1356,6 +1406,15 @@ const CourseLanding = () => {
           CINEMATIC CTA FOOTER
           ═══════════════════════════════════════════ */}
       <CinematicHero onOpenForm={() => setFormModalOpen(true)} />
+      
+      {/* ═══════════════════════════════════════════
+          NEW PULSE BEAMS FOOTER (For Comparison)
+          ═══════════════════════════════════════════ */}
+      <PulseBeamsFirstDemo onOpenForm={() => {
+        // scroll to pricing instead, like the other button? Or open form. 
+        // The demo just said "Connect". I'll open form for symmetry.
+        setFormModalOpen(true);
+      }} />
 
 
     </div>
