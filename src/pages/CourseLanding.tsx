@@ -1167,7 +1167,12 @@ const CourseLanding = () => {
             <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
           </div>
           <div className={pricingTab === "individual" ? "block" : "hidden"}>
-            <IndividualPricingCards onBooking={scrollToForm} />
+            <IndividualPricingCards
+              onBooking={scrollToForm}
+              mgBasePrice={dbPrices?.mini_group?.price_eur ?? 499}
+              indBasePrice={dbPrices?.individual?.price_eur ?? 799}
+              addons={dbAddons}
+            />
           </div>
 
           {/* Trust footer */}
