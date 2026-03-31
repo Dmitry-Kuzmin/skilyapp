@@ -463,91 +463,130 @@ export function CourseChecklist() {
 
   // ── Вкладка Калькулятор ──────────────────────────────────────────────────
 
-  const CalcTab = () => (
-    <div className="flex flex-col h-full">
-      <div className="text-[11px] text-zinc-600 mb-3 uppercase tracking-widest font-semibold">Расчёт затрат</div>
+  const CalcTab = () => {
+    const cb = costBreakdown;
+    const theoryRows = cb.rows.filter((r) => !r.practical);
+    const practicalRows = cb.rows.filter((r) => r.practical);
 
-      {/* Две колонки */}
-      <div className="grid grid-cols-2 gap-2 mb-3">
-        {/* Без нас */}
-        <div className="bg-rose-500/[0.05] border border-rose-500/15 rounded-xl p-3">
-          <div className="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-2">Без нас</div>
-          <div className="space-y-1.5">
-            {costBreakdown.withoutUs.map((line, i) => (
-              <div key={i} className="flex items-start justify-between gap-1">
-                <span className="text-[10px] text-zinc-500 leading-tight">{line.label}</span>
-                <span className="text-[10px] font-semibold text-rose-300 shrink-0">
-                  <AnimatedNumber value={line.amount} />
+    return (
+      <div className="flex flex-col gap-3">
+        {/* Заголовок */}
+        <p className="text-[10px] text-zinc-600 leading-snug">
+          Полная стоимость получения прав в Испании
+        </p>
+
+        {/* Таблица */}
+        <div className="rounded-xl border border-white/[0.07] overflow-hidden">
+          {/* Шапка */}
+          <div className="grid grid-cols-[1fr_56px_56px] bg-white/[0.03] border-b border-white/[0.06] px-3 py-2">
+            <span className="text-[10px] text-zinc-600 font-semibold uppercase tracking-wider">Статья</span>
+            <span className="text-[10px] text-rose-400 font-bold uppercase tracking-wider text-right">Без&nbsp;нас</span>
+            <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider text-right">С&nbsp;нами</span>
+          </div>
+
+          {/* Строки теории */}
+          {theoryRows.map((row, i) => {
+            const saved = row.withoutUs !== null && row.withUs !== null && row.withUs < row.withoutUs;
+            const included = row.withUs === null;
+            return (
+              <div key={i} className={`grid grid-cols-[1fr_56px_56px] px-3 py-2 gap-x-1 ${i < theoryRows.length - 1 ? "border-b border-white/[0.04]" : ""}`}>
+                <div>
+                  <div className="text-[11px] text-zinc-300 leading-snug">{row.emoji} {row.label}</div>
+                  {row.withUsSub && included && (
+                    <div className="text-[9px] text-emerald-500 mt-0.5">{row.withUsSub}</div>
+                  )}
+                </div>
+                <div className="text-right self-center">
+                  {row.withoutUs !== null
+                    ? <span className="text-[11px] text-zinc-400 font-medium"><AnimatedNumber value={row.withoutUs} /></span>
+                    : <span className="text-[10px] text-zinc-600">—</span>}
+                  {row.withoutUsSub && <div className="text-[9px] text-zinc-600 leading-none mt-0.5">{row.withoutUsSub}</div>}
+                </div>
+                <div className="text-right self-center">
+                  {included
+                    ? <span className="text-[9px] text-emerald-500 font-semibold">включено</span>
+                    : row.withUs !== null
+                      ? <span className={`text-[11px] font-semibold ${saved ? "text-emerald-400" : "text-zinc-400"}`}>
+                          <AnimatedNumber value={row.withUs} />
+                          {saved && <span className="text-emerald-500 text-[8px] block leading-none">↓ дешевле</span>}
+                        </span>
+                      : null}
+                  {row.withUsSub && !included && (
+                    <div className="text-[9px] text-zinc-600 leading-none mt-0.5">{row.withUsSub}</div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Разделитель практики */}
+          {practicalRows.length > 0 && (
+            <>
+              <div className="px-3 py-1.5 bg-zinc-800/40 border-y border-white/[0.05]">
+                <span className="text-[9px] text-zinc-600 uppercase tracking-widest font-semibold">
+                  Не входит в курс Skilyapp — для справки
                 </span>
               </div>
-            ))}
-          </div>
-          <div className="mt-2 pt-2 border-t border-rose-500/15 flex items-center justify-between">
-            <span className="text-[10px] text-zinc-500 font-semibold">Итого</span>
-            <span className="text-sm font-black text-rose-400">
-              <AnimatedNumber value={costBreakdown.totalWithoutUs} />
+              {practicalRows.map((row, i) => (
+                <div key={i} className={`grid grid-cols-[1fr_56px_56px] px-3 py-2 gap-x-1 opacity-50 ${i < practicalRows.length - 1 ? "border-b border-white/[0.04]" : ""}`}>
+                  <div className="text-[11px] text-zinc-500">{row.emoji} {row.label}</div>
+                  <div className="text-right self-center">
+                    {row.withoutUs !== null && <span className="text-[11px] text-zinc-500"><AnimatedNumber value={row.withoutUs} /></span>}
+                    {row.withoutUsSub && <div className="text-[9px] text-zinc-600 mt-0.5">{row.withoutUsSub}</div>}
+                  </div>
+                  <div className="text-right self-center">
+                    {row.withUs !== null && <span className="text-[11px] text-zinc-500"><AnimatedNumber value={row.withUs} /></span>}
+                    {row.withUsSub && <div className="text-[9px] text-zinc-600 mt-0.5">{row.withUsSub}</div>}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+
+          {/* Итого */}
+          <div className="grid grid-cols-[1fr_56px_56px] px-3 py-2.5 bg-white/[0.03] border-t border-white/[0.08] gap-x-1">
+            <span className="text-xs font-bold text-zinc-300">Итого</span>
+            <span className="text-sm font-black text-rose-400 text-right">
+              <AnimatedNumber value={cb.totalWithoutUs} />
+            </span>
+            <span className="text-sm font-black text-emerald-400 text-right">
+              <AnimatedNumber value={cb.totalWithUs} />
             </span>
           </div>
         </div>
 
-        {/* С нами */}
-        <div className="bg-emerald-500/[0.05] border border-emerald-500/20 rounded-xl p-3">
-          <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-2">С нами</div>
-          <div className="space-y-1.5">
-            {costBreakdown.withUs.map((line, i) => (
-              <div key={i} className="flex items-start justify-between gap-1">
-                <span className={`text-[10px] leading-tight ${line.dim ? "text-zinc-600" : "text-zinc-400"}`}>{line.label}</span>
-                <span className={`text-[10px] font-semibold shrink-0 ${line.dim ? "text-zinc-600" : "text-emerald-300"}`}>
-                  <AnimatedNumber value={line.amount} />
-                </span>
+        {/* Экономия */}
+        {cb.savings > 0 && (
+          <div className="bg-emerald-500/[0.08] border border-emerald-500/20 rounded-xl px-3 py-2.5 flex items-center justify-between gap-3">
+            <div>
+              <div className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Ваша экономия</div>
+              <div className="text-[10px] text-zinc-600 mt-0.5">
+                + с первого раза вместо ≈{cb.retakesWithoutUs.toFixed(1)} попыток
               </div>
-            ))}
+            </div>
+            <div className="text-2xl font-black text-emerald-400 shrink-0">
+              <AnimatedNumber value={cb.savings} />
+            </div>
           </div>
-          <div className="mt-2 pt-2 border-t border-emerald-500/15 flex items-center justify-between">
-            <span className="text-[10px] text-zinc-500 font-semibold">Итого</span>
-            <span className="text-sm font-black text-emerald-400">
-              <AnimatedNumber value={costBreakdown.totalWithUs} />
-            </span>
-          </div>
+        )}
+
+        {/* Штраф */}
+        <div className="bg-amber-500/[0.05] border border-amber-500/15 rounded-xl px-3 py-2">
+          <p className="text-[10px] text-zinc-500 leading-relaxed">
+            <span className="text-amber-400 font-semibold">⚠️ Штраф</span> за езду без испанских прав —
+            от <span className="text-amber-400 font-bold">€200</span> до{" "}
+            <span className="text-amber-400 font-bold">€500</span>. Курс окупается с первого же штрафа.
+          </p>
         </div>
+
+        {!completed && (
+          <p className="text-center text-[10px] text-zinc-700">
+            Расчёт уточняется по мере ответов
+          </p>
+        )}
       </div>
-
-      {/* Экономия */}
-      {costBreakdown.savings > 0 && (
-        <motion.div
-          layout
-          className="bg-gradient-to-r from-emerald-500/15 to-teal-500/10 border border-emerald-500/25 rounded-xl p-3 text-center mb-3"
-        >
-          <div className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold mb-0.5">Ваша экономия</div>
-          <div className="text-2xl font-black text-emerald-400">
-            <AnimatedNumber value={costBreakdown.savings} />
-          </div>
-          <div className="text-[10px] text-zinc-500 mt-0.5">
-            + экзамен с первого раза вместо {costBreakdown.retakesWithoutUs.toFixed(1)} попыток
-          </div>
-        </motion.div>
-      )}
-
-      {/* Штраф-виджет */}
-      <div className="bg-amber-500/[0.06] border border-amber-500/15 rounded-xl px-3 py-2 mb-3">
-        <p className="text-[10px] text-zinc-500 leading-relaxed">
-          <span className="text-amber-400 font-semibold">⚠️ Штраф</span> за езду без испанских прав — от <span className="text-amber-400 font-bold">€200</span> до <span className="text-amber-400 font-bold">€500</span>. Курс окупается с первого же штрафа.
-        </p>
-      </div>
-
-      {calcData["driving_lessons"] && calcData["driving_lessons"] !== "none" && (
-        <p className="text-[9px] text-zinc-700 leading-snug">
-          * Уроки вождения — для справки. Skilyapp занимается только теорией DGT.
-        </p>
-      )}
-
-      {!completed && (
-        <p className="text-center text-[10px] text-zinc-700 mt-auto pt-2">
-          Расчёт уточняется по мере ответов
-        </p>
-      )}
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="w-full max-w-[1100px] mx-auto px-4 py-24 relative z-10" id="smart-checklist">
