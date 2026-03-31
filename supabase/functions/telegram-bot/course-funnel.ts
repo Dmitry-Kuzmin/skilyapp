@@ -648,6 +648,7 @@ export async function handleCourseCallback(
     const plans = await getCoursePlans(supabase);
     const plan = plans[planId] || DEFAULT_PLANS[planId as keyof typeof DEFAULT_PLANS];
     await upsertLead(supabase, telegramId, { payment_method: 'crypto' });
+    logBotEvent(supabase, telegramId, telegramUser, 'payment_method_selected', { plan: planId, method: 'crypto', amount: plan?.price_eur });
 
     await edit(chatId, messageId,
       `💎 <b>Оплата криптовалютой (USDT / TON)</b>\n\nНапиши нам — пришлём адрес кошелька:\n\n👉 <a href="https://t.me/SkilySupport">@SkilySupport</a>\n\nУкажи тариф: <b>${plan?.label_ru || planId}</b>`,
