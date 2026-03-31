@@ -16,6 +16,7 @@ console.log("%c Build: 2026-03-12 18:38 UTC ", "background: #1e1b4b; color: #818
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
 import TMAAnalytics from "@telegram-apps/analytics";
+import { initPostHog } from "./lib/posthog";
 
 declare global {
   interface Window {
