@@ -801,6 +801,9 @@ const CourseLanding = () => {
       if (streamsRes.data && Array.isArray(streamsRes.data)) {
         setDbStreams(streamsRes.data as StreamInfo[]);
       }
+      if (addonsRes.data && Array.isArray(addonsRes.data)) {
+        setDbAddons(addonsRes.data as { addon_key: string; label: string; price_group: number; price_individual: number }[]);
+      }
     }).catch(() => { /* fallback to hardcoded */ });
   }, []);
 
