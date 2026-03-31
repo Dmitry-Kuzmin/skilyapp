@@ -1030,7 +1030,7 @@ const CourseLanding = () => {
             heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           )}>
             <button
-              onClick={scrollToForm}
+              onClick={() => scrollToForm("hero")}
               className="group relative w-full sm:w-auto px-7 py-3.5 rounded-2xl font-semibold text-base overflow-hidden transition-all active:scale-[0.97]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 transition-all group-hover:brightness-110" />
