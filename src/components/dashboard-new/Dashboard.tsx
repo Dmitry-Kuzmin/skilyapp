@@ -273,12 +273,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 5½. COURSE BANNER */}
-          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
-            <Suspense fallback={<ComponentSkeleton />}>
-              <CourseBanner />
-            </Suspense>
-          </div>
+          {/* 5½. COURSE BANNER (Only visible in Russian language) */}
+          {language === 'ru' && (
+            <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
+              <Suspense fallback={<ComponentSkeleton />}>
+                <CourseBanner />
+              </Suspense>
+            </div>
+          )}
 
           {/* 6. EXAM READINESS */}
           <div className={cn(
