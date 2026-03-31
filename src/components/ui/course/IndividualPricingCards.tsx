@@ -1,8 +1,35 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Users, User, Zap, FileText, Globe, ArrowRight, CheckCircle2, Clock } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { MessageCircle, Users, User, Zap, FileText, Globe, CheckCircle2, Clock } from "lucide-react";
+
+// ─── Animated price counter ───────────────────────────────────────────────────
+
+function AnimatedPrice({ value, isDark }: { value: number; isDark?: boolean }) {
+  const count = useMotionValue(value);
+  const rounded = useTransform(count, (v) => `€${Math.round(v)}`);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      count.set(value);
+      return;
+    }
+    const controls = animate(count, value, {
+      duration: 0.45,
+      ease: [0.16, 1, 0.3, 1],
+    });
+    return controls.stop;
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <motion.span className={`text-4xl font-black tracking-tight tabular-nums ${isDark ? "text-white" : "text-zinc-900"}`}>
+      {rounded}
+    </motion.span>
+  );
+}
 
 // ─── Toggle Switch ────────────────────────────────────────────────────────────
 
