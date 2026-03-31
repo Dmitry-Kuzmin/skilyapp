@@ -1170,11 +1170,11 @@ const CourseLanding = () => {
 
           {/* Cards — both stay mounted, no remount freeze */}
           <div className={pricingTab === "groups" ? "block" : "hidden"}>
-            <PricingCards onBooking={scrollToForm} dbPrices={dbPrices} />
+            <PricingCards onBooking={() => scrollToForm("pricing_groups")} dbPrices={dbPrices} />
           </div>
           <div className={pricingTab === "individual" ? "block" : "hidden"}>
             <IndividualPricingCards
-              onBooking={scrollToForm}
+              onBooking={() => scrollToForm("pricing_individual")}
               mgBasePrice={dbPrices?.mini_group?.price_eur ?? 499}
               indBasePrice={dbPrices?.individual?.price_eur ?? 799}
               addons={dbAddons}
