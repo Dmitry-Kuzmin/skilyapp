@@ -3,12 +3,24 @@
 // Левая панель: список юзеров по дате последнего сообщения
 // Правая панель: переписка в стиле мессенджера
 // =====================================================
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { MessageSquare, Search, RefreshCw, Bot, User, MousePointerClick, Terminal } from "lucide-react";
+import { MessageSquare, Search, RefreshCw, Bot, User, MousePointerClick, Terminal, Send, Zap } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { toast } from "sonner";
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+
+// Быстрые шаблоны ответов
+const QUICK_REPLIES = [
+  { label: "👋 Свяжемся", text: "Спасибо за обращение! Мы свяжемся с тобой в течение нескольких часов." },
+  { label: "✅ Принято", text: "Принято! Уже разбираемся с твоим вопросом." },
+  { label: "📅 Расписание", text: "Пожалуйста, напиши удобное для тебя время, и мы подберём подходящий поток." },
+  { label: "💳 Оплата", text: "Для оплаты и бронирования места напиши нам — мы отправим все детали." },
+];
 
 // Инжектируем стили для рендеринга HTML из ИИ-ответов (один раз)
 const AI_MSG_STYLES = `
