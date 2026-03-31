@@ -785,9 +785,10 @@ const CourseLanding = () => {
   // Загружаем ЦЕНЫ и ПОТОКИ из БД — единый источник правды с ботом
   useEffect(() => {
     getSupabaseClient().then(async (sb) => {
-      const [plansRes, streamsRes] = await Promise.all([
+      const [plansRes, streamsRes, addonsRes] = await Promise.all([
         sb.from('course_plans' as never).select('id, price_eur, original_price_eur, payment_link').eq('active', true),
         sb.from('course_streams' as never).select('id, status, number, start_date, spots_total, spots_enrolled').gte('start_date', new Date().toISOString().split('T')[0]).order('start_date', { ascending: true }).limit(4),
+        sb.from('course_addons' as never).select('addon_key, label, price_group, price_individual').eq('is_active', true).order('sort_order'),
       ]);
 
       if (plansRes.data && Array.isArray(plansRes.data)) {
