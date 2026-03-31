@@ -238,29 +238,18 @@ export function IndividualPricingCards({
               </ul>
             </div>
 
-            {/* Addons */}
+            {/* Addons — dynamic from DB */}
             <div className="px-7 pt-2 pb-6 mt-auto">
-              <Addon
-                icon={Globe}
-                label="Испанский для водителей"
-                price="€60"
-                enabled={mgSpanish}
-                onChange={setMgSpanish}
-              />
-              <Addon
-                icon={FileText}
-                label="Помощь с документами"
-                price="€50"
-                enabled={mgDocs}
-                onChange={setMgDocs}
-              />
-              <Addon
-                icon={Zap}
-                label="Дополнительная сессия"
-                price="€40"
-                enabled={mgUrgent}
-                onChange={setMgUrgent}
-              />
+              {addons.map((a) => (
+                <Addon
+                  key={a.addon_key}
+                  icon={a.addon_key === 'spanish' ? Globe : a.addon_key === 'documents' ? FileText : Zap}
+                  label={a.label}
+                  price={`€${a.price_group}`}
+                  enabled={!!mgEnabled[a.addon_key]}
+                  onChange={(v) => setMgEnabled((prev) => ({ ...prev, [a.addon_key]: v }))}
+                />
+              ))}
             </div>
           </div>
         </div>
