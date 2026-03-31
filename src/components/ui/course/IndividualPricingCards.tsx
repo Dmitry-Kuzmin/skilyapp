@@ -166,7 +166,7 @@ export function IndividualPricingCards({ onBooking }: { onBooking?: () => void }
                 </motion.span>
                 <span className="text-zinc-400 text-base mb-1">/разово</span>
               </div>
-              <p className="text-xs text-zinc-400 mb-6">Полная оплата при бронировании</p>
+              <p className="text-xs text-zinc-400 mb-6">За человека · полная оплата при бронировании</p>
 
               {/* CTA */}
               <button
