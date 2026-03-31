@@ -208,8 +208,8 @@ export function IndividualPricingCards({ onBooking }: { onBooking?: () => void }
               />
               <Addon
                 icon={Zap}
-                label="Ускоренный формат (3 нед)"
-                price="€100"
+                label="Дополнительная сессия"
+                price="€40"
                 enabled={mgUrgent}
                 onChange={setMgUrgent}
               />
