@@ -143,6 +143,49 @@ export function AdminBotChats() {
     return () => { document.getElementById("ai-msg-styles")?.remove(); };
   }, []);
 
+  // ── Send reply to user via Edge Function ─────────────────────────────────
+  const sendReply = useCallback(async (text: string) => {
+    if (!selected || !text.trim() || sending) return;
+    setSending(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/bot-send-message`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.access_token ?? SUPABASE_KEY}`,
+        },
+        body: JSON.stringify({
+          telegram_id: selected.telegram_id,
+          text: text.trim(),
+          from_admin_id: session?.user?.id,
+        }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      // Добавляем сообщение в локальный список сразу (optimistic)
+      const optimistic: BotMessage = {
+        id: Date.now(),
+        telegram_id: selected.telegram_id,
+        direction: "out",
+        type: "admin",
+        content: text.trim(),
+        extra: null,
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, optimistic]);
+      setReplyText("");
+      toast.success("Отправлено!");
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    } catch (e) {
+      console.error(e);
+      toast.error("Ошибка отправки");
+    } finally {
+      setSending(false);
+      textareaRef.current?.focus();
+    }
+  }, [selected, sending]);
+
   // ── Load user list ────────────────────────────────────────────────────────
   const loadUsers = async () => {
     setLoadingUsers(true);
