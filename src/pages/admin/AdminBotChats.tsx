@@ -89,7 +89,7 @@ function MessageBubble({ msg }: { msg: BotMessage }) {
             ? <code className="font-mono text-xs text-amber-300">{msg.content}</code>
             : isAI
               ? <div
-                  className="prose-sm prose-invert max-w-none [&_b]:font-semibold [&_i]:italic [&_u]:underline"
+                  className="ai-msg"
                   dangerouslySetInnerHTML={{ __html: msg.content ?? "" }}
                 />
               : <span className="whitespace-pre-wrap">{msg.content || <span className="opacity-40 italic">пусто</span>}</span>
