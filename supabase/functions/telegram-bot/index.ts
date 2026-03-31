@@ -29,6 +29,28 @@ const MINI_APP_URL = Deno.env.get("MINI_APP_URL") || "https://skilyapp.com";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
+// ─── Fire-and-forget: пишем сообщение в историю чатов ─────────────────────────
+function logMsg(
+  telegramId: number,
+  username: string | undefined,
+  direction: 'in' | 'out',
+  type: string,
+  content: string,
+  extra?: Record<string, unknown>
+): void {
+  supabase.from('bot_messages').insert({
+    telegram_id: telegramId,
+    username: username ?? null,
+    direction,
+    type,
+    content: content ? content.slice(0, 4000) : null,
+    extra: extra ?? null,
+  }).then().catch(() => {});
+}
+
+// Экспортируем чтобы ai-handler мог использовать
+export { logMsg, supabase as supabaseClient };
+
 console.log("[Bot] Initializing bot handler...");
 console.log(`[Bot] MINI_APP_URL: ${MINI_APP_URL}`);
 
