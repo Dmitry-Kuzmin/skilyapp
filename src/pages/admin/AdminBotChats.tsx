@@ -64,26 +64,34 @@ function MessageBubble({ msg }: { msg: BotMessage }) {
   const isUser = msg.direction === "in";
   const isCallback = msg.type === "callback";
   const isAI = msg.type === "ai";
+  const isAdmin = msg.type === "admin";
 
   return (
     <div className={cn("flex gap-2 mb-3", isUser ? "flex-row-reverse" : "flex-row")}>
       {/* Avatar */}
       <div className={cn(
         "w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-        isUser ? "bg-blue-500/20" : "bg-violet-500/20"
+        isUser ? "bg-blue-500/20" : isAdmin ? "bg-emerald-500/20" : "bg-violet-500/20"
       )}>
         {isUser
           ? <User className="w-3.5 h-3.5 text-blue-400" />
-          : <Bot className="w-3.5 h-3.5 text-violet-400" />
+          : isAdmin
+            ? <User className="w-3.5 h-3.5 text-emerald-400" />
+            : <Bot className="w-3.5 h-3.5 text-violet-400" />
         }
       </div>
 
       {/* Bubble */}
       <div className={cn("max-w-[70%] group", isUser ? "items-end" : "items-start", "flex flex-col gap-1")}>
-        {/* Type badge for special types */}
+        {/* Type badge */}
         {isCallback && (
           <span className="text-[10px] text-zinc-500 flex items-center gap-1 px-1">
             <MousePointerClick className="w-3 h-3" /> нажал кнопку
+          </span>
+        )}
+        {isAdmin && (
+          <span className="text-[10px] text-emerald-600 flex items-center gap-1 px-1">
+            ✍️ от команды
           </span>
         )}
 
@@ -95,15 +103,14 @@ function MessageBubble({ msg }: { msg: BotMessage }) {
               : "bg-blue-600 text-white rounded-tr-sm"
             : isAI
               ? "bg-zinc-800 border border-violet-500/20 text-zinc-200 rounded-tl-sm"
-              : "bg-zinc-800 text-zinc-200 rounded-tl-sm"
+              : isAdmin
+                ? "bg-emerald-900/40 border border-emerald-700/30 text-emerald-100 rounded-tl-sm"
+                : "bg-zinc-800 text-zinc-200 rounded-tl-sm"
         )}>
           {isCallback
             ? <code className="font-mono text-xs text-amber-300">{msg.content}</code>
             : isAI
-              ? <div
-                  className="ai-msg"
-                  dangerouslySetInnerHTML={{ __html: msg.content ?? "" }}
-                />
+              ? <div className="ai-msg" dangerouslySetInnerHTML={{ __html: msg.content ?? "" }} />
               : <span className="whitespace-pre-wrap">{msg.content || <span className="opacity-40 italic">пусто</span>}</span>
           }
         </div>
@@ -409,12 +416,56 @@ export function AdminBotChats() {
               )}
             </div>
 
-            {/* Legend */}
-            <div className="px-5 py-2.5 border-t border-zinc-900 flex items-center gap-5 text-[10px] text-zinc-600">
-              <span className="flex items-center gap-1.5"><User className="w-3 h-3 text-blue-400" /> Пользователь</span>
-              <span className="flex items-center gap-1.5"><Bot className="w-3 h-3 text-violet-400" /> ИИ-ответ бота</span>
-              <span className="flex items-center gap-1.5"><MousePointerClick className="w-3 h-3" /> Нажатие кнопки</span>
-              <span className="flex items-center gap-1.5"><Terminal className="w-3 h-3" /> Команда</span>
+            {/* ── Reply box ──────────────────────────────────────────── */}
+            <div className="border-t border-zinc-800 bg-zinc-950 px-4 pt-3 pb-4 space-y-2">
+              {/* Quick templates */}
+              <div className="flex flex-wrap gap-1.5">
+                {QUICK_REPLIES.map((q) => (
+                  <button
+                    key={q.label}
+                    onClick={() => setReplyText(q.text)}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 transition-colors border border-zinc-700"
+                  >
+                    <Zap className="w-3 h-3 text-amber-400" />
+                    {q.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Input row */}
+              <div className="flex gap-2 items-end">
+                <textarea
+                  ref={textareaRef}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                      e.preventDefault();
+                      sendReply(replyText);
+                    }
+                  }}
+                  placeholder="Написать от команды Skily... (Cmd+Enter для отправки)"
+                  rows={2}
+                  className="flex-1 resize-none bg-zinc-900 border border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-600 outline-none focus:border-zinc-500 transition-colors leading-relaxed"
+                />
+                <button
+                  onClick={() => sendReply(replyText)}
+                  disabled={!replyText.trim() || sending}
+                  className={cn(
+                    "h-10 w-10 rounded-xl flex items-center justify-center transition-all shrink-0",
+                    replyText.trim() && !sending
+                      ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                      : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
+                  )}
+                  title="Отправить (Cmd+Enter)"
+                >
+                  {sending
+                    ? <RefreshCw className="w-4 h-4 animate-spin" />
+                    : <Send className="w-4 h-4" />
+                  }
+                </button>
+              </div>
+              <p className="text-[10px] text-zinc-600">Сообщение придёт с пометкой «💬 Команда Skily:»</p>
             </div>
           </>
         )}
