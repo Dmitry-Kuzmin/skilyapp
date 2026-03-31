@@ -63,6 +63,20 @@ const DEFAULT_STREAMS: CourseStream[] = [
 // ─────────────────────────────────────────────────────
 // Загрузка данных из БД
 // ─────────────────────────────────────────────────────
+export async function getCourseAddons(supabase: SupabaseClient): Promise<CourseAddon[]> {
+  try {
+    const { data, error } = await supabase
+      .from('course_addons')
+      .select('addon_key, label, description, price_group, price_individual')
+      .eq('is_active', true)
+      .order('sort_order');
+    if (error || !data) return [];
+    return data as CourseAddon[];
+  } catch {
+    return [];
+  }
+}
+
 export async function getCoursePlans(supabase: SupabaseClient): Promise<Record<string, CoursePlan>> {
   try {
     const { data, error } = await supabase.from('course_plans').select('*').eq('active', true);
