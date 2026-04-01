@@ -182,16 +182,18 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
   // 6. Сохраняем сессию в settings
   const settings = { ...profileSettings };
   settings.morning_quiz = {
-    questions:    fullQuestions,
-    current:      0,
-    correct:      0,
-    results:      [],
-    poll_id:      pollId,
-    photo_msg_id: photoMsgId,
-    poll_msg_id:  pollMsgId,
-    chat_id:      telegramId,
-    botLang:      lang,
-    started_at:   new Date().toISOString(),
+    questions:           fullQuestions,
+    current:             0,
+    correct:             0,
+    results:             [],
+    poll_id:             pollId,
+    photo_msg_id:        photoMsgId,
+    poll_msg_id:         pollMsgId,
+    translate_btn_msg_id: translateBtnMsgId,
+    translate_reply_msg_id: null,
+    chat_id:             telegramId,
+    botLang:             lang,
+    started_at:          new Date().toISOString(),
   };
   await supabase.from('profiles').update({ settings }).eq('id', profile.id);
 
