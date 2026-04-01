@@ -146,7 +146,7 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
   }
 
   // 5. Poll (quiz) — полный текст вопроса здесь с анимированной иконкой
-  const pollQuestion = `<tg-emoji emoji-id="5452069934089641166">❓</tg-emoji> ${qLabel}: ${htmlEscape(plainQ)}`.substring(0, 300);
+  const pollQuestion = `<tg-emoji emoji-id="5452069934089641166">❓</tg-emoji>\u00a0${qLabel}: ${htmlEscape(plainQ)}`.substring(0, 300);
   const pollRes = await fetch(`${TELEGRAM_API}/sendPoll`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
