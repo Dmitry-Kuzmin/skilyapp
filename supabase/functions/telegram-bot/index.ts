@@ -1298,9 +1298,11 @@ async function sendQuizQuestionFromBot(
   }
 
   const qLabel = `Pregunta ${index + 1} de ${total}`;
+  // HTML-экранируем текст вопроса (question_parse_mode:'HTML' требует чистый HTML)
+  const safeQText = (q.text || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const pollBody: any = {
     chat_id: chatId,
-    question: `<tg-emoji emoji-id="5452069934089641166">❓</tg-emoji>\u00a0${qLabel}: ${q.text}`.substring(0, 300),
+    question: `<tg-emoji emoji-id="5452069934089641166">❓</tg-emoji>\u00a0${qLabel}: ${safeQText}`.substring(0, 300),
     question_parse_mode: 'HTML',
     options: q.options.map((text: string) => ({ text })),
     type: 'quiz',
