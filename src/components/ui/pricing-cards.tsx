@@ -364,6 +364,13 @@ export function PricingCards({ onBooking, dbPrices }: PricingCardsProps) {
                   href="https://t.me/skilyapp_bot?start=course_qualify"
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => {
+                    if (typeof window !== "undefined" && (window as any).gtag) {
+                      (window as any).gtag("event", "conversion", {
+                        send_to: "AW-18034090184/LGu7CMTx0pMcEMjBqZdD",
+                      });
+                    }
+                  }}
                   className="mt-2 text-center text-xs text-zinc-600 hover:text-zinc-400 transition-colors py-1 block"
                 >
                   Задать вопрос в Telegram
