@@ -12,6 +12,10 @@ const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
 type Lang = 'ru' | 'es' | 'en';
 
+function htmlEscape(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function stripHtml(html: string): string {
   if (!html) return '';
   return html
