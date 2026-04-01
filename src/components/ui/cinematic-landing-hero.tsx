@@ -127,10 +127,17 @@ export function CinematicHero({
             </a>
 
             {/* Secondary Stylish Button: Задать вопрос */}
-            <a 
-              href="https://t.me/skilyapp_bot?start=support" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://t.me/skilyapp_bot?start=support"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                if (typeof window !== "undefined" && (window as any).gtag) {
+                  (window as any).gtag("event", "conversion", {
+                    send_to: "AW-18034090184/LGu7CMTx0pMcEMjBqZdD",
+                  });
+                }
+              }}
               className="group flex flex-col justify-center w-full sm:w-[260px] max-w-[320px] h-[90px] items-center rounded-[45px] bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 transition-all duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)] relative z-40 backdrop-blur-sm"
             >
               <span className="text-xl sm:text-[22px] font-bold text-zinc-300 group-hover:text-white transition-colors leading-none mb-1">
