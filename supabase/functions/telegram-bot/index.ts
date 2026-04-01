@@ -1350,7 +1350,7 @@ async function sendQuizQuestionFromBot(
         text: '¿No entiendes la pregunta?',
         reply_markup: {
           inline_keyboard: [[
-            { text: 'Traducir al ruso', callback_data: `mqt_${index}`, icon_custom_emoji_id: '5105268517691720533' },
+            { text: '🤟 Traducir al ruso  2', callback_data: `mqt_${index}`, icon_custom_emoji_id: '5199552030615558774' },
           ]],
         },
       }),
