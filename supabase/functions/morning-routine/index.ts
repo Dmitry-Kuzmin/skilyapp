@@ -114,9 +114,9 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
   const plainExp     = stripHtml(firstQ.explanation || '');
   const cleanOptions = firstQ.options.map((o: string) => stripHtml(o).substring(0, 100));
   const total        = fullQuestions.length;
-  const qLabel       = lang === 'es' ? `Pregunta 1 de ${total}` : lang === 'en' ? `Question 1 of ${total}` : `Вопрос 1 из ${total}`;
+  const qLabel       = `Pregunta 1 de ${total}`;
 
-  // 4. Фото (если есть)
+  // 4. Фото (если есть) — только декоративный заголовок, текст вопроса только в poll
   let photoMsgId: number | null = null;
   if (firstQ.image_url) {
     try {
@@ -126,7 +126,7 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
         body: JSON.stringify({
           chat_id: telegramId,
           photo: firstQ.image_url,
-          caption: `<tg-emoji emoji-id="5452069934089641166">❓</tg-emoji> <b>${qLabel}</b>\n\n${plainQ}`,
+          caption: `☀️ <b>Cuestionario matutino · ${qLabel}</b>`,
           parse_mode: 'HTML',
         }),
       });
@@ -141,8 +141,8 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
     }
   }
 
-  // 5. Poll (quiz)
-  const pollQuestion = `❓ ${qLabel}: ${plainQ}`.substring(0, 300);
+  // 5. Poll (quiz) — полный текст вопроса здесь
+  const pollQuestion = `${qLabel}: ${plainQ}`.substring(0, 300);
   const pollRes = await fetch(`${TELEGRAM_API}/sendPoll`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
