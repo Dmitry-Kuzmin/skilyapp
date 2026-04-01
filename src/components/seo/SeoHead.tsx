@@ -262,7 +262,13 @@ function setHreflangTags() {
   });
 }
 
-export function SeoHead() {
+export interface SeoHeadProps {
+  title?: string;
+  description?: string;
+  canonicalUrl?: string;
+}
+
+export function SeoHead({ title, description, canonicalUrl }: SeoHeadProps) {
   const { language } = useLanguage();
 
   useEffect(() => {
@@ -271,32 +277,33 @@ export function SeoHead() {
     // Update html lang attribute
     document.documentElement.lang = config.lang;
 
-    // Update title
-    document.title = config.title;
+    // Update title (use prop override or default config)
+    const finalTitle = title || config.title;
+    document.title = finalTitle;
 
     // Update meta tags
-    setMetaTag("name", "description", config.description);
+    setMetaTag("name", "description", description || config.description);
     setMetaTag("name", "keywords", config.keywords);
 
     // Open Graph
-    setMetaTag("property", "og:title", config.ogTitle);
-    setMetaTag("property", "og:description", config.ogDescription);
+    setMetaTag("property", "og:title", title || config.ogTitle);
+    setMetaTag("property", "og:description", description || config.ogDescription);
     setMetaTag("property", "og:locale", config.ogLocale);
-    setMetaTag("property", "og:url", "https://skilyapp.com");
+    setMetaTag("property", "og:url", canonicalUrl || "https://skilyapp.com");
     setMetaTag("property", "og:type", "website");
     setMetaTag("property", "og:image", "https://skilyapp.com/og-image.png");
     setMetaTag("property", "og:site_name", "Skilyapp");
 
     // Alternate locales for OG
     const alternateLocales = ["es_ES", "en_US", "ru_RU"].filter(l => l !== config.ogLocale);
-    alternateLocales.forEach((locale, i) => {
+    alternateLocales.forEach((locale) => {
       setMetaTag("property", `og:locale:alternate`, locale);
     });
 
     // Twitter
     setMetaTag("name", "twitter:card", "summary_large_image");
-    setMetaTag("name", "twitter:title", config.ogTitle);
-    setMetaTag("name", "twitter:description", config.description);
+    setMetaTag("name", "twitter:title", title || config.ogTitle);
+    setMetaTag("name", "twitter:description", description || config.description);
     setMetaTag("name", "twitter:image", "https://skilyapp.com/og-image.png");
 
     // JSON-LD Structured Data
@@ -312,9 +319,9 @@ export function SeoHead() {
       canonical.rel = "canonical";
       document.head.appendChild(canonical);
     }
-    canonical.href = "https://skilyapp.com";
+    canonical.href = canonicalUrl || "https://skilyapp.com";
 
-  }, [language]);
+  }, [language, title, description, canonicalUrl]);
 
   return null; // This component only manages document head
 }

@@ -40,7 +40,7 @@ const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").
 const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
 const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
 const AIChatWidget = lazy(() => import("@/components/ai/AIChatWidget").then(m => ({ default: m.AIChatWidget })));
-const PWAInstallBanner = lazy(() => import("@/components/pwa").then(m => ({ default: m.PWAInstallBanner })));
+
 
 // ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга
 // Это критично для производительности - Supabase/Query грузятся только для /app/*
@@ -549,9 +549,7 @@ const App = () => {
       <Motion>
         <OfflineBanner />
         <OfflineQueueIndicator />
-        <Suspense fallback={null}>
-          <PWAInstallBanner />
-        </Suspense>
+
         {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
         {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
         {/* <ReloadPrompt /> */}

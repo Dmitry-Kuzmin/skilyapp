@@ -1169,17 +1169,35 @@ const CourseLanding = () => {
             </button>
           </div>
 
-          {/* Cards — both stay mounted, no remount freeze */}
-          <div className={pricingTab === "groups" ? "block" : "hidden"}>
-            <PricingCards onBooking={() => scrollToForm("pricing_groups")} dbPrices={dbPrices} />
-          </div>
-          <div className={pricingTab === "individual" ? "block" : "hidden"}>
-            <IndividualPricingCards
-              onBooking={() => scrollToForm("pricing_individual")}
-              mgBasePrice={dbPrices?.mini_group?.price_eur ?? 499}
-              indBasePrice={dbPrices?.individual?.price_eur ?? 799}
-              addons={dbAddons}
-            />
+          <div className="relative min-h-[600px]">
+            <AnimatePresence mode="wait">
+              {pricingTab === "groups" ? (
+                <motion.div
+                  key="pricing-groups"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <PricingCards onBooking={() => scrollToForm("pricing_groups")} dbPrices={dbPrices} />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="pricing-individual"
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <IndividualPricingCards
+                    onBooking={() => scrollToForm("pricing_individual")}
+                    mgBasePrice={dbPrices?.mini_group?.price_eur ?? 499}
+                    indBasePrice={dbPrices?.individual?.price_eur ?? 799}
+                    addons={dbAddons}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Trust footer */}

@@ -19,7 +19,7 @@ import { useSettingsSync } from "@/hooks/useSettingsSync";
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
 import { DashboardSkeleton } from "@/components/dashboard-new/DashboardSkeleton"; // Добавляем импорт скелетона
 import { StartupCurtain } from "@/components/StartupCurtain";
-import { AddToHomeScreenPrompt } from "@/components/AddToHomeScreenPrompt";
+
 const Layout = lazy(() => import("@/components/Layout").then(m => ({ default: m.default })));
 const PaywallModal = lazy(() => import("@/components/monetization/PaywallModal").then(m => ({ default: m.PaywallModal })));
 const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOverlay").then(m => ({ default: m.WelcomeOverlay })));

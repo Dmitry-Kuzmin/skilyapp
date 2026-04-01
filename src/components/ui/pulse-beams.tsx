@@ -70,8 +70,8 @@ export const PulseBeams = ({
       )}
     >
       {background}
-      <div className="relative z-10">{children}</div>
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      <div className="relative z-10 w-full flex justify-center">{children}</div>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none transform-gpu" style={{ backfaceVisibility: 'hidden' }}>
         <SVGs
           beams={beams}
           width={width}
@@ -93,7 +93,7 @@ const SVGs = ({ beams, width, height, baseColor, accentColor, gradientColors }: 
       viewBox={`0 0 ${width} ${height}`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="flex flex-shrink-0"
+      className="flex flex-shrink-0 will-change-transform"
     >
       {beams.map((beam: any, index: number) => (
         <React.Fragment key={index}>
