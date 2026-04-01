@@ -818,17 +818,6 @@ const CourseLanding = () => {
       style.textContent = LANDING_STYLES;
       document.head.appendChild(style);
     }
-    // load Google Ads gtag.js
-    if (!document.getElementById("gtag-script")) {
-      const gtagScript = document.createElement("script");
-      gtagScript.id = "gtag-script";
-      gtagScript.async = true;
-      gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=AW-18034090184";
-      document.head.appendChild(gtagScript);
-      const gtagInit = document.createElement("script");
-      gtagInit.textContent = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','AW-18034090184');`;
-      document.head.appendChild(gtagInit);
-    }
     requestAnimationFrame(() => setHeroReady(true));
 
     // PostHog: фиксируем факт просмотра лендинга курса
