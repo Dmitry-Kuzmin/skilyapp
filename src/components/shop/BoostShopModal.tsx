@@ -53,6 +53,7 @@ import {
   LayoutGrid,
   Pickaxe,
   Box,
+  Globe,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext, UserContext } from "@/contexts/UserContext";
