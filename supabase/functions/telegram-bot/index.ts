@@ -1159,7 +1159,7 @@ async function handlePollAnswer(pollAnswer: any) {
 // Отправляет один вопрос квиза (фото + poll) из бота
 async function sendQuizQuestionFromBot(
   chatId: number, q: any, index: number, total: number, botLang: string
-): Promise<{ photoMsgId: number | null; pollMsgId: number } | null> {
+): Promise<{ photoMsgId: number | null; pollMsgId: number; translateBtnMsgId: number | null } | null> {
   let photoMsgId: number | null = null;
 
   if (q.image_url) {
