@@ -700,34 +700,55 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         text: "❌ Рассылка отменена.",
       });
     }
-    // ── Утренняя викторина: перевод вопроса на русский 🤟 ─────────────────
+    // ── Утренняя викторина: перевод вопроса на русский ────────────────────
     else if (data.startsWith("mqt_")) {
       const idx = parseInt(data.replace("mqt_", ""), 10);
       const { data: prof } = await supabase
         .from('profiles')
-        .select('settings')
+        .select('id, settings')
         .eq('telegram_id', user.id)
         .maybeSingle();
 
       let ruText = "Перевод недоступен.";
-      let ruExp  = "";
+      let ruOptions: string[] = [];
       if (prof?.settings?.morning_quiz?.questions) {
         const q = prof.settings.morning_quiz.questions[idx];
         if (q) {
           ruText = q.question_ru || q.text || ruText;
-          ruExp  = q.explanation_ru || "";
+          ruOptions = (q.options_ru || []) as string[];
+          // Если нет options_ru — берём ID вопроса и подтягиваем из БД
+          if (!ruOptions.length && q.id) {
+            const { data: opts } = await supabase
+              .from('answer_options')
+              .select('text_ru, position, is_correct')
+              .eq('question_id', q.id)
+              .order('position', { ascending: true });
+            ruOptions = (opts || []).map((o: any) => o.text_ru || '—');
+          }
         }
       }
 
-      await fetch(`${TELEGRAM_API}/sendMessage`, {
+      const optLines = ruOptions.map((o, i) => `${i + 1}. ${o}`).join('\n');
+      const replyRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: message.chat.id,
-          text: `🇷🇺 <b>Перевод вопроса ${idx + 1}:</b>\n\n${ruText}${ruExp ? `\n\n💡 ${ruExp}` : ""}`,
+          text: `🇷🇺 <b>Вопрос ${idx + 1} (перевод):</b>\n\n${ruText}${optLines ? `\n\n${optLines}` : ""}`,
           parse_mode: "HTML",
         }),
       });
+      const replyData = await replyRes.json();
+      const replyMsgId = replyData.result?.message_id ?? null;
+
+      // Сохраняем ID ответа в сессию чтобы удалить после ответа на poll
+      if (replyMsgId && prof?.id) {
+        const settings = { ...(prof.settings || {}) };
+        if (settings.morning_quiz) {
+          settings.morning_quiz.translate_reply_msg_id = replyMsgId;
+          supabase.from('profiles').update({ settings }).eq('id', prof.id).then().catch(() => {});
+        }
+      }
     }
   } catch (e: unknown) {
     console.error("[Callback] Error handling callback:", e);
