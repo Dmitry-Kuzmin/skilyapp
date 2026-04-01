@@ -49,12 +49,14 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
   }
 
   const profileSettings = (typeof profile.settings === 'object' && profile.settings) || {};
-  const lang: Lang = (forceLang || profileSettings.language || 'es') as Lang;
+  // DGT España: всегда испанский для утренней викторины независимо от настроек пользователя
+  const lang: Lang = (forceLang || 'es') as Lang;
 
-  // 1. Вопросы с картинками — приоритет
+  // 1. Вопросы с картинками — приоритет (только испанская база!)
   const { data: questionsWithImg } = await supabase
     .from('questions_new')
     .select('id, question_ru, question_es, explanation_ru, explanation_es, image_url')
+    .eq('country', 'es')
     .not('image_url', 'is', null)
     .neq('image_url', '')
     .limit(30);
@@ -65,6 +67,7 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
     const { data: questionsNoImg } = await supabase
       .from('questions_new')
       .select('id, question_ru, question_es, explanation_ru, explanation_es, image_url')
+      .eq('country', 'es')
       .or('image_url.is.null,image_url.eq.')
       .limit(20);
     pool.push(...shuffle(questionsNoImg || []));
