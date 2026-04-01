@@ -94,6 +94,28 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
     );
     return;
   }
+  if (startParam === 'buy_mini') {
+    await handleIndividualBookingStart(
+      message.chat.id,
+      user.first_name || 'друг',
+      user.id,
+      user.username,
+      'mini_group',
+      supabase
+    );
+    return;
+  }
+  if (startParam === 'buy_individual') {
+    await handleIndividualBookingStart(
+      message.chat.id,
+      user.first_name || 'друг',
+      user.id,
+      user.username,
+      'individual',
+      supabase
+    );
+    return;
+  }
 
   const [lang, courseLabel] = await Promise.all([
     getUserLanguage(user.id, user.language_code, supabase),
