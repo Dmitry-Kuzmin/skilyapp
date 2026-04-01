@@ -1067,7 +1067,9 @@ async function handlePollAnswer(pollAnswer: any) {
       index: current,
       isCorrect,
       text: formatMarkdown(questions[current].text),
-      explanation: formatMarkdown(questions[current].explanation)
+      explanation: formatMarkdown(questions[current].explanation),
+      question_ru: questions[current].question_ru || null,
+      explanation_ru: questions[current].explanation_ru || null,
     });
 
     const isCorrectCurrent = isCorrect;
