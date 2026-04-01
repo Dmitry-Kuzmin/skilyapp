@@ -711,11 +711,12 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       const coins = (prof as any)?.coins ?? 0;
 
       if (coins < 2) {
-        await fetch(`${TELEGRAM_API}/sendMessage`, {
+        await fetch(`${TELEGRAM_API}/editMessageText`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             chat_id: message.chat.id,
+            message_id: message.message_id,
             text: `🪙 Перевод разбора стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> — нужно пополнить!`,
             parse_mode: "HTML",
             reply_markup: { inline_keyboard: [[
