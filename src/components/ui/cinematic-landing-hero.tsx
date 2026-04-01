@@ -100,10 +100,17 @@ export function CinematicHero({
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6 w-full max-w-[650px] px-4 justify-center z-30">
             {/* Primary Shiny Button: Занять место */}
-            <a 
-              href="https://t.me/skilyapp_bot" 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href="https://t.me/skilyapp_bot?start=course"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                if (typeof window !== "undefined" && (window as any).gtag) {
+                  (window as any).gtag("event", "conversion", {
+                    send_to: "AW-18034090184/LGu7CMTx0pMcEMjBqZdD",
+                  });
+                }
+              }}
               className="bg-slate-800 w-full sm:w-[320px] max-w-[320px] h-[90px] no-underline group cursor-pointer relative shadow-[0_0_30px_rgba(99,68,245,0.2)] rounded-[45px] p-px text-xs font-semibold leading-6 text-white inline-block transition-transform hover:scale-105 active:scale-95"
             >
               <span className="absolute inset-0 overflow-hidden rounded-[45px]">
