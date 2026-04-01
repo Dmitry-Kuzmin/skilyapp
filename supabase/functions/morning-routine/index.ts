@@ -38,13 +38,58 @@ serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const testTelegramId = body?.test_telegram_id;
+    const testTelegramId = body?.test_telegram_id; // если задан — тест-режим (один юзер)
+    const isBulk = !testTelegramId;
 
-    if (!testTelegramId) {
-      return new Response(JSON.stringify({ error: 'No test_telegram_id' }), { status: 400 });
+    // ── BULK-режим: берём всех активных юзеров с telegram_id ──────────────
+    let telegramIds: number[] = [];
+
+    if (isBulk) {
+      console.log('[Morning] Bulk mode — fetching all active users');
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('telegram_id')
+        .not('telegram_id', 'is', null)
+        .eq('is_active', true)
+        .limit(500);
+
+      if (!profiles || profiles.length === 0) {
+        // Fallback: берём всех у кого есть telegram_id (нет поля is_active)
+        const { data: allProfiles } = await supabase
+          .from('profiles')
+          .select('telegram_id')
+          .not('telegram_id', 'is', null)
+          .limit(500);
+        telegramIds = (allProfiles || []).map((p: any) => p.telegram_id).filter(Boolean);
+      } else {
+        telegramIds = profiles.map((p: any) => p.telegram_id).filter(Boolean);
+      }
+
+      console.log(`[Morning] Found ${telegramIds.length} users to notify`);
+
+      if (telegramIds.length === 0) {
+        return new Response(JSON.stringify({ ok: true, message: 'No users found', sent: 0 }));
+      }
+
+      // Отправляем каждому пользователю асинхронно (fire-and-forget batch)
+      let sent = 0;
+      let failed = 0;
+      for (const tid of telegramIds) {
+        try {
+          await sendMorningQuiz(supabase, tid);
+          sent++;
+          // Небольшая задержка чтобы не флудить Telegram API (30 msg/sec лимит)
+          if (sent % 25 === 0) await new Promise(r => setTimeout(r, 1000));
+        } catch (e) {
+          failed++;
+          console.error(`[Morning] Failed for ${tid}:`, e);
+        }
+      }
+      console.log(`[Morning] Bulk done: sent=${sent} failed=${failed}`);
+      return new Response(JSON.stringify({ ok: true, sent, failed, total: telegramIds.length }));
     }
 
-    console.log(`[Morning] Starting session for: ${testTelegramId}`);
+    console.log(`[Morning] Test mode for: ${testTelegramId}`);
 
     // 0. Определяем язык пользователя из профиля
     const { data: profile } = await supabase
