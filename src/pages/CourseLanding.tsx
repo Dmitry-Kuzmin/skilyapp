@@ -885,6 +885,13 @@ const CourseLanding = () => {
               href="https://t.me/skilyapp_bot?start=course"
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                if (typeof window !== "undefined" && (window as any).gtag) {
+                  (window as any).gtag("event", "conversion", {
+                    send_to: "AW-18034090184/LGu7CMTx0pMcEMjBqZdD",
+                  });
+                }
+              }}
               className="hidden sm:inline-flex bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-95 shadow-[0_0_15px_rgba(59,130,246,0.2)] items-center gap-2"
             >
               Начать учиться
