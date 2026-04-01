@@ -78,7 +78,7 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
       user.first_name || 'друг',
       user.id,
       user.username,
-      'basic' as any,
+      'basic',
       supabase
     );
     return;
