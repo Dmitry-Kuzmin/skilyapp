@@ -1213,7 +1213,7 @@ async function sendQuizQuestionFromBot(
       text: '🤟 ¿No entiendes la pregunta?',
       reply_markup: {
         inline_keyboard: [[
-          { text: '🤟 Traducir al ruso', callback_data: `mqt_${index}` },
+          { text: '🤟 Traducir al ruso', callback_data: `mqt_${index}`, icon_custom_emoji_id: '5105268517691720533' },
         ]],
       },
     }),
