@@ -72,6 +72,17 @@ export async function handleStart(message: TelegramMessage, supabase: SupabaseCl
     await handleCourseSupportStart(message.chat.id, user.first_name || 'друг');
     return;
   }
+  if (startParam === 'buy_basic') {
+    await handleCourseBuyDirect(
+      message.chat.id,
+      user.first_name || 'друг',
+      user.id,
+      user.username,
+      'basic' as any,
+      supabase
+    );
+    return;
+  }
   if (startParam === 'buy_pro') {
     await handleCourseBuyDirect(
       message.chat.id,
