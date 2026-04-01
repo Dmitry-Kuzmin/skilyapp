@@ -1230,21 +1230,26 @@ async function sendQuizQuestionFromBot(
   }
 
   // Кнопка перевода на русский
-  fetch(`${TELEGRAM_API}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: '🤟 ¿No entiendes la pregunta?',
-      reply_markup: {
-        inline_keyboard: [[
-          { text: '🤟 Traducir al ruso', callback_data: `mqt_${index}`, icon_custom_emoji_id: '5105268517691720533' },
-        ]],
-      },
-    }),
-  }).catch(() => {});
+  let translateBtnMsgId: number | null = null;
+  try {
+    const tbRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: '¿No entiendes la pregunta?',
+        reply_markup: {
+          inline_keyboard: [[
+            { text: 'Traducir al ruso', callback_data: `mqt_${index}`, icon_custom_emoji_id: '5105268517691720533' },
+          ]],
+        },
+      }),
+    });
+    const tbData = await tbRes.json();
+    if (tbRes.ok) translateBtnMsgId = tbData.result?.message_id ?? null;
+  } catch { /* ignore */ }
 
-  return { photoMsgId, pollMsgId };
+  return { photoMsgId, pollMsgId, translateBtnMsgId };
 }
 
 async function tgDelete(chatId: number, messageId: number) {
