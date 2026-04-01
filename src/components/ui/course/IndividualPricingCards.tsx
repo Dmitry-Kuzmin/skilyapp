@@ -299,13 +299,22 @@ export function IndividualPricingCards({
               <p className="text-xs text-zinc-600 mb-6">За человека · полная оплата при бронировании</p>
 
               {/* CTA */}
-              <button
-                onClick={onBooking}
+              <a
+                href="https://t.me/skilyapp_bot?start=buy_individual"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  if (typeof window !== "undefined" && (window as any).gtag) {
+                    (window as any).gtag("event", "conversion", {
+                      send_to: "AW-18034090184/LGu7CMTx0pMcEMjBqZdD",
+                    });
+                  }
+                }}
                 className="w-full py-3.5 rounded-xl bg-white text-zinc-900 font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
               >
                 <MessageCircle className="w-4 h-4" />
                 Записаться
-              </button>
+              </a>
             </div>
 
             {/* Features */}
