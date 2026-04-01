@@ -1146,6 +1146,8 @@ async function handlePollAnswer(pollAnswer: any) {
       quiz.current = nextIdx;
       quiz.photo_msg_id = msgIds?.photoMsgId || null;
       quiz.poll_msg_id = msgIds?.pollMsgId || null;
+      quiz.translate_btn_msg_id = msgIds?.translateBtnMsgId || null;
+      quiz.translate_reply_msg_id = null;
       settings.morning_quiz = quiz;
       const { error: updateErr } = await supabase.from('profiles').update({ settings }).eq('id', profile.id);
       if (updateErr) console.error('[PollAnswer] Failed to update quiz session:', updateErr.message);
