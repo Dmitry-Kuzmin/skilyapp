@@ -1129,12 +1129,20 @@ async function handlePollAnswer(pollAnswer: any) {
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [
+              [{ text: '🇷🇺 Перевести разбор', callback_data: 'mqs_ru', icon_custom_emoji_id: '5105268517691720533' }],
               [{ text: '🚀 Открыть Skilyapp', web_app: { url: MINI_APP_URL } }],
               [{ text: '🏠 В главное меню', callback_data: 'main_menu' }]
             ]
           }
         }),
       });
+
+      // Сохраняем русские данные для кнопки перевода разбора
+      settings.mqs_ru = quiz.results.map((r: any) => ({
+        isCorrect: r.isCorrect,
+        question_ru: r.question_ru || null,
+        explanation_ru: r.explanation_ru || null,
+      }));
 
       // Очищаем сессию
       delete settings.morning_quiz;
