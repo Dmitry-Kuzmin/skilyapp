@@ -409,6 +409,68 @@ export async function handleCourseStart(
 }
 
 // ─────────────────────────────────────────────────────
+// Запись на индивидуальный формат (start=buy_mini / start=buy_individual)
+// Запускает AI-чат, который подбирает удобное время
+// ─────────────────────────────────────────────────────
+export async function handleIndividualBookingStart(
+  chatId: number,
+  firstName: string,
+  telegramId: number,
+  telegramUser: string | undefined,
+  planId: 'mini_group' | 'individual',
+  supabase: SupabaseClient
+): Promise<void> {
+  const planLabels = {
+    mini_group: 'Мини-группа (2–3 чел.) — €499',
+    individual: 'Индивидуально — €799',
+  };
+  const planLabel = planLabels[planId];
+
+  // Сохраняем лид
+  await upsertLead(supabase, telegramId, {
+    first_name: firstName,
+    telegram_user: telegramUser,
+    status: 'plan_selected',
+    plan_id: planId,
+  });
+
+  // Включаем режим AI-поддержки для подбора времени
+  const { data: profileData } = await supabase
+    .from('profiles')
+    .select('settings')
+    .eq('telegram_id', telegramId)
+    .maybeSingle();
+  const cur = (typeof profileData?.settings === 'object' && profileData?.settings) as Record<string, unknown> ?? {};
+  await supabase.from('profiles').update({
+    settings: { ...cur, course_support_mode: true },
+  }).eq('telegram_id', telegramId);
+
+  const name = firstName || 'друг';
+  await fetch(`${TELEGRAM_API}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      parse_mode: 'HTML',
+      text:
+        `🎓 <b>${name}, отличный выбор!</b>\n\n` +
+        `Ты выбрал формат: <b>${planLabel}</b>\n\n` +
+        `Я помогу подобрать удобное время и дни занятий — это займёт буквально 2 минуты.\n\n` +
+        `📅 <b>В какие дни недели тебе обычно удобно?</b>`,
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '📅 Будни (пн–пт)', callback_data: 'ind_sched_weekdays' },
+            { text: '🏖 Выходные (сб–вс)', callback_data: 'ind_sched_weekend' },
+          ],
+          [{ text: '📆 Любые дни', callback_data: 'ind_sched_any' }],
+        ],
+      },
+    }),
+  });
+}
+
+// ─────────────────────────────────────────────────────
 // Прямая покупка (start=buy_pro / start=buy_vip)
 // ─────────────────────────────────────────────────────
 export async function handleCourseBuyDirect(
