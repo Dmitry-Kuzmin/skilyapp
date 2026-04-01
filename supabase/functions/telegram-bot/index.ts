@@ -714,7 +714,10 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       if (prof?.settings?.morning_quiz?.questions) {
         const q = prof.settings.morning_quiz.questions[idx];
         if (q) {
-          ruText = q.question_ru || q.text || ruText;
+          // Берём только текст вопроса (до первого `?`), без объяснений
+          const raw = q.question_ru || q.text || '';
+          const match = raw.match(/^[\s\S]*?\?/);
+          ruText = match ? match[0].trim() : raw.split('\n')[0].trim() || ruText;
           ruOptions = (q.options_ru || []) as string[];
           // Если нет options_ru — берём ID вопроса и подтягиваем из БД
           if (!ruOptions.length && q.id) {
