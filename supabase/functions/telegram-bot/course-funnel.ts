@@ -478,7 +478,7 @@ export async function handleCourseBuyDirect(
   firstName: string,
   telegramId: number,
   telegramUser: string | undefined,
-  planId: 'pro' | 'vip',
+  planId: 'basic' | 'pro' | 'vip',
   supabase: SupabaseClient
 ): Promise<void> {
   const [plans, streams] = await Promise.all([getCoursePlans(supabase), getOpenStreams(supabase, 3)]);
