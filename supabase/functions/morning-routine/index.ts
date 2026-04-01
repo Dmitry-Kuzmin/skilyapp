@@ -190,6 +190,25 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
   };
   await supabase.from('profiles').update({ settings }).eq('id', profile.id);
 
+  // 7. Кнопка перевода 🤟 — отдельным сообщением под poll
+  try {
+    await fetch(`${TELEGRAM_API}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: telegramId,
+        text: '🤟 ¿No entiendes la pregunta?',
+        reply_markup: {
+          inline_keyboard: [[
+            { text: '🤟 Traducir al ruso', callback_data: 'mqt_0' },
+          ]],
+        },
+      }),
+    });
+  } catch (e) {
+    console.warn(`[Morning] sendTranslateBtn exception for ${telegramId}:`, e);
+  }
+
   console.log(`[Morning] ✅ Sent to ${telegramId} (lang=${lang} questions=${fullQuestions.length})`);
 }
 
