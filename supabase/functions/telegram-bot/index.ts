@@ -700,6 +700,35 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         text: "❌ Рассылка отменена.",
       });
     }
+    // ── Утренняя викторина: перевод вопроса на русский 🤟 ─────────────────
+    else if (data.startsWith("mqt_")) {
+      const idx = parseInt(data.replace("mqt_", ""), 10);
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('settings')
+        .eq('telegram_id', user.id)
+        .maybeSingle();
+
+      let ruText = "Перевод недоступен.";
+      let ruExp  = "";
+      if (prof?.settings?.morning_quiz?.questions) {
+        const q = prof.settings.morning_quiz.questions[idx];
+        if (q) {
+          ruText = q.question_ru || q.text || ruText;
+          ruExp  = q.explanation_ru || "";
+        }
+      }
+
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: message.chat.id,
+          text: `🇷🇺 <b>Перевод вопроса ${idx + 1}:</b>\n\n${ruText}${ruExp ? `\n\n💡 ${ruExp}` : ""}`,
+          parse_mode: "HTML",
+        }),
+      });
+    }
   } catch (e: unknown) {
     console.error("[Callback] Error handling callback:", e);
   }
@@ -1117,7 +1146,8 @@ async function sendQuizQuestionFromBot(
       body: JSON.stringify({
         chat_id: chatId,
         photo: q.image_url,
-        caption: `❓ ${botLang === 'ru' ? `Вопрос ${index + 1} из ${total}` : `Question ${index + 1} of ${total}`}`,
+        caption: `☀️ <b>Cuestionario matutino · Pregunta ${index + 1} de ${total}</b>`,
+        parse_mode: 'HTML',
       }),
     });
     const prResult = await pr.json();
