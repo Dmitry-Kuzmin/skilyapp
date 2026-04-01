@@ -671,6 +671,12 @@ export function BoostShopModal({
           description: duelPassRewardDescription(metadata),
           category: "reward",
         };
+      case "bot_translation":
+        return {
+          icon: Globe,
+          description: "Перевод вопроса (бот)",
+          category: "spend",
+        };
       default:
         return { icon: Coins, description: type, category: "earn" };
     }
