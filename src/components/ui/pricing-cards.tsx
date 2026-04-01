@@ -331,6 +331,13 @@ export function PricingCards({ onBooking, dbPrices }: PricingCardsProps) {
                     href={`https://t.me/skilyapp_bot?start=${plan.botParam}`}
                     target="_blank"
                     rel="noreferrer"
+                    onClick={() => {
+                      if (typeof window !== "undefined" && (window as any).gtag) {
+                        (window as any).gtag("event", "conversion", {
+                          send_to: "AW-18034090184/LGu7CMTx0pMcEMjBqZdD",
+                        });
+                      }
+                    }}
                     className={cn(
                       "w-full mt-5 py-3.5 rounded-2xl font-bold text-sm transition-all active:scale-[0.98] text-center block",
                       acc.btn,
