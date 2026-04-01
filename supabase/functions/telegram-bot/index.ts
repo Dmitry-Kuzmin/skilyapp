@@ -704,9 +704,27 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
     else if (data === "mqs_ru") {
       const { data: prof } = await supabase
         .from('profiles')
-        .select('id, settings')
+        .select('id, settings, coins')
         .eq('telegram_id', user.id)
         .maybeSingle();
+
+      const coins = (prof as any)?.coins ?? 0;
+
+      if (coins < 2) {
+        await fetch(`${TELEGRAM_API}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: message.chat.id,
+            text: `🪙 Перевод разбора стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> — нужно пополнить!`,
+            parse_mode: "HTML",
+            reply_markup: { inline_keyboard: [[
+              { text: '⛏️ Майнить монеты', web_app: { url: `${MINI_APP_URL}/app` } },
+            ]]},
+          }),
+        });
+        return;
+      }
 
       const results: any[] = prof?.settings?.mqs_ru || [];
 
@@ -716,67 +734,96 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ chat_id: message.chat.id, text: "⚠️ Данные разбора уже недоступны." }),
         });
-      } else {
-        const lines = ['🇷🇺 <b>Разбор на русском:</b>\n'];
-        results.forEach((r: any, i: number) => {
-          const rawQ = r.question_ru || '—';
-          const qMatch = rawQ.match(/^[\s\S]*?\?/);
-          const qText = qMatch ? qMatch[0].trim() : rawQ.split('\n')[0].trim();
-          lines.push(`${r.isCorrect ? '✅' : '❌'} <b>Вопрос ${i + 1}:</b> ${qText}`);
-          if (r.explanation_ru?.trim()) {
-            lines.push(`<blockquote>📖 ${r.explanation_ru.trim()}</blockquote>`);
-          }
-          lines.push('');
-        });
-
-        await fetch(`${TELEGRAM_API}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: message.chat.id,
-            text: lines.join('\n'),
-            parse_mode: "HTML",
-          }),
-        });
-
-        // Удаляем после использования
-        if (prof?.id) {
-          const s = { ...(prof.settings || {}) };
-          delete s.mqs_ru;
-          supabase.from('profiles').update({ settings: s }).eq('id', prof.id).then().catch(() => {});
-        }
+        return;
       }
+
+      // Списываем 2 монеты
+      await supabase.rpc('increment_profile_value', { p_profile_id: prof!.id, p_column: 'coins', p_amount: -2 });
+      supabase.from('transactions').insert({
+        user_id: prof!.id,
+        transaction_type: 'bot_translation',
+        amount: -2,
+        metadata: { source: 'morning_quiz_summary' },
+      }).then().catch(() => {});
+
+      const lines = ['🇷🇺 <b>Разбор на русском:</b>\n'];
+      results.forEach((r: any, i: number) => {
+        const rawQ = r.question_ru || '—';
+        const qMatch = rawQ.match(/^[\s\S]*?\?/);
+        const qText = qMatch ? qMatch[0].trim() : rawQ.split('\n')[0].trim();
+        lines.push(`${r.isCorrect ? '✅' : '❌'} <b>Вопрос ${i + 1}:</b> ${qText}`);
+        if (r.explanation_ru?.trim()) {
+          lines.push(`<blockquote>📖 ${r.explanation_ru.trim()}</blockquote>`);
+        }
+        lines.push('');
+      });
+
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: message.chat.id, text: lines.join('\n'), parse_mode: "HTML" }),
+      });
+
+      // Удаляем после использования
+      const s = { ...(prof!.settings || {}) };
+      delete s.mqs_ru;
+      supabase.from('profiles').update({ settings: s }).eq('id', prof!.id).then().catch(() => {});
     }
     // ── Утренняя викторина: перевод вопроса на русский ────────────────────
     else if (data.startsWith("mqt_")) {
       const idx = parseInt(data.replace("mqt_", ""), 10);
       const { data: prof } = await supabase
         .from('profiles')
-        .select('id, settings')
+        .select('id, settings, coins')
         .eq('telegram_id', user.id)
         .maybeSingle();
+
+      const coins = (prof as any)?.coins ?? 0;
+
+      if (coins < 2) {
+        await fetch(`${TELEGRAM_API}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: message.chat.id,
+            text: `🪙 Перевод стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> — нужно пополнить!`,
+            parse_mode: "HTML",
+            reply_markup: { inline_keyboard: [[
+              { text: '⛏️ Майнить монеты', web_app: { url: `${MINI_APP_URL}/app` } },
+            ]]},
+          }),
+        });
+        return;
+      }
 
       let ruText = "Перевод недоступен.";
       let ruOptions: string[] = [];
       if (prof?.settings?.morning_quiz?.questions) {
         const q = prof.settings.morning_quiz.questions[idx];
         if (q) {
-          // Берём только текст вопроса (до первого `?`), без объяснений
           const raw = q.question_ru || q.text || '';
           const match = raw.match(/^[\s\S]*?\?/);
           ruText = match ? match[0].trim() : raw.split('\n')[0].trim() || ruText;
           ruOptions = (q.options_ru || []) as string[];
-          // Если нет options_ru — берём ID вопроса и подтягиваем из БД
           if (!ruOptions.length && q.id) {
             const { data: opts } = await supabase
               .from('answer_options')
-              .select('text_ru, position, is_correct')
+              .select('text_ru, position')
               .eq('question_id', q.id)
               .order('position', { ascending: true });
             ruOptions = (opts || []).map((o: any) => o.text_ru || '—');
           }
         }
       }
+
+      // Списываем 2 монеты
+      await supabase.rpc('increment_profile_value', { p_profile_id: prof!.id, p_column: 'coins', p_amount: -2 });
+      supabase.from('transactions').insert({
+        user_id: prof!.id,
+        transaction_type: 'bot_translation',
+        amount: -2,
+        metadata: { source: 'morning_quiz_question', question_idx: idx },
+      }).then().catch(() => {});
 
       const optLines = ruOptions.map((o, i) => `${i + 1}. ${o}`).join('\n');
       const replyRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
@@ -791,7 +838,6 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       const replyData = await replyRes.json();
       const replyMsgId = replyData.result?.message_id ?? null;
 
-      // Сохраняем ID ответа в сессию чтобы удалить после ответа на poll
       if (replyMsgId && prof?.id) {
         const settings = { ...(prof.settings || {}) };
         if (settings.morning_quiz) {
