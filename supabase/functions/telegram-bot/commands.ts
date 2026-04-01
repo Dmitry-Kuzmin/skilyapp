@@ -6,7 +6,7 @@ import { TelegramMessage, SendMessageOptions } from './types.ts';
 import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import * as keyboards from './keyboards.ts';
 import { t, getUserLanguage, getDaysWord, SupportedLanguage } from './translations.ts';
-import { handleCourseStart, handleCourseBuyDirect, getMenuCourseLabel } from './course-funnel.ts';
+import { handleCourseStart, handleCourseBuyDirect, handleIndividualBookingStart, getMenuCourseLabel } from './course-funnel.ts';
 import { handleCourseSupportStart } from './course-support.ts';
 
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
