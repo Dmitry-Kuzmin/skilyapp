@@ -960,11 +960,18 @@ const CourseLanding = () => {
                 
                 <hr className="border-white/10 my-2" />
                 
-                <a 
+                <a
                   href="https://t.me/skilyapp_bot?start=course"
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    if (typeof window !== "undefined" && (window as any).gtag) {
+                      (window as any).gtag("event", "conversion", {
+                        send_to: "AW-18034090184/LGu7CMTx0pMcEMjBqZdD",
+                      });
+                    }
+                  }}
                   className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-5 py-4 rounded-xl font-semibold text-center mt-2 shadow-[0_0_15px_rgba(59,130,246,0.2)] block"
                 >
                   Занять место
