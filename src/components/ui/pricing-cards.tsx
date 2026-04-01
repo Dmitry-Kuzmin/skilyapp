@@ -53,6 +53,7 @@ const BASE_PLANS: Plan[] = [
     highlight: false,
     accentColor: "zinc",
     cta: "Занять место",
+    botParam: "buy_basic",
     features: [
       { text: "16 живых эфиров (2 мес × 2/нед × 2ч)", included: true },
       { text: "Платформа Skilyapp на 3 мес в подарок", included: true },
