@@ -719,7 +719,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
             text: `🪙 Перевод разбора стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> — нужно пополнить!`,
             parse_mode: "HTML",
             reply_markup: { inline_keyboard: [[
-              { text: '⛏️ Майнить монеты', web_app: { url: `${MINI_APP_URL}/app` } },
+              { text: '⛏️ Майнить монеты', web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=coins` } },
             ]]},
           }),
         });
