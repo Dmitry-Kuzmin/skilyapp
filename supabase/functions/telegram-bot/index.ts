@@ -1222,7 +1222,7 @@ async function handlePollAnswer(pollAnswer: any) {
           parse_mode: 'HTML',
           reply_markup: {
             inline_keyboard: [
-              [{ text: '🇷🇺 Перевести разбор', callback_data: 'mqs_ru', icon_custom_emoji_id: '5105268517691720533' }],
+              [{ text: '🇷🇺 Перевести разбор  2', callback_data: 'mqs_ru', icon_custom_emoji_id: '5199552030615558774' }],
               [{ text: '🚀 Открыть Skilyapp', web_app: { url: MINI_APP_URL } }],
               [{ text: '🏠 В главное меню', callback_data: 'main_menu' }]
             ]
