@@ -1254,7 +1254,7 @@ async function sendQuizQuestionFromBot(
   const qLabel = `Pregunta ${index + 1} de ${total}`;
   const pollBody: any = {
     chat_id: chatId,
-    question: `<tg-emoji emoji-id="5452069934089641166">❓</tg-emoji> ${qLabel}: ${q.text}`.substring(0, 300),
+    question: `<tg-emoji emoji-id="5452069934089641166">❓</tg-emoji>\u00a0${qLabel}: ${q.text}`.substring(0, 300),
     question_parse_mode: 'HTML',
     options: q.options.map((text: string) => ({ text })),
     type: 'quiz',
