@@ -1073,9 +1073,11 @@ async function handlePollAnswer(pollAnswer: any) {
     // Ждём 0.5 секунды чтобы работало мгновенно
     await new Promise(r => setTimeout(r, 500));
 
-    // Удаляем текущие сообщения (фото + poll)
+    // Удаляем текущие сообщения (фото + poll + кнопка перевода + текст перевода)
     if (quiz.photo_msg_id) await tgDelete(chatId, quiz.photo_msg_id);
     if (quiz.poll_msg_id) await tgDelete(chatId, quiz.poll_msg_id);
+    if (quiz.translate_btn_msg_id) await tgDelete(chatId, quiz.translate_btn_msg_id);
+    if (quiz.translate_reply_msg_id) await tgDelete(chatId, quiz.translate_reply_msg_id);
 
     const nextIdx = current + 1;
 
