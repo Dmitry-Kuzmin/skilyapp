@@ -195,21 +195,24 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
   };
   await supabase.from('profiles').update({ settings }).eq('id', profile.id);
 
-  // 7. Кнопка перевода 🤟 — отдельным сообщением под poll
+  // 7. Кнопка перевода — отдельным сообщением под poll, сохраняем ID
+  let translateBtnMsgId: number | null = null;
   try {
-    await fetch(`${TELEGRAM_API}/sendMessage`, {
+    const tbRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: telegramId,
-        text: '🤟 ¿No entiendes la pregunta?',
+        text: '¿No entiendes la pregunta?',
         reply_markup: {
           inline_keyboard: [[
-            { text: '🤟 Traducir al ruso', callback_data: 'mqt_0', icon_custom_emoji_id: '5105268517691720533' },
+            { text: 'Traducir al ruso', callback_data: 'mqt_0', icon_custom_emoji_id: '5105268517691720533' },
           ]],
         },
       }),
     });
+    const tbData = await tbRes.json();
+    if (tbRes.ok) translateBtnMsgId = tbData.result?.message_id ?? null;
   } catch (e) {
     console.warn(`[Morning] sendTranslateBtn exception for ${telegramId}:`, e);
   }
