@@ -200,7 +200,7 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
         text: '🤟 ¿No entiendes la pregunta?',
         reply_markup: {
           inline_keyboard: [[
-            { text: '🤟 Traducir al ruso', callback_data: 'mqt_0' },
+            { text: '🤟 Traducir al ruso', callback_data: 'mqt_0', icon_custom_emoji_id: '5105268517691720533' },
           ]],
         },
       }),
