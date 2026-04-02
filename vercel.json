@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/admin/editor",
+      "destination": "/admin/mission-control",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/index.html",
