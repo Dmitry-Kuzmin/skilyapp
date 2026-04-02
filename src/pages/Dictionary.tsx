@@ -7,6 +7,7 @@ import { Search, Loader2, X } from "lucide-react";
 import { useUserContext } from "@/contexts/UserContext";
 import Layout from "@/components/Layout";
 import { PageLoader } from "@/components/PageLoader";
+import { SeoHead } from "@/components/seo/SeoHead";
 interface LanguageTerm {
   id: string;
   term_es: string;
@@ -167,6 +168,12 @@ export default function Dictionary() {
 
   return (
     <Layout>
+      <SeoHead
+        title="Diccionario de términos DGT | Skilyapp"
+        description="Рабочий словарь терминов внутри приложения Skilyapp для подготовки к теории DGT."
+        canonicalUrl="https://skilyapp.com/dictionary"
+        robots="noindex, follow"
+      />
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-success/5">
         <div className="container mx-auto px-4 py-12">
           {/* Premium Header */}

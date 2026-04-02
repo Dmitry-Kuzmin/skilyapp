@@ -7,6 +7,7 @@ import Layout from "@/components/Layout";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { usePDDContext } from "@/contexts/PDDContext";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 type Message = {
   role: "user" | "assistant";
@@ -108,6 +109,12 @@ const AIAssistant = () => {
 
   return (
     <Layout>
+      <SeoHead
+        title="AI Assistant | Skilyapp"
+        description="Внутренний AI-ассистент Skilyapp для помощи внутри приложения."
+        canonicalUrl="https://skilyapp.com/ai-assistant"
+        robots="noindex, follow"
+      />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-6">
           <h1 className="text-4xl font-bold mb-2">Помощник Skily</h1>

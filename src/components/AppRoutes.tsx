@@ -4,7 +4,7 @@
  */
 
 import { lazy, Suspense, type ReactNode } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import { PageLoader } from "@/components/PageLoader";
 import { PageSkeleton } from "@/components/PageSkeleton";
 import { TelegramNavigation } from "@/components/TelegramNavigation";
@@ -20,6 +20,11 @@ function TelegramShell({ children }: { children: ReactNode }) {
       {children}
     </div>
   );
+}
+
+function LegacyArticleRedirect() {
+  const { slug } = useParams<{ slug: string }>();
+  return <Navigate to={slug ? `/article/${slug}` : "/blog"} replace />;
 }
 
 // Lazy load всех страниц приложения
@@ -148,6 +153,8 @@ export function AppRoutes() {
           <LearningMap />
         </Suspense>
       } />
+      <Route path="/ai-assistant" element={<Navigate to="/" replace />} />
+      <Route path="/achievements" element={<Navigate to="/" replace />} />
       {/* Handbook Routes */}
       <Route path="/learn/russia/handbook" element={
         <Suspense fallback={<PageSkeleton />}>
@@ -467,9 +474,7 @@ export function AppRoutes() {
         </Suspense>
       } />
       <Route path="/blog/:slug" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <TelegramShell><Article /></TelegramShell>
-        </Suspense>
+        <LegacyArticleRedirect />
       } />
       <Route path="/article/:slug" element={
         <Suspense fallback={<PageSkeleton />}>

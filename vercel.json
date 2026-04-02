@@ -4,6 +4,21 @@
       "source": "/admin/editor",
       "destination": "/admin/mission-control",
       "permanent": false
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/article/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/ai-assistant",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/achievements",
+      "destination": "/",
+      "permanent": true
     }
   ],
   "headers": [

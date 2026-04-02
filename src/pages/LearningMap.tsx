@@ -27,6 +27,7 @@ import { calculateTopicProgress } from "@/utils/learningMap";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { hasStaticMaterial } from "@/utils/staticMaterials";
 import { PageLoader } from "@/components/PageLoader";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 const isLearningMapDebug =
   import.meta.env.DEV && import.meta.env.VITE_DEBUG_LEARNING_MAP === "true";
@@ -58,7 +59,17 @@ const LearningMap = ({ variant = "full", className }: LearningMapProps) => {
   const isEmbedded = variant === "embedded";
 
   const renderWithLayout = (content: ReactNode) =>
-    isEmbedded ? content : <Layout>{content}</Layout>;
+    isEmbedded ? content : (
+      <Layout>
+        <SeoHead
+          title="Learning Map | Skilyapp"
+          description="Внутренняя карта обучения Skilyapp для прохождения тем и отслеживания прогресса."
+          canonicalUrl="https://skilyapp.com/learning-map"
+          robots="noindex, follow"
+        />
+        {content}
+      </Layout>
+    );
 
   const wrapperClasses = cn(
     isEmbedded
@@ -1120,4 +1131,3 @@ function buildStructuredCurriculum(
     };
   });
 }
-
