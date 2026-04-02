@@ -16,6 +16,14 @@ export const chapter3: LingoChapter = {
       title: 'Документы водителя',
       emoji: '📄',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Permiso de conducir',
+          termRu: 'Водительское удостоверение',
+          descriptionRu: 'Документ, дающий право управлять ТС. Выдаётся DGT после сдачи экзаменов. Категории: A, B, C, D, E.',
+          exampleEs: 'Para conducir un coche necesitas el permiso de conducir de clase B.',
+          exampleRu: 'Для вождения автомобиля нужно водительское удостоверение категории B.',
+        },
         { type: 'flashcard', termEs: 'Permiso de conducir', termRu: 'Водительское удостоверение', descriptionRu: 'Документ, дающий право управлять ТС. Категории: A, B, C...' },
         { type: 'flashcard', termEs: 'DGT', termRu: 'Дирекция дорожного движения', descriptionRu: 'Dirección General de Tráfico — главный орган дорожного надзора в Испании.' },
         { type: 'flashcard', termEs: 'Permiso de circulación', termRu: 'Свидетельство о регистрации', descriptionRu: 'Документ на автомобиль, подтверждающий право владения и регистрацию.' },
@@ -34,6 +42,13 @@ export const chapter3: LingoChapter = {
             { es: 'Permiso de circulación', ru: 'Свидетельство о регистрации' },
             { es: 'Ficha técnica', ru: 'Технический паспорт' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'El permiso de conducir lo expide la DGT.',
+          correctWords: ['Водительское', 'удостоверение', 'выдаёт', 'DGT'],
+          extraWords: ['полиция', 'страховая', 'ITV'],
         },
         {
           type: 'context',

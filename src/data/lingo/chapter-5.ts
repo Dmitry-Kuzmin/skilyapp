@@ -189,6 +189,14 @@ export const chapter5: LingoChapter = {
       title: 'Первая помощь',
       emoji: '🩺',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'RCP',
+          termRu: 'СЛР (сердечно-лёгочная реанимация)',
+          descriptionRu: 'Reanimación Cardiopulmonar. Применяется когда пострадавший не дышит: 30 нажатий на грудь + 2 вдоха.',
+          exampleEs: 'Si la víctima no respira, inicie la RCP inmediatamente.',
+          exampleRu: 'Если пострадавший не дышит, немедленно начните СЛР.',
+        },
         { type: 'flashcard', termEs: 'RCP', termRu: 'СЛР (реанимация)', descriptionRu: 'Reanimación Cardiopulmonar — непрямой массаж сердца + искусственное дыхание.' },
         { type: 'flashcard', termEs: 'Posición lateral de seguridad', termRu: 'Боковое положение безопасности', descriptionRu: 'Пострадавшего укладывают на бок, чтобы он не задохнулся.' },
         { type: 'flashcard', termEs: 'Hemorragia', termRu: 'Кровотечение', descriptionRu: 'Истечение крови из раны.' },
@@ -212,6 +220,13 @@ export const chapter5: LingoChapter = {
             { es: 'Hemorragia', ru: 'Кровотечение' },
             { es: 'Estado de shock', ru: 'Состояние шока' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'No mueva a la víctima si sospecha una lesión de columna.',
+          correctWords: ['Не', 'двигайте', 'пострадавшего', 'при', 'подозрении', 'на', 'травму', 'позвоночника'],
+          extraWords: ['головы', 'руки', 'перевозите'],
         },
         {
           type: 'context',
