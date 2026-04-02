@@ -641,7 +641,7 @@ export async function handleCourseCallback(
       const plans = await getCoursePlans(supabase);
       const plan = plans[planId] || DEFAULT_PLANS[planId];
       await upsertLead(supabase, telegramId, { stream_id: streams[0].id });
-      await sendPaymentStep(chatId, messageId, firstName, plan, streams[0]);
+      await sendPaymentStep(chatId, messageId, firstName, plan, streams[0], telegramId, telegramUser);
     } else {
       // Несколько потоков — показываем выбор даты
       const { text, keyboard } = await buildStreamSelector(planId, supabase, firstName);
