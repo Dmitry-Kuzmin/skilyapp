@@ -172,6 +172,13 @@ export const chapter1: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'En la glorieta, ceda el paso a los vehículos que circulan.',
+          correctWords: ['На', 'круговом', 'перекрёстке', 'уступите', 'дорогу', 'движущимся', 'автомобилям'],
+          extraWords: ['светофору', 'пешеходам', 'знаку'],
+        },
+        {
           type: 'context',
           sentence: 'На «___» все въезжающие обязаны уступить дорогу транспорту в круге.',
           sentenceEs: 'En la «___» los que entran ceden el paso a los que circulan.',
