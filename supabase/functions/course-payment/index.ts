@@ -114,39 +114,48 @@ serve(async (req) => {
 
   // ── Уведомление админа о ручной оплате ────────────────
   if (action === 'notify_manual') {
-    const { telegram_id, telegram_username, tariff_label, stream_label, eur_amount, method } = body;
+    try {
+      const { telegram_id, telegram_username, tariff_label, stream_label, eur_amount, method } = body;
 
-    const methodLabels: Record<string, string> = {
-      rub   : 'Карта РФ / СБП',
-      bizum : 'Bizum',
-      usdt  : 'USDT (Крипто)',
-      ton   : 'TON',
-    };
+      const methodLabels: Record<string, string> = {
+        rub   : 'Карта РФ / СБП',
+        bizum : 'Bizum',
+        usdt  : 'USDT (Крипто)',
+        ton   : 'TON',
+      };
 
-    await supabase.from('course_payments').insert({
-      telegram_id: telegram_id || 0,
-      tariff_id: 'manual',
-      tariff_label: tariff_label || '—',
-      stream_label: stream_label || null,
-      eur_amount: eur_amount || 0,
-      payment_method: method,
-      status: 'pending',
-    }).catch(() => {});
+      const { error: dbErr } = await supabase.from('course_payments').insert({
+        telegram_id: telegram_id || 0,
+        tariff_id: 'manual',
+        tariff_label: tariff_label || '—',
+        stream_label: stream_label || null,
+        eur_amount: eur_amount || 0,
+        payment_method: method,
+        status: 'pending',
+      });
+      if (dbErr) console.error('course_payments insert error:', dbErr.message);
 
-    const text =
-      `💰 <b>Запрос оплаты — ${methodLabels[method] || method}</b>\n\n` +
-      `👤 ${telegram_username ? `@${telegram_username}` : `ID: ${telegram_id}`}\n` +
-      `📌 Тариф: <b>${tariff_label}</b> · €${eur_amount}\n` +
-      (stream_label ? `🗓 ${stream_label}\n` : '') +
-      `\n<i>Ожидает подтверждения</i>`;
+      const text =
+        `💰 <b>Запрос оплаты — ${methodLabels[method] || method}</b>\n\n` +
+        `👤 ${telegram_username ? `@${telegram_username}` : `ID: ${telegram_id}`}\n` +
+        `📌 Тариф: <b>${tariff_label}</b> · €${eur_amount}\n` +
+        (stream_label ? `🗓 ${stream_label}\n` : '') +
+        `\n<i>Ожидает подтверждения</i>`;
 
-    await fetch(`${TELEGRAM_API}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text, parse_mode: 'HTML' }),
-    });
+      const tgRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text, parse_mode: 'HTML' }),
+      });
+      const tgData = await tgRes.json();
+      if (!tgData.ok) console.error('Telegram error:', tgData.description);
 
-    return json({ ok: true });
+      return json({ ok: true });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('notify_manual error:', msg);
+      return json({ error: msg }, 500);
+    }
   }
 
   // ── Paddle checkout (динамическая цена через Transactions API) ──
