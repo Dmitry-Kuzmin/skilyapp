@@ -16,6 +16,14 @@ export const chapter1: LingoChapter = {
       title: 'Типы дорог',
       emoji: '🚗',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Autopista',
+          termRu: 'Автомагистраль',
+          descriptionRu: 'Скоростная дорога с разделёнными полосами. Макс. скорость 120 км/ч. Доступ только через съезды.',
+          exampleEs: 'En la autopista, la velocidad máxima es de 120 km/h.',
+          exampleRu: 'На автомагистрали максимальная скорость — 120 км/ч.',
+        },
         { type: 'flashcard', termEs: 'Autopista', termRu: 'Автомагистраль', descriptionRu: 'Скоростная дорога с разделёнными полосами, доступ только через съезды. Макс. скорость 120 км/ч.' },
         { type: 'flashcard', termEs: 'Autovía', termRu: 'Автодорога', descriptionRu: 'Как автомагистраль, но допускает пересечения. Также до 120 км/ч.' },
         { type: 'flashcard', termEs: 'Carretera convencional', termRu: 'Обычная дорога', descriptionRu: 'Дорога без разделительной полосы. Макс. скорость 90 км/ч.' },
