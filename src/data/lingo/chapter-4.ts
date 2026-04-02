@@ -1,0 +1,236 @@
+import type { LingoChapter } from './types';
+
+export const chapter4: LingoChapter = {
+  id: 'ch4',
+  title: 'Участники движения',
+  emoji: '🚶',
+  color: {
+    bg: 'bg-purple-950',
+    border: 'border-purple-500',
+    text: 'text-purple-300',
+    accent: 'bg-purple-500',
+  },
+  lessons: [
+    {
+      id: 'ch4-l1',
+      title: 'Пешеходы',
+      emoji: '🚶',
+      exercises: [
+        { type: 'flashcard', termEs: 'Peatón', termRu: 'Пешеход', descriptionRu: 'Участник дорожного движения, передвигающийся пешком.' },
+        { type: 'flashcard', termEs: 'Paso de peatones', termRu: 'Пешеходный переход', descriptionRu: 'Зебра — место для безопасного перехода дороги.' },
+        { type: 'flashcard', termEs: 'Acera', termRu: 'Тротуар', descriptionRu: 'Часть дороги, предназначенная для пешеходов.' },
+        { type: 'flashcard', termEs: 'Zona peatonal', termRu: 'Пешеходная зона', descriptionRu: 'Территория, закрытая для автотранспорта, предназначена для пешеходов.' },
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «paso de peatones»?',
+          correctAnswer: 'Пешеходный переход',
+          options: ['Пешеходный переход', 'Тротуар', 'Пешеходная зона', 'Подземный переход'],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Peatón', ru: 'Пешеход' },
+            { es: 'Paso de peatones', ru: 'Пешеходный переход' },
+            { es: 'Acera', ru: 'Тротуар' },
+            { es: 'Zona peatonal', ru: 'Пешеходная зона' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Водитель обязан уступить дорогу на «___».',
+          options: ['paso de peatones', 'acera', 'zona peatonal'],
+          correctAnswer: 'paso de peatones',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Acera',
+          correctAnswer: 'тротуар',
+          hint: 'Т...',
+        },
+      ],
+    },
+    {
+      id: 'ch4-l2',
+      title: 'Велосипедисты',
+      emoji: '🚲',
+      exercises: [
+        { type: 'flashcard', termEs: 'Ciclista', termRu: 'Велосипедист', descriptionRu: 'Участник движения на велосипеде.' },
+        { type: 'flashcard', termEs: 'Carril bici', termRu: 'Велодорожка', descriptionRu: 'Полоса или дорожка, предназначенная для велосипедов.' },
+        { type: 'flashcard', termEs: 'Casco', termRu: 'Шлем', descriptionRu: 'Защитный головной убор. Обязателен для мотоциклистов, рекомендован велосипедистам.' },
+        { type: 'flashcard', termEs: 'Vía ciclista', termRu: 'Велосипедная трасса', descriptionRu: 'Специальная дорога исключительно для велосипедного движения.' },
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «carril bici»?',
+          correctAnswer: 'Полоса для велосипедистов',
+          options: ['Полоса для велосипедистов', 'Велосипедная трасса', 'Пешеходная зона', 'Знак велосипеда'],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Ciclista', ru: 'Велосипедист' },
+            { es: 'Carril bici', ru: 'Велодорожка' },
+            { es: 'Casco', ru: 'Шлем' },
+            { es: 'Vía ciclista', ru: 'Велосипедная трасса' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Мотоциклист обязан носить «___» при движении.',
+          options: ['casco', 'carril bici', 'vía ciclista'],
+          correctAnswer: 'casco',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Carril bici',
+          correctAnswer: 'велодорожка',
+          hint: 'В...',
+        },
+      ],
+    },
+    {
+      id: 'ch4-l3',
+      title: 'Мотоциклисты',
+      emoji: '🏍️',
+      exercises: [
+        { type: 'flashcard', termEs: 'Motocicleta', termRu: 'Мотоцикл', descriptionRu: 'Двухколёсное моторизованное транспортное средство.' },
+        { type: 'flashcard', termEs: 'Ciclomotor', termRu: 'Мопед', descriptionRu: 'Лёгкий мотоцикл до 50 куб. см. Допустимая скорость — 45 км/ч.' },
+        { type: 'flashcard', termEs: 'Equipación de protección', termRu: 'Защитное снаряжение', descriptionRu: 'Шлем, перчатки, куртка, сапоги — для мотоциклистов.' },
+        { type: 'flashcard', termEs: 'Adelantar', termRu: 'Обгонять', descriptionRu: 'Опережение другого ТС с выездом на встречную полосу.' },
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «ciclomotor»?',
+          correctAnswer: 'Мопед до 50 куб.см и 45 км/ч',
+          options: ['Мопед до 50 куб.см и 45 км/ч', 'Спортивный мотоцикл', 'Мотоцикл без шлема', 'Электровелосипед'],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Motocicleta', ru: 'Мотоцикл' },
+            { es: 'Ciclomotor', ru: 'Мопед' },
+            { es: 'Equipación de protección', ru: 'Защитное снаряжение' },
+            { es: 'Adelantar', ru: 'Обгонять' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'На мопеде «___» обязателен шлем и запрещено превышать 45 км/ч.',
+          options: ['ciclomotor', 'motocicleta', 'vehículo especial'],
+          correctAnswer: 'ciclomotor',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Adelantar',
+          correctAnswer: 'обгонять',
+          hint: 'О...',
+        },
+      ],
+    },
+    {
+      id: 'ch4-l4',
+      title: 'Спецтранспорт',
+      emoji: '🚒',
+      exercises: [
+        { type: 'flashcard', termEs: 'Vehículo de emergencia', termRu: 'Экстренное транспортное средство', descriptionRu: 'Скорая, полиция, пожарные — имеют приоритет на дороге.' },
+        { type: 'flashcard', termEs: 'Preferencia de paso', termRu: 'Приоритет проезда', descriptionRu: 'Право проехать первым в спорной ситуации.' },
+        { type: 'flashcard', termEs: 'Señal acústica', termRu: 'Звуковой сигнал', descriptionRu: 'Сирена или гудок для предупреждения участников движения.' },
+        { type: 'flashcard', termEs: 'Señal luminosa', termRu: 'Световой сигнал', descriptionRu: 'Проблесковый маяк или фара-мигалка на спецтранспорте.' },
+        {
+          type: 'multiple_choice',
+          question: 'Что обязан сделать водитель при звуке сирены экстренного авто?',
+          correctAnswer: 'Уступить дорогу и прижаться к краю',
+          options: [
+            'Уступить дорогу и прижаться к краю',
+            'Остановиться посредине дороги',
+            'Продолжить движение',
+            'Включить аварийку и стоять',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Vehículo de emergencia', ru: 'Экстренное ТС' },
+            { es: 'Preferencia de paso', ru: 'Приоритет проезда' },
+            { es: 'Señal acústica', ru: 'Звуковой сигнал' },
+            { es: 'Señal luminosa', ru: 'Световой сигнал' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Скорая помощь всегда имеет «___» на дороге.',
+          options: ['preferencia de paso', 'señal acústica', 'señal luminosa'],
+          correctAnswer: 'preferencia de paso',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Señal acústica',
+          correctAnswer: 'звуковой сигнал',
+          hint: 'З...',
+        },
+      ],
+    },
+    {
+      id: 'ch4-l5',
+      title: 'Итог: Участники движения',
+      emoji: '🏆',
+      exercises: [
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «carril bici»?',
+          correctAnswer: 'Велодорожка',
+          options: ['Велодорожка', 'Тротуар', 'Пешеходная зона', 'Обочина'],
+        },
+        {
+          type: 'context',
+          sentence: 'Лёгкое двухколёсное ТС до 50 куб.см — это «___».',
+          options: ['ciclomotor', 'motocicleta', 'bicicleta'],
+          correctAnswer: 'ciclomotor',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Peatón',
+          correctAnswer: 'пешеход',
+          hint: 'П...',
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Paso de peatones', ru: 'Пешеходный переход' },
+            { es: 'Casco', ru: 'Шлем' },
+            { es: 'Vehículo de emergencia', ru: 'Экстренное ТС' },
+            { es: 'Adelantar', ru: 'Обгонять' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Водитель обязан дать дорогу на «___».',
+          options: ['paso de peatones', 'acera', 'carril bici'],
+          correctAnswer: 'paso de peatones',
+        },
+        {
+          type: 'multiple_choice',
+          question: 'Что означает «preferencia de paso»?',
+          correctAnswer: 'Приоритет проезда',
+          options: ['Приоритет проезда', 'Обязательная остановка', 'Запрет обгона', 'Уступи дорогу'],
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Zona peatonal',
+          correctAnswer: 'пешеходная зона',
+          hint: 'П...',
+        },
+        {
+          type: 'context',
+          sentence: 'Для мотоциклиста «___» — шлем, перчатки и куртка.',
+          options: ['equipación de protección', 'señal acústica', 'casco'],
+          correctAnswer: 'equipación de protección',
+        },
+      ],
+    },
+  ],
+};
