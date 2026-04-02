@@ -5,6 +5,8 @@ export type {
   MatchPairsExercise,
   TypeAnswerExercise,
   ContextExercise,
+  VocabIntroExercise,
+  WordTilesExercise,
 } from './types';
 
 export { chapter1 } from './chapter-1';
