@@ -124,6 +124,14 @@ export const chapter4: LingoChapter = {
       title: 'Мотоциклисты',
       emoji: '🏍️',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Motocicleta',
+          termRu: 'Мотоцикл',
+          descriptionRu: 'Двухколёсное моторизованное ТС. Водитель обязан носить шлем и защитное снаряжение.',
+          exampleEs: 'La motocicleta no puede circular por la acera.',
+          exampleRu: 'Мотоцикл не может двигаться по тротуару.',
+        },
         { type: 'flashcard', termEs: 'Motocicleta', termRu: 'Мотоцикл', descriptionRu: 'Двухколёсное моторизованное транспортное средство.' },
         { type: 'flashcard', termEs: 'Ciclomotor', termRu: 'Мопед', descriptionRu: 'Лёгкий мотоцикл до 50 куб. см. Допустимая скорость — 45 км/ч.' },
         { type: 'flashcard', termEs: 'Equipación de protección', termRu: 'Защитное снаряжение', descriptionRu: 'Шлем, перчатки, куртка, сапоги — для мотоциклистов.' },
@@ -142,6 +150,13 @@ export const chapter4: LingoChapter = {
             { es: 'Equipación de protección', ru: 'Защитное снаряжение' },
             { es: 'Adelantar', ru: 'Обгонять' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'El ciclomotor no puede superar los 45 km/h.',
+          correctWords: ['Мопед', 'не', 'может', 'превышать', '45', 'км/ч'],
+          extraWords: ['мотоцикл', '60', 'скорость'],
         },
         {
           type: 'context',
