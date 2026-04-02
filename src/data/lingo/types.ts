@@ -49,12 +49,31 @@ export interface ContextExercise {
   correctAnswer: string;   // the correct ES term
 }
 
+export interface VocabIntroExercise {
+  type: 'vocab_intro';
+  termEs: string;
+  termRu: string;
+  descriptionRu?: string;
+  exampleEs?: string;
+  exampleRu?: string;
+}
+
+export interface WordTilesExercise {
+  type: 'word_tiles';
+  prompt: string;
+  sentenceEs: string;
+  correctWords: string[];
+  extraWords?: string[];
+}
+
 export type LingoExercise =
   | FlashcardExercise
   | MultipleChoiceExercise
   | MatchPairsExercise
   | TypeAnswerExercise
-  | ContextExercise;
+  | ContextExercise
+  | VocabIntroExercise
+  | WordTilesExercise;
 
 // ---------- lesson & chapter ----------
 
