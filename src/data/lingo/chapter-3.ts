@@ -1,0 +1,238 @@
+import type { LingoChapter } from './types';
+
+export const chapter3: LingoChapter = {
+  id: 'ch3',
+  title: 'Документы и ТО',
+  emoji: '📋',
+  color: {
+    bg: 'bg-yellow-950',
+    border: 'border-yellow-500',
+    text: 'text-yellow-300',
+    accent: 'bg-yellow-500',
+  },
+  lessons: [
+    {
+      id: 'ch3-l1',
+      title: 'Документы водителя',
+      emoji: '📄',
+      exercises: [
+        { type: 'flashcard', termEs: 'Permiso de conducir', termRu: 'Водительское удостоверение', descriptionRu: 'Документ, дающий право управлять ТС. Категории: A, B, C...' },
+        { type: 'flashcard', termEs: 'DGT', termRu: 'Дирекция дорожного движения', descriptionRu: 'Dirección General de Tráfico — главный орган дорожного надзора в Испании.' },
+        { type: 'flashcard', termEs: 'Permiso de circulación', termRu: 'Свидетельство о регистрации', descriptionRu: 'Документ на автомобиль, подтверждающий право владения и регистрацию.' },
+        { type: 'flashcard', termEs: 'Ficha técnica', termRu: 'Технический паспорт', descriptionRu: 'Документ с техническими данными автомобиля (мощность, вес, размеры).' },
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «DGT»?',
+          correctAnswer: 'Дирекция дорожного движения Испании',
+          options: ['Дирекция дорожного движения Испании', 'Технический осмотр', 'Тип водительских прав', 'Страховой документ'],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Permiso de conducir', ru: 'Водительское удостоверение' },
+            { es: 'DGT', ru: 'Дирекция дорожного движения' },
+            { es: 'Permiso de circulación', ru: 'Свидетельство о регистрации' },
+            { es: 'Ficha técnica', ru: 'Технический паспорт' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: '«___» — это документ, подтверждающий право водителя управлять авто.',
+          options: ['permiso de conducir', 'ficha técnica', 'permiso de circulación'],
+          correctAnswer: 'permiso de conducir',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Ficha técnica',
+          correctAnswer: 'технический паспорт',
+          hint: 'Т...',
+        },
+      ],
+    },
+    {
+      id: 'ch3-l2',
+      title: 'Технический осмотр',
+      emoji: '🔧',
+      exercises: [
+        { type: 'flashcard', termEs: 'ITV', termRu: 'Технический осмотр', descriptionRu: 'Inspección Técnica de Vehículos — обязательная периодическая проверка авто.' },
+        { type: 'flashcard', termEs: 'Tara', termRu: 'Снаряжённая масса', descriptionRu: 'Масса пустого автомобиля со стандартным оборудованием.' },
+        { type: 'flashcard', termEs: 'MMA', termRu: 'Максимальная разрешённая масса', descriptionRu: 'Masa Máxima Autorizada — макс. масса авто с грузом и пассажирами.' },
+        { type: 'flashcard', termEs: 'Distintivo ambiental', termRu: 'Экологический стикер', descriptionRu: 'Наклейка DGT с категорией экологичности авто (C, B, ECO, 0).' },
+        {
+          type: 'multiple_choice',
+          question: 'Что означает «ITV»?',
+          correctAnswer: 'Технический осмотр транспортного средства',
+          options: ['Технический осмотр транспортного средства', 'Страховой документ', 'Тип двигателя', 'Экологический стикер'],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'ITV', ru: 'Технический осмотр' },
+            { es: 'Tara', ru: 'Снаряжённая масса' },
+            { es: 'MMA', ru: 'Максимальная разрешённая масса' },
+            { es: 'Distintivo ambiental', ru: 'Экологический стикер' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Каждые два года большинство авто обязано проходить «___».',
+          sentenceEs: 'Cada dos años la mayoría de vehículos deben pasar la «___».',
+          options: ['ITV', 'MMA', 'ficha técnica'],
+          correctAnswer: 'ITV',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Tara',
+          correctAnswer: 'снаряжённая масса',
+          hint: 'С...',
+        },
+      ],
+    },
+    {
+      id: 'ch3-l3',
+      title: 'Страховка',
+      emoji: '🛡️',
+      exercises: [
+        { type: 'flashcard', termEs: 'Seguro obligatorio', termRu: 'Обязательная страховка', descriptionRu: 'Минимальная страховка ОСАГО, покрывает ущерб третьим лицам.' },
+        { type: 'flashcard', termEs: 'Seguro a todo riesgo', termRu: 'Страховка КАСКО', descriptionRu: 'Полное страхование, включая повреждение собственного авто.' },
+        { type: 'flashcard', termEs: 'Responsabilidad civil', termRu: 'Гражданская ответственность', descriptionRu: 'Обязанность возместить ущерб, причинённый другим.' },
+        { type: 'flashcard', termEs: 'Parte amistoso', termRu: 'Европротокол', descriptionRu: 'Форма оформления ДТП без полиции при обоюдном согласии сторон.' },
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «seguro a todo riesgo»?',
+          correctAnswer: 'Полное страхование включая ущерб своего авто',
+          options: [
+            'Полное страхование включая ущерб своего авто',
+            'Обязательная страховка',
+            'Страховка только от угона',
+            'Документ для ITV',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Seguro obligatorio', ru: 'Обязательная страховка' },
+            { es: 'Seguro a todo riesgo', ru: 'Страховка КАСКО' },
+            { es: 'Responsabilidad civil', ru: 'Гражданская ответственность' },
+            { es: 'Parte amistoso', ru: 'Европротокол' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Оформить ДТП без полиции можно через «___».',
+          options: ['parte amistoso', 'seguro obligatorio', 'ficha técnica'],
+          correctAnswer: 'parte amistoso',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Seguro obligatorio',
+          correctAnswer: 'обязательная страховка',
+          hint: 'О...',
+        },
+      ],
+    },
+    {
+      id: 'ch3-l4',
+      title: 'Нарушения и санкции',
+      emoji: '🚨',
+      exercises: [
+        { type: 'flashcard', termEs: 'Multa', termRu: 'Штраф', descriptionRu: 'Денежное взыскание за нарушение ПДД.' },
+        { type: 'flashcard', termEs: 'Puntos del carné', termRu: 'Баллы водительского удостоверения', descriptionRu: 'Испанская система: 12 баллов (8 для новых). Нарушения снимают баллы.' },
+        { type: 'flashcard', termEs: 'Suspensión del permiso', termRu: 'Лишение прав', descriptionRu: 'Изъятие водительского удостоверения за серьёзные нарушения.' },
+        { type: 'flashcard', termEs: 'Infracción grave', termRu: 'Серьёзное нарушение', descriptionRu: 'Нарушение, за которое снимается 4–6 баллов (например, 30 км/ч превышение).' },
+        {
+          type: 'multiple_choice',
+          question: 'Сколько баллов у нового водителя в Испании?',
+          correctAnswer: '8 баллов',
+          options: ['8 баллов', '12 баллов', '10 баллов', '6 баллов'],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Multa', ru: 'Штраф' },
+            { es: 'Puntos del carné', ru: 'Баллы прав' },
+            { es: 'Suspensión del permiso', ru: 'Лишение прав' },
+            { es: 'Infracción grave', ru: 'Серьёзное нарушение' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'За езду без страховки грозит «___» и штраф.',
+          sentenceEs: 'Conducir sin seguro puede implicar la «___» del permiso.',
+          options: ['suspensión del permiso', 'multa', 'infracción grave'],
+          correctAnswer: 'suspensión del permiso',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Multa',
+          correctAnswer: 'штраф',
+          hint: 'Ш...',
+        },
+      ],
+    },
+    {
+      id: 'ch3-l5',
+      title: 'Итог: Документы и ТО',
+      emoji: '🏆',
+      exercises: [
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «ITV»?',
+          correctAnswer: 'Технический осмотр ТС',
+          options: ['Технический осмотр ТС', 'Страховой полис', 'Водительские права', 'Штраф'],
+        },
+        {
+          type: 'context',
+          sentence: '«___» — система 12 баллов для контроля нарушений.',
+          options: ['puntos del carné', 'seguro obligatorio', 'ITV'],
+          correctAnswer: 'puntos del carné',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Parte amistoso',
+          correctAnswer: 'европротокол',
+          hint: 'Е...',
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Permiso de conducir', ru: 'Водительское удостоверение' },
+            { es: 'Seguro a todo riesgo', ru: 'Страховка КАСКО' },
+            { es: 'Tara', ru: 'Снаряжённая масса' },
+            { es: 'Multa', ru: 'Штраф' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Минимальная обязательная страховка в Испании — это «___».',
+          options: ['seguro obligatorio', 'seguro a todo riesgo', 'responsabilidad civil'],
+          correctAnswer: 'seguro obligatorio',
+        },
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «ficha técnica»?',
+          correctAnswer: 'Технический паспорт автомобиля',
+          options: ['Технический паспорт автомобиля', 'Техосмотр', 'Документ страховки', 'Водительские права'],
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Suspensión del permiso',
+          correctAnswer: 'лишение прав',
+          hint: 'Л...',
+        },
+        {
+          type: 'context',
+          sentence: 'Максимально допустимый вес авто с пассажирами — это «___».',
+          options: ['MMA', 'tara', 'ficha técnica'],
+          correctAnswer: 'MMA',
+        },
+      ],
+    },
+  ],
+};
