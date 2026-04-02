@@ -174,6 +174,12 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
       document.documentElement.style.setProperty('--app-safe-right', `${safeRight}px`);
       document.documentElement.style.setProperty('--app-content-top', `${contentTopValue}px`);
       document.documentElement.style.setProperty('--app-content-bottom', `${contentBottomValue}px`);
+      document.documentElement.style.setProperty('--tg-safe-area-inset-top', `${safeTop}px`);
+      document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${safeBottom}px`);
+      document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${safeLeft}px`);
+      document.documentElement.style.setProperty('--tg-safe-area-inset-right', `${safeRight}px`);
+      document.documentElement.style.setProperty('--tg-viewport-height', `${tg.viewportHeight ?? 0}px`);
+      document.documentElement.style.setProperty('--tg-viewport-stable-height', `${tg.viewportStableHeight ?? tg.viewportHeight ?? 0}px`);
 
       // Для обратной совместимости
       document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', `${isMobilePlatform ? tg.contentSafeAreaInset?.top ?? topInset : 0}px`);
@@ -239,4 +245,3 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 export function useTelegram(): WebApp | null {
   return useContext(TelegramContext);
 }
-
