@@ -357,6 +357,13 @@ async function prerender() {
             mkdirSync(articleDir, { recursive: true });
           }
           filePath = join(articleDir, `${slug}.html`);
+        } else if (route.startsWith('/blog/')) {
+          const slug = route.replace('/blog/', '');
+          const blogDir = join(OUTPUT_DIR, 'blog');
+          if (!existsSync(blogDir)) {
+            mkdirSync(blogDir, { recursive: true });
+          }
+          filePath = join(blogDir, `${slug}.html`);
         } else if (route.startsWith('/legal/')) {
           const tab = route.replace('/legal/', '');
           const legalDir = join(OUTPUT_DIR, 'legal');
