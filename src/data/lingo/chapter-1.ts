@@ -78,6 +78,14 @@ export const chapter1: LingoChapter = {
       title: 'Разметка и полосы',
       emoji: '🔲',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Línea continua',
+          termRu: 'Сплошная линия',
+          descriptionRu: 'Непрерывная разметка на дороге. Пересекать запрещено — нельзя обгонять и менять полосу.',
+          exampleEs: 'Está prohibido cruzar la línea continua.',
+          exampleRu: 'Запрещено пересекать сплошную линию.',
+        },
         { type: 'flashcard', termEs: 'Línea continua', termRu: 'Сплошная линия', descriptionRu: 'Запрещает пересечение или выезд на встречную полосу.' },
         { type: 'flashcard', termEs: 'Línea discontinua', termRu: 'Прерывистая линия', descriptionRu: 'Разрешает обгон или смену полосы при безопасности.' },
         { type: 'flashcard', termEs: 'Carril', termRu: 'Полоса движения', descriptionRu: 'Каждая размеченная полоса на дороге.' },
