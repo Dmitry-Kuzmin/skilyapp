@@ -172,9 +172,58 @@ async function handlePreCheckoutQuery(query: TelegramPreCheckoutQuery) {
 // =====================================================
 async function handleSuccessfulPayment(message: TelegramMessage) {
   const payment = message.successful_payment!;
-  console.log(`[SuccessfulPayment] charge_id=${payment.telegram_payment_charge_id} stars=${payment.total_amount}`);
+  const payload = payment.invoice_payload || '';
+  console.log(`[SuccessfulPayment] charge_id=${payment.telegram_payment_charge_id} stars=${payment.total_amount} payload=${payload}`);
 
   try {
+    // ── Оплата курса через Stars ───────────────────────
+    if (payload.startsWith('course_')) {
+      // Обновляем статус в course_payments
+      await supabase
+        .from('course_payments')
+        .update({ status: 'confirmed', metadata: { telegram_payment_charge_id: payment.telegram_payment_charge_id } })
+        .eq('payload', payload);
+
+      // Получаем данные платежа для уведомления
+      const { data: cp } = await supabase
+        .from('course_payments')
+        .select('tariff_label, stream_label, eur_amount, telegram_id')
+        .eq('payload', payload)
+        .maybeSingle();
+
+      // Уведомляем пользователя
+      if (message.chat?.id) {
+        await fetch(`${TELEGRAM_API}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: message.chat.id,
+            text:
+              `🎉 <b>Оплата подтверждена!</b>\n\n` +
+              `📌 Тариф: <b>${cp?.tariff_label || '—'}</b>\n` +
+              (cp?.stream_label ? `🗓 ${cp.stream_label}\n` : '') +
+              `\nМенеджер свяжется с тобой в течение 15 минут для подтверждения места. 🚀`,
+            parse_mode: 'HTML',
+          }),
+        });
+      }
+
+      // Уведомляем админа
+      const adminText =
+        `⭐ <b>Оплата курса — Stars</b>\n\n` +
+        `👤 ID: ${cp?.telegram_id || message.from?.id}\n` +
+        `📌 ${cp?.tariff_label || '—'} · €${cp?.eur_amount || '?'}\n` +
+        (cp?.stream_label ? `🗓 ${cp.stream_label}\n` : '') +
+        `⭐ ${payment.total_amount} Stars`;
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: 488159880, text: adminText, parse_mode: 'HTML' }),
+      });
+      return;
+    }
+
+    // ── Обычная Stars-оплата (монеты/премиум в приложении) ──
     const STARS_PAYMENT_URL = `${Deno.env.get('SUPABASE_URL')}/functions/v1/telegram-stars-payment`;
     const response = await fetch(STARS_PAYMENT_URL, {
       method: 'POST',
@@ -184,7 +233,7 @@ async function handleSuccessfulPayment(message: TelegramMessage) {
       },
       body: JSON.stringify({
         action: 'successful_payment',
-        invoice_payload: payment.invoice_payload,
+        invoice_payload: payload,
         telegram_payment_charge_id: payment.telegram_payment_charge_id,
         total_amount: payment.total_amount,
         currency: payment.currency,
@@ -194,7 +243,6 @@ async function handleSuccessfulPayment(message: TelegramMessage) {
     const result = await response.json();
     console.log(`[SuccessfulPayment] Result: success=${result.success} rewards=${result.rewards_status}`);
 
-    // Отправляем пользователю сообщение об успехе
     if (message.chat?.id) {
       await fetch(`${TELEGRAM_API}/sendMessage`, {
         method: 'POST',
