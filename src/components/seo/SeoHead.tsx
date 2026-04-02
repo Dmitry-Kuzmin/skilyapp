@@ -231,6 +231,10 @@ function setMetaTag(attr: string, key: string, content: string) {
   el.setAttribute("content", content);
 }
 
+function removeMetaTag(attr: string, key: string) {
+  document.querySelector(`meta[${attr}="${key}"]`)?.remove();
+}
+
 function setOrCreateJsonLd(id: string, data: object) {
   let el = document.getElementById(id) as HTMLScriptElement | null;
   if (!el) {
@@ -242,18 +246,11 @@ function setOrCreateJsonLd(id: string, data: object) {
   el.textContent = JSON.stringify(data);
 }
 
-function setHreflangTags() {
+function setHreflangTags(alternates: Array<{ hreflang: string; href: string }>) {
   // Remove existing hreflang tags
   document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
 
-  const languages = [
-    { hreflang: "es", href: "https://skilyapp.com/?lang=es" },
-    { hreflang: "en", href: "https://skilyapp.com/?lang=en" },
-    { hreflang: "ru", href: "https://skilyapp.com/?lang=ru" },
-    { hreflang: "x-default", href: "https://skilyapp.com" },
-  ];
-
-  languages.forEach(({ hreflang, href }) => {
+  alternates.forEach(({ hreflang, href }) => {
     const link = document.createElement("link");
     link.rel = "alternate";
     link.hreflang = hreflang;
@@ -266,13 +263,50 @@ export interface SeoHeadProps {
   title?: string;
   description?: string;
   canonicalUrl?: string;
+  ogType?: string;
+  robots?: string;
+  hreflangAlternates?: Array<{ hreflang: string; href: string }>;
+  structuredData?: object | object[];
+  publishedTime?: string;
+  modifiedTime?: string;
 }
 
-export function SeoHead({ title, description, canonicalUrl }: SeoHeadProps) {
+const HOME_HREFLANG_ALTERNATES = [
+  { hreflang: "es", href: "https://skilyapp.com/?lang=es" },
+  { hreflang: "en", href: "https://skilyapp.com/?lang=en" },
+  { hreflang: "ru", href: "https://skilyapp.com/?lang=ru" },
+  { hreflang: "x-default", href: "https://skilyapp.com" },
+];
+
+function getDefaultHreflangAlternates(canonicalUrl?: string) {
+  if (!canonicalUrl || HOME_HREFLANG_ALTERNATES.some((alternate) => alternate.href === canonicalUrl)) {
+    return HOME_HREFLANG_ALTERNATES;
+  }
+
+  return [];
+}
+
+export function SeoHead({
+  title,
+  description,
+  canonicalUrl,
+  ogType = "website",
+  robots = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+  hreflangAlternates,
+  structuredData,
+  publishedTime,
+  modifiedTime,
+}: SeoHeadProps) {
   const { language } = useLanguage();
 
   useEffect(() => {
     const config = SEO_CONFIG[language];
+    const additionalStructuredData = structuredData
+      ? Array.isArray(structuredData)
+        ? structuredData
+        : [structuredData]
+      : [];
+    const effectiveHreflangAlternates = hreflangAlternates ?? getDefaultHreflangAlternates(canonicalUrl);
 
     // Update html lang attribute
     document.documentElement.lang = config.lang;
@@ -284,14 +318,17 @@ export function SeoHead({ title, description, canonicalUrl }: SeoHeadProps) {
     // Update meta tags
     setMetaTag("name", "description", description || config.description);
     setMetaTag("name", "keywords", config.keywords);
+    setMetaTag("name", "robots", robots);
+    setMetaTag("name", "author", "Skilyapp");
 
     // Open Graph
     setMetaTag("property", "og:title", title || config.ogTitle);
     setMetaTag("property", "og:description", description || config.ogDescription);
     setMetaTag("property", "og:locale", config.ogLocale);
     setMetaTag("property", "og:url", canonicalUrl || "https://skilyapp.com");
-    setMetaTag("property", "og:type", "website");
+    setMetaTag("property", "og:type", ogType);
     setMetaTag("property", "og:image", "https://skilyapp.com/og-image.png");
+    setMetaTag("property", "og:image:alt", title || config.ogTitle);
     setMetaTag("property", "og:site_name", "Skilyapp");
 
     // Alternate locales for OG
@@ -305,12 +342,25 @@ export function SeoHead({ title, description, canonicalUrl }: SeoHeadProps) {
     setMetaTag("name", "twitter:title", title || config.ogTitle);
     setMetaTag("name", "twitter:description", description || config.description);
     setMetaTag("name", "twitter:image", "https://skilyapp.com/og-image.png");
+    setMetaTag("name", "twitter:image:alt", title || config.ogTitle);
 
     // JSON-LD Structured Data
     setOrCreateJsonLd("seo-jsonld-app", config.jsonLd);
+    additionalStructuredData.forEach((data, index) => {
+      setOrCreateJsonLd(`seo-jsonld-extra-${index}`, data);
+    });
+    const staleStructuredData = document.querySelectorAll('[id^="seo-jsonld-extra-"]');
+    staleStructuredData.forEach((el) => {
+      const match = el.id.match(/^seo-jsonld-extra-(\d+)$/);
+      if (!match) return;
+      const index = Number(match[1]);
+      if (index >= additionalStructuredData.length) {
+        el.remove();
+      }
+    });
 
     // Hreflang tags
-    setHreflangTags();
+    setHreflangTags(effectiveHreflangAlternates);
 
     // Canonical
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
@@ -321,7 +371,29 @@ export function SeoHead({ title, description, canonicalUrl }: SeoHeadProps) {
     }
     canonical.href = canonicalUrl || "https://skilyapp.com";
 
-  }, [language, title, description, canonicalUrl]);
+    if (ogType === "article") {
+      if (publishedTime) {
+        setMetaTag("property", "article:published_time", publishedTime);
+      }
+      if (modifiedTime) {
+        setMetaTag("property", "article:modified_time", modifiedTime);
+      }
+    } else {
+      removeMetaTag("property", "article:published_time");
+      removeMetaTag("property", "article:modified_time");
+    }
+  }, [
+    language,
+    title,
+    description,
+    canonicalUrl,
+    ogType,
+    robots,
+    hreflangAlternates,
+    structuredData,
+    publishedTime,
+    modifiedTime,
+  ]);
 
   return null; // This component only manages document head
 }

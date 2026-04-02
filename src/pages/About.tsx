@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LandingLogo } from "@/components/landing/LandingLogo";
+import { SeoHead } from "@/components/seo/SeoHead";
 import { landingTranslations } from "@/translations/landing";
 
 // Lazy load heavy components
@@ -407,6 +408,21 @@ export default function About() {
   const copy = landingTranslations[language];
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
+  const seoByLanguage = {
+    ru: {
+      title: "О Skily | Подготовка к экзамену DGT в Испании",
+      description: "Узнайте, как Skily помогает готовиться к экзамену DGT в Испании: AI-объяснения, игровые механики и удобная подготовка без скучной зубрежки.",
+    },
+    es: {
+      title: "Sobre Skily | Preparacion para el examen DGT en Espana",
+      description: "Descubre como Skily te ayuda a preparar el examen teorico DGT con IA, gamificacion y una experiencia mas clara para aprobar en Espana.",
+    },
+    en: {
+      title: "About Skily | DGT Theory Test Preparation in Spain",
+      description: "Learn how Skily helps students prepare for the Spanish DGT theory exam with AI explanations, gamified practice and a clearer study flow.",
+    },
+  };
+
   // Set dark background for body
   useEffect(() => {
     const originalBg = document.body.style.backgroundColor;
@@ -592,6 +608,12 @@ export default function About() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#0f172a] text-white font-sans selection:bg-indigo-500/30 overflow-x-hidden">
+      <SeoHead
+        title={seoByLanguage[language]?.title || seoByLanguage.en.title}
+        description={seoByLanguage[language]?.description || seoByLanguage.en.description}
+        canonicalUrl="https://skilyapp.com/about"
+      />
+
       {/* Enhanced Background with Noise + Grid */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {/* Grid pattern */}

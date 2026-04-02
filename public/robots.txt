@@ -17,6 +17,11 @@ Disallow: /dashboard
 
 # Sitemaps
 Sitemap: https://skilyapp.com/sitemap.xml
+Sitemap: https://skilyapp.com/news-sitemap.xml
+
+# Discovery hints for AI crawlers
+# https://skilyapp.com/llms.txt
+# https://skilyapp.com/llms-full.txt
 
 # Crawl-delay
 Crawl-delay: 1

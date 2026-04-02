@@ -122,6 +122,8 @@ const HandbookRussiaArticle = lazy(() => import("../pages/RussiaHandbookArticle"
 const Partners = lazy(() => import("../pages/Partners"));
 const Blog = lazy(() => import("../pages/Blog"));
 const Article = lazy(() => import("../pages/Article"));
+const SeoGuidesHub = lazy(() => import("../pages/SeoGuidesHub"));
+const SeoGuidePage = lazy(() => import("../pages/SeoGuidePage"));
 const Inventory = lazy(() => import("../pages/Inventory"));
 const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
@@ -459,7 +461,22 @@ export function AppRoutes() {
           <TelegramShell><Blog /></TelegramShell>
         </Suspense>
       } />
+      <Route path="/guides" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <TelegramShell><SeoGuidesHub /></TelegramShell>
+        </Suspense>
+      } />
+      <Route path="/guides/:slug" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <TelegramShell><SeoGuidePage /></TelegramShell>
+        </Suspense>
+      } />
       <Route path="/blog/:slug" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <TelegramShell><Article /></TelegramShell>
+        </Suspense>
+      } />
+      <Route path="/article/:slug" element={
         <Suspense fallback={<PageSkeleton />}>
           <TelegramShell><Article /></TelegramShell>
         </Suspense>
@@ -506,4 +523,3 @@ export function AppRoutes() {
     </Routes >
   );
 }
-

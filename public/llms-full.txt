@@ -1,0 +1,104 @@
+# Skilyapp Full Knowledge Snapshot
+
+## What Skilyapp is
+Skilyapp is a multilingual DGT theory-preparation product for people getting a driving licence in Spain. It combines practice tests, AI explanations, learning analytics, games, vocabulary help and a live online course.
+
+## Core commercial pages
+- https://skilyapp.com/curso
+- https://skilyapp.com/pricing
+- https://skilyapp.com/tests
+- https://skilyapp.com/dictionary
+- https://skilyapp.com/road-signs
+
+## Evergreen guides
+### Как сдать теорию DGT с первого раза: план подготовки, ошибки и стратегия
+URL: https://skilyapp.com/guides/kak-sdat-teoriyu-dgt
+Summary: Полный гид по подготовке к теоретическому экзамену DGT в Испании: как учить темы, сколько решать тестов и как не завалиться на типичных ошибках.
+
+### Частые ошибки на экзамене DGT: где теряют баллы и как этого избежать
+URL: https://skilyapp.com/guides/chastye-oshibki-na-ekzamene-dgt
+Summary: Разбор самых частых ошибок на теоретическом экзамене DGT: ловушки в формулировках, путаница со знаками, приоритетами и невнимательность в конце подготовки.
+
+### Что означают дорожные знаки в Испании: как быстро выучить señales de tráfico
+URL: https://skilyapp.com/guides/znaki-dorozhnogo-dvizheniya-ispanii
+Summary: Публичный guide по дорожным знакам Испании: предупреждающие, запрещающие, предписывающие и информационные знаки, а также стратегия их быстрого запоминания.
+
+### Спорные вопросы DGT и ловушки формулировок: как отвечать без угадывания
+URL: https://skilyapp.com/guides/spornye-voprosy-dgt-i-lovushki
+Summary: Разбор спорных и коварных вопросов DGT: как читать формулировку, искать ограничение, замечать исключение и не попадаться на ловушки экзамена.
+
+### Темы экзамена DGT и как их учить: карта подготовки по блокам
+URL: https://skilyapp.com/guides/temy-ekzamena-dgt-i-kak-ih-uchit
+Summary: Какие темы входят в экзамен DGT, как разбивать подготовку по блокам и в каком порядке учить знаки, приоритет, безопасность, документы и дорожные ситуации.
+
+## Editorial content
+### AI-репетитор DGT: как искусственный интеллект помогает сдать экзамен с первого раза
+URL: https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen
+Published: 2026-03-28
+Category: Актуально
+Summary: Как AI-технологии в Skilyapp анализируют ваши ошибки, адаптируют обучение и помогают подготовиться к теории DGT быстрее и эффективнее.
+
+### Геймификация подготовки: как держать темп 60 дней подряд
+URL: https://skilyapp.com/article/motivaciya-dgt-gamifikaciya
+Published: 2025-03-10
+Category: Советы
+Summary: План на два месяца с дуэлями, наградами и антивыгоранием.
+
+### Как Skilyapp сочетает тесты, игры, сезоны и ИИ ради вашего результата
+URL: https://skilyapp.com/article/tehnologii-skilyapp
+Published: 2025-03-08
+Category: Актуально
+Summary: 20-минутное путешествие по платформе: карта обучения, микротренировки, дуэли, сезоны, контентная машина, Skily и вся геймификация, которая помогает сдавать DGT без стресса.
+
+### Как готовиться к DGT, если думаете на русском, а сдаёте на испанском
+URL: https://skilyapp.com/article/podgotovka-na-russkom-i-ispanskom
+Published: 2025-03-06
+Category: Подготовка
+Summary: Двуязычная стратегия: словарь, переводчик и смешанные тесты.
+
+### 5 испанских дорожных знаков, которые путают русскоязычных
+URL: https://skilyapp.com/article/ispanskie-znaki-kotorye-pytayut
+Published: 2025-03-06
+Category: Советы
+Summary: Короткий гид по самым коварным знакам и способам их запомнить.
+
+### Как читать аналитику прогресса и закрывать слабые темы
+URL: https://skilyapp.com/article/analitika-dgt-progress
+Published: 2025-03-04
+Category: Подготовка
+Summary: Методика, которая превращает отчёты Skilyapp в конкретные шаги подготовки.
+
+### Новые типы вопросов DGT в 2025: к чему готовиться
+URL: https://skilyapp.com/article/novye-voprosy-dgt-2025
+Published: 2025-03-02
+Category: Актуально
+Summary: Свежие требования экзамена и рабочие приёмы подготовки с помощью Skilyapp.
+
+### Микротренировки на телефоне: путь к стабильному результату DGT
+URL: https://skilyapp.com/article/mikrotreningi-dgt-na-telefone
+Published: 2025-02-20
+Category: Подготовка
+Summary: Как строить 5-минутные занятия в Skilyapp, чтобы прогресс не зависел от расписания автошколы.
+
+### Как тренировать восприятие риска перед экзаменом DGT
+URL: https://skilyapp.com/article/kak-trenirovat-vospriyatie-riska-dgt
+Published: 2025-02-18
+Category: Советы
+Summary: Методика для подготовки к новому формату вопросов DGT: сценарии, чек-листы и игровые режимы Skilyapp.
+
+### Как готовиться к экзамену DGT, если времени почти нет
+URL: https://skilyapp.com/article/kak-gotovitsya-dgt-pri-plotnom-grafike
+Published: 2025-02-15
+Category: Подготовка
+Summary: Пошаговая стратегия для занятых кандидатов: короткие тренировки, адаптивный фокус на слабых темах и умные напоминания Skilyapp.
+
+### Как сдать экзамен DGT с первого раза
+URL: https://skilyapp.com/article/kak-sdat-ekzamen-dgt-s-pervogo-raza
+Published: 2024-12-19
+Category: Подготовка
+Summary: Полное руководство по подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.
+
+## Canonical rules
+- Use https://skilyapp.com/article/{slug} for article citations.
+- Use https://skilyapp.com/blog only for the blog index page.
+- Use https://skilyapp.com/?lang=es, https://skilyapp.com/?lang=en and https://skilyapp.com/?lang=ru only for home-language variants.

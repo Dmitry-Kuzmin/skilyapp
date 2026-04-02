@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import { FileText, Shield, CreditCard, RefreshCw, ChevronLeft, Cookie } from "lucide-react";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 // Lazy load heavy legal documents
 const Terms = lazy(() => import("./Terms"));
@@ -42,7 +43,7 @@ export function LegalRedirect() {
 }
 
 export default function Legal() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const { tab } = useParams<{ tab: string }>();
     const navigate = useNavigate();
 
@@ -69,8 +70,42 @@ export default function Legal() {
         refund: t("legal.tabs.refund"),
     };
 
+    const seoDescriptions = {
+        ru: {
+            terms: "Публичная оферта и условия использования платформы Skilyapp для подготовки к экзамену DGT.",
+            privacy: "Политика конфиденциальности Skilyapp: как мы обрабатываем и защищаем ваши данные.",
+            cookies: "Информация о cookies и аналитических технологиях, используемых на сайте Skilyapp.",
+            subscription: "Условия подписки и доступа к образовательным материалам Skilyapp.",
+            refund: "Политика возврата средств и условия рассмотрения заявок на возврат в Skilyapp.",
+        },
+        es: {
+            terms: "Oferta publica y condiciones de uso de la plataforma Skilyapp para preparar el examen DGT.",
+            privacy: "Politica de privacidad de Skilyapp y tratamiento de datos personales.",
+            cookies: "Informacion sobre cookies y tecnologias analiticas utilizadas por Skilyapp.",
+            subscription: "Condiciones de suscripcion y acceso a los materiales educativos de Skilyapp.",
+            refund: "Politica de reembolso y condiciones de revision de solicitudes en Skilyapp.",
+        },
+        en: {
+            terms: "Public offer and platform terms for using Skilyapp to prepare for the DGT exam.",
+            privacy: "Skilyapp privacy policy and how we process and protect personal data.",
+            cookies: "Information about cookies and analytics technologies used on Skilyapp.",
+            subscription: "Subscription terms and access conditions for Skilyapp learning materials.",
+            refund: "Refund policy and request review conditions for Skilyapp purchases.",
+        },
+    };
+
+    const seoTitle = `${tabLabels[activeTab]} | Skilyapp`;
+    const seoDescription = seoDescriptions[language]?.[activeTab] || seoDescriptions.en[activeTab];
+    const seoCanonical = `https://skilyapp.com/legal/${activeTab}`;
+
     return (
         <Layout>
+            <SeoHead
+                title={seoTitle}
+                description={seoDescription}
+                canonicalUrl={seoCanonical}
+            />
+
             <div className="min-h-screen bg-transparent">
                 {/* Header */}
                 <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">

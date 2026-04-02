@@ -5,10 +5,9 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-  <!-- Homepage with language alternatives -->
   <url>
     <loc>https://skilyapp.com/</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
@@ -17,10 +16,9 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
   </url>
 
-  <!-- Spanish landing variant -->
   <url>
     <loc>https://skilyapp.com/?lang=es</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
@@ -29,10 +27,9 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
   </url>
 
-  <!-- English landing variant -->
   <url>
     <loc>https://skilyapp.com/?lang=en</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
@@ -41,10 +38,9 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
   </url>
 
-  <!-- Russian landing variant -->
   <url>
     <loc>https://skilyapp.com/?lang=ru</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
@@ -53,179 +49,263 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
   </url>
 
-  <!-- Tests / Тесты -->
+  <url>
+    <loc>https://skilyapp.com/curso</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+
   <url>
     <loc>https://skilyapp.com/tests</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.90</priority>
   </url>
 
-  <!-- Games / Juegos -->
   <url>
     <loc>https://skilyapp.com/games</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.85</priority>
   </url>
 
-  <!-- Pricing / Precios -->
   <url>
     <loc>https://skilyapp.com/pricing</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.80</priority>
   </url>
 
-  <!-- Dictionary / Diccionario -->
   <url>
     <loc>https://skilyapp.com/dictionary</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.80</priority>
   </url>
 
-  <!-- Road Signs / Señales de tráfico -->
   <url>
     <loc>https://skilyapp.com/road-signs</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.80</priority>
   </url>
 
-  <!-- Learning Map / Mapa de aprendizaje -->
   <url>
     <loc>https://skilyapp.com/learning-map</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.80</priority>
   </url>
 
-  <!-- AI Assistant / Asistente IA -->
-  <url>
-    <loc>https://skilyapp.com/ai-assistant</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- About / Acerca de -->
-  <url>
-    <loc>https://skilyapp.com/about</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Features -->
-  <url>
-    <loc>https://skilyapp.com/features</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Partners / Партнёры -->
-  <url>
-    <loc>https://skilyapp.com/partners</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Help / Ayuda -->
-  <url>
-    <loc>https://skilyapp.com/help</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- DGT Tests Simple -->
   <url>
     <loc>https://skilyapp.com/dgt-tests</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.80</priority>
   </url>
 
-  <!-- Legal pages -->
-  <url>
-    <loc>https://skilyapp.com/legal/terms</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://skilyapp.com/legal/privacy</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://skilyapp.com/legal/cookies</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://skilyapp.com/legal/subscription</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://skilyapp.com/legal/refund</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-
-  <!-- Achievements / Logros -->
-  <url>
-    <loc>https://skilyapp.com/achievements</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Referrals -->
-  <url>
-    <loc>https://skilyapp.com/referrals</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-
-  <!-- Blog -->
   <url>
     <loc>https://skilyapp.com/blog</loc>
-    <lastmod>2026-03-22</lastmod>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.80</priority>
   </url>
 
-  <!-- Blog Articles -->
   <url>
-    <loc>https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</loc>
-    <lastmod>2026-03-22</lastmod>
+    <loc>https://skilyapp.com/guides</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/about</loc>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.70</priority>
   </url>
 
   <url>
-    <loc>https://skilyapp.com/blog/top-10-oshibok-na-ekzamene-dgt</loc>
-    <lastmod>2026-03-22</lastmod>
+    <loc>https://skilyapp.com/features</loc>
+    <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
+    <priority>0.70</priority>
   </url>
 
-  <!-- RSS Feed -->
   <url>
-    <loc>https://skilyapp.com/rss.xml</loc>
-    <lastmod>2026-03-22</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.5</priority>
+    <loc>https://skilyapp.com/partners</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/help</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/achievements</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/referrals</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/legal/terms</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.30</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/legal/privacy</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.30</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/legal/cookies</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.30</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/legal/subscription</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.30</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/legal/refund</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.30</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/guides/kak-sdat-teoriyu-dgt</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.84</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/guides/chastye-oshibki-na-ekzamene-dgt</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.84</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/guides/znaki-dorozhnogo-dvizheniya-ispanii</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.84</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/guides/spornye-voprosy-dgt-i-lovushki</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.84</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/guides/temy-ekzamena-dgt-i-kak-ih-uchit</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.84</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen</loc>
+    <lastmod>2026-03-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/motivaciya-dgt-gamifikaciya</loc>
+    <lastmod>2025-03-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/tehnologii-skilyapp</loc>
+    <lastmod>2025-03-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/podgotovka-na-russkom-i-ispanskom</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/ispanskie-znaki-kotorye-pytayut</loc>
+    <lastmod>2025-03-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/analitika-dgt-progress</loc>
+    <lastmod>2025-03-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/novye-voprosy-dgt-2025</loc>
+    <lastmod>2025-03-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/mikrotreningi-dgt-na-telefone</loc>
+    <lastmod>2025-02-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/kak-trenirovat-vospriyatie-riska-dgt</loc>
+    <lastmod>2025-02-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/kak-gotovitsya-dgt-pri-plotnom-grafike</loc>
+    <lastmod>2025-02-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://skilyapp.com/article/kak-sdat-ekzamen-dgt-s-pervogo-raza</loc>
+    <lastmod>2024-12-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
 
 </urlset>

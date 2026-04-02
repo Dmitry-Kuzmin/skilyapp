@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { switchInlineQuery, canSwitchInlineQuery, isTelegramMiniApp } from "@/lib/telegram";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 interface ArticleData {
   slug: string;
@@ -2706,7 +2707,7 @@ const Article = () => {
         },
         mainEntityOfPage: {
           "@type": "WebPage",
-          "@id": `https://skilyapp.com/blog/${article.slug}`,
+          "@id": `https://skilyapp.com/article/${article.slug}`,
         },
         // Дополнительные поля для ИИ
         about: {
@@ -2754,8 +2755,32 @@ const Article = () => {
     return null;
   }
 
-  const shareUrl = `https://skilyapp.com/blog/${article.slug}`;
+  const shareUrl = `https://skilyapp.com/article/${article.slug}`;
   const isTelegram = isTelegramMiniApp();
+  const articleBreadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Skilyapp",
+        item: "https://skilyapp.com/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: "https://skilyapp.com/blog",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: article.title,
+        item: shareUrl,
+      },
+    ],
+  };
 
   // Шеринг через Telegram inline query (красивые карточки)
   const handleTelegramShare = () => {
@@ -3180,6 +3205,16 @@ const Article = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      <SeoHead
+        title={`${article.title} | Skilyapp Blog`}
+        description={article.description}
+        canonicalUrl={`https://skilyapp.com/article/${article.slug}`}
+        ogType="article"
+        publishedTime={`${article.publishedAt}T00:00:00+00:00`}
+        modifiedTime={`${article.publishedAt}T00:00:00+00:00`}
+        structuredData={articleBreadcrumbSchema}
+      />
+
       {/* Minimal Header */}
       <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-950/95 backdrop-blur-sm border-b border-gray-100 dark:border-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -3356,7 +3391,7 @@ const Article = () => {
                       <Card
                         key={relatedArticle.slug}
                         className="group cursor-pointer hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden"
-                        onClick={() => navigate(`/blog/${relatedArticle.slug}`)}
+                        onClick={() => navigate(`/article/${relatedArticle.slug}`)}
                       >
                         <div className="p-6">
                           <Badge variant="secondary" className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 mb-3">

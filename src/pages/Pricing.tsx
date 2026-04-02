@@ -6,13 +6,35 @@ import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config
 import { CheckCircle2, Crown, Trophy, Coins, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 export default function Pricing() {
   const { language } = useLanguage();
   const [paywallOpen, setPaywallOpen] = useState(false);
 
+  const seoByLanguage = {
+    ru: {
+      title: "Тарифы Skily | Premium доступ для подготовки к экзамену DGT",
+      description: "Сравните тарифы Skily для подготовки к экзамену DGT: Premium-функции, AI-помощник, Duel Pass и пакеты монет для более быстрой подготовки.",
+    },
+    es: {
+      title: "Precios Skily | Acceso premium para preparar el examen DGT",
+      description: "Compara los planes de Skily para preparar el examen DGT: funciones premium, asistente IA, Duel Pass y paquetes de monedas.",
+    },
+    en: {
+      title: "Skily Pricing | Premium access for DGT theory test prep",
+      description: "Compare Skily plans for the Spanish DGT theory exam: premium features, AI tutor support, Duel Pass and coin bundles.",
+    },
+  };
+
   return (
     <Layout>
+      <SeoHead
+        title={seoByLanguage[language]?.title || seoByLanguage.en.title}
+        description={seoByLanguage[language]?.description || seoByLanguage.en.description}
+        canonicalUrl="https://skilyapp.com/pricing"
+      />
+
       <div className="relative min-h-screen bg-[#0A0D14] text-white selection:bg-indigo-500/30 overflow-hidden">
         {/* Abstract Background Glows */}
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-violet-600/10 blur-[120px] pointer-events-none" />

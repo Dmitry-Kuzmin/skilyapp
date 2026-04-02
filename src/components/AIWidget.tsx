@@ -550,7 +550,14 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
           "bg-[#F8FAFF] dark:bg-slate-900/40"
         )}>
           {/* Subtle noise texture */}
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')] mix-blend-overlay"></div>
+          <div
+            className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(15,23,42,0.8) 0.8px, transparent 0.8px)",
+              backgroundSize: "10px 10px",
+            }}
+          ></div>
 
           {messages.length === 0 ? (
             <div className="space-y-4 xl:space-y-5">
@@ -837,4 +844,3 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
     </>
   );
 };
-

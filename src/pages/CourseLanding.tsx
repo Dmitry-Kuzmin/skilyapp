@@ -266,6 +266,62 @@ const NEW_FAQ_DATA = {
   ]
 };
 
+const COURSE_FAQ_ENTITIES = Object.values(NEW_FAQ_DATA).flat().map((item) => ({
+  "@type": "Question",
+  name: item.question,
+  acceptedAnswer: {
+    "@type": "Answer",
+    text: item.answer.replace(/\n/g, " "),
+  },
+}));
+
+const COURSE_SEO_SCHEMA = [
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Skilyapp",
+        item: "https://skilyapp.com/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Curso DGT",
+        item: "https://skilyapp.com/curso",
+      },
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: "Онлайн-курс Skilyapp по теории DGT в Испании",
+    description: "Живой онлайн-курс по подготовке к теоретическому экзамену DGT на русском языке с сопровождением по документам, разбором сложных тем и доступом к платформе Skilyapp.",
+    provider: {
+      "@type": "Organization",
+      name: "Skilyapp",
+      url: "https://skilyapp.com",
+    },
+    url: "https://skilyapp.com/curso",
+    inLanguage: ["ru", "es"],
+    educationalLevel: "Beginner to intermediate",
+    courseMode: "online",
+    about: [
+      "DGT theory exam",
+      "Driving licence in Spain",
+      "Spanish traffic rules",
+      "Driver theory preparation",
+    ],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: COURSE_FAQ_ENTITIES,
+  },
+];
+
 const ELIGIBILITY = [
   { icon: UserCheck, text: "ВНЖ (резиденция) или студенческая виза" },
   { icon: BadgeCheck, text: "Возраст от 18 лет (категория B)" },
@@ -607,7 +663,7 @@ const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
                 </span>
               </div>
               
-              <div className="flex items-center gap-1.5 text-xs">
+              <div className="flex items-center flex-wrap gap-x-1.5 gap-y-0.5 text-xs">
                 {isSFull ? (
                   <Lock className="w-3.5 h-3.5 text-red-400" />
                 ) : isFewSpots ? (
@@ -619,13 +675,13 @@ const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
                   {isSFull ? "Мест нет" : `${spotsLeft} из ${spotsTotal} мест свободно`}
                 </span>
                 {hasMore && (
-                  <>
-                    <span className="text-zinc-700 hidden sm:inline">·</span>
-                    <span className="text-zinc-500 hidden sm:inline underline decoration-dotted underline-offset-4 hover:text-white transition-colors">
+                  <div className="flex items-center gap-1.5 opacity-80 mt-0.5 sm:mt-0">
+                    <span className="text-zinc-700">·</span>
+                    <span className="text-zinc-500 underline decoration-dotted underline-offset-4 hover:text-white transition-colors">
                       {isOpen ? "Свернуть" : `Выбрать дату старта`}
                     </span>
-                    <ChevronDown className={cn("w-3.5 h-3.5 text-zinc-500 hidden sm:inline transition-transform duration-300", isOpen && "rotate-180")} />
-                  </>
+                    <ChevronDown className={cn("w-3.5 h-3.5 text-zinc-500 transition-transform duration-300", isOpen && "rotate-180")} />
+                  </div>
                 )}
               </div>
             </div>
@@ -841,6 +897,7 @@ const CourseLanding = () => {
         title="Водительские права в Испании — сдайте теорию DGT с первого раза | Skilyapp"
         description="Запись на живой онлайн-курс по теории DGT на русском языке. 9 из 10 сдают с первой попытки. Полное сопровождение: от документов до получения прав."
         canonicalUrl="https://skilyapp.com/curso"
+        structuredData={COURSE_SEO_SCHEMA}
       />
 
       {/* ═══════════════════════════════════════════
@@ -1026,10 +1083,13 @@ const CourseLanding = () => {
           </p>
 
           {/* CTA buttons */}
-          <div className={cn(
-            "flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 transition-all duration-700 delay-[400ms]",
-            heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          )}>
+          <div
+            className={cn(
+              "flex flex-col sm:flex-row items-center justify-center gap-3 mb-8 transition-all duration-700",
+              heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            )}
+            style={{ transitionDelay: "400ms" }}
+          >
             <button
               onClick={() => scrollToForm("hero")}
               className="group relative w-full sm:w-auto px-7 py-3.5 rounded-2xl font-semibold text-base overflow-hidden transition-all active:scale-[0.97]"
@@ -1067,10 +1127,13 @@ const CourseLanding = () => {
           </div>
 
           {/* Animated stats */}
-          <div className={cn(
-            "grid grid-cols-3 gap-5 max-w-sm mx-auto transition-all duration-700 delay-[600ms]",
-            heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-          )}>
+          <div
+            className={cn(
+              "grid grid-cols-3 gap-5 max-w-sm mx-auto transition-all duration-700",
+              heroReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            )}
+            style={{ transitionDelay: "600ms" }}
+          >
             {HERO_STATS.map((s) => (
               <div key={s.label} className="text-center">
                 <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
@@ -1083,10 +1146,13 @@ const CourseLanding = () => {
         </ArcGalleryHero>
 
         {/* Scroll indicator */}
-        <div className={cn(
-          "absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 delay-[800ms] z-20",
-          heroReady ? "opacity-60" : "opacity-0"
-        )}>
+        <div
+          className={cn(
+            "absolute bottom-8 left-1/2 -translate-x-1/2 transition-all duration-700 z-20",
+            heroReady ? "opacity-60" : "opacity-0"
+          )}
+          style={{ transitionDelay: "800ms" }}
+        >
           <div className="w-6 h-10 rounded-full border-2 border-white/20 flex items-start justify-center p-1.5">
             <div className="w-1.5 h-3 rounded-full bg-white/40 animate-bounce" />
           </div>

@@ -42,7 +42,13 @@ export const GameBackground = memo(({ mode, timeLeft, maxTime = 300, streak = 0 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 0.3 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-[url('/effects/speed-lines.png')] bg-cover bg-center mix-blend-overlay"
+                        className="absolute inset-0 mix-blend-overlay"
+                        style={{
+                            backgroundImage:
+                                "repeating-linear-gradient(115deg, rgba(255,255,255,0.16) 0 2px, transparent 2px 22px), linear-gradient(135deg, transparent 0%, rgba(59,130,246,0.12) 45%, transparent 100%)",
+                            backgroundSize: "auto, 100% 100%",
+                            backgroundPosition: "center, center",
+                        }}
                     />
                 )}
             </AnimatePresence>

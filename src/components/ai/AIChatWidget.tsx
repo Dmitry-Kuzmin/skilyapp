@@ -536,7 +536,14 @@ export function AIChatWidget() {
                 )}
                 style={{ WebkitOverflowScrolling: 'touch' }}
             >
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('/noise.png')] mix-blend-overlay" />
+                <div
+                    className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
+                    style={{
+                        backgroundImage:
+                            "radial-gradient(rgba(15,23,42,0.8) 0.8px, transparent 0.8px)",
+                        backgroundSize: "10px 10px",
+                    }}
+                />
 
                 {messages.length === 0 && questionContext && (
                     <motion.div

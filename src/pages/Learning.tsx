@@ -181,14 +181,14 @@ const Learning = () => {
         id: "map",
         title: t('learningPage.blog.mapGuide'),
         tag: t('learningPage.blog.guides'),
-        path: "/blog/kak-ispolzovat-kartu-obucheniya",
+        path: "/article/tehnologii-skilyapp",
         readTime: "5 мин",
       },
       {
         id: "tests",
         title: t('learningPage.blog.habitsGuide'),
         tag: t('learningPage.blog.tips'),
-        path: "/blog/5-privychek-podgotovki",
+        path: "/article/mikrotreningi-dgt-na-telefone",
         readTime: "7 мин",
       },
     ];
@@ -199,7 +199,7 @@ const Learning = () => {
         id: "errors",
         title: t('learningPage.blog.topErrors'),
         tag: t('learningPage.blog.statistics'),
-        path: "/blog/top-10-oshibok-na-ekzamene-dgt",
+        path: "/article/top-10-oshibok-na-ekzamene-dgt",
         readTime: "16 мин",
       });
     }

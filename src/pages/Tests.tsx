@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { PageLoader } from "@/components/PageLoader";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 // --- Types ---
 type Topic = {
@@ -201,6 +202,20 @@ const Tests = () => {
   const ticketsStatus = useTicketsStatus(profileId, selectedCountry, selectedCategory);
   const { data: challengeStats = { errors: 0, favorites: 0 } } = useChallengeStats(profileId, selectedCountry, selectedCategory);
   const { data: pddTopics = [] } = usePDDTopics(selectedCountry);
+  const seoByLanguage = {
+    ru: {
+      title: "Тесты DGT | Тренировка теории ПДД Испании в Skily",
+      description: "Проходите тесты DGT, билеты и экзаменационные режимы в Skily: адаптивные тренировки, рекомендации по ошибкам и подготовка к теории в Испании.",
+    },
+    es: {
+      title: "Tests DGT | Practica de teoria en Skily",
+      description: "Entrena con tests DGT, simulacros y modos de examen en Skily para preparar la teoria de conducir en Espana con mas confianza.",
+    },
+    en: {
+      title: "DGT Practice Tests | Spanish theory exam prep in Skily",
+      description: "Train with DGT practice tests, ticket modes and exam simulations in Skily to prepare for the Spanish driving theory exam.",
+    },
+  };
 
   // 2. Умные рекомендации
   const recommendation = useSmartRecommendation(profileId);
@@ -441,6 +456,12 @@ const Tests = () => {
   return (
     <>
       <Layout>
+        <SeoHead
+          title={seoByLanguage[language]?.title || seoByLanguage.en.title}
+          description={seoByLanguage[language]?.description || seoByLanguage.en.description}
+          canonicalUrl="https://skilyapp.com/tests"
+        />
+
         <div className="min-h-screen bg-transparent p-6 md:p-10 font-sans pb-6 text-foreground">
           <div className="max-w-[1370px] mx-auto space-y-8">
 

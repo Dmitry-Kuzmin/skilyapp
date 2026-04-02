@@ -140,7 +140,14 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
             </DrawerTrigger>
 
             <DrawerContent className="h-[95vh] bg-[#050505] border-t border-white/10 outline-none">
-                <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.03] pointer-events-none" />
+                <div
+                    className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                    style={{
+                        backgroundImage:
+                            "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+                        backgroundSize: "24px 24px",
+                    }}
+                />
                 <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-indigo-900/20 to-transparent pointer-events-none" />
 
                 <div className="h-full flex flex-col max-w-4xl mx-auto w-full relative z-10">
@@ -202,7 +209,14 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                         <div className="px-6 mb-4">
                             <div className="relative overflow-hidden rounded-2xl group cursor-pointer">
                                 {/* Grid Pattern Background */}
-                                <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.08] pointer-events-none" />
+                                <div
+                                    className="absolute inset-0 opacity-[0.08] pointer-events-none"
+                                    style={{
+                                        backgroundImage:
+                                            "linear-gradient(rgba(255,255,255,0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.14) 1px, transparent 1px)",
+                                        backgroundSize: "18px 18px",
+                                    }}
+                                />
 
                                 {/* Gradient Background */}
                                 <div className="relative bg-gradient-to-r from-orange-600 to-amber-400 backdrop-blur-md rounded-2xl px-5 py-4 flex items-center justify-between overflow-hidden">

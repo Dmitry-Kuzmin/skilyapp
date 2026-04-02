@@ -19,6 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LandingLogo } from "@/components/landing/LandingLogo";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 
 interface Article {
@@ -201,8 +202,61 @@ const Blog = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const blogStructuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Skilyapp",
+          item: "https://skilyapp.com/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Blog",
+          item: "https://skilyapp.com/blog",
+        },
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Skilyapp Blog",
+      url: "https://skilyapp.com/blog",
+      description: "Статьи и гайды Skilyapp о подготовке к экзамену DGT в Испании.",
+      inLanguage: "ru",
+      isPartOf: {
+        "@type": "WebSite",
+        name: "Skilyapp",
+        url: "https://skilyapp.com",
+      },
+      mainEntity: {
+        "@type": "ItemList",
+        itemListOrder: "https://schema.org/ItemListOrderDescending",
+        numberOfItems: sortedArticles.length,
+        itemListElement: sortedArticles.map((article, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          url: `https://skilyapp.com/article/${article.slug}`,
+          name: article.title,
+          description: article.description,
+        })),
+      },
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+      <SeoHead
+        title="Блог Skilyapp | Гайды и советы по экзамену DGT"
+        description="Читайте статьи Skilyapp о подготовке к экзамену DGT: новые вопросы, советы по теории, аналитика прогресса и обучение на русском."
+        canonicalUrl="https://skilyapp.com/blog"
+        structuredData={blogStructuredData}
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 shadow-sm" style={{ overflow: 'visible' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ overflow: 'visible' }}>
@@ -314,7 +368,7 @@ const Blog = () => {
                     <Card
                       key={article.slug}
                       className="group cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200/50 dark:border-gray-800/50 bg-white dark:bg-gray-900/50 overflow-hidden"
-                      onClick={() => navigate(`/blog/${article.slug}`)}
+                      onClick={() => navigate(`/article/${article.slug}`)}
                     >
                       <div className="p-6">
                         {/* Category Badge */}

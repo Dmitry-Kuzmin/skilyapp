@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -34,40 +35,11 @@ jobs:
           sudo apt-get install -y google-chrome-stable
           google-chrome --version
       
-      - name: Build application
+      - name: Build application with prerender guard
         run: npm run build
-      
-      - name: Prerender static pages
-        run: |
-          # Запускаем preview сервер в фоне
-          npm run preview > /dev/null 2>&1 &
-          PREVIEW_PID=$!
-          
-          # Ждём запуска сервера
-          echo "Waiting for preview server to start..."
-          timeout=60
-          elapsed=0
-          while ! curl -f http://localhost:4173 > /dev/null 2>&1; do
-            if [ $elapsed -ge $timeout ]; then
-              echo "❌ Server failed to start"
-              kill $PREVIEW_PID 2>/dev/null || true
-              exit 1
-            fi
-            sleep 1
-            elapsed=$((elapsed + 1))
-          done
-          echo "✅ Preview server is ready"
-          
-          # Запускаем prerender
-          npm run prerender
-          
-          # Останавливаем сервер
-          kill $PREVIEW_PID 2>/dev/null || true
       
       - name: Summary
         run: |
-          echo "✅ Build and prerender completed successfully"
+          echo "✅ Build, prerender and dist SEO assertions completed successfully"
           echo "📦 Prerendered HTML is in dist/ directory"
-          echo "⚠️  Note: Vercel deploys automatically via GitHub integration"
-          echo "💡 Vercel will run its own build, so prerender is for local/testing only"
-
+          echo "🛡️ Empty shell builds should now fail before deployment"

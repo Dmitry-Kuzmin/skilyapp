@@ -46,7 +46,7 @@ export function DeepLinkHandler() {
       case 'blog':
         if (deepLink.id) {
           console.log('[DeepLinkHandler] Navigating to blog article:', deepLink.id);
-          navigate(`/blog/${deepLink.id}`, { replace: true });
+          navigate(`/article/${deepLink.id}`, { replace: true });
         }
         break;
 
@@ -167,4 +167,3 @@ export function DeepLinkHandler() {
 
   return null;
 }
-

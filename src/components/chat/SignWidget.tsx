@@ -120,7 +120,8 @@ export const SignWidget: React.FC<SignWidgetProps> = ({ code, description, isDar
                         <img
                             src={imageUrl}
                             alt={`Знак ${code}`}
-                            className="max-w-full max-h-full object-contain filter drop-shadow-lg transform group-hover:scale-125 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                            className="max-w-full max-h-full object-contain filter drop-shadow-lg transform group-hover:scale-125 transition-transform duration-500"
+                            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
                             onError={handleImageError}
                         />
                     )}

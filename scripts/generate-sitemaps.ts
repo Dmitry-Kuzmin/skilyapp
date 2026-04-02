@@ -41,8 +41,8 @@ function generateRSS(articles: Record<string, ArticleData>): string {
       const pubDate = formatRSSDate(article.publishedAt);
       return `    <item>
       <title>${escapeXml(article.title)}</title>
-      <link>https://skilyapp.com/blog/${article.slug}</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/${article.slug}</guid>
+      <link>https://skilyapp.com/article/${article.slug}</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/${article.slug}</guid>
       <description>${escapeXml(article.description)}</description>
       <pubDate>${pubDate}</pubDate>
       <category>${escapeXml(article.category)}</category>
@@ -88,7 +88,7 @@ function generateNewsSitemap(articles: Record<string, ArticleData>): string {
     const keywords = extractKeywords(article.title, article.description);
     
     return `  <url>
-    <loc>https://skilyapp.com/blog/${article.slug}</loc>
+    <loc>https://skilyapp.com/article/${article.slug}</loc>
     <news:news>
       <news:publication>
         <news:name>Skilyapp Blog</news:name>
@@ -115,7 +115,7 @@ ${urls}
 function generateMainSitemap(articles: Record<string, ArticleData>): string {
   const blogUrls = Object.values(articles).map(article => 
     `  <url>
-    <loc>https://skilyapp.com/blog/${article.slug}</loc>
+    <loc>https://skilyapp.com/article/${article.slug}</loc>
     <lastmod>${article.publishedAt}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
@@ -194,4 +194,3 @@ async function main() {
 if (import.meta.main) {
   main();
 }
-

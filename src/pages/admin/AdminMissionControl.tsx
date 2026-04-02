@@ -290,7 +290,14 @@ const AdminMissionControlContent = () => {
                     {!selectedTestId ? (
                         /* IDLE STATE: SYSTEM OVERVIEW */
                         <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]" />
+                            <div
+                                className="absolute inset-0 opacity-[0.03]"
+                                style={{
+                                    backgroundImage:
+                                        "linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)",
+                                    backgroundSize: "36px 36px",
+                                }}
+                            />
                             <div className="text-center space-y-6 relative z-10 p-8">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.9 }}

@@ -3,102 +3,122 @@
   <channel>
     <title>Skilyapp Blog - Подготовка к экзамену DGT</title>
     <link>https://skilyapp.com/blog</link>
-    <description>Полезные статьи о подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.</description>
+    <description>Полезные статьи о подготовке к теоретическому экзамену DGT в Испании, обучении на русском языке и использовании Skilyapp.</description>
     <language>ru-RU</language>
-    <lastBuildDate>Wed, 19 Nov 2025 00:00:00 +0100</lastBuildDate>
+    <lastBuildDate>Thu, 02 Apr 2026 11:37:17 GMT</lastBuildDate>
     <atom:link href="https://skilyapp.com/rss.xml" rel="self" type="application/rss+xml"/>
     <image>
       <url>https://skilyapp.com/og-image.png</url>
       <title>Skilyapp Blog</title>
       <link>https://skilyapp.com/blog</link>
     </image>
-    
+
+    <item>
+      <title>AI-репетитор DGT: как искусственный интеллект помогает сдать экзамен с первого раза</title>
+      <link>https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen</guid>
+      <description>Как AI-технологии в Skilyapp анализируют ваши ошибки, адаптируют обучение и помогают подготовиться к теории DGT быстрее и эффективнее.</description>
+      <pubDate>Sat, 28 Mar 2026 00:00:00 GMT</pubDate>
+      <category>Актуально</category>
+      <author>Команда Skilyapp</author>
+    </item>
+
     <item>
       <title>Геймификация подготовки: как держать темп 60 дней подряд</title>
-      <link>https://skilyapp.com/blog/motivaciya-dgt-gamifikaciya</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/motivaciya-dgt-gamifikaciya</guid>
+      <link>https://skilyapp.com/article/motivaciya-dgt-gamifikaciya</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/motivaciya-dgt-gamifikaciya</guid>
       <description>План на два месяца с дуэлями, наградами и антивыгоранием.</description>
-      <pubDate>Mon, 10 Mar 2025 00:00:00 +0100</pubDate>
+      <pubDate>Mon, 10 Mar 2025 00:00:00 GMT</pubDate>
       <category>Советы</category>
       <author>Команда Skilyapp</author>
     </item>
 
     <item>
+      <title>Как Skilyapp сочетает тесты, игры, сезоны и ИИ ради вашего результата</title>
+      <link>https://skilyapp.com/article/tehnologii-skilyapp</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/tehnologii-skilyapp</guid>
+      <description>20-минутное путешествие по платформе: карта обучения, микротренировки, дуэли, сезоны, контентная машина, Skily и вся геймификация, которая помогает сдавать DGT без стресса.</description>
+      <pubDate>Sat, 08 Mar 2025 00:00:00 GMT</pubDate>
+      <category>Актуально</category>
+      <author>Команда Skilyapp</author>
+    </item>
+
+    <item>
       <title>Как готовиться к DGT, если думаете на русском, а сдаёте на испанском</title>
-      <link>https://skilyapp.com/blog/podgotovka-na-russkom-i-ispanskom</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/podgotovka-na-russkom-i-ispanskom</guid>
+      <link>https://skilyapp.com/article/podgotovka-na-russkom-i-ispanskom</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/podgotovka-na-russkom-i-ispanskom</guid>
       <description>Двуязычная стратегия: словарь, переводчик и смешанные тесты.</description>
-      <pubDate>Thu, 06 Mar 2025 00:00:00 +0100</pubDate>
+      <pubDate>Thu, 06 Mar 2025 00:00:00 GMT</pubDate>
       <category>Подготовка</category>
       <author>Команда Skilyapp</author>
     </item>
 
     <item>
       <title>5 испанских дорожных знаков, которые путают русскоязычных</title>
-      <link>https://skilyapp.com/blog/ispanskie-znaki-kotorye-pytayut</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/ispanskie-znaki-kotorye-pytayut</guid>
+      <link>https://skilyapp.com/article/ispanskie-znaki-kotorye-pytayut</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/ispanskie-znaki-kotorye-pytayut</guid>
       <description>Короткий гид по самым коварным знакам и способам их запомнить.</description>
-      <pubDate>Thu, 06 Mar 2025 00:00:00 +0100</pubDate>
+      <pubDate>Thu, 06 Mar 2025 00:00:00 GMT</pubDate>
       <category>Советы</category>
       <author>Команда Skilyapp</author>
     </item>
 
     <item>
       <title>Как читать аналитику прогресса и закрывать слабые темы</title>
-      <link>https://skilyapp.com/blog/analitika-dgt-progress</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/analitika-dgt-progress</guid>
+      <link>https://skilyapp.com/article/analitika-dgt-progress</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/analitika-dgt-progress</guid>
       <description>Методика, которая превращает отчёты Skilyapp в конкретные шаги подготовки.</description>
-      <pubDate>Tue, 04 Mar 2025 00:00:00 +0100</pubDate>
+      <pubDate>Tue, 04 Mar 2025 00:00:00 GMT</pubDate>
       <category>Подготовка</category>
       <author>Команда Skilyapp</author>
     </item>
 
     <item>
       <title>Новые типы вопросов DGT в 2025: к чему готовиться</title>
-      <link>https://skilyapp.com/blog/novye-voprosy-dgt-2025</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/novye-voprosy-dgt-2025</guid>
+      <link>https://skilyapp.com/article/novye-voprosy-dgt-2025</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/novye-voprosy-dgt-2025</guid>
       <description>Свежие требования экзамена и рабочие приёмы подготовки с помощью Skilyapp.</description>
-      <pubDate>Sun, 02 Mar 2025 00:00:00 +0100</pubDate>
+      <pubDate>Sun, 02 Mar 2025 00:00:00 GMT</pubDate>
       <category>Актуально</category>
       <author>Команда Skilyapp</author>
     </item>
 
     <item>
       <title>Микротренировки на телефоне: путь к стабильному результату DGT</title>
-      <link>https://skilyapp.com/blog/mikrotreningi-dgt-na-telefone</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/mikrotreningi-dgt-na-telefone</guid>
+      <link>https://skilyapp.com/article/mikrotreningi-dgt-na-telefone</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/mikrotreningi-dgt-na-telefone</guid>
       <description>Как строить 5-минутные занятия в Skilyapp, чтобы прогресс не зависел от расписания автошколы.</description>
-      <pubDate>Thu, 20 Feb 2025 00:00:00 +0100</pubDate>
+      <pubDate>Thu, 20 Feb 2025 00:00:00 GMT</pubDate>
       <category>Подготовка</category>
       <author>Команда Skilyapp</author>
     </item>
 
     <item>
       <title>Как тренировать восприятие риска перед экзаменом DGT</title>
-      <link>https://skilyapp.com/blog/kak-trenirovat-vospriyatie-riska-dgt</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/kak-trenirovat-vospriyatie-riska-dgt</guid>
+      <link>https://skilyapp.com/article/kak-trenirovat-vospriyatie-riska-dgt</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/kak-trenirovat-vospriyatie-riska-dgt</guid>
       <description>Методика для подготовки к новому формату вопросов DGT: сценарии, чек-листы и игровые режимы Skilyapp.</description>
-      <pubDate>Tue, 18 Feb 2025 00:00:00 +0100</pubDate>
+      <pubDate>Tue, 18 Feb 2025 00:00:00 GMT</pubDate>
       <category>Советы</category>
       <author>Команда Skilyapp</author>
     </item>
 
     <item>
       <title>Как готовиться к экзамену DGT, если времени почти нет</title>
-      <link>https://skilyapp.com/blog/kak-gotovitsya-dgt-pri-plotnom-grafike</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/kak-gotovitsya-dgt-pri-plotnom-grafike</guid>
+      <link>https://skilyapp.com/article/kak-gotovitsya-dgt-pri-plotnom-grafike</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/kak-gotovitsya-dgt-pri-plotnom-grafike</guid>
       <description>Пошаговая стратегия для занятых кандидатов: короткие тренировки, адаптивный фокус на слабых темах и умные напоминания Skilyapp.</description>
-      <pubDate>Sat, 15 Feb 2025 00:00:00 +0100</pubDate>
+      <pubDate>Sat, 15 Feb 2025 00:00:00 GMT</pubDate>
       <category>Подготовка</category>
       <author>Команда Skilyapp</author>
     </item>
 
     <item>
       <title>Как сдать экзамен DGT с первого раза</title>
-      <link>https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</link>
-      <guid isPermaLink="true">https://skilyapp.com/blog/kak-sdat-ekzamen-dgt-s-pervogo-raza</guid>
+      <link>https://skilyapp.com/article/kak-sdat-ekzamen-dgt-s-pervogo-raza</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/kak-sdat-ekzamen-dgt-s-pervogo-raza</guid>
       <description>Полное руководство по подготовке к теоретическому экзамену DGT в Испании. Практические советы, типичные ошибки и секреты успеха.</description>
-      <pubDate>Thu, 19 Dec 2024 00:00:00 +0100</pubDate>
+      <pubDate>Thu, 19 Dec 2024 00:00:00 GMT</pubDate>
       <category>Подготовка</category>
       <author>Команда Skilyapp</author>
     </item>

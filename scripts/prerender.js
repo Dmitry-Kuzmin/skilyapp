@@ -9,14 +9,14 @@
 import puppeteerCore from 'puppeteer-core';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync, mkdirSync, writeFileSync, readdirSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
-import { install } from '@puppeteer/browsers';
+import { extractArticlesFromTSX } from './read-articles.js';
+import { seoGuidePages } from '../src/content/seoGuides.js';
 
-// КРИТИЧНО: Определяем реальное окружение
-// vercel build локально устанавливает VERCEL=true, но это не реальный Vercel сервер
-// Реальный Vercel сервер имеет VERCEL=1 и нет HOME переменной
+// Реальный Vercel build/runtime отличается от локального vercel CLI.
 const isRealVercel = process.env.VERCEL === '1' && !process.env.HOME;
+const isCI = Boolean(process.env.CI || process.env.GITHUB_ACTIONS);
 
 // Динамический импорт для Vercel и локальной разработки
 let chromium = null;
@@ -40,12 +40,65 @@ if (isRealVercel) {
   }
 }
 
+function resolveChromiumModule(mod) {
+  return mod?.default ?? mod;
+}
+
+async function getLaunchOptions() {
+  if (isRealVercel) {
+    const chromiumPackage = resolveChromiumModule(chromium);
+    if (!chromiumPackage?.executablePath || !chromiumPackage?.args) {
+      throw new Error('Vercel prerender requires @sparticuz/chromium with executablePath() and args.');
+    }
+
+    return {
+      args: chromiumPackage.args,
+      executablePath: await chromiumPackage.executablePath(),
+      headless: 'shell',
+    };
+  }
+
+  const launchOptions = {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--disable-gpu',
+    ],
+  };
+
+  if (!puppeteer?.default && puppeteerCore?.default) {
+    const chromePath = execSync('which google-chrome-stable || which chromium || which chromium-browser || echo ""', {
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+
+    if (!chromePath) {
+      throw new Error('Could not find a local Chrome/Chromium executable for puppeteer-core.');
+    }
+
+    launchOptions.executablePath = chromePath;
+  }
+
+  if (isCI) {
+    console.log('[Prerender] 🔧 CI environment detected, launch options prepared');
+  }
+
+  return launchOptions;
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const BASE_URL = 'http://localhost:4173'; // Vite preview порт
 const DIST_DIR = join(__dirname, '../dist');
 const OUTPUT_DIR = DIST_DIR;
+
+const articleRoutes = Object.keys(extractArticlesFromTSX()).map((slug) => `/article/${slug}`);
+const guideRoutes = ['/guides', ...seoGuidePages.map((guide) => `/guides/${guide.slug}`)];
 
 // Список публичных страниц для prerender
 const PUBLIC_ROUTES = [
@@ -72,19 +125,8 @@ const PUBLIC_ROUTES = [
   '/dgt-tests',
   // Лендинг курса (Google Ads)
   '/curso',
-  // Статьи
-  '/blog/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen',
-  '/article/novye-voprosy-dgt-2025',
-  '/article/analitika-dgt-progress',
-  '/article/ispanskie-znaki-kotorye-pytayut',
-  '/article/podgotovka-na-russkom-i-ispanskom',
-  '/article/motivaciya-dgt-gamifikaciya',
-  '/article/tehnologii-skilyapp',
-  '/article/kak-gotovitsya-dgt-pri-plotnom-grafike',
-  '/article/kak-trenirovat-vospriyatie-riska-dgt',
-  '/article/mikrotreningi-dgt-na-telefone',
-  '/article/kak-sdat-ekzamen-dgt-s-pervogo-raza',
-  '/article/top-10-oshibok-na-ekzamene-dgt',
+  ...guideRoutes,
+  ...articleRoutes,
   // Legal pages
   '/legal/terms',
   '/legal/privacy',
@@ -92,6 +134,10 @@ const PUBLIC_ROUTES = [
   '/legal/subscription',
   '/legal/refund',
 ];
+
+const routesToRender = process.env.PRERENDER_ROUTES
+  ? process.env.PRERENDER_ROUTES.split(',').map((route) => route.trim()).filter(Boolean)
+  : PUBLIC_ROUTES;
 
 async function prerender() {
   console.log('[Prerender] 🚀 Starting prerender process...');
@@ -119,144 +165,11 @@ async function prerender() {
     console.log('[Prerender] ✅ Server started on http://localhost:4173');
   });
 
+  let browser;
   try {
-    // КРИТИЧНО: На Vercel нужно установить Chrome перед запуском
-    if (process.env.VERCEL || process.env.VERCEL_ENV) {
-      console.log('[Prerender] 🔧 Vercel environment detected, installing Chrome...');
-      try {
-        const cacheDir = '/tmp/.cache/puppeteer';
-        // Создаем директорию для кэша, если её нет
-        if (!existsSync(cacheDir)) {
-          mkdirSync(cacheDir, { recursive: true });
-        }
-        
-        // Пробуем установить Chrome с явным указанием версии
-        // Если не указать версию, может быть 404 из-за проблем с определением последней версии
-        try {
-          await install({
-            browser: 'chrome',
-            cacheDir: cacheDir,
-            // Не указываем версию - используем latest, но с fallback
-          });
-          console.log('[Prerender] ✅ Chrome installed successfully');
-        } catch (installError) {
-          // Если получили 404, пробуем установить конкретную версию
-          if (installError.message?.includes('404') || installError.message?.includes('status code 404')) {
-            console.warn('[Prerender] ⚠️ Got 404, trying to install specific Chrome version...');
-            try {
-              // Пробуем установить стабильную версию Chrome
-              await install({
-                browser: 'chrome',
-                cacheDir: cacheDir,
-                buildId: '131.0.6778.85', // Стабильная версия Chrome
-              });
-              console.log('[Prerender] ✅ Chrome installed successfully (specific version)');
-            } catch (versionError) {
-              console.warn('[Prerender] ⚠️ Could not install Chrome (specific version):', versionError.message);
-              throw installError; // Пробрасываем оригинальную ошибку
-            }
-          } else {
-            throw installError;
-          }
-        }
-      } catch (error) {
-        console.warn('[Prerender] ⚠️ Could not install Chrome:', error.message);
-        console.warn('[Prerender] ⚠️ Will try to use system Chrome or bundled Chrome');
-        console.warn('[Prerender] ⚠️ SSG will be skipped if Chrome is not found');
-      }
-    }
-    
-    // Запускаем браузер
     console.log('[Prerender] 🌐 Launching browser...');
-    
-    // КРИТИЧНО: Для Vercel нужно использовать правильные аргументы и executablePath
-    const launchOptions = {
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--disable-gpu',
-      ],
-    };
-    
-    // На Vercel или GitHub Actions пробуем найти Chrome в стандартных местах
-    const isCI = process.env.CI || process.env.GITHUB_ACTIONS;
-    if (process.env.VERCEL || process.env.VERCEL_ENV || isCI) {
-      const envName = process.env.VERCEL ? 'Vercel' : (isCI ? 'GitHub Actions' : 'CI');
-      console.log(`[Prerender] 🔧 ${envName} environment detected, searching for Chrome...`);
-      try {
-        // Пробуем найти Chrome в стандартных местах (Vercel, GitHub Actions, Ubuntu)
-        const chromePaths = [
-          '/usr/bin/google-chrome-stable',
-          '/usr/bin/chromium',
-          '/usr/bin/chromium-browser',
-          '/usr/bin/google-chrome',
-          '/opt/google/chrome/chrome',
-        ];
-        
-        for (const chromePath of chromePaths) {
-          try {
-            // Проверяем существование файла
-            if (existsSync(chromePath)) {
-              launchOptions.executablePath = chromePath;
-              console.log(`[Prerender] ✅ Found Chrome at: ${chromePath}`);
-              break;
-            }
-          } catch {
-            // Продолжаем поиск
-          }
-        }
-        
-        // Если не нашли через проверку файлов, пробуем через which
-        if (!launchOptions.executablePath) {
-          try {
-            const chromePath = execSync('which google-chrome-stable || which chromium || which chromium-browser || echo ""', { 
-              encoding: 'utf-8',
-              stdio: ['ignore', 'pipe', 'ignore']
-            }).trim();
-            if (chromePath && chromePath.length > 0) {
-              launchOptions.executablePath = chromePath;
-              console.log(`[Prerender] ✅ Found Chrome via which: ${chromePath}`);
-            }
-          } catch (error) {
-            console.warn('[Prerender] ⚠️ Could not find Chrome via which:', error.message);
-          }
-        }
-        
-        // Если установили через @puppeteer/browsers, используем его
-        if (!launchOptions.executablePath && (process.env.VERCEL || process.env.VERCEL_ENV || isCI)) {
-          const cacheDir = '/tmp/.cache/puppeteer';
-          const chromeDir = join(cacheDir, 'chrome');
-          if (existsSync(chromeDir)) {
-            try {
-              const versions = readdirSync(chromeDir);
-              for (const version of versions) {
-                const chromePath = join(chromeDir, version, 'chrome-linux64', 'chrome');
-                if (existsSync(chromePath)) {
-                  launchOptions.executablePath = chromePath;
-                  console.log(`[Prerender] ✅ Using installed Chrome at: ${chromePath}`);
-                  break;
-                }
-              }
-            } catch (error) {
-              console.warn('[Prerender] ⚠️ Could not read Chrome directory:', error.message);
-            }
-          }
-        }
-        
-        if (!launchOptions.executablePath) {
-          console.warn('[Prerender] ⚠️ Chrome not found in standard locations, Puppeteer will try to use bundled Chrome');
-        }
-      } catch (error) {
-        console.warn('[Prerender] ⚠️ Error searching for Chrome:', error.message);
-      }
-    }
-    
-    // КРИТИЧНО: Используем правильный puppeteer в зависимости от окружения
-    let browser;
+    const launchOptions = await getLaunchOptions();
+
     if (puppeteer && puppeteer.default) {
       // Используем полный puppeteer (локально или GitHub Actions)
       browser = await puppeteer.default.launch(launchOptions);
@@ -272,8 +185,10 @@ async function prerender() {
     // Устанавливаем viewport
     await page.setViewport({ width: 1920, height: 1080 });
 
+    const renderFailures = [];
+
     // Prerender каждую страницу
-    for (const route of PUBLIC_ROUTES) {
+    for (const route of routesToRender) {
       try {
         console.log(`[Prerender] 📄 Rendering ${route}...`);
         
@@ -331,12 +246,15 @@ async function prerender() {
         });
         
         if (!hasContent) {
-          console.warn(`[Prerender] ⚠️ Route ${route} might not have content in #root`);
-          console.warn(`[Prerender] ⚠️ This might be a client-only route or an error occurred`);
+          throw new Error(`Route ${route} rendered without meaningful content in #root`);
         }
 
         // Получаем HTML
         const html = await page.content();
+
+        if (/<div id="root">\s*<\/div>/i.test(html)) {
+          throw new Error(`Route ${route} produced an empty React root`);
+        }
 
         // Определяем путь для сохранения
         let filePath;
@@ -371,6 +289,13 @@ async function prerender() {
             mkdirSync(legalDir, { recursive: true });
           }
           filePath = join(legalDir, `${tab}.html`);
+        } else if (route.startsWith('/guides/')) {
+          const slug = route.replace('/guides/', '');
+          const guidesDir = join(OUTPUT_DIR, 'guides');
+          if (!existsSync(guidesDir)) {
+            mkdirSync(guidesDir, { recursive: true });
+          }
+          filePath = join(guidesDir, `${slug}.html`);
         } else {
           // Для /blog создаём blog.html
           const fileName = route.replace('/', '') || 'index';
@@ -381,40 +306,35 @@ async function prerender() {
         writeFileSync(filePath, html);
         console.log(`[Prerender] ✅ Saved ${filePath}`);
       } catch (error) {
-        console.error(`[Prerender] ❌ Error rendering ${route}:`, error.message);
+        const message = error instanceof Error ? error.message : String(error);
+        renderFailures.push(`${route}: ${message}`);
+        console.error(`[Prerender] ❌ Error rendering ${route}:`, message);
       }
     }
 
+    if (renderFailures.length > 0) {
+      throw new Error(`Failed to prerender ${renderFailures.length} route(s): ${renderFailures.join(' | ')}`);
+    }
+
     await browser.close();
+    browser = null;
     console.log('[Prerender] ✅ Prerender complete!');
   } catch (error) {
-    // КРИТИЧНО: На Vercel если Chrome не найден, не падаем полностью
-    // Это позволит деплою пройти, но SSG не будет работать (нужно будет исправить позже)
-    if ((process.env.VERCEL || process.env.VERCEL_ENV) && 
-        (error.message?.includes('Could not find Chrome') || 
-         error.message?.includes('ChromeLauncher') ||
-         error.message?.includes('404'))) {
-      console.error('[Prerender] ❌ Chrome not found on Vercel. SSG will not work.');
-      console.error('[Prerender] ⚠️ This is a known issue. Consider:');
-      console.error('[Prerender]   1. Installing Chrome via @puppeteer/browsers');
-      console.error('[Prerender]   2. Using alternative SSG approach');
-      console.error('[Prerender]   3. Running prerender locally before deploy');
-      // НЕ падаем - позволяем деплою пройти без SSG
-      console.warn('[Prerender] ⚠️ Continuing without prerender...');
-    } else {
-      console.error('[Prerender] ❌ Fatal error:', error);
-      // На локальной машине падаем, чтобы знать о проблеме
-      if (!process.env.VERCEL && !process.env.VERCEL_ENV) {
-        process.exit(1);
+    console.error('[Prerender] ❌ Fatal error:', error);
+    if (browser) {
+      try {
+        await browser.close();
+      } catch {
+        // ignore close errors after fatal prerender failure
       }
-      // На Vercel тоже падаем, но с более понятным сообщением
-      console.error('[Prerender] ❌ Build will fail. Please fix Chrome installation.');
-      process.exit(1);
     }
+    process.exit(1);
   } finally {
     server.close();
   }
 }
 
-prerender().catch(console.error);
-
+prerender().catch((error) => {
+  console.error('[Prerender] ❌ Unhandled fatal error:', error);
+  process.exit(1);
+});
