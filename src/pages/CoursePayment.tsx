@@ -7,14 +7,16 @@ declare global {
 }
 
 // ── Конфиг кошельков ──────────────────────────────────
-const WALLET_USDT_TRC20 = "TTxAFggCYnAvfHqZhkbYCgLfKMzG3rU3sd";
-const WALLET_TON        = "UQAzTCbe_ctk_sQaFODVLmRaz-Cy4zC75u4OohEHdsOe5EIt";
-const BIZUM_PHONE       = "698994997";
-const SBP_LINK          = "https://www.tbank.ru/cf/6CoAgRE8Kkp";
-const SUPABASE_URL      = import.meta.env.VITE_SUPABASE_URL as string;
-const SUPABASE_ANON     = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+const WALLET_USDT_TRC20    = "TTxAFggCYnAvfHqZhkbYCgLfKMzG3rU3sd";
+const WALLET_TON           = "UQAzTCbe_ctk_sQaFODVLmRaz-Cy4zC75u4OohEHdsOe5EIt";
+const BIZUM_PHONE          = "698994997";
+const SBP_LINK             = "https://www.tbank.ru/cf/6CoAgRE8Kkp";
+const PADDLE_PRODUCT_ID    = "pro_01kn69xq0c5vngwh50mehcskgz";
+const SUPABASE_URL         = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON        = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+const PADDLE_CLIENT_TOKEN  = import.meta.env.VITE_PADDLE_CLIENT_TOKEN as string;
 
-type Tab = "stars" | "usdt" | "ton" | "rub" | "bizum";
+type Tab = "stars" | "card" | "usdt" | "ton" | "rub" | "bizum";
 
 interface Rates {
   stars: number;
