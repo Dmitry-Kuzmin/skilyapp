@@ -51,6 +51,13 @@ export const chapter1: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'La autopista tiene dos carriles por sentido.',
+          correctWords: ['Автомагистраль', 'имеет', 'две', 'полосы', 'в', 'каждом', 'направлении'],
+          extraWords: ['обочину', 'разметку', 'знак'],
+        },
+        {
           type: 'context',
           sentence: 'На дороге типа «___» допускается съезд через любой перекрёсток.',
           sentenceEs: 'En una «___» se permiten cruces a nivel.',
