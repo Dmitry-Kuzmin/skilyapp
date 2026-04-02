@@ -224,6 +224,13 @@ export const chapter2: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'La fatiga al volante aumenta el tiempo de reacción.',
+          correctWords: ['Усталость', 'за', 'рулём', 'увеличивает', 'время', 'реакции'],
+          extraWords: ['скорость', 'дистанцию', 'алкоголь'],
+        },
+        {
           type: 'context',
           sentence: '«___» — это количество алкоголя в крови водителя, измеряется в г/л.',
           sentenceEs: 'La «___» es la cantidad de alcohol en sangre del conductor.',
