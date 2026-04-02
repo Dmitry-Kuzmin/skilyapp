@@ -15,6 +15,7 @@ import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') || '';
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const ADMIN_CHAT_ID = 488159880; // @guapo_pub
+const MINI_APP_URL = Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com';
 
 // ─────────────────────────────────────────────────────
 // Types
