@@ -247,6 +247,24 @@ const routesToRender = process.env.PRERENDER_ROUTES
   ? process.env.PRERENDER_ROUTES.split(',').map((route) => route.trim()).filter(Boolean)
   : getDefaultRoutesToRender();
 
+function getAssertCanonicalMap() {
+  if (!existsSync(manifestPath)) {
+    return new Map();
+  }
+
+  try {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    const entries = Array.isArray(manifest.assertPages) ? manifest.assertPages : [];
+    return new Map(
+      entries
+        .filter((entry) => typeof entry?.route === 'string' && typeof entry?.canonical === 'string')
+        .map((entry) => [entry.route, entry.canonical])
+    );
+  } catch {
+    return new Map();
+  }
+}
+
 async function prerender() {
   console.log('[Prerender] 🚀 Starting prerender process...');
   
@@ -273,6 +291,8 @@ async function prerender() {
   const server = app.listen(4173, () => {
     console.log('[Prerender] ✅ Server started on http://localhost:4173');
   });
+
+  const assertCanonicalByRoute = getAssertCanonicalMap();
 
   let browser;
   try {
@@ -333,6 +353,18 @@ async function prerender() {
             { timeout: 5000 },
             route
           );
+
+          const expectedCanonical = assertCanonicalByRoute.get(route);
+          if (expectedCanonical) {
+            await page.waitForFunction(
+              (canonicalUrl) => {
+                const canonical = document.querySelector('link[rel="canonical"]');
+                return canonical?.getAttribute('href') === canonicalUrl;
+              },
+              { timeout: 10000 },
+              expectedCanonical
+            );
+          }
 
           // Обёртываем уязвимый inline next-themes script только после стабилизации URL.
           await page.evaluate(() => {
