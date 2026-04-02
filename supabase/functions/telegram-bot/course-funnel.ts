@@ -504,7 +504,7 @@ export async function handleCourseBuyDirect(
 
   // Если только 1 поток — сразу к оплате, иначе выбор даты
   if (streams.length === 1) {
-    await sendPaymentStep(chatId, null, firstName, plan, streams[0]);
+    await sendPaymentStep(chatId, null, firstName, plan, streams[0], telegramId, telegramUser);
   } else {
     const { text, keyboard } = await buildStreamSelector(planId, supabase, firstName);
     await send(chatId, text, keyboard);
