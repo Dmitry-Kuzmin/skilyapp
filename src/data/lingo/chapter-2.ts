@@ -164,6 +164,13 @@ export const chapter2: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'La distancia de frenado aumenta en carretera mojada.',
+          correctWords: ['Тормозной', 'путь', 'увеличивается', 'на', 'мокрой', 'дороге'],
+          extraWords: ['сухой', 'скорость', 'зеркало'],
+        },
+        {
           type: 'context',
           sentence: 'Система «___» предотвращает блокировку колёс при резком торможении.',
           sentenceEs: 'El sistema «___» evita el bloqueo de ruedas en frenadas bruscas.',
