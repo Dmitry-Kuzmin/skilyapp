@@ -4,7 +4,7 @@ import type { MultipleChoiceExercise as MCType } from '@/data/lingo/types';
 
 interface Props {
   exercise: MCType;
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, correctAnswer?: string) => void;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -24,7 +24,7 @@ export function MultipleChoiceExercise({ exercise, onAnswer }: Props) {
     if (selected !== null) return;
     setSelected(option);
     const correct = option === exercise.correctAnswer;
-    setTimeout(() => onAnswer(correct), 900);
+    onAnswer(correct, exercise.correctAnswer);
   };
 
   const getVariant = (option: string) => {
@@ -37,11 +37,11 @@ export function MultipleChoiceExercise({ exercise, onAnswer }: Props) {
   return (
     <div className="flex flex-col gap-5 w-full max-w-sm mx-auto">
       {exercise.termEs && (
-        <p className="text-center text-slate-500 text-sm font-medium">
-          {exercise.termEs}
-        </p>
+        <div className="bg-blue-50 rounded-2xl px-5 py-3 text-center">
+          <p className="text-blue-600 font-bold text-lg">{exercise.termEs}</p>
+        </div>
       )}
-      <p className="text-center text-xl font-bold text-white leading-snug">
+      <p className="text-center text-xl font-bold text-gray-900 leading-snug px-2">
         {exercise.question}
       </p>
 
@@ -56,11 +56,11 @@ export function MultipleChoiceExercise({ exercise, onAnswer }: Props) {
               transition={{ delay: i * 0.06 }}
               onClick={() => handleSelect(option)}
               className={[
-                'w-full text-left rounded-xl px-5 py-4 border font-medium transition-colors duration-200',
-                v === 'idle' && 'border-white/15 bg-white/5 text-white active:bg-white/10',
-                v === 'correct' && 'border-emerald-500 bg-emerald-500/20 text-emerald-300',
-                v === 'wrong' && 'border-red-500 bg-red-500/20 text-red-300',
-                v === 'dimmed' && 'border-white/5 bg-white/2 text-slate-600',
+                'w-full text-left rounded-2xl px-5 py-4 border-2 font-semibold transition-colors duration-150 text-sm',
+                v === 'idle' && 'border-gray-200 bg-white text-gray-800 active:bg-gray-50',
+                v === 'correct' && 'border-emerald-400 bg-emerald-50 text-emerald-700',
+                v === 'wrong' && 'border-red-400 bg-red-50 text-red-600',
+                v === 'dimmed' && 'border-gray-100 bg-gray-50 text-gray-400',
               ]
                 .filter(Boolean)
                 .join(' ')}
