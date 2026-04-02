@@ -287,6 +287,13 @@ export const chapter2: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'El microsueño es muy peligroso al volante.',
+          correctWords: ['Микросон', 'очень', 'опасен', 'за', 'рулём'],
+          extraWords: ['полезен', 'скорость', 'тормоз'],
+        },
+        {
           type: 'multiple_choice',
           question: 'Что такое «distancia de seguridad»?',
           correctAnswer: 'Безопасное расстояние до впереди идущей машины',
