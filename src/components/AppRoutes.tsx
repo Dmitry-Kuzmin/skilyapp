@@ -225,6 +225,17 @@ export function AppRoutes() {
           <Learning />
         </Suspense>
       } />
+      {/* Skily Lingo — авто-испанский курс */}
+      <Route path="/lingo" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <LingoPage />
+        </Suspense>
+      } />
+      <Route path="/lingo/lesson/:id" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <LingoLessonPage />
+        </Suspense>
+      } />
       <Route path="/games" element={
         <Suspense fallback={<PageSkeleton />}>
           <Games />
