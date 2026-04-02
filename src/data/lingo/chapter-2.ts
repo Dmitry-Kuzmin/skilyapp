@@ -191,6 +191,14 @@ export const chapter2: LingoChapter = {
       title: 'Алкоголь и усталость',
       emoji: '😴',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Tasa de alcoholemia',
+          termRu: 'Уровень алкоголя в крови',
+          descriptionRu: 'Содержание алкоголя в крови водителя. Допустимый предел: 0,5 г/л (для новичков и профессионалов: 0,3 г/л).',
+          exampleEs: 'La tasa de alcoholemia permitida es de 0,5 g/l.',
+          exampleRu: 'Допустимый уровень алкоголя в крови — 0,5 г/л.',
+        },
         { type: 'flashcard', termEs: 'Tasa de alcoholemia', termRu: 'Уровень алкоголя в крови', descriptionRu: 'Количество алкоголя в крови. Норма: 0,5 г/л (новички: 0,3 г/л).' },
         { type: 'flashcard', termEs: 'Microsueño', termRu: 'Микросон', descriptionRu: 'Очень короткий непроизвольный сон за рулём — смертельно опасен.' },
         { type: 'flashcard', termEs: 'Fatiga al volante', termRu: 'Усталость за рулём', descriptionRu: 'Снижение реакции и внимания из-за длительного вождения.' },
