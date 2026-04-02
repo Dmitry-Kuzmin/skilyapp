@@ -70,6 +70,14 @@ export const chapter3: LingoChapter = {
       title: 'Технический осмотр',
       emoji: '🔧',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'ITV',
+          termRu: 'Технический осмотр',
+          descriptionRu: 'Inspección Técnica de Vehículos — обязательная проверка ТС. Новые авто — через 4 года, затем каждые 2 года, после 10 лет — ежегодно.',
+          exampleEs: 'Mi coche tiene que pasar la ITV este mes.',
+          exampleRu: 'Мой автомобиль должен пройти техосмотр в этом месяце.',
+        },
         { type: 'flashcard', termEs: 'ITV', termRu: 'Технический осмотр', descriptionRu: 'Inspección Técnica de Vehículos — обязательная периодическая проверка авто.' },
         { type: 'flashcard', termEs: 'Tara', termRu: 'Снаряжённая масса', descriptionRu: 'Масса пустого автомобиля со стандартным оборудованием.' },
         { type: 'flashcard', termEs: 'MMA', termRu: 'Максимальная разрешённая масса', descriptionRu: 'Masa Máxima Autorizada — макс. масса авто с грузом и пассажирами.' },
