@@ -7,7 +7,9 @@ export type ExerciseType =
   | 'multiple_choice'
   | 'match_pairs'
   | 'type_answer'
-  | 'context';
+  | 'context'
+  | 'vocab_intro'
+  | 'word_tiles';
 
 // ---------- individual exercise shapes ----------
 
