@@ -16,6 +16,14 @@ export const chapter5: LingoChapter = {
       title: 'Типы ДТП',
       emoji: '💥',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Accidente de tráfico',
+          termRu: 'Дорожно-транспортное происшествие (ДТП)',
+          descriptionRu: 'Событие на дороге с участием ТС, повлёкшее ущерб, травмы или гибель людей.',
+          exampleEs: 'En caso de accidente de tráfico, aplique la regla PAS.',
+          exampleRu: 'В случае ДТП применяйте правило PAS.',
+        },
         { type: 'flashcard', termEs: 'Accidente de tráfico', termRu: 'Дорожно-транспортное происшествие', descriptionRu: 'Событие на дороге с участием ТС, повлёкшее ущерб или травмы.' },
         { type: 'flashcard', termEs: 'Colisión', termRu: 'Столкновение', descriptionRu: 'Удар двух или более транспортных средств.' },
         { type: 'flashcard', termEs: 'Atropello', termRu: 'Наезд на пешехода', descriptionRu: 'ДТП, при котором автомобиль сбивает пешехода.' },
@@ -34,6 +42,13 @@ export const chapter5: LingoChapter = {
             { es: 'Atropello', ru: 'Наезд на пешехода' },
             { es: 'Vuelco', ru: 'Опрокидывание' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'La colisión frontal es el tipo más peligroso.',
+          correctWords: ['Лобовое', 'столкновение', '—', 'самый', 'опасный', 'тип'],
+          extraWords: ['боковое', 'наезд', 'частый'],
         },
         {
           type: 'context',
