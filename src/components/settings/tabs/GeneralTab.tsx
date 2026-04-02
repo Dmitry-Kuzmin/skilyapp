@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 import { triggerHaptic } from '@/lib/haptics';
 import { cn } from '@/lib/utils';
 import { CyberSwitch } from '../ui/CyberSwitch';
-import { TonPaymentWidget } from '@/components/monetization/TonPaymentWidget';
+import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
 import { useUserContext } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isBefore, addDays } from 'date-fns';

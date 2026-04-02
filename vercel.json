@@ -128,6 +128,14 @@
       "destination": "/dgt-tests.html"
     },
     {
+      "source": "/guides",
+      "destination": "/guides.html"
+    },
+    {
+      "source": "/guides/:slug",
+      "destination": "/guides/:slug.html"
+    },
+    {
       "source": "/article/:slug",
       "destination": "/article/:slug.html"
     },

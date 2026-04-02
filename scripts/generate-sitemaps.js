@@ -16,6 +16,7 @@ const SITE_URL = "https://skilyapp.com";
 const BRAND = "Skilyapp";
 const BUILD_DATE = new Date().toISOString().split("T")[0];
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
+const MANIFEST_FILE = "content-platform-manifest.json";
 
 const HOME_ALTERNATES = [
   { hreflang: "es", href: `${SITE_URL}/?lang=es` },
@@ -50,6 +51,43 @@ const CORE_PAGES = [
   { path: "/legal/cookies", changefreq: "monthly", priority: "0.30", lastmod: BUILD_DATE },
   { path: "/legal/subscription", changefreq: "monthly", priority: "0.30", lastmod: BUILD_DATE },
   { path: "/legal/refund", changefreq: "monthly", priority: "0.30", lastmod: BUILD_DATE },
+];
+
+const PRERENDER_ROUTES = [
+  "/",
+  "/?lang=es",
+  "/?lang=en",
+  "/?lang=ru",
+  "/about",
+  "/pricing",
+  "/help",
+  "/features",
+  "/partners",
+  "/blog",
+  "/tests",
+  "/games",
+  "/road-signs",
+  "/dictionary",
+  "/learning-map",
+  "/achievements",
+  "/referrals",
+  "/dgt-tests",
+  "/curso",
+  "/legal/terms",
+  "/legal/privacy",
+  "/legal/cookies",
+  "/legal/subscription",
+  "/legal/refund",
+];
+
+const ASSERT_CORE_PAGES = [
+  { route: "/", outputPath: "index.html", canonical: `${SITE_URL}` },
+  { route: "/about", outputPath: "about.html", canonical: `${SITE_URL}/about` },
+  { route: "/pricing", outputPath: "pricing.html", canonical: `${SITE_URL}/pricing` },
+  { route: "/tests", outputPath: "tests.html", canonical: `${SITE_URL}/tests` },
+  { route: "/curso", outputPath: "curso.html", canonical: `${SITE_URL}/curso` },
+  { route: "/blog", outputPath: "blog.html", canonical: `${SITE_URL}/blog` },
+  { route: "/legal/privacy", outputPath: "legal/privacy.html", canonical: `${SITE_URL}/legal/privacy` },
 ];
 
 function getArticles() {
@@ -116,6 +154,41 @@ function buildGuideEntries() {
     lastmod: BUILD_DATE,
     guide,
   }));
+}
+
+function buildContentManifest(articles) {
+  const articlePages = buildArticleEntries(articles).map((entry, index) => ({
+    route: entry.path,
+    outputPath: `article/${entry.article.slug}.html`,
+    canonical: absoluteUrl(entry.path),
+    kind: "article",
+    llmsRequired: index < 8,
+  }));
+
+  const guidePages = buildGuideEntries().map((entry) => ({
+    route: entry.path,
+    outputPath: `guides/${entry.guide.slug}.html`,
+    canonical: absoluteUrl(entry.path),
+    kind: "guide",
+    llmsRequired: true,
+  }));
+
+  return {
+    siteName: BRAND,
+    siteUrl: SITE_URL,
+    generatedAt: new Date().toISOString(),
+    discoveryFiles: [
+      "robots.txt",
+      "sitemap.xml",
+      "news-sitemap.xml",
+      "rss.xml",
+      "llms.txt",
+      "llms-full.txt",
+      MANIFEST_FILE,
+    ],
+    prerenderRoutes: [...PRERENDER_ROUTES, "/guides", ...guidePages.map((page) => page.route), ...articlePages.map((page) => page.route)],
+    assertPages: [...ASSERT_CORE_PAGES, ...guidePages, ...articlePages],
+  };
 }
 
 function renderSitemapUrl(entry) {
@@ -329,6 +402,7 @@ function main() {
   writeFile("rss.xml", generateRss(articles));
   writeFile("llms.txt", generateLlmsTxt(articles));
   writeFile("llms-full.txt", generateLlmsFullTxt(articles));
+  writeFile(MANIFEST_FILE, `${JSON.stringify(buildContentManifest(articles), null, 2)}\n`);
 
   console.log(`[Discovery] Completed. Articles processed: ${Object.keys(articles).length}`);
 }

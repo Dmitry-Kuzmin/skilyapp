@@ -9,7 +9,7 @@
 import puppeteerCore from 'puppeteer-core';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { extractArticlesFromTSX } from './read-articles.js';
 import { seoGuidePages } from '../src/content/seoGuides.js';
@@ -134,54 +134,72 @@ async function getLaunchOptions() {
   return launchOptions;
 }
 
+async function waitForPageReadiness(page) {
+  await Promise.allSettled([
+    page.evaluate(async () => {
+      if (document.fonts && document.fonts.status !== 'loaded') {
+        await document.fonts.ready;
+      }
+    }),
+    page.waitForFunction(
+      () => Array.from(document.images).every((image) => image.complete),
+      { timeout: 2500 }
+    ),
+  ]);
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const BASE_URL = 'http://localhost:4173'; // Vite preview порт
 const DIST_DIR = join(__dirname, '../dist');
 const OUTPUT_DIR = DIST_DIR;
+const manifestPath = join(__dirname, '../public/content-platform-manifest.json');
 
-const articleRoutes = Object.keys(extractArticlesFromTSX()).map((slug) => `/article/${slug}`);
-const guideRoutes = ['/guides', ...seoGuidePages.map((guide) => `/guides/${guide.slug}`)];
+function getDefaultRoutesToRender() {
+  if (existsSync(manifestPath)) {
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+    if (Array.isArray(manifest.prerenderRoutes) && manifest.prerenderRoutes.length > 0) {
+      return manifest.prerenderRoutes;
+    }
+  }
 
-// Список публичных страниц для prerender
-const PUBLIC_ROUTES = [
-  '/',
-  // Language-specific landing pages for SEO (Spanish, English, Russian)
-  '/?lang=es',
-  '/?lang=en',
-  '/?lang=ru',
-  // Основные публичные страницы
-  '/about',
-  '/pricing',
-  '/help',
-  '/features',
-  '/partners',
-  '/blog',
-  // Контентные страницы (открыты без логина — ценный контент для Google)
-  '/tests',
-  '/games',
-  '/road-signs',
-  '/dictionary',
-  '/learning-map',
-  '/achievements',
-  '/referrals',
-  '/dgt-tests',
-  // Лендинг курса (Google Ads)
-  '/curso',
-  ...guideRoutes,
-  ...articleRoutes,
-  // Legal pages
-  '/legal/terms',
-  '/legal/privacy',
-  '/legal/cookies',
-  '/legal/subscription',
-  '/legal/refund',
-];
+  const articleRoutes = Object.keys(extractArticlesFromTSX()).map((slug) => `/article/${slug}`);
+  const guideRoutes = ['/guides', ...seoGuidePages.map((guide) => `/guides/${guide.slug}`)];
+
+  return [
+    '/',
+    '/?lang=es',
+    '/?lang=en',
+    '/?lang=ru',
+    '/about',
+    '/pricing',
+    '/help',
+    '/features',
+    '/partners',
+    '/blog',
+    '/tests',
+    '/games',
+    '/road-signs',
+    '/dictionary',
+    '/learning-map',
+    '/achievements',
+    '/referrals',
+    '/dgt-tests',
+    '/curso',
+    ...guideRoutes,
+    ...articleRoutes,
+    '/legal/terms',
+    '/legal/privacy',
+    '/legal/cookies',
+    '/legal/subscription',
+    '/legal/refund',
+  ];
+}
 
 const routesToRender = process.env.PRERENDER_ROUTES
   ? process.env.PRERENDER_ROUTES.split(',').map((route) => route.trim()).filter(Boolean)
-  : PUBLIC_ROUTES;
+  : getDefaultRoutesToRender();
 
 async function prerender() {
   console.log('[Prerender] 🚀 Starting prerender process...');
@@ -196,13 +214,14 @@ async function prerender() {
   console.log('[Prerender] 📦 Starting local server...');
   const express = (await import('express')).default;
   const pathModule = (await import('path')).default;
+  const shellHtml = readFileSync(join(DIST_DIR, 'index.html'), 'utf8');
   
   const app = express();
   app.use(express.static(DIST_DIR));
   
   // SPA fallback для всех роутов (используем use вместо get для catch-all)
   app.use((req, res) => {
-    res.sendFile(pathModule.join(DIST_DIR, 'index.html'));
+    res.type('html').send(shellHtml);
   });
 
   const server = app.listen(4173, () => {
@@ -238,7 +257,7 @@ async function prerender() {
         
         const url = `${BASE_URL}${route}`;
         await page.goto(url, {
-          waitUntil: 'networkidle0',
+          waitUntil: 'domcontentloaded',
           timeout: 30000,
         });
 
@@ -279,9 +298,7 @@ async function prerender() {
           });
         });
 
-        // КРИТИЧНО: Дополнительная задержка для полной загрузки контента и всех ресурсов
-        // Это гарантирует, что все изображения, стили и данные загружены
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await waitForPageReadiness(page);
         
         // Финальная проверка: убеждаемся, что контент действительно есть
         const hasContent = await page.evaluate(() => {

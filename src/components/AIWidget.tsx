@@ -14,7 +14,7 @@ import { triggerHapticFeedback } from "@/lib/telegram";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { AILimitReachedModal } from "@/components/ai/AILimitReachedModal";
 import { SignWidget } from "@/components/chat/SignWidget";
-import { TonPaymentWidget } from "@/components/monetization/TonPaymentWidget";
+import { TonPaymentWidget } from "@/components/monetization/LazyTonPaymentWidget";
 
 type Message = {
   role: "user" | "assistant";

@@ -1,0 +1,206 @@
+{
+  "siteName": "Skilyapp",
+  "siteUrl": "https://skilyapp.com",
+  "generatedAt": "2026-04-02T13:08:24.878Z",
+  "discoveryFiles": [
+    "robots.txt",
+    "sitemap.xml",
+    "news-sitemap.xml",
+    "rss.xml",
+    "llms.txt",
+    "llms-full.txt",
+    "content-platform-manifest.json"
+  ],
+  "prerenderRoutes": [
+    "/",
+    "/?lang=es",
+    "/?lang=en",
+    "/?lang=ru",
+    "/about",
+    "/pricing",
+    "/help",
+    "/features",
+    "/partners",
+    "/blog",
+    "/tests",
+    "/games",
+    "/road-signs",
+    "/dictionary",
+    "/learning-map",
+    "/achievements",
+    "/referrals",
+    "/dgt-tests",
+    "/curso",
+    "/legal/terms",
+    "/legal/privacy",
+    "/legal/cookies",
+    "/legal/subscription",
+    "/legal/refund",
+    "/guides",
+    "/guides/kak-sdat-teoriyu-dgt",
+    "/guides/chastye-oshibki-na-ekzamene-dgt",
+    "/guides/znaki-dorozhnogo-dvizheniya-ispanii",
+    "/guides/spornye-voprosy-dgt-i-lovushki",
+    "/guides/temy-ekzamena-dgt-i-kak-ih-uchit",
+    "/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen",
+    "/article/motivaciya-dgt-gamifikaciya",
+    "/article/tehnologii-skilyapp",
+    "/article/podgotovka-na-russkom-i-ispanskom",
+    "/article/ispanskie-znaki-kotorye-pytayut",
+    "/article/analitika-dgt-progress",
+    "/article/novye-voprosy-dgt-2025",
+    "/article/mikrotreningi-dgt-na-telefone",
+    "/article/kak-trenirovat-vospriyatie-riska-dgt",
+    "/article/kak-gotovitsya-dgt-pri-plotnom-grafike",
+    "/article/kak-sdat-ekzamen-dgt-s-pervogo-raza"
+  ],
+  "assertPages": [
+    {
+      "route": "/",
+      "outputPath": "index.html",
+      "canonical": "https://skilyapp.com"
+    },
+    {
+      "route": "/about",
+      "outputPath": "about.html",
+      "canonical": "https://skilyapp.com/about"
+    },
+    {
+      "route": "/pricing",
+      "outputPath": "pricing.html",
+      "canonical": "https://skilyapp.com/pricing"
+    },
+    {
+      "route": "/tests",
+      "outputPath": "tests.html",
+      "canonical": "https://skilyapp.com/tests"
+    },
+    {
+      "route": "/curso",
+      "outputPath": "curso.html",
+      "canonical": "https://skilyapp.com/curso"
+    },
+    {
+      "route": "/blog",
+      "outputPath": "blog.html",
+      "canonical": "https://skilyapp.com/blog"
+    },
+    {
+      "route": "/legal/privacy",
+      "outputPath": "legal/privacy.html",
+      "canonical": "https://skilyapp.com/legal/privacy"
+    },
+    {
+      "route": "/guides/kak-sdat-teoriyu-dgt",
+      "outputPath": "guides/kak-sdat-teoriyu-dgt.html",
+      "canonical": "https://skilyapp.com/guides/kak-sdat-teoriyu-dgt",
+      "kind": "guide",
+      "llmsRequired": true
+    },
+    {
+      "route": "/guides/chastye-oshibki-na-ekzamene-dgt",
+      "outputPath": "guides/chastye-oshibki-na-ekzamene-dgt.html",
+      "canonical": "https://skilyapp.com/guides/chastye-oshibki-na-ekzamene-dgt",
+      "kind": "guide",
+      "llmsRequired": true
+    },
+    {
+      "route": "/guides/znaki-dorozhnogo-dvizheniya-ispanii",
+      "outputPath": "guides/znaki-dorozhnogo-dvizheniya-ispanii.html",
+      "canonical": "https://skilyapp.com/guides/znaki-dorozhnogo-dvizheniya-ispanii",
+      "kind": "guide",
+      "llmsRequired": true
+    },
+    {
+      "route": "/guides/spornye-voprosy-dgt-i-lovushki",
+      "outputPath": "guides/spornye-voprosy-dgt-i-lovushki.html",
+      "canonical": "https://skilyapp.com/guides/spornye-voprosy-dgt-i-lovushki",
+      "kind": "guide",
+      "llmsRequired": true
+    },
+    {
+      "route": "/guides/temy-ekzamena-dgt-i-kak-ih-uchit",
+      "outputPath": "guides/temy-ekzamena-dgt-i-kak-ih-uchit.html",
+      "canonical": "https://skilyapp.com/guides/temy-ekzamena-dgt-i-kak-ih-uchit",
+      "kind": "guide",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen",
+      "outputPath": "article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen.html",
+      "canonical": "https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/motivaciya-dgt-gamifikaciya",
+      "outputPath": "article/motivaciya-dgt-gamifikaciya.html",
+      "canonical": "https://skilyapp.com/article/motivaciya-dgt-gamifikaciya",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/tehnologii-skilyapp",
+      "outputPath": "article/tehnologii-skilyapp.html",
+      "canonical": "https://skilyapp.com/article/tehnologii-skilyapp",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/podgotovka-na-russkom-i-ispanskom",
+      "outputPath": "article/podgotovka-na-russkom-i-ispanskom.html",
+      "canonical": "https://skilyapp.com/article/podgotovka-na-russkom-i-ispanskom",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/ispanskie-znaki-kotorye-pytayut",
+      "outputPath": "article/ispanskie-znaki-kotorye-pytayut.html",
+      "canonical": "https://skilyapp.com/article/ispanskie-znaki-kotorye-pytayut",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/analitika-dgt-progress",
+      "outputPath": "article/analitika-dgt-progress.html",
+      "canonical": "https://skilyapp.com/article/analitika-dgt-progress",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/novye-voprosy-dgt-2025",
+      "outputPath": "article/novye-voprosy-dgt-2025.html",
+      "canonical": "https://skilyapp.com/article/novye-voprosy-dgt-2025",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/mikrotreningi-dgt-na-telefone",
+      "outputPath": "article/mikrotreningi-dgt-na-telefone.html",
+      "canonical": "https://skilyapp.com/article/mikrotreningi-dgt-na-telefone",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
+      "route": "/article/kak-trenirovat-vospriyatie-riska-dgt",
+      "outputPath": "article/kak-trenirovat-vospriyatie-riska-dgt.html",
+      "canonical": "https://skilyapp.com/article/kak-trenirovat-vospriyatie-riska-dgt",
+      "kind": "article",
+      "llmsRequired": false
+    },
+    {
+      "route": "/article/kak-gotovitsya-dgt-pri-plotnom-grafike",
+      "outputPath": "article/kak-gotovitsya-dgt-pri-plotnom-grafike.html",
+      "canonical": "https://skilyapp.com/article/kak-gotovitsya-dgt-pri-plotnom-grafike",
+      "kind": "article",
+      "llmsRequired": false
+    },
+    {
+      "route": "/article/kak-sdat-ekzamen-dgt-s-pervogo-raza",
+      "outputPath": "article/kak-sdat-ekzamen-dgt-s-pervogo-raza.html",
+      "canonical": "https://skilyapp.com/article/kak-sdat-ekzamen-dgt-s-pervogo-raza",
+      "kind": "article",
+      "llmsRequired": false
+    }
+  ]
+}

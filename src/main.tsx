@@ -15,7 +15,6 @@ console.log("%c Build: 2026-03-12 18:38 UTC ", "background: #1e1b4b; color: #818
 // ОПТИМИЗАЦИЯ: animations.css lazy load (не блокирует FCP)
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
-import TMAAnalytics from "@telegram-apps/analytics";
 import { initPostHog } from "./lib/posthog";
 
 declare global {
@@ -36,15 +35,13 @@ if (typeof window !== 'undefined') {
   );
 
   if (tonAnalyticsKey && isInsideTelegram) {
-    try {
-      TMAAnalytics.init({
+    import("@telegram-apps/analytics")
+      .then(({ default: TMAAnalytics }) => TMAAnalytics.init({
         token: tonAnalyticsKey,
         appName: 'skilyapp',
         env: import.meta.env.PROD ? 'PROD' : 'STG',
-      }).catch(e => console.error('[TMA Analytics] Init promise error:', e));
-    } catch (e) {
-      console.error('[TMA Analytics] Sync error:', e);
-    }
+      }))
+      .catch((e) => console.error('[TMA Analytics] Init error:', e));
   } else if (tonAnalyticsKey && !isInsideTelegram) {
       console.log('[TMA Analytics] Skipped: running outside Telegram environment');
   }

@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from 'react-confetti';
 import { useWindowSize } from 'usehooks-ts';
+import { convertHeicToJpeg } from '@/lib/heicConversion';
 
 const XP_PER_LEVEL = 225;
 
@@ -128,51 +129,8 @@ export const AchievementsModalContent = ({
 
       if (isHeic) {
         try {
-          // Попытка 1: heic2any
-          try {
-            const heic2anyModule = await import('heic2any');
-            const heic2any = (heic2anyModule as any).default || heic2anyModule;
-
-            console.log('[AvatarUpload] Attempting heic2any conversion...');
-            const convertedBlob = await heic2any({
-              blob: file,
-              toType: 'image/jpeg',
-              quality: 0.8
-            });
-
-            const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-            if (blob && blob.size > 0) {
-              fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
-            } else {
-              throw new Error('Empty blob');
-            }
-          } catch (libErr) {
-            console.warn('[AvatarUpload] heic2any failed, trying native Safari fallback:', libErr);
-            // Попытка 2: Native Safari via Canvas
-            fileToUpload = await new Promise((resolve, reject) => {
-              const url = URL.createObjectURL(file);
-              const img = new Image();
-              img.onload = () => {
-                URL.revokeObjectURL(url);
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) return reject('Canvas error');
-                ctx.drawImage(img, 0, 0);
-                canvas.toBlob((blob) => {
-                  if (blob) resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
-                  else reject('Blob error');
-                }, 'image/jpeg', 0.9);
-              };
-              img.onerror = () => {
-                URL.revokeObjectURL(url);
-                reject('Native load error');
-              };
-              img.src = url;
-              setTimeout(() => reject('Timeout'), 5000);
-            }) as File;
-          }
+          console.log('[AvatarUpload] Attempting HEIC conversion...');
+          fileToUpload = await convertHeicToJpeg(file, 0.8);
 
           toast.loading('Загружаем подготовленное фото...', { id: toastId });
         } catch (convErr: any) {

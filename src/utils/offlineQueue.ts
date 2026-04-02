@@ -5,9 +5,9 @@
  * Сохраняет действия в IndexedDB и синхронизирует при reconnect.
  */
 
-import { get, set, del } from 'idb-keyval';
 import type { OfflineAction, OfflineActionType } from '@/types/offlineQueue';
 import { supabase } from '@/integrations/supabase/client';
+import { idbDel, idbGet, idbSet } from '@/lib/idbKeyval';
 
 const QUEUE_KEY = 'SDADIM_OFFLINE_QUEUE';
 const MAX_QUEUE_SIZE = 1000; // Защита от переполнения
@@ -17,7 +17,7 @@ const MAX_QUEUE_SIZE = 1000; // Защита от переполнения
  */
 export async function getQueue(): Promise<OfflineAction[]> {
   try {
-    const queue = await get<OfflineAction[]>(QUEUE_KEY);
+    const queue = await idbGet<OfflineAction[]>(QUEUE_KEY);
     return queue || [];
   } catch (error) {
     console.error('[OfflineQueue] Failed to get queue:', error);
@@ -53,7 +53,7 @@ export async function addToQueue(
     };
     
     queue.push(action);
-    await set(QUEUE_KEY, queue);
+    await idbSet(QUEUE_KEY, queue);
     
     console.log('[OfflineQueue] ✅ Action added:', type, action.id);
     return action.id;
@@ -70,7 +70,7 @@ export async function removeFromQueue(actionId: string): Promise<void> {
   try {
     const queue = await getQueue();
     const filtered = queue.filter(action => action.id !== actionId);
-    await set(QUEUE_KEY, filtered);
+    await idbSet(QUEUE_KEY, filtered);
     console.log('[OfflineQueue] ✅ Action removed:', actionId);
   } catch (error) {
     console.error('[OfflineQueue] Failed to remove action:', error);
@@ -91,7 +91,7 @@ export async function updateActionStatus(
     if (action) {
       action.attempts = (action.attempts || 0) + 1;
       action.lastError = error;
-      await set(QUEUE_KEY, queue);
+      await idbSet(QUEUE_KEY, queue);
     }
   } catch (error) {
     console.error('[OfflineQueue] Failed to update action:', error);
@@ -174,7 +174,7 @@ export async function syncQueue(): Promise<{
  */
 export async function clearQueue(): Promise<void> {
   try {
-    await del(QUEUE_KEY);
+    await idbDel(QUEUE_KEY);
     console.log('[OfflineQueue] 🗑️ Queue cleared');
   } catch (error) {
     console.error('[OfflineQueue] Failed to clear queue:', error);
@@ -197,4 +197,3 @@ export async function getQueueStats(): Promise<{
     failed: queue.filter(a => a.attempts && a.attempts > 0).length,
   };
 }
-

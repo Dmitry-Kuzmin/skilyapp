@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTonStreaming, type TonTxStatus } from '@/hooks/useTonStreaming';
 
-interface TonPaymentWidgetProps {
+export interface TonPaymentWidgetProps {
     packageKey?: string;
     amountTon?: number;
     description?: string;

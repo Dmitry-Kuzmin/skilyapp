@@ -49,7 +49,7 @@ const InfiniteMarquee = React.lazy(() => import("./InfiniteMarquee").then(m => (
 const LandingQuizDemo = React.lazy(() => import("./LandingQuizDemo").then(m => ({ default: m.LandingQuizDemo })));
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { PartnershipExpansionPortal } from "./PartnershipExpansionPortal";
+import { PartnershipExpansionPortal } from "./LazyPartnershipExpansionPortal";
 import { FAQItem } from "./FAQItem";
 import { examYear } from "@/utils/dateUtils";
 import {

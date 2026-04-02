@@ -1,6 +1,6 @@
 import React from 'react';
 import { UnifiedModal } from "@/components/ui/unified-modal";
-import { TonPaymentWidget } from "./TonPaymentWidget";
+import { TonPaymentWidget } from "./LazyTonPaymentWidget";
 import { Wallet, Sparkles } from "lucide-react";
 
 interface TonPaymentModalProps {

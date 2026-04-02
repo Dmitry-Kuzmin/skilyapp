@@ -4,33 +4,7 @@ import { resolve } from 'node:path';
 
 const cwd = process.cwd();
 const distDir = resolve(cwd, 'dist');
-
-const requiredFiles = [
-  { path: 'index.html', canonical: 'https://skilyapp.com' },
-  { path: 'about.html', canonical: 'https://skilyapp.com/about' },
-  { path: 'pricing.html', canonical: 'https://skilyapp.com/pricing' },
-  { path: 'tests.html', canonical: 'https://skilyapp.com/tests' },
-  { path: 'curso.html', canonical: 'https://skilyapp.com/curso' },
-  { path: 'blog.html', canonical: 'https://skilyapp.com/blog' },
-  { path: 'legal/privacy.html', canonical: 'https://skilyapp.com/legal/privacy' },
-  {
-    path: 'guides/kak-sdat-teoriyu-dgt.html',
-    canonical: 'https://skilyapp.com/guides/kak-sdat-teoriyu-dgt',
-  },
-  {
-    path: 'article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen.html',
-    canonical: 'https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen',
-  },
-];
-
-const requiredDiscoveryFiles = [
-  'robots.txt',
-  'sitemap.xml',
-  'news-sitemap.xml',
-  'rss.xml',
-  'llms.txt',
-  'llms-full.txt',
-];
+const manifestPath = resolve(distDir, 'content-platform-manifest.json');
 
 function extractTag(html, pattern, label, relPath) {
   const match = html.match(pattern);
@@ -57,6 +31,14 @@ function fail(msg) {
 
 if (!existsSync(distDir)) fail('dist directory not found. Run build first.');
 
+if (!existsSync(manifestPath)) {
+  fail('dist/content-platform-manifest.json is missing.');
+}
+
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+const requiredFiles = manifest.assertPages;
+const requiredDiscoveryFiles = manifest.discoveryFiles;
+
 for (const rel of requiredDiscoveryFiles) {
   const file = resolve(distDir, rel);
   if (!existsSync(file)) {
@@ -65,13 +47,6 @@ for (const rel of requiredDiscoveryFiles) {
 }
 
 const sitemapXml = readFileSync(resolve(distDir, 'sitemap.xml'), 'utf8');
-if (!sitemapXml.includes('https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen')) {
-  fail('dist/sitemap.xml is missing canonical /article/ URLs for blog content.');
-}
-
-if (!sitemapXml.includes('https://skilyapp.com/guides/kak-sdat-teoriyu-dgt')) {
-  fail('dist/sitemap.xml is missing canonical /guides/ URLs for evergreen guide content.');
-}
 
 if (sitemapXml.includes('https://skilyapp.com/blog/novye-voprosy-dgt-2025')) {
   fail('dist/sitemap.xml still contains legacy /blog/ article URLs.');
@@ -82,10 +57,6 @@ if (!llmsTxt.includes('Canonical article URLs: https://skilyapp.com/article/{slu
   fail('dist/llms.txt is missing canonical article guidance for AI crawlers.');
 }
 
-if (!llmsTxt.includes('https://skilyapp.com/guides/kak-sdat-teoriyu-dgt')) {
-  fail('dist/llms.txt is missing canonical /guides/ discovery links for AI crawlers.');
-}
-
 const contentHashes = new Map();
 const titles = new Map();
 const descriptions = new Map();
@@ -93,7 +64,7 @@ const canonicals = new Map();
 let checked = 0;
 
 for (const entry of requiredFiles) {
-  const rel = entry.path;
+  const rel = entry.outputPath;
   const file = resolve(distDir, rel);
   if (!existsSync(file)) {
     fail(`Missing prerendered file: dist/${rel}`);
@@ -139,6 +110,14 @@ for (const entry of requiredFiles) {
     fail(`dist/${rel} shares the same canonical as dist/${previousCanonical}.`);
   }
   canonicals.set(canonical, rel);
+
+  if (!sitemapXml.includes(entry.canonical)) {
+    fail(`dist/sitemap.xml is missing ${entry.canonical}.`);
+  }
+
+  if (entry.llmsRequired && !llmsTxt.includes(entry.canonical)) {
+    fail(`dist/llms.txt is missing ${entry.canonical}.`);
+  }
 
   const comparableText = htmlToComparableText(html);
   const key = comparableText;

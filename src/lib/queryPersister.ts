@@ -6,8 +6,8 @@
  * Если IndexedDB не работает - возвращаем undefined (graceful fallback на network-only режим).
  */
 
-import { get, set, del } from 'idb-keyval';
 import type { PersistedClient, Persister } from '@tanstack/react-query-persist-client';
+import { idbDel, idbGet, idbSet } from '@/lib/idbKeyval';
 
 // КРИТИЧНО: Debounce для частых операций сохранения
 let saveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -88,7 +88,7 @@ export function createAsyncStoragePersister(): Persister {
 
           try {
             await retryOperation(async () => {
-              await set(IDB_KEY, clientToSave);
+              await idbSet(IDB_KEY, clientToSave);
               // console.log('[Persister] ✅ Cache saved to IndexedDB');
             }, 3, 100);
           } catch (error: any) {
@@ -116,7 +116,7 @@ export function createAsyncStoragePersister(): Persister {
     restoreClient: async () => {
       try {
         const cache = await retryOperation(async () => {
-          return await get<PersistedClient>(IDB_KEY);
+          return await idbGet<PersistedClient>(IDB_KEY);
         }, 3, 200);
 
         if (cache) {
@@ -132,7 +132,7 @@ export function createAsyncStoragePersister(): Persister {
     removeClient: async () => {
       try {
         await retryOperation(async () => {
-          await del(IDB_KEY);
+          await idbDel(IDB_KEY);
         }, 3, 200);
       } catch (error: any) {
         // Silent
@@ -140,4 +140,3 @@ export function createAsyncStoragePersister(): Persister {
     },
   };
 }
-

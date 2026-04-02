@@ -13,7 +13,12 @@ export default defineConfig(({ mode }) => {
 
   const plugins = [
     react(),
-    nodePolyfills(), // "Золотой стандарт" полифиллов для Web3/TON
+    nodePolyfills({
+      // We only need a tiny subset of browser-safe polyfills for the client.
+      // Pulling the entire Node stdlib drags in crypto/vm shims and causes
+      // noisy build warnings from browser-incompatible packages.
+      include: ['buffer'],
+    }),
     // ⚠️ ОТКЛЮЧЕНО: Service Worker вызывает проблемы с кэшированием старого кода
     // PWA Plugin для Offline-First архитектуры (критично для Telegram Mini App)
     // Раскомментировать при необходимости:
@@ -152,6 +157,13 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules/lucide-react')) return 'icons-vendor';
             if (id.includes('node_modules/recharts')) return 'charts-vendor';
             if (id.includes('node_modules/embla-carousel-react')) return 'carousel-vendor';
+            if (
+              id.includes('node_modules/@ton/appkit') ||
+              id.includes('node_modules/@tonconnect/') ||
+              id.includes('node_modules/@ton/')
+            ) {
+              return 'ton-vendor';
+            }
 
             // ✅ CORE: React
             if (id.includes('node_modules/react/') || 

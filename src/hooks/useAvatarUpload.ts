@@ -5,6 +5,7 @@ import { useProfileData } from '@/hooks/useProfileData';
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/lib/haptics';
+import { convertHeicToJpeg } from '@/lib/heicConversion';
 
 export function useAvatarUpload() {
     const userContext = useContext(UserContext);
@@ -79,22 +80,11 @@ export function useAvatarUpload() {
 
             if (isHeic) {
                 try {
-                    const heic2anyModule = await import('heic2any');
-                    const heic2any = (heic2anyModule as any).default || heic2anyModule;
-
-                    console.log('[AvatarUpload] Attempting heic2any conversion...');
-                    const convertedBlob = await heic2any({
-                        blob: file,
-                        toType: 'image/jpeg',
-                        quality: 0.8
-                    });
-
-                    const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-                    if (blob && blob.size > 0) {
-                        fileToUpload = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' });
-                    }
+                    console.log('[AvatarUpload] Attempting HEIC conversion...');
+                    fileToUpload = await convertHeicToJpeg(file, 0.8);
                 } catch (convErr) {
-                    console.warn('[AvatarUpload] HEIC conversion failed, will try standard compression flow', convErr);
+                    console.error('[AvatarUpload] HEIC conversion failed:', convErr);
+                    throw new Error('Не удалось подготовить фото HEIC. Откройте фото и сохраните его как JPEG/PNG или сделайте скриншот.');
                 }
             }
 

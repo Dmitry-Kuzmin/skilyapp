@@ -10,6 +10,7 @@ import { useSession } from "@/hooks/useSession";
 import { validateEnv } from "@/utils/envValidation";
 import { isTelegramMiniApp, isVersionAtLeast } from "@/lib/telegram";
 import { initTelegram } from "@/core/TelegramInit";
+import { idbGet } from "@/lib/idbKeyval";
 import { StartupCurtain } from "@/components/StartupCurtain";
 import { ThemeColorManager } from "@/components/ThemeColorManager";
 
@@ -385,9 +386,7 @@ const App = () => {
     // Проверяем, есть ли кэш (это не первый запуск)
     const checkFirstRun = async () => {
       try {
-        // Проверяем IndexedDB
-        const { get } = await import('idb-keyval');
-        const cache = await get('SDADIM_REACT_QUERY_OFFLINE_CACHE');
+        const cache = await idbGet('SDADIM_REACT_QUERY_OFFLINE_CACHE');
 
         // ОПТИМИЗАЦИЯ SSG: Проверка navigator для безопасности
         const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;

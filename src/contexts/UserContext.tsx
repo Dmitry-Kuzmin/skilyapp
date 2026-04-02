@@ -8,6 +8,7 @@ import type { User, Session } from "@supabase/supabase-js";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { setGlobalProfileId } from "@/hooks/useRequireProfile";
 import { useQueryClient } from "@tanstack/react-query";
+import { idbDel } from "@/lib/idbKeyval";
 
 interface UserContextType {
   user: TelegramUser | null;
@@ -692,9 +693,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     // КРИТИЧНО: Очищаем кэш React Query и IndexedDB
     try {
-      // Очищаем IndexedDB кэш
-      const { del } = await import('idb-keyval');
-      await del('SDADIM_REACT_QUERY_OFFLINE_CACHE');
+      await idbDel('SDADIM_REACT_QUERY_OFFLINE_CACHE');
       console.log('[UserContext] ✅ IndexedDB cache cleared');
     } catch (error) {
       console.warn('[UserContext] ⚠️ Failed to clear IndexedDB cache:', error);

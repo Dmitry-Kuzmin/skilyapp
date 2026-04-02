@@ -18,9 +18,9 @@ import {
 } from 'lucide-react';
 import { playClickSound } from '@/services/audioService';
 
-interface PartnershipExpansionPortalProps {
-    isOpen: boolean;
-    onClose: () => void;
+export interface PartnershipExpansionPortalProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export const PartnershipExpansionPortal: React.FC<PartnershipExpansionPortalProps> = ({ isOpen, onClose }) => {

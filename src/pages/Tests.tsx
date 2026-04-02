@@ -450,7 +450,16 @@ const Tests = () => {
   };
 
   if (topicsLoading || ticketsLoading) {
-    return <PageLoader />;
+    return (
+      <>
+        <SeoHead
+          title={seoByLanguage[language]?.title || seoByLanguage.en.title}
+          description={seoByLanguage[language]?.description || seoByLanguage.en.description}
+          canonicalUrl="https://skilyapp.com/tests"
+        />
+        <PageLoader />
+      </>
+    );
   }
 
   return (
