@@ -102,6 +102,8 @@ const TestResults = lazy(() => import("../pages/TestResults"));
 const TopicsMode = lazy(() => import("../pages/TopicsMode"));
 const RoadSigns = lazy(() => import("../pages/RoadSigns"));
 const Dictionary = lazy(() => import("../pages/Dictionary"));
+const LingoPage = lazy(() => import("../pages/LingoPage"));
+const LingoLessonPage = lazy(() => import("../pages/LingoLessonPage"));
 
 const DailyBonus = lazy(() => import("../pages/DailyBonus"));
 const DGTTestsSimple = lazy(() => import("../pages/DGTTestsSimple"));
