@@ -149,5 +149,52 @@ serve(async (req) => {
     return json({ ok: true });
   }
 
+  // ── Paddle checkout (динамическая цена через Transactions API) ──
+  if (action === 'paddle_checkout') {
+    const { eur_amount, tariff_label, stream_label, telegram_id, paddle_product_id } = body;
+    if (!eur_amount || !paddle_product_id) return json({ error: 'Missing fields' }, 400);
+
+    // Сумма в центах (Paddle принимает в наименьших единицах валюты)
+    const amountCents = String(Math.round(eur_amount * 100));
+
+    const txRes = await fetch(`${PADDLE_API}/transactions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${PADDLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        items: [{
+          price: {
+            description: tariff_label || 'Curso DGT',
+            product_id: paddle_product_id,
+            unit_price: { amount: amountCents, currency_code: 'EUR' },
+            tax_mode: 'account_setting',
+          },
+          quantity: 1,
+        }],
+        custom_data: {
+          tariff_label: tariff_label || '',
+          stream_label: stream_label || '',
+          telegram_id: String(telegram_id || ''),
+        },
+      }),
+    });
+    const txData = await txRes.json();
+    if (txData.error) return json({ error: txData.error.detail }, 400);
+    const checkoutUrl = txData.data?.checkout?.url;
+    return json({ checkout_url: checkoutUrl, transaction_id: txData.data?.id });
+  }
+
+  // ── Временный: получить product_id из price_id ────────
+  if (action === 'paddle_price_info') {
+    const { price_id } = body;
+    const res = await fetch(`${PADDLE_API}/prices/${price_id}`, {
+      headers: { 'Authorization': `Bearer ${PADDLE_API_KEY}` },
+    });
+    const data = await res.json();
+    return json({ product_id: data.data?.product_id, raw: data.data });
+  }
+
   return json({ error: 'Unknown action' }, 400);
 });
