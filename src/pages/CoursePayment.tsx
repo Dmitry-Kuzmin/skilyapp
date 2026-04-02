@@ -209,6 +209,7 @@ export default function CoursePayment() {
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: "stars",  label: "Stars",  icon: <Star size={14} /> },
+    { id: "card",   label: "Карта",  icon: <CreditCard size={14} /> },
     { id: "usdt",   label: "USDT",   icon: <Gem size={14} /> },
     { id: "ton",    label: "TON",    icon: <Gem size={14} className="text-blue-400" /> },
     { id: "rub",    label: "РФ/СБП", icon: <Banknote size={14} /> },
