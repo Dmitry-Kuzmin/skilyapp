@@ -178,6 +178,14 @@ export const chapter4: LingoChapter = {
       title: 'Спецтранспорт',
       emoji: '🚒',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Vehículo de emergencia',
+          termRu: 'Экстренное транспортное средство',
+          descriptionRu: 'Скорая, полиция, пожарные. При включённых сигналах все обязаны уступить дорогу.',
+          exampleEs: 'Los vehículos de emergencia tienen preferencia de paso.',
+          exampleRu: 'Экстренные транспортные средства имеют приоритет проезда.',
+        },
         { type: 'flashcard', termEs: 'Vehículo de emergencia', termRu: 'Экстренное транспортное средство', descriptionRu: 'Скорая, полиция, пожарные — имеют приоритет на дороге.' },
         { type: 'flashcard', termEs: 'Preferencia de paso', termRu: 'Приоритет проезда', descriptionRu: 'Право проехать первым в спорной ситуации.' },
         { type: 'flashcard', termEs: 'Señal acústica', termRu: 'Звуковой сигнал', descriptionRu: 'Сирена или гудок для предупреждения участников движения.' },
@@ -201,6 +209,13 @@ export const chapter4: LingoChapter = {
             { es: 'Señal acústica', ru: 'Звуковой сигнал' },
             { es: 'Señal luminosa', ru: 'Световой сигнал' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'Debe ceder el paso al vehículo de emergencia.',
+          correctWords: ['Необходимо', 'уступить', 'дорогу', 'экстренному', 'транспорту'],
+          extraWords: ['пешеходу', 'велосипедисту', 'остановиться'],
         },
         {
           type: 'context',
