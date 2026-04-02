@@ -326,7 +326,9 @@ async function sendPaymentStep(
   messageId: number | null,
   firstName: string,
   plan: CoursePlan,
-  stream: CourseStream
+  stream: CourseStream,
+  telegramId?: number,
+  telegramUsername?: string
 ): Promise<void> {
   const text =
     `🎉 <b>Отличный выбор, ${firstName}!</b>\n\n` +
@@ -336,13 +338,21 @@ async function sendPaymentStep(
     `🔒 Место забронировано на 24 часа\n\n` +
     `Выбери способ оплаты:`;
 
+  // Строим URL виджета оплаты
+  const streamLabel = `Поток ${stream.number} — ${formatStreamDate(stream.start_date)}`;
+  const paymentUrl = new URL(`${MINI_APP_URL}/course-payment`);
+  paymentUrl.searchParams.set('amount', String(plan.price_eur));
+  paymentUrl.searchParams.set('tariff', plan.id);
+  paymentUrl.searchParams.set('label', plan.label_ru);
+  paymentUrl.searchParams.set('stream', stream.id);
+  paymentUrl.searchParams.set('slabel', streamLabel);
+  if (telegramId) paymentUrl.searchParams.set('uid', String(telegramId));
+  if (telegramUsername) paymentUrl.searchParams.set('uname', telegramUsername);
+
   const keyboard = {
     inline_keyboard: [
-      [{ text: '💳 Карта (Visa / Mastercard)',  callback_data: `course_pay_card_${plan.id}` }],
-      [{ text: '🇷🇺 Карта РФ / СБП',            callback_data: `course_pay_rub_${plan.id}` }],
-      [{ text: '💎 Крипто (USDT / TON)',         callback_data: `course_pay_crypto_${plan.id}` }],
-      [{ text: '❓ Помогите с оплатой',          callback_data: `course_pay_help_${plan.id}` }],
-      [{ text: '« Назад к тарифам',             callback_data: `course_buy_${plan.id}` }],
+      [{ text: '💳 Выбрать способ оплаты', web_app: { url: paymentUrl.toString() } }],
+      [{ text: '« Назад к тарифам', callback_data: `course_buy_${plan.id}` }],
     ],
   };
 
