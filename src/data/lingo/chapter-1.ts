@@ -138,6 +138,14 @@ export const chapter1: LingoChapter = {
       title: 'Перекрёстки',
       emoji: '✚',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Glorieta',
+          termRu: 'Круговой перекрёсток',
+          descriptionRu: 'Круговое пересечение дорог. Транспорт, уже движущийся в круге, имеет приоритет перед въезжающими.',
+          exampleEs: 'En la glorieta, ceda el paso a los que ya circulan.',
+          exampleRu: 'На круговом перекрёстке уступите дорогу тем, кто уже едет в круге.',
+        },
         { type: 'flashcard', termEs: 'Glorieta', termRu: 'Круговой перекрёсток', descriptionRu: 'Круговое пересечение дорог. Транспорт в круге имеет приоритет.' },
         { type: 'flashcard', termEs: 'Intersección', termRu: 'Перекрёсток', descriptionRu: 'Любое место пересечения двух или более дорог.' },
         { type: 'flashcard', termEs: 'Paso a nivel', ru: 'Paso a nivel', termRu: 'Железнодорожный переезд', descriptionRu: 'Место пересечения дороги с железнодорожными путями.' },
