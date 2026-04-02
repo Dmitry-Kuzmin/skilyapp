@@ -365,7 +365,7 @@ async function prerender() {
 
           await page.waitForFunction(
             (expectedRoute) => window.location.pathname + window.location.search === expectedRoute,
-            { timeout: 5000 },
+            { timeout: 15000 },
             route
           );
 
