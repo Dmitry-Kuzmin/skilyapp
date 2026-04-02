@@ -1,0 +1,261 @@
+import type { LingoChapter } from './types';
+
+export const chapter6: LingoChapter = {
+  id: 'ch6',
+  title: 'Язык вопросов DGT',
+  emoji: '🎯',
+  color: {
+    bg: 'bg-amber-950',
+    border: 'border-amber-400',
+    text: 'text-amber-300',
+    accent: 'bg-amber-400',
+  },
+  lessons: [
+    {
+      id: 'ch6-l1',
+      title: 'Модальные глаголы',
+      emoji: '📝',
+      exercises: [
+        { type: 'flashcard', termEs: 'Debe / Deberá', termRu: 'Обязан / должен', descriptionRu: '«Debe» = обязательное требование в ПДД. Без исключений.' },
+        { type: 'flashcard', termEs: 'Puede / Podrá', termRu: 'Может / имеет право', descriptionRu: '«Puede» = разрешено, но не обязательно.' },
+        { type: 'flashcard', termEs: 'Está obligado a', termRu: 'Обязан (с инфинитивом)', descriptionRu: 'Усиленная форма обязательства. «Está obligado a detenerse» = обязан остановиться.' },
+        { type: 'flashcard', termEs: 'Está prohibido', termRu: 'Запрещено', descriptionRu: 'Категорический запрет. Нарушение — нарушение ПДД.' },
+        {
+          type: 'multiple_choice',
+          question: 'В вопросе DGT: «El conductor DEBE...» Что это значит?',
+          correctAnswer: 'Это обязательное требование, без исключений',
+          options: [
+            'Это обязательное требование, без исключений',
+            'Это рекомендация',
+            'Это разрешение, но не обязательство',
+            'Это запрет',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Debe', ru: 'Обязан' },
+            { es: 'Puede', ru: 'Может' },
+            { es: 'Está obligado a', ru: 'Обязан (усиленно)' },
+            { es: 'Está prohibido', ru: 'Запрещено' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'В вопросе «El conductor PUEDE...» — это означает, что действие...',
+          options: ['разрешено, но не обязательно', 'обязательно', 'запрещено'],
+          correctAnswer: 'разрешено, но не обязательно',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи: «Está prohibido»',
+          termEs: 'Está prohibido',
+          correctAnswer: 'запрещено',
+          hint: 'З...',
+        },
+      ],
+    },
+    {
+      id: 'ch6-l2',
+      title: 'Исключения и условия',
+      emoji: '⚠️',
+      exercises: [
+        { type: 'flashcard', termEs: 'Salvo', termRu: 'За исключением / кроме', descriptionRu: '«Salvo que...» — правило действует, КРОМЕ данного случая.' },
+        { type: 'flashcard', termEs: 'Excepto', termRu: 'Кроме / за исключением', descriptionRu: 'Синоним «salvo». «Excepto ciclistas» = кроме велосипедистов.' },
+        { type: 'flashcard', termEs: 'Siempre que', termRu: 'При условии что / если', descriptionRu: '«Siempre que sea seguro» = если это безопасно.' },
+        { type: 'flashcard', termEs: 'A menos que', termRu: 'Если только не / разве что', descriptionRu: '«A menos que haya señal» = если нет знака, разрешающего иное.' },
+        {
+          type: 'multiple_choice',
+          question: 'В вопросе «...salvo que haya señal» — что это значит?',
+          correctAnswer: 'За исключением случая, когда есть знак',
+          options: [
+            'За исключением случая, когда есть знак',
+            'Только если есть знак',
+            'Всегда при наличии знака',
+            'Независимо от знака',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Salvo', ru: 'За исключением' },
+            { es: 'Excepto', ru: 'Кроме' },
+            { es: 'Siempre que', ru: 'При условии что' },
+            { es: 'A menos que', ru: 'Если только не' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: '«Excepto ciclistas» — это значит правило касается всех, «___» велосипедистов.',
+          options: ['кроме', 'включая', 'и особенно'],
+          correctAnswer: 'кроме',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи: «Siempre que sea posible»',
+          termEs: 'Siempre que sea posible',
+          correctAnswer: 'при условии что это возможно',
+          hint: 'П...',
+        },
+      ],
+    },
+    {
+      id: 'ch6-l3',
+      title: 'Язык знаков',
+      emoji: '🚧',
+      exercises: [
+        { type: 'flashcard', termEs: 'Indica', termRu: 'Указывает / информирует', descriptionRu: 'Знак информирует — не запрещает и не обязывает.' },
+        { type: 'flashcard', termEs: 'Prohíbe', termRu: 'Запрещает', descriptionRu: 'Знак запрещает определённое действие.' },
+        { type: 'flashcard', termEs: 'Advierte', termRu: 'Предупреждает', descriptionRu: 'Знак предупреждает об опасности впереди.' },
+        { type: 'flashcard', termEs: 'Obliga', termRu: 'Обязывает', descriptionRu: 'Знак обязывает выполнить действие.' },
+        {
+          type: 'multiple_choice',
+          question: 'Знак «prohíbe» — что он делает?',
+          correctAnswer: 'Запрещает определённое действие',
+          options: [
+            'Запрещает определённое действие',
+            'Информирует о маршруте',
+            'Предупреждает об опасности',
+            'Обязывает остановиться',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Indica', ru: 'Указывает' },
+            { es: 'Prohíbe', ru: 'Запрещает' },
+            { es: 'Advierte', ru: 'Предупреждает' },
+            { es: 'Obliga', ru: 'Обязывает' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Жёлтый треугольник «___» о危险 впереди.',
+          sentenceEs: 'El triángulo amarillo «___» de un peligro próximo.',
+          options: ['advierte', 'prohíbe', 'obliga'],
+          correctAnswer: 'advierte',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи: «Esta señal obliga a...»',
+          termEs: 'Esta señal obliga a',
+          correctAnswer: 'этот знак обязывает',
+          hint: 'Э...',
+        },
+      ],
+    },
+    {
+      id: 'ch6-l4',
+      title: 'Ловушки формулировок',
+      emoji: '🪤',
+      exercises: [
+        { type: 'flashcard', termEs: 'Extremo derecho', termRu: 'Крайний правый', descriptionRu: 'В DGT вопросах: «pegarse al extremo derecho» = прижаться максимально вправо.' },
+        { type: 'flashcard', termEs: 'En ningún caso', termRu: 'Ни в коем случае', descriptionRu: 'Абсолютный запрет без исключений. Самая категоричная формулировка.' },
+        { type: 'flashcard', termEs: 'Con carácter general', termRu: 'Как правило / в общем случае', descriptionRu: 'Означает: это правило стандартное, но могут быть исключения.' },
+        { type: 'flashcard', termEs: 'Preferentemente', termRu: 'Предпочтительно', descriptionRu: 'Не обязательно, но рекомендуется. Слабее чем «debe».' },
+        {
+          type: 'multiple_choice',
+          question: '«En ningún caso» означает...',
+          correctAnswer: 'Абсолютный запрет без каких-либо исключений',
+          options: [
+            'Абсолютный запрет без каких-либо исключений',
+            'Обычно нельзя, но иногда можно',
+            'Не рекомендуется',
+            'Запрещено только для новичков',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'En ningún caso', ru: 'Ни в коем случае' },
+            { es: 'Con carácter general', ru: 'Как правило' },
+            { es: 'Preferentemente', ru: 'Предпочтительно' },
+            { es: 'Extremo derecho', ru: 'Крайний правый' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: '«Con carácter general, se debe...» означает что есть правило, но...',
+          options: ['могут быть исключения', 'это абсолютно', 'это необязательно'],
+          correctAnswer: 'могут быть исключения',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи: «En ningún caso»',
+          termEs: 'En ningún caso',
+          correctAnswer: 'ни в коем случае',
+          hint: 'Н...',
+        },
+      ],
+    },
+    {
+      id: 'ch6-l5',
+      title: 'Финальный экзамен',
+      emoji: '🎓',
+      exercises: [
+        {
+          type: 'context',
+          sentence: 'Вопрос: «El conductor DEBE ceder el paso...» — водитель...',
+          options: ['обязан уступить дорогу', 'может уступить дорогу', 'не обязан уступать'],
+          correctAnswer: 'обязан уступить дорогу',
+        },
+        {
+          type: 'multiple_choice',
+          question: '«...salvo que haya señal que lo autorice» — это значит:',
+          correctAnswer: 'Запрещено, если нет разрешающего знака',
+          options: [
+            'Запрещено, если нет разрешающего знака',
+            'Разрешено при любом знаке',
+            'Обязательно при наличии знака',
+            'Нет ограничений',
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Знак с синим кругом «___» выполнить действие.',
+          options: ['obliga a', 'prohíbe', 'advierte de'],
+          correctAnswer: 'obliga a',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи: «Está prohibido»',
+          termEs: 'Está prohibido',
+          correctAnswer: 'запрещено',
+          hint: 'З...',
+        },
+        {
+          type: 'multiple_choice',
+          question: '«Preferentemente» в вопросе DGT означает:',
+          correctAnswer: 'Желательно, но не строго обязательно',
+          options: [
+            'Желательно, но не строго обязательно',
+            'Абсолютно обязательно',
+            'Категорически запрещено',
+            'Только для грузовиков',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Debe', ru: 'Обязан' },
+            { es: 'En ningún caso', ru: 'Ни в коем случае' },
+            { es: 'Siempre que', ru: 'При условии что' },
+            { es: 'Advierte', ru: 'Предупреждает' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: '«Con carácter general, los conductores deben...» — это правило с возможными...',
+          options: ['исключениями', 'штрафами', 'знаками'],
+          correctAnswer: 'исключениями',
+        },
+        {
+          type: 'multiple_choice',
+          question: 'Красный круг на знаке — это «señal de...»',
+          correctAnswer: 'prohibición',
+          options: ['prohibición', 'obligación', 'advertencia', 'información'],
+        },
+      ],
+    },
+  ],
+};
