@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Copy, Check, Loader2, Star, Gem, CreditCard, Smartphone, Banknote } from "lucide-react";
 
+declare global {
+  interface Window { Paddle?: any; }
+}
+
 // ── Конфиг кошельков ──────────────────────────────────
 const WALLET_USDT_TRC20 = "TTxAFggCYnAvfHqZhkbYCgLfKMzG3rU3sd";
 const WALLET_TON        = "UQAzTCbe_ctk_sQaFODVLmRaz-Cy4zC75u4OohEHdsOe5EIt";
