@@ -4,7 +4,6 @@ import {
   Shield,
   LayoutDashboard,
   FileText,
-  Edit,
   Database,
   Upload,
   FileUp,
@@ -41,13 +40,6 @@ const adminNavItems = [
     icon: FileText,
     path: "/admin/reports",
   },
-  {
-    id: "editor",
-    label: "Редактор",
-    icon: Edit,
-    path: "/admin/editor",
-  },
-
   {
     id: "reward-reports",
     label: "Отчеты о наградах",
@@ -357,4 +349,3 @@ export function AdminLayout() {
     </Layout>
   );
 }
-

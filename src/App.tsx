@@ -1,12 +1,8 @@
 // Force Reload Trigger: 2025-12-29 23:59:00
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { TelegramProvider } from "@/contexts/TelegramContext";
 import { AdCleanup } from "@/components/AdCleanup";
-import { useBackgroundTasks } from "@/hooks/useBackgroundTasks";
-import { useOfflineAnalytics } from "@/utils/offlineAnalytics";
-import { useSession } from "@/hooks/useSession";
 import { validateEnv } from "@/utils/envValidation";
 import { isTelegramMiniApp, isVersionAtLeast } from "@/lib/telegram";
 import { initTelegram } from "@/core/TelegramInit";
@@ -47,6 +43,7 @@ const AIChatWidget = lazy(() => import("@/components/ai/AIChatWidget").then(m =>
 // Это критично для производительности - Supabase/Query грузятся только для /app/*
 const AppProviders = lazy(() => import("@/components/providers/AppProviders").then(m => ({ default: m.AppProviders })));
 const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
+const AppRuntime = lazy(() => import("@/components/app/AppRuntime").then(m => ({ default: m.AppRuntime })));
 
 // ОПТИМИЗАЦИЯ: Landing теперь синхронный для ускорения первого рендера (избавляет от водопада lazy)
 import Landing from "./pages/Landing";
@@ -171,7 +168,6 @@ const AdminStreams = lazy(() =>
 const PartnerDashboard = lazy(() => import("./pages/PartnerDashboard"));
 const ModernPartnerDashboard = lazy(() => import("./pages/ModernPartnerDashboard"));
 const PartnerLinkRedirect = lazy(() => import("./pages/PartnerLinkRedirect"));
-const AdminEditor = lazy(() => import("./pages/AdminEditor"));
 const AdminQuestionReports = lazy(() => import("./pages/AdminQuestionReports"));
 const RaceGame = lazy(() => import("./pages/games/RaceGame"));
 const GuessTheSign = lazy(() => import("./pages/games/GuessTheSign"));
@@ -380,12 +376,6 @@ const App = () => {
   // OFFLINE-FIRST: Детектор первого запуска
   const [isFirstRun, setIsFirstRun] = useState(false);
 
-  // OFFLINE-FIRST: Инициализация analytics
-  useOfflineAnalytics();
-
-  // Обработка сессии с фильтрацией ошибок
-  useSession();
-
   useEffect(() => {
     // Проверяем, есть ли кэш (это не первый запуск)
     const checkFirstRun = async () => {
@@ -412,9 +402,6 @@ const App = () => {
   }, []);
 
   // ОПТИМИЗАЦИЯ: QueryClient и persister вынесены в AppProviders для lazy loading
-
-  // ОПТИМИЗАЦИЯ: Фоновые задачи (не блокируют рендеринг)
-  useBackgroundTasks();
 
   // ОПТИМИЗАЦИЯ SSG: Определяем basename для GitHub Pages безопасно
   // Используем useState + useEffect чтобы избежать проблем с window в SSG билде
@@ -592,6 +579,9 @@ const App = () => {
               <Route path="/login" element={
                 <Suspense fallback={null}>
                   <AppProviders>
+                    <Suspense fallback={null}>
+                      <AppRuntime />
+                    </Suspense>
                     <StartupCurtain />
                     <Login />
                   </AppProviders>
@@ -615,6 +605,9 @@ const App = () => {
               <Route path="/*" element={
                 <Suspense fallback={null}>
                   <AppProviders>
+                    <Suspense fallback={null}>
+                      <AppRuntime />
+                    </Suspense>
                     <Suspense fallback={null}>
                       <CosmeticsPreviewProvider>
                         <Suspense fallback={null}>
@@ -645,7 +638,6 @@ const App = () => {
           </BrowserRouter>
         </Suspense>
       </Motion>
-      {!isPrerenderMode && <Analytics />}
     </TelegramProvider>
   );
 };

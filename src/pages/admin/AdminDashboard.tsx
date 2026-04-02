@@ -12,8 +12,7 @@ import {
   Users,
   Database,
   Server,
-  Terminal,
-  FileText
+  Terminal
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -72,7 +71,6 @@ export function AdminDashboard() {
 
   const menuItems = [
     { icon: Terminal, label: "Mission Control", path: "/admin/mission-control", color: "text-blue-400", desc: "Test Gen & Review" },
-    { icon: FileText, label: "Editor", path: "/admin/editor", color: "text-emerald-400", desc: "Manage Content" },
   ];
 
   if (loading) return null;
@@ -234,4 +232,3 @@ export function AdminDashboard() {
     </div>
   );
 }
-

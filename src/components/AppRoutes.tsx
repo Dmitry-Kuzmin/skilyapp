@@ -79,7 +79,6 @@ const AdminMissionControl = lazy(() =>
 const PartnerDashboard = lazy(() => import("../pages/PartnerDashboard"));
 const ModernPartnerDashboard = lazy(() => import("../pages/ModernPartnerDashboard"));
 const PartnerLinkRedirect = lazy(() => import("../pages/PartnerLinkRedirect"));
-const AdminEditor = lazy(() => import("../pages/AdminEditor"));
 const AdminQuestionReports = lazy(() => import("../pages/AdminQuestionReports"));
 const AdminRewardReports = lazy(() =>
   import("../pages/admin/AdminRewardReports").then((module) => ({ default: module.AdminRewardReports }))
@@ -329,11 +328,7 @@ export function AppRoutes() {
             <AdminRewardReports />
           </Suspense>
         } />
-        <Route path="editor" element={
-          <Suspense fallback={<PageSkeleton />}>
-            <AdminEditor />
-          </Suspense>
-        } />
+        <Route path="editor" element={<Navigate to="/admin/mission-control" replace />} />
 
         <Route path="seasons" element={
           <Suspense fallback={<PageSkeleton />}>
