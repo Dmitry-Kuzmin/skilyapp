@@ -1,11 +1,10 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
 import type { MatchPairsExercise as MatchType } from '@/data/lingo/types';
 
 interface Props {
   exercise: MatchType;
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, correctAnswer?: string) => void;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -22,9 +21,8 @@ export function MatchPairsExercise({ exercise, onAnswer }: Props) {
   const rightItems = useMemo(() => shuffle(exercise.pairs.map((p) => p.ru)), [exercise]);
 
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
-  const [matched, setMatched] = useState<Map<string, string>>(new Map()); // es → ru
+  const [matched, setMatched] = useState<Map<string, string>>(new Map());
   const [wrongPair, setWrongPair] = useState<{ es: string; ru: string } | null>(null);
-  const [mistakes, setMistakes] = useState(0);
 
   const pairMap = useMemo(
     () => new Map(exercise.pairs.map((p) => [p.es, p.ru])),
@@ -50,36 +48,26 @@ export function MatchPairsExercise({ exercise, onAnswer }: Props) {
       setMatched(next);
       setSelectedLeft(null);
       if (next.size === exercise.pairs.length) {
-        // All matched
-        setTimeout(() => onAnswer(mistakes === 0), 500);
+        setTimeout(() => onAnswer(true), 300);
       }
     } else {
-      setMistakes((m) => m + 1);
       setWrongPair({ es: selectedLeft, ru });
       setTimeout(() => {
         setWrongPair(null);
         setSelectedLeft(null);
-      }, 700);
+      }, 600);
     }
   };
 
+  const allDone = matched.size === exercise.pairs.length;
+
   return (
     <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
-      <p className="text-center text-slate-400 text-sm font-medium uppercase tracking-wider">
+      <p className="text-center text-gray-500 text-sm font-semibold uppercase tracking-wider">
         Соедини пары
       </p>
-      {matched.size === exercise.pairs.length && (
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="flex items-center justify-center gap-2 text-emerald-400 font-semibold"
-        >
-          <CheckCircle size={20} />
-          Все пары найдены!
-        </motion.div>
-      )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         {/* Left column — ES */}
         <div className="flex flex-col gap-2">
           {leftItems.map((es) => {
@@ -93,11 +81,11 @@ export function MatchPairsExercise({ exercise, onAnswer }: Props) {
                 animate={isWrong ? { x: [-6, 6, -4, 4, 0] } : {}}
                 transition={{ duration: 0.3 }}
                 className={[
-                  'rounded-xl px-3 py-3 text-sm font-semibold border text-left transition-colors duration-150',
-                  isMatched && 'border-emerald-500/40 bg-emerald-500/15 text-emerald-400 opacity-60',
-                  isSelected && !isMatched && 'border-blue-400 bg-blue-500/20 text-blue-300',
-                  isWrong && 'border-red-500 bg-red-500/20 text-red-300',
-                  !isMatched && !isSelected && !isWrong && 'border-white/15 bg-white/5 text-white',
+                  'rounded-2xl px-3 py-4 text-sm font-bold border-2 text-center transition-colors duration-150 min-h-[56px] flex items-center justify-center',
+                  isMatched && 'border-emerald-300 bg-emerald-50 text-emerald-600',
+                  isSelected && !isMatched && 'border-blue-400 bg-blue-50 text-blue-700',
+                  isWrong && 'border-red-400 bg-red-50 text-red-600',
+                  !isMatched && !isSelected && !isWrong && 'border-gray-200 bg-white text-gray-800 active:bg-gray-50',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -120,10 +108,10 @@ export function MatchPairsExercise({ exercise, onAnswer }: Props) {
                 animate={isWrong ? { x: [-6, 6, -4, 4, 0] } : {}}
                 transition={{ duration: 0.3 }}
                 className={[
-                  'rounded-xl px-3 py-3 text-sm font-semibold border text-left transition-colors duration-150',
-                  isMatched && 'border-emerald-500/40 bg-emerald-500/15 text-emerald-400 opacity-60',
-                  isWrong && 'border-red-500 bg-red-500/20 text-red-300',
-                  !isMatched && !isWrong && 'border-white/15 bg-white/5 text-white',
+                  'rounded-2xl px-3 py-4 text-sm font-bold border-2 text-center transition-colors duration-150 min-h-[56px] flex items-center justify-center',
+                  isMatched && 'border-emerald-300 bg-emerald-50 text-emerald-600',
+                  isWrong && 'border-red-400 bg-red-50 text-red-600',
+                  !isMatched && !isWrong && 'border-gray-200 bg-white text-gray-800 active:bg-gray-50',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -134,6 +122,16 @@ export function MatchPairsExercise({ exercise, onAnswer }: Props) {
           })}
         </div>
       </div>
+
+      {allDone && (
+        <motion.p
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center text-emerald-600 font-bold text-base"
+        >
+          Все пары найдены! 🎉
+        </motion.p>
+      )}
     </div>
   );
 }
