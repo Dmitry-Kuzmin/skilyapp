@@ -131,6 +131,14 @@ export const chapter2: LingoChapter = {
       title: 'Торможение',
       emoji: '🛑',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Distancia de frenado',
+          termRu: 'Тормозной путь',
+          descriptionRu: 'Расстояние от начала торможения до полной остановки. Зависит от скорости, состояния дороги и шин.',
+          exampleEs: 'La distancia de frenado aumenta con la lluvia.',
+          exampleRu: 'Тормозной путь увеличивается при дожде.',
+        },
         { type: 'flashcard', termEs: 'Freno motor', termRu: 'Торможение двигателем', descriptionRu: 'Снижение скорости путём перехода на низшую передачу без нажатия тормоза.' },
         { type: 'flashcard', termEs: 'Distancia de frenado', termRu: 'Тормозной путь', descriptionRu: 'Расстояние, пройденное с момента нажатия тормоза до полной остановки.' },
         { type: 'flashcard', termEs: 'ABS', termRu: 'АБС (антиблокировочная система)', descriptionRu: 'Система предотвращает блокировку колёс при торможении.' },
