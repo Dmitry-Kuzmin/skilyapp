@@ -14,48 +14,82 @@ import { execSync } from 'child_process';
 import { extractArticlesFromTSX } from './read-articles.js';
 import { seoGuidePages } from '../src/content/seoGuides.js';
 
-// Реальный Vercel build/runtime отличается от локального vercel CLI.
-const isRealVercel = process.env.VERCEL === '1' && !process.env.HOME;
+// Hosted Vercel build uses /vercel/path* and /vercel HOME. Local vercel CLI does not.
+const hasVercelSignals = Boolean(
+  process.env.VERCEL === '1' ||
+  process.env.VERCEL_ENV ||
+  process.env.VERCEL_URL ||
+  process.env.VERCEL_PROJECT_ID ||
+  process.env.VERCEL_DEPLOYMENT_ID
+);
+const isHostedVercel =
+  process.cwd().startsWith('/vercel/path') ||
+  process.env.HOME === '/vercel' ||
+  (hasVercelSignals && process.env.CI === '1');
 const isCI = Boolean(process.env.CI || process.env.GITHUB_ACTIONS);
 
 // Динамический импорт для Vercel и локальной разработки
 let chromium = null;
 let puppeteer = null;
 
-// На реальном Vercel используем @sparticuz/chromium
-if (isRealVercel) {
+// На hosted Vercel и как CI fallback используем @sparticuz/chromium.
+if (isHostedVercel || hasVercelSignals) {
   try {
     chromium = await import('@sparticuz/chromium');
-    console.log('[Prerender] ✅ Loaded @sparticuz/chromium for Vercel');
+    console.log('[Prerender] ✅ Loaded @sparticuz/chromium for serverless/CI fallback');
   } catch (error) {
     console.warn('[Prerender] ⚠️ Could not load @sparticuz/chromium:', error.message);
   }
-} else {
-  // Локально (включая vercel build локально) используем полный puppeteer
-  try {
-    puppeteer = await import('puppeteer');
-    console.log('[Prerender] ✅ Loaded puppeteer for local development');
-  } catch (error) {
-    console.warn('[Prerender] ⚠️ Could not load puppeteer:', error.message);
-  }
+}
+
+// Локально и в обычном CI используем полный puppeteer.
+try {
+  puppeteer = await import('puppeteer');
+  console.log('[Prerender] ✅ Loaded puppeteer for local development');
+} catch (error) {
+  console.warn('[Prerender] ⚠️ Could not load puppeteer:', error.message);
 }
 
 function resolveChromiumModule(mod) {
   return mod?.default ?? mod;
 }
 
-async function getLaunchOptions() {
-  if (isRealVercel) {
-    const chromiumPackage = resolveChromiumModule(chromium);
-    if (!chromiumPackage?.executablePath || !chromiumPackage?.args) {
-      throw new Error('Vercel prerender requires @sparticuz/chromium with executablePath() and args.');
-    }
+function findLocalChromeExecutable() {
+  const chromePath = execSync('which google-chrome-stable || which chromium || which chromium-browser || echo ""', {
+    encoding: 'utf-8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).trim();
 
-    return {
-      args: chromiumPackage.args,
-      executablePath: await chromiumPackage.executablePath(),
-      headless: 'shell',
-    };
+  return chromePath || '';
+}
+
+async function getServerlessLaunchOptions(reason) {
+  const chromiumPackage = resolveChromiumModule(chromium);
+  const launcher = puppeteer?.default ?? puppeteerCore?.default;
+
+  if (!chromiumPackage?.executablePath || !chromiumPackage?.args) {
+    throw new Error(reason || 'Serverless prerender requires @sparticuz/chromium with executablePath() and args.');
+  }
+
+  const executablePath = await chromiumPackage.executablePath();
+  if (!executablePath) {
+    throw new Error(reason || 'Serverless prerender could not resolve Chromium executablePath().');
+  }
+
+  return {
+    args: launcher?.defaultArgs
+      ? launcher.defaultArgs({ args: chromiumPackage.args, headless: 'shell' })
+      : chromiumPackage.args,
+    executablePath,
+    headless: 'shell',
+  };
+}
+
+async function getLaunchOptions() {
+  if (isHostedVercel) {
+    return getServerlessLaunchOptions(
+      'Hosted Vercel prerender requires @sparticuz/chromium because Puppeteer browser downloads are unavailable during build.'
+    );
   }
 
   const launchOptions = {
@@ -70,21 +104,31 @@ async function getLaunchOptions() {
     ],
   };
 
+  if (isCI) {
+    const chromePath = findLocalChromeExecutable();
+
+    if (chromePath) {
+      launchOptions.executablePath = chromePath;
+      console.log(`[Prerender] 🔧 CI using system Chrome: ${chromePath}`);
+      return launchOptions;
+    }
+
+    if (chromium) {
+      console.log('[Prerender] 🔧 CI Chrome not found, falling back to @sparticuz/chromium');
+      return getServerlessLaunchOptions(
+        'CI prerender could not find system Chrome and fell back to @sparticuz/chromium.'
+      );
+    }
+  }
+
   if (!puppeteer?.default && puppeteerCore?.default) {
-    const chromePath = execSync('which google-chrome-stable || which chromium || which chromium-browser || echo ""', {
-      encoding: 'utf-8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
+    const chromePath = findLocalChromeExecutable();
 
     if (!chromePath) {
       throw new Error('Could not find a local Chrome/Chromium executable for puppeteer-core.');
     }
 
     launchOptions.executablePath = chromePath;
-  }
-
-  if (isCI) {
-    console.log('[Prerender] 🔧 CI environment detected, launch options prepared');
   }
 
   return launchOptions;
