@@ -71,6 +71,14 @@ export const chapter2: LingoChapter = {
       title: 'Дистанция и зрение',
       emoji: '👁️',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Distancia de seguridad',
+          termRu: 'Дистанция безопасности',
+          descriptionRu: 'Минимальное расстояние до впереди идущего авто, чтобы успеть затормозить. Увеличивается при дожде и высокой скорости.',
+          exampleEs: 'Mantenga siempre la distancia de seguridad con el vehículo de delante.',
+          exampleRu: 'Всегда соблюдайте дистанцию безопасности с впереди идущим автомобилем.',
+        },
         { type: 'flashcard', termEs: 'Distancia de seguridad', termRu: 'Дистанция безопасности', descriptionRu: 'Расстояние до впереди идущего авто, чтобы успеть затормозить.' },
         { type: 'flashcard', termEs: 'Efecto de visión túnel', termRu: 'Эффект туннельного зрения', descriptionRu: 'На высокой скорости периферическое зрение сужается.' },
         { type: 'flashcard', termEs: 'Campo visual', termRu: 'Поле зрения', descriptionRu: 'Зона, которую водитель видит без поворота головы.' },
