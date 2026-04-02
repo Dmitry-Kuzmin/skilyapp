@@ -23,7 +23,10 @@ if not url or not key:
     exit(1)
 
 # Read migration file
-migration_path = '/Users/dimka/Desktop/Sdadim/sdadim-dgt-prep/supabase/migrations/20260210_achievement_system.sql'
+from pathlib import Path
+
+project_root = Path(__file__).resolve().parent.parent
+migration_path = project_root / 'supabase' / 'migrations' / '20260210_achievement_system.sql'
 with open(migration_path, 'r') as f:
     sql = f.read()
 

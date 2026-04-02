@@ -6,12 +6,19 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const SOURCE_DIR = path.join(__dirname, '../data/external/pdd_russia/questions/A_B/tickets');
+const repoPath = process.argv[2] || '/tmp/pdd_russia';
+const SOURCE_DIR = path.join(repoPath, 'questions/A_B/tickets');
 const TARGET_DIR = path.join(__dirname, '../data/parsed/pdd_russia');
 const IMAGE_BASE_URL = '/images/pdd_russia'; // Relative to public folder
 
 if (!fs.existsSync(TARGET_DIR)) {
     fs.mkdirSync(TARGET_DIR, { recursive: true });
+}
+
+if (!fs.existsSync(SOURCE_DIR)) {
+    console.error(`❌ SOURCE_DIR not found: ${SOURCE_DIR}`);
+    console.error('Use: node scripts/convert-pdd-russia.js /path/to/pdd_russia');
+    process.exit(1);
 }
 
 function generateDeterministicUUID(input) {

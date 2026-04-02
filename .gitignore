@@ -47,3 +47,10 @@ data/rejected-pool/
 data/temp-generation-ids.json
 google-services.json
 _DELETED_ITEMS/
+
+# Temporary diagnostics and backup files
+tmp_*
+*.bak
+*.backup
+*.tmp
+*.tmp_*

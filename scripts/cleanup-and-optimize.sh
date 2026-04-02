@@ -4,7 +4,7 @@
 # Запускается автоматически несколько раз в день через launchd
 
 LOG_FILE="$HOME/Library/Logs/cursor-cleanup.log"
-PROJECT_DIR="$HOME/Desktop/Sdadim/sdadim-dgt-prep"
+PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CURSOR_LOGS="$HOME/Library/Application Support/Cursor/logs"
 CURSOR_USER_DATA="$HOME/Library/Application Support/Cursor/User"
 ANTIGRAVITY_LOGS="$HOME/Library/Application Support/Antigravity/logs"
@@ -136,4 +136,3 @@ log "=== Очистка завершена успешно ==="
 log ""
 
 exit 0
-

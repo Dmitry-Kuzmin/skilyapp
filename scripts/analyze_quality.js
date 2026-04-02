@@ -5,7 +5,7 @@ import path from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const filePath = '/Users/dimka/Desktop/Sdadim/sdadim-dgt-prep/data/parsed/topic-01/topic-01_test-001-enriched.json';
+const filePath = path.join(__dirname, '..', 'data', 'parsed', 'topic-01', 'topic-01_test-001-enriched.json');
 const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
 const report = {

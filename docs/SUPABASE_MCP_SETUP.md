@@ -27,7 +27,7 @@ MCP сервер для Supabase установлен глобально.
     "supabase": {
       "command": "bash",
       "args": [
-        "/Users/dimka/Desktop/Sdadim/sdadim-dgt-prep/scripts/start-mcp-supabase.sh"
+        "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/scripts/start-mcp-supabase.sh"
       ]
     }
   }

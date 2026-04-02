@@ -96,7 +96,7 @@ Infra       Vercel · Supabase Edge Runtime · GitHub Actions (cron jobs)
 
 ```bash
 npm install
-npm run dev          # Vite (port 8080) + validator server (port 3030)
+npm run dev          # Vite (port 8080) + validator server (port 3030) + maintenance service
 ```
 
 Required env vars:
