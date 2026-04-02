@@ -71,6 +71,14 @@ export const chapter5: LingoChapter = {
       title: 'Правило PAS',
       emoji: '🆘',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Regla PAS',
+          termRu: 'Правило PAS',
+          descriptionRu: 'Алгоритм действий при ДТП: Proteger (защитить), Avisar (оповестить), Socorrer (помочь).',
+          exampleEs: 'Ante un accidente, aplique siempre la regla PAS.',
+          exampleRu: 'При аварии всегда применяйте правило PAS.',
+        },
         { type: 'flashcard', termEs: 'Regla PAS', termRu: 'Правило PAS', descriptionRu: 'Алгоритм помощи при ДТП: Proteger → Avisar → Socorrer.' },
         { type: 'flashcard', termEs: 'Proteger', termRu: 'Защитить (место аварии)', descriptionRu: 'Первый шаг PAS: обезопасить место ДТП (треугольники, аварийка).' },
         { type: 'flashcard', termEs: 'Avisar', termRu: 'Оповестить (службы)', descriptionRu: 'Второй шаг PAS: вызвать экстренные службы (112).' },
@@ -94,6 +102,13 @@ export const chapter5: LingoChapter = {
             { es: 'Socorrer', ru: 'Помочь пострадавшим' },
             { es: 'Regla PAS', ru: 'Правило PAS' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'Primero proteger, después avisar y por último socorrer.',
+          correctWords: ['Сначала', 'защитить,', 'потом', 'оповестить', 'и', 'наконец', 'помочь'],
+          extraWords: ['остановить', 'осмотреть', 'уехать'],
         },
         {
           type: 'context',
