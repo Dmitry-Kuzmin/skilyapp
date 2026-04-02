@@ -44,6 +44,13 @@ export const chapter2: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'El exceso de velocidad es una infracción grave.',
+          correctWords: ['Превышение', 'скорости', '—', 'это', 'серьёзное', 'нарушение'],
+          extraWords: ['лёгкое', 'торможение', 'дистанция'],
+        },
+        {
           type: 'context',
           sentence: 'При снегопаде водитель должен применить «___».',
           sentenceEs: 'En caso de nevada, el conductor debe aplicar «___».',
