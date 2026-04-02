@@ -150,6 +150,38 @@ export default function CoursePayment() {
     }
   };
 
+  // ── Оплата картой (Paddle) ────────────────────────────
+  const payWithCard = async () => {
+    setCardLoading(true);
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/course-payment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON },
+        body: JSON.stringify({
+          action: "paddle_checkout",
+          eur_amount: amount,
+          tariff_label: tariffLabel,
+          stream_label: streamLabel,
+          telegram_id: tgId,
+          paddle_product_id: PADDLE_PRODUCT_ID,
+        }),
+      });
+      const data = await res.json();
+      if (data.checkout_url) {
+        const tg = (window as any).Telegram?.WebApp;
+        if (tg?.openLink) {
+          tg.openLink(data.checkout_url);
+        } else {
+          window.open(data.checkout_url, "_blank");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setCardLoading(false);
+    }
+  };
+
   // ── Уведомление о ручной оплате ───────────────────────
   const notifyManual = async (method: string) => {
     setNotifyLoading(true);
