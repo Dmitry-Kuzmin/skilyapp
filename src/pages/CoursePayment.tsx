@@ -86,8 +86,20 @@ export default function CoursePayment() {
   const [ratesLoading, setRatesLoading] = useState(true);
   const [confirmed, setConfirmed] = useState(false);
   const [starsLoading, setStarsLoading] = useState(false);
+  const [cardLoading, setCardLoading] = useState(false);
   const [notifyLoading, setNotifyLoading] = useState(false);
   const { copied, copy } = useCopyToClipboard();
+
+  // ── Инициализация Paddle.js ───────────────────────────
+  useEffect(() => {
+    if (window.Paddle || !PADDLE_CLIENT_TOKEN) return;
+    const script = document.createElement("script");
+    script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
+    script.onload = () => {
+      window.Paddle?.Initialize({ token: PADDLE_CLIENT_TOKEN });
+    };
+    document.head.appendChild(script);
+  }, []);
 
   // ── Загружаем курсы ──────────────────────────────────
   useEffect(() => {
