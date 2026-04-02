@@ -16,6 +16,14 @@ export const chapter4: LingoChapter = {
       title: 'Пешеходы',
       emoji: '🚶',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Peatón',
+          termRu: 'Пешеход',
+          descriptionRu: 'Участник дорожного движения без транспортного средства. Имеет приоритет на пешеходном переходе.',
+          exampleEs: 'Los peatones tienen prioridad en los pasos de peatones.',
+          exampleRu: 'Пешеходы имеют приоритет на пешеходных переходах.',
+        },
         { type: 'flashcard', termEs: 'Peatón', termRu: 'Пешеход', descriptionRu: 'Участник дорожного движения, передвигающийся пешком.' },
         { type: 'flashcard', termEs: 'Paso de peatones', termRu: 'Пешеходный переход', descriptionRu: 'Зебра — место для безопасного перехода дороги.' },
         { type: 'flashcard', termEs: 'Acera', termRu: 'Тротуар', descriptionRu: 'Часть дороги, предназначенная для пешеходов.' },
@@ -34,6 +42,13 @@ export const chapter4: LingoChapter = {
             { es: 'Acera', ru: 'Тротуар' },
             { es: 'Zona peatonal', ru: 'Пешеходная зона' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'El peatón debe cruzar por el paso de peatones.',
+          correctWords: ['Пешеход', 'должен', 'переходить', 'по', 'пешеходному', 'переходу'],
+          extraWords: ['обочине', 'разметке', 'тротуару'],
         },
         {
           type: 'context',
