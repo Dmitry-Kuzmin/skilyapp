@@ -163,10 +163,9 @@ export default defineConfig(({ mode }) => {
             // ✅ INFRA: Supabase
             if (id.includes('node_modules/@supabase/')) return 'supabase-vendor';
 
-            // ✅ OTHER: Группируем остальное
-            if (id.includes('node_modules')) {
-              return 'vendor';
-            }
+            // ✅ OTHER: Отключаем единый vendor chunk, чтобы Vite (Rollup) мог
+            // автоматически бандлить зависимости и использовать ленивую загрузку (code splitting).
+            // Огромная часть PageSpeed-штрафа была из-за единого vendor.
           },
         },
       },

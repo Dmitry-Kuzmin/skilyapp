@@ -9,8 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
   
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18034090184"></script>
+  <!-- Google tag (gtag.js) - Отложеная загрузка для скорости pageSpeed -->
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
@@ -29,22 +28,57 @@
     gtag('config', 'AW-18034090184');
     gtag('config', 'G-Q83DV6LEGM');
     gtag('config', 'GT-K48G2WH');
-  </script>
 
-  <!-- Google AdSense H5 Game Ads SDK -->
-  <script async
-    data-ad-client="ca-pub-1758777358223420"
-    data-ad-frequency-hint="30s"
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-    crossorigin="anonymous"></script>
-  <script>
     // H5 Game Ads: adBreak/adConfig shims (must be in <head> before SDK loads)
     window.adsbygoogle = window.adsbygoogle || [];
     window.adBreak = window.adBreak || function(o) { adsbygoogle.push(o); };
     window.adConfig = window.adConfig || function(o) { adsbygoogle.push(o); };
     // Pre-configure: enable preloading
     adConfig({ preloadAdBreaks: 'on' });
+
+    // Отложенная загрузка тяжелых скриптов
+    // Скрипты загрузятся через 3 секунды после начала или по первому скроллу/взаимодействию
+    (function() {
+      var scriptsLoaded = false;
+      function loadScripts() {
+        if (scriptsLoaded) return;
+        scriptsLoaded = true;
+
+        // Загрузка GTag
+        var gtagScript = document.createElement('script');
+        gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=AW-18034090184";
+        gtagScript.async = true;
+        document.head.appendChild(gtagScript);
+
+        // Загрузка AdSense
+        var adsenseScript = document.createElement('script');
+        adsenseScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+        adsenseScript.async = true;
+        adsenseScript.setAttribute("data-ad-client", "ca-pub-1758777358223420");
+        adsenseScript.setAttribute("data-ad-frequency-hint", "30s");
+        adsenseScript.crossOrigin = "anonymous";
+        document.head.appendChild(adsenseScript);
+        // Загрузка Telegram Login SDK
+        var tgLoginScript = document.createElement('script');
+        tgLoginScript.src = "https://oauth.telegram.org/js/telegram-login.js";
+        tgLoginScript.async = true;
+        document.head.appendChild(tgLoginScript);
+      }
+
+      // Слушаем таймер или взаимодействие
+      setTimeout(loadScripts, 3500); // Гарантированная загрузка через 3.5с
+      ['scroll', 'mousemove', 'touchstart'].forEach(function(ev) {
+        window.addEventListener(ev, loadScripts, { once: true, passive: true });
+      });
+    })();
   </script>
+
+  <!-- ОПТИМИЗАЦИЯ FONTS: Preload критического шрифта -->
+  <!-- Оптимизация шрифтов: загрузка через современный link -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap">
+  </noscript>
 
   <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически при переходах -->
   <meta name="theme-color" content="#0f172a">
@@ -591,16 +625,7 @@
     })();
   </script>
 
-   <!-- КРИТИЧНО ДЛЯ OIDC: telegram-widget.js удалён — он перезаписывает window.Telegram.Login
-       и ломает Telegram Login SDK, используемый для авторизации через OIDC popup. -->
-  <script src="https://oauth.telegram.org/js/telegram-login.js" async defer></script>
-
-  <!-- ОПТИМИЗАЦИЯ FONTS: Preload критического шрифта -->
-  <!-- Оптимизация шрифтов: загрузка через современный link -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap" media="print" onload="this.media='all'">
-  <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap">
-  </noscript>
+   <!-- КРИТИЧНО ДЛЯ OIDC: telegram-login загружается отложенно через loadScripts (см. выше) -->
 
   <!-- Development: Telegram WebApp Mock - загружается через main.tsx -->
 </head>
@@ -868,7 +893,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-04-02-08:31';
+      const APP_VERSION = '2026-04-02-09:25';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
