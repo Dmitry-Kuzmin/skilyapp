@@ -98,6 +98,13 @@ export const chapter3: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'La ITV es obligatoria para todos los vehículos.',
+          correctWords: ['Техосмотр', 'обязателен', 'для', 'всех', 'транспортных', 'средств'],
+          extraWords: ['водителей', 'добровольный', 'пешеходов'],
+        },
+        {
           type: 'context',
           sentence: 'Каждые два года большинство авто обязано проходить «___».',
           sentenceEs: 'Cada dos años la mayoría de vehículos deben pasar la «___».',
