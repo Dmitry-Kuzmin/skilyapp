@@ -34,9 +34,7 @@ const CORE_PAGES = [
   { path: "/tests", changefreq: "weekly", priority: "0.90", lastmod: BUILD_DATE },
   { path: "/games", changefreq: "weekly", priority: "0.85", lastmod: BUILD_DATE },
   { path: "/pricing", changefreq: "weekly", priority: "0.80", lastmod: BUILD_DATE },
-  { path: "/dictionary", changefreq: "weekly", priority: "0.80", lastmod: BUILD_DATE },
   { path: "/road-signs", changefreq: "weekly", priority: "0.80", lastmod: BUILD_DATE },
-  { path: "/learning-map", changefreq: "weekly", priority: "0.80", lastmod: BUILD_DATE },
   { path: "/dgt-tests", changefreq: "weekly", priority: "0.80", lastmod: BUILD_DATE },
   { path: "/blog", changefreq: "weekly", priority: "0.80", lastmod: BUILD_DATE },
   { path: "/guides", changefreq: "weekly", priority: "0.85", lastmod: BUILD_DATE },
@@ -44,7 +42,6 @@ const CORE_PAGES = [
   { path: "/features", changefreq: "monthly", priority: "0.70", lastmod: BUILD_DATE },
   { path: "/partners", changefreq: "monthly", priority: "0.60", lastmod: BUILD_DATE },
   { path: "/help", changefreq: "monthly", priority: "0.60", lastmod: BUILD_DATE },
-  { path: "/achievements", changefreq: "weekly", priority: "0.60", lastmod: BUILD_DATE },
   { path: "/referrals", changefreq: "monthly", priority: "0.50", lastmod: BUILD_DATE },
   { path: "/legal/terms", changefreq: "monthly", priority: "0.30", lastmod: BUILD_DATE },
   { path: "/legal/privacy", changefreq: "monthly", priority: "0.30", lastmod: BUILD_DATE },
@@ -366,7 +363,6 @@ ${BRAND} is a multilingual DGT theory-preparation product for people getting a d
 - ${SITE_URL}/curso
 - ${SITE_URL}/pricing
 - ${SITE_URL}/tests
-- ${SITE_URL}/dictionary
 - ${SITE_URL}/road-signs
 
 ## Evergreen guides
