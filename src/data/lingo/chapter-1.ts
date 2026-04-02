@@ -232,6 +232,13 @@ export const chapter1: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'La señal de obligación tiene forma circular y color azul.',
+          correctWords: ['Предписывающий', 'знак', 'имеет', 'круглую', 'форму', 'и', 'синий', 'цвет'],
+          extraWords: ['красный', 'треугольную', 'жёлтый'],
+        },
+        {
           type: 'context',
           sentence: 'Синий круг — это «___», он обязывает водителя что-то сделать.',
           sentenceEs: 'El círculo azul es una «___», obliga al conductor a actuar.',
