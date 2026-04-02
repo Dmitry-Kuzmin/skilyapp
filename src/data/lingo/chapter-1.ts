@@ -303,6 +303,13 @@ export const chapter1: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'En la carretera convencional la velocidad máxima es 90 km/h.',
+          correctWords: ['На', 'обычной', 'дороге', 'максимальная', 'скорость', '90', 'км/ч'],
+          extraWords: ['120', 'автомагистрали', 'минимальная'],
+        },
+        {
           type: 'context',
           sentence: 'На перекрёстке, где нет знаков, приоритет у дороги с «___».',
           sentenceEs: 'En intersecciones sin señales, tiene preferencia la vía con «___».',
