@@ -24,7 +24,6 @@ import { useIdleInitialization } from "@/hooks/useIdleInitialization";
 import { GlobalSettingsManager } from "@/components/settings";
 import { AppKitProvider } from "@ton/appkit-react";
 import { appKit } from "@/lib/ton-appkit";
-import '@ton/appkit-react/styles.css';
 import { TonAddressProvider } from '@/contexts/TonAddressContext';
 import { Motion } from "@/components/optimized/Motion";
 import { useSessionManager } from "@/hooks/useSessionManager";
@@ -60,6 +59,10 @@ export function AppProviders({ children }: AppProvidersProps) {
   // ОПТИМИЗАЦИЯ: Предзагружаем Paddle SDK в idle callback (не блокирует рендеринг)
   // Это ускоряет открытие формы оплаты (SDK уже готов, не нужно ждать инициализации)
   useEffect(() => {
+    import('@ton/appkit-react/styles.css').catch((error) => {
+      console.warn('[AppProviders] Failed to load TON styles:', error);
+    });
+
     const hasIdleCallback = typeof window !== 'undefined' && 'requestIdleCallback' in window;
 
     const preloadPaddleIdle = () => {

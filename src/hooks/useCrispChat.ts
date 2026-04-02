@@ -13,8 +13,13 @@ export function useCrispChat() {
     // Check if already injected
     if (document.getElementById('crisp-chat-script')) return;
 
-    // Отложенная загрузка для PageSpeed
-    const timer = setTimeout(() => {
+    let loaded = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const loadCrisp = () => {
+      if (loaded) return;
+      loaded = true;
+
       window.$crisp = [];
       window.CRISP_WEBSITE_ID = "f75e4c12-7db0-4f2f-90fb-711aacc45df3";
 
@@ -28,11 +33,20 @@ export function useCrispChat() {
       if (d.head) {
           d.head.appendChild(s);
       }
-    }, 4000);
+    };
+
+    // Не вмешиваемся в критический путь: ждём взаимодействия или длинного idle timeout.
+    timer = setTimeout(loadCrisp, 15000);
+    window.addEventListener("pointerdown", loadCrisp, { once: true, passive: true });
+    window.addEventListener("keydown", loadCrisp, { once: true });
+    window.addEventListener("scroll", loadCrisp, { once: true, passive: true });
 
     // Optional: cleanup or hide when unmounting 
     return () => {
-       clearTimeout(timer);
+       if (timer) clearTimeout(timer);
+       window.removeEventListener("pointerdown", loadCrisp);
+       window.removeEventListener("keydown", loadCrisp);
+       window.removeEventListener("scroll", loadCrisp);
        // It's tricky to fully obliterate crisp from the DOM, 
        // but we can ask it to hide or hide its container block
        if (window.$crisp && window.$crisp.push) {

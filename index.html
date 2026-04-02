@@ -5,81 +5,6 @@
   <meta charset="UTF-8" />
   <!-- КРИТИЧНО: Viewport для Telegram Mini App - предотвращает схлопывание шторки -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
-  
-  <!-- Google tag (gtag.js) - Отложеная загрузка для скорости pageSpeed -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-
-    // Google Consent Mode (GCM) Initial State
-    // Set default consent to 'granted' to ensure tracking works until a cookie banner is implemented
-    gtag('consent', 'default', {
-      'ad_storage': 'granted',
-      'ad_user_data': 'granted',
-      'ad_personalization': 'granted',
-      'analytics_storage': 'granted',
-      'wait_for_update': 500
-    });
-
-    gtag('js', new Date());
-    gtag('config', 'AW-18034090184');
-    gtag('config', 'G-Q83DV6LEGM');
-    gtag('config', 'GT-K48G2WH');
-
-    // H5 Game Ads: adBreak/adConfig shims (must be in <head> before SDK loads)
-    window.adsbygoogle = window.adsbygoogle || [];
-    window.adBreak = window.adBreak || function(o) { adsbygoogle.push(o); };
-    window.adConfig = window.adConfig || function(o) { adsbygoogle.push(o); };
-    // Pre-configure: enable preloading
-    adConfig({ preloadAdBreaks: 'on' });
-
-    // Отложенная загрузка тяжелых скриптов
-    // Скрипты загрузятся через 3 секунды после начала или по первому скроллу/взаимодействию
-    (function() {
-      var scriptsLoaded = false;
-      function loadScripts() {
-        if (scriptsLoaded) return;
-        scriptsLoaded = true;
-
-        // Загрузка GTag
-        var gtagScript = document.createElement('script');
-        gtagScript.src = "https://www.googletagmanager.com/gtag/js?id=AW-18034090184";
-        gtagScript.async = true;
-        document.head.appendChild(gtagScript);
-
-        // Загрузка AdSense
-        var adsenseScript = document.createElement('script');
-        adsenseScript.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
-        adsenseScript.async = true;
-        adsenseScript.setAttribute("data-ad-client", "ca-pub-1758777358223420");
-        adsenseScript.setAttribute("data-ad-frequency-hint", "30s");
-        adsenseScript.crossOrigin = "anonymous";
-        document.head.appendChild(adsenseScript);
-        // Загрузка Telegram Login SDK
-        var tgLoginScript = document.createElement('script');
-        tgLoginScript.src = "https://oauth.telegram.org/js/telegram-login.js";
-        tgLoginScript.async = true;
-        document.head.appendChild(tgLoginScript);
-      }
-
-      // Слушаем таймер или взаимодействие
-      setTimeout(loadScripts, 3500); // Гарантированная загрузка через 3.5с
-      ['scroll', 'mousemove', 'touchstart'].forEach(function(ev) {
-        window.addEventListener(ev, loadScripts, { once: true, passive: true });
-      });
-    })();
-  </script>
-
-  <!-- ОПТИМИЗАЦИЯ FONTS: Preload критического шрифта -->
-  <!-- Оптимизация шрифтов: загрузка через современный link -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap" media="print" onload="this.media='all'">
-  <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&display=swap">
-  </noscript>
-
   <!-- Theme color: начальный цвет для лендинга. ThemeColorManager обновит динамически при переходах -->
   <meta name="theme-color" content="#0f172a">
   <meta name="msapplication-TileColor" content="#0f172a">
@@ -107,16 +32,6 @@
   </script>
   <!-- Safari iOS: чёрная строка статуса с прозрачностью (нужно для viewport-fit=cover) -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-
-  <!-- PREMIUM TYPOGRAPHY: Outfit for headings, Inter for body -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&family=La+Belle+Aurore&display=swap"
-    rel="stylesheet"
-    media="print" 
-    onload="this.media='all'">
-  <noscript>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@900&family=La+Belle+Aurore&display=swap" rel="stylesheet">
-  </noscript>
 
   <!-- Favicons: Optimized for Dark Mode and Safari -->
   <link rel="icon" type="image/svg+xml" href="/favicon-s.svg" />
@@ -893,7 +808,7 @@
 
       // 🚨 КРИТИЧНО: Принудительная очистка кэша для обхода проблем с кэшированием
       // Версия приложения - автоматически обновляется при деплое
-      const APP_VERSION = '2026-04-02-15:08';
+      const APP_VERSION = '2026-04-02-16:27';
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)

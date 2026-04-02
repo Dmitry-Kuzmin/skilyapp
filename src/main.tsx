@@ -15,7 +15,6 @@ console.log("%c Build: 2026-03-12 18:38 UTC ", "background: #1e1b4b; color: #818
 // ОПТИМИЗАЦИЯ: animations.css lazy load (не блокирует FCP)
 import { reportWebVitals } from "./utils/webVitals";
 import { performanceMonitor } from "./utils/performance";
-import { initPostHog } from "./lib/posthog";
 
 declare global {
   interface Window {
@@ -25,6 +24,8 @@ declare global {
 }
 
 const isPrerenderMode = typeof window !== 'undefined' && window.__PRERENDER__ === true;
+const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
+const isMarketingRoute = pathname === "/" || pathname === "/curso";
 
 // КРИТИЧНО: Помечаем, что main.tsx загрузился (как можно раньше!)
 if (typeof window !== 'undefined') {
@@ -49,8 +50,6 @@ if (typeof window !== 'undefined') {
       console.log('[TMA Analytics] Skipped: running outside Telegram environment');
   }
 
-  // PostHog — инициализация ДО первого рендера (захватываем $pageview с первой страницы)
-  initPostHog();
 }
 
 // ОПТИМИЗАЦИЯ DEV: Дросселируем console.log чтобы 1925 логов не фризили JS-поток
@@ -85,45 +84,42 @@ const captureEarlyError = (error: any, context: any) => {
   earlyErrors.push({ error, context });
 };
 
-  if (!isPrerenderMode) {
-    setTimeout(() => {
-  // Инициализация Rollbar
-      import('./lib/rollbar').then(({ initRollbar, reportError }) => {
-        initRollbar();
+if (!isPrerenderMode && !isMarketingRoute) {
+  setTimeout(() => {
+    import('./lib/rollbar').then(({ initRollbar, reportError }) => {
+      initRollbar();
 
-
-    // Отправляем накопленные ранние ошибки
-    if (earlyErrors.length > 0) {
-      console.log(`[Main] Reporting ${earlyErrors.length} early errors to Rollbar`);
-      earlyErrors.forEach(({ error, context }) => {
-        reportError(error, { ...context, earlyError: true });
-      });
-      earlyErrors.length = 0; // Очищаем массив
-    }
-      }).catch(err => {
-        console.warn('[Main] Failed to init Rollbar:', err);
-      });
-
-      // Инициализация Sentry
-      import('./utils/sentry').then(({ initSentry }) => {
-        initSentry();
-      }).catch(err => {
-        console.warn('[Main] Failed to init Sentry:', err);
-      });
-    }, 0);
-  }
-
-// ОПТИМИЗАЦИЯ: Инициализация Server Time ПОСЛЕ первого рендера (не блокируем FCP)
-setTimeout(() => {
-  import('./utils/serverTime').then(({ initServerTime }) => {
-    initServerTime().catch((error) => {
-      console.error('[Main] Failed to init server time:', error);
+      if (earlyErrors.length > 0) {
+        console.log(`[Main] Reporting ${earlyErrors.length} early errors to Rollbar`);
+        earlyErrors.forEach(({ error, context }) => {
+          reportError(error, { ...context, earlyError: true });
+        });
+        earlyErrors.length = 0;
+      }
+    }).catch(err => {
+      console.warn('[Main] Failed to init Rollbar:', err);
     });
-  });
-}, 100);
+
+    import('./utils/sentry').then(({ initSentry }) => {
+      initSentry();
+    }).catch(err => {
+      console.warn('[Main] Failed to init Sentry:', err);
+    });
+  }, 0);
+}
+
+if (!isMarketingRoute) {
+  setTimeout(() => {
+    import('./utils/serverTime').then(({ initServerTime }) => {
+      initServerTime().catch((error) => {
+        console.error('[Main] Failed to init server time:', error);
+      });
+    });
+  }, 100);
+}
 
 // КРИТИЧНО: Синхронизация времени при возврате в приложение
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !isMarketingRoute) {
   document.addEventListener('visibilitychange', async () => {
     if (!document.hidden) {
       const { forceSyncServerTime } = await import('@/utils/serverTime');
@@ -138,8 +134,9 @@ if (typeof window !== 'undefined') {
 // --------------------------------------------------------
 // 🥚 EASTER EGGS & SECURITY (Production Only)
 // --------------------------------------------------------
-setTimeout(() => {
-  if (import.meta.env.PROD) {
+if (!isMarketingRoute) {
+  setTimeout(() => {
+    if (import.meta.env.PROD) {
     import('@/utils/safeLog').then(({ safeLog }) => {
       safeLog('log',
         `%c
@@ -179,8 +176,41 @@ setTimeout(() => {
       );
 
     });
+    }
+  }, 1500);
+}
+
+if (typeof window !== "undefined" && !isPrerenderMode) {
+  const scheduleAnalytics = () => {
+    import("@vercel/analytics").then(({ inject }) => {
+      inject();
+    }).catch((err) => {
+      console.warn("[Main] Failed to inject Vercel Analytics:", err);
+    });
+
+    import("./lib/posthog").then(({ initPostHog }) => {
+      initPostHog();
+    }).catch((err) => {
+      console.warn("[Main] Failed to init PostHog:", err);
+    });
+  };
+
+  if (isMarketingRoute) {
+    const triggerAnalytics = () => {
+      scheduleAnalytics();
+      window.removeEventListener("pointerdown", triggerAnalytics);
+      window.removeEventListener("keydown", triggerAnalytics);
+      window.removeEventListener("scroll", triggerAnalytics);
+    };
+
+    window.addEventListener("pointerdown", triggerAnalytics, { once: true, passive: true });
+    window.addEventListener("keydown", triggerAnalytics, { once: true });
+    window.addEventListener("scroll", triggerAnalytics, { once: true, passive: true });
+    window.setTimeout(triggerAnalytics, 10000);
+  } else {
+    window.setTimeout(scheduleAnalytics, 1500);
   }
-}, 1500);
+}
 
 
 

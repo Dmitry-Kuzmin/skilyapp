@@ -8,8 +8,8 @@
  * ============================================================================ */
 @layer base {
   :root {
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
-    --font-heading: -apple-system, BlinkMacSystemFont, 'Outfit', system-ui, sans-serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   }
 
   * {
