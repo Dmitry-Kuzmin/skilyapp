@@ -70,6 +70,14 @@ export const chapter4: LingoChapter = {
       title: 'Велосипедисты',
       emoji: '🚲',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Ciclista',
+          termRu: 'Велосипедист',
+          descriptionRu: 'Участник дорожного движения на велосипеде. Обязан соблюдать ПДД наравне с водителями.',
+          exampleEs: 'El ciclista debe circular por el carril bici si existe.',
+          exampleRu: 'Велосипедист должен двигаться по велодорожке, если она есть.',
+        },
         { type: 'flashcard', termEs: 'Ciclista', termRu: 'Велосипедист', descriptionRu: 'Участник движения на велосипеде.' },
         { type: 'flashcard', termEs: 'Carril bici', termRu: 'Велодорожка', descriptionRu: 'Полоса или дорожка, предназначенная для велосипедов.' },
         { type: 'flashcard', termEs: 'Casco', termRu: 'Шлем', descriptionRu: 'Защитный головной убор. Обязателен для мотоциклистов, рекомендован велосипедистам.' },
@@ -88,6 +96,13 @@ export const chapter4: LingoChapter = {
             { es: 'Casco', ru: 'Шлем' },
             { es: 'Vía ciclista', ru: 'Велосипедная трасса' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'El ciclista debe usar casco fuera de la ciudad.',
+          correctWords: ['Велосипедист', 'должен', 'носить', 'шлем', 'за', 'городом'],
+          extraWords: ['перчатки', 'жилет', 'зеркало'],
         },
         {
           type: 'context',
