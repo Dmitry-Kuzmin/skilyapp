@@ -16,6 +16,14 @@ export const chapter2: LingoChapter = {
       title: 'Скоростные термины',
       emoji: '⚡',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Velocidad máxima',
+          termRu: 'Максимальная скорость',
+          descriptionRu: 'Наибольшая разрешённая скорость на данном участке дороги. Зависит от типа дороги и ТС.',
+          exampleEs: 'La velocidad máxima en autopista es de 120 km/h.',
+          exampleRu: 'Максимальная скорость на автомагистрали — 120 км/ч.',
+        },
         { type: 'flashcard', termEs: 'Velocidad máxima', termRu: 'Максимальная скорость', descriptionRu: 'Наибольшая разрешённая скорость на данном участке.' },
         { type: 'flashcard', termEs: 'Velocidad mínima', termRu: 'Минимальная скорость', descriptionRu: 'Наименьшая обязательная скорость (чтобы не создавать помеху).' },
         { type: 'flashcard', termEs: 'Velocidad moderada', termRu: 'Умеренная скорость', descriptionRu: 'Скорость адаптированная к условиям (дождь, туман, ребёнок рядом).' },
