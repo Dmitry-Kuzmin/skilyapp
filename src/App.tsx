@@ -285,6 +285,8 @@ const LandingRedirect = () => {
 };
 
 const App = () => {
+  const isPrerenderMode = typeof window !== 'undefined' && window.__PRERENDER__ === true;
+
   useEffect(() => {
     // КРИТИЧНО: Извлекаем deep link из Telegram start_param ДО рендера
     // initTelegram() сохраняет deep link в sessionStorage для DeepLinkHandler
@@ -643,7 +645,7 @@ const App = () => {
           </BrowserRouter>
         </Suspense>
       </Motion>
-      <Analytics />
+      {!isPrerenderMode && <Analytics />}
     </TelegramProvider>
   );
 };

@@ -282,6 +282,21 @@ async function prerender() {
   
   const app = express();
   app.use(express.static(DIST_DIR));
+
+  // During local prerender, Vercel Analytics may request its client script.
+  // Return a no-op JS file instead of falling through to the HTML shell.
+  app.get('/_vercel/insights/script.js', (_req, res) => {
+    res.type('application/javascript').send('/* prerender noop: vercel analytics */');
+  });
+  app.get('/_vercel/speed-insights/script.js', (_req, res) => {
+    res.type('application/javascript').send('/* prerender noop: vercel speed insights */');
+  });
+  app.use('/_vercel/insights', (_req, res) => {
+    res.status(204).end();
+  });
+  app.use('/_vercel/speed-insights', (_req, res) => {
+    res.status(204).end();
+  });
   
   // SPA fallback для всех роутов (используем use вместо get для catch-all)
   app.use((req, res) => {
