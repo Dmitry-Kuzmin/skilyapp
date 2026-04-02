@@ -700,7 +700,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         text: "❌ Рассылка отменена.",
       });
     }
-    // ── Утренняя викторина: перевод итогового разбора на русский ──────────
+    // ── Утренняя викторина: перевод итогового разбора — показываем подтверждение ──
     else if (data === "mqs_ru") {
       const { data: prof } = await supabase
         .from('profiles')
@@ -727,18 +727,76 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         return;
       }
 
-      const results: any[] = prof?.settings?.mqs_ru || [];
+      // Показываем подтверждение
+      await fetch(`${TELEGRAM_API}/editMessageText`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: message.chat.id,
+          message_id: message.message_id,
+          text: `🪙 Перевод разбора стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> 🪙 — спишем 2. Подтвердить?`,
+          parse_mode: "HTML",
+          reply_markup: { inline_keyboard: [[
+            { text: '✅ Да, перевести', callback_data: 'mqs_ok' },
+            { text: '❌ Отмена', callback_data: 'mqs_no' },
+          ]]},
+        }),
+      });
+    }
+    // ── Утренняя викторина: перевод разбора — отмена ──────────────────────
+    else if (data === "mqs_no") {
+      await fetch(`${TELEGRAM_API}/editMessageText`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: message.chat.id,
+          message_id: message.message_id,
+          text: `📊 <b>Разбор ответов</b>`,
+          parse_mode: "HTML",
+          reply_markup: { inline_keyboard: [[
+            { text: 'Перевести разбор (2 🪙)', callback_data: 'mqs_ru', icon_custom_emoji_id: '5105268517691720533' },
+          ]]},
+        }),
+      });
+    }
+    // ── Утренняя викторина: перевод разбора — подтверждено, выполняем ─────
+    else if (data === "mqs_ok") {
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('id, settings, coins')
+        .eq('telegram_id', user.id)
+        .maybeSingle();
 
-      if (!results.length) {
-        await fetch(`${TELEGRAM_API}/sendMessage`, {
+      const coins = (prof as any)?.coins ?? 0;
+
+      if (coins < 2) {
+        await fetch(`${TELEGRAM_API}/editMessageText`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chat_id: message.chat.id, text: "⚠️ Данные разбора уже недоступны." }),
+          body: JSON.stringify({
+            chat_id: message.chat.id,
+            message_id: message.message_id,
+            text: `🪙 У тебя <b>${coins}</b> — нужно пополнить!`,
+            parse_mode: "HTML",
+            reply_markup: { inline_keyboard: [[
+              { text: '⛏️ Майнить монеты', web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=coins` } },
+            ]]},
+          }),
         });
         return;
       }
 
-      // Списываем 2 монеты
+      const results: any[] = prof?.settings?.mqs_ru || [];
+
+      if (!results.length) {
+        await fetch(`${TELEGRAM_API}/editMessageText`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: message.chat.id, message_id: message.message_id, text: "⚠️ Данные разбора уже недоступны.", parse_mode: "HTML" }),
+        });
+        return;
+      }
+
       await supabase.rpc('increment_profile_value', { p_profile_id: prof!.id, p_column: 'coins', p_amount: -2 });
       supabase.from('transactions').insert({
         user_id: prof!.id,
@@ -759,19 +817,25 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         lines.push('');
       });
 
+      // Редактируем исходное сообщение (убираем кнопки)
+      await fetch(`${TELEGRAM_API}/editMessageText`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: message.chat.id, message_id: message.message_id, text: "✅ Переведено. Монеты списаны.", parse_mode: "HTML" }),
+      });
+
       await fetch(`${TELEGRAM_API}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ chat_id: message.chat.id, text: lines.join('\n'), parse_mode: "HTML" }),
       });
 
-      // Удаляем после использования
       const s = { ...(prof!.settings || {}) };
       delete s.mqs_ru;
       supabase.from('profiles').update({ settings: s }).eq('id', prof!.id).then().catch(() => {});
     }
-    // ── Утренняя викторина: перевод вопроса на русский ────────────────────
-    else if (data.startsWith("mqt_")) {
+    // ── Утренняя викторина: перевод вопроса — показываем подтверждение ────
+    else if (data.startsWith("mqt_") && !data.startsWith("mqt_ok_") && data !== "mqt_no") {
       const idx = parseInt(data.replace("mqt_", ""), 10);
       const { data: prof } = await supabase
         .from('profiles')
@@ -789,6 +853,65 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
             chat_id: message.chat.id,
             message_id: message.message_id,
             text: `🪙 Перевод стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> — нужно пополнить!`,
+            parse_mode: "HTML",
+            reply_markup: { inline_keyboard: [[
+              { text: '⛏️ Майнить монеты', web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=coins` } },
+            ]]},
+          }),
+        });
+        return;
+      }
+
+      // Показываем подтверждение
+      await fetch(`${TELEGRAM_API}/editMessageText`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: message.chat.id,
+          message_id: message.message_id,
+          text: `🪙 Перевод стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> 🪙 — спишем 2. Подтвердить?`,
+          parse_mode: "HTML",
+          reply_markup: { inline_keyboard: [[
+            { text: '✅ Да, перевести', callback_data: `mqt_ok_${idx}` },
+            { text: '❌ Отмена', callback_data: 'mqt_no' },
+          ]]},
+        }),
+      });
+    }
+    // ── Утренняя викторина: перевод вопроса — отмена ──────────────────────
+    else if (data === "mqt_no") {
+      await fetch(`${TELEGRAM_API}/editMessageText`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: message.chat.id,
+          message_id: message.message_id,
+          text: '¿No entiendes la pregunta?',
+          reply_markup: { inline_keyboard: [[
+            { text: 'Traducir al ruso (2 🪙)', callback_data: 'mqt_0', icon_custom_emoji_id: '5105268517691720533' },
+          ]]},
+        }),
+      });
+    }
+    // ── Утренняя викторина: перевод вопроса — подтверждено, выполняем ─────
+    else if (data.startsWith("mqt_ok_")) {
+      const idx = parseInt(data.replace("mqt_ok_", ""), 10);
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('id, settings, coins')
+        .eq('telegram_id', user.id)
+        .maybeSingle();
+
+      const coins = (prof as any)?.coins ?? 0;
+
+      if (coins < 2) {
+        await fetch(`${TELEGRAM_API}/editMessageText`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: message.chat.id,
+            message_id: message.message_id,
+            text: `🪙 У тебя <b>${coins}</b> — нужно пополнить!`,
             parse_mode: "HTML",
             reply_markup: { inline_keyboard: [[
               { text: '⛏️ Майнить монеты', web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=coins` } },
@@ -818,7 +941,6 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         }
       }
 
-      // Списываем 2 монеты
       await supabase.rpc('increment_profile_value', { p_profile_id: prof!.id, p_column: 'coins', p_amount: -2 });
       supabase.from('transactions').insert({
         user_id: prof!.id,
@@ -826,6 +948,13 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         amount: -2,
         metadata: { source: 'morning_quiz_question', question_idx: idx },
       }).then().catch(() => {});
+
+      // Редактируем кнопку — убираем подтверждение
+      await fetch(`${TELEGRAM_API}/editMessageText`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: message.chat.id, message_id: message.message_id, text: "✅ Переведено. Монеты списаны.", parse_mode: "HTML" }),
+      });
 
       const optLines = ruOptions.map((o, i) => `${i + 1}. ${o}`).join('\n');
       const replyRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
