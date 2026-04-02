@@ -126,8 +126,8 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         const safeBottom = isMobilePlatform ? bottomInset : 0;
         const safeLeft = isMobilePlatform ? leftInset : 0;
         const safeRight = isMobilePlatform ? rightInset : 0;
-        const contentTopValue = isMobilePlatform ? Math.round(contentTop / 2) : 0;
-        const contentBottomValue = isMobilePlatform ? Math.round(contentBottom / 2) : 0;
+        const contentTopValue = isMobilePlatform ? contentTop : 0;
+        const contentBottomValue = isMobilePlatform ? contentBottom : 0;
 
         document.documentElement.style.setProperty('--app-safe-top', `${safeTop}px`);
         document.documentElement.style.setProperty('--app-safe-bottom', `${safeBottom}px`);
@@ -201,6 +201,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
 
       window.setTimeout(() => updateSafeAreas('delayed-100ms'), 100);
       window.setTimeout(() => updateSafeAreas('delayed-500ms'), 500);
+      window.setTimeout(() => updateSafeAreas('delayed-1000ms'), 1000);
 
       setWebApp(tg);
       log('initialized', { platform: tg.platform, version: tg.version });

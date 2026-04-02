@@ -611,11 +611,12 @@ All colors MUST be HSL.
   html.telegram-mobile-app .telegram-public-page,
   body.telegram-mobile-app .telegram-public-page {
     /*
-     * body уже получает системный safe-area через --app-safe-*.
-     * Здесь добавляем только дополнительный inset от Telegram UI
-     * (например, зону кнопки Back/Close) сверх системного inset.
+     * Берём максимум из:
+     * 1. --app-content-top (зона UI Telegram: кнопка Back/Close)
+     * 2. --app-safe-top (системный notch/Dynamic Island)
+     * Чтобы контент никогда не перекрывался ни системным UI, ни UI Telegram.
      */
-    padding-top: max(calc(var(--app-content-top, 0px) - var(--app-safe-top, 0px)), 0px) !important;
+    padding-top: max(var(--app-content-top, 0px), var(--app-safe-top, 0px)) !important;
 
     /* Плавный переход при изменении ориентации или скрытии BackButton */
     transition: padding-top 0.2s cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -646,14 +647,15 @@ All colors MUST be HSL.
   }
 
   /* PWA (Standalone) Safe Area Support */
-  /* Для iOS/Android PWA body уже получает системные env() через --app-safe-*.
-   * Не дублируем top/bottom на main, иначе safe-area складывается дважды. */
+  /* Для iOS/Android PWA env(safe-area-inset-top) применяется напрямую —
+   * body получает отступ через --app-safe-*, но .telegram-main-content
+   * должен явно добавить padding-top для notch/Dynamic Island. */
   @media all and (display-mode: standalone) {
     .telegram-main-content,
     .telegram-public-page {
-      padding-top: 0 !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
+      padding-top: env(safe-area-inset-top, 0px) !important;
+      padding-left: env(safe-area-inset-left, 0px) !important;
+      padding-right: env(safe-area-inset-right, 0px) !important;
     }
 
     /* Корректируем нижнее меню для PWA */
