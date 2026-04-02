@@ -199,6 +199,14 @@ export const chapter1: LingoChapter = {
       title: 'Знаки и сигналы',
       emoji: '🚦',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Señal de prohibición',
+          termRu: 'Запрещающий знак',
+          descriptionRu: 'Круглый знак с красной каймой на белом фоне. Запрещает определённое действие (обгон, остановку, поворот).',
+          exampleEs: 'Esta señal de prohibición indica que no se puede adelantar.',
+          exampleRu: 'Этот запрещающий знак означает, что обгон запрещён.',
+        },
         { type: 'flashcard', termEs: 'Señal de prohibición', termRu: 'Запрещающий знак', descriptionRu: 'Красная круглая рамка. Запрещает определённое действие.' },
         { type: 'flashcard', termEs: 'Señal de obligación', termRu: 'Предписывающий знак', descriptionRu: 'Синий круг. Обязывает выполнить действие.' },
         { type: 'flashcard', termEs: 'Señal de advertencia', termRu: 'Предупреждающий знак', descriptionRu: 'Жёлтый/белый треугольник с красной рамкой. Предупреждает об опасности.' },
