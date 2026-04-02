@@ -112,6 +112,13 @@ export const chapter1: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'No se puede cruzar la línea continua.',
+          correctWords: ['Нельзя', 'пересекать', 'сплошную', 'линию'],
+          extraWords: ['обочину', 'полосу', 'перекрёсток'],
+        },
+        {
           type: 'context',
           sentence: 'Водитель не может пересекать «___», если она разделяет полосы.',
           options: ['línea continua', 'línea discontinua', 'paso de peatones'],
