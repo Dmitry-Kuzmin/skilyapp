@@ -322,6 +322,37 @@ export default function CoursePayment() {
             </div>
           )}
 
+          {/* ── Card (Paddle) ── */}
+          {tab === "card" && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-2xl p-4 text-center border border-gray-100">
+                <div className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-1">К оплате</div>
+                <div className="text-3xl font-extrabold text-gray-900">
+                  €{amount}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">{tariffLabel}</div>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700 text-center font-medium leading-relaxed">
+                🔒 Безопасная оплата через Paddle · Visa, Mastercard, Apple Pay
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {["visa", "mastercard", "amex", "apple"].map(brand => (
+                  <div key={brand} className="bg-white border border-gray-200 rounded-xl h-10 flex items-center justify-center text-xs text-gray-400 font-semibold uppercase">
+                    {brand === "apple" ? "⎇ Pay" : brand}
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={payWithCard}
+                disabled={cardLoading}
+                className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl text-[15px] flex items-center justify-center gap-2 transition-opacity disabled:opacity-60"
+              >
+                {cardLoading ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
+                Оплатить картой
+              </button>
+            </div>
+          )}
+
           {/* ── USDT ── */}
           {tab === "usdt" && (
             <div className="space-y-3">
