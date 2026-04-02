@@ -17,6 +17,9 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 // ОПТИМИЗАЦИЯ: Только Sonner для всех уведомлений (унифицированный чёрный стиль)
 
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { OfflineQueueIndicator } from "@/components/OfflineQueueIndicator";
 import { ReconnectHandler } from "@/components/ReconnectHandler";
 import { useAuthEventListener } from "@/hooks/useAuthEventListener.ts";
 import { preloadPaddle } from "@/lib/paddle";
@@ -25,7 +28,6 @@ import { GlobalSettingsManager } from "@/components/settings";
 import { AppKitProvider } from "@ton/appkit-react";
 import { appKit } from "@/lib/ton-appkit";
 import { TonAddressProvider } from '@/contexts/TonAddressContext';
-import { Motion } from "@/components/optimized/Motion";
 import { useSessionManager } from "@/hooks/useSessionManager";
 
 import { SmartOnboardingFlow } from "@/components/onboarding/SmartOnboardingFlow";
@@ -170,8 +172,11 @@ export function AppProviders({ children }: AppProvidersProps) {
       }}
     >
       <TooltipProvider>
+        <Toaster />
+        <OfflineBanner />
 
         <UserProvider>
+          <OfflineQueueIndicator />
           <LanguageProvider>
             <NotificationProvider>
               <PDDProvider>

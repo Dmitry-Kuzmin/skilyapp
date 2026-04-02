@@ -18,10 +18,8 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 // Они используются только в AppRoutes, который уже lazy, но для чистоты делаем их lazy здесь тоже
 const ReferralRedirect = lazy(() => import("@/components/ReferralRedirect").then(m => ({ default: m.ReferralRedirect })));
 const PartnerRedirect = lazy(() => import("@/components/PartnerRedirect").then(m => ({ default: m.PartnerRedirect })));
-import { OfflineBanner } from "@/components/OfflineBanner";
 // ⚠️ ОТКЛЮЧЕНО: Service Worker отключен
 // import { ServiceWorkerDebug } from "@/components/ServiceWorkerDebug";
-import { OfflineQueueIndicator } from "@/components/OfflineQueueIndicator";
 // ⚠️ ОТКЛЮЧЕНО: Service Worker отключен
 // import { ReloadPrompt } from "@/components/ReloadPrompt";
 
@@ -29,7 +27,6 @@ import { OfflineQueueIndicator } from "@/components/OfflineQueueIndicator";
 const DeepLinkHandler = lazy(() => import("@/components/DeepLinkHandler").then(m => ({ default: m.DeepLinkHandler })));
 // КРИТИЧНО: OAuthCallbackHandler НЕ lazy - должен загружаться сразу для обработки OAuth токенов
 // Иначе при ошибках lazy loading OAuth callback не обработается
-import { Toaster, toast } from "@/components/ui/sonner";
 const CosmeticsPreviewProvider = lazy(() => import("@/contexts/CosmeticsPreviewContext").then(m => ({ default: m.CosmeticsPreviewProvider })));
 
 // ОПТИМИЗАЦИЯ: Lazy load некритичных компонентов для уменьшения initial bundle
@@ -536,11 +533,7 @@ const App = () => {
   return (
     <TelegramProvider>
       <AdCleanup />
-      <Toaster />
       <Motion>
-        <OfflineBanner />
-        <OfflineQueueIndicator />
-
         {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
         {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
         {/* <ReloadPrompt /> */}
