@@ -104,6 +104,13 @@ export const chapter2: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'El punto ciego no es visible en los espejos retrovisores.',
+          correctWords: ['Слепая', 'зона', 'не', 'видна', 'в', 'зеркала', 'заднего', 'вида'],
+          extraWords: ['боковые', 'фары', 'скорость'],
+        },
+        {
           type: 'context',
           sentence: 'Зона, которую не видно в зеркала заднего вида, называется «___».',
           sentenceEs: 'La zona no visible por los espejos retrovisores se llama «___».',
