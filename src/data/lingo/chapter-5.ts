@@ -130,6 +130,14 @@ export const chapter5: LingoChapter = {
       title: 'Системы безопасности',
       emoji: '🛡️',
       exercises: [
+        {
+          type: 'vocab_intro',
+          termEs: 'Cinturón de seguridad',
+          termRu: 'Ремень безопасности',
+          descriptionRu: 'Обязателен для водителя и всех пассажиров. Главная система пассивной безопасности в автомобиле.',
+          exampleEs: 'El uso del cinturón de seguridad es obligatorio.',
+          exampleRu: 'Использование ремня безопасности обязательно.',
+        },
         { type: 'flashcard', termEs: 'Sistema e-Call', termRu: 'Система экстренного вызова', descriptionRu: 'Автоматически вызывает 112 при серьёзной аварии.' },
         { type: 'flashcard', termEs: 'Airbag', termRu: 'Подушка безопасности', descriptionRu: 'Надувается за миллисекунды при столкновении для защиты водителя.' },
         { type: 'flashcard', termEs: 'Cinturón de seguridad', termRu: 'Ремень безопасности', descriptionRu: 'Обязателен для всех пассажиров. Снижает смертность при ДТП.' },
@@ -153,6 +161,13 @@ export const chapter5: LingoChapter = {
             { es: 'Cinturón de seguridad', ru: 'Ремень безопасности' },
             { es: 'Triángulo de emergencia', ru: 'Аварийный треугольник' },
           ],
+        },
+        {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'Todos los pasajeros deben llevar el cinturón de seguridad.',
+          correctWords: ['Все', 'пассажиры', 'должны', 'пристёгиваться', 'ремнём', 'безопасности'],
+          extraWords: ['водитель', 'шлемом', 'подушкой'],
         },
         {
           type: 'context',
