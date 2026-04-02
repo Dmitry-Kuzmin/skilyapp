@@ -266,6 +266,13 @@ export const chapter4: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'El conductor debe ceder el paso en el paso de peatones.',
+          correctWords: ['Водитель', 'должен', 'уступить', 'дорогу', 'на', 'пешеходном', 'переходе'],
+          extraWords: ['тротуаре', 'обочине', 'перекрёстке'],
+        },
+        {
           type: 'context',
           sentence: 'Водитель обязан дать дорогу на «___».',
           options: ['paso de peatones', 'acera', 'carril bici'],
