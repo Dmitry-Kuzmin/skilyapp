@@ -13,6 +13,8 @@ const BOT_TOKEN        = Deno.env.get('TELEGRAM_BOT_TOKEN')!;
 const TELEGRAM_API     = `https://api.telegram.org/bot${BOT_TOKEN}`;
 const SUPABASE_URL     = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const PADDLE_API_KEY   = Deno.env.get('PADDLE_API_KEY')!;
+const PADDLE_API       = 'https://api.paddle.com';
 const ADMIN_CHAT_ID    = 488159880; // @guapo_pub
 
 // 1 star = $0.013 по официальному курсу Telegram
