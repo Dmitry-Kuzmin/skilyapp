@@ -277,6 +277,13 @@ export const chapter5: LingoChapter = {
           ],
         },
         {
+          type: 'word_tiles',
+          prompt: 'Составь перевод:',
+          sentenceEs: 'Llame al 112 para avisar a los servicios de emergencia.',
+          correctWords: ['Позвоните', '112', 'чтобы', 'оповестить', 'экстренные', 'службы'],
+          extraWords: ['полицию', 'скорую', 'написать'],
+        },
+        {
           type: 'context',
           sentence: 'При поломке надо выставить «___» за машиной.',
           options: ['triángulo de emergencia', 'airbag', 'cinturón'],
