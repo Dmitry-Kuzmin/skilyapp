@@ -1,7 +1,6 @@
-import { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
-import { isTelegramMobilePlatformName, isTelegramMiniApp } from '@/lib/telegram';
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { hasTelegramWebApp, isTelegramMiniApp, isTelegramMobilePlatformName } from '@/lib/telegram';
 
-// Типы для Telegram WebApp
 interface WebApp {
   ready: () => void;
   expand: () => void;
@@ -24,6 +23,7 @@ interface WebApp {
   };
   disableVerticalSwipes?: () => void;
   onEvent?: (event: string, callback: () => void) => void;
+  offEvent?: (event: string, callback: () => void) => void;
   initData?: string;
   initDataUnsafe?: {
     user?: {
@@ -43,193 +43,183 @@ interface TelegramProviderProps {
   children: ReactNode;
 }
 
-/**
- * TelegramProvider - Singleton Pattern для единой инициализации Telegram WebApp
- * 
- * Решает проблемы:
- * 1. Множественная инициализация (ready/expand вызываются только один раз)
- * 2. Версионность API (проверка версии перед использованием функций)
- * 3. Централизованное управление состоянием WebApp
- */
 export function TelegramProvider({ children }: TelegramProviderProps) {
   const [webApp, setWebApp] = useState<WebApp | null>(null);
   const initializedRef = useRef(false);
-  const debugOverride = import.meta.env.VITE_DEBUG_TELEGRAM === "true";
+  const debugOverride = import.meta.env.VITE_DEBUG_TELEGRAM === 'true';
 
   useEffect(() => {
-    // Singleton: инициализируем только один раз
-    if (initializedRef.current) {
-      return;
-    }
+    let initInterval: number | undefined;
+    const cleanupFns: Array<() => void> = [];
+    let attempts = 0;
 
-    const tg = (window as any).Telegram?.WebApp;
-    const shouldLog = (!!tg || debugOverride) && import.meta.env.DEV;
-
-    const log = (...args: any[]) => {
-      if (shouldLog) {
+    const log = (...args: unknown[]) => {
+      if (debugOverride && import.meta.env.DEV) {
         console.debug('[TelegramProvider]', ...args);
       }
     };
 
-    if (!tg) {
-      if (shouldLog) {
-        console.debug('[TelegramProvider] ❌ Telegram WebApp не найден');
+    const tryInitialize = () => {
+      if (initializedRef.current) {
+        return true;
       }
-      return;
-    }
 
-    // КРИТИЧЕСКИ ВАЖНО: Проверяем, что мы действительно в Telegram Mini App
-    // В браузере window.Telegram может быть моком или заглушкой
-    if (!isTelegramMiniApp()) {
-      if (shouldLog) {
-        console.debug('[TelegramProvider] ⚠️ Не в Telegram Mini App, пропускаем инициализацию');
-      }
-      return;
-    }
+      const tg = (window as any).Telegram?.WebApp as WebApp | undefined;
+      const isReadyForInit = isTelegramMiniApp() || hasTelegramWebApp();
 
-    initializedRef.current = true;
-    log('🚀 Инициализация Telegram WebApp (Singleton)');
-
-    // КРИТИЧНО: вызываем ready() и expand() только один раз
-    tg.ready();
-
-    // Вызываем expand() только один раз, если еще не развернуто
-    const callExpand = () => {
-      try {
-        if (typeof tg.expand === 'function' && !tg.isExpanded) {
-          tg.expand();
-          log('✅ expand() called in TelegramProvider');
-        } else if (tg.isExpanded) {
-          log('ℹ️ WebApp уже развернут');
+      if (!tg || !isReadyForInit) {
+        attempts += 1;
+        if (attempts > 40 && initInterval) {
+          log('Telegram WebApp did not become ready in time');
+          window.clearInterval(initInterval);
+          initInterval = undefined;
         }
-      } catch (e) {
-        log('⚠️ Error calling expand():', e);
+        return false;
       }
-    };
 
-    // Вызываем один раз сразу
-    callExpand();
-
-    // Вызываем на событиях viewport (только если еще не развернуто)
-    if (typeof tg.onEvent === 'function') {
-      tg.onEvent('viewport_changed', () => {
-        log('📐 viewport_changed - checking expand');
-        if (!tg.isExpanded) {
-          callExpand();
-        }
-      });
-
-      tg.onEvent('safeAreaChanged', () => {
-        log('📐 safeAreaChanged - checking expand');
-        if (!tg.isExpanded) {
-          callExpand();
-        }
-      });
-    }
-
-    // Обработка версионности API (решает проблему №5)
-    const version = parseFloat(tg.version || '0');
-    if (version >= 6.1 && typeof tg.disableVerticalSwipes === 'function') {
-      try {
-        tg.disableVerticalSwipes();
-        log('✅ Vertical swipes disabled (API 6.1+)');
-      } catch (error) {
-        // Игнорируем ошибку для версий < 6.1
-        log('⚠️ disableVerticalSwipes not supported in version', tg.version);
+      initializedRef.current = true;
+      if (initInterval) {
+        window.clearInterval(initInterval);
+        initInterval = undefined;
       }
-    } else if (version < 6.1) {
-      log('⚠️ API version', tg.version, '- swipes behavior changes not supported');
-    }
 
-    // Применяем platform classes
-    const platform = tg.platform || 'unknown';
-    const isMobilePlatform = isTelegramMobilePlatformName(platform);
+      tg.ready();
 
-    document.documentElement.classList.add('telegram-webapp');
-    document.body.classList.add('telegram-webapp');
-    document.documentElement.classList.toggle('telegram-mobile-app', isMobilePlatform);
-    document.documentElement.classList.toggle('telegram-desktop-app', !isMobilePlatform);
-    document.body.classList.toggle('telegram-mobile-app', isMobilePlatform);
-    document.body.classList.toggle('telegram-desktop-app', !isMobilePlatform);
+      const callExpand = () => {
+        try {
+          if (typeof tg.expand === 'function' && !tg.isExpanded) {
+            tg.expand();
+            log('expand() called');
+          }
+        } catch (error) {
+          log('expand() failed', error);
+        }
+      };
 
-    // Функция обновления safe areas
-    const updateSafeAreas = (eventName?: string) => {
-      const topInset = (tg as any).viewportSafeAreaInsetTop ?? tg.safeAreaInset?.top ?? 0;
-      const bottomInset = (tg as any).viewportSafeAreaInsetBottom ?? tg.safeAreaInset?.bottom ?? 0;
-      const leftInset = (tg as any).viewportSafeAreaInsetLeft ?? tg.safeAreaInset?.left ?? 0;
-      const rightInset = (tg as any).viewportSafeAreaInsetRight ?? tg.safeAreaInset?.right ?? 0;
-      const contentTop = tg.contentSafeAreaInset?.top ?? 0;
-      const contentBottom = tg.contentSafeAreaInset?.bottom ?? 0;
+      const getPlatformInfo = () => {
+        const platform = tg.platform || 'unknown';
+        const isMobilePlatform = isTelegramMobilePlatformName(platform);
+        return { platform, isMobilePlatform };
+      };
 
-      const safeTop = isMobilePlatform ? topInset : 0;
-      const safeBottom = isMobilePlatform ? bottomInset : 0;
-      const safeLeft = isMobilePlatform ? leftInset : 0;
-      const safeRight = isMobilePlatform ? rightInset : 0;
-      const contentTopValue = isMobilePlatform ? Math.round(contentTop / 2) : 0;
-      const contentBottomValue = isMobilePlatform ? Math.round(contentBottom / 2) : 0;
+      const applyPlatformClasses = (isMobilePlatform: boolean) => {
+        document.documentElement.classList.add('telegram-webapp');
+        document.body.classList.add('telegram-webapp');
+        document.documentElement.classList.toggle('telegram-mobile-app', isMobilePlatform);
+        document.documentElement.classList.toggle('telegram-desktop-app', !isMobilePlatform);
+        document.body.classList.toggle('telegram-mobile-app', isMobilePlatform);
+        document.body.classList.toggle('telegram-desktop-app', !isMobilePlatform);
+      };
 
-      document.documentElement.style.setProperty('--app-safe-top', `${safeTop}px`);
-      document.documentElement.style.setProperty('--app-safe-bottom', `${safeBottom}px`);
-      document.documentElement.style.setProperty('--app-safe-left', `${safeLeft}px`);
-      document.documentElement.style.setProperty('--app-safe-right', `${safeRight}px`);
-      document.documentElement.style.setProperty('--app-content-top', `${contentTopValue}px`);
-      document.documentElement.style.setProperty('--app-content-bottom', `${contentBottomValue}px`);
-      document.documentElement.style.setProperty('--tg-safe-area-inset-top', `${safeTop}px`);
-      document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${safeBottom}px`);
-      document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${safeLeft}px`);
-      document.documentElement.style.setProperty('--tg-safe-area-inset-right', `${safeRight}px`);
-      document.documentElement.style.setProperty('--tg-viewport-height', `${tg.viewportHeight ?? 0}px`);
-      document.documentElement.style.setProperty('--tg-viewport-stable-height', `${tg.viewportStableHeight ?? tg.viewportHeight ?? 0}px`);
+      const updateSafeAreas = (eventName?: string) => {
+        const { platform, isMobilePlatform } = getPlatformInfo();
+        applyPlatformClasses(isMobilePlatform);
 
-      // Для обратной совместимости
-      document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', `${isMobilePlatform ? tg.contentSafeAreaInset?.top ?? topInset : 0}px`);
-      document.documentElement.style.setProperty('--tg-content-safe-area-inset-bottom', `${isMobilePlatform ? tg.contentSafeAreaInset?.bottom ?? bottomInset : 0}px`);
-      document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', `${isMobilePlatform ? tg.contentSafeAreaInset?.left ?? leftInset : 0}px`);
-      document.documentElement.style.setProperty('--tg-content-safe-area-inset-right', `${isMobilePlatform ? tg.contentSafeAreaInset?.right ?? rightInset : 0}px`);
-    };
+        const topInset = (tg as any).viewportSafeAreaInsetTop ?? tg.safeAreaInset?.top ?? 0;
+        const bottomInset = (tg as any).viewportSafeAreaInsetBottom ?? tg.safeAreaInset?.bottom ?? 0;
+        const leftInset = (tg as any).viewportSafeAreaInsetLeft ?? tg.safeAreaInset?.left ?? 0;
+        const rightInset = (tg as any).viewportSafeAreaInsetRight ?? tg.safeAreaInset?.right ?? 0;
+        const contentTop = tg.contentSafeAreaInset?.top ?? 0;
+        const contentBottom = tg.contentSafeAreaInset?.bottom ?? 0;
 
-    // Подписываемся на события viewport changes
-    if (tg.onEvent) {
-      tg.onEvent('viewport_changed', () => {
-        log('📐 viewport_changed event');
+        const safeTop = isMobilePlatform ? topInset : 0;
+        const safeBottom = isMobilePlatform ? bottomInset : 0;
+        const safeLeft = isMobilePlatform ? leftInset : 0;
+        const safeRight = isMobilePlatform ? rightInset : 0;
+        const contentTopValue = isMobilePlatform ? Math.round(contentTop / 2) : 0;
+        const contentBottomValue = isMobilePlatform ? Math.round(contentBottom / 2) : 0;
+
+        document.documentElement.style.setProperty('--app-safe-top', `${safeTop}px`);
+        document.documentElement.style.setProperty('--app-safe-bottom', `${safeBottom}px`);
+        document.documentElement.style.setProperty('--app-safe-left', `${safeLeft}px`);
+        document.documentElement.style.setProperty('--app-safe-right', `${safeRight}px`);
+        document.documentElement.style.setProperty('--app-content-top', `${contentTopValue}px`);
+        document.documentElement.style.setProperty('--app-content-bottom', `${contentBottomValue}px`);
+        document.documentElement.style.setProperty('--tg-safe-area-inset-top', `${safeTop}px`);
+        document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${safeBottom}px`);
+        document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${safeLeft}px`);
+        document.documentElement.style.setProperty('--tg-safe-area-inset-right', `${safeRight}px`);
+        document.documentElement.style.setProperty('--tg-content-safe-area-inset-top', `${isMobilePlatform ? tg.contentSafeAreaInset?.top ?? topInset : 0}px`);
+        document.documentElement.style.setProperty('--tg-content-safe-area-inset-bottom', `${isMobilePlatform ? tg.contentSafeAreaInset?.bottom ?? bottomInset : 0}px`);
+        document.documentElement.style.setProperty('--tg-content-safe-area-inset-left', `${isMobilePlatform ? tg.contentSafeAreaInset?.left ?? leftInset : 0}px`);
+        document.documentElement.style.setProperty('--tg-content-safe-area-inset-right', `${isMobilePlatform ? tg.contentSafeAreaInset?.right ?? rightInset : 0}px`);
+        document.documentElement.style.setProperty('--tg-viewport-height', `${tg.viewportHeight ?? 0}px`);
+        document.documentElement.style.setProperty('--tg-viewport-stable-height', `${tg.viewportStableHeight ?? tg.viewportHeight ?? 0}px`);
+
+        log('safe areas updated', {
+          eventName,
+          platform,
+          safeTop,
+          safeBottom,
+          contentTop,
+          contentBottom,
+        });
+      };
+
+      callExpand();
+
+      const version = parseFloat(tg.version || '0');
+      if (version >= 6.1 && typeof tg.disableVerticalSwipes === 'function') {
+        try {
+          tg.disableVerticalSwipes();
+        } catch (error) {
+          log('disableVerticalSwipes failed', error);
+        }
+      }
+
+      const handleViewportChanged = () => {
+        callExpand();
         updateSafeAreas('viewport_changed');
-      });
+      };
 
-      tg.onEvent('viewportChanged', () => {
-        log('📐 viewportChanged event');
-        updateSafeAreas('viewportChanged');
-      });
-
-      tg.onEvent('safeAreaChanged', () => {
-        log('📐 safeAreaChanged event');
+      const handleSafeAreaChanged = () => {
+        callExpand();
         updateSafeAreas('safeAreaChanged');
-      });
+      };
 
-      tg.onEvent('contentSafeAreaChanged', () => {
-        log('📐 contentSafeAreaChanged event');
+      const handleContentSafeAreaChanged = () => {
         updateSafeAreas('contentSafeAreaChanged');
-      });
+      };
+
+      if (tg.onEvent) {
+        tg.onEvent('viewport_changed', handleViewportChanged);
+        tg.onEvent('viewportChanged', handleViewportChanged);
+        tg.onEvent('safeAreaChanged', handleSafeAreaChanged);
+        tg.onEvent('contentSafeAreaChanged', handleContentSafeAreaChanged);
+
+        cleanupFns.push(() => {
+          if (tg.offEvent) {
+            tg.offEvent('viewport_changed', handleViewportChanged);
+            tg.offEvent('viewportChanged', handleViewportChanged);
+            tg.offEvent('safeAreaChanged', handleSafeAreaChanged);
+            tg.offEvent('contentSafeAreaChanged', handleContentSafeAreaChanged);
+          }
+        });
+      }
+
+      updateSafeAreas('initial');
+
+      window.setTimeout(() => updateSafeAreas('delayed-100ms'), 100);
+      window.setTimeout(() => updateSafeAreas('delayed-500ms'), 500);
+
+      setWebApp(tg);
+      log('initialized', { platform: tg.platform, version: tg.version });
+      return true;
+    };
+
+    if (!tryInitialize()) {
+      initInterval = window.setInterval(() => {
+        tryInitialize();
+      }, 250);
     }
 
-    // Обновляем safe areas сразу и с задержкой
-    updateSafeAreas('initial');
-
-    setTimeout(() => {
-      updateSafeAreas('delayed-100ms');
-    }, 100);
-
-    setTimeout(() => {
-      updateSafeAreas('delayed-500ms');
-    }, 500);
-
-    log('✅ WebApp initialized:', {
-      platform: tg.platform,
-      version: tg.version,
-      isExpanded: tg.isExpanded,
-    });
-
-    setWebApp(tg);
-  }, []);
+    return () => {
+      if (initInterval) {
+        window.clearInterval(initInterval);
+      }
+      cleanupFns.forEach((cleanup) => cleanup());
+    };
+  }, [debugOverride]);
 
   return (
     <TelegramContext.Provider value={webApp}>
@@ -238,10 +228,6 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
   );
 }
 
-/**
- * Хук для доступа к Telegram WebApp
- * Возвращает null если WebApp не доступен
- */
 export function useTelegram(): WebApp | null {
   return useContext(TelegramContext);
 }
