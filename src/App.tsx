@@ -600,6 +600,12 @@ const App = () => {
                   <CourseLanding />
                 </Suspense>
               } />
+              {/* Виджет оплаты курса — публичный, открывается из Telegram Mini App */}
+              <Route path="/course-payment" element={
+                <Suspense fallback={null}>
+                  <CoursePayment />
+                </Suspense>
+              } />
               {/* Все остальные роуты - внутри AppProviders (с Supabase/Query) */}
               {/* ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга */}
               {/* Это критично для производительности - Supabase/Query грузятся только для /app/* */}
