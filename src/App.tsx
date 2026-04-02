@@ -254,6 +254,7 @@ const Article = lazy(() => import("./pages/Article"));
 // Лёгкий редирект: если есть supabase-сессия в localStorage — сразу в дашборд
 const LandingRedirect = () => {
   const navigate = useNavigate();
+  const isPrerenderMode = typeof window !== 'undefined' && window.__PRERENDER__ === true;
 
   // Ключ supabase auth в localStorage (sb-<project-ref>-auth-token)
   const authStorageKey = useMemo(() => {
@@ -265,6 +266,7 @@ const LandingRedirect = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (isPrerenderMode) return;
     try {
       const raw = localStorage.getItem(authStorageKey);
       if (!raw || raw === "null") return;
@@ -277,7 +279,7 @@ const LandingRedirect = () => {
     } catch (error) {
       console.warn("[LandingRedirect] Failed to parse supabase auth token", error);
     }
-  }, [authStorageKey, navigate]);
+  }, [authStorageKey, isPrerenderMode, navigate]);
 
   return <Landing />;
 };

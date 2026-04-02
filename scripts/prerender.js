@@ -148,6 +148,52 @@ async function waitForPageReadiness(page) {
   ]);
 }
 
+function isNavigationRaceError(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    message.includes('Execution context was destroyed') ||
+    message.includes('Cannot find context with specified id') ||
+    message.includes('Navigating frame was detached')
+  );
+}
+
+async function preparePage(page) {
+  await page.setViewport({ width: 1920, height: 1080 });
+  await page.evaluateOnNewDocument(() => {
+    window.__PRERENDER__ = true;
+  });
+}
+
+async function withRouteRetry(page, route, renderRoute) {
+  const maxAttempts = 2;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await renderRoute(attempt);
+    } catch (error) {
+      const currentUrl = page.url();
+      const message = error instanceof Error ? error.message : String(error);
+      const shouldRetry = attempt < maxAttempts && isNavigationRaceError(error);
+
+      if (shouldRetry) {
+        console.warn(
+          `[Prerender] ⚠️ Navigation race on ${route} (attempt ${attempt}/${maxAttempts}) at ${currentUrl || 'unknown URL'}, retrying...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, 750));
+        continue;
+      }
+
+      throw new Error(
+        currentUrl && currentUrl !== 'about:blank'
+          ? `${message} [final URL: ${currentUrl}]`
+          : message
+      );
+    }
+  }
+
+  throw new Error(`Route ${route} exhausted prerender retry attempts.`);
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -244,74 +290,74 @@ async function prerender() {
     }
 
     const page = await browser.newPage();
-    
-    // Устанавливаем viewport
-    await page.setViewport({ width: 1920, height: 1080 });
+    await preparePage(page);
 
     const renderFailures = [];
 
     // Prerender каждую страницу
     for (const route of routesToRender) {
       try {
-        console.log(`[Prerender] 📄 Rendering ${route}...`);
-        
-        const url = `${BASE_URL}${route}`;
-        await page.goto(url, {
-          waitUntil: 'domcontentloaded',
-          timeout: 30000,
-        });
-
-        // КРИТИЧНО: Ждём полного рендера React
-        // Вариант 1: Ждём события render-event (отправляется из main.tsx)
-        try {
-          await page.waitForFunction(
-            () => {
-              const root = window.document.querySelector('#root');
-              return root && root.children.length > 0 && root.textContent && root.textContent.trim().length > 0;
-            },
-            { timeout: 15000 }
+        const html = await withRouteRetry(page, route, async (attempt) => {
+          console.log(
+            `[Prerender] 📄 Rendering ${route}${attempt > 1 ? ` (retry ${attempt})` : ''}...`
           );
-          console.log('[Prerender] ✅ React content detected in #root');
-        } catch (error) {
-          console.warn('[Prerender] ⚠️ Timeout waiting for React content, trying alternative check...');
-          // Альтернативная проверка: ждём хотя бы появления любого контента
-          await page.waitForFunction(
-            () => {
-              const root = window.document.querySelector('#root');
-              return root && (root.children.length > 0 || root.innerHTML.trim().length > 0);
-            },
-            { timeout: 10000 }
-          );
-        }
 
-        // КРИТИЧНО: Исправляем ошибку next-themes "Can't find variable: a"
-        // Обёртываем inline скрипт в try-catch, чтобы он не падал при выполнении
-        await page.evaluate(() => {
-          const scripts = document.querySelectorAll('script[nonce=""]');
-          scripts.forEach(script => {
-            const originalContent = script.innerHTML;
-            // Проверяем, является ли это скриптом next-themes (содержит вызовы a())
-            if (originalContent.includes('a(d') || originalContent.includes('a(f') || originalContent.includes('a(h')) {
-              // Обёртываем в try-catch для предотвращения ошибок
-              script.innerHTML = `try{${originalContent}}catch(e){console.warn('[next-themes] Script error (expected in SSG):',e.message)}`;
-            }
+          const url = `${BASE_URL}${route}`;
+          await page.goto(url, {
+            waitUntil: 'domcontentloaded',
+            timeout: 30000,
           });
-        });
 
-        await waitForPageReadiness(page);
-        
-        // Финальная проверка: убеждаемся, что контент действительно есть
-        const hasContent = await page.evaluate(() => {
-          const root = document.querySelector('#root');
-          return root && root.children.length > 0 && root.textContent && root.textContent.trim().length > 50;
-        });
-        
-        if (!hasContent) {
-          throw new Error(`Route ${route} rendered without meaningful content in #root`);
-        }
+          try {
+            await page.waitForFunction(
+              () => {
+                const root = window.document.querySelector('#root');
+                return root && root.children.length > 0 && root.textContent && root.textContent.trim().length > 0;
+              },
+              { timeout: 15000 }
+            );
+            console.log('[Prerender] ✅ React content detected in #root');
+          } catch (error) {
+            console.warn('[Prerender] ⚠️ Timeout waiting for React content, trying alternative check...');
+            await page.waitForFunction(
+              () => {
+                const root = window.document.querySelector('#root');
+                return root && (root.children.length > 0 || root.innerHTML.trim().length > 0);
+              },
+              { timeout: 10000 }
+            );
+          }
 
-        // Получаем HTML
-        const html = await page.content();
+          await page.waitForFunction(
+            (expectedRoute) => window.location.pathname + window.location.search === expectedRoute,
+            { timeout: 5000 },
+            route
+          );
+
+          // Обёртываем уязвимый inline next-themes script только после стабилизации URL.
+          await page.evaluate(() => {
+            const scripts = document.querySelectorAll('script[nonce=""]');
+            scripts.forEach((script) => {
+              const originalContent = script.innerHTML;
+              if (originalContent.includes('a(d') || originalContent.includes('a(f') || originalContent.includes('a(h')) {
+                script.innerHTML = `try{${originalContent}}catch(e){console.warn('[next-themes] Script error (expected in SSG):',e.message)}`;
+              }
+            });
+          });
+
+          await waitForPageReadiness(page);
+
+          const hasContent = await page.evaluate(() => {
+            const root = document.querySelector('#root');
+            return root && root.children.length > 0 && root.textContent && root.textContent.trim().length > 50;
+          });
+
+          if (!hasContent) {
+            throw new Error(`Route ${route} rendered without meaningful content in #root`);
+          }
+
+          return page.content();
+        });
 
         if (/<div id="root">\s*<\/div>/i.test(html)) {
           throw new Error(`Route ${route} produced an empty React root`);

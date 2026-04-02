@@ -20,8 +20,11 @@ import { initPostHog } from "./lib/posthog";
 declare global {
   interface Window {
     _mainLoaded?: boolean;
+    __PRERENDER__?: boolean;
   }
 }
+
+const isPrerenderMode = typeof window !== 'undefined' && window.__PRERENDER__ === true;
 
 // КРИТИЧНО: Помечаем, что main.tsx загрузился (как можно раньше!)
 if (typeof window !== 'undefined') {
@@ -34,7 +37,7 @@ if (typeof window !== 'undefined') {
       window.location.search.includes('tgWebAppPlatform')
   );
 
-  if (tonAnalyticsKey && isInsideTelegram) {
+  if (!isPrerenderMode && tonAnalyticsKey && isInsideTelegram) {
     import("@telegram-apps/analytics")
       .then(({ default: TMAAnalytics }) => TMAAnalytics.init({
         token: tonAnalyticsKey,
@@ -82,10 +85,11 @@ const captureEarlyError = (error: any, context: any) => {
   earlyErrors.push({ error, context });
 };
 
-setTimeout(() => {
+  if (!isPrerenderMode) {
+    setTimeout(() => {
   // Инициализация Rollbar
-  import('./lib/rollbar').then(({ initRollbar, reportError }) => {
-    initRollbar();
+      import('./lib/rollbar').then(({ initRollbar, reportError }) => {
+        initRollbar();
 
 
     // Отправляем накопленные ранние ошибки
@@ -96,17 +100,18 @@ setTimeout(() => {
       });
       earlyErrors.length = 0; // Очищаем массив
     }
-  }).catch(err => {
-    console.warn('[Main] Failed to init Rollbar:', err);
-  });
+      }).catch(err => {
+        console.warn('[Main] Failed to init Rollbar:', err);
+      });
 
-  // Инициализация Sentry
-  import('./utils/sentry').then(({ initSentry }) => {
-    initSentry();
-  }).catch(err => {
-    console.warn('[Main] Failed to init Sentry:', err);
-  });
-}, 0);
+      // Инициализация Sentry
+      import('./utils/sentry').then(({ initSentry }) => {
+        initSentry();
+      }).catch(err => {
+        console.warn('[Main] Failed to init Sentry:', err);
+      });
+    }, 0);
+  }
 
 // ОПТИМИЗАЦИЯ: Инициализация Server Time ПОСЛЕ первого рендера (не блокируем FCP)
 setTimeout(() => {
@@ -243,7 +248,7 @@ window.addEventListener('error', (event) => {
     // Сбрасываем счетчик, если прошло больше 60 секунд
     const currentCount = (now - lastTime > 60000) ? 0 : count;
 
-    if (currentCount < 3) {
+    if (!isPrerenderMode && currentCount < 3) {
       localStorage.setItem(storageKey, (currentCount + 1).toString());
       localStorage.setItem(timeKey, now.toString());
       window.location.reload();
@@ -312,7 +317,7 @@ window.addEventListener('unhandledrejection', (event) => {
 
     const currentCount = (now - lastTime > 60000) ? 0 : count;
 
-    if (currentCount < 3) {
+    if (!isPrerenderMode && currentCount < 3) {
       localStorage.setItem(storageKey, (currentCount + 1).toString());
       localStorage.setItem(timeKey, now.toString());
       console.log(`[Main] Reloading page (Attempt ${currentCount + 1}/3)...`);
@@ -357,7 +362,7 @@ if (!rootElement) {
 // --------------------------------------------------------
 // ☠️ SERVICE WORKER KILLER
 // --------------------------------------------------------
-if ('serviceWorker' in navigator) {
+if (!isPrerenderMode && 'serviceWorker' in navigator) {
   try {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       let killed = false;
