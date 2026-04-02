@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle } from 'lucide-react';
 import type { FlashcardExercise as FlashcardExerciseType } from '@/data/lingo/types';
 
 interface Props {
   exercise: FlashcardExerciseType;
-  onAnswer: (correct: boolean) => void;
+  onAnswer: (correct: boolean, correctAnswer?: string) => void;
 }
 
 export function FlashcardExercise({ exercise, onAnswer }: Props) {
@@ -18,12 +17,12 @@ export function FlashcardExercise({ exercise, onAnswer }: Props) {
 
   const handleRate = (knew: boolean) => {
     setAnswered(true);
-    setTimeout(() => onAnswer(knew), 400);
+    onAnswer(knew);
   };
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-sm mx-auto">
-      <p className="text-slate-400 text-sm font-medium uppercase tracking-wider">
+      <p className="text-gray-400 text-sm font-semibold uppercase tracking-wider">
         Переверни карточку
       </p>
 
@@ -41,23 +40,23 @@ export function FlashcardExercise({ exercise, onAnswer }: Props) {
         >
           {/* Front */}
           <div
-            className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-8 text-center min-h-[180px] flex flex-col justify-center"
+            className="rounded-3xl border-2 border-gray-200 bg-white shadow-sm p-8 text-center min-h-[200px] flex flex-col justify-center"
             style={{ backfaceVisibility: 'hidden' }}
           >
-            <p className="text-4xl font-bold text-white mb-2">{exercise.termEs}</p>
+            <p className="text-4xl font-bold text-gray-900 mb-2">{exercise.termEs}</p>
             {!flipped && (
-              <p className="text-slate-500 text-sm mt-4">нажми чтобы увидеть перевод</p>
+              <p className="text-gray-400 text-sm mt-4">нажми чтобы увидеть перевод</p>
             )}
           </div>
 
           {/* Back */}
           <div
-            className="absolute inset-0 rounded-2xl border border-emerald-500/30 bg-emerald-950/40 backdrop-blur p-8 text-center flex flex-col justify-center"
+            className="absolute inset-0 rounded-3xl border-2 border-emerald-300 bg-emerald-50 shadow-sm p-8 text-center flex flex-col justify-center"
             style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
           >
-            <p className="text-3xl font-bold text-emerald-300 mb-2">{exercise.termRu}</p>
+            <p className="text-3xl font-bold text-emerald-700 mb-2">{exercise.termRu}</p>
             {exercise.descriptionRu && (
-              <p className="text-slate-400 text-sm mt-3 leading-relaxed">
+              <p className="text-gray-500 text-sm mt-3 leading-relaxed">
                 {exercise.descriptionRu}
               </p>
             )}
@@ -73,21 +72,19 @@ export function FlashcardExercise({ exercise, onAnswer }: Props) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="flex gap-4 w-full"
+            className="flex gap-3 w-full"
           >
             <button
               onClick={() => handleRate(false)}
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl py-3 bg-red-500/20 border border-red-500/40 text-red-300 font-semibold active:scale-95 transition-transform"
+              className="flex-1 rounded-2xl py-4 bg-white border-2 border-red-200 text-red-500 font-bold text-sm active:scale-95 transition-transform"
             >
-              <XCircle size={18} />
               Не знал
             </button>
             <button
               onClick={() => handleRate(true)}
-              className="flex-1 flex items-center justify-center gap-2 rounded-xl py-3 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-semibold active:scale-95 transition-transform"
+              className="flex-1 rounded-2xl py-4 bg-emerald-500 text-white font-bold text-sm active:scale-95 transition-transform"
             >
-              <CheckCircle size={18} />
-              Знал!
+              Знал! 🎉
             </button>
           </motion.div>
         )}
