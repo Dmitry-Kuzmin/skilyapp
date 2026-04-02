@@ -59,6 +59,7 @@ const TelegramOIDCCallback = lazy(() => import("./pages/TelegramOIDCCallback"));
 const Purchase = lazy(() => import("./pages/Purchase").then(m => ({ default: m.default })));
 const Login = lazy(() => import("./pages/Login"));
 const CourseLanding = lazy(() => import("./pages/CourseLanding"));
+const CoursePayment = lazy(() => import("./pages/CoursePayment"));
 
 // Обработка ошибок для lazy loading Index (dashboard)
 const IndexErrorFallback = () => {
