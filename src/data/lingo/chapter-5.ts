@@ -1,0 +1,252 @@
+import type { LingoChapter } from './types';
+
+export const chapter5: LingoChapter = {
+  id: 'ch5',
+  title: 'Аварии и помощь',
+  emoji: '🚑',
+  color: {
+    bg: 'bg-red-950',
+    border: 'border-red-500',
+    text: 'text-red-300',
+    accent: 'bg-red-500',
+  },
+  lessons: [
+    {
+      id: 'ch5-l1',
+      title: 'Типы ДТП',
+      emoji: '💥',
+      exercises: [
+        { type: 'flashcard', termEs: 'Accidente de tráfico', termRu: 'Дорожно-транспортное происшествие', descriptionRu: 'Событие на дороге с участием ТС, повлёкшее ущерб или травмы.' },
+        { type: 'flashcard', termEs: 'Colisión', termRu: 'Столкновение', descriptionRu: 'Удар двух или более транспортных средств.' },
+        { type: 'flashcard', termEs: 'Atropello', termRu: 'Наезд на пешехода', descriptionRu: 'ДТП, при котором автомобиль сбивает пешехода.' },
+        { type: 'flashcard', termEs: 'Vuelco', termRu: 'Опрокидывание', descriptionRu: 'ДТП, при котором ТС переворачивается.' },
+        {
+          type: 'multiple_choice',
+          question: 'Что означает «atropello»?',
+          correctAnswer: 'Наезд на пешехода',
+          options: ['Наезд на пешехода', 'Столкновение двух машин', 'Съезд с дороги', 'Опрокидывание'],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Accidente de tráfico', ru: 'ДТП' },
+            { es: 'Colisión', ru: 'Столкновение' },
+            { es: 'Atropello', ru: 'Наезд на пешехода' },
+            { es: 'Vuelco', ru: 'Опрокидывание' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Когда машина переворачивается — это «___».',
+          sentenceEs: 'Cuando el vehículo se da la vuelta, se llama «___».',
+          options: ['vuelco', 'colisión', 'atropello'],
+          correctAnswer: 'vuelco',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Colisión',
+          correctAnswer: 'столкновение',
+          hint: 'С...',
+        },
+      ],
+    },
+    {
+      id: 'ch5-l2',
+      title: 'Правило PAS',
+      emoji: '🆘',
+      exercises: [
+        { type: 'flashcard', termEs: 'Regla PAS', termRu: 'Правило PAS', descriptionRu: 'Алгоритм помощи при ДТП: Proteger → Avisar → Socorrer.' },
+        { type: 'flashcard', termEs: 'Proteger', termRu: 'Защитить (место аварии)', descriptionRu: 'Первый шаг PAS: обезопасить место ДТП (треугольники, аварийка).' },
+        { type: 'flashcard', termEs: 'Avisar', termRu: 'Оповестить (службы)', descriptionRu: 'Второй шаг PAS: вызвать экстренные службы (112).' },
+        { type: 'flashcard', termEs: 'Socorrer', termRu: 'Помочь (пострадавшим)', descriptionRu: 'Третий шаг PAS: оказать первую помощь пострадавшим.' },
+        {
+          type: 'multiple_choice',
+          question: 'Что означает буква «A» в правиле PAS?',
+          correctAnswer: 'Avisar — оповестить службы',
+          options: [
+            'Avisar — оповестить службы',
+            'Ayudar — помочь пострадавшим',
+            'Atender — осмотреть раненых',
+            'Aparcar — припарковать авто',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Proteger', ru: 'Защитить место' },
+            { es: 'Avisar', ru: 'Оповестить службы' },
+            { es: 'Socorrer', ru: 'Помочь пострадавшим' },
+            { es: 'Regla PAS', ru: 'Правило PAS' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'Первый шаг по правилу PAS — это «___» (обезопасить место ДТП).',
+          options: ['proteger', 'avisar', 'socorrer'],
+          correctAnswer: 'proteger',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский: Socorrer (в контексте PAS)',
+          termEs: 'Socorrer',
+          correctAnswer: 'помочь пострадавшим',
+          hint: 'П...',
+        },
+      ],
+    },
+    {
+      id: 'ch5-l3',
+      title: 'Системы безопасности',
+      emoji: '🛡️',
+      exercises: [
+        { type: 'flashcard', termEs: 'Sistema e-Call', termRu: 'Система экстренного вызова', descriptionRu: 'Автоматически вызывает 112 при серьёзной аварии.' },
+        { type: 'flashcard', termEs: 'Airbag', termRu: 'Подушка безопасности', descriptionRu: 'Надувается за миллисекунды при столкновении для защиты водителя.' },
+        { type: 'flashcard', termEs: 'Cinturón de seguridad', termRu: 'Ремень безопасности', descriptionRu: 'Обязателен для всех пассажиров. Снижает смертность при ДТП.' },
+        { type: 'flashcard', termEs: 'Triángulo de emergencia', termRu: 'Аварийный треугольник', descriptionRu: 'Устанавливается позади остановившегося авто для предупреждения.' },
+        {
+          type: 'multiple_choice',
+          question: 'Что делает «sistema e-Call»?',
+          correctAnswer: 'Автоматически звонит в 112 при аварии',
+          options: [
+            'Автоматически звонит в 112 при аварии',
+            'Надувает подушку безопасности',
+            'Фиксирует скорость',
+            'Проверяет ремень безопасности',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Sistema e-Call', ru: 'Система экстренного вызова' },
+            { es: 'Airbag', ru: 'Подушка безопасности' },
+            { es: 'Cinturón de seguridad', ru: 'Ремень безопасности' },
+            { es: 'Triángulo de emergencia', ru: 'Аварийный треугольник' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'При поломке на дороге обязательно выставить «___».',
+          options: ['triángulo de emergencia', 'airbag', 'cinturón de seguridad'],
+          correctAnswer: 'triángulo de emergencia',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Cinturón de seguridad',
+          correctAnswer: 'ремень безопасности',
+          hint: 'Р...',
+        },
+      ],
+    },
+    {
+      id: 'ch5-l4',
+      title: 'Первая помощь',
+      emoji: '🩺',
+      exercises: [
+        { type: 'flashcard', termEs: 'RCP', termRu: 'СЛР (реанимация)', descriptionRu: 'Reanimación Cardiopulmonar — непрямой массаж сердца + искусственное дыхание.' },
+        { type: 'flashcard', termEs: 'Posición lateral de seguridad', termRu: 'Боковое положение безопасности', descriptionRu: 'Пострадавшего укладывают на бок, чтобы он не задохнулся.' },
+        { type: 'flashcard', termEs: 'Hemorragia', termRu: 'Кровотечение', descriptionRu: 'Истечение крови из раны.' },
+        { type: 'flashcard', termEs: 'Estado de shock', termRu: 'Состояние шока', descriptionRu: 'Острое состояние после травмы: бледность, холодный пот, слабый пульс.' },
+        {
+          type: 'multiple_choice',
+          question: 'Когда применяют «posición lateral de seguridad»?',
+          correctAnswer: 'Пострадавший без сознания, но дышит',
+          options: [
+            'Пострадавший без сознания, но дышит',
+            'Пострадавший не дышит',
+            'При переломе ноги',
+            'При ожоге',
+          ],
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'RCP', ru: 'Реанимация (СЛР)' },
+            { es: 'Posición lateral de seguridad', ru: 'Боковое положение' },
+            { es: 'Hemorragia', ru: 'Кровотечение' },
+            { es: 'Estado de shock', ru: 'Состояние шока' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: '«___» включает 30 нажатий на грудь и 2 вдоха.',
+          options: ['RCP', 'posición lateral de seguridad', 'estado de shock'],
+          correctAnswer: 'RCP',
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Hemorragia',
+          correctAnswer: 'кровотечение',
+          hint: 'К...',
+        },
+      ],
+    },
+    {
+      id: 'ch5-l5',
+      title: 'Итог: Аварии и помощь',
+      emoji: '🏆',
+      exercises: [
+        {
+          type: 'context',
+          sentence: 'Первый шаг по правилу PAS — «___» место ДТП.',
+          options: ['proteger', 'avisar', 'socorrer'],
+          correctAnswer: 'proteger',
+        },
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «atropello»?',
+          correctAnswer: 'Наезд на пешехода',
+          options: ['Наезд на пешехода', 'Столкновение машин', 'Опрокидывание авто', 'Столкновение с деревом'],
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Airbag',
+          correctAnswer: 'подушка безопасности',
+          hint: 'П...',
+        },
+        {
+          type: 'match_pairs',
+          pairs: [
+            { es: 'Regla PAS', ru: 'Правило PAS' },
+            { es: 'Sistema e-Call', ru: 'Система экстренного вызова' },
+            { es: 'RCP', ru: 'Реанимация' },
+            { es: 'Vuelco', ru: 'Опрокидывание' },
+          ],
+        },
+        {
+          type: 'context',
+          sentence: 'При поломке надо выставить «___» за машиной.',
+          options: ['triángulo de emergencia', 'airbag', 'cinturón'],
+          correctAnswer: 'triángulo de emergencia',
+        },
+        {
+          type: 'multiple_choice',
+          question: 'Что такое «posición lateral de seguridad»?',
+          correctAnswer: 'Боковое положение для пострадавшего без сознания',
+          options: [
+            'Боковое положение для пострадавшего без сознания',
+            'Положение при реанимации',
+            'Способ остановить кровь',
+            'Поза водителя при ударе',
+          ],
+        },
+        {
+          type: 'type_answer',
+          prompt: 'Переведи на русский:',
+          termEs: 'Estado de shock',
+          correctAnswer: 'состояние шока',
+          hint: 'С...',
+        },
+        {
+          type: 'context',
+          sentence: '«___» автоматически набирает 112 при серьёзном ДТП.',
+          options: ['sistema e-Call', 'airbag', 'RCP'],
+          correctAnswer: 'sistema e-Call',
+        },
+      ],
+    },
+  ],
+};
