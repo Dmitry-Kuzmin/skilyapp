@@ -7,7 +7,6 @@ Skilyapp is a multilingual DGT theory-preparation product for people getting a d
 - https://skilyapp.com/curso
 - https://skilyapp.com/pricing
 - https://skilyapp.com/tests
-- https://skilyapp.com/dictionary
 - https://skilyapp.com/road-signs
 
 ## Evergreen guides

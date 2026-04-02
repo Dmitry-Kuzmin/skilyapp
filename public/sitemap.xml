@@ -78,21 +78,7 @@
   </url>
 
   <url>
-    <loc>https://skilyapp.com/dictionary</loc>
-    <lastmod>2026-04-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.80</priority>
-  </url>
-
-  <url>
     <loc>https://skilyapp.com/road-signs</loc>
-    <lastmod>2026-04-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.80</priority>
-  </url>
-
-  <url>
-    <loc>https://skilyapp.com/learning-map</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
@@ -144,13 +130,6 @@
     <loc>https://skilyapp.com/help</loc>
     <lastmod>2026-04-02</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.60</priority>
-  </url>
-
-  <url>
-    <loc>https://skilyapp.com/achievements</loc>
-    <lastmod>2026-04-02</lastmod>
-    <changefreq>weekly</changefreq>
     <priority>0.60</priority>
   </url>
 
