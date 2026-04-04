@@ -95,10 +95,10 @@ serve(async (req) => {
       .eq("challenge_type", "daily")
       .lt("end_date", today);
 
-    // Создаем новые ежедневные челленджи (выбираем случайные 2 из шаблонов)
+    // Создаем новые ежедневные челленджи (выбираем случайные 3 из шаблонов)
     const selectedTemplates = DAILY_CHALLENGE_TEMPLATES
       .sort(() => Math.random() - 0.5)
-      .slice(0, 2);
+      .slice(0, 3);
 
     const newChallenges = selectedTemplates.map((template) => ({
       season_id: season.id,
