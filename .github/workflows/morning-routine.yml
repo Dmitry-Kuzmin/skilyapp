@@ -2,18 +2,53 @@ name: Morning Routine - DGT Quiz + Duel Pass Checklist
 
 on:
   schedule:
-    # Каждый день в 7:00 UTC = 9:00 по Мадриду (CET+2 летом / CET+1 зимой)
+    # Старт в 7:00 UTC + рандомный sleep 0-60 мин = доставка в 9:00-10:00 по Мадриду (UTC+2 летом)
     - cron: '0 7 * * *'
   workflow_dispatch: # Ручной запуск для тестирования
 
 jobs:
   morning-routine:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 120
     steps:
-      - name: Trigger morning-routine Edge Function
+      - name: Random delay (0–60 min) to vary delivery time
         run: |
-          echo "☀️ Starting morning routine at $(date -u)"
+          delay=$((RANDOM % 3600))
+          echo "⏳ Sleeping ${delay}s (~$((delay / 60)) min) before starting"
+          sleep $delay
+
+      - name: Generate daily Duel Pass challenges
+        run: |
+          echo "🎮 Generating daily challenges at $(date -u)"
+
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/generate-daily-challenges" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            --max-time 60)
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Daily challenges generated"
+          else
+            echo "❌ Failed to generate daily challenges (code $http_code)"
+            exit 1
+          fi
+
+      - name: Wait 30 minutes before sending quiz
+        run: |
+          echo "⏳ Waiting 30 min before morning quiz..."
+          sleep 1800
+
+      - name: Trigger morning-routine Edge Function (quiz)
+        run: |
+          echo "☀️ Sending morning quiz at $(date -u)"
 
           response=$(curl -s -w "\n%{http_code}" -X POST \
             "${{ secrets.SUPABASE_URL }}/functions/v1/morning-routine" \
@@ -29,8 +64,8 @@ jobs:
           echo "HTTP Code: $http_code"
 
           if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-            echo "✅ Morning routine completed successfully"
+            echo "✅ Morning quiz sent successfully"
           else
-            echo "❌ Morning routine failed with code $http_code"
+            echo "❌ Morning quiz failed with code $http_code"
             exit 1
           fi
