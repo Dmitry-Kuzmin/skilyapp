@@ -28,6 +28,7 @@ export function useSubtopic(subtopicId: string | null) {
     queryKey: ["subtopic", subtopicId],
     queryFn: async () => {
       if (!subtopicId) return null;
+      if (subtopicId.startsWith("static-topic-")) return null;
 
       const { data, error } = await supabase
         .from("subtopics")
@@ -39,7 +40,7 @@ export function useSubtopic(subtopicId: string | null) {
 
       return (data as Subtopic) || null;
     },
-    enabled: !!subtopicId,
+    enabled: !!subtopicId && !subtopicId.startsWith("static-topic-"),
     staleTime: 5 * 60 * 1000, // 5 минут
     gcTime: 10 * 60 * 1000, // 10 минут
     refetchOnWindowFocus: false,
@@ -76,7 +77,6 @@ export function useSubtopicsByTopic(topicId: string | null) {
     retry: 1,
   });
 }
-
 
 
 

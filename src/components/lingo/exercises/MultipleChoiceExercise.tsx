@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { MultipleChoiceExercise as MCType } from '@/data/lingo/types';
+import { ExerciseInsights } from './ExerciseInsights';
 
 interface Props {
   exercise: MCType;
@@ -44,6 +45,8 @@ export function MultipleChoiceExercise({ exercise, onAnswer }: Props) {
       <p className="text-center text-xl font-bold text-gray-900 leading-snug px-2">
         {exercise.question}
       </p>
+
+      <ExerciseInsights insights={exercise.insights} />
 
       <div className="flex flex-col gap-3 mt-1">
         {shuffled.map((option, i) => {

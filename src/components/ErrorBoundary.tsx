@@ -65,21 +65,23 @@ export class ErrorBoundary extends Component<Props, State> {
       }
     }
 
-    // Отправляем ошибку в Rollbar
-    import('@/lib/rollbar')
-      .then(({ reportError }) => {
-        reportError(error, {
-          type: 'react_boundary',
-          componentStack: errorInfo.componentStack,
-          errorBoundary: true,
-          url: window.location.href,
-          userAgent: navigator.userAgent,
+    if (!import.meta.env.DEV) {
+      // Отправляем ошибку в Rollbar
+      import('@/lib/rollbar')
+        .then(({ reportError }) => {
+          reportError(error, {
+            type: 'react_boundary',
+            componentStack: errorInfo.componentStack,
+            errorBoundary: true,
+            url: window.location.href,
+            userAgent: navigator.userAgent,
+          });
+        })
+        .catch(() => {
+          // fallback: тихо логируем в консоль, чтобы не ломать рендер
+          console.warn('[ErrorBoundary] Rollbar not available, skipped reporting');
         });
-      })
-      .catch(() => {
-        // fallback: тихо логируем в консоль, чтобы не ломать рендер
-        console.warn('[ErrorBoundary] Rollbar not available, skipped reporting');
-      });
+    }
 
     // Отправляем в Sentry
     import('@/utils/sentry').then(({ default: Sentry }) => {
@@ -185,4 +187,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-

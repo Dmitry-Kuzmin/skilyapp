@@ -23,16 +23,23 @@ export const chapter2: LingoChapter = {
           descriptionRu: 'Наибольшая разрешённая скорость на данном участке дороги. Зависит от типа дороги и ТС.',
           exampleEs: 'La velocidad máxima en autopista es de 120 km/h.',
           exampleRu: 'Максимальная скорость на автомагистрали — 120 км/ч.',
+          insights: [
+            { label: 'Экзамен DGT', text: 'Вопросы про скорость почти никогда не про одно число. Они про тип дороги, водителя и условия.', tone: 'tip' },
+            { label: 'Польза', text: 'Если этот термин понятен глубоко, дальше легче читать почти весь блок про безопасность.', tone: 'success' },
+          ],
         },
-        { type: 'flashcard', termEs: 'Velocidad máxima', termRu: 'Максимальная скорость', descriptionRu: 'Наибольшая разрешённая скорость на данном участке.' },
-        { type: 'flashcard', termEs: 'Velocidad mínima', termRu: 'Минимальная скорость', descriptionRu: 'Наименьшая обязательная скорость (чтобы не создавать помеху).' },
-        { type: 'flashcard', termEs: 'Velocidad moderada', termRu: 'Умеренная скорость', descriptionRu: 'Скорость адаптированная к условиям (дождь, туман, ребёнок рядом).' },
-        { type: 'flashcard', termEs: 'Exceso de velocidad', termRu: 'Превышение скорости', descriptionRu: 'Движение быстрее разрешённого предела — нарушение ПДД.' },
+        { type: 'flashcard', termEs: 'Velocidad máxima', termRu: 'Максимальная скорость', descriptionRu: 'Наибольшая разрешённая скорость на данном участке.', insights: [{ label: 'Запоминалка', text: 'Máxima = верхний предел, выше уже нарушение.', tone: 'success' }] },
+        { type: 'flashcard', termEs: 'Velocidad mínima', termRu: 'Минимальная скорость', descriptionRu: 'Наименьшая обязательная скорость (чтобы не создавать помеху).', insights: [{ label: 'Частая ошибка', text: 'Многие забывают, что слишком медленно ехать тоже может быть нарушением.', tone: 'warning' }] },
+        { type: 'flashcard', termEs: 'Velocidad moderada', termRu: 'Умеренная скорость', descriptionRu: 'Скорость адаптированная к условиям (дождь, туман, ребёнок рядом).', insights: [{ label: 'Важно', text: 'На DGT это слово часто связано не с цифрой, а с оценкой риска.', tone: 'tip' }] },
+        { type: 'flashcard', termEs: 'Exceso de velocidad', termRu: 'Превышение скорости', descriptionRu: 'Движение быстрее разрешённого предела — нарушение ПДД.', insights: [{ label: 'Польза', text: 'Этот термин часто связывают с тяжестью нарушения и длиной тормозного пути.', tone: 'info' }] },
         {
           type: 'multiple_choice',
           question: 'Что означает «velocidad mínima»?',
           correctAnswer: 'Минимально допустимая скорость',
           options: ['Минимально допустимая скорость', 'Максимальная скорость', 'Рекомендованная скорость', 'Скорость в школьной зоне'],
+          insights: [
+            { label: 'Как мыслить', text: 'Смотри на смысл слова mínima: ниже нельзя, а не “желательно ехать медленно”.', tone: 'success' },
+          ],
         },
         {
           type: 'match_pairs',
@@ -56,6 +63,9 @@ export const chapter2: LingoChapter = {
           sentenceEs: 'En caso de nevada, el conductor debe aplicar «___».',
           options: ['velocidad moderada', 'velocidad máxima', 'velocidad mínima'],
           correctAnswer: 'velocidad moderada',
+          insights: [
+            { label: 'DGT язык', text: 'Слова lluvia, nevada, niebla почти всегда ведут к идее адаптированной скорости.', tone: 'tip' },
+          ],
         },
         {
           type: 'type_answer',
@@ -63,6 +73,9 @@ export const chapter2: LingoChapter = {
           termEs: 'Exceso de velocidad',
           correctAnswer: 'превышение скорости',
           hint: 'П...',
+          insights: [
+            { label: 'Польза', text: 'Нужный термин для чтения вопросов о штрафах, авариях и торможении.', tone: 'info' },
+          ],
         },
       ],
     },
@@ -78,11 +91,15 @@ export const chapter2: LingoChapter = {
           descriptionRu: 'Минимальное расстояние до впереди идущего авто, чтобы успеть затормозить. Увеличивается при дожде и высокой скорости.',
           exampleEs: 'Mantenga siempre la distancia de seguridad con el vehículo de delante.',
           exampleRu: 'Всегда соблюдайте дистанцию безопасности с впереди идущим автомобилем.',
+          insights: [
+            { label: 'Экзамен DGT', text: 'Один из самых дорогих по ценности терминов: связан с реакцией, торможением, дождём и усталостью.', tone: 'success' },
+            { label: 'Частая ошибка', text: 'Учат как абстракцию, а нужно связывать с реальной возможностью успеть остановиться.', tone: 'warning' },
+          ],
         },
-        { type: 'flashcard', termEs: 'Distancia de seguridad', termRu: 'Дистанция безопасности', descriptionRu: 'Расстояние до впереди идущего авто, чтобы успеть затормозить.' },
-        { type: 'flashcard', termEs: 'Efecto de visión túnel', termRu: 'Эффект туннельного зрения', descriptionRu: 'На высокой скорости периферическое зрение сужается.' },
-        { type: 'flashcard', termEs: 'Campo visual', termRu: 'Поле зрения', descriptionRu: 'Зона, которую водитель видит без поворота головы.' },
-        { type: 'flashcard', termEs: 'Punto ciego', termRu: 'Слепая зона', descriptionRu: 'Область, не видимая в зеркала заднего вида.' },
+        { type: 'flashcard', termEs: 'Distancia de seguridad', termRu: 'Дистанция безопасности', descriptionRu: 'Расстояние до впереди идущего авто, чтобы успеть затормозить.', insights: [{ label: 'Запоминалка', text: 'Дистанция = запас времени на ошибку.', tone: 'success' }] },
+        { type: 'flashcard', termEs: 'Efecto de visión túnel', termRu: 'Эффект туннельного зрения', descriptionRu: 'На высокой скорости периферическое зрение сужается.', insights: [{ label: 'Важно', text: 'Чем выше скорость, тем хуже ты считываешь боковые риски.', tone: 'tip' }] },
+        { type: 'flashcard', termEs: 'Campo visual', termRu: 'Поле зрения', descriptionRu: 'Зона, которую водитель видит без поворота головы.', insights: [{ label: 'Польза', text: 'Поле зрения часто фигурирует в темах про скорость и усталость.', tone: 'info' }] },
+        { type: 'flashcard', termEs: 'Punto ciego', termRu: 'Слепая зона', descriptionRu: 'Область, не видимая в зеркала заднего вида.', insights: [{ label: 'Частая ошибка', text: 'Студенты переоценивают зеркала. Слепая зона означает, что зеркал недостаточно.', tone: 'warning' }] },
         {
           type: 'multiple_choice',
           question: 'Что такое «efecto de visión túnel»?',
@@ -92,6 +109,9 @@ export const chapter2: LingoChapter = {
             'Плохая видимость в тоннеле',
             'Ослепление фарами',
             'Усталость глаз ночью',
+          ],
+          insights: [
+            { label: 'Как мыслить', text: 'Если в вопросе высокая скорость и восприятие, ответ часто связан именно со сужением внимания.', tone: 'success' },
           ],
         },
         {
@@ -116,6 +136,9 @@ export const chapter2: LingoChapter = {
           sentenceEs: 'La zona no visible por los espejos retrovisores se llama «___».',
           options: ['punto ciego', 'campo visual', 'distancia de seguridad'],
           correctAnswer: 'punto ciego',
+          insights: [
+            { label: 'Практика', text: 'Это ключевой термин для безопасного перестроения и обгона.', tone: 'tip' },
+          ],
         },
         {
           type: 'type_answer',
@@ -123,6 +146,9 @@ export const chapter2: LingoChapter = {
           termEs: 'Distancia de seguridad',
           correctAnswer: 'дистанция безопасности',
           hint: 'Д...',
+          insights: [
+            { label: 'Польза', text: 'Термин нужно узнавать и на русском, и на испанском мгновенно.', tone: 'info' },
+          ],
         },
       ],
     },
@@ -138,11 +164,15 @@ export const chapter2: LingoChapter = {
           descriptionRu: 'Расстояние от начала торможения до полной остановки. Зависит от скорости, состояния дороги и шин.',
           exampleEs: 'La distancia de frenado aumenta con la lluvia.',
           exampleRu: 'Тормозной путь увеличивается при дожде.',
+          insights: [
+            { label: 'Экзамен DGT', text: 'Здесь любят сочетать скорость, дождь и состояние шин. Не учи термин отдельно от факторов.', tone: 'tip' },
+            { label: 'Польза', text: 'Это мост между теорией скорости и реальным поведением машины.', tone: 'success' },
+          ],
         },
-        { type: 'flashcard', termEs: 'Freno motor', termRu: 'Торможение двигателем', descriptionRu: 'Снижение скорости путём перехода на низшую передачу без нажатия тормоза.' },
-        { type: 'flashcard', termEs: 'Distancia de frenado', termRu: 'Тормозной путь', descriptionRu: 'Расстояние, пройденное с момента нажатия тормоза до полной остановки.' },
-        { type: 'flashcard', termEs: 'ABS', termRu: 'АБС (антиблокировочная система)', descriptionRu: 'Система предотвращает блокировку колёс при торможении.' },
-        { type: 'flashcard', termEs: 'Frenada de emergencia', termRu: 'Экстренное торможение', descriptionRu: 'Резкое торможение для предотвращения аварии.' },
+        { type: 'flashcard', termEs: 'Freno motor', termRu: 'Торможение двигателем', descriptionRu: 'Снижение скорости путём перехода на низшую передачу без нажатия тормоза.', insights: [{ label: 'Практика', text: 'Особенно полезно на спусках, чтобы не перегревать тормоза.', tone: 'tip' }] },
+        { type: 'flashcard', termEs: 'Distancia de frenado', termRu: 'Тормозной путь', descriptionRu: 'Расстояние, пройденное с момента нажатия тормоза до полной остановки.', insights: [{ label: 'Запоминалка', text: 'Чем выше скорость, тем не линейно растёт тормозной путь.', tone: 'warning' }] },
+        { type: 'flashcard', termEs: 'ABS', termRu: 'АБС (антиблокировочная система)', descriptionRu: 'Система предотвращает блокировку колёс при торможении.', insights: [{ label: 'Важно', text: 'ABS помогает сохранить управляемость, но не отменяет физику и дистанцию.', tone: 'tip' }] },
+        { type: 'flashcard', termEs: 'Frenada de emergencia', termRu: 'Экстренное торможение', descriptionRu: 'Резкое торможение для предотвращения аварии.', insights: [{ label: 'Польза', text: 'Часто появляется в связке с ABS, дождём и расстоянием до препятствия.', tone: 'info' }] },
         {
           type: 'multiple_choice',
           question: 'Что такое «freno motor»?',
@@ -152,6 +182,9 @@ export const chapter2: LingoChapter = {
             'Экстренное торможение',
             'Торможение с помощью ABS',
             'Ручной тормоз',
+          ],
+          insights: [
+            { label: 'Как мыслить', text: 'Если в ответе упоминается “без педали тормоза”, это сильная подсказка на freno motor.', tone: 'success' },
           ],
         },
         {
@@ -176,6 +209,9 @@ export const chapter2: LingoChapter = {
           sentenceEs: 'El sistema «___» evita el bloqueo de ruedas en frenadas bruscas.',
           options: ['ABS', 'freno motor', 'frenada de emergencia'],
           correctAnswer: 'ABS',
+          insights: [
+            { label: 'Частая ошибка', text: 'ABS — это не вид торможения, а система помощи при торможении.', tone: 'warning' },
+          ],
         },
         {
           type: 'type_answer',
@@ -183,6 +219,9 @@ export const chapter2: LingoChapter = {
           termEs: 'Distancia de frenado',
           correctAnswer: 'тормозной путь',
           hint: 'Т...',
+          insights: [
+            { label: 'Польза', text: 'Термин часто встречается в объяснениях, даже если вопрос был не про тормоза напрямую.', tone: 'info' },
+          ],
         },
       ],
     },
@@ -198,11 +237,15 @@ export const chapter2: LingoChapter = {
           descriptionRu: 'Содержание алкоголя в крови водителя. Допустимый предел: 0,5 г/л (для новичков и профессионалов: 0,3 г/л).',
           exampleEs: 'La tasa de alcoholemia permitida es de 0,5 g/l.',
           exampleRu: 'Допустимый уровень алкоголя в крови — 0,5 г/л.',
+          insights: [
+            { label: 'Экзамен DGT', text: 'Вопросы здесь проверяют не только цифры, но и то, что алкоголь ухудшает реакцию и восприятие риска.', tone: 'tip' },
+            { label: 'Частая ошибка', text: 'Запоминают только лимит 0,5, забывая отдельный порог для новичков и профводителей.', tone: 'warning' },
+          ],
         },
-        { type: 'flashcard', termEs: 'Tasa de alcoholemia', termRu: 'Уровень алкоголя в крови', descriptionRu: 'Количество алкоголя в крови. Норма: 0,5 г/л (новички: 0,3 г/л).' },
-        { type: 'flashcard', termEs: 'Microsueño', termRu: 'Микросон', descriptionRu: 'Очень короткий непроизвольный сон за рулём — смертельно опасен.' },
-        { type: 'flashcard', termEs: 'Fatiga al volante', termRu: 'Усталость за рулём', descriptionRu: 'Снижение реакции и внимания из-за длительного вождения.' },
-        { type: 'flashcard', termEs: 'Tiempo de reacción', termRu: 'Время реакции', descriptionRu: 'Промежуток от момента опасности до начала торможения.' },
+        { type: 'flashcard', termEs: 'Tasa de alcoholemia', termRu: 'Уровень алкоголя в крови', descriptionRu: 'Количество алкоголя в крови. Норма: 0,5 г/л (новички: 0,3 г/л).', insights: [{ label: 'Польза', text: 'Термин нужен для законности, безопасности и санкций сразу.', tone: 'success' }] },
+        { type: 'flashcard', termEs: 'Microsueño', termRu: 'Микросон', descriptionRu: 'Очень короткий непроизвольный сон за рулём — смертельно опасен.', insights: [{ label: 'Важно', text: 'На экзамене это один из самых опасных факторов, потому что водитель может не осознавать риск.', tone: 'warning' }] },
+        { type: 'flashcard', termEs: 'Fatiga al volante', termRu: 'Усталость за рулём', descriptionRu: 'Снижение реакции и внимания из-за длительного вождения.', insights: [{ label: 'Практика', text: 'Усталость делает ошибки плавно и незаметно, поэтому DGT уделяет ей много внимания.', tone: 'tip' }] },
+        { type: 'flashcard', termEs: 'Tiempo de reacción', termRu: 'Время реакции', descriptionRu: 'Промежуток от момента опасности до начала торможения.', insights: [{ label: 'Запоминалка', text: 'Риск начинается не в тормозе, а в задержке до тормоза.', tone: 'info' }] },
         {
           type: 'multiple_choice',
           question: 'Что такое «microsueño»?',
@@ -212,6 +255,9 @@ export const chapter2: LingoChapter = {
             'Ночное вождение',
             'Долгая поездка без остановок',
             'Усталость глаз от фар',
+          ],
+          insights: [
+            { label: 'Как мыслить', text: 'Ключ microsueño — это сон, а не просто усталость.', tone: 'success' },
           ],
         },
         {
@@ -236,6 +282,9 @@ export const chapter2: LingoChapter = {
           sentenceEs: 'La «___» es la cantidad de alcohol en sangre del conductor.',
           options: ['tasa de alcoholemia', 'microsueño', 'tiempo de reacción'],
           correctAnswer: 'tasa de alcoholemia',
+          insights: [
+            { label: 'Польза', text: 'Формулу “cantidad de alcohol en sangre” выгодно запомнить почти как готовое определение.', tone: 'info' },
+          ],
         },
         {
           type: 'type_answer',
@@ -243,6 +292,9 @@ export const chapter2: LingoChapter = {
           termEs: 'Tiempo de reacción',
           correctAnswer: 'время реакции',
           hint: 'В...',
+          insights: [
+            { label: 'Экзамен DGT', text: 'Через этот термин часто объясняют, почему усталость и алкоголь так опасны.', tone: 'tip' },
+          ],
         },
       ],
     },

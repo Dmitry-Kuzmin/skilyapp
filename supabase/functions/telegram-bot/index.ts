@@ -855,12 +855,12 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
 
       const lines = ['🇷🇺 <b>Разбор на русском:</b>\n'];
       results.forEach((r: any, i: number) => {
-        const rawQ = r.question_ru || '—';
+        const rawQ = formatMarkdown(r.question_ru || '—');
         const qMatch = rawQ.match(/^[\s\S]*?\?/);
         const qText = qMatch ? qMatch[0].trim() : rawQ.split('\n')[0].trim();
         lines.push(`${r.isCorrect ? '✅' : '❌'} <b>Вопрос ${i + 1}:</b> ${qText}`);
         if (r.explanation_ru?.trim()) {
-          lines.push(`<blockquote>📖 ${r.explanation_ru.trim()}</blockquote>`);
+          lines.push(`<blockquote>📖 ${formatMarkdown(r.explanation_ru.trim())}</blockquote>`);
         }
         lines.push('');
       });
@@ -883,7 +883,7 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       supabase.from('profiles').update({ settings: s }).eq('id', prof!.id).then().catch(() => {});
     }
     // ── Утренняя викторина: перевод вопроса — показываем подтверждение ────
-    else if (data.startsWith("mqt_") && !data.startsWith("mqt_ok_") && data !== "mqt_no") {
+    else if (data.startsWith("mqt_") && !data.startsWith("mqt_ok_") && !data.startsWith("mqt_no_")) {
       const idx = parseInt(data.replace("mqt_", ""), 10);
       const { data: prof } = await supabase
         .from('profiles')
@@ -894,13 +894,15 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       const coins = (prof as any)?.coins ?? 0;
 
       if (coins < 2) {
-        await fetch(`${TELEGRAM_API}/editMessageText`, {
+        const method = message.photo ? "editMessageCaption" : "editMessageText";
+        const contentField = message.photo ? "caption" : "text";
+        await fetch(`${TELEGRAM_API}/${method}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             chat_id: message.chat.id,
             message_id: message.message_id,
-            text: `🪙 Перевод стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> — нужно пополнить!`,
+            [contentField]: `🪙 Перевод стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> — нужно пополнить!`,
             parse_mode: "HTML",
             reply_markup: { inline_keyboard: [[
               { text: '⛏️ Майнить монеты', web_app: { url: `${MINI_APP_URL}/dashboard?modal=boost-shop&initialTab=coins` } },
@@ -911,32 +913,42 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
       }
 
       // Показываем подтверждение
-      await fetch(`${TELEGRAM_API}/editMessageText`, {
+      const method = message.photo ? "editMessageCaption" : "editMessageText";
+      const contentField = message.photo ? "caption" : "text";
+      await fetch(`${TELEGRAM_API}/${method}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: message.chat.id,
           message_id: message.message_id,
-          text: `🪙 Перевод стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> 🪙 — спишем 2. Подтвердить?`,
+          [contentField]: `🪙 Перевод стоит <b>2 монеты</b>.\n\nУ тебя <b>${coins}</b> 🪙 — спишем 2. Подтвердить?`,
           parse_mode: "HTML",
           reply_markup: { inline_keyboard: [[
             { text: '✅ Да, перевести', callback_data: `mqt_ok_${idx}` },
-            { text: '❌ Отмена', callback_data: 'mqt_no' },
+            { text: '❌ Отмена', callback_data: `mqt_no_${idx}` },
           ]]},
         }),
       });
     }
     // ── Утренняя викторина: перевод вопроса — отмена ──────────────────────
-    else if (data === "mqt_no") {
-      await fetch(`${TELEGRAM_API}/editMessageText`, {
+    else if (data.startsWith("mqt_no_")) {
+      const idx = parseInt(data.replace("mqt_no_", ""), 10);
+      const method = message.photo ? "editMessageCaption" : "editMessageText";
+      const contentField = message.photo ? "caption" : "text";
+      
+      // Need to restore original caption if photo
+      const textToRestore = message.photo ? `☀️ <b>Cuestionario matutino</b>\n\n¿No entiendes la pregunta?` : '¿No entiendes la pregunta?';
+      
+      await fetch(`${TELEGRAM_API}/${method}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: message.chat.id,
           message_id: message.message_id,
-          text: '¿No entiendes la pregunta?',
+          [contentField]: textToRestore,
+          parse_mode: "HTML",
           reply_markup: { inline_keyboard: [[
-            { text: 'Traducir al ruso (2 🪙)', callback_data: 'mqt_0', icon_custom_emoji_id: '5105268517691720533' },
+            { text: 'Traducir al ruso (2 🪙)', callback_data: `mqt_${idx}`, icon_custom_emoji_id: '5105268517691720533' },
           ]]},
         }),
       });
@@ -997,33 +1009,26 @@ async function handleCallbackQuery(query: TelegramCallbackQuery) {
         metadata: { source: 'morning_quiz_question', question_idx: idx },
       }).then().catch(() => {});
 
-      // Редактируем кнопку — убираем подтверждение
-      await fetch(`${TELEGRAM_API}/editMessageText`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: message.chat.id, message_id: message.message_id, text: "✅ Переведено. Монеты списаны.", parse_mode: "HTML" }),
-      });
+      // Формируем текст перевода
+      const optLines = ruOptions.map((o, i) => `${i + 1}. ${formatMarkdown(o)}`).join('\n');
+      const translationText = `✅ <b>Переведено. Монеты списаны.</b>\n\n🇷🇺 <b>Вопрос ${idx + 1}:</b>\n${formatMarkdown(ruText)}${optLines ? `\n\n${optLines}` : ""}`;
+      
+      const method = message.photo ? "editMessageCaption" : "editMessageText";
+      const contentField = message.photo ? "caption" : "text";
+      
+      // Лимит длины для caption — 1024 символа
+      const safeText = translationText.substring(0, message.photo ? 1024 : 4096);
 
-      const optLines = ruOptions.map((o, i) => `${i + 1}. ${o}`).join('\n');
-      const replyRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
+      await fetch(`${TELEGRAM_API}/${method}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: message.chat.id,
-          text: `🇷🇺 <b>Вопрос ${idx + 1} (перевод):</b>\n\n${ruText}${optLines ? `\n\n${optLines}` : ""}`,
-          parse_mode: "HTML",
+        body: JSON.stringify({ 
+          chat_id: message.chat.id, 
+          message_id: message.message_id, 
+          [contentField]: safeText, 
+          parse_mode: "HTML" 
         }),
       });
-      const replyData = await replyRes.json();
-      const replyMsgId = replyData.result?.message_id ?? null;
-
-      if (replyMsgId && prof?.id) {
-        const settings = { ...(prof.settings || {}) };
-        if (settings.morning_quiz) {
-          settings.morning_quiz.translate_reply_msg_id = replyMsgId;
-          supabase.from('profiles').update({ settings }).eq('id', prof.id).then().catch(() => {});
-        }
-      }
     }
   } catch (e: unknown) {
     console.error("[Callback] Error handling callback:", e);
@@ -1376,9 +1381,9 @@ async function handlePollAnswer(pollAnswer: any) {
 
       // Детальный разбор
       quiz.results.forEach((r: any, i: number) => {
-        lines.push(`${r.isCorrect ? '✅' : '❌'} <b>Вопрос ${i + 1}:</b> ${r.text}`);
+        lines.push(`${r.isCorrect ? '✅' : '❌'} <b>Вопрос ${i + 1}:</b> ${formatMarkdown(r.text)}`);
         if (r.explanation) {
-          lines.push(`<blockquote>📖 ${r.explanation}</blockquote>`);
+          lines.push(`<blockquote>📖 ${formatMarkdown(r.explanation)}</blockquote>`);
         }
         lines.push('');
       });
@@ -1448,6 +1453,7 @@ async function sendQuizQuestionFromBot(
   chatId: number, q: any, index: number, total: number, botLang: string
 ): Promise<{ photoMsgId: number | null; pollMsgId: number; translateBtnMsgId: number | null } | null> {
   let photoMsgId: number | null = null;
+  let translateBtnMsgId: number | null = null;
 
   if (q.image_url) {
     const pr = await fetch(`${TELEGRAM_API}/sendPhoto`, {
@@ -1456,8 +1462,13 @@ async function sendQuizQuestionFromBot(
       body: JSON.stringify({
         chat_id: chatId,
         photo: q.image_url,
-        caption: `☀️ <b>Cuestionario matutino · Pregunta ${index + 1} de ${total}</b>`,
+        caption: `☀️ <b>Cuestionario matutino · Pregunta ${index + 1} de ${total}</b>\n\n¿No entiendes la pregunta?`,
         parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [[
+            { text: 'Traducir al ruso (2 🪙)', callback_data: `mqt_${index}`, icon_custom_emoji_id: '5105268517691720533' },
+          ]],
+        },
       }),
     });
     const prResult = await pr.json();
@@ -1487,6 +1498,7 @@ async function sendQuizQuestionFromBot(
     type: 'quiz',
     correct_option_id: q.correct_idx,
     is_anonymous: false,
+    shuffle_options: true,
   };
   if (q.explanation?.trim()) {
     // В полле Telegram лимит 200 символов, обрезаем только тут!
@@ -1518,25 +1530,28 @@ async function sendQuizQuestionFromBot(
     }).catch(() => {});
   }
 
-  // Кнопка перевода на русский
-  let translateBtnMsgId: number | null = null;
-  try {
-    const tbRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: '¿No entiendes la pregunta?',
-        reply_markup: {
-          inline_keyboard: [[
-            { text: 'Traducir al ruso (2 🪙)', callback_data: `mqt_${index}`, icon_custom_emoji_id: '5105268517691720533' },
-          ]],
-        },
-      }),
-    });
-    const tbData = await tbRes.json();
-    if (tbRes.ok) translateBtnMsgId = tbData.result?.message_id ?? null;
-  } catch { /* ignore */ }
+  // Кнопка перевода на русский (отправляем отдельным сообщением ТОЛЬКО если нет картинки)
+  if (!q.image_url) {
+    try {
+      const tbRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: '¿No entiendes la pregunta?',
+          reply_markup: {
+            inline_keyboard: [[
+              { text: 'Traducir al ruso (2 🪙)', callback_data: `mqt_${index}`, icon_custom_emoji_id: '5105268517691720533' },
+            ]],
+          },
+        }),
+      });
+      const tbData = await tbRes.json();
+      if (tbRes.ok) translateBtnMsgId = tbData.result?.message_id ?? null;
+    } catch { /* ignore */ }
+  } else {
+    translateBtnMsgId = photoMsgId;
+  }
 
   return { photoMsgId, pollMsgId, translateBtnMsgId };
 }

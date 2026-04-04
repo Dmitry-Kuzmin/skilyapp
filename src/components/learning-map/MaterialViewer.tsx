@@ -1,9 +1,21 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, FileText, ExternalLink, Image as ImageIcon, Loader2, Languages } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock3,
+  ExternalLink,
+  FileText,
+  Image as ImageIcon,
+  Languages,
+  Layers3,
+  Lightbulb,
+  Loader2,
+  ScrollText,
+  TriangleAlert,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface Material {
@@ -27,7 +39,107 @@ interface MaterialViewerProps {
   className?: string;
   hideHeader?: boolean;
   hideIllustrations?: boolean;
+  inlineTermTranslations?: Record<string, string>;
 }
+
+type InsightTone = "info" | "tip" | "warning";
+
+interface MaterialSection {
+  id: string;
+  title: string;
+}
+
+interface MaterialInsight {
+  title: string;
+  text: string;
+  tone: InsightTone;
+}
+
+interface MaterialPresentation {
+  html: string;
+  sections: MaterialSection[];
+  insights: MaterialInsight[];
+  readTime: number;
+  questionCount: number;
+  noteCount: number;
+  tableCount: number;
+}
+
+const slugifyHeading = (value: string, index: number) => {
+  const normalized = value
+    .toLowerCase()
+    .replace(/<[^>]+>/g, "")
+    .replace(/&[a-z]+;/gi, "")
+    .replace(/[^a-z0-9а-яё]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+
+  return normalized ? `material-section-${normalized}-${index}` : `material-section-${index}`;
+};
+
+const buildMaterialPresentation = (content: string): MaterialPresentation | null => {
+  if (!content || !(content.includes("<") || content.includes("&lt;")) || typeof DOMParser === "undefined") {
+    return null;
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(content, "text/html");
+  const body = doc.body;
+
+  const sections = Array.from(
+    body.querySelectorAll(".section-title, h2, h3")
+  )
+    .map((node, index) => {
+      const title = node.textContent?.trim() ?? "";
+      if (!title) return null;
+
+      const id = node.id || slugifyHeading(title, index);
+      node.id = id;
+      node.classList.add("scroll-mt-28");
+
+      return { id, title };
+    })
+    .filter((section): section is MaterialSection => Boolean(section))
+    .filter((section, index, arr) => arr.findIndex((item) => item.title === section.title) === index);
+
+  const insightNodes = [
+    ...Array.from(body.querySelectorAll(".info-box")).map((node) => ({ node, tone: "info" as const })),
+    ...Array.from(body.querySelectorAll(".tip-box")).map((node) => ({ node, tone: "tip" as const })),
+    ...Array.from(body.querySelectorAll(".warning-box")).map((node) => ({ node, tone: "warning" as const })),
+  ];
+
+  const insights = insightNodes
+    .map(({ node, tone }, index) => {
+      const title = node.querySelector("strong")?.textContent?.replace(":", "").trim();
+      const text = (node.textContent ?? "")
+        .replace(/\s+/g, " ")
+        .replace(title ?? "", "")
+        .trim();
+
+      if (!text) return null;
+
+      return {
+        title: title || `Insight ${index + 1}`,
+        text,
+        tone,
+      };
+    })
+    .filter((item): item is MaterialInsight => Boolean(item))
+    .slice(0, 3);
+
+  const plainText = (body.textContent ?? "").replace(/\s+/g, " ").trim();
+  const wordCount = plainText ? plainText.split(" ").length : 0;
+
+  return {
+    html: body.innerHTML,
+    sections: sections.slice(0, 8),
+    insights,
+    readTime: Math.max(1, Math.ceil(wordCount / 180)),
+    questionCount: body.querySelectorAll(".question-block").length,
+    noteCount: body.querySelectorAll(".info-box, .tip-box, .warning-box").length,
+    tableCount: body.querySelectorAll("table").length,
+  };
+};
 
 export const MaterialViewer = ({
   material,
@@ -37,11 +149,11 @@ export const MaterialViewer = ({
   className,
   hideHeader = false,
   hideIllustrations = false,
+  inlineTermTranslations,
 }: MaterialViewerProps) => {
   const { language: contextLanguage } = useLanguage();
   const [isMarkingComplete, setIsMarkingComplete] = useState(false);
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
-  const contentRef = useState<HTMLDivElement | null>(null);
 
   // Используем язык из пропа, если передан, иначе из контекста
   const language = propLanguage || contextLanguage;
@@ -50,6 +162,15 @@ export const MaterialViewer = ({
   const handleAccordionClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     const trigger = target.closest('.hb-accordion-trigger');
+    const termTrigger = target.closest('.inline-term-translation-trigger');
+
+    if (termTrigger) {
+      const wrapper = termTrigger.closest('.inline-term-translation');
+      if (wrapper) {
+        wrapper.classList.toggle('is-open');
+      }
+      return;
+    }
 
     if (trigger) {
       const item = trigger.closest('.hb-accordion-item');
@@ -114,6 +235,116 @@ export const MaterialViewer = ({
   };
 
   const isShowingFallback = !hasTranslation() && getOriginalLanguage() !== language;
+  const content = getContent();
+  const title = getTitle();
+
+  const presentation = useMemo(() => buildMaterialPresentation(content), [content]);
+  const availableTranslations = [hasRu, hasEs, hasEn].filter(Boolean).length;
+
+  const enhancedContent = useMemo(() => {
+    const html = presentation?.html || content;
+
+    if (!html || !(html.includes("<") || html.includes("&lt;")) || typeof DOMParser === "undefined") {
+      return html;
+    }
+
+    if (language !== "ru" || !inlineTermTranslations || Object.keys(inlineTermTranslations).length === 0) {
+      return html;
+    }
+
+    const dictionary = Object.entries(inlineTermTranslations).reduce<Record<string, string>>(
+      (acc, [term, translation]) => {
+        acc[term.trim().toLowerCase()] = translation;
+        return acc;
+      },
+      {}
+    );
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    Array.from(doc.body.querySelectorAll("em")).forEach((node) => {
+      const term = node.textContent?.trim();
+      if (!term) return;
+
+      const translation = dictionary[term.toLowerCase()];
+      if (!translation) return;
+
+      const wrapper = doc.createElement("span");
+      wrapper.className = "inline-term-translation";
+
+      const termSpan = doc.createElement("span");
+      termSpan.className = "inline-term-translation-term";
+      termSpan.textContent = term;
+
+      const trigger = doc.createElement("button");
+      trigger.type = "button";
+      trigger.className = "inline-term-translation-trigger";
+      trigger.setAttribute("aria-label", `Показать перевод термина ${term}`);
+      trigger.innerHTML =
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 8h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>';
+
+      const translationSpan = doc.createElement("span");
+      translationSpan.className = "inline-term-translation-label";
+      translationSpan.textContent = translation;
+
+      wrapper.appendChild(termSpan);
+      wrapper.appendChild(trigger);
+      wrapper.appendChild(translationSpan);
+
+      node.replaceWith(wrapper);
+    });
+
+    return doc.body.innerHTML;
+  }, [content, inlineTermTranslations, language, presentation?.html]);
+
+  const copy = {
+    ru: {
+      lessonMap: "Карта урока",
+      lessonMapHint: "Быстрый переход по ключевым разделам",
+      takeaways: "Главное для студента",
+      takeawaysHint: "Короткие акценты, чтобы легче запомнить материал и не ошибиться на экзамене",
+      studyFormat: "Формат урока",
+      readTime: "Минут чтения",
+      sections: "Разделов",
+      questions: "Проверок",
+      notes: "Акцентов",
+      tables: "Таблиц",
+      languages: "Языков",
+      fromSource: "Официальный источник",
+      premiumLesson: "Premium lesson",
+    },
+    es: {
+      lessonMap: "Mapa de la leccion",
+      lessonMapHint: "Salto rapido por las partes clave",
+      takeaways: "Lo esencial para el alumno",
+      takeawaysHint: "Puntos clave para memorizar mejor y evitar errores de examen",
+      studyFormat: "Formato de la leccion",
+      readTime: "Min de lectura",
+      sections: "Secciones",
+      questions: "Checks",
+      notes: "Claves",
+      tables: "Tablas",
+      languages: "Idiomas",
+      fromSource: "Fuente oficial",
+      premiumLesson: "Premium lesson",
+    },
+    en: {
+      lessonMap: "Lesson map",
+      lessonMapHint: "Quick jumps through the key sections",
+      takeaways: "What matters most",
+      takeawaysHint: "Short study cues to remember faster and avoid exam traps",
+      studyFormat: "Lesson format",
+      readTime: "Min read",
+      sections: "Sections",
+      questions: "Checks",
+      notes: "Signals",
+      tables: "Tables",
+      languages: "Languages",
+      fromSource: "Official source",
+      premiumLesson: "Premium lesson",
+    },
+  }[language];
 
   const handleComplete = async () => {
     if (isCompleted || isMarkingComplete) return;
@@ -132,14 +363,12 @@ export const MaterialViewer = ({
 
   // Render HTML content safely with enhanced styling
   const renderContent = () => {
-    const content = getContent();
-
     // If content is HTML, render it directly with enhanced styles
     if (content.includes("<") || content.includes("&lt;")) {
       return (
         <div
           className="material-content"
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: enhancedContent }}
           onClick={handleAccordionClick}
         />
       );
@@ -187,12 +416,20 @@ export const MaterialViewer = ({
         <Card className="p-6 bg-gradient-to-br from-primary/5 via-background to-secondary/5 border-primary/20">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                   <FileText className="w-6 h-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-foreground">{getTitle()}</h1>
+              </div>
+              <div className="flex-1">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <Badge className="border-primary/20 bg-primary/10 text-primary hover:bg-primary/10">
+                      {copy.premiumLesson}
+                    </Badge>
+                    <Badge variant="outline" className="border-border/60 bg-background/70">
+                      {copy.studyFormat}
+                    </Badge>
+                  </div>
+                  <h1 className="text-3xl font-bold text-foreground">{title}</h1>
                   {isShowingFallback && (
                     <div className="mt-2 flex items-center gap-2">
                       <Badge variant="outline" className="text-xs">
@@ -232,6 +469,140 @@ export const MaterialViewer = ({
                     "Completado"}
               </Badge>
             )}
+          </div>
+        </Card>
+      )}
+
+      {presentation && (
+        <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+          <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-6">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
+                  {copy.studyFormat}
+                </p>
+                <h2 className="text-2xl font-bold text-foreground">{copy.lessonMap}</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                  {copy.lessonMapHint}
+                </p>
+              </div>
+              {material.source_pdf && (
+                <a
+                  href={material.source_pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border/60 bg-background/80 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  {copy.fromSource}
+                </a>
+              )}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                <div className="mb-3 flex items-center gap-2 text-primary">
+                  <Clock3 className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em]">{copy.readTime}</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{presentation.readTime}</p>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                <div className="mb-3 flex items-center gap-2 text-primary">
+                  <Layers3 className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em]">{copy.sections}</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{presentation.sections.length}</p>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                <div className="mb-3 flex items-center gap-2 text-primary">
+                  <ScrollText className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em]">{copy.questions}</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{presentation.questionCount}</p>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                <div className="mb-3 flex items-center gap-2 text-primary">
+                  <Lightbulb className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em]">{copy.notes}</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{presentation.noteCount}</p>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                <div className="mb-3 flex items-center gap-2 text-primary">
+                  <FileText className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em]">{copy.tables}</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{presentation.tableCount}</p>
+              </div>
+              <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                <div className="mb-3 flex items-center gap-2 text-primary">
+                  <Languages className="h-4 w-4" />
+                  <span className="text-xs font-semibold uppercase tracking-[0.14em]">{copy.languages}</span>
+                </div>
+                <p className="text-2xl font-bold text-foreground">{availableTranslations}</p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="border-border/60 bg-card/80 p-6">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
+              {copy.takeaways}
+            </p>
+            <h2 className="text-2xl font-bold text-foreground">{copy.takeaways}</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {copy.takeawaysHint}
+            </p>
+            <div className="mt-5 space-y-3">
+              {presentation.insights.map((insight, index) => (
+                <div
+                  key={`${insight.title}-${index}`}
+                  className={cn(
+                    "rounded-2xl border p-4",
+                    insight.tone === "warning" && "border-amber-300/50 bg-amber-500/10",
+                    insight.tone === "tip" && "border-emerald-300/50 bg-emerald-500/10",
+                    insight.tone === "info" && "border-primary/20 bg-primary/5"
+                  )}
+                >
+                  <div className="mb-2 flex items-center gap-2">
+                    {insight.tone === "warning" ? (
+                      <TriangleAlert className="h-4 w-4 text-amber-600" />
+                    ) : (
+                      <Lightbulb className={cn("h-4 w-4", insight.tone === "tip" ? "text-emerald-600" : "text-primary")} />
+                    )}
+                    <p className="text-sm font-semibold text-foreground">{insight.title}</p>
+                  </div>
+                  <p className="text-sm leading-6 text-foreground/80">{insight.text}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {presentation && presentation.sections.length > 0 && (
+        <Card className="border-border/60 bg-card/80 p-6">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary/80">
+                {copy.lessonMap}
+              </p>
+              <h2 className="mt-1 text-xl font-bold text-foreground">{copy.lessonMap}</h2>
+            </div>
+            <Badge variant="outline" className="border-border/60 bg-background/70">
+              {presentation.sections.length}
+            </Badge>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {presentation.sections.map((section) => (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                className="inline-flex items-center rounded-full border border-border/70 bg-background/80 px-4 py-2 text-sm font-medium text-foreground transition-all hover:border-primary/40 hover:bg-primary/5 hover:text-primary"
+              >
+                {section.title}
+              </a>
+            ))}
           </div>
         </Card>
       )}
@@ -1088,6 +1459,70 @@ export const MaterialViewer = ({
               font-style: italic;
               color: hsl(var(--foreground) / 0.9);
             }
+
+            .inline-term-translation {
+              display: inline-flex;
+              align-items: center;
+              gap: 0.35rem;
+              margin: 0 0.08rem;
+              white-space: normal;
+              vertical-align: baseline;
+            }
+
+            .inline-term-translation-term {
+              display: inline;
+              color: hsl(var(--primary));
+              font-style: italic;
+              font-weight: 700;
+            }
+
+            .inline-term-translation-trigger {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              width: 1.6rem;
+              height: 1.6rem;
+              border-radius: 9999px;
+              border: 1px solid hsl(var(--primary) / 0.25);
+              background: hsl(var(--primary) / 0.08);
+              color: hsl(var(--primary));
+              cursor: pointer;
+              transition: all 0.2s ease;
+              flex-shrink: 0;
+            }
+
+            .inline-term-translation-trigger:hover {
+              background: hsl(var(--primary) / 0.14);
+              border-color: hsl(var(--primary) / 0.45);
+              transform: translateY(-1px);
+            }
+
+            .inline-term-translation-trigger svg {
+              width: 0.85rem;
+              height: 0.85rem;
+              fill: none;
+              stroke: currentColor;
+              stroke-width: 1.8;
+              stroke-linecap: round;
+              stroke-linejoin: round;
+            }
+
+            .inline-term-translation-label {
+              display: none;
+              align-items: center;
+              border-radius: 9999px;
+              border: 1px solid hsl(var(--primary) / 0.2);
+              background: hsl(var(--primary) / 0.08);
+              color: hsl(var(--foreground));
+              padding: 0.2rem 0.7rem;
+              font-size: 0.9rem;
+              line-height: 1.2;
+              font-weight: 600;
+            }
+
+            .inline-term-translation.is-open .inline-term-translation-label {
+              display: inline-flex;
+            }
             
             /* Ссылки */
             .material-content a,
@@ -1233,4 +1668,3 @@ export const MaterialViewer = ({
     </div>
   );
 };
-

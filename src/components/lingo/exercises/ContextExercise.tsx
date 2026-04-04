@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { ContextExercise as ContextType } from '@/data/lingo/types';
+import { ExerciseInsights } from './ExerciseInsights';
 
 interface Props {
   exercise: ContextType;
@@ -63,6 +64,7 @@ export function ContextExercise({ exercise, onAnswer }: Props) {
         {exercise.sentenceEs && (
           <p className="text-gray-400 text-xs mt-3 italic">{exercise.sentenceEs}</p>
         )}
+        <ExerciseInsights insights={exercise.insights} />
       </div>
 
       {/* Options */}

@@ -120,7 +120,7 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
   const total        = fullQuestions.length;
   const qLabel       = `Pregunta 1 de ${total}`;
 
-  // 4. Фото (если есть) — только декоративный заголовок, текст вопроса только в poll
+  // 4. Фото (если есть) — декоративный заголовок и кнопка перевода
   let photoMsgId: number | null = null;
   if (firstQ.image_url) {
     try {
@@ -130,8 +130,13 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
         body: JSON.stringify({
           chat_id: telegramId,
           photo: firstQ.image_url,
-          caption: `☀️ <b>Cuestionario matutino · ${qLabel}</b>`,
+          caption: `☀️ <b>Cuestionario matutino · ${qLabel}</b>\n\n¿No entiendes la pregunta?`,
           parse_mode: 'HTML',
+          reply_markup: {
+            inline_keyboard: [[
+              { text: 'Traducir al ruso (2 🪙)', callback_data: 'mqt_0' },
+            ]],
+          },
         }),
       });
       const photoData = await photoRes.json();
@@ -159,6 +164,7 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
       correct_option_id: firstQ.correct_idx,
       explanation: plainExp.substring(0, 200),
       is_anonymous: false,
+      shuffle_options: true,
     }),
   });
 
@@ -179,26 +185,32 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
 
   if (!pollMsgId) throw new Error(`Poll message_id not returned for ${telegramId}`);
 
-  // 6. Кнопка перевода — отдельным сообщением под poll, сохраняем ID
+  // 6. Кнопка перевода (Только если не было картинки — иначе кнопка уже в подписи к фото)
   let translateBtnMsgId: number | null = null;
-  try {
-    const tbRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: telegramId,
-        text: '¿No entiendes la pregunta?',
-        reply_markup: {
-          inline_keyboard: [[
-            { text: 'Traducir al ruso (2 🪙)', callback_data: 'mqt_0', icon_custom_emoji_id: '5105268517691720533' },
-          ]],
-        },
-      }),
-    });
-    const tbData = await tbRes.json();
-    if (tbRes.ok) translateBtnMsgId = tbData.result?.message_id ?? null;
-  } catch (e) {
-    console.warn(`[Morning] sendTranslateBtn exception for ${telegramId}:`, e);
+  if (!firstQ.image_url) {
+    try {
+      const tbRes = await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: telegramId,
+          text: '¿No entiendes la pregunta?',
+          reply_markup: {
+            inline_keyboard: [[
+              { text: 'Traducir al ruso (2 🪙)', callback_data: 'mqt_0' },
+            ]],
+          },
+        }),
+      });
+      const tbData = await tbRes.json();
+      if (tbRes.ok) translateBtnMsgId = tbData.result?.message_id ?? null;
+    } catch (e) {
+      console.warn(`[Morning] sendTranslateBtn exception for ${telegramId}:`, e);
+    }
+  } else {
+    // If we sent it with the photo, we map the translate message ID to the photo message ID
+    // so we can update it later.
+    translateBtnMsgId = photoMsgId;
   }
 
   // 7. Сохраняем сессию в settings

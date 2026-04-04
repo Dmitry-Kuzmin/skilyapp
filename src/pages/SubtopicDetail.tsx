@@ -1,6 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, BookOpen, FileText, Languages, CheckCircle2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
+  BookOpen,
+  FileText,
+  Languages,
+  CheckCircle2,
+  Sparkles,
+  Brain,
+  Library,
+  GraduationCap,
+  Target,
+} from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,13 +27,71 @@ import { loadStaticMaterialBySubtopicId, loadStaticMaterialByStaticId } from "@/
 import { PageLoader } from "@/components/PageLoader";
 import { useSubtopic, useSubtopicsByTopic } from "@/hooks/useSubtopic";
 
+interface LanguageTerm {
+  id: string;
+  term_es: string;
+  term_ru: string;
+  description_es: string;
+  description_ru: string;
+  difficulty: string;
+  image_url: string | null;
+  audio_url: string | null;
+}
+
+const stripHtml = (value: string) =>
+  value
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+const getRelatedTerms = (material: Material | null, terms: LanguageTerm[]) => {
+  if (!material || terms.length === 0) return [];
+
+  const corpus = stripHtml(
+    `${material.title_ru} ${material.title_es} ${material.title_en} ${material.content_ru} ${material.content_es} ${material.content_en}`
+  );
+
+  const scored = terms
+    .map((term) => {
+      const es = (term.term_es || "").toLowerCase();
+      const ru = (term.term_ru || "").toLowerCase();
+      const esWords = es.split(/\s+/).filter((word) => word.length > 3);
+      const ruWords = ru.split(/\s+/).filter((word) => word.length > 3);
+
+      let score = 0;
+
+      if (es && corpus.includes(es)) score += 16;
+      if (ru && corpus.includes(ru)) score += 12;
+
+      esWords.forEach((word) => {
+        if (corpus.includes(word)) score += 4;
+      });
+
+      ruWords.forEach((word) => {
+        if (corpus.includes(word)) score += 3;
+      });
+
+      if (term.difficulty === "hard") score += 1.5;
+      if (term.difficulty === "medium") score += 1;
+
+      return { term, score };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  const meaningful = scored.filter((item) => item.score > 0).slice(0, 6).map((item) => item.term);
+  return meaningful.length > 0 ? meaningful : terms.slice(0, 6);
+};
+
 const SubtopicDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profileId } = useUserContext();
   const [loading, setLoading] = useState(true);
   const [material, setMaterial] = useState<Material | null>(null);
-  const [terms, setTerms] = useState<any[]>([]);
+  const [terms, setTerms] = useState<LanguageTerm[]>([]);
   const [test, setTest] = useState<any>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -28,6 +99,23 @@ const SubtopicDetail = () => {
   // ОПТИМИЗАЦИЯ: Используем React Query хуки для загрузки подтем
   const { data: subtopic, isLoading: subtopicLoading } = useSubtopic(id || null);
   const { data: allSubtopics = [] } = useSubtopicsByTopic(subtopic?.topic_id || null);
+  const staticMatch = id?.match(/^static-topic-(\d+)-subtopic-([\d-]+)$/) ?? null;
+  const isStaticMaterial = Boolean(staticMatch);
+  const staticTopicNumber = staticMatch ? Number(staticMatch[1]) : null;
+  const staticTopicId = staticTopicNumber ? `topic-${staticTopicNumber}` : null;
+  const effectiveSubtopic = subtopic ?? (
+    isStaticMaterial
+      ? {
+          id,
+          topic_id: staticTopicId,
+          type: "material",
+          title_ru: material?.title_ru ?? "Материал темы",
+          title_es: material?.title_es ?? "Material del tema",
+          title_en: material?.title_en ?? "Topic material",
+          topics: staticTopicNumber ? { number: staticTopicNumber } : undefined,
+        }
+      : null
+  );
 
   // ОПТИМИЗАЦИЯ: Вычисляем currentIndex через useMemo
   const computedCurrentIndex = useMemo(() => {
@@ -35,6 +123,18 @@ const SubtopicDetail = () => {
     const idx = allSubtopics.findIndex((s) => s.id === id);
     return idx >= 0 ? idx : 0;
   }, [id, allSubtopics]);
+
+  const relatedTerms = useMemo(() => getRelatedTerms(material, terms), [material, terms]);
+
+  const premiumCompanionSubtopics = useMemo(() => {
+    if (!subtopic) return { materialSubtopic: null as any, termsSubtopic: null as any, testSubtopic: null as any };
+
+    return {
+      materialSubtopic: allSubtopics.find((item) => item.type === "material" && item.id !== subtopic.id) || null,
+      termsSubtopic: allSubtopics.find((item) => item.type === "terms" && item.id !== subtopic.id) || null,
+      testSubtopic: allSubtopics.find((item) => item.type === "test" && item.id !== subtopic.id) || null,
+    };
+  }, [allSubtopics, subtopic]);
 
   useEffect(() => {
     setCurrentIndex(computedCurrentIndex);
@@ -50,8 +150,7 @@ const SubtopicDetail = () => {
   useEffect(() => {
     if (!id) return;
 
-    const staticMatch = id.match(/^static-topic-(\d+)-subtopic-([\d-]+)$/);
-    if (staticMatch) {
+    if (isStaticMaterial) {
       // Это статический материал - загружаем напрямую
       const loadStatic = async () => {
         try {
@@ -72,6 +171,16 @@ const SubtopicDetail = () => {
               images: staticMaterial.images.map(img => img.url),
             });
 
+            const { data: termsData, error: termsError } = await supabase
+              .from("language_terms")
+              .select("id, term_es, term_ru, description_es, description_ru, difficulty, image_url, audio_url")
+              .eq("topic_id", staticMaterial.topic_id)
+              .order("term_es");
+
+            if (!termsError && termsData) {
+              setTerms((termsData || []) as LanguageTerm[]);
+            }
+
             setLoading(false);
           } else {
             throw new Error("Статический материал не найден");
@@ -88,7 +197,7 @@ const SubtopicDetail = () => {
       // Обычная подтема - данные загружаются через React Query хуки
       setLoading(subtopicLoading);
     }
-  }, [id, subtopicLoading]);
+  }, [id, isStaticMaterial, subtopicLoading]);
 
   const loadSubtopicContent = async () => {
     if (!subtopic || !id) return;
@@ -214,6 +323,16 @@ const SubtopicDetail = () => {
             });
           }
         }
+
+        const { data: termsData, error: termsError } = await supabase
+          .from("language_terms")
+          .select("id, term_es, term_ru, description_es, description_ru, difficulty, image_url, audio_url")
+          .eq("topic_id", subtopic.topic_id)
+          .order("term_es");
+
+        if (!termsError && termsData) {
+          setTerms((termsData || []) as LanguageTerm[]);
+        }
       } else if (subtopic?.type === "terms") {
         // Загружаем термины темы
         const { data: termsData, error: termsError } = await supabase
@@ -223,7 +342,7 @@ const SubtopicDetail = () => {
           .order("term_es");
 
         if (!termsError && termsData) {
-          setTerms(termsData);
+          setTerms(termsData as LanguageTerm[]);
         }
       } else if (subtopic?.type === "test") {
         // Загружаем тест
@@ -314,7 +433,7 @@ const SubtopicDetail = () => {
     return <PageLoader />;
   }
 
-  if (!subtopic) {
+  if (!effectiveSubtopic && !isStaticMaterial) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8">
@@ -338,7 +457,7 @@ const SubtopicDetail = () => {
     : 0;
 
   const getTypeConfig = () => {
-    switch (subtopic.type) {
+    switch (effectiveSubtopic.type) {
       case "material":
         return {
           icon: BookOpen,
@@ -394,7 +513,7 @@ const SubtopicDetail = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate(`/topic/${subtopic.topic_id}`)}
+                onClick={() => navigate(isStaticMaterial ? `/lingo` : effectiveSubtopic.topic_id ? `/topic/${effectiveSubtopic.topic_id}` : `/lingo`)}
                 className="shrink-0 hover:bg-background/50"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -407,7 +526,7 @@ const SubtopicDetail = () => {
                   </span>
                 </div>
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">
-                  {subtopic.title_ru}
+                  {effectiveSubtopic.title_ru}
                 </h1>
               </div>
               {isCompleted && (
@@ -482,24 +601,154 @@ const SubtopicDetail = () => {
 
         {/* Content Area */}
         <div className="container mx-auto px-4 py-6 sm:py-8 pb-20 md:pb-8">
-          {subtopic.type === "material" && material && (
+          {effectiveSubtopic.type === "material" && material && (
             <div className="space-y-6">
               <MaterialViewer
                 material={material}
                 onComplete={handleComplete}
                 isCompleted={isCompleted}
               />
+
+              {relatedTerms.length > 0 && (
+                <Card className="overflow-hidden border-primary/20 bg-gradient-to-br from-primary/10 via-background to-emerald-500/5 p-6 sm:p-8">
+                  <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div className="max-w-3xl">
+                      <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                        <Sparkles className="h-3.5 w-3.5" />
+                        Premium Reinforcement
+                      </div>
+                      <h2 className="text-2xl font-bold text-foreground sm:text-3xl">
+                        Закрепить ключевые термины по этой теме
+                      </h2>
+                      <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+                        Я подобрал слова, которые чаще всего связаны с текущим материалом. Так студент не просто читает тему, а сразу связывает правило с экзаменационной лексикой.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+                      <div className="rounded-2xl border border-border/60 bg-background/80 px-4 py-3">
+                        <div className="mb-1 flex items-center gap-2 text-primary">
+                          <Brain className="h-4 w-4" />
+                          <span className="text-xs font-semibold uppercase tracking-[0.15em]">Термины</span>
+                        </div>
+                        <div className="text-2xl font-bold text-foreground">{relatedTerms.length}</div>
+                      </div>
+                      <div className="rounded-2xl border border-border/60 bg-background/80 px-4 py-3">
+                        <div className="mb-1 flex items-center gap-2 text-primary">
+                          <Target className="h-4 w-4" />
+                          <span className="text-xs font-semibold uppercase tracking-[0.15em]">Следующий шаг</span>
+                        </div>
+                        <div className="text-sm font-semibold text-foreground">Повторение без потери фокуса</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {relatedTerms.map((term) => (
+                      <LanguageTermCard key={term.id} term={term} />
+                    ))}
+                  </div>
+
+                  <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                    {premiumCompanionSubtopics.termsSubtopic && (
+                      <Button
+                        size="lg"
+                        className="rounded-2xl shadow-lg"
+                        onClick={() => navigate(`/subtopic/${premiumCompanionSubtopics.termsSubtopic.id}`)}
+                      >
+                        <GraduationCap className="mr-2 h-4 w-4" />
+                        Открыть полный словарь темы
+                      </Button>
+                    )}
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="rounded-2xl"
+                      onClick={() => navigate("/dictionary")}
+                    >
+                      <Library className="mr-2 h-4 w-4" />
+                      Перейти в общий словарь
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                {premiumCompanionSubtopics.termsSubtopic && (
+                  <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-background to-background p-6">
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-background/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600 dark:text-emerald-400">
+                      <Brain className="h-3.5 w-3.5" />
+                      После урока
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground">Лексика без перегруза</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      Следом за теорией студент сразу попадает в тематический словарь, где закрепляет значения и формулировки, встречающиеся в вопросах DGT.
+                    </p>
+                    <Button
+                      variant="outline"
+                      className="mt-5 rounded-2xl"
+                      onClick={() => navigate(`/subtopic/${premiumCompanionSubtopics.termsSubtopic.id}`)}
+                    >
+                      Перейти к терминам
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Card>
+                )}
+
+                {premiumCompanionSubtopics.testSubtopic && (
+                  <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-6">
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                      <Target className="h-3.5 w-3.5" />
+                      Контроль результата
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground">Проверка сразу после изучения</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                      Это превращает чтение в обучающий цикл: изучил правило, закрепил термин, проверил себя на тесте по той же теме.
+                    </p>
+                    <Button
+                      className="mt-5 rounded-2xl shadow-lg"
+                      onClick={() => navigate(`/subtopic/${premiumCompanionSubtopics.testSubtopic.id}`)}
+                    >
+                      Открыть проверку
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Card>
+                )}
+              </div>
             </div>
           )}
 
-          {subtopic.type === "terms" && (
+          {effectiveSubtopic.type === "terms" && (
             <div className="space-y-6">
-              <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-foreground">Термины темы</h2>
-                <p className="text-muted-foreground">
-                  Изучи термины, связанные с этой темой
-                </p>
-              </div>
+              <Card className="overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-background to-primary/5 p-6 sm:p-8">
+                <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                  <div>
+                    <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-background/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
+                      <Brain className="h-3.5 w-3.5" />
+                      Premium Vocabulary Layer
+                    </div>
+                    <h2 className="text-2xl font-bold text-foreground sm:text-3xl">Термины темы</h2>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+                      Это не просто словарь. Здесь собраны формулировки, которые помогают быстрее понимать испанские вопросы, не теряться в формулировках DGT и уверенно проходить тесты.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                      <div className="mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                        <Languages className="h-4 w-4" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.14em]">Карточек</span>
+                      </div>
+                      <div className="text-2xl font-bold text-foreground">{terms.length}</div>
+                    </div>
+                    <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+                      <div className="mb-2 flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                        <Sparkles className="h-4 w-4" />
+                        <span className="text-xs font-semibold uppercase tracking-[0.14em]">Режим</span>
+                      </div>
+                      <div className="text-sm font-semibold text-foreground">Билингвальное запоминание</div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
 
               {terms.length > 0 ? (
                 <>
@@ -507,6 +756,49 @@ const SubtopicDetail = () => {
                     {terms.map((term) => (
                       <LanguageTermCard key={term.id} term={term} />
                     ))}
+                  </div>
+
+                  <div className="grid gap-4 lg:grid-cols-2">
+                    {premiumCompanionSubtopics.materialSubtopic && (
+                      <Card className="border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-6">
+                        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+                          <BookOpen className="h-3.5 w-3.5" />
+                          Вернуться к смыслу
+                        </div>
+                        <h3 className="text-xl font-bold text-foreground">Повторить тему через теорию</h3>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                          Если студент почувствовал, что термин знаком, но смысл плавает, он может быстро вернуться к материалу и освежить логику правила.
+                        </p>
+                        <Button
+                          variant="outline"
+                          className="mt-5 rounded-2xl"
+                          onClick={() => navigate(`/subtopic/${premiumCompanionSubtopics.materialSubtopic.id}`)}
+                        >
+                          Открыть материал
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Card>
+                    )}
+
+                    {premiumCompanionSubtopics.testSubtopic && (
+                      <Card className="border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-background to-background p-6">
+                        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-background/70 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-600 dark:text-emerald-400">
+                          <Target className="h-3.5 w-3.5" />
+                          Перенос в практику
+                        </div>
+                        <h3 className="text-xl font-bold text-foreground">Проверить знание в тесте</h3>
+                        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                          После словаря курс должен вести дальше: термин закрепился, теперь пора увидеть, узнаёт ли студент его в формулировках экзамена.
+                        </p>
+                        <Button
+                          className="mt-5 rounded-2xl shadow-lg"
+                          onClick={() => navigate(`/subtopic/${premiumCompanionSubtopics.testSubtopic.id}`)}
+                        >
+                          Перейти к проверке
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Card>
+                    )}
                   </div>
 
                   {!isCompleted && (
@@ -536,7 +828,7 @@ const SubtopicDetail = () => {
             </div>
           )}
 
-          {subtopic.type === "test" && test && (
+          {effectiveSubtopic.type === "test" && test && (
             <Card className="p-6 sm:p-8 space-y-6 border-2">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -573,7 +865,7 @@ const SubtopicDetail = () => {
           )}
 
           {/* Empty State для материалов */}
-          {subtopic.type === "material" && !material && (
+          {effectiveSubtopic.type === "material" && !material && (
             <Card className="p-12 text-center border-dashed">
               <BookOpen className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-2 text-foreground">
@@ -591,4 +883,3 @@ const SubtopicDetail = () => {
 };
 
 export default SubtopicDetail;
-

@@ -305,6 +305,11 @@ window.addEventListener('error', (event) => {
     colno: event.colno,
   };
 
+  if (import.meta.env.DEV) {
+    captureEarlyError(event.error || event.message, errorContext);
+    return;
+  }
+
   // Пытаемся отправить в Rollbar асинхронно
   import('./lib/rollbar').then(({ reportError }) => {
     const errorToReport = event.error || event.message;
@@ -373,6 +378,11 @@ window.addEventListener('unhandledrejection', (event) => {
     type: 'unhandled_promise_rejection',
     reason: String(event.reason),
   };
+
+  if (import.meta.env.DEV) {
+    captureEarlyError(error, errorContext);
+    return;
+  }
 
   import('./lib/rollbar').then(({ reportError }) => {
     reportError(error, errorContext);

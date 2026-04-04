@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
-import { LINGO_CHAPTERS, isChapterUnlocked } from '@/data/lingo';
+import { LINGO_CHAPTERS } from '@/data/lingo';
 
 interface LingoProgressRow {
   lesson_id: string;
@@ -36,7 +36,6 @@ export function useLingoCourse() {
   const completedLessons = completedIds.size;
 
   const chapterStates = LINGO_CHAPTERS.map((ch) => {
-    const unlocked = isChapterUnlocked(ch.id, completedIds);
     const lessons = ch.lessons.map((l) => {
       const row = progressRows.find((r) => r.lesson_id === l.id);
       return {
@@ -50,7 +49,7 @@ export function useLingoCourse() {
     return {
       ...ch,
       lessons,
-      unlocked,
+      unlocked: true,
       progress: doneCount / lessons.length,
       doneCount,
     };

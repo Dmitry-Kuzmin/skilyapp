@@ -11,6 +11,12 @@ export type ExerciseType =
   | 'vocab_intro'
   | 'word_tiles';
 
+export interface ExerciseInsight {
+  label: string;
+  text: string;
+  tone?: 'info' | 'tip' | 'warning' | 'success';
+}
+
 // ---------- individual exercise shapes ----------
 
 export interface FlashcardExercise {
@@ -18,6 +24,7 @@ export interface FlashcardExercise {
   termEs: string;
   termRu: string;
   descriptionRu?: string;
+  insights?: ExerciseInsight[];
 }
 
 export interface MultipleChoiceExercise {
@@ -26,11 +33,13 @@ export interface MultipleChoiceExercise {
   correctAnswer: string;   // RU answer
   options: string[];       // 4 options including correct (shuffle on render)
   termEs?: string;         // optional small label below question
+  insights?: ExerciseInsight[];
 }
 
 export interface MatchPairsExercise {
   type: 'match_pairs';
   pairs: Array<{ es: string; ru: string }>;  // exactly 4 pairs
+  insights?: ExerciseInsight[];
 }
 
 export interface TypeAnswerExercise {
@@ -39,6 +48,7 @@ export interface TypeAnswerExercise {
   termEs: string;          // the word to translate
   correctAnswer: string;   // expected RU text (lowercase compare)
   hint?: string;           // first letter hint, e.g. "Т..."
+  insights?: ExerciseInsight[];
 }
 
 export interface ContextExercise {
@@ -47,6 +57,7 @@ export interface ContextExercise {
   sentenceEs?: string;     // optional ES original (shown as subtitle)
   options: string[];       // 3 ES options
   correctAnswer: string;   // the correct ES term
+  insights?: ExerciseInsight[];
 }
 
 export interface VocabIntroExercise {
@@ -56,6 +67,7 @@ export interface VocabIntroExercise {
   descriptionRu?: string;
   exampleEs?: string;
   exampleRu?: string;
+  insights?: ExerciseInsight[];
 }
 
 export interface WordTilesExercise {
@@ -64,6 +76,7 @@ export interface WordTilesExercise {
   sentenceEs: string;
   correctWords: string[];
   extraWords?: string[];
+  insights?: ExerciseInsight[];
 }
 
 export type LingoExercise =

@@ -21,12 +21,21 @@ export interface StaticMaterial {
   source_pdf?: string;
 }
 
+interface StaticMaterialsManifestItem {
+  staticId: string;
+  topicNumber: number;
+  topicId: string;
+  subtopicCode: string;
+  order: number | null;
+}
+
 type MaterialModule = StaticMaterial | { default: StaticMaterial };
 
 import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 
 const localMaterials = new Map<string, StaticMaterial>();
 const localMaterialsByStaticId = new Map<string, StaticMaterial>();
+let manifestPromise: Promise<StaticMaterialsManifestItem[]> | null = null;
 
 const materialModules = import.meta.glob<MaterialModule>("../data/materials/**/*.json", {
   eager: true,
@@ -80,6 +89,25 @@ const getCachedMaterial = (topicNumber: number, subtopicCode: string) => {
 const getCachedMaterialByStaticId = (staticId: string) => {
   const cached = localMaterialsByStaticId.get(staticId);
   return cached ? cloneMaterial(cached) : null;
+};
+
+const loadMaterialsManifest = async (): Promise<StaticMaterialsManifestItem[]> => {
+  if (!manifestPromise) {
+    manifestPromise = fetch("/data/materials-manifest.json")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load materials manifest: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((manifest) => manifest.items ?? [])
+      .catch((error) => {
+        console.error("[StaticMaterials] Failed to load materials manifest:", error);
+        return [];
+      });
+  }
+
+  return manifestPromise;
 };
 
 /**
@@ -179,6 +207,11 @@ export async function loadStaticMaterialBySubtopicId(
 export async function loadStaticMaterialByStaticId(
   staticId: string
 ): Promise<StaticMaterial | null> {
+  if (!staticId) {
+    console.warn("[StaticMaterials] Empty staticId received");
+    return null;
+  }
+
   const cachedMaterial = getCachedMaterialByStaticId(staticId);
   if (cachedMaterial) {
     return cachedMaterial;
@@ -199,6 +232,84 @@ export async function loadStaticMaterialByStaticId(
   return loadStaticMaterial(topicNumber, subtopicCode);
 }
 
+export async function loadFirstStaticMaterialForTopic(
+  topicNumber: number
+): Promise<StaticMaterial | null> {
+  const manifestItems = await loadMaterialsManifest();
+  const match = manifestItems
+    .filter((item) => item.topicNumber === topicNumber)
+    .sort((a, b) => {
+      const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.subtopicCode.localeCompare(b.subtopicCode, "en", { numeric: true });
+    })[0];
+
+  if (!match) {
+    console.warn(`[StaticMaterials] No manifest item found for topic ${topicNumber}`);
+    return null;
+  }
+
+  return loadStaticMaterialByStaticId(match.staticId);
+}
+
+export async function loadStaticTopicMaterials(
+  topicNumber: number
+): Promise<Array<{ manifest: StaticMaterialsManifestItem; material: StaticMaterial }>> {
+  const manifestItems = await loadMaterialsManifest();
+  const topicItems = manifestItems
+    .filter((item) => item.topicNumber === topicNumber)
+    .sort((a, b) => {
+      const orderA = a.order ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.order ?? Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) return orderA - orderB;
+      return a.subtopicCode.localeCompare(b.subtopicCode, "en", { numeric: true });
+    });
+
+  const materials = await Promise.all(
+    topicItems.map(async (item) => {
+      const material = await loadStaticMaterialByStaticId(item.staticId);
+      return material ? { manifest: item, material } : null;
+    })
+  );
+
+  return materials.filter(
+    (
+      item
+    ): item is { manifest: StaticMaterialsManifestItem; material: StaticMaterial } => Boolean(item)
+  );
+}
+
+const getContentLength = (material: StaticMaterial) =>
+  (material.content_ru || material.content_es || material.content_en || "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim().length;
+
+export async function loadBestStaticMaterialForTopic(
+  topicNumber: number
+): Promise<StaticMaterial | null> {
+  const materials = await loadStaticTopicMaterials(topicNumber);
+  if (materials.length === 0) {
+    return null;
+  }
+
+  return materials
+    .slice()
+    .sort((a, b) => {
+      const lengthDiff = getContentLength(b.material) - getContentLength(a.material);
+      if (lengthDiff !== 0) return lengthDiff;
+
+      const orderA = a.manifest.order ?? Number.MAX_SAFE_INTEGER;
+      const orderB = b.manifest.order ?? Number.MAX_SAFE_INTEGER;
+      if (orderA !== orderB) return orderA - orderB;
+
+      return a.manifest.subtopicCode.localeCompare(b.manifest.subtopicCode, "en", {
+        numeric: true,
+      });
+    })[0].material;
+}
+
 /**
  * Проверяет наличие статического материала
  */
@@ -213,4 +324,3 @@ export async function hasStaticMaterial(
   const material = await loadStaticMaterial(topicNumber, subtopicCode);
   return material !== null;
 }
-

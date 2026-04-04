@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { TypeAnswerExercise as TypeType } from '@/data/lingo/types';
+import { ExerciseInsights } from './ExerciseInsights';
 
 interface Props {
   exercise: TypeType;
@@ -32,6 +33,10 @@ export function TypeAnswerExercise({ exercise, onAnswer }: Props) {
         <div className="bg-blue-50 rounded-2xl px-6 py-4 inline-block">
           <p className="text-3xl font-bold text-blue-700">{exercise.termEs}</p>
         </div>
+      </div>
+
+      <div className="w-full">
+        <ExerciseInsights insights={exercise.insights} />
       </div>
 
       <motion.div

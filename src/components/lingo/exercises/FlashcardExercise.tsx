@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { FlashcardExercise as FlashcardExerciseType } from '@/data/lingo/types';
+import { ExerciseInsights } from './ExerciseInsights';
 
 interface Props {
   exercise: FlashcardExerciseType;
@@ -60,6 +61,7 @@ export function FlashcardExercise({ exercise, onAnswer }: Props) {
                 {exercise.descriptionRu}
               </p>
             )}
+            <ExerciseInsights insights={exercise.insights} />
           </div>
         </motion.div>
       </div>

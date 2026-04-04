@@ -43,6 +43,7 @@ const Index = lazy(() => {
 const LearningMap = lazy(() => import("../pages/LearningMap"));
 const TopicDetail = lazy(() => import("../pages/TopicDetail"));
 const SubtopicDetail = lazy(() => import("../pages/SubtopicDetail"));
+const StaticTopicMaterialPage = lazy(() => import("../pages/StaticTopicMaterialPage"));
 const Tests = lazy(() => import("../pages/Tests"));
 const Learning = lazy(() => import("../pages/Learning"));
 const Games = lazy(() => import("../pages/Games"));
@@ -176,6 +177,11 @@ export function AppRoutes() {
       <Route path="/subtopic/:id" element={
         <Suspense fallback={<PageSkeleton />}>
           <SubtopicDetail />
+        </Suspense>
+      } />
+      <Route path="/materials/topic/:topicNumber" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <StaticTopicMaterialPage />
         </Suspense>
       } />
       <Route path="/tests" element={

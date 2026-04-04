@@ -41,23 +41,68 @@ function detectTopicNumber(dirName) {
   return Number(match[1]);
 }
 
+async function pathExists(targetPath) {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function countJsonFiles(root) {
+  if (!(await pathExists(root))) return 0;
+  const topicDirs = await fs.readdir(root, { withFileTypes: true });
+  let count = 0;
+  for (const dirent of topicDirs) {
+    if (!dirent.isDirectory()) continue;
+    const entries = await fs.readdir(path.join(root, dirent.name), { withFileTypes: true });
+    count += entries.filter((entry) => entry.isFile() && entry.name.endsWith(".json")).length;
+  }
+  return count;
+}
+
+async function resolveManifestSourceRoot() {
+  const [srcCount, publicCount] = await Promise.all([
+    countJsonFiles(SRC_ROOT),
+    countJsonFiles(PUBLIC_ROOT),
+  ]);
+
+  if (publicCount > srcCount) {
+    console.log(
+      `[materials-manifest] Using public materials as source (${publicCount} files > ${srcCount} in src)`
+    );
+    return { sourceRoot: PUBLIC_ROOT, shouldCopyToPublic: false };
+  }
+
+  console.log(
+    `[materials-manifest] Using src materials as source (${srcCount} files, public has ${publicCount})`
+  );
+  return { sourceRoot: SRC_ROOT, shouldCopyToPublic: true };
+}
+
 async function collectMaterials() {
   const manifestItems = [];
+  const { sourceRoot, shouldCopyToPublic } = await resolveManifestSourceRoot();
 
-  const topicDirs = await fs.readdir(SRC_ROOT, { withFileTypes: true });
+  const topicDirs = await fs.readdir(sourceRoot, { withFileTypes: true });
   for (const dirent of topicDirs) {
     if (!dirent.isDirectory()) continue;
     const topicNumber = detectTopicNumber(dirent.name);
     if (!topicNumber) continue;
 
-    const sourceTopicDir = path.join(SRC_ROOT, dirent.name);
+    const sourceTopicDir = path.join(sourceRoot, dirent.name);
     const destTopicDir = path.join(PUBLIC_ROOT, `topic-${topicNumber}`);
-    await ensureDir(destTopicDir);
+    if (shouldCopyToPublic) {
+      await ensureDir(destTopicDir);
+    }
 
     const entries = await fs.readdir(sourceTopicDir, { withFileTypes: true });
     for (const entry of entries) {
       if (entry.isDirectory() && entry.name === "images") {
-        await copyDir(path.join(sourceTopicDir, entry.name), path.join(destTopicDir, entry.name));
+        if (shouldCopyToPublic) {
+          await copyDir(path.join(sourceTopicDir, entry.name), path.join(destTopicDir, entry.name));
+        }
         continue;
       }
 
@@ -84,7 +129,9 @@ async function collectMaterials() {
       const publicFileName = `subtopic-${normalizedCode}.json`;
       const destFile = path.join(destTopicDir, publicFileName);
 
-      await fs.writeFile(destFile, JSON.stringify(parsed, null, 2), "utf-8");
+      if (shouldCopyToPublic) {
+        await fs.writeFile(destFile, JSON.stringify(parsed, null, 2), "utf-8");
+      }
 
       manifestItems.push({
         staticId,
@@ -134,5 +181,4 @@ collectMaterials().catch((error) => {
   console.error("[materials-manifest] Failed to generate manifest:", error);
   process.exitCode = 1;
 });
-
 

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import type { VocabIntroExercise as VocabType } from '@/data/lingo/types';
+import { ExerciseInsights } from './ExerciseInsights';
 
 interface Props {
   exercise: VocabType;
@@ -48,6 +49,8 @@ export function VocabIntroExercise({ exercise, onAnswer }: Props) {
               )}
             </div>
           )}
+
+          <ExerciseInsights insights={exercise.insights} />
         </div>
       </div>
 

@@ -1,7 +1,227 @@
 {
-  "generatedAt": "2025-11-19T09:37:17.420Z",
-  "total": 6,
+  "generatedAt": "2026-04-03T11:14:49.419Z",
+  "total": 77,
   "items": [
+    {
+      "staticId": "static-topic-1-subtopic-1-1",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.1",
+      "order": 1,
+      "title": {
+        "ru": "Классификация транспортных средств",
+        "es": "Clasificación de los vehículos",
+        "en": "Vehicle Classification"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-1",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.1",
+      "order": 2,
+      "title": {
+        "ru": "Определение транспортного средства",
+        "es": "Definición de vehículo",
+        "en": "Definition of Vehicle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-1-2",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.1.2",
+      "order": 3,
+      "title": {
+        "ru": "Определение водителя",
+        "es": "Definición de conductor",
+        "en": "Definition of Driver"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-1-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-2",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.2",
+      "order": 4,
+      "title": {
+        "ru": "Определение автомобиля",
+        "es": "Definición de automóvil",
+        "en": "Definition of Automobile"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-3",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.3",
+      "order": 5,
+      "title": {
+        "ru": "Специальное транспортное средство",
+        "es": "Vehículo especial",
+        "en": "Special Vehicle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-4",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.4",
+      "order": 6,
+      "title": {
+        "ru": "Определение цикла",
+        "es": "Definición de ciclo",
+        "en": "Definition of Cycle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-4-1",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.4.1",
+      "order": 7,
+      "title": {
+        "ru": "Средства личной мобильности (VMP)",
+        "es": "Vehículos de movilidad personal (VMP)",
+        "en": "Personal Mobility Vehicles (PMV)"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-4-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-5",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.5",
+      "order": 8,
+      "title": {
+        "ru": "Определение цикломотора",
+        "es": "Definición de ciclomotor",
+        "en": "Definition of Moped"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-5.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-6",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.6",
+      "order": 9,
+      "title": {
+        "ru": "Определение мотоцикла",
+        "es": "Definición de motocicleta",
+        "en": "Definition of Motorcycle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-6.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-7",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.7",
+      "order": 10,
+      "title": {
+        "ru": "Разница между цикломотором и мотоциклом",
+        "es": "Diferencia entre ciclomotor y motocicleta",
+        "en": "Difference Between Moped and Motorcycle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-7.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-1-subtopic-1-2-8",
+      "topicNumber": 1,
+      "topicId": "topic-1",
+      "subtopicCode": "1.2.8",
+      "order": 11,
+      "title": {
+        "ru": "Легковой автомобиль, автодом и другие типы",
+        "es": "Turismo, autocaravana y otros tipos",
+        "en": "Passenger Car, Motorhome and Other Types"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-1/subtopic-1-2-8.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
     {
       "staticId": "static-topic-2-subtopic-2-1",
       "topicNumber": 2,
@@ -43,6 +263,66 @@
       }
     },
     {
+      "staticId": "static-topic-2-subtopic-2-3",
+      "topicNumber": 2,
+      "topicId": "topic-2",
+      "subtopicCode": "2.3",
+      "order": 3,
+      "title": {
+        "ru": "Включение в поток",
+        "es": "Incorporación a la circulación",
+        "en": "Joining Traffic"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-2/subtopic-2-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-2-subtopic-2-4",
+      "topicNumber": 2,
+      "topicId": "topic-2",
+      "subtopicCode": "2.4",
+      "order": 4,
+      "title": {
+        "ru": "Боковое перемещение",
+        "es": "Desplazamiento lateral",
+        "en": "Lateral Movement"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-2/subtopic-2-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-2-subtopic-2-5",
+      "topicNumber": 2,
+      "topicId": "topic-2",
+      "subtopicCode": "2.5",
+      "order": 5,
+      "title": {
+        "ru": "Обгон",
+        "es": "Adelantamiento",
+        "en": "Overtaking"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-2/subtopic-2-5.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
       "staticId": "static-topic-3-subtopic-3-1",
       "topicNumber": 3,
       "topicId": "topic-3",
@@ -56,6 +336,86 @@
       "hasImages": false,
       "sourcePdf": "https://www.dgt.es/educacion-vial/recursos/teoria/",
       "file": "materials/topic-3/subtopic-3-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-3-subtopic-3-2",
+      "topicNumber": 3,
+      "topicId": "topic-3",
+      "subtopicCode": "3.2",
+      "order": 2,
+      "title": {
+        "ru": "Миссия и типы сигналов",
+        "es": "Misión y tipos de señales",
+        "en": "Purpose and Types of Signals"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-3/subtopic-3-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-3-subtopic-3-3",
+      "topicNumber": 3,
+      "topicId": "topic-3",
+      "subtopicCode": "3.3",
+      "order": 3,
+      "title": {
+        "ru": "Предпочтение сигналов",
+        "es": "Preferencia de las señales",
+        "en": "Signal Priority"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-3/subtopic-3-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-3-subtopic-3-4",
+      "topicNumber": 3,
+      "topicId": "topic-3",
+      "subtopicCode": "3.4",
+      "order": 4,
+      "title": {
+        "ru": "Соблюдение по расположению",
+        "es": "Cumplimiento según ubicación",
+        "en": "Compliance by Location"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-3/subtopic-3-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-3-subtopic-3-5",
+      "topicNumber": 3,
+      "topicId": "topic-3",
+      "subtopicCode": "3.5",
+      "order": 5,
+      "title": {
+        "ru": "Сигнализация работ",
+        "es": "Señalización de obras",
+        "en": "Work Zone Signaling"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-3/subtopic-3-5.json",
       "languages": {
         "ru": true,
         "es": true,
@@ -83,6 +443,26 @@
       }
     },
     {
+      "staticId": "static-topic-4-subtopic-4-0",
+      "topicNumber": 4,
+      "topicId": "topic-4",
+      "subtopicCode": "4.0",
+      "order": 0,
+      "title": {
+        "ru": "Полный конспект темы 4: освещение транспортного средства",
+        "es": "Resumen completo del tema 4: alumbrado del vehículo",
+        "en": "Full Topic 4 Summary: Vehicle Lighting"
+      },
+      "hasImages": true,
+      "sourcePdf": "",
+      "file": "materials/topic-4/subtopic-4-0.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
       "staticId": "static-topic-4-subtopic-4-1",
       "topicNumber": 4,
       "topicId": "topic-4",
@@ -103,6 +483,46 @@
       }
     },
     {
+      "staticId": "static-topic-4-subtopic-4-1-1",
+      "topicNumber": 4,
+      "topicId": "topic-4",
+      "subtopicCode": "4.1.1",
+      "order": 2,
+      "title": {
+        "ru": "Обязательное использование огней",
+        "es": "Uso obligatorio de luces",
+        "en": "Mandatory Light Usage"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-4/subtopic-4-1-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-4-subtopic-4-2",
+      "topicNumber": 4,
+      "topicId": "topic-4",
+      "subtopicCode": "4.2",
+      "order": 3,
+      "title": {
+        "ru": "Габаритные, стояночные и аварийные огни",
+        "es": "Luces de posición, estacionamiento y emergencia",
+        "en": "Position, Parking and Hazard Lights"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-4/subtopic-4-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
       "staticId": "static-topic-4-subtopic-4-3",
       "topicNumber": 4,
       "topicId": "topic-4",
@@ -116,6 +536,1006 @@
       "hasImages": false,
       "sourcePdf": "https://www.dgt.es/behaviour/luces/",
       "file": "materials/topic-4/subtopic-4-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-4-subtopic-4-4",
+      "topicNumber": 4,
+      "topicId": "topic-4",
+      "subtopicCode": "4.4",
+      "order": 4,
+      "title": {
+        "ru": "Противотуманные огни и плохая видимость",
+        "es": "Luces antiniebla y visibilidad reducida",
+        "en": "Fog Lights and Reduced Visibility"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-4/subtopic-4-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-4-subtopic-4-5",
+      "topicNumber": 4,
+      "topicId": "topic-4",
+      "subtopicCode": "4.5",
+      "order": 5,
+      "title": {
+        "ru": "Регулировка фар, неисправности и световозвращатели",
+        "es": "Regulación de faros, averías y catadióptricos",
+        "en": "Headlamp Adjustment, Failures and Reflectors"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-4/subtopic-4-5.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-5-subtopic-5-1",
+      "topicNumber": 5,
+      "topicId": "topic-5",
+      "subtopicCode": "5.1",
+      "order": 1,
+      "title": {
+        "ru": "Количество пассажиров и разделитель груза",
+        "es": "Número de pasajeros y separador de carga",
+        "en": "Number of Passengers and Cargo Separator"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-5/subtopic-5-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-5-subtopic-5-2",
+      "topicNumber": 5,
+      "topicId": "topic-5",
+      "subtopicCode": "5.2",
+      "order": 2,
+      "title": {
+        "ru": "Ответственность и исключения",
+        "es": "Responsabilidad y excepciones",
+        "en": "Responsibility and Exceptions"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-5/subtopic-5-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-5-subtopic-5-3",
+      "topicNumber": 5,
+      "topicId": "topic-5",
+      "subtopicCode": "5.3",
+      "order": 3,
+      "title": {
+        "ru": "Исключения для ремня безопасности",
+        "es": "Excepciones del cinturón de seguridad",
+        "en": "Seatbelt Exceptions"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-5/subtopic-5-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-5-subtopic-5-4",
+      "topicNumber": 5,
+      "topicId": "topic-5",
+      "subtopicCode": "5.4",
+      "order": 4,
+      "title": {
+        "ru": "Расположение детей",
+        "es": "Ubicación de los menores",
+        "en": "Child Seating Position"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-5/subtopic-5-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-5-subtopic-5-5",
+      "topicNumber": 5,
+      "topicId": "topic-5",
+      "subtopicCode": "5.5",
+      "order": 5,
+      "title": {
+        "ru": "Пассажиры на мотоциклах и велосипедах",
+        "es": "Pasajeros en motocicletas y bicicletas",
+        "en": "Passengers on Motorcycles and Bicycles"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-5/subtopic-5-5.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-5-subtopic-5-6",
+      "topicNumber": 5,
+      "topicId": "topic-5",
+      "subtopicCode": "5.6",
+      "order": 6,
+      "title": {
+        "ru": "Обязанность использовать шлем",
+        "es": "Obligación de usar casco",
+        "en": "Helmet Obligation"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-5/subtopic-5-6.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-5-subtopic-5-7",
+      "topicNumber": 5,
+      "topicId": "topic-5",
+      "subtopicCode": "5.7",
+      "order": 7,
+      "title": {
+        "ru": "Погрузка и разгрузка",
+        "es": "Carga y descarga",
+        "en": "Loading and Unloading"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-5/subtopic-5-7.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-6-subtopic-6-1",
+      "topicNumber": 6,
+      "topicId": "topic-6",
+      "subtopicCode": "6.1",
+      "order": 1,
+      "title": {
+        "ru": "Типы разрешений",
+        "es": "Tipos de permisos",
+        "en": "Types of Permits"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/permisos-de-conducir/",
+      "file": "materials/topic-6/subtopic-6-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-6-subtopic-6-1-1",
+      "topicNumber": 6,
+      "topicId": "topic-6",
+      "subtopicCode": "6.1.1",
+      "order": 2,
+      "title": {
+        "ru": "Лицензии на вождение",
+        "es": "Licencias de conducción",
+        "en": "Driving Licenses"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-6/subtopic-6-1-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-6-subtopic-6-1-2",
+      "topicNumber": 6,
+      "topicId": "topic-6",
+      "subtopicCode": "6.1.2",
+      "order": 3,
+      "title": {
+        "ru": "Разница электрических ТС",
+        "es": "Diferencia vehículos eléctricos",
+        "en": "Electric Vehicle Differences"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-6/subtopic-6-1-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-6-subtopic-6-1-3",
+      "topicNumber": 6,
+      "topicId": "topic-6",
+      "subtopicCode": "6.1.3",
+      "order": 4,
+      "title": {
+        "ru": "Разрешение AM",
+        "es": "Permiso AM",
+        "en": "AM Permit"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-6/subtopic-6-1-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-6-subtopic-6-1-4",
+      "topicNumber": 6,
+      "topicId": "topic-6",
+      "subtopicCode": "6.1.4",
+      "order": 5,
+      "title": {
+        "ru": "Разрешение A1",
+        "es": "Permiso A1",
+        "en": "A1 Permit"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-6/subtopic-6-1-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-6-subtopic-6-1-5",
+      "topicNumber": 6,
+      "topicId": "topic-6",
+      "subtopicCode": "6.1.5",
+      "order": 6,
+      "title": {
+        "ru": "Разрешение A2",
+        "es": "Permiso A2",
+        "en": "A2 Permit"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/normativa-de-trafico/",
+      "file": "materials/topic-6/subtopic-6-1-5.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-1",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.1",
+      "order": 1,
+      "title": {
+        "ru": "Аварии",
+        "es": "Los accidentes",
+        "en": "Accidents"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/seguridad-vial/",
+      "file": "materials/topic-7/subtopic-7-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-1-1",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.1.1",
+      "order": 2,
+      "title": {
+        "ru": "Проблема аварий",
+        "es": "El problema de los accidentes",
+        "en": "The Accident Problem"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/seguridad-vial/",
+      "file": "materials/topic-7/subtopic-7-1-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-1-2",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.1.2",
+      "order": 3,
+      "title": {
+        "ru": "Затраты от аварий",
+        "es": "Costes de los accidentes",
+        "en": "Accident Costs"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/seguridad-vial/",
+      "file": "materials/topic-7/subtopic-7-1-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-1-3",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.1.3",
+      "order": 4,
+      "title": {
+        "ru": "Избежание аварий и факторы риска",
+        "es": "Evitar accidentes y factores de riesgo",
+        "en": "Accident Avoidance and Risk Factors"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/seguridad-vial/",
+      "file": "materials/topic-7/subtopic-7-1-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-1-4",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.1.4",
+      "order": 5,
+      "title": {
+        "ru": "Места и время аварий",
+        "es": "Lugares y momentos de accidentes",
+        "en": "Accident Locations and Times"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-7/subtopic-7-1-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-2",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.2",
+      "order": 6,
+      "title": {
+        "ru": "Уязвимые участники дорожного движения",
+        "es": "Usuarios vulnerables de la via",
+        "en": "Vulnerable Road Users"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-7/subtopic-7-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-2-1",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.2.1",
+      "order": 7,
+      "title": {
+        "ru": "Молодые водители",
+        "es": "Conductores jovenes",
+        "en": "Young Drivers"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-7/subtopic-7-2-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-2-2",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.2.2",
+      "order": 8,
+      "title": {
+        "ru": "Пожилые водители",
+        "es": "Conductores mayores",
+        "en": "Elderly Drivers"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-7/subtopic-7-2-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-2-3",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.2.3",
+      "order": 9,
+      "title": {
+        "ru": "Водители двухколёсных транспортных средств",
+        "es": "Conductores de vehiculos de dos ruedas",
+        "en": "Two-Wheeled Vehicle Drivers"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-7/subtopic-7-2-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-2-4",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.2.4",
+      "order": 10,
+      "title": {
+        "ru": "Цикломоторы и мотоциклы",
+        "es": "Ciclomotores y motocicletas",
+        "en": "Mopeds and Motorcycles"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-7/subtopic-7-2-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-7-subtopic-7-2-5",
+      "topicNumber": 7,
+      "topicId": "topic-7",
+      "subtopicCode": "7.2.5",
+      "order": 11,
+      "title": {
+        "ru": "Велосипедисты",
+        "es": "Ciclistas",
+        "en": "Cyclists"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-7/subtopic-7-2-5.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-8-subtopic-8-1",
+      "topicNumber": 8,
+      "topicId": "topic-8",
+      "subtopicCode": "8.1",
+      "order": 1,
+      "title": {
+        "ru": "Обязанность помощи",
+        "es": "Obligación de auxilio",
+        "en": "Duty to Assist"
+      },
+      "hasImages": false,
+      "sourcePdf": null,
+      "file": "materials/topic-8/subtopic-8-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-8-subtopic-8-1-1",
+      "topicNumber": 8,
+      "topicId": "topic-8",
+      "subtopicCode": "8.1.1",
+      "order": 2,
+      "title": {
+        "ru": "Золотой час",
+        "es": "La hora de oro",
+        "en": "The Golden Hour"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-8/subtopic-8-1-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-8-subtopic-8-2",
+      "topicNumber": 8,
+      "topicId": "topic-8",
+      "subtopicCode": "8.2",
+      "order": 3,
+      "title": {
+        "ru": "Запрещённые действия (схема)",
+        "es": "Acciones prohibidas (esquema)",
+        "en": "Prohibited Actions (Overview)"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-8/subtopic-8-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-8-subtopic-8-3",
+      "topicNumber": 8,
+      "topicId": "topic-8",
+      "subtopicCode": "8.3",
+      "order": 4,
+      "title": {
+        "ru": "Запрещённые действия (подробно)",
+        "es": "Acciones prohibidas (detalle)",
+        "en": "Prohibited Actions (Detail)"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-8/subtopic-8-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-1",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.1",
+      "order": 1,
+      "title": {
+        "ru": "Фильтр воздуха",
+        "es": "Filtro de aire",
+        "en": "Air Filter"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-2",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.2",
+      "order": 2,
+      "title": {
+        "ru": "Холостой ход двигателя",
+        "es": "Ralentí del motor",
+        "en": "Engine Idle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-3",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.3",
+      "order": 3,
+      "title": {
+        "ru": "Измерение уровня масла",
+        "es": "Medición del nivel de aceite",
+        "en": "Oil Level Measurement"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-4",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.4",
+      "order": 4,
+      "title": {
+        "ru": "Проверка давления масла",
+        "es": "Control de presión de aceite",
+        "en": "Oil Pressure Check"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-5",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.5",
+      "order": 5,
+      "title": {
+        "ru": "Фильтр масла",
+        "es": "Filtro de aceite",
+        "en": "Oil Filter"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-5.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-6",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.6",
+      "order": 6,
+      "title": {
+        "ru": "Система охлаждения",
+        "es": "Sistema de refrigeración",
+        "en": "Cooling System"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-6.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-7",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.7",
+      "order": 7,
+      "title": {
+        "ru": "Электрическая система",
+        "es": "Sistema eléctrico",
+        "en": "Electrical System"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-7.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-8",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.8",
+      "order": 8,
+      "title": {
+        "ru": "Ведущие и направляющие колёса",
+        "es": "Ruedas motrices y directrices",
+        "en": "Drive and Steering Wheels"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-8.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-9",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.9",
+      "order": 9,
+      "title": {
+        "ru": "Светоотражающий жилет",
+        "es": "Chaleco reflectante",
+        "en": "Reflective Vest"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-9.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-10",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.10",
+      "order": 10,
+      "title": {
+        "ru": "Обязательные запасные части",
+        "es": "Repuestos obligatorios",
+        "en": "Mandatory Spare Parts"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-10.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-11",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.11",
+      "order": 11,
+      "title": {
+        "ru": "Обязанность иметь огнетушитель",
+        "es": "Obligación del extintor",
+        "en": "Fire Extinguisher Obligation"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-11.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-12",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.12",
+      "order": 12,
+      "title": {
+        "ru": "Дымы из выхлопной трубы",
+        "es": "Humos del tubo de escape",
+        "en": "Exhaust Smoke"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-12.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-9-subtopic-9-13",
+      "topicNumber": 9,
+      "topicId": "topic-9",
+      "subtopicCode": "9.13",
+      "order": 13,
+      "title": {
+        "ru": "Система выхлопа",
+        "es": "Sistema de escape",
+        "en": "Exhaust System"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/mantenimiento-vehiculo/",
+      "file": "materials/topic-9/subtopic-9-13.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-10-subtopic-10-1",
+      "topicNumber": 10,
+      "topicId": "topic-10",
+      "subtopicCode": "10.1",
+      "order": 1,
+      "title": {
+        "ru": "Предупредительное вождение",
+        "es": "Conducción preventiva",
+        "en": "Preventive Driving"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-10/subtopic-10-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-10-subtopic-10-1-1",
+      "topicNumber": 10,
+      "topicId": "topic-10",
+      "subtopicCode": "10.1.1",
+      "order": 2,
+      "title": {
+        "ru": "Что такое предупредительное вождение",
+        "es": "Qué es la conducción preventiva",
+        "en": "What is Preventive Driving"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-10/subtopic-10-1-1.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-10-subtopic-10-1-2",
+      "topicNumber": 10,
+      "topicId": "topic-10",
+      "subtopicCode": "10.1.2",
+      "order": 3,
+      "title": {
+        "ru": "Основные принципы (схема)",
+        "es": "Principios básicos (esquema)",
+        "en": "Basic Principles (Overview)"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-10/subtopic-10-1-2.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-10-subtopic-10-1-3",
+      "topicNumber": 10,
+      "topicId": "topic-10",
+      "subtopicCode": "10.1.3",
+      "order": 4,
+      "title": {
+        "ru": "Принцип зрение",
+        "es": "Principio de visión",
+        "en": "Vision Principle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-10/subtopic-10-1-3.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-10-subtopic-10-1-4",
+      "topicNumber": 10,
+      "topicId": "topic-10",
+      "subtopicCode": "10.1.4",
+      "order": 5,
+      "title": {
+        "ru": "Принцип предвидение",
+        "es": "Principio de anticipación",
+        "en": "Anticipation Principle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-10/subtopic-10-1-4.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-10-subtopic-10-1-5",
+      "topicNumber": 10,
+      "topicId": "topic-10",
+      "subtopicCode": "10.1.5",
+      "order": 6,
+      "title": {
+        "ru": "Принцип пространство",
+        "es": "Principio de espacio",
+        "en": "Space Principle"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-10/subtopic-10-1-5.json",
+      "languages": {
+        "ru": true,
+        "es": true,
+        "en": true
+      }
+    },
+    {
+      "staticId": "static-topic-10-subtopic-10-2",
+      "topicNumber": 10,
+      "topicId": "topic-10",
+      "subtopicCode": "10.2",
+      "order": 7,
+      "title": {
+        "ru": "Эффективное вождение",
+        "es": "Conducción eficiente",
+        "en": "Efficient Driving"
+      },
+      "hasImages": false,
+      "sourcePdf": "https://www.dgt.es/muevete-con-seguridad/",
+      "file": "materials/topic-10/subtopic-10-2.json",
       "languages": {
         "ru": true,
         "es": true,

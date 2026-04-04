@@ -14,6 +14,7 @@ import { VocabIntroExercise } from '@/components/lingo/exercises/VocabIntroExerc
 import { WordTilesExercise } from '@/components/lingo/exercises/WordTilesExercise';
 import { useLingoCourse } from '@/hooks/useLingoCourse';
 import { playSuccessSound } from '@/services/audioService';
+import { Brain, Clock3, Route, ShieldCheck, Sparkles } from 'lucide-react';
 
 const MAX_HEARTS = 3;
 const BASE_XP = 10;
@@ -26,6 +27,24 @@ type AnswerResult = {
   correct: boolean;
   correctAnswer?: string;
 };
+
+const LESSON_PREMIUM_PROMISE = [
+  {
+    icon: Route,
+    title: 'Тема идёт по шагам',
+    text: 'Каждое упражнение продолжает предыдущее, поэтому вы не теряете логику и быстрее запоминаете тему.',
+  },
+  {
+    icon: Brain,
+    title: 'Понимание формулировок',
+    text: 'Фокус на языке экзамена DGT и связях между словами, а не на сухом заучивании перевода.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Меньше ловушек на экзамене',
+    text: 'Вы заранее привыкаете к формулировкам и типичным ошибкам, которые часто стоят баллов на экзамене.',
+  },
+];
 
 function ExerciseRenderer({
   exercise,
@@ -150,6 +169,7 @@ export default function LingoLessonPage() {
   const chapterObj = LINGO_CHAPTERS.find((c) => c.id === chapter.id)!;
   const lessonIdxInChapter = chapterObj.lessons.findIndex((l) => l.id === lessonId);
   const nextLesson = chapterObj.lessons[lessonIdxInChapter + 1] ?? null;
+  const remainingExercises = exercises.length - exerciseIdx - 1;
 
   const stars = mistakes === 0 ? 3 : mistakes <= 2 ? 2 : 1;
   const xpEarned = BASE_XP + (mistakes === 0 ? BONUS_XP : 0);
@@ -162,6 +182,8 @@ export default function LingoLessonPage() {
           stars={stars}
           mistakes={mistakes}
           lessonTitle={lesson.title}
+          chapterTitle={chapter.title}
+          nextLessonTitle={nextLesson?.title ?? null}
           onContinue={
             nextLesson ? () => navigate(`/lingo/lesson/${nextLesson.id}`) : undefined
           }
@@ -173,7 +195,7 @@ export default function LingoLessonPage() {
   const currentExercise = exercises[exerciseIdx];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col relative">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f7faf7_0%,#f2f5f1_100%)] flex flex-col relative">
       {/* Progress bar */}
       <LessonProgressBar
         current={exerciseIdx}
@@ -181,13 +203,52 @@ export default function LingoLessonPage() {
         hearts={hearts}
       />
 
-      {/* Chapter label */}
-      <div className="px-4 pt-1 pb-2">
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-sm">{chapter.emoji}</span>
-          <p className="text-xs text-gray-400 font-medium">
-            {chapter.title} · {lesson.title}
-          </p>
+      <div className="px-4 pt-3 pb-2">
+        <div className="mx-auto w-full max-w-6xl">
+          <div className="rounded-[28px] border border-black/5 bg-white/90 p-4 shadow-sm backdrop-blur">
+            <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-slate-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                  <Sparkles size={12} className="text-amber-500" />
+                  Урок DGT
+                </div>
+                <div className="mt-3 flex items-center gap-2">
+                  <span className="text-base">{chapter.emoji}</span>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                    {chapter.title}
+                  </p>
+                </div>
+                <h1 className="mt-2 text-xl font-black leading-6 text-slate-950">{lesson.title}</h1>
+                <p className="mt-2 text-sm leading-5 text-slate-600">
+                  Короткий урок по теме экзамена: разберёте ключевые слова, поймёте смысл формулировок и закрепите их в упражнениях.
+                </p>
+              </div>
+
+              <div className="grid gap-3 lg:justify-self-end lg:max-w-md">
+                <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-right">
+                  <Clock3 size={15} className="ml-auto mb-1 text-emerald-600" />
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700">8-12 мин</p>
+                  <p className="mt-1 text-sm text-emerald-800">На один спокойный учебный подход</p>
+                </div>
+
+                <div className="grid gap-2">
+                  {LESSON_PREMIUM_PROMISE.map((item) => (
+                    <div key={item.title} className="rounded-2xl border border-black/5 bg-slate-50 px-3 py-3">
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white text-slate-700 shadow-sm">
+                          <item.icon size={16} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-slate-900">{item.title}</p>
+                          <p className="mt-1 text-xs leading-5 text-slate-600">{item.text}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -200,7 +261,7 @@ export default function LingoLessonPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: direction * -40 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="w-full max-w-sm"
+            className="w-full max-w-3xl"
           >
             <ExerciseRenderer exercise={currentExercise} onAnswer={handleAnswer} />
           </motion.div>
@@ -209,9 +270,15 @@ export default function LingoLessonPage() {
 
       {/* Exercise counter */}
       <div className="pb-6 text-center">
-        <p className="text-gray-300 text-xs font-medium">
-          {exerciseIdx + 1} / {exercises.length}
-        </p>
+        <div className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-2 shadow-sm">
+          <p className="text-slate-400 text-xs font-medium">
+            {exerciseIdx + 1} / {exercises.length}
+          </p>
+          <span className="h-1 w-1 rounded-full bg-slate-300" />
+          <p className="text-xs font-medium text-slate-500">
+            {remainingExercises > 0 ? `осталось ${remainingExercises}` : 'финальный шаг'}
+          </p>
+        </div>
       </div>
 
       {/* Bottom feedback sheet */}
@@ -237,11 +304,11 @@ export default function LingoLessonPage() {
               transition={{ type: 'spring', stiffness: 400, damping: 36 }}
               className={`fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl px-5 pt-5 pb-10 shadow-2xl ${
                 pendingResult.correct
-                  ? 'bg-emerald-50'
-                  : 'bg-red-50'
+                  ? 'bg-[linear-gradient(180deg,#f3fff8_0%,#ecfdf3_100%)]'
+                  : 'bg-[linear-gradient(180deg,#fff7f7_0%,#fef2f2_100%)]'
               }`}
             >
-              <div className="max-w-sm mx-auto">
+              <div className="mx-auto max-w-3xl">
                 {pendingResult.correct ? (
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-white text-lg font-bold">
@@ -271,16 +338,35 @@ export default function LingoLessonPage() {
                   </div>
                 )}
 
-                <button
-                  onClick={advanceToNext}
-                  className={`w-full rounded-2xl py-4 font-bold text-white text-base active:scale-[0.97] transition-transform ${
-                    pendingResult.correct
-                      ? 'bg-emerald-500 shadow-emerald-200 shadow-lg'
-                      : 'bg-red-400 shadow-red-200 shadow-lg'
-                  }`}
-                >
-                  Продолжить
-                </button>
+                <div className={`mb-4 rounded-2xl border px-4 py-3 text-left ${
+                  pendingResult.correct
+                    ? 'border-emerald-200 bg-white/80'
+                    : 'border-red-200 bg-white/75'
+                }`}>
+                  <p className={`text-[11px] font-bold uppercase tracking-[0.18em] ${
+                    pendingResult.correct ? 'text-emerald-700' : 'text-red-500'
+                  }`}>
+                    {pendingResult.correct ? 'Что это даёт' : 'Что улучшится дальше'}
+                  </p>
+                  <p className="mt-2 text-sm leading-5 text-gray-600">
+                    {pendingResult.correct
+                      ? 'Хороший ответ здесь снижает риск ошибки в похожих формулировках на реальном экзамене.'
+                      : 'Ошибка сейчас полезнее, чем на экзамене: следующая попытка уже будет строиться на понимании ловушки.'}
+                  </p>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={advanceToNext}
+                    className={`w-full rounded-2xl py-4 font-bold text-white text-base active:scale-[0.97] transition-transform sm:w-auto sm:min-w-[240px] sm:px-8 ${
+                      pendingResult.correct
+                        ? 'bg-emerald-500 shadow-emerald-200 shadow-lg'
+                        : 'bg-red-400 shadow-red-200 shadow-lg'
+                    }`}
+                  >
+                    Продолжить
+                  </button>
+                </div>
               </div>
             </motion.div>
           </>
