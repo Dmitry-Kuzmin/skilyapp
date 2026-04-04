@@ -110,7 +110,7 @@ function SwipeCard({
   const rightIndicatorOpacity = useTransform(x, [0, 50, 150], [0, 0.5, 1]);
 
   return (
-    <div className="relative flex-1 flex flex-col justify-center items-center w-full max-w-2xl px-4 py-4">
+    <div className="relative flex-1 flex flex-col justify-center items-center w-full max-w-2xl mx-auto px-4 py-4">
       {/* Swipe direction indicators */}
       <motion.div
         style={{ opacity: leftIndicatorOpacity }}
