@@ -87,12 +87,12 @@ async function fetchQuestionsForCountry(
     return [];
   }
 
-  // Filter: not already used, has 4 answer options
+  // Filter: not already used, has at least 2 answer options
   const eligible = rows.filter(
     (r: any) =>
       !usedIds.has(r.id) &&
       Array.isArray(r.answer_options) &&
-      r.answer_options.length === 4
+      r.answer_options.length >= 2
   );
 
   const selected = eligible.slice(0, batchSize);
