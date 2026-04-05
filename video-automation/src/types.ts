@@ -22,21 +22,95 @@ export interface VideoQuestion {
   // Derived
   hook_title: string;
   series_number: number;
-  // Optional ElevenLabs TTS audio (relative to public/, e.g. "audio/xxx-es-question.mp3")
+
+  // ── ElevenLabs TTS (generated before render, paths relative to public/) ──
   questionAudioFile?: string;
+  questionAudioDurationSec?: number;
+
+  answerAudioFiles?: string[];          // one per answer_option in order
+  answerAudioDurationsSec?: number[];   // duration of each answer audio
+
   explanationAudioFile?: string;
+  explanationAudioDurationSec?: number;
+
+  // Russian explanation (for dual-language workflow)
+  explanationRu?: string;
+  explanationRuAudioFile?: string;
+  explanationRuAudioDurationSec?: number;
 }
 
-// Skily brand colors
+// ── Dynamic timing (computed from audio durations) ───────────────────────────
+export interface DynamicTiming {
+  hookStart:        number;   // seconds
+  countdownStart:   number;
+  questionStart:    number;
+  answersStart:     number;
+  answerAppearAt:   number[]; // absolute seconds when each answer card appears
+  suspenseStart:    number;
+  revealStart:      number;
+  explanationStart: number;
+  ctaStart:         number;
+  totalSec:         number;
+}
+
+const HOOK_DUR        = 2;
+const COUNTDOWN_DUR   = 3;
+const SUSPENSE_DUR    = 6;
+const REVEAL_DUR      = 3;
+const CTA_DUR         = 3;
+const ANSWER_GAP      = 0.35; // seconds between answers
+
+export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
+  // Question window: at least 5s or however long the TTS takes
+  const qAudioDur   = q.questionAudioDurationSec ?? 5;
+  const questionDur = Math.max(5, qAudioDur + 0.5);
+
+  const hookStart      = 0;
+  const countdownStart = HOOK_DUR;
+  const questionStart  = HOOK_DUR + COUNTDOWN_DUR;
+  const answersStart   = questionStart + questionDur;
+
+  // Answers: each card appears when it's that answer's turn to be read
+  const answerDurs = q.answerAudioDurationsSec ?? [];
+  const answerAppearAt: number[] = [];
+  let cursor = answersStart;
+  const count = q.answer_options?.length ?? 0;
+  for (let i = 0; i < count; i++) {
+    answerAppearAt.push(cursor);
+    cursor += (answerDurs[i] ?? 2.5) + ANSWER_GAP;
+  }
+  const answersEnd = cursor;
+
+  const suspenseStart    = answersEnd;
+  const revealStart      = suspenseStart + SUSPENSE_DUR;
+  const explanationStart = revealStart + REVEAL_DUR;
+
+  // Explanation: at least 6s or however long the audio is
+  const expAudioDur   = (q.explanationRuAudioFile
+    ? (q.explanationRuAudioDurationSec ?? 8)
+    : (q.explanationAudioDurationSec   ?? 8));
+  const explanationDur = Math.max(6, expAudioDur + 1);
+
+  const ctaStart = explanationStart + explanationDur;
+  const totalSec = ctaStart + CTA_DUR;
+
+  return {
+    hookStart, countdownStart, questionStart, answersStart,
+    answerAppearAt, suspenseStart, revealStart, explanationStart,
+    ctaStart, totalSec,
+  };
+}
+
+// ── Brand colors ─────────────────────────────────────────────────────────────
 export const BRAND = {
   bg: "#0f0f1a",
   bgCard: "#1a1a2e",
-  primary: "#7c3aed",    // violet-700
-  primaryLight: "#a855f7", // violet-500
+  primary: "#7c3aed",
+  primaryLight: "#a855f7",
   primaryGlow: "#7c3aed33",
-  accent: "#06b6d4",     // cyan-500
-  gold: "#f59e0b",       // amber-500
-  green: "#10b981",      // emerald-500
+  accent: "#06b6d4",
+  gold: "#f59e0b",
+  green: "#10b981",
   red: "#ef4444",
   textPrimary: "#f8fafc",
   textSecondary: "#94a3b8",
@@ -46,56 +120,43 @@ export const BRAND = {
 
 export const HOOK_TEMPLATES = {
   ru: {
-    very_hard:  "Это не знает НИКТО 🤯",
-    hard:       "99% водителей ошибаются ❌",
-    medium:     "Только опытные знают ответ 🚗",
-    easy:       "Проверь себя за 5 секунд ⚡",
+    very_hard: "Это не знает НИКТО 🤯",
+    hard:      "99% водителей ошибаются ❌",
+    medium:    "Только опытные знают ответ 🚗",
+    easy:      "Проверь себя за 5 секунд ⚡",
   },
   es: {
-    very_hard:  "¡NADIE sabe la respuesta! 🤯",
-    hard:       "El 99% de conductores falla ❌",
-    medium:     "Solo los expertos lo saben 🚗",
-    easy:       "¿Sabes la respuesta? ⚡",
+    very_hard: "¡NADIE sabe la respuesta! 🤯",
+    hard:      "El 99% de conductores falla ❌",
+    medium:    "Solo los expertos lo saben 🚗",
+    easy:      "¿Sabes la respuesta? ⚡",
   },
 } as const;
 
 export const UI_TEXT = {
   ru: {
-    think:    "ДУМАЙТЕ!",
-    correct:  "ПРАВИЛЬНО!",
-    wrong:    "НЕВЕРНО",
-    cta:      "Ещё вопросы → skilyapp.com",
-    subscribe: "Подпишись 👇",
-    answer_before: "Ответь ДО того как покажу →",
+    think:       "ДУМАЙТЕ!",
+    correct:     "ПРАВИЛЬНО!",
+    wrong:       "НЕВЕРНО",
+    cta:         "Ещё вопросы → skilyapp.com",
+    subscribe:   "Подпишись 👇",
     explanation: "Объяснение:",
+    examBadge:   "🚗 ЭКЗАМЕН ПДД",
+    examSub:     "Знаешь правила?",
   },
   es: {
-    think:    "¡PIENSA!",
-    correct:  "¡CORRECTO!",
-    wrong:    "INCORRECTO",
-    cta:      "Más preguntas → skilyapp.com",
-    subscribe: "Suscríbete 👇",
-    answer_before: "Responde ANTES de ver →",
+    think:       "¡PIENSA!",
+    correct:     "¡CORRECTO!",
+    wrong:       "INCORRECTO",
+    cta:         "Más preguntas → skilyapp.com",
+    subscribe:   "Suscríbete 👇",
     explanation: "Explicación:",
+    examBadge:   "🚗 EXAMEN DGT",
+    examSub:     "¿Conoces las normas?",
   },
 } as const;
 
-// Timing (frames at 30fps)
 export const FPS = 30;
-export const DURATION_SECS = 33;
-export const TOTAL_FRAMES = FPS * DURATION_SECS;
-
-export const TIMING = {
-  hook:        { start: 0,   end: 2  },
-  countdown:   { start: 2,   end: 5  },
-  question:    { start: 5,   end: 10 },
-  answers:     { start: 10,  end: 18 },
-  suspense:    { start: 18,  end: 24 }, // 6 seconds — enough for Russian
-  reveal:      { start: 24,  end: 27 },
-  explanation: { start: 27,  end: 30 },
-  cta:         { start: 30,  end: 33 },
-} as const;
-
-export function toFrame(seconds: number) {
-  return seconds * FPS;
-}
+// Legacy — used as fallback only; actual duration set via calculateMetadata
+export const DURATION_SECS  = 40;
+export const TOTAL_FRAMES   = FPS * DURATION_SECS;

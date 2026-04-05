@@ -28,5 +28,7 @@
     }
   ],
   "hook_title": "¿Sabes la respuesta? ⚡",
-  "series_number": 6
+  "series_number": 6,
+  "questionAudioFile": "audio/bdb2e54c-91d9-480e-8212-186a0781c696-es-question.mp3",
+  "explanationAudioFile": "audio/bdb2e54c-91d9-480e-8212-186a0781c696-es-explanation.mp3"
 }
