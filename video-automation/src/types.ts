@@ -61,7 +61,7 @@ export const UI_TEXT = {
     think:    "ДУМАЙТЕ!",
     correct:  "ПРАВИЛЬНО!",
     wrong:    "НЕВЕРНО",
-    cta:      "Ещё вопросы → Skily.app",
+    cta:      "Ещё вопросы → skilyapp.com",
     subscribe: "Подпишись 👇",
     answer_before: "Ответь ДО того как покажу →",
     explanation: "Объяснение:",
