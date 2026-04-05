@@ -200,11 +200,9 @@ async function generateTTSForQuestion(question) {
   }
 
   // Russian explanation (for RU variant video)
-  console.log(`  [DEBUG] explanationRu present: ${!!question.explanationRu}, length: ${(question.explanationRu||'').length}`);
   if (question.explanationRu) {
     const erPath = path.join(AUDIO_DIR, `${id}-ru-explanation.mp3`);
     const erDur  = await synth(question.explanationRu, VOICE_RU, erPath, "explanation [RU]", "ru");
-    console.log(`  [DEBUG] erDur: ${erDur}, fileExists: ${fs.existsSync(erPath)}`);
     if (erDur !== null) {
       result.explanationRuAudioFile        = `audio/${id}-ru-explanation.mp3`;
       result.explanationRuAudioDurationSec = erDur;
