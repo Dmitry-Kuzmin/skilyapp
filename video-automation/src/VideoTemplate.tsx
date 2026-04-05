@@ -171,6 +171,16 @@ function TestCard({
         {q.question}
       </div>
 
+      {/* Russian subtitle under question (RU-видео) */}
+      {q.language === "ru" && q.question_ru && (
+        <div style={{ fontSize:30, fontWeight:400, color: C.textMuted,
+          lineHeight:1.4, fontFamily:"system-ui,sans-serif",
+          borderLeft:`3px solid ${C.primary}`, paddingLeft:16,
+          marginTop:-8 }}>
+          {q.question_ru}
+        </div>
+      )}
+
       {/* Answer options — each appears at its scheduled time */}
       {opts.map((opt, i) => {
         const appearFrame = t.answerAppearAt[i] * FPS;
