@@ -353,6 +353,20 @@ select { background: #0D1117; border: 1px solid rgba(255,255,255,0.1); color: #F
 .render-log { background: #0D1117; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px; font-size: 12px; font-family: monospace; color: #8B949E; max-height: 120px; overflow-y: auto; margin-top: 8px; white-space: pre-wrap; }
 .loading { text-align: center; padding: 40px; color: #8B949E; }
 .pagination { display: flex; gap: 8px; padding: 16px 24px; align-items: center; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); }
+/* Edit fields */
+.edit-label { font-size: 11px; font-weight: 700; color: #8B949E; letter-spacing: 0.5px; margin-bottom: 5px; text-transform: uppercase; }
+.edit-textarea { width: 100%; background: #0D1117; border: 1.5px solid rgba(255,255,255,0.1); color: #F0F6FC; border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; font-family: inherit; resize: vertical; outline: none; }
+.edit-textarea:focus { border-color: #2F81F7; }
+.edit-input { width: 100%; background: #0D1117; border: 1.5px solid rgba(255,255,255,0.1); color: #F0F6FC; border-radius: 10px; padding: 9px 14px; font-size: 14px; font-family: inherit; outline: none; }
+.edit-input:focus { border-color: #2F81F7; }
+.edit-input.correct { border-color: rgba(63,185,80,0.5); background: rgba(63,185,80,0.05); }
+.edit-group { margin-bottom: 14px; }
+.edit-answer-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.edit-answer-num { width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #8B949E; flex-shrink: 0; }
+.edit-answer-num.correct { background: #3FB950; color: #fff; }
+.btn-danger { background: rgba(248,81,73,0.15); color: #F85149; border: 1px solid rgba(248,81,73,0.3); }
+.btn-danger:hover { background: rgba(248,81,73,0.25); }
+.section-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 18px 0; }
 </style>
 </head>
 <body>
