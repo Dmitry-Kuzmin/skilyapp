@@ -468,9 +468,12 @@ function renderPreview() {
   const lang = q.language || document.getElementById("lang").value;
 
   const answersHTML = (q.answer_options || []).map((o, i) => \`
-    <div class="edit-answer-row">
-      <div class="edit-answer-num \${o.is_correct ? 'correct' : ''}">\${o.is_correct ? '✓' : i+1}</div>
-      <input class="edit-input \${o.is_correct ? 'correct' : ''}" id="editAnswer_\${i}" value="\${escHtml(o.text)}" placeholder="Вариант \${i+1}">
+    <div class="edit-answer-row" style="align-items:flex-start">
+      <div class="edit-answer-num \${o.is_correct ? 'correct' : ''}" style="margin-top:8px">\${o.is_correct ? '✓' : i+1}</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+        <input class="edit-input \${o.is_correct ? 'correct' : ''}" id="editAnswer_\${i}" value="\${escHtml(o.text)}" placeholder="Вариант \${i+1} (ES)">
+        \${lang === 'es' ? \`<input class="edit-input" id="editAnswerRu_\${i}" value="\${escHtml(o.text_ru||'')}" placeholder="Перевод на русский..." style="font-size:13px;border-color:rgba(255,255,255,0.06)">\` : ''}
+      </div>
     </div>
   \`).join('');
 
