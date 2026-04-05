@@ -642,9 +642,9 @@ const server = http.createServer(async (req, res) => {
     const limit  = parseInt(url.searchParams.get("limit") || "30");
     const offset = parseInt(url.searchParams.get("offset") || "0");
     try {
-      const qs = await fetchQuestions({ lang, search, limit, offset });
+      const { questions: qs, total } = await fetchQuestions({ lang, search, limit, offset });
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ questions: qs, total: qs.length + offset }));
+      res.end(JSON.stringify({ questions: qs, total }));
     } catch (e) {
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: e.message }));
