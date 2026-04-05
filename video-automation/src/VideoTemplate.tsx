@@ -372,6 +372,32 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
         background:"radial-gradient(ellipse at 50% 0%, rgba(47,129,247,0.08) 0%, transparent 70%)",
         pointerEvents:"none" }} />
 
+      {/* ── Sound effects ── */}
+      {/* Hook whoosh at frame 0 */}
+      <Sequence from={0} durationInFrames={15}>
+        <Audio src={S("whoosh.wav")} volume={0.7} />
+      </Sequence>
+      {/* Countdown beeps: 3 at 2s, 2 at 3s, 1 at 4s */}
+      <Sequence from={TIMING.countdown.start * FPS} durationInFrames={10}>
+        <Audio src={S("beep3.wav")} volume={0.8} />
+      </Sequence>
+      <Sequence from={(TIMING.countdown.start + 1) * FPS} durationInFrames={10}>
+        <Audio src={S("beep2.wav")} volume={0.8} />
+      </Sequence>
+      <Sequence from={(TIMING.countdown.start + 2) * FPS} durationInFrames={10}>
+        <Audio src={S("beep1.wav")} volume={1.0} />
+      </Sequence>
+      {/* Tick every second during suspense */}
+      {[0, 1, 2].map(i => (
+        <Sequence key={i} from={(TIMING.suspense.start + i) * FPS} durationInFrames={6}>
+          <Audio src={S("tick.wav")} volume={0.6} />
+        </Sequence>
+      ))}
+      {/* Reveal chime */}
+      <Sequence from={TIMING.reveal.start * FPS} durationInFrames={20}>
+        <Audio src={S("reveal.wav")} volume={0.9} />
+      </Sequence>
+
       {scene === "hook"        && <HookScene q={question} />}
       {scene === "countdown"   && <CountdownScene />}
       {scene === "question"    && <QuestionScene q={question} />}
