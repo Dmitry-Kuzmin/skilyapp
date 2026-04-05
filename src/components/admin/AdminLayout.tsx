@@ -315,7 +315,9 @@ export function AdminLayout() {
                         <button
                           key={item.id}
                           onClick={() => {
-                            if (item.path.includes('.html')) {
+                            if ((item as any).external) {
+                              window.open(item.path, "_blank");
+                            } else if (item.path.includes('.html')) {
                               window.location.href = item.path;
                             } else {
                               navigate(item.path);
