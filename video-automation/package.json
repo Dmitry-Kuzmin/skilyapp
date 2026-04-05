@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Auto-generate TikTok/YouTube Shorts from Skily driving test questions",
   "scripts": {
+    "picker": "node picker-server.js",
     "preview": "npx remotion preview src/Root.tsx",
     "render": "npx remotion render src/Root.tsx VideoTemplate",
     "render:batch": "npx ts-node --esm scripts/render-batch.ts",
