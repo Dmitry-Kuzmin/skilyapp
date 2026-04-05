@@ -102,8 +102,13 @@ const adminNavItems = [
     icon: Rocket,
     path: "/admin/mission-control",
   },
-
-
+  {
+    id: "video-maker",
+    label: "Video Maker 🎬",
+    icon: Clapperboard,
+    path: "http://localhost:3334",
+    external: true,
+  },
 ];
 
 export function AdminLayout() {
