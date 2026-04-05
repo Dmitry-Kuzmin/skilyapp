@@ -135,7 +135,7 @@ async function generateTTSForQuestion(question) {
 
   // Question
   const qPath = path.join(AUDIO_DIR, `${id}-${lang}-question.mp3`);
-  const qDur  = await synth(question.question, voiceId, qPath, "question");
+  const qDur  = await synth(question.question, voiceId, qPath, "question", lang);
   if (qDur !== null) {
     result.questionAudioFile        = `audio/${id}-${lang}-question.mp3`;
     result.questionAudioDurationSec = qDur;
@@ -146,7 +146,7 @@ async function generateTTSForQuestion(question) {
   for (let i = 0; i < (question.answer_options || []).length; i++) {
     const text  = prefixes[i] + question.answer_options[i].text;
     const aPath = path.join(AUDIO_DIR, `${id}-${lang}-answer-${i}.mp3`);
-    const dur   = await synth(text, voiceId, aPath, `answer ${i+1}`);
+    const dur   = await synth(text, voiceId, aPath, `answer ${i+1}`, lang);
     answerFiles.push(`audio/${id}-${lang}-answer-${i}.mp3`);
     answerDurs.push(dur ?? 2.5);
   }
@@ -155,7 +155,7 @@ async function generateTTSForQuestion(question) {
 
   // Explanation (same language)
   const ePath = path.join(AUDIO_DIR, `${id}-${lang}-explanation.mp3`);
-  const eDur  = await synth(question.explanation, voiceId, ePath, "explanation");
+  const eDur  = await synth(question.explanation, voiceId, ePath, "explanation", lang);
   if (eDur !== null) {
     result.explanationAudioFile        = `audio/${id}-${lang}-explanation.mp3`;
     result.explanationAudioDurationSec = eDur;
@@ -164,7 +164,7 @@ async function generateTTSForQuestion(question) {
   // Russian explanation (for RU variant video)
   if (question.explanationRu) {
     const erPath = path.join(AUDIO_DIR, `${id}-ru-explanation.mp3`);
-    const erDur  = await synth(question.explanationRu, VOICE_RU, erPath, "explanation [RU]");
+    const erDur  = await synth(question.explanationRu, VOICE_RU, erPath, "explanation [RU]", "ru");
     if (erDur !== null) {
       result.explanationRuAudioFile        = `audio/${id}-ru-explanation.mp3`;
       result.explanationRuAudioDurationSec = erDur;
