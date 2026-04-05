@@ -10,7 +10,8 @@
     "export:questions": "npx ts-node --esm scripts/export-questions.ts",
     "pipeline": "npx ts-node --esm scripts/run-pipeline.ts",
     "upload:tiktok": "npx ts-node --esm scripts/upload-tiktok.ts",
-    "upload:youtube": "npx ts-node --esm scripts/upload-youtube.ts"
+    "upload:youtube": "npx ts-node --esm scripts/upload-youtube.ts",
+    "tts:test": "npx ts-node --esm scripts/generate-tts.ts"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.0",
