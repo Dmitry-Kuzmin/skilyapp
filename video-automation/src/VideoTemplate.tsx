@@ -163,10 +163,20 @@ function TestCard({
 
       {/* Image */}
       {q.image_url && (
-        <div style={{ width:"100%", borderRadius:40,
-          boxShadow:"0 24px 80px rgba(0,0,0,0.9), 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(255,255,255,0.10), 0 0 80px rgba(47,129,247,0.18)" }}>
-          <div style={{ width:"100%", borderRadius:40, overflow:"hidden",
-            backgroundColor:"#000", border:"1.5px solid rgba(255,255,255,0.10)" }}>
+        /* Внешний div: синий glow + закруглённые углы тени */
+        <div style={{
+          borderRadius: 36,
+          padding: 3,
+          background: "linear-gradient(135deg, rgba(47,129,247,0.55) 0%, rgba(47,129,247,0.18) 100%)",
+          boxShadow: [
+            "0 0 0 1px rgba(47,129,247,0.35)",
+            "0 8px 32px rgba(47,129,247,0.40)",
+            "0 24px 64px rgba(0,0,0,0.75)",
+            "0 0 80px rgba(47,129,247,0.22)",
+          ].join(", "),
+        }}>
+          {/* Внутренний div: clip rounded corners изображения */}
+          <div style={{ borderRadius: 33, overflow: "hidden", backgroundColor: "#000" }}>
             <img src={q.image_url} alt="" style={{ width:"100%", maxHeight:500,
               objectFit:"contain", display:"block" }} />
           </div>
