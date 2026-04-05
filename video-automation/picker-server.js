@@ -1,0 +1,452 @@
+/**
+ * picker-server.js — Question Picker for video generation
+ * Port 3334 — http://localhost:3334
+ *
+ * Allows browsing real questions from Supabase and rendering videos.
+ */
+
+const http  = require("http");
+const https = require("https");
+const fs    = require("fs");
+const path  = require("path");
+const { execSync, spawn } = require("child_process");
+
+const PORT = 3334;
+const SUPABASE_URL = "https://yffjnqegeiorunyvcxkn.supabase.co";
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA";
+const RENDERS_DIR = path.join(__dirname, "renders");
+const SELECTED_FILE = path.join(RENDERS_DIR, "selected-question.json");
+
+fs.mkdirSync(RENDERS_DIR, { recursive: true });
+
+// ── Supabase REST helper ──────────────────────────────────────────────────────
+function supabaseRequest(endpoint, params = "") {
+  return new Promise((resolve, reject) => {
+    const url = `${SUPABASE_URL}/rest/v1/${endpoint}${params}`;
+    const options = {
+      headers: {
+        "apikey": ANON_KEY,
+        "Authorization": `Bearer ${ANON_KEY}`,
+        "Content-Type": "application/json",
+      }
+    };
+    https.get(url, options, (res) => {
+      let data = "";
+      res.on("data", d => data += d);
+      res.on("end", () => {
+        try { resolve(JSON.parse(data)); }
+        catch (e) { reject(e); }
+      });
+    }).on("error", reject);
+  });
+}
+
+// ── Fetch questions from Supabase ─────────────────────────────────────────────
+async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0 } = {}) {
+  const country = lang === "ru" ? "ru" : "es";
+  const qField = `question_${lang}`;
+  const exField = `explanation_${lang}`;
+
+  // Columns to select
+  const cols = `id,${qField},${exField},image_url,difficulty,percent_correct,topic_id`;
+
+  let filter = `country=eq.${country}&not.${exField}=is.null`;
+  if (search) filter += `&${qField}=ilike.*${encodeURIComponent(search)}*`;
+
+  const rows = await supabaseRequest(
+    "questions_new",
+    `?select=${cols}&${filter}&order=percent_correct.asc&limit=${limit}&offset=${offset}`
+  );
+
+  if (!Array.isArray(rows)) return [];
+
+  // Fetch answer options for each question
+  const ids = rows.map(r => r.id);
+  if (ids.length === 0) return [];
+
+  const textField = `text_${lang}`;
+  const answers = await supabaseRequest(
+    "answer_options",
+    `?select=id,question_id,${textField},is_correct,position&question_id=in.(${ids.join(",")})&order=position.asc`
+  );
+
+  const answerMap = {};
+  if (Array.isArray(answers)) {
+    for (const a of answers) {
+      if (!answerMap[a.question_id]) answerMap[a.question_id] = [];
+      answerMap[a.question_id].push({
+        id: a.id,
+        text: a[textField] || "",
+        is_correct: a.is_correct,
+        position: a.position,
+      });
+    }
+  }
+
+  return rows.map(r => ({
+    id: r.id,
+    question: r[qField] || "",
+    explanation: r[exField] || "",
+    image_url: r.image_url || null,
+    difficulty: r.difficulty || "medium",
+    percent_correct: r.percent_correct || 50,
+    country,
+    language: lang,
+    answer_options: (answerMap[r.id] || []),
+  }));
+}
+
+// ── HTML page ─────────────────────────────────────────────────────────────────
+const HTML = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skily — Video Picker</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0D1117; color: #F0F6FC; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; }
+
+.header { background: #161B22; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 16px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 10; }
+.logo { font-size: 22px; font-weight: 900; color: #2F81F7; letter-spacing: 1px; }
+.controls { display: flex; gap: 12px; flex: 1; align-items: center; flex-wrap: wrap; }
+input[type=text] { background: #0D1117; border: 1px solid rgba(255,255,255,0.1); color: #F0F6FC; padding: 10px 16px; border-radius: 10px; font-size: 15px; flex: 1; min-width: 200px; outline: none; }
+input[type=text]:focus { border-color: #2F81F7; }
+select { background: #0D1117; border: 1px solid rgba(255,255,255,0.1); color: #F0F6FC; padding: 10px 14px; border-radius: 10px; font-size: 15px; cursor: pointer; outline: none; }
+.btn { padding: 10px 20px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn-primary { background: #2F81F7; color: #fff; }
+.btn-primary:hover { background: #1a6bd4; }
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+.btn-render { background: #3FB950; color: #fff; }
+.btn-render:hover { background: #2ea043; }
+.btn-render:disabled { background: #1f6b2e; color: rgba(255,255,255,0.5); cursor: not-allowed; }
+
+.layout { display: grid; grid-template-columns: 1fr 420px; gap: 0; height: calc(100vh - 64px); }
+.list { overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.07); }
+.preview { overflow-y: auto; padding: 24px; background: #0D1117; }
+
+.question-item { padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.15s; }
+.question-item:hover { background: rgba(255,255,255,0.03); }
+.question-item.selected { background: rgba(47,129,247,0.08); border-left: 3px solid #2F81F7; }
+.q-meta { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px; }
+.badge-easy   { background: rgba(63,185,80,0.15); color: #3FB950; }
+.badge-medium { background: rgba(240,136,62,0.15); color: #F0883E; }
+.badge-hard   { background: rgba(248,81,73,0.12); color: #F85149; }
+.badge-pct    { background: rgba(255,255,255,0.08); color: #8B949E; }
+.q-text { font-size: 15px; color: #F0F6FC; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Preview panel */
+.preview-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #8B949E; gap: 12px; font-size: 15px; }
+.preview-card { background: #161B22; border-radius: 16px; border: 1px solid rgba(255,255,255,0.07); overflow: hidden; }
+.preview-img { width: 100%; max-height: 240px; object-fit: cover; }
+.preview-body { padding: 20px; }
+.preview-question { font-size: 17px; font-weight: 700; color: #F0F6FC; line-height: 1.5; margin-bottom: 16px; }
+.preview-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.07); background: #0D1117; margin-bottom: 8px; }
+.preview-option.correct { border-color: rgba(63,185,80,0.5); background: rgba(63,185,80,0.10); }
+.opt-badge { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #8B949E; flex-shrink: 0; }
+.preview-option.correct .opt-badge { background: #3FB950; color: #fff; }
+.opt-text { font-size: 14px; color: #F0F6FC; line-height: 1.4; }
+.preview-explanation { margin-top: 16px; padding: 14px 16px; border-radius: 12px; border: 1.5px solid rgba(47,129,247,0.3); background: rgba(47,129,247,0.07); font-size: 14px; color: #F0F6FC; line-height: 1.5; }
+.preview-expl-label { font-size: 12px; font-weight: 700; color: #2F81F7; margin-bottom: 6px; letter-spacing: 0.5px; }
+.preview-actions { margin-top: 16px; display: flex; gap: 10px; flex-direction: column; }
+.render-log { background: #0D1117; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px; font-size: 12px; font-family: monospace; color: #8B949E; max-height: 120px; overflow-y: auto; margin-top: 8px; white-space: pre-wrap; }
+.loading { text-align: center; padding: 40px; color: #8B949E; }
+.pagination { display: flex; gap: 8px; padding: 16px 24px; align-items: center; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">SKILY</div>
+  <div class="controls">
+    <input type="text" id="search" placeholder="Поиск вопроса..." oninput="onSearch()">
+    <select id="lang" onchange="reload()">
+      <option value="es">🇪🇸 Español (DGT)</option>
+      <option value="ru">🇷🇺 Русский (ПДД)</option>
+    </select>
+    <button class="btn btn-primary" onclick="reload()">Обновить</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="list" id="list">
+    <div class="loading">Загрузка вопросов...</div>
+  </div>
+
+  <div class="preview" id="preview">
+    <div class="preview-empty">
+      <div style="font-size:40px">👈</div>
+      <div>Выбери вопрос слева</div>
+      <div style="font-size:13px; opacity:0.6">чтобы увидеть превью и создать видео</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let questions = [];
+let selected = null;
+let offset = 0;
+let total = 0;
+const LIMIT = 30;
+let searchTimer;
+
+function onSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { offset = 0; reload(); }, 400);
+}
+
+async function reload() {
+  offset = 0;
+  await loadQuestions();
+}
+
+async function loadQuestions() {
+  const search = document.getElementById("search").value;
+  const lang = document.getElementById("lang").value;
+  document.getElementById("list").innerHTML = '<div class="loading">Загрузка...</div>';
+  try {
+    const res = await fetch(\`/api/questions?lang=\${lang}&search=\${encodeURIComponent(search)}&offset=\${offset}&limit=\${LIMIT}\`);
+    const data = await res.json();
+    questions = data.questions || [];
+    total = data.total || questions.length;
+    renderList();
+  } catch(e) {
+    document.getElementById("list").innerHTML = '<div class="loading">Ошибка загрузки. Проверь сервер.</div>';
+  }
+}
+
+function renderList() {
+  const lang = document.getElementById("lang").value;
+  const diffLabel = { easy: lang==="ru"?"ЛЁГКИЙ":"FÁCIL", medium: lang==="ru"?"СРЕДНИЙ":"MEDIO", hard: lang==="ru"?"СЛОЖНЫЙ":"DIFÍCIL" };
+  let html = questions.map((q, i) => \`
+    <div class="question-item \${selected && selected.id === q.id ? 'selected' : ''}" onclick="selectQuestion(\${i})">
+      <div class="q-meta">
+        <span class="badge badge-\${q.difficulty}">\${diffLabel[q.difficulty]||q.difficulty}</span>
+        <span class="badge badge-pct">\${q.percent_correct ?? 50}% верно</span>
+        <span class="badge badge-pct">\${q.answer_options?.length || 0} вариантов</span>
+      </div>
+      <div class="q-text">\${q.question}</div>
+    </div>
+  \`).join('');
+
+  html += \`<div class="pagination">
+    <span style="color:#8B949E;font-size:13px">\${offset+1}–\${Math.min(offset+LIMIT, total)} из \${total}</span>
+    <button class="btn btn-sm btn-primary" \${offset===0?'disabled':''} onclick="prevPage()">← Назад</button>
+    <button class="btn btn-sm btn-primary" \${offset+LIMIT>=total?'disabled':''} onclick="nextPage()">Вперёд →</button>
+  </div>\`;
+
+  document.getElementById("list").innerHTML = html;
+}
+
+function prevPage() { if (offset > 0) { offset -= LIMIT; loadQuestions(); } }
+function nextPage() { offset += LIMIT; loadQuestions(); }
+
+function selectQuestion(i) {
+  selected = questions[i];
+  renderList();
+  renderPreview();
+}
+
+function renderPreview() {
+  if (!selected) return;
+  const q = selected;
+  const lang = q.language || document.getElementById("lang").value;
+  const diffLabel = { easy: lang==="ru"?"ЛЁГКИЙ":"FÁCIL", medium: lang==="ru"?"СРЕДНИЙ":"MEDIO", hard: lang==="ru"?"СЛОЖНЫЙ":"DIFÍCIL" };
+  const diffColor = { easy:"#3FB950", medium:"#F0883E", hard:"#F85149" };
+
+  let optionsHTML = (q.answer_options || []).map((o, i) => \`
+    <div class="preview-option \${o.is_correct ? 'correct' : ''}">
+      <div class="opt-badge">\${o.is_correct ? '✓' : i+1}</div>
+      <div class="opt-text">\${o.text}</div>
+    </div>
+  \`).join('');
+
+  document.getElementById("preview").innerHTML = \`
+    <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:700;color:#F0F6FC;font-size:17px">Превью</span>
+      <span style="font-size:12px;color:#8B949E">\${lang.toUpperCase()} · \${q.percent_correct}% верно</span>
+    </div>
+    <div class="preview-card">
+      \${q.image_url ? \`<img class="preview-img" src="\${q.image_url}" alt="">\` : ''}
+      <div class="preview-body">
+        <div class="preview-question">\${q.question}</div>
+        \${optionsHTML}
+        <div class="preview-explanation">
+          <div class="preview-expl-label">\${lang==="ru"?"ОБЪЯСНЕНИЕ":"EXPLICACIÓN"}</div>
+          \${q.explanation || '—'}
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-actions">
+      <button class="btn btn-render" onclick="renderVideo()" id="renderBtn">
+        🎬 Создать MP4
+      </button>
+      <div id="renderLog" class="render-log" style="display:none"></div>
+    </div>
+
+    <div style="margin-top:16px;font-size:12px;color:#8B949E;line-height:1.6">
+      <b style="color:#F0F6FC">Как загрузить вручную:</b><br>
+      1. Нажми «Создать MP4» — файл появится в <code>renders/</code><br>
+      2. Загрузи в TikTok Studio или YouTube Studio<br>
+      3. Скопируй в описание объяснение ниже:<br>
+      <div style="margin-top:8px;padding:10px;background:#161B22;border-radius:8px;font-size:11px;line-height:1.5">
+        \${q.explanation}
+      </div>
+    </div>
+  \`;
+}
+
+async function renderVideo() {
+  if (!selected) return;
+  const btn = document.getElementById("renderBtn");
+  const log = document.getElementById("renderLog");
+  btn.disabled = true;
+  btn.textContent = "⏳ Рендерится...";
+  log.style.display = "block";
+  log.textContent = "Запускаем рендер...\\n";
+
+  try {
+    const res = await fetch("/api/render", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: selected }),
+    });
+    const data = await res.json();
+    if (data.output) {
+      btn.textContent = "✅ Готово!";
+      btn.style.background = "#3FB950";
+      log.textContent += \`Файл: \${data.output}\\n\`;
+    } else {
+      btn.textContent = "❌ Ошибка";
+      log.textContent += data.error || "Неизвестная ошибка";
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.textContent = "❌ Ошибка";
+    log.textContent += e.message;
+    btn.disabled = false;
+  }
+}
+
+// Initial load
+loadQuestions();
+</script>
+</body>
+</html>`;
+
+// ── HTTP server ────────────────────────────────────────────────────────────────
+const server = http.createServer(async (req, res) => {
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+
+  // CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") { res.writeHead(200); res.end(); return; }
+
+  // ── GET / ─────────────────────────────────────────────────────────────────
+  if (req.method === "GET" && url.pathname === "/") {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(HTML);
+    return;
+  }
+
+  // ── GET /api/questions ────────────────────────────────────────────────────
+  if (req.method === "GET" && url.pathname === "/api/questions") {
+    const lang   = url.searchParams.get("lang") || "es";
+    const search = url.searchParams.get("search") || "";
+    const limit  = parseInt(url.searchParams.get("limit") || "30");
+    const offset = parseInt(url.searchParams.get("offset") || "0");
+    try {
+      const qs = await fetchQuestions({ lang, search, limit, offset });
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ questions: qs, total: qs.length + offset }));
+    } catch (e) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // ── POST /api/render ──────────────────────────────────────────────────────
+  if (req.method === "POST" && url.pathname === "/api/render") {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      try {
+        const { question } = JSON.parse(body);
+
+        // Build full VideoQuestion object
+        const seriesState = (() => {
+          try { return JSON.parse(fs.readFileSync(path.join(RENDERS_DIR,"series-state.json"),"utf-8")); }
+          catch { return { ru:1, es:1 }; }
+        })();
+
+        const lang = question.language || question.country || "es";
+        const hookTemplates = {
+          ru: { vhard:"Это не знает НИКТО 🤯", hard:"99% водителей ошибаются ❌", medium:"Только опытные знают ответ 🚗", easy:"Проверь себя за 5 секунд ⚡" },
+          es: { vhard:"¡NADIE sabe la respuesta! 🤯", hard:"El 99% de conductores falla ❌", medium:"Solo los expertos lo saben 🚗", easy:"¿Sabes la respuesta? ⚡" },
+        };
+        const pct = question.percent_correct || 50;
+        const hookKey = pct < 30 ? "vhard" : pct < 50 ? "hard" : question.difficulty === "hard" ? "medium" : "easy";
+
+        const videoQuestion = {
+          ...question,
+          hook_title: hookTemplates[lang]?.[hookKey] || "Проверь себя",
+          series_number: seriesState[lang] || 1,
+        };
+
+        // Save selected question for Remotion
+        fs.writeFileSync(SELECTED_FILE, JSON.stringify(videoQuestion, null, 2));
+
+        // Run render
+        const outputPath = path.join(RENDERS_DIR, `question-${question.id}-${lang}.mp4`);
+        const nodebin = process.execPath;
+        const remotionCli = path.join(__dirname, "node_modules/.bin/remotion");
+
+        const props = JSON.stringify({ question: videoQuestion });
+        const propsFile = path.join(RENDERS_DIR, "render-props.json");
+        fs.writeFileSync(propsFile, JSON.stringify({ question: videoQuestion }));
+
+        const proc = spawn(nodebin, [
+          remotionCli, "render",
+          "src/Root.tsx", "VideoTemplate",
+          "--output", outputPath,
+          "--props", propsFile,
+        ], { cwd: __dirname });
+
+        let logs = "";
+        proc.stdout.on("data", d => { logs += d; });
+        proc.stderr.on("data", d => { logs += d; });
+
+        proc.on("close", (code) => {
+          if (code === 0) {
+            // Update series counter
+            seriesState[lang] = (seriesState[lang] || 1) + 1;
+            fs.writeFileSync(path.join(RENDERS_DIR,"series-state.json"), JSON.stringify(seriesState,null,2));
+
+            res.writeHead(200, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ output: outputPath, logs }));
+          } else {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: `Render failed (exit ${code})`, logs }));
+          }
+        });
+
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  res.writeHead(404);
+  res.end("Not found");
+});
+
+server.listen(PORT, () => {
+  console.log(`\nSkily Video Picker ready: http://localhost:${PORT}\n`);
+});
