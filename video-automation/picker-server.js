@@ -403,19 +403,18 @@ const server = http.createServer(async (req, res) => {
 
         // Run render
         const outputPath = path.join(RENDERS_DIR, `question-${question.id}-${lang}.mp4`);
-        const nodebin = process.execPath;
         const remotionCli = path.join(__dirname, "node_modules/.bin/remotion");
 
-        const props = JSON.stringify({ question: videoQuestion });
         const propsFile = path.join(RENDERS_DIR, "render-props.json");
         fs.writeFileSync(propsFile, JSON.stringify({ question: videoQuestion }));
 
-        const proc = spawn(nodebin, [
-          remotionCli, "render",
+        const proc = spawn(remotionCli, [
+          "render",
           "src/Root.tsx", "VideoTemplate",
           "--output", outputPath,
           "--props", propsFile,
-        ], { cwd: __dirname });
+          "--log", "error",
+        ], { cwd: __dirname, env: { ...process.env, PATH: process.env.PATH } });
 
         let logs = "";
         proc.stdout.on("data", d => { logs += d; });
