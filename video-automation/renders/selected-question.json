@@ -1,0 +1,32 @@
+{
+  "id": "1575be20-d4ee-4047-85a1-1c2fceadac2a",
+  "question": "En una autopista que transcurre por zona urbana, ¿a qué velocidad máxima puede circular un turismo si no existe señalización?",
+  "explanation": "Según el Reglamento General de Circulación, las autopistas y autovías que transcurren dentro de poblado (zona urbana) tienen un límite de velocidad genérico de 80 km/h. Aunque este límite puede ser ampliado mediante señalización específica, en ausencia de señales, la norma establece el máximo en 80 km/h para todos los vehículos, incluidos los turismos.",
+  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/1575be20-d4ee-4047-85a1-1c2fceadac2a.webp",
+  "difficulty": "easy",
+  "percent_correct": 50,
+  "country": "es",
+  "language": "es",
+  "answer_options": [
+    {
+      "id": "96275b12-b001-ca90-3892-e3d804540f26",
+      "text": "A 100 km/h.",
+      "is_correct": false,
+      "position": 1
+    },
+    {
+      "id": "f03bac75-9ebd-ca90-65ae-71592f30c94e",
+      "text": "A 120 km/h.",
+      "is_correct": false,
+      "position": 2
+    },
+    {
+      "id": "dfd4fda3-6569-4397-6180-94ddc986038b",
+      "text": "A 80 km/h.",
+      "is_correct": true,
+      "position": 3
+    }
+  ],
+  "hook_title": "¿Sabes la respuesta? ⚡",
+  "series_number": 1
+}
