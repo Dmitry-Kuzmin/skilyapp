@@ -3,8 +3,10 @@
  * Цвета, карточки, нумерация (1/2/3) — всё как в приложении.
  */
 import React from "react";
-import { AbsoluteFill, useCurrentFrame } from "remotion";
+import { AbsoluteFill, useCurrentFrame, Audio, Sequence } from "remotion";
 import { VideoQuestion, FPS, TIMING } from "./types";
+
+const S = (f: string) => `/sounds/${f}`;
 
 // ─── Skily UI colors (из приложения) ────────────────────────────────────────
 const C = {
