@@ -202,8 +202,8 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
   const qField = `question_${lang}`;
   const exField = `explanation_${lang}`;
 
-  // Columns to select — also fetch Russian explanation for dual-language workflow
-  const cols = `id,${qField},${exField},explanation_ru,image_url,difficulty,percent_correct,topic_id`;
+  // Columns: всегда берём question_ru и explanation_ru для RU-видео
+  const cols = `id,${qField},${exField},question_ru,explanation_ru,image_url,difficulty,percent_correct,topic_id`;
 
   let filter = `country=eq.${country}&${exField}=not.is.null`;
   if (search) filter += `&${qField}=ilike.*${encodeURIComponent(search)}*`;
