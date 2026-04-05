@@ -217,9 +217,18 @@ function TestCard({
               color: badgeColor, fontFamily:"system-ui,sans-serif", flexShrink:0 }}>
               {isRevealed && isCorrect ? "✓" : i + 1}
             </div>
-            <div style={{ fontSize:38, fontWeight:500, color: C.text,
-              fontFamily:"system-ui,sans-serif", lineHeight:1.3, opacity: textOp }}>
-              {opt.text}
+            <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+              <div style={{ fontSize:38, fontWeight:500, color: C.text,
+                fontFamily:"system-ui,sans-serif", lineHeight:1.3, opacity: textOp }}>
+                {opt.text}
+              </div>
+              {/* Русский перевод под испанским вариантом (RU-видео) */}
+              {q.language === "ru" && opt.text_ru && (
+                <div style={{ fontSize:26, color: C.textMuted, fontFamily:"system-ui,sans-serif",
+                  lineHeight:1.3, opacity: textOp * 0.8 }}>
+                  {opt.text_ru}
+                </div>
+              )}
             </div>
           </div>
         );
