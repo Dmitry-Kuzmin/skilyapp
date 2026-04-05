@@ -637,7 +637,7 @@ const server = http.createServer(async (req, res) => {
         }
       });
       res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ message: \`Удалено \${deleted.length} файлов: \${deleted.join(", ")}\`, deleted }));
+      res.end(JSON.stringify({ message: "Удалено " + deleted.length + " файлов: " + deleted.join(", "), deleted }));
     } catch(e) {
       res.writeHead(500); res.end(JSON.stringify({ error: e.message }));
     }
