@@ -1,0 +1,31 @@
+{
+  "name": "skily-video-automation",
+  "version": "1.0.0",
+  "description": "Auto-generate TikTok/YouTube Shorts from Skily driving test questions",
+  "scripts": {
+    "preview": "npx remotion preview src/Root.tsx",
+    "render": "npx remotion render src/Root.tsx VideoTemplate",
+    "render:batch": "npx ts-node --esm scripts/render-batch.ts",
+    "export:questions": "npx ts-node --esm scripts/export-questions.ts",
+    "pipeline": "npx ts-node --esm scripts/run-pipeline.ts",
+    "upload:tiktok": "npx ts-node --esm scripts/upload-tiktok.ts",
+    "upload:youtube": "npx ts-node --esm scripts/upload-youtube.ts"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.0",
+    "@remotion/cli": "^4.0.0",
+    "@remotion/renderer": "^4.0.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "remotion": "^4.0.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.0.0",
+    "form-data": "^4.0.0",
+    "googleapis": "^144.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
