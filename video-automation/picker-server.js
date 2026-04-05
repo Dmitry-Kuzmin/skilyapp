@@ -89,6 +89,23 @@ const ANSWER_PREFIX = {
   ru: ["Вариант один: ", "Вариант два: ", "Вариант три: ", "Вариант четыре: "],
 };
 
+// ── TTS text preprocessing (fix abbreviation pronunciation) ──────────────────
+function preprocessTTS(text, lang) {
+  if (lang === "es" || lang === "ru") {
+    text = text
+      .replace(/\bkm\/h\b/gi, lang === "es" ? "kilómetros por hora" : "километров в час")
+      .replace(/\bkm\b/gi,   lang === "es" ? "kilómetros" : "километров")
+      .replace(/\bm\/s\b/gi, lang === "es" ? "metros por segundo" : "метров в секунду")
+      .replace(/\bm\/h\b/gi, lang === "es" ? "metros por hora" : "метров в час")
+      .replace(/\bcc\b/gi,   lang === "es" ? "centímetros cúbicos" : "кубических сантиметров")
+      .replace(/\bDGT\b/g,   lang === "es" ? "D.G.T." : "Д-Ж-Т")
+      // Strip markdown bold/italic that ElevenLabs reads literally
+      .replace(/\*\*/g, "")
+      .replace(/\*/g, "");
+  }
+  return text;
+}
+
 async function synth(text, voiceId, filePath, label) {
   if (!fs.existsSync(filePath)) {
     process.stdout.write(`  🎙 ${label}…`);
