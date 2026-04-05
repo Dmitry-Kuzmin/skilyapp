@@ -22,6 +22,9 @@ export interface VideoQuestion {
   // Derived
   hook_title: string;
   series_number: number;
+  // Optional ElevenLabs TTS audio (relative to public/, e.g. "audio/xxx-es-question.mp3")
+  questionAudioFile?: string;
+  explanationAudioFile?: string;
 }
 
 // Skily brand colors
