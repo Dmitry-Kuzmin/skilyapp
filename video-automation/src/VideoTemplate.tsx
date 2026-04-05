@@ -28,23 +28,21 @@ const C = {
   gradient:    "linear-gradient(135deg, #2F81F7 0%, #1a6bd4 100%)",
 } as const;
 
-function activeScene(frame: number): keyof typeof TIMING {
-  const s = frame / FPS;
-  if (s < TIMING.countdown.start)   return "hook";
-  if (s < TIMING.question.start)    return "countdown";
-  if (s < TIMING.answers.start)     return "question";
-  if (s < TIMING.suspense.start)    return "answers";
-  if (s < TIMING.reveal.start)      return "suspense";
-  if (s < TIMING.explanation.start) return "reveal";
-  if (s < TIMING.cta.start)         return "explanation";
-  return "cta";
-}
-
-// ─── Helper: linear interpolation ───────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 function lerp(frame: number, f0: number, f1: number, v0: number, v1: number) {
   if (frame <= f0) return v0;
   if (frame >= f1) return v1;
   return v0 + ((frame - f0) / (f1 - f0)) * (v1 - v0);
+}
+
+// Crossfade opacity: each scene fades out over XFADE frames after its end.
+// The next scene starts (with its own fade-in) at exactly its startF.
+// This creates a smooth dissolve with no flicker.
+const XFADE = 10;
+function sceneOp(frame: number, startF: number, endF: number): number {
+  if (frame < startF || frame >= endF + XFADE) return 0;
+  if (frame >= endF) return (endF + XFADE - frame) / XFADE; // fade-out
+  return 1;
 }
 
 // ─── Scenes ──────────────────────────────────────────────────────────────────
