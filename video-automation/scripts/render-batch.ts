@@ -13,6 +13,7 @@ import * as fs from "fs";
 import * as dotenv from "dotenv";
 import type { VideoQuestion } from "../src/types";
 import { exportQuestions } from "./export-questions";
+import { generateTTS } from "./generate-tts";
 
 dotenv.config({ path: path.join(__dirname, "../.env") });
 
