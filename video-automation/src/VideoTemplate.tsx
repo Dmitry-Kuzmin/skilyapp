@@ -53,7 +53,11 @@ function HookScene({ q }: { q: VideoQuestion }) {
   const frame = useCurrentFrame();
   const sceneFrame = frame;
   const op = lerp(sceneFrame, 0, 8, 0, 1);
-  const scale = lerp(sceneFrame, 0, 12, 0.85, 1);
+  const scale = lerp(sceneFrame, 0, 14, 0.88, 1);
+
+  // Badge slides in slightly after
+  const badgeOp = lerp(sceneFrame, 4, 18, 0, 1);
+  const badgeTy = lerp(sceneFrame, 4, 18, 20, 0);
 
   const difficulties = {
     ru: { easy: "ЛЁГКИЙ", medium: "СРЕДНИЙ", hard: "СЛОЖНЫЙ" },
@@ -61,31 +65,56 @@ function HookScene({ q }: { q: VideoQuestion }) {
   };
   const diffColors = { easy: C.emerald, medium: "#F0883E", hard: C.red };
 
+  const examLabel = q.language === "ru" ? "🚗 ЭКЗАМЕН ПДД" : "🚗 EXAMEN DGT";
+  const subLabel  = q.language === "ru" ? "Знаешь правила?" : "¿Conoces las normas?";
+
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
       alignItems:"center", justifyContent:"center", padding:"0 80px",
-      opacity: op, transform: `scale(${scale})` }}>
+      opacity: op }}>
 
-      {/* Series badge */}
-      <div style={{ fontSize:28, color: C.textMuted, letterSpacing:6,
-        marginBottom:32, fontFamily:"system-ui,sans-serif" }}>
-        #{String(q.series_number).padStart(3,"0")}
+      {/* Glow backdrop */}
+      <div style={{ position:"absolute", width:700, height:700, borderRadius:"50%",
+        background:"radial-gradient(circle, rgba(47,129,247,0.12) 0%, transparent 70%)",
+        pointerEvents:"none" }} />
+
+      {/* Exam context badge — immediately establishes topic */}
+      <div style={{ opacity: badgeOp, transform:`translateY(${badgeTy}px)`,
+        marginBottom:40, display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
+        <div style={{ padding:"14px 40px", borderRadius:100,
+          background:"linear-gradient(135deg, #2F81F7 0%, #1a6bd4 100%)",
+          fontSize:34, fontWeight:800, color:"#fff",
+          fontFamily:"system-ui,sans-serif", letterSpacing:2,
+          boxShadow:"0 4px 24px rgba(47,129,247,0.45)" }}>
+          {examLabel}
+        </div>
+        <div style={{ fontSize:30, color: C.textMuted, fontFamily:"system-ui,sans-serif" }}>
+          {subLabel}
+        </div>
       </div>
 
       {/* Hook title */}
-      <div style={{ fontSize:80, fontWeight:900, color: C.text, textAlign:"center",
+      <div style={{ fontSize:88, fontWeight:900, color: C.text, textAlign:"center",
         lineHeight:1.1, fontFamily:"system-ui,sans-serif",
-        textShadow:`0 2px 40px rgba(47,129,247,0.3)` }}>
+        transform: `scale(${scale})`,
+        textShadow:`0 0 60px rgba(47,129,247,0.4), 0 2px 8px rgba(0,0,0,0.8)` }}>
         {q.hook_title}
       </div>
 
-      {/* Difficulty pill */}
-      <div style={{ marginTop:36, padding:"10px 28px", borderRadius:100,
-        backgroundColor:`${diffColors[q.difficulty]}18`,
-        border:`1.5px solid ${diffColors[q.difficulty]}`,
-        color: diffColors[q.difficulty], fontSize:26, fontWeight:700,
-        letterSpacing:3, fontFamily:"system-ui,sans-serif" }}>
-        {difficulties[q.language][q.difficulty]}
+      {/* Difficulty + series row */}
+      <div style={{ marginTop:44, display:"flex", alignItems:"center", gap:24,
+        opacity: badgeOp, transform:`translateY(${-badgeTy}px)` }}>
+        <div style={{ padding:"10px 28px", borderRadius:100,
+          backgroundColor:`${diffColors[q.difficulty]}18`,
+          border:`1.5px solid ${diffColors[q.difficulty]}`,
+          color: diffColors[q.difficulty], fontSize:26, fontWeight:700,
+          letterSpacing:3, fontFamily:"system-ui,sans-serif" }}>
+          {difficulties[q.language][q.difficulty]}
+        </div>
+        <div style={{ fontSize:26, color: C.textMuted, letterSpacing:4,
+          fontFamily:"system-ui,sans-serif" }}>
+          #{String(q.series_number).padStart(3,"0")}
+        </div>
       </div>
     </div>
   );
