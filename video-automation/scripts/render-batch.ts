@@ -69,7 +69,11 @@ export async function renderBatch(questions: VideoQuestion[]): Promise<string[]>
   for (const q of questions) {
     console.log(`\nRendering [${q.language.toUpperCase()}] #${q.series_number}: ${q.hook_title}`);
     try {
-      const out = await renderQuestion(bundlePath, q);
+      // Generate TTS voiceover before rendering (cached — skips if already exists)
+      const tts = await generateTTS(q);
+      const enrichedQuestion: VideoQuestion = { ...q, ...tts };
+
+      const out = await renderQuestion(bundlePath, enrichedQuestion);
       outputs.push(out);
       console.log(`  ✓ ${path.basename(out)}`);
     } catch (err) {
