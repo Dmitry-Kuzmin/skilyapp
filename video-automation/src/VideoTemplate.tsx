@@ -278,35 +278,52 @@ function SuspenseScene({ q }: { q: VideoQuestion }) {
   const sceneF = frame - TIMING.suspense.start * FPS;
   const totalF = (TIMING.suspense.end - TIMING.suspense.start) * FPS;
   const progress = 1 - sceneF / totalF;
-  const secs = Math.max(1, Math.ceil(progress * 3));
+  const suspenseSecs = TIMING.suspense.end - TIMING.suspense.start;
+  const secs = Math.max(1, Math.ceil(progress * suspenseSecs));
   const pulse = 1 + Math.sin(sceneF / 5) * 0.015;
+  const overlayOp = lerp(sceneF, 0, 12, 0, 1);
 
   return (
-    <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", gap:48 }}>
-      <div style={{ fontSize:90, fontWeight:900, color:"#F0883E",
-        transform:`scale(${pulse})`, fontFamily:"system-ui,sans-serif",
-        textShadow:"0 0 60px rgba(240,136,62,0.5)", letterSpacing:4 }}>
-        {q.language === "ru" ? "ДУМАЙТЕ!" : "¡PIENSA!"}
+    <div style={{ position:"absolute", inset:0 }}>
+
+      {/* Question + answers visible in background */}
+      <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
+        alignItems:"center", justifyContent:"center", padding:"60px 60px" }}>
+        <TestCard q={q} showOptions={true} revealFrame={0} showExplanation={false} />
       </div>
 
-      {/* SVG countdown ring */}
-      <div style={{ position:"relative", width:160, height:160,
-        display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <svg width={160} height={160} style={{ position:"absolute", transform:"rotate(-90deg)" }}>
-          <circle cx={80} cy={80} r={68} fill="none" stroke={C.border} strokeWidth={8} />
-          <circle cx={80} cy={80} r={68} fill="none" stroke="#F0883E" strokeWidth={8}
-            strokeLinecap="round"
-            strokeDasharray={2 * Math.PI * 68}
-            strokeDashoffset={2 * Math.PI * 68 * (1 - progress)} />
-        </svg>
-        <div style={{ fontSize:72, fontWeight:900, color: C.text,
-          fontFamily:"system-ui,sans-serif" }}>{secs}</div>
-      </div>
+      {/* Dark overlay + "ДУМАЙТЕ!" + countdown ring */}
+      <div style={{ position:"absolute", inset:0,
+        background:"rgba(13,17,23,0.78)",
+        backdropFilter:"blur(2px)",
+        display:"flex", flexDirection:"column",
+        alignItems:"center", justifyContent:"center", gap:48,
+        opacity: overlayOp }}>
 
-      <div style={{ fontSize:32, color: C.primary, fontFamily:"system-ui,sans-serif",
-        fontWeight:600 }}>
-        {q.language === "ru" ? "⬇️ Напиши ответ в комментах" : "⬇️ Escribe tu respuesta"}
+        <div style={{ fontSize:90, fontWeight:900, color:"#F0883E",
+          transform:`scale(${pulse})`, fontFamily:"system-ui,sans-serif",
+          textShadow:"0 0 60px rgba(240,136,62,0.5)", letterSpacing:4 }}>
+          {q.language === "ru" ? "ДУМАЙТЕ!" : "¡PIENSA!"}
+        </div>
+
+        {/* SVG countdown ring */}
+        <div style={{ position:"relative", width:180, height:180,
+          display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <svg width={180} height={180} style={{ position:"absolute", transform:"rotate(-90deg)" }}>
+            <circle cx={90} cy={90} r={76} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={10} />
+            <circle cx={90} cy={90} r={76} fill="none" stroke="#F0883E" strokeWidth={10}
+              strokeLinecap="round"
+              strokeDasharray={2 * Math.PI * 76}
+              strokeDashoffset={2 * Math.PI * 76 * (1 - progress)} />
+          </svg>
+          <div style={{ fontSize:80, fontWeight:900, color: C.text,
+            fontFamily:"system-ui,sans-serif" }}>{secs}</div>
+        </div>
+
+        <div style={{ fontSize:32, color: C.primary, fontFamily:"system-ui,sans-serif",
+          fontWeight:600 }}>
+          {q.language === "ru" ? "⬇️ Напиши ответ в комментах" : "⬇️ Escribe tu respuesta"}
+        </div>
       </div>
     </div>
   );
