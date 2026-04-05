@@ -481,6 +481,10 @@ const server = http.createServer(async (req, res) => {
           series_number: seriesState[lang] || 1,
         };
 
+        // Generate TTS voiceover (cached — skips if already generated)
+        const tts = await generateTTSForQuestion(videoQuestion);
+        Object.assign(videoQuestion, tts);
+
         // Save selected question for Remotion
         fs.writeFileSync(SELECTED_FILE, JSON.stringify(videoQuestion, null, 2));
 
