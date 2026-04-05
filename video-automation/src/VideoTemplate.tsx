@@ -436,6 +436,26 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
         <Audio src={S("reveal.wav")} volume={0.9} />
       </Sequence>
 
+      {/* ── ElevenLabs TTS voiceover ── */}
+      {/* Question narration: starts at QuestionScene, plays through AnswersScene */}
+      {question.questionAudioFile && (
+        <Sequence
+          from={TIMING.question.start * FPS}
+          durationInFrames={(TIMING.suspense.end - TIMING.question.start) * FPS}
+        >
+          <Audio src={staticFile(question.questionAudioFile)} volume={0.9} />
+        </Sequence>
+      )}
+      {/* Explanation narration: starts at ExplanationScene */}
+      {question.explanationAudioFile && (
+        <Sequence
+          from={TIMING.explanation.start * FPS}
+          durationInFrames={(TIMING.cta.end - TIMING.explanation.start) * FPS}
+        >
+          <Audio src={staticFile(question.explanationAudioFile)} volume={0.9} />
+        </Sequence>
+      )}
+
       {/* ── Scenes with crossfade dissolve ── */}
       {(()=> {
         const t = TIMING;
