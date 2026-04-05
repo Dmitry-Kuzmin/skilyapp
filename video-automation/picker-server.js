@@ -705,7 +705,7 @@ const server = http.createServer(async (req, res) => {
           hook_title: hookTemplates[lang]?.[hookKey] || "Проверь себя",
           series_number: seriesState[lang] || 1,
           // Pass Russian explanation if it exists in DB row
-          explanationRu: question.explanation_ru || undefined,
+          explanationRu: question.explanationRu || question.explanation_ru || undefined,
         };
 
         // Generate ALL TTS (question, all answers, explanation, RU explanation)
