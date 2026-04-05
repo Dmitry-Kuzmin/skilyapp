@@ -20,6 +20,8 @@ dotenv.config({ path: path.join(__dirname, "../.env") });
 const RENDERS_DIR =
   process.env.RENDERS_DIR ?? path.join(__dirname, "../renders");
 
+const FORCE_RENDER = process.env.FORCE_RENDER === "true";
+
 async function renderQuestion(
   bundlePath: string,
   question: VideoQuestion
@@ -29,7 +31,9 @@ async function renderQuestion(
     `question-${question.id}-${question.language}.mp4`
   );
 
-  if (fs.existsSync(outputPath)) {
+  // Skip only if exists AND no TTS audio to add AND FORCE_RENDER is off
+  const hasTTS = !!(question.questionAudioFile || question.explanationAudioFile);
+  if (fs.existsSync(outputPath) && !hasTTS && !FORCE_RENDER) {
     console.log(`  ↳ Already exists, skipping: ${path.basename(outputPath)}`);
     return outputPath;
   }
@@ -45,6 +49,7 @@ async function renderQuestion(
     serveUrl: bundlePath,
     codec: "h264",
     outputLocation: outputPath,
+    overwrite: true,
     inputProps: { question },
     onProgress: ({ progress }) => {
       process.stdout.write(`\r  Rendering ${progress * 100 | 0}%`);
