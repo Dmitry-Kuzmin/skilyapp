@@ -123,7 +123,15 @@ function preprocessTTS(text, lang) {
 async function synth(text, voiceId, filePath, label, lang = "es") {
   if (!fs.existsSync(filePath)) {
     process.stdout.write(`  🎙 ${label}…`);
-    const audio = await elevenLabsSynth(preprocessTTS(text, lang), voiceId);
+    // Испанский → Microsoft Edge TTS (кастельяно, бесплатно)
+    // Русский   → ElevenLabs (Roger)
+    let audio;
+    if (lang === "es") {
+      audio = await edgeSynth(preprocessTTS(text, lang), EDGE_VOICE_ES, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
+      if (audio) { process.stdout.write(` ✓ Edge (${(audio.length/1024).toFixed(0)}KB)\n`); return getAudioDurationSec(filePath); }
+      process.stdout.write(` ✗ Edge failed\n`); return null;
+    }
+    audio = await elevenLabsSynth(preprocessTTS(text, lang), voiceId);
     if (audio) {
       fs.writeFileSync(filePath, audio);
       process.stdout.write(` ✓ (${(audio.length/1024).toFixed(0)}KB)\n`);
