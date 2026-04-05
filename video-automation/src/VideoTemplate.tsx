@@ -422,8 +422,8 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
       <Sequence from={(TIMING.countdown.start + 2) * FPS} durationInFrames={10}>
         <Audio src={S("beep1.wav")} volume={1.0} />
       </Sequence>
-      {/* Tick every second during suspense */}
-      {[0, 1, 2].map(i => (
+      {/* Tick every second during suspense (6 seconds = 6 ticks) */}
+      {[0,1,2,3,4,5].map(i => (
         <Sequence key={i} from={(TIMING.suspense.start + i) * FPS} durationInFrames={6}>
           <Audio src={S("tick.wav")} volume={0.6} />
         </Sequence>
