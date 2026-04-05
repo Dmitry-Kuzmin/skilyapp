@@ -361,7 +361,7 @@ function CTAScene({ q }: { q: VideoQuestion }) {
         color:"#fff", fontFamily:"system-ui,sans-serif",
         transform:`scale(${pulse})`,
         boxShadow:"0 8px 40px rgba(47,129,247,0.35)" }}>
-        {q.language === "ru" ? "Ещё вопросы → Skily.app" : "Más preguntas → Skily.app"}
+        {q.language === "ru" ? "Ещё вопросы → skilyapp.com" : "Más preguntas → skilyapp.com"}
       </div>
 
       <div style={{ fontSize:34, color: C.textMuted, fontFamily:"system-ui,sans-serif" }}>
