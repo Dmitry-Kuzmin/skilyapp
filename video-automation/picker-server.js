@@ -246,12 +246,35 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
   let filter = `country=eq.${country}&${exField}=not.is.null`;
   if (search) filter += `&${qField}=ilike.*${encodeURIComponent(search)}*`;
 
+  // Get total count via HEAD request with Prefer: count=exact
+  let total = 0;
+  try {
+    total = await new Promise((resolve) => {
+      const url = `${SUPABASE_URL}/rest/v1/questions_new?select=id&${filter}`;
+      const options = {
+        method: "HEAD",
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": `Bearer ${ANON_KEY}`,
+          "Prefer": "count=exact",
+        }
+      };
+      const req = https.request(url, options, (res) => {
+        const range = res.headers["content-range"] || "";
+        const match = range.match(/\/(\d+)$/);
+        resolve(match ? parseInt(match[1]) : 0);
+      });
+      req.on("error", () => resolve(0));
+      req.end();
+    });
+  } catch {}
+
   const rows = await supabaseRequest(
     "questions_new",
     `?select=${cols}&${filter}&order=percent_correct.asc&limit=${limit}&offset=${offset}`
   );
 
-  if (!Array.isArray(rows)) return [];
+  if (!Array.isArray(rows)) return { questions: [], total: 0 };
 
   // Fetch answer options for each question
   const ids = rows.map(r => r.id);
