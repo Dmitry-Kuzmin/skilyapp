@@ -15,6 +15,8 @@ function cleanText(text: string): string {
     .replace(/\*\*/g, "")
     .replace(/\*/g, "")
     .replace(/^#+\s*/gm, "")   // заголовки #
+    .replace(/\uFFFD+/g, "")   // Unicode replacement chars (битые байты в БД)
+    .replace(/\s{2,}/g, " ")   // двойные пробелы после удаления символов
     .trim();
 }
 
