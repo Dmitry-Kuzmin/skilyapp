@@ -70,7 +70,7 @@ export const UI_TEXT = {
     think:    "¡PIENSA!",
     correct:  "¡CORRECTO!",
     wrong:    "INCORRECTO",
-    cta:      "Más preguntas → Skily.app",
+    cta:      "Más preguntas → skilyapp.com",
     subscribe: "Suscríbete 👇",
     answer_before: "Responde ANTES de ver →",
     explanation: "Explicación:",
