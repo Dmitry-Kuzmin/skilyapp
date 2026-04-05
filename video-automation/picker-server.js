@@ -304,7 +304,7 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
     }
   }
 
-  return rows.map(r => ({
+  const questions = rows.map(r => ({
     id: r.id,
     question: r[qField] || "",
     question_ru: r.question_ru || null,
@@ -317,6 +317,7 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
     language: lang,
     answer_options: (answerMap[r.id] || []),
   }));
+  return { questions, total };
 }
 
 // ── HTML page ─────────────────────────────────────────────────────────────────
