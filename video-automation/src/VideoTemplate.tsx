@@ -159,9 +159,10 @@ function TestCard({ q, showOptions, revealFrame, showExplanation }:
 
       {/* ── Image ── */}
       {q.image_url && (
-        <div style={{ width:"100%", height:360, borderRadius:20, overflow:"hidden",
-          border:`1px solid ${C.border}` }}>
-          <img src={q.image_url} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+        <div style={{ width:"100%", borderRadius:20, overflow:"hidden",
+          border:`1px solid ${C.border}`, backgroundColor:"#000" }}>
+          <img src={q.image_url} alt="" style={{ width:"100%", maxHeight:480,
+            objectFit:"contain", display:"block" }} />
         </div>
       )}
 
