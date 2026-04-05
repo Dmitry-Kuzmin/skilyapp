@@ -3,7 +3,8 @@ export type Difficulty = "easy" | "medium" | "hard";
 
 export interface AnswerOption {
   id: string;
-  text: string;
+  text: string;       // основной язык (es для DGT)
+  text_ru?: string;   // русский перевод (для субтитров в RU-видео)
   is_correct: boolean;
   position: number;
 }
