@@ -1,32 +1,32 @@
 {
-  "id": "1575be20-d4ee-4047-85a1-1c2fceadac2a",
-  "question": "En una autopista que transcurre por zona urbana, ¿a qué velocidad máxima puede circular un turismo si no existe señalización?",
-  "explanation": "Según el Reglamento General de Circulación, las autopistas y autovías que transcurren dentro de poblado (zona urbana) tienen un límite de velocidad genérico de 80 km/h. Aunque este límite puede ser ampliado mediante señalización específica, en ausencia de señales, la norma establece el máximo en 80 km/h para todos los vehículos, incluidos los turismos.",
-  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/1575be20-d4ee-4047-85a1-1c2fceadac2a.webp",
+  "id": "ab50bb9f-550c-4392-964f-0cb201dadbd1",
+  "question": "Los animales tienen prioridad de paso sobre los vehículos...",
+  "explanation": "Según el Reglamento General de Circulación, como norma general, los conductores tienen prioridad de paso respecto de los animales. Sin embargo, los animales tienen preferencia en tres casos específicos: 1) En las cañadas debidamente señalizadas (la señal de peligro P-23 'Paso de animales domésticos' debe ir acompañada de un panel complementario con la inscripción 'CAÑADA'). 2) Cuando el vehículo gire para entrar en otra vía y haya animales cruzándola, aunque no exista paso para ellos. 3) Cuando el vehículo cruce un arcén por el que estén circulando animales que no dispongan de cañada. La simple presencia de la señal de peligro sin el panel 'CAÑADA' no otorga prioridad a los animales.",
+  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/ab50bb9f-550c-4392-964f-0cb201dadbd1.webp",
   "difficulty": "easy",
   "percent_correct": 50,
   "country": "es",
   "language": "es",
   "answer_options": [
     {
-      "id": "96275b12-b001-ca90-3892-e3d804540f26",
-      "text": "A 100 km/h.",
-      "is_correct": false,
+      "id": "b9995ccb-74b3-8801-b451-338e9f04ee0d",
+      "text": "en las cañadas debidamente señalizadas.",
+      "is_correct": true,
       "position": 1
     },
     {
-      "id": "f03bac75-9ebd-ca90-65ae-71592f30c94e",
-      "text": "A 120 km/h.",
+      "id": "c1501641-3123-72d2-5121-099dd7e7fa60",
+      "text": "en los tramos regulados por la señal de peligro por la proximidad de un lugar de paso de animales.",
       "is_correct": false,
       "position": 2
     },
     {
-      "id": "dfd4fda3-6569-4397-6180-94ddc986038b",
-      "text": "A 80 km/h.",
-      "is_correct": true,
+      "id": "a9c8e29d-2b1e-6610-89bd-ce08bad87b33",
+      "text": "cuando circulen en rebaño y estén dirigidos por un pastor.",
+      "is_correct": false,
       "position": 3
     }
   ],
   "hook_title": "¿Sabes la respuesta? ⚡",
-  "series_number": 1
+  "series_number": 3
 }

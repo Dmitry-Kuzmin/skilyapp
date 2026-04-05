@@ -132,4 +132,82 @@ function makeWhoosh(durationMs = 350) {
 }
 writeWav("whoosh.wav", makeWhoosh());
 
+// ── 6. Particle burst — bright ascending sparkle for reveal ─────────────────
+function makeBurst(durationMs = 500) {
+  const n = Math.floor(SAMPLE_RATE * durationMs / 1000);
+  const samples = new Float32Array(n);
+  for (let i = 0; i < n; i++) {
+    const t = i / SAMPLE_RATE;
+    const env = Math.exp(-t * 9);
+    // Layered sparkle: bell tones + rising chirp
+    const bell1 = Math.sin(2 * Math.PI * 880 * t);
+    const bell2 = Math.sin(2 * Math.PI * 1318 * t);   // E6
+    const bell3 = Math.sin(2 * Math.PI * 1760 * t);   // A6
+    const chirp = Math.sin(2 * Math.PI * (1200 + t * 2000) * t);
+    samples[i] = 0.55 * env * (bell1 * 0.25 + bell2 * 0.25 + bell3 * 0.25 + chirp * 0.25);
+  }
+  return samples;
+}
+writeWav("burst.wav", makeBurst(500));
+
+// ── 7. Tension ambient bed — 30s drone + heartbeat (no copyrighted material) ─
+// A generic, original tension/suspense atmosphere generated from pure math.
+function makeTension(durationSecs = 30) {
+  const n = Math.floor(SAMPLE_RATE * durationSecs);
+  const samples = new Float32Array(n);
+
+  // Slow LFO for breathing
+  const lfo = (t, hz) => Math.sin(2 * Math.PI * hz * t);
+
+  for (let i = 0; i < n; i++) {
+    const t = i / SAMPLE_RATE;
+
+    // Low drone: root + perfect fifth + sub-octave (A1 + E2 + A2)
+    const drone =
+      0.16 * Math.sin(2 * Math.PI * 55 * t) +
+      0.10 * Math.sin(2 * Math.PI * 82.5 * t) +
+      0.07 * Math.sin(2 * Math.PI * 110 * t);
+
+    // Slow breathing modulation on drone
+    const droneEnv = 0.7 + 0.3 * lfo(t, 0.15);
+
+    // Heartbeat thump: 70 BPM early, ramping to 110 BPM during suspense (18–21s)
+    const bpm = t < 18 ? 70 : t < 21 ? 70 + (t - 18) * 15 : 70;
+    const beatInterval = 60 / bpm;
+    const beatPhase = (t % beatInterval) / beatInterval;
+    // Two-part heartbeat: thump + softer echo
+    let beatEnv = 0;
+    if (beatPhase < 0.08) beatEnv = Math.sin(beatPhase * 12.5 * Math.PI) * (1 - beatPhase * 12.5);
+    else if (beatPhase > 0.12 && beatPhase < 0.20) beatEnv = 0.5 * Math.sin((beatPhase - 0.12) * 12.5 * Math.PI) * (1 - (beatPhase - 0.12) * 12.5);
+    const beat = 0.28 * Math.max(0, beatEnv) * Math.sin(2 * Math.PI * 70 * t);
+
+    // High shimmer during reveal (21–27s) — triumphant bright pad
+    let shimmer = 0;
+    if (t >= 21 && t < 27) {
+      const localT = t - 21;
+      const shimEnv = Math.min(1, localT / 0.5) * Math.min(1, (6 - localT) / 1.0);
+      shimmer = 0.05 * shimEnv * (
+        Math.sin(2 * Math.PI * 523.25 * t) +   // C5
+        Math.sin(2 * Math.PI * 659.25 * t) +   // E5
+        Math.sin(2 * Math.PI * 783.99 * t)     // G5
+      );
+    }
+
+    // Outro sparkle during CTA (27–30s)
+    let outro = 0;
+    if (t >= 27) {
+      const localT = t - 27;
+      const env = Math.min(1, localT / 0.4) * Math.min(1, (3 - localT) / 0.5);
+      outro = 0.04 * env * Math.sin(2 * Math.PI * 880 * t) * (1 + 0.3 * lfo(t, 4));
+    }
+
+    // Global fade in/out
+    const globalEnv = Math.min(1, t / 0.8) * Math.min(1, (durationSecs - t) / 1.0);
+
+    samples[i] = (drone * droneEnv + beat + shimmer + outro) * globalEnv;
+  }
+  return samples;
+}
+writeWav("tension.wav", makeTension(30));
+
 console.log(`\nSounds saved to: ${OUT_DIR}\n`);
