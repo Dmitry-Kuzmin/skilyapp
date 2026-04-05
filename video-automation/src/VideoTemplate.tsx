@@ -55,14 +55,22 @@ function sceneOp(frame: number, startF: number, endF: number): number {
 
 // ─── HookScene ────────────────────────────────────────────────────────────────
 function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
-  const frame = useCurrentFrame();
+  const frame  = useCurrentFrame();
   const sceneF = frame - t.hookStart * FPS;
-  const op     = lerp(sceneF, 0, 8, 0, 1);
-  const scale  = lerp(sceneF, 0, 14, 0.88, 1);
-  const badgeOp = lerp(sceneF, 4, 18, 0, 1);
-  const badgeTy = lerp(sceneF, 4, 18, 20, 0);
 
-  const ui = UI_TEXT[q.language];
+  // Main fade-in
+  const op     = lerp(sceneF, 0, 10, 0, 1);
+  // Top badge slides down
+  const badgeOp = lerp(sceneF, 2, 16, 0, 1);
+  const badgeTy = lerp(sceneF, 2, 16, -40, 0);
+  // Hook text pops up
+  const hookOp    = lerp(sceneF, 6, 20, 0, 1);
+  const hookScale = lerp(sceneF, 6, 22, 0.75, 1);
+  // Bottom row slides up
+  const bottomOp = lerp(sceneF, 12, 26, 0, 1);
+  const bottomTy = lerp(sceneF, 12, 26, 40, 0);
+
+  const isEs = q.language === "es";
   const diffColors = { easy: C.emerald, medium: "#F0883E", hard: C.red };
   const diffLabels = {
     ru: { easy: "ЛЁГКИЙ", medium: "СРЕДНИЙ", hard: "СЛОЖНЫЙ" },
@@ -70,50 +78,97 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   };
 
   return (
-    <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", padding:"0 80px", opacity: op }}>
+    <div style={{ position:"absolute", inset:0, opacity: op, display:"flex",
+      flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
 
-      {/* Glow backdrop */}
-      <div style={{ position:"absolute", width:700, height:700, borderRadius:"50%",
-        background:"radial-gradient(circle, rgba(47,129,247,0.12) 0%, transparent 70%)",
+      {/* Full-bg gradient overlay */}
+      <div style={{ position:"absolute", inset:0,
+        background:"radial-gradient(ellipse 80% 60% at 50% 40%, rgba(47,129,247,0.18) 0%, transparent 70%)",
         pointerEvents:"none" }} />
 
-      {/* Exam context badge */}
+      {/* Decorative road lines */}
+      {[0,1,2].map(i => (
+        <div key={i} style={{
+          position:"absolute",
+          left: "50%", bottom: -20 + i * 0,
+          width: 8, height: `${28 + i*8}%`,
+          background: "rgba(255,255,255,0.06)",
+          borderRadius: 8,
+          transform: `translateX(${(i-1)*120}px)`,
+        }} />
+      ))}
+
+      {/* TOP: DGT exam badge */}
       <div style={{ opacity: badgeOp, transform:`translateY(${badgeTy}px)`,
-        marginBottom:40, display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
-        <div style={{ padding:"14px 40px", borderRadius:100,
-          background:"linear-gradient(135deg, #2F81F7 0%, #1a6bd4 100%)",
-          fontSize:34, fontWeight:800, color:"#fff",
-          fontFamily:"system-ui,sans-serif", letterSpacing:2,
-          boxShadow:"0 4px 24px rgba(47,129,247,0.45)" }}>
-          {ui.examBadge}
+        display:"flex", flexDirection:"column", alignItems:"center", gap:14, marginBottom:48 }}>
+
+        {/* Flag + label row */}
+        <div style={{ display:"flex", alignItems:"center", gap:16,
+          background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)",
+          borderRadius:100, padding:"10px 28px" }}>
+          <span style={{ fontSize:36 }}>{isEs ? "🇪🇸" : "🇷🇺"}</span>
+          <span style={{ fontSize:26, fontWeight:800, color:"#fff", letterSpacing:3,
+            fontFamily:"system-ui,sans-serif" }}>
+            {isEs ? "EXAMEN DGT" : "ЭКЗАМЕН ПДД"}
+          </span>
+          <span style={{ fontSize:36 }}>🚗</span>
         </div>
-        <div style={{ fontSize:30, color: C.textMuted, fontFamily:"system-ui,sans-serif" }}>
-          {ui.examSub}
+
+        {/* Subtitle */}
+        <div style={{ fontSize:26, color:"rgba(255,255,255,0.45)",
+          fontFamily:"system-ui,sans-serif", letterSpacing:1 }}>
+          {isEs ? "¿Conoces las normas de tráfico?" : "Проверь свои знания ПДД"}
         </div>
       </div>
 
-      {/* Hook title */}
-      <div style={{ fontSize:88, fontWeight:900, color: C.text, textAlign:"center",
-        lineHeight:1.1, fontFamily:"system-ui,sans-serif",
-        transform:`scale(${scale})`,
-        textShadow:"0 0 60px rgba(47,129,247,0.4), 0 2px 8px rgba(0,0,0,0.8)" }}>
+      {/* CENTRE: Hook title */}
+      <div style={{
+        opacity: hookOp,
+        transform:`scale(${hookScale})`,
+        fontSize: q.hook_title.length > 22 ? 72 : 84,
+        fontWeight:900,
+        color:"#fff",
+        textAlign:"center",
+        lineHeight:1.15,
+        fontFamily:"system-ui,sans-serif",
+        letterSpacing:-1,
+        padding:"0 60px",
+        textShadow:[
+          "0 0 80px rgba(47,129,247,0.6)",
+          "0 0 160px rgba(47,129,247,0.3)",
+          "0 4px 12px rgba(0,0,0,0.9)",
+        ].join(", "),
+      }}>
         {q.hook_title}
       </div>
 
-      {/* Difficulty + series row */}
-      <div style={{ marginTop:44, display:"flex", alignItems:"center", gap:24,
-        opacity: badgeOp, transform:`translateY(${-badgeTy}px)` }}>
-        <div style={{ padding:"10px 28px", borderRadius:100,
-          backgroundColor:`${diffColors[q.difficulty]}18`,
-          border:`1.5px solid ${diffColors[q.difficulty]}`,
-          color: diffColors[q.difficulty], fontSize:26, fontWeight:700,
-          letterSpacing:3, fontFamily:"system-ui,sans-serif" }}>
+      {/* BOTTOM: difficulty + series + branding */}
+      <div style={{ opacity: bottomOp, transform:`translateY(${bottomTy}px)`,
+        marginTop:52, display:"flex", alignItems:"center", gap:20 }}>
+
+        <div style={{
+          padding:"10px 24px", borderRadius:100,
+          backgroundColor:`${diffColors[q.difficulty]}20`,
+          border:`1.5px solid ${diffColors[q.difficulty]}60`,
+          color: diffColors[q.difficulty],
+          fontSize:22, fontWeight:800, letterSpacing:3,
+          fontFamily:"system-ui,sans-serif",
+        }}>
           {diffLabels[q.language][q.difficulty]}
         </div>
-        <div style={{ fontSize:26, color: C.textMuted, letterSpacing:4,
-          fontFamily:"system-ui,sans-serif" }}>
+
+        <div style={{ width:6, height:6, borderRadius:"50%", background:"rgba(255,255,255,0.2)" }} />
+
+        <div style={{ fontSize:22, color:"rgba(255,255,255,0.35)",
+          fontFamily:"system-ui,sans-serif", letterSpacing:2 }}>
           #{String(q.series_number).padStart(3,"0")}
+        </div>
+
+        <div style={{ width:6, height:6, borderRadius:"50%", background:"rgba(255,255,255,0.2)" }} />
+
+        <div style={{ fontSize:22, color:"rgba(47,129,247,0.7)",
+          fontFamily:"system-ui,sans-serif", fontWeight:600 }}>
+          skilyapp.com
         </div>
       </div>
     </div>
@@ -121,22 +176,68 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
 }
 
 // ─── CountdownScene ───────────────────────────────────────────────────────────
-function CountdownScene({ t }: { t: DynamicTiming }) {
+function CountdownScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const frame  = useCurrentFrame();
   const sceneF = frame - t.countdownStart * FPS;
-  const perNum = 30;
+  const perNum = 30; // frames per digit
   const n      = Math.max(1, Math.min(3, 3 - Math.floor(sceneF / perNum)));
   const localF = sceneF % perNum;
-  const op     = lerp(localF, 0, 4, 0, 1) * lerp(localF, perNum - 6, perNum, 1, 0);
-  const scale  = lerp(localF, 0, 10, 0.5, 1);
-  const colors = [C.red, "#F0883E", C.emerald];
+
+  // Pop-in → hold → pop-out
+  const numScale = lerp(localF, 0, 8, 1.6, 1) * lerp(localF, perNum-8, perNum, 1, 0.4);
+  const numOp    = lerp(localF, 0, 5, 0, 1) * lerp(localF, perNum-6, perNum, 1, 0);
+
+  // Ring sweep: 0→1 over the perNum frames
+  const sweep = Math.min(1, localF / (perNum - 2));
+
+  const ringColors = ["#F85149", "#F0883E", "#3FB950"]; // 3→2→1
+  const ringColor  = ringColors[n - 1];
+
+  const labelOp = lerp(sceneF, 0, 14, 0, 1);
+  const ui = UI_TEXT[q.language];
+
+  // SVG ring params
+  const R = 160, stroke = 14;
+  const circ = 2 * Math.PI * R;
+  const dash = sweep * circ;
 
   return (
-    <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-      <div style={{ fontSize:240, fontWeight:900, color: colors[n-1], lineHeight:1,
-        opacity: op, transform:`scale(${scale})`, fontFamily:"system-ui,sans-serif",
-        textShadow:`0 0 100px ${colors[n-1]}55` }}>
-        {n}
+    <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
+      alignItems:"center", justifyContent:"center", gap:40 }}>
+
+      {/* Think label */}
+      <div style={{ fontSize:44, fontWeight:900, color:"rgba(255,255,255,0.55)",
+        letterSpacing:8, fontFamily:"system-ui,sans-serif", opacity: labelOp,
+        textTransform:"uppercase" }}>
+        {ui.think}
+      </div>
+
+      {/* Ring + number */}
+      <div style={{ position:"relative", width: R*2+stroke*2, height: R*2+stroke*2 }}>
+        {/* Background ring */}
+        <svg width={R*2+stroke*2} height={R*2+stroke*2}
+          style={{ position:"absolute", inset:0, transform:"rotate(-90deg)" }}>
+          <circle cx={R+stroke} cy={R+stroke} r={R}
+            fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
+          <circle cx={R+stroke} cy={R+stroke} r={R}
+            fill="none" stroke={ringColor} strokeWidth={stroke}
+            strokeDasharray={`${dash} ${circ}`}
+            strokeLinecap="round"
+            style={{ filter:`drop-shadow(0 0 12px ${ringColor}99)` }} />
+        </svg>
+
+        {/* Number */}
+        <div style={{
+          position:"absolute", inset:0,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize:180, fontWeight:900, color:"#fff",
+          fontFamily:"system-ui,sans-serif", lineHeight:1,
+          opacity: numOp,
+          transform:`scale(${numScale})`,
+          textShadow:`0 0 60px ${ringColor}99, 0 4px 16px rgba(0,0,0,0.8)`,
+        }}>
+          {n}
+        </div>
       </div>
     </div>
   );
