@@ -1,5 +1,5 @@
 import React from "react";
-import { Composition } from "remotion";
+import { Composition, registerRoot } from "remotion";
 import { VideoTemplate } from "./VideoTemplate";
 import { TOTAL_FRAMES, FPS } from "./types";
 import type { VideoQuestion } from "./types";
