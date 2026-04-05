@@ -157,12 +157,12 @@ function TestCard({ q, showOptions, revealFrame, showExplanation }:
 
       {/* ── Image ── */}
       {q.image_url && (
-        /* Outer div carries the shadow (overflow:hidden would clip box-shadow) */
-        <div style={{ width:"100%", borderRadius:24,
-          boxShadow:"0 20px 80px rgba(0,0,0,0.85), 0 6px 24px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07), 0 0 60px rgba(47,129,247,0.12)" }}>
-          {/* Inner div clips the image to rounded corners */}
-          <div style={{ width:"100%", borderRadius:24, overflow:"hidden",
-            backgroundColor:"#000", border:`1px solid rgba(255,255,255,0.08)` }}>
+        /* Outer div carries the shadow — overflow:hidden would clip box-shadow */
+        <div style={{ width:"100%", borderRadius:40,
+          boxShadow:"0 24px 80px rgba(0,0,0,0.9), 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(255,255,255,0.10), 0 0 80px rgba(47,129,247,0.18)" }}>
+          {/* Inner div clips image to rounded corners */}
+          <div style={{ width:"100%", borderRadius:40, overflow:"hidden",
+            backgroundColor:"#000", border:"1.5px solid rgba(255,255,255,0.10)" }}>
             <img src={q.image_url} alt="" style={{ width:"100%", maxHeight:500,
               objectFit:"contain", display:"block" }} />
           </div>
