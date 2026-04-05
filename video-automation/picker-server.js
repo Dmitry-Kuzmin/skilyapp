@@ -220,9 +220,13 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
   if (ids.length === 0) return [];
 
   const textField = `text_${lang}`;
+  // Всегда тянем text_ru для субтитров в RU-видео
+  const answerSelect = lang === "es"
+    ? `id,question_id,text_es,text_ru,is_correct,position`
+    : `id,question_id,text_ru,is_correct,position`;
   const answers = await supabaseRequest(
     "answer_options",
-    `?select=id,question_id,${textField},is_correct,position&question_id=in.(${ids.join(",")})&order=position.asc`
+    `?select=${answerSelect}&question_id=in.(${ids.join(",")})&order=position.asc`
   );
 
   const answerMap = {};
@@ -232,6 +236,7 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
       answerMap[a.question_id].push({
         id: a.id,
         text: a[textField] || "",
+        text_ru: a.text_ru || undefined,
         is_correct: a.is_correct,
         position: a.position,
       });
@@ -241,6 +246,7 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
   return rows.map(r => ({
     id: r.id,
     question: r[qField] || "",
+    question_ru: r.question_ru || null,
     explanation: r[exField] || "",
     explanation_ru: r.explanation_ru || null,
     image_url: r.image_url || null,
