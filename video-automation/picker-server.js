@@ -624,6 +624,26 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ── DELETE /api/clear-audio ───────────────────────────────────────────────
+  if (req.method === "DELETE" && url.pathname === "/api/clear-audio") {
+    const id = url.searchParams.get("id");
+    if (!id) { res.writeHead(400); res.end(JSON.stringify({ error: "No id" })); return; }
+    const deleted = [];
+    try {
+      fs.readdirSync(AUDIO_DIR).forEach(f => {
+        if (f.startsWith(id)) {
+          fs.unlinkSync(path.join(AUDIO_DIR, f));
+          deleted.push(f);
+        }
+      });
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: \`Удалено \${deleted.length} файлов: \${deleted.join(", ")}\`, deleted }));
+    } catch(e) {
+      res.writeHead(500); res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   // ── POST /api/render ──────────────────────────────────────────────────────
   if (req.method === "POST" && url.pathname === "/api/render") {
     let body = "";
