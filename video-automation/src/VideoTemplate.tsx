@@ -1,14 +1,15 @@
 /**
- * VideoTemplate — точная копия Skily test UI для TikTok/YouTube Shorts
- * Цвета, карточки, нумерация (1/2/3) — всё как в приложении.
+ * VideoTemplate — Skily DGT video for TikTok / YouTube Shorts.
+ * Uses dynamic timing driven by ElevenLabs audio durations so each answer
+ * appears exactly when the narrator starts reading it.
  */
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, Audio, Sequence, staticFile } from "remotion";
-import { VideoQuestion, FPS, TIMING } from "./types";
+import { VideoQuestion, DynamicTiming, buildDynamicTiming, FPS, UI_TEXT } from "./types";
 
 const S = (f: string) => staticFile(`sounds/${f}`);
 
-// ─── Skily UI colors (из приложения) ────────────────────────────────────────
+// ─── Skily UI colors ──────────────────────────────────────────────────────────
 const C = {
   bg:          "#0D1117",
   card:        "#161B22",
@@ -28,55 +29,47 @@ const C = {
   gradient:    "linear-gradient(135deg, #2F81F7 0%, #1a6bd4 100%)",
 } as const;
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function lerp(frame: number, f0: number, f1: number, v0: number, v1: number) {
   if (frame <= f0) return v0;
   if (frame >= f1) return v1;
   return v0 + ((frame - f0) / (f1 - f0)) * (v1 - v0);
 }
 
-// Crossfade opacity: each scene fades out over XFADE frames after its end.
-// The next scene starts (with its own fade-in) at exactly its startF.
-// This creates a smooth dissolve with no flicker.
+// Crossfade: each scene fades out over XFADE frames after its scheduled end.
 const XFADE = 10;
 function sceneOp(frame: number, startF: number, endF: number): number {
   if (frame < startF || frame >= endF + XFADE) return 0;
-  if (frame >= endF) return (endF + XFADE - frame) / XFADE; // fade-out
+  if (frame >= endF) return (endF + XFADE - frame) / XFADE;
   return 1;
 }
 
-// ─── Scenes ──────────────────────────────────────────────────────────────────
-
-function HookScene({ q }: { q: VideoQuestion }) {
+// ─── HookScene ────────────────────────────────────────────────────────────────
+function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const frame = useCurrentFrame();
-  const sceneFrame = frame;
-  const op = lerp(sceneFrame, 0, 8, 0, 1);
-  const scale = lerp(sceneFrame, 0, 14, 0.88, 1);
+  const sceneF = frame - t.hookStart * FPS;
+  const op     = lerp(sceneF, 0, 8, 0, 1);
+  const scale  = lerp(sceneF, 0, 14, 0.88, 1);
+  const badgeOp = lerp(sceneF, 4, 18, 0, 1);
+  const badgeTy = lerp(sceneF, 4, 18, 20, 0);
 
-  // Badge slides in slightly after
-  const badgeOp = lerp(sceneFrame, 4, 18, 0, 1);
-  const badgeTy = lerp(sceneFrame, 4, 18, 20, 0);
-
-  const difficulties = {
+  const ui = UI_TEXT[q.language];
+  const diffColors = { easy: C.emerald, medium: "#F0883E", hard: C.red };
+  const diffLabels = {
     ru: { easy: "ЛЁГКИЙ", medium: "СРЕДНИЙ", hard: "СЛОЖНЫЙ" },
     es: { easy: "FÁCIL",  medium: "MEDIO",   hard: "DIFÍCIL" },
   };
-  const diffColors = { easy: C.emerald, medium: "#F0883E", hard: C.red };
-
-  const examLabel = q.language === "ru" ? "🚗 ЭКЗАМЕН ПДД" : "🚗 EXAMEN DGT";
-  const subLabel  = q.language === "ru" ? "Знаешь правила?" : "¿Conoces las normas?";
 
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", padding:"0 80px",
-      opacity: op }}>
+      alignItems:"center", justifyContent:"center", padding:"0 80px", opacity: op }}>
 
       {/* Glow backdrop */}
       <div style={{ position:"absolute", width:700, height:700, borderRadius:"50%",
         background:"radial-gradient(circle, rgba(47,129,247,0.12) 0%, transparent 70%)",
         pointerEvents:"none" }} />
 
-      {/* Exam context badge — immediately establishes topic */}
+      {/* Exam context badge */}
       <div style={{ opacity: badgeOp, transform:`translateY(${badgeTy}px)`,
         marginBottom:40, display:"flex", flexDirection:"column", alignItems:"center", gap:16 }}>
         <div style={{ padding:"14px 40px", borderRadius:100,
@@ -84,18 +77,18 @@ function HookScene({ q }: { q: VideoQuestion }) {
           fontSize:34, fontWeight:800, color:"#fff",
           fontFamily:"system-ui,sans-serif", letterSpacing:2,
           boxShadow:"0 4px 24px rgba(47,129,247,0.45)" }}>
-          {examLabel}
+          {ui.examBadge}
         </div>
         <div style={{ fontSize:30, color: C.textMuted, fontFamily:"system-ui,sans-serif" }}>
-          {subLabel}
+          {ui.examSub}
         </div>
       </div>
 
       {/* Hook title */}
       <div style={{ fontSize:88, fontWeight:900, color: C.text, textAlign:"center",
         lineHeight:1.1, fontFamily:"system-ui,sans-serif",
-        transform: `scale(${scale})`,
-        textShadow:`0 0 60px rgba(47,129,247,0.4), 0 2px 8px rgba(0,0,0,0.8)` }}>
+        transform:`scale(${scale})`,
+        textShadow:"0 0 60px rgba(47,129,247,0.4), 0 2px 8px rgba(0,0,0,0.8)" }}>
         {q.hook_title}
       </div>
 
@@ -107,7 +100,7 @@ function HookScene({ q }: { q: VideoQuestion }) {
           border:`1.5px solid ${diffColors[q.difficulty]}`,
           color: diffColors[q.difficulty], fontSize:26, fontWeight:700,
           letterSpacing:3, fontFamily:"system-ui,sans-serif" }}>
-          {difficulties[q.language][q.difficulty]}
+          {diffLabels[q.language][q.difficulty]}
         </div>
         <div style={{ fontSize:26, color: C.textMuted, letterSpacing:4,
           fontFamily:"system-ui,sans-serif" }}>
@@ -118,21 +111,19 @@ function HookScene({ q }: { q: VideoQuestion }) {
   );
 }
 
-function CountdownScene() {
-  const frame = useCurrentFrame();
-  const sceneFrame = frame - TIMING.countdown.start * FPS;
-  const perNumber = 30;
-  const currentNum = 3 - Math.floor(sceneFrame / perNumber);
-  const localF = sceneFrame % perNumber;
-
-  const n = Math.max(1, Math.min(3, currentNum));
-  const op = lerp(localF, 0, 4, 0, 1) * lerp(localF, perNumber - 6, perNumber, 1, 0);
-  const scale = lerp(localF, 0, 10, 0.5, 1);
+// ─── CountdownScene ───────────────────────────────────────────────────────────
+function CountdownScene({ t }: { t: DynamicTiming }) {
+  const frame  = useCurrentFrame();
+  const sceneF = frame - t.countdownStart * FPS;
+  const perNum = 30;
+  const n      = Math.max(1, Math.min(3, 3 - Math.floor(sceneF / perNum)));
+  const localF = sceneF % perNum;
+  const op     = lerp(localF, 0, 4, 0, 1) * lerp(localF, perNum - 6, perNum, 1, 0);
+  const scale  = lerp(localF, 0, 10, 0.5, 1);
   const colors = [C.red, "#F0883E", C.emerald];
 
   return (
-    <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center" }}>
+    <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
       <div style={{ fontSize:240, fontWeight:900, color: colors[n-1], lineHeight:1,
         opacity: op, transform:`scale(${scale})`, fontFamily:"system-ui,sans-serif",
         textShadow:`0 0 100px ${colors[n-1]}55` }}>
@@ -142,25 +133,29 @@ function CountdownScene() {
   );
 }
 
-function TestCard({ q, showOptions, revealFrame, showExplanation }:
-  { q: VideoQuestion; showOptions: boolean; revealFrame: number; showExplanation: boolean }) {
-
+// ─── TestCard (shared question+answers card) ──────────────────────────────────
+function TestCard({
+  q, t, showOptions, revealFrame, showExplanation,
+}: {
+  q: VideoQuestion;
+  t: DynamicTiming;
+  showOptions: boolean;
+  revealFrame: number;
+  showExplanation: boolean;
+}) {
   const frame = useCurrentFrame();
-  const opts = q.answer_options;
-  const perOpt = showOptions ? Math.floor(
-    (TIMING.suspense.start - TIMING.answers.start) * FPS / opts.length
-  ) : 999;
-  const answersStartFrame = TIMING.answers.start * FPS;
+  const opts  = q.answer_options;
+
+  // Explanation text: RU variant shows Russian explanation
+  const expText = (q.language === "ru" && q.explanationRu) ? q.explanationRu : q.explanation;
 
   return (
     <div style={{ width:"100%", maxWidth:960, display:"flex", flexDirection:"column", gap:20 }}>
 
-      {/* ── Image ── */}
+      {/* Image */}
       {q.image_url && (
-        /* Outer div carries the shadow — overflow:hidden would clip box-shadow */
         <div style={{ width:"100%", borderRadius:40,
           boxShadow:"0 24px 80px rgba(0,0,0,0.9), 0 8px 32px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(255,255,255,0.10), 0 0 80px rgba(47,129,247,0.18)" }}>
-          {/* Inner div clips image to rounded corners */}
           <div style={{ width:"100%", borderRadius:40, overflow:"hidden",
             backgroundColor:"#000", border:"1.5px solid rgba(255,255,255,0.10)" }}>
             <img src={q.image_url} alt="" style={{ width:"100%", maxHeight:500,
@@ -169,24 +164,23 @@ function TestCard({ q, showOptions, revealFrame, showExplanation }:
         </div>
       )}
 
-      {/* ── Question text ── */}
+      {/* Question text */}
       <div style={{ fontSize: q.question.length > 120 ? 38 : 46,
         fontWeight:700, color: C.text, lineHeight:1.4,
         fontFamily:"system-ui,sans-serif" }}>
         {q.question}
       </div>
 
-      {/* ── Options ── */}
+      {/* Answer options — each appears at its scheduled time */}
       {opts.map((opt, i) => {
-        const appearAt = answersStartFrame + i * perOpt;
-        const localF = frame - appearAt;
-        const visible = showOptions && localF >= 0;
-        const op2 = visible ? Math.min(1, localF / 8) : 0;
-        const tx = visible ? lerp(localF, 0, 12, 40, 0) : 40;
+        const appearFrame = t.answerAppearAt[i] * FPS;
+        const localF      = frame - appearFrame;
+        const visible     = showOptions && localF >= 0;
+        const op2         = visible ? Math.min(1, localF / 8) : 0;
+        const tx          = visible ? lerp(localF, 0, 12, 40, 0) : 40;
 
-        // Reveal state
         const isRevealed = revealFrame > 0;
-        const isCorrect = opt.is_correct;
+        const isCorrect  = opt.is_correct;
 
         const borderColor = isRevealed
           ? isCorrect ? C.emeraldBdr : "rgba(255,255,255,0.04)"
@@ -194,13 +188,9 @@ function TestCard({ q, showOptions, revealFrame, showExplanation }:
         const bgColor = isRevealed
           ? isCorrect ? C.emeraldBg : "rgba(255,255,255,0.01)"
           : C.card;
-        const badgeBg = isRevealed
-          ? isCorrect ? C.emerald : "rgba(255,255,255,0.04)"
-          : C.badgeDefault;
-        const badgeColor = isRevealed
-          ? isCorrect ? "#fff" : "rgba(255,255,255,0.15)"
-          : C.badgeText;
-        const textOp = isRevealed && !isCorrect ? 0.3 : 1;
+        const badgeBg    = isRevealed ? (isCorrect ? C.emerald : "rgba(255,255,255,0.04)") : C.badgeDefault;
+        const badgeColor = isRevealed ? (isCorrect ? "#fff" : "rgba(255,255,255,0.15)") : C.badgeText;
+        const textOp     = isRevealed && !isCorrect ? 0.3 : 1;
 
         return (
           <div key={opt.id}
@@ -209,33 +199,26 @@ function TestCard({ q, showOptions, revealFrame, showExplanation }:
               border:`1.5px solid ${borderColor}`,
               backgroundColor: bgColor,
               opacity: op2,
-              transform: `translateX(${tx}px)`,
-              transition:"border-color 0.3s, background-color 0.3s",
-              boxShadow: isRevealed && isCorrect ? `0 0 24px rgba(63,185,80,0.2)` : "none" }}>
-
-            {/* Number badge */}
+              transform:`translateX(${tx}px)`,
+              boxShadow: isRevealed && isCorrect ? "0 0 24px rgba(63,185,80,0.2)" : "none" }}>
             <div style={{ minWidth:52, height:52, borderRadius:14,
               backgroundColor: badgeBg, display:"flex", alignItems:"center",
               justifyContent:"center", fontSize:24, fontWeight:800,
-              color: badgeColor, fontFamily:"system-ui,sans-serif",
-              flexShrink:0 }}>
+              color: badgeColor, fontFamily:"system-ui,sans-serif", flexShrink:0 }}>
               {isRevealed && isCorrect ? "✓" : i + 1}
             </div>
-
-            {/* Text */}
             <div style={{ fontSize:38, fontWeight:500, color: C.text,
-              fontFamily:"system-ui,sans-serif", lineHeight:1.3,
-              opacity: textOp }}>
+              fontFamily:"system-ui,sans-serif", lineHeight:1.3, opacity: textOp }}>
               {opt.text}
             </div>
           </div>
         );
       })}
 
-      {/* ── Explanation (replaces bottom button area) ── */}
+      {/* Explanation */}
       {showExplanation && (
         <div style={{ marginTop:8, padding:"24px 28px", borderRadius:20,
-          border:`1.5px solid rgba(47,129,247,0.35)`,
+          border:"1.5px solid rgba(47,129,247,0.35)",
           backgroundColor:"rgba(47,129,247,0.08)" }}>
           <div style={{ fontSize:24, fontWeight:700, color: C.primary,
             marginBottom:12, fontFamily:"system-ui,sans-serif" }}>
@@ -243,75 +226,74 @@ function TestCard({ q, showOptions, revealFrame, showExplanation }:
           </div>
           <div style={{ fontSize:34, color: C.text, lineHeight:1.5,
             fontFamily:"system-ui,sans-serif" }}>
-            {q.explanation}
+            {expText}
           </div>
         </div>
       )}
-
-      {/* "Responder" button removed intentionally */}
     </div>
   );
 }
 
-function QuestionScene({ q }: { q: VideoQuestion }) {
-  const frame = useCurrentFrame();
-  const sceneFrame = frame - TIMING.question.start * FPS;
-  const op = lerp(sceneFrame, 0, 12, 0, 1);
-  const ty = lerp(sceneFrame, 0, 14, 60, 0);
-
+// ─── QuestionScene ────────────────────────────────────────────────────────────
+function QuestionScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
+  const frame  = useCurrentFrame();
+  const sceneF = frame - t.questionStart * FPS;
+  const op = lerp(sceneF, 0, 12, 0, 1);
+  const ty = lerp(sceneF, 0, 14, 60, 0);
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
       alignItems:"center", justifyContent:"center", padding:"60px 60px",
-      opacity: op, transform: `translateY(${ty}px)` }}>
-      <TestCard q={q} showOptions={false} revealFrame={0} showExplanation={false} />
+      opacity: op, transform:`translateY(${ty}px)` }}>
+      <TestCard q={q} t={t} showOptions={false} revealFrame={0} showExplanation={false} />
     </div>
   );
 }
 
-function AnswersScene({ q }: { q: VideoQuestion }) {
-  const op = lerp(useCurrentFrame() - TIMING.answers.start * FPS, 0, 4, 0, 1);
+// ─── AnswersScene ─────────────────────────────────────────────────────────────
+function AnswersScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
+  const frame  = useCurrentFrame();
+  const sceneF = frame - t.answersStart * FPS;
+  const op     = lerp(sceneF, 0, 4, 0, 1);
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
       alignItems:"center", justifyContent:"center", padding:"60px 60px", opacity: op }}>
-      <TestCard q={q} showOptions={true} revealFrame={0} showExplanation={false} />
+      <TestCard q={q} t={t} showOptions={true} revealFrame={0} showExplanation={false} />
     </div>
   );
 }
 
-function SuspenseScene({ q }: { q: VideoQuestion }) {
-  const frame = useCurrentFrame();
-  const sceneF = frame - TIMING.suspense.start * FPS;
-  const totalF = (TIMING.suspense.end - TIMING.suspense.start) * FPS;
-  const progress = 1 - sceneF / totalF;
-  const suspenseSecs = TIMING.suspense.end - TIMING.suspense.start;
-  const secs = Math.max(1, Math.ceil(progress * suspenseSecs));
-  const pulse = 1 + Math.sin(sceneF / 5) * 0.015;
+// ─── SuspenseScene ────────────────────────────────────────────────────────────
+function SuspenseScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
+  const frame    = useCurrentFrame();
+  const sceneF   = frame - t.suspenseStart * FPS;
+  const totalF   = (t.revealStart - t.suspenseStart) * FPS;
+  const progress = Math.max(0, 1 - sceneF / totalF);
+  const suspSecs = t.revealStart - t.suspenseStart;
+  const secs     = Math.max(1, Math.ceil(progress * suspSecs));
+  const pulse    = 1 + Math.sin(sceneF / 5) * 0.015;
   const overlayOp = lerp(sceneF, 0, 12, 0, 1);
+  const ui = UI_TEXT[q.language];
 
   return (
     <div style={{ position:"absolute", inset:0 }}>
-
       {/* Question + answers visible in background */}
       <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center", padding:"60px 60px" }}>
-        <TestCard q={q} showOptions={true} revealFrame={0} showExplanation={false} />
+        <TestCard q={q} t={t} showOptions={true} revealFrame={0} showExplanation={false} />
       </div>
 
-      {/* Dark overlay + "ДУМАЙТЕ!" + countdown ring */}
+      {/* Dark overlay + ДУМАЙТЕ! */}
       <div style={{ position:"absolute", inset:0,
-        background:"rgba(13,17,23,0.78)",
-        backdropFilter:"blur(2px)",
-        display:"flex", flexDirection:"column",
-        alignItems:"center", justifyContent:"center", gap:48,
-        opacity: overlayOp }}>
+        background:"rgba(13,17,23,0.78)", backdropFilter:"blur(2px)",
+        display:"flex", flexDirection:"column", alignItems:"center",
+        justifyContent:"center", gap:48, opacity: overlayOp }}>
 
         <div style={{ fontSize:90, fontWeight:900, color:"#F0883E",
           transform:`scale(${pulse})`, fontFamily:"system-ui,sans-serif",
           textShadow:"0 0 60px rgba(240,136,62,0.5)", letterSpacing:4 }}>
-          {q.language === "ru" ? "ДУМАЙТЕ!" : "¡PIENSA!"}
+          {ui.think}
         </div>
 
-        {/* SVG countdown ring */}
         <div style={{ position:"relative", width:180, height:180,
           display:"flex", alignItems:"center", justifyContent:"center" }}>
           <svg width={180} height={180} style={{ position:"absolute", transform:"rotate(-90deg)" }}>
@@ -325,8 +307,7 @@ function SuspenseScene({ q }: { q: VideoQuestion }) {
             fontFamily:"system-ui,sans-serif" }}>{secs}</div>
         </div>
 
-        <div style={{ fontSize:32, color: C.primary, fontFamily:"system-ui,sans-serif",
-          fontWeight:600 }}>
+        <div style={{ fontSize:32, color: C.primary, fontFamily:"system-ui,sans-serif", fontWeight:600 }}>
           {q.language === "ru" ? "⬇️ Напиши ответ в комментах" : "⬇️ Escribe tu respuesta"}
         </div>
       </div>
@@ -334,37 +315,40 @@ function SuspenseScene({ q }: { q: VideoQuestion }) {
   );
 }
 
-function RevealScene({ q }: { q: VideoQuestion }) {
-  const frame = useCurrentFrame();
-  const sceneF = frame - TIMING.reveal.start * FPS;
-  const op = lerp(sceneF, 0, 8, 0, 1);
-
+// ─── RevealScene ──────────────────────────────────────────────────────────────
+function RevealScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
+  const frame  = useCurrentFrame();
+  const sceneF = frame - t.revealStart * FPS;
+  const op     = lerp(sceneF, 0, 8, 0, 1);
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
       alignItems:"center", justifyContent:"center", padding:"60px 60px", opacity: op }}>
-      <TestCard q={q} showOptions={true} revealFrame={sceneF} showExplanation={false} />
+      <TestCard q={q} t={t} showOptions={true} revealFrame={sceneF} showExplanation={false} />
     </div>
   );
 }
 
-function ExplanationScene({ q }: { q: VideoQuestion }) {
-  const frame = useCurrentFrame();
-  const op = lerp(frame - TIMING.explanation.start * FPS, 0, 10, 0, 1);
-
+// ─── ExplanationScene ─────────────────────────────────────────────────────────
+function ExplanationScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
+  const frame  = useCurrentFrame();
+  const sceneF = frame - t.explanationStart * FPS;
+  const op     = lerp(sceneF, 0, 10, 0, 1);
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
       alignItems:"center", justifyContent:"center", padding:"60px 60px", opacity: op }}>
-      <TestCard q={q} showOptions={true} revealFrame={999} showExplanation={true} />
+      <TestCard q={q} t={t} showOptions={true} revealFrame={999} showExplanation={true} />
     </div>
   );
 }
 
-function CTAScene({ q }: { q: VideoQuestion }) {
-  const frame = useCurrentFrame();
-  const sceneF = frame - TIMING.cta.start * FPS;
-  const op = lerp(sceneF, 0, 10, 0, 1);
-  const scale = lerp(sceneF, 0, 14, 0.88, 1);
-  const pulse = 1 + Math.sin(sceneF / 8) * 0.018;
+// ─── CTAScene ─────────────────────────────────────────────────────────────────
+function CTAScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
+  const frame  = useCurrentFrame();
+  const sceneF = frame - t.ctaStart * FPS;
+  const op     = lerp(sceneF, 0, 10, 0, 1);
+  const scale  = lerp(sceneF, 0, 14, 0.88, 1);
+  const pulse  = 1 + Math.sin(sceneF / 8) * 0.018;
+  const ui     = UI_TEXT[q.language];
 
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
@@ -381,11 +365,11 @@ function CTAScene({ q }: { q: VideoQuestion }) {
         color:"#fff", fontFamily:"system-ui,sans-serif",
         transform:`scale(${pulse})`,
         boxShadow:"0 8px 40px rgba(47,129,247,0.35)" }}>
-        {q.language === "ru" ? "Ещё вопросы → skilyapp.com" : "Más preguntas → skilyapp.com"}
+        {ui.cta}
       </div>
 
       <div style={{ fontSize:34, color: C.textMuted, fontFamily:"system-ui,sans-serif" }}>
-        {q.language === "ru" ? "Подпишись 👇" : "Suscríbete 👇"}
+        {ui.subscribe}
       </div>
 
       <div style={{ fontSize:28, color: C.textMuted, fontFamily:"system-ui,sans-serif", opacity:0.7 }}>
@@ -402,110 +386,110 @@ interface VideoTemplateProps { question: VideoQuestion }
 
 export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
   const frame = useCurrentFrame();
+  const t     = buildDynamicTiming(question);
+  const F     = FPS;
+
+  const sOp = (startSec: number, endSec: number) =>
+    sceneOp(frame, startSec * F, endSec * F);
+
+  // Explanation audio: prefer Russian if available (RU variant)
+  const expAudioFile = (question.language === "ru" && question.explanationRuAudioFile)
+    ? question.explanationRuAudioFile
+    : question.explanationAudioFile;
 
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg }}>
-      {/* Subtle top gradient */}
+      {/* Top gradient accent */}
       <div style={{ position:"absolute", top:0, left:0, right:0, height:400,
         background:"radial-gradient(ellipse at 50% 0%, rgba(47,129,247,0.08) 0%, transparent 70%)",
         pointerEvents:"none" }} />
 
       {/* ── Sound effects ── */}
-      {/* Hook whoosh at frame 0 */}
       <Sequence from={0} durationInFrames={15}>
         <Audio src={S("whoosh.wav")} volume={0.7} />
       </Sequence>
-      {/* Countdown beeps: 3 at 2s, 2 at 3s, 1 at 4s */}
-      <Sequence from={TIMING.countdown.start * FPS} durationInFrames={10}>
+      <Sequence from={t.countdownStart * F} durationInFrames={10}>
         <Audio src={S("beep3.wav")} volume={0.8} />
       </Sequence>
-      <Sequence from={(TIMING.countdown.start + 1) * FPS} durationInFrames={10}>
+      <Sequence from={(t.countdownStart + 1) * F} durationInFrames={10}>
         <Audio src={S("beep2.wav")} volume={0.8} />
       </Sequence>
-      <Sequence from={(TIMING.countdown.start + 2) * FPS} durationInFrames={10}>
+      <Sequence from={(t.countdownStart + 2) * F} durationInFrames={10}>
         <Audio src={S("beep1.wav")} volume={1.0} />
       </Sequence>
-      {/* Tick every second during suspense (6 seconds = 6 ticks) */}
-      {[0,1,2,3,4,5].map(i => (
-        <Sequence key={i} from={(TIMING.suspense.start + i) * FPS} durationInFrames={6}>
+      {Array.from({ length: Math.ceil(t.revealStart - t.suspenseStart) }, (_, i) => (
+        <Sequence key={i} from={(t.suspenseStart + i) * F} durationInFrames={6}>
           <Audio src={S("tick.wav")} volume={0.6} />
         </Sequence>
       ))}
-      {/* Reveal chime */}
-      <Sequence from={TIMING.reveal.start * FPS} durationInFrames={20}>
+      <Sequence from={t.revealStart * F} durationInFrames={20}>
         <Audio src={S("reveal.wav")} volume={0.9} />
       </Sequence>
 
-      {/* ── ElevenLabs TTS voiceover ── */}
-      {/* Question narration: starts at QuestionScene, plays through AnswersScene */}
+      {/* ── ElevenLabs TTS ── */}
+      {/* Question narration: plays during question + answers window */}
       {question.questionAudioFile && (
-        <Sequence
-          from={TIMING.question.start * FPS}
-          durationInFrames={(TIMING.suspense.end - TIMING.question.start) * FPS}
-        >
+        <Sequence from={t.questionStart * F}
+          durationInFrames={(t.suspenseStart - t.questionStart) * F}>
           <Audio src={staticFile(question.questionAudioFile)} volume={0.9} />
         </Sequence>
       )}
-      {/* Explanation narration: starts at ExplanationScene */}
-      {question.explanationAudioFile && (
-        <Sequence
-          from={TIMING.explanation.start * FPS}
-          durationInFrames={(TIMING.cta.end - TIMING.explanation.start) * FPS}
-        >
-          <Audio src={staticFile(question.explanationAudioFile)} volume={0.9} />
+      {/* Answer narrations: each starts when that card appears */}
+      {question.answerAudioFiles?.map((file, i) => (
+        <Sequence key={i} from={Math.round(t.answerAppearAt[i] * F)}
+          durationInFrames={Math.round((question.answerAudioDurationsSec?.[i] ?? 2.5) * F)}>
+          <Audio src={staticFile(file)} volume={0.9} />
+        </Sequence>
+      ))}
+      {/* Explanation narration */}
+      {expAudioFile && (
+        <Sequence from={t.explanationStart * F}
+          durationInFrames={(t.ctaStart - t.explanationStart) * F}>
+          <Audio src={staticFile(expAudioFile)} volume={0.9} />
         </Sequence>
       )}
 
       {/* ── Scenes with crossfade dissolve ── */}
-      {(()=> {
-        const t = TIMING;
-        const f = FPS;
-        const op = (s: number, e: number) => sceneOp(frame, s * f, e * f);
-        return (
-          <>
-            {op(t.hook.start, t.hook.end) > 0 && (
-              <div style={{ position:"absolute", inset:0, opacity: op(t.hook.start, t.hook.end) }}>
-                <HookScene q={question} />
-              </div>
-            )}
-            {op(t.countdown.start, t.countdown.end) > 0 && (
-              <div style={{ position:"absolute", inset:0, opacity: op(t.countdown.start, t.countdown.end) }}>
-                <CountdownScene />
-              </div>
-            )}
-            {op(t.question.start, t.question.end) > 0 && (
-              <div style={{ position:"absolute", inset:0, opacity: op(t.question.start, t.question.end) }}>
-                <QuestionScene q={question} />
-              </div>
-            )}
-            {op(t.answers.start, t.answers.end) > 0 && (
-              <div style={{ position:"absolute", inset:0, opacity: op(t.answers.start, t.answers.end) }}>
-                <AnswersScene q={question} />
-              </div>
-            )}
-            {op(t.suspense.start, t.suspense.end) > 0 && (
-              <div style={{ position:"absolute", inset:0, opacity: op(t.suspense.start, t.suspense.end) }}>
-                <SuspenseScene q={question} />
-              </div>
-            )}
-            {op(t.reveal.start, t.reveal.end) > 0 && (
-              <div style={{ position:"absolute", inset:0, opacity: op(t.reveal.start, t.reveal.end) }}>
-                <RevealScene q={question} />
-              </div>
-            )}
-            {op(t.explanation.start, t.explanation.end) > 0 && (
-              <div style={{ position:"absolute", inset:0, opacity: op(t.explanation.start, t.explanation.end) }}>
-                <ExplanationScene q={question} />
-              </div>
-            )}
-            {op(t.cta.start, t.cta.end) > 0 && (
-              <div style={{ position:"absolute", inset:0, opacity: op(t.cta.start, t.cta.end) }}>
-                <CTAScene q={question} />
-              </div>
-            )}
-          </>
-        );
-      })()}
+      {sOp(t.hookStart, t.countdownStart) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.hookStart, t.countdownStart) }}>
+          <HookScene q={question} t={t} />
+        </div>
+      )}
+      {sOp(t.countdownStart, t.questionStart) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.countdownStart, t.questionStart) }}>
+          <CountdownScene t={t} />
+        </div>
+      )}
+      {sOp(t.questionStart, t.answersStart) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.questionStart, t.answersStart) }}>
+          <QuestionScene q={question} t={t} />
+        </div>
+      )}
+      {sOp(t.answersStart, t.suspenseStart) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.answersStart, t.suspenseStart) }}>
+          <AnswersScene q={question} t={t} />
+        </div>
+      )}
+      {sOp(t.suspenseStart, t.revealStart) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.suspenseStart, t.revealStart) }}>
+          <SuspenseScene q={question} t={t} />
+        </div>
+      )}
+      {sOp(t.revealStart, t.explanationStart) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.revealStart, t.explanationStart) }}>
+          <RevealScene q={question} t={t} />
+        </div>
+      )}
+      {sOp(t.explanationStart, t.ctaStart) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.explanationStart, t.ctaStart) }}>
+          <ExplanationScene q={question} t={t} />
+        </div>
+      )}
+      {sOp(t.ctaStart, t.totalSec) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.ctaStart, t.totalSec) }}>
+          <CTAScene q={question} t={t} />
+        </div>
+      )}
 
       {/* Bottom brand line */}
       <div style={{ position:"absolute", bottom:0, left:0, right:0, height:5,
