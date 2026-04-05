@@ -33,9 +33,22 @@ const SELECTED_FILE = path.join(RENDERS_DIR, "selected-question.json");
 fs.mkdirSync(RENDERS_DIR, { recursive: true });
 fs.mkdirSync(AUDIO_DIR,   { recursive: true });
 
-// ── ElevenLabs TTS ────────────────────────────────────────────────────────────
+// ── Microsoft Edge TTS (бесплатно, кастельяно) ───────────────────────────────
+const EDGE_VOICE_ES = process.env.EDGE_VOICE_ES || "es-ES-AlvaroNeural"; // Alvaro = муж, Elvira = жен
+async function edgeSynth(text, voice, filePath) {
+  const tts = new MsEdgeTTS();
+  await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+  const { audioStream } = await tts.toStream(text);
+  const chunks = [];
+  audioStream.on("data", c => chunks.push(c));
+  await new Promise((res, rej) => { audioStream.on("end", res); audioStream.on("error", rej); });
+  const buf = Buffer.concat(chunks);
+  fs.writeFileSync(filePath, buf);
+  return buf;
+}
+
+// ── ElevenLabs TTS (для русского голоса) ─────────────────────────────────────
 const ELEVENLABS_KEY   = process.env.ELEVENLABS_API_KEY || "";
-const VOICE_ES         = process.env.ELEVENLABS_VOICE_ES || "CwhRBWXzGAHq8TQ4Fs17";
 const VOICE_RU         = process.env.ELEVENLABS_VOICE_RU || "CwhRBWXzGAHq8TQ4Fs17";
 
 function elevenLabsSynth(text, voiceId) {
