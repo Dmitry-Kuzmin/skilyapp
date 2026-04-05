@@ -466,50 +466,77 @@ function renderPreview() {
   if (!selected) return;
   const q = selected;
   const lang = q.language || document.getElementById("lang").value;
-  const diffLabel = { easy: lang==="ru"?"ЛЁГКИЙ":"FÁCIL", medium: lang==="ru"?"СРЕДНИЙ":"MEDIO", hard: lang==="ru"?"СЛОЖНЫЙ":"DIFÍCIL" };
-  const diffColor = { easy:"#3FB950", medium:"#F0883E", hard:"#F85149" };
 
-  let optionsHTML = (q.answer_options || []).map((o, i) => \`
-    <div class="preview-option \${o.is_correct ? 'correct' : ''}">
-      <div class="opt-badge">\${o.is_correct ? '✓' : i+1}</div>
-      <div class="opt-text">\${o.text}</div>
+  const answersHTML = (q.answer_options || []).map((o, i) => \`
+    <div class="edit-answer-row">
+      <div class="edit-answer-num \${o.is_correct ? 'correct' : ''}">\${o.is_correct ? '✓' : i+1}</div>
+      <input class="edit-input \${o.is_correct ? 'correct' : ''}" id="editAnswer_\${i}" value="\${escHtml(o.text)}" placeholder="Вариант \${i+1}">
     </div>
   \`).join('');
 
+  const ruBlock = lang === "es" ? \`
+    <hr class="section-divider">
+    <div class="edit-group">
+      <div class="edit-label">🇷🇺 Перевод вопроса (субтитр)</div>
+      <textarea class="edit-textarea" id="editQuestionRu" rows="2" placeholder="Перевод вопроса на русский...">\${escHtml(q.question_ru || '')}</textarea>
+    </div>
+    <div class="edit-group">
+      <div class="edit-label">🇷🇺 Объяснение на русском (озвучка RU-видео)</div>
+      <textarea class="edit-textarea" id="editExplanationRu" rows="4" placeholder="Объяснение для русскоязычного видео...">\${escHtml(q.explanation_ru || q.explanationRu || '')}</textarea>
+    </div>
+  \` : '';
+
   document.getElementById("preview").innerHTML = \`
     <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;color:#F0F6FC;font-size:17px">Превью</span>
+      <span style="font-weight:700;color:#F0F6FC;font-size:17px">✏️ Редактор</span>
       <span style="font-size:12px;color:#8B949E">\${lang.toUpperCase()} · \${q.percent_correct}% верно</span>
     </div>
-    <div class="preview-card">
-      \${q.image_url ? \`<img class="preview-img" src="\${q.image_url}" alt="">\` : ''}
-      <div class="preview-body">
-        <div class="preview-question">\${q.question}</div>
-        \${optionsHTML}
-        <div class="preview-explanation">
-          <div class="preview-expl-label">\${lang==="ru"?"ОБЪЯСНЕНИЕ":"EXPLICACIÓN"}</div>
-          \${q.explanation || '—'}
-        </div>
-      </div>
+
+    \${q.image_url ? \`<img class="preview-img" src="\${q.image_url}" alt="" style="border-radius:12px;width:100%;margin-bottom:16px;object-fit:cover;max-height:200px">\` : ''}
+
+    <div class="edit-group">
+      <div class="edit-label">❓ Вопрос</div>
+      <textarea class="edit-textarea" id="editQuestion" rows="3">\${escHtml(q.question)}</textarea>
     </div>
+
+    <div class="edit-group">
+      <div class="edit-label">📋 Варианты ответов</div>
+      \${answersHTML}
+    </div>
+
+    <div class="edit-group">
+      <div class="edit-label">💡 Объяснение</div>
+      <textarea class="edit-textarea" id="editExplanation" rows="5">\${escHtml(q.explanation)}</textarea>
+    </div>
+
+    \${ruBlock}
+
+    <hr class="section-divider">
 
     <div class="preview-actions">
-      <button class="btn btn-render" onclick="renderVideo()" id="renderBtn">
-        🎬 Создать MP4
-      </button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-render" style="flex:1" onclick="renderVideo()" id="renderBtn">
+          🎬 Создать MP4
+        </button>
+        <button class="btn btn-sm btn-danger" onclick="clearAudio()" title="Удалить кэш аудио для этого вопроса">
+          🗑 Аудио
+        </button>
+      </div>
       <div id="renderLog" class="render-log" style="display:none"></div>
     </div>
-
-    <div style="margin-top:16px;font-size:12px;color:#8B949E;line-height:1.6">
-      <b style="color:#F0F6FC">Как загрузить вручную:</b><br>
-      1. Нажми «Создать MP4» — файл появится в <code>renders/</code><br>
-      2. Загрузи в TikTok Studio или YouTube Studio<br>
-      3. Скопируй в описание объяснение ниже:<br>
-      <div style="margin-top:8px;padding:10px;background:#161B22;border-radius:8px;font-size:11px;line-height:1.5">
-        \${q.explanation}
-      </div>
-    </div>
   \`;
+}
+
+function escHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function clearAudio() {
+  if (!selected) return;
+  const res = await fetch(\`/api/clear-audio?id=\${selected.id}\`, { method: 'DELETE' });
+  const data = await res.json();
+  const log = document.getElementById('renderLog');
+  if (log) { log.style.display = 'block'; log.textContent = data.message || 'Аудио очищено'; }
 }
 
 async function renderVideo() {
