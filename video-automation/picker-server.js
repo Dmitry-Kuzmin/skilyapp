@@ -71,6 +71,33 @@ function elevenLabsSynth(text, voiceId) {
   });
 }
 
+// ── Get MP3 duration (bytes → seconds estimate for ElevenLabs ~24KB/s) ────────
+function getAudioDurationSec(filePath) {
+  try {
+    return fs.statSync(filePath).size / 24_000;
+  } catch { return 2.5; }
+}
+
+const ANSWER_PREFIX = {
+  es: ["Opción uno: ", "Opción dos: ", "Opción tres: ", "Opción cuatro: "],
+  ru: ["Вариант один: ", "Вариант два: ", "Вариант три: ", "Вариант четыре: "],
+};
+
+async function synth(text, voiceId, filePath, label) {
+  if (!fs.existsSync(filePath)) {
+    process.stdout.write(`  🎙 ${label}…`);
+    const audio = await elevenLabsSynth(text, voiceId);
+    if (audio) {
+      fs.writeFileSync(filePath, audio);
+      process.stdout.write(` ✓ (${(audio.length/1024).toFixed(0)}KB)\n`);
+    } else {
+      process.stdout.write(` ✗\n`);
+      return null;
+    }
+  }
+  return getAudioDurationSec(filePath);
+}
+
 async function generateTTSForQuestion(question) {
   if (!ELEVENLABS_KEY) {
     console.log("  ⚠ ELEVENLABS_API_KEY not set — skipping TTS");
@@ -79,25 +106,47 @@ async function generateTTSForQuestion(question) {
 
   const lang    = question.language || "es";
   const voiceId = lang === "ru" ? VOICE_RU : VOICE_ES;
-  const qFile   = `${question.id}-${lang}-question.mp3`;
-  const eFile   = `${question.id}-${lang}-explanation.mp3`;
-  const qPath   = path.join(AUDIO_DIR, qFile);
-  const ePath   = path.join(AUDIO_DIR, eFile);
+  const id      = question.id;
   const result  = {};
+  const prefixes = ANSWER_PREFIX[lang] || ANSWER_PREFIX.es;
 
-  if (!fs.existsSync(qPath) && question.question) {
-    console.log("  🎙 TTS: generating question audio…");
-    const audio = await elevenLabsSynth(question.question, voiceId);
-    if (audio) { fs.writeFileSync(qPath, audio); console.log(`     ✓ ${qFile}`); }
+  // Question
+  const qPath = path.join(AUDIO_DIR, `${id}-${lang}-question.mp3`);
+  const qDur  = await synth(question.question, voiceId, qPath, "question");
+  if (qDur !== null) {
+    result.questionAudioFile        = `audio/${id}-${lang}-question.mp3`;
+    result.questionAudioDurationSec = qDur;
   }
-  if (fs.existsSync(qPath)) result.questionAudioFile = `audio/${qFile}`;
 
-  if (!fs.existsSync(ePath) && question.explanation) {
-    console.log("  🎙 TTS: generating explanation audio…");
-    const audio = await elevenLabsSynth(question.explanation, voiceId);
-    if (audio) { fs.writeFileSync(ePath, audio); console.log(`     ✓ ${eFile}`); }
+  // Answer options
+  const answerFiles = [], answerDurs = [];
+  for (let i = 0; i < (question.answer_options || []).length; i++) {
+    const text  = prefixes[i] + question.answer_options[i].text;
+    const aPath = path.join(AUDIO_DIR, `${id}-${lang}-answer-${i}.mp3`);
+    const dur   = await synth(text, voiceId, aPath, `answer ${i+1}`);
+    answerFiles.push(`audio/${id}-${lang}-answer-${i}.mp3`);
+    answerDurs.push(dur ?? 2.5);
   }
-  if (fs.existsSync(ePath)) result.explanationAudioFile = `audio/${eFile}`;
+  result.answerAudioFiles        = answerFiles;
+  result.answerAudioDurationsSec = answerDurs;
+
+  // Explanation (same language)
+  const ePath = path.join(AUDIO_DIR, `${id}-${lang}-explanation.mp3`);
+  const eDur  = await synth(question.explanation, voiceId, ePath, "explanation");
+  if (eDur !== null) {
+    result.explanationAudioFile        = `audio/${id}-${lang}-explanation.mp3`;
+    result.explanationAudioDurationSec = eDur;
+  }
+
+  // Russian explanation (for RU variant video)
+  if (question.explanationRu) {
+    const erPath = path.join(AUDIO_DIR, `${id}-ru-explanation.mp3`);
+    const erDur  = await synth(question.explanationRu, VOICE_RU, erPath, "explanation [RU]");
+    if (erDur !== null) {
+      result.explanationRuAudioFile        = `audio/${id}-ru-explanation.mp3`;
+      result.explanationRuAudioDurationSec = erDur;
+    }
+  }
 
   return result;
 }
