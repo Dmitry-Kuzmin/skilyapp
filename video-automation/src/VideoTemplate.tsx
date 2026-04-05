@@ -9,6 +9,15 @@ import { VideoQuestion, DynamicTiming, buildDynamicTiming, FPS, UI_TEXT } from "
 
 const S = (f: string) => staticFile(`sounds/${f}`);
 
+// Убираем markdown (**жирный**, *курсив*) — Remotion не парсит HTML
+function cleanText(text: string): string {
+  return (text || "")
+    .replace(/\*\*/g, "")
+    .replace(/\*/g, "")
+    .replace(/^#+\s*/gm, "")   // заголовки #
+    .trim();
+}
+
 // ─── Skily UI colors ──────────────────────────────────────────────────────────
 const C = {
   bg:          "#0D1117",
