@@ -560,7 +560,8 @@ async function renderVideo() {
     explanationRu: document.getElementById('editExplanationRu')?.value ?? selected.explanationRu ?? selected.explanation_ru,
     answer_options: (selected.answer_options || []).map((o, i) => ({
       ...o,
-      text: document.getElementById(\`editAnswer_\${i}\`)?.value ?? o.text,
+      text:    document.getElementById(\`editAnswer_\${i}\`)?.value ?? o.text,
+      text_ru: document.getElementById(\`editAnswerRu_\${i}\`)?.value ?? o.text_ru,
     })),
   };
 
