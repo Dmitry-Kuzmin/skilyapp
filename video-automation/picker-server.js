@@ -116,7 +116,10 @@ function preprocessTTS(text, lang) {
       .replace(/\bDGT\b/g,   lang === "es" ? "D.G.T." : "Д-Ж-Т")
       // Strip markdown bold/italic that ElevenLabs reads literally
       .replace(/\*\*/g, "")
-      .replace(/\*/g, "");
+      .replace(/\*/g, "")
+      // Strip Unicode replacement chars (corrupted DB data)
+      .replace(/\uFFFD+/g, "")
+      .replace(/\s{2,}/g, " ");
   }
   // Cyrillic abbreviations for Russian (always applied when text has Russian)
   if (lang === "ru") {
