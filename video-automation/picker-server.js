@@ -548,11 +548,24 @@ async function renderVideo() {
   log.style.display = "block";
   log.textContent = "Запускаем рендер...\\n";
 
+  // Собираем отредактированные значения из полей
+  const editedQuestion = {
+    ...selected,
+    question:    document.getElementById('editQuestion')?.value ?? selected.question,
+    explanation: document.getElementById('editExplanation')?.value ?? selected.explanation,
+    question_ru: document.getElementById('editQuestionRu')?.value ?? selected.question_ru,
+    explanationRu: document.getElementById('editExplanationRu')?.value ?? selected.explanationRu ?? selected.explanation_ru,
+    answer_options: (selected.answer_options || []).map((o, i) => ({
+      ...o,
+      text: document.getElementById(\`editAnswer_\${i}\`)?.value ?? o.text,
+    })),
+  };
+
   try {
     const res = await fetch("/api/render", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: selected }),
+      body: JSON.stringify({ question: editedQuestion }),
     });
     const data = await res.json();
     if (data.output) {
