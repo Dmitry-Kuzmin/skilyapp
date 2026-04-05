@@ -90,9 +90,10 @@ export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
   const explanationStart = revealStart + REVEAL_DUR;
 
   // Explanation: at least 6s or however long the audio is
-  const expAudioDur   = (q.explanationRuAudioFile
+  // RU video → use RU audio duration; ES video → use ES audio duration
+  const expAudioDur   = (q.language === "ru" && q.explanationRuAudioFile)
     ? (q.explanationRuAudioDurationSec ?? 8)
-    : (q.explanationAudioDurationSec   ?? 8));
+    : (q.explanationAudioDurationSec   ?? 8);
   const explanationDur = Math.max(6, expAudioDur + 1);
 
   const ctaStart = explanationStart + explanationDur;
