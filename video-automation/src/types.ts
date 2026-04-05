@@ -34,6 +34,9 @@ export interface VideoQuestion {
   explanationAudioFile?: string;
   explanationAudioDurationSec?: number;
 
+  // Русский перевод (для RU-видео с субтитрами)
+  question_ru?: string;         // перевод вопроса — показывается как субтитр
+
   // Russian explanation (for dual-language workflow)
   explanationRu?: string;
   explanationRuAudioFile?: string;
