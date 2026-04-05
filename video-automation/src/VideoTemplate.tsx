@@ -245,7 +245,7 @@ function TestCard({
               {q.language === "ru" && opt.text_ru && (
                 <div style={{ fontSize:26, color: C.textMuted, fontFamily:"system-ui,sans-serif",
                   lineHeight:1.3, opacity: textOp * 0.8 }}>
-                  {opt.text_ru}
+                  {cleanText(opt.text_ru)}
                 </div>
               )}
             </div>
