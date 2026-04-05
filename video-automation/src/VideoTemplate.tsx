@@ -603,7 +603,7 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
       )}
       {sOp(t.countdownStart, t.questionStart) > 0 && (
         <div style={{ position:"absolute", inset:0, opacity: sOp(t.countdownStart, t.questionStart) }}>
-          <CountdownScene t={t} />
+          <CountdownScene q={question} t={t} />
         </div>
       )}
       {sOp(t.questionStart, t.answersStart) > 0 && (
