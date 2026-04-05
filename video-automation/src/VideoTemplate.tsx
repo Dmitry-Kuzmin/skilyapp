@@ -432,14 +432,56 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
         <Audio src={S("reveal.wav")} volume={0.9} />
       </Sequence>
 
-      {scene === "hook"        && <HookScene q={question} />}
-      {scene === "countdown"   && <CountdownScene />}
-      {scene === "question"    && <QuestionScene q={question} />}
-      {scene === "answers"     && <AnswersScene q={question} />}
-      {scene === "suspense"    && <SuspenseScene q={question} />}
-      {scene === "reveal"      && <RevealScene q={question} />}
-      {scene === "explanation" && <ExplanationScene q={question} />}
-      {scene === "cta"         && <CTAScene q={question} />}
+      {/* ── Scenes with crossfade dissolve ── */}
+      {(()=> {
+        const t = TIMING;
+        const f = FPS;
+        const op = (s: number, e: number) => sceneOp(frame, s * f, e * f);
+        return (
+          <>
+            {op(t.hook.start, t.hook.end) > 0 && (
+              <div style={{ position:"absolute", inset:0, opacity: op(t.hook.start, t.hook.end) }}>
+                <HookScene q={question} />
+              </div>
+            )}
+            {op(t.countdown.start, t.countdown.end) > 0 && (
+              <div style={{ position:"absolute", inset:0, opacity: op(t.countdown.start, t.countdown.end) }}>
+                <CountdownScene />
+              </div>
+            )}
+            {op(t.question.start, t.question.end) > 0 && (
+              <div style={{ position:"absolute", inset:0, opacity: op(t.question.start, t.question.end) }}>
+                <QuestionScene q={question} />
+              </div>
+            )}
+            {op(t.answers.start, t.answers.end) > 0 && (
+              <div style={{ position:"absolute", inset:0, opacity: op(t.answers.start, t.answers.end) }}>
+                <AnswersScene q={question} />
+              </div>
+            )}
+            {op(t.suspense.start, t.suspense.end) > 0 && (
+              <div style={{ position:"absolute", inset:0, opacity: op(t.suspense.start, t.suspense.end) }}>
+                <SuspenseScene q={question} />
+              </div>
+            )}
+            {op(t.reveal.start, t.reveal.end) > 0 && (
+              <div style={{ position:"absolute", inset:0, opacity: op(t.reveal.start, t.reveal.end) }}>
+                <RevealScene q={question} />
+              </div>
+            )}
+            {op(t.explanation.start, t.explanation.end) > 0 && (
+              <div style={{ position:"absolute", inset:0, opacity: op(t.explanation.start, t.explanation.end) }}>
+                <ExplanationScene q={question} />
+              </div>
+            )}
+            {op(t.cta.start, t.cta.end) > 0 && (
+              <div style={{ position:"absolute", inset:0, opacity: op(t.cta.start, t.cta.end) }}>
+                <CTAScene q={question} />
+              </div>
+            )}
+          </>
+        );
+      })()}
 
       {/* Bottom brand line */}
       <div style={{ position:"absolute", bottom:0, left:0, right:0, height:5,
