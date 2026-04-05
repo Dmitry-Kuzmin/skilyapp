@@ -10,6 +10,7 @@ const https  = require("https");
 const fs     = require("fs");
 const path   = require("path");
 const { execSync, spawn } = require("child_process");
+const { MsEdgeTTS, OUTPUT_FORMAT } = require("msedge-tts");
 
 // Load .env so ELEVENLABS_API_KEY is available
 try {

@@ -22,6 +22,7 @@
     "dotenv": "^16.0.0",
     "form-data": "^4.0.0",
     "googleapis": "^144.0.0",
+    "msedge-tts": "^2.0.4",
     "music-metadata": "^11.12.3",
     "remotion": "^4.0.0"
   },
