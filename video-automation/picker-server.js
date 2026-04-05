@@ -106,10 +106,10 @@ function preprocessTTS(text, lang) {
   return text;
 }
 
-async function synth(text, voiceId, filePath, label) {
+async function synth(text, voiceId, filePath, label, lang = "es") {
   if (!fs.existsSync(filePath)) {
     process.stdout.write(`  🎙 ${label}…`);
-    const audio = await elevenLabsSynth(text, voiceId);
+    const audio = await elevenLabsSynth(preprocessTTS(text, lang), voiceId);
     if (audio) {
       fs.writeFileSync(filePath, audio);
       process.stdout.write(` ✓ (${(audio.length/1024).toFixed(0)}KB)\n`);
