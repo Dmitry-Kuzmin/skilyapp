@@ -155,8 +155,8 @@ function TestCard({
   const frame = useCurrentFrame();
   const opts  = q.answer_options;
 
-  // Explanation text: RU variant shows Russian explanation
-  const expText = (q.language === "ru" && q.explanationRu) ? q.explanationRu : q.explanation;
+  // Объяснение ВСЕГДА на испанском (читается голосом на русском в RU-видео)
+  const expText = cleanText(q.explanation);
 
   return (
     <div style={{ width:"100%", maxWidth:960, display:"flex", flexDirection:"column", gap:20 }}>
