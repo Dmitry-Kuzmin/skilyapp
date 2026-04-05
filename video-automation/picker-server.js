@@ -25,10 +25,82 @@ try {
 const PORT = 3334;
 const SUPABASE_URL = "https://yffjnqegeiorunyvcxkn.supabase.co";
 const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA";
-const RENDERS_DIR = path.join(__dirname, "renders");
+const RENDERS_DIR  = path.join(__dirname, "renders");
+const AUDIO_DIR    = path.join(__dirname, "public/audio");
 const SELECTED_FILE = path.join(RENDERS_DIR, "selected-question.json");
 
 fs.mkdirSync(RENDERS_DIR, { recursive: true });
+fs.mkdirSync(AUDIO_DIR,   { recursive: true });
+
+// ── ElevenLabs TTS ────────────────────────────────────────────────────────────
+const ELEVENLABS_KEY   = process.env.ELEVENLABS_API_KEY || "";
+const VOICE_ES         = process.env.ELEVENLABS_VOICE_ES || "CwhRBWXzGAHq8TQ4Fs17";
+const VOICE_RU         = process.env.ELEVENLABS_VOICE_RU || "CwhRBWXzGAHq8TQ4Fs17";
+
+function elevenLabsSynth(text, voiceId) {
+  return new Promise((resolve) => {
+    if (!ELEVENLABS_KEY) { resolve(null); return; }
+
+    const body = JSON.stringify({
+      text,
+      model_id: "eleven_multilingual_v2",
+      voice_settings: { stability: 0.45, similarity_boost: 0.80, style: 0.25, use_speaker_boost: true },
+    });
+
+    const req = https.request({
+      hostname: "api.elevenlabs.io",
+      path: `/v1/text-to-speech/${voiceId}`,
+      method: "POST",
+      headers: {
+        "xi-api-key": ELEVENLABS_KEY,
+        "Content-Type": "application/json",
+        "Accept": "audio/mpeg",
+        "Content-Length": Buffer.byteLength(body),
+      },
+    }, (res) => {
+      const chunks = [];
+      res.on("data", c => chunks.push(c));
+      res.on("end", () => {
+        if (res.statusCode === 200) resolve(Buffer.concat(chunks));
+        else { console.error("ElevenLabs error:", res.statusCode); resolve(null); }
+      });
+    });
+    req.on("error", (e) => { console.error("ElevenLabs request error:", e.message); resolve(null); });
+    req.write(body);
+    req.end();
+  });
+}
+
+async function generateTTSForQuestion(question) {
+  if (!ELEVENLABS_KEY) {
+    console.log("  ⚠ ELEVENLABS_API_KEY not set — skipping TTS");
+    return {};
+  }
+
+  const lang    = question.language || "es";
+  const voiceId = lang === "ru" ? VOICE_RU : VOICE_ES;
+  const qFile   = `${question.id}-${lang}-question.mp3`;
+  const eFile   = `${question.id}-${lang}-explanation.mp3`;
+  const qPath   = path.join(AUDIO_DIR, qFile);
+  const ePath   = path.join(AUDIO_DIR, eFile);
+  const result  = {};
+
+  if (!fs.existsSync(qPath) && question.question) {
+    console.log("  🎙 TTS: generating question audio…");
+    const audio = await elevenLabsSynth(question.question, voiceId);
+    if (audio) { fs.writeFileSync(qPath, audio); console.log(`     ✓ ${qFile}`); }
+  }
+  if (fs.existsSync(qPath)) result.questionAudioFile = `audio/${qFile}`;
+
+  if (!fs.existsSync(ePath) && question.explanation) {
+    console.log("  🎙 TTS: generating explanation audio…");
+    const audio = await elevenLabsSynth(question.explanation, voiceId);
+    if (audio) { fs.writeFileSync(ePath, audio); console.log(`     ✓ ${eFile}`); }
+  }
+  if (fs.existsSync(ePath)) result.explanationAudioFile = `audio/${eFile}`;
+
+  return result;
+}
 
 // ── Supabase REST helper ──────────────────────────────────────────────────────
 function supabaseRequest(endpoint, params = "") {
