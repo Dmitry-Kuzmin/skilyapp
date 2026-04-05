@@ -266,6 +266,13 @@ function TestCard({
             fontFamily:"system-ui,sans-serif" }}>
             {expText}
           </div>
+          {/* В RU-видео подсказка что объяснение на испанском, голос на русском */}
+          {q.language === "ru" && (
+            <div style={{ marginTop:10, fontSize:22, color: C.primary,
+              fontFamily:"system-ui,sans-serif", opacity:0.7 }}>
+              🔊 Объяснение читается на русском
+            </div>
+          )}
         </div>
       )}
     </div>
