@@ -1,54 +1,54 @@
 {
-  "id": "6b3b3969-d95f-40e2-b3f5-ea74eede5bdf",
-  "question": "¿Está permitido circular con un Vehículo de Movilidad Personal (VMP) que dispone de un sillín?",
-  "question_ru": "Разрешено ли движение на Средстве индивидуальной мобильности (VMP/СИМ), оборудованном сиденьем?",
-  "explanation": "Según la definición oficial de la DGT y el Reglamento General de Vehículos, un Vehículo de Movilidad Personal (VMP) es un vehículo de una o más ruedas dotado de una única plaza y propulsado exclusivamente por motores eléctricos. La normativa establece una condición técnica específica respecto al asiento: los VMP solo pueden estar equipados con un asiento o sillín si están dotados de un sistema de autoequilibrado. Si un patinete eléctrico dispone de sillín sin tener sistema de autoequilibrado, deja de clasificarse como VMP y pasa a considerarse, a efectos legales, un ciclomotor (L1e-B), requiriendo autorización administrativa para circular, seguro y permiso de conducción.",
-  "explanation_ru": "🎓 Как водитель легкового автомобиля, ты должен понимать, что такое VMP (СИМ) в Испании, чтобы предсказывать их поведение. Согласно ПДД Испании, VMP — это устройство с одним или несколькими колесами, исключительно на электротяге, со скоростью от 6 до 25 км/ч. Главное техническое огранич��ние: **сиденье (седло) разрешено устанавливать ТОЛЬКО если устройство имеет систему самобалансировки** (например, как у Segway). Если на обычный электросамокат установлено сиденье, он юридически перестает быть СИМ и считается мопедом, что требует от водителя прав, шлема, страховки и номерного знака.\n\n🇷🇺 Это критическое отличие. В РФ многие электросамокаты с сиденьем все еще могут попадать под категорию СИМ (в зависимости от мощности и веса), и их использование на тротуарах или обочинах привычно. В Испании жесткое правило: **есть сиденье, но нет гироскопа/самобалансировки = это мопед**. Езда на таком устройстве без прав и страховки влечет огромные штрафы и эвакуацию ТС.\n\n💡 Запомни принцип «Стул для эквилибриста»:\nСидеть можно только на том, что **САМО** держит равновесие.\nНет баланса — стой на ногах.",
-  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf.webp",
+  "id": "bdb2e54c-91d9-480e-8212-186a0781c696",
+  "question": "Los conductores de vehículos que llegan a un paso a nivel cerrado deben...",
+  "question_ru": "Водители транспортных средств, подъезжающие к закрытому железнодорожному переезду, обязаны...",
+  "explanation": "Según el Reglamento General de Circulación, ningún usuario de la vía deberá penetrar en un paso a nivel cuyas barreras o semibarreras estén atravesadas o en movimiento, o cuando sus semáforos impidan el paso. En esta situación, los vehículos deben detenerse uno detrás del otro en el carril correspondiente hasta que tengan paso libre. La normativa exige mantener el orden de llegada en la fila y permanecer en el carril asignado sin invadir el sentido contrario.",
+  "explanation_ru": "🎓 Когда ты подъезжаешь к закрытому железнодорожному переезду (опущен шлагбаум, мигает светофор или звучит сигнал), ПДД Испании требуют строгой дисциплины. На асфальте в таких зонах часто наносится крупная разметка **«P N»** (Paso a Nivel), предупреждающая об опасности. Твоя обязанность — остановиться на своей полосе движения (carril). Автомобили должны выстраиваться в колонну **друг за другом**. Нельзя пытаться создать второй ряд или выезжать на встречную полосу, ��тобы посмотреть, далеко ли поезд. Разворачиваться или включать аварийную сигнализацию (если это не экстренное торможение) не требуется — нужно просто ждать открытия переезда в порядке живой очереди.\n\n💡 Закрытый переезд — это как очередь в кассу супермаркета: стоим **строго друг за другом**, никто не лезет вперед и не бежит в другой магазин (не ищет объезд).",
+  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/bdb2e54c-91d9-480e-8212-186a0781c696.webp",
   "difficulty": "easy",
   "percent_correct": 50,
   "country": "es",
   "language": "es",
   "answer_options": [
     {
-      "id": "b0e04c4f-022b-c245-bbc6-ca18aafbbc1f",
-      "text": "Sólo si el VMP está equipado con un sistema de autoequilibrado.",
-      "text_ru": "Только если СИМ оборудовано системой самобалансировки.",
-      "is_correct": true,
+      "id": "f70e27d4-d7f0-85a9-8f04-51ba1e955a7a",
+      "text": "cambiar el sentido de la marcha y buscar un itinerario alternativo.",
+      "text_ru": "развернуться и искать альтернативный маршрут.",
+      "is_correct": false,
       "position": 1
     },
     {
-      "id": "dfa9968a-7e09-2a14-dcc2-cb2a630e004a",
-      "text": "Únicamente en zonas peatonales.",
-      "text_ru": "Только в пешеходных зонах.",
-      "is_correct": false,
+      "id": "443b173a-56c4-ac0c-d9f9-af9d58e99c37",
+      "text": "detenerse uno detrás de otro en el carril que corresponda.",
+      "text_ru": "остановиться друг за другом на соответствующей полосе движения.",
+      "is_correct": true,
       "position": 2
     },
     {
-      "id": "92d95ff2-338d-2876-9db1-593c2a947528",
-      "text": "No, está prohibido si el VMP tiene un sillín.",
-      "text_ru": "Нет, запрещено, если у СИМ есть сиденье.",
+      "id": "481ca4c7-f441-c9ec-90b7-f6708640f7d6",
+      "text": "avisar a los demás conductores con las luces de emergencia.",
+      "text_ru": "предупредить других водителей аварийной сигнализацией.",
       "is_correct": false,
       "position": 3
     }
   ],
   "hook_title": "¿Sabes la respuesta? ⚡",
-  "series_number": 12,
-  "explanationRu": "🎓 Как водитель легкового автомобиля, ты должен понимать, что такое VMP (СИМ) в Испании, чтобы предсказывать их поведение. Согласно ПДД Испании, VMP — это устройство с одним или несколькими колесами, исключительно на электротяге, со скоростью от 6 до 25 км/ч. Главное техническое огранич��ние: **сиденье (седло) разрешено устанавливать ТОЛЬКО если устройство имеет систему самобалансировки** (например, как у Segway). Если на обычный электросамокат установлено сиденье, он юридически перестает быть СИМ и считается мопедом, что требует от водителя прав, шлема, страховки и номерного знака.\n\n🇷🇺 Это критическое отличие. В РФ многие электросамокаты с сиденьем все еще могут попадать под категорию СИМ (в зависимости от мощности и веса), и их использование на тротуарах или обочинах привычно. В Испании жесткое правило: **есть сиденье, но нет гироскопа/самобалансировки = это мопед**. Езда на таком устройстве без прав и страховки влечет огромные штрафы и эвакуацию ТС.\n\n💡 Запомни принцип «Стул для эквилибриста»:\nСидеть можно только на том, что **САМО** держит равновесие.\nНет баланса — стой на ногах.",
-  "questionAudioFile": "audio/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-es-question.mp3",
-  "questionAudioDurationSec": 6.217142857142857,
+  "series_number": 14,
+  "explanationRu": "🎓 Когда ты подъезжаешь к закрытому железнодорожному переезду (опущен шлагбаум, мигает светофор или звучит сигнал), ПДД Испании требуют строгой дисциплины. На асфальте в таких зонах часто наносится крупная разметка **«P N»** (Paso a Nivel), предупреждающая об опасности. Твоя обязанность — остановиться на своей полосе движения (carril). Автомобили должны выстраиваться в колонну **друг за другом**. Нельзя пытаться создать второй ряд или выезжать на встречную полосу, ��тобы посмотреть, далеко ли поезд. Разворачиваться или включать аварийную сигнализацию (если это не экстренное торможение) не требуется — нужно просто ждать открытия переезда в порядке живой очереди.\n\n💡 Закрытый переезд — это как очередь в кассу супермаркета: стоим **строго друг за другом**, никто не лезет вперед и не бежит в другой магазин (не ищет объезд).",
+  "questionAudioFile": "audio/bdb2e54c-91d9-480e-8212-186a0781c696-es-question.mp3",
+  "questionAudioDurationSec": 4.584,
   "answerAudioFiles": [
-    "audio/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-es-answer-0.mp3",
-    "audio/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-es-answer-1.mp3",
-    "audio/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-es-answer-2.mp3"
+    "audio/bdb2e54c-91d9-480e-8212-186a0781c696-es-answer-0.mp3",
+    "audio/bdb2e54c-91d9-480e-8212-186a0781c696-es-answer-1.mp3",
+    "audio/bdb2e54c-91d9-480e-8212-186a0781c696-es-answer-2.mp3"
   ],
   "answerAudioDurationsSec": [
-    5.015510204081632,
-    3.1085714285714285,
-    4.362448979591837
+    5.208,
+    4.848,
+    5.04
   ],
-  "explanationAudioFile": "audio/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-es-explanation.mp3",
-  "explanationAudioDurationSec": 47.542857142857144,
-  "explanationRuAudioFile": "audio/6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-ru-explanation.mp3",
-  "explanationRuAudioDurationSec": 81.39755102040816
+  "explanationAudioFile": "audio/bdb2e54c-91d9-480e-8212-186a0781c696-es-explanation.mp3",
+  "explanationAudioDurationSec": 27.768,
+  "explanationRuAudioFile": "audio/bdb2e54c-91d9-480e-8212-186a0781c696-ru-explanation.mp3",
+  "explanationRuAudioDurationSec": 56.45061224489796
 }

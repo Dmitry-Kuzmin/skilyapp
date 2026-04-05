@@ -107,6 +107,7 @@ const ANSWER_PREFIX = {
 function preprocessTTS(text, lang) {
   if (lang === "es" || lang === "ru") {
     text = text
+      // Latin abbreviations
       .replace(/\bkm\/h\b/gi, lang === "es" ? "kilómetros por hora" : "километров в час")
       .replace(/\bkm\b/gi,   lang === "es" ? "kilómetros" : "километров")
       .replace(/\bm\/s\b/gi, lang === "es" ? "metros por segundo" : "метров в секунду")
@@ -116,6 +117,21 @@ function preprocessTTS(text, lang) {
       // Strip markdown bold/italic that ElevenLabs reads literally
       .replace(/\*\*/g, "")
       .replace(/\*/g, "");
+  }
+  // Cyrillic abbreviations for Russian (always applied when text has Russian)
+  if (lang === "ru") {
+    text = text
+      .replace(/км\/ч/gi,  "километров в час")
+      .replace(/м\/с/gi,   "метров в секунду")
+      .replace(/км/gi,     "километров")
+      .replace(/\bт\.е\.\b/gi, "то есть")
+      .replace(/\bт\.к\.\b/gi, "так как")
+      .replace(/\bпр\./gi, "прочее")
+      .replace(/\bул\./gi, "улица")
+      // Fix common stress/homograph issues
+      .replace(/\bеду\b/g,  "е́ду")   // еду = I'm going (stress on е)
+      .replace(/\bзамок\b/g, "замо́к") // avoid reading as зАмок (castle)
+      .replace(/\bпропасть\b/g, "пропа́сть"); // avoid wrong stress
   }
   return text;
 }
