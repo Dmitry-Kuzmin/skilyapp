@@ -524,51 +524,87 @@ const server = http.createServer(async (req, res) => {
         const pct = question.percent_correct || 50;
         const hookKey = pct < 30 ? "vhard" : pct < 50 ? "hard" : question.difficulty === "hard" ? "medium" : "easy";
 
+        // Spanish hook templates for the RU variant (hook stays in RU, question in ES)
+        const hookTemplatesRU = {
+          vhard: "Это не знает НИКТО 🤯", hard: "99% водителей ошибаются ❌",
+          medium: "Только опытные знают ответ 🚗", easy: "Проверь себя! ⚡",
+        };
+
         const videoQuestion = {
           ...question,
           hook_title: hookTemplates[lang]?.[hookKey] || "Проверь себя",
           series_number: seriesState[lang] || 1,
+          // Pass Russian explanation if it exists in DB row
+          explanationRu: question.explanation_ru || undefined,
         };
 
-        // Generate TTS voiceover (cached — skips if already generated)
+        // Generate ALL TTS (question, all answers, explanation, RU explanation)
+        console.log(`\n[TTS] Generating audio for #${videoQuestion.series_number} (${lang})…`);
         const tts = await generateTTSForQuestion(videoQuestion);
         Object.assign(videoQuestion, tts);
 
         // Save selected question for Remotion
         fs.writeFileSync(SELECTED_FILE, JSON.stringify(videoQuestion, null, 2));
 
-        // Run render
-        const outputPath = path.join(RENDERS_DIR, `question-${question.id}-${lang}.mp4`);
         const remotionCli = path.join(__dirname, "node_modules/.bin/remotion");
 
-        const propsFile = path.join(RENDERS_DIR, "render-props.json");
-        fs.writeFileSync(propsFile, JSON.stringify({ question: videoQuestion }));
+        // ── Helper: run one remotion render ───────────────────────────────────
+        function runRender(question, outputPath, compositionId) {
+          const propsFile = path.join(RENDERS_DIR, `render-props-${compositionId}.json`);
+          fs.writeFileSync(propsFile, JSON.stringify({ question }));
 
-        const proc = spawn(remotionCli, [
-          "render",
-          "src/Root.tsx", "VideoTemplate",
-          "--output", outputPath,
-          "--props", propsFile,
-          "--log", "error",
-        ], { cwd: __dirname, env: { ...process.env, PATH: process.env.PATH } });
+          return new Promise((resolve) => {
+            const proc = spawn(remotionCli, [
+              "render",
+              "src/Root.tsx", compositionId,
+              "--output", outputPath,
+              "--props", propsFile,
+              "--log", "error",
+            ], { cwd: __dirname, env: { ...process.env, PATH: process.env.PATH } });
 
-        let logs = "";
-        proc.stdout.on("data", d => { logs += d; });
-        proc.stderr.on("data", d => { logs += d; });
+            let logs = "";
+            proc.stdout.on("data", d => { logs += d; });
+            proc.stderr.on("data", d => { logs += d; });
+            proc.on("close", (code) => resolve({ code, logs, outputPath }));
+          });
+        }
 
-        proc.on("close", (code) => {
-          if (code === 0) {
-            // Update series counter
-            seriesState[lang] = (seriesState[lang] || 1) + 1;
-            fs.writeFileSync(path.join(RENDERS_DIR,"series-state.json"), JSON.stringify(seriesState,null,2));
+        // ── Render ES video ───────────────────────────────────────────────────
+        const outputES = path.join(RENDERS_DIR, `question-${question.id}-es.mp4`);
+        console.log(`[Render] ES video…`);
+        const resultES = await runRender(videoQuestion, outputES, "VideoTemplate");
 
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ output: outputPath, logs }));
-          } else {
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(JSON.stringify({ error: `Render failed (exit ${code})`, logs }));
-          }
-        });
+        let outputRU = null;
+        // ── Render RU video (only if Russian explanation exists) ──────────────
+        if (videoQuestion.explanationRu && videoQuestion.explanationRuAudioFile) {
+          const ruQuestion = {
+            ...videoQuestion,
+            language: "ru",
+            hook_title: hookTemplatesRU[hookKey] || hookTemplatesRU.easy,
+            // questionAudioFile stays the same (Spanish question, Spanish voice)
+            // explanationAudioFile → will be ignored in VideoTemplate (RU overrides)
+          };
+          outputRU = path.join(RENDERS_DIR, `question-${question.id}-ru.mp4`);
+          console.log(`[Render] RU video…`);
+          await runRender(ruQuestion, outputRU, "VideoTemplateRU");
+        }
+
+        if (resultES.code === 0) {
+          // Update series counter
+          seriesState[lang] = (seriesState[lang] || 1) + 1;
+          if (outputRU) seriesState["ru"] = (seriesState["ru"] || 1) + 1;
+          fs.writeFileSync(path.join(RENDERS_DIR,"series-state.json"), JSON.stringify(seriesState,null,2));
+
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({
+            output: outputES,
+            outputRU: outputRU || null,
+            logs: resultES.logs,
+          }));
+        } else {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: `Render failed (exit ${resultES.code})`, logs: resultES.logs }));
+        }
 
       } catch (e) {
         res.writeHead(400, { "Content-Type": "application/json" });
