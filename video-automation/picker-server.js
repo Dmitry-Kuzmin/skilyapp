@@ -611,8 +611,8 @@ const server = http.createServer(async (req, res) => {
             ...videoQuestion,
             language: "ru",
             hook_title: hookTemplatesRU[hookKey] || hookTemplatesRU.easy,
-            // questionAudioFile stays the same (Spanish question, Spanish voice)
-            // explanationAudioFile → will be ignored in VideoTemplate (RU overrides)
+            // question остаётся испанским (для озвучки), question_ru — субтитры
+            // answer_options.text_ru — субтитры под каждым вариантом
           };
           outputRU = path.join(RENDERS_DIR, `question-${question.id}-ru.mp4`);
           console.log(`[Render] RU video…`);
