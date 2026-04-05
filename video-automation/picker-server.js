@@ -50,7 +50,7 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
   // Columns to select
   const cols = `id,${qField},${exField},image_url,difficulty,percent_correct,topic_id`;
 
-  let filter = `country=eq.${country}&not.${exField}=is.null`;
+  let filter = `country=eq.${country}&${exField}=not.is.null`;
   if (search) filter += `&${qField}=ilike.*${encodeURIComponent(search)}*`;
 
   const rows = await supabaseRequest(
