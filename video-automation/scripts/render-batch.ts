@@ -66,6 +66,7 @@ export async function renderBatch(questions: VideoQuestion[]): Promise<string[]>
   console.log("Bundling Remotion...");
   const bundlePath = await bundle({
     entryPoint: path.join(__dirname, "../src/Root.tsx"),
+    publicDir: path.join(__dirname, "../public"), // ensures audio/ files are served correctly
     webpackOverride: (config) => config,
   });
 
