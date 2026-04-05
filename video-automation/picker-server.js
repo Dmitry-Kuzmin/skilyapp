@@ -71,11 +71,17 @@ function elevenLabsSynth(text, voiceId) {
   });
 }
 
-// ── Get MP3 duration (bytes → seconds estimate for ElevenLabs ~24KB/s) ────────
-function getAudioDurationSec(filePath) {
+// ── Get MP3 duration via music-metadata (ESM, dynamic import) ────────────────
+const MM_PATH = path.join(__dirname, "node_modules/music-metadata/lib/index.js");
+async function getAudioDurationSec(filePath) {
   try {
-    return fs.statSync(filePath).size / 24_000;
-  } catch { return 2.5; }
+    const mm = await import(MM_PATH);
+    const meta = await mm.parseFile(filePath);
+    if (meta.format.duration) return meta.format.duration;
+  } catch {}
+  // Fallback: ElevenLabs outputs 128kbps = 16KB/s
+  try { return fs.statSync(filePath).size / 16_000; }
+  catch { return 2.5; }
 }
 
 const ANSWER_PREFIX = {
