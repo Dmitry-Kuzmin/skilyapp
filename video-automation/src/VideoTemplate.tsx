@@ -245,18 +245,7 @@ function TestCard({ q, showOptions, revealFrame, showExplanation }:
         </div>
       )}
 
-      {/* ── Bottom button (shown when no explanation yet) ── */}
-      {!showExplanation && showOptions && (
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"flex-end",
-          marginTop:4, gap:16 }}>
-          <div style={{ flex:1, height:64, borderRadius:16,
-            background: C.gradient, display:"flex", alignItems:"center",
-            justifyContent:"center", fontSize:32, fontWeight:700,
-            color:"#fff", fontFamily:"system-ui,sans-serif" }}>
-            {q.language === "ru" ? "Ответить" : "Responder"}
-          </div>
-        </div>
-      )}
+      {/* "Responder" button removed intentionally */}
     </div>
   );
 }
