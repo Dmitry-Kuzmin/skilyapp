@@ -187,7 +187,7 @@ function TestCard({
       <div style={{ fontSize: q.question.length > 120 ? 38 : 46,
         fontWeight:700, color: C.text, lineHeight:1.4,
         fontFamily:"system-ui,sans-serif" }}>
-        {q.question}
+        {cleanText(q.question)}
       </div>
 
       {/* Russian subtitle under question (RU-видео) */}
@@ -196,7 +196,7 @@ function TestCard({
           lineHeight:1.4, fontFamily:"system-ui,sans-serif",
           borderLeft:`3px solid ${C.primary}`, paddingLeft:16,
           marginTop:-8 }}>
-          {q.question_ru}
+          {cleanText(q.question_ru)}
         </div>
       )}
 
