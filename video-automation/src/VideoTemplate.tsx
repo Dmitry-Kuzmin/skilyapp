@@ -176,9 +176,9 @@ function TestCard({
           ].join(", "),
         }}>
           {/* Внутренний div: clip rounded corners изображения */}
-          <div style={{ borderRadius: 33, overflow: "hidden", backgroundColor: "#000" }}>
-            <img src={q.image_url} alt="" style={{ width:"100%", maxHeight:500,
-              objectFit:"contain", display:"block" }} />
+          <div style={{ borderRadius: 33, overflow: "hidden", backgroundColor: C.card }}>
+            <img src={q.image_url} alt="" style={{ width:"100%", height:"auto",
+              display:"block" }} />
           </div>
         </div>
       )}
