@@ -1,32 +1,32 @@
 {
-  "id": "ab50bb9f-550c-4392-964f-0cb201dadbd1",
-  "question": "Los animales tienen prioridad de paso sobre los vehículos...",
-  "explanation": "Según el Reglamento General de Circulación, como norma general, los conductores tienen prioridad de paso respecto de los animales. Sin embargo, los animales tienen preferencia en tres casos específicos: 1) En las cañadas debidamente señalizadas (la señal de peligro P-23 'Paso de animales domésticos' debe ir acompañada de un panel complementario con la inscripción 'CAÑADA'). 2) Cuando el vehículo gire para entrar en otra vía y haya animales cruzándola, aunque no exista paso para ellos. 3) Cuando el vehículo cruce un arcén por el que estén circulando animales que no dispongan de cañada. La simple presencia de la señal de peligro sin el panel 'CAÑADA' no otorga prioridad a los animales.",
-  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/ab50bb9f-550c-4392-964f-0cb201dadbd1.webp",
+  "id": "bdb2e54c-91d9-480e-8212-186a0781c696",
+  "question": "Los conductores de vehículos que llegan a un paso a nivel cerrado deben...",
+  "explanation": "Según el Reglamento General de Circulación, ningún usuario de la vía deberá penetrar en un paso a nivel cuyas barreras o semibarreras estén atravesadas o en movimiento, o cuando sus semáforos impidan el paso. En esta situación, los vehículos deben detenerse uno detrás del otro en el carril correspondiente hasta que tengan paso libre. La normativa exige mantener el orden de llegada en la fila y permanecer en el carril asignado sin invadir el sentido contrario.",
+  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/bdb2e54c-91d9-480e-8212-186a0781c696.webp",
   "difficulty": "easy",
   "percent_correct": 50,
   "country": "es",
   "language": "es",
   "answer_options": [
     {
-      "id": "b9995ccb-74b3-8801-b451-338e9f04ee0d",
-      "text": "en las cañadas debidamente señalizadas.",
-      "is_correct": true,
+      "id": "f70e27d4-d7f0-85a9-8f04-51ba1e955a7a",
+      "text": "cambiar el sentido de la marcha y buscar un itinerario alternativo.",
+      "is_correct": false,
       "position": 1
     },
     {
-      "id": "c1501641-3123-72d2-5121-099dd7e7fa60",
-      "text": "en los tramos regulados por la señal de peligro por la proximidad de un lugar de paso de animales.",
-      "is_correct": false,
+      "id": "443b173a-56c4-ac0c-d9f9-af9d58e99c37",
+      "text": "detenerse uno detrás de otro en el carril que corresponda.",
+      "is_correct": true,
       "position": 2
     },
     {
-      "id": "a9c8e29d-2b1e-6610-89bd-ce08bad87b33",
-      "text": "cuando circulen en rebaño y estén dirigidos por un pastor.",
+      "id": "481ca4c7-f441-c9ec-90b7-f6708640f7d6",
+      "text": "avisar a los demás conductores con las luces de emergencia.",
       "is_correct": false,
       "position": 3
     }
   ],
   "hook_title": "¿Sabes la respuesta? ⚡",
-  "series_number": 3
+  "series_number": 4
 }

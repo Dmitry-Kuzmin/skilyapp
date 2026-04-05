@@ -79,7 +79,7 @@ export const UI_TEXT = {
 
 // Timing (frames at 30fps)
 export const FPS = 30;
-export const DURATION_SECS = 30;
+export const DURATION_SECS = 33;
 export const TOTAL_FRAMES = FPS * DURATION_SECS;
 
 export const TIMING = {
@@ -87,10 +87,10 @@ export const TIMING = {
   countdown:   { start: 2,   end: 5  },
   question:    { start: 5,   end: 10 },
   answers:     { start: 10,  end: 18 },
-  suspense:    { start: 18,  end: 21 },
-  reveal:      { start: 21,  end: 24 },
-  explanation: { start: 24,  end: 27 },
-  cta:         { start: 27,  end: 30 },
+  suspense:    { start: 18,  end: 24 }, // 6 seconds — enough for Russian
+  reveal:      { start: 24,  end: 27 },
+  explanation: { start: 27,  end: 30 },
+  cta:         { start: 30,  end: 33 },
 } as const;
 
 export function toFrame(seconds: number) {
