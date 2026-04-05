@@ -5,11 +5,22 @@
  * Allows browsing real questions from Supabase and rendering videos.
  */
 
-const http  = require("http");
-const https = require("https");
-const fs    = require("fs");
-const path  = require("path");
+const http   = require("http");
+const https  = require("https");
+const fs     = require("fs");
+const path   = require("path");
 const { execSync, spawn } = require("child_process");
+
+// Load .env so ELEVENLABS_API_KEY is available
+try {
+  const envPath = path.join(__dirname, ".env");
+  if (fs.existsSync(envPath)) {
+    fs.readFileSync(envPath, "utf-8").split("\n").forEach(line => {
+      const m = line.match(/^([A-Z_]+)=(.+)$/);
+      if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
+    });
+  }
+} catch {}
 
 const PORT = 3334;
 const SUPABASE_URL = "https://yffjnqegeiorunyvcxkn.supabase.co";
