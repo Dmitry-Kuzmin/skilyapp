@@ -397,7 +397,6 @@ interface VideoTemplateProps { question: VideoQuestion }
 
 export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
   const frame = useCurrentFrame();
-  const scene = activeScene(frame);
 
   return (
     <AbsoluteFill style={{ backgroundColor: C.bg }}>
