@@ -150,7 +150,7 @@ async function generateTTSForQuestion(question) {
   }
 
   const lang    = question.language || "es";
-  const voiceId = lang === "ru" ? VOICE_RU : VOICE_ES;
+  const voiceId = VOICE_RU; // ES через Edge TTS, RU через ElevenLabs
   const id      = question.id;
   const result  = {};
   const prefixes = ANSWER_PREFIX[lang] || ANSWER_PREFIX.es;
