@@ -23,6 +23,7 @@ import { PartnerLinkGenerator } from "@/components/partner/PartnerLinkGenerator"
 import { PartnerBalancePayouts } from "@/components/partner/PartnerBalancePayouts";
 import { AutoschoolStudentsProgress } from "@/components/partner/AutoschoolStudentsProgress";
 import { PartnerHandbook } from "@/components/partner/PartnerHandbook";
+import { PartnerBanners } from "@/components/partner/PartnerBanners";
 import { PageLoader } from "@/components/PageLoader";
 
 interface PartnerData {
