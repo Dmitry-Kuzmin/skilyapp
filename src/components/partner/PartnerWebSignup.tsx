@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { CheckCircle2, Copy, Check, Loader2, ExternalLink, X, TrendingUp } from "lucide-react";
-import { getLazySupabaseClient } from "@/integrations/supabase/lazyClient";
+import { supabase } from "@/integrations/supabase/client";
 import { AuthModalNew } from "@/components/AuthModalNew";
 import { toast } from "sonner";
 
