@@ -64,15 +64,20 @@ export function getMainMenuKeyboard(
 // =====================================================
 // Профиль — подменю
 // =====================================================
-export function getProfileKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyboardMarkup {
-  return {
-    inline_keyboard: [
-      [{ text: t('keyboard.statistics', lang), web_app: { url: `${MINI_APP_URL}/dashboard` }, icon_custom_emoji_id: '5190806721286657692' }],
-      [{ text: t('keyboard.achievements', lang), web_app: { url: `${MINI_APP_URL}/achievements` }, icon_custom_emoji_id: '5267500801240092311' }],
-      [{ text: t('keyboard.settings', lang), callback_data: 'settings', icon_custom_emoji_id: '4918408122868958076' }],
-      [{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]
-    ]
-  };
+export function getProfileKeyboard(lang: SupportedLanguage = 'ru', isPartner = false): InlineKeyboardMarkup {
+  const rows: any[] = [
+    [{ text: t('keyboard.statistics', lang), web_app: { url: `${MINI_APP_URL}/dashboard` }, icon_custom_emoji_id: '5190806721286657692' }],
+    [{ text: t('keyboard.achievements', lang), web_app: { url: `${MINI_APP_URL}/achievements` }, icon_custom_emoji_id: '5267500801240092311' }],
+    [{ text: t('keyboard.settings', lang), callback_data: 'settings', icon_custom_emoji_id: '4918408122868958076' }],
+  ];
+
+  if (isPartner) {
+    rows.push([{ text: t('keyboard.partnerCabinet', lang), web_app: { url: `${MINI_APP_URL}/partner/dashboard` }, icon_custom_emoji_id: '5116175844837950263' }]);
+  }
+
+  rows.push([{ text: t('keyboard.backToMenu', lang), callback_data: 'main_menu' }]);
+
+  return { inline_keyboard: rows };
 }
 
 // =====================================================
