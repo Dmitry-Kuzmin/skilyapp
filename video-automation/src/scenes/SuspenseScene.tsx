@@ -1,101 +1,97 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { VideoQuestion, UI_TEXT, FPS, TIMING } from "../types";
+import { VideoQuestion, FPS, TIMING } from "../types";
 
 export const SuspenseScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
   const frame = useCurrentFrame();
   const sceneFrame = frame - TIMING.suspense.start * FPS;
   const totalFrames = (TIMING.suspense.end - TIMING.suspense.start) * FPS;
 
-  const ui = UI_TEXT[q.language];
+  // 0→1 as time runs out
+  const elapsed  = Math.min(1, sceneFrame / totalFrames);
+  const remaining = 1 - elapsed;
 
-  // Progress 1→0 as time runs out
-  const progress = Math.max(0, 1 - sceneFrame / totalFrames);
-  const secsLeft  = Math.ceil(progress * (TIMING.suspense.end - TIMING.suspense.start));
+  const fadeIn = interpolate(sceneFrame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
 
-  // Fade in quickly
-  const opacity = interpolate(sceneFrame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
+  // Countdown number
+  const totalSecs = TIMING.suspense.end - TIMING.suspense.start;
+  const secsLeft  = Math.max(1, Math.ceil(remaining * totalSecs));
 
-  // Arc params
-  const R  = 28;
-  const cx = 36;
-  const cy = 36;
-  const circumference = 2 * Math.PI * R;
-  const dash = circumference * progress;
+  // Number pop animation each second
+  const secFrame  = sceneFrame % FPS;
+  const numScale  = interpolate(secFrame, [0, 6, 12], [1.25, 1.0, 1.0], { extrapolateRight: "clamp" });
 
-  // Colour shifts red as time runs out
-  const hue   = Math.round(120 * progress); // green → yellow → red
-  const color = `hsl(${hue},90%,60%)`;
-
-  // Gentle pulse on last 2 seconds
-  const pulse = secsLeft <= 2
-    ? 1 + Math.sin(sceneFrame * 0.4) * 0.06
-    : 1;
+  // Colour: white → amber → red
+  const r = Math.round(255);
+  const g = Math.round(255 * remaining * 0.9);
+  const b = Math.round(80 * remaining);
+  const accentColor = `rgb(${r},${g},${b})`;
 
   return (
-    <div style={{ position: "absolute", inset: 0, opacity, pointerEvents: "none" }}>
-      {/* Soft dark vignette — does NOT cover center text */}
+    <div style={{ position: "absolute", inset: 0, opacity: fadeIn, pointerEvents: "none" }}>
+
+      {/* ── Thin neon progress bar at top ── */}
       <div style={{
-        position: "absolute", inset: 0,
-        background: "radial-gradient(ellipse 110% 60% at 50% 50%, transparent 55%, rgba(0,0,0,0.45) 100%)",
-        pointerEvents: "none",
+        position: "absolute",
+        top: 0, left: 0,
+        height: 5,
+        width: `${remaining * 100}%`,
+        background: `linear-gradient(90deg, ${accentColor}, rgba(255,255,255,0.4))`,
+        boxShadow: `0 0 16px 2px ${accentColor}88`,
+        borderRadius: "0 4px 4px 0",
+        transition: "none",
       }} />
 
-      {/* ── Compact timer pill — top-right corner ── */}
+      {/* ── Minimal countdown chip — bottom center ── */}
       <div style={{
         position: "absolute",
-        top: 48,
-        right: 48,
+        bottom: 60,
+        left: "50%",
+        transform: `translateX(-50%)`,
         display: "flex",
         alignItems: "center",
-        gap: 14,
-        background: "rgba(0,0,0,0.55)",
-        backdropFilter: "blur(12px)",
-        border: `2px solid ${color}55`,
+        gap: 16,
+        background: "rgba(0,0,0,0.7)",
+        backdropFilter: "blur(20px)",
+        border: `1.5px solid rgba(255,255,255,0.12)`,
         borderRadius: 100,
-        padding: "10px 20px 10px 12px",
-        transform: `scale(${pulse})`,
-        transformOrigin: "top right",
+        padding: "14px 32px",
       }}>
-        {/* SVG arc */}
-        <svg width={72} height={72} style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
-          <circle cx={cx} cy={cy} r={R} fill="none"
-            stroke="rgba(255,255,255,0.12)" strokeWidth={5} />
-          <circle cx={cx} cy={cy} r={R} fill="none"
-            stroke={color} strokeWidth={5}
-            strokeLinecap="round"
-            strokeDasharray={`${dash} ${circumference}`}
-            style={{ transition: "stroke 0.3s" }}
-          />
-        </svg>
-        {/* Number */}
+        {/* Pulsing dot */}
         <div style={{
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          background: accentColor,
+          boxShadow: `0 0 12px 3px ${accentColor}`,
+          opacity: 0.5 + 0.5 * Math.sin(sceneFrame * 0.25),
+        }} />
+
+        {/* Number */}
+        <span style={{
           fontSize: 52,
           fontWeight: 900,
-          color,
+          color: accentColor,
           fontFamily: "system-ui, sans-serif",
           lineHeight: 1,
-          minWidth: 32,
-          textAlign: "center",
+          transform: `scale(${numScale})`,
+          display: "inline-block",
+          textShadow: `0 0 24px ${accentColor}66`,
         }}>
           {secsLeft}
-        </div>
+        </span>
+
+        {/* Pulsing dot */}
+        <div style={{
+          width: 10,
+          height: 10,
+          borderRadius: "50%",
+          background: accentColor,
+          boxShadow: `0 0 12px 3px ${accentColor}`,
+          opacity: 0.5 + 0.5 * Math.sin(sceneFrame * 0.25 + Math.PI),
+        }} />
       </div>
 
-      {/* ── "ДУМАЙ!" label — small, below timer ── */}
-      <div style={{
-        position: "absolute",
-        top: 136,
-        right: 52,
-        fontSize: 22,
-        fontWeight: 800,
-        color: "rgba(255,255,255,0.55)",
-        fontFamily: "system-ui, sans-serif",
-        letterSpacing: 3,
-        textTransform: "uppercase",
-      }}>
-        {ui.think}
-      </div>
     </div>
   );
 };
