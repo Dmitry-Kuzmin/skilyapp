@@ -1,60 +1,60 @@
 {
-  "id": "5649301c-7b7e-493d-a62a-79b0c1ee1375",
-  "question": "En una autovía, el límite de velocidad para una motocicleta es de...",
-  "question_ru": "Каково ограничение скорости для мотоцикла на скоростной дороге (Autovía)?",
-  "explanation_ru": "🎓 \n\nДля тебя, как водителя **Turismo** (легкового автомобиля), максимальная скорость на **Autovía** (скоростной дороге) и **Autopista** (автомагистрали) составляет **120 км/ч**. \n\nМотоциклы в Испании входят в ту же скоростную группу, что и легковые автомобили. Следовательно, их лимит также равен **120 км/ч**. Превышать этот порог нельзя ни при каких обстоятельствах, даже для обгона.\n\n🇷🇺 \n\nВнимание, критическое отличие! В РФ многие привыкли к «нештрафуемому порогу +20 км/ч». В Испании этого **НЕТ**. \nЕсли знак или правило говорит 120 км/ч, то за 121 км/ч уже может прийти штраф. Вариант ответа про «превышение на 20 км/ч для обгона» — это ловушка, основанная на старом правиле для обычных дорог, которое на автомагистралях никогда не действовало.\n\n💡 \n\n**MOTO** = **AUTO**.\nУ них одинаковые права на скорость: оба летят 120.",
-  "explanation": "Según el Reglamento General de Circulación, tanto los turismos como las motocicletas tienen una velocidad máxima genérica de 120 km/h en autopistas y autovías. En estas vías no está permitido superar la velocidad máxima permitida para adelantar. El límite es estricto.",
-  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/5649301c-7b7e-493d-a62a-79b0c1ee1375.webp",
+  "id": "1575be20-d4ee-4047-85a1-1c2fceadac2a",
+  "question": "En una autopista que transcurre por zona urbana, ¿a qué velocidad máxima puede circular un turismo si no existe señalización?",
+  "question_ru": "С какой максимальной скоростью может двигаться легковой автомобиль по автомагистрали, проходящей через населенный пункт, если нет знаков?",
+  "explanation_ru": "🎓 Для водителя **легкового автомобиля** (Turismo) действует особое исключение. Обычно на автомагистралях (Autopista) разрешено 120 км/ч, но как только такая дорога заходит в черту города (населенный пункт), лимит автоматически снижается.\n\nЕсли нет знаков, указывающих иную скорость, максимальная скорость на автомагистрали внутри города составляет **80 км/ч**. Это сделано для снижения шума и повышения безопасности в густонаселенных районах.\n\n🇷🇺 В РФ на автомагистрали (знак 5.1) лимит 110 км/ч сохраняется, даже если дорога проходит через город, пока знаки не потребуют иного. В Испании же сам факт нахождения автомагистрали «в городе» (poblado) автоматически режет скорость до 80 км/ч. Не разгоняйся по привычке до 110-120!\n\n💡 Автобан заехал в город? Сбрось 40 (120 - 40 = 80).\nВижу дома вокруг автобана — еду **80**, а не как баран.",
+  "explanation": "Según el Reglamento General de Circulación, las autopistas y autovías que transcurren dentro de poblado (zona urbana) tienen un límite de velocidad genérico de 80 km/h. Aunque este límite puede ser ampliado mediante señalización específica, en ausencia de señales, la norma establece el máximo en 80 km/h para todos los vehículos, incluidos los turismos.",
+  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/1575be20-d4ee-4047-85a1-1c2fceadac2a.webp",
   "difficulty": "easy",
   "percent_correct": 50,
   "country": "es",
   "language": "es",
   "answer_options": [
     {
-      "id": "a35a5932-db6a-0c8e-061a-e8c02618e36a",
-      "text": "120 km/h, pudiéndose superar en 20 km/h para adelantar.",
-      "text_ru": "120 км/ч, с возможностью превышения на 20 км/ч для обгона.",
+      "id": "96275b12-b001-ca90-3892-e3d804540f26",
+      "text": "A 100 km/h.",
+      "text_ru": "100 км/ч.",
       "is_correct": false,
       "position": 1
     },
     {
-      "id": "b90dd414-bc0e-274f-2202-a4fc98fca9a6",
-      "text": "120 km/h.",
+      "id": "f03bac75-9ebd-ca90-65ae-71592f30c94e",
+      "text": "A 120 km/h.",
       "text_ru": "120 км/ч.",
-      "is_correct": true,
+      "is_correct": false,
       "position": 2
     },
     {
-      "id": "92a2e608-a4b4-4202-139a-6320fbd11b8f",
-      "text": "100 km/h.",
-      "text_ru": "100 км/ч.",
-      "is_correct": false,
+      "id": "dfd4fda3-6569-4397-6180-94ddc986038b",
+      "text": "A 80 km/h.",
+      "text_ru": "80 км/ч.",
+      "is_correct": true,
       "position": 3
     }
   ],
-  "explanationRu": "Для тебя, как водителя **Turismo** (легкового автомобиля), максимальная скорость на **Autovía** (скоростной дороге) и **Autopista** (автомагистрали) составляет **120 км/ч**. \n\nМотоциклы в Испании входят в ту же скоростную группу, что и легковые автомобили. Следовательно, их лимит также равен **120 км/ч**. Превышать этот порог нельзя ни при каких обстоятельствах, даже для обгона.\n\n\nВнимание, критическое отличие! В РФ многие привыкли к «нештрафуемому порогу +20 км/ч». В Испании этого **НЕТ**. \nЕсли знак или правило говорит 120 км/ч, то за 121 км/ч уже может прийти штраф. Вариант ответа про «превышение на 20 км/ч для обгона» — это ловушка, основанная на старом правиле для обычных дорог, которое на автомагистралях никогда не действовало.\n\n",
+  "explanationRu": "Для водителя **легкового автомобиля** (Turismo) действует особое исключение. Обычно на автомагистралях (Autopista) разрешено 120 км/ч, но как только такая дорога заходит в черту города (населенный пункт), лимит автоматически снижается.\n\nЕсли нет знаков, указывающих иную скорость, максимальная скорость на автомагистрали внутри города составляет **80 км/ч**. Это сделано для снижения шума и повышения безопасности в густонаселенных районах.\n\n🇷🇺 В РФ на автомагистрали (знак 5.1) лимит 110 км/ч сохраняется, даже если дорога проходит через город, пока знаки не потребуют иного. В Испании же сам факт нахождения автомагистрали «в городе» (poblado) автоматически режет скорость до 80 км/ч. Не разгоняйся по привычке до 110-120!\n\n",
   "outro_text": "Подпишись — каждый день новый вопрос ПДД Испании 🇪🇸",
   "show_explanation": false,
   "hook_title": "¿Sabes la respuesta? ⚡",
-  "series_number": 4,
-  "hookAudioFile": "audio/5649301c-7b7e-493d-a62a-79b0c1ee1375-hook.mp3",
-  "hookAudioDurationSec": 5.136,
-  "questionAudioFile": "audio/5649301c-7b7e-493d-a62a-79b0c1ee1375-es-question.mp3",
-  "questionAudioDurationSec": 4.704,
+  "series_number": 7,
+  "hookAudioFile": "audio/1575be20-d4ee-4047-85a1-1c2fceadac2a-hook.mp3",
+  "hookAudioDurationSec": 2.8212244897959184,
+  "questionAudioFile": "audio/1575be20-d4ee-4047-85a1-1c2fceadac2a-es-question.mp3",
+  "questionAudioDurationSec": 7.728,
   "answerAudioFiles": [
-    "audio/5649301c-7b7e-493d-a62a-79b0c1ee1375-es-answer-0.mp3",
-    "audio/5649301c-7b7e-493d-a62a-79b0c1ee1375-es-answer-1.mp3",
-    "audio/5649301c-7b7e-493d-a62a-79b0c1ee1375-es-answer-2.mp3"
+    "audio/1575be20-d4ee-4047-85a1-1c2fceadac2a-es-answer-0.mp3",
+    "audio/1575be20-d4ee-4047-85a1-1c2fceadac2a-es-answer-1.mp3",
+    "audio/1575be20-d4ee-4047-85a1-1c2fceadac2a-es-answer-2.mp3"
   ],
   "answerAudioDurationsSec": [
-    7.104,
-    3.72,
-    3.528
+    3.36,
+    3.816,
+    3.624
   ],
-  "explanationAudioFile": "audio/5649301c-7b7e-493d-a62a-79b0c1ee1375-es-explanation.mp3",
-  "explanationAudioDurationSec": 18.936,
-  "explanationRuAudioFile": "audio/5649301c-7b7e-493d-a62a-79b0c1ee1375-ru-explanation.mp3",
-  "explanationRuAudioDurationSec": 58.608,
-  "outroAudioFile": "audio/5649301c-7b7e-493d-a62a-79b0c1ee1375-outro.mp3",
-  "outroAudioDurationSec": 4.2
+  "explanationAudioFile": "audio/1575be20-d4ee-4047-85a1-1c2fceadac2a-es-explanation.mp3",
+  "explanationAudioDurationSec": 23.208,
+  "explanationRuAudioFile": "audio/1575be20-d4ee-4047-85a1-1c2fceadac2a-ru-explanation.mp3",
+  "explanationRuAudioDurationSec": 55.58857142857143,
+  "outroAudioFile": "audio/1575be20-d4ee-4047-85a1-1c2fceadac2a-outro.mp3",
+  "outroAudioDurationSec": 3.186938775510204
 }
