@@ -1126,6 +1126,8 @@ async function showProfile(chatId: number, telegramId: number, lang: SupportedLa
     }
 
     const { data: metrics } = await supabase.from("user_metrics").select("*").eq("user_id", profile.id).maybeSingle();
+    const { data: partnerRow } = await supabase.from("partners").select("id").eq("user_id", profile.id).eq("registration_status", "approved").maybeSingle();
+    const isPartner = !!partnerRow;
     const userName = profile.first_name || "Pilot";
     const readiness = Math.round(metrics?.readiness_level || 0);
     const streak = metrics?.streak_days || 0;
@@ -1136,7 +1138,7 @@ async function showProfile(chatId: number, telegramId: number, lang: SupportedLa
 
     const text = `👤 <b>${t('profile.title', lang)}</b>\n\n<b>${userName}</b>\n\n🎯 ${t('profile.readiness', lang)}: <b>${readiness}%</b>\n🔥 ${t('profile.streak', lang)}: <b>${streak} ${getDaysWord(streak, lang)}</b>\n📋 ${lang === 'ru' ? 'Тестов пройдено' : lang === 'es' ? 'Tests completados' : 'Tests completed'}: <b>${tests}</b>\n✅ ${lang === 'ru' ? 'Точность' : lang === 'es' ? 'Precisión' : 'Accuracy'}: <b>${accuracy}%</b>\n\n<a href="${MINI_APP_URL}/dashboard">${t('profile.detailedStats', lang)}</a>`;
 
-    const backKeyboard = keyboards.getProfileKeyboard(lang);
+    const backKeyboard = keyboards.getProfileKeyboard(lang, isPartner);
 
     if (messageId) {
       await editMessage({
