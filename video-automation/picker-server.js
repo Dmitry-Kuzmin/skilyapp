@@ -714,22 +714,22 @@ const OUTRO_TEMPLATES = {
 };
 
 function renderOutroChips() {
-  const chips = document.getElementById('outroChips');
-  if (!chips || !selected) return;
-  // DGT (es) videos target Russian audience → show RU outro templates
-  // Pure Russian PDD (ru) → also RU templates
-  // Only show ES templates if explicitly es-only mode (future use)
-  const lang = 'ru';
-  const templates = OUTRO_TEMPLATES[lang] || OUTRO_TEMPLATES.ru;
-  // Store texts in a global map, reference by id to avoid any quoting issues
+  if (!selected) return;
   window._outroMap = {};
-  templates.forEach(t => { window._outroMap[t.id] = t.text; });
-  chips.innerHTML = templates.map(t =>
-    \`<button onclick="selectOutro(window._outroMap['\${t.id}'])"
-      style="padding:5px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.15);
-             background:rgba(255,255,255,0.05);color:#F0F6FC;font-size:12px;
-             cursor:pointer;font-family:inherit" id="chip_\${t.id}">\${t.label}</button>\`
-  ).join('');
+  function buildChips(containerId, langKey) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const templates = OUTRO_TEMPLATES[langKey] || OUTRO_TEMPLATES.ru;
+    templates.forEach(t => { window._outroMap[t.id + '_' + langKey] = t.text; });
+    container.innerHTML = templates.map(t =>
+      \`<button onclick="selectOutro(window._outroMap['\${t.id}_\${langKey}'])"
+        style="padding:5px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.15);
+               background:rgba(255,255,255,0.05);color:#F0F6FC;font-size:12px;
+               cursor:pointer;font-family:inherit">\${t.label}</button>\`
+    ).join('');
+  }
+  buildChips('outroChipsRU', 'ru');
+  buildChips('outroChipsES', 'es');
 }
 
 function selectOutro(text) {
