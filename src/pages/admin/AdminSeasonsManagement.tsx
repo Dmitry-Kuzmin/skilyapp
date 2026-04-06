@@ -1302,14 +1302,10 @@ function RewardsDialogContent({ season, rewards, onSave }: { season: Season; rew
             </TableBody>
           </Table>
         ) : (
-          <div className="p-4 bg-muted/50 rounded-lg text-center space-y-3">
+          <div className="p-4 bg-muted/50 rounded-lg text-center">
             <p className="text-sm text-muted-foreground">
               Призы для этого сезона ещё не настроены.
             </p>
-            <Button onClick={() => setShowEditor(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Создать призы
-            </Button>
           </div>
         )}
       </div>
