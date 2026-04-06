@@ -297,14 +297,17 @@ function supabaseRequest(endpoint, params = "") {
 
 // ── Fetch questions from Supabase ─────────────────────────────────────────────
 async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0 } = {}) {
-  const country = lang === "ru" ? "ru" : "es";
+  // Russian PDD questions live under country='russia', DGT under country='es'
+  const country = lang === "ru" ? "russia" : "es";
   const qField = `question_${lang}`;
   const exField = `explanation_${lang}`;
 
-  // Columns: всегда берём question_ru и explanation_ru для RU-видео
-  const cols = `id,${qField},${exField},question_ru,explanation_ru,image_url,difficulty,percent_correct,topic_id`;
+  // For DGT (es): also pull question_ru/explanation_ru for the RU overlay video
+  const cols = lang === "es"
+    ? `id,${qField},${exField},question_ru,explanation_ru,image_url,difficulty,percent_correct,topic_id`
+    : `id,${qField},${exField},image_url,difficulty,percent_correct,topic_id`;
 
-  let filter = `country=eq.${country}&${exField}=not.is.null`;
+  let filter = `country=eq.${country}&${qField}=not.is.null`;
   if (search) filter += `&${qField}=ilike.*${encodeURIComponent(search)}*`;
 
   // Get total count via HEAD request with Prefer: count=exact
