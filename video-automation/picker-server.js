@@ -33,8 +33,9 @@ const SELECTED_FILE = path.join(RENDERS_DIR, "selected-question.json");
 fs.mkdirSync(RENDERS_DIR, { recursive: true });
 fs.mkdirSync(AUDIO_DIR,   { recursive: true });
 
-// ── Microsoft Edge TTS (бесплатно, кастельяно) ───────────────────────────────
-const EDGE_VOICE_ES = process.env.EDGE_VOICE_ES || "es-ES-AlvaroNeural"; // Alvaro = муж, Elvira = жен
+// ── Microsoft Edge TTS (бесплатно, испанский + русский fallback) ──────────────
+const EDGE_VOICE_ES = process.env.EDGE_VOICE_ES || "es-ES-AlvaroNeural";
+const EDGE_VOICE_RU = process.env.EDGE_VOICE_RU || "ru-RU-DmitryNeural";
 async function edgeSynth(text, voice, filePath) {
   const tts = new MsEdgeTTS();
   await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
