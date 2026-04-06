@@ -30,7 +30,7 @@ export function PartnerWebSignup({ onClose }: Props) {
 
   // Check auth on mount
   useEffect(() => {
-    const supabase = getLazySupabaseClient();
+    const supabase = supabase;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         // Prefill name from user metadata
@@ -48,7 +48,7 @@ export function PartnerWebSignup({ onClose }: Props) {
   // After auth modal closes, recheck
   function handleAuthClose() {
     setShowAuth(false);
-    const supabase = getLazySupabaseClient();
+    const supabase = supabase;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         const meta = user.user_metadata;
@@ -73,7 +73,7 @@ export function PartnerWebSignup({ onClose }: Props) {
 
     setLoading(true);
     try {
-      const supabase = getLazySupabaseClient();
+      const supabase = supabase;
       const { data, error } = await supabase.rpc("self_register_blogger", {
         p_name:      name.trim(),
         p_platforms: platforms,
