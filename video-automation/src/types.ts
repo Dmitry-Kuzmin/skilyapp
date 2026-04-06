@@ -67,7 +67,7 @@ const HOOK_DUR        = 2;
 const COUNTDOWN_DUR   = 3;
 const SUSPENSE_DUR    = 6;
 const REVEAL_DUR      = 3;
-const CTA_DUR         = 3;
+const CTA_DUR_DEFAULT = 4;
 const ANSWER_GAP      = 0.35; // seconds between answers
 
 export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
