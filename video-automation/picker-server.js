@@ -687,8 +687,11 @@ function renderOutroChips() {
   if (!chips || !selected) return;
   const lang = selected.language || 'ru';
   const templates = OUTRO_TEMPLATES[lang] || OUTRO_TEMPLATES.ru;
+  // Store texts in a global map, reference by id to avoid any quoting issues
+  window._outroMap = {};
+  templates.forEach(t => { window._outroMap[t.id] = t.text; });
   chips.innerHTML = templates.map(t =>
-    \`<button onclick="selectOutro(\${JSON.stringify(t.text).replace(/'/g,\"&apos;\")})"
+    \`<button onclick="selectOutro(window._outroMap['\${t.id}'])"
       style="padding:5px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.15);
              background:rgba(255,255,255,0.05);color:#F0F6FC;font-size:12px;
              cursor:pointer;font-family:inherit" id="chip_\${t.id}">\${t.label}</button>\`
