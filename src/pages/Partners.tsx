@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-// Note: useRef still needed for AnimatedEuro
 import { Link } from "react-router-dom";
 import { motion } from "@/components/optimized/Motion";
 import { LandingLogo } from "@/components/landing/LandingLogo";
