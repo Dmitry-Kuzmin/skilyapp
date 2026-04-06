@@ -1,110 +1,100 @@
 import React from "react";
 import { useCurrentFrame, interpolate } from "remotion";
-import { VideoQuestion, BRAND, UI_TEXT, FPS, TIMING } from "../types";
+import { VideoQuestion, UI_TEXT, FPS, TIMING } from "../types";
 
 export const SuspenseScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
   const frame = useCurrentFrame();
   const sceneFrame = frame - TIMING.suspense.start * FPS;
-  const totalFrames = (TIMING.suspense.end - TIMING.suspense.start) * FPS; // 90 frames
+  const totalFrames = (TIMING.suspense.end - TIMING.suspense.start) * FPS;
 
   const ui = UI_TEXT[q.language];
 
-  // Pulsing effect
-  const pulse = Math.sin((sceneFrame / totalFrames) * Math.PI * 6);
-  const scale = 1 + pulse * 0.04;
+  // Progress 1→0 as time runs out
+  const progress = Math.max(0, 1 - sceneFrame / totalFrames);
+  const secsLeft  = Math.ceil(progress * (TIMING.suspense.end - TIMING.suspense.start));
 
-  // Timer countdown (3 seconds visual)
-  const progress = 1 - sceneFrame / totalFrames;
-  const timerSeconds = Math.ceil(progress * 3);
+  // Fade in quickly
+  const opacity = interpolate(sceneFrame, [0, 8], [0, 1], { extrapolateRight: "clamp" });
 
-  const opacity = interpolate(sceneFrame, [0, 10], [0, 1], {
-    extrapolateRight: "clamp",
-  });
+  // Arc params
+  const R  = 28;
+  const cx = 36;
+  const cy = 36;
+  const circumference = 2 * Math.PI * R;
+  const dash = circumference * progress;
+
+  // Colour shifts red as time runs out
+  const hue   = Math.round(120 * progress); // green → yellow → red
+  const color = `hsl(${hue},90%,60%)`;
+
+  // Gentle pulse on last 2 seconds
+  const pulse = secsLeft <= 2
+    ? 1 + Math.sin(sceneFrame * 0.4) * 0.06
+    : 1;
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 48,
-        opacity,
-      }}
-    >
-      {/* ДУМАЙТЕ text */}
-      <div
-        style={{
-          fontSize: 96,
-          fontWeight: 900,
-          color: BRAND.gold,
-          transform: `scale(${scale})`,
-          fontFamily: "sans-serif",
-          textShadow: `0 0 60px ${BRAND.gold}66`,
-          letterSpacing: 4,
-        }}
-      >
-        {ui.think}
-      </div>
+    <div style={{ position: "absolute", inset: 0, opacity, pointerEvents: "none" }}>
+      {/* Soft dark vignette — does NOT cover center text */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "radial-gradient(ellipse 110% 60% at 50% 50%, transparent 55%, rgba(0,0,0,0.45) 100%)",
+        pointerEvents: "none",
+      }} />
 
-      {/* Timer ring */}
-      <div
-        style={{
-          position: "relative",
-          width: 160,
-          height: 160,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* SVG progress ring */}
-        <svg
-          width={160}
-          height={160}
-          style={{ position: "absolute", transform: "rotate(-90deg)" }}
-        >
-          {/* Background ring */}
-          <circle cx={80} cy={80} r={68} fill="none" stroke={BRAND.border} strokeWidth={8} />
-          {/* Progress ring */}
-          <circle
-            cx={80}
-            cy={80}
-            r={68}
-            fill="none"
-            stroke={BRAND.gold}
-            strokeWidth={8}
+      {/* ── Compact timer pill — top-right corner ── */}
+      <div style={{
+        position: "absolute",
+        top: 48,
+        right: 48,
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(12px)",
+        border: `2px solid ${color}55`,
+        borderRadius: 100,
+        padding: "10px 20px 10px 12px",
+        transform: `scale(${pulse})`,
+        transformOrigin: "top right",
+      }}>
+        {/* SVG arc */}
+        <svg width={72} height={72} style={{ transform: "rotate(-90deg)", flexShrink: 0 }}>
+          <circle cx={cx} cy={cy} r={R} fill="none"
+            stroke="rgba(255,255,255,0.12)" strokeWidth={5} />
+          <circle cx={cx} cy={cy} r={R} fill="none"
+            stroke={color} strokeWidth={5}
             strokeLinecap="round"
-            strokeDasharray={2 * Math.PI * 68}
-            strokeDashoffset={2 * Math.PI * 68 * (1 - progress)}
+            strokeDasharray={`${dash} ${circumference}`}
+            style={{ transition: "stroke 0.3s" }}
           />
         </svg>
-
-        {/* Timer number */}
-        <div
-          style={{
-            fontSize: 72,
-            fontWeight: 900,
-            color: BRAND.textPrimary,
-            fontFamily: "sans-serif",
-          }}
-        >
-          {timerSeconds}
+        {/* Number */}
+        <div style={{
+          fontSize: 52,
+          fontWeight: 900,
+          color,
+          fontFamily: "system-ui, sans-serif",
+          lineHeight: 1,
+          minWidth: 32,
+          textAlign: "center",
+        }}>
+          {secsLeft}
         </div>
       </div>
 
-      {/* Comment bait */}
-      <div
-        style={{
-          fontSize: 36,
-          color: BRAND.accent,
-          fontFamily: "sans-serif",
-          fontWeight: 600,
-        }}
-      >
-        {ui.answer_before}
+      {/* ── "ДУМАЙ!" label — small, below timer ── */}
+      <div style={{
+        position: "absolute",
+        top: 136,
+        right: 52,
+        fontSize: 22,
+        fontWeight: 800,
+        color: "rgba(255,255,255,0.55)",
+        fontFamily: "system-ui, sans-serif",
+        letterSpacing: 3,
+        textTransform: "uppercase",
+      }}>
+        {ui.think}
       </div>
     </div>
   );
