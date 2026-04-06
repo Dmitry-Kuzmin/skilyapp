@@ -243,10 +243,25 @@ async function synth(text, voiceId, filePath, label, lang = "es") {
 async function generateTTSForQuestion(question) {
 
   const lang    = question.language || "es";
-  const voiceId = VOICE_RU; // ES через Edge TTS, RU через ElevenLabs
+  const voiceId = VOICE_RU;
   const id      = question.id;
   const result  = {};
   const prefixes = ANSWER_PREFIX[lang] || ANSWER_PREFIX.es;
+
+  // Hook intro voiceover — always Russian (targets RU audience)
+  // Text: short fixed intro + hook title (emojis stripped in preprocessTTS)
+  {
+    const hookIntroText = lang === "ru"
+      ? `Вопрос по ПДД России. ${question.hook_title}`
+      : `Тест: ПДД Испании. ${question.hook_title}`;
+    const hPath = path.join(AUDIO_DIR, `${id}-hook.mp3`);
+    if (fs.existsSync(hPath)) fs.unlinkSync(hPath); // always regenerate (hook may change)
+    const hDur = await synth(hookIntroText, voiceId, hPath, "hook intro", "ru");
+    if (hDur !== null) {
+      result.hookAudioFile        = `audio/${id}-hook.mp3`;
+      result.hookAudioDurationSec = hDur;
+    }
+  }
 
   // Question
   const qPath = path.join(AUDIO_DIR, `${id}-${lang}-question.mp3`);
