@@ -661,6 +661,44 @@ async function clearAudio() {
   if (log) { log.style.display = 'block'; log.textContent = data.message || 'Аудио очищено'; }
 }
 
+// ── Outro templates ────────────────────────────────────────────────────────
+const OUTRO_TEMPLATES = {
+  ru: [
+    { id:"subscribe", label:"Подпишись",     text:"Подпишись — каждый день новый вопрос ПДД Испании 🇪🇸" },
+    { id:"tag",       label:"Отметь друга",  text:"Отметь того, кто едет в Испанию! 👇" },
+    { id:"comment",   label:"Угадал?",       text:"Угадал? Пиши ✅ или ❌ в комментарии!" },
+    { id:"skily",     label:"Skily",         text:"Готовишься к испанским правам? 2000+ вопросов на Skily 🚀" },
+    { id:"save",      label:"Сохрани",       text:"Сохрани видео — пригодится на экзамене! 📌" },
+    { id:"challenge", label:"Челлендж",      text:"Сдашь DGT с первого раза? Проверь себя на Skily! 🏆" },
+  ],
+  es: [
+    { id:"subscribe", label:"Suscríbete",    text:"Suscríbete — nueva pregunta DGT cada día 🇪🇸" },
+    { id:"tag",       label:"Etiqueta",      text:"¡Etiqueta al que no sabe las normas! 👇" },
+    { id:"comment",   label:"¿Acertaste?",   text:"¿Acertaste? ¡Comenta ✅ o ❌!" },
+    { id:"skily",     label:"Skily",         text:"¿Preparando el DGT? +2000 preguntas en Skily 🚀" },
+    { id:"save",      label:"Guarda",        text:"¡Guarda este video para repasar antes del examen! 📌" },
+    { id:"challenge", label:"Desafío",       text:"¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skily! 🏆" },
+  ],
+};
+
+function renderOutroChips() {
+  const chips = document.getElementById('outroChips');
+  if (!chips || !selected) return;
+  const lang = selected.language || 'ru';
+  const templates = OUTRO_TEMPLATES[lang] || OUTRO_TEMPLATES.ru;
+  chips.innerHTML = templates.map(t =>
+    \`<button onclick="selectOutro(\${JSON.stringify(t.text).replace(/'/g,\"&apos;\")})"
+      style="padding:5px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.15);
+             background:rgba(255,255,255,0.05);color:#F0F6FC;font-size:12px;
+             cursor:pointer;font-family:inherit" id="chip_\${t.id}">\${t.label}</button>\`
+  ).join('');
+}
+
+function selectOutro(text) {
+  const ta = document.getElementById('outroText');
+  if (ta) { ta.value = text; ta.style.borderColor = '#2F81F7'; }
+}
+
 async function renderVideo() {
   if (!selected) return;
   const btn = document.getElementById("renderBtn");
@@ -677,6 +715,8 @@ async function renderVideo() {
     explanation: document.getElementById('editExplanation')?.value ?? selected.explanation,
     question_ru: document.getElementById('editQuestionRu')?.value ?? selected.question_ru,
     explanationRu: document.getElementById('editExplanationRu')?.value ?? selected.explanationRu ?? selected.explanation_ru,
+    outro_text:  document.getElementById('outroText')?.value?.trim() || undefined,
+    show_explanation: document.getElementById('showExplanation')?.checked !== false,
     answer_options: (selected.answer_options || []).map((o, i) => ({
       ...o,
       text:    document.getElementById(\`editAnswer_\${i}\`)?.value ?? o.text,
