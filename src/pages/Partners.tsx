@@ -247,14 +247,22 @@ export default function Partners() {
               ))}
             </div>
 
-            <a
-              href="https://t.me/guapo_pub"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white text-black font-semibold text-base hover:bg-white/90 transition-all shadow-[0_0_40px_rgba(255,255,255,0.15)]"
-            >
-              <Send className="w-4 h-4" />Написать в Telegram
-            </a>
+            <div className="flex flex-wrap justify-center gap-3">
+              <button
+                onClick={() => setShowSignup(true)}
+                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white text-black font-semibold text-base hover:bg-white/90 transition-all shadow-[0_0_40px_rgba(255,255,255,0.15)]"
+              >
+                <TrendingUp className="w-4 h-4" />Стать партнёром
+              </button>
+              <a
+                href="https://t.me/guapo_pub"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full border border-white/15 bg-white/5 text-white font-semibold text-base hover:bg-white/10 transition-all"
+              >
+                <Send className="w-4 h-4" />Написать нам
+              </a>
+            </div>
           </motion.div>
         </section>
 
