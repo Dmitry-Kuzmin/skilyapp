@@ -140,6 +140,19 @@ const ANSWER_PREFIX = {
 
 // ── TTS text preprocessing (fix abbreviation pronunciation) ──────────────────
 function preprocessTTS(text, lang) {
+  // Strip ALL emoji and pictographs first (before any other processing)
+  text = text
+    .replace(/[\u{1F000}-\u{1FFFF}]/gu, "") // Emoji / pictographs (most emojis)
+    .replace(/[\u{2600}-\u{27BF}]/gu, "")   // Misc symbols, dingbats
+    .replace(/[\u{2300}-\u{23FF}]/gu, "")   // Technical symbols
+    .replace(/[\u{FE00}-\u{FE0F}]/gu, "")   // Variation selectors
+    .replace(/[\u{1F900}-\u{1F9FF}]/gu, "") // Supplemental symbols
+    .replace(/\uFE0F/g, "")                  // Emoji variation selector-16
+    .replace(/\u200D/g, "")                  // Zero-width joiner
+    .replace(/[\u2700-\u27BF]/g, "")         // Dingbats
+    .replace(/\s{2,}/g, " ")
+    .trim();
+
   if (lang === "es" || lang === "ru") {
     text = text
       // Latin abbreviations
