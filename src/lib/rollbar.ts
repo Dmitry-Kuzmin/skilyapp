@@ -50,19 +50,46 @@ export function initRollbar(): Rollbar | null {
           id: undefined, // Будет установлено позже через setPerson
         },
       },
-      // Игнорируем некоторые ошибки, которые не критичны или вызваны блокировщиками рекламы
       ignoredMessages: [
-        // Игнорируем ошибки из расширений браузера
+        // Ошибки расширений браузера
         /Script error/i,
         /ResizeObserver loop/i,
-        // Игнорируем ошибки CORS и сетевые блокировки (AdBlock часто блокирует Rollbar)
+        // Сетевые блокировки (AdBlock, CORS)
         /Access to fetch/i,
         /XMLHttpRequest cannot load/i,
         /Failed to fetch/i,
         /NetworkError/i,
         /Aborted/i,
         /access control checks/i,
+        // Пользователь отклонил TON транзакцию — ожидаемое поведение
+        /UserRejectsError/i,
+        /TON_CONNECT_SDK_ERROR/i,
+        /User declined the transaction/i,
+        // Telegram SDK internal
+        /TelegramGameProxy/i,
+        // Рекурсия из browser extension (canPlayType patch)
+        /Maximum call stack size exceeded/i,
+        // Ошибка парсинга HTML как JS (бот в local preview / CDN 404)
+        /Unexpected token '<'/i,
       ],
+      // Дополнительная фильтрация по источнику
+      checkIgnore: (_isUncaught: boolean, _args: any[], payload: any) => {
+        const frames: Array<{ filename?: string }> = payload?.body?.trace?.frames || [];
+        // Игнорируем ошибки из browser extensions
+        if (frames.some(f => f.filename && (
+          f.filename.includes('extension://') ||
+          f.filename.includes('moz-extension://') ||
+          f.filename.includes('safari-extension://') ||
+          f.filename.includes('preload/document')
+        ))) {
+          return true;
+        }
+        // Игнорируем ошибки из localhost (боты, dev preview)
+        if (frames.some(f => f.filename && f.filename.includes('localhost'))) {
+          return true;
+        }
+        return false;
+      },
       // ВАЖНО: Не выводим логи в консоль если инициализация не удалась (тихий режим)
       verbose: false,
     });
