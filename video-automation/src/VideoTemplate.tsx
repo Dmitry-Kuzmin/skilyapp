@@ -574,7 +574,14 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
         <Audio src={S("reveal.wav")} volume={0.9} />
       </Sequence>
 
-      {/* ── ElevenLabs TTS ── */}
+      {/* ── TTS Audio tracks ── */}
+      {/* Hook intro: plays during HookScene */}
+      {question.hookAudioFile && (
+        <Sequence from={t.hookStart * F}
+          durationInFrames={Math.round((question.hookAudioDurationSec ?? 2) * F)}>
+          <Audio src={staticFile(question.hookAudioFile)} volume={1.0} />
+        </Sequence>
+      )}
       {/* Question narration: plays during question + answers window */}
       {question.questionAudioFile && (
         <Sequence from={t.questionStart * F}
