@@ -165,6 +165,25 @@ export const UI_TEXT = {
   },
 } as const;
 
+export const OUTRO_TEMPLATES = {
+  ru: [
+    { id: "subscribe",  label: "Подпишись",       text: "Подпишись — каждый день новый вопрос ПДД Испании 🇪🇸" },
+    { id: "tag",        label: "Отметь друга",     text: "Отметь того, кто едет в Испанию! 👇" },
+    { id: "comment",    label: "Угадал?",          text: "Угадал? Пиши ✅ или ❌ в комментарии!" },
+    { id: "skily",      label: "Реклама Skily",    text: "Готовишься к испанским правам? 2000+ вопросов на Skily 🚀" },
+    { id: "save",       label: "Сохрани",          text: "Сохрани видео — пригодится на экзамене! 📌" },
+    { id: "challenge",  label: "Челлендж",         text: "Сдашь DGT с первого раза? Проверь себя на Skily! 🏆" },
+  ],
+  es: [
+    { id: "subscribe",  label: "Suscríbete",       text: "Suscríbete — nueva pregunta DGT cada día 🇪🇸" },
+    { id: "tag",        label: "Etiqueta amigo",   text: "¡Etiqueta al que no sabe las normas! 👇" },
+    { id: "comment",    label: "¿Acertaste?",      text: "¿Acertaste? ¡Comenta ✅ o ❌!" },
+    { id: "skily",      label: "Promo Skily",      text: "¿Preparando el DGT? +2000 preguntas en Skily 🚀" },
+    { id: "save",       label: "Guarda el video",  text: "¡Guarda este video para repasar antes del examen! 📌" },
+    { id: "challenge",  label: "Desafío",          text: "¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skily! 🏆" },
+  ],
+} as const;
+
 export const FPS = 30;
 // Legacy — used as fallback only; actual duration set via calculateMetadata
 export const DURATION_SECS  = 40;
