@@ -86,19 +86,21 @@ export const QuestionScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
         </div>
       </div>
 
-      {/* Comment bait */}
-      <div
-        style={{
-          marginTop: 28,
-          fontSize: 30,
-          color: BRAND.accent,
-          fontFamily: "sans-serif",
-          opacity: opacity * 0.8,
-        }}
-      >
-        {q.language === "ru"
-          ? "⬇️ Напиши ответ в комментах"
-          : "⬇️ Escribe tu respuesta"}
+      {/* Minimal comment nudge — small, bottom-right pill */}
+      <div style={{
+        marginTop: 20,
+        alignSelf: "flex-end",
+        padding: "8px 18px",
+        borderRadius: 100,
+        background: "rgba(255,255,255,0.07)",
+        border: "1px solid rgba(255,255,255,0.12)",
+        fontSize: 22,
+        color: "rgba(255,255,255,0.55)",
+        fontFamily: "sans-serif",
+        letterSpacing: 0.5,
+        opacity: opacity,
+      }}>
+        {q.language === "ru" ? "💬 пиши в комментах" : "💬 comenta tu respuesta"}
       </div>
     </div>
   );
