@@ -2,7 +2,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { TelegramProvider } from "@/contexts/TelegramContext";
-import { AdCleanup } from "@/components/AdCleanup";
 import { validateEnv } from "@/utils/envValidation";
 import { isTelegramMiniApp, isVersionAtLeast } from "@/lib/telegram";
 import { initTelegram } from "@/core/TelegramInit";
