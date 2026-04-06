@@ -201,22 +201,28 @@ function preprocessTTS(text, lang) {
 async function synth(text, voiceId, filePath, label, lang = "es") {
   if (!fs.existsSync(filePath)) {
     process.stdout.write(`  🎙 ${label}…`);
-    // Испанский → Microsoft Edge TTS (кастельяно, бесплатно)
-    // Русский   → ElevenLabs (Roger)
-    let audio;
+    const processed = preprocessTTS(text, lang);
+
     if (lang === "es") {
-      audio = await edgeSynth(preprocessTTS(text, lang), EDGE_VOICE_ES, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
-      if (audio) { process.stdout.write(` ✓ Edge (${(audio.length/1024).toFixed(0)}KB)\n`); return getAudioDurationSec(filePath); }
+      // Spanish → Edge TTS only
+      const audio = await edgeSynth(processed, EDGE_VOICE_ES, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
+      if (audio) { process.stdout.write(` ✓ Edge/${EDGE_VOICE_ES} (${(audio.length/1024).toFixed(0)}KB)\n`); return getAudioDurationSec(filePath); }
       process.stdout.write(` ✗ Edge failed\n`); return null;
     }
-    audio = await elevenLabsSynth(preprocessTTS(text, lang), voiceId);
-    if (audio) {
-      fs.writeFileSync(filePath, audio);
-      process.stdout.write(` ✓ (${(audio.length/1024).toFixed(0)}KB)\n`);
-    } else {
-      process.stdout.write(` ✗\n`);
-      return null;
+
+    // Russian → try ElevenLabs first, fallback to Edge TTS (Dmitry)
+    const elAudio = await elevenLabsSynth(processed, voiceId);
+    if (elAudio) {
+      fs.writeFileSync(filePath, elAudio);
+      process.stdout.write(` ✓ ElevenLabs (${(elAudio.length/1024).toFixed(0)}KB)\n`);
+      return getAudioDurationSec(filePath);
     }
+    // ElevenLabs failed — use Edge TTS Russian voice
+    process.stdout.write(` ↪ Edge fallback…`);
+    const edgeAudio = await edgeSynth(processed, EDGE_VOICE_RU, filePath).then(() => fs.readFileSync(filePath)).catch(() => null);
+    if (edgeAudio) { process.stdout.write(` ✓ Edge/${EDGE_VOICE_RU} (${(edgeAudio.length/1024).toFixed(0)}KB)\n`); return getAudioDurationSec(filePath); }
+    process.stdout.write(` ✗ both TTS failed\n`);
+    return null;
   }
   return getAudioDurationSec(filePath);
 }
