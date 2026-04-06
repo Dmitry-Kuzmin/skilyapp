@@ -803,41 +803,45 @@ const server = http.createServer(async (req, res) => {
           });
         }
 
-        // ── Render ES video ───────────────────────────────────────────────────
-        const outputES = path.join(RENDERS_DIR, `question-${question.id}-es.mp4`);
-        console.log(`[Render] ES video…`);
-        const resultES = await runRender(videoQuestion, outputES, "VideoTemplate");
+        let primaryResult, outputPrimary, outputRU = null;
 
-        let outputRU = null;
-        // ── Render RU video (only if Russian explanation exists) ──────────────
-        if (videoQuestion.explanationRu && videoQuestion.explanationRuAudioFile) {
-          const ruQuestion = {
-            ...videoQuestion,
-            language: "ru",
-            hook_title: hookTemplatesRU[hookKey] || hookTemplatesRU.easy,
-            // question остаётся испанским (для озвучки), question_ru — субтитры
-            // answer_options.text_ru — субтитры под каждым вариантом
-          };
-          outputRU = path.join(RENDERS_DIR, `question-${question.id}-ru.mp4`);
-          console.log(`[Render] RU video…`);
-          await runRender(ruQuestion, outputRU, "VideoTemplateRU");
+        if (lang === "ru") {
+          // ── Russian PDD: only one fully-Russian video ─────────────────────
+          outputPrimary = path.join(RENDERS_DIR, `question-${question.id}-ru.mp4`);
+          console.log(`[Render] RU (ПДД) video…`);
+          primaryResult = await runRender(videoQuestion, outputPrimary, "VideoTemplateRU");
+        } else {
+          // ── DGT (Spanish): ES video + optional RU overlay video ───────────
+          outputPrimary = path.join(RENDERS_DIR, `question-${question.id}-es.mp4`);
+          console.log(`[Render] ES video…`);
+          primaryResult = await runRender(videoQuestion, outputPrimary, "VideoTemplate");
+
+          if (videoQuestion.explanationRu && videoQuestion.explanationRuAudioFile) {
+            const ruQuestion = {
+              ...videoQuestion,
+              language: "ru",
+              hook_title: hookTemplatesRU[hookKey] || hookTemplatesRU.easy,
+            };
+            outputRU = path.join(RENDERS_DIR, `question-${question.id}-ru.mp4`);
+            console.log(`[Render] RU overlay video…`);
+            await runRender(ruQuestion, outputRU, "VideoTemplateRU");
+          }
         }
 
-        if (resultES.code === 0) {
-          // Update series counter
+        if (primaryResult.code === 0) {
           seriesState[lang] = (seriesState[lang] || 1) + 1;
           if (outputRU) seriesState["ru"] = (seriesState["ru"] || 1) + 1;
           fs.writeFileSync(path.join(RENDERS_DIR,"series-state.json"), JSON.stringify(seriesState,null,2));
 
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(JSON.stringify({
-            output: outputES,
+            output: outputPrimary,
             outputRU: outputRU || null,
-            logs: resultES.logs,
+            logs: primaryResult.logs,
           }));
         } else {
           res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: `Render failed (exit ${resultES.code})`, logs: resultES.logs }));
+          res.end(JSON.stringify({ error: `Render failed (exit ${primaryResult.code})`, logs: primaryResult.logs }));
         }
 
       } catch (e) {
