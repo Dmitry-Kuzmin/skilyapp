@@ -211,14 +211,6 @@ We use cookies for:
 - Improvement for the website. These cookies enable us to improve our services by monitoring how they are used.`
         },
         {
-          title: "Google AdSense Cookies",
-          content: `We use Google AdSense to serve ads on our Site. Google, as a third party vendor, uses cookies to serve ads on our Site.
-
-Google's use of the DART cookie enables it and its partners to serve ads to users based on their visit to our Site and other sites on the Internet.
-
-Users may opt out of the use of the DART cookie by visiting the Google ad and content network privacy policy at the following URL: https://policies.google.com/technologies/ads`
-        },
-        {
           title: "Sharing information with third parties",
           content: `Unless stated below, we do not disclose your personal data to third parties. We work with third-party platforms that provide us with analytics and advertising services. This includes helping us understand how our Site is used and providing advertising to our users.`
         },
