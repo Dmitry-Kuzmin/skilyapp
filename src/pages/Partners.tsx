@@ -151,6 +151,7 @@ export default function Partners() {
 
   return (
     <div className="min-h-screen bg-[#060a14] text-white overflow-x-hidden">
+      {showSignup && <PartnerWebSignup onClose={() => setShowSignup(false)} />}
       <style>{`
         .partners-grid {
           background-image:
