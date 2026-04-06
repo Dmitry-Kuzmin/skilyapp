@@ -41,6 +41,10 @@ export interface VideoQuestion {
   explanationRu?: string;
   explanationRuAudioFile?: string;
   explanationRuAudioDurationSec?: number;
+
+  // Outro / CTA customization
+  outro_text?: string;        // custom viral CTA text shown on the final screen
+  show_explanation?: boolean; // false = skip explanation screen (audio still plays)
 }
 
 // ── Dynamic timing (computed from audio durations) ───────────────────────────
