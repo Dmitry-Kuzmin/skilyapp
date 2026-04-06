@@ -1244,22 +1244,6 @@ function SeasonCard({
 
 // Компонент диалога призов
 function RewardsDialogContent({ season, rewards, onSave }: { season: Season; rewards: LeaderboardReward[]; onSave: () => void }) {
-  const [showEditor, setShowEditor] = useState(false);
-
-  if (showEditor) {
-    return (
-      <RewardsEditor
-        seasonId={season.id}
-        seasonNumber={season.season_number}
-        onClose={() => setShowEditor(false)}
-        onSave={() => {
-          onSave();
-          setShowEditor(false);
-        }}
-      />
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -1267,10 +1251,6 @@ function RewardsDialogContent({ season, rewards, onSave }: { season: Season; rew
           <h3 className="text-lg font-semibold">Призы лидерборда</h3>
           <p className="text-sm text-muted-foreground">Сезон {season.season_number}</p>
         </div>
-        <Button onClick={() => setShowEditor(true)}>
-          <Edit className="w-4 h-4 mr-2" />
-          Редактировать призы
-        </Button>
       </div>
 
       <div className="text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg">
