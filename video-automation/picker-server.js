@@ -564,6 +564,7 @@ function selectQuestion(i) {
   selected = questions[i];
   renderList();
   renderPreview();
+  setTimeout(renderOutroChips, 50); // chips depend on selected.language
 }
 
 function renderPreview() {
