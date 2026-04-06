@@ -628,7 +628,8 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
           <RevealScene q={question} t={t} />
         </div>
       )}
-      {sOp(t.explanationStart, t.ctaStart) > 0 && (
+      {/* show_explanation=false → skip text screen, audio still plays */}
+      {question.show_explanation !== false && sOp(t.explanationStart, t.ctaStart) > 0 && (
         <div style={{ position:"absolute", inset:0, opacity: sOp(t.explanationStart, t.ctaStart) }}>
           <ExplanationScene q={question} t={t} />
         </div>
