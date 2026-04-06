@@ -336,16 +336,8 @@ export default function ModernPartnerDashboard() {
             )}
 
             <TabsContent value="materials" className="mt-6">
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-16 text-center">
-                <div className="p-4 rounded-full bg-zinc-800 border border-zinc-700 inline-flex mb-4">
-                  <Download className="h-8 w-8 text-zinc-500" />
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  Рекламные материалы
-                </h3>
-                <p className="text-zinc-500 text-sm">
-                  Баннеры, логотипы и шаблоны скоро появятся здесь
-                </p>
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+                <PartnerBanners partnerCode={partner.partner_code ?? ""} />
               </div>
             </TabsContent>
 
