@@ -455,9 +455,7 @@ function SuspenseScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
             fontFamily:"system-ui,sans-serif" }}>{secs}</div>
         </div>
 
-        <div style={{ fontSize:32, color: C.primary, fontFamily:"system-ui,sans-serif", fontWeight:600 }}>
-          {q.language === "ru" ? "⬇️ Напиши ответ в комментах" : "⬇️ Escribe tu respuesta"}
-        </div>
+        {/* Removed old "write comment" label — replaced by outro CTA */}
       </div>
     </div>
   );
