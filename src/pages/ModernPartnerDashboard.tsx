@@ -47,6 +47,7 @@ interface PartnerData {
 
 export default function ModernPartnerDashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { isAuthenticated, supabaseUser } = useUserContext();
   const [loading, setLoading] = useState(true);
   const [partner, setPartner] = useState<PartnerData | null>(null);
