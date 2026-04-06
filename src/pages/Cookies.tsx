@@ -76,7 +76,7 @@ export default function Cookies({ embedded = false }: CookiesProps) {
                 },
                 {
                     title: "3. Third-party cookies",
-                    content: "We use third-party services such as Google AdSense and Vercel Analytics. These parties may place cookies on your browser to collect information about your visits to this and other sites in order to provide advertisements about goods and services of interest to you."
+                    content: "We use third-party services such as Vercel Analytics. These parties may place cookies on your browser to collect information about your visits in order to improve the service."
                 },
                 {
                     title: "4. Managing cookies",
