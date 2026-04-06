@@ -685,7 +685,10 @@ const OUTRO_TEMPLATES = {
 function renderOutroChips() {
   const chips = document.getElementById('outroChips');
   if (!chips || !selected) return;
-  const lang = selected.language || 'ru';
+  // DGT (es) videos target Russian audience → show RU outro templates
+  // Pure Russian PDD (ru) → also RU templates
+  // Only show ES templates if explicitly es-only mode (future use)
+  const lang = 'ru';
   const templates = OUTRO_TEMPLATES[lang] || OUTRO_TEMPLATES.ru;
   // Store texts in a global map, reference by id to avoid any quoting issues
   window._outroMap = {};
