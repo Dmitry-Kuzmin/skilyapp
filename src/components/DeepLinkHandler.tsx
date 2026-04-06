@@ -36,6 +36,15 @@ export function DeepLinkHandler() {
         }
         break;
 
+      case 'partner':
+        console.log('[DeepLinkHandler] Navigating to partner dashboard, id:', deepLink.id);
+        if (deepLink.id === 'materials') {
+          navigate('/partner/dashboard?tab=materials', { replace: true });
+        } else {
+          navigate('/partner/dashboard', { replace: true });
+        }
+        break;
+
       case 'ref':
         if (deepLink.id) {
           console.log('[DeepLinkHandler] Referral code already stored, navigating to dashboard');
