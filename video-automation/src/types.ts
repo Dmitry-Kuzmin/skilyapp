@@ -103,7 +103,10 @@ export function buildDynamicTiming(q: VideoQuestion): DynamicTiming {
   const explanationDur = Math.max(6, expAudioDur + 1);
 
   const ctaStart = explanationStart + explanationDur;
-  const totalSec = ctaStart + CTA_DUR;
+  const ctaDur   = q.outroAudioDurationSec
+    ? Math.max(CTA_DUR_DEFAULT, q.outroAudioDurationSec + 1)
+    : CTA_DUR_DEFAULT;
+  const totalSec = ctaStart + ctaDur;
 
   return {
     hookStart, countdownStart, questionStart, answersStart,
