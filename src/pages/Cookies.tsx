@@ -47,7 +47,7 @@ export default function Cookies({ embedded = false }: CookiesProps) {
                     content: `Utilizamos cookies para varios propósitos:
 • Técnicas: necesarias para la autenticación y el funcionamiento de sus ajustes.
 • Analíticas: para entender cómo utiliza nuestra aplicación y mejorarla.
-• Publicitarias (Google AdSense): para mostrar anuncios personalizados basados en sus intereses.`
+• Analíticas: para mejorar nuestro servicio.`
                 },
                 {
                     title: "3. Cookies de terceros",
