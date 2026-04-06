@@ -50,22 +50,24 @@ export const CTAScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
         SKILY
       </div>
 
-      {/* CTA button */}
+      {/* CTA button — custom outro_text or default */}
       <div
         style={{
           padding: "24px 56px",
           borderRadius: 100,
           background: BRAND.gradient,
-          fontSize: 40,
+          fontSize: q.outro_text && q.outro_text.length > 30 ? 32 : 40,
           fontWeight: 800,
           color: "#fff",
           fontFamily: "sans-serif",
           transform: `scale(${scale * pulse})`,
           boxShadow: `0 8px 40px ${BRAND.primaryGlow}`,
           textAlign: "center",
+          maxWidth: 760,
+          lineHeight: 1.3,
         }}
       >
-        {ui.cta}
+        {q.outro_text || ui.cta}
       </div>
 
       {/* Subscribe nudge */}
