@@ -135,6 +135,7 @@ export default function Partners() {
   const [copiedTemplate, setCopied]     = useState<number | null>(null);
   const [rulesOpen, setRulesOpen]       = useState(false);
   const [openRule, setOpenRule]         = useState<number | null>(null);
+  const [showSignup, setShowSignup]     = useState(false);
 
   const selected      = PRODUCTS[product];
   const earningPerSale = selected.price * selected.commission;
