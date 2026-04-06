@@ -596,6 +596,13 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
           <Audio src={staticFile(expAudioFile)} volume={0.9} />
         </Sequence>
       )}
+      {/* Outro / CTA narration */}
+      {question.outroAudioFile && (
+        <Sequence from={t.ctaStart * F}
+          durationInFrames={Math.round((question.outroAudioDurationSec ?? 4) * F)}>
+          <Audio src={staticFile(question.outroAudioFile)} volume={1.0} />
+        </Sequence>
+      )}
 
       {/* ── Scenes with crossfade dissolve ── */}
       {sOp(t.hookStart, t.countdownStart) > 0 && (
