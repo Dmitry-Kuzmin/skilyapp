@@ -158,6 +158,15 @@ function preprocessTTS(text, lang) {
   // Cyrillic abbreviations for Russian (always applied when text has Russian)
   if (lang === "ru") {
     text = text
+      // Math / special symbols → words
+      .replace(/\s*=\s*/g, " равно ")
+      .replace(/\s*≥\s*/g, " не менее ")
+      .replace(/\s*≤\s*/g, " не более ")
+      .replace(/\s*>\s*/g,  " больше ")
+      .replace(/\s*<\s*/g,  " меньше ")
+      .replace(/\s*±\s*/g, " плюс-минус ")
+      .replace(/№/g,        "номер ")
+      // Units
       .replace(/км\/ч/gi,  "километров в час")
       .replace(/м\/с/gi,   "метров в секунду")
       .replace(/км/gi,     "километров")
@@ -166,11 +175,26 @@ function preprocessTTS(text, lang) {
       .replace(/\bпр\./gi, "прочее")
       .replace(/\bул\./gi, "улица")
       // Fix common stress/homograph issues
-      .replace(/\bеду\b/g,  "е́ду")   // еду = I'm going (stress on е)
-      .replace(/\bзамок\b/g, "замо́к") // avoid reading as зАмок (castle)
-      .replace(/\bпропасть\b/g, "пропа́сть"); // avoid wrong stress
+      .replace(/\bеду\b/g,       "е́ду")
+      .replace(/\bзамок\b/g,     "замо́к")
+      .replace(/\bпропасть\b/g,  "пропа́сть")
+      .replace(/\bзасыпать\b/g,  "засыпа́ть")
+      .replace(/\bводы\b/g,      "во́ды")
+      .replace(/\bдороги\b/g,    "доро́ги")
+      .replace(/\bполосы\b/g,    "по́лосы")
+      .replace(/\bзнаки\b/g,     "зна́ки")
+      .replace(/\bдвижения\b/g,  "движе́ния")
+      .replace(/\bсигналы\b/g,   "сигна́лы")
+      .replace(/\bскорость\b/g,  "ско́рость")
+      .replace(/\bскорости\b/g,  "ско́рости")
+      .replace(/\bпроезда\b/g,   "прое́зда")
+      .replace(/\bоборудован\b/g,"оборудо́ван")
+      // Intonation fix: prevent clipped endings — add soft pause before final period
+      // ElevenLabs tends to rush/drop the last word before "."; a comma before it helps
+      .replace(/([а-яёА-ЯЁ]{3,})\.$/, "$1,.")
+      .replace(/([а-яёА-ЯЁ]{3,})\s*$/, "$1.");
   }
-  return text;
+  return text.trim();
 }
 
 async function synth(text, voiceId, filePath, label, lang = "es") {
