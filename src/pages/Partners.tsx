@@ -15,33 +15,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-/* ── Scroll-reveal ── */
-function useReveal(threshold = 0.12) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const fallback = setTimeout(() => setVisible(true), 1500);
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) { setVisible(true); io.disconnect(); clearTimeout(fallback); }
-      },
-      { threshold, rootMargin: "0px 0px 80px 0px" }
-    );
-    io.observe(el);
-    return () => { io.disconnect(); clearTimeout(fallback); };
-  }, [threshold]);
-  return { ref, visible };
-}
-
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  const { ref, visible } = useReveal();
   return (
-    <div
-      ref={ref}
-      className={`transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} ${className}`}
-    >
+    <div className={className}>
       {children}
     </div>
   );
