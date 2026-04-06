@@ -286,6 +286,19 @@ async function generateTTSForQuestion(question) {
     }
   }
 
+  // Outro / CTA voice-over (always Russian — targets RU audience)
+  if (question.outro_text) {
+    const outroLang = "ru";
+    const outroPath = path.join(AUDIO_DIR, `${id}-outro.mp3`);
+    // Outro changes every render — always regenerate
+    if (fs.existsSync(outroPath)) fs.unlinkSync(outroPath);
+    const outroDur = await synth(question.outro_text, VOICE_RU, outroPath, "outro", outroLang);
+    if (outroDur !== null) {
+      result.outroAudioFile        = `audio/${id}-outro.mp3`;
+      result.outroAudioDurationSec = outroDur;
+    }
+  }
+
   return result;
 }
 
