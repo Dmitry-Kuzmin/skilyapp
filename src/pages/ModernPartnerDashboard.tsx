@@ -261,7 +261,7 @@ export default function ModernPartnerDashboard() {
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="funnel" className="space-y-6">
+          <Tabs defaultValue={searchParams.get("tab") ?? "funnel"} className="space-y-6">
             <TabsList className="bg-zinc-900 border border-zinc-800 p-1 h-auto">
               {/* Показываем табы если партнер одобрен (по той же логике, что и доступ к дашборду) */}
               {isApproved && (
