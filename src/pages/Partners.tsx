@@ -2,26 +2,23 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "@/components/optimized/Motion";
 import { LandingLogo } from "@/components/landing/LandingLogo";
+import { SkilyPartnersFooter } from "@/components/ui/motion-footer";
 import {
   Link as LinkIcon,
   Tag,
   Megaphone,
   Gift,
-  ArrowRight,
   Send,
   TrendingUp,
   BookOpen,
   Smartphone,
   ChevronRight,
+  ChevronDown,
+  Users,
+  Brain,
+  Zap,
+  CheckCircle2,
 } from "lucide-react";
-
-function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={className}>
-      {children}
-    </div>
-  );
-}
 
 /* ── Animated number in calculator ── */
 function AnimatedEuro({ value }: { value: number }) {
@@ -44,13 +41,12 @@ function AnimatedEuro({ value }: { value: number }) {
   return <span>€{display.toLocaleString("ru")}</span>;
 }
 
-/* ── Calculator logic ── */
+/* ── Calculator config ── */
 const PRODUCTS = {
   platform: { label: "Платформа (6 мес.)", price: 40, commission: 0.3 },
-  course: { label: "Курс DGT", price: 300, commission: 0.2 },
+  course:   { label: "Курс DGT",            price: 300, commission: 0.2 },
 } as const;
 type ProductKey = keyof typeof PRODUCTS;
-
 const PRESET_STUDENTS = [2, 5, 10, 20];
 
 /* ── Partnership types ── */
@@ -118,23 +114,36 @@ const CONTENT_IDEAS = [
   },
 ];
 
+/* ── Partnership rules ── */
+const RULES = [
+  { q: "Размер комиссии", a: "30% с каждой покупки доступа к платформе (€40). 20% с продажи полного курса (€300). Комиссия начисляется после 14-дневного периода для отмены платежа." },
+  { q: "Когда и как выплачивается", a: "Выплаты раз в месяц — до 5-го числа следующего месяца. Минимальная сумма: €20. Способ: PayPal, SEPA-перевод или Revolut — по договорённости." },
+  { q: "Срок действия реф. куки", a: "30 дней. Если пользователь перешёл по твоей ссылке и совершил покупку в течение 30 дней — комиссия твоя." },
+  { q: "Что запрещено", a: "Использовать собственную реф. ссылку для личных покупок. Спам и агрессивный маркетинг. Платный трафик без предварительного согласования с нами. Дезинформация о продукте." },
+  { q: "Статистика и трекинг", a: "Все конверсии отображаются в реальном времени в кабинете партнёра. Уведомление в Telegram при каждой продаже." },
+  { q: "Реквизиты и договор", a: "Партнёрский договор-оферта оформляется при первой выплате. Данные для оплаты указываются в кабинете партнёра." },
+  { q: "Расторжение", a: "Любая сторона может прекратить сотрудничество с уведомлением за 7 дней. Накопленная комиссия выплачивается в полном объёме." },
+];
+
 /* ══════════════════════════════════════════════
    MAIN PAGE
 ═══════════════════════════════════════════════ */
 export default function Partners() {
-  const [product, setProduct] = useState<ProductKey>("platform");
-  const [students, setStudents] = useState(5);
-  const [copiedTemplate, setCopiedTemplate] = useState<number | null>(null);
+  const [product, setProduct]           = useState<ProductKey>("platform");
+  const [students, setStudents]         = useState(5);
+  const [copiedTemplate, setCopied]     = useState<number | null>(null);
+  const [rulesOpen, setRulesOpen]       = useState(false);
+  const [openRule, setOpenRule]         = useState<number | null>(null);
 
-  const selected = PRODUCTS[product];
+  const selected      = PRODUCTS[product];
   const earningPerSale = selected.price * selected.commission;
-  const monthly = Math.round(earningPerSale * students);
-  const yearly = monthly * 12;
+  const monthly        = Math.round(earningPerSale * students);
+  const yearly         = monthly * 12;
 
   function handleCopy(text: string, idx: number) {
     navigator.clipboard.writeText(text).then(() => {
-      setCopiedTemplate(idx);
-      setTimeout(() => setCopiedTemplate(null), 2000);
+      setCopied(idx);
+      setTimeout(() => setCopied(null), 2000);
     });
   }
 
@@ -143,25 +152,34 @@ export default function Partners() {
       <style>{`
         .partners-grid {
           background-image:
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
           background-size: 40px 40px;
         }
-        .glow-card {
-          position: relative;
-          transition: border-color 0.3s;
-        }
-        .glow-card:hover {
-          border-color: rgba(99,102,241,0.35);
-        }
-        .calc-toggle {
-          transition: all 0.25s ease;
-        }
+        .glow-card { position: relative; transition: border-color 0.3s; }
+        .glow-card:hover { border-color: rgba(99,102,241,0.35); }
+        .calc-toggle { transition: all 0.25s ease; }
         @keyframes partners-pulse {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.05); }
+          0%,100% { opacity: 0.6; transform: scale(1); }
+          50%     { opacity: 1;   transform: scale(1.05); }
         }
         .badge-pulse { animation: partners-pulse 3s ease-in-out infinite; }
+        input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 18px; height: 18px;
+          border-radius: 50%;
+          background: white;
+          cursor: pointer;
+          box-shadow: 0 0 8px rgba(99,102,241,0.6);
+        }
+        input[type=range]::-moz-range-thumb {
+          width: 18px; height: 18px;
+          border-radius: 50%;
+          background: white;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 0 8px rgba(99,102,241,0.6);
+        }
       `}</style>
 
       {/* ── Background ── */}
@@ -174,21 +192,18 @@ export default function Partners() {
 
       {/* ── Nav ── */}
       <nav className="relative z-10 flex items-center justify-between px-6 py-5 max-w-5xl mx-auto">
-        <Link to="/">
-          <LandingLogo size="sm" />
-        </Link>
+        <Link to="/"><LandingLogo size="sm" /></Link>
         <a
           href="https://t.me/guapo_pub"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 text-sm text-white/70 hover:text-white hover:border-white/20 transition-all"
         >
-          <Send className="w-3.5 h-3.5" />
-          Написать
+          <Send className="w-3.5 h-3.5" />Написать
         </a>
       </nav>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 pb-24 space-y-20">
+      <div className="relative z-10 max-w-5xl mx-auto px-6 pb-0 space-y-20">
 
         {/* ══ 1. HERO ══ */}
         <section className="pt-6 pb-2 text-center">
@@ -198,8 +213,7 @@ export default function Partners() {
             transition={{ duration: 0.7 }}
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-300 text-xs font-medium mb-6 badge-pulse">
-              <TrendingUp className="w-3 h-3" />
-              Партнёрская программа
+              <TrendingUp className="w-3 h-3" />Партнёрская программа
             </div>
 
             <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5">
@@ -213,15 +227,16 @@ export default function Partners() {
               Миллионы людей сдают DGT каждый год. Помоги им — и получай комиссию с каждой продажи.
             </p>
 
-            {/* Stat badges */}
+            {/* Stat badges — проценты */}
             <div className="flex flex-wrap justify-center gap-3 mb-10">
               {[
-                { label: "€60", sub: "за продажу курса" },
-                { label: "€12", sub: "за доступ к платформе" },
-                { label: "15%", sub: "скидка для твоей аудитории" },
+                { label: "20%",  sub: "комиссия с курса",       detail: "€300 × 20% = €60" },
+                { label: "30%",  sub: "комиссия с доступа",     detail: "€40 × 30% = €12" },
+                { label: "15%",  sub: "скидка для подписчиков", detail: "по промокоду" },
               ].map((s) => (
                 <div
                   key={s.label}
+                  title={s.detail}
                   className="flex flex-col items-center px-5 py-3 rounded-xl border border-white/8 bg-white/[0.03] backdrop-blur-sm"
                 >
                   <span className="text-2xl font-bold text-white">{s.label}</span>
@@ -236,19 +251,64 @@ export default function Partners() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white text-black font-semibold text-base hover:bg-white/90 transition-all shadow-[0_0_40px_rgba(255,255,255,0.15)]"
             >
-              <Send className="w-4 h-4" />
-              Написать в Telegram
-              <ArrowRight className="w-4 h-4" />
+              <Send className="w-4 h-4" />Написать в Telegram
             </a>
           </motion.div>
         </section>
 
-        {/* ══ 2. ПРОДУКТЫ ══ */}
-        <Section>
+        {/* ══ 2. О НАС ══ */}
+        <section id="about">
+          <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] backdrop-blur-sm overflow-hidden">
+            <div className="grid sm:grid-cols-2 gap-0">
+              {/* Left — description */}
+              <div className="p-8 sm:p-10 border-b sm:border-b-0 sm:border-r border-white/[0.06]">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/20 flex items-center justify-center">
+                    <Zap className="w-3.5 h-3.5 text-blue-400" />
+                  </div>
+                  <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">Кто мы</span>
+                </div>
+                <h2 className="text-xl font-bold mb-3 leading-snug">
+                  Первая платформа для подготовки к DGT в Telegram
+                </h2>
+                <p className="text-white/50 text-sm leading-relaxed">
+                  Skily работает как Telegram Mini App — никакой регистрации, никаких установок. Открыл — и учишься. Геймифицированные тесты, PvP-дуэли с друзьями, AI-тьютор, флэшкарты и полная база вопросов DGT.
+                </p>
+                <p className="text-white/35 text-sm mt-3 leading-relaxed">
+                  Мы — команда из Испании, которая лично знает каждый вопрос экзамена. Рекомендуя нас, ты помогаешь людям реально сдать с первого раза.
+                </p>
+              </div>
+
+              {/* Right — stats */}
+              <div className="p-8 sm:p-10 grid grid-cols-1 gap-6 content-center">
+                {[
+                  { icon: Users,  value: "10 000+", label: "активных студентов" },
+                  { icon: Brain,  value: "3 500+",  label: "вопросов DGT с объяснениями" },
+                  { icon: Zap,    value: "AI 24/7", label: "тьютор объясняет каждый ответ" },
+                ].map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <div key={stat.value} className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-5 h-5 text-indigo-400" />
+                      </div>
+                      <div>
+                        <div className="text-xl font-extrabold">{stat.value}</div>
+                        <div className="text-white/40 text-xs">{stat.label}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ 3. ПРОДУКТЫ ══ */}
+        <section>
           <h2 className="text-2xl font-bold text-center mb-3">Что ты продвигаешь</h2>
           <p className="text-white/45 text-center text-sm mb-8">Два продукта — выбирай сам(а) или оба</p>
           <div className="grid sm:grid-cols-2 gap-4">
-            {/* Platform */}
             <div className="glow-card rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 backdrop-blur-sm">
               <div className="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/20 flex items-center justify-center mb-4">
                 <Smartphone className="w-5 h-5 text-blue-400" />
@@ -262,11 +322,10 @@ export default function Partners() {
                 Тесты DGT, AI-тьютор, флэшкарты, геймификация. Работает в Telegram — никаких установок.
               </p>
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 w-fit">
-                <span className="text-blue-300 text-sm font-semibold">Твоя комиссия: €12 (30%)</span>
+                <span className="text-blue-300 text-sm font-semibold">Твоя комиссия: 30% = €12</span>
               </div>
             </div>
 
-            {/* Course */}
             <div className="glow-card rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 backdrop-blur-sm">
               <div className="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center mb-4">
                 <BookOpen className="w-5 h-5 text-violet-400" />
@@ -280,14 +339,14 @@ export default function Partners() {
                 Полная программа подготовки к экзамену: видеоуроки, материалы, живые сессии и поддержка.
               </p>
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/20 w-fit">
-                <span className="text-violet-300 text-sm font-semibold">Твоя комиссия: €60 (20%)</span>
+                <span className="text-violet-300 text-sm font-semibold">Твоя комиссия: 20% = €60</span>
               </div>
             </div>
           </div>
-        </Section>
+        </section>
 
-        {/* ══ 3. КАЛЬКУЛЯТОР ══ */}
-        <Section>
+        {/* ══ 4. КАЛЬКУЛЯТОР ══ */}
+        <section>
           <h2 className="text-2xl font-bold text-center mb-3">Посчитай свой доход</h2>
           <p className="text-white/45 text-center text-sm mb-8">Двигай ползунок — смотри цифры</p>
 
@@ -299,9 +358,7 @@ export default function Partners() {
                   key={key}
                   onClick={() => setProduct(key)}
                   className={`calc-toggle px-5 py-2 rounded-lg text-sm font-medium ${
-                    product === key
-                      ? "bg-white text-black shadow-sm"
-                      : "text-white/50 hover:text-white/80"
+                    product === key ? "bg-white text-black shadow-sm" : "text-white/50 hover:text-white/80"
                   }`}
                 >
                   {PRODUCTS[key].label}
@@ -316,17 +373,13 @@ export default function Partners() {
                 <span className="text-white font-bold text-lg">{students}</span>
               </div>
               <input
-                type="range"
-                min={1}
-                max={30}
-                value={students}
+                type="range" min={1} max={30} value={students}
                 onChange={(e) => setStudents(Number(e.target.value))}
                 className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
                 style={{
                   background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${((students - 1) / 29) * 100}%, rgba(255,255,255,0.1) ${((students - 1) / 29) * 100}%, rgba(255,255,255,0.1) 100%)`,
                 }}
               />
-              {/* Preset chips */}
               <div className="flex gap-2 mt-3 flex-wrap">
                 {PRESET_STUDENTS.map((n) => (
                   <button
@@ -359,15 +412,14 @@ export default function Partners() {
                 <div className="text-white/45 text-xs mt-1">в год</div>
               </div>
             </div>
-
             <p className="text-white/30 text-xs text-center mt-4">
-              Комиссия: {Math.round(selected.commission * 100)}% с каждой продажи. Выплаты ежемесячно.
+              Комиссия: {Math.round(selected.commission * 100)}% с каждой продажи · Выплаты ежемесячно · Мин. сумма €20
             </p>
           </div>
-        </Section>
+        </section>
 
-        {/* ══ 4. ТИПЫ СОТРУДНИЧЕСТВА ══ */}
-        <Section>
+        {/* ══ 5. ТИПЫ СОТРУДНИЧЕСТВА ══ */}
+        <section>
           <h2 className="text-2xl font-bold text-center mb-3">Как мы работаем вместе</h2>
           <p className="text-white/45 text-center text-sm mb-8">Выбери формат — или комбинируй</p>
 
@@ -375,10 +427,7 @@ export default function Partners() {
             {PARTNER_TYPES.map((t) => {
               const Icon = t.icon;
               return (
-                <div
-                  key={t.title}
-                  className={`glow-card rounded-2xl border ${t.border} bg-gradient-to-br ${t.color} backdrop-blur-sm p-6`}
-                >
+                <div key={t.title} className={`glow-card rounded-2xl border ${t.border} bg-gradient-to-br ${t.color} backdrop-blur-sm p-6`}>
                   <div className={`w-9 h-9 rounded-lg ${t.glow} border ${t.border} flex items-center justify-center mb-4`}>
                     <Icon className="w-4 h-4 text-white/70" />
                   </div>
@@ -386,10 +435,7 @@ export default function Partners() {
                   <p className="text-white/50 text-sm leading-relaxed mb-4">{t.desc}</p>
                   <div className="flex flex-wrap gap-2">
                     {t.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className={`text-xs px-2 py-0.5 rounded-full border ${t.border} text-white/60`}
-                      >
+                      <span key={tag} className={`text-xs px-2 py-0.5 rounded-full border ${t.border} text-white/60`}>
                         {tag}
                       </span>
                     ))}
@@ -401,44 +447,30 @@ export default function Partners() {
 
           <p className="text-center text-white/35 text-sm mt-6">
             Есть другая идея?{" "}
-            <a
-              href="https://t.me/guapo_pub"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:underline"
-            >
+            <a href="https://t.me/guapo_pub" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
               Напиши нам
             </a>{" "}
             — мы открыты к любому формату.
           </p>
-        </Section>
+        </section>
 
-        {/* ══ 5. ИДЕИ ДЛЯ КОНТЕНТА ══ */}
-        <Section>
+        {/* ══ 6. ИДЕИ ДЛЯ КОНТЕНТА ══ */}
+        <section>
           <h2 className="text-2xl font-bold text-center mb-3">Идеи для публикаций</h2>
-          <p className="text-white/45 text-center text-sm mb-8">
-            Готовые шаблоны — бери и публикуй
-          </p>
+          <p className="text-white/45 text-center text-sm mb-8">Готовые шаблоны — бери и публикуй</p>
 
           <div className="grid sm:grid-cols-3 gap-4">
             {CONTENT_IDEAS.map((idea, idx) => {
               const Icon = idea.icon;
               const copied = copiedTemplate === idx;
               return (
-                <div
-                  key={idea.platform}
-                  className="glow-card rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 flex flex-col"
-                >
+                <div key={idea.platform} className="glow-card rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 flex flex-col">
                   <div className="flex items-center gap-2 mb-3">
                     <Icon className="w-4 h-4 text-white/50" />
-                    <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">
-                      {idea.platform}
-                    </span>
+                    <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">{idea.platform}</span>
                   </div>
                   <h3 className="font-semibold mb-3 text-sm">{idea.idea}</h3>
-                  <p className="text-white/40 text-xs leading-relaxed italic flex-1 mb-4">
-                    "{idea.template}"
-                  </p>
+                  <p className="text-white/40 text-xs leading-relaxed italic flex-1 mb-4">"{idea.template}"</p>
                   <button
                     onClick={() => handleCopy(idea.template, idx)}
                     className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors mt-auto"
@@ -450,12 +482,47 @@ export default function Partners() {
               );
             })}
           </div>
-        </Section>
+        </section>
 
-        {/* ══ 6. FINAL CTA ══ */}
-        <Section>
+        {/* ══ 7. ПРАВИЛА ПАРТНЁРСТВА ══ */}
+        <section id="rules">
+          <button
+            onClick={() => setRulesOpen(!rulesOpen)}
+            className="w-full flex items-center justify-between px-6 py-5 rounded-2xl border border-white/[0.07] bg-white/[0.03] backdrop-blur-sm hover:border-white/[0.12] transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              <span className="font-semibold">Правила партнёрства</span>
+              <span className="text-xs text-white/35 ml-1">— условия, выплаты, ограничения</span>
+            </div>
+            <ChevronDown className={`w-5 h-5 text-white/40 transition-transform duration-300 ${rulesOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {rulesOpen && (
+            <div className="mt-3 rounded-2xl border border-white/[0.07] bg-white/[0.02] overflow-hidden divide-y divide-white/[0.05]">
+              {RULES.map((rule, idx) => (
+                <div key={idx}>
+                  <button
+                    className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-white/[0.02] transition-colors"
+                    onClick={() => setOpenRule(openRule === idx ? null : idx)}
+                  >
+                    <span className="text-sm font-medium text-white/80">{rule.q}</span>
+                    <ChevronDown className={`w-4 h-4 text-white/30 flex-shrink-0 ml-4 transition-transform duration-200 ${openRule === idx ? "rotate-180" : ""}`} />
+                  </button>
+                  {openRule === idx && (
+                    <div className="px-6 pb-4">
+                      <p className="text-white/50 text-sm leading-relaxed">{rule.a}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ══ 8. ФИНАЛЬНЫЙ CTA (перед footer) ══ */}
+        <section className="pb-0">
           <div className="rounded-2xl border border-white/[0.07] bg-gradient-to-br from-blue-600/10 via-violet-600/5 to-transparent p-10 sm:p-14 text-center relative overflow-hidden">
-            {/* Glow center */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-64 h-64 rounded-full bg-indigo-500/10 blur-[80px]" />
             </div>
@@ -464,31 +531,32 @@ export default function Partners() {
               <p className="text-white/50 mb-8 max-w-sm mx-auto text-sm leading-relaxed">
                 Напиши нам в Telegram — всё настроим за 24 часа. Реф. ссылка, промокод, материалы — всё сразу.
               </p>
-              <a
-                href="https://t.me/guapo_pub"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white text-black font-semibold text-base hover:bg-white/90 transition-all shadow-[0_0_50px_rgba(255,255,255,0.12)]"
-              >
-                <Send className="w-4 h-4" />
-                Написать в Telegram
-              </a>
+              <div className="flex flex-wrap justify-center gap-3">
+                <a
+                  href="https://t.me/guapo_pub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white text-black font-semibold text-base hover:bg-white/90 transition-all shadow-[0_0_50px_rgba(255,255,255,0.12)]"
+                >
+                  <Send className="w-4 h-4" />Написать в Telegram
+                </a>
+                <a
+                  href="https://t.me/skilyapp_bot/skilyapp?startapp=partner"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full border border-white/15 bg-white/5 text-white font-semibold text-base hover:bg-white/10 transition-all"
+                >
+                  Открыть кабинет партнёра
+                </a>
+              </div>
             </div>
           </div>
-        </Section>
+        </section>
 
-      </div>
+      </div>{/* /main content */}
 
-      {/* ── Footer ── */}
-      <footer className="relative z-10 border-t border-white/[0.06] py-8 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-white/30 text-xs">
-          <span>© 2025 Skily — подготовка к DGT</span>
-          <div className="flex items-center gap-4">
-            <Link to="/" className="hover:text-white/60 transition-colors">На главную</Link>
-            <a href="https://t.me/guapo_pub" target="_blank" rel="noopener noreferrer" className="hover:text-white/60 transition-colors">Telegram</a>
-          </div>
-        </div>
-      </footer>
+      {/* ══ CINEMATIC FOOTER ══ */}
+      <SkilyPartnersFooter />
     </div>
   );
 }
