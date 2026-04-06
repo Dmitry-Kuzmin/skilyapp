@@ -228,10 +228,6 @@ async function synth(text, voiceId, filePath, label, lang = "es") {
 }
 
 async function generateTTSForQuestion(question) {
-  if (ELEVENLABS_KEYS.length === 0) {
-    console.log("  ⚠ No ELEVENLABS keys configured — skipping TTS");
-    return {};
-  }
 
   const lang    = question.language || "es";
   const voiceId = VOICE_RU; // ES через Edge TTS, RU через ElevenLabs
