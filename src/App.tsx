@@ -531,7 +531,6 @@ const App = () => {
 
   return (
     <TelegramProvider>
-      <AdCleanup />
       <Motion>
         {/* ⚠️ ОТКЛЮЧЕНО: Service Worker отключен */}
         {/* КРИТИЧНО: Компонент для ручного обновления PWA при registerType: 'prompt' */}
