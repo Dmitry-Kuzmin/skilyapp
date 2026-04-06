@@ -63,7 +63,6 @@ import { sounds } from "@/lib/sounds";
 import { haptics } from "@/lib/haptics";
 import { BoostCard } from "./BoostCard";
 import { MarketItem } from "./MarketItem";
-import { CryptoMinerAdvanced } from "./CryptoMinerAdvanced";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { usePremium } from "@/hooks/usePremium";
