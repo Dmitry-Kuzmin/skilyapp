@@ -48,13 +48,22 @@ async function edgeSynth(text, voice, filePath) {
 }
 
 // ── ElevenLabs TTS (для русского голоса) ─────────────────────────────────────
-const ELEVENLABS_KEY   = process.env.ELEVENLABS_API_KEY || "";
-const VOICE_RU         = process.env.ELEVENLABS_VOICE_RU || "CwhRBWXzGAHq8TQ4Fs17";
+const VOICE_RU = process.env.ELEVENLABS_VOICE_RU || "CwhRBWXzGAHq8TQ4Fs17";
 
-function elevenLabsSynth(text, voiceId) {
+// Build ordered list of API keys: ELEVENLABS_API_KEYS (comma-separated) first,
+// then ELEVENLABS_API_KEY as fallback, dedup and filter empty.
+const ELEVENLABS_KEYS = (() => {
+  const multi = (process.env.ELEVENLABS_API_KEYS || "").split(",").map(s => s.trim()).filter(Boolean);
+  const single = (process.env.ELEVENLABS_API_KEY || "").trim();
+  const all = [...multi];
+  if (single && !all.includes(single)) all.push(single);
+  return all;
+})();
+
+let elevenLabsKeyIndex = 0; // tracks which key is currently active
+
+function elevenLabsSynthWithKey(text, voiceId, apiKey) {
   return new Promise((resolve) => {
-    if (!ELEVENLABS_KEY) { resolve(null); return; }
-
     const body = JSON.stringify({
       text,
       model_id: "eleven_multilingual_v2",
@@ -66,7 +75,7 @@ function elevenLabsSynth(text, voiceId) {
       path: `/v1/text-to-speech/${voiceId}`,
       method: "POST",
       headers: {
-        "xi-api-key": ELEVENLABS_KEY,
+        "xi-api-key": apiKey,
         "Content-Type": "application/json",
         "Accept": "audio/mpeg",
         "Content-Length": Buffer.byteLength(body),
@@ -75,14 +84,39 @@ function elevenLabsSynth(text, voiceId) {
       const chunks = [];
       res.on("data", c => chunks.push(c));
       res.on("end", () => {
-        if (res.statusCode === 200) resolve(Buffer.concat(chunks));
-        else { console.error("ElevenLabs error:", res.statusCode); resolve(null); }
+        if (res.statusCode === 200) {
+          resolve({ ok: true, audio: Buffer.concat(chunks) });
+        } else {
+          // 401 = invalid key, 429 = quota exhausted — both trigger fallback
+          resolve({ ok: false, status: res.statusCode });
+        }
       });
     });
-    req.on("error", (e) => { console.error("ElevenLabs request error:", e.message); resolve(null); });
+    req.on("error", (e) => resolve({ ok: false, status: "network", error: e.message }));
     req.write(body);
     req.end();
   });
+}
+
+async function elevenLabsSynth(text, voiceId) {
+  if (ELEVENLABS_KEYS.length === 0) return null;
+
+  // Try from current active key, rotate on failure
+  for (let attempt = 0; attempt < ELEVENLABS_KEYS.length; attempt++) {
+    const idx = (elevenLabsKeyIndex + attempt) % ELEVENLABS_KEYS.length;
+    const key = ELEVENLABS_KEYS[idx];
+    const result = await elevenLabsSynthWithKey(text, voiceId, key);
+    if (result.ok) {
+      if (attempt > 0) {
+        elevenLabsKeyIndex = idx; // stick to the working key
+        console.log(`  ↪ ElevenLabs: switched to key #${idx + 1}`);
+      }
+      return result.audio;
+    }
+    console.error(`  ✗ ElevenLabs key #${idx + 1} failed (HTTP ${result.status}${result.error ? ": " + result.error : ""}) — trying next`);
+  }
+  console.error("  ✗ All ElevenLabs keys exhausted");
+  return null;
 }
 
 // ── Get MP3 duration via music-metadata (ESM, dynamic import) ────────────────
