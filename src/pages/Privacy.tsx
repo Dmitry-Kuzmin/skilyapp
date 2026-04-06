@@ -135,14 +135,6 @@ Usamos cookies para:
 - Mejora del sitio web. Estas cookies nos permiten mejorar nuestros servicios monitoreando cómo se usan.`
         },
         {
-          title: "Cookies de Google AdSense",
-          content: `Utilizamos Google AdSense para mostrar anuncios en nuestro Sitio. Google, como proveedor externo, utiliza cookies para publicar anuncios.
-
-El uso de Google de la cookie de DART le permite a Google y a sus socios mostrar anuncios a los usuarios en función de su visita a nuestro Sitio y a otros sitios en Internet.
-
-Los usuarios pueden optar por no utilizar la cookie de DART visitando la política de privacidad de la red de contenido y anuncios de Google: https://policies.google.com/technologies/ads`
-        },
-        {
           title: "Compartir información con terceros",
           content: `A menos que se indique lo contrario, no divulgamos sus datos personales a terceros. Trabajamos con plataformas de terceros que nos proporcionan servicios analíticos y publicitarios. Esto incluye ayudarnos a entender cómo se usa nuestro Sitio y proporcionar publicidad a nuestros usuarios.`
         },
