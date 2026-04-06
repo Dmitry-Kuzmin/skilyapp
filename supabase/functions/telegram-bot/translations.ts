@@ -531,6 +531,7 @@ Empieza a practicar cada día para:
     'keyboard.documentation': { ru: 'Документация', en: 'Documentation', es: 'Documentación' },
     'keyboard.supportChat': { ru: 'Написать поддержке', en: 'Contact Support', es: 'Contactar soporte' },
     'keyboard.backToLearning': { ru: '← Обучение', en: '← Learning', es: '← Aprendizaje' },
+    'keyboard.partnerCabinet': { ru: '🤝 Кабинет партнёра', en: '🤝 Partner Cabinet', es: '🤝 Cabina de socio' },
 
     'learning.title': {
         ru: '📚 <b>Обучение</b>',
