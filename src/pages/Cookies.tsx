@@ -51,7 +51,7 @@ export default function Cookies({ embedded = false }: CookiesProps) {
                 },
                 {
                     title: "3. Cookies de terceros",
-                    content: "Utilizamos servicios de terceros como Google AdSense y Vercel Analytics. Estos terceros pueden colocar cookies en su navegador para recopilar información sobre sus visitas a este y otros sitios con el fin de proporcionar anuncios sobre bienes y servicios de su interés."
+                    content: "Utilizamos servicios de terceros como Vercel Analytics. Estos terceros pueden colocar cookies en su navegador para recopilar información sobre sus visitas con el fin de mejorar el servicio."
                 },
                 {
                     title: "4. Gestión de cookies",
