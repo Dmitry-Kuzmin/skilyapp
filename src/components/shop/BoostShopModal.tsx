@@ -90,7 +90,6 @@ import type { Paddle } from "@paddle/paddle-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useModalStore } from "@/store/modalStore";
-import { showAdSenseRewardedVideo } from "@/lib/adsense";
 import { UnifiedPricingCard } from "./UnifiedPricingCard";
 import { PaymentSelectorModal } from "./PaymentSelectorModal";
 import { useTonStreaming } from "@/hooks/useTonStreaming";
