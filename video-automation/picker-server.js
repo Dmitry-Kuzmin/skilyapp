@@ -285,10 +285,10 @@ function supabaseRequest(endpoint, params = "") {
       }
     };
     https.get(url, options, (res) => {
-      let data = "";
-      res.on("data", d => data += d);
+      const chunks = [];
+      res.on("data", d => chunks.push(d));
       res.on("end", () => {
-        try { resolve(JSON.parse(data)); }
+        try { resolve(JSON.parse(Buffer.concat(chunks).toString("utf-8"))); }
         catch (e) { reject(e); }
       });
     }).on("error", reject);
