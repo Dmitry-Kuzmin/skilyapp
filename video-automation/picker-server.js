@@ -620,6 +620,21 @@ function renderPreview() {
 
     <hr class="section-divider">
 
+    <!-- ── КОНЦОВКА (Outro) ──────────────────────────────────────────── -->
+    <div class="edit-group">
+      <div class="edit-label">🎬 Концовка ролика</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="outroChips"></div>
+      <textarea class="edit-textarea" id="outroText" rows="2" placeholder="Или напиши свою концовку…"></textarea>
+    </div>
+
+    <!-- ── НАСТРОЙКИ ──────────────────────────────────────────────────── -->
+    <div class="edit-group" style="display:flex;align-items:center;gap:12px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#8B949E">
+        <input type="checkbox" id="showExplanation" checked style="width:16px;height:16px;cursor:pointer">
+        Показывать объяснение в ролике
+      </label>
+    </div>
+
     <div class="preview-actions">
       <div style="display:flex;gap:8px">
         <button class="btn btn-render" style="flex:1" onclick="renderVideo()" id="renderBtn">
