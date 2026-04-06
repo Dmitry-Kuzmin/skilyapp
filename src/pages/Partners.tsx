@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "@/components/optimized/Motion";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { SkilyPartnersFooter } from "@/components/ui/motion-footer";
+import { PartnerWebSignup } from "@/components/partner/PartnerWebSignup";
 import {
   Link as LinkIcon,
   Tag,
