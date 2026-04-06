@@ -652,7 +652,10 @@ function renderPreview() {
     <!-- ── КОНЦОВКА (Outro) ──────────────────────────────────────────── -->
     <div class="edit-group">
       <div class="edit-label">🎬 Концовка ролика</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px" id="outroChips"></div>
+      <div style="font-size:11px;color:#8B949E;margin-bottom:5px">🇷🇺 Русский ролик</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="outroChipsRU"></div>
+      <div style="font-size:11px;color:#8B949E;margin-bottom:5px">🇪🇸 Испанский ролик</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="outroChipsES"></div>
       <textarea class="edit-textarea" id="outroText" rows="2" placeholder="Или напиши свою концовку…"></textarea>
     </div>
 
