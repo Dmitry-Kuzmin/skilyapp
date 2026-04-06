@@ -87,7 +87,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { RewardsEditor } from "@/components/admin/RewardsEditor";
 
 interface Season {
   id: number;
