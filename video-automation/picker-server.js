@@ -371,9 +371,9 @@ async function fetchQuestions({ lang = "es", search = "", limit = 30, offset = 0
   const questions = rows.map(r => ({
     id: r.id,
     question: r[qField] || "",
-    question_ru: r.question_ru || null,
+    // DGT only: keep Russian translation for RU overlay video
+    ...(lang === "es" ? { question_ru: r.question_ru || null, explanation_ru: r.explanation_ru || null } : {}),
     explanation: r[exField] || "",
-    explanation_ru: r.explanation_ru || null,
     image_url: r.image_url || null,
     difficulty: r.difficulty || "medium",
     percent_correct: r.percent_correct || 50,
