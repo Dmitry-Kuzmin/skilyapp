@@ -248,12 +248,20 @@ async function generateTTSForQuestion(question) {
   const result  = {};
   const prefixes = ANSWER_PREFIX[lang] || ANSWER_PREFIX.es;
 
-  // Hook intro voiceover — always Russian (targets RU audience)
-  // Text: short fixed intro + hook title (emojis stripped in preprocessTTS)
+  // Hook intro voiceover — always Russian, never read Spanish text aloud
   {
+    const ruHooks = {
+      vhard: "Это не знает почти никто!",
+      hard:  "Девяносто девять процентов водителей ошибаются.",
+      medium:"Только опытные знают ответ.",
+      easy:  "Проверь свои знания!",
+    };
+    const pct  = question.percent_correct || 50;
+    const hKey = pct < 30 ? "vhard" : pct < 50 ? "hard"
+               : (question.difficulty === "hard" ? "medium" : "easy");
     const hookIntroText = lang === "ru"
-      ? `Вопрос по ПДД России. ${question.hook_title}`
-      : `Тест: ПДД Испании. ${question.hook_title}`;
+      ? `Вопрос по ПДД России. ${ruHooks[hKey]}`
+      : `Тест по испанским ПДД. ${ruHooks[hKey]}`;
     const hPath = path.join(AUDIO_DIR, `${id}-hook.mp3`);
     if (fs.existsSync(hPath)) fs.unlinkSync(hPath); // always regenerate (hook may change)
     const hDur = await synth(hookIntroText, voiceId, hPath, "hook intro", "ru");
