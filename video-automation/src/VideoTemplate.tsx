@@ -104,14 +104,14 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
       <div style={{ opacity: badgeOp, transform:`translateY(${badgeTy}px)`,
         display:"flex", flexDirection:"column", alignItems:"center", gap:14, marginBottom:48 }}>
 
-        {/* Flag + label row */}
+        {/* Flag + label row — always Spanish flag since content = DGT Spain */}
         <div style={{ display:"flex", alignItems:"center", gap:16,
           background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)",
           borderRadius:100, padding:"10px 28px" }}>
-          <span style={{ fontSize:36 }}>{isEs ? "🇪🇸" : "🇷🇺"}</span>
+          <span style={{ fontSize:36 }}>🇪🇸</span>
           <span style={{ fontSize:26, fontWeight:800, color:"#fff", letterSpacing:3,
             fontFamily:"system-ui,sans-serif" }}>
-            {isEs ? "EXAMEN DGT" : "ЭКЗАМЕН ПДД"}
+            {isEs ? "EXAMEN DGT" : "ТЕСТ: ПДД ИСПАНИИ"}
           </span>
           <span style={{ fontSize:36 }}>🚗</span>
         </div>
@@ -119,7 +119,7 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
         {/* Subtitle */}
         <div style={{ fontSize:26, color:"rgba(255,255,255,0.45)",
           fontFamily:"system-ui,sans-serif", letterSpacing:1 }}>
-          {isEs ? "¿Conoces las normas de tráfico?" : "Проверь свои знания ПДД"}
+          {isEs ? "¿Conoces las normas de tráfico?" : "Знаешь испанские правила? 🤔"}
         </div>
       </div>
 
