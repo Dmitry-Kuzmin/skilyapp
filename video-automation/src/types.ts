@@ -42,6 +42,10 @@ export interface VideoQuestion {
   explanationRuAudioFile?: string;
   explanationRuAudioDurationSec?: number;
 
+  // Hook intro voiceover
+  hookAudioFile?: string;
+  hookAudioDurationSec?: number;
+
   // Outro / CTA customization
   outro_text?: string;               // custom viral CTA text shown on the final screen
   outroAudioFile?: string;           // TTS of outro_text
