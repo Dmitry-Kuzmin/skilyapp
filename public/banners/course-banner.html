@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skily — Полный курс DGT</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: transparent;
+  }
+
+  .skily-banner {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    min-height: 140px;
+    background: linear-gradient(135deg, #060a14 0%, #0d1426 50%, #060a14 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04) inset,
+      0 20px 60px rgba(99, 102, 241, 0.15),
+      0 4px 20px rgba(0,0,0,0.5);
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .skily-banner:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06) inset,
+      0 24px 70px rgba(99, 102, 241, 0.25),
+      0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  /* Aurora glow */
+  .skily-banner::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: -10%;
+    width: 60%;
+    height: 160%;
+    background: radial-gradient(ellipse, rgba(99,102,241,0.2) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  /* Grid overlay */
+  .skily-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+
+  .banner-left {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    width: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 0 20px 20px;
+  }
+
+  .banner-icon {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(139,92,246,0.15) 100%);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 0 24px rgba(99,102,241,0.2);
+  }
+
+  .banner-body {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    padding: 20px 16px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .banner-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(139,92,246,0.9);
+  }
+
+  .banner-title {
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+  }
+
+  .banner-subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  .banner-dates {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .banner-date-chip {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 6px;
+    padding: 3px 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .banner-date-chip.highlight {
+    background: rgba(99,102,241,0.25);
+    border-color: rgba(99,102,241,0.5);
+    color: #a5b4fc;
+  }
+
+  .banner-date-chip .dot {
+    width: 5px;
+    height: 5px;
+    background: #6366f1;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .banner-right {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    padding: 20px 20px 20px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .banner-price {
+    text-align: right;
+  }
+
+  .banner-price-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .banner-price-amount {
+    font-size: 26px;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  .banner-price-note {
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  .banner-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+    transition: opacity 0.2s;
+  }
+
+  .banner-cta:hover { opacity: 0.85; }
+
+  .banner-cta svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+
+  .banner-loading {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+
+  .skily-footer-attr {
+    margin-top: 8px;
+    text-align: right;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+    font-family: -apple-system, sans-serif;
+  }
+
+  .skily-footer-attr a {
+    color: rgba(99,102,241,0.6);
+    text-decoration: none;
+  }
+
+  .skily-footer-attr a:hover { color: rgba(99,102,241,0.9); }
+</style>
+</head>
+<body>
+
+<a
+  id="skily-course-banner"
+  href="https://t.me/skilyapp_bot/skilyapp"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="skily-banner"
+  aria-label="Skily — Подготовка к DGT"
+>
+  <div class="banner-left">
+    <div class="banner-icon">🚗</div>
+  </div>
+
+  <div class="banner-body">
+    <div class="banner-eyebrow">Полный курс · Skily</div>
+    <div class="banner-title">Подготовка к DGT<br>с нуля до прав</div>
+    <div class="banner-subtitle">Видеоуроки + AI-тьютор + 3 500 вопросов</div>
+
+    <div class="banner-dates" id="skily-stream-dates">
+      <span class="banner-loading">Загружаем даты потоков…</span>
+    </div>
+  </div>
+
+  <div class="banner-right">
+    <div class="banner-price">
+      <div class="banner-price-label">Цена курса</div>
+      <div class="banner-price-amount">€300</div>
+      <div class="banner-price-note">разовая оплата</div>
+    </div>
+    <div class="banner-cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+      Записаться
+    </div>
+  </div>
+</a>
+
+<div class="skily-footer-attr">
+  Реклама · <a href="https://skilyapp.com/partners" target="_blank">Стать партнёром Skily</a>
+</div>
+
+<script>
+(function() {
+  var SUPABASE_URL = 'https://yffjnqegeiorunyvcxkn.supabase.co';
+  var ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA';
+
+  var MONTHS_RU = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+  function formatDate(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    return d.getDate() + ' ' + MONTHS_RU[d.getMonth()];
+  }
+
+  function spotsLabel(enrolled, total) {
+    var left = total - enrolled;
+    if (left <= 0) return 'мест нет';
+    if (left === 1) return '1 место';
+    if (left < 5) return left + ' места';
+    return left + ' мест';
+  }
+
+  function renderDates(streams) {
+    var container = document.getElementById('skily-stream-dates');
+    if (!container) return;
+
+    if (!streams || streams.length === 0) {
+      container.innerHTML = '<span style="font-size:11px;color:rgba(255,255,255,0.4)">Скоро новые даты — узнай первым!</span>';
+      return;
+    }
+
+    var html = '';
+    var shown = 0;
+    for (var i = 0; i < streams.length && shown < 3; i++) {
+      var s = streams[i];
+      var left = s.spots_total - s.spots_enrolled;
+      var isFirst = shown === 0;
+      var chipClass = 'banner-date-chip' + (isFirst ? ' highlight' : '');
+      var label = spotsLabel(s.spots_enrolled, s.spots_total);
+      html += '<span class="' + chipClass + '">'
+        + (isFirst ? '<span class="dot"></span>' : '')
+        + formatDate(s.start_date)
+        + ' · ' + label
+        + '</span>';
+      shown++;
+    }
+
+    container.innerHTML = html;
+  }
+
+  // Fetch open streams (next 3, ordered by start_date)
+  fetch(
+    SUPABASE_URL + '/rest/v1/course_streams'
+    + '?status=eq.open'
+    + '&order=start_date.asc'
+    + '&limit=3'
+    + '&select=start_date,spots_total,spots_enrolled',
+    {
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY,
+      }
+    }
+  )
+  .then(function(r) { return r.json(); })
+  .then(function(data) { renderDates(data); })
+  .catch(function() {
+    var container = document.getElementById('skily-stream-dates');
+    if (container) container.innerHTML = '<span style="font-size:11px;color:rgba(255,255,255,0.4)">Следующий поток — скоро</span>';
+  });
+
+  // If referral code is set, append to CTA link
+  var ref = (typeof SKILY_REF !== 'undefined') ? SKILY_REF : null;
+  if (ref) {
+    var banner = document.getElementById('skily-course-banner');
+    if (banner) banner.href = 'https://t.me/skilyapp_bot/skilyapp?startapp=ref_' + ref;
+  }
+})();
+</script>
+
+</body>
+</html>
