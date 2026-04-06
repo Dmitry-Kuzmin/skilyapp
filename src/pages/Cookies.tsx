@@ -72,7 +72,7 @@ export default function Cookies({ embedded = false }: CookiesProps) {
                     content: `We use cookies for several purposes:
 • Technical: necessary for authentication and handling your settings.
 • Analytics: to understand how you use our application and improve it.
-• Advertising (Google AdSense): to show personalized ads based on your interests.`
+• Analytics: to improve our service.`
                 },
                 {
                     title: "3. Third-party cookies",
