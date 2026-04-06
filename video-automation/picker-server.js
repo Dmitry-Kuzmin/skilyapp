@@ -197,8 +197,8 @@ async function synth(text, voiceId, filePath, label, lang = "es") {
 }
 
 async function generateTTSForQuestion(question) {
-  if (!ELEVENLABS_KEY) {
-    console.log("  ⚠ ELEVENLABS_API_KEY not set — skipping TTS");
+  if (ELEVENLABS_KEYS.length === 0) {
+    console.log("  ⚠ No ELEVENLABS keys configured — skipping TTS");
     return {};
   }
 
