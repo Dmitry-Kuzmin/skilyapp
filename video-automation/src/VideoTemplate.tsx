@@ -620,13 +620,16 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
           <QuestionScene q={question} t={t} />
         </div>
       )}
-      {sOp(t.answersStart, t.suspenseStart) > 0 && (
-        <div style={{ position:"absolute", inset:0, opacity: sOp(t.answersStart, t.suspenseStart) }}>
+      {/* AnswersScene stays visible through suspense — timer overlays on top */}
+      {sOp(t.answersStart, t.revealStart) > 0 && (
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.answersStart, t.revealStart) }}>
           <AnswersScene q={question} t={t} />
         </div>
       )}
+      {/* SuspenseScene = compact timer overlay only, no full bg */}
       {sOp(t.suspenseStart, t.revealStart) > 0 && (
-        <div style={{ position:"absolute", inset:0, opacity: sOp(t.suspenseStart, t.revealStart) }}>
+        <div style={{ position:"absolute", inset:0, opacity: sOp(t.suspenseStart, t.revealStart),
+          pointerEvents:"none" }}>
           <SuspenseScene q={question} t={t} />
         </div>
       )}
