@@ -9,6 +9,24 @@
 -- ============================================================
 
 -- ============================================================
+-- STEP 0: Add 'coins_earned_leaderboard' to transactions allowed types
+-- ============================================================
+ALTER TABLE transactions
+  DROP CONSTRAINT transactions_transaction_type_check,
+  ADD CONSTRAINT transactions_transaction_type_check CHECK (
+    transaction_type = ANY (ARRAY[
+      'coins_purchase_paddle', 'coins_purchase_cryptomus', 'coins_purchase_telegram_stars',
+      'coins_earned_test', 'coins_earned_duel', 'coins_earned_daily', 'coins_earned_premium_bonus',
+      'coins_earned_ad', 'coins_earned_leaderboard', 'ad_watched',
+      'coins_spent_boost', 'coins_spent_skin', 'coins_spent_duel_entry',
+      'premium_purchase_monthly', 'premium_purchase_yearly',
+      'premium_trial_started', 'premium_trial_expired',
+      'duel_pass_purchase', 'admin_adjust', 'refund'
+    ])
+  );
+
+
+-- ============================================================
 -- STEP 1: Snapshot final_level and final_sp for Season 1 users
 -- ============================================================
 UPDATE user_season_progress
