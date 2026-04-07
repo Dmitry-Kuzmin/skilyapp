@@ -322,10 +322,11 @@ async function processSeason(season_id: number, supabase: SupabaseClient) {
           }
         }
 
-        // Создаём уведомление для пользователя
+        // Создаём уведомление для пользователя (через duel_notifications)
         try {
-          await supabase.from("notifications").insert({
+          await supabase.from("duel_notifications").insert({
             user_id: player.id,
+            duel_id: null,
             type: "leaderboard_reward",
             title: position <= 3
               ? `🏆 Поздравляем! Вы заняли ${position} место!`
