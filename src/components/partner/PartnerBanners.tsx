@@ -47,16 +47,12 @@ const BANNER_TYPES: BannerType[] = [
 ];
 
 const SIZE_PRESETS: SizePreset[] = [
-  { id: "leaderboard",   label: "Лидерборд",         w: 728,  h: 90,  tag: "728×90",   icon: "desktop"  },
-  { id: "wide",          label: "Широкий",            w: 560,  h: 170, tag: "560×170",  icon: "desktop"  },
-  { id: "banner600",     label: "Полный",             w: 600,  h: 120, tag: "600×120",  icon: "desktop"  },
-  { id: "rectangle",     label: "Прямоугольник",      w: 300,  h: 250, tag: "300×250",  icon: "square"   },
-  { id: "large-rect",    label: "Большой прямоугол.", w: 336,  h: 280, tag: "336×280",  icon: "square"   },
-  { id: "mobile",        label: "Мобильный",          w: 320,  h: 50,  tag: "320×50",   icon: "mobile"   },
-  { id: "mobile-wide",   label: "Мобильный широкий",  w: 320,  h: 100, tag: "320×100",  icon: "mobile"   },
-  { id: "skyscraper",    label: "Небоскрёб",          w: 160,  h: 600, tag: "160×600",  icon: "vertical" },
-  { id: "half-page",     label: "Пол-страницы",       w: 300,  h: 600, tag: "300×600",  icon: "vertical" },
-  { id: "custom",        label: "Свой размер",        w: 400,  h: 200, tag: "Custom",   icon: "desktop"  },
+  { id: "wide",         label: "Стандартный",        w: 560,  h: 170, tag: "560×170",  icon: "desktop" },
+  { id: "leaderboard",  label: "Лидерборд",          w: 728,  h: 90,  tag: "728×90",   icon: "desktop" },
+  { id: "banner600",    label: "Широкий компакт",    w: 600,  h: 120, tag: "600×120",  icon: "desktop" },
+  { id: "rectangle",    label: "Прямоугольник",      w: 300,  h: 250, tag: "300×250",  icon: "square"  },
+  { id: "mobile-wide",  label: "Мобильный",          w: 320,  h: 100, tag: "320×100",  icon: "mobile"  },
+  { id: "custom",       label: "Свой размер",        w: 400,  h: 200, tag: "Custom",   icon: "desktop" },
 ];
 
 const PREVIEW_BG = {
