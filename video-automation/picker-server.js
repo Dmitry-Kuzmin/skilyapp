@@ -869,8 +869,8 @@ async function renderVideo() {
     if (data.output) {
       btn.textContent = "✅ Готово!";
       btn.style.background = "#3FB950";
-      let msg = `ES: ${data.output}\n`;
-      if (data.outputRU) msg += `RU: ${data.outputRU}\n`;
+      let msg = "ES: " + data.output + "\\n";
+      if (data.outputRU) msg += "RU: " + data.outputRU + "\\n";
       log.textContent += msg;
     } else {
       btn.textContent = "⚠️ Ошибка";
