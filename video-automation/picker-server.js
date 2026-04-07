@@ -705,11 +705,26 @@ function renderPreview() {
     <!-- ── КОНЦОВКА (Outro) ──────────────────────────────────────────── -->
     <div class="edit-group">
       <div class="edit-label">🎬 Концовка ролика</div>
-      <div style="font-size:11px;color:#8B949E;margin-bottom:5px">🇷🇺 Русский ролик</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="outroChipsRU"></div>
-      <div style="font-size:11px;color:#8B949E;margin-bottom:5px">🇪🇸 Испанский ролик</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px" id="outroChipsES"></div>
-      <textarea class="edit-textarea" id="outroText" rows="2" placeholder="Или напиши свою концовку…"></textarea>
+
+      <!-- RU row -->
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <span style="font-size:13px">🇷🇺</span>
+        <div style="display:flex;flex-wrap:wrap;gap:5px" id="outroChipsRU"></div>
+      </div>
+      <textarea class="edit-textarea" id="outroTextRU" rows="2"
+        placeholder="Концовка русского ролика…"
+        oninput="window._outroActiveRU=null;syncOutroActive('RU')" ></textarea>
+
+      \${lang === 'es' ? \`
+      <!-- ES row — only for DGT questions -->
+      <div style="display:flex;align-items:center;gap:6px;margin:8px 0 6px">
+        <span style="font-size:13px">🇪🇸</span>
+        <div style="display:flex;flex-wrap:wrap;gap:5px" id="outroChipsES"></div>
+      </div>
+      <textarea class="edit-textarea" id="outroTextES" rows="2"
+        placeholder="Концовка испанского ролика…"
+        oninput="window._outroActiveES=null;syncOutroActive('ES')" ></textarea>
+      \` : ''}
     </div>
 
     <!-- ── НАСТРОЙКИ ──────────────────────────────────────────────────── -->
@@ -723,13 +738,13 @@ function renderPreview() {
     <div class="preview-actions">
       <div style="display:flex;gap:8px">
         <button class="btn btn-render" style="flex:1" onclick="renderVideo()" id="renderBtn">
-          🎬 Создать MP4
+          ✅ Готово!
         </button>
         <button class="btn btn-sm btn-danger" onclick="clearAudio()" title="Удалить кэш аудио для этого вопроса">
           🗑 Аудио
         </button>
       </div>
-      <div id="renderLog" class="render-log" style="display:none"></div>
+      <div id="renderLog" class="render-log" style="display:none">Запускаем рендер...</div>
     </div>
   \`;
 }
