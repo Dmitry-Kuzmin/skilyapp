@@ -1,206 +1,429 @@
-import { useState } from "react";
-import { Copy, Check, ExternalLink, Code2, Eye } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  Copy, Check, Code2, Monitor, Smartphone, Layout,
+  ChevronRight, Sliders, RefreshCw, ExternalLink, Sun, Moon,
+} from "lucide-react";
 import { toast } from "sonner";
 
-interface BannerConfig {
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+interface BannerType {
   id: string;
-  title: string;
-  subtitle: string;
-  description: string;
-  previewUrl: string;
-  color: string;
-  badgeColor: string;
+  label: string;
   emoji: string;
-  getEmbedCode: (partnerCode: string) => string;
+  src: string;
+  accent: string;
+  description: string;
 }
 
-const BANNERS: BannerConfig[] = [
+interface SizePreset {
+  id: string;
+  label: string;
+  w: number;
+  h: number;
+  tag: string;
+  icon: "desktop" | "mobile" | "square" | "vertical";
+}
+
+// ─── Data ────────────────────────────────────────────────────────────────────
+
+const BANNER_TYPES: BannerType[] = [
   {
     id: "course",
-    title: "Баннер курса",
-    subtitle: "Автоматические даты потоков",
-    description: "Подтягивает ближайшие открытые потоки из Skily в реальном времени. Идеально для анонсов.",
-    previewUrl: "/banners/course-banner.html",
-    color: "from-indigo-500/20 to-violet-500/10",
-    badgeColor: "bg-indigo-500/15 text-indigo-300 border-indigo-500/25",
+    label: "Курс DGT",
     emoji: "🚗",
-    getEmbedCode: (code) =>
-      `<!-- Skily Course Banner -->
-<div style="max-width:560px">
-  <script>var SKILY_REF = "${code}";</script>
-  <iframe
-    src="https://skilyapp.com/banners/course-banner.html"
-    width="560"
-    height="170"
-    frameborder="0"
-    scrolling="no"
-    style="border-radius:20px;overflow:hidden;display:block;width:100%;height:170px"
-    loading="lazy"
-    title="Skily — Курс подготовки к DGT"
-  ></iframe>
-</div>`,
+    src: "/banners/course-banner.html",
+    accent: "indigo",
+    description: "Ближайшие потоки курса в реальном времени",
   },
   {
     id: "platform",
-    title: "Баннер платформы",
-    subtitle: "Живой счётчик студентов",
-    description: "Показывает актуальное число студентов на платформе. Универсальный формат для любого контента.",
-    previewUrl: "/banners/platform-banner.html",
-    color: "from-emerald-500/20 to-teal-500/10",
-    badgeColor: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
+    label: "Платформа",
     emoji: "⚡",
-    getEmbedCode: (code) =>
-      `<!-- Skily Platform Banner -->
-<div style="max-width:560px">
-  <script>var SKILY_REF = "${code}";</script>
-  <iframe
-    src="https://skilyapp.com/banners/platform-banner.html"
-    width="560"
-    height="155"
-    frameborder="0"
-    scrolling="no"
-    style="border-radius:20px;overflow:hidden;display:block;width:100%;height:155px"
-    loading="lazy"
-    title="Skily — Тренажёр DGT"
-  ></iframe>
-</div>`,
+    src: "/banners/platform-banner.html",
+    accent: "emerald",
+    description: "Живой счётчик студентов на платформе",
   },
 ];
 
-interface Props {
-  partnerCode: string;
+const SIZE_PRESETS: SizePreset[] = [
+  { id: "leaderboard",   label: "Лидерборд",         w: 728,  h: 90,  tag: "728×90",   icon: "desktop"  },
+  { id: "wide",          label: "Широкий",            w: 560,  h: 170, tag: "560×170",  icon: "desktop"  },
+  { id: "banner600",     label: "Полный",             w: 600,  h: 120, tag: "600×120",  icon: "desktop"  },
+  { id: "rectangle",     label: "Прямоугольник",      w: 300,  h: 250, tag: "300×250",  icon: "square"   },
+  { id: "large-rect",    label: "Большой прямоугол.", w: 336,  h: 280, tag: "336×280",  icon: "square"   },
+  { id: "mobile",        label: "Мобильный",          w: 320,  h: 50,  tag: "320×50",   icon: "mobile"   },
+  { id: "mobile-wide",   label: "Мобильный широкий",  w: 320,  h: 100, tag: "320×100",  icon: "mobile"   },
+  { id: "skyscraper",    label: "Небоскрёб",          w: 160,  h: 600, tag: "160×600",  icon: "vertical" },
+  { id: "half-page",     label: "Пол-страницы",       w: 300,  h: 600, tag: "300×600",  icon: "vertical" },
+  { id: "custom",        label: "Свой размер",        w: 400,  h: 200, tag: "Custom",   icon: "desktop"  },
+];
+
+const PREVIEW_BG = {
+  dark:  "bg-[#0f172a]",
+  light: "bg-[#f8fafc]",
+  gray:  "bg-[#e2e8f0]",
+};
+
+const RADIUS_OPTIONS = [0, 8, 12, 16, 20, 24];
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function PresetIcon({ type }: { type: SizePreset["icon"] }) {
+  if (type === "mobile")   return <Smartphone className="w-3.5 h-3.5" />;
+  if (type === "vertical") return <Layout    className="w-3.5 h-3.5 rotate-90" />;
+  if (type === "square")   return <Layout    className="w-3.5 h-3.5" />;
+  return <Monitor className="w-3.5 h-3.5" />;
 }
 
-export function PartnerBanners({ partnerCode }: Props) {
-  const [copied, setCopied]     = useState<string | null>(null);
-  const [preview, setPreview]   = useState<string | null>(null);
+function buildEmbedCode(
+  src: string, partnerCode: string,
+  w: number, h: number, radius: number,
+  bannerLabel: string,
+) {
+  return `<!-- Skily Banner — ${bannerLabel} -->
+<div style="max-width:${w}px">
+  <script>var SKILY_REF = "${partnerCode}";</script>
+  <iframe
+    src="https://skilyapp.com${src}"
+    width="${w}"
+    height="${h}"
+    frameborder="0"
+    scrolling="no"
+    style="border-radius:${radius}px;overflow:hidden;display:block;width:100%;height:${h}px"
+    loading="lazy"
+    title="Skily — ${bannerLabel}"
+  ></iframe>
+</div>`;
+}
 
-  function handleCopy(bannerId: string, code: string) {
-    navigator.clipboard.writeText(code).then(() => {
-      setCopied(bannerId);
+// ─── Component ───────────────────────────────────────────────────────────────
+
+interface Props { partnerCode: string }
+
+export function PartnerBanners({ partnerCode }: Props) {
+  const [activeBanner, setActiveBanner] = useState<BannerType>(BANNER_TYPES[0]);
+  const [preset,       setPreset]       = useState<SizePreset>(SIZE_PRESETS[1]); // "wide" default
+  const [customW,      setCustomW]      = useState(400);
+  const [customH,      setCustomH]      = useState(200);
+  const [radius,       setRadius]       = useState(16);
+  const [bg,           setBg]           = useState<keyof typeof PREVIEW_BG>("dark");
+  const [copied,       setCopied]       = useState(false);
+  const [iframeKey,    setIframeKey]    = useState(0);
+
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [previewScale, setPreviewScale] = useState(1);
+
+  const width  = preset.id === "custom" ? customW : preset.w;
+  const height = preset.id === "custom" ? customH : preset.h;
+
+  const embedCode = buildEmbedCode(
+    activeBanner.src, partnerCode, width, height, radius, activeBanner.label
+  );
+
+  // Scale iframe to fit preview container
+  const updateScale = useCallback(() => {
+    if (!previewRef.current) return;
+    const containerW = previewRef.current.clientWidth - 48; // padding
+    const scale = Math.min(1, containerW / width);
+    setPreviewScale(scale);
+  }, [width]);
+
+  useEffect(() => {
+    updateScale();
+    const ro = new ResizeObserver(updateScale);
+    if (previewRef.current) ro.observe(previewRef.current);
+    return () => ro.disconnect();
+  }, [updateScale]);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(embedCode).then(() => {
+      setCopied(true);
       toast.success("Код скопирован в буфер обмена");
-      setTimeout(() => setCopied(null), 2500);
+      setTimeout(() => setCopied(false), 2500);
     });
   }
 
+  function handleRefresh() {
+    setIframeKey(k => k + 1);
+  }
+
+  const accentMap: Record<string, string> = {
+    indigo:  "border-indigo-500/40 bg-indigo-500/10 text-indigo-300",
+    emerald: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+  };
+
   return (
     <div className="space-y-5">
+
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold text-white">Рекламные баннеры</h3>
-          <p className="text-zinc-500 text-xs mt-0.5">
-            Вставь HTML-код на свой сайт — баннер обновляется автоматически
-          </p>
+          <h3 className="text-base font-semibold text-white">Конструктор баннеров</h3>
+          <p className="text-zinc-500 text-xs mt-0.5">Настрой размер и вставь готовый код на свой сайт</p>
         </div>
         <div className="px-3 py-1.5 rounded-full bg-zinc-800 border border-zinc-700 text-xs text-zinc-400 font-mono">
           ref: {partnerCode}
         </div>
       </div>
 
-      {BANNERS.map((banner) => {
-        const embedCode = banner.getEmbedCode(partnerCode);
-        const isCopied = copied === banner.id;
-        const isPreviewing = preview === banner.id;
+      {/* Main grid: controls left, preview right */}
+      <div className="grid grid-cols-1 xl:grid-cols-[340px_1fr] gap-4">
 
-        return (
-          <div
-            key={banner.id}
-            className={`rounded-xl border border-zinc-800 bg-gradient-to-br ${banner.color} overflow-hidden`}
-          >
-            {/* Header */}
-            <div className="px-5 pt-5 pb-4 flex items-start justify-between gap-4">
-              <div className="flex items-start gap-3">
-                <div className="text-2xl leading-none mt-0.5">{banner.emoji}</div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-white text-sm">{banner.title}</span>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${banner.badgeColor}`}>
-                      {banner.subtitle}
-                    </span>
-                  </div>
-                  <p className="text-zinc-500 text-xs leading-relaxed">{banner.description}</p>
-                </div>
-              </div>
+        {/* ── LEFT: Controls ─────────────────────────────────────── */}
+        <div className="space-y-3">
 
-              <div className="flex gap-2 flex-shrink-0">
+          {/* Banner type */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-2.5">
+            <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Layout className="w-3 h-3" /> Тип баннера
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {BANNER_TYPES.map(b => (
                 <button
-                  onClick={() => setPreview(isPreviewing ? null : banner.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
-                    isPreviewing
-                      ? "bg-zinc-700 border-zinc-600 text-white"
-                      : "bg-zinc-800/70 border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600"
+                  key={b.id}
+                  onClick={() => { setActiveBanner(b); setIframeKey(k => k + 1); }}
+                  className={`flex flex-col items-start gap-1 p-3 rounded-xl border text-left transition-all ${
+                    activeBanner.id === b.id
+                      ? `border-white/20 bg-white/[0.07] ${accentMap[b.accent]}`
+                      : "border-zinc-800 bg-zinc-800/30 hover:border-zinc-700 text-zinc-400 hover:text-white"
                   }`}
                 >
-                  <Eye className="w-3 h-3" />
-                  {isPreviewing ? "Скрыть" : "Превью"}
+                  <span className="text-xl">{b.emoji}</span>
+                  <span className="text-xs font-semibold">{b.label}</span>
+                  <span className="text-[10px] opacity-60 leading-tight">{b.description}</span>
                 </button>
-                <a
-                  href={banner.previewUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-zinc-800/70 border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-600 text-xs font-medium transition-all"
-                >
-                  <ExternalLink className="w-3 h-3" />
-                  Открыть
-                </a>
-              </div>
-            </div>
-
-            {/* Preview iframe */}
-            {isPreviewing && (
-              <div className="px-5 pb-4">
-                <div className="rounded-lg overflow-hidden border border-zinc-700/50 bg-zinc-950">
-                  <iframe
-                    src={banner.previewUrl}
-                    className="w-full"
-                    style={{ height: 170, border: "none", display: "block" }}
-                    title={banner.title}
-                  />
-                </div>
-                <p className="text-zinc-600 text-[10px] mt-2 text-center">
-                  Реальное отображение — даты и счётчик загружаются из базы
-                </p>
-              </div>
-            )}
-
-            {/* Code block */}
-            <div className="mx-5 mb-5 rounded-lg bg-zinc-950 border border-zinc-800 overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800/60">
-                <div className="flex items-center gap-2 text-xs text-zinc-500">
-                  <Code2 className="w-3.5 h-3.5" />
-                  HTML-код для вставки
-                </div>
-                <button
-                  onClick={() => handleCopy(banner.id, embedCode)}
-                  className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
-                    isCopied
-                      ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
-                      : "bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 border border-zinc-700"
-                  }`}
-                >
-                  {isCopied ? (
-                    <><Check className="w-3 h-3" />Скопировано</>
-                  ) : (
-                    <><Copy className="w-3 h-3" />Скопировать</>
-                  )}
-                </button>
-              </div>
-              <pre className="px-4 py-3.5 text-[11px] text-zinc-400 font-mono overflow-x-auto leading-relaxed">
-                {embedCode}
-              </pre>
+              ))}
             </div>
           </div>
-        );
-      })}
 
-      {/* Note */}
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 px-5 py-4">
-        <p className="text-zinc-500 text-xs leading-relaxed">
-          <span className="text-zinc-300 font-medium">Как это работает:</span>{" "}
-          Каждый баннер содержит твой реферальный код <code className="text-indigo-400 font-mono">{partnerCode}</code>.
-          Когда пользователь кликает и покупает — комиссия начисляется тебе автоматически.
-          Баннер работает на любом сайте, блоге или лендинге.
-        </p>
+          {/* Size presets */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-2.5">
+            <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Sliders className="w-3 h-3" /> Размер
+            </p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {SIZE_PRESETS.map(p => (
+                <button
+                  key={p.id}
+                  onClick={() => setPreset(p)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs transition-all ${
+                    preset.id === p.id
+                      ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-300"
+                      : "border-zinc-800 bg-zinc-800/30 text-zinc-400 hover:text-white hover:border-zinc-700"
+                  }`}
+                >
+                  <PresetIcon type={p.icon} />
+                  <div className="text-left min-w-0">
+                    <div className="font-medium truncate">{p.label}</div>
+                    <div className="text-[10px] opacity-50 font-mono">{p.tag}</div>
+                  </div>
+                  {preset.id === p.id && <ChevronRight className="w-3 h-3 ml-auto flex-shrink-0" />}
+                </button>
+              ))}
+            </div>
+
+            {/* Custom size inputs */}
+            {preset.id === "custom" && (
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <label className="space-y-1">
+                  <span className="text-[10px] text-zinc-500">Ширина (px)</span>
+                  <input
+                    type="number"
+                    value={customW}
+                    min={60} max={2000}
+                    onChange={e => setCustomW(Math.max(60, Math.min(2000, +e.target.value)))}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm focus:outline-none focus:border-indigo-500/50"
+                  />
+                </label>
+                <label className="space-y-1">
+                  <span className="text-[10px] text-zinc-500">Высота (px)</span>
+                  <input
+                    type="number"
+                    value={customH}
+                    min={30} max={2000}
+                    onChange={e => setCustomH(Math.max(30, Math.min(2000, +e.target.value)))}
+                    className="w-full px-3 py-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm focus:outline-none focus:border-indigo-500/50"
+                  />
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* Corner radius */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest">
+                Скругление углов
+              </p>
+              <span className="text-xs text-zinc-400 font-mono">{radius}px</span>
+            </div>
+            <div className="flex gap-2">
+              {RADIUS_OPTIONS.map(r => (
+                <button
+                  key={r}
+                  onClick={() => setRadius(r)}
+                  className={`flex-1 h-8 text-xs font-mono transition-all border ${
+                    radius === r
+                      ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-300"
+                      : "border-zinc-800 bg-zinc-800/30 text-zinc-500 hover:text-white hover:border-zinc-700"
+                  }`}
+                  style={{ borderRadius: Math.min(r, 8) }}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Preview background */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 space-y-2.5">
+            <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-widest">
+              Фон превью
+            </p>
+            <div className="flex gap-2">
+              {(Object.keys(PREVIEW_BG) as (keyof typeof PREVIEW_BG)[]).map(key => (
+                <button
+                  key={key}
+                  onClick={() => setBg(key)}
+                  className={`flex-1 py-2 rounded-lg border text-xs font-medium capitalize transition-all ${
+                    bg === key
+                      ? "border-white/20 text-white bg-white/[0.07]"
+                      : "border-zinc-800 text-zinc-500 hover:text-white hover:border-zinc-700"
+                  }`}
+                >
+                  {key === "dark"  && <Moon className="w-3 h-3 inline mr-1" />}
+                  {key === "light" && <Sun  className="w-3 h-3 inline mr-1" />}
+                  {key === "gray"  && <Layout className="w-3 h-3 inline mr-1" />}
+                  {key === "dark" ? "Тёмный" : key === "light" ? "Светлый" : "Серый"}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── RIGHT: Preview + code ──────────────────────────────── */}
+        <div className="space-y-3 min-w-0">
+
+          {/* Preview window */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500/60" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/60" />
+                </div>
+                <span className="text-xs text-zinc-500 font-mono ml-1">
+                  {activeBanner.label} — {width}×{height}px
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={activeBanner.src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-zinc-700 text-zinc-400 hover:text-white text-[11px] transition-all"
+                >
+                  <ExternalLink className="w-3 h-3" /> Открыть
+                </a>
+                <button
+                  onClick={handleRefresh}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-zinc-700 text-zinc-400 hover:text-white text-[11px] transition-all"
+                >
+                  <RefreshCw className="w-3 h-3" /> Обновить
+                </button>
+              </div>
+            </div>
+
+            {/* Preview area */}
+            <div
+              ref={previewRef}
+              className={`${PREVIEW_BG[bg]} p-6 flex items-center justify-center min-h-[200px] transition-colors`}
+            >
+              <div
+                style={{
+                  transform: `scale(${previewScale})`,
+                  transformOrigin: "top center",
+                  width,
+                  height,
+                  flexShrink: 0,
+                }}
+              >
+                <iframe
+                  key={iframeKey}
+                  src={activeBanner.src}
+                  width={width}
+                  height={height}
+                  frameBorder={0}
+                  scrolling="no"
+                  style={{
+                    display: "block",
+                    width,
+                    height,
+                    borderRadius: radius,
+                    overflow: "hidden",
+                    border: "none",
+                  }}
+                  title={activeBanner.label}
+                />
+              </div>
+            </div>
+
+            {/* Size indicator */}
+            <div className="px-4 py-2.5 border-t border-zinc-800 flex items-center justify-between">
+              <div className="flex items-center gap-3 text-[11px] text-zinc-500">
+                <span className="font-mono">{width} × {height} px</span>
+                <span>•</span>
+                <span>Скругление {radius}px</span>
+                <span>•</span>
+                <span>
+                  {width > height ? "Горизонтальный" : width < height ? "Вертикальный" : "Квадратный"}
+                </span>
+              </div>
+              <span className="text-[11px] text-zinc-600">
+                Масштаб: {Math.round(previewScale * 100)}%
+              </span>
+            </div>
+          </div>
+
+          {/* Generated code */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800">
+              <div className="flex items-center gap-2 text-xs text-zinc-400">
+                <Code2 className="w-3.5 h-3.5" />
+                <span>HTML-код для вставки на сайт</span>
+              </div>
+              <button
+                onClick={handleCopy}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                  copied
+                    ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/25"
+                    : "bg-indigo-600 text-white border-transparent hover:bg-indigo-500"
+                }`}
+              >
+                {copied
+                  ? <><Check className="w-3.5 h-3.5" /> Скопировано!</>
+                  : <><Copy className="w-3.5 h-3.5" /> Скопировать код</>
+                }
+              </button>
+            </div>
+            <pre className="px-5 py-4 text-[11px] text-zinc-400 font-mono overflow-x-auto leading-relaxed whitespace-pre">
+              {embedCode}
+            </pre>
+          </div>
+
+          {/* Tip */}
+          <div className="rounded-xl border border-zinc-800/60 bg-zinc-900/30 px-4 py-3.5 flex gap-3">
+            <span className="text-base flex-shrink-0">💡</span>
+            <p className="text-zinc-500 text-xs leading-relaxed">
+              Вставь код в любое место HTML-страницы. Реферальный код{" "}
+              <code className="text-indigo-400 font-mono">{partnerCode}</code>{" "}
+              уже вшит — каждый клик и покупка будут привязаны к тебе автоматически.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
