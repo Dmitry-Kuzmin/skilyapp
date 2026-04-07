@@ -29,11 +29,11 @@ serve(async (req) => {
     if (!season_id) {
       console.log("[season-end-rewards] No season_id provided, searching for ended seasons");
 
+      // Find seasons that have ended (is_active=false) but have no rewards distributed yet
       const { data: endedSeasons, error: seasonsError } = await supabase
         .from("duel_pass_seasons")
         .select("id, season_number, name_ru, end_date")
         .lte("end_date", new Date().toISOString())
-        .eq("is_active", true)
         .order("end_date", { ascending: false });
 
       if (seasonsError) {
