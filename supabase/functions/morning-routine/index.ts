@@ -176,8 +176,17 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
 
   const pollData = await pollRes.json();
 
-  // Если бот заблокирован — просто пропускаем, не падаем
+  // Если бот заблокирован или poll не отправился — удаляем уже отправленное фото
   if (!pollRes.ok) {
+    if (photoMsgId) {
+      try {
+        await fetch(`${TELEGRAM_API}/deleteMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: telegramId, message_id: photoMsgId }),
+        });
+      } catch { /* ignore cleanup errors */ }
+    }
     const code = pollData?.error_code;
     if (code === 403) {
       console.log(`[Morning] Skipped ${telegramId}: bot blocked`);
