@@ -114,7 +114,49 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Invalid catalog_key" }), { status: 400, headers: corsHeaders });
     }
 
-    const customData = { user_id, catalog_key, db_type: entry.dbType, db_item_id: entry.dbItemId, ...entry.metadata };
+    // Validate promo code and get discount if provided
+    let discountPct = 0;
+    let resolvedPromoCode: string | null = null;
+    if (promo_code) {
+      const { data: promoData } = await supabase
+        .from("partners")
+        .select("promo_code, promo_code_discount, status, registration_status")
+        .eq("promo_code", promo_code.toUpperCase().trim())
+        .eq("status", "active")
+        .eq("registration_status", "approved")
+        .single();
+      if (promoData) {
+        discountPct = promoData.promo_code_discount ?? 0;
+        resolvedPromoCode = promoData.promo_code;
+      }
+    }
+
+    // Apply discount: reduce amountCents by discount_pct
+    const originalAmount = entry.amountCents;
+    const discountedAmount = discountPct > 0
+      ? Math.round(originalAmount * (1 - discountPct / 100))
+      : originalAmount;
+
+    const customData = {
+      user_id, catalog_key,
+      db_type: entry.dbType, db_item_id: entry.dbItemId,
+      ...(partner_code ? { partner_code } : {}),
+      ...(resolvedPromoCode ? { promo_code: resolvedPromoCode, discount_pct: discountPct } : {}),
+      ...entry.metadata,
+    };
+
+    // Build transaction body — use custom unit_price if discount applied
+    const transactionItems = discountPct > 0
+      ? [{
+          price: {
+            product_id: await getProductIdForPrice(PADDLE_PRICE_IDS[catalog_key], paddleApiKey),
+            unit_price: { amount: String(discountedAmount), currency_code: entry.currency.toUpperCase() },
+            description: `${entry.name} (${discountPct}% partner discount)`,
+            tax_mode: "account_setting",
+          },
+          quantity: 1,
+        }]
+      : [{ price_id: PADDLE_PRICE_IDS[catalog_key], quantity: 1 }];
 
     const transactionResponse = await fetch("https://api.paddle.com/transactions?include=checkout", {
       method: "POST",
@@ -123,7 +165,7 @@ serve(async (req) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        items: [{ price_id: PADDLE_PRICE_IDS[catalog_key], quantity: 1 }],
+        items: transactionItems,
         custom_data: customData,
       }),
     });
