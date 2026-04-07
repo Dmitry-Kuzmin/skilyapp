@@ -953,8 +953,9 @@ export function BoostShopModal({
           }
         }
 
-        // Получаем partner_code из localStorage (если пользователь пришел через партнерскую ссылку)
+        // Получаем partner_code и promo_code из localStorage
         const partnerCode = localStorage.getItem("partner_code");
+        const promoCode = localStorage.getItem("active_promo_code");
 
         // Создаем Paddle Transaction через Edge Function
         const { data, error } = await supabaseClient.functions.invoke(
@@ -964,6 +965,7 @@ export function BoostShopModal({
               user_id: profileId,
               catalog_key: catalogKey,
               ...(partnerCode ? { partner_code: partnerCode } : {}),
+              ...(promoCode ? { promo_code: promoCode } : {}),
             },
           },
         );
