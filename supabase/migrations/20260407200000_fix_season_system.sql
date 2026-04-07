@@ -295,22 +295,6 @@ BEGIN
       END IF;
     END LOOP;
 
-    -- Create notification
-    INSERT INTO notifications (user_id, type, title, message, metadata)
-    VALUES (
-      v_player.user_id,
-      'leaderboard_reward',
-      CASE WHEN v_position <= 3
-        THEN '🏆 Поздравляем! Вы заняли ' || v_position || ' место!'
-        ELSE '⭐ Поздравляем! Вы вошли в топ-10!'
-      END,
-      CASE WHEN v_position <= 3
-        THEN 'Вы получили эксклюзивные призы за ' || v_position || ' место в сезоне Операция Асфальт!'
-        ELSE 'Вы получили призы за попадание в топ-10 сезона Операция Асфальт!'
-      END,
-      jsonb_build_object('season_id', 1, 'position', v_position)
-    );
-
   END LOOP;
 
   RAISE NOTICE 'Season 1 rewards distributed for % players', v_position;
