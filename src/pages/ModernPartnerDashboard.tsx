@@ -133,7 +133,7 @@ export default function ModernPartnerDashboard() {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, [isAuthenticated, supabaseUser, loadDashboardData, navigate]);
+  }, [authLoading, isAuthenticated, supabaseUser, loadDashboardData, navigate]);
 
   if (loading) {
     return <PageLoader />;
