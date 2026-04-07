@@ -974,15 +974,28 @@ const server = http.createServer(async (req, res) => {
           primaryResult = await runRender(videoQuestion, outputPrimary, "VideoTemplateRU");
         } else {
           // ── DGT (Spanish): ES video + optional RU overlay video ───────────
+          // ES video uses ES hook and ES outro
+          const videoQuestionES = {
+            ...videoQuestion,
+            hookAudioFile:        videoQuestion.hookAudioFileEs || videoQuestion.hookAudioFile,
+            hookAudioDurationSec: videoQuestion.hookAudioDurationSecEs || videoQuestion.hookAudioDurationSec,
+            outroAudioFile:       videoQuestion.outroAudioFileEs || null,
+            outroAudioDurationSec:videoQuestion.outroAudioDurationSecEs || null,
+          };
           outputPrimary = path.join(RENDERS_DIR, `question-${question.id}-es.mp4`);
           console.log(`[Render] ES video…`);
-          primaryResult = await runRender(videoQuestion, outputPrimary, "VideoTemplate");
+          primaryResult = await runRender(videoQuestionES, outputPrimary, "VideoTemplate");
 
           if (videoQuestion.explanationRu && videoQuestion.explanationRuAudioFile) {
+            // RU overlay uses RU hook and RU outro
             const ruQuestion = {
               ...videoQuestion,
               language: "ru",
               hook_title: hookTemplatesRU[hookKey] || hookTemplatesRU.easy,
+              hookAudioFile:        videoQuestion.hookAudioFileRu || videoQuestion.hookAudioFile,
+              hookAudioDurationSec: videoQuestion.hookAudioDurationSecRu || videoQuestion.hookAudioDurationSec,
+              outroAudioFile:       videoQuestion.outroAudioFileRu || null,
+              outroAudioDurationSec:videoQuestion.outroAudioDurationSecRu || null,
             };
             outputRU = path.join(RENDERS_DIR, `question-${question.id}-ru.mp4`);
             console.log(`[Render] RU overlay video…`);
