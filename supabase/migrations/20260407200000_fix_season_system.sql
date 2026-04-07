@@ -136,8 +136,9 @@ ON CONFLICT DO NOTHING;
 -- and archive season participants before deactivating.
 -- This replaces the existing function with an improved version.
 -- ============================================================
+DROP FUNCTION IF EXISTS auto_transition_season();
 CREATE OR REPLACE FUNCTION auto_transition_season()
-RETURNS jsonb
+RETURNS text
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
