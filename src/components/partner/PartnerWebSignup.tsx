@@ -82,7 +82,7 @@ export function PartnerWebSignup({ onClose }: Props) {
       const row = Array.isArray(data) ? data[0] : data;
       if (!row?.success) throw new Error(row?.message ?? "Ошибка регистрации");
 
-      setPartnerCode(row.partner_code);
+      setPartnerCode(row.out_code);
       setStep("success");
     } catch (err: any) {
       toast.error(err.message ?? "Что-то пошло не так");
