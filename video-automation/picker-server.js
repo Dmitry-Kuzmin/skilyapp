@@ -784,25 +784,51 @@ const OUTRO_TEMPLATES = {
 function renderOutroChips() {
   if (!selected) return;
   window._outroMap = {};
+  window._outroActiveRU = null;
+  window._outroActiveES = null;
+
   function buildChips(containerId, langKey) {
     const container = document.getElementById(containerId);
     if (!container) return;
     const templates = OUTRO_TEMPLATES[langKey] || OUTRO_TEMPLATES.ru;
     templates.forEach(t => { window._outroMap[t.id + '_' + langKey] = t.text; });
-    container.innerHTML = templates.map(t =>
-      \`<button onclick="selectOutro(window._outroMap['\${t.id}_\${langKey}'])"
-        style="padding:5px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.15);
-               background:rgba(255,255,255,0.05);color:#F0F6FC;font-size:12px;
-               cursor:pointer;font-family:inherit">\${t.label}</button>\`
-    ).join('');
+    container.innerHTML = templates.map(t => {
+      const key = t.id + '_' + langKey;
+      return \`<button id="chip_\${key}"
+        onclick="selectOutro('\${key}','\${langKey}')"
+        style="padding:4px 11px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.15);
+               background:rgba(255,255,255,0.05);color:#C9D1D9;font-size:12px;
+               cursor:pointer;font-family:inherit;transition:all .15s">\${t.label}</button>\`;
+    }).join('');
   }
   buildChips('outroChipsRU', 'ru');
   buildChips('outroChipsES', 'es');
 }
 
-function selectOutro(text) {
-  const ta = document.getElementById('outroText');
-  if (ta) { ta.value = text; ta.style.borderColor = '#2F81F7'; }
+function syncOutroActive(langKey) {
+  // deactivate all chips for this lang when user types manually
+  (OUTRO_TEMPLATES[langKey.toLowerCase()] || []).forEach(t => {
+    const chip = document.getElementById('chip_' + t.id + '_' + langKey.toLowerCase());
+    if (chip) { chip.style.borderColor = 'rgba(255,255,255,0.15)'; chip.style.background = 'rgba(255,255,255,0.05)'; chip.style.color = '#C9D1D9'; }
+  });
+}
+
+function selectOutro(key, langKey) {
+  const text = window._outroMap[key];
+  if (!text) return;
+  const fieldId = langKey === 'es' ? 'outroTextES' : 'outroTextRU';
+  const ta = document.getElementById(fieldId);
+  if (ta) { ta.value = text; }
+
+  // Highlight active chip, reset others in this lang
+  (OUTRO_TEMPLATES[langKey] || []).forEach(t => {
+    const chip = document.getElementById('chip_' + t.id + '_' + langKey);
+    if (!chip) return;
+    const isActive = (t.id + '_' + langKey) === key;
+    chip.style.borderColor  = isActive ? '#2F81F7' : 'rgba(255,255,255,0.15)';
+    chip.style.background   = isActive ? 'rgba(47,129,247,0.15)' : 'rgba(255,255,255,0.05)';
+    chip.style.color        = isActive ? '#79C0FF' : '#C9D1D9';
+  });
 }
 
 async function renderVideo() {
