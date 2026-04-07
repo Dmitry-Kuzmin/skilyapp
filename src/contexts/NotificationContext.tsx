@@ -177,8 +177,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                     }
                 }
 
-                // Telegram
-                if (!isAppActive() && profileId) {
+                // Telegram — только свежие уведомления (не старше 5 минут)
+                if (!isAppActive() && profileId && !isOldNotification) {
                     const now = Date.now();
                     if (now - lastTelegramAtRef.current >= TELEGRAM_RATE_LIMIT_MS) {
                         lastTelegramAtRef.current = now;
