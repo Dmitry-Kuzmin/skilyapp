@@ -110,24 +110,36 @@ async function processSeason(season_id: number, supabase: SupabaseClient) {
   console.log(`[season-end-rewards] Processing rewards for season ${season_id}`);
 
   try {
-    // Получаем топ-10 игроков по season_points текущего сезона (с фолбэком на duel_pass_level)
-    const { data: topPlayers, error: playersError } = await supabase
+    // Получаем топ-10 игроков по season_points текущего сезона
+    const { data: progressData, error: playersError } = await supabase
       .from("user_season_progress")
-      .select("user_id, season_points, level, profiles!inner(id, duel_pass_level, duel_pass_xp, first_name, username)")
+      .select("user_id, season_points, level")
       .eq("season_id", season_id)
       .order("season_points", { ascending: false })
-      .limit(10)
-      .then(({ data, error }) => ({
-        data: data?.map((row: any) => ({
-          id: row.user_id,
-          duel_pass_level: row.profiles.duel_pass_level,
-          duel_pass_xp: row.profiles.duel_pass_xp,
-          first_name: row.profiles.first_name,
-          username: row.profiles.username,
-          season_points: row.season_points,
-        })),
-        error,
-      }));
+      .limit(10);
+
+    if (playersError) {
+      console.error("[season-end-rewards] Error fetching top players:", playersError);
+      return {
+        success: false,
+        error: "Failed to fetch top players",
+        details: playersError.message,
+      };
+    }
+
+    // Enrich with profile data
+    const topPlayers: Array<{ id: string; duel_pass_level: number; duel_pass_xp: number; first_name: string; username: string }> = [];
+    for (const row of progressData || []) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id, duel_pass_level, duel_pass_xp, first_name, username")
+        .eq("id", row.user_id)
+        .single();
+      if (profile) topPlayers.push(profile);
+    }
+
+    // Dummy error variable kept for compatibility
+    const _playersError = null;
 
     if (playersError) {
       console.error("[season-end-rewards] Error fetching top players:", playersError);
