@@ -23,11 +23,19 @@ export default function PartnerLinkRedirect() {
 
     try {
       // Получить информацию о ссылке (автоматически инкрементит clicks_count)
-      const { data, error } = await supabase.rpc('get_partner_link_info', {
-        p_link_code: code.toUpperCase()
-      });
-
-      if (error) throw error;
+      let data: any, error: any;
+      try {
+        ({ data, error } = await supabase.rpc('get_partner_link_info', {
+          p_link_code: code.toUpperCase()
+        }));
+        if (error) throw error;
+      } catch (_rpcErr) {
+        // Если RPC упал (CORS, network, content blocker) — уходим на серверный редирект
+        window.location.replace(
+          `https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/partner-redirect/${code}`
+        );
+        return;
+      }
 
       if (data && data.length > 0) {
         const linkInfo = data[0];
