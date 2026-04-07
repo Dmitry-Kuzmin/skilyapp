@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { CheckCircle2, Copy, Check, Loader2, ExternalLink, X, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle2, Copy, Check, Loader2, ExternalLink, X, TrendingUp, Monitor, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthModalNew } from "@/components/AuthModalNew";
 import { toast } from "sonner";
