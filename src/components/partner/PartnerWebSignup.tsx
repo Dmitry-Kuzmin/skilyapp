@@ -30,10 +30,8 @@ export function PartnerWebSignup({ onClose }: Props) {
 
   // Check auth on mount
   useEffect(() => {
-    const supabase = supabase;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        // Prefill name from user metadata
         const meta = user.user_metadata;
         const displayName = meta?.full_name || meta?.name || meta?.first_name || "";
         if (displayName) setName(displayName);
@@ -48,7 +46,6 @@ export function PartnerWebSignup({ onClose }: Props) {
   // After auth modal closes, recheck
   function handleAuthClose() {
     setShowAuth(false);
-    const supabase = supabase;
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         const meta = user.user_metadata;
