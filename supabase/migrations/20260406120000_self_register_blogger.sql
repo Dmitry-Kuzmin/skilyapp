@@ -71,7 +71,7 @@ BEGIN
   IF LENGTH(v_code) < 3 THEN
     v_code := UPPER(SUBSTRING(v_user_id::TEXT FROM 1 FOR 6));
   END IF;
-  WHILE EXISTS (SELECT 1 FROM public.partners WHERE partner_code = v_code) LOOP
+  WHILE EXISTS (SELECT 1 FROM public.partners pr WHERE pr.partner_code = v_code) LOOP
     v_code := v_code || UPPER(SUBSTRING(MD5(RANDOM()::TEXT) FROM 1 FOR 2));
   END LOOP;
 
