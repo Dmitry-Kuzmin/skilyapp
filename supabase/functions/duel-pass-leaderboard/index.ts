@@ -535,22 +535,22 @@ serve(async (req) => {
       }
     }
 
-    // Сортируем по уровню (из season_progress если есть, иначе duel_pass_level), затем по SP (если есть, иначе XP)
+    // Сортируем исключительно по SP текущего сезона (season_points, затем season level)
     allProfiles.sort((a, b) => {
       const aSP = seasonProgressMap.get(a.id);
       const bSP = seasonProgressMap.get(b.id);
 
-      const aLevel = aSP?.level || a.duel_pass_level || 1;
-      const bLevel = bSP?.level || b.duel_pass_level || 1;
+      const aPoints = aSP?.season_points ?? 0;
+      const bPoints = bSP?.season_points ?? 0;
 
-      if (bLevel !== aLevel) {
-        return bLevel - aLevel;
+      if (bPoints !== aPoints) {
+        return bPoints - aPoints;
       }
 
-      // Используем SP для сортировки, если доступно, иначе XP
-      const aPoints = aSP?.season_points ?? a.duel_pass_xp ?? 0;
-      const bPoints = bSP?.season_points ?? b.duel_pass_xp ?? 0;
-      return bPoints - aPoints;
+      // Тайbreaker: season level, then eternal level
+      const aLevel = aSP?.level ?? a.duel_pass_level ?? 1;
+      const bLevel = bSP?.level ?? b.duel_pass_level ?? 1;
+      return bLevel - aLevel;
     });
 
     // Применяем пагинацию
