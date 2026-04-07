@@ -200,12 +200,17 @@ serve(async (req) => {
       user_id,
       item_type: entry.dbType,
       item_id: entry.dbItemId,
-      price: entry.amountCents / 100,
+      price: discountedAmount / 100,
       currency: entry.currency.toUpperCase(),
       paddle_transaction_id: transactionData.id,
       paddle_subscription_id: transactionData.subscription_id || null,
       status: "pending",
-      metadata: { ...entry.metadata, paddle_data: transactionData },
+      metadata: {
+        ...entry.metadata,
+        paddle_data: transactionData,
+        original_price: originalAmount / 100,
+        ...(resolvedPromoCode ? { promo_code: resolvedPromoCode, discount_pct: discountPct } : {}),
+      },
     });
 
     // Используем официальный checkout URL из ответа Paddle API
