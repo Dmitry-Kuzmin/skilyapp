@@ -70,7 +70,6 @@ export function PartnerWebSignup({ onClose }: Props) {
 
     setLoading(true);
     try {
-      const supabase = supabase;
       const { data, error } = await supabase.rpc("self_register_blogger", {
         p_name:      name.trim(),
         p_platforms: platforms,
