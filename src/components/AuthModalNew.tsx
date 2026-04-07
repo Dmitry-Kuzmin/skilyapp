@@ -521,15 +521,25 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
             )}
 
             {(step === 'magic-link-new' || step === 'magic-link-existing') && (
-              <MagicLinkStep
-                key="magic-link-step"
-                email={email}
-                isSubmitting={isSubmitting}
-                magicLinkState={magicLinkState}
-                isExistingUser={step === 'magic-link-existing'}
-                onBackToEmail={handleBackToEmail}
-                onSendMagicLink={handleSendMagicLink}
-              />
+              <>
+                {step === 'magic-link-new' && (
+                  <PromoCodeInput
+                    key="promo-input"
+                    onValidCode={setPendingPromo}
+                    defaultValue={localStorage.getItem("pending_promo_code") ?? ""}
+                    className="px-1"
+                  />
+                )}
+                <MagicLinkStep
+                  key="magic-link-step"
+                  email={email}
+                  isSubmitting={isSubmitting}
+                  magicLinkState={magicLinkState}
+                  isExistingUser={step === 'magic-link-existing'}
+                  onBackToEmail={handleBackToEmail}
+                  onSendMagicLink={handleSendMagicLink}
+                />
+              </>
             )}
 
             {step === 'otp-verify' && (
