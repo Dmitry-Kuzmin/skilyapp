@@ -53,7 +53,17 @@ export function HallOfFameView({ onBack }: { onBack: () => void }) {
 
       if (data) {
         setSeasons(data as any[]);
-        if (data.length > 0) {
+        // Default to the most recent season that has champions, not just the latest season
+        const { data: seasonWithChampions } = await supabase
+          .from("user_leaderboard_rewards")
+          .select("season_id")
+          .order("season_id", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (seasonWithChampions) {
+          setSelectedSeason(seasonWithChampions.season_id);
+        } else if (data.length > 0) {
           setSelectedSeason((data as any[])[0].id);
         }
       }
