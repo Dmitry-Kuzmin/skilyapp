@@ -64,6 +64,20 @@ const CATALOG: Record<string, CatalogEntry> = {
   coins_pack_3000: { name: "3000 монет", amountCents: 3999, currency: "eur", dbType: "coins_pack", dbItemId: "pack_3000", description: "3500 монет", metadata: { coins: 3500 } },
 };
 
+// Cache price_id → product_id to avoid repeated API calls
+const productIdCache = new Map<string, string>();
+
+async function getProductIdForPrice(priceId: string, apiKey: string): Promise<string> {
+  if (productIdCache.has(priceId)) return productIdCache.get(priceId)!;
+  const res = await fetch(`https://api.paddle.com/prices/${priceId}`, {
+    headers: { "Authorization": `Bearer ${apiKey}` },
+  });
+  const { data } = await res.json();
+  const productId = data?.product_id ?? "";
+  if (productId) productIdCache.set(priceId, productId);
+  return productId;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
