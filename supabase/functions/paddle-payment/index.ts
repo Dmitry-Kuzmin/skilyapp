@@ -88,7 +88,7 @@ serve(async (req) => {
       );
     }
 
-    const { user_id, catalog_key } = validation.data;
+    const { user_id, catalog_key, partner_code, promo_code } = validation.data;
 
     // 🛡️ SECURITY: Rate Limiting (5 пороговой платежей в минуту)
     const rateLimitCheck = await checkRateLimit({
