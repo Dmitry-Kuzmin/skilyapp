@@ -9,7 +9,7 @@ CREATE OR REPLACE FUNCTION public.self_register_blogger(
 )
 RETURNS TABLE(
   success      BOOLEAN,
-  partner_code TEXT,
+  out_code     TEXT,
   message      TEXT
 ) LANGUAGE plpgsql SECURITY DEFINER
 SET search_path = public
@@ -27,9 +27,9 @@ BEGIN
   END IF;
 
   -- Already a partner? Return existing code.
-  SELECT partner_code INTO v_code
-  FROM public.partners
-  WHERE user_id = v_user_id
+  SELECT pr.partner_code INTO v_code
+  FROM public.partners pr
+  WHERE pr.user_id = v_user_id
   LIMIT 1;
 
   IF v_code IS NOT NULL THEN
@@ -38,7 +38,7 @@ BEGIN
   END IF;
 
   -- If partner row exists but no code yet (pending), just approve it
-  IF EXISTS (SELECT 1 FROM public.partners WHERE user_id = v_user_id) THEN
+  IF EXISTS (SELECT 1 FROM public.partners pr WHERE pr.user_id = v_user_id) THEN
     v_code := UPPER(REGEXP_REPLACE(SUBSTRING(p_name FROM 1 FOR 6), '[^A-Z0-9]', '', 'gi'));
     IF LENGTH(v_code) < 3 THEN
       v_code := UPPER(SUBSTRING(v_user_id::TEXT FROM 1 FOR 6));
