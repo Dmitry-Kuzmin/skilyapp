@@ -847,7 +847,10 @@ async function renderVideo() {
     explanation: document.getElementById('editExplanation')?.value ?? selected.explanation,
     question_ru: document.getElementById('editQuestionRu')?.value ?? selected.question_ru,
     explanationRu: document.getElementById('editExplanationRu')?.value ?? selected.explanationRu ?? selected.explanation_ru,
-    outro_text:  document.getElementById('outroText')?.value?.trim() || undefined,
+    outro_text_ru: document.getElementById('outroTextRU')?.value?.trim() || undefined,
+    outro_text_es: document.getElementById('outroTextES')?.value?.trim() || undefined,
+    // legacy fallback — use RU text as default
+    outro_text:  document.getElementById('outroTextRU')?.value?.trim() || undefined,
     show_explanation: document.getElementById('showExplanation')?.checked !== false,
     answer_options: (selected.answer_options || []).map((o, i) => ({
       ...o,
