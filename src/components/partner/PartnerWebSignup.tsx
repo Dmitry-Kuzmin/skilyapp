@@ -169,14 +169,23 @@ export function PartnerWebSignup({ onClose }: Props) {
               </div>
 
               <div className="flex flex-col gap-3">
+                {/* Desktop option */}
+                <button
+                  onClick={() => { onClose(); navigate("/partner/dashboard"); }}
+                  className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl bg-white text-black font-semibold text-sm hover:bg-white/90 transition-all"
+                >
+                  <Monitor className="w-4 h-4" />
+                  Открыть кабинет здесь
+                </button>
+                {/* Telegram option */}
                 <a
                   href="https://t.me/skilyapp_bot/skilyapp?startapp=partner"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl bg-white text-black font-semibold text-sm hover:bg-white/90 transition-all"
+                  className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl border border-white/15 bg-white/[0.04] text-white font-semibold text-sm hover:bg-white/[0.08] transition-all"
                 >
-                  <ExternalLink className="w-4 h-4" />
-                  Открыть кабинет в Telegram
+                  <Send className="w-4 h-4" />
+                  Открыть в Telegram
                 </a>
                 <button onClick={onClose} className="text-white/35 text-xs hover:text-white/60 transition-colors">
                   Закрыть
