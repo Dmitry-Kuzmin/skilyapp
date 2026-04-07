@@ -339,18 +339,33 @@ async function generateTTSForQuestion(question) {
     }
   }
 
-  // Outro / CTA voice-over (always Russian — targets RU audience)
-  if (question.outro_text) {
-    const outroLang = "ru";
-    const outroPath = path.join(AUDIO_DIR, `${id}-outro.mp3`);
-    // Outro changes every render — always regenerate
-    if (fs.existsSync(outroPath)) fs.unlinkSync(outroPath);
-    const outroDur = await synth(question.outro_text, VOICE_RU, outroPath, "outro", outroLang);
-    if (outroDur !== null) {
-      result.outroAudioFile        = `audio/${id}-outro.mp3`;
-      result.outroAudioDurationSec = outroDur;
+  // Outro / CTA voice-over — separate for RU and ES
+  const outroTextRu = question.outro_text_ru || question.outro_text || null;
+  const outroTextEs = question.outro_text_es || null;
+
+  if (outroTextRu) {
+    const outroPathRu = path.join(AUDIO_DIR, `${id}-ru-outro.mp3`);
+    if (fs.existsSync(outroPathRu)) fs.unlinkSync(outroPathRu);
+    const outroDurRu = await synth(outroTextRu, VOICE_RU, outroPathRu, "outro [RU]", "ru");
+    if (outroDurRu !== null) {
+      result.outroAudioFileRu        = `audio/${id}-ru-outro.mp3`;
+      result.outroAudioDurationSecRu = outroDurRu;
     }
   }
+
+  if (outroTextEs && lang === "es") {
+    const outroPathEs = path.join(AUDIO_DIR, `${id}-es-outro.mp3`);
+    if (fs.existsSync(outroPathEs)) fs.unlinkSync(outroPathEs);
+    const outroDurEs = await synth(outroTextEs, null, outroPathEs, "outro [ES]", "es");
+    if (outroDurEs !== null) {
+      result.outroAudioFileEs        = `audio/${id}-es-outro.mp3`;
+      result.outroAudioDurationSecEs = outroDurEs;
+    }
+  }
+
+  // Legacy single-field fallback
+  result.outroAudioFile        = result.outroAudioFileRu || null;
+  result.outroAudioDurationSec = result.outroAudioDurationSecRu || null;
 
   return result;
 }
