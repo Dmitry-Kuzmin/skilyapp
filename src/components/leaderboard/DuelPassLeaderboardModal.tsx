@@ -712,8 +712,8 @@ export function DuelPassLeaderboardView({
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-black text-white font-mono tabular-nums leading-none">
-                      {(userPositionData?.user_data?.duel_pass_xp || 0).toLocaleString()}
-                      <span className="text-[10px] ml-1 text-white/60">XP</span>
+                      {(userPositionData?.user_data?.season_points ?? userPositionData?.user_data?.duel_pass_xp ?? 0).toLocaleString()}
+                      <span className="text-[10px] ml-1 text-white/60">SP</span>
                     </p>
                     <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em] mt-1">Твой прогресс</p>
                   </div>
