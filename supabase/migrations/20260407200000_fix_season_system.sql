@@ -185,7 +185,7 @@ BEGIN
     SET is_active = false
     WHERE id = v_season.id;
 
-    v_ended_seasons := array_append(v_ended_seasons, v_season.id);
+    v_ended_seasons := v_ended_seasons || v_season.id::text || ',';
   END LOOP;
 
   -- 2. Activate the next scheduled season
@@ -202,14 +202,10 @@ BEGIN
     SET is_active = true
     WHERE id = v_season.id;
 
-    v_activated_seasons := array_append(v_activated_seasons, v_season.id);
+    v_activated_seasons := v_activated_seasons || v_season.id::text || ',';
   END LOOP;
 
-  RETURN jsonb_build_object(
-    'ended_seasons',     v_ended_seasons,
-    'activated_seasons', v_activated_seasons,
-    'run_at',            NOW()
-  );
+  RETURN 'ended:' || v_ended_seasons || ' activated:' || v_activated_seasons;
 END;
 $$;
 
