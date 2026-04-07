@@ -336,7 +336,8 @@ export function PartnerBanners({ partnerCode }: Props) {
             {/* Preview area */}
             <div
               ref={previewRef}
-              className={`${PREVIEW_BG[bg]} p-6 flex items-center justify-center min-h-[200px] transition-colors`}
+              className={`${PREVIEW_BG[bg]} p-6 flex items-start justify-center transition-colors overflow-hidden`}
+              style={{ minHeight: Math.max(140, height * previewScale + 48) }}
             >
               <div
                 style={{
