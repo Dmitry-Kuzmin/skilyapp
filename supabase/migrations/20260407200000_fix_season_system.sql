@@ -219,13 +219,21 @@ $$;
 -- ============================================================
 DO $$
 DECLARE
-  v_player    RECORD;
-  v_position  int := 0;
-  v_result    jsonb;
+  v_player   RECORD;
+  v_reward   RECORD;
+  v_position int := 0;
+  v_result   jsonb;
+  v_amount   int;
 BEGIN
+  -- Only run if season 1 rewards haven't been distributed yet
+  IF (SELECT COUNT(*) FROM user_leaderboard_rewards WHERE season_id = 1) > 0 THEN
+    RAISE NOTICE 'Season 1 rewards already distributed, skipping';
+    RETURN;
+  END IF;
+
   FOR v_player IN
     SELECT
-      p.id             AS user_id,
+      p.id              AS user_id,
       p.duel_pass_level,
       p.duel_pass_xp,
       COALESCE(usp.season_points, 0) AS season_points
@@ -241,44 +249,38 @@ BEGIN
   LOOP
     v_position := v_position + 1;
 
-    -- claim_leaderboard_rewards handles the upsert into user_leaderboard_rewards
+    -- claim_leaderboard_rewards upserts into user_leaderboard_rewards
     SELECT claim_leaderboard_rewards(
       v_player.user_id::uuid,
-      1,           -- season_id
+      1,
       v_position
     ) INTO v_result;
 
-    -- Award coins for this position
-    DECLARE
-      v_reward RECORD;
-      v_amount int;
-    BEGIN
-      FOR v_reward IN
-        SELECT reward_data
-        FROM leaderboard_season_rewards
-        WHERE season_id = 1
-          AND position  = v_position
-          AND reward_type = 'coins'
-      LOOP
-        v_amount := (v_reward.reward_data->>'amount')::int;
-        IF v_amount IS NOT NULL AND v_amount > 0 THEN
-          UPDATE profiles
-          SET coins = COALESCE(coins, 0) + v_amount
-          WHERE id = v_player.user_id;
+    -- Award coins directly in profiles
+    FOR v_reward IN
+      SELECT reward_data
+      FROM leaderboard_season_rewards
+      WHERE season_id   = 1
+        AND position    = v_position
+        AND reward_type = 'coins'
+    LOOP
+      v_amount := (v_reward.reward_data->>'amount')::int;
+      IF v_amount IS NOT NULL AND v_amount > 0 THEN
+        UPDATE profiles
+        SET coins = COALESCE(coins, 0) + v_amount
+        WHERE id = v_player.user_id;
 
-          INSERT INTO transactions (user_id, transaction_type, amount, metadata)
-          VALUES (
-            v_player.user_id,
-            'coins_earned_leaderboard',
-            v_amount,
-            jsonb_build_object('season_id', 1, 'position', v_position)
-          )
-          ON CONFLICT DO NOTHING;
-        END IF;
-      END LOOP;
-    END;
+        INSERT INTO transactions (user_id, transaction_type, amount, metadata)
+        VALUES (
+          v_player.user_id,
+          'coins_earned_leaderboard',
+          v_amount,
+          jsonb_build_object('season_id', 1, 'position', v_position)
+        );
+      END IF;
+    END LOOP;
 
-    -- Notification
+    -- Create notification
     INSERT INTO notifications (user_id, type, title, message, metadata)
     VALUES (
       v_player.user_id,
@@ -292,8 +294,7 @@ BEGIN
         ELSE 'Вы получили призы за попадание в топ-10 сезона Операция Асфальт!'
       END,
       jsonb_build_object('season_id', 1, 'position', v_position)
-    )
-    ON CONFLICT DO NOTHING;
+    );
 
   END LOOP;
 
