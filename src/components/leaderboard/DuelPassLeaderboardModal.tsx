@@ -608,7 +608,7 @@ export function DuelPassLeaderboardView({
                 <div className="w-10">#</div>
                 <div className="flex-1 ml-4">Гонщик</div>
                 <div className="hidden sm:block w-24 text-center">Уровень</div>
-                <div className="w-24 text-right">Опыт</div>
+                <div className="w-24 text-right">SP</div>
               </div>
 
               <div className="space-y-2">
