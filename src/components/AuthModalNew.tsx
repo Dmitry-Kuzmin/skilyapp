@@ -304,9 +304,23 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
       if (error) throw error;
 
+      // Apply promo code if entered during registration
+      if (isNewUserForOtp && pendingPromo?.partner_code) {
+        supabase.rpc("apply_promo_code", { p_code: pendingPromo.partner_code })
+          .then(({ data }) => {
+            const row = Array.isArray(data) ? data[0] : data;
+            if (row?.success) {
+              localStorage.setItem("active_promo_code", pendingPromo.partner_code!);
+              localStorage.setItem("active_promo_discount", String(pendingPromo.discount_pct));
+              toast.success(`Промокод применён — скидка ${pendingPromo.discount_pct}% на покупку!`);
+            }
+          })
+          .catch(() => {/* non-critical */});
+      }
+
       setShowSuccessAnimation(true);
       toast.success(t('auth.success.loggedIn'));
-      
+
       setTimeout(() => {
         onClose();
         navigate('/dashboard', { replace: true });
@@ -317,7 +331,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     } finally {
       setIsSubmitting(false);
     }
-  }, [email, isSubmitting, isNewUserForOtp, onClose, navigate, t]);
+  }, [email, isSubmitting, isNewUserForOtp, pendingPromo, onClose, navigate, t]);
 
   const handlePasswordRecovery = async () => {
     if (!email || isSubmitting) return;
