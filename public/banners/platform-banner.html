@@ -3,328 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skily — Доступ к платформе DGT</title>
+<title>Skily — Платформа DGT</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
     background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   }
 
-  .skily-banner {
-    position: relative;
-    width: 100%;
-    max-width: 560px;
-    min-height: 130px;
+  /* The banner is designed at 560×170 — JS scales it to fit any iframe size */
+  .wrap {
+    position: fixed;
+    top: 0; left: 0;
+    width: 560px;
+    height: 170px;
+    transform-origin: top left;
+  }
+
+  .banner {
+    width: 100%; height: 100%;
     background: linear-gradient(135deg, #060a14 0%, #091020 60%, #060a14 100%);
     border-radius: 20px;
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    border: 1px solid rgba(16,185,129,0.25);
     overflow: hidden;
     display: flex;
     align-items: center;
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,0.04) inset,
-      0 20px 60px rgba(16, 185, 129, 0.1),
-      0 4px 20px rgba(0,0,0,0.5);
-    text-decoration: none;
     cursor: pointer;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    text-decoration: none;
+    position: relative;
+    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 20px 60px rgba(16,185,129,0.1), 0 4px 20px rgba(0,0,0,0.5);
   }
-
-  .skily-banner:hover {
+  .banner:hover {
     transform: translateY(-2px);
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,0.06) inset,
-      0 24px 70px rgba(16, 185, 129, 0.18),
-      0 8px 32px rgba(0,0,0,0.6);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 24px 70px rgba(16,185,129,0.18), 0 8px 32px rgba(0,0,0,0.6);
   }
-
-  .skily-banner::before {
+  .banner::before {
     content: '';
     position: absolute;
-    top: -20%;
-    right: -5%;
-    width: 50%;
-    height: 140%;
+    top: -20%; right: -5%;
+    width: 50%; height: 140%;
     background: radial-gradient(ellipse, rgba(16,185,129,0.12) 0%, transparent 65%);
     pointer-events: none;
   }
-
-  .skily-banner::after {
+  .banner::after {
     content: '';
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-image: linear-gradient(to right,rgba(255,255,255,0.02) 1px,transparent 1px), linear-gradient(to bottom,rgba(255,255,255,0.02) 1px,transparent 1px);
     background-size: 28px 28px;
     pointer-events: none;
   }
 
-  .banner-left {
-    position: relative;
-    z-index: 1;
+  /* Icon column */
+  .col-icon {
+    position: relative; z-index: 1;
     flex-shrink: 0;
-    width: 110px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 0 20px 20px;
+    width: 104px;
+    display: flex; align-items: center; justify-content: center;
   }
-
-  .banner-icon {
-    width: 72px;
-    height: 72px;
+  .icon-box {
+    width: 68px; height: 68px;
     background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(5,150,105,0.1) 100%);
     border: 1px solid rgba(16,185,129,0.25);
     border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 32px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
     box-shadow: 0 0 24px rgba(16,185,129,0.15);
   }
 
-  .banner-body {
-    position: relative;
-    z-index: 1;
+  /* Body */
+  .col-body {
+    position: relative; z-index: 1;
     flex: 1;
-    padding: 20px 16px 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    padding: 0 12px;
+    display: flex; flex-direction: column; gap: 5px;
   }
-
-  .banner-eyebrow {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(16,185,129,0.9);
+  .eyebrow {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .15em; text-transform: uppercase;
+    color: rgba(16,185,129,.9);
   }
-
-  .banner-title {
-    font-size: 18px;
-    font-weight: 800;
-    line-height: 1.2;
-    color: #ffffff;
-    letter-spacing: -0.02em;
+  .title {
+    font-size: 17px; font-weight: 800;
+    line-height: 1.2; color: #fff;
+    letter-spacing: -.02em;
   }
-
-  .banner-subtitle {
-    font-size: 13px;
-    color: rgba(255,255,255,0.5);
-    line-height: 1.4;
+  .subtitle {
+    font-size: 12px; color: rgba(255,255,255,.45); line-height: 1.35;
   }
-
-  .banner-features {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-  }
-
-  .banner-feat {
-    font-size: 11px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.7);
-    background: rgba(16,185,129,0.08);
-    border: 1px solid rgba(16,185,129,0.18);
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+  .chip {
+    font-size: 11px; font-weight: 600;
+    color: rgba(255,255,255,.8);
+    background: rgba(16,185,129,.1);
+    border: 1px solid rgba(16,185,129,.2);
     border-radius: 6px;
     padding: 3px 8px;
+    display: flex; align-items: center; gap: 4px;
   }
-
-  .banner-right {
-    position: relative;
-    z-index: 1;
-    flex-shrink: 0;
-    padding: 20px 20px 20px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-    justify-content: center;
-  }
-
-  .banner-price {
-    text-align: right;
-  }
-
-  .banner-price-label {
-    font-size: 10px;
-    color: rgba(255,255,255,0.35);
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-  }
-
-  .banner-price-amount {
-    font-size: 26px;
-    font-weight: 900;
-    color: #ffffff;
-    letter-spacing: -0.03em;
-    line-height: 1;
-  }
-
-  .banner-price-note {
-    font-size: 10px;
-    color: rgba(255,255,255,0.3);
-  }
-
-  .banner-users {
-    font-size: 11px;
-    color: rgba(16,185,129,0.8);
-    font-weight: 600;
-    text-align: right;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    justify-content: flex-end;
-  }
-
-  .banner-users::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: #10b981;
-    border-radius: 50%;
-    box-shadow: 0 0 6px rgba(16,185,129,0.6);
+  .chip.hi { background: rgba(16,185,129,.22); border-color: rgba(16,185,129,.45); color: #6ee7b7; }
+  .dot {
+    width: 5px; height: 5px; background: #10b981; border-radius: 50%; flex-shrink: 0;
+    box-shadow: 0 0 5px rgba(16,185,129,.7);
     animation: live-pulse 2s ease-in-out infinite;
   }
+  @keyframes live-pulse { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.35)} }
 
-  @keyframes live-pulse {
-    0%, 100% { opacity: 0.6; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.3); }
+  /* Right CTA */
+  .col-cta {
+    position: relative; z-index: 1;
+    flex-shrink: 0;
+    padding: 0 18px 0 8px;
+    display: flex; flex-direction: column;
+    align-items: flex-end; gap: 8px;
   }
-
-  .banner-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+  .price-label { font-size: 9px; color: rgba(255,255,255,.3); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 1px; }
+  .price-amount { font-size: 24px; font-weight: 900; color: #fff; letter-spacing: -.03em; line-height: 1; }
+  .price-note { font-size: 9px; color: rgba(255,255,255,.25); }
+  .cta {
+    display: inline-flex; align-items: center; gap: 5px;
     padding: 8px 14px;
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border-radius: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #ffffff;
+    font-size: 12px; font-weight: 700; color: #fff;
     white-space: nowrap;
-    box-shadow: 0 4px 14px rgba(16,185,129,0.3);
-    transition: opacity 0.2s;
+    box-shadow: 0 4px 14px rgba(16,185,129,.3);
   }
+  .cta svg { width: 12px; height: 12px; }
 
-  .banner-cta:hover { opacity: 0.85; }
-
-  .banner-cta svg {
-    width: 13px;
-    height: 13px;
-    flex-shrink: 0;
+  .attr {
+    position: fixed; bottom: 3px; right: 10px;
+    font-size: 9px; color: rgba(255,255,255,.18);
   }
-
-  .skily-footer-attr {
-    margin-top: 8px;
-    text-align: right;
-    font-size: 10px;
-    color: rgba(255,255,255,0.2);
-    font-family: -apple-system, sans-serif;
-  }
-
-  .skily-footer-attr a {
-    color: rgba(16,185,129,0.5);
-    text-decoration: none;
-  }
-
-  .skily-footer-attr a:hover { color: rgba(16,185,129,0.8); }
+  .attr a { color: rgba(16,185,129,.5); text-decoration: none; }
 </style>
 </head>
 <body>
 
-<a
-  id="skily-platform-banner"
-  href="https://t.me/skilyapp_bot/skilyapp"
-  target="_blank"
-  rel="noopener noreferrer"
-  class="skily-banner"
-  aria-label="Skily — Платформа для подготовки к DGT"
->
-  <div class="banner-left">
-    <div class="banner-icon">⚡</div>
-  </div>
-
-  <div class="banner-body">
-    <div class="banner-eyebrow">Платформа · 6 месяцев</div>
-    <div class="banner-title">Тренажёр DGT<br>прямо в Telegram</div>
-    <div class="banner-subtitle">AI-тьютор · PvP-дуэли · 3 500 вопросов</div>
-
-    <div class="banner-features">
-      <span class="banner-feat">🤖 AI 24/7</span>
-      <span class="banner-feat">⚔️ Дуэли</span>
-      <span class="banner-feat">📊 Статистика</span>
+<div class="wrap" id="wrap">
+  <a id="banner-link" href="https://t.me/skilyapp_bot/skilyapp" target="_blank" rel="noopener noreferrer" class="banner" aria-label="Skily Платформа DGT">
+    <div class="col-icon">
+      <div class="icon-box">⚡</div>
     </div>
-  </div>
-
-  <div class="banner-right">
-    <div class="banner-price">
-      <div class="banner-price-label">Доступ 6 мес.</div>
-      <div class="banner-price-amount">€40</div>
-      <div class="banner-price-note">разовая оплата</div>
+    <div class="col-body">
+      <div class="eyebrow">Платформа · 6 месяцев</div>
+      <div class="title">Тренажёр DGT<br>прямо в Telegram</div>
+      <div class="subtitle">AI-тьютор · PvP-дуэли · 3 500 вопросов</div>
+      <div class="chips" id="chips">
+        <span class="chip hi"><span class="dot"></span><span id="user-count">10 000+</span> студентов</span>
+        <span class="chip">⚔️ PvP-дуэли</span>
+        <span class="chip">🤖 AI 24/7</span>
+      </div>
     </div>
-    <div class="banner-users" id="skily-user-count">10 000+ студентов</div>
-    <div class="banner-cta">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-      Попробовать
+    <div class="col-cta">
+      <div>
+        <div class="price-label">Доступ 6 мес.</div>
+        <div class="price-amount">€40</div>
+        <div class="price-note">разовая оплата</div>
+      </div>
+      <div class="cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Попробовать
+      </div>
     </div>
-  </div>
-</a>
-
-<div class="skily-footer-attr">
-  Реклама · <a href="https://skilyapp.com/partners" target="_blank">Стать партнёром Skily</a>
+  </a>
 </div>
 
-<script>
-(function() {
-  var SUPABASE_URL = 'https://yffjnqegeiorunyvcxkn.supabase.co';
-  var ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA';
+<div class="attr">Реклама · <a href="https://skilyapp.com/partners" target="_blank">Skily</a></div>
 
-  // Fetch active user count for social proof
-  fetch(
-    SUPABASE_URL + '/rest/v1/profiles'
-    + '?select=id&limit=1',
-    {
-      method: 'HEAD',
-      headers: {
-        'apikey': ANON_KEY,
-        'Authorization': 'Bearer ' + ANON_KEY,
-        'Prefer': 'count=exact',
-      }
-    }
-  )
+<script>
+(function(){
+  // ── Scale to fill iframe ──────────────────────────────────────────
+  var BASE_W = 560, BASE_H = 170;
+  function resize() {
+    var scaleX = window.innerWidth  / BASE_W;
+    var scaleY = window.innerHeight / BASE_H;
+    var s = Math.min(scaleX, scaleY);
+    var wrap = document.getElementById('wrap');
+    wrap.style.transform = 'scale(' + s + ')';
+    // Centre if letterboxed
+    var left = (window.innerWidth  - BASE_W * s) / 2;
+    var top  = (window.innerHeight - BASE_H * s) / 2;
+    wrap.style.left = left + 'px';
+    wrap.style.top  = top  + 'px';
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ── Fetch user count ─────────────────────────────────────────────
+  var SURL = 'https://yffjnqegeiorunyvcxkn.supabase.co';
+  var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA';
+
+  fetch(SURL + '/rest/v1/profiles?select=id&limit=1', {
+    method: 'HEAD',
+    headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Prefer': 'count=exact' }
+  })
   .then(function(r) {
-    var count = parseInt(r.headers.get('content-range').split('/')[1], 10);
+    var cr = r.headers.get('content-range');
+    if (!cr) return;
+    var count = parseInt(cr.split('/')[1], 10);
     if (!isNaN(count) && count > 0) {
-      var el = document.getElementById('skily-user-count');
+      var el = document.getElementById('user-count');
       if (el) {
-        var display = count >= 1000
-          ? (Math.floor(count / 100) * 100).toLocaleString('ru') + '+ студентов'
-          : count + ' студентов';
-        el.textContent = display;
+        el.textContent = count >= 1000
+          ? (Math.floor(count / 100) * 100).toLocaleString('ru') + '+'
+          : count + '';
       }
     }
   })
-  .catch(function() { /* keep static count */ });
+  .catch(function(){});
 
-  // Append referral code if set
-  var ref = (typeof SKILY_REF !== 'undefined') ? SKILY_REF : null;
-  if (ref) {
-    var banner = document.getElementById('skily-platform-banner');
-    if (banner) banner.href = 'https://t.me/skilyapp_bot/skilyapp?startapp=ref_' + ref;
-  }
+  // ── Referral link ─────────────────────────────────────────────────
+  var ref = (typeof SKILY_REF!=='undefined')?SKILY_REF:null;
+  if(ref){ var l=document.getElementById('banner-link'); if(l) l.href='https://skilyapp.com/?ref='+ref; }
 })();
 </script>
-
 </body>
 </html>
