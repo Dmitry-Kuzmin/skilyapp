@@ -744,9 +744,9 @@ serve(async (req) => {
 
       return {
         user_id: profile.id,
-        duel_pass_level: seasonLevel, // Используем уровень из сезона, если есть
+        duel_pass_level: seasonLevel, // season level (1-30)
         duel_pass_xp: profile.duel_pass_xp || 0,
-        season_points: seasonPoints, // SP для отображения и сортировки
+        season_points: seasonPoints, // SP — основной показатель рейтинга
         rank: userRank,
         profile: {
           first_name: profile.first_name,
