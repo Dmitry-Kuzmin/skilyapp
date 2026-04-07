@@ -869,14 +869,18 @@ async function renderVideo() {
     if (data.output) {
       btn.textContent = "✅ Готово!";
       btn.style.background = "#3FB950";
-      log.textContent += \`Файл: \${data.output}\\n\`;
+      let msg = `ES: ${data.output}\n`;
+      if (data.outputRU) msg += `RU: ${data.outputRU}\n`;
+      log.textContent += msg;
     } else {
-      btn.textContent = "❌ Ошибка";
+      btn.textContent = "⚠️ Ошибка";
+      btn.style.background = "#da3633";
       log.textContent += data.error || "Неизвестная ошибка";
       btn.disabled = false;
     }
   } catch(e) {
-    btn.textContent = "❌ Ошибка";
+    btn.textContent = "⚠️ Ошибка";
+    btn.style.background = "#da3633";
     log.textContent += e.message;
     btn.disabled = false;
   }
