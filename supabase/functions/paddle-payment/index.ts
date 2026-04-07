@@ -26,6 +26,8 @@ const PaymentRequestSchema = z.object({
     'premium_monthly', 'premium_quarterly', 'premium_biannual', 'premium_yearly', 'premium_lifetime', 'duel_pass_season',
     'coins_pack_100', 'coins_pack_500', 'coins_pack_1200', 'coins_pack_3000'
   ], { errorMap: () => ({ message: "Invalid catalog_key" }) }),
+  partner_code: z.string().optional(),
+  promo_code: z.string().optional(),
 });
 
 interface PaddleTransactionData {
