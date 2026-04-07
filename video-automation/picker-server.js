@@ -140,6 +140,13 @@ const ANSWER_PREFIX = {
 
 // ── TTS text preprocessing (fix abbreviation pronunciation) ──────────────────
 function preprocessTTS(text, lang) {
+  // Replace meaningful emoji with words BEFORE stripping all emoji
+  if (lang === "ru") {
+    text = text.replace(/✅/g, "да").replace(/❌/g, "нет").replace(/⚡/g, "").replace(/🤯/g, "").replace(/🚗/g, "").replace(/🏆/g, "").replace(/🎯/g, "");
+  } else if (lang === "es") {
+    text = text.replace(/✅/g, "sí").replace(/❌/g, "no").replace(/⚡/g, "").replace(/🤯/g, "").replace(/🚗/g, "").replace(/🏆/g, "").replace(/🎯/g, "");
+  }
+
   // Strip ALL emoji and pictographs first (before any other processing)
   text = text
     .replace(/[\u{1F000}-\u{1FFFF}]/gu, "") // Emoji / pictographs (most emojis)
