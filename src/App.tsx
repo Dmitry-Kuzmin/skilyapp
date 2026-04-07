@@ -567,6 +567,12 @@ const App = () => {
                   <Purchase />
                 </Suspense>
               } />
+              {/* Promo code activation page — public, lightweight */}
+              <Route path="/promo" element={
+                <Suspense fallback={null}>
+                  <PromoPage />
+                </Suspense>
+              } />
               {/* Login page for mobile - standalone */}
               <Route path="/login" element={
                 <Suspense fallback={null}>
