@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useContext, useCallback } from 'react';
+import { useState, useEffect, useRef, useContext, useCallback, useRef as useRefAlias } from 'react';
+import { PromoCodeInput, type PromoResult } from '@/components/PromoCodeInput';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { UserContext } from '@/contexts/UserContext';
 import { toast } from 'sonner';
