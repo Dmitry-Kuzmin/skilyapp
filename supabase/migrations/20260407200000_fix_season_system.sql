@@ -143,8 +143,8 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-  v_ended_seasons     int[]  := '{}';
-  v_activated_seasons int[]  := '{}';
+  v_ended_seasons     text   := '';
+  v_activated_seasons text   := '';
   v_season            RECORD;
 BEGIN
   -- 1. Snapshot + archive participants of seasons that just ended
