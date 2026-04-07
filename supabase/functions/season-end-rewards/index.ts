@@ -141,15 +141,6 @@ async function processSeason(season_id: number, supabase: SupabaseClient) {
     // Dummy error variable kept for compatibility
     const _playersError = null;
 
-    if (playersError) {
-      console.error("[season-end-rewards] Error fetching top players:", playersError);
-      return {
-        success: false,
-        error: "Failed to fetch top players",
-        details: playersError.message,
-      };
-    }
-
     if (!topPlayers || topPlayers.length === 0) {
       return {
         success: false,
