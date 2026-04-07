@@ -110,14 +110,24 @@ async function processSeason(season_id: number, supabase: SupabaseClient) {
   console.log(`[season-end-rewards] Processing rewards for season ${season_id}`);
 
   try {
-    // Получаем топ-10 игроков по Duel Pass уровню и XP
+    // Получаем топ-10 игроков по season_points текущего сезона (с фолбэком на duel_pass_level)
     const { data: topPlayers, error: playersError } = await supabase
-      .from("profiles")
-      .select("id, duel_pass_level, duel_pass_xp, first_name, username")
-      .not("duel_pass_level", "is", null)
-      .order("duel_pass_level", { ascending: false })
-      .order("duel_pass_xp", { ascending: false })
-      .limit(10);
+      .from("user_season_progress")
+      .select("user_id, season_points, level, profiles!inner(id, duel_pass_level, duel_pass_xp, first_name, username)")
+      .eq("season_id", season_id)
+      .order("season_points", { ascending: false })
+      .limit(10)
+      .then(({ data, error }) => ({
+        data: data?.map((row: any) => ({
+          id: row.user_id,
+          duel_pass_level: row.profiles.duel_pass_level,
+          duel_pass_xp: row.profiles.duel_pass_xp,
+          first_name: row.profiles.first_name,
+          username: row.profiles.username,
+          season_points: row.season_points,
+        })),
+        error,
+      }));
 
     if (playersError) {
       console.error("[season-end-rewards] Error fetching top players:", playersError);
