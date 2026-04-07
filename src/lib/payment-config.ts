@@ -42,11 +42,12 @@ export const PAYMENT_CONFIG: PaymentConfig = {
 export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobile'): PaymentMethod[] {
   const methods: PaymentMethod[] = [];
 
-  // Telegram Stars: доступны когда включены И (платформа telegram ИЛИ WebApp присутствует в window)
-  // НЕ полагаемся на строку platform — она может прийти с задержкой из UserContext
+  // Telegram Stars: только внутри настоящего Telegram Mini App
+  // Проверяем initData — он непустой только в реальном Telegram (мок оставляет его пустым)
   if (PAYMENT_CONFIG.telegramStarsEnabled) {
-    const isTWA = typeof window !== 'undefined' && !!(window as any).Telegram?.WebApp?.version;
-    if (platform === 'telegram' || isTWA) {
+    const twa = typeof window !== 'undefined' ? (window as any).Telegram?.WebApp : null;
+    const hasRealInitData = typeof twa?.initData === 'string' && twa.initData.length > 0;
+    if (platform === 'telegram' || hasRealInitData) {
       methods.push('telegram_stars');
     }
   }
