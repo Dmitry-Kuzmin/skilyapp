@@ -234,6 +234,7 @@ const RefundPolicy = lazy(() =>
 );
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const Partners = lazy(() => import("./pages/Partners"));
+const PromoPage = lazy(() => import("./pages/PromoPage"));
 // DuelStats is handled in AppRoutes.tsx
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
