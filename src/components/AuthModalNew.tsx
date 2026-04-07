@@ -49,6 +49,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
   const [resendCooldown, setResendCooldown] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [magicLinkState, setMagicLinkState] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [pendingPromo, setPendingPromo] = useState<PromoResult | null>(null);
   const [isButtonHovered, setIsButtonHovered] = useState(false);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
