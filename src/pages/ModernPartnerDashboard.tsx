@@ -113,6 +113,9 @@ export default function ModernPartnerDashboard() {
   }, [supabaseUser, navigate]);
 
   useEffect(() => {
+    // Ждём пока авторизация инициализируется — не редиректим раньше времени
+    if (authLoading) return;
+
     if (!isAuthenticated) {
       navigate("/partners");
       return;
