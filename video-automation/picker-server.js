@@ -838,7 +838,7 @@ async function renderVideo() {
   btn.disabled = true;
   btn.textContent = "⏳ Рендерится...";
   log.style.display = "block";
-  log.textContent = "Запускаем рендер...\\n";
+  log.textContent = "Генерируем аудио и рендерим...\n";
 
   // Собираем отредактированные значения из полей
   const editedQuestion = {
