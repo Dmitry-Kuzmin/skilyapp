@@ -35,7 +35,7 @@ fs.mkdirSync(AUDIO_DIR,   { recursive: true });
 
 // ── Microsoft Edge TTS (бесплатно, испанский + русский fallback) ──────────────
 const EDGE_VOICE_ES = process.env.EDGE_VOICE_ES || "es-ES-AlvaroNeural";
-const EDGE_VOICE_RU = process.env.EDGE_VOICE_RU || "ru-RU-DmitryNeural";
+const EDGE_VOICE_RU = process.env.EDGE_VOICE_RU || "ru-RU-SvetlanaNeural";
 async function edgeSynth(text, voice, filePath) {
   const tts = new MsEdgeTTS();
   await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
@@ -49,7 +49,9 @@ async function edgeSynth(text, voice, filePath) {
 }
 
 // ── ElevenLabs TTS (для русского голоса) ─────────────────────────────────────
-const VOICE_RU = process.env.ELEVENLABS_VOICE_RU || "CwhRBWXzGAHq8TQ4Fs17";
+// Adam (pNInz6obpgDQGcFmaJgB) — лучший multilingual ElevenLabs для русского+испанского
+// Nicole (CwhRBWXzGAHq8TQ4Fs17) — английский женский, ПЛОХО читает русский — не использовать
+const VOICE_RU = process.env.ELEVENLABS_VOICE_RU || "pNInz6obpgDQGcFmaJgB";
 
 // Build ordered list of API keys: ELEVENLABS_API_KEYS (comma-separated) first,
 // then ELEVENLABS_API_KEY as fallback, dedup and filter empty.
@@ -176,47 +178,100 @@ function preprocessTTS(text, lang) {
       .replace(/\uFFFD+/g, "")
       .replace(/\s{2,}/g, " ");
   }
-  // Cyrillic abbreviations for Russian (always applied when text has Russian)
+  // Для русского языка: транслитерация испанских терминов + ударения
   if (lang === "ru") {
     text = text
-      // Math / special symbols → words
-      .replace(/\s*=\s*/g, " равно ")
-      .replace(/\s*≥\s*/g, " не менее ")
-      .replace(/\s*≤\s*/g, " не более ")
+      // ── Испанские дорожные термины → русская фонетика ──────────────────────
+      // TTS не умеет читать испанский в русском тексте — заменяем заранее
+      .replace(/\bautopistas?\b/gi,         "аутописта")
+      .replace(/\bautov[ií]as?\b/gi,        "аутовиа")
+      .replace(/\bcarreteras?\b/gi,         "карретера")
+      .replace(/\barc[eé]ns?\b/gi,          "арсен")
+      .replace(/\bcalzadas?\b/gi,           "кальсада")
+      .replace(/\bglorietas?\b/gi,          "глорьета")
+      .replace(/\bavenidas?\b/gi,           "авенида")
+      .replace(/\bcalles?\b/gi,             "калье")
+      .replace(/\bv[ií]as?\b/gi,            "виа")
+      .replace(/\badelantamientos?\b/gi,    "аделантамьенто")
+      .replace(/\bcirculaci[oó]n\b/gi,      "сиркуласьон")
+      .replace(/\bconductores?\b/gi,        "кондуктор")
+      .replace(/\bceda el paso\b/gi,        "седа эль пасо")
+      .replace(/\bpriori?dad\b/gi,          "приоридад")
+      .replace(/\bpreferencia\b/gi,         "преференсья")
+      .replace(/\bprohibici[oó]n\b/gi,      "прохибисьон")
+      .replace(/\bprohibido\b/gi,           "прохибидо")
+      .replace(/\bse[nñ]ales?\b/gi,         "сеньяль")
+      .replace(/\bsem[aá]foros?\b/gi,       "семафоро")
+      .replace(/\bveh[ií]culos?\b/gi,       "вехикуло")
+      .replace(/\bvelocidad\b/gi,           "велосидад")
+      .replace(/\bintersecciones?\b/gi,     "интерсексьон")
+      .replace(/\bemergencias?\b/gi,        "эмерхенсья")
+      .replace(/\btoneladas?\b/gi,          "тонелада")
+      .replace(/\bpe[ao]t[oó]nes?\b/gi,     "пеатон")
+      .replace(/\bcruce\b/gi,               "крусе")
+      .replace(/\bfrenado\b/gi,             "френадо")
+      .replace(/\bfrenos?\b/gi,             "френо")
+      .replace(/\bdistancia\b/gi,           "дистансья")
+      .replace(/\bmarcha\b/gi,              "марча")
+      .replace(/\bzona\b/gi,                "сона")
+      .replace(/\bcarriles?\b/gi,           "карриль")
+      .replace(/\bm[aá]ximo\b/gi,           "максимо")
+      .replace(/\bm[ií]nimo\b/gi,           "минимо")
+      .replace(/\bturismo\b/gi,             "туризмо")
+      .replace(/\bcami[oó]nes?\b/gi,        "камьон")
+      .replace(/\bpuente\b/gi,              "пуэнте")
+      .replace(/\bt[uú]nel\b/gi,            "тунель")
+      .replace(/\baparcamiento\b/gi,        "апаркамьенто")
+      .replace(/\bpaso\b/gi,                "пасо")
+      .replace(/\bkilómetros?\b/gi,         "километров")
+      .replace(/\bkilometros?\b/gi,         "километров")
+      .replace(/\bmetros?\b/gi,             "метрос")
+      // ── Математика / спец. символы ─────────────────────────────────────────
+      .replace(/\s*=\s*/g,  " равно ")
+      .replace(/\s*≥\s*/g,  " не менее ")
+      .replace(/\s*≤\s*/g,  " не более ")
       .replace(/\s*>\s*/g,  " больше ")
       .replace(/\s*<\s*/g,  " меньше ")
-      .replace(/\s*±\s*/g, " плюс-минус ")
-      .replace(/№/g,        "номер ")
-      // Units
-      .replace(/км\/ч/gi,  "километров в час")
-      .replace(/м\/с/gi,   "метров в секунду")
-      .replace(/км/gi,     "километров")
+      .replace(/\s*±\s*/g,  " плюс-минус ")
+      .replace(/№/g,         "номер ")
+      // ── Единицы ────────────────────────────────────────────────────────────
+      .replace(/км\/ч/gi,   "километров в час")
+      .replace(/м\/с/gi,    "метров в секунду")
+      .replace(/км/gi,      "километров")
       .replace(/\bт\.е\.\b/gi, "то есть")
       .replace(/\bт\.к\.\b/gi, "так как")
-      .replace(/\bпр\./gi, "прочее")
-      .replace(/\bул\./gi, "улица")
-      // Fix common stress/homograph issues
-      .replace(/\bеду\b/g,       "е́ду")
-      .replace(/\bзамок\b/g,     "замо́к")
-      .replace(/\bпропасть\b/g,  "пропа́сть")
-      .replace(/\bзасыпать\b/g,  "засыпа́ть")
-      .replace(/\bводы\b/g,      "во́ды")
-      .replace(/\bдороги\b/g,    "доро́ги")
-      .replace(/\bполосы\b/g,    "по́лосы")
-      .replace(/\bзнаки\b/g,     "зна́ки")
-      .replace(/\bдвижения\b/g,  "движе́ния")
-      .replace(/\bсигналы\b/g,   "сигна́лы")
-      .replace(/\bскорость\b/g,  "ско́рость")
-      .replace(/\bскорости\b/g,  "ско́рости")
-      .replace(/\bпроезда\b/g,   "прое́зда")
-      .replace(/\bоборудован\b/g,"оборудо́ван")
-      // Intonation fix: prevent clipped endings — add soft pause before final period
-      // ElevenLabs tends to rush/drop the last word before "."; a comma before it helps
+      .replace(/\bпр\./gi,  "прочее")
+      .replace(/\bул\./gi,  "улица")
+      // ── Ударения — дорожная лексика ────────────────────────────────────────
+      .replace(/\bеду\b/g,          "е́ду")
+      .replace(/\bводы\b/g,         "во́ды")
+      .replace(/\bдороги\b/g,       "доро́ги")
+      .replace(/\bполосы\b/g,       "по́лосы")
+      .replace(/\bзнаки\b/g,        "зна́ки")
+      .replace(/\bдвижения\b/g,     "движе́ния")
+      .replace(/\bсигналы\b/g,      "сигна́лы")
+      .replace(/\bскорость\b/g,     "ско́рость")
+      .replace(/\bскорости\b/g,     "ско́рости")
+      .replace(/\bпроезда\b/g,      "прое́зда")
+      .replace(/\bобочина\b/g,      "обочина́")
+      .replace(/\bобочины\b/g,      "обочины́")
+      .replace(/\bповорот\b/g,      "поворо́т")
+      .replace(/\bповороты\b/g,     "повороты́")
+      .replace(/\bсъезд\b/g,        "съе́зд")
+      .replace(/\bперее́зд\b/g,      "переезд")
+      .replace(/\bвъезд\b/g,        "въе́зд")
+      .replace(/\bзапрещено\b/g,    "запрещено́")
+      .replace(/\bразрешено\b/g,    "разрешено́")
+      .replace(/\bоборудован\b/g,   "оборудо́ван")
+      .replace(/\bзамок\b/g,        "замо́к")
+      .replace(/\bпропасть\b/g,     "пропа́сть")
+      // ── Финальная интонация ────────────────────────────────────────────────
       .replace(/([а-яёА-ЯЁ]{3,})\.$/, "$1,.")
       .replace(/([а-яёА-ЯЁ]{3,})\s*$/, "$1.");
   }
   return text.trim();
 }
+
 
 async function synth(text, voiceId, filePath, label, lang = "es") {
   if (!fs.existsSync(filePath)) {
@@ -268,9 +323,10 @@ async function generateTTSForQuestion(question) {
       medium:"Только опытные знают ответ.",
       easy:  "Проверь свои знания!",
     };
+    // Пауза между предложениями — три точки (многоточие) заставляют Edge TTS сделать выраженную паузу
     const ruHookText = lang === "ru"
-      ? `Вопрос по ПДД России. ${ruHooksSuffix[hKey]}`
-      : `Вопрос по ПДД Испании. ${ruHooksSuffix[hKey]}`;
+      ? `Вопрос по ПДД России... ${ruHooksSuffix[hKey]}`
+      : `Вопрос по ПДД Испании... ${ruHooksSuffix[hKey]}`;
     const hPathRu = path.join(AUDIO_DIR, `${id}-ru-hook.mp3`);
     if (fs.existsSync(hPathRu)) fs.unlinkSync(hPathRu);
     const hDurRu = await synth(ruHookText, voiceId, hPathRu, "hook intro [RU]", "ru");
@@ -282,10 +338,10 @@ async function generateTTSForQuestion(question) {
     // Spanish hook (only for ES DGT videos)
     if (lang === "es") {
       const esHooks = {
-        vhard: "¡Pregunta DGT! Casi nadie sabe la respuesta.",
-        hard:  "¡Pregunta DGT! El noventa y nueve por ciento de conductores falla.",
-        medium:"¡Pregunta DGT! Solo los expertos lo saben.",
-        easy:  "¡Pregunta DGT! Pon a prueba tu conocimiento.",
+        vhard: "¡Pregunta DGT! ... Casi nadie sabe la respuesta.",
+        hard:  "¡Pregunta DGT! ... El noventa y nueve por ciento de conductores falla.",
+        medium:"¡Pregunta DGT! ... Solo los expertos lo saben.",
+        easy:  "¡Pregunta DGT! ... Pon a prueba tu conocimiento.",
       };
       const hPathEs = path.join(AUDIO_DIR, `${id}-es-hook.mp3`);
       if (fs.existsSync(hPathEs)) fs.unlinkSync(hPathEs);
@@ -1003,7 +1059,9 @@ const server = http.createServer(async (req, res) => {
               "src/Root.tsx", compositionId,
               "--output", outputPath,
               "--props", propsFile,
-              "--log", "error",
+              "--log", "verbose",
+              "--crf", "14",
+              "--pixel-format", "yuv420p",
             ], { cwd: __dirname, env: { ...process.env, PATH: process.env.PATH } });
 
             let logs = "";

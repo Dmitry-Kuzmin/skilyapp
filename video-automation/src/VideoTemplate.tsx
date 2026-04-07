@@ -60,17 +60,15 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const frame  = useCurrentFrame();
   const sceneF = frame - t.hookStart * FPS;
 
-  // Main fade-in
-  const op     = lerp(sceneF, 0, 10, 0, 1);
-  // Top badge slides down
-  const badgeOp = lerp(sceneF, 2, 16, 0, 1);
-  const badgeTy = lerp(sceneF, 2, 16, -40, 0);
-  // Hook text pops up
-  const hookOp    = lerp(sceneF, 6, 20, 0, 1);
-  const hookScale = lerp(sceneF, 6, 22, 0.75, 1);
-  // Bottom row slides up
-  const bottomOp = lerp(sceneF, 12, 26, 0, 1);
-  const bottomTy = lerp(sceneF, 12, 26, 40, 0);
+  const op        = lerp(sceneF, 0, 8, 0, 1);
+  const badgeOp   = lerp(sceneF, 2, 14, 0, 1);
+  const badgeTy   = lerp(sceneF, 2, 14, -50, 0);
+  const hookOp    = lerp(sceneF, 8, 20, 0, 1);
+  const hookScale = lerp(sceneF, 8, 22, 0.7, 1);
+  const bottomOp  = lerp(sceneF, 14, 26, 0, 1);
+  const bottomTy  = lerp(sceneF, 14, 26, 50, 0);
+  // Лёгкая пульсация хука
+  const hookPulse = 1 + Math.sin(sceneF / 14) * 0.012;
 
   const isEs = q.language === "es";
   const diffColors = { easy: C.emerald, medium: "#F0883E", hard: C.red };
@@ -83,51 +81,70 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
     <div style={{ position:"absolute", inset:0, opacity: op, display:"flex",
       flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
 
-      {/* Full-bg gradient overlay */}
-      <div style={{ position:"absolute", inset:0,
-        background:"radial-gradient(ellipse 80% 60% at 50% 40%, rgba(47,129,247,0.18) 0%, transparent 70%)",
-        pointerEvents:"none" }} />
+      {/* Многослойный фоновый градиент */}
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}>
+        <div style={{
+          position:"absolute", inset:0,
+          background:"radial-gradient(ellipse 100% 70% at 50% 20%, rgba(47,129,247,0.22) 0%, transparent 70%)",
+        }} />
+        <div style={{
+          position:"absolute", inset:0,
+          background:"radial-gradient(ellipse 60% 50% at 50% 90%, rgba(47,129,247,0.10) 0%, transparent 60%)",
+        }} />
+      </div>
 
-      {/* Decorative road lines */}
-      {[0,1,2].map(i => (
+      {/* Декоративные вертикальные линии */}
+      {[-220, -80, 80, 220].map((x, i) => (
         <div key={i} style={{
           position:"absolute",
-          left: "50%", bottom: -20 + i * 0,
-          width: 8, height: `${28 + i*8}%`,
-          background: "rgba(255,255,255,0.06)",
-          borderRadius: 8,
-          transform: `translateX(${(i-1)*120}px)`,
+          left:"50%", bottom:0,
+          width:2 + (i % 2) * 2,
+          height:`${20 + i * 8}%`,
+          background:`linear-gradient(to top, rgba(47,129,247,${0.12 - i * 0.02}), transparent)`,
+          borderRadius:4,
+          transform:`translateX(${x}px)`,
         }} />
       ))}
 
+      {/* Горизонтальная линия-разделитель вверху */}
+      <div style={{
+        position:"absolute", top:0, left:0, right:0, height:3,
+        background:"linear-gradient(90deg, transparent 0%, #2F81F7 30%, #7C3AED 70%, transparent 100%)",
+        opacity:0.8,
+      }} />
+
       {/* TOP: DGT exam badge */}
       <div style={{ opacity: badgeOp, transform:`translateY(${badgeTy}px)`,
-        display:"flex", flexDirection:"column", alignItems:"center", gap:14, marginBottom:48 }}>
+        display:"flex", flexDirection:"column", alignItems:"center", gap:16, marginBottom:52 }}>
 
-        {/* Flag + label row — always Spanish flag since content = DGT Spain */}
-        <div style={{ display:"flex", alignItems:"center", gap:16,
-          background:"rgba(255,255,255,0.06)", border:"1.5px solid rgba(255,255,255,0.12)",
-          borderRadius:100, padding:"10px 28px" }}>
+        <div style={{
+          display:"flex", alignItems:"center", gap:18,
+          background:"rgba(47,129,247,0.10)",
+          border:"1.5px solid rgba(47,129,247,0.35)",
+          borderRadius:100,
+          padding:"12px 32px",
+          boxShadow:"0 0 30px rgba(47,129,247,0.15)",
+        }}>
           <span style={{ fontSize:36 }}>🇪🇸</span>
-          <span style={{ fontSize:26, fontWeight:800, color:"#fff", letterSpacing:3,
-            fontFamily:"system-ui,sans-serif" }}>
+          <span style={{ fontSize:28, fontWeight:900, color:"#fff", letterSpacing:3,
+            fontFamily:"system-ui,sans-serif",
+            textShadow:"0 0 20px rgba(47,129,247,0.5)" }}>
             {isEs ? "EXAMEN DGT" : "ТЕСТ: ПДД ИСПАНИИ"}
           </span>
           <span style={{ fontSize:36 }}>🚗</span>
         </div>
 
-        {/* Subtitle */}
-        <div style={{ fontSize:26, color:"rgba(255,255,255,0.45)",
+        <div style={{ fontSize:26, color:"rgba(255,255,255,0.5)",
           fontFamily:"system-ui,sans-serif", letterSpacing:1 }}>
           {isEs ? "¿Conoces las normas de tráfico?" : "Знаешь испанские правила? 🤔"}
         </div>
       </div>
 
-      {/* CENTRE: Hook title */}
+      {/* CENTRE: Hook title с неоновым glow */}
       <div style={{
         opacity: hookOp,
-        transform:`scale(${hookScale})`,
-        fontSize: q.hook_title.length > 22 ? 72 : 84,
+        transform:`scale(${hookScale * hookPulse})`,
+        fontSize: q.hook_title.length > 22 ? 70 : 82,
         fontWeight:900,
         color:"#fff",
         textAlign:"center",
@@ -136,9 +153,10 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
         letterSpacing:-1,
         padding:"0 60px",
         textShadow:[
-          "0 0 80px rgba(47,129,247,0.6)",
-          "0 0 160px rgba(47,129,247,0.3)",
-          "0 4px 12px rgba(0,0,0,0.9)",
+          "0 0 40px rgba(47,129,247,0.9)",
+          "0 0 80px rgba(47,129,247,0.5)",
+          "0 0 160px rgba(47,129,247,0.25)",
+          "0 4px 20px rgba(0,0,0,0.95)",
         ].join(", "),
       }}>
         {q.hook_title}
@@ -146,33 +164,42 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
 
       {/* BOTTOM: difficulty + series + branding */}
       <div style={{ opacity: bottomOp, transform:`translateY(${bottomTy}px)`,
-        marginTop:52, display:"flex", alignItems:"center", gap:20 }}>
+        marginTop:56, display:"flex", alignItems:"center", gap:20 }}>
 
         <div style={{
-          padding:"10px 24px", borderRadius:100,
-          backgroundColor:`${diffColors[q.difficulty]}20`,
-          border:`1.5px solid ${diffColors[q.difficulty]}60`,
+          padding:"10px 26px", borderRadius:100,
+          backgroundColor:`${diffColors[q.difficulty]}18`,
+          border:`1.5px solid ${diffColors[q.difficulty]}55`,
           color: diffColors[q.difficulty],
           fontSize:22, fontWeight:800, letterSpacing:3,
           fontFamily:"system-ui,sans-serif",
+          boxShadow:`0 0 16px ${diffColors[q.difficulty]}30`,
         }}>
           {diffLabels[q.language][q.difficulty]}
         </div>
 
-        <div style={{ width:6, height:6, borderRadius:"50%", background:"rgba(255,255,255,0.2)" }} />
+        <div style={{ width:5, height:5, borderRadius:"50%", background:"rgba(255,255,255,0.2)" }} />
 
-        <div style={{ fontSize:22, color:"rgba(255,255,255,0.35)",
+        <div style={{ fontSize:22, color:"rgba(255,255,255,0.3)",
           fontFamily:"system-ui,sans-serif", letterSpacing:2 }}>
           #{String(q.series_number).padStart(3,"0")}
         </div>
 
-        <div style={{ width:6, height:6, borderRadius:"50%", background:"rgba(255,255,255,0.2)" }} />
+        <div style={{ width:5, height:5, borderRadius:"50%", background:"rgba(255,255,255,0.2)" }} />
 
-        <div style={{ fontSize:22, color:"rgba(47,129,247,0.7)",
-          fontFamily:"system-ui,sans-serif", fontWeight:600 }}>
+        <div style={{ fontSize:22, color:"rgba(47,129,247,0.8)",
+          fontFamily:"system-ui,sans-serif", fontWeight:700,
+          textShadow:"0 0 12px rgba(47,129,247,0.5)" }}>
           skilyapp.com
         </div>
       </div>
+
+      {/* Нижняя градиентная полоска */}
+      <div style={{
+        position:"absolute", bottom:0, left:0, right:0, height:3,
+        background:"linear-gradient(90deg, transparent 0%, rgba(47,129,247,0.6) 50%, transparent 100%)",
+        opacity: bottomOp,
+      }} />
     </div>
   );
 }
@@ -411,6 +438,7 @@ function AnswersScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
 }
 
 // ─── SuspenseScene ────────────────────────────────────────────────────────────
+// Таймер по центру экрана, выше UI соцсетей. Контент полностью виден — без блюра!
 function SuspenseScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const frame    = useCurrentFrame();
   const sceneF   = frame - t.suspenseStart * FPS;
@@ -418,44 +446,136 @@ function SuspenseScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const progress = Math.max(0, 1 - sceneF / totalF);
   const suspSecs = t.revealStart - t.suspenseStart;
   const secs     = Math.max(1, Math.ceil(progress * suspSecs));
-  const pulse    = 1 + Math.sin(sceneF / 5) * 0.015;
-  const overlayOp = lerp(sceneF, 0, 12, 0, 1);
+
+  // Цвет кольца меняется: зелёный → оранжевый → красный по мере убывания времени
+  const ringHue = Math.round(120 * progress); // 120=зелёный → 0=красный
+  const ringColor = `hsl(${ringHue}, 90%, 55%)`;
+  const glowColor = `hsla(${ringHue}, 90%, 55%, 0.7)`;
+
+  const widgetOp  = lerp(sceneF, 0, 10, 0, 1);
+  const widgetTy  = lerp(sceneF, 0, 12, 30, 0);
+  // Пульс числа — чаще когда мало времени
+  const pulseSpeed = 5 + (1 - progress) * 12;
+  const numScale  = 1 + Math.sin(sceneF / pulseSpeed) * 0.08;
+
+  // «ДУМАЙТЕ!» — горизонтальная подпись рядом с таймером, маленькая
+  const labelOp  = lerp(sceneF, 4, 16, 0, 1);
   const ui = UI_TEXT[q.language];
+
+  const R = 90, SW = 11;
+  const circ = 2 * Math.PI * R;
 
   return (
     <div style={{ position:"absolute", inset:0 }}>
-      {/* Question + answers visible in background */}
+      {/* Контент без блюра — полностью виден */}
       <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center", padding:"60px 60px" }}>
         <TestCard q={q} t={t} showOptions={true} revealFrame={0} showExplanation={false} />
       </div>
 
-      {/* Dark overlay + ДУМАЙТЕ! */}
-      <div style={{ position:"absolute", inset:0,
-        background:"rgba(13,17,23,0.78)", backdropFilter:"blur(2px)",
-        display:"flex", flexDirection:"column", alignItems:"center",
-        justifyContent:"center", gap:48, opacity: overlayOp }}>
+      {/* Центральный таймер-виджет — по центру, выше UI соцсетей */}
+      <div style={{
+        position:"absolute",
+        bottom:260,
+        left:0, right:0,
+        display:"flex",
+        flexDirection:"column",
+        alignItems:"center",
+        gap:20,
+        opacity: widgetOp,
+        transform:`translateY(${widgetTy}px)`,
+        pointerEvents:"none",
+      }}>
 
-        <div style={{ fontSize:90, fontWeight:900, color:"#F0883E",
-          transform:`scale(${pulse})`, fontFamily:"system-ui,sans-serif",
-          textShadow:"0 0 60px rgba(240,136,62,0.5)", letterSpacing:4 }}>
+        {/* Подложка под виджетом — только здесь, без блюра всего экрана */}
+        <div style={{
+          position:"absolute",
+          top:-60, bottom:-60, left:0, right:0,
+          background:"radial-gradient(ellipse 70% 100% at 50% 70%, rgba(0,0,0,0.72) 0%, transparent 80%)",
+        }} />
+
+        {/* Надпись ДУМАЙТЕ! над кольцом */}
+        <div style={{
+          opacity: labelOp,
+          fontSize:56,
+          fontWeight:900,
+          color:"#fff",
+          fontFamily:"system-ui,sans-serif",
+          letterSpacing:6,
+          textTransform:"uppercase",
+          lineHeight:1,
+          textShadow:`0 0 30px ${ringColor}, 0 0 60px ${glowColor}, 0 3px 12px rgba(0,0,0,0.95)`,
+        }}>
           {ui.think}
         </div>
 
-        <div style={{ position:"relative", width:180, height:180,
-          display:"flex", alignItems:"center", justifyContent:"center" }}>
-          <svg width={180} height={180} style={{ position:"absolute", transform:"rotate(-90deg)" }}>
-            <circle cx={90} cy={90} r={76} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={10} />
-            <circle cx={90} cy={90} r={76} fill="none" stroke="#F0883E" strokeWidth={10}
+        {/* Кольцо-таймер */}
+        <div style={{
+          position:"relative",
+          width: R*2 + SW*2 + 12,
+          height: R*2 + SW*2 + 12,
+          display:"flex",
+          alignItems:"center",
+          justifyContent:"center",
+        }}>
+          {/* Glow фон под кольцом */}
+          <div style={{
+            position:"absolute", inset:0,
+            borderRadius:"50%",
+            background:`radial-gradient(circle, ${glowColor}35 0%, transparent 65%)`,
+            filter:"blur(8px)",
+          }} />
+
+          <svg
+            width={R*2 + SW*2 + 12}
+            height={R*2 + SW*2 + 12}
+            style={{ position:"absolute", transform:"rotate(-90deg)" }}
+          >
+            <circle
+              cx={R + SW/2 + 6} cy={R + SW/2 + 6} r={R}
+              fill="none"
+              stroke="rgba(255,255,255,0.10)"
+              strokeWidth={SW}
+            />
+            <circle
+              cx={R + SW/2 + 6} cy={R + SW/2 + 6} r={R}
+              fill="none"
+              stroke={ringColor}
+              strokeWidth={SW}
               strokeLinecap="round"
-              strokeDasharray={2 * Math.PI * 76}
-              strokeDashoffset={2 * Math.PI * 76 * (1 - progress)} />
+              strokeDasharray={`${progress * circ} ${circ}`}
+              style={{
+                filter:`drop-shadow(0 0 10px ${glowColor}) drop-shadow(0 0 20px ${glowColor})`,
+                transition:"stroke 0.5s ease",
+              }}
+            />
           </svg>
-          <div style={{ fontSize:80, fontWeight:900, color: C.text,
-            fontFamily:"system-ui,sans-serif" }}>{secs}</div>
+
+          {/* Цифра внутри */}
+          <div style={{
+            fontSize:76,
+            fontWeight:900,
+            color:"#fff",
+            fontFamily:"system-ui,sans-serif",
+            lineHeight:1,
+            transform:`scale(${numScale})`,
+            textShadow:`0 0 30px ${glowColor}, 0 3px 12px rgba(0,0,0,0.95)`,
+          }}>
+            {secs}
+          </div>
         </div>
 
-        {/* Removed old "write comment" label — replaced by outro CTA */}
+        {/* Подсказка под кольцом */}
+        <div style={{
+          opacity: labelOp * 0.65,
+          fontSize:26,
+          fontWeight:500,
+          color:"rgba(255,255,255,0.55)",
+          fontFamily:"system-ui,sans-serif",
+          letterSpacing:2,
+        }}>
+          {q.language === "ru" ? "выбери правильный ответ" : "elige tu respuesta"}
+        </div>
       </div>
     </div>
   );
@@ -493,35 +613,96 @@ function CTAScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const sceneF = frame - t.ctaStart * FPS;
   const op     = lerp(sceneF, 0, 10, 0, 1);
   const scale  = lerp(sceneF, 0, 14, 0.88, 1);
-  const pulse  = 1 + Math.sin(sceneF / 8) * 0.018;
-  const ui     = UI_TEXT[q.language];
+  const btnPulse = 1 + Math.sin(sceneF / 8) * 0.022;
+  const glowPulse = 0.35 + Math.sin(sceneF / 10) * 0.15;
+  const logoOp  = lerp(sceneF, 0, 16, 0, 1);
+  const logoTy  = lerp(sceneF, 0, 16, -30, 0);
+  const btnOp   = lerp(sceneF, 6, 20, 0, 1);
+  const subOp   = lerp(sceneF, 12, 24, 0, 1);
+  const ui      = UI_TEXT[q.language];
 
   return (
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", gap:40,
+      alignItems:"center", justifyContent:"center", gap:36,
       opacity: op, transform:`scale(${scale})` }}>
 
-      <div style={{ fontSize:64, fontWeight:900, color: C.text,
-        fontFamily:"system-ui,sans-serif", letterSpacing:1 }}>
-        SKILY
+      {/* Фоновый glow */}
+      <div style={{
+        position:"absolute", inset:0, pointerEvents:"none",
+        background:"radial-gradient(ellipse 80% 60% at 50% 50%, rgba(47,129,247,0.12) 0%, transparent 70%)",
+      }} />
+
+      {/* Логотип SKILY */}
+      <div style={{ opacity: logoOp, transform:`translateY(${logoTy}px)`,
+        display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
+        <div style={{
+          fontSize:22,
+          fontWeight:500,
+          color:"rgba(255,255,255,0.4)",
+          fontFamily:"system-ui,sans-serif",
+          letterSpacing:8,
+          textTransform:"uppercase",
+        }}>
+          {q.language === "ru" ? "powered by" : "presentado por"}
+        </div>
+        <div style={{
+          fontSize:80,
+          fontWeight:900,
+          color:"#fff",
+          fontFamily:"system-ui,sans-serif",
+          letterSpacing:-2,
+          lineHeight:1,
+          textShadow:[
+            "0 0 40px rgba(47,129,247,0.8)",
+            "0 0 80px rgba(47,129,247,0.4)",
+            "0 4px 20px rgba(0,0,0,0.9)",
+          ].join(", "),
+        }}>
+          SKILY
+        </div>
+        <div style={{
+          fontSize:24,
+          color:"rgba(47,129,247,0.8)",
+          fontFamily:"system-ui,sans-serif",
+          fontWeight:500,
+          letterSpacing:3,
+        }}>
+          skilyapp.com
+        </div>
       </div>
 
-      <div style={{ padding:"24px 64px", borderRadius:100,
-        background: C.gradient, fontSize:40, fontWeight:700,
-        color:"#fff", fontFamily:"system-ui,sans-serif",
-        transform:`scale(${pulse})`,
-        boxShadow:"0 8px 40px rgba(47,129,247,0.35)" }}>
+      {/* CTA кнопка */}
+      <div style={{
+        opacity: btnOp,
+        transform:`scale(${btnPulse})`,
+        padding:"26px 72px",
+        borderRadius:100,
+        background:"linear-gradient(135deg, #2F81F7 0%, #7C3AED 100%)",
+        fontSize:38,
+        fontWeight:800,
+        color:"#fff",
+        fontFamily:"system-ui,sans-serif",
+        boxShadow:`0 8px 40px rgba(47,129,247,${glowPulse}), 0 0 80px rgba(124,58,237,0.25)`,
+        letterSpacing:0.5,
+        textAlign:"center",
+      }}>
         {ui.cta}
       </div>
 
-      <div style={{ fontSize:34, color: C.textMuted, fontFamily:"system-ui,sans-serif" }}>
-        {ui.subscribe}
-      </div>
-
-      <div style={{ fontSize:28, color: C.textMuted, fontFamily:"system-ui,sans-serif", opacity:0.7 }}>
-        {q.language === "ru"
-          ? `Следующий #${String(q.series_number+1).padStart(3,"0")} →`
-          : `Siguiente #${String(q.series_number+1).padStart(3,"0")} →`}
+      {/* Подпись */}
+      <div style={{ opacity: subOp, display:"flex", flexDirection:"column",
+        alignItems:"center", gap:10 }}>
+        <div style={{ fontSize:32, color:"rgba(255,255,255,0.7)",
+          fontFamily:"system-ui,sans-serif",
+          textShadow:"0 2px 8px rgba(0,0,0,0.8)" }}>
+          {ui.subscribe}
+        </div>
+        <div style={{ fontSize:24, color:"rgba(255,255,255,0.3)",
+          fontFamily:"system-ui,sans-serif", letterSpacing:1 }}>
+          {q.language === "ru"
+            ? `Следующий #${String(q.series_number+1).padStart(3,"0")} →`
+            : `Siguiente #${String(q.series_number+1).padStart(3,"0")} →`}
+        </div>
       </div>
     </div>
   );

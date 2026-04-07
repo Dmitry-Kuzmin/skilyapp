@@ -95,6 +95,12 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
       const expField  = lang === 'es' ? 'explanation_es' : 'explanation_ru';
       const optField  = lang === 'es' ? 'text_es' : 'text_ru';
 
+      const correct_idx = opts.findIndex((o: any) => o.is_correct);
+      if (correct_idx < 0) {
+        console.warn(`[Morning] Skipping question ${q.id}: no correct answer marked`);
+        continue;
+      }
+
       fullQuestions.push({
         id: q.id,
         text: q[textField] || q.question_ru,
@@ -105,7 +111,7 @@ async function sendMorningQuiz(supabase: any, telegramId: number, forceLang?: La
         explanation_es: q.explanation_es,
         image_url: q.image_url || null,
         options: opts.map((o: any) => o[optField] || o.text_ru),
-        correct_idx: opts.findIndex((o: any) => o.is_correct),
+        correct_idx,
       });
     }
   }
