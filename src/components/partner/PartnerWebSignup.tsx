@@ -21,6 +21,7 @@ interface Props {
 }
 
 export function PartnerWebSignup({ onClose }: Props) {
+  const navigate = useNavigate();
   const [step, setStep]               = useState<Step>("check_auth");
   const [name, setName]               = useState("");
   const [platforms, setPlatforms]     = useState<string[]>([]);
