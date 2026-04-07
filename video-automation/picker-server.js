@@ -255,27 +255,50 @@ async function generateTTSForQuestion(question) {
   const result  = {};
   const prefixes = ANSWER_PREFIX[lang] || ANSWER_PREFIX.es;
 
-  // Hook intro voiceover — always Russian, never read Spanish text aloud
+  // Hook intro voiceover — separate files for RU and ES
   {
-    const ruHooks = {
+    const pct  = question.percent_correct || 50;
+    const hKey = pct < 30 ? "vhard" : pct < 50 ? "hard"
+               : (question.difficulty === "hard" ? "medium" : "easy");
+
+    // Russian hook (for RU video — always generated)
+    const ruHooksSuffix = {
       vhard: "Это не знает почти никто!",
       hard:  "Девяносто девять процентов водителей ошибаются.",
       medium:"Только опытные знают ответ.",
       easy:  "Проверь свои знания!",
     };
-    const pct  = question.percent_correct || 50;
-    const hKey = pct < 30 ? "vhard" : pct < 50 ? "hard"
-               : (question.difficulty === "hard" ? "medium" : "easy");
-    const hookIntroText = lang === "ru"
-      ? `Вопрос по ПДД России. ${ruHooks[hKey]}`
-      : `Тест по испанским ПДД. ${ruHooks[hKey]}`;
-    const hPath = path.join(AUDIO_DIR, `${id}-hook.mp3`);
-    if (fs.existsSync(hPath)) fs.unlinkSync(hPath); // always regenerate (hook may change)
-    const hDur = await synth(hookIntroText, voiceId, hPath, "hook intro", "ru");
-    if (hDur !== null) {
-      result.hookAudioFile        = `audio/${id}-hook.mp3`;
-      result.hookAudioDurationSec = hDur;
+    const ruHookText = lang === "ru"
+      ? `Вопрос по ПДД России. ${ruHooksSuffix[hKey]}`
+      : `Вопрос по ПДД Испании. ${ruHooksSuffix[hKey]}`;
+    const hPathRu = path.join(AUDIO_DIR, `${id}-ru-hook.mp3`);
+    if (fs.existsSync(hPathRu)) fs.unlinkSync(hPathRu);
+    const hDurRu = await synth(ruHookText, voiceId, hPathRu, "hook intro [RU]", "ru");
+    if (hDurRu !== null) {
+      result.hookAudioFileRu        = `audio/${id}-ru-hook.mp3`;
+      result.hookAudioDurationSecRu = hDurRu;
     }
+
+    // Spanish hook (only for ES DGT videos)
+    if (lang === "es") {
+      const esHooks = {
+        vhard: "¡Pregunta DGT! Casi nadie sabe la respuesta.",
+        hard:  "¡Pregunta DGT! El noventa y nueve por ciento de conductores falla.",
+        medium:"¡Pregunta DGT! Solo los expertos lo saben.",
+        easy:  "¡Pregunta DGT! Pon a prueba tu conocimiento.",
+      };
+      const hPathEs = path.join(AUDIO_DIR, `${id}-es-hook.mp3`);
+      if (fs.existsSync(hPathEs)) fs.unlinkSync(hPathEs);
+      const hDurEs = await synth(esHooks[hKey], null, hPathEs, "hook intro [ES]", "es");
+      if (hDurEs !== null) {
+        result.hookAudioFileEs        = `audio/${id}-es-hook.mp3`;
+        result.hookAudioDurationSecEs = hDurEs;
+      }
+    }
+
+    // Legacy single-field (for pure RU PDD or backward compat)
+    result.hookAudioFile        = result.hookAudioFileRu;
+    result.hookAudioDurationSec = result.hookAudioDurationSecRu;
   }
 
   // Question
