@@ -77,7 +77,7 @@ const SEO_CONFIG: Record<Language, SeoConfig> = {
         "Señales de tráfico de España",
         "Seguimiento de progreso personalizado"
       ],
-      "screenshot": "https://skilyapp.com/og-image.png",
+      "screenshot": "https://skilyapp.com/api/og",
       "datePublished": "2024-01-01",
       "dateModified": new Date().toISOString().split('T')[0],
       "author": {
@@ -151,7 +151,7 @@ const SEO_CONFIG: Record<Language, SeoConfig> = {
         "Spanish traffic signs guide",
         "Personalized progress tracking"
       ],
-      "screenshot": "https://skilyapp.com/og-image.png",
+      "screenshot": "https://skilyapp.com/api/og",
       "datePublished": "2024-01-01",
       "dateModified": new Date().toISOString().split('T')[0],
       "author": { "@type": "Organization", "name": "Skilyapp" },
@@ -207,7 +207,7 @@ const SEO_CONFIG: Record<Language, SeoConfig> = {
         "Дорожные знаки Испании",
         "Отслеживание прогресса"
       ],
-      "screenshot": "https://skilyapp.com/og-image.png",
+      "screenshot": "https://skilyapp.com/api/og",
       "datePublished": "2024-01-01",
       "dateModified": new Date().toISOString().split('T')[0],
       "author": { "@type": "Organization", "name": "Skilyapp" },
