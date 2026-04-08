@@ -46,6 +46,11 @@ export default async function handler(req) {
 
   const titleFontSize = meta.title.length > 40 ? 52 : 68;
 
+  // Load logo as base64
+  const logoUrl = 'https://skilyapp.com/android-chrome-192x192.png';
+  const logoData = await fetch(logoUrl).then((r) => r.arrayBuffer());
+  const logoBase64 = `data:image/png;base64,${Buffer.from(logoData).toString('base64')}`;
+
   return new ImageResponse(
     h('div', {
       style: {
