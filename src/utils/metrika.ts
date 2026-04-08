@@ -1,11 +1,15 @@
 /**
- * Yandex Metrika helpers
- * Счётчики определены в index.html (skilyapp.com → 108379787, sdadim.eu → 108379913)
+ * Analytics helpers — Yandex Metrika + Google Ads conversions
+ * Счётчики Метрики определены в index.html (skilyapp.com → 108379787, sdadim.eu → 108379913)
+ * Google Ads тег: AW-18034090184 (также в index.html)
  */
+
+const GADS_CONVERSION_REGISTRATION = 'AW-18034090184/LGu7CMTx0pMcEMjBqZdD';
 
 declare global {
   interface Window {
     ym?: (counterId: number, action: string, ...args: unknown[]) => void;
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
