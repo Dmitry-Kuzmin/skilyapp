@@ -9,25 +9,29 @@
 
   html, body {
     width: 100%; height: 100%;
-    overflow: hidden;
+    /* NO overflow:hidden — lets box-shadow breathe; iframe itself clips */
     background: transparent;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   }
 
-  /* The banner is designed at 560×170 — JS scales it to fit any iframe size */
+  /*
+    Design canvas: 540×150 px.
+    Positioned with 10px inset so the outer glow is not clipped.
+    JS scales the full 560×170 iframe box.
+  */
   .wrap {
     position: fixed;
-    top: 0; left: 0;
-    width: 560px;
-    height: 170px;
+    top: 10px; left: 10px;
+    width: 540px;
+    height: 150px;
     transform-origin: top left;
   }
 
   .banner {
     width: 100%; height: 100%;
-    background: linear-gradient(135deg, #060a14 0%, #0d1426 50%, #060a14 100%);
-    border-radius: 20px;
-    border: 1px solid rgba(99,102,241,0.3);
+    background: linear-gradient(135deg, #07091a 0%, #0e1330 55%, #07091a 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(99,102,241,0.28);
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -35,134 +39,178 @@
     text-decoration: none;
     position: relative;
     transition: transform .2s ease, box-shadow .2s ease;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 20px 60px rgba(99,102,241,0.15), 0 4px 20px rgba(0,0,0,0.5);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.05) inset,
+      0 0 40px rgba(99,102,241,0.22),
+      0 6px 28px rgba(0,0,0,0.55);
   }
   .banner:hover {
     transform: translateY(-2px);
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset, 0 24px 70px rgba(99,102,241,0.25), 0 8px 32px rgba(0,0,0,0.6);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.07) inset,
+      0 0 52px rgba(99,102,241,0.32),
+      0 10px 36px rgba(0,0,0,0.65);
   }
+
+  /* Left ambient glow */
   .banner::before {
     content: '';
     position: absolute;
-    top: -30%; left: -10%;
-    width: 55%; height: 170%;
-    background: radial-gradient(ellipse, rgba(99,102,241,0.22) 0%, transparent 65%);
+    top: -40%; left: -8%;
+    width: 50%; height: 180%;
+    background: radial-gradient(ellipse, rgba(99,102,241,0.28) 0%, transparent 60%);
     pointer-events: none;
   }
+  /* Subtle grid */
   .banner::after {
     content: '';
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(to right,rgba(255,255,255,0.02) 1px,transparent 1px), linear-gradient(to bottom,rgba(255,255,255,0.02) 1px,transparent 1px);
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
     background-size: 28px 28px;
     pointer-events: none;
   }
 
-  /* Icon column */
-  .col-icon {
+  /* ── Logo column ───────────────────────────────────── */
+  .col-logo {
     position: relative; z-index: 1;
     flex-shrink: 0;
-    width: 104px;
+    width: 96px;
     display: flex; align-items: center; justify-content: center;
   }
-  .icon-box {
-    width: 68px; height: 68px;
-    background: linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(139,92,246,0.15) 100%);
-    border: 1px solid rgba(99,102,241,0.35);
-    border-radius: 18px;
+  .logo-box {
+    width: 60px; height: 60px;
+    border-radius: 15px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 30px;
-    box-shadow: 0 0 24px rgba(99,102,241,0.2);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+    box-shadow: 0 0 0 1px rgba(99,102,241,.4), 0 0 22px rgba(99,102,241,.35);
+    overflow: hidden;
+    flex-shrink: 0;
   }
+  .logo-box svg { width: 38px; height: 38px; }
 
-  /* Body */
+  /* ── Body ──────────────────────────────────────────── */
   .col-body {
     position: relative; z-index: 1;
     flex: 1;
-    padding: 0 12px;
-    display: flex; flex-direction: column; gap: 5px;
+    padding: 0 14px;
+    display: flex; flex-direction: column; gap: 4px;
   }
   .eyebrow {
-    font-size: 10px; font-weight: 700;
-    letter-spacing: .15em; text-transform: uppercase;
-    color: rgba(139,92,246,.9);
+    font-size: 9.5px; font-weight: 700;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: rgba(165,180,252,.85);
   }
   .title {
-    font-size: 17px; font-weight: 800;
-    line-height: 1.2; color: #fff;
-    letter-spacing: -.02em;
+    font-size: 18px; font-weight: 900;
+    line-height: 1.15; color: #fff;
+    letter-spacing: -.025em;
   }
   .subtitle {
-    font-size: 12px; color: rgba(255,255,255,.45); line-height: 1.35;
+    font-size: 11.5px; color: rgba(255,255,255,.42); line-height: 1.35;
+    margin-top: 1px;
   }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
   .chip {
-    font-size: 11px; font-weight: 600;
-    color: rgba(255,255,255,.8);
-    background: rgba(99,102,241,.14);
-    border: 1px solid rgba(99,102,241,.22);
-    border-radius: 6px;
-    padding: 3px 8px;
-    display: flex; align-items: center; gap: 4px;
+    font-size: 10.5px; font-weight: 600;
+    color: rgba(255,255,255,.78);
+    background: rgba(99,102,241,.13);
+    border: 1px solid rgba(99,102,241,.2);
+    border-radius: 5px;
+    padding: 2.5px 7px;
+    display: flex; align-items: center; gap: 3.5px;
   }
-  .chip.hi { background: rgba(99,102,241,.26); border-color: rgba(99,102,241,.5); color: #a5b4fc; }
-  .dot { width: 5px; height: 5px; background: #6366f1; border-radius: 50%; flex-shrink: 0; }
-  .loading { font-size: 11px; color: rgba(255,255,255,.3); animation: pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:.85} }
+  .chip.hi {
+    background: rgba(99,102,241,.24);
+    border-color: rgba(99,102,241,.48);
+    color: #a5b4fc;
+  }
+  .dot {
+    width: 5px; height: 5px;
+    background: #818cf8; border-radius: 50%; flex-shrink: 0;
+    animation: live-pulse 2.2s ease-in-out infinite;
+    box-shadow: 0 0 5px rgba(99,102,241,.7);
+  }
+  @keyframes live-pulse { 0%,100%{opacity:.55;transform:scale(1)} 50%{opacity:1;transform:scale(1.4)} }
+  .loading { font-size: 10.5px; color: rgba(255,255,255,.28); animation: shimmer 1.4s ease-in-out infinite; }
+  @keyframes shimmer { 0%,100%{opacity:.3} 50%{opacity:.7} }
 
-  /* Right CTA */
+  /* ── CTA column ────────────────────────────────────── */
   .col-cta {
     position: relative; z-index: 1;
     flex-shrink: 0;
-    padding: 0 18px 0 8px;
+    padding: 0 20px 0 10px;
     display: flex; flex-direction: column;
-    align-items: flex-end; gap: 8px;
+    align-items: flex-end; justify-content: center; gap: 10px;
   }
-  .price-label { font-size: 9px; color: rgba(255,255,255,.3); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 1px; }
-  .price-amount { font-size: 24px; font-weight: 900; color: #fff; letter-spacing: -.03em; line-height: 1; }
-  .price-note { font-size: 9px; color: rgba(255,255,255,.25); }
+  .badge {
+    font-size: 9.5px; font-weight: 700;
+    color: rgba(165,180,252,.8);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.4;
+  }
   .cta {
     display: inline-flex; align-items: center; gap: 5px;
-    padding: 8px 14px;
+    padding: 10px 18px;
     background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
     border-radius: 10px;
-    font-size: 12px; font-weight: 700; color: #fff;
+    font-size: 13px; font-weight: 800; color: #fff;
     white-space: nowrap;
-    box-shadow: 0 4px 14px rgba(99,102,241,.35);
+    box-shadow: 0 4px 16px rgba(99,102,241,.45), 0 0 0 1px rgba(255,255,255,.08) inset;
+    letter-spacing: -.01em;
+    transition: opacity .15s;
   }
-  .cta svg { width: 12px; height: 12px; }
+  .cta:hover { opacity: .88; }
+  .cta svg { width: 13px; height: 13px; }
 
+  /* Attribution */
   .attr {
     position: fixed; bottom: 3px; right: 10px;
-    font-size: 9px; color: rgba(255,255,255,.18);
+    font-size: 8.5px; color: rgba(255,255,255,.15);
   }
-  .attr a { color: rgba(99,102,241,.5); text-decoration: none; }
+  .attr a { color: rgba(99,102,241,.45); text-decoration: none; }
+  .attr a:hover { color: rgba(99,102,241,.75); }
 </style>
 </head>
 <body>
 
 <div class="wrap" id="wrap">
-  <a id="banner-link" href="https://t.me/skilyapp_bot/skilyapp" target="_blank" rel="noopener noreferrer" class="banner" aria-label="Skily Курс DGT">
-    <div class="col-icon">
-      <div class="icon-box">🚗</div>
-    </div>
-    <div class="col-body">
-      <div class="eyebrow">Полный курс · Skily</div>
-      <div class="title">Подготовка к DGT<br>с нуля до прав</div>
-      <div class="subtitle">Видеоуроки + AI-тьютор + 3 500 вопросов</div>
-      <div class="chips" id="chips"><span class="loading">Загружаем даты…</span></div>
-    </div>
-    <div class="col-cta">
-      <div>
-        <div class="price-label">Цена курса</div>
-        <div class="price-amount">€300</div>
-        <div class="price-note">разовая оплата</div>
+  <a id="banner-link" href="https://t.me/skilyapp_bot/skilyapp" target="_blank" rel="noopener noreferrer" class="banner" aria-label="Skily — живой курс DGT">
+
+    <!-- Logo -->
+    <div class="col-logo">
+      <div class="logo-box">
+        <!-- Skily "S" logo -->
+        <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <text x="50%" y="52%" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif" font-weight="900" font-size="26" fill="white" text-anchor="middle" dominant-baseline="central">S</text>
+        </svg>
       </div>
+    </div>
+
+    <!-- Body -->
+    <div class="col-body">
+      <div class="eyebrow">Живой курс · Skily</div>
+      <div class="title">Права в Испании<br>с преподавателем</div>
+      <div class="subtitle">2 занятия в неделю · 2 месяца · ведём до результата</div>
+      <div class="chips" id="chips">
+        <span class="loading">Загружаем ближайшие потоки…</span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="col-cta">
+      <div class="badge">Ближайший<br>поток стартует</div>
       <div class="cta">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
         Записаться
       </div>
     </div>
+
   </a>
 </div>
 
@@ -170,46 +218,56 @@
 
 <script>
 (function(){
-  // ── Scale to fill iframe ──────────────────────────────────────────
-  var BASE_W = 560, BASE_H = 170;
+  // ── Scale to fill iframe (560×170 outer box with 10px inset) ─────
+  var OUTER_W = 560, OUTER_H = 170, INSET = 10;
   function resize() {
-    var scaleX = window.innerWidth  / BASE_W;
-    var scaleY = window.innerHeight / BASE_H;
+    var scaleX = window.innerWidth  / OUTER_W;
+    var scaleY = window.innerHeight / OUTER_H;
     var s = Math.min(scaleX, scaleY);
     var wrap = document.getElementById('wrap');
     wrap.style.transform = 'scale(' + s + ')';
-    // Centre if letterboxed
-    var left = (window.innerWidth  - BASE_W * s) / 2;
-    var top  = (window.innerHeight - BASE_H * s) / 2;
-    wrap.style.left = left + 'px';
-    wrap.style.top  = top  + 'px';
+    // Re-centre the inset wrap within the scaled outer box
+    wrap.style.left = (INSET * s) + 'px';
+    wrap.style.top  = (INSET * s) + 'px';
   }
   window.addEventListener('resize', resize);
   resize();
 
-  // ── Fetch streams ─────────────────────────────────────────────────
+  // ── Live course streams ──────────────────────────────────────────
   var SURL = 'https://yffjnqegeiorunyvcxkn.supabase.co';
   var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDQyMTYsImV4cCI6MjA3ODA4MDIxNn0.PPYZpFYOizWxpyPp4JH7G9oTU33KDhoViwEIKUZZbLA';
-  var MO   = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-  function fmt(d){ var x=new Date(d+'T00:00:00'); return x.getDate()+' '+MO[x.getMonth()]; }
+  var MO = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+  function fmt(d){ var x = new Date(d+'T00:00:00'); return x.getDate()+' '+MO[x.getMonth()]; }
   function spots(e,t){ var l=t-e; return l<=0?'нет мест':l===1?'1 место':l<5?l+' места':l+' мест'; }
 
   fetch(SURL+'/rest/v1/course_streams?status=eq.open&order=start_date.asc&limit=3&select=start_date,spots_total,spots_enrolled',
     { headers:{'apikey':KEY,'Authorization':'Bearer '+KEY} })
-    .then(function(r){return r.json();})
+    .then(function(r){ return r.json(); })
     .then(function(data){
       var c = document.getElementById('chips');
-      if(!c) return;
-      if(!data||!data.length){ c.innerHTML='<span style="font-size:11px;color:rgba(255,255,255,.35)">Скоро новые даты — следи!</span>'; return; }
+      if (!c) return;
+      if (!data || !data.length) {
+        c.innerHTML = '<span style="font-size:10.5px;color:rgba(255,255,255,.32)">Скоро новые потоки — следи!</span>';
+        return;
+      }
       c.innerHTML = data.slice(0,3).map(function(s,i){
-        return '<span class="chip'+(i===0?' hi':'')+'">'+(i===0?'<span class="dot"></span>':'')+fmt(s.start_date)+' · '+spots(s.spots_enrolled,s.spots_total)+'</span>';
+        return '<span class="chip'+(i===0?' hi':'')+'">'+
+          (i===0?'<span class="dot"></span>':'')+
+          fmt(s.start_date)+' · '+spots(s.spots_enrolled,s.spots_total)+
+          '</span>';
       }).join('');
     })
-    .catch(function(){ var c=document.getElementById('chips'); if(c) c.innerHTML='<span style="font-size:11px;color:rgba(255,255,255,.35)">Следующий поток — скоро</span>'; });
+    .catch(function(){
+      var c = document.getElementById('chips');
+      if (c) c.innerHTML = '<span style="font-size:10.5px;color:rgba(255,255,255,.32)">Следующий поток — скоро</span>';
+    });
 
-  // ── Referral link ─────────────────────────────────────────────────
-  var ref = (typeof SKILY_REF!=='undefined')?SKILY_REF:null;
-  if(ref){ var l=document.getElementById('banner-link'); if(l) l.href='https://skilyapp.com/?ref='+ref; }
+  // ── Referral link ────────────────────────────────────────────────
+  var ref = (typeof SKILY_REF !== 'undefined') ? SKILY_REF : null;
+  if (ref) {
+    var l = document.getElementById('banner-link');
+    if (l) l.href = 'https://skilyapp.com/?ref=' + ref;
+  }
 })();
 </script>
 </body>
