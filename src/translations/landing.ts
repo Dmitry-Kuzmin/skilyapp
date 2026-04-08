@@ -176,7 +176,7 @@ export const RUSSIA_LANGUAGE_OPTIONS: Array<{ code: Language; label: string }> =
 export const landingTranslations: Record<Language, LandingCopy> = {
   es: {
     controls: {
-      studentAccess: "Acceso alumnos",
+      studentAccess: "Entrar",
       telegramApp: "Telegram App",
       languageLabel: "Idioma",
     },
