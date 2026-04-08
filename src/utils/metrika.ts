@@ -40,3 +40,20 @@ export function ymGoal(goalId: string, params?: Record<string, unknown>): void {
     console.warn('[Metrika] reachGoal failed:', e);
   }
 }
+
+/**
+ * Отправить конверсию регистрации в Google Ads + Яндекс.Метрику одновременно.
+ * Вызывать только при создании НОВОГО профиля (первый вход).
+ */
+export function trackRegistrationConversion(): void {
+  // Google Ads
+  try {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'conversion', { send_to: GADS_CONVERSION_REGISTRATION });
+    }
+  } catch (e) {
+    console.warn('[Analytics] gtag conversion failed:', e);
+  }
+  // Yandex Metrika
+  ymGoal('registration_complete');
+}
