@@ -164,6 +164,7 @@ export const UI_TEXT = {
     examSub:     "Знаешь правила?",
   },
   es: {
+    ready:       "¡PREPÁRATE!",
     think:       "¡PIENSA!",
     correct:     "¡CORRECTO!",
     wrong:       "INCORRECTO",
