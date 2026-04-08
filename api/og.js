@@ -24,7 +24,7 @@ function h(type, props, ...children) {
   return { type, props: { ...props, children: children.length === 1 ? children[0] : children } };
 }
 
-export default function handler(req) {
+export default async function handler(req) {
   const { searchParams } = new URL(req.url);
   const path = searchParams.get('path') || '/';
   const customTitle = searchParams.get('title');
