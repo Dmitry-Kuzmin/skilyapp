@@ -121,6 +121,131 @@
     content="Aprueba el examen teórico DGT a la primera con IA. Preguntas oficiales, simulacros reales, tutor 24/7. Gratis." />
   <meta name="twitter:image" content="https://skilyapp.com/og-image.png" />
 
+  <!-- Pre-React SEO: sets canonical + per-page title/description BEFORE React mounts.
+       This ensures Google/Yandex see correct meta tags even without JS rendering.
+       React's SeoHead component will override these after hydration. -->
+  <script>
+    (function () {
+      var p = window.location.pathname.replace(/\/$/, '') || '/';
+      var host = 'https://skilyapp.com';
+      var yr = new Date().getFullYear();
+
+      // Known static pages
+      var pages = {
+        '/curso': {
+          t: 'Curso Online DGT en Vivo | Teoría en Ruso con Soporte Completo — Skilyapp',
+          d: 'Curso online de teoría DGT en ruso. 16 clases en directo, soporte de documentos, acceso completo a Skilyapp durante 6 meses. 9 de cada 10 aprueban al primer intento.'
+        },
+        '/tests': {
+          t: 'Tests DGT Gratis ' + yr + ' | Preguntas Oficiales Actualizadas — Skilyapp',
+          d: 'Practica con tests DGT reales y actualizados para ' + yr + '. Más de 3000 preguntas oficiales, simulacro de examen completo con estadísticas. Gratis, sin registro necesario.'
+        },
+        '/games': {
+          t: 'Juegos para Aprender el Carnet de Conducir | Señales, Cruces — Skilyapp',
+          d: 'Aprende la teoría DGT jugando: Adivina la señal, carrera de coches, duelos multijugador en tiempo real y más. La forma más divertida de preparar el examen.'
+        },
+        '/pricing': {
+          t: 'Precios Skilyapp ' + yr + ' | Plan Gratis y Pro — Autoescuela Online DGT',
+          d: 'Empieza gratis sin tarjeta. Upgrade a Pro para simulacros ilimitados, tutor IA sin límites y estadísticas avanzadas. Precios transparentes.'
+        },
+        '/dgt-tests': {
+          t: 'Test Oficial DGT ' + yr + ' | Simulacro Examen Permiso B Gratis — Skilyapp',
+          d: 'Simulacro oficial del examen DGT ' + yr + ': 30 preguntas reales, 30 minutos, mismo formato que el examen. Comprueba si estás listo para aprobar.'
+        },
+        '/road-signs': {
+          t: 'Señales de Tráfico España ' + yr + ' | Guía Visual Completa — Skilyapp',
+          d: 'Aprende todas las señales de tráfico de España con imágenes, significados y ejercicios interactivos. Guía completa y actualizada para el examen DGT.'
+        },
+        '/blog': {
+          t: 'Blog DGT | Guías y Consejos para Aprobar el Carnet de Conducir — Skilyapp',
+          d: 'Artículos, guías y consejos de expertos para preparar el examen teórico DGT. Trucos para aprobar, señales difíciles, novedades DGT ' + yr + ' y más.'
+        },
+        '/guides': {
+          t: 'Guías DGT | Cómo Aprobar el Examen Teórico de Conducir — Skilyapp',
+          d: 'Guías completas para aprobar el examen DGT: cómo estudiar eficazmente, errores frecuentes, señales complicadas y estrategias para el día del examen.'
+        },
+        '/about': {
+          t: 'Sobre Skilyapp | La Autoescuela Online con IA para el Examen DGT',
+          d: 'Conoce Skilyapp, la plataforma de preparación para el examen DGT con inteligencia artificial, gamificación y soporte en español, inglés y ruso.'
+        },
+        '/partners': {
+          t: 'Programa de Partners Skilyapp | Colabora y Gana Comisiones',
+          d: 'Únete al programa de partners de Skilyapp. Recomienda la mejor app de preparación para el examen DGT y gana comisiones por cada usuario que apruebes.'
+        },
+        '/referrals': {
+          t: 'Invita Amigos a Skilyapp y Gana Recompensas | Programa de Referidos',
+          d: 'Invita a tus amigos a preparar el examen DGT con Skilyapp y gana monedas para desbloquear funciones premium. Cuantos más invites, más ganas.'
+        },
+        '/features': {
+          t: 'Funcionalidades Skilyapp | IA, Tests DGT, Juegos, Duelos y Más',
+          d: 'Descubre todo lo que ofrece Skilyapp: tests DGT oficiales, simulacros de examen, tutor IA 24/7, juegos educativos, señales de tráfico y duelos multijugador.'
+        },
+        '/help': {
+          t: 'Ayuda y Soporte Skilyapp | Centro de Ayuda',
+          d: 'Centro de ayuda de Skilyapp. Respuestas a preguntas frecuentes sobre la app, planes, pagos y preparación del examen teórico DGT.'
+        },
+        '/legal/terms': {
+          t: 'Términos y Condiciones — Skilyapp',
+          d: 'Términos y condiciones de uso de Skilyapp, la plataforma de preparación para el examen DGT.'
+        },
+        '/legal/privacy': {
+          t: 'Política de Privacidad — Skilyapp',
+          d: 'Política de privacidad de Skilyapp. Cómo recopilamos, usamos y protegemos tus datos personales.'
+        },
+        '/legal/cookies': {
+          t: 'Política de Cookies — Skilyapp',
+          d: 'Política de cookies de Skilyapp.'
+        }
+      };
+
+      // Resolve meta for dynamic paths (/article/:slug, /guides/:slug)
+      var meta = pages[p];
+      if (!meta) {
+        var isArticle = p.indexOf('/article/') === 0;
+        var isGuideSlug = p.indexOf('/guides/') === 0 && p.length > '/guides/'.length;
+        if (isArticle || isGuideSlug) {
+          var slug = p.split('/').filter(Boolean).pop() || '';
+          var humanTitle = slug.replace(/-/g, ' ').replace(/(?:^|\s)\S/g, function (c) { return c.toUpperCase(); });
+          meta = {
+            t: humanTitle + ' | Skilyapp',
+            d: isGuideSlug
+              ? 'Guía completa: ' + humanTitle + '. Todo lo que necesitas para preparar y aprobar el examen teórico DGT en España.'
+              : humanTitle + '. Consejos, guías y trucos para aprobar el examen teórico DGT en España con Skilyapp.'
+          };
+        }
+      }
+
+      // Set canonical (always)
+      var canonicalHref = host + (p === '/' ? '' : p);
+      var canonEl = document.querySelector('link[rel="canonical"]');
+      if (!canonEl) {
+        canonEl = document.createElement('link');
+        canonEl.rel = 'canonical';
+        document.head.appendChild(canonEl);
+      }
+      canonEl.href = canonicalHref;
+
+      // Override og:url to match canonical
+      var ogUrl = document.querySelector('meta[property="og:url"]');
+      if (ogUrl) ogUrl.setAttribute('content', canonicalHref);
+
+      // Apply page-specific title and description overrides (skip homepage, it's already correct)
+      if (meta && p !== '/') {
+        document.title = meta.t;
+        var descEl = document.querySelector('meta[name="description"]');
+        if (descEl) descEl.setAttribute('content', meta.d);
+        var ogTitle = document.querySelector('meta[property="og:title"]');
+        if (ogTitle) ogTitle.setAttribute('content', meta.t);
+        var ogDesc = document.querySelector('meta[property="og:description"]');
+        if (ogDesc) ogDesc.setAttribute('content', meta.d);
+        var twTitle = document.querySelector('meta[name="twitter:title"]');
+        if (twTitle) twTitle.setAttribute('content', meta.t);
+        var twDesc = document.querySelector('meta[name="twitter:description"]');
+        if (twDesc) twDesc.setAttribute('content', meta.d);
+      }
+    })();
+  </script>
+
   <!-- Google Search Console Verification -->
   <meta name="google-site-verification" content="DGyIbjfF5hdNJ81EG3VgsGSD9u324RdC4v8OrSYiWlk" />
 
