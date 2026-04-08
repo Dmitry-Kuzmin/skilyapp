@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
   const titleFontSize = meta.title.length > 40 ? 52 : 68;
 
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     h('div', {
       style: {
         width: '1200px', height: '630px',
