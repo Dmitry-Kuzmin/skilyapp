@@ -67,18 +67,12 @@ export default async function handler(req) {
     },
       /* Logo row */
       h('div', { style: { display: 'flex', alignItems: 'center', gap: '20px' } },
-        h('div', {
-          style: {
-            width: '64px',
-            height: '64px',
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '36px',
-          },
-        }, '🚗'),
+        h('img', {
+          src: logoBase64,
+          width: 64,
+          height: 64,
+          style: { borderRadius: '16px' },
+        }),
         h('span', {
           style: { fontSize: '40px', fontWeight: '900', color: 'white' },
         }, 'Skilyapp'),
