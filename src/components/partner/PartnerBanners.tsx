@@ -72,22 +72,27 @@ function PresetIcon({ type }: { type: SizePreset["icon"] }) {
   return <Monitor className="w-3.5 h-3.5" />;
 }
 
+/**
+ * Aspect-ratio box embed — the industry-standard approach (same as YouTube, AdSense responsive).
+ * The outer div fills 100% of the partner's container width (up to max-width),
+ * and padding-bottom maintains the correct aspect ratio so the height follows automatically.
+ * The iframe is absolutely positioned to fill the div.
+ * This makes the banner fully responsive to any container width.
+ */
 function buildEmbedCode(
   src: string, partnerCode: string,
   w: number, h: number, radius: number,
   bannerLabel: string,
 ) {
-  const r = radius > 0 ? `border-radius:${radius}px;overflow:hidden;` : "";
+  const pct = ((h / w) * 100).toFixed(4); // aspect ratio as %
+  const r = radius > 0 ? `border-radius:${radius}px;` : "";
   return `<!-- Skily Banner — ${bannerLabel} -->
-<div style="max-width:${w}px;${r}display:block;">
-  <script>var SKILY_REF = "${partnerCode}";<\/script>
+<div style="position:relative;width:100%;max-width:${w}px;padding-bottom:${pct}%;${r}overflow:hidden;">
+  <script>var SKILY_REF="${partnerCode}";<\/script>
   <iframe
     src="https://skilyapp.com${src}"
-    width="${w}"
-    height="${h}"
-    frameborder="0"
-    scrolling="no"
-    style="display:block;width:100%;height:${h}px;border:none;"
+    frameborder="0" scrolling="no"
+    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
     loading="lazy"
     title="Skily — ${bannerLabel}"
   ></iframe>
