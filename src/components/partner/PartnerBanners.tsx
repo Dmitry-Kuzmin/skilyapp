@@ -87,7 +87,7 @@ function buildEmbedCode(
   const pct = ((h / w) * 100).toFixed(4); // aspect ratio as %
   const r = radius > 0 ? `border-radius:${radius}px;` : "";
   return `<!-- Skily Banner — ${bannerLabel} -->
-<div style="position:relative;width:100%;max-width:${w}px;padding-bottom:${pct}%;${r}overflow:hidden;">
+<div style="position:relative;width:100%;max-width:${w}px;margin:0 auto;padding-bottom:${pct}%;${r}overflow:hidden;">
   <script>var SKILY_REF="${partnerCode}";<\/script>
   <iframe
     src="https://skilyapp.com${src}"
