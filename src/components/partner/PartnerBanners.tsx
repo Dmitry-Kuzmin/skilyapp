@@ -321,38 +321,32 @@ export function PartnerBanners({ partnerCode }: Props) {
               </div>
             </div>
 
-            {/* Preview area */}
-            <div
-              ref={previewRef}
-              className={`${PREVIEW_BG[bg]} p-6 flex items-start justify-center transition-colors overflow-hidden`}
-              style={{ minHeight: Math.max(140, height * previewScale + 48) }}
-            >
-              <div
-                style={{
-                  transform: `scale(${previewScale})`,
-                  transformOrigin: "top center",
-                  width,
-                  height,
-                  flexShrink: 0,
-                }}
-              >
-                <iframe
-                  key={iframeKey}
-                  src={activeBanner.src}
-                  width={width}
-                  height={height}
-                  frameBorder={0}
-                  scrolling="no"
+            {/* Preview area — uses the exact same aspect-ratio box as the real embed */}
+            <div className={`${PREVIEW_BG[bg]} p-6 transition-colors`}>
+              <div style={{ maxWidth: width, margin: "0 auto" }}>
+                <div
                   style={{
-                    display: "block",
-                    width,
-                    height,
+                    position: "relative",
+                    width: "100%",
+                    paddingBottom: `${((height / width) * 100).toFixed(4)}%`,
                     borderRadius: radius,
                     overflow: "hidden",
-                    border: "none",
                   }}
-                  title={activeBanner.label}
-                />
+                >
+                  <iframe
+                    key={iframeKey}
+                    src={activeBanner.src}
+                    frameBorder={0}
+                    scrolling="no"
+                    style={{
+                      position: "absolute",
+                      top: 0, left: 0,
+                      width: "100%", height: "100%",
+                      border: "none",
+                    }}
+                    title={activeBanner.label}
+                  />
+                </div>
               </div>
             </div>
 
@@ -363,12 +357,10 @@ export function PartnerBanners({ partnerCode }: Props) {
                 <span>•</span>
                 <span>Скругление {radius}px</span>
                 <span>•</span>
-                <span>
-                  {width > height ? "Горизонтальный" : width < height ? "Вертикальный" : "Квадратный"}
-                </span>
+                <span>{width > height ? "Горизонтальный" : width < height ? "Вертикальный" : "Квадратный"}</span>
               </div>
-              <span className="text-[11px] text-zinc-600">
-                Масштаб: {Math.round(previewScale * 100)}%
+              <span className="text-[11px] text-zinc-600 font-mono">
+                {((height / width) * 100).toFixed(1)}% ratio
               </span>
             </div>
           </div>
