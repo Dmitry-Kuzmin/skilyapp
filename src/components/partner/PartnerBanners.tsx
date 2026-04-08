@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState } from "react";
 import {
   Copy, Check, Code2, Monitor, Smartphone, Layout,
   ChevronRight, Sliders, RefreshCw, ExternalLink, Sun, Moon,
