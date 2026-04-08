@@ -1,8 +1,15 @@
-import { ImageResponse } from '@vercel/og';
-
 export const config = { runtime: 'edge' };
 
-const PAGE_META = {
+// MINIMAL TEST - убираем @vercel/og чтобы проверить работает ли Edge Runtime
+export default function handler(req) {
+  const { searchParams } = new URL(req.url);
+  const path = searchParams.get('path') || '/';
+  return new Response(JSON.stringify({ ok: true, path }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+const _DISABLED_PAGE_META = {
   '/curso': { title: 'Curso Online DGT', subtitle: '16 clases en vivo · Teoría en ruso · 9/10 aprueban', emoji: '🎓' },
   '/tests': { title: 'Tests DGT Gratis', subtitle: '+3000 preguntas oficiales · Simulacro completo', emoji: '📝' },
   '/games': { title: 'Juegos DGT', subtitle: 'Aprende conduciendo · Duelos en tiempo real', emoji: '🎮' },
