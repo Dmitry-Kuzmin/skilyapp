@@ -77,16 +77,17 @@ function buildEmbedCode(
   w: number, h: number, radius: number,
   bannerLabel: string,
 ) {
+  const r = radius > 0 ? `border-radius:${radius}px;overflow:hidden;` : "";
   return `<!-- Skily Banner — ${bannerLabel} -->
-<div style="max-width:${w}px">
-  <script>var SKILY_REF = "${partnerCode}";</script>
+<div style="max-width:${w}px;${r}display:block;">
+  <script>var SKILY_REF = "${partnerCode}";<\/script>
   <iframe
     src="https://skilyapp.com${src}"
     width="${w}"
     height="${h}"
     frameborder="0"
     scrolling="no"
-    style="border-radius:${radius}px;overflow:hidden;display:block;width:100%;height:${h}px"
+    style="display:block;width:100%;height:${h}px;border:none;"
     loading="lazy"
     title="Skily — ${bannerLabel}"
   ></iframe>
