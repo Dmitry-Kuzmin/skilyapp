@@ -385,7 +385,7 @@ export const landingTranslations: Record<Language, LandingCopy> = {
   },
   en: {
     controls: {
-      studentAccess: "Student access",
+      studentAccess: "Sign in",
       telegramApp: "Telegram App",
       languageLabel: "Language",
     },
