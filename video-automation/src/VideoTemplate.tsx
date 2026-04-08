@@ -234,11 +234,11 @@ function CountdownScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
     <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
       alignItems:"center", justifyContent:"center", gap:40 }}>
 
-      {/* Think label */}
+      {/* Ready label */}
       <div style={{ fontSize:44, fontWeight:900, color:"rgba(255,255,255,0.55)",
         letterSpacing:8, fontFamily:"system-ui,sans-serif", opacity: labelOp,
         textTransform:"uppercase" }}>
-        {ui.think}
+        {ui.ready}
       </div>
 
       {/* Ring + number */}
