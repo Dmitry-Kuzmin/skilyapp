@@ -9,7 +9,7 @@ import { useTelegram } from "@/contexts/TelegramContext";
 import { setGlobalProfileId } from "@/hooks/useRequireProfile";
 import { useQueryClient } from "@tanstack/react-query";
 import { idbDel } from "@/lib/idbKeyval";
-import { ymGoal } from "@/utils/metrika";
+import { trackRegistrationConversion } from "@/utils/metrika";
 
 interface UserContextType {
   user: TelegramUser | null;
