@@ -113,30 +113,12 @@ export function PartnerBanners({ partnerCode }: Props) {
   const [copied,       setCopied]       = useState(false);
   const [iframeKey,    setIframeKey]    = useState(0);
 
-  const previewRef = useRef<HTMLDivElement>(null);
-  const [previewScale, setPreviewScale] = useState(1);
-
   const width  = preset.id === "custom" ? customW : preset.w;
   const height = preset.id === "custom" ? customH : preset.h;
 
   const embedCode = buildEmbedCode(
     activeBanner.src, partnerCode, width, height, radius, activeBanner.label
   );
-
-  // Scale iframe to fit preview container
-  const updateScale = useCallback(() => {
-    if (!previewRef.current) return;
-    const containerW = previewRef.current.clientWidth - 48; // padding
-    const scale = Math.min(1, containerW / width);
-    setPreviewScale(scale);
-  }, [width]);
-
-  useEffect(() => {
-    updateScale();
-    const ro = new ResizeObserver(updateScale);
-    if (previewRef.current) ro.observe(previewRef.current);
-    return () => ro.disconnect();
-  }, [updateScale]);
 
   function handleCopy() {
     navigator.clipboard.writeText(embedCode).then(() => {
