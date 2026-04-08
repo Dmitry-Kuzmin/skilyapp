@@ -438,7 +438,7 @@ function AnswersScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
 }
 
 // ─── SuspenseScene ────────────────────────────────────────────────────────────
-// Таймер по центру экрана, выше UI соцсетей. Контент полностью виден — без блюра!
+// Таймер плавает над изображением — контент полностью виден снизу (AnswersScene)
 function SuspenseScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const frame    = useCurrentFrame();
   const sceneF   = frame - t.suspenseStart * FPS;
@@ -447,119 +447,119 @@ function SuspenseScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const suspSecs = t.revealStart - t.suspenseStart;
   const secs     = Math.max(1, Math.ceil(progress * suspSecs));
 
-  // Цвет кольца меняется: зелёный → оранжевый → красный по мере убывания времени
-  const ringHue = Math.round(120 * progress); // 120=зелёный → 0=красный
-  const ringColor = `hsl(${ringHue}, 90%, 55%)`;
-  const glowColor = `hsla(${ringHue}, 90%, 55%, 0.7)`;
+  // Цвет: зелёный → оранжевый → красный
+  const ringHue   = Math.round(120 * progress);
+  const ringColor = `hsl(${ringHue}, 90%, 58%)`;
+  const glowColor = `hsla(${ringHue}, 90%, 58%, 0.6)`;
 
   const widgetOp  = lerp(sceneF, 0, 10, 0, 1);
-  const widgetTy  = lerp(sceneF, 0, 12, 30, 0);
-  // Пульс числа — чаще когда мало времени
-  const pulseSpeed = 5 + (1 - progress) * 12;
-  const numScale  = 1 + Math.sin(sceneF / pulseSpeed) * 0.08;
+  const widgetTy  = lerp(sceneF, 0, 14, -20, 0);
+  const pulseSpeed = 6 + (1 - progress) * 10;
+  const numScale  = 1 + Math.sin(sceneF / pulseSpeed) * 0.06;
+  const labelOp   = lerp(sceneF, 4, 18, 0, 1);
 
-  // «ДУМАЙТЕ!» — горизонтальная подпись рядом с таймером, маленькая
-  const labelOp  = lerp(sceneF, 4, 16, 0, 1);
-  const ui = UI_TEXT[q.language];
-
-  const R = 90, SW = 11;
+  const R = 74, SW = 9;
   const circ = 2 * Math.PI * R;
 
-  return (
-    <div style={{ position:"absolute", inset:0 }}>
-      {/* Контент без блюра — полностью виден */}
-      <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-        alignItems:"center", justifyContent:"center", padding:"60px 60px" }}>
-        <TestCard q={q} t={t} showOptions={true} revealFrame={0} showExplanation={false} />
-      </div>
+  // Позиция: над изображением (верхние ~36% экрана 1920px = ~690px)
+  const timerTop = q.image_url ? 490 : 140;
 
-      {/* Центральный таймер-виджет — по центру, выше UI соцсетей */}
+  return (
+    <div style={{ position:"absolute", inset:0, pointerEvents:"none" }}>
+
+      {/* Тонкая неоновая полоска прогресса вверху */}
+      <div style={{
+        position:"absolute", top:0, left:0,
+        height:5,
+        width:`${progress * 100}%`,
+        background:`linear-gradient(90deg, ${ringColor} 0%, rgba(255,255,255,0.5) 100%)`,
+        boxShadow:`0 0 14px 2px ${ringColor}99`,
+        borderRadius:"0 3px 3px 0",
+      }} />
+
+      {/* Таймер-виджет над изображением */}
       <div style={{
         position:"absolute",
-        bottom:260,
-        left:0, right:0,
+        top: timerTop,
+        left:"50%",
+        transform:`translateX(-50%) translateY(${widgetTy}px)`,
+        opacity: widgetOp,
         display:"flex",
         flexDirection:"column",
         alignItems:"center",
-        gap:20,
-        opacity: widgetOp,
-        transform:`translateY(${widgetTy}px)`,
-        pointerEvents:"none",
+        gap:16,
       }}>
 
-        {/* Подложка под виджетом — только здесь, без блюра всего экрана */}
-        <div style={{
-          position:"absolute",
-          top:-60, bottom:-60, left:0, right:0,
-          background:"radial-gradient(ellipse 70% 100% at 50% 70%, rgba(0,0,0,0.72) 0%, transparent 80%)",
-        }} />
-
-        {/* Надпись ДУМАЙТЕ! над кольцом */}
+        {/* "ДУМАЙТЕ!" над кольцом */}
         <div style={{
           opacity: labelOp,
-          fontSize:56,
+          fontSize:46,
           fontWeight:900,
           color:"#fff",
           fontFamily:"system-ui,sans-serif",
           letterSpacing:6,
           textTransform:"uppercase",
           lineHeight:1,
-          textShadow:`0 0 30px ${ringColor}, 0 0 60px ${glowColor}, 0 3px 12px rgba(0,0,0,0.95)`,
+          textShadow:`0 0 24px ${ringColor}, 0 2px 10px rgba(0,0,0,0.9)`,
+          whiteSpace:"nowrap",
         }}>
-          {ui.think}
+          {UI_TEXT[q.language].think}
         </div>
 
-        {/* Кольцо-таймер */}
+        {/* Frosted pill — кольцо + цифра */}
         <div style={{
           position:"relative",
-          width: R*2 + SW*2 + 12,
-          height: R*2 + SW*2 + 12,
+          width: R*2 + SW*2 + 40,
+          height: R*2 + SW*2 + 40,
           display:"flex",
           alignItems:"center",
           justifyContent:"center",
         }}>
-          {/* Glow фон под кольцом */}
+          {/* Frosted glass circle background */}
           <div style={{
             position:"absolute", inset:0,
             borderRadius:"50%",
-            background:`radial-gradient(circle, ${glowColor}35 0%, transparent 65%)`,
-            filter:"blur(8px)",
+            background:"rgba(0,0,0,0.55)",
+            backdropFilter:"blur(18px)",
+            WebkitBackdropFilter:"blur(18px)",
+            border:`1px solid rgba(255,255,255,0.10)`,
+            boxShadow:`0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06) inset`,
           }} />
 
+          {/* Ring SVG */}
           <svg
-            width={R*2 + SW*2 + 12}
-            height={R*2 + SW*2 + 12}
-            style={{ position:"absolute", transform:"rotate(-90deg)" }}
+            width={R*2 + SW*2 + 40}
+            height={R*2 + SW*2 + 40}
+            style={{ position:"absolute", inset:0, transform:"rotate(-90deg)" }}
+            overflow="visible"
           >
+            {/* Track */}
             <circle
-              cx={R + SW/2 + 6} cy={R + SW/2 + 6} r={R}
-              fill="none"
-              stroke="rgba(255,255,255,0.10)"
-              strokeWidth={SW}
+              cx={(R*2 + SW*2 + 40)/2} cy={(R*2 + SW*2 + 40)/2} r={R}
+              fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth={SW}
             />
+            {/* Progress arc */}
             <circle
-              cx={R + SW/2 + 6} cy={R + SW/2 + 6} r={R}
+              cx={(R*2 + SW*2 + 40)/2} cy={(R*2 + SW*2 + 40)/2} r={R}
               fill="none"
               stroke={ringColor}
               strokeWidth={SW}
               strokeLinecap="round"
               strokeDasharray={`${progress * circ} ${circ}`}
-              style={{
-                filter:`drop-shadow(0 0 10px ${glowColor}) drop-shadow(0 0 20px ${glowColor})`,
-                transition:"stroke 0.5s ease",
-              }}
+              style={{ filter:`drop-shadow(0 0 8px ${glowColor}) drop-shadow(0 0 16px ${glowColor})`, transition:"stroke 0.4s ease" }}
             />
           </svg>
 
-          {/* Цифра внутри */}
+          {/* Цифра */}
           <div style={{
-            fontSize:76,
+            position:"relative",
+            fontSize:80,
             fontWeight:900,
             color:"#fff",
             fontFamily:"system-ui,sans-serif",
             lineHeight:1,
             transform:`scale(${numScale})`,
-            textShadow:`0 0 30px ${glowColor}, 0 3px 12px rgba(0,0,0,0.95)`,
+            textShadow:`0 0 28px ${glowColor}, 0 2px 8px rgba(0,0,0,0.8)`,
           }}>
             {secs}
           </div>
@@ -567,12 +567,14 @@ function SuspenseScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
 
         {/* Подсказка под кольцом */}
         <div style={{
-          opacity: labelOp * 0.65,
-          fontSize:26,
+          opacity: labelOp * 0.6,
+          fontSize:24,
           fontWeight:500,
-          color:"rgba(255,255,255,0.55)",
+          color:"rgba(255,255,255,0.6)",
           fontFamily:"system-ui,sans-serif",
           letterSpacing:2,
+          textShadow:"0 1px 6px rgba(0,0,0,0.8)",
+          whiteSpace:"nowrap",
         }}>
           {q.language === "ru" ? "выбери правильный ответ" : "elige tu respuesta"}
         </div>
