@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/og.js": {
-      "runtime": "edge"
-    }
-  },
   "redirects": [
     {
       "source": "/admin/editor",
