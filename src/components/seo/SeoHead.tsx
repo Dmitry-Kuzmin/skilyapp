@@ -346,7 +346,7 @@ export function SeoHead({
     setMetaTag("name", "twitter:card", "summary_large_image");
     setMetaTag("name", "twitter:title", title || config.ogTitle);
     setMetaTag("name", "twitter:description", description || config.description);
-    setMetaTag("name", "twitter:image", "https://skilyapp.com/og-image.png");
+    setMetaTag("name", "twitter:image", ogImageUrl);
     setMetaTag("name", "twitter:image:alt", title || config.ogTitle);
 
     // JSON-LD Structured Data
