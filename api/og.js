@@ -22,8 +22,8 @@ function h(type, props, ...children) {
   return { type, props: { ...props, children: children.length === 1 ? children[0] : children } };
 }
 
-export default async function handler(req) {
-  const { searchParams } = new URL(req.url);
+export default async function handler(req, res) {
+  const { searchParams } = new URL(req.url, 'https://skilyapp.com');
   const path = searchParams.get('path') || '/';
   const customTitle = searchParams.get('title');
   const customSubtitle = searchParams.get('subtitle');
