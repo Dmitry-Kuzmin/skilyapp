@@ -628,7 +628,7 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
 
           <button
             onClick={handleEnter}
-            className="bg-white text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10"
+            className="bg-white text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10 whitespace-nowrap"
           >
             {referrerInfo ? (
               <span className="flex items-center">
