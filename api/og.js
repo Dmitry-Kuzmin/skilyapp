@@ -1,7 +1,5 @@
 import { ImageResponse } from '@vercel/og';
 
-export const config = { runtime: 'edge' };
-
 const PAGE_META = {
   '/curso': { title: 'Curso Online DGT', subtitle: '16 clases en vivo · Teoría en ruso · 9/10 aprueban', emoji: '🎓' },
   '/tests': { title: 'Tests DGT Gratis', subtitle: '+3000 preguntas oficiales · Simulacro completo', emoji: '📝' },
