@@ -327,7 +327,12 @@ export function SeoHead({
     setMetaTag("property", "og:locale", config.ogLocale);
     setMetaTag("property", "og:url", canonicalUrl || "https://skilyapp.com");
     setMetaTag("property", "og:type", ogType);
-    setMetaTag("property", "og:image", "https://skilyapp.com/og-image.png");
+    // Dynamic OG image via Edge Function — includes current path for per-page design
+    const ogPath = canonicalUrl
+      ? canonicalUrl.replace("https://skilyapp.com", "")
+      : window.location.pathname;
+    const ogImageUrl = `https://skilyapp.com/api/og?path=${encodeURIComponent(ogPath)}`;
+    setMetaTag("property", "og:image", ogImageUrl);
     setMetaTag("property", "og:image:alt", title || config.ogTitle);
     setMetaTag("property", "og:site_name", "Skilyapp");
 
