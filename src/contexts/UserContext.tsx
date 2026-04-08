@@ -159,6 +159,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             setProfileId(newProfile.id);
             setGlobalProfileId(newProfile.id);
             localStorage.setItem(`profile_${supabaseUser.id}`, newProfile.id);
+            ymGoal('registration_complete');
           } else {
             console.error("[UserContext] ❌ Failed to create profile:", createError);
 
