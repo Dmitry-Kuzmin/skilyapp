@@ -153,6 +153,7 @@ export const HOOK_TEMPLATES = {
 
 export const UI_TEXT = {
   ru: {
+    ready:       "ГОТОВЬСЯ!",
     think:       "ДУМАЙТЕ!",
     correct:     "ПРАВИЛЬНО!",
     wrong:       "НЕВЕРНО",
