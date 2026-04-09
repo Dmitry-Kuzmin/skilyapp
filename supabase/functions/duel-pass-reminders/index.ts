@@ -232,15 +232,16 @@ serve(async (req) => {
     }
 
     // 2b. Профили отдельно (без join) — только активные за 30 дней с telegram_id
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    // Используем last_daily_point_at как основной показатель активности (last_activity_at может быть устаревшим)
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const userIds = progressRows.map((p: any) => p.user_id);
 
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, telegram_id, first_name, language_code, settings, last_activity_at')
+      .select('id, telegram_id, first_name, language_code, settings, last_activity_at, last_daily_point_at, license_points')
       .in('id', userIds.slice(0, 300))
       .not('telegram_id', 'is', null)
-      .gte('last_activity_at', thirtyDaysAgo);
+      .or(`last_daily_point_at.gte.${thirtyDaysAgo},last_activity_at.gte.${thirtyDaysAgo}`);
 
     if (!profiles || profiles.length === 0) {
       return jsonResponse({ success: true, message: 'No active telegram users', results });
