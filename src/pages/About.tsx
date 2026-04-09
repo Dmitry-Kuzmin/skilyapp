@@ -824,16 +824,15 @@ export default function About() {
           ))}
         </div>
 
-        {/* Marquee Social Proof - Lazy loaded */}
-        <div className="max-w-[100vw] overflow-hidden">
-          <Suspense fallback={
-            <div className="mb-32 flex justify-center items-center min-h-[400px]">
-              <div className="text-slate-400 text-sm">{language === 'ru' ? 'Загрузка отзывов...' : language === 'es' ? 'Cargando reseñas...' : 'Loading reviews...'}</div>
-            </div>
-          }>
-            <InfiniteMarquee />
-          </Suspense>
-        </div>
+        {/* Testimonials - Lazy loaded */}
+        <Suspense fallback={<div className="h-[200px]" />}>
+          <TestimonialsSection
+            testimonials={ABOUT_TESTIMONIALS}
+            badge="Student Reviews"
+            title="Real people, real licenses"
+            subtitle="Students from 20+ countries passed their DGT exam with Skily — at their own pace, in their own language."
+          />
+        </Suspense>
 
         {/* Final CTA with Animated Blob */}
         <div className="max-w-4xl mx-auto px-6 relative">
