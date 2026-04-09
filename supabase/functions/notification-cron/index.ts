@@ -368,9 +368,10 @@ async function sendLicensePointLossReminders(
     const { data: users1h, error: error1h } = await supabase
       .from('profiles')
       .select('id, license_points, last_activity_at, last_daily_point_at, license_warning_level')
-      .or(`last_daily_point_at.lt.${threshold1hDate},and(last_daily_point_at.is.null,last_activity_at.lt.${threshold1h.toISOString()})`)
+      .or(`last_daily_point_at.is.null,last_daily_point_at.lt.${threshold1hDate}`)
       .gt('license_points', 0)
-      .neq('license_warning_level', '1h');
+      .neq('license_warning_level', '1h')
+      .not('telegram_id', 'is', null);
 
     if (error1h) console.error('[Notification CRON] DB Error 1h warning:', error1h);
 
