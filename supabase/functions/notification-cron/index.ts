@@ -384,11 +384,16 @@ async function sendLicensePointLossReminders(
         const chunk = users1h.slice(i, i + chunkSize);
         await Promise.all(chunk.map(async (user) => {
           try {
+            // Для пользователей без last_daily_point_at — проверяем last_activity_at
+            if (!user.last_daily_point_at && user.last_activity_at) {
+              const lastActive = new Date(user.last_activity_at);
+              if (lastActive >= threshold1h) return; // Активен недавно — пропускаем
+            }
             const lastActive = user.last_daily_point_at
               ? new Date(user.last_daily_point_at + 'T12:00:00Z')
               : new Date(user.last_activity_at);
             const inactivityHours = (new Date().getTime() - lastActive.getTime()) / (1000 * 60 * 60);
-            if (inactivityHours >= 48) return;
+            if (inactivityHours >= 48) return; // Уже слишком поздно для 1h warning
 
             const sendResult = await dispatchEvent(supabase, {
               userId: user.id,
