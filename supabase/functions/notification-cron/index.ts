@@ -313,13 +313,15 @@ async function sendLicensePointLossReminders(
     threshold12h.setHours(threshold12h.getHours() - 36);
     const threshold12hDate = threshold12h.toISOString().split('T')[0];
 
-    // Используем last_daily_point_at как основной индикатор активности
+    // Выбираем всех, у кого last_daily_point_at устарел ИЛИ не установлен
+    // Для тех, у кого NULL — дополнительно проверяем last_activity_at в коде
     const { data: users12h, error: error12h } = await supabase
       .from('profiles')
       .select('id, license_points, last_activity_at, last_daily_point_at, license_warning_level')
-      .or(`last_daily_point_at.lt.${threshold12hDate},and(last_daily_point_at.is.null,last_activity_at.lt.${threshold12h.toISOString()})`)
+      .or(`last_daily_point_at.is.null,last_daily_point_at.lt.${threshold12hDate}`)
       .gt('license_points', 0)
-      .is('license_warning_level', null);
+      .is('license_warning_level', null)
+      .not('telegram_id', 'is', null);
 
     if (error12h) console.error('[Notification CRON] DB Error 12h warning:', error12h);
 
