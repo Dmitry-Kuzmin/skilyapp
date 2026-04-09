@@ -334,6 +334,11 @@ async function sendLicensePointLossReminders(
         const chunk = users12h.slice(i, i + chunkSize);
         await Promise.all(chunk.map(async (user) => {
           try {
+            // Для пользователей без last_daily_point_at — проверяем last_activity_at
+            if (!user.last_daily_point_at && user.last_activity_at) {
+              const lastActive = new Date(user.last_activity_at);
+              if (lastActive >= threshold12h) return; // Активен недавно — пропускаем
+            }
             const sendResult = await dispatchEvent(supabase, {
               userId: user.id,
               eventType: 'license_warning_12h',
