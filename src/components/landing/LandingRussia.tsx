@@ -46,8 +46,65 @@ import { OnlinePlayers } from "@/components/shared/OnlinePlayers";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "./LanguageSelector";
 import { CountrySelector } from "./CountrySelector";
-const InfiniteMarquee = React.lazy(() => import("./InfiniteMarquee").then(m => ({ default: m.InfiniteMarquee })));
+const TestimonialsSection = React.lazy(() => import("./TestimonialsSection").then(m => ({ default: m.TestimonialsSection })));
 const LandingGameModesShowcase = React.lazy(() => import("./LandingGameModesShowcase").then(m => ({ default: m.LandingGameModesShowcase })));
+
+const RUSSIA_TESTIMONIALS = [
+  {
+    text: "Думал, выучить 800 вопросов нереально. В Skily это как залипнуть в игру — задания короткие, AI объясняет каждую ловушку. Сдал теорию без единой ошибки.",
+    image: "https://randomuser.me/api/portraits/men/25.jpg",
+    name: "Алексей",
+    role: "Москва",
+  },
+  {
+    text: "В ГИБДД вопросы часто с подвохом. AI разбирал каждую ситуацию простым языком — не просто «правильный ответ», а почему именно так. После этого я перестала ошибаться.",
+    image: "https://randomuser.me/api/portraits/women/51.jpg",
+    name: "Дарья",
+    role: "Санкт-Петербург",
+  },
+  {
+    text: "Готовился две недели по вечерам. Платформа сама подсказывала, какие темы ещё не добиты. Сдал с первого раза и сразу записался на вождение.",
+    image: "https://randomuser.me/api/portraits/men/37.jpg",
+    name: "Тимур",
+    role: "Казань",
+  },
+  {
+    text: "Три раза ходила в автошколу на занятия — и всё равно заваливала тест. В Skily прошла за три недели в своём темпе. Четвёртая попытка — сдала.",
+    image: "https://randomuser.me/api/portraits/women/42.jpg",
+    name: "Анастасия",
+    role: "Екатеринбург",
+  },
+  {
+    text: "Работаю в ночные смены. Учился утром по дороге домой. Функция Challenge Bank сама подбирала вопросы, в которых я плавал. Очень удобно.",
+    image: "https://randomuser.me/api/portraits/men/61.jpg",
+    name: "Игорь",
+    role: "Новосибирск",
+  },
+  {
+    text: "Муж смеялся, что я «играю в телефон». Но когда я сдала с первого раза, а он с третьего — смеяться перестал. Теперь тоже качает Skily.",
+    image: "https://randomuser.me/api/portraits/women/33.jpg",
+    name: "Екатерина",
+    role: "Краснодар",
+  },
+  {
+    text: "Я старше 50, думал что мне это не под силу. Объяснения в приложении настолько понятные, что всё запомнилось само. Сдал без пересдачи.",
+    image: "https://randomuser.me/api/portraits/men/72.jpg",
+    name: "Владимир",
+    role: "Ростов-на-Дону",
+  },
+  {
+    text: "Дуэли — это огонь. Соревнуешься с другими и попутно запоминаешь всё, что раньше не заходило. Сдал, теперь сам вызываю друзей.",
+    image: "https://randomuser.me/api/portraits/men/19.jpg",
+    name: "Никита",
+    role: "Самара",
+  },
+  {
+    text: "Готовилась в декрете, между кормлениями. Приложение удобное, занятия короткие. За месяц прошла весь материал и сдала с первого раза.",
+    image: "https://randomuser.me/api/portraits/women/28.jpg",
+    name: "Ксения",
+    role: "Нижний Новгород",
+  },
+];
 const LandingQuizDemo = React.lazy(() => import("./LandingQuizDemo").then(m => ({ default: m.LandingQuizDemo })));
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
