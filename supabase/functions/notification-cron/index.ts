@@ -376,7 +376,10 @@ async function sendLicensePointLossReminders(
         const chunk = users1h.slice(i, i + chunkSize);
         await Promise.all(chunk.map(async (user) => {
           try {
-            const inactivityHours = (new Date().getTime() - new Date(user.last_activity_at).getTime()) / (1000 * 60 * 60);
+            const lastActive = user.last_daily_point_at
+              ? new Date(user.last_daily_point_at + 'T12:00:00Z')
+              : new Date(user.last_activity_at);
+            const inactivityHours = (new Date().getTime() - lastActive.getTime()) / (1000 * 60 * 60);
             if (inactivityHours >= 48) return;
 
             const sendResult = await dispatchEvent(supabase, {
