@@ -319,9 +319,12 @@ serve(async (req) => {
         }
 
         // === D. Срочные предупреждения о баллах ===
-        if (profile.license_points > 0 && profile.last_activity_at) {
-          const lastActivity = new Date(profile.last_activity_at);
-          const hoursInactive = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
+        // Используем last_daily_point_at если last_activity_at устарел
+        const lastActivityDate = profile.last_daily_point_at
+          ? new Date(profile.last_daily_point_at + 'T12:00:00Z')
+          : profile.last_activity_at ? new Date(profile.last_activity_at) : null;
+        if (profile.license_points > 0 && lastActivityDate) {
+          const hoursInactive = (now.getTime() - lastActivityDate.getTime()) / (1000 * 60 * 60);
 
           if (hoursInactive >= 30 && hoursInactive < 48 && profile.license_warning_level !== '1h') {
             const sent = await sendLicenseUrgentReminder(userId, profile.license_points, lang, results);
