@@ -1315,87 +1315,14 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
       </section>
 
       {/* TESTIMONIALS SECTION */}
-      <section className="relative z-10 px-6 py-20 max-w-[1400px] mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-5xl font-black text-white mb-4">
-            Они уже сдали с первого раза
-          </h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            Реальные отзывы студентов, которые подготовились к ГИБДД с помощью Skily
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Отзыв 1 - Алексей */}
-          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl hover:border-indigo-500/30 transition-all">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                А
-              </div>
-              <div>
-                <div className="font-bold text-white">Алексей</div>
-                <div className="text-xs text-slate-500">Москва</div>
-              </div>
-            </div>
-            <div className="flex gap-1 mb-3">
-              {[1, 2, 3, 4, 5].map(i => (
-                <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-              ))}
-            </div>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Думал, что выучить 800 вопросов нереально. В Skily это как залипнуть в игру. Сдал теорию за 4 минуты без единой ошибки. AI объяснял каждую ловушку.
-            </p>
-          </div>
-
-          {/* Отзыв 2 - Дарья */}
-          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl hover:border-indigo-500/30 transition-all">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center text-white font-bold text-lg">
-                Д
-              </div>
-              <div>
-                <div className="font-bold text-white">Дарья</div>
-                <div className="text-xs text-slate-500">Санкт-Петербург</div>
-              </div>
-            </div>
-            <div className="flex gap-1 mb-3">
-              {[1, 2, 3, 4, 5].map(i => (
-                <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-              ))}
-            </div>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              В ГИБДД вопросы часто с подвохом. Приложение научило меня видеть эти ловушки. Skily AI разбирал каждую ситуацию простым языком. Лучшее вложение 299 рублей.
-            </p>
-          </div>
-
-          {/* Отзыв 3 - Тимур */}
-          <div className="bg-slate-900/50 border border-slate-800 p-6 rounded-2xl hover:border-indigo-500/30 transition-all">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
-                Т
-              </div>
-              <div>
-                <div className="font-bold text-white">Тимур</div>
-                <div className="text-xs text-slate-500">Казань</div>
-              </div>
-            </div>
-            <div className="flex gap-1 mb-3">
-              {[1, 2, 3, 4, 5].map(i => (
-                <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                </svg>
-              ))}
-            </div>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Готовился 2 недели по вечерам. Challenge Bank сам подсказывал, какие темы повторить. Сдал с первого раза на 20/20. Теперь рекомендую всем друзьям.
-            </p>
-          </div>
-        </div>
-      </section>
+      <React.Suspense fallback={<div className="h-[200px]" />}>
+        <TestimonialsSection
+          testimonials={RUSSIA_TESTIMONIALS}
+          badge="Отзывы студентов"
+          title="Они уже сдали с первого раза"
+          subtitle="Реальные отзывы студентов, которые подготовились к ГИБДД с помощью Skily"
+        />
+      </React.Suspense>
       {/* FAQ SECTION */}
       <section className="relative z-10 px-6 py-24 max-w-[1400px] mx-auto">
         <div className="text-center mb-16 space-y-4">
