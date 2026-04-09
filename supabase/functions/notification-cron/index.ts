@@ -311,11 +311,13 @@ async function sendLicensePointLossReminders(
 
     const threshold12h = new Date();
     threshold12h.setHours(threshold12h.getHours() - 36);
+    const threshold12hDate = threshold12h.toISOString().split('T')[0];
 
+    // Используем last_daily_point_at как основной индикатор активности
     const { data: users12h, error: error12h } = await supabase
       .from('profiles')
-      .select('id, license_points, last_activity_at, license_warning_level')
-      .lt('last_activity_at', threshold12h.toISOString())
+      .select('id, license_points, last_activity_at, last_daily_point_at, license_warning_level')
+      .or(`last_daily_point_at.lt.${threshold12hDate},and(last_daily_point_at.is.null,last_activity_at.lt.${threshold12h.toISOString()})`)
       .gt('license_points', 0)
       .is('license_warning_level', null);
 
