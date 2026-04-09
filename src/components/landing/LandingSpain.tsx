@@ -45,7 +45,64 @@ import { cn } from "@/lib/utils";
 import { LanguageSelector } from "./LanguageSelector";
 import { CountrySelector } from "./CountrySelector";
 import { LandingGameModesShowcase } from "./LandingGameModesShowcase";
-const InfiniteMarquee = React.lazy(() => import("./InfiniteMarquee").then(m => ({ default: m.InfiniteMarquee })));
+const TestimonialsSection = React.lazy(() => import("./TestimonialsSection").then(m => ({ default: m.TestimonialsSection })));
+
+const SPAIN_TESTIMONIALS = [
+  {
+    text: "I listen in audio mode while driving — now roundabout signs just click. Failed twice before. Passed on my third try and I barely sat at a desk.",
+    image: "https://randomuser.me/api/portraits/women/79.jpg",
+    name: "María L.",
+    role: "Barcelona 🇪🇸",
+  },
+  {
+    text: "My Spanish was basic and the DGT questions are full of tricky wording. The app explained every trap in Russian. Passed without a single extra lesson.",
+    image: "https://randomuser.me/api/portraits/men/76.jpg",
+    name: "Andrei K.",
+    role: "Belarus 🇧🇾 → Valencia",
+  },
+  {
+    text: "I studied completely on my own — no school, no tutor. Just the app every morning before work. Took three months but I passed first time.",
+    image: "https://randomuser.me/api/portraits/women/65.jpg",
+    name: "Elena S.",
+    role: "Russia → Alicante",
+  },
+  {
+    text: "The leaderboard got me hooked. I started competing with strangers and somehow that made me memorise everything. Passed and I'm still top 10.",
+    image: "https://randomuser.me/api/portraits/men/87.jpg",
+    name: "Carlos M.",
+    role: "Argentina → Madrid",
+  },
+  {
+    text: "I was confused by roundabout priority rules for months. The AI explained it with a real intersection example in two minutes. Never got it wrong again.",
+    image: "https://randomuser.me/api/portraits/women/90.jpg",
+    name: "Sophie D.",
+    role: "France → Sevilla",
+  },
+  {
+    text: "20 minutes a day, every day, for six weeks. That was it. No cramming, no weekend marathons. The app just becomes a habit and the habit works.",
+    image: "https://randomuser.me/api/portraits/men/91.jpg",
+    name: "John T.",
+    role: "USA → Barcelona",
+  },
+  {
+    text: "I was drowning in DGT paperwork and studying at the same time. My curator handled the appointments and documents — I just showed up and passed.",
+    image: "https://randomuser.me/api/portraits/men/64.jpg",
+    name: "Dmitry P.",
+    role: "Russia → Málaga",
+  },
+  {
+    text: "I switched between Spanish and English depending on the topic. Being able to study in my own language made everything less stressful.",
+    image: "https://randomuser.me/api/portraits/women/39.jpg",
+    name: "Yuki M.",
+    role: "Japan → Barcelona",
+  },
+  {
+    text: "15 minutes at lunch every day. I never felt like I was studying — more like playing. Passed on my first attempt after five weeks.",
+    image: "https://randomuser.me/api/portraits/women/73.jpg",
+    name: "Laura B.",
+    role: "Italy → Madrid",
+  },
+];
 const LandingQuizDemo = React.lazy(() => import("./LandingQuizDemo").then(m => ({ default: m.LandingQuizDemo })));
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
