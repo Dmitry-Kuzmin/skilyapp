@@ -1209,7 +1209,12 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
       </section>
 
       <React.Suspense fallback={<div className="h-[200px]" />}>
-        <InfiniteMarquee />
+        <TestimonialsSection
+          testimonials={SPAIN_TESTIMONIALS}
+          badge="Student Reviews"
+          title="Real people, real licenses"
+          subtitle="Students from 20+ countries passed their DGT exam with Skily — at their own pace, in their own language."
+        />
       </React.Suspense>
 
       {/* LIVE CLASS SECTION - RUSSIAN ONLY */}
