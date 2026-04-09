@@ -356,11 +356,12 @@ async function sendLicensePointLossReminders(
 
     const threshold1h = new Date();
     threshold1h.setHours(threshold1h.getHours() - 47);
+    const threshold1hDate = threshold1h.toISOString().split('T')[0];
 
     const { data: users1h, error: error1h } = await supabase
       .from('profiles')
-      .select('id, license_points, last_activity_at, license_warning_level')
-      .lt('last_activity_at', threshold1h.toISOString())
+      .select('id, license_points, last_activity_at, last_daily_point_at, license_warning_level')
+      .or(`last_daily_point_at.lt.${threshold1hDate},and(last_daily_point_at.is.null,last_activity_at.lt.${threshold1h.toISOString()})`)
       .gt('license_points', 0)
       .neq('license_warning_level', '1h');
 
