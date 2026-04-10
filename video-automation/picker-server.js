@@ -829,7 +829,7 @@ const OUTRO_TEMPLATES = {
   ],
   es: [
     { id:"subscribe", label:"Suscríbete",    text:"Suscríbete — nueva pregunta DGT cada día 🇪🇸" },
-    { id:"tag",       label:"Etiqueta",      text:"¡Etiqueta al que no sabe las normas! 👇" },
+    { id:"tag",       label:"Skilyapp.com",   text:"¡Entra en Skilyapp.com y prepárate para el DGT gratis! 🚀" },
     { id:"comment",   label:"¿Acertaste?",   text:"¿Acertaste? ¡Comenta ✅ o ❌!" },
     { id:"skily",     label:"Skily",         text:"¿Preparando el DGT? +2000 preguntas en Skily 🚀" },
     { id:"save",      label:"Guarda",        text:"¡Guarda este video para repasar antes del examen! 📌" },
