@@ -976,19 +976,19 @@ function renderPanel() {
   const ruSection = lang === "es" ? \`
     <div class="section">
       <div class="section-head">
-        <div class="section-label">🇷🇺 Русский блок</div>
+        <div class="section-label">Russian Translation</div>
       </div>
       <div class="section-body">
         <div class="field-group">
-          <div class="field-label">Перевод вопроса (субтитр)</div>
-          <textarea class="field-ta" id="editQuestionRu" placeholder="Перевод вопроса на русский…">\${escHtml(q.question_ru || '')}</textarea>
+          <div class="field-label">Question translation (subtitles)</div>
+          <textarea class="field-ta" id="editQuestionRu" placeholder="Russian translation…">\${escHtml(q.question_ru || '')}</textarea>
         </div>
         <div class="field-group">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-            <div class="field-label" style="margin-bottom:0">Объяснение RU (озвучка)</div>
-            <button class="btn-regen" id="regenExplRu" onclick="adaptText('editExplanationRu','ru')">🔄 TTS-адапт.</button>
+            <div class="field-label" style="margin-bottom:0">Explanation (Russian voiceover)</div>
+            <button class="btn-regen" id="regenExplRu" onclick="adaptText('editExplanationRu','ru')">Adapt for TTS</button>
           </div>
-          <textarea class="field-ta" id="editExplanationRu" placeholder="Объяснение для русской озвучки…">\${escHtml(q.explanation_ru || q.explanationRu || '')}</textarea>
+          <textarea class="field-ta" id="editExplanationRu" placeholder="Russian explanation for voiceover…">\${escHtml(q.explanation_ru || q.explanationRu || '')}</textarea>
         </div>
       </div>
     </div>
