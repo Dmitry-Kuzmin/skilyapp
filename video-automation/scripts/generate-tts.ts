@@ -36,7 +36,7 @@ async function synthesize(text: string, voiceId: string): Promise<Buffer | null>
       {
         text,
         model_id: MODEL,
-        voice_settings: { stability: 0.45, similarity_boost: 0.80, style: 0.25, use_speaker_boost: true },
+        voice_settings: { stability: 0.45, similarity_boost: 0.80, style: 0.35, use_speaker_boost: true },
       },
       {
         headers: {
