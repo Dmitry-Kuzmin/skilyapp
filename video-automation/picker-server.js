@@ -607,7 +607,12 @@ select { background: #0D1117; border: 1px solid rgba(255,255,255,0.1); color: #F
 .edit-answer-num.correct { background: #3FB950; color: #fff; }
 .btn-danger { background: rgba(248,81,73,0.15); color: #F85149; border: 1px solid rgba(248,81,73,0.3); }
 .btn-danger:hover { background: rgba(248,81,73,0.25); }
+.btn-regen { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); font-size:12px; padding:5px 12px; border-radius:8px; cursor:pointer; font-family:inherit; }
+.btn-regen:hover { background: rgba(139,92,246,0.25); }
+.btn-regen:disabled { opacity:0.4; cursor:not-allowed; }
 .section-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 18px 0; }
+.desc-box { background:#0D1117; border:1.5px solid rgba(47,129,247,0.2); border-radius:10px; padding:14px; font-size:13px; color:#C9D1D9; line-height:1.6; white-space:pre-wrap; margin-top:8px; }
+.desc-label { font-size:12px; font-weight:700; color:#2F81F7; margin-bottom:4px; letter-spacing:0.5px; }
 </style>
 </head>
 <body>
