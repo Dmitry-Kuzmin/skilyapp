@@ -49,9 +49,9 @@ async function edgeSynth(text, voice, filePath) {
 }
 
 // ── ElevenLabs TTS (для русского голоса) ─────────────────────────────────────
-// Adam (pNInz6obpgDQGcFmaJgB) — лучший multilingual ElevenLabs для русского+испанского
-// Nicole (CwhRBWXzGAHq8TQ4Fs17) — английский женский, ПЛОХО читает русский — не использовать
-const VOICE_RU = process.env.ELEVENLABS_VOICE_RU || "pNInz6obpgDQGcFmaJgB";
+// kwajW3Xh5svCeKU5ky2S — выбранный голос для русской озвучки (Eleven v3)
+// Adam (pNInz6obpgDQGcFmaJgB) — резервный multilingual
+const VOICE_RU = process.env.ELEVENLABS_VOICE_RU || "kwajW3Xh5svCeKU5ky2S";
 
 // Build ordered list of API keys: ELEVENLABS_API_KEYS (comma-separated) first,
 // then ELEVENLABS_API_KEY as fallback, dedup and filter empty.
