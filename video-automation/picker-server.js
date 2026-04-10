@@ -1037,28 +1037,31 @@ function renderPanel() {
 
       <!-- КОНЦОВКА -->
       <div class="section">
-        <div class="section-head"><div class="section-label">Outro</div></div>
+        <div class="section-head" style="justify-content:space-between">
+          <div class="section-label">Outro</div>
+          <div style="display:flex;gap:4px">
+            <button class="lang-tab outro-tab active" onclick="setOutroLang('ru')">РУССКИЙ</button>
+            <button class="lang-tab outro-tab" onclick="setOutroLang('es')">ESPAÑOL</button>
+          </div>
+        </div>
         <div class="section-body">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
-            <span style="font-size:12px;font-weight:700;color:var(--text3)">RUSSIAN</span>
+          <!-- RUSSIAN -->
+          <div id="outroRU" class="outro-panel" style="display:block">
             <div class="chips" id="outroChipsRU"></div>
+            <textarea class="field-ta" id="outroTextRU" placeholder="Russian outro…" oninput="syncOutroActive('RU');autoResize(this)"></textarea>
           </div>
-          <textarea class="field-ta" id="outroTextRU" placeholder="Russian outro…" oninput="syncOutroActive('RU');autoResize(this)"></textarea>
-
-          \${lang === 'es' ? \`
-          <div style="display:flex;align-items:center;gap:8px;margin:10px 0 7px">
-            <span style="font-size:12px;font-weight:700;color:var(--text3)">SPANISH</span>
+          <!-- SPANISH -->
+          <div id="outroES" class="outro-panel" style="display:none">
             <div class="chips" id="outroChipsES"></div>
+            <textarea class="field-ta" id="outroTextES" placeholder="Spanish outro…" oninput="syncOutroActive('ES');autoResize(this)"></textarea>
           </div>
-          <textarea class="field-ta" id="outroTextES" placeholder="Spanish outro…" oninput="syncOutroActive('ES');autoResize(this)"></textarea>
-          \` : ''}
         </div>
       </div>
 
       <!-- НАСТРОЙКИ -->
-      <div class="toggle-row" onclick="document.getElementById('showExplanation').click()">
+      <div style="padding:0 16px;margin:8px 0;display:flex;align-items:center;gap:8px">
         <input type="checkbox" id="showExplanation">
-        <label>Show explanation in video</label>
+        <label for="showExplanation" style="font-size:12px;cursor:pointer;color:var(--text2)">Показать объяснение в видео</label>
       </div>
 
       <!-- YOUTUBE ОПИСАНИЕ -->
