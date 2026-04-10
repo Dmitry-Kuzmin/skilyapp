@@ -823,12 +823,12 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--blue); cur
 
 /* ── Copy icon ── */
 .copy-icon {
-  background: none; border: none; color: var(--text3); font-size: 14px;
-  cursor: pointer; transition: color .15s; padding: 2px 6px;
+  background: none; border: none; color: var(--text3); font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: all .15s; padding: 2px 6px; opacity: 0.6;
 }
-.copy-icon:hover { color: var(--green); }
-.copy-icon.copied { color: var(--green); animation: pulse-green .3s; }
-@keyframes pulse-green { 0% { transform: scale(1.2); } 100% { transform: scale(1); } }
+.copy-icon:hover { color: var(--blue); opacity: 1; }
+.copy-icon.copied { color: var(--green); animation: pulse-green .3s; opacity: 1; }
+@keyframes pulse-green { 0% { transform: scale(1.15); } 100% { transform: scale(1); } }
 .desc-ta.title-ta { font-weight: 700; font-size: 14px; }
 
 /* ── Render log ── */
