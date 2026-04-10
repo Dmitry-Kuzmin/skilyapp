@@ -1064,34 +1064,34 @@ function renderPanel() {
       <!-- YOUTUBE ОПИСАНИЕ -->
       <div class="section" style="margin-top:10px">
         <div class="section-head">
-          <div class="section-label">📝 Описание YouTube</div>
+          <div class="section-label">YouTube Description</div>
           <div style="display:flex;gap:8px;align-items:center">
             <div class="lang-tabs" style="display:flex;gap:3px;background:rgba(255,255,255,0.04);padding:3px;border-radius:6px">
-              <button class="lang-tab active" onclick="setDescLang('es')" style="padding:4px 10px">ES</button>
-              <button class="lang-tab" onclick="setDescLang('ru')" style="padding:4px 10px">RU</button>
+              <button class="lang-tab active" onclick="setDescLang('es')" style="padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:0.5px">ESPAÑOL</button>
+              <button class="lang-tab" onclick="setDescLang('ru')" style="padding:4px 10px;font-size:10px;font-weight:700;letter-spacing:0.5px">РУССКИЙ</button>
             </div>
-            <button class="btn-ai" id="genDescBtn" onclick="generateDescription()">✨ Генерировать</button>
+            <button class="btn-ai" id="genDescBtn" onclick="generateDescription()">Generate</button>
           </div>
         </div>
         <div class="section-body">
           <div class="desc-section" id="descOutput">
             <div class="field-group" style="position:relative">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-                <div class="desc-field-label">Заголовок</div>
-                <button class="copy-icon" onclick="copyDesc('title')" title="Скопировать заголовок">📋</button>
+                <div class="desc-field-label">Title</div>
+                <button class="copy-icon" onclick="copyDesc('title')" title="Copy title">⎘</button>
               </div>
-              <textarea class="desc-ta title-ta" id="descTitle" placeholder="Заголовок для YouTube…"></textarea>
+              <textarea class="desc-ta title-ta" id="descTitle" placeholder="YouTube title…"></textarea>
             </div>
             <div class="field-group" style="position:relative">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-                <div class="desc-field-label">Описание</div>
-                <button class="copy-icon" onclick="copyDesc('body')" title="Скопировать описание">📋</button>
+                <div class="desc-field-label">Description</div>
+                <button class="copy-icon" onclick="copyDesc('body')" title="Copy description">⎘</button>
               </div>
-              <textarea class="desc-ta" id="descBody" placeholder="Описание для YouTube…"></textarea>
+              <textarea class="desc-ta" id="descBody" placeholder="YouTube description…"></textarea>
             </div>
-            <button class="btn-copy" id="copyAllBtn" onclick="copyDesc('all')" style="width:100%;margin-top:8px">📋 Скопировать всё</button>
+            <button class="btn-copy" id="copyAllBtn" onclick="copyDesc('all')" style="width:100%;margin-top:8px">Copy All</button>
           </div>
-          <div id="descPlaceholder" style="color:var(--text3);font-size:12px;padding:8px;text-align:center;background:rgba(59,130,246,0.05);border-radius:8px;margin-top:8px">⚡ Gemini создаст цепляющий заголовок + описание с хэштегами</div>
+          <div id="descPlaceholder" style="color:var(--text3);font-size:12px;padding:8px;text-align:center;background:rgba(59,130,246,0.05);border-radius:8px;margin-top:8px">Gemini will generate a catchy title + description with hashtags</div>
         </div>
       </div>
 
