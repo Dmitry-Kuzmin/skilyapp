@@ -969,6 +969,73 @@ async function renderVideo() {
   }
 }
 
+// ── Gemini TTS text adaptation ─────────────────────────────────────────────
+async function adaptText(fieldId, lang) {
+  const ta = document.getElementById(fieldId);
+  if (!ta) return;
+  const btn = document.getElementById(fieldId === 'editExplanationRu' ? 'regenExplRu' : 'regenExpl');
+  const original = ta.value.trim();
+  if (!original) return;
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Адаптируем...'; }
+  try {
+    const res = await fetch('/api/adapt-text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: original, lang }),
+    });
+    const data = await res.json();
+    if (data.adapted) {
+      ta.value = data.adapted;
+    } else {
+      alert('Ошибка адаптации: ' + (data.error || 'неизвестная ошибка'));
+    }
+  } catch(e) {
+    alert('Ошибка: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Адаптировать для TTS'; }
+  }
+}
+
+// ── YouTube description generation ────────────────────────────────────────
+async function generateDescription() {
+  if (!selected) return;
+  const btn = document.getElementById('genDescBtn');
+  const out = document.getElementById('descOutput');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Генерируем...'; }
+  try {
+    const question = document.getElementById('editQuestion')?.value || selected.question;
+    const explanation = document.getElementById('editExplanation')?.value || selected.explanation;
+    const lang = selected.language || document.getElementById('lang').value;
+    const res = await fetch('/api/generate-description', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, explanation, lang, percent_correct: selected.percent_correct }),
+    });
+    const data = await res.json();
+    if (data.title && data.description) {
+      document.getElementById('descTitle').textContent = data.title;
+      document.getElementById('descBody').textContent = data.description;
+      if (out) out.style.display = 'block';
+    } else {
+      alert('Ошибка генерации: ' + (data.error || 'неизвестная ошибка'));
+    }
+  } catch(e) {
+    alert('Ошибка: ' + e.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✨ Сгенерировать'; }
+  }
+}
+
+function copyDesc() {
+  const title = document.getElementById('descTitle')?.textContent || '';
+  const body = document.getElementById('descBody')?.textContent || '';
+  navigator.clipboard.writeText(title + '\\n\\n' + body).then(() => {
+    const btn = event.target;
+    btn.textContent = '✅ Скопировано!';
+    setTimeout(() => { btn.textContent = '📋 Скопировать'; }, 2000);
+  });
+}
+
 // Initial load
 loadQuestions();
 </script>
