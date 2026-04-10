@@ -1010,7 +1010,7 @@ function renderPanel() {
 
       <!-- ВОПРОС -->
       <div class="section">
-        <div class="section-head"><div class="section-label">❓ Вопрос</div></div>
+        <div class="section-head"><div class="section-label">Question</div></div>
         <div class="section-body">
           <textarea class="field-ta" id="editQuestion">\${escHtml(q.question)}</textarea>
         </div>
@@ -1018,15 +1018,15 @@ function renderPanel() {
 
       <!-- ВАРИАНТЫ ОТВЕТОВ -->
       <div class="section">
-        <div class="section-head"><div class="section-label">📋 Варианты ответов</div></div>
+        <div class="section-head"><div class="section-label">Answers</div></div>
         <div class="section-body">\${answersHTML}</div>
       </div>
 
       <!-- ОБЪЯСНЕНИЕ ES -->
       <div class="section">
         <div class="section-head">
-          <div class="section-label">💡 Объяснение</div>
-          <button class="btn-regen" id="regenExpl" onclick="adaptText('editExplanation','\${lang}')">🔄 TTS-адапт.</button>
+          <div class="section-label">Explanation</div>
+          <button class="btn-regen" id="regenExpl" onclick="adaptText('editExplanation','\${lang}')">Adapt for TTS</button>
         </div>
         <div class="section-body">
           <textarea class="field-ta" id="editExplanation">\${escHtml(q.explanation)}</textarea>
@@ -1037,20 +1037,20 @@ function renderPanel() {
 
       <!-- КОНЦОВКА -->
       <div class="section">
-        <div class="section-head"><div class="section-label">🎬 Концовка ролика</div></div>
+        <div class="section-head"><div class="section-label">Outro</div></div>
         <div class="section-body">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
-            <span>🇷🇺</span>
+            <span style="font-size:12px;font-weight:700;color:var(--text3)">RUSSIAN</span>
             <div class="chips" id="outroChipsRU"></div>
           </div>
-          <textarea class="field-ta" id="outroTextRU" placeholder="Концовка RU-ролика…" oninput="syncOutroActive('RU');autoResize(this)"></textarea>
+          <textarea class="field-ta" id="outroTextRU" placeholder="Russian outro…" oninput="syncOutroActive('RU');autoResize(this)"></textarea>
 
           \${lang === 'es' ? \`
           <div style="display:flex;align-items:center;gap:8px;margin:10px 0 7px">
-            <span>🇪🇸</span>
+            <span style="font-size:12px;font-weight:700;color:var(--text3)">SPANISH</span>
             <div class="chips" id="outroChipsES"></div>
           </div>
-          <textarea class="field-ta" id="outroTextES" placeholder="Концовка ES-ролика…" oninput="syncOutroActive('ES');autoResize(this)"></textarea>
+          <textarea class="field-ta" id="outroTextES" placeholder="Spanish outro…" oninput="syncOutroActive('ES');autoResize(this)"></textarea>
           \` : ''}
         </div>
       </div>
@@ -1058,7 +1058,7 @@ function renderPanel() {
       <!-- НАСТРОЙКИ -->
       <div class="toggle-row" onclick="document.getElementById('showExplanation').click()">
         <input type="checkbox" id="showExplanation">
-        <label>Показывать объяснение в ролике</label>
+        <label>Show explanation in video</label>
       </div>
 
       <!-- YOUTUBE ОПИСАНИЕ -->
