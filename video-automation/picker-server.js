@@ -1164,6 +1164,25 @@ function selectOutro(key, langKey) {
   });
 }
 
+// ── Outro language tab switching ───────────────────────────────────────────
+function setOutroLang(lang) {
+  window._outroLang = lang;
+
+  // Switch tab active state
+  document.querySelectorAll('.outro-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  // Show/hide panels
+  const ruPanel = document.getElementById('outroRU');
+  const esPanel = document.getElementById('outroES');
+  if (ruPanel && esPanel) {
+    ruPanel.style.display = lang === 'ru' ? 'block' : 'none';
+    esPanel.style.display = lang === 'es' ? 'block' : 'none';
+  }
+
+  console.log(`Outro language switched to: ${lang}`);
+}
+
 // ── Render video ──────────────────────────────────────────────────────────
 async function renderVideo() {
   if (!selected) return;
