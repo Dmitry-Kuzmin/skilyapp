@@ -1237,12 +1237,14 @@ function setDescLang(lang) {
   document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
 
-  const out = document.getElementById('descOutput');
   const data = window._descData[lang];
-  if (data.title && data.description) {
-    document.getElementById('descTitle').value = data.title;
-    document.getElementById('descBody').value = data.body;
-    if (out) { out.classList.add('visible'); autoResize(document.getElementById('descTitle')); autoResize(document.getElementById('descBody')); }
+  if (data && data.title && data.description) {
+    const titleEl = document.getElementById('descTitle');
+    const bodyEl = document.getElementById('descBody');
+    titleEl.value = data.title;
+    bodyEl.value = data.description;
+    autoResize(titleEl);
+    autoResize(bodyEl);
   }
 }
 
