@@ -23,9 +23,9 @@ dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const API_KEY  = process.env.ELEVENLABS_API_KEY ?? "";
 const VOICE_ES = process.env.ELEVENLABS_VOICE_ES ?? "CwhRBWXzGAHq8TQ4Fs17"; // Roger
-const VOICE_RU = process.env.ELEVENLABS_VOICE_RU ?? "CwhRBWXzGAHq8TQ4Fs17";
+const VOICE_RU = process.env.ELEVENLABS_VOICE_RU ?? "kwajW3Xh5svCeKU5ky2S";
 const AUDIO_DIR = path.join(__dirname, "../public/audio");
-const MODEL = "eleven_multilingual_v2";
+const MODEL = "eleven_v3";
 
 // ── ElevenLabs synthesis ──────────────────────────────────────────────────────
 async function synthesize(text: string, voiceId: string): Promise<Buffer | null> {
