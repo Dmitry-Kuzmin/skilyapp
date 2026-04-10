@@ -428,7 +428,7 @@ async function generateTTSForQuestion(question) {
 
 // ── Gemini API ────────────────────────────────────────────────────────────────
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
-const GEMINI_MODEL   = "gemini-2.0-flash-lite";
+const GEMINI_MODEL   = "gemini-3.1-flash-lite-preview";
 
 async function geminiGenerate(prompt) {
   if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not set in .env");
