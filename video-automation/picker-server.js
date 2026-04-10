@@ -1211,7 +1211,7 @@ function setOutroLang(lang) {
     esPanel.style.display = lang === 'es' ? 'block' : 'none';
   }
 
-  console.log(`✓ Outro language switched to: ${lang}`);
+  console.log('✓ Outro language switched to: ' + lang);
 }
 
 // ── Render video ──────────────────────────────────────────────────────────
