@@ -426,6 +426,39 @@ async function generateTTSForQuestion(question) {
   return result;
 }
 
+// ── Gemini API ────────────────────────────────────────────────────────────────
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
+const GEMINI_MODEL   = "gemini-2.5-flash-lite-preview-06-17";
+
+async function geminiGenerate(prompt) {
+  if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not set in .env");
+  const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
+  return new Promise((resolve, reject) => {
+    const req = https.request({
+      hostname: "generativelanguage.googleapis.com",
+      path: `/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
+    }, (res) => {
+      const chunks = [];
+      res.on("data", c => chunks.push(c));
+      res.on("end", () => {
+        try {
+          const json = JSON.parse(Buffer.concat(chunks).toString("utf-8"));
+          if (json.candidates?.[0]?.content?.parts?.[0]?.text) {
+            resolve(json.candidates[0].content.parts[0].text.trim());
+          } else {
+            reject(new Error(JSON.stringify(json)));
+          }
+        } catch(e) { reject(e); }
+      });
+    });
+    req.on("error", reject);
+    req.write(body);
+    req.end();
+  });
+}
+
 // ── Supabase REST helper ──────────────────────────────────────────────────────
 function supabaseRequest(endpoint, params = "") {
   return new Promise((resolve, reject) => {
