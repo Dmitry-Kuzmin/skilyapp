@@ -902,7 +902,27 @@ function onSearch() {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => { offset = 0; reload(); }, 380);
 }
-async function reload() { offset = 0; await loadQuestions(); }
+async function reload() {
+  offset = 0;
+
+  // Auto-switch outro tab when language changes
+  const lang = document.getElementById('lang').value;
+  if (lang === 'ru') {
+    // Click the RU outro tab
+    const ruOutroTab = document.querySelector('.outro-tab');
+    if (ruOutroTab && !ruOutroTab.classList.contains('active')) {
+      setOutroLang('ru');
+    }
+  } else {
+    // For Spanish, click ES outro tab if it exists
+    const esOutroTab = document.querySelectorAll('.outro-tab')[1];
+    if (esOutroTab && !esOutroTab.classList.contains('active')) {
+      setOutroLang('es');
+    }
+  }
+
+  await loadQuestions();
+}
 
 async function loadQuestions() {
   const search = document.getElementById("search").value;
