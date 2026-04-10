@@ -731,7 +731,10 @@ function renderPreview() {
       <textarea class="edit-textarea" id="editQuestionRu" rows="2" placeholder="Перевод вопроса на русский...">\${escHtml(q.question_ru || '')}</textarea>
     </div>
     <div class="edit-group">
-      <div class="edit-label">🇷🇺 Объяснение на русском (озвучка RU-видео)</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+        <div class="edit-label" style="margin-bottom:0">🇷🇺 Объяснение на русском (озвучка RU-видео)</div>
+        <button class="btn-regen" onclick="adaptText('editExplanationRu','ru')" id="regenExplRu">🔄 Адаптировать для TTS</button>
+      </div>
       <textarea class="edit-textarea" id="editExplanationRu" rows="4" placeholder="Объяснение для русскоязычного видео...">\${escHtml(q.explanation_ru || q.explanationRu || '')}</textarea>
     </div>
   \` : '';
