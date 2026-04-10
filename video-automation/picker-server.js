@@ -1269,7 +1269,10 @@ async function generateDescription() {
       });
       const data = await res.json();
       if (data.title && data.description) {
-        window._descData[lang] = { title: data.title, body: data.description };
+        window._descData[lang] = { title: data.title, description: data.description };
+        console.log(`✓ Description stored for ${lang}:`, window._descData[lang]);
+      } else {
+        console.warn(`✗ No title/description in response for ${lang}:`, data);
       }
     }
 
