@@ -755,7 +755,10 @@ function renderPreview() {
     </div>
 
     <div class="edit-group">
-      <div class="edit-label">💡 Объяснение</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+        <div class="edit-label" style="margin-bottom:0">💡 Объяснение</div>
+        <button class="btn-regen" onclick="adaptText('editExplanation','${lang}')" id="regenExpl">🔄 Адаптировать для TTS</button>
+      </div>
       <textarea class="edit-textarea" id="editExplanation" rows="5">\${escHtml(q.explanation)}</textarea>
     </div>
 
