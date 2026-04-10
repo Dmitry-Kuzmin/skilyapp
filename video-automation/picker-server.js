@@ -1097,8 +1097,8 @@ function renderPanel() {
 
       <!-- РЕНДЕР -->
       <div style="display:flex;gap:10px;margin-top:12px">
-        <button class="btn-render" onclick="renderVideo()" id="renderBtn">🎬 Рендерить видео</button>
-        <button class="btn-danger" onclick="clearAudio()" title="Удалить кэш аудио">🗑</button>
+        <button class="btn-render" onclick="renderVideo()" id="renderBtn">Render Video</button>
+        <button class="btn-danger" onclick="clearAudio()" title="Clear audio cache">Clear Cache</button>
       </div>
       <div class="render-log" id="renderLog"></div>
 
