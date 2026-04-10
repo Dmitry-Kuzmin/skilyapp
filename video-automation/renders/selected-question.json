@@ -1,0 +1,70 @@
+{
+  "id": "80259446-6515-4d3b-80a7-553fa9f43909",
+  "question": "Ciclo es el vehículo de…",
+  "question_ru": "Цикл — это транспортное средство с…",
+  "explanation_ru": "🎓 Как водителю **легкового автомобиля** (Turismo), тебе важно понимать, кто перед тобой, чтобы соблюдать правильную дистанцию. **Ciclo (Цикл)** — это широкое понятие. Это любое транспортное средство, у которого **минимум два колеса** и которое едет **только за счет мускульной силы** человека (крутишь педали или рукоятки).\n\nСюда входят:\n• Велосипеды (2 колеса)\n• Трайки (3 колеса)\n• Веломобили (4 колеса)\n\nГлавное условие: **нет мотора**. Если есть двигатель, это уже мопед или мотоцикл, и твои действия при обгоне или приоритете могут отличаться.\n\n💡 Запомни формулу: **Ciclo = Cardio**.\nЕсли водитель потеет, чтобы ехать — это Ciclo.\nЕсли рычит мотор — это не Ciclo.",
+  "explanation": "Según el Reglamento General de Vehículos, se define 'Ciclo' como un vehículo de dos ruedas por lo menos, accionado exclusivamente por el esfuerzo muscular de las personas que lo ocupan, en particular mediante pedales o manivelas. Esta definición es la categoría general que engloba a las bicicletas (ciclos de dos ruedas), pero también incluye vehículos de tres o más ruedas siempre que la propulsión sea humana. La presencia de un motor de combustión o eléctrico (salvo los de pedaleo asistido homologados que siguen siendo bicicletas) cambiaría la clasificación del vehículo.",
+  "image_url": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/80259446-6515-4d3b-80a7-553fa9f43909.webp",
+  "difficulty": "easy",
+  "percent_correct": 50,
+  "country": "es",
+  "language": "es",
+  "answer_options": [
+    {
+      "id": "71ac36e9-82f3-a90e-ab55-c291d6e5b6fa",
+      "text": "Dos ruedas accionado con un motor.",
+      "text_ru": "Двумя колесами, приводимое в движение двигателем.",
+      "is_correct": false,
+      "position": 1
+    },
+    {
+      "id": "ec619258-d008-506e-c511-cab20145493f",
+      "text": "Dos ruedas por lo menos, accionado por su conductor mediante pedales o manivelas.",
+      "text_ru": "Как минимум двумя колесами, приводимое в движение водителем с помощью педалей или рукояток.",
+      "is_correct": true,
+      "position": 2
+    },
+    {
+      "id": "871d6ea9-0086-4691-6dfb-d848a07955f5",
+      "text": "Dos a más ruedas accionado con un motor o con pedales.",
+      "text_ru": "Двумя или более колесами, приводимое в движение двигателем или педалями.",
+      "is_correct": false,
+      "position": 3
+    }
+  ],
+  "explanationRu": "🎓 Как водителю **легкового автомобиля** (Turismo), тебе важно понимать, кто перед тобой, чтобы соблюдать правильную дистанцию. **Ciclo  — это широкое понятие. Это любое транспортное средство, у которого **минимум два колеса** и которое едет **только за счет мускульной силы** человека (крутишь педали или рукоятки).\n\nСюда входят:\n• Велосипеды (2 колеса)\n• Трайки (3 колеса)\n• Веломобили (4 колеса)\n\nГлавное условие: **нет мотора**. Если есть двигатель, это уже мопед или мотоцикл, и твои действия при обгоне или приоритете могут отличаться.\n\n💡 Запомни формулу: **Ciclo = Cardio**.\nЕсли водитель потеет, чтобы ехать — это Ciclo.\nЕсли рычит мотор — это не Ciclo.",
+  "outro_text_ru": "Подпишись! Каждый день новый вопрос ПДД Испании 🇪🇸",
+  "outro_text_es": "Suscríbete — nueva pregunta DGT cada día 🇪🇸",
+  "outro_text": "Подпишись! Каждый день новый вопрос ПДД Испании 🇪🇸",
+  "show_explanation": false,
+  "hook_title": "¿Sabes la respuesta? ⚡",
+  "series_number": 1,
+  "hookAudioFileRu": "audio/80259446-6515-4d3b-80a7-553fa9f43909-ru-hook.mp3",
+  "hookAudioDurationSecRu": 3.1085714285714285,
+  "hookAudioFileEs": "audio/80259446-6515-4d3b-80a7-553fa9f43909-es-hook.mp3",
+  "hookAudioDurationSecEs": 4.368,
+  "hookAudioFile": "audio/80259446-6515-4d3b-80a7-553fa9f43909-ru-hook.mp3",
+  "hookAudioDurationSec": 3.1085714285714285,
+  "questionAudioFile": "audio/80259446-6515-4d3b-80a7-553fa9f43909-es-question.mp3",
+  "questionAudioDurationSec": 2.4,
+  "answerAudioFiles": [
+    "audio/80259446-6515-4d3b-80a7-553fa9f43909-es-answer-0.mp3",
+    "audio/80259446-6515-4d3b-80a7-553fa9f43909-es-answer-1.mp3",
+    "audio/80259446-6515-4d3b-80a7-553fa9f43909-es-answer-2.mp3"
+  ],
+  "answerAudioDurationsSec": [
+    3.72,
+    6.456,
+    4.848
+  ],
+  "explanationAudioFile": "audio/80259446-6515-4d3b-80a7-553fa9f43909-es-explanation.mp3",
+  "explanationAudioDurationSec": 33.912,
+  "explanationRuAudioFile": "audio/80259446-6515-4d3b-80a7-553fa9f43909-ru-explanation.mp3",
+  "explanationRuAudioDurationSec": 47.307755102040815,
+  "outroAudioFileRu": "audio/80259446-6515-4d3b-80a7-553fa9f43909-ru-outro.mp3",
+  "outroAudioDurationSecRu": 3.369795918367347,
+  "outroAudioFileEs": "audio/80259446-6515-4d3b-80a7-553fa9f43909-es-outro.mp3",
+  "outroAudioDurationSecEs": 3.816,
+  "outroAudioFile": "audio/80259446-6515-4d3b-80a7-553fa9f43909-ru-outro.mp3",
+  "outroAudioDurationSec": 3.369795918367347
+}
