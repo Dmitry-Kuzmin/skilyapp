@@ -1275,7 +1275,6 @@ async function adaptText(fieldId, lang) {
 }
 
 // ── YouTube описание через Gemini ─────────────────────────────────────────
-window._descLang = 'es';
 window._descData = { es: {}, ru: {} };
 
 function setDescLang(lang) {
