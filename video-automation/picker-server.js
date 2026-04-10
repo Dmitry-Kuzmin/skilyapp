@@ -786,7 +786,7 @@ function renderPreview() {
     <!-- ── НАСТРОЙКИ ──────────────────────────────────────────────────── -->
     <div class="edit-group" style="display:flex;align-items:center;gap:12px">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#8B949E">
-        <input type="checkbox" id="showExplanation" checked style="width:16px;height:16px;cursor:pointer">
+        <input type="checkbox" id="showExplanation" style="width:16px;height:16px;cursor:pointer">
         Показывать объяснение в ролике
       </label>
     </div>
