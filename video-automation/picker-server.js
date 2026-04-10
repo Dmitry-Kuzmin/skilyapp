@@ -802,6 +802,22 @@ function renderPreview() {
       </label>
     </div>
 
+    <!-- ── ОПИСАНИЕ ДЛЯ ЮТУБ ──────────────────────────────────────────────── -->
+    <hr class="section-divider">
+    <div class="edit-group">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="edit-label" style="margin-bottom:0">📝 Описание для YouTube</div>
+        <button class="btn-regen" onclick="generateDescription()" id="genDescBtn">✨ Сгенерировать</button>
+      </div>
+      <div id="descOutput" style="display:none">
+        <div class="desc-label">ЗАГОЛОВОК</div>
+        <div class="desc-box" id="descTitle" style="margin-bottom:10px;font-weight:700;font-size:14px"></div>
+        <div class="desc-label">ОПИСАНИЕ</div>
+        <div class="desc-box" id="descBody"></div>
+        <button onclick="copyDesc()" style="margin-top:8px;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#C9D1D9;font-size:12px;cursor:pointer;font-family:inherit">📋 Скопировать</button>
+      </div>
+    </div>
+
     <div class="preview-actions">
       <div style="display:flex;gap:8px">
         <button class="btn btn-render" style="flex:1" onclick="renderVideo()" id="renderBtn">
