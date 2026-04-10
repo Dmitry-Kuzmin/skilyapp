@@ -1192,9 +1192,16 @@ function selectOutro(key, langKey) {
 function setOutroLang(lang) {
   window._outroLang = lang;
 
-  // Switch tab active state
+  // Switch tab active state (use specific selector to avoid description tabs)
   document.querySelectorAll('.outro-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  if (event && event.target) {
+    event.target.classList.add('active');
+  } else {
+    // Fallback if called without event
+    const tabs = document.querySelectorAll('.outro-tab');
+    if (lang === 'ru' && tabs[0]) tabs[0].classList.add('active');
+    if (lang === 'es' && tabs[1]) tabs[1].classList.add('active');
+  }
 
   // Show/hide panels
   const ruPanel = document.getElementById('outroRU');
@@ -1204,7 +1211,7 @@ function setOutroLang(lang) {
     esPanel.style.display = lang === 'es' ? 'block' : 'none';
   }
 
-  console.log(`Outro language switched to: ${lang}`);
+  console.log(`✓ Outro language switched to: ${lang}`);
 }
 
 // ── Render video ──────────────────────────────────────────────────────────
