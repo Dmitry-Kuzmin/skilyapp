@@ -1238,6 +1238,7 @@ function setDescLang(lang) {
   event.target.classList.add('active');
 
   const data = window._descData[lang];
+  console.log(`Tab switched to: ${lang}, data exists:`, !!data, data);
   if (data && data.title && data.description) {
     const titleEl = document.getElementById('descTitle');
     const bodyEl = document.getElementById('descBody');
@@ -1245,6 +1246,9 @@ function setDescLang(lang) {
     bodyEl.value = data.description;
     autoResize(titleEl);
     autoResize(bodyEl);
+    console.log(`✓ ${lang.toUpperCase()} content loaded`);
+  } else {
+    console.warn(`✗ Missing content for ${lang}:`, { title: data?.title, description: data?.description });
   }
 }
 
@@ -1289,7 +1293,7 @@ async function generateDescription() {
     const out = document.getElementById('descOutput');
 
     titleEl.value = window._descData[currentLang].title;
-    bodyEl.value = window._descData[currentLang].body;
+    bodyEl.value = window._descData[currentLang].description;
     if (placeholder) placeholder.style.display = 'none';
     if (out) { out.classList.add('visible'); autoResize(titleEl); autoResize(bodyEl); }
   } catch(e) { alert('Ошибка: ' + e.message); }
