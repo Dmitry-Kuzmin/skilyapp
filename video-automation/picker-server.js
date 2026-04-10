@@ -812,6 +812,23 @@ input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--blue); cur
   outline: none; transition: border-color .2s; overflow: hidden; min-height: 50px;
 }
 .desc-ta:focus { border-color: var(--blue); }
+
+/* ── Language tabs ── */
+.lang-tab {
+  background: transparent; border: none; color: var(--text3); font-size: 11px;
+  font-weight: 700; cursor: pointer; transition: all .15s; border-radius: 5px;
+}
+.lang-tab:hover { color: var(--text2); }
+.lang-tab.active { background: var(--blue-dim); color: var(--blue); }
+
+/* ── Copy icon ── */
+.copy-icon {
+  background: none; border: none; color: var(--text3); font-size: 14px;
+  cursor: pointer; transition: color .15s; padding: 2px 6px;
+}
+.copy-icon:hover { color: var(--green); }
+.copy-icon.copied { color: var(--green); animation: pulse-green .3s; }
+@keyframes pulse-green { 0% { transform: scale(1.2); } 100% { transform: scale(1); } }
 .desc-ta.title-ta { font-weight: 700; font-size: 14px; }
 
 /* ── Render log ── */
