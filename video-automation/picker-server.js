@@ -1229,39 +1229,84 @@ async function adaptText(fieldId, lang) {
 }
 
 // ── YouTube описание через Gemini ─────────────────────────────────────────
+window._descLang = 'es';
+window._descData = { es: {}, ru: {} };
+
+function setDescLang(lang) {
+  window._descLang = lang;
+  document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const out = document.getElementById('descOutput');
+  const data = window._descData[lang];
+  if (data.title && data.description) {
+    document.getElementById('descTitle').value = data.title;
+    document.getElementById('descBody').value = data.body;
+    if (out) { out.classList.add('visible'); autoResize(document.getElementById('descTitle')); autoResize(document.getElementById('descBody')); }
+  }
+}
+
 async function generateDescription() {
   if (!selected) return;
   const btn = document.getElementById('genDescBtn');
   const placeholder = document.getElementById('descPlaceholder');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Генерируем…'; }
+
   try {
     const question = document.getElementById('editQuestion')?.value || selected.question;
     const explanation = document.getElementById('editExplanation')?.value || selected.explanation;
-    const lang = selected.language || document.getElementById('lang').value;
-    const res = await fetch('/api/generate-description', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ question, explanation, lang, percent_correct: selected.percent_correct }),
+    const selectedLang = selected.language || document.getElementById('lang').value;
+
+    // Generate for both ES and RU
+    const langs = selectedLang === 'es' ? ['es', 'ru'] : ['ru'];
+
+    for (const lang of langs) {
+      const res = await fetch('/api/generate-description', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ question, explanation, lang, percent_correct: selected.percent_correct }),
+      });
+      const data = await res.json();
+      if (data.title && data.description) {
+        window._descData[lang] = { title: data.title, body: data.description };
+      }
+    }
+
+    // Show ES by default
+    const currentLang = selectedLang === 'es' ? 'es' : 'ru';
+    document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.lang-tab').forEach(t => {
+      if (t.textContent === currentLang.toUpperCase()) t.classList.add('active');
     });
-    const data = await res.json();
-    if (data.title && data.description) {
-      const titleEl = document.getElementById('descTitle');
-      const bodyEl = document.getElementById('descBody');
-      const out = document.getElementById('descOutput');
-      titleEl.value = data.title; bodyEl.value = data.description;
-      if (placeholder) placeholder.style.display = 'none';
-      if (out) { out.classList.add('visible'); autoResize(titleEl); autoResize(bodyEl); }
-    } else { alert('Ошибка: ' + (data.error || '?')); }
+    window._descLang = currentLang;
+
+    const titleEl = document.getElementById('descTitle');
+    const bodyEl = document.getElementById('descBody');
+    const out = document.getElementById('descOutput');
+
+    titleEl.value = window._descData[currentLang].title;
+    bodyEl.value = window._descData[currentLang].body;
+    if (placeholder) placeholder.style.display = 'none';
+    if (out) { out.classList.add('visible'); autoResize(titleEl); autoResize(bodyEl); }
   } catch(e) { alert('Ошибка: ' + e.message); }
-  finally { if (btn) { btn.disabled = false; btn.textContent = '✨ Сгенерировать'; } }
+  finally { if (btn) { btn.disabled = false; btn.textContent = '✨ Генерировать'; } }
 }
 
-function copyDesc() {
+function copyDesc(part) {
+  const lang = window._descLang || 'es';
   const title = document.getElementById('descTitle')?.value || '';
   const body = document.getElementById('descBody')?.value || '';
-  navigator.clipboard.writeText(title + '\\n\\n' + body).then(() => {
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = '✅ Скопировано!'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '📋 Скопировать всё'; btn.classList.remove('copied'); }, 1500);
+  let text = '';
+
+  if (part === 'title') text = title;
+  else if (part === 'body') text = body;
+  else text = title + '\\n\\n' + body;
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const original = btn.textContent;
+    btn.textContent = '✅';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1200);
   });
 }
 
