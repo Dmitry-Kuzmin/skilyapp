@@ -1290,7 +1290,7 @@ function setDescLang(lang) {
   event.target.classList.add('active');
 
   const data = window._descData[lang];
-  console.log(`Tab switched to: ${lang}, data exists:`, !!data, data);
+  console.log('Tab switched to: ' + lang + ', data exists: ' + !!data, data);
   if (data && data.title && data.description) {
     const titleEl = document.getElementById('descTitle');
     const bodyEl = document.getElementById('descBody');
@@ -1298,9 +1298,9 @@ function setDescLang(lang) {
     bodyEl.value = data.description;
     autoResize(titleEl);
     autoResize(bodyEl);
-    console.log(`✓ ${lang.toUpperCase()} content loaded`);
+    console.log('✓ ' + lang.toUpperCase() + ' content loaded');
   } else {
-    console.warn(`✗ Missing content for ${lang}:`, { title: data?.title, description: data?.description });
+    console.warn('✗ Missing content for ' + lang + ':', { title: data?.title, description: data?.description });
   }
 }
 
