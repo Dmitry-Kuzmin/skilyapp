@@ -576,102 +576,287 @@ const HTML = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Skily — Video Picker</title>
+<title>Skily — Video Maker</title>
 <style>
+:root {
+  --bg: #080C14;
+  --surface: #0F1623;
+  --surface2: #161E2E;
+  --surface3: #1C2539;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.13);
+  --blue: #3B82F6;
+  --blue-dim: rgba(59,130,246,0.12);
+  --blue-glow: rgba(59,130,246,0.25);
+  --green: #22C55E;
+  --green-dim: rgba(34,197,94,0.12);
+  --purple: #8B5CF6;
+  --purple-dim: rgba(139,92,246,0.13);
+  --orange: #F97316;
+  --orange-dim: rgba(249,115,22,0.12);
+  --red: #EF4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --text: #F1F5F9;
+  --text2: #94A3B8;
+  --text3: #475569;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #0D1117; color: #F0F6FC; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif; min-height: 100vh; font-size: 14px; }
 
-.header { background: #161B22; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 16px 24px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 10; }
-.logo { font-size: 22px; font-weight: 900; color: #2F81F7; letter-spacing: 1px; }
-.controls { display: flex; gap: 12px; flex: 1; align-items: center; flex-wrap: wrap; }
-input[type=text] { background: #0D1117; border: 1px solid rgba(255,255,255,0.1); color: #F0F6FC; padding: 10px 16px; border-radius: 10px; font-size: 15px; flex: 1; min-width: 200px; outline: none; }
-input[type=text]:focus { border-color: #2F81F7; }
-select { background: #0D1117; border: 1px solid rgba(255,255,255,0.1); color: #F0F6FC; padding: 10px 14px; border-radius: 10px; font-size: 15px; cursor: pointer; outline: none; }
-.btn { padding: 10px 20px; border-radius: 10px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
-.btn-primary { background: #2F81F7; color: #fff; }
-.btn-primary:hover { background: #1a6bd4; }
-.btn-sm { padding: 8px 16px; font-size: 13px; }
-.btn-render { background: #3FB950; color: #fff; }
-.btn-render:hover { background: #2ea043; }
-.btn-render:disabled { background: #1f6b2e; color: rgba(255,255,255,0.5); cursor: not-allowed; }
+/* ── Header ── */
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  display: flex; align-items: center; gap: 16px;
+  height: 56px; position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 1px 20px rgba(0,0,0,0.4);
+}
+.logo {
+  font-size: 18px; font-weight: 900; letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  flex-shrink: 0;
+}
+.logo span { -webkit-text-fill-color: var(--text2); font-weight: 400; font-size: 13px; margin-left: 4px; letter-spacing: 0; }
+.search-wrap { flex: 1; position: relative; max-width: 400px; }
+.search-wrap input {
+  width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+  color: var(--text); padding: 8px 14px 8px 36px; border-radius: var(--radius-sm);
+  font-size: 14px; outline: none; transition: border-color .2s;
+}
+.search-wrap input:focus { border-color: var(--blue); }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 15px; pointer-events: none; }
+.header-right { display: flex; gap: 10px; align-items: center; margin-left: auto; }
+select {
+  background: var(--surface2); border: 1.5px solid var(--border); color: var(--text);
+  padding: 7px 12px; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; outline: none;
+  transition: border-color .2s;
+}
+select:focus { border-color: var(--blue); }
+.btn { padding: 8px 16px; border-radius: var(--radius-sm); border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; white-space: nowrap; }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { background: #2563EB; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.35); }
+.btn-primary:active { transform: translateY(0); }
 
-.layout { display: grid; grid-template-columns: 1fr 420px; gap: 0; height: calc(100vh - 64px); }
-.list { overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.07); }
-.preview { overflow-y: auto; padding: 24px; background: #0D1117; }
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: 1fr 500px; height: calc(100vh - 56px); }
+.list { overflow-y: auto; border-right: 1px solid var(--border); background: var(--bg); }
+.panel { overflow-y: auto; background: var(--surface); }
 
-.question-item { padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.15s; }
-.question-item:hover { background: rgba(255,255,255,0.03); }
-.question-item.selected { background: rgba(47,129,247,0.08); border-left: 3px solid #2F81F7; }
-.q-meta { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-.badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px; }
-.badge-easy   { background: rgba(63,185,80,0.15); color: #3FB950; }
-.badge-medium { background: rgba(240,136,62,0.15); color: #F0883E; }
-.badge-hard   { background: rgba(248,81,73,0.12); color: #F85149; }
-.badge-pct    { background: rgba(255,255,255,0.08); color: #8B949E; }
-.q-text { font-size: 15px; color: #F0F6FC; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* ── Question list ── */
+.q-item {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .12s; position: relative;
+}
+.q-item:hover { background: rgba(255,255,255,0.02); }
+.q-item.active { background: var(--blue-dim); }
+.q-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--blue); border-radius: 0 2px 2px 0; }
+.q-meta { display: flex; gap: 6px; margin-bottom: 7px; align-items: center; flex-wrap: wrap; }
+.badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.4px; text-transform: uppercase; }
+.badge-easy   { background: var(--green-dim); color: var(--green); }
+.badge-medium { background: var(--orange-dim); color: var(--orange); }
+.badge-hard   { background: var(--red-dim); color: var(--red); }
+.badge-pct    { background: rgba(255,255,255,0.06); color: var(--text2); }
+.q-text { font-size: 13px; color: var(--text); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-/* Preview panel */
-.preview-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #8B949E; gap: 12px; font-size: 15px; }
-.preview-card { background: #161B22; border-radius: 16px; border: 1px solid rgba(255,255,255,0.07); overflow: hidden; }
-.preview-img { width: 100%; max-height: 240px; object-fit: cover; }
-.preview-body { padding: 20px; }
-.preview-question { font-size: 17px; font-weight: 700; color: #F0F6FC; line-height: 1.5; margin-bottom: 16px; }
-.preview-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.07); background: #0D1117; margin-bottom: 8px; }
-.preview-option.correct { border-color: rgba(63,185,80,0.5); background: rgba(63,185,80,0.10); }
-.opt-badge { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #8B949E; flex-shrink: 0; }
-.preview-option.correct .opt-badge { background: #3FB950; color: #fff; }
-.opt-text { font-size: 14px; color: #F0F6FC; line-height: 1.4; }
-.preview-explanation { margin-top: 16px; padding: 14px 16px; border-radius: 12px; border: 1.5px solid rgba(47,129,247,0.3); background: rgba(47,129,247,0.07); font-size: 14px; color: #F0F6FC; line-height: 1.5; }
-.preview-expl-label { font-size: 12px; font-weight: 700; color: #2F81F7; margin-bottom: 6px; letter-spacing: 0.5px; }
-.preview-actions { margin-top: 16px; display: flex; gap: 10px; flex-direction: column; }
-.render-log { background: #0D1117; border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 12px; font-size: 12px; font-family: monospace; color: #8B949E; max-height: 120px; overflow-y: auto; margin-top: 8px; white-space: pre-wrap; }
-.loading { text-align: center; padding: 40px; color: #8B949E; }
-.pagination { display: flex; gap: 8px; padding: 16px 24px; align-items: center; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.05); }
-/* Edit fields */
-.edit-label { font-size: 11px; font-weight: 700; color: #8B949E; letter-spacing: 0.5px; margin-bottom: 5px; text-transform: uppercase; }
-.edit-textarea { width: 100%; background: #0D1117; border: 1.5px solid rgba(255,255,255,0.1); color: #F0F6FC; border-radius: 10px; padding: 10px 14px; font-size: 14px; line-height: 1.6; font-family: inherit; resize: vertical; outline: none; }
-.edit-textarea:focus { border-color: #2F81F7; }
-.edit-input { width: 100%; background: #0D1117; border: 1.5px solid rgba(255,255,255,0.1); color: #F0F6FC; border-radius: 10px; padding: 9px 14px; font-size: 14px; font-family: inherit; outline: none; }
-.edit-input:focus { border-color: #2F81F7; }
-.edit-input.correct { border-color: rgba(63,185,80,0.5); background: rgba(63,185,80,0.05); }
-.edit-group { margin-bottom: 14px; }
-.edit-answer-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.edit-answer-num { width: 28px; height: 28px; border-radius: 7px; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #8B949E; flex-shrink: 0; }
-.edit-answer-num.correct { background: #3FB950; color: #fff; }
-.btn-danger { background: rgba(248,81,73,0.15); color: #F85149; border: 1px solid rgba(248,81,73,0.3); }
-.btn-danger:hover { background: rgba(248,81,73,0.25); }
-.btn-regen { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); font-size:12px; padding:5px 12px; border-radius:8px; cursor:pointer; font-family:inherit; }
-.btn-regen:hover { background: rgba(139,92,246,0.25); }
-.btn-regen:disabled { opacity:0.4; cursor:not-allowed; }
-.section-divider { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 18px 0; }
-.desc-box { background:#0D1117; border:1.5px solid rgba(47,129,247,0.2); border-radius:10px; padding:14px; font-size:13px; color:#C9D1D9; line-height:1.6; white-space:pre-wrap; margin-top:8px; }
-.desc-label { font-size:12px; font-weight:700; color:#2F81F7; margin-bottom:4px; letter-spacing:0.5px; }
+/* ── Pagination ── */
+.pagination {
+  display: flex; gap: 8px; padding: 14px 20px; align-items: center;
+  justify-content: space-between; border-top: 1px solid var(--border);
+  position: sticky; bottom: 0; background: var(--bg);
+}
+.pag-info { color: var(--text3); font-size: 12px; }
+.pag-btns { display: flex; gap: 6px; }
+.btn-pag { padding: 6px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface2); color: var(--text2); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.btn-pag:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+.btn-pag:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Empty state ── */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 12px; color: var(--text3); }
+.empty-state .icon { font-size: 48px; opacity: 0.5; }
+.empty-state .title { font-size: 16px; font-weight: 600; color: var(--text2); }
+.empty-state .sub { font-size: 13px; }
+
+/* ── Loading ── */
+.loading { text-align: center; padding: 48px; color: var(--text3); }
+.loading::after { content: ''; display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; margin-left: 10px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Panel layout ── */
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px 14px; border-bottom: 1px solid var(--border);
+  background: var(--surface); position: sticky; top: 0; z-index: 10;
+}
+.panel-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.panel-meta { display: flex; gap: 8px; align-items: center; }
+.panel-body { padding: 16px 20px; }
+
+/* ── Section cards ── */
+.section {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 10px; overflow: hidden;
+}
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+}
+.section-label {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.8px;
+  text-transform: uppercase; color: var(--text2); display: flex; align-items: center; gap: 6px;
+}
+.section-body { padding: 12px 14px; }
+
+/* ── Fields ── */
+.field-group { margin-bottom: 10px; }
+.field-group:last-child { margin-bottom: 0; }
+.field-label { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text3); margin-bottom: 5px; }
+.field-ta {
+  width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+  color: var(--text); border-radius: var(--radius-sm); padding: 9px 12px;
+  font-size: 13px; line-height: 1.6; font-family: inherit; resize: none;
+  outline: none; transition: border-color .2s; overflow: hidden; min-height: 60px;
+}
+.field-ta:focus { border-color: var(--blue); }
+.field-in {
+  width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+  color: var(--text); border-radius: var(--radius-sm); padding: 8px 12px;
+  font-size: 13px; font-family: inherit; outline: none; transition: border-color .2s;
+}
+.field-in:focus { border-color: var(--blue); }
+.field-in.correct { border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.04); }
+
+/* ── Answer rows ── */
+.answer-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.answer-row:last-child { margin-bottom: 0; }
+.answer-num {
+  width: 26px; height: 26px; border-radius: 7px; background: rgba(255,255,255,0.07);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: var(--text3); flex-shrink: 0; margin-top: 7px;
+}
+.answer-num.correct { background: var(--green); color: #fff; }
+.answer-inputs { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+
+/* ── Buttons ── */
+.btn-regen {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--purple-dim); color: var(--purple);
+  border: 1px solid rgba(139,92,246,0.25); font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; cursor: pointer; font-family: inherit;
+  transition: all .15s; white-space: nowrap; flex-shrink: 0;
+}
+.btn-regen:hover { background: rgba(139,92,246,0.22); border-color: rgba(139,92,246,0.4); }
+.btn-regen:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-regen.loading-spin::after { content: ''; display: inline-block; width: 10px; height: 10px; border: 1.5px solid rgba(139,92,246,0.3); border-top-color: var(--purple); border-radius: 50%; animation: spin .6s linear infinite; }
+.btn-ai {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
+  color: #93C5FD; border: 1px solid rgba(99,102,241,0.3);
+  font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: var(--radius-sm);
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.btn-ai:hover { background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(139,92,246,0.25)); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
+.btn-ai:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-danger {
+  background: var(--red-dim); color: var(--red);
+  border: 1px solid rgba(239,68,68,0.25); font-size: 13px; font-weight: 600;
+  padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; transition: all .15s;
+}
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+.btn-render {
+  background: linear-gradient(135deg, #16A34A, #15803D);
+  color: #fff; border: none; font-size: 15px; font-weight: 700;
+  padding: 13px 20px; border-radius: var(--radius-sm); cursor: pointer;
+  transition: all .2s; box-shadow: 0 2px 8px rgba(22,163,74,0.3);
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-render:hover:not(:disabled) { background: linear-gradient(135deg, #15803D, #166534); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(22,163,74,0.4); }
+.btn-render:disabled { background: rgba(22,163,74,0.25); color: rgba(255,255,255,0.4); cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-copy {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--surface3);
+  color: var(--text2); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all .2s;
+}
+.btn-copy:hover { border-color: var(--green); color: var(--green); }
+.btn-copy.copied { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+
+/* ── Chips ── */
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  padding: 3px 10px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: rgba(255,255,255,0.04); color: var(--text2); font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all .15s;
+}
+.chip:hover { border-color: var(--border-hover); color: var(--text); }
+.chip.active { border-color: var(--blue); background: var(--blue-dim); color: #93C5FD; }
+
+/* ── Toggle ── */
+.toggle-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; }
+.toggle-row label { font-size: 13px; color: var(--text2); cursor: pointer; flex: 1; }
+input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; }
+
+/* ── Description output ── */
+.desc-section { display: none; margin-top: 10px; }
+.desc-section.visible { display: block; }
+.desc-field-label { font-size: 10px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; color: var(--blue); margin-bottom: 5px; }
+.desc-ta {
+  width: 100%; background: var(--bg); border: 1.5px solid rgba(59,130,246,0.2);
+  color: var(--text); border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 13px; line-height: 1.65; font-family: inherit; resize: none;
+  outline: none; transition: border-color .2s; overflow: hidden; min-height: 50px;
+}
+.desc-ta:focus { border-color: var(--blue); }
+.desc-ta.title-ta { font-weight: 700; font-size: 14px; }
+
+/* ── Render log ── */
+.render-log {
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 12px; font-size: 11px; font-family: "SF Mono", "Fira Code", monospace;
+  color: var(--text3); max-height: 100px; overflow-y: auto; white-space: pre-wrap;
+  margin-top: 8px; display: none;
+}
+.render-log.visible { display: block; }
+
+/* ── Divider ── */
+.divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+/* ── Question image ── */
+.q-image { width: 100%; max-height: 180px; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: 10px; display: block; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo">SKILY</div>
-  <div class="controls">
+  <div class="logo">SKILY <span>Video Maker</span></div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
     <input type="text" id="search" placeholder="Поиск вопроса..." oninput="onSearch()">
+  </div>
+  <div class="header-right">
     <select id="lang" onchange="reload()">
       <option value="es">🇪🇸 Español (DGT)</option>
       <option value="ru">🇷🇺 Русский (ПДД)</option>
     </select>
-    <button class="btn btn-primary" onclick="reload()">Обновить</button>
+    <button class="btn btn-primary" onclick="reload()">↺ Обновить</button>
   </div>
 </div>
 
 <div class="layout">
   <div class="list" id="list">
-    <div class="loading">Загрузка вопросов...</div>
+    <div class="loading">Загрузка вопросов</div>
   </div>
 
-  <div class="preview" id="preview">
-    <div class="preview-empty">
-      <div style="font-size:40px">👈</div>
-      <div>Выбери вопрос слева</div>
-      <div style="font-size:13px; opacity:0.6">чтобы увидеть превью и создать видео</div>
+  <div class="panel" id="panel">
+    <div class="empty-state">
+      <div class="icon">🎬</div>
+      <div class="title">Выбери вопрос</div>
+      <div class="sub">Нажми на любой вопрос слева чтобы начать</div>
     </div>
   </div>
 </div>
@@ -684,20 +869,28 @@ let total = 0;
 const LIMIT = 30;
 let searchTimer;
 
-function onSearch() {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(() => { offset = 0; reload(); }, 400);
+// ── Auto-resize textareas ────────────────────────────────────────────────
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+function bindAutoResize() {
+  document.querySelectorAll('.field-ta, .desc-ta').forEach(ta => {
+    ta.addEventListener('input', () => autoResize(ta));
+    autoResize(ta);
+  });
 }
 
-async function reload() {
-  offset = 0;
-  await loadQuestions();
+function onSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => { offset = 0; reload(); }, 380);
 }
+async function reload() { offset = 0; await loadQuestions(); }
 
 async function loadQuestions() {
   const search = document.getElementById("search").value;
   const lang = document.getElementById("lang").value;
-  document.getElementById("list").innerHTML = '<div class="loading">Загрузка...</div>';
+  document.getElementById("list").innerHTML = '<div class="loading">Загрузка</div>';
   try {
     const res = await fetch(\`/api/questions?lang=\${lang}&search=\${encodeURIComponent(search)}&offset=\${offset}&limit=\${LIMIT}\`);
     const data = await res.json();
@@ -705,7 +898,7 @@ async function loadQuestions() {
     total = data.total || questions.length;
     renderList();
   } catch(e) {
-    document.getElementById("list").innerHTML = '<div class="loading">Ошибка загрузки. Проверь сервер.</div>';
+    document.getElementById("list").innerHTML = '<div style="padding:40px;text-align:center;color:#475569">Ошибка загрузки. Проверь сервер.</div>';
   }
 }
 
@@ -713,20 +906,22 @@ function renderList() {
   const lang = document.getElementById("lang").value;
   const diffLabel = { easy: lang==="ru"?"ЛЁГКИЙ":"FÁCIL", medium: lang==="ru"?"СРЕДНИЙ":"MEDIO", hard: lang==="ru"?"СЛОЖНЫЙ":"DIFÍCIL" };
   let html = questions.map((q, i) => \`
-    <div class="question-item \${selected && selected.id === q.id ? 'selected' : ''}" onclick="selectQuestion(\${i})">
+    <div class="q-item \${selected && selected.id === q.id ? 'active' : ''}" onclick="selectQuestion(\${i})">
       <div class="q-meta">
         <span class="badge badge-\${q.difficulty}">\${diffLabel[q.difficulty]||q.difficulty}</span>
         <span class="badge badge-pct">\${q.percent_correct ?? 50}% верно</span>
-        <span class="badge badge-pct">\${q.answer_options?.length || 0} вариантов</span>
+        <span class="badge badge-pct">\${q.answer_options?.length || 0} отв.</span>
       </div>
       <div class="q-text">\${q.question}</div>
     </div>
   \`).join('');
 
   html += \`<div class="pagination">
-    <span style="color:#8B949E;font-size:13px">\${offset+1}–\${Math.min(offset+LIMIT, total)} из \${total}</span>
-    <button class="btn btn-sm btn-primary" \${offset===0?'disabled':''} onclick="prevPage()">← Назад</button>
-    <button class="btn btn-sm btn-primary" \${offset+LIMIT>=total?'disabled':''} onclick="nextPage()">Вперёд →</button>
+    <span class="pag-info">\${offset+1}–\${Math.min(offset+LIMIT, total)} из \${total}</span>
+    <div class="pag-btns">
+      <button class="btn-pag" \${offset===0?'disabled':''} onclick="prevPage()">← Назад</button>
+      <button class="btn-pag" \${offset+LIMIT>=total?'disabled':''} onclick="nextPage()">Вперёд →</button>
+    </div>
   </div>\`;
 
   document.getElementById("list").innerHTML = html;
@@ -738,171 +933,173 @@ function nextPage() { offset += LIMIT; loadQuestions(); }
 function selectQuestion(i) {
   selected = questions[i];
   renderList();
-  renderPreview();
-  setTimeout(renderOutroChips, 50); // chips depend on selected.language
+  renderPanel();
+  setTimeout(() => { renderOutroChips(); bindAutoResize(); }, 60);
 }
 
-function renderPreview() {
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderPanel() {
   if (!selected) return;
   const q = selected;
   const lang = q.language || document.getElementById("lang").value;
 
   const answersHTML = (q.answer_options || []).map((o, i) => \`
-    <div class="edit-answer-row" style="align-items:flex-start">
-      <div class="edit-answer-num \${o.is_correct ? 'correct' : ''}" style="margin-top:8px">\${o.is_correct ? '✓' : i+1}</div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:5px">
-        <input class="edit-input \${o.is_correct ? 'correct' : ''}" id="editAnswer_\${i}" value="\${escHtml(o.text)}" placeholder="Вариант \${i+1} (ES)">
-        \${lang === 'es' ? \`<input class="edit-input" id="editAnswerRu_\${i}" value="\${escHtml(o.text_ru||'')}" placeholder="Перевод на русский..." style="font-size:13px;border-color:rgba(255,255,255,0.06)">\` : ''}
+    <div class="answer-row">
+      <div class="answer-num \${o.is_correct ? 'correct' : ''}">\${o.is_correct ? '✓' : i+1}</div>
+      <div class="answer-inputs">
+        <input class="field-in \${o.is_correct ? 'correct' : ''}" id="editAnswer_\${i}" value="\${escHtml(o.text)}" placeholder="Вариант \${i+1}">
+        \${lang === 'es' ? \`<input class="field-in" id="editAnswerRu_\${i}" value="\${escHtml(o.text_ru||'')}" placeholder="Перевод на русский…" style="font-size:12px;opacity:0.7">\` : ''}
       </div>
     </div>
   \`).join('');
 
-  const ruBlock = lang === "es" ? \`
-    <hr class="section-divider">
-    <div class="edit-group">
-      <div class="edit-label">🇷🇺 Перевод вопроса (субтитр)</div>
-      <textarea class="edit-textarea" id="editQuestionRu" rows="2" placeholder="Перевод вопроса на русский...">\${escHtml(q.question_ru || '')}</textarea>
-    </div>
-    <div class="edit-group">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-        <div class="edit-label" style="margin-bottom:0">🇷🇺 Объяснение на русском (озвучка RU-видео)</div>
-        <button class="btn-regen" onclick="adaptText('editExplanationRu','ru')" id="regenExplRu">🔄 Адаптировать для TTS</button>
+  const ruSection = lang === "es" ? \`
+    <div class="section">
+      <div class="section-head">
+        <div class="section-label">🇷🇺 Русский блок</div>
       </div>
-      <textarea class="edit-textarea" id="editExplanationRu" rows="4" placeholder="Объяснение для русскоязычного видео...">\${escHtml(q.explanation_ru || q.explanationRu || '')}</textarea>
+      <div class="section-body">
+        <div class="field-group">
+          <div class="field-label">Перевод вопроса (субтитр)</div>
+          <textarea class="field-ta" id="editQuestionRu" placeholder="Перевод вопроса на русский…">\${escHtml(q.question_ru || '')}</textarea>
+        </div>
+        <div class="field-group">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+            <div class="field-label" style="margin-bottom:0">Объяснение RU (озвучка)</div>
+            <button class="btn-regen" id="regenExplRu" onclick="adaptText('editExplanationRu','ru')">🔄 TTS-адапт.</button>
+          </div>
+          <textarea class="field-ta" id="editExplanationRu" placeholder="Объяснение для русской озвучки…">\${escHtml(q.explanation_ru || q.explanationRu || '')}</textarea>
+        </div>
+      </div>
     </div>
   \` : '';
 
-  document.getElementById("preview").innerHTML = \`
-    <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;color:#F0F6FC;font-size:17px">✏️ Редактор</span>
-      <span style="font-size:12px;color:#8B949E">\${lang.toUpperCase()} · \${q.percent_correct}% верно</span>
-    </div>
-
-    \${q.image_url ? \`<img class="preview-img" src="\${q.image_url}" alt="" style="border-radius:12px;width:100%;margin-bottom:16px;object-fit:cover;max-height:200px">\` : ''}
-
-    <div class="edit-group">
-      <div class="edit-label">❓ Вопрос</div>
-      <textarea class="edit-textarea" id="editQuestion" rows="3">\${escHtml(q.question)}</textarea>
-    </div>
-
-    <div class="edit-group">
-      <div class="edit-label">📋 Варианты ответов</div>
-      \${answersHTML}
-    </div>
-
-    <div class="edit-group">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
-        <div class="edit-label" style="margin-bottom:0">💡 Объяснение</div>
-        <button class="btn-regen" onclick="adaptText('editExplanation','${lang}')" id="regenExpl">🔄 Адаптировать для TTS</button>
-      </div>
-      <textarea class="edit-textarea" id="editExplanation" rows="5">\${escHtml(q.explanation)}</textarea>
-    </div>
-
-    \${ruBlock}
-
-    <hr class="section-divider">
-
-    <!-- ── КОНЦОВКА (Outro) ──────────────────────────────────────────── -->
-    <div class="edit-group">
-      <div class="edit-label">🎬 Концовка ролика</div>
-
-      <!-- RU row -->
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
-        <span style="font-size:13px">🇷🇺</span>
-        <div style="display:flex;flex-wrap:wrap;gap:5px" id="outroChipsRU"></div>
-      </div>
-      <textarea class="edit-textarea" id="outroTextRU" rows="2"
-        placeholder="Концовка русского ролика…"
-        oninput="window._outroActiveRU=null;syncOutroActive('RU')" ></textarea>
-
-      \${lang === 'es' ? \`
-      <!-- ES row — only for DGT questions -->
-      <div style="display:flex;align-items:center;gap:6px;margin:8px 0 6px">
-        <span style="font-size:13px">🇪🇸</span>
-        <div style="display:flex;flex-wrap:wrap;gap:5px" id="outroChipsES"></div>
-      </div>
-      <textarea class="edit-textarea" id="outroTextES" rows="2"
-        placeholder="Концовка испанского ролика…"
-        oninput="window._outroActiveES=null;syncOutroActive('ES')" ></textarea>
-      \` : ''}
-    </div>
-
-    <!-- ── НАСТРОЙКИ ──────────────────────────────────────────────────── -->
-    <div class="edit-group" style="display:flex;align-items:center;gap:12px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#8B949E">
-        <input type="checkbox" id="showExplanation" style="width:16px;height:16px;cursor:pointer">
-        Показывать объяснение в ролике
-      </label>
-    </div>
-
-    <!-- ── ОПИСАНИЕ ДЛЯ ЮТУБ ──────────────────────────────────────────────── -->
-    <hr class="section-divider">
-    <div class="edit-group">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div class="edit-label" style="margin-bottom:0">📝 Описание для YouTube</div>
-        <button class="btn-regen" onclick="generateDescription()" id="genDescBtn">✨ Сгенерировать</button>
-      </div>
-      <div id="descOutput" style="display:none">
-        <div class="desc-label">ЗАГОЛОВОК</div>
-        <div class="desc-box" id="descTitle" style="margin-bottom:10px;font-weight:700;font-size:14px"></div>
-        <div class="desc-label">ОПИСАНИЕ</div>
-        <div class="desc-box" id="descBody"></div>
-        <button onclick="copyDesc()" style="margin-top:8px;padding:6px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:#C9D1D9;font-size:12px;cursor:pointer;font-family:inherit">📋 Скопировать</button>
+  document.getElementById("panel").innerHTML = \`
+    <div class="panel-header">
+      <div class="panel-title">✏️ Редактор</div>
+      <div class="panel-meta">
+        <span class="badge badge-\${q.difficulty}">\${q.difficulty}</span>
+        <span class="badge badge-pct">\${q.percent_correct}% верно</span>
+        <span class="badge badge-pct">\${lang.toUpperCase()}</span>
       </div>
     </div>
 
-    <div class="preview-actions">
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-render" style="flex:1" onclick="renderVideo()" id="renderBtn">
-          ✅ Готово!
-        </button>
-        <button class="btn btn-sm btn-danger" onclick="clearAudio()" title="Удалить кэш аудио для этого вопроса">
-          🗑 Аудио
-        </button>
+    <div class="panel-body">
+
+      \${q.image_url ? \`<img class="q-image" src="\${q.image_url}" alt="">\` : ''}
+
+      <!-- ВОПРОС -->
+      <div class="section">
+        <div class="section-head"><div class="section-label">❓ Вопрос</div></div>
+        <div class="section-body">
+          <textarea class="field-ta" id="editQuestion">\${escHtml(q.question)}</textarea>
+        </div>
       </div>
-      <div id="renderLog" class="render-log" style="display:none">Запускаем рендер...</div>
+
+      <!-- ВАРИАНТЫ ОТВЕТОВ -->
+      <div class="section">
+        <div class="section-head"><div class="section-label">📋 Варианты ответов</div></div>
+        <div class="section-body">\${answersHTML}</div>
+      </div>
+
+      <!-- ОБЪЯСНЕНИЕ ES -->
+      <div class="section">
+        <div class="section-head">
+          <div class="section-label">💡 Объяснение</div>
+          <button class="btn-regen" id="regenExpl" onclick="adaptText('editExplanation','\${lang}')">🔄 TTS-адапт.</button>
+        </div>
+        <div class="section-body">
+          <textarea class="field-ta" id="editExplanation">\${escHtml(q.explanation)}</textarea>
+        </div>
+      </div>
+
+      \${ruSection}
+
+      <!-- КОНЦОВКА -->
+      <div class="section">
+        <div class="section-head"><div class="section-label">🎬 Концовка ролика</div></div>
+        <div class="section-body">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+            <span>🇷🇺</span>
+            <div class="chips" id="outroChipsRU"></div>
+          </div>
+          <textarea class="field-ta" id="outroTextRU" placeholder="Концовка RU-ролика…" oninput="syncOutroActive('RU');autoResize(this)"></textarea>
+
+          \${lang === 'es' ? \`
+          <div style="display:flex;align-items:center;gap:8px;margin:10px 0 7px">
+            <span>🇪🇸</span>
+            <div class="chips" id="outroChipsES"></div>
+          </div>
+          <textarea class="field-ta" id="outroTextES" placeholder="Концовка ES-ролика…" oninput="syncOutroActive('ES');autoResize(this)"></textarea>
+          \` : ''}
+        </div>
+      </div>
+
+      <!-- НАСТРОЙКИ -->
+      <div class="toggle-row" onclick="document.getElementById('showExplanation').click()">
+        <input type="checkbox" id="showExplanation">
+        <label>Показывать объяснение в ролике</label>
+      </div>
+
+      <!-- YOUTUBE ОПИСАНИЕ -->
+      <div class="section" style="margin-top:10px">
+        <div class="section-head">
+          <div class="section-label">📝 Описание YouTube</div>
+          <button class="btn-ai" id="genDescBtn" onclick="generateDescription()">✨ Сгенерировать</button>
+        </div>
+        <div class="section-body">
+          <div class="desc-section" id="descOutput">
+            <div class="field-group">
+              <div class="desc-field-label">Заголовок</div>
+              <textarea class="desc-ta title-ta" id="descTitle" placeholder="Заголовок для YouTube…"></textarea>
+            </div>
+            <div class="field-group">
+              <div class="desc-field-label">Описание</div>
+              <textarea class="desc-ta" id="descBody" placeholder="Описание для YouTube…"></textarea>
+            </div>
+            <button class="btn-copy" id="copyBtn" onclick="copyDesc()">📋 Скопировать всё</button>
+          </div>
+          <div id="descPlaceholder" style="color:var(--text3);font-size:12px;padding:4px 0">Нажми «Сгенерировать» — Gemini напишет цепляющий заголовок и описание с хэштегами 🚀</div>
+        </div>
+      </div>
+
+      <!-- РЕНДЕР -->
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn-render" onclick="renderVideo()" id="renderBtn">🎬 Рендерить видео</button>
+        <button class="btn-danger" onclick="clearAudio()" title="Удалить кэш аудио">🗑</button>
+      </div>
+      <div class="render-log" id="renderLog"></div>
+
     </div>
   \`;
 }
 
-function escHtml(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-async function clearAudio() {
-  if (!selected) return;
-  const res = await fetch(\`/api/clear-audio?id=\${selected.id}\`, { method: 'DELETE' });
-  const data = await res.json();
-  const log = document.getElementById('renderLog');
-  if (log) { log.style.display = 'block'; log.textContent = data.message || 'Аудио очищено'; }
-}
-
-// ── Outro templates ────────────────────────────────────────────────────────
+// ── Outro templates ───────────────────────────────────────────────────────
 const OUTRO_TEMPLATES = {
   ru: [
-    { id:"subscribe", label:"Подпишись",     text:"Подпишись! Каждый день новый вопрос ПДД Испании 🇪🇸" },
-    { id:"tag",       label:"Skilyapp.com",   text:"Переходи на Skilyapp.com — и готовься к экзамену на права в Испании бесплатно! 🚀" },
-    { id:"comment",   label:"Угадал?",       text:"Угадал? Пиши ✅ или ❌ в комментарии!" },
-    { id:"skily",     label:"Skily",         text:"Готовишься к испанским правам? 2000+ вопросов на Skily 🚀" },
-    { id:"save",      label:"Сохрани",       text:"Сохрани видео — пригодится на экзамене! 📌" },
-    { id:"challenge", label:"Челлендж",      text:"Сдашь DGT с первого раза? Проверь себя на Skily! 🏆" },
+    { id:"subscribe", label:"Подпишись",    text:"Подпишись! Каждый день новый вопрос ПДД Испании 🇪🇸" },
+    { id:"tag",       label:"Skilyapp.com", text:"Переходи на Skilyapp.com — и готовься к экзамену на права в Испании бесплатно! 🚀" },
+    { id:"comment",   label:"Угадал?",      text:"Угадал? Пиши ✅ или ❌ в комментарии!" },
+    { id:"skily",     label:"Skily",        text:"Готовишься к испанским правам? 2000+ вопросов на Skily 🚀" },
+    { id:"save",      label:"Сохрани",      text:"Сохрани видео — пригодится на экзамене! 📌" },
+    { id:"challenge", label:"Челлендж",     text:"Сдашь DGT с первого раза? Проверь себя на Skily! 🏆" },
   ],
   es: [
-    { id:"subscribe", label:"Suscríbete",    text:"Suscríbete — nueva pregunta DGT cada día 🇪🇸" },
-    { id:"tag",       label:"Skilyapp.com",   text:"¡Entra en Skilyapp.com y prepárate para el DGT gratis! 🚀" },
-    { id:"comment",   label:"¿Acertaste?",   text:"¿Acertaste? ¡Comenta ✅ o ❌!" },
-    { id:"skily",     label:"Skily",         text:"¿Preparando el DGT? +2000 preguntas en Skily 🚀" },
-    { id:"save",      label:"Guarda",        text:"¡Guarda este video para repasar antes del examen! 📌" },
-    { id:"challenge", label:"Desafío",       text:"¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skily! 🏆" },
+    { id:"subscribe", label:"Suscríbete",   text:"Suscríbete — nueva pregunta DGT cada día 🇪🇸" },
+    { id:"tag",       label:"Skilyapp.com", text:"¡Entra en Skilyapp.com y prepárate para el DGT gratis! 🚀" },
+    { id:"comment",   label:"¿Acertaste?",  text:"¿Acertaste? ¡Comenta ✅ o ❌!" },
+    { id:"skily",     label:"Skily",        text:"¿Preparando el DGT? +2000 preguntas en Skily 🚀" },
+    { id:"save",      label:"Guarda",       text:"¡Guarda este video para repasar antes del examen! 📌" },
+    { id:"challenge", label:"Desafío",      text:"¿Aprobarás el DGT a la primera? ¡Demuéstralo en Skily! 🏆" },
   ],
 };
 
 function renderOutroChips() {
   if (!selected) return;
   window._outroMap = {};
-  window._outroActiveRU = null;
-  window._outroActiveES = null;
-
   function buildChips(containerId, langKey) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -910,64 +1107,49 @@ function renderOutroChips() {
     templates.forEach(t => { window._outroMap[t.id + '_' + langKey] = t.text; });
     container.innerHTML = templates.map(t => {
       const key = t.id + '_' + langKey;
-      return \`<button id="chip_\${key}"
-        onclick="selectOutro('\${key}','\${langKey}')"
-        style="padding:4px 11px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.15);
-               background:rgba(255,255,255,0.05);color:#C9D1D9;font-size:12px;
-               cursor:pointer;font-family:inherit;transition:all .15s">\${t.label}</button>\`;
+      return \`<button class="chip" id="chip_\${key}" onclick="selectOutro('\${key}','\${langKey}')">\${t.label}</button>\`;
     }).join('');
   }
   buildChips('outroChipsRU', 'ru');
-  buildChips('outroChipsES', 'es');
+  if (document.getElementById('outroChipsES')) buildChips('outroChipsES', 'es');
 }
 
 function syncOutroActive(langKey) {
-  // deactivate all chips for this lang when user types manually
   (OUTRO_TEMPLATES[langKey.toLowerCase()] || []).forEach(t => {
     const chip = document.getElementById('chip_' + t.id + '_' + langKey.toLowerCase());
-    if (chip) { chip.style.borderColor = 'rgba(255,255,255,0.15)'; chip.style.background = 'rgba(255,255,255,0.05)'; chip.style.color = '#C9D1D9'; }
+    if (chip) chip.classList.remove('active');
   });
 }
 
 function selectOutro(key, langKey) {
   const text = window._outroMap[key];
   if (!text) return;
-  const fieldId = langKey === 'es' ? 'outroTextES' : 'outroTextRU';
-  const ta = document.getElementById(fieldId);
-  if (ta) { ta.value = text; }
-
-  // Highlight active chip, reset others in this lang
+  const ta = document.getElementById(langKey === 'es' ? 'outroTextES' : 'outroTextRU');
+  if (ta) { ta.value = text; autoResize(ta); }
   (OUTRO_TEMPLATES[langKey] || []).forEach(t => {
     const chip = document.getElementById('chip_' + t.id + '_' + langKey);
-    if (!chip) return;
-    const isActive = (t.id + '_' + langKey) === key;
-    chip.style.borderColor  = isActive ? '#2F81F7' : 'rgba(255,255,255,0.15)';
-    chip.style.background   = isActive ? 'rgba(47,129,247,0.15)' : 'rgba(255,255,255,0.05)';
-    chip.style.color        = isActive ? '#79C0FF' : '#C9D1D9';
+    if (chip) chip.classList.toggle('active', (t.id + '_' + langKey) === key);
   });
 }
 
+// ── Render video ──────────────────────────────────────────────────────────
 async function renderVideo() {
   if (!selected) return;
   const btn = document.getElementById("renderBtn");
   const log = document.getElementById("renderLog");
-  btn.disabled = true;
-  btn.textContent = "⏳ Рендерится...";
-  log.style.display = "block";
-  log.textContent = "Генерируем аудио и рендерим...\\n";
+  btn.disabled = true; btn.textContent = "⏳ Рендерится…";
+  log.classList.add('visible'); log.textContent = "Генерируем аудио и рендерим…\\n";
 
-  // Собираем отредактированные значения из полей
   const editedQuestion = {
     ...selected,
-    question:    document.getElementById('editQuestion')?.value ?? selected.question,
-    explanation: document.getElementById('editExplanation')?.value ?? selected.explanation,
-    question_ru: document.getElementById('editQuestionRu')?.value ?? selected.question_ru,
+    question:      document.getElementById('editQuestion')?.value ?? selected.question,
+    explanation:   document.getElementById('editExplanation')?.value ?? selected.explanation,
+    question_ru:   document.getElementById('editQuestionRu')?.value ?? selected.question_ru,
     explanationRu: document.getElementById('editExplanationRu')?.value ?? selected.explanationRu ?? selected.explanation_ru,
     outro_text_ru: document.getElementById('outroTextRU')?.value?.trim() || undefined,
     outro_text_es: document.getElementById('outroTextES')?.value?.trim() || undefined,
-    // legacy fallback — use RU text as default
-    outro_text:  document.getElementById('outroTextRU')?.value?.trim() || undefined,
-    show_explanation: document.getElementById('showExplanation')?.checked !== false,
+    outro_text:    document.getElementById('outroTextRU')?.value?.trim() || undefined,
+    show_explanation: document.getElementById('showExplanation')?.checked === true,
     answer_options: (selected.answer_options || []).map((o, i) => ({
       ...o,
       text:    document.getElementById(\`editAnswer_\${i}\`)?.value ?? o.text,
@@ -976,96 +1158,81 @@ async function renderVideo() {
   };
 
   try {
-    const res = await fetch("/api/render", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: editedQuestion }),
-    });
+    const res = await fetch("/api/render", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ question: editedQuestion }) });
     const data = await res.json();
     if (data.output) {
-      btn.textContent = "✅ Готово!";
-      btn.style.background = "#3FB950";
-      let msg = "ES: " + data.output + "\\n";
-      if (data.outputRU) msg += "RU: " + data.outputRU + "\\n";
-      log.textContent += msg;
+      btn.textContent = "✅ Готово!"; btn.style.background = "linear-gradient(135deg,#16A34A,#15803D)";
+      log.textContent += "✅ ES: " + data.output + "\\n";
+      if (data.outputRU) log.textContent += "✅ RU: " + data.outputRU + "\\n";
     } else {
-      btn.textContent = "⚠️ Ошибка";
-      btn.style.background = "#da3633";
-      log.textContent += data.error || "Неизвестная ошибка";
+      btn.textContent = "⚠️ Ошибка"; btn.style.background = "linear-gradient(135deg,#B91C1C,#991B1B)";
+      log.textContent += "❌ " + (data.error || "Неизвестная ошибка");
       btn.disabled = false;
     }
   } catch(e) {
-    btn.textContent = "⚠️ Ошибка";
-    btn.style.background = "#da3633";
-    log.textContent += e.message;
-    btn.disabled = false;
+    btn.textContent = "⚠️ Ошибка"; btn.style.background = "linear-gradient(135deg,#B91C1C,#991B1B)";
+    log.textContent += "❌ " + e.message; btn.disabled = false;
   }
 }
 
-// ── Gemini TTS text adaptation ─────────────────────────────────────────────
+async function clearAudio() {
+  if (!selected) return;
+  const res = await fetch(\`/api/clear-audio?id=\${selected.id}\`, { method: 'DELETE' });
+  const data = await res.json();
+  const log = document.getElementById('renderLog');
+  if (log) { log.classList.add('visible'); log.textContent = "🗑 " + (data.message || 'Аудио очищено'); }
+}
+
+// ── TTS адаптация через Gemini ────────────────────────────────────────────
 async function adaptText(fieldId, lang) {
   const ta = document.getElementById(fieldId);
-  if (!ta) return;
-  const btn = document.getElementById(fieldId === 'editExplanationRu' ? 'regenExplRu' : 'regenExpl');
-  const original = ta.value.trim();
-  if (!original) return;
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Адаптируем...'; }
+  if (!ta || !ta.value.trim()) return;
+  const btnId = fieldId === 'editExplanationRu' ? 'regenExplRu' : 'regenExpl';
+  const btn = document.getElementById(btnId);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
   try {
-    const res = await fetch('/api/adapt-text', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: original, lang }),
-    });
+    const res = await fetch('/api/adapt-text', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ text: ta.value.trim(), lang }) });
     const data = await res.json();
-    if (data.adapted) {
-      ta.value = data.adapted;
-    } else {
-      alert('Ошибка адаптации: ' + (data.error || 'неизвестная ошибка'));
-    }
-  } catch(e) {
-    alert('Ошибка: ' + e.message);
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '🔄 Адаптировать для TTS'; }
-  }
+    if (data.adapted) { ta.value = data.adapted; autoResize(ta); }
+    else alert('Ошибка адаптации: ' + (data.error || '?'));
+  } catch(e) { alert('Ошибка: ' + e.message); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = '🔄 TTS-адапт.'; } }
 }
 
-// ── YouTube description generation ────────────────────────────────────────
+// ── YouTube описание через Gemini ─────────────────────────────────────────
 async function generateDescription() {
   if (!selected) return;
   const btn = document.getElementById('genDescBtn');
-  const out = document.getElementById('descOutput');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Генерируем...'; }
+  const placeholder = document.getElementById('descPlaceholder');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Генерируем…'; }
   try {
     const question = document.getElementById('editQuestion')?.value || selected.question;
     const explanation = document.getElementById('editExplanation')?.value || selected.explanation;
     const lang = selected.language || document.getElementById('lang').value;
     const res = await fetch('/api/generate-description', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ question, explanation, lang, percent_correct: selected.percent_correct }),
     });
     const data = await res.json();
     if (data.title && data.description) {
-      document.getElementById('descTitle').textContent = data.title;
-      document.getElementById('descBody').textContent = data.description;
-      if (out) out.style.display = 'block';
-    } else {
-      alert('Ошибка генерации: ' + (data.error || 'неизвестная ошибка'));
-    }
-  } catch(e) {
-    alert('Ошибка: ' + e.message);
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '✨ Сгенерировать'; }
-  }
+      const titleEl = document.getElementById('descTitle');
+      const bodyEl = document.getElementById('descBody');
+      const out = document.getElementById('descOutput');
+      titleEl.value = data.title; bodyEl.value = data.description;
+      if (placeholder) placeholder.style.display = 'none';
+      if (out) { out.classList.add('visible'); autoResize(titleEl); autoResize(bodyEl); }
+    } else { alert('Ошибка: ' + (data.error || '?')); }
+  } catch(e) { alert('Ошибка: ' + e.message); }
+  finally { if (btn) { btn.disabled = false; btn.textContent = '✨ Сгенерировать'; } }
 }
 
 function copyDesc() {
-  const title = document.getElementById('descTitle')?.textContent || '';
-  const body = document.getElementById('descBody')?.textContent || '';
+  const title = document.getElementById('descTitle')?.value || '';
+  const body = document.getElementById('descBody')?.value || '';
   navigator.clipboard.writeText(title + '\\n\\n' + body).then(() => {
-    const btn = event.target;
-    btn.textContent = '✅ Скопировано!';
-    setTimeout(() => { btn.textContent = '📋 Скопировать'; }, 2000);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✅ Скопировано!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Скопировать всё'; btn.classList.remove('copied'); }, 1500);
   });
 }
 
