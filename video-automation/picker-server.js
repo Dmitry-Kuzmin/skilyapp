@@ -821,7 +821,7 @@ async function clearAudio() {
 const OUTRO_TEMPLATES = {
   ru: [
     { id:"subscribe", label:"Подпишись",     text:"Подпишись! Каждый день новый вопрос ПДД Испании 🇪🇸" },
-    { id:"tag",       label:"Отметь друга",  text:"Отметь того, кто едет в Испанию! 👇" },
+    { id:"tag",       label:"Skilyapp.com",   text:"Переходи на Skilyapp.com — и готовься к экзамену на права в Испании бесплатно! 🚀" },
     { id:"comment",   label:"Угадал?",       text:"Угадал? Пиши ✅ или ❌ в комментарии!" },
     { id:"skily",     label:"Skily",         text:"Готовишься к испанским правам? 2000+ вопросов на Skily 🚀" },
     { id:"save",      label:"Сохрани",       text:"Сохрани видео — пригодится на экзамене! 📌" },
