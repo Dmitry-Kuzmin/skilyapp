@@ -1260,6 +1260,99 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ── POST /api/adapt-text ─────────────────────────────────────────────────
+  if (req.method === "POST" && url.pathname === "/api/adapt-text") {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      try {
+        const { text, lang } = JSON.parse(body);
+        const langName = lang === "ru" ? "Russian" : "Spanish";
+        const prompt = `You are a TTS (text-to-speech) preparation specialist for ${langName} driving test educational content.
+
+Your task: adapt the following text for natural voice narration. The text will be read aloud by an AI voice model (ElevenLabs).
+
+Rules:
+1. Write out ALL numbers as words (e.g. "120 km/h" → "сто двадцать километров в час" for RU, "ciento veinte kilómetros por hora" for ES)
+2. Expand ALL abbreviations (km, m, kg, DGT, ПДД, т.е., etc.)
+3. Remove markdown formatting (**bold**, *italic*)
+4. Remove emoji and special symbols
+5. Keep the same language (${langName}) — do NOT translate
+6. Make sentences flow naturally when spoken — split long sentences if needed
+7. Preserve the meaning 100% — only improve readability for voice
+8. Remove parenthetical technical references that sound unnatural when spoken
+9. Add natural pauses with commas or periods where a speaker would pause
+10. Output ONLY the adapted text, nothing else — no explanations, no quotes
+
+Original text:
+${text}`;
+
+        const adapted = await geminiGenerate(prompt);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ adapted }));
+      } catch(e) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // ── POST /api/generate-description ───────────────────────────────────────
+  if (req.method === "POST" && url.pathname === "/api/generate-description") {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", async () => {
+      try {
+        const { question, explanation, lang, percent_correct } = JSON.parse(body);
+        const isRu = lang === "ru";
+        const prompt = isRu
+          ? `Ты эксперт по контенту для YouTube о правилах дорожного движения в Испании для русскоязычной аудитории.
+
+Напиши для видео-ролика формата #shorts:
+
+ВОПРОС: ${question}
+ОБЪЯСНЕНИЕ: ${explanation}
+ПРОЦЕНТ ПРАВИЛЬНЫХ ОТВЕТОВ: ${percent_correct || 50}%
+
+Требования:
+- Заголовок: цепляющий, вызывает интерес, 60-80 символов, содержит "ПДД Испании" или "DGT", подходит для YouTube Shorts
+- Описание: 3-5 коротких абзаца, объясняет правило, добавляет полезный контекст, призыв действия со ссылкой на Skilyapp.com, хэштеги в конце: #DGT #ПДДИспании #ВодительскиеПрава #Skilyapp
+- Стиль: живой, разговорный, без занудства, ощущение что делится опытом
+
+Формат ответа (строго JSON):
+{"title": "...", "description": "..."}`
+          : `Eres experto en contenido de YouTube sobre el examen DGT para conductores hispanohablantes.
+
+Escribe para un vídeo formato #shorts:
+
+PREGUNTA: ${question}
+EXPLICACIÓN: ${explanation}
+PORCENTAJE DE ACIERTOS: ${percent_correct || 50}%
+
+Requisitos:
+- Título: llamativo, genera curiosidad, 60-80 caracteres, incluye "DGT" o "examen de conducir", apto para YouTube Shorts
+- Descripción: 3-5 párrafos cortos, explica la norma, añade contexto útil, llamada a la acción con enlace a Skilyapp.com, hashtags al final: #DGT #ExamenConducir #CarnetDeConducir #Skilyapp
+- Estilo: directo, coloquial, como si lo explicara un amigo que ya aprobó
+
+Formato de respuesta (JSON estricto):
+{"title": "...", "description": "..."}`;
+
+        const raw = await geminiGenerate(prompt);
+        // Extract JSON from response (model may wrap in ```json ... ```)
+        const jsonMatch = raw.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error("No JSON in response: " + raw.slice(0, 200));
+        const parsed = JSON.parse(jsonMatch[0]);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ title: parsed.title, description: parsed.description }));
+      } catch(e) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   res.writeHead(404);
   res.end("Not found");
 });
