@@ -996,10 +996,10 @@ function renderPanel() {
 
   document.getElementById("panel").innerHTML = \`
     <div class="panel-header">
-      <div class="panel-title">✏️ Редактор</div>
+      <div class="panel-title">Editor</div>
       <div class="panel-meta">
         <span class="badge badge-\${q.difficulty}">\${q.difficulty}</span>
-        <span class="badge badge-pct">\${q.percent_correct}% верно</span>
+        <span class="badge badge-pct">\${q.percent_correct}%</span>
         <span class="badge badge-pct">\${lang.toUpperCase()}</span>
       </div>
     </div>
