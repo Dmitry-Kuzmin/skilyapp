@@ -1548,36 +1548,32 @@ ${text}`;
         const { question, explanation, lang, percent_correct } = JSON.parse(body);
         const isRu = lang === "ru";
         const prompt = isRu
-          ? `Ты эксперт по контенту для YouTube о правилах дорожного движения в Испании для русскоязычной аудитории.
+          ? `Ты опытный автор контента для YouTube о правилах дорожного движения Испании. Пишешь для русских учеников, которые готовятся к экзамену DGT.
 
-Напиши для видео-ролика формата #shorts:
+Задача: создать завораживающий контент для YouTube Shorts.
 
 ВОПРОС: ${question}
 ОБЪЯСНЕНИЕ: ${explanation}
-ПРОЦЕНТ ПРАВИЛЬНЫХ ОТВЕТОВ: ${percent_correct || 50}%
+УСПЕВАЮТ: ${percent_correct || 50}%
 
-Требования:
-- Заголовок: цепляющий, вызывает интерес, 60-80 символов, содержит "ПДД Испании" или "DGT", подходит для YouTube Shorts
-- Описание: 3-5 коротких абзаца, объясняет правило, добавляет полезный контекст, призыв действия со ссылкой на Skilyapp.com, хэштеги в конце: #DGT #ПДДИспании #ВодительскиеПрава #Skilyapp
-- Стиль: живой, разговорный, без занудства, ощущение что делится опытом
+Генерируй ТОЛЬКО JSON:
+{
+  "title": "Заголовок 60-80 символов — цепляющий, с эмодзи 🚗, упоминает DGT/ПДД, звучит как внимание на опасность",
+  "description": "3 параграфа:\n1) Контекст почему это важно для экзамена, немного драматизма\n2) Объяснение правила, практический совет\n3) Призыв: 'Готовишься? Заходи на https://skilyapp.com и практикуйся' + хэштеги #DGT #ПДДИспании #ВодительскиеПрава #Skilyapp"
+}`
+          : `Eres experto en contenido viral de YouTube sobre el examen DGT. Writes for Spanish drivers preparing for the test.
 
-Формат ответа (строго JSON):
-{"title": "...", "description": "..."}`
-          : `Eres experto en contenido de YouTube sobre el examen DGT para conductores hispanohablantes.
-
-Escribe para un vídeo formato #shorts:
+Tarea: crear un video corto que ATRAE clicks.
 
 PREGUNTA: ${question}
 EXPLICACIÓN: ${explanation}
-PORCENTAJE DE ACIERTOS: ${percent_correct || 50}%
+ACIERTOS: ${percent_correct || 50}%
 
-Requisitos:
-- Título: llamativo, genera curiosidad, 60-80 caracteres, incluye "DGT" o "examen de conducir", apto para YouTube Shorts
-- Descripción: 3-5 párrafos cortos, explica la norma, añade contexto útil, llamada a la acción con enlace a Skilyapp.com, hashtags al final: #DGT #ExamenConducir #CarnetDeConducir #Skilyapp
-- Estilo: directo, coloquial, como si lo explicara un amigo que ya aprobó
-
-Formato de respuesta (JSON estricto):
-{"title": "...", "description": "..."}`;
+Genera SOLO JSON:
+{
+  "title": "Título 60-80 caracteres — llamativo, con emoji 🚗, menciona DGT/examen, suena como una advertencia o sorpresa",
+  "description": "3 párrafos:\n1) Por qué esto es importante en el examen, un poco dramático\n2) La norma explicada claramente, tip práctico\n3) CTA: 'Practica con nosotros en https://skilyapp.com' + hashtags #DGT #ExamenConducir #CarnetDeConducir #Skilyapp"
+}`;
 
         const raw = await geminiGenerate(prompt);
         // Extract JSON from response (model may wrap in ```json ... ```)
