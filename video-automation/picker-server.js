@@ -886,6 +886,10 @@ let total = 0;
 const LIMIT = 30;
 let searchTimer;
 
+// Language states
+window._outroLang = 'ru';  // Default outro language
+window._descLang = 'es';   // Default description language
+
 // ── Auto-resize textareas ────────────────────────────────────────────────
 function autoResize(el) {
   el.style.height = 'auto';
