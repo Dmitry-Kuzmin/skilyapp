@@ -34,6 +34,8 @@ export const AnswersScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
           fontFamily: "sans-serif",
           maxWidth: 860,
           lineHeight: 1.3,
+          textShadow: "0 2px 6px rgba(0,0,0,0.4)",
+          WebkitFontSmoothing: "antialiased",
         }}
       >
         {q.question}
