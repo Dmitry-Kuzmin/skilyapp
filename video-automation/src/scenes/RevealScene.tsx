@@ -109,6 +109,8 @@ export const RevealScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
                 color: textColor,
                 fontFamily: "sans-serif",
                 lineHeight: 1.2,
+                textShadow: "0 2px 6px rgba(0,0,0,0.4)",
+                WebkitFontSmoothing: "antialiased",
               }}
             >
               {option.text}
