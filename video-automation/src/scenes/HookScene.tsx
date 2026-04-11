@@ -67,7 +67,8 @@ export const HookScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
           textAlign: "center",
           lineHeight: 1.1,
           fontFamily: "sans-serif",
-          textShadow: `0 0 40px ${BRAND.primaryGlow}`,
+          textShadow: `0 0 40px ${BRAND.primaryGlow}, 0 2px 8px rgba(0,0,0,0.5)`,
+          WebkitFontSmoothing: "antialiased",
         }}
       >
         {q.hook_title}
