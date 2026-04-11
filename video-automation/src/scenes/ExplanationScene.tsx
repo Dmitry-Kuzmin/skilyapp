@@ -49,6 +49,8 @@ export const ExplanationScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
             letterSpacing: 4,
             marginBottom: 24,
             fontFamily: "sans-serif",
+            textShadow: "0 1px 4px rgba(0,0,0,0.3)",
+            WebkitFontSmoothing: "antialiased",
           }}
         >
           {ui.explanation}
