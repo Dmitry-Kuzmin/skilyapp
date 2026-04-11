@@ -50,6 +50,8 @@ export const HookScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
           letterSpacing: 4,
           textTransform: "uppercase",
           fontFamily: "sans-serif",
+          textShadow: "0 1px 4px rgba(0,0,0,0.3)",
+          WebkitFontSmoothing: "antialiased",
         }}
       >
         #{String(q.series_number).padStart(3, "0")}
