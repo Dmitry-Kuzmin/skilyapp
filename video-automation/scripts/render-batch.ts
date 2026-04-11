@@ -51,6 +51,8 @@ async function renderQuestion(
     outputLocation: outputPath,
     overwrite: true,
     inputProps: { question },
+    pixelRate: 2,        // ← Higher quality (2x resolution during rendering)
+    videoBitrate: "8000k", // ← YouTube/TikTok optimal bitrate for 1080x1920
     onProgress: ({ progress }) => {
       process.stdout.write(`\r  Rendering ${progress * 100 | 0}%`);
     },
