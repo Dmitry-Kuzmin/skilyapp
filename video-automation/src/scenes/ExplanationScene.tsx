@@ -62,6 +62,8 @@ export const ExplanationScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
             color: BRAND.textPrimary,
             lineHeight: 1.4,
             fontFamily: "sans-serif",
+            textShadow: "0 2px 8px rgba(0,0,0,0.4)",
+            WebkitFontSmoothing: "antialiased",
           }}
         >
           {q.explanation}
