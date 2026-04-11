@@ -80,6 +80,8 @@ export const QuestionScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
             textAlign: "center",
             lineHeight: 1.3,
             fontFamily: "sans-serif",
+            textShadow: "0 2px 8px rgba(0,0,0,0.5), 0 0 20px rgba(47,129,247,0.2)",
+            WebkitFontSmoothing: "antialiased",
           }}
         >
           {q.question}
