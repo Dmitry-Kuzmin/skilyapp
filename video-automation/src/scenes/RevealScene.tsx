@@ -45,8 +45,9 @@ export const RevealScene: React.FC<{ q: VideoQuestion }> = ({ q }) => {
           color: BRAND.green,
           transform: `scale(${headerScale})`,
           fontFamily: "sans-serif",
-          textShadow: `0 0 60px ${BRAND.green}55`,
+          textShadow: `0 0 60px ${BRAND.green}55, 0 2px 8px rgba(0,0,0,0.5)`,
           marginBottom: 12,
+          WebkitFontSmoothing: "antialiased",
         }}
       >
         ✓ {ui.correct}
