@@ -77,13 +77,18 @@ const DrawerContent = React.forwardRef<
       )}
       {...props}
     >
-      {/* Handle — compact, seamless with content */}
-      {!hideHandle && (
-        <div className="flex justify-center pt-2.5 pb-1.5">
-          <div className="h-[5px] w-10 rounded-full bg-white/20" />
-        </div>
-      )}
-      {children}
+      {/* Intercept contextmenu events from children to prevent vaul 0.9.x bug:
+          onContextMenu fires handleOnPointerUp(lastKnownPointerEventRef.current)
+          which can be null, causing TypeError: Cannot read properties of null (reading 'target') */}
+      <div style={{ display: 'contents' }} onContextMenu={e => e.stopPropagation()}>
+        {/* Handle — compact, seamless with content */}
+        {!hideHandle && (
+          <div className="flex justify-center pt-2.5 pb-1.5">
+            <div className="h-[5px] w-10 rounded-full bg-white/20" />
+          </div>
+        )}
+        {children}
+      </div>
     </DrawerPrimitive.Content>
   </DrawerPortal>
 ));
