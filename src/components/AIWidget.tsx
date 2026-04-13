@@ -686,7 +686,7 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
                             if (!part.trim()) return null;
                             return (
                               <div key={partIndex} className="prose prose-sm dark:prose-invert prose-p:my-1.5 xl:prose-p:my-2 break-words">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                <ReactMarkdown>
                                   {part}
                                 </ReactMarkdown>
                               </div>
