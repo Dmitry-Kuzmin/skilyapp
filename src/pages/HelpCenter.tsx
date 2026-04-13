@@ -72,7 +72,9 @@ const HelpCenter = () => {
   // Функция для получения переведенного контента с fallback на русский
   const getTranslatedContent = (key: string, fallback: string): string => {
     const translated = t(key);
-    return translated !== key ? translated : fallback;
+    // Guard: t() may return an object if the key maps to a nested translation.
+    // Only use it when it's a non-empty string different from the key itself.
+    return translated !== key && typeof translated === 'string' ? translated : fallback;
   };
 
   const getTranslatedList = (key: string, fallback: string[]) => {
