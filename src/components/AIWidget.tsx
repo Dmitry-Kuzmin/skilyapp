@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { SkilyAICharacter } from "@/components/skily-ai/SkilyAICharacter";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from 'sonner';
 import { triggerHapticFeedback } from "@/lib/telegram";
