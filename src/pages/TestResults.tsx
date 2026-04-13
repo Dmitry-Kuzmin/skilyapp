@@ -436,7 +436,7 @@ const TestResults = () => {
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} recycle={false} numberOfPieces={200} gravity={0.3} />}
       <QuestCompletionOverlay quests={completedQuests} onDismiss={clearCompleted} />
 
-      <div className="container mx-auto px-4 py-6 max-w-3xl pb-24 sm:pb-8">
+      <div className="container mx-auto px-4 py-6 max-w-3xl pb-24 sm:pb-8" translate="no">
         {state.isRedemptionSuccess && (
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
