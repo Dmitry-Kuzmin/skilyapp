@@ -20,14 +20,16 @@ export default function Login() {
     }
 
     return (
-        <AuthModalNew
-            open={true}
-            onClose={() => {
-                // Если пользователь закрывает модалку (нажимает крестик или фон),
-                // возвращаем его на главную
-                navigate('/');
-            }}
-            variant="page"
-        />
+        <div translate="no">
+            <AuthModalNew
+                open={true}
+                onClose={() => {
+                    // Если пользователь закрывает модалку (нажимает крестик или фон),
+                    // возвращаем его на главную
+                    navigate('/');
+                }}
+                variant="page"
+            />
+        </div>
     );
 }
