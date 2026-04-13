@@ -7,7 +7,7 @@ dotenv.config();
 const API_KEY = process.env.GEMINI_API_KEY;
 
 async function main() {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${AIzaSyDZoPBrFuS_3FxRrNPgGfspaUNkgwepHAs}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
     try {
         const response = await axios.get(url);
         const models = response.data.models;
