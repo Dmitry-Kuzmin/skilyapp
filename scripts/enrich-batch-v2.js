@@ -18,7 +18,7 @@ dotenv.config({ path: '.env.local' });
 dotenv.config();
 
 const PRIMARY_KEY = process.env.GEMINI_API_KEY;
-const BACKUP_KEY = 'AIzaSyAQ8ph7DB8P8D-EpJ5Vij6bzqndDRtYR1c';
+const BACKUP_KEY = process.env.GEMINI_API_KEY_BACKUP;
 
 if (!PRIMARY_KEY) {
     console.error("❌ Ошибка: GEMINI_API_KEY не установлен.");
