@@ -26,8 +26,11 @@ dist-ssr
 # Environment variables
 .env
 .env.local
+.env.save
+.env.*.save
 .env.production.local
 .env.development.local
+video-automation/.env*
 
 # Cloudflare Tunnel logs
 /tmp/cloudflared-tunnel.log
