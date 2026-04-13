@@ -17,39 +17,6 @@
   </url>
 
   <url>
-    <loc>https://skilyapp.com/?lang=es</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://skilyapp.com/?lang=en" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://skilyapp.com/?lang=ru" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
-  </url>
-
-  <url>
-    <loc>https://skilyapp.com/?lang=en</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://skilyapp.com/?lang=en" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://skilyapp.com/?lang=ru" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
-  </url>
-
-  <url>
-    <loc>https://skilyapp.com/?lang=ru</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="es" href="https://skilyapp.com/?lang=es" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://skilyapp.com/?lang=en" />
-    <xhtml:link rel="alternate" hreflang="ru" href="https://skilyapp.com/?lang=ru" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://skilyapp.com/" />
-  </url>
-
-  <url>
     <loc>https://skilyapp.com/curso</loc>
     <lastmod>2026-04-08</lastmod>
     <changefreq>weekly</changefreq>
