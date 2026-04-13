@@ -318,7 +318,7 @@ const DashboardContent = memo(function DashboardContent() {
       )}
       <Suspense fallback={<PageLoader />}>
         <Layout hideNavigation={showWelcome}>
-          <div className={`w-full pb-6 ${(showWelcome && !hasError) || (loading && !!dashboardData) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
+          <div translate="no" className={`w-full pb-6 ${(showWelcome && !hasError) || (loading && !!dashboardData) ? 'blur-sm pointer-events-none' : ''} transition-all duration-700`}>
             {hasError ? (
               <div className="min-h-[60vh] bg-[#0f172a] p-6 md:p-10 font-sans text-white flex items-center justify-center rounded-[2.5rem] border border-slate-800/50">
                 <div className="text-center max-w-md space-y-6">
