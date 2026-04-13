@@ -16,7 +16,6 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 import { isTelegramMiniApp, triggerHapticFeedback } from "@/lib/telegram";
 import { useLanguage } from "@/contexts/LanguageContext";
