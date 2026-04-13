@@ -77,10 +77,11 @@ const DrawerContent = React.forwardRef<
       )}
       {...props}
     >
-      {/* Intercept contextmenu events from children to prevent vaul 0.9.x bug:
-          onContextMenu fires handleOnPointerUp(lastKnownPointerEventRef.current)
-          which can be null, causing TypeError: Cannot read properties of null (reading 'target') */}
-      <div style={{ display: 'contents' }} onContextMenu={e => e.stopPropagation()}>
+      {/* Intercept contextmenu and pointerout events from children to prevent vaul 0.9.x bug:
+          Both onContextMenu and onPointerOut call handleOnPointerUp(lastKnownPointerEventRef.current)
+          which can be null, causing TypeError: Cannot read properties of null (reading 'target').
+          Stopping propagation from children prevents vaul's handlers on Content from firing. */}
+      <div style={{ display: 'contents' }} onContextMenu={e => e.stopPropagation()} onPointerOut={e => e.stopPropagation()}>
         {/* Handle — compact, seamless with content */}
         {!hideHandle && (
           <div className="flex justify-center pt-2.5 pb-1.5">
