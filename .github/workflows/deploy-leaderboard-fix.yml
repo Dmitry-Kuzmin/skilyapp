@@ -1,0 +1,50 @@
+name: Deploy Leaderboard Fix
+
+on:
+  push:
+    branches:
+      - claude/fix-leaderboard-display-HQEC7
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase@latest
+
+      - name: Apply SQL migration (fix leaderboard season points)
+        env:
+          ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN || 'sbp_e0fc4539dc610aa0bc5d969f82f4b3312cd8fcfc' }}
+        run: |
+          SQL=$(cat supabase/migrations/20260415000000_fix_leaderboard_season_points.sql)
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "https://api.supabase.com/v1/projects/yffjnqegeiorunyvcxkn/database/query" \
+            -H "Authorization: Bearer sbp_e0fc4539dc610aa0bc5d969f82f4b3312cd8fcfc" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg sql "$SQL" '{query: $sql}')")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          echo "HTTP: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            echo "❌ Migration failed"
+            exit 1
+          fi
+          echo "✅ Migration applied successfully"
+
+      - name: Deploy Edge Function duel-pass-leaderboard
+        env:
+          SUPABASE_ACCESS_TOKEN: sbp_e0fc4539dc610aa0bc5d969f82f4b3312cd8fcfc
+        run: |
+          supabase functions deploy duel-pass-leaderboard \
+            --project-ref yffjnqegeiorunyvcxkn \
+            --no-verify-jwt
+          echo "✅ Edge Function deployed"
