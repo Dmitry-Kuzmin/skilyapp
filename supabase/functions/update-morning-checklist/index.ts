@@ -104,7 +104,7 @@ serve(async (req) => {
   }
   try {
     const { user_id } = await req.json();
-    if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400 });
+    if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400, headers: corsHeaders });
 
     const supabase = createPooledSupabaseClient();
 
