@@ -93,7 +93,15 @@ function buildChecklistText(quests: any[], lang: Lang): string {
   return lines.join('\n');
 }
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
   try {
     const { user_id } = await req.json();
     if (!user_id) return new Response(JSON.stringify({ error: 'user_id required' }), { status: 400 });
