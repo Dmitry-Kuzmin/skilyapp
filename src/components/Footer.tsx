@@ -32,50 +32,61 @@ export function Footer() {
   return (
     <footer className="border-t border-white/5 bg-transparent mt-auto relative z-10 mb-[140px] md:mb-0">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6">
 
-          {/* ЛЕВАЯ ЧАСТЬ (БРЕНД) */}
-          <div className="flex flex-col items-center md:items-start gap-1">
-            <div className="flex items-center gap-2">
-              <CarFront className="w-4 h-4 text-slate-400" strokeWidth={2.5} />
-              <span className="text-slate-400 font-bold tracking-tight text-sm">Skily</span>
+            {/* ЛЕВАЯ ЧАСТЬ (БРЕНД) */}
+            <div className="flex flex-col items-center md:items-start gap-1">
+              <div className="flex items-center gap-2">
+                <CarFront className="w-4 h-4 text-slate-400" strokeWidth={2.5} />
+                <span className="text-slate-400 font-bold tracking-tight text-sm">Skily</span>
+              </div>
+              <p className="text-slate-600 text-xs">
+                © 2026 Skily Inc.
+              </p>
             </div>
-            <p className="text-slate-600 text-xs">
-              © 2026 Skily Inc.
-            </p>
-          </div>
 
-          {/* ПРАВАЯ ЧАСТЬ (ССЫЛКИ) */}
-          <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-3">
-            <button
-              onClick={() => navigate("/legal/privacy")}
-              className="text-slate-500 hover:text-white transition-colors text-xs font-medium"
-            >
-              {t("footer.privacy")}
-            </button>
-            <button
-              onClick={() => navigate("/legal/terms")}
-              className="text-slate-500 hover:text-white transition-colors text-xs font-medium"
-            >
-              {t("footer.terms")}
-            </button>
-            <a
-              href="#"
-              onClick={handleCookieSettings}
-              className="axeptio_authorized_vendors text-slate-500 hover:text-white transition-colors text-xs font-medium"
-            >
-              {t("footer.cookies")}
-            </a>
-            <a
-              href="https://t.me/skilyapp_bot"
-              target="_blank"
-              rel="noreferrer"
-              className="text-slate-500 hover:text-white transition-colors text-xs font-medium"
-            >
-              {t("footer.support")}
-            </a>
+            {/* ПРАВАЯ ЧАСТЬ (ССЫЛКИ) */}
+            <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-3">
+              <button
+                onClick={() => navigate("/legal/privacy")}
+                className="text-slate-500 hover:text-white transition-colors text-xs font-medium"
+              >
+                {t("footer.privacy")}
+              </button>
+              <button
+                onClick={() => navigate("/legal/terms")}
+                className="text-slate-500 hover:text-white transition-colors text-xs font-medium"
+              >
+                {t("footer.terms")}
+              </button>
+              <a
+                href="#"
+                onClick={handleCookieSettings}
+                className="axeptio_authorized_vendors text-slate-500 hover:text-white transition-colors text-xs font-medium"
+              >
+                {t("footer.cookies")}
+              </a>
+              <a
+                href="https://t.me/skilyapp_bot"
+                target="_blank"
+                rel="noreferrer"
+                className="text-slate-500 hover:text-white transition-colors text-xs font-medium"
+              >
+                {t("footer.support")}
+              </a>
+            </div>
           </div>
-
+          <div className="flex justify-center md:justify-start">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-slate-300 shadow-[0_8px_24px_rgba(15,23,42,0.18)] backdrop-blur-sm">
+              <img
+                src="/nrtv-logo.png"
+                alt="NRTV"
+                className="h-6 w-6 rounded-md object-cover"
+              />
+              <span>Сайт запущен студией NRTV</span>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

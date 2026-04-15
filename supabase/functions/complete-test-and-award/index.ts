@@ -102,7 +102,6 @@ serve(async (req) => {
       p_test_duration_seconds: test_duration_seconds,
       p_premium_flag: premium_flag,
       p_double_sp_active: double_sp_active,
-      p_mode: mode,
     }) as { data: TestRewardResponse | null, error: unknown };
 
     if (rpcError) {
