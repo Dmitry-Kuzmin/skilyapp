@@ -135,7 +135,7 @@ serve(async (req) => {
       .rpc('get_or_assign_daily_quests', { p_user_id: user_id });
 
     if (!quests || quests.length === 0) {
-      return new Response(JSON.stringify({ skipped: true, reason: 'no quests' }));
+      return new Response(JSON.stringify({ skipped: true, reason: 'no quests' }), { headers: corsHeaders });
     }
 
     const lang = getBotLang(profile);
