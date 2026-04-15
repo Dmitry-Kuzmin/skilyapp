@@ -13,7 +13,7 @@ import { Trophy, Coins, Crown, Sparkles, X, Clock, BookOpen, Calendar, Target, C
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { SeasonChallengesWidget } from "./SeasonChallengesWidget";
+import { DailyQuestWidget } from "@/components/duel/pass/DailyQuestWidget";
 import { PaywallModal } from "./PaywallModal";
 import { PremiumRewardUpsell } from "./PremiumRewardUpsell";
 import { RewardUnlockAnimation } from "../cosmetics/RewardUnlockAnimation";
