@@ -2102,9 +2102,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             </div>
           </div>
 
-          {/* Season Challenges */}
+          {/* Daily Quests — same as main page widget */}
           <div className="border-t pt-4 border-white/5">
-            <SeasonChallengesWidget />
+            <DailyQuestWidget />
           </div>
         </div>
       </>
