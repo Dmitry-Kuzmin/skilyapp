@@ -1522,7 +1522,15 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
           {/* Bottom Bar */}
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
             <p>{copy.footer.note}</p>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center gap-3 md:items-end">
+              <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-medium normal-case tracking-normal text-slate-200 shadow-[0_12px_30px_rgba(15,23,42,0.22)] backdrop-blur-sm">
+                <img
+                  src="/nrtv-logo.png"
+                  alt="NRTV"
+                  className="h-6 w-6 rounded-md object-cover"
+                />
+                <span>Сайт запущен студией NRTV</span>
+              </div>
               <div className="flex items-center gap-2">
                 {/* Made with text removed */}
               </div>
