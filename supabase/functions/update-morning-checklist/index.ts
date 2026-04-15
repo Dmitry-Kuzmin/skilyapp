@@ -128,7 +128,7 @@ serve(async (req) => {
     const today = new Date().toISOString().split('T')[0];
 
     if (!msgId || checklistDate !== today) {
-      return new Response(JSON.stringify({ skipped: true, reason: 'no checklist today' }));
+      return new Response(JSON.stringify({ skipped: true, reason: 'no checklist today' }), { headers: corsHeaders });
     }
 
     const { data: quests } = await supabase
