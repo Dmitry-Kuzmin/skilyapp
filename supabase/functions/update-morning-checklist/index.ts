@@ -115,7 +115,7 @@ serve(async (req) => {
       .single();
 
     if (!profile?.telegram_id) {
-      return new Response(JSON.stringify({ error: 'no telegram_id' }), { status: 404 });
+      return new Response(JSON.stringify({ error: 'no telegram_id' }), { status: 404, headers: corsHeaders });
     }
 
     let settings = profile.settings;
