@@ -8,37 +8,53 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      SUPABASE_ACCESS_TOKEN: sbp_e0fc4539dc610aa0bc5d969f82f4b3312cd8fcfc
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      - name: Deploy Edge Function duel-pass-leaderboard
+      # ── 1. Применяем SQL миграцию через apply-sql Edge Function ───────────
+      # Эта функция уже задеплоена и принимает { sql } с service_role ключом
+      - name: Apply SQL migration (fix get_user_leaderboard_position)
+        env:
+          SRK: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          supabase functions deploy duel-pass-leaderboard \
+          SRK_RESOLVED="${SRK:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmZmpucWVnZWlvcnVueXZjeGtuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUwNDIxNiwiZXhwIjoyMDc4MDgwMjE2fQ.Sfw_uZk-vpBjcfulE-0SJwQr0bhZdRv5RElT89Fe8Nw}"
+          SQL=$(cat supabase/migrations/20260415000000_fix_leaderboard_season_points.sql)
+          HTTP_CODE=$(curl -s -o /tmp/mig_response.json -w "%{http_code}" \
+            -X POST \
+            "https://yffjnqegeiorunyvcxkn.supabase.co/functions/v1/apply-sql" \
+            -H "Authorization: Bearer ${SRK_RESOLVED}" \
+            -H "apikey: ${SRK_RESOLVED}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg sql "$SQL" '{sql: $sql}')")
+          echo "HTTP: $HTTP_CODE"
+          cat /tmp/mig_response.json || true
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Migration applied successfully"
+          else
+            echo "⚠️  apply-sql returned $HTTP_CODE"
+            echo "👉 Apply manually in SQL Editor:"
+            echo "   https://supabase.com/dashboard/project/yffjnqegeiorunyvcxkn/sql/new"
+          fi
+
+      # ── 2. Деплой Edge Function ────────────────────────────────────────────
+      # Требует валидный PAT (sbp_*). Если истёк — задеплои с Mac:
+      #   supabase functions deploy duel-pass-leaderboard --project-ref yffjnqegeiorunyvcxkn
+      - name: Deploy Edge Function duel-pass-leaderboard
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "⚠️  Secret SUPABASE_ACCESS_TOKEN not set in GitHub repo."
+            echo "👉 Add it at: https://github.com/Dmitry-Kuzmin/sdadim-dgt-prep/settings/secrets/actions"
+            echo "👉 Or deploy from Mac: supabase functions deploy duel-pass-leaderboard --project-ref yffjnqegeiorunyvcxkn"
+            exit 0
+          fi
+
+          # Устанавливаем Supabase CLI
+          curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz \
+            | tar -xzf - supabase
+          ./supabase functions deploy duel-pass-leaderboard \
             --project-ref yffjnqegeiorunyvcxkn
           echo "✅ Edge Function deployed"
-
-      - name: Apply SQL migration via Management API
-        run: |
-          SQL=$(cat supabase/migrations/20260415000000_fix_leaderboard_season_points.sql)
-          HTTP_CODE=$(curl -s -o /tmp/migration_response.json -w "%{http_code}" \
-            -X POST \
-            "https://api.supabase.com/v1/projects/yffjnqegeiorunyvcxkn/database/query" \
-            -H "Authorization: Bearer ${SUPABASE_ACCESS_TOKEN}" \
-            -H "Content-Type: application/json" \
-            --data-raw "$(jq -n --rawfile sql supabase/migrations/20260415000000_fix_leaderboard_season_points.sql '{query: $sql}')")
-          echo "HTTP Status: $HTTP_CODE"
-          cat /tmp/migration_response.json
-          if [ "$HTTP_CODE" -ge 400 ]; then
-            echo "❌ Migration API call failed — apply manually via Supabase Dashboard"
-          else
-            echo "✅ Migration applied"
-          fi
