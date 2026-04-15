@@ -48,6 +48,7 @@ import { LanguageSelector } from "./LanguageSelector";
 import { CountrySelector } from "./CountrySelector";
 const TestimonialsSection = React.lazy(() => import("./TestimonialsSection").then(m => ({ default: m.TestimonialsSection })));
 const LandingGameModesShowcase = React.lazy(() => import("./LandingGameModesShowcase").then(m => ({ default: m.LandingGameModesShowcase })));
+const InfiniteMarquee = React.lazy(() => import("./InfiniteMarquee").then(m => ({ default: m.InfiniteMarquee })));
 
 const RUSSIA_TESTIMONIALS = [
   {
