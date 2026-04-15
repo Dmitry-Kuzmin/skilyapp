@@ -155,9 +155,9 @@ serve(async (req) => {
     const result = await response.json();
     console.log(`[UpdateChecklist] ${profile.telegram_id}: ${response.ok ? 'updated' : result.description}`);
 
-    return new Response(JSON.stringify({ success: response.ok, updated: true }));
+    return new Response(JSON.stringify({ success: response.ok, updated: true }), { headers: corsHeaders });
   } catch (error: any) {
     console.error('[UpdateChecklist] Error:', error);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
   }
 });
