@@ -148,10 +148,23 @@ serve(async (req) => {
     }
 
     // ============================================
-    // ТРЕКИНГ СЕЗОННЫХ ЧЕЛЛЕНДЖЕЙ
+    // СЕЗОН: Season Points для лидерборда + трекинг челленджей
     // ============================================
     const spAwarded = (rewardData as any)?.sp_awarded ?? 0;
     const sourceType = score === 100 ? 'test_perfect' : 'test_completed';
+
+    // Обновляем user_season_progress.season_points (лидерборд)
+    supabase.functions.invoke('season-sp', {
+      body: {
+        user_id,
+        source_type: sourceType,
+        metadata: { questions_count, score, sp_earned: spAwarded },
+      },
+    }).catch((err: unknown) => {
+      console.error('[complete-test-and-award] ⚠️ season-sp error:', err);
+    });
+
+    // Трекинг season_challenges прогресса
     supabase.functions.invoke('season-challenges-track', {
       body: {
         user_id,
