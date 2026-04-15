@@ -11,8 +11,8 @@ interface LeaderboardEntry {
   user_id: string;
   duel_pass_level: number;
   duel_pass_xp: number;
-  season_points?: number; // SP (Season Points) - приоритет для сортировки
-  rank?: string; // 'rookie', 'bronze', 'silver', 'gold', 'platinum', 'diamond', 'master'
+  season_points: number; // SP (Season Points) — основной показатель рейтинга
+  rank?: string;
   profile?: {
     first_name?: string | null;
     username?: string | null;
@@ -38,44 +38,36 @@ interface LeaderboardEntry {
   claimed_rewards_count?: number;
 }
 
-// Функция для обогащения пользователей косметикой
+// Загружаем ранги, скины и бейджи для набора user_id
 async function enrichUsersWithCosmetics(
   supabase: SupabaseClient,
   userIds: string[],
-  season: number
-): Promise<Record<string, unknown>[]> {
-  if (userIds.length === 0) return [];
+  seasonId: number,
+  levelsMap: Map<string, number>
+): Promise<Map<string, Partial<LeaderboardEntry>>> {
+  const result = new Map<string, Partial<LeaderboardEntry>>();
+  if (userIds.length === 0) return result;
 
   // Загружаем ранги
   const userRanksMap = new Map<string, string>();
   try {
-    const { data: activeSeason } = await supabase
-      .from("duel_pass_seasons")
-      .select("id")
-      .eq("is_active", true)
-      .order("season_number", { ascending: false })
-      .limit(1)
-      .single();
+    const { data: ranksData } = await supabase
+      .from("user_ranks")
+      .select("user_id, rank")
+      .eq("season_id", seasonId)
+      .in("user_id", userIds);
 
-    if (activeSeason) {
-      const { data: ranksData } = await supabase
-        .from("user_ranks")
-        .select("user_id, rank")
-        .eq("season_id", activeSeason.id)
-        .in("user_id", userIds);
-
-      if (ranksData) {
-        ranksData.forEach((r: { user_id: string; rank: string }) => {
-          userRanksMap.set(r.user_id, r.rank);
-        });
-      }
+    if (ranksData) {
+      ranksData.forEach((r: { user_id: string; rank: string }) => {
+        userRanksMap.set(r.user_id, r.rank);
+      });
     }
   } catch (e) {
     console.error("[enrichUsersWithCosmetics] Exception loading ranks:", e);
   }
 
   // Загружаем скины
-  let activeSkins: Record<string, unknown>[] = [];
+  const skinMap = new Map<string, unknown>();
   try {
     const { data: skinsData } = await supabase
       .from("user_skins")
@@ -91,20 +83,19 @@ async function enrichUsersWithCosmetics(
         .in("id", skinIds);
 
       const defsMap = new Map(skinDefs?.map((d: { id: string }) => [d.id, d]) || []);
-      activeSkins = skinsData
-        .map((skin: { user_id: string; skin_id: string }) => ({
-          user_id: skin.user_id,
-          skin_id: skin.skin_id,
-          skin_definitions: defsMap.get(skin.skin_id) || null,
-        }))
-        .filter((s: any) => s.skin_definitions);
+      skinsData.forEach((skin: { user_id: string; skin_id: string }) => {
+        const def = defsMap.get(skin.skin_id);
+        if (def) {
+          skinMap.set(skin.user_id, { skin_id: skin.skin_id, skin_definitions: def });
+        }
+      });
     }
   } catch (e) {
     console.error("[enrichUsersWithCosmetics] Exception loading skins:", e);
   }
 
   // Загружаем бейджи
-  let displayedBadges: Record<string, unknown>[] = [];
+  const badgesMap = new Map<string, unknown[]>();
   try {
     const { data: badgesData } = await supabase
       .from("user_badges")
@@ -122,84 +113,59 @@ async function enrichUsersWithCosmetics(
         .in("id", badgeIds);
 
       const defsMap = new Map(badgeDefs?.map((d: any) => [d.id, d]) || []);
-      displayedBadges = badgesData
-        .map((badge: any) => ({
-          user_id: badge.user_id,
-          badge_id: badge.badge_id,
-          display_order: badge.display_order,
-          badge_definitions: defsMap.get(badge.badge_id) || null,
-        }))
-        .filter((b: any) => b.badge_definitions);
+      badgesData.forEach((badge: any) => {
+        const def = defsMap.get(badge.badge_id);
+        if (def) {
+          if (!badgesMap.has(badge.user_id)) badgesMap.set(badge.user_id, []);
+          const arr = badgesMap.get(badge.user_id)!;
+          if (arr.length < 3) {
+            arr.push({ badge_id: badge.badge_id, display_order: badge.display_order, badge_definitions: def });
+          }
+        }
+      });
     }
   } catch (e) {
     console.error("[enrichUsersWithCosmetics] Exception loading badges:", e);
   }
 
-  // Загружаем награды
-  let claimedRewards: Record<string, unknown>[] = [];
+  // Загружаем claimed rewards
+  const rewardsCountMap = new Map<string, number>();
   try {
     const { data: rewardsData } = await supabase
       .from("user_claimed_rewards")
       .select("user_id")
-      .eq("season", season)
+      .eq("season", seasonId)
       .in("user_id", userIds);
 
-    // Explicitly type the result array to avoid implicit any
-    claimedRewards = (rewardsData || []) as Record<string, unknown>[];
+    (rewardsData || []).forEach((r: any) => {
+      rewardsCountMap.set(r.user_id, (rewardsCountMap.get(r.user_id) || 0) + 1);
+    });
   } catch (e) {
     console.error("[enrichUsersWithCosmetics] Exception loading rewards:", e);
   }
 
-  // Создаем мапы
-  const skinMap = new Map<string, unknown>();
-  activeSkins.forEach((skin) => {
-    if (skin.skin_definitions) {
-      skinMap.set(skin.user_id, skin);
-    }
-  });
-
-  const badgesMap = new Map<string, unknown[]>();
-  displayedBadges.forEach((badge) => {
-    if (badge.badge_definitions) {
-      if (!badgesMap.has(badge.user_id as string)) {
-        badgesMap.set(badge.user_id as string, []);
-      }
-      const userBadges = badgesMap.get(badge.user_id as string)!;
-      if (userBadges.length < 3) {
-        userBadges.push(badge);
-      }
-    }
-  });
-
-  const rewardsCountMap = new Map<string, number>();
-  claimedRewards.forEach((reward: any) => {
-    rewardsCountMap.set(
-      reward.user_id,
-      (rewardsCountMap.get(reward.user_id) || 0) + 1
-    );
-  });
-
-  // Формируем результат
-  return userIds.map((userId) => {
-    const level = 1; // Будет перезаписано данными из neighbors
-    let userRank = userRanksMap.get(userId);
-    if (!userRank) {
-      if (level >= 26) userRank = "diamond";
-      else if (level >= 21) userRank = "platinum";
-      else if (level >= 16) userRank = "gold";
-      else if (level >= 11) userRank = "silver";
-      else if (level >= 6) userRank = "bronze";
-      else userRank = "rookie";
+  // Собираем результат
+  userIds.forEach((userId) => {
+    const level = levelsMap.get(userId) ?? 1;
+    let rank = userRanksMap.get(userId);
+    if (!rank) {
+      if (level >= 26) rank = "diamond";
+      else if (level >= 21) rank = "platinum";
+      else if (level >= 16) rank = "gold";
+      else if (level >= 11) rank = "silver";
+      else if (level >= 6) rank = "bronze";
+      else rank = "rookie";
     }
 
-    return {
-      user_id: userId,
-      rank: userRank,
-      active_skin: skinMap.get(userId) || null,
-      displayed_badges: badgesMap.get(userId) || [],
+    result.set(userId, {
+      rank,
+      active_skin: (skinMap.get(userId) as any) || null,
+      displayed_badges: (badgesMap.get(userId) as any[]) || [],
       claimed_rewards_count: rewardsCountMap.get(userId) || 0,
-    };
+    });
   });
+
+  return result;
 }
 
 serve(async (req) => {
@@ -224,10 +190,9 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Параметры запроса
-    let limit = 10; // По умолчанию топ-10
-    let season = 1;
-    let type = "top"; // 'top' или 'user_position'
-    let filterType = "global"; // 'global', 'friends', 'country'
+    let limit = 10;
+    let type = "top";
+    let filterType = "global";
     let filterValue: string | null = null;
     let userId: string | null = null;
     let neighborsCount = 5;
@@ -240,14 +205,11 @@ serve(async (req) => {
         if (body?.limit) {
           limit = Math.min(Math.max(parseInt(body.limit, 10) || 10, 10), 100);
         }
-        if (body?.season) {
-          season = parseInt(body.season, 10) || 1;
-        }
         if (body?.type) {
-          type = body.type; // 'top' или 'user_position'
+          type = body.type;
         }
         if (body?.filter_type) {
-          filterType = body.filter_type; // 'global', 'friends', 'country'
+          filterType = body.filter_type;
         }
         if (body?.filter_value) {
           filterValue = body.filter_value;
@@ -269,7 +231,27 @@ serve(async (req) => {
       }
     }
 
-    // Если запрос на позицию пользователя
+    // Получаем активный сезон — единственный источник истины
+    const { data: activeSeason } = await supabase
+      .from("duel_pass_seasons")
+      .select("id")
+      .eq("is_active", true)
+      .order("season_number", { ascending: false })
+      .limit(1)
+      .single();
+
+    const seasonId = activeSeason?.id as number | undefined;
+
+    // Если нет активного сезона — пустой ответ
+    if (!seasonId) {
+      console.warn("[duel-pass-leaderboard] No active season found");
+      return new Response(
+        JSON.stringify({ leaderboard: [], pagination: { page, page_size: pageSize, total: 0, total_pages: 0 } }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // ── user_position ──────────────────────────────────────────────────────────
     if (type === "user_position") {
       if (!userId) {
         return new Response(
@@ -301,23 +283,18 @@ serve(async (req) => {
         );
       }
 
-      // Загружаем косметику для соседей
       const neighbors = positionData?.neighbors || [];
       const neighborUserIds = neighbors.map((n: { user_id: string }) => n.user_id);
 
       if (neighborUserIds.length > 0) {
-        // Загружаем косметику для соседей (скины, бейджи)
-        const enrichedNeighbors = await enrichUsersWithCosmetics(
-          supabase,
-          neighborUserIds,
-          season
+        const levelsMap = new Map<string, number>(
+          neighbors.map((n: { user_id: string; duel_pass_level: number }) => [n.user_id, n.duel_pass_level])
         );
+        const cosmeticsMap = await enrichUsersWithCosmetics(supabase, neighborUserIds, seasonId, levelsMap);
 
-        // Объединяем данные
-        const enrichedMap = new Map(enrichedNeighbors.map((e: { user_id: unknown }) => [e.user_id, e]));
-        const finalNeighbors = neighbors.map((n: { user_id: unknown }) => ({
+        const finalNeighbors = neighbors.map((n: any) => ({
           ...n,
-          ...enrichedMap.get(n.user_id),
+          ...(cosmeticsMap.get(n.user_id) || {}),
         }));
 
         return new Response(
@@ -344,16 +321,11 @@ serve(async (req) => {
       );
     }
 
-    // Запрос топ-10/15 с фильтрами
-    console.log("[duel-pass-leaderboard] Loading top profiles with limit:", limit, "filter:", filterType);
-
-    // Определяем фильтр пользователей
+    // ── top leaderboard ────────────────────────────────────────────────────────
+    // Определяем фильтр пользователей (friends / country)
     let filteredUserIds: string[] | null = null;
 
     if (filterType === "friends" && userId) {
-      // Получаем список друзей из ВСЕХ источников:
-      // 1. Реферальная система (referrals)
-      // 2. Дуэли (duel_players)
       const friendIds = new Set<string>();
 
       // 1. Друзья из реферальной системы
@@ -362,15 +334,14 @@ serve(async (req) => {
         .select("referrer_id, referred_id")
         .or(`referrer_id.eq.${userId},referred_id.eq.${userId}`);
 
-      if (referralsData && referralsData.length > 0) {
+      if (referralsData) {
         referralsData.forEach((f: { referrer_id: string; referred_id: string }) => {
           if (f.referrer_id === userId) friendIds.add(f.referred_id);
           if (f.referred_id === userId) friendIds.add(f.referrer_id);
         });
       }
 
-      // 2. Друзья из дуэлей (те, с кем играл в завершённых дуэлях)
-      // Сначала получаем все дуэли пользователя
+      // 2. Друзья из завершённых дуэлей
       const { data: userDuelsData } = await supabase
         .from("duel_players")
         .select("duel_id")
@@ -380,8 +351,6 @@ serve(async (req) => {
 
       if (userDuelsData && userDuelsData.length > 0) {
         const duelIds = userDuelsData.map((d: { duel_id: string }) => d.duel_id);
-
-        // Проверяем, что дуэли завершены
         const { data: finishedDuels } = await supabase
           .from("duels")
           .select("id")
@@ -390,8 +359,6 @@ serve(async (req) => {
 
         if (finishedDuels && finishedDuels.length > 0) {
           const finishedDuelIds = finishedDuels.map((d: any) => d.id);
-
-          // Получаем всех участников этих завершённых дуэлей (кроме ботов и самого пользователя)
           const { data: duelFriendsData } = await supabase
             .from("duel_players")
             .select("user_id")
@@ -400,7 +367,7 @@ serve(async (req) => {
             .not("user_id", "is", null)
             .neq("user_id", userId);
 
-          if (duelFriendsData && duelFriendsData.length > 0) {
+          if (duelFriendsData) {
             duelFriendsData.forEach((f: any) => {
               if (f.user_id) friendIds.add(f.user_id);
             });
@@ -408,15 +375,12 @@ serve(async (req) => {
         }
       }
 
-      // 3. Друзья из Telegram групп/чатов
-      // Находим пользователей, которые состоят в тех же группах
-      // Используем RPC функцию для получения друзей из чатов
+      // 3. Друзья из Telegram чатов
       try {
         const { data: chatFriendsIds, error: chatFriendsError } = await supabase.rpc(
           "get_chat_friends",
           { p_user_id: userId }
         );
-
         if (!chatFriendsError && chatFriendsIds && Array.isArray(chatFriendsIds)) {
           chatFriendsIds.forEach((friendId: string) => {
             if (friendId) friendIds.add(friendId);
@@ -424,344 +388,119 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error("[duel-pass-leaderboard] Error getting chat friends:", error);
-        // Продолжаем работу, даже если не удалось получить друзей из чатов
       }
 
       if (friendIds.size > 0) {
         filteredUserIds = Array.from(friendIds);
-        filteredUserIds.push(userId); // Добавляем самого пользователя
+        filteredUserIds.push(userId);
       } else {
-        // Нет друзей - возвращаем пустой результат
         return new Response(
-          JSON.stringify({
-            leaderboard: [],
-            pagination: { page, page_size: pageSize, total: 0, total_pages: 0 }
-          }),
+          JSON.stringify({ leaderboard: [], pagination: { page, page_size: pageSize, total: 0, total_pages: 0 } }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
     } else if (filterType === "country" && filterValue) {
-      // Фильтр по стране (language_code)
       const { data: countryProfiles } = await supabase
         .from("profiles")
         .select("id")
-        .eq("language_code", filterValue)
-        .not("duel_pass_level", "is", null);
+        .eq("language_code", filterValue);
 
       if (countryProfiles && countryProfiles.length > 0) {
         filteredUserIds = countryProfiles.map((p: any) => p.id);
       } else {
         return new Response(
-          JSON.stringify({
-            leaderboard: [],
-            pagination: { page, page_size: pageSize, total: 0, total_pages: 0 }
-          }),
+          JSON.stringify({ leaderboard: [], pagination: { page, page_size: pageSize, total: 0, total_pages: 0 } }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
     }
 
-    // Получаем активный сезон для получения SP (Season Points)
-    const { data: activeSeason } = await supabase
-      .from("duel_pass_seasons")
-      .select("id")
-      .eq("is_active", true)
-      .order("season_number", { ascending: false })
-      .limit(1)
-      .single();
+    // ── ОСНОВНОЙ ЗАПРОС: user_season_progress текущего сезона ─────────────────
+    // Это единственный корректный источник для рейтинга — только те, кто
+    // реально участвует в текущем сезоне (season_points > 0).
+    console.log("[duel-pass-leaderboard] Loading season progress for season:", seasonId);
 
-    const seasonId = activeSeason?.id;
+    let progressQuery = supabase
+      .from("user_season_progress")
+      .select("user_id, season_points, level", { count: "exact" })
+      .eq("season_id", seasonId)
+      .gt("season_points", 0) // только те, у кого есть реальные SP
+      .order("season_points", { ascending: false })
+      .order("level", { ascending: false });
 
-    // Получаем профили (без JOIN, чтобы избежать проблем с сортировкой)
-    let profilesQuery = supabase
-      .from("profiles")
-      .select(`
-        id,
-        first_name,
-        username,
-        photo_url,
-        duel_pass_level,
-        duel_pass_xp
-      `, { count: "exact" })
-      .not("duel_pass_level", "is", null);
-
-    // Применяем фильтр по пользователям, если есть
     if (filteredUserIds) {
-      profilesQuery = profilesQuery.in("id", filteredUserIds);
+      progressQuery = progressQuery.in("user_id", filteredUserIds);
     }
 
-    // Сначала получаем все профили для сортировки по SP
-    // Временное решение: сортируем по уровню и XP, затем загрузим SP и пересортируем
-    const { data: allProfiles, error: allProfilesError } = await profilesQuery
-      .order("duel_pass_level", { ascending: false })
-      .order("duel_pass_xp", { ascending: false });
+    const { data: allProgress, count, error: progressError } = await progressQuery;
 
-    if (allProfilesError) {
-      console.error("[duel-pass-leaderboard] Error loading all profiles:", allProfilesError);
+    if (progressError) {
+      console.error("[duel-pass-leaderboard] Error loading season progress:", progressError);
       return new Response(
         JSON.stringify({
           error: "Failed to load leaderboard",
-          details: allProfilesError.message || String(allProfilesError)
+          details: progressError.message || String(progressError)
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (!allProfiles || allProfiles.length === 0) {
-      console.log("[duel-pass-leaderboard] No profiles found");
+    if (!allProgress || allProgress.length === 0) {
+      console.log("[duel-pass-leaderboard] No season progress found for season", seasonId);
       return new Response(
-        JSON.stringify({ leaderboard: [] }),
+        JSON.stringify({ leaderboard: [], pagination: { page, page_size: pageSize, total: 0, total_pages: 0 } }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Загружаем SP для всех пользователей
-    const seasonProgressMap = new Map<string, { season_points: number; level: number }>();
-    if (seasonId) {
-      const userIds = allProfiles.map((p) => p.id);
-      const { data: seasonProgress, error: spError } = await supabase
-        .from("user_season_progress")
-        .select("user_id, season_points, level")
-        .eq("season_id", seasonId)
-        .in("user_id", userIds);
-
-      if (!spError && seasonProgress) {
-        seasonProgress.forEach((sp: any) => {
-          seasonProgressMap.set(sp.user_id, {
-            season_points: sp.season_points || 0,
-            level: sp.level || 1
-          });
-        });
-      }
-    }
-
-    // Сортируем исключительно по SP текущего сезона (season_points, затем season level)
-    allProfiles.sort((a, b) => {
-      const aSP = seasonProgressMap.get(a.id);
-      const bSP = seasonProgressMap.get(b.id);
-
-      const aPoints = aSP?.season_points ?? 0;
-      const bPoints = bSP?.season_points ?? 0;
-
-      if (bPoints !== aPoints) {
-        return bPoints - aPoints;
-      }
-
-      // Тайbreaker: season level, then eternal level
-      const aLevel = aSP?.level ?? a.duel_pass_level ?? 1;
-      const bLevel = bSP?.level ?? b.duel_pass_level ?? 1;
-      return bLevel - aLevel;
-    });
-
-    // Применяем пагинацию
+    // Пагинация
     const from = (page - 1) * pageSize;
-    const to = from + pageSize;
-    const profiles = allProfiles.slice(from, to);
-    const count = allProfiles.length;
+    const paginatedProgress = allProgress.slice(from, from + pageSize);
+    const pageUserIds = paginatedProgress.map((p: any) => p.user_id);
 
-    console.log("[duel-pass-leaderboard] Found", profiles.length, "profiles (page", page, "of", Math.ceil(count / pageSize), ")");
-    const userIds = profiles.map((p) => p.id);
+    console.log("[duel-pass-leaderboard] Total players:", count, "| Page:", page, "| Showing:", paginatedProgress.length);
 
-    if (userIds.length === 0) {
-      console.log("[duel-pass-leaderboard] No user IDs to process");
-      return new Response(
-        JSON.stringify({ leaderboard: [] }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Загружаем профили только для текущей страницы
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("id, first_name, username, photo_url, duel_pass_level, duel_pass_xp")
+      .in("id", pageUserIds);
 
-    // Загружаем ранги пользователей для текущего сезона
-    const userRanksMap = new Map<string, string>();
-    try {
-      const { data: activeSeason } = await supabase
-        .from("duel_pass_seasons")
-        .select("id")
-        .eq("is_active", true)
-        .order("season_number", { ascending: false })
-        .limit(1)
-        .single();
+    const profilesMap = new Map<string, any>(
+      (profilesData || []).map((p: any) => [p.id, p])
+    );
 
-      if (activeSeason) {
-        const { data: ranksData } = await supabase
-          .from("user_ranks")
-          .select("user_id, rank")
-          .eq("season_id", activeSeason.id)
-          .in("user_id", userIds);
+    // Карта season level для enrichment
+    const levelsMap = new Map<string, number>(
+      paginatedProgress.map((p: any) => [p.user_id, p.level ?? 1])
+    );
 
-        if (ranksData) {
-          ranksData.forEach((r: any) => {
-            userRanksMap.set(r.user_id, r.rank);
-          });
-        }
-      }
-    } catch (e) {
-      console.error("[duel-pass-leaderboard] Exception loading ranks:", e);
-    }
-
-    // Загружаем активные скины пользователей (упрощенный запрос без JOIN)
-    let activeSkins: any[] = [];
-    try {
-      const { data: skinsData, error: skinsError } = await supabase
-        .from("user_skins")
-        .select("user_id, skin_id, is_active")
-        .eq("is_active", true)
-        .in("user_id", userIds);
-
-      if (skinsError) {
-        console.error("[duel-pass-leaderboard] Error loading skins:", skinsError);
-      } else if (skinsData && skinsData.length > 0) {
-        // Загружаем определения скинов отдельно
-        const skinIds = [...new Set(skinsData.map(s => s.skin_id))];
-        const { data: skinDefs } = await supabase
-          .from("skin_definitions")
-          .select("id, name_ru, rarity, metadata")
-          .in("id", skinIds);
-
-        // Объединяем данные
-        const defsMap = new Map(skinDefs?.map(d => [d.id, d]) || []);
-        activeSkins = skinsData
-          .map(skin => ({
-            user_id: skin.user_id,
-            skin_id: skin.skin_id,
-            skin_definitions: defsMap.get(skin.skin_id) || null
-          }))
-          .filter(s => s.skin_definitions); // Только скины с определениями
-      }
-    } catch (e) {
-      console.error("[duel-pass-leaderboard] Exception loading skins:", e);
-    }
-
-    // Загружаем отображаемые бейджи (упрощенный запрос)
-    let displayedBadges: any[] = [];
-    try {
-      const { data: badgesData, error: badgesError } = await supabase
-        .from("user_badges")
-        .select("user_id, badge_id, display_order")
-        .eq("is_displayed", true)
-        .in("user_id", userIds)
-        .order("display_order", { ascending: true })
-        .limit(3 * userIds.length);
-
-      if (badgesError) {
-        console.error("[duel-pass-leaderboard] Error loading badges:", badgesError);
-      } else if (badgesData && badgesData.length > 0) {
-        // Загружаем определения бейджей отдельно
-        const badgeIds = [...new Set(badgesData.map(b => b.badge_id))];
-        const { data: badgeDefs } = await supabase
-          .from("badge_definitions")
-          .select("id, name_ru, rarity, metadata")
-          .in("id", badgeIds);
-
-        // Объединяем данные
-        const defsMap = new Map(badgeDefs?.map(d => [d.id, d]) || []);
-        displayedBadges = badgesData
-          .map(badge => ({
-            user_id: badge.user_id,
-            badge_id: badge.badge_id,
-            display_order: badge.display_order,
-            badge_definitions: defsMap.get(badge.badge_id) || null
-          }))
-          .filter(b => b.badge_definitions); // Только бейджи с определениями
-      }
-    } catch (e) {
-      console.error("[duel-pass-leaderboard] Exception loading badges:", e);
-    }
-
-    // Загружаем количество полученных наград
-    let claimedRewards: any[] = [];
-    try {
-      const { data: rewardsData, error: rewardsError } = await supabase
-        .from("user_claimed_rewards")
-        .select("user_id")
-        .eq("season", season)
-        .in("user_id", userIds);
-
-      if (rewardsError) {
-        console.error("[duel-pass-leaderboard] Error loading claimed rewards:", rewardsError);
-      } else {
-        claimedRewards = rewardsData || [];
-      }
-    } catch (e) {
-      console.error("[duel-pass-leaderboard] Exception loading claimed rewards:", e);
-    }
-
-    // Создаем мапы для быстрого доступа
-    const skinMap = new Map<string, any>();
-    activeSkins?.forEach((skin) => {
-      // Фильтруем только скины с определениями
-      if (skin.skin_definitions) {
-        skinMap.set(skin.user_id, skin);
-      }
-    });
-
-    const badgesMap = new Map<string, any[]>();
-    displayedBadges?.forEach((badge) => {
-      // Фильтруем только бейджи с определениями
-      if (badge.badge_definitions) {
-        if (!badgesMap.has(badge.user_id)) {
-          badgesMap.set(badge.user_id, []);
-        }
-        // Ограничиваем до 3 бейджей на пользователя
-        const userBadges = badgesMap.get(badge.user_id)!;
-        if (userBadges.length < 3) {
-          userBadges.push(badge);
-        }
-      }
-    });
-
-    const rewardsCountMap = new Map<string, number>();
-    claimedRewards?.forEach((reward) => {
-      rewardsCountMap.set(
-        reward.user_id,
-        (rewardsCountMap.get(reward.user_id) || 0) + 1
-      );
-    });
+    // Загружаем косметику
+    const cosmeticsMap = await enrichUsersWithCosmetics(supabase, pageUserIds, seasonId, levelsMap);
 
     // Формируем рейтинг
-    console.log("[duel-pass-leaderboard] Building leaderboard entries");
-    const leaderboard: LeaderboardEntry[] = profiles.map((profile) => {
-      const skin = skinMap.get(profile.id);
-      const badges = badgesMap.get(profile.id) || [];
-      const rewardsCount = rewardsCountMap.get(profile.id) || 0;
-
-      // Получаем ранг из таблицы или рассчитываем на основе уровня
-      let userRank = userRanksMap.get(profile.id);
-      if (!userRank) {
-        // Рассчитываем ранг на основе уровня
-        const level = profile.duel_pass_level || 1;
-        if (level >= 26) userRank = "diamond";
-        else if (level >= 21) userRank = "platinum";
-        else if (level >= 16) userRank = "gold";
-        else if (level >= 11) userRank = "silver";
-        else if (level >= 6) userRank = "bronze";
-        else userRank = "rookie";
-      }
-
-      // Получаем SP из seasonProgressMap
-      const sp = seasonProgressMap.get(profile.id);
-      const seasonPoints = sp?.season_points || 0;
-      const seasonLevel = sp?.level || profile.duel_pass_level || 1;
+    const leaderboard: LeaderboardEntry[] = paginatedProgress.map((sp: any) => {
+      const profile = profilesMap.get(sp.user_id) || {};
+      const cosmetics = cosmeticsMap.get(sp.user_id) || {};
 
       return {
-        user_id: profile.id,
-        duel_pass_level: seasonLevel, // season level (1-30)
+        user_id: sp.user_id,
+        duel_pass_level: sp.level ?? profile.duel_pass_level ?? 1,
         duel_pass_xp: profile.duel_pass_xp || 0,
-        season_points: seasonPoints, // SP — основной показатель рейтинга
-        rank: userRank,
+        season_points: sp.season_points || 0,
         profile: {
-          first_name: profile.first_name,
-          username: profile.username,
-          photo_url: profile.photo_url,
+          first_name: profile.first_name || null,
+          username: profile.username || null,
+          photo_url: profile.photo_url || null,
         },
-        active_skin: skin || null,
-        displayed_badges: badges,
-        claimed_rewards_count: rewardsCount,
+        ...cosmetics,
       };
     });
 
     console.log("[duel-pass-leaderboard] Returning", leaderboard.length, "entries");
 
-    const totalPages = count ? Math.ceil(count / pageSize) : 0;
+    const totalCount = count ?? 0;
+    const totalPages = totalCount ? Math.ceil(totalCount / pageSize) : 0;
 
     return new Response(
       JSON.stringify({
@@ -769,7 +508,7 @@ serve(async (req) => {
         pagination: {
           page,
           page_size: pageSize,
-          total: count || 0,
+          total: totalCount,
           total_pages: totalPages,
         },
         filter_type: filterType,
@@ -778,7 +517,6 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error("[duel-pass-leaderboard] unexpected error", error);
-    console.error("[duel-pass-leaderboard] error details:", JSON.stringify(error, null, 2));
     return new Response(
       JSON.stringify({
         error: "Internal server error",
@@ -788,4 +526,3 @@ serve(async (req) => {
     );
   }
 });
-
