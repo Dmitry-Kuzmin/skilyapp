@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Gift,
   ArrowRight,
+  ArrowUpRight,
   Plus,
   Minus,
   Landmark,
