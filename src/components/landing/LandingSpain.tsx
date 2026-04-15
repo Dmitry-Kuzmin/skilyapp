@@ -1662,14 +1662,29 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
           <div className="pt-8 pb-[max(env(safe-area-inset-bottom),1rem)] border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
             <p>{copy.footer.note}</p>
             <div className="flex flex-col items-center gap-3 md:items-end">
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-medium normal-case tracking-normal text-slate-200 shadow-[0_12px_30px_rgba(15,23,42,0.22)] backdrop-blur-sm">
+              <a
+                href="https://www.nrtv.studio"
+                target="_blank"
+                rel="noreferrer"
+                aria-label={language === 'ru' ? 'Перейти на nrtv.studio' : language === 'es' ? 'Abrir nrtv.studio' : 'Visit nrtv.studio'}
+                className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-medium normal-case tracking-normal text-slate-200 shadow-[0_12px_30px_rgba(15,23,42,0.22)] backdrop-blur-sm transition-colors hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+              >
                 <img
                   src="/nrtv-logo.png"
                   alt="NRTV"
                   className="h-6 w-6 rounded-md object-cover"
                 />
-                <span>Сайт запущен студией NRTV</span>
-              </div>
+                <span>
+                  {language === 'ru'
+                    ? 'Сайт запущен студией NRTV'
+                    : language === 'es'
+                      ? 'Sitio lanzado por el estudio NRTV'
+                      : 'Site launched by NRTV Studio'}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.05] px-2 py-1 text-[10px] font-medium text-slate-100">
+                  nrtv.studio <ArrowUpRight size={12} />
+                </span>
+              </a>
               <div className="flex items-center gap-2">
                 {/* Made with text removed */}
               </div>
