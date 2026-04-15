@@ -147,6 +147,25 @@ serve(async (req) => {
       }
     }
 
+    // ============================================
+    // ТРЕКИНГ СЕЗОННЫХ ЧЕЛЛЕНДЖЕЙ
+    // ============================================
+    const spAwarded = (rewardData as any)?.sp_awarded ?? 0;
+    const sourceType = score === 100 ? 'test_perfect' : 'test_completed';
+    supabase.functions.invoke('season-challenges-track', {
+      body: {
+        user_id,
+        source_type: sourceType,
+        metadata: {
+          questions_count,
+          score,
+          sp_earned: spAwarded,
+        },
+      },
+    }).catch((err: unknown) => {
+      console.error('[complete-test-and-award] ⚠️ challenges-track error:', err);
+    });
+
     console.log('[complete-test-and-award] ✅ SUCCESS:', rewardData);
 
     return new Response(
