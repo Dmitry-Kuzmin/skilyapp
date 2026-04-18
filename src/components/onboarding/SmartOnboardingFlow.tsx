@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Check, Globe, ArrowRight, ChevronLeft, Monitor,
     Sparkles, CheckCircle2, Car, Bike, Truck, Bus,
-    Calendar, MapPin, Bell
+    Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCountry } from '@/contexts/CountryContext';
@@ -17,8 +17,110 @@ import { CountryCode } from '@/types/pdd';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { isTelegramMiniApp } from '@/lib/telegram';
 
-type Step = 'welcome' | 'category' | 'details' | 'language' | 'notifications';
+type Step = 'welcome' | 'category' | 'language' | 'notifications';
 
+// ── Multilingual UI text ─────────────────────────────────────────────────────
+const OB_TEXT = {
+    es: {
+        setup: 'Configurando tu cuenta',
+        selectCountry: 'ELIGE TU PAÍS',
+        countryDesc: 'Define el banco de preguntas y las reglas del examen',
+        changeCountry: 'Cambiar país',
+        categoryTitle: 'CATEGORÍA DE CARNÉ',
+        categoryDesc: 'Tipo de vehículo',
+        languageTitle: 'IDIOMA DE ESTUDIO',
+        languageDesc: 'Idioma de las preguntas del examen',
+        notifTitle: 'RECORDATORIOS',
+        notifDesc: 'Recibe recordatorios diarios y nuevas tareas cada día',
+        enableNotif: 'Activar notificaciones',
+        later: 'Más tarde',
+        saving: 'Guardando...',
+        finish: 'Empezar',
+        skip: 'Omitir',
+        next: 'Continuar',
+        done: '¡Listo! Empecemos 🚗',
+        questions: 'Preguntas',
+        duration: 'Duración',
+        passing: 'Aprobado',
+        aiInterpreterDesc: 'Traducción de preguntas al ruso',
+    },
+    en: {
+        setup: 'Setting up your account',
+        selectCountry: 'SELECT YOUR COUNTRY',
+        countryDesc: 'Determines the question bank and exam rules',
+        changeCountry: 'Change country',
+        categoryTitle: 'LICENSE CATEGORY',
+        categoryDesc: 'Type of vehicle',
+        languageTitle: 'STUDY LANGUAGE',
+        languageDesc: 'Language of the exam questions',
+        notifTitle: 'REMINDERS',
+        notifDesc: 'Send daily study reminders and new tasks every day',
+        enableNotif: 'Enable notifications',
+        later: 'Later',
+        saving: 'Saving...',
+        finish: 'Get started',
+        skip: 'Skip',
+        next: 'Continue',
+        done: 'Done! Let\'s start 🚗',
+        questions: 'Questions',
+        duration: 'Duration',
+        passing: 'To pass',
+        aiInterpreterDesc: 'Translate questions to Russian',
+    },
+    ru: {
+        setup: 'Настройка аккаунта',
+        selectCountry: 'ВЫБЕРИ СТРАНУ',
+        countryDesc: 'Определяет базу вопросов и правила экзамена',
+        changeCountry: 'Сменить страну',
+        categoryTitle: 'КАТЕГОРИЯ ПРАВ',
+        categoryDesc: 'Тип транспортного средства',
+        languageTitle: 'ЯЗЫК ОБУЧЕНИЯ',
+        languageDesc: 'Язык экзаменационных вопросов',
+        notifTitle: 'НАПОМИНАНИЯ',
+        notifDesc: 'Присылать напоминания об учёбе и новые задания каждый день',
+        enableNotif: 'Включить уведомления',
+        later: 'Позже',
+        saving: 'Сохранение...',
+        finish: 'Завершить',
+        skip: 'Пропустить',
+        next: 'Продолжить',
+        done: 'Готово! Начинаем подготовку 🚗',
+        questions: 'Вопросов',
+        duration: 'На экзамен',
+        passing: 'Для сдачи',
+        aiInterpreterDesc: 'Перевод вопросов на русский',
+    }
+} as const;
+type OBLang = keyof typeof OB_TEXT;
+
+// ── Category metadata (multilingual) ────────────────────────────────────────
+const CATEGORY_LABELS: Record<OBLang, Record<string, { title: string; desc: string }>> = {
+    es: {
+        'B': { title: 'CAT B', desc: 'Turismos y\nfurgonetas pequeñas' },
+        'A': { title: 'CAT A', desc: 'Motos\ny scooters' },
+        'C': { title: 'CAT C', desc: 'Transporte\nde mercancías' },
+        'D': { title: 'CAT D', desc: 'Autobuses\nde pasajeros' },
+    },
+    en: {
+        'B': { title: 'CAT B', desc: 'Cars &\nsmall vans' },
+        'A': { title: 'CAT A', desc: 'Motorcycles\n& scooters' },
+        'C': { title: 'CAT C', desc: 'Goods\ntransport' },
+        'D': { title: 'CAT D', desc: 'Passenger\nbuses' },
+    },
+    ru: {
+        'B': { title: 'CAT B', desc: 'Легковые авто\nи малые фургоны' },
+        'A': { title: 'CAT A', desc: 'Мотоциклы\nи скутеры' },
+        'C': { title: 'CAT C', desc: 'Грузовой\nтранспорт' },
+        'D': { title: 'CAT D', desc: 'Пассажирские\nавтобусы' },
+    },
+};
+
+const getCategoryMeta = (lang: string, cat: string) => {
+    const l = (lang in CATEGORY_LABELS ? lang : 'es') as OBLang;
+    return CATEGORY_LABELS[l][cat] || { title: `CAT ${cat}`, desc: '' };
+};
+
+// ── Animation variants ───────────────────────────────────────────────────────
 const pageVariants = {
     enter: { opacity: 0, x: 20 },
     center: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.25, 1, 0.5, 1] } },
@@ -43,13 +145,6 @@ const getCategoryIcon = (category: string) => {
     }
 };
 
-const CATEGORY_META: Record<string, { title: string; desc: string }> = {
-    'B': { title: 'CAT B', desc: 'Легковые авто\nи малые фургоны' },
-    'A': { title: 'CAT A', desc: 'Мотоциклы\nи скутеры' },
-    'C': { title: 'CAT C', desc: 'Грузовой\nтранспорт' },
-    'D': { title: 'CAT D', desc: 'Пассажирские\nавтобусы' },
-};
-
 export const SmartOnboardingFlow: React.FC = () => {
     const { profileId } = useUserContext();
     const { setLanguage } = useLanguage();
@@ -61,8 +156,6 @@ export const SmartOnboardingFlow: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<string>('B');
     const [selectedLang, setSelectedLang] = useState<string>('es');
     const [smartTranslator, setSmartTranslator] = useState<boolean>(false);
-    const [examDate, setExamDate] = useState<string>('');
-    const [examCity, setExamCity] = useState<string>('');
     const [isSaving, setIsSaving] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [autoDetectDone, setAutoDetectDone] = useState(false);
@@ -75,9 +168,12 @@ export const SmartOnboardingFlow: React.FC = () => {
             : 'granted'
     );
 
-    // Compute steps dynamically
+    // Resolve UI text based on current selected language
+    const ui = OB_TEXT[(selectedLang in OB_TEXT ? selectedLang : 'es') as OBLang];
+
+    // Compute steps dynamically — removed 'details' step to reduce friction
     const steps = useMemo((): Step[] => {
-        const s: Step[] = ['welcome', 'category', 'details'];
+        const s: Step[] = ['welcome', 'category'];
         if (selectedCountry?.code === 'ES') s.push('language');
         const notifSupported = typeof window !== 'undefined' && 'Notification' in window;
         if (!isTelegramMiniApp() && notifSupported && notifPermission !== 'granted') {
@@ -116,14 +212,14 @@ export const SmartOnboardingFlow: React.FC = () => {
             // If force mode — show with detected country, never run DB check
             if (forceOnboarding) {
                 if (!autoDetectDone) {
-                    const detected = detectUserCountry();
+                    const detected = await detectUserCountry();
                     setLandingCountry(detected);
                     if (detected.examLanguages?.length > 0) setSelectedLang(detected.examLanguages[0]);
                     setSmartTranslator(detected.code === 'ES' && navigator.language.startsWith('ru'));
                     setIsVisible(true);
                     setAutoDetectDone(true);
                 }
-                return; // Never reach DB check in force mode
+                return;
             }
 
             if (!profileId) return;
@@ -135,7 +231,6 @@ export const SmartOnboardingFlow: React.FC = () => {
                 .single();
 
             if (!error && data) {
-                // Save existing settings for later merge
                 existingSettingsRef.current = data.settings || {};
 
                 const hasCountry = data.preferred_country;
@@ -149,7 +244,7 @@ export const SmartOnboardingFlow: React.FC = () => {
                     localStorage.setItem('pdd_onboarding_completed', 'true');
                     setIsVisible(false);
                 } else if (!autoDetectDone) {
-                    const detected = detectUserCountry();
+                    const detected = await detectUserCountry();
                     setLandingCountry(detected);
                     const isRussian = navigator.language.startsWith('ru');
                     setSmartTranslator(detected.code === 'ES' && isRussian);
@@ -202,7 +297,6 @@ export const SmartOnboardingFlow: React.FC = () => {
         const result = await Notification.requestPermission();
         setNotifPermission(result);
         if (result === 'granted') {
-            // Auto-proceed after grant
             setTimeout(() => saveOnboardingData(), 600);
         }
     };
@@ -225,7 +319,6 @@ export const SmartOnboardingFlow: React.FC = () => {
             localStorage.setItem('pdd_onboarding_completed', 'true');
 
             if (profileId) {
-                // Merge with existing settings — don't wipe other user settings
                 const mergedSettings = {
                     ...existingSettingsRef.current,
                     license_category: selectedCategory,
@@ -233,8 +326,6 @@ export const SmartOnboardingFlow: React.FC = () => {
                     smart_translator: smartTranslator,
                     language: selectedLang,
                     onboarding_completed_at: new Date().toISOString(),
-                    ...(examDate ? { exam_date: examDate } : {}),
-                    ...(examCity ? { exam_city: examCity } : {}),
                 };
 
                 await (supabase as any)
@@ -248,7 +339,7 @@ export const SmartOnboardingFlow: React.FC = () => {
             }
 
             setIsVisible(false);
-            toast.success('Готово! Начинаем подготовку 🚗');
+            toast.success(ui.done);
         } catch (err) {
             console.error('[Onboarding] save failed:', err);
             setIsVisible(false);
@@ -304,19 +395,19 @@ export const SmartOnboardingFlow: React.FC = () => {
                                 className="mb-5"
                             >
                                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 px-3 py-1.5 rounded-full border border-blue-500/20 bg-blue-500/5">
-                                    Настройка аккаунта
+                                    {ui.setup}
                                 </span>
                             </motion.div>
 
                             <motion.h1 custom={1} variants={itemVariants} initial="hidden" animate="visible"
                                 className="text-2xl font-black mb-2 tracking-tight text-white leading-tight"
                             >
-                                ВЫБЕРИ СТРАНУ
+                                {ui.selectCountry}
                             </motion.h1>
                             <motion.p custom={2} variants={itemVariants} initial="hidden" animate="visible"
                                 className="text-zinc-500 text-sm mb-8 max-w-[240px] leading-relaxed"
                             >
-                                Определяет базу вопросов и правила экзамена
+                                {ui.countryDesc}
                             </motion.p>
 
                             <motion.div custom={3} variants={itemVariants} initial="hidden" animate="visible"
@@ -336,7 +427,7 @@ export const SmartOnboardingFlow: React.FC = () => {
                                         className="text-[10px] h-8 px-5 rounded-full border border-white/10 text-zinc-400 active:scale-95 transition-all uppercase tracking-widest flex items-center gap-2"
                                     >
                                         <Globe className="w-3 h-3" />
-                                        Сменить страну
+                                        {ui.changeCountry}
                                     </button>
                                 </div>
                             </motion.div>
@@ -355,32 +446,31 @@ export const SmartOnboardingFlow: React.FC = () => {
                             <motion.h1 custom={0} variants={itemVariants} initial="hidden" animate="visible"
                                 className="text-2xl font-black mb-1 text-white text-center"
                             >
-                                КАТЕГОРИЯ ПРАВ
+                                {ui.categoryTitle}
                             </motion.h1>
                             <motion.p custom={1} variants={itemVariants} initial="hidden" animate="visible"
                                 className="text-zinc-500 text-sm mb-6 text-center"
                             >
-                                Тип транспортного средства
+                                {ui.categoryDesc}
                             </motion.p>
 
                             <motion.div custom={2} variants={itemVariants} initial="hidden" animate="visible"
                                 className="w-full max-w-xs"
                             >
                                 {selectedCountry.availableCategories.length === 1 ? (
-                                    // Single category — show as confirmation card
                                     <SingleCategoryCard
                                         cat={selectedCountry.availableCategories[0]}
-                                        meta={CATEGORY_META[selectedCountry.availableCategories[0]]}
+                                        meta={getCategoryMeta(selectedLang, selectedCountry.availableCategories[0])}
                                         country={selectedCountry}
+                                        ui={ui}
                                     />
                                 ) : (
-                                    // Multi-category grid
                                     <div className={cn(
                                         "grid gap-3",
                                         selectedCountry.availableCategories.length === 2 ? "grid-cols-2" : "grid-cols-2"
                                     )}>
                                         {selectedCountry.availableCategories.map((cat) => {
-                                            const meta = CATEGORY_META[cat] || { title: `CAT ${cat}`, desc: '' };
+                                            const meta = getCategoryMeta(selectedLang, cat);
                                             const isSelected = selectedCategory === cat;
                                             return (
                                                 <motion.button
@@ -434,83 +524,7 @@ export const SmartOnboardingFlow: React.FC = () => {
                         </motion.div>
                     )}
 
-                    {/* STEP 3: Exam Details */}
-                    {currentStep === 'details' && (
-                        <motion.div
-                            key="details"
-                            custom={direction}
-                            variants={pageVariants}
-                            initial="enter" animate="center" exit="exit"
-                            className="absolute inset-0 flex flex-col items-center px-6 pt-4"
-                        >
-                            <motion.h1 custom={0} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-2xl font-black mb-1 text-white text-center"
-                            >
-                                ДЕТАЛИ ЭКЗАМЕНА
-                            </motion.h1>
-                            <motion.p custom={1} variants={itemVariants} initial="hidden" animate="visible"
-                                className="text-zinc-500 text-sm mb-8 text-center"
-                            >
-                                Поможем подготовиться к дедлайну
-                            </motion.p>
-
-                            <div className="w-full max-w-xs space-y-3">
-                                <motion.div custom={2} variants={itemVariants} initial="hidden" animate="visible">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 block px-1">
-                                        Дата экзамена
-                                    </label>
-                                    <div className="relative">
-                                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
-                                        <input
-                                            type="date"
-                                            value={examDate}
-                                            onChange={e => setExamDate(e.target.value)}
-                                            min={new Date().toISOString().split('T')[0]}
-                                            className={cn(
-                                                "w-full h-14 pl-11 pr-4 rounded-2xl text-sm font-medium transition-all",
-                                                "bg-zinc-900/60 border text-white outline-none",
-                                                "focus:border-blue-500/50 focus:bg-zinc-900",
-                                                examDate ? "border-blue-500/30" : "border-white/[0.06]",
-                                                "[color-scheme:dark]"
-                                            )}
-                                            placeholder="Выбери дату"
-                                        />
-                                    </div>
-                                </motion.div>
-
-                                <motion.div custom={3} variants={itemVariants} initial="hidden" animate="visible">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2 block px-1">
-                                        Город сдачи
-                                    </label>
-                                    <div className="relative">
-                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
-                                        <input
-                                            type="text"
-                                            value={examCity}
-                                            onChange={e => setExamCity(e.target.value)}
-                                            className={cn(
-                                                "w-full h-14 pl-11 pr-4 rounded-2xl text-sm font-medium transition-all",
-                                                "bg-zinc-900/60 border text-white placeholder:text-zinc-600 outline-none",
-                                                "focus:border-blue-500/50 focus:bg-zinc-900",
-                                                examCity ? "border-blue-500/30" : "border-white/[0.06]"
-                                            )}
-                                            placeholder="Например, Мадрид"
-                                        />
-                                    </div>
-                                </motion.div>
-
-                                <motion.div custom={4} variants={itemVariants} initial="hidden" animate="visible"
-                                    className="pt-2"
-                                >
-                                    {examDate && (
-                                        <ExamCountdown date={examDate} />
-                                    )}
-                                </motion.div>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {/* STEP 4: Language (ES only) */}
+                    {/* STEP 3: Language (ES only) */}
                     {currentStep === 'language' && (
                         <motion.div
                             key="language"
@@ -522,12 +536,12 @@ export const SmartOnboardingFlow: React.FC = () => {
                             <motion.h1 custom={0} variants={itemVariants} initial="hidden" animate="visible"
                                 className="text-2xl font-black mb-1 text-white text-center"
                             >
-                                ЯЗЫК ОБУЧЕНИЯ
+                                {ui.languageTitle}
                             </motion.h1>
                             <motion.p custom={1} variants={itemVariants} initial="hidden" animate="visible"
                                 className="text-zinc-500 text-sm mb-8 text-center"
                             >
-                                Язык экзаменационных вопросов
+                                {ui.languageDesc}
                             </motion.p>
 
                             <div className="w-full max-w-xs space-y-2">
@@ -589,7 +603,7 @@ export const SmartOnboardingFlow: React.FC = () => {
                                                 <div className={cn("text-xs font-black uppercase tracking-widest", smartTranslator ? "text-indigo-400" : "text-zinc-500")}>
                                                     AI Interpreter
                                                 </div>
-                                                <div className="text-[11px] text-zinc-500 mt-0.5">Перевод вопросов на русский</div>
+                                                <div className="text-[11px] text-zinc-500 mt-0.5">{ui.aiInterpreterDesc}</div>
                                             </div>
                                         </div>
                                         <div className={cn(
@@ -607,7 +621,7 @@ export const SmartOnboardingFlow: React.FC = () => {
                         </motion.div>
                     )}
 
-                    {/* STEP 5: Notifications (PWA/Desktop only) */}
+                    {/* STEP 4: Notifications (PWA/Desktop only) */}
                     {currentStep === 'notifications' && (
                         <motion.div
                             key="notifications"
@@ -625,12 +639,12 @@ export const SmartOnboardingFlow: React.FC = () => {
                             <motion.h1 custom={1} variants={itemVariants} initial="hidden" animate="visible"
                                 className="text-2xl font-black mb-2 text-white"
                             >
-                                НАПОМИНАНИЯ
+                                {ui.notifTitle}
                             </motion.h1>
                             <motion.p custom={2} variants={itemVariants} initial="hidden" animate="visible"
                                 className="text-zinc-500 text-sm mb-8 max-w-[240px] leading-relaxed"
                             >
-                                Присылать напоминания об учёбе и новые задания каждый день
+                                {ui.notifDesc}
                             </motion.p>
 
                             <motion.div custom={3} variants={itemVariants} initial="hidden" animate="visible"
@@ -641,13 +655,13 @@ export const SmartOnboardingFlow: React.FC = () => {
                                     className="w-full h-14 rounded-2xl bg-blue-500 text-white font-black text-[11px] uppercase tracking-[0.15em] flex items-center justify-center gap-2 active:scale-98 transition-all shadow-xl shadow-blue-500/20"
                                 >
                                     <Bell className="w-4 h-4" />
-                                    Включить уведомления
+                                    {ui.enableNotif}
                                 </button>
                                 <button
                                     onClick={saveOnboardingData}
                                     className="w-full h-12 text-zinc-500 text-xs font-semibold active:text-zinc-300 transition-colors"
                                 >
-                                    Позже
+                                    {ui.later}
                                 </button>
                             </motion.div>
                         </motion.div>
@@ -686,14 +700,11 @@ export const SmartOnboardingFlow: React.FC = () => {
                             )}
                         >
                             {isSaving ? (
-                                <span>Сохранение...</span>
+                                <span>{ui.saving}</span>
                             ) : (
                                 <>
                                     <span>
-                                        {isLastStep ? 'Завершить' :
-                                            currentStep === 'welcome' ? 'Продолжить' :
-                                            currentStep === 'details' && !examDate ? 'Пропустить' :
-                                            'Продолжить'}
+                                        {isLastStep ? ui.finish : ui.next}
                                     </span>
                                     <ArrowRight className="w-4 h-4 stroke-[3px]" />
                                 </>
@@ -708,10 +719,11 @@ export const SmartOnboardingFlow: React.FC = () => {
 
 // ── Helper Components ──────────────────────────────────────────────
 
-function SingleCategoryCard({ cat, meta, country }: {
+function SingleCategoryCard({ cat, meta, country, ui }: {
     cat: string;
     meta: { title: string; desc: string };
     country: { authority: string; metadata?: { totalQuestions?: number; examDuration?: number; passingScore?: number } };
+    ui: typeof OB_TEXT[OBLang];
 }) {
     return (
         <div className="w-full p-7 rounded-[2.5rem] bg-zinc-900/50 border border-blue-500/20 flex flex-col items-center gap-5 shadow-[0_30px_60px_-15px_rgba(59,130,246,0.15)]">
@@ -727,19 +739,19 @@ function SingleCategoryCard({ cat, meta, country }: {
                     {country.metadata.totalQuestions && (
                         <div className="flex-1 text-center p-3 rounded-2xl bg-white/[0.03] border border-white/[0.04]">
                             <div className="text-lg font-black text-white">{country.metadata.totalQuestions}</div>
-                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">Вопросов</div>
+                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">{ui.questions}</div>
                         </div>
                     )}
                     {country.metadata.examDuration && (
                         <div className="flex-1 text-center p-3 rounded-2xl bg-white/[0.03] border border-white/[0.04]">
-                            <div className="text-lg font-black text-white">{country.metadata.examDuration}м</div>
-                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">На экзамен</div>
+                            <div className="text-lg font-black text-white">{country.metadata.examDuration}m</div>
+                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">{ui.duration}</div>
                         </div>
                     )}
                     {country.metadata.passingScore && (
                         <div className="flex-1 text-center p-3 rounded-2xl bg-white/[0.03] border border-white/[0.04]">
                             <div className="text-lg font-black text-white">{country.metadata.passingScore}%</div>
-                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">Для сдачи</div>
+                            <div className="text-[9px] text-zinc-500 uppercase tracking-widest">{ui.passing}</div>
                         </div>
                     )}
                 </div>
@@ -747,24 +759,6 @@ function SingleCategoryCard({ cat, meta, country }: {
             <div className="flex items-center gap-2 text-zinc-500 text-[9px] font-black uppercase tracking-[0.2em]">
                 <Monitor className="w-2.5 h-2.5 text-blue-500" />
                 {country.authority} OFFICIAL
-            </div>
-        </div>
-    );
-}
-
-function ExamCountdown({ date }: { date: string }) {
-    const days = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-    if (days < 0) return null;
-
-    const color = days <= 7 ? 'text-red-400 border-red-500/20 bg-red-500/5'
-        : days <= 30 ? 'text-yellow-400 border-yellow-500/20 bg-yellow-500/5'
-        : 'text-emerald-400 border-emerald-500/20 bg-emerald-500/5';
-
-    return (
-        <div className={cn("w-full p-4 rounded-2xl border flex items-center gap-3", color)}>
-            <Calendar className="w-4 h-4 shrink-0" />
-            <div className="text-xs font-bold">
-                До экзамена {days === 0 ? 'сегодня!' : `${days} ${days === 1 ? 'день' : days < 5 ? 'дня' : 'дней'}`}
             </div>
         </div>
     );
