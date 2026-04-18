@@ -7,41 +7,41 @@ export const detectUserCountry = async (): Promise<CountryConfig> => {
         const ipResponse = await fetch('https://ipapi.co/json/', {
             signal: AbortSignal.timeout(3000)
         });
-        
+
         if (ipResponse.ok) {
             const ipData = await ipResponse.json();
             const countryCode = ipData.country_code;
-            
+
             if (countryCode === 'ES') return COUNTRIES.find(c => c.code === "ES") || DEFAULT_COUNTRY;
             if (countryCode === 'RU' || countryCode === 'BY' || countryCode === 'KZ') return COUNTRIES.find(c => c.code === "RU") || DEFAULT_COUNTRY;
             if (countryCode === 'PL') return COUNTRIES.find(c => c.code === "PL") || DEFAULT_COUNTRY;
             if (countryCode === 'DE') return COUNTRIES.find(c => c.code === "DE") || DEFAULT_COUNTRY;
         }
     } catch (e) {
-        console.warn("[CountryDetection] IP fetch failed, falling back to locale/timezone", e);
+        console.warn("[CountryDetection] IP fetch failed, falling back to timezone", e);
     }
 
-    const locale = navigator.language.toLowerCase();
+    // Timezone-only fallback — locale alone is NOT reliable
+    // (Russian speakers in Spain have 'ru' locale but should get Spain)
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-    console.log("[CountryDetection] Locale:", locale, "TimeZone:", timeZone);
+    console.log("[CountryDetection] TimeZone:", timeZone);
 
-    // Логика для Испании
-    if (timeZone.includes("Madrid") || timeZone.includes("Canary") || locale.includes("es")) {
+    if (timeZone.includes("Madrid") || timeZone.includes("Canary")) {
         return COUNTRIES.find(c => c.code === "ES") || DEFAULT_COUNTRY;
     }
 
-    // Логика для России
     if (
         timeZone.includes("Moscow") ||
         timeZone.includes("Samara") ||
         timeZone.includes("Yekaterinburg") ||
         timeZone.includes("Novosibirsk") ||
-        locale.includes("ru")
+        timeZone.includes("Krasnoyarsk") ||
+        timeZone.includes("Omsk")
     ) {
         return COUNTRIES.find(c => c.code === "RU") || DEFAULT_COUNTRY;
     }
 
-    // Fallback на дефолтную (Испания)
+    // Default to Spain — our primary market
     return DEFAULT_COUNTRY;
 };
