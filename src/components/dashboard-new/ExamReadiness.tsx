@@ -251,6 +251,14 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     }
   }, [onStartTest, navigate]);
 
+  // Для новых пользователей — запускаем случайный тест из 10 вопросов
+  const handleFirstTest = useCallback(() => {
+    playClickSound();
+    const category = selectedCountry === 'spain' ? 'B' : 'B';
+    const countryParam = selectedCountry === 'spain' ? '' : '&country=russia';
+    navigate(`/test/practice?count=10${countryParam}&category=${category}`);
+  }, [navigate, selectedCountry]);
+
   const toggleLevels = useCallback(() => {
     playClickSound();
     const newState = !showLevels;
