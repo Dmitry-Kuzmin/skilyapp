@@ -1364,7 +1364,22 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
       <section className="relative z-10 px-6 py-20 pb-32 max-w-[1500px] mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">{copy.pricing.title}</h2>
-          <p className="text-slate-400">{copy.pricing.description}</p>
+          <p className="text-slate-400 mb-8">{copy.pricing.description}</p>
+
+          {/* Pre-pricing CTA */}
+          <button
+            onClick={handleEnter}
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-95 text-white font-black text-sm uppercase tracking-wide transition-all shadow-xl shadow-blue-500/25 group"
+          >
+            <Rocket className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            {language === 'ru' ? 'Начать бесплатно' : language === 'es' ? 'Empezar gratis — sin tarjeta' : 'Start free — no card needed'}
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          </button>
+          <p className="text-slate-600 text-xs mt-3">
+            {language === 'ru' ? 'Базовый доступ бесплатно · Премиум можно подключить позже'
+              : language === 'es' ? 'Acceso básico gratis · Premium se puede añadir después'
+              : 'Basic access free · Premium can be added later'}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-y-10 gap-x-4 items-stretch pt-12">
