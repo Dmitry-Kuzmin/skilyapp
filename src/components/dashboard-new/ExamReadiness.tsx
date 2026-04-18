@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playClickSound } from '@/services/audioService';
-import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap, Lock } from 'lucide-react';
+import { Info, X, Rocket, TrendingUp, Target, Award, Sparkles, AlertCircle, Activity, Brain, Calendar, Zap, Lock, Play } from 'lucide-react';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { motion } from "@/components/optimized/Motion";
 import { getReadinessStatus } from '@/utils/examReadiness';
