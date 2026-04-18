@@ -959,6 +959,18 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
         </div>
       </section>
 
+      {/* CTA strip after demo */}
+      <div className="relative z-10 flex justify-center px-6 pb-4">
+        <button
+          onClick={handleEnter}
+          className="flex items-center gap-2.5 px-7 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-black text-sm tracking-wide transition-all shadow-lg shadow-blue-500/20 group"
+        >
+          <Rocket className="w-4 h-4 group-hover:scale-110 transition-transform" />
+          {language === 'ru' ? 'Начать бесплатно' : language === 'es' ? 'Empezar gratis' : 'Start for free'}
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+        </button>
+      </div>
+
       {/* ECOSYSTEM SECTION */}
       <section className="relative z-10 px-6 pt-24 pb-6 max-w-[1400px] mx-auto">
         <div className="mb-10">
