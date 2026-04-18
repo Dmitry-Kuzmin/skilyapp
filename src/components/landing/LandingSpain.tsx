@@ -877,6 +877,15 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
             </span>
             <div className="h-[1px] w-12 bg-gradient-to-l from-transparent to-slate-500 animate-engine-idle" style={{ animationDelay: '0.3s' }}></div>
           </div>
+
+          {/* Fallback CTA for users who don't get the engine metaphor */}
+          <button
+            onClick={handleEnter}
+            className="mt-1 text-slate-500 hover:text-slate-300 text-xs font-medium flex items-center gap-1.5 group transition-colors"
+          >
+            {language === 'ru' ? 'или войти напрямую' : language === 'es' ? 'o accede directamente' : 'or sign up directly'}
+            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
       </section>
 
