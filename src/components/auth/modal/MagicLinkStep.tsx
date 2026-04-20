@@ -49,7 +49,7 @@ export function MagicLinkStep({
                     variant="primary"
                     fullWidth
                     disabled={isSubmitting}
-                    onClick={() => onSendMagicLink(false)}
+                    onClick={() => onSendMagicLink(!isExistingUser)}
                     className="h-14 text-[16px] font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-none shadow-[0_8px_30px_rgba(37,99,235,0.3)] transition-all duration-300 active:scale-[0.98] relative overflow-hidden group/btn"
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_5s_infinite]" />
