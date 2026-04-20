@@ -883,13 +883,20 @@ const CourseLanding = () => {
     return () => { document.getElementById("curso-styles")?.remove(); };
   }, []);
 
+  const smoothScrollTo = useCallback((id: string, offset = 72) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: "smooth" });
+  }, []);
+
   const scrollToForm = (location = "unknown") => {
     Analytics.ctaClicked(location);
-    document.getElementById("smart-checklist")?.scrollIntoView({ behavior: "smooth" });
+    smoothScrollTo("smart-checklist");
   };
 
   const scrollToHowItWorks = () => {
-    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+    smoothScrollTo("how-it-works");
   };
 
   return (
