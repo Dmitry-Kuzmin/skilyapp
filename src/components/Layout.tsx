@@ -512,6 +512,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                     <UserProfilePopover
                       notificationsApi={notificationsApi}
                       onOpenNotifications={handleOpenNotifications}
+                      compact
                     />
                   </Suspense>
                 ) : (
