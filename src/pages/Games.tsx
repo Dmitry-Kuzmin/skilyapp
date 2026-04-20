@@ -570,6 +570,7 @@ const Games = () => {
                     </motion.div>
                   );
                 })}
+                </AnimatePresence>
               </div>
             </div>
 
