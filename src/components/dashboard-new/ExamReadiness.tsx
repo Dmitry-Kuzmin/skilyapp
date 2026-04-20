@@ -385,6 +385,33 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
               {statusInfo.shortLabel}
             </div>
           </div>
+
+          {/* ── New user overlay — sits on top of the radar ── */}
+          {hasNoData && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              onClick={handleFirstTest}
+              className="absolute inset-2 rounded-full flex flex-col items-center justify-center gap-2 cursor-pointer active:scale-[0.97] transition-transform"
+              style={{ backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)', background: isDarkTheme ? 'rgba(15,23,42,0.72)' : 'rgba(255,255,255,0.72)' }}
+            >
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <Play className="w-4 h-4 text-white fill-white translate-x-px" />
+              </div>
+              <div className="text-center px-3">
+                <p className={`text-[11px] font-black leading-tight ${textPrimaryClass}`}>
+                  {language === 'es' ? 'Primer test' : language === 'ru' ? 'Первый тест' : 'First test'}
+                </p>
+                <p className="text-[9px] text-slate-400 leading-tight mt-0.5">
+                  {language === 'es' ? 'La IA calculará tu nivel' : language === 'ru' ? 'ИИ рассчитает прогноз' : 'AI will predict your score'}
+                </p>
+              </div>
+              <span className="text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                {language === 'es' ? '10 preguntas · 5 min' : language === 'ru' ? '10 вопросов · 5 мин' : '10 questions · 5 min'}
+              </span>
+            </motion.button>
+          )}
         </div>
 
       </div>
