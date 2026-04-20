@@ -15,7 +15,7 @@ import { TermProgressModal } from "@/components/TermProgressModal";
 
 import { AuthModalNew as AuthModal } from "@/components/AuthModalNew";
 import { isTelegramMiniApp } from "@/lib/telegram";
-import { motion } from "@/components/optimized/Motion";
+import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { useGamesStats, useOnlinePlayers } from "@/hooks/useGamesData";
 import { useProfileData } from "@/hooks/useProfileData";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
