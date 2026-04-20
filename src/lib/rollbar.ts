@@ -51,6 +51,9 @@ export function initRollbar(): Rollbar | null {
         },
       },
       ignoredMessages: [
+        // Web Vitals метрики — не ошибки, не должны попадать в Rollbar
+        /Web Vitals .* is poor/i,
+        /Web Vitals .* needs.improvement/i,
         // Ошибки расширений браузера
         /Script error/i,
         /ResizeObserver loop/i,
