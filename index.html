@@ -1042,31 +1042,38 @@
       // Проверяем версию в localStorage
       const storedVersion = localStorage.getItem(CACHE_KEY);
       if (storedVersion !== APP_VERSION) {
-        console.log('[HTML] 🔄 New version detected! Clearing cache...', {
-          stored: storedVersion,
-          current: APP_VERSION,
-        });
+        if (storedVersion === null) {
+          // Первый визит — просто сохраняем версию, перезагрузка не нужна.
+          // ВАЖНО: перезагрузка при null убивала FCP/LCP для новых пользователей и PageSpeed.
+          localStorage.setItem(CACHE_KEY, APP_VERSION);
+        } else {
+          // Существующий пользователь со старой версией — очищаем кэш и перезагружаем
+          console.log('[HTML] 🔄 New version detected! Clearing cache...', {
+            stored: storedVersion,
+            current: APP_VERSION,
+          });
 
-        // Очищаем localStorage (кроме важных данных)
-        const importantKeys = ['sb-yffjnqegeiorunyvcxkn-auth-token', 'user_preferences', 'telegram_user', 'puzzle_user'];
-        const keysToKeep = {};
-        importantKeys.forEach(key => {
-          const value = localStorage.getItem(key);
-          if (value) keysToKeep[key] = value;
-        });
+          // Очищаем localStorage (кроме важных данных)
+          const importantKeys = ['sb-yffjnqegeiorunyvcxkn-auth-token', 'user_preferences', 'telegram_user', 'puzzle_user'];
+          const keysToKeep = {};
+          importantKeys.forEach(key => {
+            const value = localStorage.getItem(key);
+            if (value) keysToKeep[key] = value;
+          });
 
-        localStorage.clear();
+          localStorage.clear();
 
-        Object.keys(keysToKeep).forEach(key => {
-          localStorage.setItem(key, keysToKeep[key]);
-        });
+          Object.keys(keysToKeep).forEach(key => {
+            localStorage.setItem(key, keysToKeep[key]);
+          });
 
-        // Сохраняем новую версию
-        localStorage.setItem(CACHE_KEY, APP_VERSION);
+          // Сохраняем новую версию
+          localStorage.setItem(CACHE_KEY, APP_VERSION);
 
-        // Принудительная перезагрузка без cache-busting параметров (Vercel CDN кэширует)
-        window.location.reload();
-        return;
+          // Принудительная перезагрузка без cache-busting параметров (Vercel CDN кэширует)
+          window.location.reload();
+          return;
+        }
       }
 
       // Отслеживаем ошибки загрузки модулей
