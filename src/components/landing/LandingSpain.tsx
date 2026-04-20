@@ -1357,60 +1357,64 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
       {/* LIVE CLASS SECTION - RUSSIAN ONLY */}
       {language === 'ru' && (
         <section className="relative z-10 px-6 py-10 max-w-[1500px] mx-auto">
-          <div className="relative rounded-2xl border border-blue-500/30 bg-gradient-to-r from-blue-950/70 via-slate-900/80 to-slate-950/70 backdrop-blur-xl overflow-hidden">
-            {/* subtle glow blobs */}
-            <div className="absolute -top-10 left-10 w-64 h-64 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-10 right-10 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="rounded-2xl overflow-hidden border border-white/8 bg-[#0d1525]">
+            {/* top accent line */}
+            <div className="h-[3px] bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600" />
 
-            <div className="relative flex flex-col md:flex-row items-center gap-6 px-7 py-7 md:py-6">
-
-              {/* LEFT: title + description */}
-              <div className="flex-1 min-w-0">
-                <div className="inline-flex items-center gap-1.5 mb-3 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/40 text-blue-300 text-[11px] font-bold tracking-widest uppercase">
-                  <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                  </svg>
-                  {copy.liveClass.badge}
+            <div className="flex flex-col md:flex-row">
+              {/* LEFT: main content */}
+              <div className="flex-1 px-8 py-8">
+                {/* badge */}
+                <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 rounded-md bg-blue-500/10 border border-blue-500/20">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                  </span>
+                  <span className="text-cyan-300 text-[11px] font-bold tracking-widest uppercase">{copy.liveClass.badge}</span>
                 </div>
-                <h3 className="text-xl md:text-2xl font-black text-white leading-tight mb-1">
+
+                {/* title */}
+                <h3 className="text-2xl md:text-3xl font-black text-white mb-1 leading-tight">
                   {copy.liveClass.title}
                 </h3>
-                <p className="text-cyan-300 text-sm font-semibold mb-2">{copy.liveClass.subtitle}</p>
-                <p className="text-slate-400 text-sm leading-relaxed max-w-lg">{copy.liveClass.description}</p>
-              </div>
+                <p className="text-blue-400 font-semibold text-sm mb-5">{copy.liveClass.subtitle}</p>
 
-              {/* CENTER: stats */}
-              <div className="flex flex-row md:flex-col gap-2.5 flex-shrink-0">
-                <div className="grid grid-cols-2 gap-2">
-                  {copy.liveClass.stats.map((s, i) => (
-                    <div key={i} className="flex flex-col items-center justify-center w-20 h-16 rounded-xl bg-white/5 border border-white/10 hover:border-blue-400/40 transition-colors">
-                      <span className="text-xl font-black text-white leading-none">{s.value}</span>
-                      <span className="text-[10px] text-slate-400 mt-0.5 font-medium">{s.label}</span>
-                    </div>
+                {/* feature pills row */}
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { icon: "📅", text: "16 живых занятий" },
+                    { icon: "👥", text: "До 15 человек" },
+                    { icon: "🎥", text: "Записи навсегда" },
+                    { icon: "📋", text: "Разбор реальных билетов" },
+                    { icon: "🤖", text: "AI-поддержка между уроками" },
+                  ].map((f, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
+                      <span>{f.icon}</span>{f.text}
+                    </span>
                   ))}
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-200 text-xs font-semibold whitespace-nowrap md:col-span-2">
-                  <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {copy.liveClass.schedule}
-                </div>
               </div>
 
-              {/* RIGHT: CTA */}
-              <div className="flex-shrink-0">
+              {/* RIGHT: CTA panel */}
+              <div className="flex-shrink-0 flex flex-col justify-center items-center gap-4 px-8 py-8 md:border-l border-white/8 bg-gradient-to-b from-blue-600/10 to-indigo-600/5 md:min-w-[230px]">
+                <div className="text-center">
+                  <p className="text-slate-500 text-[11px] uppercase tracking-wider mb-1">Ближайший поток</p>
+                  <p className="text-white font-bold text-sm">{formatTuesdayRu()}</p>
+                  <p className="text-slate-400 text-xs mt-0.5">{copy.liveClass.schedule}</p>
+                </div>
+
                 <button
                   onClick={() => { playClickSound(); navigate('/curso'); }}
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold text-sm transition-all duration-200 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-105 active:scale-95 whitespace-nowrap group"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] group"
                 >
                   {copy.liveClass.cta}
                   <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </button>
-                <p className="text-[11px] text-slate-500 text-center mt-2">📹 Запись каждого урока навсегда</p>
-              </div>
 
+                <p className="text-slate-600 text-[11px] text-center">2 месяца · 8 недель · от нуля до прав</p>
+              </div>
             </div>
           </div>
         </section>
