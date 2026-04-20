@@ -8,6 +8,7 @@ import { initTelegram } from "@/core/TelegramInit";
 import { idbGet } from "@/lib/idbKeyval";
 import { StartupCurtain } from "@/components/StartupCurtain";
 import { ThemeColorManager } from "@/components/ThemeColorManager";
+import { toast } from 'sonner';
 
 // ОПТИМИЗАЦИЯ: Toaster, Sonner, TooltipProvider перемещены в AppProviders
 // Они тянут Radix UI (@radix-ui/react-toast, @radix-ui/react-tooltip), поэтому не должны грузиться на лендинге
