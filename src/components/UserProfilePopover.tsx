@@ -90,11 +90,12 @@ type NotificationsApi = ReturnType<typeof useNotifications>;
 interface UserProfilePopoverProps {
   notificationsApi: NotificationsApi;
   onOpenNotifications?: () => void;
+  compact?: boolean;
 }
 
 
 
-export const UserProfilePopover = memo(function UserProfilePopover({ notificationsApi, onOpenNotifications }: UserProfilePopoverProps) {
+export const UserProfilePopover = memo(function UserProfilePopover({ notificationsApi, onOpenNotifications, compact = false }: UserProfilePopoverProps) {
   const { user, profileId, logout, supabaseUser, platform } = useUserContext();
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
