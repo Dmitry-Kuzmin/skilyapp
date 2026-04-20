@@ -709,6 +709,7 @@ const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
               : 'max-height 0.25s cubic-bezier(0.4,0,0.6,1), opacity 0.15s ease',
           }}
         >
+          {dbStreams && hasMore && (
               <div className="p-3 grid grid-cols-1 gap-1.5">
                 <div className="text-xs text-zinc-500 font-medium px-2 py-1 uppercase tracking-widest mb-1">
                   План запусков на ближайшее время:
