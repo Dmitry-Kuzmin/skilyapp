@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from "next-themes";
+import { subscribePageBackground } from '@/lib/pageTheme';
 
 /**
  * ThemeColorManager (Chameleon Protocol v8 — Dynamic Theme Support)
