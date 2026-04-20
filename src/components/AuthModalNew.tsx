@@ -425,7 +425,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     if (isIOS) return 'Face ID';
     if (isMac) return 'Touch ID';
     if (isAndroid) return 'Биометрия';
-    if (isWindows) return 'Windows Hello';
+    if (isWindows) return 'Win Hello';
     return 'Биометрия';
   };
 
