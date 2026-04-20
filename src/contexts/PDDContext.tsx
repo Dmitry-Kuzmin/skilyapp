@@ -36,26 +36,21 @@ export function PDDProvider({ children }: { children: ReactNode }) {
     return 'B';
   });
 
-  // Загружаем сохранённые предпочтения из profileData при появлении
+  // Sync preferences from profile — only if user explicitly completed onboarding.
+  // preferred_country has DB default 'russia', so we must not trust it without onboarding_completed_at.
   useEffect(() => {
-    if (profileData?.preferred_country && profileData?.preferred_license_category) {
-      console.log('[PDDContext] Loading preferences from profile:', {
-        country: profileData.preferred_country,
-        category: profileData.preferred_license_category
-      });
-
-      // Normalize country code (ES -> spain, RU -> russia)
+    const onboardingCompleted = (profileData as any)?.settings?.onboarding_completed_at;
+    if (profileData?.preferred_country && profileData?.preferred_license_category && onboardingCompleted) {
       let normalizedCountry = profileData.preferred_country.toLowerCase();
       if (normalizedCountry === 'es') normalizedCountry = 'spain';
       if (normalizedCountry === 'ru') normalizedCountry = 'russia';
 
       setSelectedCountryState(normalizedCountry as CountryCode);
       setSelectedCategoryState(profileData.preferred_license_category as LicenseCategory);
-      // Обновляем localStorage чтобы синхронизировать
       localStorage.setItem('pdd_selected_country', normalizedCountry);
       localStorage.setItem('pdd_selected_category', profileData.preferred_license_category);
     }
-  }, [profileData?.preferred_country, profileData?.preferred_license_category]);
+  }, [profileData?.preferred_country, profileData?.preferred_license_category, (profileData as any)?.settings?.onboarding_completed_at]);
 
   // Синхронизируем с localStorage
   useEffect(() => {
