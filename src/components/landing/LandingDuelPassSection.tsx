@@ -72,7 +72,7 @@ export const LandingDuelPassSection: React.FC<LandingDuelPassSectionProps> = ({ 
 
                     <div className="inline-flex items-center gap-2 mb-4 justify-center lg:justify-end">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-colors border ${activeMode === 'pvp' ? 'bg-orange-500/20 text-orange-400 border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)]' : 'bg-slate-800 text-slate-500 border-slate-700'}`}>
-                            {language === 'ru' ? 'Мультиплеер' : 'Multiplayer'}
+                            {language === 'ru' ? 'Мультиплеер' : language === 'es' ? 'Multijugador' : 'Multiplayer'}
                         </span>
                     </div>
                     <h3 className={`text-4xl lg:text-5xl font-black mb-6 leading-tight transition-colors duration-300 ${activeMode === 'pvp' ? 'text-orange-400 drop-shadow-[0_0_20px_rgba(249,115,22,0.5)]' : 'text-slate-700 group-hover:text-slate-500'}`}>
