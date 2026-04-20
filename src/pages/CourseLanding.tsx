@@ -929,9 +929,8 @@ const CourseLanding = () => {
           "relative z-50 flex items-center justify-between w-full px-6 py-6 md:px-10 max-w-[1325px] mx-auto transition-all duration-700",
           heroReady ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-6"
         )}>
-          <a href="/" className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white/90 hover:text-white transition-colors">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-sm font-black shadow-lg shadow-blue-500/20 text-white">S</div>
-            Skilyapp
+          <a href="/">
+            <LandingLogo variant="bold" theme="dark" showText />
           </a>
 
           <div className="flex items-center gap-4">
