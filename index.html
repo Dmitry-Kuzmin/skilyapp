@@ -498,26 +498,6 @@
       color: #d4d4d8
     }
   </style>
-  <!-- Polyfill для неблокирующей загрузки CSS в старых браузерах -->
-  <script>
-      /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
-      (function (w) {
-        "use strict"; if (!w.loadCSS) { w.loadCSS = function () { } }
-        var loadCSS = function (href, before, media) {
-          var doc = w.document; var ss = doc.createElement("link"); var ref; if (before) { ref = before } else { var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes; ref = refs[refs.length - 1] }
-          var sheets = doc.styleSheets; ss.rel = "stylesheet"; ss.href = href; ss.media = "only x"; function ready(cb) {
-            if (doc.body) { return cb() }
-            setTimeout(function () { ready(cb) })
-          }
-          ready(function () { ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling) }); var onloadcssdefined = function (cb) {
-            var resolvedHref = ss.href; var i = sheets.length; while (i--) { if (sheets[i].href === resolvedHref) { return cb() } }
-            setTimeout(function () { onloadcssdefined(cb) })
-          }; function onload() { ss.onload = null; ss.media = media || "all" }
-          if (ss.addEventListener) { ss.addEventListener("load", onload) } ss.onloadcssdefined = onloadcssdefined; onloadcssdefined(onload); return ss
-        }
-        w.loadCSS = loadCSS
-      })(typeof global !== "undefined" ? global : this);
-  </script>
 
   <!-- AdsGram SDK загружается динамически в src/lib/adsgram.ts -->
 
