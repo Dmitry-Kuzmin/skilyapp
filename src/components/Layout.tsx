@@ -500,7 +500,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
               </div>
             )}
 
-            <div className="grid grid-cols-5 px-1 py-1 flex-shrink-0">
+            <div className="grid grid-cols-5 px-1 py-0 flex-shrink-0">
               {navigation.map((item) => (
                 <NavItem key={item.name} item={item} currentPath={location.pathname} navigate={navigate} />
               ))}
