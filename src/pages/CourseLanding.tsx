@@ -699,15 +699,16 @@ const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
         </div>
 
         {/* Expanded list of streams */}
-        <AnimatePresence>
-          {isOpen && hasMore && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              className="border-t border-white/5 bg-black/40 overflow-hidden"
-            >
+        <div
+          className="border-t border-white/5 bg-black/40 overflow-hidden"
+          style={{
+            maxHeight: isOpen && hasMore ? '600px' : '0',
+            opacity: isOpen && hasMore ? 1 : 0,
+            transition: isOpen && hasMore
+              ? 'max-height 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.2s ease'
+              : 'max-height 0.25s cubic-bezier(0.4,0,0.6,1), opacity 0.15s ease',
+          }}
+        >
               <div className="p-3 grid grid-cols-1 gap-1.5">
                 <div className="text-xs text-zinc-500 font-medium px-2 py-1 uppercase tracking-widest mb-1">
                   План запусков на ближайшее время:
