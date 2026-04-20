@@ -849,9 +849,20 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
         </div>
       </nav>
 
+      {/* ─── Banner zone ────────────────────────────────────────────────────────────
+           Pre-reserve height when sessionStorage hints a banner will appear.
+           This prevents CLS: hero section never shifts after async banner load.
+           min-h-[200px] covers the tallest possible banner (mobile flex-col).
+           For users without any code — container collapses to 0, no wasted space.
+      ──────────────────────────────────────────────────────────────────────────── */}
+      <div
+        className={willShowBanner ? "relative z-40" : ""}
+        style={willShowBanner ? { minHeight: '160px' } : undefined}
+      >
+
       {/* Partner Banner (Priority over Referral) */}
       {partnerInfo && !loadingPartner && (
-        <div className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto animate-fade-in">
+        <div className="px-6 pt-6 pb-0 max-w-[1400px] mx-auto animate-fade-in">
           <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-amber-500/30 shadow-2xl">
             {/* Subtle gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-yellow-500/10 pointer-events-none" />
