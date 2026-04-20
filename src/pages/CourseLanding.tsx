@@ -773,6 +773,7 @@ const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
                   );
                 })}
               </div>
+          )}
         </div>
       </div>
     </div>
