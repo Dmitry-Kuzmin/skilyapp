@@ -506,7 +506,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
               ))}
 
               {/* Profile/Login Icon */}
-              <div className="flex flex-col items-center justify-center gap-0.5 py-2 px-3">
+              <div className="flex flex-col items-center justify-center gap-0.5 py-1.5 px-3">
                 {isAuthenticated ? (
                   <Suspense fallback={null}>
                     <UserProfilePopover
