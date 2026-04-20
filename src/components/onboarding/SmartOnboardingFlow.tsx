@@ -190,21 +190,16 @@ export const SmartOnboardingFlow: React.FC = () => {
             const urlParams = new URLSearchParams(window.location.search);
             const forceOnboarding = urlParams.get('onboarding') === 'true';
 
-            // Fast check: localStorage flags
+            // Fast check: only trust explicit onboarding completion flag
             if (!forceOnboarding) {
                 const localDone = localStorage.getItem('pdd_onboarding_completed') === 'true';
                 if (localDone) {
                     setIsVisible(false);
                     return;
                 }
-                // Also check legacy: both country + category saved
-                const savedCountry = localStorage.getItem('pdd_selected_country');
-                const savedCategory = localStorage.getItem('pdd_selected_category');
-                if (savedCountry && savedCategory) {
-                    localStorage.setItem('pdd_onboarding_completed', 'true');
-                    setIsVisible(false);
-                    return;
-                }
+                // NOTE: We intentionally do NOT check pdd_selected_country/category in localStorage here
+                // because PDDContext always writes defaults to localStorage on mount, which would
+                // cause the onboarding to be incorrectly skipped for new users.
             }
 
             if (!profileId && !forceOnboarding) return;
