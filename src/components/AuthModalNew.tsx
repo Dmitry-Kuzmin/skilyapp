@@ -74,7 +74,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
     const checkPasskey = async () => {
       const supported = isPasskeySupported();
       const available = await isPlatformAuthenticatorAvailable();
-      setIsPasskeyAvailable(supported && available);
+      // Only show if device supports biometrics AND user has registered a passkey here before
+      setIsPasskeyAvailable(supported && available && hasPasskeyOnDevice());
     };
     checkPasskey();
   }, []);
