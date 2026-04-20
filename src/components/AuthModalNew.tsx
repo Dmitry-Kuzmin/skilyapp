@@ -416,18 +416,17 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
   };
 
   const getPasskeyLabel = () => {
-    // Для обычного пользователя "Passkey" – это непонятный термин.
-    // Используем понятные названия: Face ID / Touch ID / Отпечаток
     const ua = navigator.userAgent.toLowerCase();
-    const isMac = /macintosh|macintel|macppc|mac68k/.test(ua);
     const isIOS = /iphone|ipad|ipod/.test(ua);
+    const isMac = /macintosh|macintel|macppc|mac68k/.test(ua);
     const isAndroid = /android/.test(ua);
+    const isWindows = /windows/.test(ua);
 
     if (isIOS) return 'Face ID';
     if (isMac) return 'Touch ID';
-    if (isAndroid) return 'Touch ID';
-
-    return 'Windows Hello';
+    if (isAndroid) return 'Биометрия';
+    if (isWindows) return 'Windows Hello';
+    return 'Биометрия';
   };
 
   const handleBackToEmail = useCallback(() => {
