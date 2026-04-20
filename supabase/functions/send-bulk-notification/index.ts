@@ -32,9 +32,7 @@ function buildEmailHtml(): string {
           <!-- Logo -->
           <tr>
             <td align="center" style="padding-bottom:28px;">
-              <div style="width:64px;height:64px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
-                <img src="https://skilyapp.com/email-assets/skily-logo.png" alt="Skily" width="64" height="64" style="display:block;border-radius:16px;" />
-              </div>
+              <img src="https://skilyapp.com/email-assets/skily-logo.png" alt="Skily" width="64" height="64" style="display:block;border-radius:16px;margin:0 auto 12px;" />
               <div style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;">Skily</div>
             </td>
           </tr>
@@ -46,7 +44,7 @@ function buildEmailHtml(): string {
 
                 <!-- Green top bar -->
                 <tr>
-                  <td style="height:4px;background:linear-gradient(90deg,#10b981,#3b82f6);border-radius:20px 20px 0 0;"></td>
+                  <td style="height:4px;background:linear-gradient(90deg,#10b981,#3b82f6);"></td>
                 </tr>
 
                 <!-- Content -->
@@ -55,28 +53,34 @@ function buildEmailHtml(): string {
 
                     <!-- Badge -->
                     <div style="display:inline-block;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:20px;padding:6px 14px;margin-bottom:20px;">
-                      <span style="color:#10b981;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">✅ Обновление</span>
+                      <span style="color:#10b981;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">✅ Обновление · Actualización</span>
                     </div>
 
-                    <!-- Title -->
-                    <h1 style="margin:0 0 16px;font-size:26px;font-weight:800;color:#ffffff;line-height:1.2;letter-spacing:-0.3px;">
-                      Починили — теперь<br>всё работает правильно
+                    <!-- RU Title + text -->
+                    <h1 style="margin:0 0 12px;font-size:24px;font-weight:800;color:#ffffff;line-height:1.2;">
+                      Починили — теперь всё работает
                     </h1>
+                    <p style="margin:0 0 24px;font-size:15px;color:#94a3b8;line-height:1.6;">
+                      Если ты видел вопросы <strong style="color:#f8fafc;">ПДД России</strong> вместо DGT Испании — это был баг. Исправили. Теперь в приложении только <strong style="color:#f8fafc;">экзамен DGT</strong> — можно учиться.
+                    </p>
 
-                    <!-- Body text -->
-                    <p style="margin:0 0 12px;font-size:15px;color:#94a3b8;line-height:1.6;">
-                      Если раньше в приложении ты видел вопросы <strong style="color:#f8fafc;">ПДД России</strong> вместо испанского DGT — это был баг. Мы его исправили.
-                    </p>
-                    <p style="margin:0 0 28px;font-size:15px;color:#94a3b8;line-height:1.6;">
-                      Теперь все тесты, темы и вопросы — только <strong style="color:#f8fafc;">экзамен DGT Испании</strong>. Самое время начать готовиться.
-                    </p>
+                    <!-- Divider with ES label -->
+                    <div style="border-top:1px solid rgba(255,255,255,0.07);margin-bottom:24px;padding-top:24px;">
+                      <!-- ES Title + text -->
+                      <h2 style="margin:0 0 12px;font-size:22px;font-weight:800;color:#ffffff;line-height:1.2;">
+                        Corregido — ya todo funciona
+                      </h2>
+                      <p style="margin:0 0 28px;font-size:15px;color:#94a3b8;line-height:1.6;">
+                        Si veías preguntas de tráfico de Rusia en lugar del DGT — era un error nuestro. Ya está corregido. Ahora la app tiene <strong style="color:#f8fafc;">solo el examen DGT España</strong>.
+                      </p>
+                    </div>
 
                     <!-- CTA button -->
                     <table border="0" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="border-radius:12px;background:linear-gradient(135deg,#3b82f6,#6366f1);">
-                          <a href="https://skilyapp.com" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:-0.1px;">
-                            Начать заниматься →
+                          <a href="https://skilyapp.com" style="display:inline-block;padding:14px 32px;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">
+                            Начать заниматься · Empezar →
                           </a>
                         </td>
                       </tr>
@@ -85,18 +89,11 @@ function buildEmailHtml(): string {
                   </td>
                 </tr>
 
-                <!-- Divider -->
-                <tr>
-                  <td style="padding:0 36px;">
-                    <div style="height:1px;background:rgba(255,255,255,0.07);"></div>
-                  </td>
-                </tr>
-
                 <!-- Footer inside card -->
                 <tr>
-                  <td style="padding:20px 36px;text-align:center;">
+                  <td style="padding:16px 36px;border-top:1px solid rgba(255,255,255,0.07);text-align:center;">
                     <p style="margin:0;font-size:12px;color:#475569;">
-                      Skily · Подготовка к экзамену DGT · <a href="https://skilyapp.com" style="color:#6366f1;text-decoration:none;">skilyapp.com</a>
+                      Skily · DGT exam prep · <a href="https://skilyapp.com" style="color:#6366f1;text-decoration:none;">skilyapp.com</a>
                     </p>
                   </td>
                 </tr>
@@ -107,8 +104,8 @@ function buildEmailHtml(): string {
 
           <!-- Bottom note -->
           <tr>
-            <td align="center" style="padding-top:24px;">
-              <p style="margin:0;font-size:11px;color:#334155;">Ты получил это письмо, потому что зарегистрирован в Skily.</p>
+            <td align="center" style="padding-top:20px;">
+              <p style="margin:0;font-size:11px;color:#334155;">Ты получил это письмо, потому что зарегистрирован в Skily · You received this because you signed up for Skily.</p>
             </td>
           </tr>
 
