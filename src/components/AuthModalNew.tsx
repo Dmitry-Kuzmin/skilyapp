@@ -576,7 +576,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 resendCooldown={resendCooldown}
                 showResendRecovery={showResendRecovery}
                 onBack={() => step === 'check-email' ? setStep('email') : setStep('password-existing')}
-                onResend={() => step === 'check-email' ? handleSendMagicLink(false) : handlePasswordRecovery()}
+                onResend={() => step === 'check-email' ? handleSendMagicLink(isNewUserForOtp) : handlePasswordRecovery()}
                 onChangeEmail={handleBackToEmail}
               />
             )}
