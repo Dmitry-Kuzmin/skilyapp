@@ -1219,7 +1219,9 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
                     <h3 className="font-bold text-xl text-white">{copy.aiSection.telegramTitle}</h3>
                   </div>
                   <div className="hidden sm:block">
-                    <OnlinePlayers baseCount={8430} className="scale-75 origin-right" />
+                    <React.Suspense fallback={<OnlinePlayersSkeleton />}>
+                      <OnlinePlayers baseCount={8430} className="scale-75 origin-right" />
+                    </React.Suspense>
                   </div>
                 </div>
                 <p className="text-slate-400 text-sm mb-6 leading-relaxed max-w-[280px]">{copy.aiSection.telegramDescription}</p>
