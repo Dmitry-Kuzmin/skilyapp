@@ -772,9 +772,7 @@ const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
                   );
                 })}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </div>
       </div>
     </div>
   );
