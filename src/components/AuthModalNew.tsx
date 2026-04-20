@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { openTelegramLogin, preinitTelegramLogin } from '@/lib/telegram-oidc';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { checkUserAuthMethod, getClientIP } from '@/lib/auth-utils';
-import { isPasskeySupported, isPlatformAuthenticatorAvailable } from '@/lib/passkey';
+import { isPasskeySupported, isPlatformAuthenticatorAvailable, hasPasskeyOnDevice } from '@/lib/passkey';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTelegram } from '@/contexts/TelegramContext';
 import { useNavigate } from 'react-router-dom';
