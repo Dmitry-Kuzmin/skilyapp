@@ -996,22 +996,14 @@ const CourseLanding = () => {
                 >
                   Формат курса
                 </button>
-                <button 
-                  onClick={() => { 
-                    setMobileMenuOpen(false); 
-                    const el = document.getElementById('pricing');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                <button
+                  onClick={() => { setMobileMenuOpen(false); smoothScrollTo('pricing'); }}
                   className="text-left w-full hover:text-white transition-colors"
                 >
                   Тарифы
                 </button>
-                <button 
-                  onClick={() => { 
-                    setMobileMenuOpen(false); 
-                    const el = document.getElementById('faq');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                <button
+                  onClick={() => { setMobileMenuOpen(false); smoothScrollTo('faq'); }}
                   className="text-left w-full hover:text-white transition-colors"
                 >
                   Частые вопросы
