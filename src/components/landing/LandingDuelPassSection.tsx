@@ -212,7 +212,7 @@ export const LandingDuelPassSection: React.FC<LandingDuelPassSectionProps> = ({ 
                         Blitz Mode
                     </h3>
                     <p className={`text-lg mb-8 max-w-sm transition-colors duration-300 ${activeMode === 'blitz' ? 'text-cyan-100/80 font-medium' : 'text-slate-600'}`}>
-                        {language === 'ru' ? '5 секунд на вопрос. Никаких прав на ошибку. Только хардкор.' : '5 seconds per question. No room for error. Pure hardcore.'}
+                        {language === 'ru' ? '5 секунд на вопрос. Никаких прав на ошибку. Только хардкор.' : language === 'es' ? '5 segundos por pregunta. Sin margen de error. Puro hardcore.' : '5 seconds per question. No room for error. Pure hardcore.'}
                     </p>
 
                     {/* Active Indicator Line - Pulsing for urgency */}
