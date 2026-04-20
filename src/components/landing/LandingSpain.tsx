@@ -1364,64 +1364,129 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
 
       {/* LIVE CLASS SECTION - RUSSIAN ONLY */}
       {language === 'ru' && (
-        <section className="relative z-10 px-6 py-10 max-w-[1500px] mx-auto">
-          <div className="rounded-2xl overflow-hidden border border-white/8 bg-[#0d1525]">
-            {/* top accent line */}
-            <div className="h-[3px] bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600" />
+        <section className="relative z-10 px-6 py-12 max-w-[1500px] mx-auto">
+          <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-gradient-to-br from-[#0a1120] via-[#0d1525] to-[#0a1120]">
+            {/* Decorative grid pattern */}
+            <div
+              className="absolute inset-0 opacity-[0.025] pointer-events-none"
+              style={{
+                backgroundImage: 'linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)',
+                backgroundSize: '40px 40px'
+              }}
+            />
+            {/* Glow blobs */}
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-            <div className="flex flex-col md:flex-row">
+            <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_380px]">
               {/* LEFT: main content */}
-              <div className="flex-1 px-8 py-8">
-                {/* badge */}
-                <div className="inline-flex items-center gap-2 mb-5 px-3 py-1 rounded-md bg-blue-500/10 border border-blue-500/20">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-60"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-                  </span>
-                  <span className="text-cyan-300 text-[11px] font-bold tracking-widest uppercase">{copy.liveClass.badge}</span>
+              <div className="px-8 py-10 md:px-12 md:py-12">
+                {/* badge row */}
+                <div className="flex flex-wrap items-center gap-2 mb-6">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-400/30">
+                    <Radio className="w-3.5 h-3.5 text-cyan-300" strokeWidth={2.5} />
+                    <span className="text-cyan-200 text-[10px] font-black tracking-[0.15em] uppercase">{copy.liveClass.badge}</span>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25">
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400"></span>
+                    </span>
+                    <span className="text-emerald-300 text-[10px] font-bold tracking-wider uppercase">Набор открыт</span>
+                  </div>
                 </div>
 
                 {/* title */}
-                <h3 className="text-2xl md:text-3xl font-black text-white mb-1 leading-tight">
+                <h3 className="text-3xl md:text-[40px] font-black text-white leading-[1.05] tracking-tight mb-3">
                   {copy.liveClass.title}
                 </h3>
-                <p className="text-blue-400 font-semibold text-sm mb-5">{copy.liveClass.subtitle}</p>
 
-                {/* feature pills row */}
-                <div className="flex flex-wrap gap-2">
+                {/* subtitle */}
+                <p className="text-slate-400 text-base md:text-lg mb-8 max-w-xl leading-relaxed">
+                  <span className="text-white font-bold">{copy.liveClass.subtitle}.</span>{' '}
+                  Живые занятия в Zoom, разбор реальных билетов DGT, персональная обратная связь от преподавателя.
+                </p>
+
+                {/* Features grid - 2 columns with colored icon containers */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
                   {[
-                    { icon: "📅", text: "16 живых занятий" },
-                    { icon: "👥", text: "До 15 человек" },
-                    { icon: "🎥", text: "Записи навсегда" },
-                    { icon: "📋", text: "Разбор реальных билетов" },
-                    { icon: "🤖", text: "AI-поддержка между уроками" },
-                  ].map((f, i) => (
-                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-xs font-medium">
-                      <span>{f.icon}</span>{f.text}
-                    </span>
-                  ))}
+                    { Icon: Video, text: "16 живых уроков в Zoom", color: "blue" },
+                    { Icon: UsersRound, text: "Мини-группы до 15 человек", color: "cyan" },
+                    { Icon: PlayCircle, text: "Записи доступны навсегда", color: "indigo" },
+                    { Icon: FileText, text: "Разбор реальных билетов DGT", color: "purple" },
+                    { Icon: Bot, text: "AI-поддержка между уроками", color: "emerald" },
+                    { Icon: Award, text: "Сертификат о прохождении", color: "amber" },
+                  ].map((f, i) => {
+                    const colorMap: Record<string, string> = {
+                      blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+                      cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+                      indigo: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+                      purple: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+                      emerald: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+                      amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+                    };
+                    return (
+                      <div key={i} className="flex items-center gap-3 group">
+                        <div className={cn(
+                          "flex-shrink-0 w-10 h-10 rounded-xl border flex items-center justify-center transition-transform group-hover:scale-110",
+                          colorMap[f.color]
+                        )}>
+                          <f.Icon className="w-5 h-5" strokeWidth={2} />
+                        </div>
+                        <span className="text-slate-200 text-sm font-medium">{f.text}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* RIGHT: CTA panel */}
-              <div className="flex-shrink-0 flex flex-col justify-center items-center gap-4 px-8 py-8 md:border-l border-white/8 bg-gradient-to-b from-blue-600/10 to-indigo-600/5 md:min-w-[230px]">
-                <div className="text-center">
-                  <p className="text-slate-500 text-[11px] uppercase tracking-wider mb-1">Ближайший поток</p>
-                  <p className="text-white font-bold text-sm">{formatTuesdayRu()}</p>
-                  <p className="text-slate-400 text-xs mt-0.5">{copy.liveClass.schedule}</p>
+              {/* RIGHT: CTA card */}
+              <div className="relative flex flex-col justify-center p-8 md:p-10 lg:border-l border-white/8 bg-gradient-to-br from-blue-950/40 via-slate-950/60 to-indigo-950/30">
+                {/* Decorative diploma icon */}
+                <div className="absolute top-8 right-8 opacity-10">
+                  <GraduationCap className="w-20 h-20 text-blue-400" strokeWidth={1.5} />
                 </div>
 
+                {/* Next stream info */}
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CalendarDays className="w-4 h-4 text-blue-400" strokeWidth={2.5} />
+                    <span className="text-blue-300 text-[11px] font-bold uppercase tracking-[0.15em]">Ближайший поток</span>
+                  </div>
+                  <p className="text-white text-2xl font-black leading-tight mb-1">{formatTuesdayRu()}</p>
+                  <p className="text-slate-400 text-sm font-medium">{copy.liveClass.schedule}</p>
+                </div>
+
+                {/* Stats row */}
+                <div className="grid grid-cols-2 gap-3 mb-6 pb-6 border-b border-white/8">
+                  <div>
+                    <p className="text-white text-2xl font-black">8</p>
+                    <p className="text-slate-500 text-xs font-medium">недель курса</p>
+                  </div>
+                  <div>
+                    <p className="text-white text-2xl font-black">16</p>
+                    <p className="text-slate-500 text-xs font-medium">живых занятий</p>
+                  </div>
+                </div>
+
+                {/* CTA button */}
                 <button
                   onClick={() => { playClickSound(); navigate('/curso'); }}
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-sm transition-all duration-200 hover:shadow-lg hover:shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98] group"
+                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-base transition-all duration-200 shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/40 hover:scale-[1.02] active:scale-[0.98] group mb-3"
                 >
                   {copy.liveClass.cta}
-                  <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" strokeWidth={2.5} />
                 </button>
 
-                <p className="text-slate-600 text-[11px] text-center">2 месяца · 8 недель · от нуля до прав</p>
+                {/* Social proof */}
+                <div className="flex items-center justify-center gap-2 text-slate-500 text-xs">
+                  <div className="flex -space-x-2">
+                    <div className="w-6 h-6 rounded-full border-2 border-slate-900 bg-gradient-to-br from-blue-400 to-blue-600" />
+                    <div className="w-6 h-6 rounded-full border-2 border-slate-900 bg-gradient-to-br from-cyan-400 to-cyan-600" />
+                    <div className="w-6 h-6 rounded-full border-2 border-slate-900 bg-gradient-to-br from-indigo-400 to-indigo-600" />
+                  </div>
+                  <span className="font-medium">127 учеников уже на курсе</span>
+                </div>
               </div>
             </div>
           </div>
