@@ -228,12 +228,12 @@ export const SmartOnboardingFlow: React.FC = () => {
             if (!error && data) {
                 existingSettingsRef.current = data.settings || {};
 
-                const hasCountry = data.preferred_country;
                 const hasCategory = data.settings?.license_category || data.preferred_license_category;
                 const completedAt = data.settings?.onboarding_completed_at;
 
-                if (hasCountry && (hasCategory || completedAt)) {
-                    // Existing user — sync to localStorage and skip
+                // Only skip onboarding if user explicitly completed it (onboarding_completed_at is set).
+                // preferred_country has DB default 'russia', so it can't be used as a reliable signal.
+                if (completedAt) {
                     localStorage.setItem('pdd_selected_country', data.preferred_country);
                     if (hasCategory) localStorage.setItem('pdd_selected_category', hasCategory);
                     localStorage.setItem('pdd_onboarding_completed', 'true');
