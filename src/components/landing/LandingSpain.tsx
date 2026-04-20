@@ -49,12 +49,28 @@ import {
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
 import { StartEngineButton } from "./StartEngineButton";
-import { OnlinePlayers } from "@/components/shared/OnlinePlayers";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "./LanguageSelector";
 import { CountrySelector } from "./CountrySelector";
 import { LandingGameModesShowcase } from "./LandingGameModesShowcase";
+// Lazy-load components that pull heavy dependencies (framer-motion, NumberTicker)
+// to keep the landing page critical bundle small
+const OnlinePlayers = React.lazy(() =>
+  import('@/components/shared/OnlinePlayers').then(m => ({ default: m.OnlinePlayers }))
+);
 const TestimonialsSection = React.lazy(() => import("./TestimonialsSection").then(m => ({ default: m.TestimonialsSection })));
+
+// Skeleton fallback for OnlinePlayers — exact same height (h-9) to prevent CLS
+const OnlinePlayersSkeleton = () => (
+  <div className="flex flex-row items-center gap-3 h-9" aria-hidden>
+    <div className="flex -space-x-2.5">
+      {[0, 1, 2, 3].map(i => (
+        <div key={i} className="h-8 w-8 rounded-full bg-slate-800/40 ring-1 ring-white/5" />
+      ))}
+    </div>
+    <div className="h-9 w-28 rounded-full bg-slate-800/40" />
+  </div>
+);
 
 const SPAIN_TESTIMONIALS = [
   {
