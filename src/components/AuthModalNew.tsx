@@ -299,7 +299,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       const { data, error } = await supabase.auth.verifyOtp({
         email,
         token,
-        type: isNewUserForOtp ? 'signup' : 'magiclink'
+        type: isNewUserForOtp ? 'signup' : 'email'
       });
 
       if (error) throw error;
