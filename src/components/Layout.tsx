@@ -84,7 +84,7 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
         zIndex: 100
       }}
     >
-      <Icon className="w-[22px] h-[22px]" strokeWidth={isActive ? 2.5 : 1.75} />
+      <Icon className="w-5 h-5" strokeWidth={isActive ? 2.25 : 1.75} />
       <span className={cn("text-[10px] leading-tight", isActive ? "font-semibold" : "font-medium")}>{item.name}</span>
       {isDuel && (
         <motion.div
