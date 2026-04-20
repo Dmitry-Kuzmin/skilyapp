@@ -563,7 +563,9 @@ const RotatingHeroBadge = ({ stream }: { stream?: StreamInfo | null }) => {
       className="relative flex justify-center items-center h-12 w-full mb-6 cursor-pointer"
       onClick={() => {
         const el = document.getElementById('pricing');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        if (!el) return;
+        const top = el.getBoundingClientRect().top + window.scrollY - 72;
+        window.scrollTo({ top, behavior: 'smooth' });
       }}
     >
       <AnimatePresence mode="wait">
