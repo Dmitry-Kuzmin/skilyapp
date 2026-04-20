@@ -983,6 +983,8 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
         </div>
       )}
 
+      </div>{/* end banner zone */}
+
       {/* HERO SECTION */}
       <section className="relative z-10 px-6 pt-12 pb-8 md:pt-20 md:pb-12 max-w-[1400px] mx-auto flex flex-col items-center text-center min-h-[80vh]">
         {/* Badge с электрическим синим */}
