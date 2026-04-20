@@ -7,7 +7,7 @@ import { LandingDuelDemo } from './LandingDuelDemo';
 import { LandingBlitzDemo } from './LandingBlitzDemo';
 
 interface LandingDuelPassSectionProps {
-    language: 'ru' | 'en';
+    language: 'ru' | 'en' | 'es' | string;
     copy: any;
 }
 
