@@ -104,6 +104,121 @@ const SPAIN_TESTIMONIALS = [
     role: "Italy → Madrid",
   },
 ];
+
+const SPAIN_TESTIMONIALS_RU = [
+  {
+    text: "Думал, буду учить DGT полгода. В Skily AI разбирал каждый каверзный вопрос на русском — за 6 недель сдал с первого раза.",
+    image: "https://randomuser.me/api/portraits/men/76.jpg",
+    name: "Андрей К.",
+    role: "Беларусь → Валенсия",
+  },
+  {
+    text: "Испанский у меня базовый, а билеты DGT полны ловушек. Приложение объяснило каждую формулировку по-русски. Сдала без единой пересдачи.",
+    image: "https://randomuser.me/api/portraits/women/65.jpg",
+    name: "Елена С.",
+    role: "Россия → Аликанте",
+  },
+  {
+    text: "Правила круговых перекрёстков путал месяцами. AI показал реальный пример прямо на карте — больше ни разу не ошибся.",
+    image: "https://randomuser.me/api/portraits/men/64.jpg",
+    name: "Дмитрий П.",
+    role: "Россия → Малага",
+  },
+  {
+    text: "Готовилась в декрете, по 15 минут в день. Платформа сама показывала слабые темы. За месяц закрыла весь материал и сдала DGT.",
+    image: "https://randomuser.me/api/portraits/women/39.jpg",
+    name: "Ольга М.",
+    role: "Украина → Барселона",
+  },
+  {
+    text: "Тонул в бумагах при переезде и параллельно готовился. Куратор помог с документами, я просто пришёл и сдал.",
+    image: "https://randomuser.me/api/portraits/men/91.jpg",
+    name: "Иван Т.",
+    role: "Россия → Мадрид",
+  },
+  {
+    text: "Дуэли затянули: соревнуешься с другими и незаметно запоминаешь всё. Сдал DGT — теперь вызываю друзей.",
+    image: "https://randomuser.me/api/portraits/men/19.jpg",
+    name: "Никита В.",
+    role: "Казахстан → Севилья",
+  },
+  {
+    text: "Учился по аудио в машине. Дорожные знаки теперь читаются автоматически. Завалил дважды раньше — в третий раз прошёл.",
+    image: "https://randomuser.me/api/portraits/men/87.jpg",
+    name: "Артём Р.",
+    role: "Молдова → Барселона",
+  },
+  {
+    text: "20 минут каждое утро — и через 6 недель готова. Никакой зубрёжки, просто привычка. Сдала с первого раза.",
+    image: "https://randomuser.me/api/portraits/women/73.jpg",
+    name: "Лаура Б.",
+    role: "Россия → Мадрид",
+  },
+  {
+    text: "Мне за 50, думал — не осилю. Объяснения такие понятные, что всё запомнилось само. Сдал без пересдачи.",
+    image: "https://randomuser.me/api/portraits/men/72.jpg",
+    name: "Владимир Г.",
+    role: "Россия → Валенсия",
+  },
+];
+
+const SPAIN_TESTIMONIALS_ES = [
+  {
+    text: "Escuchaba en modo audio mientras conducía — las señales de rotonda por fin me entraron. Fallé dos veces antes. A la tercera aprobé sin apenas sentarme a estudiar.",
+    image: "https://randomuser.me/api/portraits/women/79.jpg",
+    name: "María L.",
+    role: "Barcelona 🇪🇸",
+  },
+  {
+    text: "La tabla de clasificación me enganchó. Empecé a competir con desconocidos y eso hizo que lo memorizara todo. Aprobé y sigo en el top 10.",
+    image: "https://randomuser.me/api/portraits/men/87.jpg",
+    name: "Carlos M.",
+    role: "Argentina → Madrid",
+  },
+  {
+    text: "Estuve meses confundido con las prioridades en rotondas. La IA me lo explicó con un ejemplo real de intersección en dos minutos. Ya no me equivoco.",
+    image: "https://randomuser.me/api/portraits/women/90.jpg",
+    name: "Sophie D.",
+    role: "Francia → Sevilla",
+  },
+  {
+    text: "20 minutos al día, cada día, durante seis semanas. Sin atracones de estudio ni maratones de fin de semana. La app se convierte en hábito y el hábito funciona.",
+    image: "https://randomuser.me/api/portraits/men/91.jpg",
+    name: "John T.",
+    role: "EE.UU. → Barcelona",
+  },
+  {
+    text: "Estudié completamente solo — sin autoescuela ni profesor. Solo la app cada mañana antes del trabajo. Tardé tres meses pero aprobé a la primera.",
+    image: "https://randomuser.me/api/portraits/women/65.jpg",
+    name: "Elena S.",
+    role: "Rusia → Alicante",
+  },
+  {
+    text: "15 minutos en el almuerzo cada día. Nunca sentí que estudiaba — más bien jugaba. Aprobé al primer intento después de cinco semanas.",
+    image: "https://randomuser.me/api/portraits/women/73.jpg",
+    name: "Laura B.",
+    role: "Italia → Madrid",
+  },
+  {
+    text: "Alterné entre español e inglés según el tema. Poder estudiar en mi idioma lo hacía todo menos estresante.",
+    image: "https://randomuser.me/api/portraits/women/39.jpg",
+    name: "Yuki M.",
+    role: "Japón → Barcelona",
+  },
+  {
+    text: "Estaba ahogado en papeleo del DGT y estudiando a la vez. Mi tutor gestionó las citas y documentos — yo solo me presenté y aprobé.",
+    image: "https://randomuser.me/api/portraits/men/64.jpg",
+    name: "Dmitry P.",
+    role: "Rusia → Málaga",
+  },
+  {
+    text: "Mi español era básico y las preguntas del DGT están llenas de trampas. La app me explicó cada trampa en ruso. Aprobé sin ni una clase extra.",
+    image: "https://randomuser.me/api/portraits/men/76.jpg",
+    name: "Andrei K.",
+    role: "Bielorrusia → Valencia",
+  },
+];
+
 const LandingQuizDemo = React.lazy(() => import("./LandingQuizDemo").then(m => ({ default: m.LandingQuizDemo })));
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { useCountry } from "@/contexts/CountryContext";
