@@ -443,6 +443,14 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
   const [isStarting, setIsStarting] = useState(false);
   const [isPartnershipOpen, setIsPartnershipOpen] = useState(false);
 
+  // Синхронная проверка sessionStorage — определяем ДО первого рендера,
+  // будет ли показан партнёрский/реферальный баннер.
+  // Это нужно для pre-reservation высоты контейнера и предотвращения CLS.
+  const willShowBanner = typeof window !== 'undefined' && (
+    sessionStorage.getItem('partner_code') !== null ||
+    sessionStorage.getItem('referral_code') !== null
+  );
+
   // КРИТИЧНО: Обработка хеша #partnership для открытия портала извне (например, из консоли)
   useEffect(() => {
     const checkHash = () => {
