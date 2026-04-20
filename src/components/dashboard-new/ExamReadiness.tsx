@@ -416,52 +416,6 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
 
       </div>
 
-      {/* ── First Test CTA — shown only to new users with no data ── */}
-      {hasNoData && !showLevels && (
-        <div className="w-full mt-4 mb-1">
-          <button
-            onClick={handleFirstTest}
-            className={cn(
-              "group relative w-full overflow-hidden rounded-2xl px-5 py-4",
-              "flex items-center justify-between gap-3",
-              "border transition-all duration-300 active:scale-[0.98]",
-              isDarkTheme
-                ? "bg-gradient-to-r from-blue-600/20 to-indigo-600/20 border-blue-500/30 hover:from-blue-600/30 hover:to-indigo-600/30 hover:border-blue-400/50"
-                : "bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-400"
-            )}
-          >
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-
-            <div className="flex items-center gap-3 relative z-10">
-              <div className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110",
-                isDarkTheme ? "bg-blue-500 shadow-lg shadow-blue-500/30" : "bg-blue-500"
-              )}>
-                <Play className="w-4 h-4 text-white fill-white" />
-              </div>
-              <div className="text-left">
-                <p className={cn("text-sm font-black leading-tight", isDarkTheme ? "text-white" : "text-slate-900")}>
-                  {language === 'es' ? 'Hacer el primer test' : language === 'ru' ? 'Пройти первый тест' : 'Take first test'}
-                </p>
-                <p className={cn("text-xs mt-0.5", isDarkTheme ? "text-blue-300/80" : "text-blue-600")}>
-                  {language === 'es' ? '10 preguntas · ~5 min' : language === 'ru' ? '10 вопросов · ~5 мин' : '10 questions · ~5 min'}
-                </p>
-              </div>
-            </div>
-
-            <div className={cn(
-              "flex-shrink-0 flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full relative z-10 transition-all",
-              isDarkTheme
-                ? "bg-blue-500/20 text-blue-300 group-hover:bg-blue-500/30"
-                : "bg-blue-100 text-blue-700 group-hover:bg-blue-200"
-            )}>
-              <Zap className="w-3 h-3" />
-              {language === 'es' ? 'Empezar' : language === 'ru' ? 'Старт' : 'Start'}
-            </div>
-          </button>
-        </div>
-      )}
 
       {/* Levels Panel - плавное появление с Split View */}
       <div className={cn(
