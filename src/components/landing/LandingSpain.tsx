@@ -36,7 +36,15 @@ import {
   Headset,
   Heart,
   MapPin,
-  Rocket
+  Rocket,
+  CalendarDays,
+  Video,
+  GraduationCap,
+  Bot,
+  UsersRound,
+  PlayCircle,
+  Radio,
+  Award
 } from "lucide-react";
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
