@@ -1364,7 +1364,11 @@ All colors MUST be HSL.
     right: var(--app-safe-right);
     padding-bottom: calc(var(--app-safe-bottom) + var(--app-content-bottom));
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    /* Clean professional nav: glassy background + subtle top separator */
+    background: hsl(var(--background) / 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid hsl(var(--border) / 0.35);
   }
 
   /* Orientation-based layout */
@@ -1376,26 +1380,6 @@ All colors MUST be HSL.
     .telegram-main-content {
       padding-bottom: 1rem;
     }
-  }
-
-  /* Enhanced navigation item animation */
-  .app-bottom-nav a.active,
-  .app-bottom-nav button.active {
-    position: relative;
-  }
-
-  .app-bottom-nav a.active::before,
-  .app-bottom-nav button.active::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40px;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
-    border-radius: 0 0 3px 3px;
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   /* Device-specific optimizations */
