@@ -92,7 +92,7 @@ export const es = {
 
   // Auth Modal
   auth: {
-    identification: "Identificación",
+    identification: "Entrar o crear cuenta",
     welcomeBack: "Bienvenido de nuevo",
     welcomeBackWithName: "Bienvenido de nuevo, {{name}}",
     createAccount: "Crear cuenta",
