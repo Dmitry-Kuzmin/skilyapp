@@ -322,6 +322,11 @@ export const initTelegramApp = () => {
       webApp.ready();
       webApp.expand();
 
+      // Fullscreen mode (Bot API 8.0+) — content extends behind Dynamic Island
+      if (typeof (webApp as any).requestFullscreen === 'function') {
+        try { (webApp as any).requestFullscreen(); } catch { /* not critical */ }
+      }
+
       // Отключаем вертикальные свайпы чтобы приложение не сворачивалось при скролле
       if (typeof webApp.disableVerticalSwipes === 'function') {
         webApp.disableVerticalSwipes();
