@@ -491,7 +491,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           >
             {/* Mobile Wallet Widget - компактная версия для мобильных */}
             {isAuthenticated && (
-              <div className="px-3 py-2 border-b border-border/50 bg-card/50 flex-shrink-0 flex flex-wrap items-center gap-2">
+              <div className="px-3 pt-2 pb-1 border-b border-border/30 flex-shrink-0 flex flex-wrap items-center gap-2">
                 <WalletWidget />
                 <AchievementsWidget variant="mobile" />
                 {/* Active Duel Widget для мобильных */}
