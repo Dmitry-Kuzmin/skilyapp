@@ -936,14 +936,8 @@ const CourseLanding = () => {
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400 mr-2">
               <button onClick={scrollToHowItWorks} className="hover:text-white transition-colors">Формат курса</button>
-              <button onClick={() => {
-                const el = document.getElementById('pricing');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }} className="hover:text-white transition-colors">Тарифы</button>
-              <button onClick={() => {
-                const el = document.getElementById('faq');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }} className="hover:text-white transition-colors">FAQ</button>
+              <button onClick={() => smoothScrollTo('pricing')} className="hover:text-white transition-colors">Тарифы</button>
+              <button onClick={() => smoothScrollTo('faq')} className="hover:text-white transition-colors">FAQ</button>
             </div>
 
             <a
