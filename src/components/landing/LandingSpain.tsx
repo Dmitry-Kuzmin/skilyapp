@@ -1347,10 +1347,10 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
 
       <React.Suspense fallback={<div className="h-[200px]" />}>
         <TestimonialsSection
-          testimonials={SPAIN_TESTIMONIALS}
-          badge="Student Reviews"
-          title="Real people, real licenses"
-          subtitle="Students from 20+ countries passed their DGT exam with Skily — at their own pace, in their own language."
+          testimonials={language === 'ru' ? SPAIN_TESTIMONIALS_RU : language === 'es' ? SPAIN_TESTIMONIALS_ES : SPAIN_TESTIMONIALS}
+          badge={language === 'ru' ? 'Отзывы студентов' : language === 'es' ? 'Opiniones de estudiantes' : 'Student Reviews'}
+          title={language === 'ru' ? 'Реальные люди, реальные права' : language === 'es' ? 'Personas reales, licencias reales' : 'Real people, real licenses'}
+          subtitle={language === 'ru' ? 'Студенты из 20+ стран сдали экзамен DGT со Skily — в своём темпе, на своём языке.' : language === 'es' ? 'Estudiantes de más de 20 países aprobaron su examen DGT con Skily — a su ritmo, en su idioma.' : 'Students from 20+ countries passed their DGT exam with Skily — at their own pace, in their own language.'}
         />
       </React.Suspense>
 
