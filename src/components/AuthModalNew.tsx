@@ -279,9 +279,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       if (error) throw error;
 
       setMagicLinkState('sent');
-      // New users get a signup confirmation link (no 6-digit code) — show "check email" screen.
-      // Existing users get a magic link with a 6-digit code — show OTP input.
-      setStep(isNew ? 'check-email' : 'otp-verify');
+      setStep('otp-verify');
       setResendCooldown(60);
       if ((webApp as any)?.HapticFeedback) {
         (webApp as any).HapticFeedback.notificationOccurred('success');
