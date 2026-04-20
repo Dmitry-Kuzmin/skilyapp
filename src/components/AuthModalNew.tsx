@@ -548,7 +548,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 email={email}
                 isSubmitting={isSubmitting}
                 onVerify={handleVerifyOtp}
-                onResend={() => handleSendMagicLink(false)}
+                onResend={() => handleSendMagicLink(isNewUserForOtp)}
                 resendCooldown={resendCooldown}
                 onBackToEmail={handleBackToEmail}
               />
