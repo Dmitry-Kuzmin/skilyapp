@@ -396,9 +396,10 @@
     }(window.location))
   </script>
 
-  <!-- Preload критических ресурсов для ускорения загрузки -->
-  <!-- ОПТИМИЗАЦИЯ: Лишние preconnect удалены для PageSpeed -->
-  <!-- ОПТИМИЗАЦИЯ: noise.svg теперь локальный, preconnect к grainy-gradients удалён -->
+  <!-- Preload / preconnect критических ресурсов -->
+  <!-- Supabase: DNS + TLS разогреваем заранее — первый API-запрос после монтирования React не будет ждать хэндшейк -->
+  <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
+  <link rel="dns-prefetch" href="https://yffjnqegeiorunyvcxkn.supabase.co" />
 
   <!-- Критический CSS inline для ускорения FCP -->
   <style>
