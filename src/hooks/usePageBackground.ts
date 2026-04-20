@@ -1,17 +1,19 @@
 import { useEffect } from 'react';
-import { setPageBackground } from '@/lib/pageTheme';
 
 /**
- * Tell ThemeColorManager + Telegram the dominant background color for this page.
- * Pass null or omit to reset to the route-default.
+ * Override the ThemeColorManager background color for this specific page.
+ * On unmount, automatically resets to route-default.
  *
  * @example
+ *   // In a page component with a unique dark hero:
  *   usePageBackground('#1a1a2e');
  */
 export function usePageBackground(hex: string | null): void {
-  useEffect(() => {
-    if (!hex) return;
-    setPageBackground(hex);
-    return () => setPageBackground(null);
-  }, [hex]);
+    useEffect(() => {
+        if (!hex) return;
+        window.dispatchEvent(new CustomEvent('page-bg', { detail: hex }));
+        return () => {
+            window.dispatchEvent(new CustomEvent('page-bg', { detail: null }));
+        };
+    }, [hex]);
 }
