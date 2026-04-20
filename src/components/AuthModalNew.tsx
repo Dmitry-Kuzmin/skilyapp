@@ -60,6 +60,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
   const [displayedPassword, setDisplayedPassword] = useState('');
   const [isScrambling, setIsScrambling] = useState(false);
   const [isNewUserForOtp, setIsNewUserForOtp] = useState(false);
+  const [showPromoInput, setShowPromoInput] = useState(false);
 
 
   const { t } = useLanguage();
