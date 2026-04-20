@@ -756,10 +756,7 @@ All colors MUST be HSL.
   }
 
   .animate-bounce-slow {
-    animation: bounce 2s infinite;
-    /* Оптимизация GPU ускорения */
-    will-change: transform;
-    transform: translateZ(0);
+    /* bounce removed — clean nav style */
   }
 
   .animate-fade-in {
