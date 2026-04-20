@@ -70,7 +70,7 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
     <NavLink
       to={item.href}
       className={cn(
-        "flex flex-col items-center gap-0.5 py-2.5 px-3 transition-colors duration-200 relative select-none",
+        "flex flex-col items-center gap-0.5 py-2 px-3 transition-colors duration-200 relative select-none",
         isActive ? "text-primary" : "text-muted-foreground/60",
       )}
       end={false}
