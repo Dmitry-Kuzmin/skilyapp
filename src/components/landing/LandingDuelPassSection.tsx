@@ -79,7 +79,7 @@ export const LandingDuelPassSection: React.FC<LandingDuelPassSectionProps> = ({ 
                         PvP Arena
                     </h3>
                     <p className={`text-lg mb-8 lg:ml-auto max-w-sm transition-colors duration-300 ${activeMode === 'pvp' ? 'text-orange-100/80 font-medium' : 'text-slate-600'}`}>
-                        {language === 'ru' ? 'Вызови соперника на дуэль. Кто быстрее и точнее — забирает банк.' : 'Challenge an opponent. Fastest and most accurate takes the pot.'}
+                        {language === 'ru' ? 'Вызови соперника на дуэль. Кто быстрее и точнее — забирает банк.' : language === 'es' ? 'Reta a un rival. El más rápido y preciso se lleva el bote.' : 'Challenge an opponent. Fastest and most accurate takes the pot.'}
                     </p>
 
                     {/* Active Indicator Line */}
