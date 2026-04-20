@@ -198,6 +198,7 @@ export async function registerPasskey(
     }
 
     console.log('[Passkey] Registration successful:', verifyData.credentialId);
+    markPasskeyRegistered();
 
     return {
       success: true,
