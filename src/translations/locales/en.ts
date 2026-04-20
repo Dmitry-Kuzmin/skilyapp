@@ -91,7 +91,7 @@ export const en = {
 
   // Auth Modal
   auth: {
-    identification: "Identification",
+    identification: "Sign in or create account",
     welcomeBack: "Welcome back",
     welcomeBackWithName: "Welcome back, {{name}}",
     createAccount: "Create account",
