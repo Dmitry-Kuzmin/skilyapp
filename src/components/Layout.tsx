@@ -60,24 +60,18 @@ const isNavigationItemActive = (item: NavigationItem, pathname: string) => {
   return matchCandidates.some((basePath) => isPathMatching(pathname, basePath));
 };
 
-// ОПТИМИЗАЦИЯ: Мемоизированный компонент для NavLink элемента
+// Мемоизированный компонент для NavLink элемента — Apple/Vercel style
 const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; currentPath: string; navigate: (path: string) => void }) => {
   const isDuel = item.isActiveDuel;
   const isActive = isNavigationItemActive(item, currentPath);
   const Icon = item.icon;
 
-  // УПРОЩЕНО: Позволяем NavLink работать нативно, без конфликтующих обработчиков
-  // Предыдущая версия с onTouchEnd + onClick вызывала проблемы с необходимостью нескольких нажатий
-
   return (
     <NavLink
       to={item.href}
       className={cn(
-        "flex flex-col items-center gap-1 py-2 px-3 rounded-lg transition-colors duration-150 relative",
-        isActive
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground",
-        isDuel && "bg-gradient-to-b from-primary/10 to-blue-500/10"
+        "flex flex-col items-center gap-0.5 py-2.5 px-3 transition-colors duration-200 relative select-none",
+        isActive ? "text-primary" : "text-muted-foreground/60",
       )}
       end={false}
       style={{
@@ -90,12 +84,12 @@ const NavItem = memo(({ item, currentPath, navigate }: { item: NavigationItem; c
         zIndex: 100
       }}
     >
-      <Icon className={cn("w-6 h-6", isActive && "animate-bounce-slow")} />
-      <span className="text-xs font-medium">{item.name}</span>
+      <Icon className="w-[22px] h-[22px]" strokeWidth={isActive ? 2.5 : 1.75} />
+      <span className={cn("text-[10px] leading-tight", isActive ? "font-semibold" : "font-medium")}>{item.name}</span>
       {isDuel && (
         <motion.div
-          className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full pointer-events-none"
-          animate={{ scale: [1, 1.2, 1] }}
+          className="absolute top-2 right-2 w-1.5 h-1.5 bg-green-400 rounded-full pointer-events-none"
+          animate={{ scale: [1, 1.3, 1], opacity: [1, 0.7, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
       )}
