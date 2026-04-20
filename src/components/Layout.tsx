@@ -524,7 +524,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                       WebkitTapHighlightColor: 'transparent'
                     }}
                   >
-                    <LogIn className="w-[22px] h-[22px]" strokeWidth={1.75} />
+                    <LogIn className="w-5 h-5" strokeWidth={1.75} />
                     <span className="text-[10px] font-medium leading-tight">{t('login')}</span>
                   </button>
                 )}
