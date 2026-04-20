@@ -1,7 +1,7 @@
 // Skily Landing Page - Optimized for High Conversions
 import React, { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
   Brain,
@@ -1844,9 +1844,9 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
                 <ul className="space-y-4">
                   {copy.footer.menu.filter(i => i.href.includes('/legal/')).map((item) => (
                     <li key={item.label}>
-                      <button onClick={() => navigate(item.href)} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
+                      <Link to={item.href} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
                         {item.label}
-                      </button>
+                      </Link>
                     </li>
                   ))}
                 </ul>

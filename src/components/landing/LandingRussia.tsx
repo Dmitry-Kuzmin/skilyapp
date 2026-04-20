@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useIsTouchDevice } from "@/hooks/useIsTouchDevice";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   CheckCircle2,
   Brain,
@@ -1477,9 +1477,9 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
                 <ul className="space-y-4">
                   {copy.footer.menu.filter(i => i.href.includes('terms') || i.href.includes('privacy') || i.href.includes('refund') || i.href.includes('subscription')).map((item) => (
                     <li key={item.label}>
-                      <button onClick={() => navigate(item.href)} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
+                      <Link to={item.href} className="text-slate-400 hover:text-white text-sm transition-colors text-left block">
                         {item.label}
-                      </button>
+                      </Link>
                     </li>
                   ))}
                 </ul>
