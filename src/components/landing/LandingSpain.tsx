@@ -1866,6 +1866,8 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
                   src="/nrtv-logo.png"
                   alt="NRTV"
                   className="h-6 w-6 rounded-md object-cover"
+                  width="24"
+                  height="24"
                 />
                 <span>
                   {language === 'ru'
