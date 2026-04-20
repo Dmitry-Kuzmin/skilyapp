@@ -703,7 +703,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       open={open}
       onOpenChange={(val) => !val && onClose()}
       dismissible={!isSubmitting}
-      className="!border-none !border-0 !outline-none !ring-0 !bg-card dark:!bg-[#09090b] rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.05)] dark:shadow-[0_30px_70px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.05)] p-0 overflow-hidden"
+      className="!border-none !border-0 !outline-none !ring-0 !bg-card dark:!bg-[#111113] rounded-[3rem] shadow-[0_30px_70px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.08)] dark:shadow-[0_40px_80px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.12),inset_0_1px_0_rgba(255,255,255,0.06)] p-0 overflow-hidden"
     >
       <div className="relative">
         {/* Back button for Modal Variant */}
