@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { motion, AnimatePresence } from "framer-motion";
+import { LandingLogo } from "@/components/landing/LandingLogo";
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns";
 import { ArcGalleryHero } from "@/components/ui/arc-gallery-hero";
 import { FAQ } from "@/components/ui/faq-tabs";
