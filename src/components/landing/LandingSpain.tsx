@@ -918,7 +918,7 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
         </div>
       )}
 
-      {/* Referral Banner (Shown only if no partner banner) */}
+      {/* Referral Banner (Shown only if no partner banner) - inside the pre-reserved banner zone */}
       {!partnerInfo && referrerInfo && !loadingReferrer && (
         <div className="relative z-40 px-6 pt-6 pb-0 max-w-[1400px] mx-auto animate-fade-in">
           <div className="relative overflow-hidden rounded-[2rem] bg-slate-900/80 backdrop-blur-xl border border-slate-800/50 shadow-2xl">
