@@ -48,6 +48,53 @@ export function EmailStep({
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
         >
+            {/* Social buttons first */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { delay: 0.1 } }}
+            >
+                <div className={cn('grid gap-3', isPasskeyAvailable ? 'grid-cols-3' : 'grid-cols-2')}>
+                    {isPasskeyAvailable && (
+                        <PasskeyLoginButton onSuccess={onClose} variant="inline" label={getPasskeyLabel()} />
+                    )}
+
+                    <Button
+                        variant="secondary"
+                        className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
+                        onClick={onGoogleLogin}
+                    >
+                        <GoogleIcon />
+                    </Button>
+
+                    <Button
+                        id="telegram-oidc-login-btn"
+                        variant="secondary"
+                        disabled={telegramLoading}
+                        onClick={onTelegramLogin}
+                        className="w-full h-11 bg-muted dark:bg-zinc-900 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
+                    >
+                        {telegramLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                            <div className="flex items-center justify-center gap-2">
+                                <TelegramIcon className="h-4 w-4" />
+                                <span>Telegram</span>
+                            </div>
+                        )}
+                    </Button>
+                </div>
+            </motion.div>
+
+            {/* Divider */}
+            <div className="relative flex items-center">
+                <div className="flex-grow border-t border-border" />
+                <span className="flex-shrink-0 mx-4 text-muted-foreground/60 text-[11px] font-medium uppercase tracking-wider">
+                    {t('auth.orContinueWith')}
+                </span>
+                <div className="flex-grow border-t border-border" />
+            </div>
+
+            {/* Email input below */}
             <form onSubmit={onContinue} className="space-y-4">
                 <Input
                     type="email"
@@ -55,7 +102,6 @@ export function EmailStep({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     error={emailError ?? undefined}
-                    autoFocus
                     className={cn(
                         'bg-muted/50 border-border h-14 text-lg transition-all duration-300',
                         isValidEmail ? 'border-blue-500/50 ring-2 ring-blue-500/10' : '',
@@ -91,51 +137,6 @@ export function EmailStep({
                     </motion.p>
                 )}
             </form>
-
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: { delay: 0.2 } }}
-                className="pt-0"
-            >
-                <div className="relative flex py-2 items-center">
-                    <div className="flex-grow border-t border-border" />
-                    <span className="flex-shrink-0 mx-4 text-muted-foreground/60 text-[11px] font-medium uppercase tracking-wider">
-                        {t('auth.orContinueWith')}
-                    </span>
-                    <div className="flex-grow border-t border-border" />
-                </div>
-
-                <div className={cn('grid gap-3 mt-1', isPasskeyAvailable ? 'grid-cols-3' : 'grid-cols-2')}>
-                    {isPasskeyAvailable && (
-                        <PasskeyLoginButton onSuccess={onClose} variant="inline" label={getPasskeyLabel()} />
-                    )}
-
-                    <Button
-                        variant="secondary"
-                        className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
-                        onClick={onGoogleLogin}
-                    >
-                        <GoogleIcon />
-                    </Button>
-
-                    <Button
-                        id="telegram-oidc-login-btn"
-                        variant="secondary"
-                        disabled={telegramLoading}
-                        onClick={onTelegramLogin}
-                        className="w-full h-11 bg-muted dark:bg-zinc-900 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
-                    >
-                        {telegramLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <div className="flex items-center justify-center gap-2">
-                                <TelegramIcon className="h-4 w-4" />
-                                <span>Telegram</span>
-                            </div>
-                        )}
-                    </Button>
-                </div>
-            </motion.div>
         </motion.div>
     );
 }
