@@ -919,6 +919,9 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
                         src={referrerInfo.photo_url}
                         alt={referrerInfo.first_name}
                         className="w-full h-full object-cover"
+                        width="80"
+                        height="80"
+                        loading="eager"
                         onError={() => setAvatarError(true)}
                       />
                     ) : (
