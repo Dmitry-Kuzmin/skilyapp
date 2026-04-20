@@ -145,7 +145,9 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
     }).observe({ entryTypes: ['first-input'] });
 
     // CLS - Cumulative Layout Shift
+    // Отправляем только один раз при уходе со страницы, не на каждый shift
     let clsValue = 0;
+    let clsReported = false;
     new PerformanceObserver((list) => {
       const entries = list.getEntries();
       entries.forEach((entry) => {
@@ -154,7 +156,12 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
           clsValue += perfEntry.value;
         }
       });
+    }).observe({ entryTypes: ['layout-shift'] });
 
+    // Репортим CLS только один раз при уходе пользователя со страницы
+    const reportCls = () => {
+      if (clsReported) return;
+      clsReported = true;
       const metric: WebVitalsMetric = {
         name: 'CLS',
         value: clsValue,
@@ -163,10 +170,13 @@ export const reportWebVitals = (onPerfEntry?: ReportHandler) => {
         id: `cls-${Date.now()}`,
         navigationType: 'navigate',
       };
-
       onPerfEntry(metric);
       sendToAnalytics(metric);
-    }).observe({ entryTypes: ['layout-shift'] });
+    };
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') reportCls();
+    }, { once: true });
+    window.addEventListener('pagehide', reportCls, { once: true });
 
     // FCP - First Contentful Paint
     new PerformanceObserver((list) => {
