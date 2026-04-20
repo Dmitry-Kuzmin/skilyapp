@@ -69,15 +69,10 @@ export const setTelegramBackgroundColor = (color: string) => {
  * Устанавливает цвета header и background в соответствии с текущей темой
  * @param isDarkMode - true если тёмная тема
  */
-export const syncTelegramColors = (isDarkMode: boolean) => {
-  // Цвета для Telegram Mini App
-  // Используем 'secondary_bg_color' для более мягкого перехода с UI Telegram
-  // или указываем конкретные цвета для лучшего контроля
-  const headerColor = isDarkMode ? '#0a0a0f' : '#ffffff';
-  const backgroundColor = isDarkMode ? '#0a0a0f' : '#ffffff';
-
-  setTelegramHeaderColor(headerColor);
-  setTelegramBackgroundColor(backgroundColor);
+export const syncTelegramColors = (_isDarkMode: boolean) => {
+  // Colors are now managed exclusively by ThemeColorManager (Chameleon v10).
+  // This function is kept for API compatibility but no longer sets colors,
+  // to avoid overriding the per-route adaptive colors.
 };
 
 /**
