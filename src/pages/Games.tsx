@@ -484,8 +484,10 @@ const Games = () => {
                   return (
                     <motion.div
                       key={game.id}
+                      layout
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: index * 0.05 + 0.2, duration: 0.4 }}
                       className={`
                         ${isFeatured ? 'md:col-span-2' : 'col-span-1'}
