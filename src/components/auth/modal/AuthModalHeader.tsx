@@ -116,7 +116,6 @@ export function AuthModalHeader({
                         </h2>
 
                         <p className="text-sm text-muted-foreground mt-4 font-medium">
-                            {step === 'email' && t('auth.emailPrompt')}
                             {step === 'password-existing' && (userName ? t('auth.continueProgress') : t('auth.accountVerified'))}
                             {step === 'magic-link-new' && t('auth.newUser')}
                             {step === 'magic-link-existing' && t('auth.magicLinkExistingDesc')}
