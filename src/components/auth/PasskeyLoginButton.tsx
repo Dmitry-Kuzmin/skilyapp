@@ -151,8 +151,8 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
           </>
         ) : (
           <>
-            <Fingerprint className="w-5 h-5" />
-            <span>{label || t('auth.deviceLoginFallback')}</span>
+            <Fingerprint className="w-4 h-4 shrink-0" />
+            <span className="truncate text-xs font-semibold">{label || t('auth.deviceLoginFallback')}</span>
           </>
         )}
       </div>
