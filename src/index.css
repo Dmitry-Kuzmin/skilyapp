@@ -557,8 +557,9 @@ All colors MUST be HSL.
     height: auto;
     overflow-anchor: none;
 
-    /* Отступы от системных UI элементов (Dynamic Island, статус-бар, home indicator) */
-    padding-top: var(--app-safe-top);
+    /* Background extends behind Dynamic Island/notch (viewport-fit=cover in index.html).
+     * No body padding-top — content containers handle their own safe-area insets. */
+    padding-top: 0;
     padding-bottom: var(--app-safe-bottom);
     padding-left: var(--app-safe-left);
     padding-right: var(--app-safe-right);
