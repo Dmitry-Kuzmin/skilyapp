@@ -524,12 +524,22 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
             {(step === 'magic-link-new' || step === 'magic-link-existing') && (
               <>
                 {step === 'magic-link-new' && (
-                  <PromoCodeInput
-                    key="promo-input"
-                    onValidCode={setPendingPromo}
-                    defaultValue={localStorage.getItem("pending_promo_code") ?? ""}
-                    className="px-1"
-                  />
+                  <div key="promo-wrapper" className="px-1">
+                    {!showPromoInput ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowPromoInput(true)}
+                        className="text-[12px] text-zinc-500 hover:text-blue-400 transition-colors underline underline-offset-2 decoration-dotted mx-auto block"
+                      >
+                        Есть промокод?
+                      </button>
+                    ) : (
+                      <PromoCodeInput
+                        onValidCode={setPendingPromo}
+                        defaultValue={localStorage.getItem("pending_promo_code") ?? ""}
+                      />
+                    )}
+                  </div>
                 )}
                 <MagicLinkStep
                   key="magic-link-step"
