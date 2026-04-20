@@ -92,7 +92,7 @@ export const ru = {
 
   // Auth Modal
   auth: {
-    identification: "Идентификация",
+    identification: "Войти или создать аккаунт",
     welcomeBack: "С возвращением",
     welcomeBackWithName: "С возвращением, {{name}}",
     createAccount: "Создание аккаунта",
