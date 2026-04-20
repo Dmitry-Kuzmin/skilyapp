@@ -412,6 +412,7 @@ const Games = () => {
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <AnimatePresence mode="popLayout" initial={false}>
                 {filteredGames.filter(g => g.id !== 1).map((game, index) => {
                   const Icon = game.icon;
                   // Race is still featured but smaller than Duel
