@@ -223,11 +223,11 @@ export const UserProfilePopover = memo(function UserProfilePopover({ notificatio
             onClick={() => setOpen(true)}
           >
             {showSkeleton && loading ? (
-              <Skeleton className="h-10 w-10 rounded-full" />
+              <Skeleton className={compact ? "h-7 w-7 rounded-full" : "h-10 w-10 rounded-full"} />
             ) : (
               <UserAvatar
                 profileId={profileId}
-                size="md"
+                size={compact ? "sm" : "md"}
                 previewSkin={previewSkin}
               />
             )}
