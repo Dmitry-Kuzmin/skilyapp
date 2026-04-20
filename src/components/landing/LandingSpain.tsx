@@ -1228,7 +1228,9 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
                 
                 <div className="flex flex-col gap-4">
                   <div className="sm:hidden mb-4">
-                    <OnlinePlayers baseCount={8430} className="scale-90 origin-left mb-2" />
+                    <React.Suspense fallback={<OnlinePlayersSkeleton />}>
+                      <OnlinePlayers baseCount={8430} className="scale-90 origin-left mb-2" />
+                    </React.Suspense>
                   </div>
                   
                   <div className="inline-flex items-center gap-1 text-sm font-bold text-sky-400 group-hover:text-sky-300 transition-colors">
