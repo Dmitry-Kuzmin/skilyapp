@@ -141,7 +141,7 @@ async function sendEmail(to: string): Promise<{ ok: boolean; error?: string }> {
 
 // ─── Send Telegram message ────────────────────────────────────────────────────
 async function sendTelegram(chatId: string | number): Promise<{ ok: boolean; error?: string }> {
-  const text = `✅ *Мы починили баг в Skily*\n\nЕсли раньше ты видел вопросы ПДД России вместо DGT Испании — это была наша ошибка. Исправили\\.\n\nТеперь все тесты и темы — только *экзамен DGT*\\. Самое время начать\\! 🚗\n\n[Открыть Skily](https://t.me/skilyapp_bot)`;
+  const text = `✅ *Починили — теперь всё работает*\n\nЕсли раньше ты видел вопросы ПДД России вместо DGT — это был баг\\. Исправили\\. Теперь в приложении только *экзамен DGT Испании*\\. 🚗\n\n─────────────────\n\n✅ *Corregido — ya todo funciona*\n\nSi veías preguntas rusas en lugar del DGT — era un error nuestro\\. Ya está corregido\\. Solo *examen DGT España*\\.\n\n[Открыть · Abrir Skily](https://t.me/skilyapp_bot)`;
 
   const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
     method: "POST",
