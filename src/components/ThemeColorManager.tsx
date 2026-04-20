@@ -55,14 +55,45 @@ function getThemePalette(path: string, mode: 'light' | 'dark') {
     return palette.landing;
 }
 
+function applyColor(hex: string, hsl: string, effectiveMode: 'dark' | 'light', pathname: string) {
+    // ── 1. CSS переменная ──────────────────────────────────────────────────
+    document.documentElement.style.setProperty('--background', hsl);
+
+    // ── 2. Синхронизация .dark класса ─────────────────────────────────────
+    if (effectiveMode === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+    }
+
+    // ── 3. Meta theme-color ──────────────────────────────────────────────
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute('content', hex);
+
+    // ── 4. Telegram WebApp ───────────────────────────────────────────────
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg) {
+        try {
+            if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor(hex);
+            if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(hex);
+            if (typeof tg.setBottomBarColor === 'function') tg.setBottomBarColor(hex);
+        } catch {
+            // Игнорируем ошибки API Telegram
+        }
+    }
+
+    if (import.meta.env.DEV) {
+        console.log(`[Chameleon v9] ${pathname} [${effectiveMode}] → ${hex}`);
+    }
+}
+
 export const ThemeColorManager = () => {
     const location = useLocation();
     const { resolvedTheme } = useTheme();
-    
-    // Определяем эффективную тему (fallback на dark, если не определено)
-    const mode = (resolvedTheme === 'light' ? 'light' : 'dark');
 
-    // КРИТИЧНО: Используем ту же логику что и в getThemePalette для синхронизации классов
+    const mode = (resolvedTheme === 'light' ? 'light' : 'dark');
     const effectiveMode = ALWAYS_DARK_PATHS.some(p => location.pathname.startsWith(p)) ? 'dark' : mode;
 
     const colors = useMemo(
@@ -70,42 +101,30 @@ export const ThemeColorManager = () => {
         [location.pathname, mode]
     );
 
+    // Track override from pages (via usePageBackground hook)
+    const overrideRef = useRef<string | null>(null);
+
+    // Apply route-default colors
     useEffect(() => {
-        const { hex, hsl } = colors;
+        // If a page override is active, skip — page controls its own color
+        if (overrideRef.current) return;
+        applyColor(colors.hex, colors.hsl, effectiveMode, location.pathname);
+    }, [colors, effectiveMode, location.pathname]);
 
-        // ── 1. CSS переменная ──────────────────────────────────────────────────
-        document.documentElement.style.setProperty('--background', hsl);
-
-        // ── 2. Синхронизация .dark класса ─────────────────────────────────────
-        // Если мы в принудительно темном режиме — добавляем класс .dark
-        if (effectiveMode === 'dark') {
-            document.documentElement.classList.add('dark');
-            document.body.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            document.body.classList.remove('dark');
-        }
-
-        // ── 3. Meta theme-color ──────────────────────────────────────────────
-        const metaTheme = document.querySelector('meta[name="theme-color"]');
-        if (metaTheme) metaTheme.setAttribute('content', hex);
-
-        // ── 4. Telegram WebApp ───────────────────────────────────────────────
-        const tg = (window as any).Telegram?.WebApp;
-        if (tg) {
-            try {
-                if (typeof tg.setHeaderColor === 'function') tg.setHeaderColor(hex);
-                if (typeof tg.setBackgroundColor === 'function') tg.setBackgroundColor(hex);
-                if (typeof tg.setBottomBarColor === 'function') tg.setBottomBarColor(hex);
-            } catch {
-                // Игнорируем ошибки API Telegram
+    // Subscribe to per-page overrides
+    useEffect(() => {
+        const unsub = subscribePageBackground((hex) => {
+            overrideRef.current = hex;
+            if (hex) {
+                // Convert page hex to hsl — just use hex for CSS var too (valid value)
+                applyColor(hex, colors.hsl, effectiveMode, location.pathname);
+            } else {
+                // Page unmounted — restore route default
+                applyColor(colors.hex, colors.hsl, effectiveMode, location.pathname);
             }
-        }
-
-        if (import.meta.env.DEV) {
-            console.log(`[Chameleon v8] ${location.pathname} [${effectiveMode}] → ${hex}`);
-        }
-    }, [colors, location.pathname, effectiveMode]);
+        });
+        return unsub;
+    }, [colors, effectiveMode, location.pathname]);
 
     return null;
 };
