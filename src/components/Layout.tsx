@@ -505,7 +505,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
               ))}
 
               {/* Profile/Login Icon */}
-              <div className="flex flex-col items-center gap-1 py-2 px-3">
+              <div className="flex flex-col items-center justify-center gap-0.5 py-2.5 px-3">
                 {isAuthenticated ? (
                   <Suspense fallback={null}>
                     <UserProfilePopover
@@ -516,16 +516,15 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                 ) : (
                   <button
                     onClick={handleOpenAuth}
-                    className="flex flex-col items-center gap-1 rounded-lg transition-colors duration-150 text-muted-foreground hover:text-foreground"
+                    className="flex flex-col items-center gap-0.5 transition-colors duration-200 text-muted-foreground/60 hover:text-foreground"
                     style={{
-                      // ОПТИМИЗАЦИЯ: Явно указываем pointer-events и touch-action для мгновенной отзывчивости
                       pointerEvents: 'auto',
                       touchAction: 'manipulation',
                       WebkitTapHighlightColor: 'transparent'
                     }}
                   >
-                    <LogIn className="w-6 h-6" />
-                    <span className="text-xs font-medium">{t('login')}</span>
+                    <LogIn className="w-[22px] h-[22px]" strokeWidth={1.75} />
+                    <span className="text-[10px] font-medium leading-tight">{t('login')}</span>
                   </button>
                 )}
               </div>
