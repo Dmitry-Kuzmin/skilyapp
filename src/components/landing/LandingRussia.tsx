@@ -581,41 +581,32 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
         }}
       ></div>
 
-      <nav 
-        className={cn(
-          "fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-6",
-          scrolled ? "py-4 bg-[#020617]/80 backdrop-blur-md border-b border-white/5" : "py-8"
-        )}
-      >
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <LandingLogo theme="dark" variant="bold" />
-            <div className="hidden lg:flex items-center gap-6 ml-8">
-              {copy.footer.menu.slice(0, 3).map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => navigate(item.href)}
-                  className="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors"
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
+      <nav className="relative z-[100] px-4 md:px-10 pt-[max(1rem,env(safe-area-inset-top))] pb-4 md:pb-6 flex items-center justify-between max-w-[1400px] mx-auto gap-2 md:gap-4" style={{ overflow: 'visible' }}>
+        {/* Левая часть: лого + страна */}
+        <div className="flex items-center gap-0 md:gap-4" style={{ overflow: 'visible', position: 'relative' }}>
+          <LandingLogo theme="dark" variant="bold" className="scale-75 md:scale-90 origin-left -mr-5 md:mr-0" />
+          <div className="h-4 w-px bg-white/20 self-center mx-0.5" />
+          <CountrySelector />
+        </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:block">
-              <CountrySelector />
-            </div>
-            {/* LanguageSelector is hidden for Russia locale by logic in Landing.tsx, 
-                but we manually exclude it here too for safety */}
-            <button
-              onClick={handleEnter}
-              className="bg-white text-black px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition-all active:scale-95 whitespace-nowrap"
-            >
-              {copy.controls.studentAccess}
-            </button>
-          </div>
+        {/* Правая часть: кнопки */}
+        <div className="flex items-center gap-2 md:gap-3 ml-auto">
+          <button
+            onClick={() => navigate('/curso')}
+            className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 text-blue-200 px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider hover:from-blue-500/20 hover:to-cyan-500/20 transition-all mr-0 md:mr-2 group shadow-lg shadow-blue-500/5 backdrop-blur-md"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            </span>
+            Живой курс
+          </button>
+          <button
+            onClick={handleEnter}
+            className="bg-white text-slate-900 px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10 whitespace-nowrap"
+          >
+            {copy.controls.studentAccess}
+          </button>
         </div>
       </nav>
 
