@@ -37,7 +37,8 @@ import {
   Heart,
   MapPin,
   Rocket,
-  Star
+  Star,
+  ArrowUpRight
 } from "lucide-react";
 import { playClickSound, playEngineSound } from "@/services/audioService";
 import { LandingLogo } from "./LandingLogo";
