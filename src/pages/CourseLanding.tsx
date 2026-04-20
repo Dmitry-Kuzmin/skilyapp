@@ -977,9 +977,8 @@ const CourseLanding = () => {
               className="absolute top-0 left-0 w-full z-[100] bg-[#060a14]/95 backdrop-blur-3xl border-b border-white/10 px-6 py-8 shadow-2xl flex flex-col h-auto"
             >
               <div className="flex items-center justify-between mb-8">
-                <a href="/" className="inline-flex items-center gap-2.5 text-xl font-bold tracking-tight text-white/90">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-sm font-black shadow-lg shadow-blue-500/20 text-white">S</div>
-                  Skilyapp
+                <a href="/">
+                  <LandingLogo variant="bold" theme="dark" showText />
                 </a>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
