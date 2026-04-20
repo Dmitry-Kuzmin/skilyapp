@@ -140,6 +140,32 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
     return null;
   }
 
+  if (variant === 'inline') {
+    return (
+      <Button
+        type="button"
+        onClick={handleLogin}
+        disabled={isLoading}
+        className={cn(
+          "w-full h-11 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden",
+          className
+        )}
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-violet-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
+        <div className="relative flex flex-col items-center justify-center gap-0.5">
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <>
+              <Fingerprint className="w-4 h-4 shrink-0" />
+              <span className="text-[9px] font-semibold leading-none">{label || t('auth.deviceLoginFallback')}</span>
+            </>
+          )}
+        </div>
+      </Button>
+    );
+  }
+
   const buttonContent = (
     <>
       <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-violet-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
@@ -152,28 +178,12 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
         ) : (
           <>
             <Fingerprint className="w-4 h-4 shrink-0" />
-            <span className="truncate text-xs font-semibold">{label || t('auth.deviceLoginFallback')}</span>
+            <span className="text-xs font-semibold">{label || t('auth.deviceLoginFallback')}</span>
           </>
         )}
       </div>
     </>
   );
-
-  if (variant === 'inline') {
-    return (
-      <Button
-        type="button"
-        onClick={handleLogin}
-        disabled={isLoading}
-        className={cn(
-          "w-full h-11 bg-gradient-to-r from-blue-500 to-violet-500 hover:from-blue-600 hover:to-violet-600 text-white text-sm font-semibold shadow-lg shadow-blue-500/15 hover:shadow-blue-500/25 transition-all duration-200 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group relative overflow-hidden",
-          className
-        )}
-      >
-        {buttonContent}
-      </Button>
-    );
-  }
 
   return (
     <div className="space-y-3">
