@@ -617,8 +617,8 @@ All colors MUST be HSL.
   /* Глобальный padding снизу для мобильных устройств, чтобы контент не перекрывался таббаром */
   @media (max-width: 767px) {
     .telegram-main-content.has-bottom-nav {
-      /* Базовый отступ (таббар ~72px) + запас (16px) = 88px + системный safe-area bottom */
-      padding-bottom: calc(88px + var(--app-safe-bottom, 0px)) !important;
+      /* Базовый отступ (таббар ~60px) + запас (16px) = 76px + системный safe-area bottom */
+      padding-bottom: calc(76px + var(--app-safe-bottom, 0px)) !important;
     }
 
     .telegram-main-content.has-bottom-widgets {
