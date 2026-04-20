@@ -28,6 +28,24 @@ export interface PasskeyRegistrationOptions {
 // Feature Detection
 // ============================================
 
+const PASSKEY_REGISTERED_KEY = 'passkey_registered_on_device';
+
+/** Returns true if the user has registered a passkey on this device. */
+export function hasPasskeyOnDevice(): boolean {
+  try {
+    return localStorage.getItem(PASSKEY_REGISTERED_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+/** Marks this device as having a registered passkey (call after successful registration). */
+export function markPasskeyRegistered(): void {
+  try {
+    localStorage.setItem(PASSKEY_REGISTERED_KEY, 'true');
+  } catch { /* ignore */ }
+}
+
 /**
  * Проверяет поддержку WebAuthn в браузере
  */
