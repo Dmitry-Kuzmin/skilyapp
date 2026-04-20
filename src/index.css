@@ -1361,11 +1361,6 @@ All colors MUST be HSL.
     right: var(--app-safe-right);
     padding-bottom: calc(var(--app-safe-bottom) + var(--app-content-bottom));
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    /* Clean professional nav: glassy background + subtle top separator */
-    background: hsl(var(--background) / 0.85);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-top: 1px solid hsl(var(--border) / 0.35);
   }
 
   /* Orientation-based layout */
