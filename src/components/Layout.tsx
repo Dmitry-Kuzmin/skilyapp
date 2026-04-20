@@ -479,7 +479,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
         !hideNavigation && (
           <nav
             className={cn(
-              "app-bottom-nav fixed bottom-0 left-0 right-0 border-t border-border/50 backdrop-blur-xl bg-background/95 z-50",
+              "app-bottom-nav fixed bottom-0 left-0 right-0 z-50",
               "flex flex-col md:hidden",
               isFullscreenMode && "!hidden"
             )}
