@@ -95,13 +95,13 @@ export async function loadTestProgress(testId: string): Promise<TestProgress | n
       request.onsuccess = () => {
         const result = request.result;
         if (result) {
-          resolve(result);
+          resolve(sanitizeTestProgress(result));
         } else {
           // Fallback на localStorage
           try {
             const saved = localStorage.getItem(`test-progress-${testId}`);
             if (saved) {
-              resolve(JSON.parse(saved));
+              resolve(sanitizeTestProgress(JSON.parse(saved)));
             } else {
               resolve(null);
             }
