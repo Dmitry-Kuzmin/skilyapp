@@ -272,8 +272,8 @@ export async function checkForConflicts(
   }>;
 }> {
   try {
-    const questionIds = localProgress.answers.map((a) => a.questionId);
-    
+    const questionIds = (localProgress.answers ?? []).map((a) => a.questionId);
+
     if (questionIds.length === 0) {
       return { hasConflicts: false, conflicts: [] };
     }
