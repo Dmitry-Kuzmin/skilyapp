@@ -117,11 +117,23 @@ export async function loadTestProgress(testId: string): Promise<TestProgress | n
     // Fallback на localStorage
     try {
       const saved = localStorage.getItem(`test-progress-${testId}`);
-      return saved ? JSON.parse(saved) : null;
+      return saved ? sanitizeTestProgress(JSON.parse(saved)) : null;
     } catch (e) {
       return null;
     }
   }
+}
+
+/**
+ * Нормализует данные прогресса — защита от null-полей в старых/повреждённых записях
+ * (answers: null вместо [] вызывал TypeError: Cannot read properties of null (reading 'map'))
+ */
+function sanitizeTestProgress(data: any): TestProgress | null {
+  if (!data || typeof data !== 'object') return null;
+  return {
+    ...data,
+    answers: Array.isArray(data.answers) ? data.answers : [],
+  } as TestProgress;
 }
 
 /**
