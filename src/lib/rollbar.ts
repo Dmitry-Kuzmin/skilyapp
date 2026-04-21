@@ -74,6 +74,14 @@ export function initRollbar(): Rollbar | null {
         /Maximum call stack size exceeded/i,
         // Ошибка парсинга HTML как JS (бот в local preview / CDN 404)
         /Unexpected token '<'/i,
+        // Сервер вернул HTML вместо JS (CDN 404/503, кэш устарел)
+        /is not a valid JavaScript MIME type/i,
+        /text\/html.*is not.*valid/i,
+        // Ошибки загрузки чанков (устаревший кэш после деплоя)
+        /Failed to fetch dynamically imported module/i,
+        /Importing a module script failed/i,
+        /Unable to preload CSS/i,
+        /error loading dynamically imported module/i,
       ],
       // Дополнительная фильтрация по источнику
       checkIgnore: (_isUncaught: boolean, _args: any[], payload: any) => {
