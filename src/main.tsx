@@ -339,34 +339,14 @@ window.addEventListener('unhandledrejection', (event) => {
     }
   }
 
-  const errorData = {
-    reason: event.reason,
-    promise: event.promise,
-    stack: event.reason?.stack,
-    url: window.location.href,
-  };
-
-  console.error('[Unhandled Promise Rejection]', errorData);
-
-  const error = event.reason instanceof Error
-    ? event.reason
-    : new Error(String(event.reason));
-
-  const errorContext = {
-    type: 'unhandled_promise_rejection',
-    reason: String(event.reason),
-  };
-
+  // Rollbar captureUnhandledRejections: true уже автоматически поймает это.
+  // НЕ вызываем reportError() вручную — это дублирует каждую ошибку.
   if (import.meta.env.DEV) {
-    captureEarlyError(error, errorContext);
-    return;
+    const error = event.reason instanceof Error
+      ? event.reason
+      : new Error(String(event.reason));
+    captureEarlyError(error, { type: 'unhandled_promise_rejection' });
   }
-
-  import('./lib/rollbar').then(({ reportError }) => {
-    reportError(error, errorContext);
-  }).catch(() => {
-    captureEarlyError(error, errorContext);
-  });
 });
 
 // КРИТИЧНО: Проверка существования root элемента
