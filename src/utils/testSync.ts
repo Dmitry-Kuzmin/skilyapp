@@ -379,7 +379,7 @@ export async function loadAndMergeProgress(
     const localProgress = await loadTestProgress(testId);
     return {
       localProgress,
-      mergedAnswers: localProgress?.answers.map((a) => ({
+      mergedAnswers: (localProgress?.answers ?? []).map((a) => ({
         questionId: a.questionId,
         selectedAnswerId: a.selectedAnswerId,
         isCorrect: a.isCorrect,
