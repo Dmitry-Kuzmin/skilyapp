@@ -286,38 +286,16 @@ window.addEventListener('error', (event) => {
     }
   }
 
-  const errorData = {
-    message: event.message,
-    filename: event.filename,
-    lineno: event.lineno,
-    colno: event.colno,
-    error: event.error,
-    stack: event.error?.stack,
-    url: window.location.href,
-  };
-
-  console.error('[Global Error]', errorData);
-
-  const errorContext = {
-    type: 'uncaught_error',
-    filename: event.filename,
-    lineno: event.lineno,
-    colno: event.colno,
-  };
-
+  // Rollbar captureUncaught: true уже автоматически поймает эту ошибку.
+  // НЕ вызываем reportError() вручную — иначе каждая ошибка дублируется дважды,
+  // что приводит к "item per minute limit reached" в Rollbar.
   if (import.meta.env.DEV) {
-    captureEarlyError(event.error || event.message, errorContext);
-    return;
+    captureEarlyError(event.error || event.message, {
+      type: 'uncaught_error',
+      filename: event.filename,
+      lineno: event.lineno,
+    });
   }
-
-  // Пытаемся отправить в Rollbar асинхронно
-  import('./lib/rollbar').then(({ reportError }) => {
-    const errorToReport = event.error || event.message;
-    reportError(errorToReport, errorContext);
-  }).catch(() => {
-    // Rollbar ещё не загрузился - сохраняем для отправки позже
-    captureEarlyError(event.error || event.message, errorContext);
-  });
 });
 
 window.addEventListener('unhandledrejection', (event) => {
