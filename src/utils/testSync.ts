@@ -150,7 +150,7 @@ export async function syncTestProgress(
 }> {
   try {
     // Получаем ID всех вопросов из локального прогресса
-    const questionIds = localProgress.answers.map((a) => a.questionId);
+    const questionIds = (localProgress.answers ?? []).map((a) => a.questionId);
 
     if (questionIds.length === 0) {
       return {
