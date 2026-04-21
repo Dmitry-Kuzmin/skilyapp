@@ -72,7 +72,7 @@ function mergeProgress(
   const mergedAnswers = new Map<string, MergedAnswer>();
 
   // Добавляем локальные ответы
-  localProgress.answers.forEach((answer) => {
+  (localProgress.answers ?? []).forEach((answer) => {
     mergedAnswers.set(answer.questionId, {
       questionId: answer.questionId,
       selectedAnswerId: answer.selectedAnswerId,
