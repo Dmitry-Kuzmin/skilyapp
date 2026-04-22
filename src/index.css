@@ -1286,10 +1286,10 @@ All colors MUST be HSL.
 
   /* Telegram Mini App Specific Styles */
   .telegram-app-container {
-    /* Для обычного браузера: НЕ flex, НЕ min-height - footer появляется только в конце контента */
     overflow: visible;
     background-color: hsl(var(--background));
-    /* Обеспечиваем правильный фон */
+    /* Обеспечиваем правильный фон и минимальную высоту, чтобы тёмный градиент body не просвечивал снизу */
+    min-height: 100dvh;
   }
 
   /* Flex и min-height ТОЛЬКО для Telegram WebApp - sticky footer паттерн */
