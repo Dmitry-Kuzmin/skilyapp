@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Shuffle, Clock, Flame, History, AlertTriangle, AlertCircle,
@@ -19,7 +19,6 @@ import { usePDDTickets } from "@/hooks/usePDDTickets";
 import { usePDDTopics } from "@/hooks/usePDDTopics";
 import { useTicketsStatus } from "@/hooks/useTicketsStatus";
 import { useSmartRecommendation } from "@/hooks/useSmartRecommendation";
-import { COUNTRIES_CONFIG } from "@/types/pdd";
 import { motion } from "@/components/optimized/Motion";
 import { getImageUrl } from "@/utils/imageUtils";
 import { loadTestProgress } from "@/utils/testStorage";
@@ -224,13 +223,11 @@ const Tests = () => {
   const [randomQuestionCount, setRandomQuestionCount] = useState(20);
   const [hasSelectedCount, setHasSelectedCount] = useState(false);
   const [nonstopProgress, setNonstopProgress] = useState<{ answered: number; total: number } | null>(null);
-
-  const countryData = COUNTRIES_CONFIG[selectedCountry];
-  const localeText = (ru: string, es: string, en: string = es) => {
+  const localeText = useCallback((ru: string, es: string, en: string = es) => {
     if (language === "ru") return ru;
     if (language === "es") return es;
     return en;
-  };
+  }, [language]);
 
   // 4. Эффекты логирования и загрузки (после всех определений)
   useEffect(() => {

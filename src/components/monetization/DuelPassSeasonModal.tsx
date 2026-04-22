@@ -932,7 +932,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               : "sticker_definitions";
         const { data, error } = await supabase
           .from(tableName)
-          .select("name_ru, description_ru, rarity, metadata")
+          .select("name_ru, name_es, name_en, description_ru, description_es, description_en, rarity, metadata")
           .eq("id", rewardPayload.id)
           .single();
 
@@ -953,8 +953,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               : data.metadata;
 
           definition = {
-            name: data.name_ru,
-            description: data.description_ru,
+            name: getLocalizedDbField(data, "name", language),
+            description: getLocalizedDbField(data, "description", language),
             rarity: data.rarity,
             metadata: parsedMetadata,
           };
@@ -968,15 +968,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         {
           type,
           id: rewardPayload.id,
-          name_ru: definition.name || definition.name_ru || rewardPayload.name_ru || "Награда",
+          name_ru: definition.name || getLocalizedDbField(rewardPayload, "name", language, dp("fallbackRewardName")),
           description_ru:
-            definition.description || definition.description_ru || rewardPayload.description_ru || "",
+            definition.description || getLocalizedDbField(rewardPayload, "description", language, ""),
           rarity: definition.rarity || "common",
           metadata: definition.metadata || rewardPayload.metadata,
         },
       ]);
     },
-    [rewardDetails]
+    [rewardDetails, language, dp]
   );
 
   const makeRewardToast = useCallback(
@@ -1604,7 +1604,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       meta = {
         title: reward.title,
         subtitle: reward.subtitle,
-        tag: reward.rarity === 'epic' ? 'Эпик' : 'Легендарный',
+        tag: reward.rarity === 'epic' ? getRarityLabel('epic') : getRarityLabel('legendary'),
         color: reward.color || config.color,
         Icon: config.icon,
         rarityKey: reward.rarity,
@@ -1645,7 +1645,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <span className={cn(
               reward.variant === 'premium' ? 'text-yellow-400' : 'text-cyan-400'
             )}>
-              {reward.rank ? `${reward.rank} МЕСТО` : (reward.variant === "premium" ? "Premium" : "Free")}
+              {reward.rank ? uiText.placeLabel(reward.rank) : (reward.variant === "premium" ? "Premium" : uiText.mobileFree)}
             </span>
           </div>
           <div className="mt-4 flex items-center gap-3">
@@ -1708,7 +1708,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <div className="flex-1 min-w-0">
               <h2 className="text-xl font-bold">{dp("title")}</h2>
               <p className="text-xs mt-0.5 flex items-center gap-2 text-muted-foreground">
-                <span>{activeSeason.name_ru}</span>
+                <span>{activeSeasonName}</span>
                 <span>·</span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3" />
@@ -1729,12 +1729,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                   >
                     <BarChart3 className="w-4 h-4" />
                     <span className="text-xs font-medium">
-                      {isMobile ? "Лидеры" : "Таблица лидеров"}
+                      {isMobile ? uiText.leaderboardShort : uiText.leaderboardTitle}
                     </span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{isMobile ? "Таблица лидеров сезона" : "Посмотреть рейтинг участников сезона"}</p>
+                  <p>{isMobile ? uiText.leaderboardSeason : uiText.leaderboardTooltip}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -1759,9 +1759,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           <div className="relative z-10 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
               <div className="space-y-0.5">
-                <h2 className="text-3xl font-black tracking-tighter leading-tight drop-shadow-sm">{activeSeason.name_ru}</h2>
+                <h2 className="text-3xl font-black tracking-tighter leading-tight drop-shadow-sm">{activeSeasonName}</h2>
                 <p className="subtitle-font text-[11px] text-white/70 max-w-2xl line-clamp-1 italic opacity-90">
-                  {activeSeason.description_ru || dp("hero.defaultDescription")}
+                  {activeSeasonDescription}
                 </p>
               </div>
               <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/50 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 self-start backdrop-blur-md">
@@ -1893,10 +1893,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
                       <h4 className="text-base font-bold text-foreground tracking-tight">Elite Pass</h4>
-                      <Badge variant="secondary" className="bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 text-[10px] px-1.5 py-0 h-4 rounded border-none font-bold">x2 Опыт</Badge>
+                      <Badge variant="secondary" className="bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30 text-[10px] px-1.5 py-0 h-4 rounded border-none font-bold">{uiText.elitePassXp}</Badge>
                     </div>
                     <p className="text-[12px] text-muted-foreground leading-snug">
-                      Премиум-награды, секретные образы профиля и удвоенный прогресс.
+                      {uiText.elitePassDescription}
                     </p>
                   </div>
                 </div>
@@ -1910,7 +1910,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                     }}
                     className="w-full sm:w-auto bg-amber-500 text-amber-950 hover:bg-amber-400 font-bold rounded-xl shadow-md shadow-amber-500/20"
                   >
-                    Активировать
+                    {uiText.activate}
                   </Button>
                 )}
               </div>
@@ -1988,7 +1988,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       <th className="text-left px-2 py-2 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest border-l border-border/50">
                         <div className="flex items-center gap-1.5">
                           <Coins className="w-3 h-3 text-yellow-500" />
-                          <span>{isMobile ? "Бесп." : dp("table.columns.free")}</span>
+                          <span>{isMobile ? uiText.mobileFree : dp("table.columns.free")}</span>
                         </div>
                       </th>
                       <th className="text-left px-2 py-2 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest border-l border-border/50">
