@@ -714,7 +714,7 @@ const StreamSelectorBanner = ({ dbStreams }: { dbStreams: any[] | null }) => {
                 <div className="text-xs text-zinc-500 font-medium px-2 py-1 uppercase tracking-widest mb-1">
                   План запусков на ближайшее время:
                 </div>
-                {dbStreams.map((s, idx) => {
+                {(dbStreams ?? []).map((s, idx) => {
                   const sIsCompleted = s.status === 'finished' || s.status === 'closed';
                   const sSpotsLeft = sIsCompleted ? 0 : Math.max(0, s.spots_total - s.spots_enrolled);
                   const isSFull = sIsCompleted || sSpotsLeft <= 0;
