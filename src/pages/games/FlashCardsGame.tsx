@@ -124,6 +124,7 @@ const FlashCardsGame = () => {
 
   // Refs
   const autoFlipTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const confettiTimerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
 
