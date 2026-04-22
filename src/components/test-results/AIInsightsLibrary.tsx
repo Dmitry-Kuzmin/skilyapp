@@ -23,6 +23,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Drawer, DrawerContent, DrawerTrigger, DrawerClose } from '@/components/ui/drawer';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TopicGroup {
     topic: string;
@@ -47,6 +48,7 @@ const ClockIcon = ({ className }: { className?: string }) => (
 
 export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
     const navigate = useNavigate();
+    const { language } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const [selectedTopic, setSelectedTopic] = useState<TopicGroup | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
@@ -54,13 +56,38 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
     const [searchFocused, setSearchFocused] = useState(false);
 
     // Rotating placeholder examples
-    const placeholderExamples = [
-        "Искать: Маневры...",
-        "Искать: Освещение...",
-        "Искать: Приоритет...",
-        "Искать: Парковка...",
-        "Искать: Знаки..."
-    ];
+    const localeText = (ru: string, es: string, en: string = es) => {
+        if (language === 'ru') return ru;
+        if (language === 'es') return es;
+        return en;
+    };
+
+    const uiText = useMemo(() => ({
+        previewLabel: isPremium ? localeText('AI библиотека', 'Biblioteca AI', 'AI Library') : localeText('Бесплатный превью', 'Vista previa', 'Free Preview'),
+        myInsights: localeText('Мои Инсайты', 'Mis Insights', 'My Insights'),
+        headerTitle: 'AI Insights',
+        headerSubtitle: localeText('Персональный учебник твоих ошибок', 'Tu cuaderno personal de errores', 'Your personal mistake handbook'),
+        unlockTitle: localeText('Открой полный доступ', 'Desbloquea todo el acceso', 'Unlock full access'),
+        unlockDescription: localeText('Безлимитный доступ ко всем инсайтам и разборам', 'Acceso ilimitado a todos los insights y análisis', 'Unlimited access to all insights and breakdowns'),
+        upgrade: localeText('Улучшить', 'Mejorar', 'Upgrade'),
+        itemsShort: localeText('шт', 'uds', 'items'),
+        emptyTitle: localeText('Библиотека пуста', 'La biblioteca está vacía', 'The library is empty'),
+        emptyDescription: localeText(
+            'Проходи тесты и используй "Smart Analysis", чтобы наполнить свой учебник знаниями.',
+            'Haz tests y usa "Smart Analysis" para llenar tu biblioteca con conocimientos.',
+            'Take tests and use "Smart Analysis" to fill your library with knowledge.'
+        ),
+        startPractice: localeText('Начать практику', 'Empezar práctica', 'Start practicing'),
+        placeholders: [
+            localeText('Искать: Маневры...', 'Buscar: Maniobras...', 'Search: Maneuvers...'),
+            localeText('Искать: Освещение...', 'Buscar: Luces...', 'Search: Lighting...'),
+            localeText('Искать: Приоритет...', 'Buscar: Prioridad...', 'Search: Priority...'),
+            localeText('Искать: Парковка...', 'Buscar: Aparcamiento...', 'Search: Parking...'),
+            localeText('Искать: Знаки...', 'Buscar: Señales...', 'Search: Signs...'),
+        ],
+    }), [isPremium, language]);
+
+    const placeholderExamples = uiText.placeholders;
 
     useEffect(() => {
         if (!searchFocused && !searchQuery) {
@@ -125,11 +152,11 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                         <div className="text-left">
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">
-                                    {isPremium ? 'AI Library' : 'Free Preview'}
+                                    {uiText.previewLabel}
                                 </span>
                                 {totalInsights > 0 && <span className="px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-[9px] font-bold text-indigo-300">{totalInsights}</span>}
                             </div>
-                            <div className="text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">Мои Инсайты</div>
+                            <div className="text-sm font-bold text-white group-hover:text-indigo-200 transition-colors">{uiText.myInsights}</div>
                         </div>
                     </div>
 
@@ -162,12 +189,12 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                                        AI Insights
+                                        {uiText.headerTitle}
                                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/10 text-white/60 border border-white/5 uppercase tracking-wider">
                                             Beta
                                         </span>
                                     </h2>
-                                    <p className="text-sm text-slate-400 font-medium">Персональный учебник твоих ошибок</p>
+                                    <p className="text-sm text-slate-400 font-medium">{uiText.headerSubtitle}</p>
                                 </div>
                             </div>
 
@@ -229,13 +256,13 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                                             <Crown className="w-5 h-5 text-white fill-white/30" />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-white text-base drop-shadow-md">Unlock Full Potential</h3>
-                                            <p className="text-xs text-white/90 drop-shadow-sm">Безлимитный доступ ко всем инсайтам и разборам</p>
+                                            <h3 className="font-bold text-white text-base drop-shadow-md">{uiText.unlockTitle}</h3>
+                                            <p className="text-xs text-white/90 drop-shadow-sm">{uiText.unlockDescription}</p>
                                         </div>
                                     </div>
 
                                     <button className="relative z-10 px-4 py-2 rounded-lg bg-white text-orange-600 text-xs font-black uppercase tracking-wider hover:bg-white/90 transition-all shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_rgba(255,255,255,0.5)] hover:scale-105 active:scale-95">
-                                        UPGRADE
+                                        {uiText.upgrade}
                                     </button>
                                 </div>
                             </div>
@@ -355,7 +382,7 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                                                                 <div className={cn("h-full w-1/2 rounded-full bg-current opacity-50", theme.text)} />
                                                             </div>
                                                             <span className="text-[10px] text-slate-400 font-medium">
-                                                                {item.records.length} шт
+                                                                {item.records.length} {uiText.itemsShort}
                                                             </span>
                                                         </div>
                                                     </div>
@@ -391,9 +418,9 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                                             </div>
                                         </div>
 
-                                        <h3 className="text-lg font-bold text-white mb-2">Библиотека пуста</h3>
+                                        <h3 className="text-lg font-bold text-white mb-2">{uiText.emptyTitle}</h3>
                                         <p className="text-slate-400 text-sm mb-6 max-w-xs mx-auto">
-                                            Проходи тесты и используй "Smart Analysis", чтобы наполнить свой учебник знаниями.
+                                            {uiText.emptyDescription}
                                         </p>
 
                                         {/* CTA Button - Ghost Style */}
@@ -405,7 +432,7 @@ export const AIInsightsLibrary = ({ isPremium }: { isPremium: boolean }) => {
                                             className="group flex items-center gap-2 px-6 py-3 rounded-xl border-2 border-blue-500/50 bg-blue-500/5 hover:bg-blue-500/10 hover:border-blue-400 text-blue-400 hover:text-blue-300 font-bold text-sm transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
                                         >
                                             <Play className="w-4 h-4" />
-                                            Начать практику
+                                            {uiText.startPractice}
                                         </button>
                                     </div>
                                 )}

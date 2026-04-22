@@ -231,9 +231,11 @@ export const SmartOnboardingFlow: React.FC = () => {
                 const hasCategory = data.settings?.license_category || data.preferred_license_category;
                 const completedAt = data.settings?.onboarding_completed_at;
 
-                // Only skip onboarding if user explicitly completed it (onboarding_completed_at is set).
-                // preferred_country has DB default 'russia', so it can't be used as a reliable signal.
-                if (completedAt) {
+                // Skip onboarding if:
+                // - user explicitly completed it (onboarding_completed_at is set), OR
+                // - user has a license_category set in DB (completed onboarding before this field was added)
+                // NOTE: preferred_country has DB default 'russia' so it's NOT a reliable signal.
+                if (completedAt || hasCategory) {
                     localStorage.setItem('pdd_selected_country', data.preferred_country);
                     if (hasCategory) localStorage.setItem('pdd_selected_category', hasCategory);
                     localStorage.setItem('pdd_onboarding_completed', 'true');

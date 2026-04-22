@@ -226,6 +226,11 @@ const Tests = () => {
   const [nonstopProgress, setNonstopProgress] = useState<{ answered: number; total: number } | null>(null);
 
   const countryData = COUNTRIES_CONFIG[selectedCountry];
+  const localeText = (ru: string, es: string, en: string = es) => {
+    if (language === "ru") return ru;
+    if (language === "es") return es;
+    return en;
+  };
 
   // 4. Эффекты логирования и загрузки (после всех определений)
   useEffect(() => {
@@ -336,7 +341,7 @@ const Tests = () => {
         icon: Shuffle,
         color: "primary",
         premium: false,
-        difficulty: "Средняя",
+        difficulty: localeText("Средняя", "Media", "Medium"),
         route: `/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`,
         featured: true,
         gradient: "from-indigo-600 via-purple-600 to-pink-600",
@@ -350,7 +355,7 @@ const Tests = () => {
         icon: Clock,
         color: "success",
         premium: false,
-        difficulty: "Сложная",
+        difficulty: localeText("Сложная", "Difícil", "Hard"),
         route: selectedCountry === 'russia' ? `/test/exam-russia?category=${selectedCategory}` : "/test/exam",
         featured: false,
         gradient: "from-emerald-600 to-teal-600",
@@ -365,20 +370,34 @@ const Tests = () => {
         icon: Flame,
         color: "destructive",
         premium: false,
-        difficulty: "Сложная",
+        difficulty: localeText("Сложная", "Difícil", "Hard"),
         route: `/test/marathon?country=${selectedCountry === 'russia' ? 'russia' : 'spain'}&category=${selectedCategory}`,
         gradient: "from-pink-600 to-rose-600",
       },
       {
         id: 5,
-        title: challengeStats.errors === 0 ? (selectedCountry === 'russia' ? 'Ошибок нет!' : 'No errors!') : (selectedCountry === 'russia' ? 'Ошибки' : t('testsPage.challengeBank')),
+        title: challengeStats.errors === 0
+          ? localeText('Ошибок нет!', '¡Sin errores!', 'No errors!')
+          : (selectedCountry === 'russia' ? 'Ошибки' : t('testsPage.challengeBank')),
         description: challengeStats.errors === 0
-          ? (selectedCountry === 'russia' ? 'Идеальный результат! Все ошибки разобраны.' : 'Perfect! All errors resolved.')
-          : (selectedCountry === 'russia' ? `${challengeStats.errors} вопросов требуют повторения` : t('testsPage.challengeBankDesc', { count: challengeStats.errors })),
+          ? localeText(
+            'Идеальный результат! Все ошибки разобраны.',
+            '¡Resultado perfecto! Todos los errores ya están resueltos.',
+            'Perfect result! All mistakes have been resolved.'
+          )
+          : (selectedCountry === 'russia'
+            ? `${challengeStats.errors} вопросов требуют повторения`
+            : localeText(
+              `${challengeStats.errors} preguntas requieren repaso`,
+              `${challengeStats.errors} preguntas requieren repaso`,
+              `${challengeStats.errors} questions need review`
+            )),
         icon: challengeStats.errors === 0 ? CheckCircle : History,
         color: challengeStats.errors === 0 ? "success" : "destructive",
         premium: false,
-        difficulty: challengeStats.errors === 0 ? "Мастер" : "Важно",
+        difficulty: challengeStats.errors === 0
+          ? localeText("Мастер", "Maestría", "Master")
+          : localeText("Важно", "Importante", "Important"),
         route: challengeStats.errors === 0 ? "#" : `/test/challenge-bank?category=${selectedCategory}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
         gradient: challengeStats.errors === 0
           ? "from-emerald-500 to-teal-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]"
@@ -386,14 +405,18 @@ const Tests = () => {
       },
       {
         id: 9,
-        title: selectedCountry === 'russia' ? 'Избранное' : 'Favorites',
+        title: selectedCountry === 'russia' ? 'Избранное' : localeText('Избранное', 'Favoritos', 'Favorites'),
         description: selectedCountry === 'russia'
           ? `${challengeStats.favorites} сохраненных вопросов`
-          : `${challengeStats.favorites} saved questions`,
+          : localeText(
+            `${challengeStats.favorites} preguntas guardadas`,
+            `${challengeStats.favorites} preguntas guardadas`,
+            `${challengeStats.favorites} saved questions`
+          ),
         icon: Bookmark,
         color: "secondary",
         premium: false,
-        difficulty: "Личная",
+        difficulty: localeText("Личная", "Personal", "Personal"),
         route: `/tests/favorites?category=${selectedCategory}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
         gradient: "from-violet-600 to-purple-600",
       },
@@ -406,7 +429,7 @@ const Tests = () => {
         icon: AlertTriangle,
         color: "destructive",
         premium: false,
-        difficulty: "Сложная",
+        difficulty: localeText("Сложная", "Difícil", "Hard"),
         route: selectedCountry === 'russia' ? `/test/traps?country=russia&category=${selectedCategory}` : `/test/hardest`,
         gradient: selectedCountry === 'russia' ? "from-purple-600 to-pink-600" : "from-slate-600 to-gray-600",
         featured: selectedCountry === 'russia',
@@ -414,14 +437,18 @@ const Tests = () => {
       // По Темам - универсальный режим для всех стран
       {
         id: 7,
-        title: selectedCountry === 'russia' ? 'По Темам' : 'Por Temas',
+        title: selectedCountry === 'russia' ? 'По Темам' : localeText('По темам', 'Por temas', 'By topics'),
         description: selectedCountry === 'russia'
           ? 'Изучайте правила по главам. Выберите тему и прорешайте вопросы только по ней'
-          : 'Estudia las reglas por temas. Elige un tema y resuelve solo esas preguntas',
+          : localeText(
+            'Estudia las reglas por temas. Elige un tema y resuelve solo esas preguntas',
+            'Estudia las reglas por temas. Elige un tema y resuelve solo esas preguntas',
+            'Study the rules by topic. Pick a theme and answer only those questions.'
+          ),
         icon: BookOpen,
         color: "primary",
         premium: false,
-        difficulty: "Средняя",
+        difficulty: localeText("Средняя", "Media", "Medium"),
         route: "/test/by-topics",
         gradient: "from-blue-600 to-cyan-600",
       },
@@ -433,7 +460,7 @@ const Tests = () => {
           icon: Target,
           color: "primary",
           premium: false,
-          difficulty: "Сложная",
+          difficulty: localeText("Сложная", "Difícil", "Hard"),
           route: `/test/nonstop?category=${selectedCategory}`,
           gradient: "from-amber-600 to-orange-600",
         },
@@ -441,13 +468,7 @@ const Tests = () => {
     ];
 
     return baseModes;
-  }, [selectedCountry, randomQuestionCount, challengeStats, t, nonstopProgress, licensePoints]);
-
-  const difficultyColors = {
-    "Лёгкая": "success",
-    "Средняя": "warning",
-    "Сложная": "destructive",
-  };
+  }, [selectedCountry, randomQuestionCount, selectedCategory, challengeStats, t, licensePoints, localeText]);
 
   if (topicsLoading || ticketsLoading) {
     return (
@@ -491,7 +512,7 @@ const Tests = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30 backdrop-blur-sm shadow-lg shadow-blue-500/10 flex-shrink-0 whitespace-nowrap">
                   <Target className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-blue-700 dark:text-blue-100">
-                    {safeStats.accuracy}% <span className="text-blue-600/70 dark:text-blue-300/70 font-normal">точн.</span>
+                    {safeStats.accuracy}% <span className="text-blue-600/70 dark:text-blue-300/70 font-normal">{localeText('точн.', 'prec.', 'acc.')}</span>
                   </span>
                 </div>
 
@@ -499,7 +520,7 @@ const Tests = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10 flex-shrink-0 whitespace-nowrap">
                   <TrendingUp className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-emerald-700 dark:text-emerald-100">
-                    {safeStats.totalAnswered} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">отв.</span>
+                    {safeStats.totalAnswered} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">{localeText('отв.', 'resp.', 'ans.')}</span>
                   </span>
                 </div>
 
@@ -507,7 +528,7 @@ const Tests = () => {
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 flex-shrink-0 whitespace-nowrap">
                   <AlertTriangle className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                   <span className="text-xs xs:text-sm font-bold text-amber-700 dark:text-amber-100">
-                    {challengeStats.errors} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">ошиб.</span>
+                    {challengeStats.errors} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">{localeText('ошиб.', 'err.', 'err.')}</span>
                   </span>
                 </div>
               </div>
@@ -590,7 +611,7 @@ const Tests = () => {
                       <div className="space-y-4">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
                           <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                          <span className="text-sm font-bold text-white">Рекомендуется</span>
+                          <span className="text-sm font-bold text-white">{localeText('Рекомендуется', 'Recomendado', 'Recommended')}</span>
                         </div>
                         <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter leading-[0.9] drop-shadow-2xl">
                           {t('testsPage.randomTest').toUpperCase()}
@@ -711,7 +732,7 @@ const Tests = () => {
                   <div className="p-2 rounded-xl bg-card border border-border">
                     <Gamepad2 className="w-6 h-6 text-indigo-400" />
                   </div>
-                  Другие режимы
+                  {localeText('Другие режимы', 'Otros modos', 'Other modes')}
                 </h3>
 
                 {/* AI Insights Library (Always visible shortcut) */}
@@ -888,7 +909,7 @@ const Tests = () => {
                               "bg-transparent border-current uppercase text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full",
                               mode.isLocked ? "text-slate-400 dark:text-slate-500 border-slate-300 dark:border-white/20" : theme.badge
                             )}>
-                              {mode.isLocked ? (language === 'ru' ? 'ЗАБЛОКИРОВАНО' : 'BLOQUEADO') : mode.difficulty}
+                              {mode.isLocked ? localeText('ЗАБЛОКИРОВАНО', 'BLOQUEADO', 'LOCKED') : mode.difficulty}
                             </Badge>
                             {mode.badge && (
                               <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">
@@ -898,7 +919,7 @@ const Tests = () => {
                             {mode.id === 2 && !mode.isLocked && (
                               <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full flex gap-1 items-center animate-pulse">
                                 <CheckCircle size={10} className="fill-emerald-500/20" />
-                                {language === 'ru' ? 'Допуск открыт' : 'Acceso abierto'}
+                                {localeText('Допуск открыт', 'Acceso abierto', 'Access open')}
                               </Badge>
                             )}
                           </div>
@@ -914,7 +935,11 @@ const Tests = () => {
                           </h3>
                           <p className="text-slate-600 dark:text-slate-400 font-medium text-sm leading-relaxed line-clamp-2 text-left">
                             {mode.isLocked
-                              ? (language === 'ru' ? `Набери 10 баллов, чтобы открыть доступ к экзамену. У тебя ${licensePoints}/10.` : `Consigue 10 puntos para desbloquear el examen. Tienes ${licensePoints}/10.`)
+                              ? localeText(
+                                `Набери 10 баллов, чтобы открыть доступ к экзамену. У тебя ${licensePoints}/10.`,
+                                `Consigue 10 puntos para desbloquear el examen. Tienes ${licensePoints}/10.`,
+                                `Reach 10 points to unlock the exam. You have ${licensePoints}/10.`
+                              )
                               : mode.description
                             }
                           </p>

@@ -246,6 +246,24 @@ const formatTechnicalName = (value?: string, fallback: string = "") => {
     .join(" ");
 };
 
+const getLocalizedDbField = (
+  record: Record<string, any> | null | undefined,
+  field: string,
+  language: Language,
+  fallback: string = ""
+) => {
+  if (!record) return fallback;
+
+  const candidates = language === "ru"
+    ? [record[`${field}_ru`], record[`${field}_en`], record[`${field}_es`]]
+    : language === "es"
+      ? [record[`${field}_es`], record[`${field}_en`], record[`${field}_ru`]]
+      : [record[`${field}_en`], record[`${field}_es`], record[`${field}_ru`]];
+
+  const match = candidates.find((value) => typeof value === "string" && value.trim().length > 0);
+  return typeof match === "string" ? match : fallback;
+};
+
 const calculateTimeLeft = (endDate?: string | null): TimeLeft | null => {
   if (!endDate) return null;
   const difference = new Date(endDate).getTime() - Date.now();
@@ -436,6 +454,39 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     [dp]
   );
 
+  const uiText = useMemo(
+    () => ({
+      leaderboardShort: language === "ru" ? "Лидеры" : language === "es" ? "Líderes" : "Leaders",
+      leaderboardTitle: language === "ru" ? "Таблица лидеров" : language === "es" ? "Clasificación" : "Leaderboard",
+      leaderboardSeason: language === "ru" ? "Таблица лидеров сезона" : language === "es" ? "Clasificación de la temporada" : "Season leaderboard",
+      leaderboardTooltip: language === "ru" ? "Посмотреть рейтинг участников сезона" : language === "es" ? "Ver la clasificación de la temporada" : "View the season ranking",
+      elitePassXp: language === "ru" ? "x2 Опыт" : language === "es" ? "x2 experiencia" : "2x XP",
+      elitePassDescription: language === "ru"
+        ? "Премиум-награды, секретные образы профиля и удвоенный прогресс."
+        : language === "es"
+          ? "Recompensas premium, perfiles secretos y progreso duplicado."
+          : "Premium rewards, secret profile looks and doubled progress.",
+      activate: language === "ru" ? "Активировать" : language === "es" ? "Activar" : "Activate",
+      mobileFree: language === "ru" ? "Бесп." : language === "es" ? "Gratis" : "Free",
+      placeLabel: (rank: number) => language === "ru" ? `${rank} место` : language === "es" ? `${rank} puesto` : `${rank} place`,
+      featured: {
+        premiumAccess: language === "ru" ? "Premium доступ" : language === "es" ? "Acceso premium" : "Premium access",
+        mainReward: language === "ru" ? "Главная награда" : language === "es" ? "Recompensa principal" : "Main reward",
+        rewardForPlace: (rank: number) => language === "ru" ? `Награда за ${rank} место` : language === "es" ? `Recompensa por el puesto ${rank}` : `Reward for ${rank}${rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th"} place`,
+      },
+    }),
+    [language]
+  );
+
+  const activeSeasonName = useMemo(
+    () => getLocalizedDbField(activeSeason, "name", language, dp("title")),
+    [activeSeason, language, dp]
+  );
+  const activeSeasonDescription = useMemo(
+    () => getLocalizedDbField(activeSeason, "description", language, dp("hero.defaultDescription")),
+    [activeSeason, language, dp]
+  );
+
   // Итоговый Premium статус: либо из хука, либо Premium Forever, либо Premium Pass для сезона
   // ВАЖНО: Premium Forever дает доступ ко всем Premium наградам автоматически
   const isPremium = isPremiumFromHook || hasPremiumForever || hasPremiumPass;
@@ -455,8 +506,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         level: 1,
         isVirtual: true,
         type: 'premium_pass',
-        title: 'Premium доступ',
-        subtitle: 'Главная награда',
+        title: uiText.featured.premiumAccess,
+        subtitle: uiText.featured.mainReward,
         rarity: 'epic',
         color: '#f59e0b',
         rank: 1
@@ -467,8 +518,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         level: 30,
         isVirtual: true,
         type: 'coins',
-        title: '500 монет',
-        subtitle: 'Награда за 2 место',
+        title: language === "ru" ? '500 монет' : language === "es" ? '500 monedas' : '500 coins',
+        subtitle: uiText.featured.rewardForPlace(2),
         amount: 500,
         rarity: 'rare',
         color: '#fbbf24',
@@ -480,15 +531,15 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         level: 25,
         isVirtual: true,
         type: 'coins',
-        title: '250 монет',
-        subtitle: 'Награда за 3 место',
+        title: language === "ru" ? '250 монет' : language === "es" ? '250 monedas' : '250 coins',
+        subtitle: uiText.featured.rewardForPlace(3),
         amount: 250,
         rarity: 'rare',
         color: '#fbbf24',
         rank: 3
       }
     ];
-  }, []);
+  }, [language, uiText]);
 
   // Логирование для отладки Premium статуса - ОТКЛЮЧЕНО для продакшена
   // useEffect(() => {
@@ -564,7 +615,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         tasks.push(
           supabase
             .from("skin_definitions")
-            .select("id, name_ru, description_ru, rarity, metadata")
+            .select("id, name_ru, name_es, name_en, description_ru, description_es, description_en, rarity, metadata")
             .in("id", Array.from(typeMap.skin))
             .then(({ data, error }) => {
               if (error) {
@@ -574,8 +625,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               data?.forEach((item) => {
                 const metadata = parseMetadata(item.metadata);
                 nextDetails[`skin:${item.id}`] = {
-                  name: item.name_ru,
-                  description: item.description_ru,
+                  name: getLocalizedDbField(item, "name", language),
+                  description: getLocalizedDbField(item, "description", language),
                   rarity: item.rarity,
                   metadata,
                   color: metadata?.color,
@@ -589,7 +640,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         tasks.push(
           supabase
             .from("badge_definitions")
-            .select("id, name_ru, description_ru, rarity, metadata")
+            .select("id, name_ru, name_es, name_en, description_ru, description_es, description_en, rarity, metadata")
             .in("id", Array.from(typeMap.badge))
             .then(({ data, error }) => {
               if (error) {
@@ -599,8 +650,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               data?.forEach((item) => {
                 const metadata = parseMetadata(item.metadata);
                 nextDetails[`badge:${item.id}`] = {
-                  name: item.name_ru,
-                  description: item.description_ru,
+                  name: getLocalizedDbField(item, "name", language),
+                  description: getLocalizedDbField(item, "description", language),
                   rarity: item.rarity,
                   metadata,
                   color: metadata?.color,
@@ -615,7 +666,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         tasks.push(
           supabase
             .from("sticker_definitions")
-            .select("id, name_ru, description_ru, rarity, metadata")
+            .select("id, name_ru, name_es, name_en, description_ru, description_es, description_en, rarity, metadata")
             .in("id", Array.from(typeMap.sticker))
             .then(({ data, error }) => {
               if (error) {
@@ -625,8 +676,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               data?.forEach((item) => {
                 const metadata = parseMetadata(item.metadata);
                 nextDetails[`sticker:${item.id}`] = {
-                  name: item.name_ru,
-                  description: item.description_ru,
+                  name: getLocalizedDbField(item, "name", language),
+                  description: getLocalizedDbField(item, "description", language),
                   rarity: item.rarity,
                   metadata,
                   icon: metadata?.emoji,
@@ -640,7 +691,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         tasks.push(
           supabase
             .from("boost_definitions")
-            .select("type, name_ru, description_ru, icon")
+            .select("type, name_ru, name_es, name_en, description_ru, description_es, description_en, icon")
             .in("type", Array.from(typeMap.boost))
             .then(({ data, error }) => {
               if (error) {
@@ -649,8 +700,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               }
               data?.forEach((item) => {
                 nextDetails[`boost:${item.type}`] = {
-                  name: item.name_ru,
-                  description: item.description_ru,
+                  name: getLocalizedDbField(item, "name", language),
+                  description: getLocalizedDbField(item, "description", language),
                   icon: item.icon,
                 };
               });
@@ -671,7 +722,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     return () => {
       isMounted = false;
     };
-  }, [rewards]);
+  }, [rewards, language]);
 
   const loadSeasonData = async (silent = false) => {
     try {
@@ -2187,4 +2238,3 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     </>
   );
 }
-
