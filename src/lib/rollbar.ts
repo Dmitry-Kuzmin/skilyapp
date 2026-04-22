@@ -41,52 +41,70 @@ export function initRollbar(): Rollbar | null {
           javascript: {
             source_map_enabled: true,
             code_version: import.meta.env.VITE_APP_VERSION || '1.0.0',
-            // Опционально: можно добавить source maps для лучшей отладки
-            // guess_uncaught_frames: true,
           },
         },
-        // Добавляем информацию о пользователе (если доступна)
         person: {
           id: undefined, // Будет установлено позже через setPerson
         },
       },
-      ignoredMessages: [
-        // Web Vitals метрики — не ошибки, не должны попадать в Rollbar
-        /Web Vitals .* is poor/i,
-        /Web Vitals .* needs.improvement/i,
-        // Ошибки расширений браузера
-        /Script error/i,
-        /ResizeObserver loop/i,
-        // Сетевые блокировки (AdBlock, CORS)
-        /Access to fetch/i,
-        /XMLHttpRequest cannot load/i,
-        /Failed to fetch/i,
-        /NetworkError/i,
-        /Aborted/i,
-        /access control checks/i,
-        // Пользователь отклонил TON транзакцию — ожидаемое поведение
-        /UserRejectsError/i,
-        /TON_CONNECT_SDK_ERROR/i,
-        /User declined the transaction/i,
-        // Telegram SDK internal
-        /TelegramGameProxy/i,
+      // ВАЖНО: НЕ используем ignoredMessages с RegExp — Rollbar сериализует их как {} и фильтрация не работает.
+      // Вместо этого вся фильтрация реализована в checkIgnore через строки.
+      checkIgnore: (_isUncaught: boolean, args: any[], payload: any) => {
+        // ── Извлекаем сообщение ────────────────────────────────────────────────
+        const msg: string = (
+          payload?.body?.trace?.exception?.message ||
+          payload?.body?.message?.body ||
+          String(args[0]?.message || args[0] || '')
+        ).toLowerCase();
+
+        // ── Игнорируем по содержимому сообщения ───────────────────────────────
+
+        // Web Vitals метрики — не ошибки
+        if (msg.includes('web vitals')) return true;
+
+        // Ошибки расширений и injected scripts браузера
+        if (msg.includes('script error')) return true;
+        if (msg.includes('resizeobserver loop')) return true;
+
+        // Сетевые блокировки (AdBlock, CORS, offline)
+        if (msg.includes('access to fetch')) return true;
+        if (msg.includes('xmlhttprequest cannot load')) return true;
+        if (msg.includes('failed to fetch')) return true;
+        if (msg.includes('networkerror')) return true;
+        if (msg.includes('access control checks')) return true;
+        if (msg.includes('the operation was aborted')) return true;
+
+        // TON / Telegram — ожидаемое поведение пользователя
+        if (msg.includes('userrejectserror')) return true;
+        if (msg.includes('ton_connect_sdk_error')) return true;
+        if (msg.includes('user declined the transaction')) return true;
+        if (msg.includes('telegramgameproxy')) return true;
+        if (msg.includes('telegram.webapp') && msg.includes('is not supported')) return true;
+
         // Рекурсия из browser extension (canPlayType patch)
-        /Maximum call stack size exceeded/i,
-        // Ошибка парсинга HTML как JS (бот в local preview / CDN 404)
-        /Unexpected token '<'/i,
-        // Сервер вернул HTML вместо JS (CDN 404/503, кэш устарел)
-        /is not a valid JavaScript MIME type/i,
-        /text\/html.*is not.*valid/i,
+        if (msg.includes('maximum call stack size exceeded')) return true;
+
+        // Ошибка парсинга HTML как JS (CDN 404, бот)
+        if (msg.includes("unexpected token '<'")) return true;
+
+        // Сервер вернул HTML вместо JS (CDN 404/503, устаревший кэш)
+        if (msg.includes('is not a valid javascript mime type')) return true;
+        if (msg.includes('text/html') && msg.includes('not') && msg.includes('valid')) return true;
+
         // Ошибки загрузки чанков (устаревший кэш после деплоя)
-        /Failed to fetch dynamically imported module/i,
-        /Importing a module script failed/i,
-        /Unable to preload CSS/i,
-        /error loading dynamically imported module/i,
-      ],
-      // Дополнительная фильтрация по источнику
-      checkIgnore: (_isUncaught: boolean, _args: any[], payload: any) => {
+        if (msg.includes('failed to fetch dynamically imported module')) return true;
+        if (msg.includes('importing a module script failed')) return true;
+        if (msg.includes('unable to preload css')) return true;
+        if (msg.includes('error loading dynamically imported module')) return true;
+
+        // removeChild в React+Framer Motion — известная race condition при быстрой навигации
+        if (msg.includes('removechild') && msg.includes('node')) return true;
+        if (msg.includes('failed to execute') && msg.includes('removechild')) return true;
+
+        // ── Игнорируем по источнику (stack frames) ────────────────────────────
         const frames: Array<{ filename?: string }> = payload?.body?.trace?.frames || [];
-        // Игнорируем ошибки из browser extensions
+
+        // Browser extensions
         if (frames.some(f => f.filename && (
           f.filename.includes('extension://') ||
           f.filename.includes('moz-extension://') ||
@@ -95,13 +113,14 @@ export function initRollbar(): Rollbar | null {
         ))) {
           return true;
         }
-        // Игнорируем ошибки из localhost (боты, dev preview)
+
+        // Localhost — боты, dev preview
         if (frames.some(f => f.filename && f.filename.includes('localhost'))) {
           return true;
         }
+
         return false;
       },
-      // ВАЖНО: Не выводим логи в консоль если инициализация не удалась (тихий режим)
       verbose: false,
     });
 
