@@ -148,11 +148,14 @@ const FlashCardsGame = () => {
     }
   }, [isFlipped, settings.autoFlip, currentCardIndex, cards.length, isGameActive, isGameOver]);
 
-  // Очистка таймера при размонтировании
+  // Очистка всех таймеров и ресурсов при размонтировании
   useEffect(() => {
     return () => {
       if (autoFlipTimerRef.current) {
         clearTimeout(autoFlipTimerRef.current);
+      }
+      if (confettiTimerRef.current) {
+        clearTimeout(confettiTimerRef.current);
       }
       if (audioRef.current) {
         audioRef.current.pause();
