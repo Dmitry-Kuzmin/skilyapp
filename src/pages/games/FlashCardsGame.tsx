@@ -436,7 +436,7 @@ const FlashCardsGame = () => {
         sounds.victory();
         haptics.victory();
         setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 5000);
+        confettiTimerRef.current = setTimeout(() => setShowConfetti(false), 5000);
       }
 
       // Сохраняем сессию
