@@ -76,6 +76,9 @@ const PRERENDER_ROUTES = [
 
 const ASSERT_CORE_PAGES = [
   { route: "/", outputPath: "index.html", canonical: `${SITE_URL}` },
+  { route: "/ru", outputPath: "ru.html", canonical: `${SITE_URL}/ru`, langAssert: "ru" },
+  { route: "/es", outputPath: "es.html", canonical: `${SITE_URL}/es`, langAssert: "es" },
+  { route: "/en", outputPath: "en.html", canonical: `${SITE_URL}/en`, langAssert: "en" },
   { route: "/about", outputPath: "about.html", canonical: `${SITE_URL}/about` },
   { route: "/pricing", outputPath: "pricing.html", canonical: `${SITE_URL}/pricing` },
   { route: "/tests", outputPath: "tests.html", canonical: `${SITE_URL}/tests` },
