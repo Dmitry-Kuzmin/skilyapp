@@ -72,12 +72,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                   <a
                     key={option.code}
                     href={href}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onSelect(option.code);
-                      setOpen(false);
-                      window.history.pushState({}, "", href);
-                    }}
+                    onClick={() => setOpen(false)}
                     className={`block ${itemClassName(option.code)}`}
                   >
                     {option.label}
