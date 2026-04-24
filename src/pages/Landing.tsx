@@ -186,9 +186,22 @@ const Landing = () => {
 
   const LandingComponent = selectedCountry.code === 'RU' ? LandingRussia : LandingSpain;
 
+  // For path-based language routes, use clean canonical URL so Google indexes each language
+  // as a separate page. Home (/) uses x-default/root canonical.
+  const canonicalUrl = pathLang
+    ? `https://skilyapp.com/${pathLang}`
+    : "https://skilyapp.com";
+
+  const hreflangAlternates = [
+    { hreflang: "es", href: "https://skilyapp.com/es" },
+    { hreflang: "en", href: "https://skilyapp.com/en" },
+    { hreflang: "ru", href: "https://skilyapp.com/ru" },
+    { hreflang: "x-default", href: "https://skilyapp.com" },
+  ];
+
   return (
     <>
-      <SeoHead />
+      <SeoHead canonicalUrl={canonicalUrl} hreflangAlternates={hreflangAlternates} />
       <StartupCurtain />
       {partnerInfo && (
         <Suspense fallback={null}>
