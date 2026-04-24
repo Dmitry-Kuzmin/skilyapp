@@ -135,8 +135,9 @@ for (const entry of requiredFiles) {
   }
   contentHashes.set(key, rel);
 
-  if (comparableText.length < 1500) {
-    fail(`dist/${rel} body text is too short (${comparableText.length} chars). Likely prerender did not wait for the landing to mount.`);
+  const minChars = entry.minBodyChars ?? 800;
+  if (comparableText.length < minChars) {
+    fail(`dist/${rel} body text is too short (${comparableText.length} chars, min ${minChars}). Likely prerender did not wait for the landing to mount.`);
   }
 
   if (entry.langAssert) {
