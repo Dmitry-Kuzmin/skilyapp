@@ -24,6 +24,14 @@ function htmlToComparableText(html) {
     .trim();
 }
 
+// Keywords each language landing MUST contain in its rendered body text.
+// Prevents prerender flakiness where /ru output ends up with Spanish content.
+const LANG_KEYWORDS = {
+  ru: ['экзамен', 'DGT'],
+  es: ['examen', 'DGT'],
+  en: ['driving', 'DGT'],
+};
+
 function fail(msg) {
   console.error(`❌ [SEO Assert] ${msg}`);
   process.exit(1);
