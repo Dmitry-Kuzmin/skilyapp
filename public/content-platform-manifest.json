@@ -1,7 +1,7 @@
 {
   "siteName": "Skilyapp",
   "siteUrl": "https://skilyapp.com",
-  "generatedAt": "2026-04-24T21:55:03.487Z",
+  "generatedAt": "2026-04-24T22:05:09.908Z",
   "discoveryFiles": [
     "robots.txt",
     "sitemap.xml",
@@ -25,7 +25,6 @@
     "/tests",
     "/games",
     "/road-signs",
-    "/referrals",
     "/dgt-tests",
     "/curso",
     "/legal/terms",
