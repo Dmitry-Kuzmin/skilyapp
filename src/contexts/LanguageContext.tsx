@@ -55,12 +55,20 @@ const detectNavigatorLanguage = (): Language | null => {
 
 const detectUrlLanguage = (): Language | null => {
   if (!isBrowser) return null;
+  // Path-based detection (SEO-friendly): /ru, /es, /en → force language
+  const path = window.location.pathname;
+  if (path === '/ru' || path.startsWith('/ru/')) return 'ru';
+  if (path === '/es' || path.startsWith('/es/')) return 'es';
+  if (path === '/en' || path.startsWith('/en/')) return 'en';
+  // Fallback to ?lang= query param (legacy)
   const params = new URLSearchParams(window.location.search);
   const lang = params.get('lang');
   return normalizeLanguage(lang);
 };
 
 const detectPreferredLanguage = (): Language => {
+  // URL path takes priority over localStorage so Googlebot + users visiting /ru
+  // always see the right language, regardless of cached preference.
   return (
     detectUrlLanguage() ||
     getStoredLanguage() ||
