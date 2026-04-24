@@ -75,16 +75,35 @@ const Landing = () => {
   const [loadingReferrer, setLoadingReferrer] = useState(false);
   const [loadingPartner, setLoadingPartner] = useState(false);
 
-  const { selectedCountry } = useCountry();
+  const { selectedCountry, setCountryByCode } = useCountry();
   const { language, setLanguage } = useLanguage();
+
+  // Path-based language/country forcing for SEO: /ru, /es, /en
+  useEffect(() => {
+    if (pathLang && language !== pathLang) {
+      setLanguage(pathLang);
+      console.log(`[Landing] Forced language to ${pathLang} from pathname ${location.pathname}`);
+    }
+    if (pathCountry && selectedCountry.code !== pathCountry) {
+      setCountryByCode(pathCountry);
+      console.log(`[Landing] Forced country to ${pathCountry} from pathname ${location.pathname}`);
+    }
+  }, [pathLang, pathCountry, language, selectedCountry.code, setLanguage, setCountryByCode, location.pathname]);
 
   // Force language to RU only on Russia landing (Spain landing allows all three languages)
   useEffect(() => {
-    if (selectedCountry.code === 'RU' && language !== 'ru') {
+    if (selectedCountry.code === 'RU' && language !== 'ru' && !pathLang) {
       setLanguage('ru');
       console.log('[Landing] Forced language to RU for Russia landing');
     }
-  }, [selectedCountry.code, language, setLanguage]);
+  }, [selectedCountry.code, language, setLanguage, pathLang]);
+
+  // Signal to prerender script that lazy-loaded landing chunk has mounted
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as unknown as { __LANDING_MOUNTED__?: boolean }).__LANDING_MOUNTED__ = true;
+    }
+  }, []);
 
   // Проверка Telegram — только если WebApp был обнаружен при монтировании
   useEffect(() => {
