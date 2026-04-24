@@ -207,22 +207,7 @@ const Landing = () => {
     { hreflang: "x-default", href: "https://skilyapp.com" },
   ];
 
-  // Path-based routes get unique titles distinct from the root / page (avoids duplicate-title SEO penalty)
-  const PATH_TITLES: Record<string, { title: string; description: string }> = {
-    es: {
-      title: `Test Teórico DGT ${examYear} en Español | App Autoescuela Online — Skilyapp`,
-      description: `Prepara el examen teórico DGT ${examYear} en español. Preguntas oficiales actualizadas, simulacros con temporizador, tutor IA 24/7. Gratis — 9 de cada 10 aprueban a la primera.`,
-    },
-    en: {
-      title: `Spain Driving Theory Test ${examYear} in English | DGT Exam Prep — Skilyapp`,
-      description: `Prepare for the Spanish DGT driving theory test ${examYear} in English. Official questions, timed mock exams, AI tutor 24/7. Free — 9 out of 10 pass first try.`,
-    },
-    ru: {
-      title: `ПДД Испании ${examYear} на русском | Подготовка к экзамену DGT — Skilyapp`,
-      description: `Подготовка к теоретическому экзамену DGT ${examYear} на русском языке. Официальные билеты, симулятор экзамена, ИИ-репетитор 24/7. Бесплатно — 9 из 10 сдают с первой попытки.`,
-    },
-  };
-  const pathSeo = pathLang ? PATH_TITLES[pathLang] : undefined;
+  const pathSeo = pathLang ? PATH_SEO[pathLang] : undefined;
 
   return (
     <>
