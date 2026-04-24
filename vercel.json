@@ -111,6 +111,18 @@
   ],
   "rewrites": [
     {
+      "source": "/ru",
+      "destination": "/ru.html"
+    },
+    {
+      "source": "/es",
+      "destination": "/es.html"
+    },
+    {
+      "source": "/en",
+      "destination": "/en.html"
+    },
+    {
       "source": "/curso",
       "destination": "/curso.html"
     },
