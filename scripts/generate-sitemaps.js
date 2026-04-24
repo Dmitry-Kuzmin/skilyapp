@@ -63,7 +63,6 @@ const PRERENDER_ROUTES = [
   "/tests",
   "/games",
   "/road-signs",
-  "/referrals",
   "/dgt-tests",
   "/curso",
   "/legal/terms",
