@@ -32,8 +32,15 @@ interface CountryProviderProps {
 
 export const CountryProvider: React.FC<CountryProviderProps> = ({ children }) => {
     const [selectedCountry, setSelectedCountryState] = useState<CountryConfig>(() => {
-        // Пытаемся загрузить сохраненную страну из localStorage
         if (typeof window !== 'undefined') {
+            // Path-based detection (synchronous, highest priority) — needed for prerender
+            // /ru → Russia, /es|/en → Spain (DEFAULT_COUNTRY)
+            const path = window.location.pathname;
+            if (path === '/ru' || path.startsWith('/ru/')) {
+                const country = getCountryByCode('RU');
+                if (country?.isActive) return country;
+            }
+            // Пытаемся загрузить сохраненную страну из localStorage
             const savedCountryCode = localStorage.getItem(COUNTRY_STORAGE_KEY);
             if (savedCountryCode) {
                 const country = getCountryByCode(savedCountryCode);
