@@ -1873,6 +1873,16 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
             </div>
           </div>
 
+          {/* Language versions — visible links for users and search engines */}
+          <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500">
+            <span className="uppercase tracking-widest font-mono">
+              {language === 'ru' ? 'Язык' : language === 'es' ? 'Idioma' : 'Language'}:
+            </span>
+            <a href="/es" hrefLang="es" className={`hover:text-white transition-colors ${language === 'es' ? 'text-white font-semibold' : ''}`}>🇪🇸 Español</a>
+            <a href="/en" hrefLang="en" className={`hover:text-white transition-colors ${language === 'en' ? 'text-white font-semibold' : ''}`}>🇬🇧 English</a>
+            <a href="/ru" hrefLang="ru" className={`hover:text-white transition-colors ${language === 'ru' ? 'text-white font-semibold' : ''}`}>🇷🇺 Русский</a>
+          </div>
+
           {/* Bottom Bar */}
           <div className="pt-8 pb-[max(env(safe-area-inset-bottom),1rem)] border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
             <p>{copy.footer.note}</p>
