@@ -548,6 +548,22 @@ const App = () => {
                   <LandingRedirect />
                 </Suspense>
               } />
+              {/* Path-based language landings for SEO — each indexed as separate canonical */}
+              <Route path="/ru" element={
+                <Suspense fallback={null}>
+                  <LandingRedirect />
+                </Suspense>
+              } />
+              <Route path="/es" element={
+                <Suspense fallback={null}>
+                  <LandingRedirect />
+                </Suspense>
+              } />
+              <Route path="/en" element={
+                <Suspense fallback={null}>
+                  <LandingRedirect />
+                </Suspense>
+              } />
               {/* OAuth callback - обрабатывает сессию сам, не требует AppProviders */}
               <Route path="/auth/callback" element={
                 <>
