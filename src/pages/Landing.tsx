@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { StartupCurtain } from "@/components/StartupCurtain";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { useCrispChat } from "@/hooks/useCrispChat";
@@ -8,7 +8,19 @@ import { isTelegramMiniApp, hasTelegramWebApp } from "@/lib/telegram";
 import { checkTelegramAuth } from "@/utils/authCheck";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, type Language } from "@/contexts/LanguageContext";
+
+const PATH_LANG_MAP: Record<string, Language> = {
+  "/ru": "ru",
+  "/es": "es",
+  "/en": "en",
+};
+
+const PATH_COUNTRY_MAP: Record<string, "RU" | "ES"> = {
+  "/ru": "RU",
+  "/es": "ES",
+  "/en": "ES",
+};
 
 const LandingSpain = lazy(() =>
   import("@/components/landing/LandingSpain").then(m => ({ default: m.LandingSpain }))
