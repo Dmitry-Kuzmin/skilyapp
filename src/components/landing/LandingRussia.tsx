@@ -1505,6 +1505,14 @@ export const LandingRussia: React.FC<AiStudioLandingProps> = ({
             </div>
           </div>
 
+          {/* Language versions — visible links for users and search engines */}
+          <div className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500">
+            <span className="uppercase tracking-widest font-mono">Язык:</span>
+            <a href="/es" hrefLang="es" className="hover:text-white transition-colors">🇪🇸 Español</a>
+            <a href="/en" hrefLang="en" className="hover:text-white transition-colors">🇬🇧 English</a>
+            <a href="/ru" hrefLang="ru" className="text-white font-semibold">🇷🇺 Русский</a>
+          </div>
+
           {/* Bottom Bar */}
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-widest">
             <p>{copy.footer.note}</p>
