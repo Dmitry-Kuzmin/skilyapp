@@ -52,9 +52,9 @@ const CORE_PAGES = [
 
 const PRERENDER_ROUTES = [
   "/",
-  "/?lang=es",
-  "/?lang=en",
-  "/?lang=ru",
+  "/ru",
+  "/es",
+  "/en",
   "/about",
   "/pricing",
   "/help",
