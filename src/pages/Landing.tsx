@@ -43,9 +43,13 @@ const LandingFallback = () => (
 
 const Landing = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const webApp = useTelegram();
   const webAppRef = useRef(webApp);
   webAppRef.current = webApp;
+
+  const pathLang = PATH_LANG_MAP[location.pathname];
+  const pathCountry = PATH_COUNTRY_MAP[location.pathname];
 
   useCrispChat();
 
