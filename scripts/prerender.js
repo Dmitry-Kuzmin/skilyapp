@@ -424,14 +424,10 @@ async function prerender() {
         let filePath;
         if (route === '/') {
           filePath = join(OUTPUT_DIR, 'index.html');
-        } else if (route.startsWith('/?lang=')) {
-          // Language-specific landing pages: /?lang=es -> lang/es.html
-          const lang = route.replace('/?lang=', '');
-          const langDir = join(OUTPUT_DIR, 'lang');
-          if (!existsSync(langDir)) {
-            mkdirSync(langDir, { recursive: true });
-          }
-          filePath = join(langDir, `${lang}.html`);
+        } else if (route === '/ru' || route === '/es' || route === '/en') {
+          // Path-based language landings: /ru -> ru.html (served via vercel rewrite)
+          const lang = route.slice(1);
+          filePath = join(OUTPUT_DIR, `${lang}.html`);
         } else if (route.startsWith('/article/')) {
           const slug = route.replace('/article/', '');
           const articleDir = join(OUTPUT_DIR, 'article');
