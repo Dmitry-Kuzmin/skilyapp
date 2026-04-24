@@ -272,10 +272,10 @@ export interface SeoHeadProps {
 }
 
 const HOME_HREFLANG_ALTERNATES = [
-  { hreflang: "es", href: "https://skilyapp.com/?lang=es" },
-  { hreflang: "en", href: "https://skilyapp.com/?lang=en" },
-  { hreflang: "ru", href: "https://skilyapp.com/?lang=ru" },
-  { hreflang: "x-default", href: "https://skilyapp.com" },
+  { hreflang: "es", href: "https://skilyapp.com/es" },
+  { hreflang: "en", href: "https://skilyapp.com/en" },
+  { hreflang: "ru", href: "https://skilyapp.com/ru" },
+  { hreflang: "x-default", href: "https://skilyapp.com/" },
 ];
 
 function getDefaultHreflangAlternates(canonicalUrl?: string) {
