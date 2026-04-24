@@ -9,6 +9,7 @@ import { checkTelegramAuth } from "@/utils/authCheck";
 import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
+import { examYear } from "@/utils/dateUtils";
 
 const PATH_LANG_MAP: Record<string, Language> = {
   "/ru": "ru",
