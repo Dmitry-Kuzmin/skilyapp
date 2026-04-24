@@ -8,6 +8,8 @@ interface LanguageSelectorProps {
   onSelect: (lang: Language) => void;
   label: string;
   options?: Array<{ code: Language; label: string }>;
+  /** When provided, each option renders as <a href> so Googlebot can follow language pages */
+  hrefMap?: Partial<Record<Language, string>>;
 }
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
@@ -15,6 +17,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   onSelect,
   label,
   options = LANGUAGE_OPTIONS,
+  hrefMap,
 }) => {
   const [open, setOpen] = React.useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -40,6 +43,11 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     };
   }, [open]);
 
+  const itemClassName = (code: Language) =>
+    `w-full px-3 py-2 text-left text-sm font-semibold transition-colors ${
+      code === language ? "text-white" : "text-slate-400 hover:text-white"
+    }`;
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -57,22 +65,38 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
             {label}
           </div>
           <div className="divide-y divide-slate-800/60">
-            {LANGUAGE_OPTIONS.map((option) => (
-              <button
-                key={option.code}
-                onClick={() => {
-                  onSelect(option.code);
-                  setOpen(false);
-                }}
-                className={`w-full px-3 py-2 text-left text-sm font-semibold transition-colors ${
-                  option.code === language
-                    ? "text-white"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
+            {options.map((option) => {
+              const href = hrefMap?.[option.code];
+              if (href) {
+                return (
+                  <a
+                    key={option.code}
+                    href={href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onSelect(option.code);
+                      setOpen(false);
+                      window.history.pushState({}, "", href);
+                    }}
+                    className={`block ${itemClassName(option.code)}`}
+                  >
+                    {option.label}
+                  </a>
+                );
+              }
+              return (
+                <button
+                  key={option.code}
+                  onClick={() => {
+                    onSelect(option.code);
+                    setOpen(false);
+                  }}
+                  className={itemClassName(option.code)}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
