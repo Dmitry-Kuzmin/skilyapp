@@ -19,17 +19,17 @@ const PUBLIC_DIR = path.join(__dirname, "..", "public");
 const MANIFEST_FILE = "content-platform-manifest.json";
 
 const HOME_ALTERNATES = [
-  { hreflang: "es", href: `${SITE_URL}/?lang=es` },
-  { hreflang: "en", href: `${SITE_URL}/?lang=en` },
-  { hreflang: "ru", href: `${SITE_URL}/?lang=ru` },
+  { hreflang: "es", href: `${SITE_URL}/es` },
+  { hreflang: "en", href: `${SITE_URL}/en` },
+  { hreflang: "ru", href: `${SITE_URL}/ru` },
   { hreflang: "x-default", href: `${SITE_URL}/` },
 ];
 
 const CORE_PAGES = [
   { path: "/", changefreq: "daily", priority: "1.0", alternates: HOME_ALTERNATES, lastmod: BUILD_DATE },
-  { path: "/?lang=es", changefreq: "daily", priority: "1.0", alternates: HOME_ALTERNATES, lastmod: BUILD_DATE },
-  { path: "/?lang=en", changefreq: "daily", priority: "1.0", alternates: HOME_ALTERNATES, lastmod: BUILD_DATE },
-  { path: "/?lang=ru", changefreq: "daily", priority: "1.0", alternates: HOME_ALTERNATES, lastmod: BUILD_DATE },
+  { path: "/es", changefreq: "daily", priority: "1.0", alternates: HOME_ALTERNATES, lastmod: BUILD_DATE },
+  { path: "/en", changefreq: "daily", priority: "1.0", alternates: HOME_ALTERNATES, lastmod: BUILD_DATE },
+  { path: "/ru", changefreq: "daily", priority: "1.0", alternates: HOME_ALTERNATES, lastmod: BUILD_DATE },
   { path: "/curso", changefreq: "weekly", priority: "0.95", lastmod: BUILD_DATE },
   { path: "/tests", changefreq: "weekly", priority: "0.90", lastmod: BUILD_DATE },
   { path: "/games", changefreq: "weekly", priority: "0.85", lastmod: BUILD_DATE },
