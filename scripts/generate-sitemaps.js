@@ -42,7 +42,6 @@ const CORE_PAGES = [
   { path: "/features", changefreq: "monthly", priority: "0.70", lastmod: BUILD_DATE },
   { path: "/partners", changefreq: "monthly", priority: "0.60", lastmod: BUILD_DATE },
   { path: "/help", changefreq: "monthly", priority: "0.60", lastmod: BUILD_DATE },
-  { path: "/referrals", changefreq: "monthly", priority: "0.50", lastmod: BUILD_DATE },
   { path: "/legal/terms", changefreq: "monthly", priority: "0.30", lastmod: BUILD_DATE },
   { path: "/legal/privacy", changefreq: "monthly", priority: "0.30", lastmod: BUILD_DATE },
   { path: "/legal/cookies", changefreq: "monthly", priority: "0.30", lastmod: BUILD_DATE },
