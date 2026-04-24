@@ -134,6 +134,21 @@ for (const entry of requiredFiles) {
     fail(`dist/${rel} appears identical to dist/${prev}. Route-level content is not unique.`);
   }
   contentHashes.set(key, rel);
+
+  if (comparableText.length < 1500) {
+    fail(`dist/${rel} body text is too short (${comparableText.length} chars). Likely prerender did not wait for the landing to mount.`);
+  }
+
+  if (entry.langAssert) {
+    const keywords = LANG_KEYWORDS[entry.langAssert];
+    if (keywords) {
+      for (const kw of keywords) {
+        if (!comparableText.toLowerCase().includes(kw.toLowerCase())) {
+          fail(`dist/${rel} (lang=${entry.langAssert}) is missing expected keyword "${kw}". Body likely rendered in wrong language.`);
+        }
+      }
+    }
+  }
 }
 
 console.log(`✅ [SEO Assert] dist passed (${checked} files checked).`);
