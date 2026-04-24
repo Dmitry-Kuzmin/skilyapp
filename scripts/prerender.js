@@ -400,13 +400,17 @@ async function prerender() {
 
           await waitForPageReadiness(page);
 
+          // Second settling pass — hydration can flash fallbacks, give it time to stabilize.
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
           const hasContent = await page.evaluate(() => {
             const root = document.querySelector('#root');
-            return root && root.children.length > 0 && root.textContent && root.textContent.trim().length > 50;
+            const text = root?.textContent?.trim() || '';
+            return root && root.children.length > 0 && text.length > 500;
           });
 
           if (!hasContent) {
-            throw new Error(`Route ${route} rendered without meaningful content in #root`);
+            throw new Error(`Route ${route} rendered without meaningful content in #root (<500 chars)`);
           }
 
           return page.content();
