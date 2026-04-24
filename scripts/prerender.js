@@ -215,9 +215,9 @@ function getDefaultRoutesToRender() {
 
   return [
     '/',
-    '/?lang=es',
-    '/?lang=en',
-    '/?lang=ru',
+    '/ru',
+    '/es',
+    '/en',
     '/about',
     '/pricing',
     '/help',
