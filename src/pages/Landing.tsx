@@ -79,25 +79,12 @@ const Landing = () => {
   const { selectedCountry, setCountryByCode } = useCountry();
   const { language, setLanguage } = useLanguage();
 
-  // Path-based language/country forcing for SEO: /ru, /es, /en
+  // Sync contexts on SPA navigation between landing routes (/ru ↔ /es ↔ /)
+  // Both contexts already detect pathname at init; this handles in-app navigation without remount.
   useEffect(() => {
-    if (pathLang && language !== pathLang) {
-      setLanguage(pathLang);
-      console.log(`[Landing] Forced language to ${pathLang} from pathname ${location.pathname}`);
-    }
-    if (pathCountry && selectedCountry.code !== pathCountry) {
-      setCountryByCode(pathCountry);
-      console.log(`[Landing] Forced country to ${pathCountry} from pathname ${location.pathname}`);
-    }
-  }, [pathLang, pathCountry, language, selectedCountry.code, setLanguage, setCountryByCode, location.pathname]);
-
-  // Force language to RU only on Russia landing (Spain landing allows all three languages)
-  useEffect(() => {
-    if (selectedCountry.code === 'RU' && language !== 'ru' && !pathLang) {
-      setLanguage('ru');
-      console.log('[Landing] Forced language to RU for Russia landing');
-    }
-  }, [selectedCountry.code, language, setLanguage, pathLang]);
+    if (pathLang && language !== pathLang) setLanguage(pathLang);
+    if (pathCountry && selectedCountry.code !== pathCountry) setCountryByCode(pathCountry);
+  }, [pathLang, pathCountry, language, selectedCountry.code, setLanguage, setCountryByCode]);
 
   // Signal to prerender script that lazy-loaded landing chunk has mounted
   useEffect(() => {
