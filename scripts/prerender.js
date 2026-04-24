@@ -339,27 +339,33 @@ async function prerender() {
 
           const url = `${BASE_URL}${route}`;
           await page.goto(url, {
-            waitUntil: 'domcontentloaded',
-            timeout: 30000,
+            waitUntil: 'networkidle2',
+            timeout: 45000,
           });
 
+          // Wait for meaningful React content (not just fallback/skeleton).
+          // Landing uses lazy(LandingSpain|LandingRussia) + Suspense — we must wait for
+          // the chunk to load and mount, not just for #root to have any children.
           try {
             await page.waitForFunction(
               () => {
                 const root = window.document.querySelector('#root');
-                return root && root.children.length > 0 && root.textContent && root.textContent.trim().length > 0;
+                if (!root) return false;
+                const text = root.textContent?.trim() || '';
+                // 500 chars ensures we're past fallbacks/skeletons, into real content
+                return text.length > 500;
               },
-              { timeout: 15000 }
+              { timeout: 45000, polling: 200 }
             );
-            console.log('[Prerender] ✅ React content detected in #root');
+            console.log('[Prerender] ✅ React content detected in #root (>500 chars)');
           } catch (error) {
-            console.warn('[Prerender] ⚠️ Timeout waiting for React content, trying alternative check...');
+            console.warn('[Prerender] ⚠️ Timeout waiting for substantial React content, fallback to basic check');
             await page.waitForFunction(
               () => {
                 const root = window.document.querySelector('#root');
-                return root && (root.children.length > 0 || root.innerHTML.trim().length > 0);
+                return root && root.children.length > 0 && (root.textContent?.trim().length || 0) > 100;
               },
-              { timeout: 10000 }
+              { timeout: 15000 }
             );
           }
 
