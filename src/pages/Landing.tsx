@@ -184,7 +184,11 @@ const Landing = () => {
 
   if (!ready) return <LandingFallback />;
 
-  const LandingComponent = selectedCountry.code === 'RU' ? LandingRussia : LandingSpain;
+  // pathLang gives synchronous path-based forcing (/ru → RU). Fallback to selectedCountry
+  // for the unauthenticated landing (/) where country comes from localStorage/navigator.
+  const LandingComponent = (pathLang === 'ru' || (!pathLang && selectedCountry.code === 'RU'))
+    ? LandingRussia
+    : LandingSpain;
 
   // For path-based language routes, use clean canonical URL so Google indexes each language
   // as a separate page. Home (/) uses x-default/root canonical.
