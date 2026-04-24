@@ -217,6 +217,14 @@ const Landing = () => {
         title={pathSeo?.title}
         description={pathSeo?.description}
       />
+      {/* Always-rendered language links for search engine crawlers.
+          The header dropdown is JS-only; these <a> tags ensure Google
+          discovers /ru /es /en and counts them as internal links. */}
+      <nav aria-label="Language versions" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap' }}>
+        <a href="/ru" hrefLang="ru">Русский — ПДД Испании на русском</a>
+        <a href="/es" hrefLang="es">Español — Test DGT en español</a>
+        <a href="/en" hrefLang="en">English — Spain driving test in English</a>
+      </nav>
       <StartupCurtain />
       {partnerInfo && (
         <Suspense fallback={null}>
