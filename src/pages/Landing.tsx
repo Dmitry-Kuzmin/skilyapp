@@ -23,6 +23,22 @@ const PATH_COUNTRY_MAP: Record<string, "RU" | "ES"> = {
   "/en": "ES",
 };
 
+// Unique titles per path-based route — avoids duplicate-title penalty vs root /
+const PATH_SEO: Record<string, { title: string; description: string }> = {
+  es: {
+    title: `Test Teórico DGT ${examYear} en Español | App Autoescuela Online — Skilyapp`,
+    description: `Prepara el examen teórico DGT ${examYear} en español. Preguntas oficiales actualizadas, simulacros con temporizador, tutor IA 24/7. Gratis — 9 de cada 10 aprueban a la primera.`,
+  },
+  en: {
+    title: `Spain Driving Theory Test ${examYear} in English | DGT Exam Prep — Skilyapp`,
+    description: `Prepare for the Spanish DGT driving theory test ${examYear} in English. Official questions, timed mock exams, AI tutor 24/7. Free — 9 out of 10 pass first try.`,
+  },
+  ru: {
+    title: `ПДД Испании ${examYear} на русском | Подготовка к экзамену DGT — Skilyapp`,
+    description: `Подготовка к теоретическому экзамену DGT ${examYear} на русском языке. Официальные билеты, симулятор экзамена, ИИ-репетитор 24/7. Бесплатно — 9 из 10 сдают с первой попытки.`,
+  },
+};
+
 const LandingSpain = lazy(() =>
   import("@/components/landing/LandingSpain").then(m => ({ default: m.LandingSpain }))
 );
