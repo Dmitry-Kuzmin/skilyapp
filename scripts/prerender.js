@@ -159,8 +159,26 @@ function isNavigationRaceError(error) {
 
 async function preparePage(page) {
   await page.setViewport({ width: 1920, height: 1080 });
+  // Force a deterministic Accept-Language so prerender output doesn't depend on
+  // the builder's machine locale. `/` is our Spanish-primary entrypoint — any
+  // language-specific content is under /ru, /es, /en via path-based forcing.
+  await page.setExtraHTTPHeaders({
+    'Accept-Language': 'es-ES,es;q=0.9,en;q=0.8',
+  });
   await page.evaluateOnNewDocument(() => {
     window.__PRERENDER__ = true;
+    // Override navigator.language so LanguageContext's navigator detection
+    // is deterministic across build machines.
+    Object.defineProperty(navigator, 'language', { get: () => 'es-ES' });
+    Object.defineProperty(navigator, 'languages', { get: () => ['es-ES', 'es', 'en'] });
+    // Wipe persisted language/country between route navigations so each /,
+    // /ru, /es, /en prerender starts from a clean slate and can't be
+    // contaminated by the previous route's localStorage writes.
+    try {
+      localStorage.removeItem('app_language');
+      localStorage.removeItem('sdadim-settings');
+      localStorage.removeItem('selected_country');
+    } catch {}
   });
 }
 

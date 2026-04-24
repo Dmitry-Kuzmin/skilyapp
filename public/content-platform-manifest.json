@@ -1,7 +1,7 @@
 {
   "siteName": "Skilyapp",
   "siteUrl": "https://skilyapp.com",
-  "generatedAt": "2026-04-20T19:52:05.432Z",
+  "generatedAt": "2026-04-24T20:35:04.703Z",
   "discoveryFiles": [
     "robots.txt",
     "sitemap.xml",
@@ -13,9 +13,9 @@
   ],
   "prerenderRoutes": [
     "/",
-    "/?lang=es",
-    "/?lang=en",
-    "/?lang=ru",
+    "/ru",
+    "/es",
+    "/en",
     "/about",
     "/pricing",
     "/help",
@@ -56,6 +56,24 @@
       "route": "/",
       "outputPath": "index.html",
       "canonical": "https://skilyapp.com"
+    },
+    {
+      "route": "/ru",
+      "outputPath": "ru.html",
+      "canonical": "https://skilyapp.com/ru",
+      "langAssert": "ru"
+    },
+    {
+      "route": "/es",
+      "outputPath": "es.html",
+      "canonical": "https://skilyapp.com/es",
+      "langAssert": "es"
+    },
+    {
+      "route": "/en",
+      "outputPath": "en.html",
+      "canonical": "https://skilyapp.com/en",
+      "langAssert": "en"
     },
     {
       "route": "/about",
