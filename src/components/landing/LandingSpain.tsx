@@ -828,6 +828,7 @@ export const LandingSpain: React.FC<LandingSpainProps> = ({
               language={language}
               onSelect={handleLanguageChange}
               label={copy.controls.languageLabel}
+              hrefMap={{ es: '/es', en: '/en', ru: '/ru' }}
             />
           )}
 
