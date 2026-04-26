@@ -65,21 +65,51 @@ export function EmailStep({
 
                         <Button
                             id="telegram-oidc-login-btn"
-                        variant="secondary"
-                        disabled={telegramLoading}
-                        onClick={onTelegramLogin}
-                        className="w-full h-11 bg-muted dark:bg-zinc-900 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
-                    >
-                        {telegramLoading ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                            <div className="flex items-center justify-center gap-2">
-                                <TelegramIcon className="h-4 w-4" />
-                                <span>Telegram</span>
-                            </div>
+                            variant="secondary"
+                            disabled={telegramLoading}
+                            onClick={onTelegramLogin}
+                            className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
+                        >
+                            {telegramLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <div className="flex items-center justify-center gap-2">
+                                    <TelegramIcon className="h-4 w-4" />
+                                    <span>Telegram</span>
+                                </div>
+                            )}
+                        </Button>
+                    </div>
+                ) : (
+                    /* Обычный браузер - Passkey + Google + Telegram */
+                    <div className={cn('grid gap-3', isPasskeyAvailable ? 'grid-cols-3' : 'grid-cols-2')}>
+                        {isPasskeyAvailable && (
+                            <PasskeyLoginButton onSuccess={onClose} variant="inline" label={getPasskeyLabel()} />
                         )}
-                    </Button>
-                </div>
+
+                        <Button
+                            variant="secondary"
+                            className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
+                            onClick={onGoogleLogin}
+                        >
+                            <GoogleIcon />
+                        </Button>
+
+                        <Button
+                            id="telegram-oidc-login-btn"
+                            variant="secondary"
+                            disabled={telegramLoading}
+                            onClick={onTelegramLogin}
+                            className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
+                        >
+                            {telegramLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <TelegramIcon />
+                            )}
+                        </Button>
+                    </div>
+                )}
             </motion.div>
 
             {/* Divider */}
