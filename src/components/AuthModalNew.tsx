@@ -62,6 +62,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
   const [isScrambling, setIsScrambling] = useState(false);
   const [isNewUserForOtp, setIsNewUserForOtp] = useState(false);
   const [showPromoInput, setShowPromoInput] = useState(false);
+  const [isEmbeddedBrowser, setIsEmbeddedBrowser] = useState(false);
 
 
   const { t } = useLanguage();
