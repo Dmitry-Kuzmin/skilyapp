@@ -16,6 +16,7 @@ interface EmailStepProps {
     isEmailShaking: boolean;
     isPasskeyAvailable: boolean;
     telegramLoading: boolean;
+    isEmbeddedBrowser: boolean;
     onContinue: (e: React.FormEvent) => void;
     onGoogleLogin: () => void;
     onTelegramLogin: () => void;
