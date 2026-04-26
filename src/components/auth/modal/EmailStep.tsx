@@ -55,21 +55,16 @@ export function EmailStep({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1, transition: { delay: 0.1 } }}
             >
-                <div className={cn('grid gap-3', isPasskeyAvailable ? 'grid-cols-3' : 'grid-cols-2')}>
-                    {isPasskeyAvailable && (
-                        <PasskeyLoginButton onSuccess={onClose} variant="inline" label={getPasskeyLabel()} />
-                    )}
+                {/* КРИТИЧНО: Скрываем Google если встроенный браузер (Instagram, Telegram, Facebook и т.д.) */}
+                {isEmbeddedBrowser ? (
+                    /* Встроенный браузер - только Passkey и Telegram */
+                    <div className={cn('grid gap-3', isPasskeyAvailable ? 'grid-cols-2' : 'grid-cols-1')}>
+                        {isPasskeyAvailable && (
+                            <PasskeyLoginButton onSuccess={onClose} variant="inline" label={getPasskeyLabel()} />
+                        )}
 
-                    <Button
-                        variant="secondary"
-                        className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
-                        onClick={onGoogleLogin}
-                    >
-                        <GoogleIcon />
-                    </Button>
-
-                    <Button
-                        id="telegram-oidc-login-btn"
+                        <Button
+                            id="telegram-oidc-login-btn"
                         variant="secondary"
                         disabled={telegramLoading}
                         onClick={onTelegramLogin}
