@@ -32,9 +32,14 @@ const PASSKEY_REGISTERED_KEY = 'passkey_registered_on_device';
 
 /** Returns true if the user has registered a passkey on this device. */
 export function hasPasskeyOnDevice(): boolean {
+  // КРИТИЧНО: Если localStorage не доступен (prerender, private mode), вернуть false
+  // Passkey будет предложена на экране входа только если она зарегистрирована И localStorage доступен
   try {
-    return localStorage.getItem(PASSKEY_REGISTERED_KEY) === 'true';
+    const value = localStorage.getItem(PASSKEY_REGISTERED_KEY);
+    // Возвращаем true ТОЛЬКО если явно установлено 'true'
+    return value === 'true';
   } catch {
+    // localStorage недоступен (prerender, private mode, etc.)
     return false;
   }
 }
