@@ -89,6 +89,8 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
       if (clientId) {
         preinitTelegramLogin(clientId);
       }
+      // КРИТИЧНО: Проверяем встроенный браузер и скрываем Google если нужно
+      setIsEmbeddedBrowser(isInEmbeddedBrowser());
     }
   }, [open]);
 
