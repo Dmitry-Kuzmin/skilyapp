@@ -483,6 +483,7 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
                 isEmailShaking={isEmailShaking}
                 isPasskeyAvailable={isPasskeyAvailable}
                 telegramLoading={telegramLoading}
+                isEmbeddedBrowser={isEmbeddedBrowser}
                 onContinue={handleEmailSubmit}
                 onGoogleLogin={handleGoogleLogin}
                 onTelegramLogin={handleTelegramOIDCLogin}
