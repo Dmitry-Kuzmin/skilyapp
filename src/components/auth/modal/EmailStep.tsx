@@ -33,6 +33,7 @@ export function EmailStep({
     isEmailShaking,
     isPasskeyAvailable,
     telegramLoading,
+    isEmbeddedBrowser,
     onContinue,
     onGoogleLogin,
     onTelegramLogin,
