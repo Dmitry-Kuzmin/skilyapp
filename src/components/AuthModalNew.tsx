@@ -359,30 +359,14 @@ export function AuthModalNew({ open, onClose, initialStep = 'email', variant = '
 
   const handleGoogleLogin = async () => {
     try {
-      // КРИТИЧНО: Если пользователь в Telegram WebApp, открываем OAuth в отдельном браузере
-      // чтобы Google получал правильный User-Agent (не Telegram)
-      const isTelegramWebApp = typeof window !== 'undefined' && !!(window as any).Telegram?.WebApp;
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          skipBrowserRedirect: isTelegramWebApp, // Skip redirect if in Telegram, we'll handle it
+          skipBrowserRedirect: false,
         }
       });
-
       if (error) throw error;
-
-      // Если есть URL (OAuth URL), открываем его в браузере
-      if (data?.url) {
-        if (isTelegramWebApp && (window as any).Telegram?.WebApp?.openLink) {
-          // В Telegram WebApp - используем openLink чтобы открыть в браузере
-          (window as any).Telegram.WebApp.openLink(data.url);
-        } else {
-          // На обычном браузере - просто редиректим
-          window.location.href = data.url;
-        }
-      }
     } catch (err: any) {
       console.error('Google login error:', err);
       toast.error(t('auth.errors.googleLoginFailed'));
