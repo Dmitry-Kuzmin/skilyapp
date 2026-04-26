@@ -14,6 +14,7 @@ import { useTelegram } from '@/contexts/TelegramContext';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle2, ShieldCheck, X, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { isInEmbeddedBrowser, getEmbeddedBrowserName } from '@/lib/browser-detect';
 
 // Extracted Components
 import { AuthModalHeader } from './auth/modal/AuthModalHeader';
