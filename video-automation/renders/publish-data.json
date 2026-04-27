@@ -1,0 +1,17 @@
+{
+  "es": {
+    "hookTitle": "¡Falla el 40% en DGT!",
+    "question": "Circula con un turismo por una autovía con tráfico muy denso, ¿está permitido circular por el arcén para tomar la siguiente salida?",
+    "explanation": "El Reglamento General de Circulación establece que los turismos deben circular por la calzada. La circulación por el arcén está prohibida salvo por razones de emergencia (avería, malestar físico) o para vehículos específicos obligados a ello (ciclos, ciclomotores, vehículos de tracción animal, etc.). La densidad del tráfico o la intención de tomar una salida no son excepciones válidas que permitan invadir el arcén.",
+    "seriesNumber": 13,
+    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-39121580-0eb6-4c5b-8349-433ace109cb4-es.mp4"
+  },
+  "ru": {
+    "hookTitle": "40% не знают это!",
+    "question": "Вы управляете легковым автомобилем на скоростной дороге с очень плотным движением. Разрешено ли движение по обочине, чтобы съехать на следующем выезде?",
+    "explanation": "🎓 Водитель **легкового автомобиля** (Turismo) обязан двигаться исключительно по **проезжей части** (Calzada). **Обочина** (Arcén) предназначена только для спецтехники, мопедов, велосипедов, инвалидных колясок или для вынужденной остановки при поломке. Плотный поток машин или пробка не дают права выезжать на обочину, что��ы «срезать» путь к съезду. Это запрещено.\n\n🇷🇺 В РФ движение по обочине (статья 12.15 КоАП) — распространенное нарушение («обочечники»), которое водители часто совершают, чтобы объехать затор перед поворотом. В Испании это считается грубым и опасным нарушением. Здесь нет понятия «я только до поворота»: на обочине могут законно находиться велосипедисты или сломанные авто, и ваш маневр может привести к трагедии.\n\n💡 Обочина — для **беды** (поломки), а не для **езды**.\nЕсли ты не сломался и не мопед — на обочине тебе делать нечего.",
+    "seriesNumber": 13,
+    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-39121580-0eb6-4c5b-8349-433ace109cb4-ru.mp4"
+  },
+  "renderedAt": "2026-04-27T11:11:00.528Z"
+}
