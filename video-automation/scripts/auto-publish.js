@@ -15,7 +15,9 @@ const path = require("path");
 const fs = require("fs");
 
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const PROFILE_DIR = path.join(__dirname, "../chrome-profile");
+// Two separate profiles: ES accounts (Spanish audience) and RU accounts (expats)
+const PROFILE_ES  = path.join(__dirname, "../chrome-profile-es");
+const PROFILE_RU  = path.join(__dirname, "../chrome-profile-ru");
 const RENDERS_DIR = path.join(__dirname, "../renders");
 const PUBLISH_DATA_FILE = path.join(RENDERS_DIR, "publish-data.json");
 

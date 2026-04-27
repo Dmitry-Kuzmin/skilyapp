@@ -1,0 +1,5 @@
+2026/04/27-10:49:03.920 30267 Creating DB /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile/Default/Local Storage/leveldb since it was missing.
+2026/04/27-10:49:03.929 30267 Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile/Default/Local Storage/leveldb/MANIFEST-000001
+2026/04/27-10:50:03.932 3026a Level-0 table #5: started
+2026/04/27-10:50:03.938 3026a Level-0 table #5: 91819 bytes OK
+2026/04/27-10:50:03.941 3026a Delete type=0 #3

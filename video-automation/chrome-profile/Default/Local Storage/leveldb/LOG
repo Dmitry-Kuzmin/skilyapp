@@ -1,0 +1,9 @@
+2026/04/27-10:53:37.037 31db5 Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile/Default/Local Storage/leveldb/MANIFEST-000001
+2026/04/27-10:53:37.040 31db5 Recovering log #4
+2026/04/27-10:53:37.041 31db5 Reusing old log /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile/Default/Local Storage/leveldb/000004.log 
+2026/04/27-10:54:37.046 31db8 Level-0 table #8: started
+2026/04/27-10:54:37.053 31db8 Level-0 table #8: 48356 bytes OK
+2026/04/27-10:54:37.058 31db8 Delete type=0 #4
+2026/04/27-10:58:17.954 31db8 Level-0 table #10: started
+2026/04/27-10:58:17.958 31db8 Level-0 table #10: 175667 bytes OK
+2026/04/27-10:58:17.960 31db8 Delete type=0 #7
