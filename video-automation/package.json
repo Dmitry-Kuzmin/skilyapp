@@ -24,6 +24,7 @@
     "googleapis": "^144.0.0",
     "msedge-tts": "^2.0.4",
     "music-metadata": "^11.12.3",
+    "playwright-core": "^1.59.1",
     "remotion": "^4.0.0"
   },
   "devDependencies": {
