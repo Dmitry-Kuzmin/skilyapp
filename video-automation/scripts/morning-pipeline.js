@@ -83,27 +83,39 @@ function supabaseRequest(method, restPath, body) {
 }
 
 async function fetchNextQuestion() {
-  // Load published log to skip already-published questions
-  const logPath = path.join(RENDERS_DIR, "published-log.json");
-  let published = [];
-  try { published = JSON.parse(fs.readFileSync(logPath, "utf-8")); } catch {}
-  const publishedIds = published.map(p => p.id);
-
-  // Fetch questions ordered by difficulty (hardest first = lowest percent_correct)
-  // Table: questions_new, country=es for DGT questions
-  const cols = "id,question_es,explanation_es,question_ru,explanation_ru,percent_correct,difficulty,image_url,topic_id";
-  const filter = `country=eq.es&question_es=not.is.null&order=percent_correct.asc&limit=20`;
+  // Pick next question not yet published as video.
+  // Tracking stored in metadata->video_published_at in Supabase — survives local file deletion.
+  // Order: percent_correct ASC (hardest/most-failed questions first = most educational value).
+  const cols = "id,question_es,explanation_es,question_ru,explanation_ru,percent_correct,difficulty,image_url,topic_id,metadata";
+  const filter = [
+    "country=eq.es",
+    "question_es=not.is.null",
+    "metadata->>video_published_at=is.null",  // not yet published as video
+    "order=percent_correct.asc",
+    "limit=1",
+  ].join("&");
 
   const rows = await supabaseRequest("GET", `/questions_new?select=${cols}&${filter}`);
+
+  // Fallback: if metadata column filtering fails, fetch without filter and skip locally
+  let question;
   if (!Array.isArray(rows) || rows.length === 0) {
-    throw new Error("No questions available from Supabase");
+    log("  ⚠️  metadata filter returned no results — using local fallback");
+    const logPath = path.join(RENDERS_DIR, "published-log.json");
+    let published = [];
+    try { published = JSON.parse(fs.readFileSync(logPath, "utf-8")); } catch {}
+    const publishedIds = new Set(published.map(p => p.id));
+
+    const all = await supabaseRequest("GET",
+      `/questions_new?select=${cols}&country=eq.es&question_es=not.is.null&order=percent_correct.asc&limit=50`
+    );
+    if (!Array.isArray(all) || all.length === 0) throw new Error("No questions in Supabase");
+    question = all.find(r => !publishedIds.has(r.id)) || all[0];
+  } else {
+    question = rows[0];
   }
 
-  // Skip already published ones
-  const unpublished = rows.filter(r => !publishedIds.includes(r.id));
-  const question = unpublished.length > 0 ? unpublished[0] : rows[0];
-
-  // Also fetch answer options
+  // Fetch answer options
   const answers = await supabaseRequest("GET",
     `/answer_options?select=id,question_id,text_es,text_ru,is_correct,position&question_id=eq.${question.id}&order=position.asc`
   );
@@ -112,31 +124,44 @@ async function fetchNextQuestion() {
     ...question,
     question:      question.question_es,
     explanation:   question.explanation_es,
-    question_ru:   question.question_ru,
-    explanation_ru: question.explanation_ru,
+    question_ru:   question.question_ru  || "",
+    explanation_ru: question.explanation_ru || question.explanation_es,
     answer_options: Array.isArray(answers) ? answers.map(a => ({
-      id: a.id, text: a.text_es, text_ru: a.text_ru, is_correct: a.is_correct, position: a.position,
+      id: a.id, text: a.text_es || "", text_ru: a.text_ru || "", is_correct: a.is_correct, position: a.position,
     })) : [],
   };
 }
 
-async function markPublished(questionId) {
-  // Write to a local published log (Supabase update optional — add column if needed)
+async function markPublished(questionId, seriesNumber) {
+  const now = new Date().toISOString();
+
+  // 1. Save to Supabase metadata (primary — survives local file deletion)
+  try {
+    await supabaseRequest("PATCH",
+      `/questions_new?id=eq.${questionId}`,
+      { metadata: { video_published_at: now, video_series_es: seriesNumber, video_series_ru: seriesNumber } }
+    );
+    log(`  ✅ Marked in Supabase: ${questionId} (series #${seriesNumber})`);
+  } catch(e) {
+    log(`  ⚠️  Supabase mark failed: ${e.message}`);
+  }
+
+  // 2. Also save locally as backup
   const logPath = path.join(RENDERS_DIR, "published-log.json");
   let published = [];
   try { published = JSON.parse(fs.readFileSync(logPath, "utf-8")); } catch {}
-  published.push({ id: questionId, publishedAt: new Date().toISOString() });
+  published.push({ id: questionId, seriesNumber, publishedAt: now });
   fs.writeFileSync(logPath, JSON.stringify(published, null, 2));
-  log(`Marked ${questionId} as published`);
 }
 
 // ── Series number ─────────────────────────────────────────────────────────────
 function getNextSeriesNumber() {
-  let state = { ru: 1, es: 1 };
+  // Primary: count already published videos in Supabase (always accurate)
+  // Fallback: local series-state.json
+  let state = { es: 1 };
   try { state = JSON.parse(fs.readFileSync(STATE_FILE, "utf-8")); } catch {}
   const num = state.es || 1;
   state.es = num + 1;
-  state.ru = (state.ru || 1) + 1;
   fs.writeFileSync(STATE_FILE, JSON.stringify(state));
   return num;
 }
