@@ -1181,6 +1181,39 @@ function renderPanel() {
       </div>
       <div class="render-log" id="renderLog"></div>
 
+      <!-- ПУБЛИКАЦИЯ -->
+      <div class="publish-panel" id="publishPanel" style="display:none">
+        <div class="publish-section-title">Опубликовать</div>
+        <div id="publishFiles"></div>
+        <div style="margin-top:14px">
+          <div class="publish-lang-row">
+            <span class="p-label">ES</span>
+            <button class="btn-platform tiktok" onclick="publishTo('tiktok','es')">
+              <span class="p-icon">🎵</span><span class="p-name">TikTok</span>
+            </button>
+            <button class="btn-platform youtube" onclick="publishTo('youtube','es')">
+              <span class="p-icon">▶️</span><span class="p-name">YouTube</span>
+            </button>
+            <button class="btn-platform instagram" onclick="publishTo('instagram','es')">
+              <span class="p-icon">📸</span><span class="p-name">Instagram</span>
+            </button>
+          </div>
+          <div class="publish-lang-row">
+            <span class="p-label">RU</span>
+            <button class="btn-platform tiktok" onclick="publishTo('tiktok','ru')">
+              <span class="p-icon">🎵</span><span class="p-name">TikTok</span>
+            </button>
+            <button class="btn-platform youtube" onclick="publishTo('youtube','ru')">
+              <span class="p-icon">▶️</span><span class="p-name">YouTube</span>
+            </button>
+            <button class="btn-platform instagram" onclick="publishTo('instagram','ru')">
+              <span class="p-icon">📸</span><span class="p-name">Instagram</span>
+            </button>
+          </div>
+        </div>
+        <div class="publish-feedback" id="publishFeedback"></div>
+      </div>
+
     </div>
   \`;
 }
