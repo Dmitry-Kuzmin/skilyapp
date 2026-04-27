@@ -323,8 +323,8 @@ function buildVideoQuestion(q, seriesNumber) {
       proc.on("close", code => code === 0 ? resolve() : reject(new Error(`auto-publish exited with code ${code}`)));
     });
 
-    // 5. Mark as published
-    await markPublished(question.id);
+    // 5. Mark as published in Supabase + local log
+    await markPublished(question.id, seriesNumber);
 
     log("🎉 Morning pipeline complete!");
     notify("Skily Video Maker", "🎉 Конвейер завершён! Все видео опубликованы.");
