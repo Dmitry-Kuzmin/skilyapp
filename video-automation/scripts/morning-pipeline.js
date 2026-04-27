@@ -256,6 +256,8 @@ function buildVideoQuestion(q, seriesNumber) {
     log(`   ✅ ES: ${finalES}`);
     if (finalRU) log(`   ✅ RU: ${finalRU}`);
 
+    stopPickerServer();
+
     // 3. Save publish-data.json for auto-publish.js
     const pubData = {
       es: {
@@ -263,14 +265,14 @@ function buildVideoQuestion(q, seriesNumber) {
         question: videoQuestion.question,
         explanation: videoQuestion.explanation,
         seriesNumber,
-        videoPath: outputES,
+        videoPath: finalES,
       },
       ru: {
         hookTitle: videoQuestion.hook_title_ru,
         question: videoQuestion.question_ru,
         explanation: videoQuestion.explanationRu,
         seriesNumber,
-        videoPath: outputRU,
+        videoPath: finalRU,
       },
       renderedAt: new Date().toISOString(),
     };
@@ -283,9 +285,9 @@ function buildVideoQuestion(q, seriesNumber) {
     log("📤 Starting auto-publisher...");
     const publishArgs = [
       path.join(__dirname, "auto-publish.js"),
-      "--es", outputES,
-      "--ru", outputRU,
+      "--es", finalES,
     ];
+    if (finalRU) publishArgs.push("--ru", finalRU);
 
     await new Promise((resolve, reject) => {
       const proc = spawn(NODE, publishArgs, {
