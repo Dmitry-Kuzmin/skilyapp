@@ -234,8 +234,12 @@ function buildVideoQuestion(q, seriesNumber) {
   const level = pct < 40 ? "hard" : pct < 70 ? "medium" : "easy";
   const hook = hookTemplates[level];
 
+  // VideoTemplate.tsx uses q.language ("es"/"ru") — not q.country
+  const language = q.country === "russia" ? "ru" : "es";
+
   return {
     ...q,
+    language,                         // ← critical: "es" or "ru"
     series_number: seriesNumber,
     hook_title: hook.es,
     hook_title_ru: hook.ru,
