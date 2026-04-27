@@ -53,18 +53,19 @@ function notify(title, message) {
 }
 
 // ── Supabase helpers ──────────────────────────────────────────────────────────
-function supabaseRequest(method, path, body) {
+function supabaseRequest(method, restPath, body) {
   return new Promise((resolve, reject) => {
     const data = body ? JSON.stringify(body) : null;
+    const fullPath = `/rest/v1${restPath}`;
     const req = https.request({
       hostname: new URL(SUPABASE_URL).hostname,
-      path: `/rest/v1${path}`,
+      path: fullPath,
       method,
       headers: {
         "apikey": SUPABASE_KEY,
         "Authorization": `Bearer ${SUPABASE_KEY}`,
         "Content-Type": "application/json",
-        "Prefer": method === "GET" ? "return=representation" : "return=minimal",
+        "Prefer": "return=representation",
         ...(data ? { "Content-Length": Buffer.byteLength(data) } : {}),
       },
     }, res => {
