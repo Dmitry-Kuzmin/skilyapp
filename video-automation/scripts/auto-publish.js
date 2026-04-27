@@ -284,6 +284,22 @@ async function uploadInstagram(context, videoPath, lang) {
   }
 }
 
+// ── Launch Chrome context for a given profile ─────────────────────────────────
+async function launchContext(profileDir) {
+  fs.mkdirSync(profileDir, { recursive: true });
+  return chromium.launchPersistentContext(profileDir, {
+    executablePath: CHROME_PATH,
+    headless: false,
+    viewport: { width: 1280, height: 900 },
+    args: [
+      "--disable-blink-features=AutomationControlled",
+      "--no-sandbox",
+      "--disable-dev-shm-usage",
+    ],
+    ignoreDefaultArgs: ["--enable-automation"],
+  });
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 (async () => {
   if (!esVideo && !ruVideo) {
@@ -296,50 +312,37 @@ async function uploadInstagram(context, videoPath, lang) {
     process.exit(1);
   }
 
-  fs.mkdirSync(PROFILE_DIR, { recursive: true });
-
   console.log("🚀 Starting Skily Auto-Publisher...");
-  console.log(`   Profile: ${PROFILE_DIR}`);
-  console.log(`   ES video: ${esVideo || "(none)"}`);
-  console.log(`   RU video: ${ruVideo || "(none)"}`);
+  console.log(`   ES video: ${esVideo || "(none)"} → profile: chrome-profile-es`);
+  console.log(`   RU video: ${ruVideo || "(none)"} → profile: chrome-profile-ru`);
 
-  const context = await chromium.launchPersistentContext(PROFILE_DIR, {
-    executablePath: CHROME_PATH,
-    headless: false,
-    viewport: { width: 1280, height: 900 },
-    args: [
-      "--disable-blink-features=AutomationControlled",
-      "--no-sandbox",
-      "--disable-dev-shm-usage",
-    ],
-    ignoreDefaultArgs: ["--enable-automation"],
-  });
-
-  try {
-    // TikTok
-    if (!skipTikTok) {
-      if (esVideo) await uploadTikTok(context, path.resolve(esVideo), "es");
-      await delay(3000);
-      if (ruVideo) await uploadTikTok(context, path.resolve(ruVideo), "ru");
-      await delay(3000);
+  // ── ES: Spanish accounts ───────────────────────────────────────────────────
+  if (esVideo) {
+    console.log("\n── ES accounts (Spanish audience) ──");
+    const ctxES = await launchContext(PROFILE_ES);
+    try {
+      if (!skipTikTok)    await uploadTikTok(ctxES,    path.resolve(esVideo), "es");
+      if (!skipYouTube)   await uploadYouTube(ctxES,   path.resolve(esVideo), "es");
+      if (!skipInstagram) await uploadInstagram(ctxES, path.resolve(esVideo), "es");
+    } finally {
+      await ctxES.close();
     }
-
-    // YouTube
-    if (!skipYouTube) {
-      if (esVideo) await uploadYouTube(context, path.resolve(esVideo), "es");
-      await delay(3000);
-      if (ruVideo) await uploadYouTube(context, path.resolve(ruVideo), "ru");
-      await delay(3000);
-    }
-
-    // Instagram (usually just 1 language — ES)
-    if (!skipInstagram) {
-      if (esVideo) await uploadInstagram(context, path.resolve(esVideo), "es");
-    }
-
-  } finally {
-    await context.close();
-    console.log("\n✅ Auto-publisher finished.");
-    notify("Skily Video Maker", "✅ Все видео опубликованы!");
+    await delay(3000);
   }
+
+  // ── RU: Expat accounts ─────────────────────────────────────────────────────
+  if (ruVideo) {
+    console.log("\n── RU accounts (Expat audience) ──");
+    const ctxRU = await launchContext(PROFILE_RU);
+    try {
+      if (!skipTikTok)    await uploadTikTok(ctxRU,    path.resolve(ruVideo), "ru");
+      if (!skipYouTube)   await uploadYouTube(ctxRU,   path.resolve(ruVideo), "ru");
+      if (!skipInstagram) await uploadInstagram(ctxRU, path.resolve(ruVideo), "ru");
+    } finally {
+      await ctxRU.close();
+    }
+  }
+
+  console.log("\n✅ Auto-publisher finished.");
+  notify("Skily Video Maker", "✅ Все видео опубликованы!");
 })();
