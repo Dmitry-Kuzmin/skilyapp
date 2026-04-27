@@ -1833,6 +1833,50 @@ Genera SOLO JSON:
     return;
   }
 
+  // ── POST /api/open-chrome ─────────────────────────────────────────────────
+  if (req.method === "POST" && url.pathname === "/api/open-chrome") {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", () => {
+      try {
+        const { url: targetUrl } = JSON.parse(body);
+        if (!targetUrl || !targetUrl.startsWith("https://")) {
+          res.writeHead(400); res.end(JSON.stringify({ error: "Invalid URL" })); return;
+        }
+        const { execSync } = require("child_process");
+        try {
+          execSync(`open -a "Google Chrome" ${JSON.stringify(targetUrl)}`);
+        } catch {
+          // fallback: open with default browser
+          execSync(`open ${JSON.stringify(targetUrl)}`);
+        }
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true }));
+      } catch(e) {
+        res.writeHead(500); res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // ── POST /api/reveal ──────────────────────────────────────────────────────
+  if (req.method === "POST" && url.pathname === "/api/reveal") {
+    let body = "";
+    req.on("data", d => body += d);
+    req.on("end", () => {
+      try {
+        const { path: filePath } = JSON.parse(body);
+        const { execSync } = require("child_process");
+        execSync(`open -R ${JSON.stringify(filePath)}`);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true }));
+      } catch(e) {
+        res.writeHead(500); res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   res.writeHead(404);
   res.end("Not found");
 });
