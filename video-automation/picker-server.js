@@ -786,6 +786,58 @@ select:focus { border-color: var(--blue); }
 .btn-copy:hover { border-color: var(--green); color: var(--green); }
 .btn-copy.copied { border-color: var(--green); background: var(--green-dim); color: var(--green); }
 
+/* ── Publish panel ── */
+.publish-panel {
+  margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;
+}
+.publish-section-title {
+  font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.publish-file-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  margin-bottom: 8px; font-size: 12px;
+}
+.publish-file-lang {
+  background: var(--blue-dim); color: var(--blue);
+  border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+.publish-file-name {
+  color: var(--text2); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.btn-finder {
+  background: transparent; border: 1px solid var(--border); color: var(--text3);
+  font-size: 11px; padding: 3px 8px; border-radius: 5px; cursor: pointer;
+  font-family: inherit; flex-shrink: 0; transition: all .15s;
+}
+.btn-finder:hover { border-color: var(--text2); color: var(--text); }
+.publish-platforms { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 14px; }
+.btn-platform {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 12px 8px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+  background: var(--surface2); cursor: pointer; font-family: inherit;
+  transition: all .18s; color: var(--text);
+}
+.btn-platform:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+.btn-platform .p-icon { font-size: 22px; }
+.btn-platform .p-name { font-size: 12px; font-weight: 700; }
+.btn-platform .p-lang { font-size: 10px; color: var(--text3); }
+.btn-platform.tiktok { border-color: rgba(255,255,255,0.15); }
+.btn-platform.tiktok:hover { border-color: #fff; background: rgba(255,255,255,0.07); }
+.btn-platform.youtube { border-color: rgba(255,0,0,0.2); }
+.btn-platform.youtube:hover { border-color: #FF0000; background: rgba(255,0,0,0.07); }
+.btn-platform.instagram { border-color: rgba(225,48,108,0.2); }
+.btn-platform.instagram:hover { border-color: #E1306C; background: rgba(225,48,108,0.07); }
+.publish-lang-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.publish-lang-row .p-label { font-size: 11px; color: var(--text3); align-self: center; min-width: 32px; }
+.publish-feedback {
+  font-size: 12px; color: var(--green); margin-top: 10px; min-height: 18px;
+  transition: opacity .3s;
+}
+
 /* ── Chips ── */
 .chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .chip {
