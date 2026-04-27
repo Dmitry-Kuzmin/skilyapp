@@ -1350,6 +1350,101 @@ async function clearAudio() {
   if (log) { log.classList.add('visible'); log.textContent = "🗑 " + (data.message || 'Аудио очищено'); }
 }
 
+// ── Publish panel ─────────────────────────────────────────────────────────
+window._lastRender = null;
+
+function updatePublishPanel() {
+  const r = window._lastRender;
+  if (!r) return;
+  const filesEl = document.getElementById('publishFiles');
+  if (!filesEl) return;
+  let html = '';
+  if (r.output) {
+    const name = r.output.split('/').pop();
+    html += '<div class="publish-file-row">'
+      + '<span class="publish-file-lang">ES</span>'
+      + '<span class="publish-file-name" title="' + r.output + '">' + name + '</span>'
+      + '<button class="btn-finder" onclick="revealFile(' + JSON.stringify(r.output) + ')">📂 Finder</button>'
+      + '</div>';
+  }
+  if (r.outputRU) {
+    const name = r.outputRU.split('/').pop();
+    html += '<div class="publish-file-row">'
+      + '<span class="publish-file-lang" style="background:rgba(139,92,246,0.15);color:#8B5CF6">RU</span>'
+      + '<span class="publish-file-name" title="' + r.outputRU + '">' + name + '</span>'
+      + '<button class="btn-finder" onclick="revealFile(' + JSON.stringify(r.outputRU) + ')">📂 Finder</button>'
+      + '</div>';
+  }
+  filesEl.innerHTML = html;
+  document.getElementById('publishPanel').style.display = 'block';
+}
+
+async function revealFile(filePath) {
+  await fetch('/api/reveal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: filePath }) });
+}
+
+function buildCaption(platform, lang) {
+  const r = window._lastRender;
+  if (!r) return '';
+  const q = r.question || {};
+  const isRu = lang === 'ru';
+
+  // Prefer YouTube description if already generated (for YouTube)
+  if (platform === 'youtube') {
+    const descData = window._descData && window._descData[lang];
+    if (descData && descData.title && descData.description) {
+      return descData.title + '\\n\\n' + descData.description;
+    }
+  }
+
+  const hookTitle = isRu
+    ? (document.getElementById('editQuestionRu')?.value || q.question_ru || q.question || '')
+    : (document.getElementById('editQuestion')?.value || q.question || '');
+  const explanation = isRu
+    ? (document.getElementById('editExplanationRu')?.value || q.explanationRu || q.explanation_ru || q.explanation || '')
+    : (document.getElementById('editExplanation')?.value || q.explanation || '');
+  const num = String(q.series_number || '').padStart(3, '0');
+
+  if (isRu) {
+    const tags = platform === 'instagram'
+      ? '#ПДД #Вождение #Права #Испания #ExamenDGT #Skily #ЗнаниеСила'
+      : '#ПДД #Вождение #Права #Вопрос' + num + ' #Skily #ЗнаниеСила';
+    return hookTitle + '\\n\\n📚 Объяснение: ' + explanation + '\\n\\n' + tags;
+  } else {
+    const tags = platform === 'instagram'
+      ? '#DGT #Conducir #Carnet #ExamenDGT #Skily #Autoescuela'
+      : '#DGT #Conducir #Carnet #Pregunta' + num + ' #Skily #ExamenDGT';
+    return hookTitle + '\\n\\n📚 Explicación: ' + explanation + '\\n\\n' + tags;
+  }
+}
+
+const PLATFORM_URLS = {
+  tiktok:    'https://www.tiktok.com/tiktokstudio/upload?from=creator_center',
+  youtube:   'https://studio.youtube.com/channel/UCDjiNHrUm23vPnwiI2dIWlA/videos/short?filter=%5B%5D&sort=%7B%22columnType%22%3A%22date%22%2C%22sortOrder%22%3A%22DESCENDING%22%7D',
+  instagram: 'https://www.instagram.com/reels/DQHQ0rUDL1K/',
+};
+
+async function publishTo(platform, lang) {
+  const caption = buildCaption(platform, lang);
+
+  // Copy to clipboard
+  try { await navigator.clipboard.writeText(caption); } catch(e) {}
+
+  // Open in Chrome via server
+  const url = PLATFORM_URLS[platform];
+  await fetch('/api/open-chrome', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url })
+  });
+
+  const fb = document.getElementById('publishFeedback');
+  if (fb) {
+    fb.textContent = '✅ Caption скопирован! Открываю ' + platform + ' в Chrome…';
+    setTimeout(() => { if (fb) fb.textContent = ''; }, 4000);
+  }
+}
+
 // ── TTS адаптация через Gemini ────────────────────────────────────────────
 async function adaptText(fieldId, lang) {
   const ta = document.getElementById(fieldId);
