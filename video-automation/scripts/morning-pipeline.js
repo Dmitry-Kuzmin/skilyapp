@@ -141,15 +141,51 @@ function getNextSeriesNumber() {
   return num;
 }
 
-// ── Render video via picker-server API ────────────────────────────────────────
+// ── Start picker-server and wait until ready ──────────────────────────────────
+let pickerProc = null;
+
+async function startPickerServer() {
+  return new Promise((resolve) => {
+    // Check if already running
+    const http = require("http");
+    const check = () => {
+      http.get("http://localhost:3334/api/questions?limit=1", res => {
+        res.resume();
+        resolve(true);
+      }).on("error", () => resolve(false));
+    };
+    check();
+  }).then(async (running) => {
+    if (running) { log("  picker-server already running"); return; }
+    log("  Starting picker-server...");
+    pickerProc = spawn(NODE, [path.join(ROOT, "picker-server.js")], {
+      cwd: ROOT, stdio: "pipe",
+      env: { ...process.env, PATH: `/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:${process.env.PATH}` },
+    });
+    // Wait up to 15s for server to be ready
+    for (let i = 0; i < 30; i++) {
+      await new Promise(r => setTimeout(r, 500));
+      const ready = await new Promise(res => {
+        const http = require("http");
+        http.get("http://localhost:3334/api/questions?limit=1", r => { r.resume(); res(true); }).on("error", () => res(false));
+      });
+      if (ready) { log("  picker-server ready"); return; }
+    }
+    throw new Error("picker-server failed to start");
+  });
+}
+
+function stopPickerServer() {
+  if (pickerProc) { pickerProc.kill(); pickerProc = null; log("  picker-server stopped"); }
+}
+
+// ── Render via picker-server API ──────────────────────────────────────────────
 async function renderViaApi(question) {
+  const http = require("http");
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({ question });
-    const req = https.request({
-      hostname: "localhost",
-      port: 3334,
-      path: "/api/render",
-      method: "POST",
+    const req = http.request({
+      hostname: "localhost", port: 3334, path: "/api/render", method: "POST",
       headers: { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(body) },
     }, res => {
       let buf = "";
@@ -160,18 +196,6 @@ async function renderViaApi(question) {
     req.write(body);
     req.end();
   });
-}
-
-// ── Render video directly via Remotion CLI ────────────────────────────────────
-function renderDirect(question, outputPath, compositionId) {
-  const propsFile = path.join(RENDERS_DIR, `auto-render-props-${compositionId}.json`);
-  fs.writeFileSync(propsFile, JSON.stringify(question));
-
-  log(`  Rendering ${compositionId}...`);
-  execSync(
-    `${NPX} remotion render src/Root.tsx ${compositionId} "${outputPath}" --props="${propsFile}" --log=warn`,
-    { cwd: ROOT, stdio: "pipe", timeout: 300000 }
-  );
 }
 
 // ── Build video question object ───────────────────────────────────────────────
