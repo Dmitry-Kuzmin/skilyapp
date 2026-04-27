@@ -273,6 +273,11 @@ function buildVideoQuestion(q, seriesNumber) {
 
     const result = await renderViaApi(videoQuestion);
     if (!result.output) {
+      // Log the actual Remotion error for debugging
+      if (result.logs) {
+        const errorLines = result.logs.split("\n").filter(l => /error|TypeError|Cannot|failed/i.test(l)).slice(0, 10);
+        log("  Remotion logs:\n" + errorLines.join("\n"));
+      }
       throw new Error("Render failed: " + (result.error || JSON.stringify(result)));
     }
 
