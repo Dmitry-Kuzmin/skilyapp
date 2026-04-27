@@ -1331,6 +1331,8 @@ async function renderVideo() {
       btn.textContent = "✅ Готово!"; btn.style.background = "linear-gradient(135deg,#16A34A,#15803D)";
       log.textContent += "✅ ES: " + data.output + "\\n";
       if (data.outputRU) log.textContent += "✅ RU: " + data.outputRU + "\\n";
+      window._lastRender = { output: data.output, outputRU: data.outputRU || null, question: editedQuestion };
+      updatePublishPanel();
     } else {
       btn.textContent = "⚠️ Ошибка"; btn.style.background = "linear-gradient(135deg,#B91C1C,#991B1B)";
       log.textContent += "❌ " + (data.error || "Неизвестная ошибка");
