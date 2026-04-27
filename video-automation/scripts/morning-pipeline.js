@@ -242,33 +242,19 @@ function buildVideoQuestion(q, seriesNumber) {
     const outputES = path.join(RENDERS_DIR, `auto-${numStr}-${question.id}-es.mp4`);
     const outputRU = path.join(RENDERS_DIR, `auto-${numStr}-${question.id}-ru.mp4`);
 
-    // 2. Try to render via picker-server API (if running), else direct
+    // 2. Render via picker-server API (start it if needed)
     log("🎬 Rendering videos...");
-    let renderOk = false;
+    await startPickerServer();
 
-    try {
-      const result = await Promise.race([
-        renderViaApi(videoQuestion),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 5000)),
-      ]);
-      if (result.output) {
-        log(`   ✅ ES: ${result.output}`);
-        if (result.outputRU) log(`   ✅ RU: ${result.outputRU}`);
-        renderOk = true;
-        // Use paths from API response
-        Object.assign(outputES, result.output);
-        Object.assign(outputRU, result.outputRU || outputRU);
-      }
-    } catch {
-      log("   picker-server not running — rendering directly with Remotion");
+    const result = await renderViaApi(videoQuestion);
+    if (!result.output) {
+      throw new Error("Render failed: " + (result.error || JSON.stringify(result)));
     }
 
-    if (!renderOk) {
-      renderDirect(videoQuestion, outputES, "VideoTemplate");
-      log(`   ✅ ES rendered: ${outputES}`);
-      renderDirect(videoQuestion, outputRU, "VideoTemplateRU");
-      log(`   ✅ RU rendered: ${outputRU}`);
-    }
+    const finalES = result.output;
+    const finalRU = result.outputRU || null;
+    log(`   ✅ ES: ${finalES}`);
+    if (finalRU) log(`   ✅ RU: ${finalRU}`);
 
     // 3. Save publish-data.json for auto-publish.js
     const pubData = {
