@@ -82,20 +82,41 @@ function supabaseRequest(method, path, body) {
 }
 
 async function fetchNextQuestion() {
-  // Priority: questions never published (published_count = 0 or null), ordered by percent_correct ASC (hardest first)
-  const params = new URLSearchParams({
-    select: "id,question,explanation,question_ru,explanation_ru,answer_options,percent_correct,language,country",
-    language: "eq.es",
-    limit: "1",
-    order: "percent_correct.asc.nullslast",
-  });
+  // Load published log to skip already-published questions
+  const logPath = path.join(RENDERS_DIR, "published-log.json");
+  let published = [];
+  try { published = JSON.parse(fs.readFileSync(logPath, "utf-8")); } catch {}
+  const publishedIds = published.map(p => p.id);
 
-  // Try to get a question not yet auto-published
-  const rows = await supabaseRequest("GET", `/questions?${params}`);
+  // Fetch questions ordered by difficulty (hardest first = lowest percent_correct)
+  // Table: questions_new, country=es for DGT questions
+  const cols = "id,question_es,explanation_es,question_ru,explanation_ru,percent_correct,difficulty,image_url,topic_id";
+  const filter = `country=eq.es&question_es=not.is.null&order=percent_correct.asc&limit=20`;
+
+  const rows = await supabaseRequest("GET", `/questions_new?select=${cols}&${filter}`);
   if (!Array.isArray(rows) || rows.length === 0) {
     throw new Error("No questions available from Supabase");
   }
-  return rows[0];
+
+  // Skip already published ones
+  const unpublished = rows.filter(r => !publishedIds.includes(r.id));
+  const question = unpublished.length > 0 ? unpublished[0] : rows[0];
+
+  // Also fetch answer options
+  const answers = await supabaseRequest("GET",
+    `/answer_options?select=id,question_id,text_es,text_ru,is_correct,position&question_id=eq.${question.id}&order=position.asc`
+  );
+
+  return {
+    ...question,
+    question:      question.question_es,
+    explanation:   question.explanation_es,
+    question_ru:   question.question_ru,
+    explanation_ru: question.explanation_ru,
+    answer_options: Array.isArray(answers) ? answers.map(a => ({
+      id: a.id, text: a.text_es, text_ru: a.text_ru, is_correct: a.is_correct, position: a.position,
+    })) : [],
+  };
 }
 
 async function markPublished(questionId) {
