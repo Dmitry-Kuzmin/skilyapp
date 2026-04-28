@@ -428,11 +428,11 @@ async function prerender() {
           const hasContent = await page.evaluate(() => {
             const root = document.querySelector('#root');
             const text = root?.textContent?.trim() || '';
-            return root && root.children.length > 0 && text.length > 500;
+            return root && root.children.length > 0 && text.length > 900;
           });
 
           if (!hasContent) {
-            throw new Error(`Route ${route} rendered without meaningful content in #root (<500 chars)`);
+            throw new Error(`Route ${route} rendered without meaningful content in #root (<900 chars)`);
           }
 
           // КРИТИЧНО для LCP/мобилок: убрать runtime-инъецированные modulepreload теги.
