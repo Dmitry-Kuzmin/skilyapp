@@ -605,19 +605,34 @@ async function uploadInstagram(context, videoPath, lang) {
       'button:has-text("Опубликовать")',
     ].join(", ")).first();
     await shareBtn.waitFor({ timeout: 10000 });
-    // Use evaluate click to bypass pointer-event interception
-    await shareBtn.evaluate(el => el.click());
-    // Fallback with force if evaluate doesn't trigger React event
-    await shareBtn.click({ force: true }).catch(() => {});
+    console.log("  Share button found, clicking...");
+    await page.screenshot({ path: "/tmp/instagram-before-share.png" });
+
+    // Use native Playwright click with force to bypass pointer-event interception
+    await shareBtn.click({ force: true });
     console.log("  ✓ Share clicked");
 
-    // Wait for confirmation
-    await page.waitForSelector([
+    await delay(3000);
+    await page.screenshot({ path: "/tmp/instagram-after-share.png" });
+    console.log("  📸 /tmp/instagram-after-share.png");
+    console.log("  📍 URL after share:", page.url());
+
+    // Wait for confirmation — "Your reel has been shared" or similar
+    const confirmed = await page.waitForSelector([
       'span:has-text("Your reel")',
       'span:has-text("Рилс опубликован")',
+      'span:has-text("Your Reel")',
+      'span:has-text("опубликован")',
       'span:has-text("Your post")',
+      'span:has-text("Публикация")',
       'div[role="dialog"] button:has-text("OK")',
-    ].join(", "), { timeout: 60000 }).catch(() => {});
+    ].join(", "), { timeout: 60000 }).catch(() => null);
+
+    if (!confirmed) {
+      await page.screenshot({ path: "/tmp/instagram-share-failed.png" });
+      console.log("  📸 /tmp/instagram-share-failed.png — no confirmation received");
+      throw new Error("Share confirmation not received — post may not have published");
+    }
     console.log(`  ✅ Instagram [${lang.toUpperCase()}] published!`);
     notify("Skily Video Maker", `✅ Instagram ${lang.toUpperCase()} опубликован`);
   } catch(e) {
