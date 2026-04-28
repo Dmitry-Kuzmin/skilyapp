@@ -347,6 +347,9 @@ async function uploadInstagram(context, videoPath, lang) {
 
     // Click Create / New post button — try all known selectors
     const createSelectors = [
+      // Russian Instagram: "Новая публикацияСоздать"
+      'a:has-text("Создать")',
+      'a:has-text("Create")',
       'a[href="/create/style/"]',
       'a[href="/create/"]',
       'svg[aria-label="New post"]',
@@ -354,9 +357,6 @@ async function uploadInstagram(context, videoPath, lang) {
       'svg[aria-label="Создать"]',
       'a[role="link"]:has(svg[aria-label="New post"])',
       'div[role="button"]:has(svg[aria-label="New post"])',
-      // Instagram left sidebar "Create" text link
-      'span:has-text("Create")',
-      'span:has-text("Создать")',
     ];
     let createClicked = false;
     for (const sel of createSelectors) {
