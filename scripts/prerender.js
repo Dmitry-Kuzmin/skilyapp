@@ -365,27 +365,29 @@ async function prerender() {
           });
 
           // Wait for meaningful React content (not just fallback/skeleton).
-          // Landing uses lazy(LandingSpain|LandingRussia) + Suspense — we must wait for
-          // the chunk to load and mount, not just for #root to have any children.
-          // Threshold 900 > SEO assert minimum 800 — ensures prerender waits for real
-          // content (not skeletons). Pages with Supabase data need time to fetch+render.
+          // LandingSpain/LandingRussia are now synchronous imports — they render immediately
+          // without a lazy-chunk round-trip, so we don't need as large a threshold.
+          // Threshold 600 > SEO assert minimum 800? — No: SEO assert uses htmlToComparableText
+          // (strips tags/entities) while waitForFunction uses raw textContent. Skeleton HTML
+          // has ~500 textContent chars but only ~150 real-text chars. 600 textContent reliably
+          // means real content is present while letting legal/guide pages qualify faster.
           try {
             await page.waitForFunction(
               () => {
                 const root = window.document.querySelector('#root');
                 if (!root) return false;
                 const text = root.textContent?.trim() || '';
-                return text.length > 900;
+                return text.length > 600;
               },
               { timeout: 45000, polling: 200 }
             );
-            console.log('[Prerender] ✅ React content detected in #root (>900 chars)');
+            console.log('[Prerender] ✅ React content detected in #root (>600 chars)');
           } catch (error) {
             console.warn('[Prerender] ⚠️ Timeout waiting for substantial React content, fallback to basic check');
             await page.waitForFunction(
               () => {
                 const root = window.document.querySelector('#root');
-                return root && root.children.length > 0 && (root.textContent?.trim().length || 0) > 500;
+                return root && root.children.length > 0 && (root.textContent?.trim().length || 0) > 300;
               },
               { timeout: 15000 }
             );
