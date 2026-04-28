@@ -353,28 +353,14 @@ async function uploadInstagram(context, videoPath, lang) {
   console.log(`\n📸 Instagram [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
   const page = await context.newPage();
   try {
-    await page.goto("https://www.instagram.com/", {
+    // Navigate directly to Instagram upload page (works for all account types)
+    await page.goto("https://www.instagram.com/create/style/", {
       waitUntil: "domcontentloaded", timeout: 30000,
     });
     await delay(3000);
-    await page.screenshot({ path: "/tmp/instagram-home.png" });
     console.log("  📍 URL:", page.url());
 
-    // Click Create / New post button — try all known selectors
-    const createSelectors = [
-      // Russian Instagram: "Новая публикацияСоздать"
-      'a:has-text("Создать")',
-      'a:has-text("Create")',
-      'a[href="/create/style/"]',
-      'a[href="/create/"]',
-      'svg[aria-label="New post"]',
-      'svg[aria-label="Новая публикация"]',
-      'svg[aria-label="Создать"]',
-      'a[role="link"]:has(svg[aria-label="New post"])',
-      'div[role="button"]:has(svg[aria-label="New post"])',
-    ];
-    // Dismiss any initial popups (notifications prompt, etc.)
-    await delay(2000);
+    // Dismiss any popups (notifications, etc.)
     for (const txt of ["Не сейчас", "Not Now", "Not now", "Dismiss"]) {
       try {
         const btn = page.locator(`button:has-text("${txt}")`).first();
@@ -382,42 +368,11 @@ async function uploadInstagram(context, videoPath, lang) {
       } catch {}
     }
 
-    // Check if still on login page — means session expired
+    // If redirected to login — session expired
     if (page.url().includes("accounts") || page.url().includes("login")) {
-      throw new Error(`Instagram not logged in (URL: ${page.url()})`);
+      throw new Error(`Instagram not logged in — run: node scripts/setup-login.js ${lang}`);
     }
-
-    // Click Create — works for both account types:
-    // - Personal/test: "Создать" link opens upload dialog directly
-    // - Business/creator: "Создать" expands to sub-menu → click "Публикация"
-    const createClicked = await page.evaluate(() => {
-      const links = Array.from(document.querySelectorAll("a, [role='link']"));
-      const btn = links.find(a =>
-        a.textContent.includes("Создать") ||
-        a.textContent.includes("Create") ||
-        a.href?.includes("/create")
-      );
-      if (btn) { btn.click(); return true; }
-      return false;
-    });
-
-    if (!createClicked) {
-      await page.screenshot({ path: "/tmp/instagram-no-create.png" });
-      throw new Error("Create button not found on Instagram");
-    }
-    console.log("  ✓ Create clicked");
-
-    await delay(2000);
-
-    // If sub-menu appeared (business account) — click "Публикация" / "Post"
-    try {
-      const postItem = page.locator('a:has-text("Публикация"), a:has-text("Post"), [role="link"]:has-text("Публикация")').first();
-      if (await postItem.isVisible({ timeout: 2000 })) {
-        await postItem.click();
-        console.log("  ✓ Selected Публикация");
-        await delay(1500);
-      }
-    } catch {}
+    console.log("  ✓ Upload page opened");
 
     // Click "Select from computer" / use hidden file input
     let fileSet = false;
