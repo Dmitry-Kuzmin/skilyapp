@@ -155,7 +155,7 @@ async function uploadTikTok(context, videoPath, lang) {
     }
     console.log("  ✓ Upload complete");
 
-    // Fill caption
+    // Fill caption — use clipboard paste (much faster than typing char by char)
     const { caption } = getCaption(lang, "tiktok");
     const captionEl = page.locator([
       '.public-DraftEditor-content[contenteditable="true"]',
@@ -164,7 +164,10 @@ async function uploadTikTok(context, videoPath, lang) {
     ].join(", ")).first();
     await captionEl.click();
     await page.keyboard.press("Meta+A");
-    await captionEl.type(caption, { delay: 10 });
+    // Write to clipboard and paste — avoids char-by-char timeout
+    await page.evaluate((text) => navigator.clipboard.writeText(text), caption);
+    await page.keyboard.press("Meta+V");
+    await delay(500);
     console.log("  ✓ Caption filled");
 
     await delay(2000);
