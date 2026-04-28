@@ -367,18 +367,19 @@ async function prerender() {
           // Wait for meaningful React content (not just fallback/skeleton).
           // Landing uses lazy(LandingSpain|LandingRussia) + Suspense — we must wait for
           // the chunk to load and mount, not just for #root to have any children.
+          // Threshold 900 > SEO assert minimum 800 — ensures prerender waits for real
+          // content (not skeletons). Pages with Supabase data need time to fetch+render.
           try {
             await page.waitForFunction(
               () => {
                 const root = window.document.querySelector('#root');
                 if (!root) return false;
                 const text = root.textContent?.trim() || '';
-                // 500 chars ensures we're past fallbacks/skeletons, into real content
-                return text.length > 500;
+                return text.length > 900;
               },
               { timeout: 45000, polling: 200 }
             );
-            console.log('[Prerender] ✅ React content detected in #root (>500 chars)');
+            console.log('[Prerender] ✅ React content detected in #root (>900 chars)');
           } catch (error) {
             console.warn('[Prerender] ⚠️ Timeout waiting for substantial React content, fallback to basic check');
             await page.waitForFunction(
