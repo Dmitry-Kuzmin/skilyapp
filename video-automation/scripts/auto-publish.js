@@ -157,9 +157,13 @@ async function uploadTikTok(context, videoPath, lang) {
 
     // Fill caption
     const { caption } = getCaption(lang, "tiktok");
-    const captionEl = page.locator('div[class*="caption-wrap"] [contenteditable="true"], div[data-e2e="caption-input"]').first();
+    const captionEl = page.locator([
+      '.public-DraftEditor-content[contenteditable="true"]',
+      'div[class*="caption-wrap"] [contenteditable="true"]',
+      'div[data-e2e="caption-input"]',
+    ].join(", ")).first();
     await captionEl.click();
-    await captionEl.fill("");
+    await page.keyboard.press("Meta+A");
     await captionEl.type(caption, { delay: 10 });
     console.log("  ✓ Caption filled");
 
