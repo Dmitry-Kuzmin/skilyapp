@@ -215,12 +215,18 @@ async function uploadYouTube(context, videoPath, lang) {
     console.log("  ✓ Clicked Create");
 
     await delay(1500);
-    // Pick "Upload videos" from dropdown
+    // Pick "Upload videos" from dropdown — try all languages
     await page.locator([
       'tp-yt-paper-item:has-text("Upload videos")',
       'tp-yt-paper-item:has-text("Загрузить видео")',
-      'yt-formatted-string:has-text("Upload videos")',
-      'span:has-text("Upload videos")',
+      'tp-yt-paper-item:has-text("Загрузить")',
+      'tp-yt-paper-item:has-text("Subir vídeo")',
+      'tp-yt-paper-item:has-text("Subir")',
+      'yt-formatted-string:has-text("Upload")',
+      'yt-formatted-string:has-text("Загрузить")',
+      'yt-formatted-string:has-text("Subir")',
+      // Fallback: first item in the Create dropdown menu
+      'tp-yt-paper-listbox tp-yt-paper-item:first-child',
     ].join(", ")).first().click();
     console.log("  ✓ Selected Upload videos");
 
