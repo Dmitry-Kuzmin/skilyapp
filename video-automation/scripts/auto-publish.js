@@ -353,26 +353,54 @@ async function uploadInstagram(context, videoPath, lang) {
   console.log(`\n📸 Instagram [${lang.toUpperCase()}] → ${path.basename(videoPath)}`);
   const page = await context.newPage();
   try {
-    // Navigate directly to Instagram upload page (works for all account types)
-    await page.goto("https://www.instagram.com/create/style/", {
+    await page.goto("https://www.instagram.com/", {
       waitUntil: "domcontentloaded", timeout: 30000,
     });
     await delay(3000);
     console.log("  📍 URL:", page.url());
 
-    // Dismiss any popups (notifications, etc.)
-    for (const txt of ["Не сейчас", "Not Now", "Not now", "Dismiss"]) {
-      try {
-        const btn = page.locator(`button:has-text("${txt}")`).first();
-        if (await btn.isVisible({ timeout: 1500 })) { await btn.click(); await delay(500); break; }
-      } catch {}
-    }
-
     // If redirected to login — session expired
     if (page.url().includes("accounts") || page.url().includes("login")) {
       throw new Error(`Instagram not logged in — run: node scripts/setup-login.js ${lang}`);
     }
-    console.log("  ✓ Upload page opened");
+
+    // Dismiss any popups FIRST (notifications, etc.) before clicking Create
+    for (const txt of ["Не сейчас", "Not Now", "Not now", "Dismiss"]) {
+      try {
+        const btn = page.locator(`button:has-text("${txt}")`).first();
+        if (await btn.isVisible({ timeout: 2000 })) {
+          await btn.click();
+          console.log(`  ✓ Dismissed popup (${txt})`);
+          await delay(800);
+          break;
+        }
+      } catch {}
+    }
+
+    // Click Create / "+" button using JS
+    const createClicked = await page.evaluate(() => {
+      const links = Array.from(document.querySelectorAll("a"));
+      const btn = links.find(a =>
+        a.textContent.includes("Создать") ||
+        a.textContent.includes("Create") ||
+        a.href?.includes("/create")
+      );
+      if (btn) { btn.click(); return btn.textContent.trim().slice(0, 30); }
+      return null;
+    });
+    if (!createClicked) throw new Error("Create button not found on Instagram");
+    console.log(`  ✓ Create clicked (${createClicked})`);
+    await delay(2000);
+
+    // Business/creator accounts: "Создать" expands sub-menu → click "Публикация"
+    try {
+      const postItem = page.locator('a:has-text("Публикация"), a:has-text("Post")').first();
+      if (await postItem.isVisible({ timeout: 2000 })) {
+        await postItem.click();
+        console.log("  ✓ Selected Публикация");
+        await delay(2000);
+      }
+    } catch {}
 
     // Click "Select from computer" / use hidden file input
     let fileSet = false;
