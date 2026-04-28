@@ -137,11 +137,10 @@ async function uploadTikTok(context, videoPath, lang) {
 
     // Wait for caption field (TikTok shows it after upload completes)
     const captionSelector = [
+      '.public-DraftEditor-content[contenteditable="true"]',
       'div[class*="caption-wrap"] [contenteditable="true"]',
       'div[data-e2e="caption-input"]',
       'div[class*="editor-kit"] [contenteditable="true"]',
-      '[contenteditable="true"][class*="caption"]',
-      'div.caption-input [contenteditable]',
     ].join(", ");
 
     try {
