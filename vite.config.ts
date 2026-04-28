@@ -101,8 +101,10 @@ export default defineConfig(({ mode }) => {
       // ВАЖНО: terser может быть более стабильным для React, но медленнее
       minify: 'esbuild',
       target: 'es2020', // Изменено с es2015 на es2020 для поддержки BigInt (TON AppKit)
-      // Отключаем автоматический modulepreload от Vite, чтобы не тянуть vendor на лендинге
-      modulePreload: false,
+      // modulePreload включён — Vite генерирует <link rel="modulepreload"> для статических чанков.
+      // Это позволяет react-core, supabase-vendor и entry bundle грузиться ПАРАЛЛЕЛЬНО.
+      // Lazy-чанки (Duel, Index, Landing) НЕ попадают в preload лендинга — они React.lazy().
+      // modulePreload: false было причиной последовательной загрузки (5-15s LCP на мобиле).
       // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации для стабильности
       minifyWhitespace: true,
       // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации

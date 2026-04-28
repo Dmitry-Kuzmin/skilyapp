@@ -1,17 +1,17 @@
 {
   "es": {
     "hookTitle": "¡Falla el 40% en DGT!",
-    "question": "Circula con un turismo por una autovía con tráfico muy denso, ¿está permitido circular por el arcén para tomar la siguiente salida?",
-    "explanation": "El Reglamento General de Circulación establece que los turismos deben circular por la calzada. La circulación por el arcén está prohibida salvo por razones de emergencia (avería, malestar físico) o para vehículos específicos obligados a ello (ciclos, ciclomotores, vehículos de tracción animal, etc.). La densidad del tráfico o la intención de tomar una salida no son excepciones válidas que permitan invadir el arcén.",
-    "seriesNumber": 13,
-    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-39121580-0eb6-4c5b-8349-433ace109cb4-es.mp4"
+    "question": "¿Está permitido circular con un Vehículo de Movilidad Personal (VMP) que dispone de un sillín?",
+    "explanation": "Según la definición oficial de la DGT y el Reglamento General de Vehículos, un Vehículo de Movilidad Personal (VMP) es un vehículo de una o más ruedas dotado de una única plaza y propulsado exclusivamente por motores eléctricos. La normativa establece una condición técnica específica respecto al asiento: los VMP solo pueden estar equipados con un asiento o sillín si están dotados de un sistema de autoequilibrado. Si un patinete eléctrico dispone de sillín sin tener sistema de autoequilibrado, deja de clasificarse como VMP y pasa a considerarse, a efectos legales, un ciclomotor (L1e-B), requiriendo autorización administrativa para circular, seguro y permiso de conducción.",
+    "seriesNumber": 16,
+    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-es.mp4"
   },
   "ru": {
     "hookTitle": "40% не знают это!",
-    "question": "Вы управляете легковым автомобилем на скоростной дороге с очень плотным движением. Разрешено ли движение по обочине, чтобы съехать на следующем выезде?",
-    "explanation": "🎓 Водитель **легкового автомобиля** (Turismo) обязан двигаться исключительно по **проезжей части** (Calzada). **Обочина** (Arcén) предназначена только для спецтехники, мопедов, велосипедов, инвалидных колясок или для вынужденной остановки при поломке. Плотный поток машин или пробка не дают права выезжать на обочину, что��ы «срезать» путь к съезду. Это запрещено.\n\n🇷🇺 В РФ движение по обочине (статья 12.15 КоАП) — распространенное нарушение («обочечники»), которое водители часто совершают, чтобы объехать затор перед поворотом. В Испании это считается грубым и опасным нарушением. Здесь нет понятия «я только до поворота»: на обочине могут законно находиться велосипедисты или сломанные авто, и ваш маневр может привести к трагедии.\n\n💡 Обочина — для **беды** (поломки), а не для **езды**.\nЕсли ты не сломался и не мопед — на обочине тебе делать нечего.",
-    "seriesNumber": 13,
-    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-39121580-0eb6-4c5b-8349-433ace109cb4-ru.mp4"
+    "question": "Разрешено ли движение на Средстве индивидуальной мобильности (VMP/СИМ), оборудованном сиденьем?",
+    "explanation": "🎓 Как водитель легкового автомобиля, ты должен понимать, что такое VMP (СИМ) в Испании, чтобы предсказывать их поведение. Согласно ПДД Испании, VMP — это устройство с одним или несколькими колесами, исключительно на электротяге, со скоростью от 6 до 25 км/ч. Главное техническое ограничение: **сиденье (седло) разрешено устанавливать ТОЛЬКО если устройство имеет систему самобалансировки** (например, как у Segway). Если на обычный электросамокат установлено сиденье, он юридически перестает быть СИМ и считается мопедом, что требует от водителя прав, шлема, страховки и номерного знака.\n\n🇷🇺 Это критическое отличие. В РФ многие электросамокаты с сиденьем все еще могут попадать под категорию СИМ (в зависимости от мощности и веса), и их использование на тротуарах или обочинах привычно. В Испании жесткое правило: **есть сиденье, но нет гироскопа/самобалансировки = это мопед**. Езда на таком устройстве без прав и страховки влечет огромные штрафы и эвакуацию ТС.\n\n💡 Запомни принцип «Стул для эквилибриста»:\nСидеть можно только на том, что **САМО** держит равновесие.\nНет баланса — стой на ногах.",
+    "seriesNumber": 16,
+    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-ru.mp4"
   },
-  "renderedAt": "2026-04-27T11:11:00.528Z"
+  "renderedAt": "2026-04-28T18:52:41.391Z"
 }
