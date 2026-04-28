@@ -443,11 +443,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Persist to localStorage
         localStorage.setItem('puzzle_user', JSON.stringify(telegramUser));
 
-        // 🚀 NEW: Обмениваем Telegram initData на Supabase сессию
-        // Это фундаментальное решение для интеграции Telegram с Supabase Auth
+        // FAST PATH: если profileId уже есть в кэше — показываем UI немедленно,
+        // а сессию обновляем в фоне. Это устраняет белый экран 3-5 сек при каждом открытии.
+        const cachedTgProfileId = localStorage.getItem(`profile_${telegramUser.id}`);
+        if (cachedTgProfileId) {
+          setProfileId(cachedTgProfileId);
+          setGlobalProfileId(cachedTgProfileId);
+          setIsLoading(false);
+          console.log("[UserContext] ⚡ Fast path: UI unblocked with cached profileId:", cachedTgProfileId);
+        }
+
+        // Обмениваем Telegram initData на Supabase сессию (в фоне для возвращающихся, await для новых)
         const initData = webApp?.initData || window.Telegram?.WebApp?.initData;
         if (initData && initData !== '' && !initData.startsWith('mock_')) {
-          try {
+          const doTelegramAuth = async () => {
             console.log("[UserContext] 🔐 Exchanging Telegram initData for Supabase session...");
 
             const { data: authData, error: authError } = await supabase.functions.invoke('telegram-auth-v2', {
@@ -456,19 +465,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
             if (authError) {
               console.error('[UserContext] telegram-auth-v2 error:', authError);
-              toast.error('Сбой быстрой авторизации', { description: 'Пробуем обычный вход...' });
-              await login(telegramUser).catch(err => {
-                console.error('[UserContext] Fallback login failed:', err);
-              });
+              if (!cachedTgProfileId) {
+                toast.error('Сбой быстрой авторизации', { description: 'Пробуем обычный вход...' });
+                await login(telegramUser).catch(err => {
+                  console.error('[UserContext] Fallback login failed:', err);
+                });
+              }
             } else if (authData?.session) {
               console.log("[UserContext] ✅ Got Supabase session from Telegram auth!");
 
-              toast.warning('Авторизация успешна!', {
-                id: 'auth-success-toast',
-                duration: 2000
-              });
-
-              // ФУНДАМЕНТАЛЬНЫЙ МОМЕНТ: Устанавливаем сессию в Supabase клиент
               const { error: sessionError } = await supabase.auth.setSession({
                 access_token: authData.session.access_token,
                 refresh_token: authData.session.refresh_token,
@@ -476,8 +481,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
               if (sessionError) {
                 console.error('[UserContext] setSession error:', sessionError);
-                if (sessionError.message.includes('refresh_token_not_found') || sessionError.status === 400) {
-                  console.warn('[UserContext] Invalid session detected, clearing storage and falling back...');
+                if (!cachedTgProfileId && (sessionError.message.includes('refresh_token_not_found') || sessionError.status === 400)) {
+                  console.warn('[UserContext] Invalid session, clearing and falling back...');
                   localStorage.removeItem('sb-yffjnqegeiorunyvcxkn-auth-token');
                   await login(telegramUser).catch(err => console.error('[UserContext] Fallback login failed:', err));
                 }
@@ -486,8 +491,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 setSession(authData.session);
                 setSupabaseUser(authData.user);
 
-                // КРИТИЧНО: profileId устанавливается СИНХРОННО до setIsLoading(false)
-                // Это предотвращает ситуацию когда StarsPaymentButton видит profileId=null
                 if (authData.profile_id) {
                   console.log("[UserContext] ✅ profileId from auth function:", authData.profile_id);
                   setProfileId(authData.profile_id);
@@ -495,31 +498,45 @@ export function UserProvider({ children }: { children: ReactNode }) {
                   localStorage.setItem(`profile_${telegramUser.id}`, authData.profile_id);
                 }
               }
-
             } else {
               console.warn('[UserContext] telegram-auth-v2 returned no session');
-              await login(telegramUser).catch(err => {
-                console.error('[UserContext] Fallback login failed:', err);
+              if (!cachedTgProfileId) {
+                await login(telegramUser).catch(err => {
+                  console.error('[UserContext] Fallback login failed:', err);
+                });
+              }
+            }
+          };
+
+          if (cachedTgProfileId) {
+            // Возвращающийся пользователь: UI уже показан, обновляем сессию в фоне
+            doTelegramAuth().catch(err => {
+              console.error('[UserContext] Background auth failed:', err);
+            });
+          } else {
+            // Новый пользователь: ждём авторизацию (нужен profileId)
+            try {
+              await doTelegramAuth();
+            } catch (err) {
+              console.error('[UserContext] telegram-auth-v2 exception:', err);
+              await login(telegramUser).catch(err2 => {
+                console.error('[UserContext] Fallback login failed:', err2);
               });
             }
-          } catch (err) {
-            console.error('[UserContext] telegram-auth-v2 exception:', err);
-            await login(telegramUser).catch(err2 => {
-              console.error('[UserContext] Fallback login failed:', err2);
-            });
           }
         } else {
           // initData отсутствует или мок — используем старый метод
-          await login(telegramUser).catch(err => {
-            console.error('[UserContext] Auto-login failed:', err);
-          });
+          if (!cachedTgProfileId) {
+            await login(telegramUser).catch(err => {
+              console.error('[UserContext] Auto-login failed:', err);
+            });
+          }
         }
       } else {
         console.log("[UserContext] No Telegram user - user needs to login manually");
       }
 
-      // КРИТИЧНО: setIsLoading(false) вызывается ТОЛЬКО ЗДЕСЬ — после завершения ВСЕЙ цепочки
-      // Это гарантирует что profileId, session, supabaseUser установлены до рендера
+      // setIsLoading(false) для новых пользователей (у возвращающихся уже вызван выше через fast path)
       setIsLoading(false);
     };
 
