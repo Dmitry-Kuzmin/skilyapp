@@ -199,26 +199,31 @@ async function uploadYouTube(context, videoPath, lang) {
     await delay(5000);
     console.log("  📍 Current URL:", page.url());
 
-    // YouTube Studio: click Create → Upload videos, then set file directly on hidden input
-    // Try direct upload icon first, then Create button fallback
-    let uploadClicked = false;
+    // Dismiss any error dialogs
     try {
-      const uploadIcon = page.locator("#upload-button, ytcp-button#upload-icon, button[aria-label='Upload videos']").first();
-      await uploadIcon.waitFor({ timeout: 5000 });
-      await uploadIcon.click();
-      uploadClicked = true;
+      const closeBtn = page.locator('button[aria-label="Close"]').first();
+      if (await closeBtn.isVisible({ timeout: 2000 })) { await closeBtn.click(); await delay(500); }
     } catch {}
 
-    if (!uploadClicked) {
-      // Click "Create" button, then pick "Upload videos" from dropdown
-      await page.locator("ytcp-button#create-icon, button#create-icon, #create-icon").first().click();
-      await delay(1000);
-      await page.locator("tp-yt-paper-item:has-text('Upload'), tp-yt-paper-item:has-text('Загрузить видео')").first().click();
-    }
+    // YouTube Studio: "Create" → "Upload videos" → set file on hidden input
+    await page.locator('button[aria-label="Create"], .ytcpAppHeaderCreateIcon button').first()
+      .waitFor({ timeout: 15000 });
+    await page.locator('button[aria-label="Create"], .ytcpAppHeaderCreateIcon button').first().click();
+    console.log("  ✓ Clicked Create");
+
+    await delay(1500);
+    // Pick "Upload videos" from dropdown
+    await page.locator([
+      'tp-yt-paper-item:has-text("Upload videos")',
+      'tp-yt-paper-item:has-text("Загрузить видео")',
+      'yt-formatted-string:has-text("Upload videos")',
+      'span:has-text("Upload videos")',
+    ].join(", ")).first().click();
+    console.log("  ✓ Selected Upload videos");
 
     await delay(2000);
 
-    // The upload dialog has a hidden file input — set files directly
+    // Set file directly on hidden file input
     const fileInput = page.locator("input[type='file']").first();
     await fileInput.waitFor({ state: "attached", timeout: 15000 });
     await fileInput.setInputFiles(videoPath);
