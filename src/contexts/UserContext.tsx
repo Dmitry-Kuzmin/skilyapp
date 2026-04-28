@@ -290,27 +290,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
-      console.log("[UserContext] Existing session:", existingSession?.user?.email);
-      if (existingSession?.user) {
-        console.log("[UserContext] Real Supabase user found in existing session");
-        setSession(existingSession);
-        setSupabaseUser(existingSession.user);
-        // Очищаем Telegram mock-данные, если они были установлены
-        setUser(prevUser => {
-          if (prevUser && (prevUser.id === 123456789 || prevUser.username === 'test_user')) {
-            console.log("[UserContext] Clearing Telegram mock user on session check");
-            window.puzzleUser = null;
-            return null;
-          }
-          return prevUser;
-        });
-      } else {
-        setSession(existingSession);
-        setSupabaseUser(existingSession?.user ?? null);
-      }
-    });
+    // onAuthStateChange fires INITIAL_SESSION on subscribe — no need for a separate getSession() call.
+    // A second parallel getSession() only adds an extra async round-trip and duplicate setState calls.
 
     return () => {
       subscription.unsubscribe();
