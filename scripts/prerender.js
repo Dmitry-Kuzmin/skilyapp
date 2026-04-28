@@ -431,6 +431,21 @@ async function prerender() {
             throw new Error(`Route ${route} rendered without meaningful content in #root (<500 chars)`);
           }
 
+          // КРИТИЧНО для LCP/мобилок: убрать runtime-инъецированные modulepreload теги.
+          // Когда React.lazy() триггерит загрузку чанков, Vite вставляет в <head>
+          // <link rel="modulepreload" as="script"> для каждой зависимости. Puppeteer
+          // ловит эти теги в page.content() и они запекаются в статический HTML —
+          // в итоге браузер на лендинге eagerly качает ~3MB JS (ton-vendor 950KB,
+          // charts-vendor 388KB, app index 552KB и т.д.), что НЕ нужно для рендера лендинга.
+          // Vite-овский статический preload (react-core, supabase-vendor) НЕ имеет
+          // атрибута as="script" — он остаётся.
+          await page.evaluate(() => {
+            const runtimePreloads = document.querySelectorAll(
+              'link[rel="modulepreload"][as="script"]'
+            );
+            runtimePreloads.forEach((link) => link.remove());
+          });
+
           return page.content();
         });
 
