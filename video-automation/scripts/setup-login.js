@@ -25,10 +25,21 @@ const ROOT = path.join(__dirname, "..");
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const AUTH_FILE = path.join(ROOT, `auth-state-${lang}.json`);
 
-async function waitForEnter(prompt) {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+async function waitForSignal() {
+  const SIGNAL_FILE = "/tmp/skily-save-session.txt";
+  // Clean up any old signal
+  try { fs.unlinkSync(SIGNAL_FILE); } catch {}
+  console.log(`\n   Когда залогинишься — запусти в терминале:`);
+  console.log(`   touch /tmp/skily-save-session.txt\n`);
+  // Poll for signal file
   return new Promise(resolve => {
-    rl.question(prompt, () => { rl.close(); resolve(); });
+    const iv = setInterval(() => {
+      if (fs.existsSync(SIGNAL_FILE)) {
+        clearInterval(iv);
+        try { fs.unlinkSync(SIGNAL_FILE); } catch {}
+        resolve();
+      }
+    }, 1000);
   });
 }
 

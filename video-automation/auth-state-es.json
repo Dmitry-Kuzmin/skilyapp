@@ -1,0 +1,219 @@
+{
+  "cookies": [
+    {
+      "name": "tt_csrf_token",
+      "value": "XEj3YQdv-ZJdZEcS8-gJlLhJWJnkGcE5TEk0",
+      "domain": ".tiktok.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ttwid",
+      "value": "1%7CTeVqbPMfZOBHUEkrVHu6GItTVosC2mV64ymrVP7cfIA%7C1777383891%7C4357290d2fcde75133fe6abda49f33afac107ca623d0c69e22128e8e5e5b4c70",
+      "domain": ".tiktok.com",
+      "path": "/",
+      "expires": 1808919891.941313,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "tiktok_webapp_theme_source",
+      "value": "auto",
+      "domain": ".www.tiktok.com",
+      "path": "/",
+      "expires": 1803303891,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "tiktok_webapp_theme",
+      "value": "light",
+      "domain": ".www.tiktok.com",
+      "path": "/",
+      "expires": 1803303891,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Secure-YNID",
+      "value": "18.YT=yTWmEIqcJ5-_jKgPCGLuyJwDzNzwqm3LQEvDYVVuIgR35G3-ZQXeaTsTR7WjIFPqTLUe0X6TxIUWbRCqwnZn38NBxUDvMemasX8IL1wXja_RM0ua6ReByrYF8AJ3bAdRcjvCnuqCs6JRsa2YcGvVs3E9puRZqms8oCByK3JvEzJRwS5Bc-uXp-bA8mTWH4UC4DEosikWEF1NYonh958Bm2RarR3cQ6HGKo3mA4JvK0JJHjumR_zurv6UCBGCg2fDXcof0D_BR8c222SkHigxLrVspEg2iKf_Gx2DkJtwEitzGWyt0atU2Bv0gO7JXvCnXfi7siVPdNjmsCktzwtXYg",
+      "domain": ".youtube.com",
+      "path": "/",
+      "expires": 1792935892.477928,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None",
+      "partitionKey": "https://youtube.com",
+      "_crHasCrossSiteAncestor": false
+    },
+    {
+      "name": "__Host-GAPS",
+      "value": "1:yaZ2BnYK23mXR604fS5ZUzNxulI8ig:2VczOkkV3p8_OClr",
+      "domain": "accounts.google.com",
+      "path": "/",
+      "expires": 1811943892.523938,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "msToken",
+      "value": "Ps6CHs6XH-dZ2f-oFkNvIZDbpAnA5n8lwvcYcgfezmWFfPdQLFH0WcEezI4zmkKX9PiLJVEqk5h4S62nKbvzRwmpJ4pbAbbbl1g6uT6zMWMvbj5VSFcIIJUeoieL7A==",
+      "domain": ".tiktok.com",
+      "path": "/",
+      "expires": 1778247892.626385,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "msToken",
+      "value": "oPJD8387tkZ_JnQeRhXarJ07MYw8BWnkc_nQQ3Jl5S9wEvEBDBhAAeGmNXCX2uulCX4vKqM5HnCmPI0-LDTPykjRx5oTnvQnACrVUEb8ZEr2tv1gv-CmiT91LzDOSC8GHRHhOuN_oY_yk_0cChhu9rM=",
+      "domain": ".tiktokw.eu",
+      "path": "/",
+      "expires": 1778247894.422254,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "msToken",
+      "value": "oPJD8387tkZ_JnQeRhXarJ07MYw8BWnkc_nQQ3Jl5S9wEvEBDBhAAeGmNXCX2uulCX4vKqM5HnCmPI0-LDTPykjRx5oTnvQnACrVUEb8ZEr2tv1gv-CmiT91LzDOSC8GHRHhOuN_oY_yk_0cChhu9rM=",
+      "domain": "www.tiktok.com",
+      "path": "/",
+      "expires": 1785159894,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "OTZ",
+      "value": "8584665_48_52_123900_48_436380",
+      "domain": "accounts.google.com",
+      "path": "/",
+      "expires": 1779975895,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "csrftoken",
+      "value": "mUq4D_vfVC_2ww0-4mZelX",
+      "domain": ".instagram.com",
+      "path": "/",
+      "expires": 1811943895.332797,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://www.tiktok.com",
+      "localStorage": [
+        {
+          "name": "hevc_support_key_temporary",
+          "value": "1777383891812_604800000_1"
+        },
+        {
+          "name": "__tea_cache_first_1988",
+          "value": "1"
+        },
+        {
+          "name": "SLARDARwebmssdk",
+          "value": "JTdCJTIydXNlcklkJTIyOiUyMjI1OGYxMjc5LWRkY2UtNDhiMy04ZTAzLThlNjFmMDExYzBhNiUyMiwlMjJkZXZpY2VJZCUyMjolMjI2MWUyM2Y3NC03NDdiLTRjNzMtODIyNi1kMzNlOTc4ZWJiN2YlMjIsJTIyZXhwaXJlcyUyMjoxNzg1MTU5ODkzMjI4JTdE"
+        },
+        {
+          "name": "SLARDARpns_cookie_banner_slardar",
+          "value": "JTdCJTIydXNlcklkJTIyOiUyMjNjNWEyMmM5LWRjNmUtNGQ3Mi1iNzkyLTgzMDYxYzJjOGQ4MSUyMiwlMjJkZXZpY2VJZCUyMjolMjIxZTBjNzE2OC0zYTg2LTQ4MDQtOTQ4Yi01MWMxNjU4MjAyMDglMjIsJTIyZXhwaXJlcyUyMjoxNzg1MTU5ODkyNDYzJTdE"
+        },
+        {
+          "name": "xmst",
+          "value": "oPJD8387tkZ_JnQeRhXarJ07MYw8BWnkc_nQQ3Jl5S9wEvEBDBhAAeGmNXCX2uulCX4vKqM5HnCmPI0-LDTPykjRx5oTnvQnACrVUEb8ZEr2tv1gv-CmiT91LzDOSC8GHRHhOuN_oY_yk_0cChhu9rM="
+        },
+        {
+          "name": "__tea_sdk_ab_version_1988",
+          "value": "{\"data\":{\"can_show_podcast_page\":{\"val\":false,\"vid\":\"121374463\"},\"cr_blocking_popup\":{\"val\":true,\"vid\":\"121468990\"},\"creation_use_zti\":{\"val\":true,\"vid\":\"121439635\"},\"csi_tabs_fe_fallback\":{\"val\":{\"events\":{\"E_COMMERCE\":{\"SINGLE_TAB\":{\"forYou\":\"E-commerce\",\"inspirationType\":\"ecom\",\"pageTab\":\"E-commerce\",\"tooltip_token_type\":\"ecommerce_bubble\",\"trending\":\"all\"}},\"FOR_YOU\":{\"ALL\":{\"forYou\":\"all\",\"pageTab\":\"For you\",\"trending\":\"all\"},\"CONTENT_GAP\":{\"forYou\":\"Content gap\",\"pageTab\":\"Content gap\",\"tooltip_token_type\":\"content_gap_bubble\",\"trending\":\"all\"},\"E_COMMERCE\":{\"forYou\":\"E-commerce\",\"inspirationType\":\"ecom\",\"pageTab\":\"E-commerce\",\"tooltip_token_type\":\"ecommerce_bubble\",\"trending\":\"all\"},\"LIFESTYLE\":{\"forYou\":\"Lifestyle\",\"pageTab\":\"Lifestyle\",\"tooltip_token_type\":\"poi_bubble\",\"trending\":\"all\"},\"SEARCHES_BY_FOLLOWERS\":{\"forYou\":\"Searches by followers\",\"pageTab\":\"Followers Searched\",\"trending\":\"all\"}},\"GAMING_LEVEL1\":{\"SINGLE_TAB\":{\"forYou\":\"all\",\"pageTab\":\"gaming_single\",\"tooltip_token_type\":\"gaming_single_bubble\",\"trending\":\"all\"}},\"LIFESTYLE\":{\"SINGLE_TAB\":{\"forYou\":\"Lifestyle\",\"pageTab\":\"Lifestyle\",\"tooltip_token_type\":\"poi_bubble\",\"trending\":\"all\"}},\"TRENDING\":{\"ALL\":{\"forYou\":\"all\",\"pageTab\":\"Trending\",\"trending\":\"all\"},\"CHALLENGES\":{\"forYou\":\"all\",\"pageTab\":\"trending_viral_activities\",\"trending\":\"trending_viral_activities\"},\"EFFECTS\":{\"forYou\":\"all\",\"pageTab\":\"trending_effects\",\"trending\":\"trending_effects\"},\"EVENTS\":{\"forYou\":\"all\",\"pageTab\":\"trending_events\",\"trending\":\"trending_events\"},\"FASHION\":{\"forYou\":\"all\",\"pageTab\":\"Fashion\",\"trending\":\"Fashion\"},\"FOOD\":{\"forYou\":\"all\",\"pageTab\":\"Food\",\"trending\":\"Food\"},\"GAMING\":{\"forYou\":\"all\",\"pageTab\":\"Gaming\",\"trending\":\"Gaming\"},\"HASHTAGS\":{\"forYou\":\"all\",\"pageTab\":\"trending_hashtags\",\"trending\":\"trending_hashtags\"},\"LOCAL_TRENDS\":{\"forYou\":\"all\",\"pageTab\":\"Local trends\",\"trending\":\"Local trends\"},\"SCIENCE\":{\"forYou\":\"all\",\"pageTab\":\"Science\",\"trending\":\"Science\"},\"SOUNDS\":{\"forYou\":\"all\",\"pageTab\":\"trending_sounds\",\"trending\":\"trending_sounds\"},\"SPORTS\":{\"forYou\":\"all\",\"pageTab\":\"Sports\",\"trending\":\"Sports\"},\"TEMPLATES\":{\"forYou\":\"all\",\"pageTab\":\"trending_templates\",\"trending\":\"trending_templates\"},\"TOPICS\":{\"forYou\":\"all\",\"pageTab\":\"trending_topic\",\"trending\":\"trending_topic\"},\"TOURISM\":{\"forYou\":\"all\",\"pageTab\":\"Tourism\",\"trending\":\"Tourism\"}}},\"fallbackTabs\":[{\"channel_key\":\"FOR_YOU\",\"channel_starling_key\":\"suggested\",\"tabs\":[{\"enable_user_set_language\":true,\"endpoint\":\"comprehensive\",\"key\":\"ALL\",\"query_key\":\"all\",\"refresh\":\"enable\",\"starling_key\":\"all\"},{\"enable_user_set_language\":true,\"endpoint\":\"comprehensive\",\"key\":\"CONTENT_GAP\",\"query_key\":\"content_gap\",\"refresh\":\"enable\",\"starling_key\":\"content_gap\",\"tooltip\":{\"tooltip_content_starling\":\"content_gap_tooltip\",\"tooltip_show\":\"click\"}},{\"endpoint\":\"comprehensive\",\"key\":\"SEARCHES_BY_FOLLOWERS\",\"query_key\":\"follower_searched\",\"refresh\":\"enable\",\"starling_key\":\"searches_by_followers\"}]},{\"channel_key\":\"TRENDING\",\"channel_starling_key\":\"trending\",\"tabs\":[{\"endpoint\":\"trending\",\"key\":\"ALL\",\"query_key\":\"all\",\"refresh\":\"enable\",\"starling_key\":\"all\"},{\"endpoint\":\"trending\",\"key\":\"FASHION\",\"query_key\":\"Fashion\",\"refresh\":\"enable\",\"starling_key\":\"fashion\"},{\"endpoint\":\"trending\",\"key\":\"FOOD\",\"query_key\":\"Food\",\"refresh\":\"enable\",\"starling_key\":\"food\"},{\"endpoint\":\"trending\",\"key\":\"SPORTS\",\"query_key\":\"Sports\",\"refresh\":\"enable\",\"starling_key\":\"sports\"},{\"endpoint\":\"trending\",\"key\":\"TOURISM\",\"query_key\":\"Tourism\",\"refresh\":\"enable\",\"starling_key\":\"tourism\"},{\"endpoint\":\"trending\",\"key\":\"GAMING\",\"query_key\":\"Gaming\",\"refresh\":\"enable\",\"starling_key\":\"gaming\"},{\"endpoint\":\"trending\",\"key\":\"SCIENCE\",\"query_key\":\"Science\",\"refresh\":\"enable\",\"starling_key\":\"science\"}]}]},\"vid\":\"121749182\"},\"data_selection\":{\"val\":{\"enable\":true},\"vid\":\"121433650\"},\"data_selection_eu\":{\"val\":{\"enable\":true},\"vid\":\"121404358\"},\"dyd_drill\":{\"val\":{\"enable\":false},\"vid\":\"121497414\"},\"enable_new_web_deletion_and_deactivation\":{\"val\":false,\"vid\":\"75684001\"},\"enable_new_web_deletion_and_deactivation_experience\":{\"val\":false,\"vid\":\"122221973\"},\"expanded_data_types\":{\"val\":{\"enable\":true},\"vid\":\"122122240\"},\"facebook_login_reauthentication\":{\"val\":{\"vid\":\"v2\"},\"vid\":\"121351166\"},\"hevc_device_chrome_high\":{\"val\":{\"closePreload\":false,\"dScore\":0,\"hevcQualityType\":14,\"open\":true,\"pageNames\":[\"video_detail\",\"homepage_hot\",\"homepage_follow\",\"others_homepage\"],\"playModes\":[],\"qualityType\":20,\"score\":-2,\"vendor1\":[\"Intel\",\"AMD\",\"NVIDIA\",\"Apple\"],\"vid\":\"v3\"},\"vid\":\"121501588\"},\"hevc_device_test\":{\"val\":{\"closePreload\":false,\"hevcQualityType\":14,\"open\":true,\"pageNames\":[\"video_detail\",\"homepage_hot\",\"homepage_follow\",\"others_homepage\"],\"playModes\":[],\"qualityType\":20,\"score\":6.5,\"vendor1\":[\"Intel\",\"AMD\",\"NVIDIA\",\"Apple\"],\"vid\":\"v3\"},\"vid\":\"121663295\"},\"improved_selfie\":{\"val\":{\"enable\":true},\"vid\":\"121811500\"},\"is_deletion_pipo\":{\"val\":{\"enable\":true},\"vid\":\"121960941\"},\"is_prioritized\":{\"val\":{\"enable\":true},\"vid\":\"122122244\"},\"is_v0_ui_expanded\":{\"val\":{\"enable\":false},\"vid\":\"122122243\"},\"live_bean_emoji_comment_enable\":{\"val\":true,\"vid\":\"121844502\"},\"no_default_selection\":{\"val\":{\"enable\":false},\"vid\":\"122122242\"},\"tiktok-zti-crypto\":{\"val\":\"0.1.11\",\"vid\":\"121487028\"},\"universal_popup_webapp_new_style_whitelist\":{\"val\":{\"v1_pc_banner_businesses\":[\"test_v1_long_content_one_button\",\"test_v1_one_button\",\"test_v1_no_title\",\"test_v1_no_title_long_body\",\"eea_dpc_pp_202511\"],\"v2_pop_businesses\":[\"test_pop_one_button\",\"test_pop_three_buttons\",\"test_pop_bullet_points\",\"test_pop_mixed_three\",\"test_pop_mixed_long\",\"test_pop_no_title\",\"test_pop_internal_webview\",\"test_pop_no_buttons\"]},\"vid\":\"122258714\"},\"videoEmbedIterationsPlayer\":{\"val\":{\"autoplayOnShow\":true,\"useControllableProgressBar\":false},\"vid\":\"121331973\"},\"video_embed_iterations\":{\"val\":{\"show_description_on_player\":false,\"show_description_only_on_interaction\":false,\"use_mobile_ratio_on_pc\":true,\"use_new_CTA_text\":true},\"vid\":\"120811592\"},\"video_embed_user_flow\":{\"val\":{\"should_redirect_to_download_page\":false},\"vid\":\"120810756\"},\"zti_package_version\":{\"val\":{\"eu\":\"1.0.0.37\",\"oci\":\"2.0.0.40\",\"sg\":\"1.0.0.37\",\"va\":\"1.0.0.37\"},\"vid\":\"121885509\"}},\"uuid\":\"7633805672380237334\",\"timestamp\":1777383892117,\"ab_version_multilink\":[],\"ab_ext_version\":[],\"ab_version\":[]}"
+        },
+        {
+          "name": "__tea_cache_tokens_1988",
+          "value": "{\"web_id\":\"4171413835348124529\",\"user_unique_id\":\"4171413835348124529\",\"timestamp\":1777383892276,\"_type_\":\"default\"}"
+        },
+        {
+          "name": "HYBRID_SLARDAR_WEBtiktok_pns_web_runtime",
+          "value": "{\"userId\":\"cc668d2f-3ea3-4317-893f-816355bcc036\",\"deviceId\":\"9564abf5-5162-4b87-a5c5-c220fa6389dc\"}"
+        },
+        {
+          "name": "LOCAL_IS_EFFECTIVE",
+          "value": "1"
+        },
+        {
+          "name": "ztca-pdpop/kek/representation",
+          "value": "{\"type\":\"salt\",\"algorithm\":\"AES-GCM\",\"salt\":\"pcDmNmELhuvvin0M1AgRJxpEcZHdlinvPOMXxYiLgoQ\",\"rawID\":null}"
+        },
+        {
+          "name": "__tea_cache_tokens_1992",
+          "value": "{\"web_id\":\"1312271314141349641\",\"user_unique_id\":\"7633805672380237334\",\"timestamp\":1777383891901,\"_type_\":\"default\"}"
+        },
+        {
+          "name": "__tea_cache_tokens_345918",
+          "value": "{\"web_id\":\"4145815141051228148\",\"user_unique_id\":\"4145815141051228148\",\"timestamp\":1777383892287,\"_type_\":\"default\"}"
+        },
+        {
+          "name": "xmsi",
+          "value": "2"
+        },
+        {
+          "name": "ztcaConfig",
+          "value": "{\"url\":\"https://sf16-website-login.neutral.tiktokcdn-eu.com/obj/tiktok_web_login_static_eu/ztcatt/v1.0.0.22/loader-bundle.js\",\"ip\":[],\"server\":\"v4\",\"source\":[\"TCC\",\"namespace\",\"security.seceng.ztca-version-service\",\"path\",\"/default\",\"CONSUL_HTTP_HOST\",\"\",\"CONSUL_HTTP_PORT unset\",\"RUNTIME_IDC_NAME\",\"no1a\",\"EU2\"],\"vgeo\":\"VGeo-EU\",\"enable_et\":true,\"aid\":[\"1459\",\"1988\"],\"controls\":[{\"rank\":10,\"pathIn\":[\"/web/report\",\"/passport/web/store_region/\",\"/passport/web/region/\",\"/captcha/\"],\"protection\":\"none\"},{\"rank\":20,\"pathIn\":[\"/passport\"],\"protection\":\"login\"},{\"rank\":100,\"protection\":\"resource\"}],\"serviceURL\":\"https://webmssdk16-normal-no1a.tiktokw.eu/ztca/version\"}"
+        },
+        {
+          "name": "f_s_1",
+          "value": "{\"4/28/2026\":{\"7633805672380237334\":{\"session_last_update_time\":1777383892274,\"stay_duration\":0.01,\"session_cnt\":1,\"os\":\"mac\",\"browser_brand\":\"chrome\",\"screen_resolution\":1152000,\"screen_orientation\":1,\"cpu_core_number\":8,\"network_downlink\":10,\"network_rtt\":50,\"network_speed_effective_type\":\"4g\",\"region\":\"ES\",\"launch_mode\":\"direct\",\"landing_page\":\"login\",\"language_system\":\"ru-ru\",\"language_app\":\"ru-RU\",\"timezone\":2,\"time_of_day_landing\":15,\"day_of_week\":2,\"is_local_daytime\":1,\"is_login\":0,\"max_touch_points\":0,\"ret_acc\":1,\"page_view\":1,\"login_page_view\":1,\"slardar_perf_fcp_acc\":0.46,\"slardar_perf_fcp_cnt\":1}}}"
+        },
+        {
+          "name": "__tea_cache_first_1992",
+          "value": "1"
+        },
+        {
+          "name": "PUMBAA_FREQ",
+          "value": "{\"navigator.share\":0,\"open\":0,\"RTCPeerConnection\":0,\"WebSocket\":0,\"document.execCommand('paste')\":2,\"document.execCommand('copy')\":2,\"navigator.clipboard.readText\":2,\"navigator.clipboard.writeText\":2,\"navigator.mediaDevices.getUserMedia\":2,\"navigator.getUserMedia\":2,\"navigator.webkitGetUserMedia\":2,\"navigator.mozGetUserMedia\":2,\"ondeviceorientation\":2,\"ondeviceorientationabsolute\":2,\"navigator.geolocation.getCurrentPosition\":2,\"navigator.geolocation.watchPosition\":2,\"navigator.geolocation.clearWatch\":2,\"AbsoluteOrientationSensor\":2,\"GravitySensor\":2,\"Gyroscope\":2,\"LinearAccelerationSensor\":2,\"Magnetometer\":2,\"RelativeOrientationSensor\":2,\"Accelerometer\":2,\"navigator.vibrate\":2,\"navigator.webkitVibrate\":2,\"navigator.mozVibrate\":2,\"navigator.msVibrate\":2,\"navigator.mediaDevices.getDisplayMedia\":2,\"addEventListener('deviceorientation')\":0.01,\"addEventListener('devicemotion')\":0.01,\"addEventListener('MozOrientation')\":2,\"addEventListener('deviceorientationabsolute')\":0.1,\"document.referrer\":0.0001,\"Notification\":2,\"navigator.mozNotification\":2,\"webkitNotification\":2,\"navigator.getBattery\":0,\"navigator.clipboard.read\":0,\"document.addEventListener('paste')\":0,\"navigator.clipboard.write\":0,\"document.execCommand('cut')\":0,\"document.addEventListener('copy')\":0,\"document.addEventListener('cut')\":0,\"ondevicemotion\":0,\"OrientationSensor\":0,\"navigator.credentials.create\":0,\"navigator.credentials.get\":0,\"CookieStore.get\":0,\"CookieStore.getAll\":0,\"CookieStore.set\":0,\"CookieStore.delete\":0,\"document.cookie\":0,\"PaymentRequest\":0,\"navigator.userAgent\":0,\"screen\":0,\"network_ga\":2}"
+        },
+        {
+          "name": "ttwid",
+          "value": "7633805672380237334"
+        },
+        {
+          "name": "SLARDARtiktok_webapp_login",
+          "value": "JTdCJTIydXNlcklkJTIyOiUyMjc2MzM4MDU2NzIzODAyMzczMzQlMjIsJTIyZGV2aWNlSWQlMjI6JTIyOTQ1YTk5YjYtMTkxYy00ZTZkLWIwMjktYmZkZWI4MmIyYjU2JTIyLCUyMmV4cGlyZXMlMjI6MTc4NTE1OTg5MjI3MiU3RA=="
+        },
+        {
+          "name": "__tea_cache_first_345918",
+          "value": "1"
+        },
+        {
+          "name": "SLARDARucenter_tiktok_zti_sdk",
+          "value": "JTdCJTIydXNlcklkJTIyOiUyMjc2MzM4MDU2NzIzODAyMzczMzQlMjIsJTIyZGV2aWNlSWQlMjI6JTIyMGJjMzVhYmYtNzdhNi00ZmMyLThhNjctOGE4MmU1Y2NmNTRjJTIyLCUyMmV4cGlyZXMlMjI6MTc4NTE1OTg5MjQ0NCU3RA=="
+        },
+        {
+          "name": "msToken",
+          "value": "oPJD8387tkZ_JnQeRhXarJ07MYw8BWnkc_nQQ3Jl5S9wEvEBDBhAAeGmNXCX2uulCX4vKqM5HnCmPI0-LDTPykjRx5oTnvQnACrVUEb8ZEr2tv1gv-CmiT91LzDOSC8GHRHhOuN_oY_yk_0cChhu9rM="
+        },
+        {
+          "name": "security-sdk/s_sdk_crypt_sdk",
+          "value": "{\"data\":\"{\\\"ec_privateKey\\\":\\\"-----BEGIN PRIVATE KEY-----\\\\nMIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgxuQF5FLYhwiw29zhdId6SHdeUmQc0giFi0KyV5x0zZuhRANCAASxbutZuotded0Fo3uxlOMDkLPY+w5Cgewfoc7/nlWHVMNATW4zGDmcEjV4I7OUa1yVp2IUrpbgzGdbvbD8/NBd\\\\n-----END PRIVATE KEY-----\\\",\\\"ec_publicKey\\\":\\\"-----BEGIN PUBLIC KEY-----\\\\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsW7rWbqLXXndBaN7sZTjA5Cz2PsOQoHsH6HO/55Vh1TDQE1uMxg5nBI1eCOzlGtcladiFK6W4MxnW72w/PzQXQ==\\\\n-----END PUBLIC KEY-----\\\",\\\"ec_csr\\\":\\\"\\\"}\"}"
+        },
+        {
+          "name": "SLARDARpns_consent_system",
+          "value": "JTdCJTIydXNlcklkJTIyOiUyMjZhMTcyNGY5LWZiNjItNDJlMi1iOTBkLTMxMjhmMGQ1ZmUxYyUyMiwlMjJkZXZpY2VJZCUyMjolMjIzOTU4ZjMwZC0wNjkyLTRjMGQtOGM1My05ZWQ1Y2ZkNGZkMmMlMjIsJTIyZXhwaXJlcyUyMjoxNzg1MTU5ODkyNTA2JTdE"
+        }
+      ]
+    }
+  ]
+}
