@@ -84,9 +84,9 @@ async function waitForSignal() {
   console.log("   Вкладка 1: TikTok — войди в аккаунт");
   console.log("   Вкладка 2: YouTube Studio — войди в Google аккаунт");
   console.log("   Вкладка 3: Instagram — войди в аккаунт");
-  console.log("\n⚠️  НЕ закрывай браузер! После входа во все аккаунты — нажми Enter тут:\n");
+  console.log("\n⚠️  НЕ закрывай браузер! После входа во все аккаунты — жди...\n");
 
-  await waitForEnter("   Нажми Enter когда залогинишься во все аккаунты → ");
+  await waitForSignal();
 
   // Save session state
   console.log("\n💾 Сохраняю сессию...");
