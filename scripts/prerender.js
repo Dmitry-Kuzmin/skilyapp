@@ -356,9 +356,12 @@ async function prerender() {
           );
 
           const url = `${BASE_URL}${route}`;
+          // 'load' вместо 'networkidle2': мы не ждём 3rd-party запросов (Metrika, Analytics,
+          // Telegram JS). Реальная готовность контента определяется waitForFunction ниже.
+          // networkidle2 добавлял 5-10с на маршрут × 37 маршрутов = +3-5 мин к сборке.
           await page.goto(url, {
-            waitUntil: 'networkidle2',
-            timeout: 45000,
+            waitUntil: 'load',
+            timeout: 30000,
           });
 
           // Wait for meaningful React content (not just fallback/skeleton).
