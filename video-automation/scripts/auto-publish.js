@@ -384,31 +384,55 @@ async function uploadInstagram(context, videoPath, lang) {
     console.log("  ✓ Create clicked");
     await delay(2000);
 
-    // Business/creator accounts: sub-menu appears → click "Публикация"
-    const postItem = page.locator('a:has-text("Публикация"), a:has-text("Post")').first();
-    if (await postItem.isVisible({ timeout: 2000 })) {
-      await postItem.click();
-      console.log("  ✓ Selected Публикация");
-      await delay(3000);
-    }
-
-    // Click "Select from computer" / use hidden file input
     let fileSet = false;
 
-    // First try: "Select from computer" button (appears in upload dialog)
-    try {
-      const [fileChooser] = await Promise.all([
-        page.waitForEvent("filechooser", { timeout: 6000 }),
-        page.locator([
-          'button:has-text("Select from computer")',
-          'button:has-text("Выбрать с компьютера")',
-          'button:has-text("Выбрать на компьютере")',
-          'button:has-text("Выбрать файлы")',
-        ].join(", ")).first().click(),
-      ]);
-      await fileChooser.setFiles(videoPath);
-      fileSet = true;
-    } catch {}
+    // Business/creator accounts: sub-menu appears → click "Публикация"
+    const postItem = page.locator([
+      'a:has-text("Публикация")',
+      'a:has-text("Post")',
+      'span:has-text("Публикация")',
+    ].join(", ")).first();
+
+    if (await postItem.isVisible({ timeout: 2000 })) {
+      console.log("  Creator account sub-menu detected");
+      // Creator accounts: "Публикация" may trigger file chooser directly
+      try {
+        const [fileChooser] = await Promise.all([
+          page.waitForEvent("filechooser", { timeout: 5000 }),
+          postItem.click(),
+        ]);
+        await fileChooser.setFiles(videoPath);
+        fileSet = true;
+        console.log("  ✓ File set via Публикация (direct filechooser)");
+      } catch {
+        // No file chooser — dialog opened instead, handle below
+        await postItem.click().catch(() => {});
+        console.log("  ✓ Selected Публикация (dialog mode)");
+        await delay(3000);
+      }
+    }
+
+    // Take diagnostic screenshot to see current state
+    await page.screenshot({ path: "/tmp/instagram-after-create.png" });
+    console.log("  📸 /tmp/instagram-after-create.png");
+
+    // Click "Select from computer" / use hidden file input
+    if (!fileSet) {
+      // First try: "Select from computer" button (appears in upload dialog)
+      try {
+        const [fileChooser] = await Promise.all([
+          page.waitForEvent("filechooser", { timeout: 6000 }),
+          page.locator([
+            'button:has-text("Select from computer")',
+            'button:has-text("Выбрать с компьютера")',
+            'button:has-text("Выбрать на компьютере")',
+            'button:has-text("Выбрать файлы")',
+          ].join(", ")).first().click(),
+        ]);
+        await fileChooser.setFiles(videoPath);
+        fileSet = true;
+      } catch {}
+    }
 
     // Second try: hidden file input directly
     if (!fileSet) {
@@ -417,7 +441,10 @@ async function uploadInstagram(context, videoPath, lang) {
         await inp.waitFor({ state: "attached", timeout: 10000 });
         await inp.setInputFiles(videoPath);
         fileSet = true;
-      } catch {}
+      } catch {
+        await page.screenshot({ path: "/tmp/instagram-no-file-input.png" });
+        console.log("  📸 /tmp/instagram-no-file-input.png");
+      }
     }
 
     if (!fileSet) throw new Error("Could not set file on Instagram");
