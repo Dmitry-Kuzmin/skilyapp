@@ -198,26 +198,30 @@ async function uploadYouTube(context, videoPath, lang) {
 
     await delay(5000);
     console.log("  📍 Current URL:", page.url());
-    await page.screenshot({ path: "/tmp/youtube-upload-btn.png" });
 
-    // Click Upload button — try multiple selectors
-    const uploadBtnSel = [
-      "#upload-button",
-      "ytcp-button#upload-icon",
-      "button#upload-icon",
-      "ytcp-topbar-menu-button",
-      "button[aria-label='Upload videos']",
-      "a[href*='upload']",
-    ].join(", ");
-    await page.waitForSelector(uploadBtnSel, { timeout: 20000 });
-    await page.click(uploadBtnSel);
+    // YouTube Studio: click Create → Upload videos, then set file directly on hidden input
+    // Try direct upload icon first, then Create button fallback
+    let uploadClicked = false;
+    try {
+      const uploadIcon = page.locator("#upload-button, ytcp-button#upload-icon, button[aria-label='Upload videos']").first();
+      await uploadIcon.waitFor({ timeout: 5000 });
+      await uploadIcon.click();
+      uploadClicked = true;
+    } catch {}
 
-    // Select file
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent("filechooser"),
-      page.locator("input[type='file']").first().dispatchEvent("click"),
-    ]);
-    await fileChooser.setFiles(videoPath);
+    if (!uploadClicked) {
+      // Click "Create" button, then pick "Upload videos" from dropdown
+      await page.locator("ytcp-button#create-icon, button#create-icon, #create-icon").first().click();
+      await delay(1000);
+      await page.locator("tp-yt-paper-item:has-text('Upload'), tp-yt-paper-item:has-text('Загрузить видео')").first().click();
+    }
+
+    await delay(2000);
+
+    // The upload dialog has a hidden file input — set files directly
+    const fileInput = page.locator("input[type='file']").first();
+    await fileInput.waitFor({ state: "attached", timeout: 15000 });
+    await fileInput.setInputFiles(videoPath);
     console.log("  ✓ File selected, uploading...");
 
     // Wait for title field
