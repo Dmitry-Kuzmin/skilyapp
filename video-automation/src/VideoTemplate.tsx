@@ -739,18 +739,26 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
         background:"radial-gradient(ellipse at 50% 0%, rgba(47,129,247,0.08) 0%, transparent 70%)",
         pointerEvents:"none" }} />
 
+      {/* ── Фоновая музыка (тихий фон, фейд-ин/аут) ── */}
+      <Sequence from={0} durationInFrames={t.totalSec * F}>
+        <Audio
+          src={S("background-music.mp3")}
+          volume={(f) => {
+            const fadeIn  = Math.min(1, f / (F * 1.5));        // 1.5 сек фейд-ин
+            const fadeOut = Math.min(1, (t.totalSec * F - f) / (F * 3)); // 3 сек фейд-аут
+            return 0.14 * fadeIn * fadeOut;
+          }}
+        />
+      </Sequence>
+
       {/* ── Sound effects ── */}
+      {/* Whoosh при старте */}
       <Sequence from={0} durationInFrames={15}>
         <Audio src={S("whoosh.wav")} volume={0.7} />
       </Sequence>
-      <Sequence from={t.countdownStart * F} durationInFrames={10}>
-        <Audio src={S("beep3.wav")} volume={0.8} />
-      </Sequence>
-      <Sequence from={(t.countdownStart + 1) * F} durationInFrames={10}>
-        <Audio src={S("beep2.wav")} volume={0.8} />
-      </Sequence>
-      <Sequence from={(t.countdownStart + 2) * F} durationInFrames={10}>
-        <Audio src={S("beep1.wav")} volume={1.0} />
+      {/* Флэш-удар: резкий whoosh в момент вспышки */}
+      <Sequence from={t.countdownStart * F} durationInFrames={20}>
+        <Audio src={S("whoosh.wav")} volume={1.0} />
       </Sequence>
       {Array.from({ length: Math.ceil(t.revealStart - t.suspenseStart) }, (_, i) => (
         <Sequence key={i} from={(t.suspenseStart + i) * F} durationInFrames={6}>
