@@ -108,10 +108,16 @@ async function uploadTikTok(context, videoPath, lang) {
     await page.locator('input[type="file"]').first().setInputFiles(videoPath);
     console.log("  ✓ File selected, waiting for upload...");
 
-    // Wait for upload to complete (progress bar disappears or caption field appears)
-    await page.waitForSelector('div[class*="caption-wrap"] [contenteditable="true"], div[data-e2e="caption-input"]', {
-      timeout: 120000,
-    });
+    // Wait for upload to complete — TikTok shows caption field when ready
+    // Try multiple known selectors; take screenshot on timeout for debugging
+    const captionSelector = 'div[class*="caption-wrap"] [contenteditable="true"], div[data-e2e="caption-input"], div[class*="editor-kit"] [contenteditable="true"]';
+    try {
+      await page.waitForSelector(captionSelector, { timeout: 60000 });
+    } catch(waitErr) {
+      await page.screenshot({ path: "/tmp/tiktok-after-upload.png" });
+      console.log("  📸 /tmp/tiktok-after-upload.png");
+      throw waitErr;
+    }
     console.log("  ✓ Upload complete");
 
     // Fill caption
