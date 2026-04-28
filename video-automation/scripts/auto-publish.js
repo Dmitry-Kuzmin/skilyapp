@@ -465,11 +465,26 @@ async function uploadInstagram(context, videoPath, lang) {
     if (!fileSet) throw new Error("Could not set file on Instagram");
     console.log("  ✓ File selected");
 
+    // Helper: dismiss any modal popups (Reels info, etc.) before navigating
+    const dismissPopups = async () => {
+      for (const sel of ['button:has-text("OK")', 'button:has-text("ОК")', 'button:has-text("Понятно")']) {
+        try {
+          const btn = page.locator(sel).first();
+          if (await btn.isVisible({ timeout: 1500 })) {
+            await btn.click();
+            console.log(`  ✓ Dismissed popup (${sel})`);
+            await delay(600);
+          }
+        } catch {}
+      }
+    };
+
     // Helper: click "Далее"/"Next" using native Playwright mouse events (React-compatible)
     const clickNext = async () => {
+      await dismissPopups(); // dismiss any modal before trying to click Next
       const loc = page.locator('div[role="button"]:has-text("Далее"), div[role="button"]:has-text("Next")').first();
       try {
-        await loc.waitFor({ state: "visible", timeout: 5000 });
+        await loc.waitFor({ state: "visible", timeout: 8000 });
         await loc.click();
         return true;
       } catch { return false; }
@@ -477,16 +492,7 @@ async function uploadInstagram(context, videoPath, lang) {
 
     // Wait for crop dialog to fully load
     await delay(3000);
-
-    // Dismiss info popups (Reels info shows "OK" button only — safe to click)
-    try {
-      const okBtn = page.locator('button:has-text("OK"), button:has-text("ОК")').first();
-      if (await okBtn.isVisible({ timeout: 2000 })) {
-        await okBtn.click();
-        console.log("  ✓ Dismissed Reels info popup");
-        await delay(1000);
-      }
-    } catch {}
+    await dismissPopups();
 
     // Select 9:16 format:
     // 1. Click the expand/ratio icon (bottom-left square icon in preview)
