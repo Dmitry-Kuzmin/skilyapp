@@ -421,42 +421,24 @@ async function uploadInstagram(context, videoPath, lang) {
       }
     } catch {}
 
-    // Select 9:16 format — click the expand icon (bottom-LEFT square icon)
-    // then pick 9:16 from the list
-    await page.evaluate(() => {
-      // Find the expand/select-ratio button (SVG icon, bottom-left area of dialog)
-      const btns = Array.from(document.querySelectorAll('button[aria-label], [role="button"][aria-label]'));
-      const expandBtn = btns.find(b =>
-        b.getAttribute('aria-label')?.toLowerCase().includes('crop') ||
-        b.getAttribute('aria-label')?.toLowerCase().includes('select') ||
-        b.getAttribute('aria-label')?.toLowerCase().includes('кадр')
-      );
-      if (expandBtn) expandBtn.click();
-    }).catch(() => {});
-    await delay(800);
-
-    // Click 9:16 option (by exact text match)
-    const selected916 = await page.evaluate(() => {
-      const all = Array.from(document.querySelectorAll('span, div, button'));
-      const el = all.find(e => e.textContent.trim() === "9:16");
-      if (el) { el.click(); return true; }
-      return false;
-    });
-    if (selected916) {
-      console.log("  ✓ Selected 9:16");
+    // Select 9:16 format — click expand icon (bottom-left), then click 9:16
+    try {
+      // The expand/crop icon is bottom-left of the dialog preview area
+      const expandBtn = page.locator('[aria-label*="crop" i], [aria-label*="кадр" i], [aria-label*="Select crop" i]').first();
+      await expandBtn.waitFor({ state: "visible", timeout: 3000 });
+      await expandBtn.click();
       await delay(800);
-      // Close the format picker by clicking it again
-      await page.evaluate(() => {
-        const btns = Array.from(document.querySelectorAll('button[aria-label], [role="button"][aria-label]'));
-        const expandBtn = btns.find(b =>
-          b.getAttribute('aria-label')?.toLowerCase().includes('crop') ||
-          b.getAttribute('aria-label')?.toLowerCase().includes('select') ||
-          b.getAttribute('aria-label')?.toLowerCase().includes('кадр')
-        );
-        if (expandBtn) expandBtn.click();
-      }).catch(() => {});
-      await delay(500);
-    }
+    } catch {}
+
+    // Click 9:16 with native Playwright click
+    try {
+      const btn916 = page.locator('div[role="button"]:has-text("9:16"), span:has-text("9:16")').first();
+      if (await btn916.isVisible({ timeout: 2000 })) {
+        await btn916.click();
+        console.log("  ✓ Selected 9:16");
+        await delay(600);
+      }
+    } catch {}
 
     // Click Далее: Crop → Filters
     await delay(1000);
