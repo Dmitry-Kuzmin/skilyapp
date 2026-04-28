@@ -377,42 +377,51 @@ async function uploadInstagram(context, videoPath, lang) {
       } catch {}
     }
 
-    // Click Create — use native Playwright click (React-compatible)
-    const createBtn = page.locator('a:has-text("Создать"), a:has-text("Create"), a[href="/create/style/"]').first();
-    await createBtn.waitFor({ state: "visible", timeout: 10000 });
-    await createBtn.click();
-    console.log("  ✓ Create clicked");
-    await delay(2000);
-
     let fileSet = false;
 
-    // Business/creator accounts: sub-menu appears → click "Публикация"
-    const postItem = page.locator([
-      'a:has-text("Публикация")',
-      'a:has-text("Post")',
-      'span:has-text("Публикация")',
-    ].join(", ")).first();
+    // Strategy 1: Navigate directly to the create URL (works for creator accounts)
+    await page.goto("https://www.instagram.com/create/select/", {
+      waitUntil: "domcontentloaded", timeout: 15000,
+    }).catch(() => {});
+    await delay(2000);
+    console.log("  📍 After goto create/select:", page.url());
 
-    if (await postItem.isVisible({ timeout: 2000 })) {
-      console.log("  Creator account sub-menu detected");
-      // Creator accounts: "Публикация" may trigger file chooser directly
-      try {
-        const [fileChooser] = await Promise.all([
-          page.waitForEvent("filechooser", { timeout: 5000 }),
-          postItem.click(),
-        ]);
-        await fileChooser.setFiles(videoPath);
-        fileSet = true;
-        console.log("  ✓ File set via Публикация (direct filechooser)");
-      } catch {
-        // No file chooser — dialog opened instead, handle below
-        await postItem.click().catch(() => {});
-        console.log("  ✓ Selected Публикация (dialog mode)");
+    // If redirected back to feed, use sidebar approach
+    if (!page.url().includes("create")) {
+      console.log("  create/select redirect — using sidebar approach");
+      // Dismiss any popups that might have appeared
+      for (const txt of ["Не сейчас", "Not Now", "Not now", "Dismiss"]) {
+        try {
+          const btn = page.locator(`button:has-text("${txt}")`).first();
+          if (await btn.isVisible({ timeout: 1000 })) { await btn.click(); await delay(500); break; }
+        } catch {}
+      }
+
+      // Click Create button in sidebar
+      const createBtn = page.locator('a:has-text("Создать"), a:has-text("Create"), a[href="/create/style/"]').first();
+      await createBtn.waitFor({ state: "visible", timeout: 10000 });
+      await createBtn.click();
+      console.log("  ✓ Create clicked");
+      await delay(1500);
+
+      // Creator accounts: sub-menu with "Публикация" — find by JS for reliability
+      const subMenuVisible = await page.evaluate(() => {
+        const items = [...document.querySelectorAll("nav a, nav [role='link'], nav span, nav div")];
+        const pub = items.find(el => el.textContent?.trim() === "Публикация" || el.textContent?.trim() === "Post");
+        if (pub) { pub.click(); return true; }
+        return false;
+      });
+
+      if (subMenuVisible) {
+        console.log("  ✓ Clicked Публикация (JS)");
         await delay(3000);
+      } else {
+        console.log("  No sub-menu found — trying direct click on Create again");
+        // For personal accounts, clicking Create may already open upload dialog
       }
     }
 
-    // Take diagnostic screenshot to see current state
+    // Diagnostic screenshot
     await page.screenshot({ path: "/tmp/instagram-after-create.png" });
     console.log("  📸 /tmp/instagram-after-create.png");
 
