@@ -546,8 +546,9 @@ async function uploadInstagram(context, videoPath, lang) {
       await page.mouse.click(ratioBtn.x, ratioBtn.y);
     } else {
       console.log("  ⚠️ Кнопка пикера не найдена по позиции — пробую aria-label");
-      for (const sel of ['[aria-label*="crop" i]', '[aria-label*="кадр" i]', '[aria-label*="ratio" i]',
-                          '[aria-label*="Выбрать" i]', '[aria-label*="Обрезка" i]']) {
+      for (const sel of ['[aria-label*="Выбрать размер" i]', '[aria-label*="размер и обр" i]',
+                          '[aria-label*="crop" i]', '[aria-label*="кадр" i]', '[aria-label*="ratio" i]',
+                          '[aria-label*="Select crop" i]', '[aria-label*="Обрезка" i]']) {
         try {
           const el = page.locator(sel).first();
           if (await el.isVisible({ timeout: 600 })) {
