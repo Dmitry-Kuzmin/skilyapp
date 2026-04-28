@@ -379,46 +379,52 @@ async function uploadInstagram(context, videoPath, lang) {
 
     let fileSet = false;
 
-    // Strategy 1: Navigate directly to the create URL (works for creator accounts)
-    await page.goto("https://www.instagram.com/create/select/", {
-      waitUntil: "domcontentloaded", timeout: 15000,
-    }).catch(() => {});
-    await delay(2000);
-    console.log("  📍 After goto create/select:", page.url());
+    // Click "Создать" / "Create" in sidebar
+    const createBtn = page.locator([
+      'svg[aria-label="Новая публикация"]',
+      'svg[aria-label="New post"]',
+      '[aria-label="Создать"]',
+      '[aria-label="Create"]',
+      'text="Создать"',
+      'text="Create"',
+    ].join(", ")).first();
 
-    // If redirected back to feed, use sidebar approach
-    if (!page.url().includes("create")) {
-      console.log("  create/select redirect — using sidebar approach");
-      // Dismiss any popups that might have appeared
-      for (const txt of ["Не сейчас", "Not Now", "Not now", "Dismiss"]) {
-        try {
-          const btn = page.locator(`button:has-text("${txt}")`).first();
-          if (await btn.isVisible({ timeout: 1000 })) { await btn.click(); await delay(500); break; }
-        } catch {}
-      }
-
-      // Click Create button in sidebar
-      const createBtn = page.locator('a:has-text("Создать"), a:has-text("Create"), a[href="/create/style/"]').first();
+    try {
       await createBtn.waitFor({ state: "visible", timeout: 10000 });
       await createBtn.click();
-      console.log("  ✓ Create clicked");
-      await delay(1500);
-
-      // Creator accounts: sub-menu with "Публикация" — find by JS for reliability
-      const subMenuVisible = await page.evaluate(() => {
-        const items = [...document.querySelectorAll("nav a, nav [role='link'], nav span, nav div")];
-        const pub = items.find(el => el.textContent?.trim() === "Публикация" || el.textContent?.trim() === "Post");
-        if (pub) { pub.click(); return true; }
-        return false;
+    } catch {
+      // Fallback: find via text content evaluation
+      await page.evaluate(() => {
+        const all = [...document.querySelectorAll("*")];
+        const btn = all.find(el =>
+          el.children.length <= 2 &&
+          (el.textContent?.trim() === "Создать" || el.textContent?.trim() === "Create")
+        );
+        if (btn) btn.click();
       });
+    }
+    console.log("  ✓ Create clicked");
+    await delay(2000);
 
-      if (subMenuVisible) {
-        console.log("  ✓ Clicked Публикация (JS)");
+    // Now wait for "Публикация" sub-menu item to appear, then capture filechooser
+    const pubVisible = await page.locator('text="Публикация"').first().isVisible({ timeout: 3000 }).catch(() => false);
+    if (pubVisible) {
+      console.log("  Sub-menu detected → clicking Публикация");
+      try {
+        const [fileChooser] = await Promise.all([
+          page.waitForEvent("filechooser", { timeout: 8000 }),
+          page.locator('text="Публикация"').first().click(),
+        ]);
+        await fileChooser.setFiles(videoPath);
+        fileSet = true;
+        console.log("  ✓ File set via Публикация (filechooser)");
+      } catch(fcErr) {
+        console.log("  No filechooser from Публикация — waiting for file input:", fcErr.message.slice(0, 60));
+        await page.locator('text="Публикация"').first().click().catch(() => {});
         await delay(3000);
-      } else {
-        console.log("  No sub-menu found — trying direct click on Create again");
-        // For personal accounts, clicking Create may already open upload dialog
       }
+    } else {
+      console.log("  No sub-menu (personal account) — looking for file input directly");
     }
 
     // Diagnostic screenshot
