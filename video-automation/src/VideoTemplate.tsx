@@ -740,8 +740,31 @@ const TOPIC_ES: Record<string, string> = {
   cinturon: "CINTURÓN", cinturón: "CINTURÓN",
 };
 
+// Определяем тему по ключевым словам испанского вопроса
+function inferTopicFromQuestion(text: string): string {
+  const t = text.toLowerCase();
+  if (/velocidad|v\.max|km\/h|límite de velocidad/.test(t))  return "velocidad";
+  if (/arcén|arcen/.test(t))                                 return "arcén";
+  if (/señal|señales|cedan|ceda|stop|prohibi/.test(t))       return "señales";
+  if (/alcohol|tasa|bebida/.test(t))                         return "alcohol";
+  if (/adelanta|rebasar/.test(t))                            return "adelantamiento";
+  if (/distancia|segurid/.test(t))                           return "distancia";
+  if (/intersection|intersec|cruce|glorieta/.test(t))        return "intersección";
+  if (/peat[oó]n|peatones|paso de peat/.test(t))             return "peatones";
+  if (/luz|luces|ilumina|faro/.test(t))                      return "iluminación";
+  if (/autopista|autov[ií]a/.test(t))                        return "autopistas";
+  if (/cintur[oó]n|silla|ni[ñn]o/.test(t))                  return "cinturón";
+  if (/ciclista|bicicleta/.test(t))                          return "ciclistas";
+  if (/cami[oó]n|v\.pesado|pesado/.test(t))                  return "camiones";
+  if (/carretera|v[ií]a/.test(t))                            return "carretera";
+  if (/estaciona|aparca|parking/.test(t))                    return "parking";
+  if (/moto|motocicleta/.test(t))                            return "motocicletas";
+  return "";
+}
+
 function getTopicLabel(q: VideoQuestion): string {
-  const raw = (q.topic || "").toLowerCase().trim();
+  const raw = (q.topic || inferTopicFromQuestion(q.question)).toLowerCase().trim();
+  if (!raw) return q.language === "ru" ? "ПРАВИЛА" : "NORMAS";
   if (q.language === "ru") return TOPIC_RU[raw] || raw.toUpperCase();
   return TOPIC_ES[raw] || raw.toUpperCase();
 }
