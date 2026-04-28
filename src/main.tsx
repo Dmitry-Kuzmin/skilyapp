@@ -85,6 +85,7 @@ const captureEarlyError = (error: any, context: any) => {
 };
 
 if (!isPrerenderMode && !isMarketingRoute) {
+  // Задержка 4s: Rollbar+Sentry (660KB) не должны конкурировать с критическим рендером (LCP)
   setTimeout(() => {
     import('./lib/rollbar').then(({ initRollbar, reportError }) => {
       initRollbar();
