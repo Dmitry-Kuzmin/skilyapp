@@ -42,10 +42,20 @@ if (fs.existsSync(PUBLISH_DATA_FILE)) {
   catch(e) { console.warn("⚠️  Could not parse publish-data.json:", e.message); }
 }
 
+function cleanMarkdown(text) {
+  return (text || "")
+    .replace(/\*\*/g, "")
+    .replace(/\*/g, "")
+    .replace(/^#+\s*/gm, "")
+    .replace(/�+/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function getCaption(lang, platform) {
   const d = publishData[lang] || {};
-  const hookTitle = d.hookTitle || d.question || "";
-  const explanation = d.explanation || "";
+  const hookTitle = cleanMarkdown(d.hookTitle || d.question || "");
+  const explanation = cleanMarkdown(d.explanation || "");
   const num = String(d.seriesNumber || "").padStart(3, "0");
 
   if (platform === "youtube") {
