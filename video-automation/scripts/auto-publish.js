@@ -363,7 +363,7 @@ async function launchContext(authFile) {
   // ── RU: Expat accounts ─────────────────────────────────────────────────────
   if (ruVideo) {
     console.log("\n── RU accounts (Expat audience) ──");
-    const ctxRU = await launchContext(PROFILE_RU);
+    const ctxRU = await launchContext(AUTH_RU);
     try {
       if (!skipTikTok)    await uploadTikTok(ctxRU,    path.resolve(ruVideo), "ru");
       if (!skipYouTube)   await uploadYouTube(ctxRU,   path.resolve(ruVideo), "ru");
