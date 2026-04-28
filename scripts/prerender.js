@@ -411,12 +411,23 @@ async function prerender() {
             );
           }
 
-          // Обёртываем уязвимый inline next-themes script только после стабилизации URL.
+          // Обёртываем inline next-themes script в try/catch.
+          // next-themes инъецирует скрипт с вызовами __name helper'а (esbuild keepNames:true).
+          // В статическом HTML helper недоступен → ReferenceError. Раньше helper назывался 'a',
+          // теперь esbuild называет его 'i' (или другой букве) — используем надёжную проверку
+          // по содержимому (prefers-color-scheme + colorScheme), а не по имени переменной.
           await page.evaluate(() => {
             const scripts = document.querySelectorAll('script[nonce=""]');
             scripts.forEach((script) => {
               const originalContent = script.innerHTML;
-              if (originalContent.includes('a(d') || originalContent.includes('a(f') || originalContent.includes('a(h')) {
+              const isNextThemesScript =
+                originalContent.includes('prefers-color-scheme') &&
+                originalContent.includes('colorScheme');
+              const isLegacyPattern =
+                originalContent.includes('a(d') ||
+                originalContent.includes('a(f') ||
+                originalContent.includes('a(h');
+              if (isNextThemesScript || isLegacyPattern) {
                 script.innerHTML = `try{${originalContent}}catch(e){console.warn('[next-themes] Script error (expected in SSG):',e.message)}`;
               }
             });
