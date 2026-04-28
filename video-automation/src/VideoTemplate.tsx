@@ -4,7 +4,7 @@
  * appears exactly when the narrator starts reading it.
  */
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, Audio, Sequence, staticFile } from "remotion";
+import { AbsoluteFill, useCurrentFrame, Audio, Sequence, staticFile, Img } from "remotion";
 import { VideoQuestion, DynamicTiming, buildDynamicTiming, FPS, UI_TEXT } from "./types";
 
 const S = (f: string) => staticFile(`sounds/${f}`);
