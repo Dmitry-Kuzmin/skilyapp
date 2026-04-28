@@ -385,7 +385,7 @@ async function prerender() {
             await page.waitForFunction(
               () => {
                 const root = window.document.querySelector('#root');
-                return root && root.children.length > 0 && (root.textContent?.trim().length || 0) > 100;
+                return root && root.children.length > 0 && (root.textContent?.trim().length || 0) > 500;
               },
               { timeout: 15000 }
             );
