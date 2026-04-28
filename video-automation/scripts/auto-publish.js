@@ -193,23 +193,52 @@ async function uploadYouTube(context, videoPath, lang) {
 
     // Click Next through steps (Details → Video elements → Checks → Visibility)
     for (let step = 0; step < 3; step++) {
-      await delay(1500);
-      const nextBtn = page.locator("ytcp-button#next-button, button:has-text('Next'), button:has-text('Далее')").first();
-      await nextBtn.waitFor({ timeout: 10000 });
-      await nextBtn.click();
+      await delay(2000);
+      const nextBtn = page.locator("ytcp-button#next-button").first();
+      try {
+        await nextBtn.waitFor({ timeout: 8000 });
+        await nextBtn.click();
+        console.log(`  ✓ Next step ${step + 1}`);
+      } catch {
+        console.log(`  ⚠️  Next button not found on step ${step + 1}, continuing...`);
+      }
     }
 
-    // Set visibility to Public
-    await delay(1500);
-    const publicRadio = page.locator("tp-yt-paper-radio-button[name='PUBLIC']").first();
-    await publicRadio.waitFor({ timeout: 10000 });
-    await publicRadio.click();
+    // Set visibility to Public — screenshot if fails
+    await delay(2000);
+    await page.screenshot({ path: "/tmp/youtube-visibility.png" });
+    console.log("  📍 Visibility page URL:", page.url());
 
-    // Publish
+    // Try multiple selectors for the Public radio
+    const publicLocator = page.locator([
+      "tp-yt-paper-radio-button[name='PUBLIC']",
+      "ytcp-text-dropdown-trigger",
+      "div[test-id='PUBLIC']",
+      "label:has-text('Public')",
+      "label:has-text('Публичный')",
+      "#privacy-radios tp-yt-paper-radio-button:first-child",
+    ].join(", ")).first();
+
+    try {
+      await publicLocator.waitFor({ timeout: 8000 });
+      await publicLocator.click();
+      console.log("  ✓ Set to Public");
+    } catch {
+      console.log("  ⚠️  Public radio not found, trying to publish as-is...");
+    }
+
+    // Publish / Save
     await delay(1000);
-    const publishBtn = page.locator("ytcp-button#done-button, button:has-text('Publish'), button:has-text('Опубликовать')").first();
+    const publishBtn = page.locator([
+      "ytcp-button#done-button",
+      "button:has-text('Publish')",
+      "button:has-text('Save')",
+      "button:has-text('Опубликовать')",
+      "button:has-text('Сохранить')",
+    ].join(", ")).first();
     await publishBtn.waitFor({ timeout: 10000 });
     await publishBtn.click();
+    console.log("  ✓ Publish clicked");
 
     // Wait for publish confirmation
     await page.waitForSelector("ytcp-video-share-dialog, yt-icon-button.close-button", { timeout: 30000 }).catch(() => {});
