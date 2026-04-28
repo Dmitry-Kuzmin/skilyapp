@@ -716,15 +716,44 @@ function CTAScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   );
 }
 
+// Карта тем DGT → читаемые названия
+const TOPIC_RU: Record<string, string> = {
+  velocidad: "СКОРОСТЬ", señales: "ЗНАКИ", preferencia: "ПРИОРИТЕТ",
+  adelantamiento: "ОБГОН", distancia: "ДИСТАНЦИЯ", alcohol: "АЛКОГОЛЬ",
+  interseccion: "ПЕРЕКРЁСТОК", intersección: "ПЕРЕКРЁСТОК",
+  peatones: "ПЕШЕХОДЫ", iluminacion: "ОСВЕЩЕНИЕ", iluminación: "ОСВЕЩЕНИЕ",
+  carga: "ГРУЗ", conductor: "ВОДИТЕЛЬ", vias: "ДОРОГИ", carretera: "ДОРОГА",
+  autopistas: "АВТОСТРАДА", parking: "ПАРКОВКА", arcen: "ОБОЧИНА", arcén: "ОБОЧИНА",
+  cinturon: "РЕМЕНЬ", cinturón: "РЕМЕНЬ", ciclistas: "ВЕЛОСИПЕДИСТЫ",
+  motocicletas: "МОТОЦИКЛЫ", camiones: "ГРУЗОВИКИ", trenes: "ЖД ПЕРЕЕЗД",
+  emergencia: "АВАРИЙНЫЕ СЛУЖБЫ", medioambiente: "ЭКОЛОГИЯ",
+  documentacion: "ДОКУМЕНТЫ", documentación: "ДОКУМЕНТЫ",
+  mecanica: "МЕХАНИКА", mecánica: "МЕХАНИКА",
+};
+const TOPIC_ES: Record<string, string> = {
+  velocidad: "VELOCIDAD", señales: "SEÑALES", preferencia: "PRIORIDAD",
+  adelantamiento: "ADELANTAMIENTO", distancia: "DISTANCIA", alcohol: "ALCOHOL",
+  interseccion: "INTERSECCIÓN", intersección: "INTERSECCIÓN",
+  peatones: "PEATONES", iluminacion: "ILUMINACIÓN", iluminación: "ILUMINACIÓN",
+  carga: "CARGA", conductor: "CONDUCTOR", vias: "VÍAS", carretera: "CARRETERA",
+  autopistas: "AUTOPISTAS", parking: "APARCAMIENTO", arcen: "ARCÉN", arcén: "ARCÉN",
+  cinturon: "CINTURÓN", cinturón: "CINTURÓN",
+};
+
+function getTopicLabel(q: VideoQuestion): string {
+  const raw = (q.topic || "").toLowerCase().trim();
+  if (q.language === "ru") return TOPIC_RU[raw] || raw.toUpperCase();
+  return TOPIC_ES[raw] || raw.toUpperCase();
+}
+
 // ─── ThumbnailScene — frame 0 only ───────────────────────────────────────────
-// Соцсети берут первый кадр как обложку. 33мс — зритель не заметит.
 function ThumbnailScene({ q }: { q: VideoQuestion }) {
   const isRu     = q.language === "ru";
-  const qText    = cleanText(isRu && q.question_ru ? q.question_ru : q.question);
   const diffBg   = { easy: "#1a3a22", medium: "#3a2a0d", hard: "#3a0d0d" };
   const diffClr  = { easy: C.emerald, medium: "#F0883E", hard: C.red };
   const diffTxt  = { ru: { easy:"ЛЁГКИЙ", medium:"СРЕДНИЙ", hard:"СЛОЖНЫЙ" },
                       es: { easy:"FÁCIL",  medium:"MEDIO",   hard:"DIFÍCIL"  } };
+  const topicLabel = getTopicLabel(q);
 
   return (
     <div style={{ position:"absolute", inset:0, overflow:"hidden", fontFamily:"system-ui,sans-serif" }}>
