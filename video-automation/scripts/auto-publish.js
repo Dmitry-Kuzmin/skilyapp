@@ -358,27 +358,23 @@ async function uploadInstagram(context, videoPath, lang) {
       'a[role="link"]:has(svg[aria-label="New post"])',
       'div[role="button"]:has(svg[aria-label="New post"])',
     ];
-    let createClicked = false;
-    for (const sel of createSelectors) {
-      try {
-        const el = page.locator(sel).first();
-        if (await el.isVisible({ timeout: 2000 })) {
-          await el.click();
-          createClicked = true;
-          console.log(`  ✓ Create clicked (${sel})`);
-          break;
-        }
-      } catch {}
-    }
+    // Instagram: find Create/Создать link and click via JS (bypasses visibility check)
+    const createClicked = await page.evaluate(() => {
+      const links = Array.from(document.querySelectorAll("a"));
+      const btn = links.find(a =>
+        a.textContent.includes("Создать") ||
+        a.textContent.includes("Create") ||
+        a.href.includes("/create")
+      );
+      if (btn) { btn.click(); return true; }
+      return false;
+    });
+
     if (!createClicked) {
       await page.screenshot({ path: "/tmp/instagram-no-create.png" });
-      // Log all links for debugging
-      const links = await page.$$eval("a, [role='button']", els =>
-        els.slice(0, 20).map(e => ({ tag: e.tagName, href: e.href, aria: e.getAttribute("aria-label"), text: e.textContent?.trim().slice(0,30) }))
-      );
-      console.log("  Links found:", JSON.stringify(links));
       throw new Error("Create button not found on Instagram");
     }
+    console.log("  ✓ Create clicked");
 
     await delay(2000);
 
