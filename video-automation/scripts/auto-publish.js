@@ -546,25 +546,21 @@ async function uploadInstagram(context, videoPath, lang) {
     await open916Picker();
     await delay(1000);
 
-    // Click 9:16 — use simple text= selector (matches any element with that text)
-    try {
-      const btn916 = page.locator('text="9:16"').first();
-      if (await btn916.isVisible({ timeout: 3000 })) {
-        await btn916.click();
-        console.log("  ✓ Selected 9:16");
-        await delay(800);
-      } else {
-        // Try clicking by evaluate — find element containing exactly "9:16"
-        await page.evaluate(() => {
-          const all = [...document.querySelectorAll("span, div, li")];
-          const el = all.find(e => e.textContent?.trim() === "9:16" && e.children.length === 0);
-          if (el) el.click();
-        });
-        console.log("  ✓ Selected 9:16 (evaluate)");
-        await delay(800);
-      }
-    } catch {
-      console.log("  ⚠️  9:16 picker not found");
+    // Click 9:16 — через mouse.click по координатам (React не блокирует)
+    const pos916 = await page.evaluate(() => {
+      const all = [...document.querySelectorAll("span, div, li")];
+      const el = all.find(e => e.textContent?.trim() === "9:16" && e.children.length === 0);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    });
+    if (pos916) {
+      await page.mouse.click(pos916.x, pos916.y);
+      console.log(`  ✓ Selected 9:16 via mouse.click at (${Math.round(pos916.x)}, ${Math.round(pos916.y)})`);
+      await delay(800);
+    } else {
+      await page.screenshot({ path: "/tmp/instagram-916-not-found.png" });
+      console.log("  ⚠️  9:16 option not found — скрин: /tmp/instagram-916-not-found.png");
     }
 
     // Click Далее: Crop → Filters
