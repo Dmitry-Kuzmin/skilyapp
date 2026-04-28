@@ -323,6 +323,8 @@
   <!-- Supabase: DNS + TLS разогреваем заранее — первый API-запрос после монтирования React не будет ждать хэндшейк -->
   <link rel="preconnect" href="https://yffjnqegeiorunyvcxkn.supabase.co" crossorigin />
   <link rel="dns-prefetch" href="https://yffjnqegeiorunyvcxkn.supabase.co" />
+  <!-- Telegram SDK: DNS разогреваем для Telegram Mini App пользователей -->
+  <link rel="dns-prefetch" href="https://telegram.org" />
 
   <!-- Критический CSS inline для ускорения FCP -->
   <style>
