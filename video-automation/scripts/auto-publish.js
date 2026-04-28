@@ -172,11 +172,10 @@ async function uploadYouTube(context, videoPath, lang) {
 
     const { title, description } = getCaption(lang, "youtube");
 
-    // Fill title (first textbox)
+    // Fill title (first textbox) — clear existing text then type
     const titleEl = page.locator("#textbox").first();
     await titleEl.click();
-    await titleEl.selectAll().catch(() => {});
-    await page.keyboard.press("Control+A");
+    await page.keyboard.press("Meta+A");  // Select all (macOS)
     await titleEl.type(title, { delay: 15 });
     console.log("  ✓ Title filled");
 
