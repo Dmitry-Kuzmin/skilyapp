@@ -204,69 +204,75 @@ function HookScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   );
 }
 
-// ─── CountdownScene ───────────────────────────────────────────────────────────
+// ─── FlashScene (заменяет CountdownScene) ────────────────────────────────────
+// Вместо отсчёта 3-2-1 — мгновенный флэш-удар 1 сек: яркая вспышка + "?" влетает.
+// Соцсети: зрители листают быстро, счёт никто не ждёт.
 function CountdownScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   const frame  = useCurrentFrame();
   const sceneF = frame - t.countdownStart * FPS;
-  const perNum = 30; // frames per digit
-  const n      = Math.max(1, Math.min(3, 3 - Math.floor(sceneF / perNum)));
-  const localF = sceneF % perNum;
+  const DUR    = 1 * FPS; // 30 frames = 1 сек
 
-  // Pop-in → hold → pop-out
-  const numScale = lerp(localF, 0, 8, 1.6, 1) * lerp(localF, perNum-8, perNum, 1, 0.4);
-  const numOp    = lerp(localF, 0, 5, 0, 1) * lerp(localF, perNum-6, perNum, 1, 0);
+  // Белая вспышка: ярко вначале → гаснет к середине
+  const flashOp = lerp(sceneF, 0, DUR * 0.45, 0.95, 0);
 
-  // Ring sweep: 0→1 over the perNum frames
-  const sweep = Math.min(1, localF / (perNum - 2));
+  // "?" влетает с масштабом + уходит
+  const qOp    = lerp(sceneF, 2, 10, 0, 1) * lerp(sceneF, DUR * 0.55, DUR, 1, 0);
+  const qScale = lerp(sceneF, 2, 12, 2.2, 1);
 
-  const ringColors = ["#F85149", "#F0883E", "#3FB950"]; // 3→2→1
-  const ringColor  = ringColors[n - 1];
-
-  const labelOp = lerp(sceneF, 0, 14, 0, 1);
-  const ui = UI_TEXT[q.language];
-
-  // SVG ring params
-  const R = 160, stroke = 14;
-  const circ = 2 * Math.PI * R;
-  const dash = sweep * circ;
+  // Текст-подсказка снизу
+  const hintOp = lerp(sceneF, 6, 16, 0, 1) * lerp(sceneF, DUR * 0.6, DUR, 1, 0);
 
   return (
-    <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column",
-      alignItems:"center", justifyContent:"center", gap:40 }}>
+    <div style={{ position:"absolute", inset:0, display:"flex",
+      flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
 
-      {/* Ready label */}
-      <div style={{ fontSize:44, fontWeight:900, color:"rgba(255,255,255,0.55)",
-        letterSpacing:8, fontFamily:"system-ui,sans-serif", opacity: labelOp,
-        textTransform:"uppercase" }}>
-        {ui.ready}
+      {/* Белая вспышка */}
+      <div style={{
+        position:"absolute", inset:0,
+        background:"linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(200,220,255,1) 100%)",
+        opacity: flashOp,
+        pointerEvents:"none",
+      }} />
+
+      {/* Синяя окантовка-вспышка */}
+      <div style={{
+        position:"absolute", inset:0,
+        background:"radial-gradient(ellipse at 50% 50%, rgba(47,129,247,0.35) 0%, transparent 65%)",
+        opacity: flashOp * 1.2,
+        pointerEvents:"none",
+      }} />
+
+      {/* Большой "?" */}
+      <div style={{
+        fontSize: 280,
+        fontWeight: 900,
+        color: "#2F81F7",
+        opacity: qOp,
+        transform: `scale(${qScale})`,
+        fontFamily: "system-ui,sans-serif",
+        lineHeight: 1,
+        textShadow: [
+          "0 0 60px rgba(47,129,247,0.9)",
+          "0 0 120px rgba(47,129,247,0.5)",
+          "0 8px 30px rgba(0,0,0,0.9)",
+        ].join(", "),
+      }}>
+        ?
       </div>
 
-      {/* Ring + number */}
-      <div style={{ position:"relative", width: R*2+stroke*2, height: R*2+stroke*2 }}>
-        {/* Background ring */}
-        <svg width={R*2+stroke*2} height={R*2+stroke*2}
-          style={{ position:"absolute", inset:0, transform:"rotate(-90deg)" }}>
-          <circle cx={R+stroke} cy={R+stroke} r={R}
-            fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} />
-          <circle cx={R+stroke} cy={R+stroke} r={R}
-            fill="none" stroke={ringColor} strokeWidth={stroke}
-            strokeDasharray={`${dash} ${circ}`}
-            strokeLinecap="round"
-            style={{ filter:`drop-shadow(0 0 12px ${ringColor}99)` }} />
-        </svg>
-
-        {/* Number */}
-        <div style={{
-          position:"absolute", inset:0,
-          display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:180, fontWeight:900, color:"#fff",
-          fontFamily:"system-ui,sans-serif", lineHeight:1,
-          opacity: numOp,
-          transform:`scale(${numScale})`,
-          textShadow:`0 0 60px ${ringColor}99, 0 4px 16px rgba(0,0,0,0.8)`,
-        }}>
-          {n}
-        </div>
+      {/* Подсказка под "?" */}
+      <div style={{
+        fontSize: 36,
+        fontWeight: 700,
+        color: "rgba(255,255,255,0.7)",
+        opacity: hintOp,
+        fontFamily: "system-ui,sans-serif",
+        letterSpacing: 6,
+        textTransform: "uppercase",
+        textShadow: "0 2px 12px rgba(0,0,0,0.8)",
+        marginTop: 20,
+      }}>
+        {q.language === "ru" ? "читай вопрос ↓" : "lee la pregunta ↓"}
       </div>
     </div>
   );
