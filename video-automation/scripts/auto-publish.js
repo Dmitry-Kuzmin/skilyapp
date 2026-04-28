@@ -410,8 +410,11 @@ async function uploadInstagram(context, videoPath, lang) {
       } catch {}
     }
 
-    // Caption step — fill and use clipboard paste
+    // Caption step — take screenshot to see current state
     await delay(2000);
+    await page.screenshot({ path: "/tmp/instagram-caption-step.png" });
+    console.log("  📸 /tmp/instagram-caption-step.png");
+
     const { caption } = getCaption(lang, "instagram");
     const captionEl = page.locator([
       'div[aria-label*="caption"]',
