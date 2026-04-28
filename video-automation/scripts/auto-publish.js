@@ -647,28 +647,42 @@ async function uploadInstagram(context, videoPath, lang) {
     await page.mouse.click(sharePos.x, sharePos.y);
     console.log("  ✓ Share clicked via mouse.click");
 
-    await delay(3000);
+    // Сначала ждём появления диалога "Публикация" (spinner загрузки)
+    await page.waitForSelector('div[role="dialog"] >> text="Публикация"', { timeout: 15000 })
+      .then(() => console.log("  ✓ Идёт загрузка ролика..."))
+      .catch(() => console.log("  ⚠️  Диалог загрузки не появился — продолжаем"));
+
     await page.screenshot({ path: "/tmp/instagram-after-share.png" });
     console.log("  📸 /tmp/instagram-after-share.png");
-    console.log("  📍 URL after share:", page.url());
 
-    // Wait for confirmation — "Your reel has been shared" or similar
-    const confirmed = await page.waitForSelector([
-      'span:has-text("Your reel")',
-      'span:has-text("Рилс опубликован")',
-      'span:has-text("Your Reel")',
-      'span:has-text("опубликован")',
-      'span:has-text("Your post")',
-      'span:has-text("Публикация")',
-      'div[role="dialog"] button:has-text("OK")',
-    ].join(", "), { timeout: 60000 }).catch(() => null);
+    // Ждём пока диалог-загрузчик исчезнет (Instagram закрывает его после успеха)
+    // Или ловим текст успеха — таймаут 3 минуты (большие файлы грузятся долго)
+    const uploadDone = await Promise.race([
+      // Вариант 1: диалог исчез → загрузка завершена
+      page.waitForSelector('div[role="dialog"] >> text="Публикация"', { state: "hidden", timeout: 180000 })
+        .then(() => "dialog_gone"),
+      // Вариант 2: появился текст успеха
+      page.waitForSelector([
+        'span:has-text("Your reel")',
+        'span:has-text("Your Reel")',
+        'span:has-text("Рил опубликован")',
+        'span:has-text("Рилс опубликован")',
+        'span:has-text("опубликован")',
+        'span:has-text("Your post")',
+        'div[role="dialog"] button:has-text("OK")',
+      ].join(", "), { timeout: 180000 }).then(() => "success_text"),
+    ]).catch(() => null);
 
-    if (!confirmed) {
-      await page.screenshot({ path: "/tmp/instagram-share-failed.png" });
-      console.log("  📸 /tmp/instagram-share-failed.png — no confirmation received");
-      throw new Error("Share confirmation not received — post may not have published");
+    await page.screenshot({ path: "/tmp/instagram-share-done.png" });
+    console.log("  📸 /tmp/instagram-share-done.png");
+    console.log("  📍 URL после публикации:", page.url());
+
+    if (!uploadDone) {
+      throw new Error("Таймаут ожидания публикации — ролик мог не загрузиться");
     }
-    console.log(`  ✅ Instagram [${lang.toUpperCase()}] published!`);
+    // Небольшая пауза чтобы Instagram завершил обработку
+    await delay(3000);
+    console.log(`  ✅ Instagram [${lang.toUpperCase()}] published! (${uploadDone})`);
     notify("Skily Video Maker", `✅ Instagram ${lang.toUpperCase()} опубликован`);
   } catch(e) {
     console.error(`  ❌ Instagram [${lang.toUpperCase()}] error:`, e.message);
