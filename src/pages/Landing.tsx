@@ -10,6 +10,13 @@ import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import { examYear } from "@/utils/dateUtils";
+// Synchronous imports — no lazy() — prevents the Suspense blank-screen flash on mobile.
+// createRoot replaces prerendered HTML immediately; if the component is lazy the user sees
+// LandingFallback (dark screen) for several seconds while the chunk downloads. Keeping these
+// synchronous means the component renders in the same JS tick React mounts, matching
+// the prerendered HTML with zero delay.
+import { LandingSpain } from "@/components/landing/LandingSpain";
+import { LandingRussia } from "@/components/landing/LandingRussia";
 
 const PATH_LANG_MAP: Record<string, Language> = {
   "/ru": "ru",
@@ -39,13 +46,6 @@ const PATH_SEO: Record<string, { title: string; description: string }> = {
   },
 };
 
-const LandingSpain = lazy(() =>
-  import("@/components/landing/LandingSpain").then(m => ({ default: m.LandingSpain }))
-);
-const LandingRussia = lazy(() =>
-  import("@/components/landing/LandingRussia").then(m => ({ default: m.LandingRussia }))
-);
-
 const AuthModalNew = lazy(() =>
   import("@/components/AuthModalNew").then(m => ({ default: m.AuthModalNew }))
 );
@@ -53,7 +53,7 @@ const PartnerInviteBanner = lazy(() =>
   import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner }))
 );
 
-// Тонкий фолбек — только правильный цвет фона, без лишних элементов
+// Used when ready=false (Telegram auth check in progress)
 const LandingFallback = () => (
   <div style={{ minHeight: '100dvh', width: '100%', background: '#0f172a' }} />
 );
