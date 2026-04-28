@@ -343,13 +343,13 @@ async function launchContext(authFile) {
   }
 
   console.log("🚀 Starting Skily Auto-Publisher...");
-  console.log(`   ES video: ${esVideo || "(none)"} → profile: chrome-profile-es`);
-  console.log(`   RU video: ${ruVideo || "(none)"} → profile: chrome-profile-ru`);
+  console.log(`   ES video: ${esVideo || "(none)"} → auth: auth-state-es.json`);
+  console.log(`   RU video: ${ruVideo || "(none)"} → auth: auth-state-ru.json`);
 
   // ── ES: Spanish accounts ───────────────────────────────────────────────────
   if (esVideo) {
     console.log("\n── ES accounts (Spanish audience) ──");
-    const ctxES = await launchContext(PROFILE_ES);
+    const ctxES = await launchContext(AUTH_ES);
     try {
       if (!skipTikTok)    await uploadTikTok(ctxES,    path.resolve(esVideo), "es");
       if (!skipYouTube)   await uploadYouTube(ctxES,   path.resolve(esVideo), "es");
