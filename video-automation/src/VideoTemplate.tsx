@@ -730,7 +730,7 @@ function ThumbnailScene({ q }: { q: VideoQuestion }) {
 
       {/* Картинка вопроса — верхние ~52% */}
       {q.image_url ? (
-        <img src={q.image_url} alt="" style={{
+        <Img src={q.image_url} style={{
           position:"absolute", top:0, left:0, width:"100%", height:"52%",
           objectFit:"cover",
         }} />
