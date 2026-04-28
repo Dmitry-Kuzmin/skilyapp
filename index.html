@@ -879,11 +879,13 @@
       // На app-маршрутах (/dashboard, /app/*) skeleton остаётся и убирается через liftStartupCurtain()
       (function () {
         var p = window.location.pathname;
-        var isPublicRoute = p === '/' || p === '' || p === '/pricing' || p === '/about' ||
+        var isPublicRoute = p === '/' || p === '' || p === '/ru' || p === '/es' || p === '/en' ||
+          p === '/pricing' || p === '/about' ||
           p === '/blog' || p === '/partners' || p === '/features' ||
           p === '/login' || p === '/purchase' || p === '/curso' || p === '/road-signs' ||
           p === '/dgt-tests' || p === '/guides' || p === '/referrals' ||
-          p.indexOf('/article/') === 0 || p.indexOf('/guides/') === 0;
+          p.indexOf('/article/') === 0 || p.indexOf('/guides/') === 0 ||
+          p.indexOf('/legal/') === 0 || p.indexOf('/blog/') === 0;
         if (isPublicRoute) {
           var sk = document.querySelector('.app-skeleton');
           if (sk) sk.style.display = 'none';
