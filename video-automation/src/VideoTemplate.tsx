@@ -717,114 +717,159 @@ function CTAScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
 }
 
 // ─── ThumbnailScene — frame 0 only ───────────────────────────────────────────
-// Соцсети (Instagram, TikTok, YouTube) берут первый кадр как обложку.
-// Этот кадр длится 33мс — зритель не заметит, но лента выглядит красиво.
+// Соцсети берут первый кадр как обложку. 33мс — зритель не заметит.
 function ThumbnailScene({ q }: { q: VideoQuestion }) {
-  const isRu = q.language === "ru";
-  const diffColors = { easy: C.emerald, medium: "#F0883E", hard: C.red };
-  const diffLabel  = { ru: { easy:"ЛЁГКИЙ", medium:"СРЕДНИЙ", hard:"СЛОЖНЫЙ" },
-                        es: { easy:"FÁCIL",  medium:"MEDIO",   hard:"DIFÍCIL"  } };
+  const isRu     = q.language === "ru";
+  const qText    = cleanText(isRu && q.question_ru ? q.question_ru : q.question);
+  const diffBg   = { easy: "#1a3a22", medium: "#3a2a0d", hard: "#3a0d0d" };
+  const diffClr  = { easy: C.emerald, medium: "#F0883E", hard: C.red };
+  const diffTxt  = { ru: { easy:"ЛЁГКИЙ", medium:"СРЕДНИЙ", hard:"СЛОЖНЫЙ" },
+                      es: { easy:"FÁCIL",  medium:"MEDIO",   hard:"DIFÍCIL"  } };
 
   return (
-    <div style={{ position:"absolute", inset:0, overflow:"hidden" }}>
+    <div style={{ position:"absolute", inset:0, overflow:"hidden", fontFamily:"system-ui,sans-serif" }}>
 
-      {/* Картинка вопроса — верхние ~52% */}
+      {/* ── Фон: картинка на весь экран ── */}
       {q.image_url ? (
         <Img src={q.image_url} style={{
-          position:"absolute", top:0, left:0, width:"100%", height:"52%",
-          objectFit:"cover",
+          position:"absolute", inset:0,
+          width:"100%", height:"100%", objectFit:"cover", objectPosition:"center top",
         }} />
       ) : (
         <div style={{
-          position:"absolute", top:0, left:0, right:0, height:"52%",
-          background:"linear-gradient(135deg, #0d2a4d 0%, #1a3a6b 100%)",
+          position:"absolute", inset:0,
+          background:"linear-gradient(160deg, #0a1628 0%, #0d2a4d 50%, #091020 100%)",
         }} />
       )}
 
-      {/* Затемнение поверх картинки снизу → плавный переход к тёмному блоку */}
+      {/* ── Градиент: сверху лёгкое затемнение, снизу тёмный занавес ── */}
       <div style={{
-        position:"absolute", top:0, left:0, right:0, height:"52%",
-        background:"linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(13,17,23,0.85) 100%)",
+        position:"absolute", inset:0,
+        background:"linear-gradient(to bottom, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.10) 25%, rgba(0,0,0,0.55) 55%, rgba(8,12,20,0.97) 100%)",
       }} />
 
-      {/* Нижний тёмный блок с текстом */}
+      {/* ── Верх: флаг + сложность ── */}
       <div style={{
-        position:"absolute", bottom:0, left:0, right:0, height:"52%",
-        background: C.bg,
-        display:"flex", flexDirection:"column",
-        justifyContent:"center", padding:"0 60px", gap:24,
+        position:"absolute", top:70, left:60, right:60,
+        display:"flex", alignItems:"center", justifyContent:"space-between",
       }}>
-
-        {/* Полоска-акцент сверху блока */}
+        {/* Флаг-бейдж */}
         <div style={{
-          position:"absolute", top:0, left:0, right:0, height:4,
-          background:"linear-gradient(90deg, transparent, #2F81F7 30%, #7C3AED 70%, transparent)",
-        }} />
-
-        {/* Бейдж флаг + название */}
-        <div style={{ display:"flex", alignItems:"center", gap:14 }}>
-          <div style={{
-            display:"flex", alignItems:"center", gap:10,
-            background:"rgba(47,129,247,0.15)", border:"1.5px solid rgba(47,129,247,0.4)",
-            borderRadius:100, padding:"8px 22px",
-          }}>
-            <span style={{ fontSize:28 }}>🇪🇸</span>
-            <span style={{ fontSize:22, fontWeight:800, color:"#fff", letterSpacing:2,
-              fontFamily:"system-ui,sans-serif" }}>
-              {isRu ? "ТЕСТ ПДД ИСПАНИИ" : "EXAMEN DGT"}
-            </span>
-          </div>
-          {/* Сложность */}
-          <div style={{
-            padding:"8px 20px", borderRadius:100,
-            background:`${diffColors[q.difficulty]}18`,
-            border:`1.5px solid ${diffColors[q.difficulty]}55`,
-            color: diffColors[q.difficulty],
-            fontSize:20, fontWeight:800, letterSpacing:2,
-            fontFamily:"system-ui,sans-serif",
-          }}>
-            {diffLabel[q.language][q.difficulty]}
-          </div>
+          display:"flex", alignItems:"center", gap:12,
+          background:"rgba(0,0,0,0.55)",
+          backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)",
+          border:"1px solid rgba(255,255,255,0.18)",
+          borderRadius:100, padding:"10px 28px",
+          boxShadow:"0 4px 20px rgba(0,0,0,0.5)",
+        }}>
+          <span style={{ fontSize:32 }}>🇪🇸</span>
+          <span style={{ fontSize:24, fontWeight:800, color:"#fff", letterSpacing:2 }}>
+            {isRu ? "ПДД ИСПАНИИ" : "EXAMEN DGT"}
+          </span>
         </div>
 
-        {/* Hook title — главный текст обложки */}
+        {/* Сложность */}
         <div style={{
-          fontSize: q.hook_title.length > 24 ? 68 : 80,
-          fontWeight:900, color:"#fff",
-          fontFamily:"system-ui,sans-serif",
-          lineHeight:1.15, letterSpacing:-1,
+          padding:"10px 26px", borderRadius:100,
+          background: diffBg[q.difficulty],
+          border:`2px solid ${diffClr[q.difficulty]}`,
+          color: diffClr[q.difficulty],
+          fontSize:22, fontWeight:900, letterSpacing:3,
+          boxShadow:`0 0 20px ${diffClr[q.difficulty]}55`,
+        }}>
+          {diffTxt[q.language][q.difficulty]}
+        </div>
+      </div>
+
+      {/* ── Центр: большой "?" с неоновым свечением ── */}
+      <div style={{
+        position:"absolute", top:"28%", left:0, right:0,
+        display:"flex", justifyContent:"center",
+        pointerEvents:"none",
+      }}>
+        <div style={{
+          fontSize:260, fontWeight:900, lineHeight:1, color:"#fff",
           textShadow:[
-            "0 0 40px rgba(47,129,247,0.7)",
-            "0 4px 20px rgba(0,0,0,0.95)",
+            `0 0 60px ${C.primary}`,
+            `0 0 120px ${C.primary}80`,
+            "0 8px 40px rgba(0,0,0,0.9)",
+          ].join(", "),
+          opacity:0.12,  // едва заметно — создаёт глубину, не перекрывает картинку
+        }}>?</div>
+      </div>
+
+      {/* ── Низ: основной контент ── */}
+      <div style={{
+        position:"absolute", bottom:0, left:0, right:0,
+        padding:"0 60px 72px",
+        display:"flex", flexDirection:"column", gap:28,
+      }}>
+
+        {/* Hook title */}
+        <div style={{
+          fontSize: q.hook_title.length > 20 ? 76 : 88,
+          fontWeight:900, color:"#fff",
+          lineHeight:1.1, letterSpacing:-1,
+          textShadow:[
+            "0 2px 4px rgba(0,0,0,1)",
+            "0 8px 32px rgba(0,0,0,0.9)",
           ].join(", "),
         }}>
           {q.hook_title}
         </div>
 
-        {/* Вопрос (коротко) */}
+        {/* Разделитель */}
         <div style={{
-          fontSize:32, color:"rgba(255,255,255,0.65)",
-          fontFamily:"system-ui,sans-serif", lineHeight:1.4,
+          height:3, borderRadius:2,
+          background:`linear-gradient(90deg, ${C.primary} 0%, #7C3AED 60%, transparent 100%)`,
+          width:"70%",
+        }} />
+
+        {/* Текст вопроса в карточке */}
+        <div style={{
+          background:"rgba(0,0,0,0.6)",
+          backdropFilter:"blur(16px)", WebkitBackdropFilter:"blur(16px)",
+          border:"1px solid rgba(255,255,255,0.12)",
+          borderRadius:20, padding:"24px 32px",
+          boxShadow:"0 8px 32px rgba(0,0,0,0.6)",
         }}>
-          {cleanText(isRu && q.question_ru ? q.question_ru : q.question).slice(0, 90)}
-          {cleanText(isRu && q.question_ru ? q.question_ru : q.question).length > 90 ? "…" : ""}
+          <div style={{
+            fontSize: qText.length > 80 ? 30 : 34,
+            fontWeight:500, color:"rgba(255,255,255,0.88)",
+            lineHeight:1.45,
+          }}>
+            {qText.slice(0, 120)}{qText.length > 120 ? "…" : ""}
+          </div>
         </div>
 
-        {/* skilyapp.com */}
+        {/* Skily лого строкой */}
         <div style={{
-          position:"absolute", bottom:36, right:60,
-          fontSize:22, color:"rgba(47,129,247,0.7)",
-          fontFamily:"system-ui,sans-serif", fontWeight:600, letterSpacing:1,
+          display:"flex", alignItems:"center", justifyContent:"space-between",
         }}>
-          skilyapp.com
+          <div style={{
+            fontSize:24, fontWeight:800, color:C.primary,
+            letterSpacing:2, textShadow:`0 0 16px ${C.primary}80`,
+          }}>
+            skilyapp.com
+          </div>
+          <div style={{
+            fontSize:22, color:"rgba(255,255,255,0.35)", letterSpacing:1,
+          }}>
+            #{String(q.series_number).padStart(3,"0")}
+          </div>
         </div>
       </div>
 
-      {/* Голубой glow-ореол на стыке фото и блока */}
+      {/* ── Боковые неоновые полосы — цепляют взгляд ── */}
       <div style={{
-        position:"absolute", top:"44%", left:0, right:0, height:120,
-        background:"radial-gradient(ellipse at 50% 50%, rgba(47,129,247,0.18) 0%, transparent 70%)",
-        pointerEvents:"none",
+        position:"absolute", top:"30%", bottom:"30%", left:0, width:5,
+        background:`linear-gradient(to bottom, transparent, ${C.primary}, transparent)`,
+        opacity:0.7,
+      }} />
+      <div style={{
+        position:"absolute", top:"30%", bottom:"30%", right:0, width:5,
+        background:`linear-gradient(to bottom, transparent, #7C3AED, transparent)`,
+        opacity:0.7,
       }} />
     </div>
   );
