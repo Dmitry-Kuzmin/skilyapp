@@ -507,44 +507,57 @@ async function uploadInstagram(context, videoPath, lang) {
     await delay(3000);
     await dismissPopups();
 
-    // Открываем пикер соотношения (кнопка внизу-слева превью)
-    // Сначала пробуем aria-label, потом evaluate по позиции, потом фиксированная точка
-    const openRatioPicker = async () => {
-      // Попытка 1: aria-label
-      for (const sel of ['[aria-label*="crop" i]', '[aria-label*="Select crop" i]',
-                          '[aria-label*="кадр" i]', '[aria-label*="Соотношение" i]',
-                          '[aria-label*="ratio" i]']) {
+    // Открываем пикер соотношения — иконка "стрелки друг на друга" внизу-слева превью
+    await page.screenshot({ path: "/tmp/instagram-crop-dialog.png" });
+    console.log("  📸 /tmp/instagram-crop-dialog.png");
+
+    // Логгируем все кнопки в диалоге (для отладки позиции)
+    const dialogBtns = await page.evaluate(() => {
+      const modal = document.querySelector('[role="dialog"]');
+      if (!modal) return [];
+      return [...modal.querySelectorAll('button, [role="button"]')].map(b => {
+        const r = b.getBoundingClientRect();
+        return { x: Math.round(r.left), y: Math.round(r.top), w: Math.round(r.width), h: Math.round(r.height), label: b.getAttribute('aria-label') || b.textContent?.trim().slice(0,20) };
+      }).filter(b => b.w > 8 && b.h > 8);
+    });
+    console.log("  Кнопки в диалоге:", JSON.stringify(dialogBtns));
+
+    // Кнопка иконки "стрелки" — самая левая среди кнопок в нижней части превью
+    // Ищем среди маленьких кнопок (не "Далее") в нижней половине диалога
+    const ratioBtn = await page.evaluate(() => {
+      const modal = document.querySelector('[role="dialog"]');
+      if (!modal) return null;
+      const mr = modal.getBoundingClientRect();
+      const btns = [...modal.querySelectorAll('button, [role="button"]')];
+      const candidates = btns.filter(b => {
+        const r = b.getBoundingClientRect();
+        // Маленькая кнопка (не широкая "Далее"), в нижней части диалога, слева
+        return r.top > mr.top + mr.height * 0.5
+          && r.left < mr.left + mr.width * 0.4
+          && r.width < 80 && r.width > 8;
+      }).sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top); // самая нижняя
+      if (!candidates[0]) return null;
+      const r = candidates[0].getBoundingClientRect();
+      return { x: r.left + r.width/2, y: r.top + r.height/2, label: candidates[0].getAttribute('aria-label') };
+    });
+
+    if (ratioBtn) {
+      console.log(`  Кликаю иконку пикера: "${ratioBtn.label}" at (${Math.round(ratioBtn.x)}, ${Math.round(ratioBtn.y)})`);
+      await page.mouse.click(ratioBtn.x, ratioBtn.y);
+    } else {
+      console.log("  ⚠️ Кнопка пикера не найдена по позиции — пробую aria-label");
+      for (const sel of ['[aria-label*="crop" i]', '[aria-label*="кадр" i]', '[aria-label*="ratio" i]',
+                          '[aria-label*="Выбрать" i]', '[aria-label*="Обрезка" i]']) {
         try {
           const el = page.locator(sel).first();
-          if (await el.isVisible({ timeout: 800 })) {
+          if (await el.isVisible({ timeout: 600 })) {
             const box = await el.boundingBox();
-            if (box) { await page.mouse.click(box.x + box.width/2, box.y + box.height/2); return; }
+            if (box) { await page.mouse.click(box.x + box.width/2, box.y + box.height/2); break; }
           }
         } catch {}
       }
-      // Попытка 2: evaluate — ищем кнопки в нижней левой четверти диалога
-      const btnPos = await page.evaluate(() => {
-        const modal = document.querySelector('[role="dialog"]');
-        if (!modal) return null;
-        const mr = modal.getBoundingClientRect();
-        const btns = [...modal.querySelectorAll('button, [role="button"]')];
-        // Самая левая кнопка в нижней половине диалога
-        const candidates = btns.filter(b => {
-          const r = b.getBoundingClientRect();
-          return r.top > mr.top + mr.height * 0.55 && r.left < mr.left + mr.width * 0.35 && r.width > 10;
-        }).sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
-        if (!candidates[0]) return null;
-        const r = candidates[0].getBoundingClientRect();
-        return { x: r.left + r.width/2, y: r.top + r.height/2 };
-      });
-      if (btnPos) { await page.mouse.click(btnPos.x, btnPos.y); return; }
-      // Попытка 3: жёсткая позиция — иконка всегда нижний-левый угол превью
-      await page.screenshot({ path: "/tmp/instagram-before-ratio.png" });
-      console.log("  📸 /tmp/instagram-before-ratio.png (до клика пикера)");
-      await page.mouse.click(320, 800);
-    };
+    }
 
-    await openRatioPicker();
     await delay(1200);
     await page.screenshot({ path: "/tmp/instagram-ratio-picker.png" });
     console.log("  📸 /tmp/instagram-ratio-picker.png");
