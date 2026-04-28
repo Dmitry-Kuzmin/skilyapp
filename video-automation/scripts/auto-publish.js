@@ -307,8 +307,17 @@ async function launchContext(profileDir) {
       "--disable-blink-features=AutomationControlled",
       "--no-sandbox",
       "--disable-dev-shm-usage",
+      "--password-store=keychain",  // use macOS keychain so Google tokens decrypt correctly
     ],
-    ignoreDefaultArgs: ["--enable-automation"],
+    // Remove flags that break login session persistence:
+    // --disable-sync prevents Google from syncing/restoring login state
+    // --enable-automation triggers bot detection on TikTok/Instagram
+    // --password-store=basic stores passwords in plain text, breaking Google token decryption
+    ignoreDefaultArgs: [
+      "--enable-automation",
+      "--disable-sync",
+      "--password-store=basic",
+    ],
   });
 }
 
