@@ -595,31 +595,35 @@ async function uploadInstagram(context, videoPath, lang) {
 
     await delay(1500);
 
-    // Dismiss hashtag autocomplete by pressing Escape, then click outside caption
+    // Dismiss hashtag autocomplete by pressing Escape
     await page.keyboard.press("Escape");
     await delay(500);
-
     await page.screenshot({ path: "/tmp/instagram-before-share.png" });
 
-    // Share button is in the dialog HEADER top-right — use exact text match
-    // "Поделиться" (exact) vs "Где поделиться:" (section, must NOT match)
-    const shareBtn = page.locator([
-      // Exact text match — avoids matching "Где поделиться:"
-      'div[role="dialog"] div:text-is("Share")',
-      'div[role="dialog"] div:text-is("Поделиться")',
-      'div[role="dialog"] span:text-is("Share")',
-      'div[role="dialog"] span:text-is("Поделиться")',
-      'div[role="dialog"] button:text-is("Share")',
-      'div[role="dialog"] button:text-is("Поделиться")',
-    ].join(", ")).first();
+    // "Поделиться" (Share) is in the dialog header top-right.
+    // "Где поделиться:" is a section inside the form — must NOT match.
+    // Strategy: find via evaluate the LEAF node with exact text, then mouse.click at its position.
+    const sharePos = await page.evaluate(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      if (!dialog) return null;
+      // Find leaf elements with exactly "Поделиться" or "Share"
+      const all = [...dialog.querySelectorAll("*")];
+      const btn = all.find(el =>
+        el.children.length === 0 &&
+        (el.textContent.trim() === "Поделиться" || el.textContent.trim() === "Share")
+      );
+      if (!btn) return null;
+      const rect = btn.getBoundingClientRect();
+      return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, tag: btn.tagName, text: btn.textContent.trim() };
+    });
 
-    const shareBtnAlt = page.locator('div[role="dialog"]').getByText("Поделиться", { exact: true }).first();
+    if (!sharePos) throw new Error("Share button (leaf node) not found in dialog");
+    console.log(`  Share button found: <${sharePos.tag}> "${sharePos.text}" at (${Math.round(sharePos.x)}, ${Math.round(sharePos.y)})`);
+    await page.screenshot({ path: "/tmp/instagram-before-share.png" });
 
-    await shareBtnAlt.waitFor({ timeout: 10000 });
-    console.log("  Share button found, clicking...");
-
-    await shareBtnAlt.click({ force: true });
-    console.log("  ✓ Share clicked");
+    // Click at exact position (bypasses all event interception)
+    await page.mouse.click(sharePos.x, sharePos.y);
+    console.log("  ✓ Share clicked via mouse.click");
 
     await delay(3000);
     await page.screenshot({ path: "/tmp/instagram-after-share.png" });
