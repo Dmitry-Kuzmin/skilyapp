@@ -317,6 +317,7 @@ async function launchContext(profileDir) {
       "--enable-automation",
       "--disable-sync",
       "--password-store=basic",
+      "--use-mock-keychain",  // must allow real macOS Keychain so Google tokens decrypt
     ],
   });
 }

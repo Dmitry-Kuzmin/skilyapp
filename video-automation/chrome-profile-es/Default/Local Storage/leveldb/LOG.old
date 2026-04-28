@@ -1,3 +1,18 @@
-2026/04/28-15:27:28.143 f0fc Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/Local Storage/leveldb/MANIFEST-000001
-2026/04/28-15:27:28.149 f0fc Recovering log #14
-2026/04/28-15:27:28.149 f0fc Reusing old log /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/Local Storage/leveldb/000014.log 
+2026/04/28-15:30:52.815 10239 Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/Local Storage/leveldb/MANIFEST-000001
+2026/04/28-15:30:52.819 10239 Recovering log #14
+2026/04/28-15:30:52.819 10239 Reusing old log /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/Local Storage/leveldb/000014.log 
+2026/04/28-15:32:53.736 1023e Level-0 table #17: started
+2026/04/28-15:32:53.741 1023e Level-0 table #17: 22850 bytes OK
+2026/04/28-15:32:53.744 1023e Delete type=0 #14
+2026/04/28-15:32:53.746 10239 Compacting 4@0 + 1@1 files
+2026/04/28-15:32:53.752 10239 Generated table #18@0: 218 keys, 162195 bytes
+2026/04/28-15:32:53.752 10239 Compacted 4@0 + 1@1 files => 162195 bytes
+2026/04/28-15:32:53.754 10239 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/04/28-15:32:53.755 10239 Delete type=2 #17
+2026/04/28-15:32:53.755 10239 Delete type=2 #7
+2026/04/28-15:32:53.755 10239 Delete type=2 #13
+2026/04/28-15:32:53.755 10239 Delete type=2 #11
+2026/04/28-15:32:53.755 10239 Delete type=2 #9
+2026/04/28-15:34:09.607 1023e Level-0 table #20: started
+2026/04/28-15:34:09.611 1023e Level-0 table #20: 52720 bytes OK
+2026/04/28-15:34:09.615 1023e Delete type=0 #16
