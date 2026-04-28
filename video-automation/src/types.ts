@@ -68,7 +68,7 @@ export interface DynamicTiming {
 }
 
 const HOOK_DUR        = 2;
-const COUNTDOWN_DUR   = 3;
+const COUNTDOWN_DUR   = 1;
 const SUSPENSE_DUR    = 6;
 const REVEAL_DUR      = 3;
 const CTA_DUR_DEFAULT = 4;
