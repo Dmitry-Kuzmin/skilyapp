@@ -13,7 +13,6 @@
 const { chromium } = require("playwright-core");
 const path = require("path");
 const fs = require("fs");
-const readline = require("readline");
 
 const lang = process.argv[2] || "es";
 if (!["es", "ru"].includes(lang)) {
