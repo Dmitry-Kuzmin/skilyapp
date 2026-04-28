@@ -223,15 +223,13 @@ const Landing = () => {
           <PartnerInviteBanner />
         </Suspense>
       )}
-      <Suspense fallback={<LandingFallback />}>
-        <LandingComponent
-          onRequestAccess={() => setAuthModalOpen(true)}
-          referrerInfo={referrerInfo}
-          loadingReferrer={loadingReferrer}
-          partnerInfo={partnerInfo}
-          loadingPartner={loadingPartner}
-        />
-      </Suspense>
+      <LandingComponent
+        onRequestAccess={() => setAuthModalOpen(true)}
+        referrerInfo={referrerInfo}
+        loadingReferrer={loadingReferrer}
+        partnerInfo={partnerInfo}
+        loadingPartner={loadingPartner}
+      />
       <Suspense fallback={null}>
         <AuthModalNew open={authModalOpen} onClose={() => setAuthModalOpen(false)} />
       </Suspense>
