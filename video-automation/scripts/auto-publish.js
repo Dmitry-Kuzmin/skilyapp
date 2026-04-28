@@ -151,10 +151,7 @@ async function uploadYouTube(context, videoPath, lang) {
       waitUntil: "domcontentloaded", timeout: 30000,
     });
 
-    // Screenshot: check what page looks like after navigation
     await delay(3000);
-    await page.screenshot({ path: "/tmp/youtube-debug.png", fullPage: false });
-    console.log("  📸 Screenshot saved: /tmp/youtube-debug.png");
     console.log("  📍 Current URL:", page.url());
 
     // Click Upload button
