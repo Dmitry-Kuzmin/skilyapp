@@ -944,10 +944,6 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
       <Sequence from={0} durationInFrames={15}>
         <Audio src={S("whoosh.wav")} volume={0.7} />
       </Sequence>
-      {/* Флэш-удар: резкий whoosh в момент вспышки */}
-      <Sequence from={t.countdownStart * F} durationInFrames={20}>
-        <Audio src={S("whoosh.wav")} volume={1.0} />
-      </Sequence>
       {Array.from({ length: Math.ceil(t.revealStart - t.suspenseStart) }, (_, i) => (
         <Sequence key={i} from={(t.suspenseStart + i) * F} durationInFrames={6}>
           <Audio src={S("tick.wav")} volume={0.6} />
