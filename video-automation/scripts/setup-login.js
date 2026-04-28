@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * setup-login.js
- * Opens browser via Playwright so you can log in manually.
- * After login, saves session to auth-state-es.json / auth-state-ru.json.
- * Run this ONCE per profile. After that auto-publish.js works automatically.
+ * Launches REAL Chrome (zero automation flags) with remote debugging.
+ * You log in normally — Instagram/TikTok/YouTube see a genuine browser.
+ * When you're done, Playwright quietly connects and saves the session.
  *
  * Usage:
  *   node scripts/setup-login.js es    ← setup Spanish accounts
@@ -11,6 +11,7 @@
  */
 
 const { chromium } = require("playwright-core");
+const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
@@ -20,17 +21,17 @@ if (!["es", "ru"].includes(lang)) {
   process.exit(1);
 }
 
-const ROOT = path.join(__dirname, "..");
-const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const AUTH_FILE = path.join(ROOT, `auth-state-${lang}.json`);
+const ROOT        = path.join(__dirname, "..");
+const CHROME      = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const PROFILE_DIR = path.join(ROOT, `chrome-login-${lang}`);
+const AUTH_FILE   = path.join(ROOT, `auth-state-${lang}.json`);
+const SIGNAL_FILE = "/tmp/skily-save-session.txt";
+const DEBUG_PORT  = 9222;
 
-async function waitForSignal() {
-  const SIGNAL_FILE = "/tmp/skily-save-session.txt";
-  // Clean up any old signal
+fs.mkdirSync(PROFILE_DIR, { recursive: true });
+
+function waitForSignal() {
   try { fs.unlinkSync(SIGNAL_FILE); } catch {}
-  console.log(`\n   Когда залогинишься — запусти в терминале:`);
-  console.log(`   touch /tmp/skily-save-session.txt\n`);
-  // Poll for signal file
   return new Promise(resolve => {
     const iv = setInterval(() => {
       if (fs.existsSync(SIGNAL_FILE)) {
@@ -42,71 +43,76 @@ async function waitForSignal() {
   });
 }
 
-(async () => {
-  console.log(`\n🔑 Setup login для профиля [${lang.toUpperCase()}]`);
-  console.log(`   Откроется браузер. Войди во все аккаунты, потом нажми Enter здесь.\n`);
-
-  const context = await chromium.launchPersistentContext("", {
-    executablePath: CHROME_PATH,
-    headless: false,
-    viewport: { width: 1280, height: 900 },
-    args: [
-      "--disable-blink-features=AutomationControlled",
-      "--no-sandbox",
-      "--disable-dev-shm-usage",
-    ],
-    ignoreDefaultArgs: [
-      "--enable-automation",
-      "--disable-sync",
-      "--password-store=basic",
-      "--use-mock-keychain",
-    ],
+function waitForCDP(port, timeout = 15000) {
+  const http = require("http");
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    const check = () => {
+      http.get(`http://localhost:${port}/json/version`, res => {
+        res.resume(); resolve();
+      }).on("error", () => {
+        if (Date.now() - start > timeout) return reject(new Error("CDP timeout"));
+        setTimeout(check, 500);
+      });
+    };
+    check();
   });
+}
 
-  // Open all three sites in separate tabs
-  const pages = [
+(async () => {
+  console.log(`\n🔑 Setup login [${lang.toUpperCase()}] — открываю обычный Chrome`);
+  console.log(`   Instagram, TikTok и YouTube не увидят автоматизацию.\n`);
+
+  // Launch REAL Chrome — no Playwright flags, just remote debugging
+  const chromeProc = spawn(CHROME, [
+    `--remote-debugging-port=${DEBUG_PORT}`,
+    `--user-data-dir=${PROFILE_DIR}`,
+    "--no-first-run",
+    "--no-default-browser-check",
     "https://www.tiktok.com/login",
     "https://studio.youtube.com",
     "https://www.instagram.com",
-  ];
+  ], { detached: false, stdio: "ignore" });
 
-  const page1 = await context.newPage();
-  await page1.goto(pages[0]);
-
-  const page2 = await context.newPage();
-  await page2.goto(pages[1]);
-
-  const page3 = await context.newPage();
-  await page3.goto(pages[2]);
+  // Wait for CDP to be available
+  process.stdout.write("   Жду запуска Chrome...");
+  await waitForCDP(DEBUG_PORT);
+  console.log(" готов!\n");
 
   console.log("📋 Браузер открыт с тремя вкладками:");
-  console.log("   Вкладка 1: TikTok — войди в аккаунт");
-  console.log("   Вкладка 2: YouTube Studio — войди в Google аккаунт");
-  console.log("   Вкладка 3: Instagram — войди в аккаунт");
-  console.log("\n⚠️  НЕ закрывай браузер! После входа во все аккаунты — жди...\n");
+  console.log("   Вкладка 1: TikTok     — войди в аккаунт");
+  console.log("   Вкладка 2: YouTube    — войди в Google аккаунт");
+  console.log("   Вкладка 3: Instagram  — войди в аккаунт");
+  console.log(`\n⚠️  НЕ закрывай браузер! Когда войдёшь — скажи Claude "готово"\n`);
+  console.log(`   (или вручную: touch /tmp/skily-save-session.txt)\n`);
 
   await waitForSignal();
 
-  // Save session state
-  console.log("\n💾 Сохраняю сессию...");
-  await context.storageState({ path: AUTH_FILE });
-  await context.close();
+  // Connect to running Chrome via CDP and grab session state
+  console.log("💾 Подключаюсь к Chrome и сохраняю сессию...");
+  const browser = await chromium.connectOverCDP(`http://localhost:${DEBUG_PORT}`);
+  const contexts = browser.contexts();
+  const context  = contexts[0];
 
-  const stat = fs.statSync(AUTH_FILE);
+  await context.storageState({ path: AUTH_FILE });
+  await browser.close();
+  chromeProc.kill();
+
+  const stat  = fs.statSync(AUTH_FILE);
   const state = JSON.parse(fs.readFileSync(AUTH_FILE, "utf-8"));
   const cookieCount = state.cookies?.length || 0;
+  const domains = [...new Set(state.cookies.map(c => c.domain))].join(", ");
 
-  console.log(`\n✅ Готово! Сессия сохранена:`);
-  console.log(`   Файл: ${AUTH_FILE}`);
-  console.log(`   Куки: ${cookieCount} шт.`);
+  console.log(`\n✅ Сессия сохранена:`);
+  console.log(`   Файл:   ${AUTH_FILE}`);
+  console.log(`   Куки:   ${cookieCount} шт.`);
   console.log(`   Размер: ${(stat.size / 1024).toFixed(1)} KB`);
+  console.log(`   Домены: ${domains}`);
 
-  if (cookieCount < 10) {
-    console.warn(`\n⚠️  Мало куков (${cookieCount}). Возможно не все аккаунты залогинены.`);
-    console.warn(`   Запусти снова и убедись что вошёл на все 3 сайта.`);
+  if (cookieCount < 20) {
+    console.warn(`\n⚠️  Мало куков — возможно не все аккаунты залогинены. Повтори.`);
   } else {
-    console.log(`\n🚀 Теперь можно запускать:`);
-    console.log(`   node scripts/auto-publish.js --es renders/video-es.mp4`);
+    console.log(`\n🚀 Готово! Теперь auto-publish.js будет работать автоматически.`);
   }
 })().catch(e => {
   console.error("❌ Ошибка:", e.message);
