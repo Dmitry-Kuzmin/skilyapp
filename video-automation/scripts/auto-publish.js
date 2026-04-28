@@ -398,41 +398,74 @@ async function uploadInstagram(context, videoPath, lang) {
     }
     console.log("  ✓ File selected");
 
-    // Wait for crop dialog to appear
+    // Wait for crop dialog
     await delay(3000);
 
-    // Open format picker (click the expand/crop icon bottom-left)
-    try {
-      const cropIcon = page.locator('button[aria-label*="crop"], button[aria-label*="кадр"], svg[aria-label*="Select crop"], div[role="button"] svg').first();
-      // Try clicking the expand icon if format options aren't visible
-      if (!await page.locator('span:has-text("9:16")').isVisible({ timeout: 1000 }).catch(() => false)) {
-        await page.locator('button').filter({ has: page.locator('svg') }).last().click().catch(() => {});
-        await delay(1000);
-      }
-    } catch {}
-
-    // Select 9:16 format for Reels
-    try {
-      // Try clicking the 9:16 option (visible as text in the format picker)
-      const format916 = page.locator('span:has-text("9:16"), button:has-text("9:16"), div:has-text("9:16")').first();
-      if (await format916.isVisible({ timeout: 3000 })) {
-        await format916.click();
-        console.log("  ✓ Selected 9:16 format");
-        await delay(1000);
-      }
-    } catch {}
-
-    // Click Next through crop → filter → caption steps
-    for (let i = 0; i < 3; i++) {
-      await delay(2000);
+    // Dismiss any info popups (Reels info, etc.) — click OK/Понятно
+    for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const nextBtn = page.locator('div[role="button"]:has-text("Далее"), div[role="button"]:has-text("Next")').first();
-        if (await nextBtn.isVisible({ timeout: 3000 })) {
-          await nextBtn.click();
-          console.log(`  ✓ Next step ${i+1}`);
+        const okBtn = page.locator('button:has-text("OK"), button:has-text("Понятно"), button:has-text("ОК")').first();
+        if (await okBtn.isVisible({ timeout: 2000 })) {
+          await okBtn.click();
+          console.log("  ✓ Dismissed popup");
+          await delay(1000);
         }
       } catch {}
     }
+
+    // Open format picker — click expand icon (bottom-left of preview)
+    try {
+      // The expand icon is usually a small square icon bottom-left
+      await page.locator('svg[aria-label*="crop"], svg[aria-label*="кадр"], svg[aria-label*="Select crop"]').first().click();
+      await delay(800);
+    } catch {
+      // Try clicking the bottom-left corner button
+      await page.evaluate(() => {
+        const btns = document.querySelectorAll('button, [role="button"]');
+        // find button with crop/select icon (near bottom left of dialog)
+        for (const b of btns) {
+          if (b.querySelector('svg') && b.getBoundingClientRect().left < 400) { b.click(); break; }
+        }
+      }).catch(() => {});
+      await delay(800);
+    }
+
+    // Select 9:16 format
+    try {
+      const found = await page.evaluate(() => {
+        const els = document.querySelectorAll("span, div, button");
+        for (const el of els) {
+          if (el.textContent.trim() === "9:16") { el.click(); return true; }
+        }
+        return false;
+      });
+      if (found) { console.log("  ✓ Selected 9:16"); await delay(800); }
+    } catch {}
+
+    // Click "Далее" / "Next" — it's a link in dialog header, not a button
+    // Instagram uses div[role="button"] with text for dialog navigation
+    const nextLocator = () => page.locator([
+      'div[role="button"]:has-text("Далее")',
+      'div[role="button"]:has-text("Next")',
+      'button:has-text("Далее")',
+      'button:has-text("Next")',
+    ].join(", ")).first();
+
+    // Step 1: Crop → Filters
+    await delay(1500);
+    try {
+      await nextLocator().waitFor({ timeout: 5000 });
+      await nextLocator().click();
+      console.log("  ✓ Next: crop → filters");
+    } catch { console.log("  ⚠️  No Next on crop step"); }
+
+    // Step 2: Filters → Caption
+    await delay(2000);
+    try {
+      await nextLocator().waitFor({ timeout: 5000 });
+      await nextLocator().click();
+      console.log("  ✓ Next: filters → caption");
+    } catch { console.log("  ⚠️  No Next on filters step"); }
 
     // Caption step — take screenshot to see current state
     await delay(2000);
