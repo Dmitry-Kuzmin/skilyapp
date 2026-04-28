@@ -13,8 +13,11 @@ export function isInEmbeddedBrowser(): boolean {
 
   const ua = navigator.userAgent.toLowerCase();
 
-  // Telegram WebApp
-  if ((window as any).Telegram?.WebApp) {
+  // Telegram Mini App — проверяем реальный initData, не просто наличие объекта.
+  // telegram-login.js создаёт window.Telegram.Login (и window.Telegram), но НЕ является встроенным браузером.
+  // Реальный Mini App: initData непустой и не мок.
+  const tgWebApp = (window as any).Telegram?.WebApp;
+  if (tgWebApp?.initData && !tgWebApp.initData.startsWith('mock_')) {
     return true;
   }
 
