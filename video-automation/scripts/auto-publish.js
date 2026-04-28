@@ -595,21 +595,30 @@ async function uploadInstagram(context, videoPath, lang) {
 
     await delay(1500);
 
-    // Share / Publish — use force:true because sidebar "Управление" button can intercept
-    const shareBtn = page.locator([
-      'div[role="button"]:has-text("Share")',
-      'div[role="button"]:has-text("Поделиться")',
-      'div[role="button"]:has-text("Опубликовать")',
-      'button:has-text("Share")',
-      'button:has-text("Поделиться")',
-      'button:has-text("Опубликовать")',
-    ].join(", ")).first();
-    await shareBtn.waitFor({ timeout: 10000 });
-    console.log("  Share button found, clicking...");
+    // Dismiss hashtag autocomplete by pressing Escape, then click outside caption
+    await page.keyboard.press("Escape");
+    await delay(500);
+
     await page.screenshot({ path: "/tmp/instagram-before-share.png" });
 
-    // Use native Playwright click with force to bypass pointer-event interception
-    await shareBtn.click({ force: true });
+    // Share button is in the dialog HEADER top-right — use exact text match
+    // "Поделиться" (exact) vs "Где поделиться:" (section, must NOT match)
+    const shareBtn = page.locator([
+      // Exact text match — avoids matching "Где поделиться:"
+      'div[role="dialog"] div:text-is("Share")',
+      'div[role="dialog"] div:text-is("Поделиться")',
+      'div[role="dialog"] span:text-is("Share")',
+      'div[role="dialog"] span:text-is("Поделиться")',
+      'div[role="dialog"] button:text-is("Share")',
+      'div[role="dialog"] button:text-is("Поделиться")',
+    ].join(", ")).first();
+
+    const shareBtnAlt = page.locator('div[role="dialog"]').getByText("Поделиться", { exact: true }).first();
+
+    await shareBtnAlt.waitFor({ timeout: 10000 });
+    console.log("  Share button found, clicking...");
+
+    await shareBtnAlt.click({ force: true });
     console.log("  ✓ Share clicked");
 
     await delay(3000);
