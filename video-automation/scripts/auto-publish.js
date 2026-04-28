@@ -108,14 +108,50 @@ async function uploadTikTok(context, videoPath, lang) {
     await page.locator('input[type="file"]').first().setInputFiles(videoPath);
     console.log("  ✓ File selected, waiting for upload...");
 
-    // Wait for upload to complete — TikTok shows caption field when ready
-    // Try multiple known selectors; take screenshot on timeout for debugging
-    const captionSelector = 'div[class*="caption-wrap"] [contenteditable="true"], div[data-e2e="caption-input"], div[class*="editor-kit"] [contenteditable="true"]';
+    // Wait a bit for page to settle after upload starts
+    await delay(5000);
+
+    // Dismiss any popups (content check dialog, etc.)
+    const dismissSelectors = [
+      'button:has-text("Отмена")',
+      'button:has-text("Cancel")',
+      'button:has-text("Понятно")',
+      'button:has-text("OK")',
+      'svg[data-e2e="modal-close-icon"]',
+      'button[aria-label="Close"]',
+    ];
+    for (const sel of dismissSelectors) {
+      try {
+        const el = page.locator(sel).first();
+        if (await el.isVisible({ timeout: 1500 })) {
+          await el.click();
+          console.log(`  ✓ Dismissed popup (${sel})`);
+          await delay(500);
+        }
+      } catch {}
+    }
+
+    // Scroll to top to find caption field
+    await page.keyboard.press("Control+Home");
+    await delay(1000);
+
+    // Wait for caption field (TikTok shows it after upload completes)
+    const captionSelector = [
+      'div[class*="caption-wrap"] [contenteditable="true"]',
+      'div[data-e2e="caption-input"]',
+      'div[class*="editor-kit"] [contenteditable="true"]',
+      '[contenteditable="true"][class*="caption"]',
+      'div.caption-input [contenteditable]',
+    ].join(", ");
+
     try {
       await page.waitForSelector(captionSelector, { timeout: 60000 });
     } catch(waitErr) {
       await page.screenshot({ path: "/tmp/tiktok-after-upload.png" });
       console.log("  📸 /tmp/tiktok-after-upload.png");
+      // Log all contenteditable elements for debugging
+      const editables = await page.$$eval('[contenteditable="true"]', els => els.map(e => e.className));
+      console.log("  Contenteditable elements found:", JSON.stringify(editables));
       throw waitErr;
     }
     console.log("  ✓ Upload complete");
