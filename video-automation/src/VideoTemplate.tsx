@@ -847,27 +847,27 @@ function ThumbnailScene({ q }: { q: VideoQuestion }) {
           {q.hook_title}
         </div>
 
-        {/* Разделитель */}
+        {/* Тема вопроса — большой акцентный текст */}
         <div style={{
-          height:3, borderRadius:2,
-          background:`linear-gradient(90deg, ${C.primary} 0%, #7C3AED 60%, transparent 100%)`,
-          width:"70%",
-        }} />
-
-        {/* Текст вопроса в карточке */}
-        <div style={{
-          background:"rgba(0,0,0,0.6)",
-          backdropFilter:"blur(16px)", WebkitBackdropFilter:"blur(16px)",
-          border:"1px solid rgba(255,255,255,0.12)",
-          borderRadius:20, padding:"24px 32px",
-          boxShadow:"0 8px 32px rgba(0,0,0,0.6)",
+          display:"flex", alignItems:"center", gap:20,
         }}>
+          {/* Цветная полоска-акцент слева */}
           <div style={{
-            fontSize: qText.length > 80 ? 30 : 34,
-            fontWeight:500, color:"rgba(255,255,255,0.88)",
-            lineHeight:1.45,
+            width:8, borderRadius:4, alignSelf:"stretch", minHeight:80,
+            background:`linear-gradient(to bottom, ${C.primary}, #7C3AED)`,
+            flexShrink:0,
+          }} />
+          <div style={{
+            fontSize: topicLabel.length > 12 ? 72 : 88,
+            fontWeight:900, color:"#fff",
+            lineHeight:1, letterSpacing:2,
+            textTransform:"uppercase",
+            textShadow:[
+              `0 0 40px ${C.primary}99`,
+              "0 4px 24px rgba(0,0,0,0.95)",
+            ].join(", "),
           }}>
-            {qText.slice(0, 120)}{qText.length > 120 ? "…" : ""}
+            {topicLabel}
           </div>
         </div>
 
