@@ -155,6 +155,21 @@ async function uploadTikTok(context, videoPath, lang) {
     }
     console.log("  ✓ Upload complete");
 
+    // Dismiss any tutorial/onboarding overlays (react-joyride, etc.)
+    try {
+      const overlay = page.locator('[data-test-id="overlay"], .react-joyride__overlay').first();
+      if (await overlay.isVisible({ timeout: 2000 })) {
+        await page.keyboard.press("Escape");
+        await delay(500);
+        // If still there, click it to dismiss
+        if (await overlay.isVisible({ timeout: 1000 })) {
+          await overlay.click({ force: true });
+          await delay(500);
+        }
+        console.log("  ✓ Dismissed tutorial overlay");
+      }
+    } catch {}
+
     // Fill caption — use clipboard paste (much faster than typing char by char)
     const { caption } = getCaption(lang, "tiktok");
     const captionEl = page.locator([
