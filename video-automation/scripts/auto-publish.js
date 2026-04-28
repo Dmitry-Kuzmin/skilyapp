@@ -473,22 +473,59 @@ async function uploadInstagram(context, videoPath, lang) {
       }
     } catch {}
 
-    // Select 9:16 format — click expand icon (bottom-left), then click 9:16
-    try {
-      // The expand/crop icon is bottom-left of the dialog preview area
-      const expandBtn = page.locator('[aria-label*="crop" i], [aria-label*="кадр" i], [aria-label*="Select crop" i]').first();
-      await expandBtn.waitFor({ state: "visible", timeout: 3000 });
-      await expandBtn.click();
-      await delay(800);
-    } catch {}
+    // Select 9:16 format:
+    // 1. Click the expand/ratio icon (bottom-left square icon in preview)
+    // 2. Pick 9:16 from the list that appears
+    const open916Picker = async () => {
+      // Try known aria-labels for the expand icon
+      const expandSelectors = [
+        '[aria-label*="crop" i]',
+        '[aria-label*="Select crop" i]',
+        '[aria-label*="кадр" i]',
+        '[aria-label*="Соотношение" i]',
+        // Fallback: SVG button at bottom-left of the dialog
+      ];
+      for (const sel of expandSelectors) {
+        try {
+          const el = page.locator(sel).first();
+          if (await el.isVisible({ timeout: 1000 })) { await el.click(); return true; }
+        } catch {}
+      }
+      // Last resort: click by position (bottom-left of dialog area)
+      await page.evaluate(() => {
+        // Find all SVG buttons inside the dialog/modal
+        const modal = document.querySelector('[role="dialog"]');
+        if (!modal) return;
+        const rect = modal.getBoundingClientRect();
+        const btns = modal.querySelectorAll('button, [role="button"]');
+        // Find button in bottom-left quadrant of modal
+        for (const b of btns) {
+          const br = b.getBoundingClientRect();
+          if (br.left < rect.left + rect.width * 0.4 && br.top > rect.top + rect.height * 0.6) {
+            b.click(); return;
+          }
+        }
+      });
+      return false;
+    };
 
-    // Click 9:16 with native Playwright click
+    await open916Picker();
+    await delay(800);
+
+    // Click 9:16
     try {
-      const btn916 = page.locator('div[role="button"]:has-text("9:16"), span:has-text("9:16")').first();
+      const btn916 = page.locator([
+        'div[role="button"]:has-text("9:16")',
+        'span:has-text("9:16")',
+        'button:has-text("9:16")',
+      ].join(", ")).first();
       if (await btn916.isVisible({ timeout: 2000 })) {
         await btn916.click();
         console.log("  ✓ Selected 9:16");
         await delay(600);
+        // Close picker by clicking expand icon again
+        await open916Picker().catch(() => {});
+        await delay(400);
       }
     } catch {}
 
