@@ -100,23 +100,12 @@ async function uploadTikTok(context, videoPath, lang) {
       waitUntil: "domcontentloaded", timeout: 30000,
     });
 
-    // Screenshot: check what page looks like after navigation
     await delay(3000);
-    await page.screenshot({ path: "/tmp/tiktok-debug.png", fullPage: false });
-    console.log("  📸 Screenshot saved: /tmp/tiktok-debug.png");
     console.log("  📍 Current URL:", page.url());
 
-    // Wait for upload area
-    await page.waitForSelector('input[type="file"]', { timeout: 20000 });
-
-    // Upload file
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent("filechooser"),
-      page.locator('div[class*="upload-drag-area"], div[class*="upload-btn-input"]').first().click().catch(() =>
-        page.locator('input[type="file"]').first().dispatchEvent("click")
-      ),
-    ]);
-    await fileChooser.setFiles(videoPath);
+    // TikTok hides the file input — set files directly without clicking
+    await page.waitForSelector('input[type="file"]', { state: "attached", timeout: 20000 });
+    await page.locator('input[type="file"]').first().setInputFiles(videoPath);
     console.log("  ✓ File selected, waiting for upload...");
 
     // Wait for upload to complete (progress bar disappears or caption field appears)
