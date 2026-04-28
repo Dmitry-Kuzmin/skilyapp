@@ -341,52 +341,114 @@ async function uploadInstagram(context, videoPath, lang) {
     await page.goto("https://www.instagram.com/", {
       waitUntil: "domcontentloaded", timeout: 30000,
     });
+    await delay(3000);
+    await page.screenshot({ path: "/tmp/instagram-home.png" });
+    console.log("  📍 URL:", page.url());
 
-    // Click Create / + button
-    await page.waitForSelector('a[href="/create/style/"], svg[aria-label="New post"], a:has(svg[aria-label="New post"])', { timeout: 20000 });
-    await page.click('a[href="/create/style/"], svg[aria-label="New post"]').catch(() =>
-      page.locator('a').filter({ hasText: /Create|Создать/ }).first().click()
-    );
+    // Click Create / New post button — try all known selectors
+    const createSelectors = [
+      'a[href="/create/style/"]',
+      'a[href="/create/"]',
+      'svg[aria-label="New post"]',
+      'svg[aria-label="Новая публикация"]',
+      'svg[aria-label="Создать"]',
+      'a[role="link"]:has(svg[aria-label="New post"])',
+      'div[role="button"]:has(svg[aria-label="New post"])',
+      // Instagram left sidebar "Create" text link
+      'span:has-text("Create")',
+      'span:has-text("Создать")',
+    ];
+    let createClicked = false;
+    for (const sel of createSelectors) {
+      try {
+        const el = page.locator(sel).first();
+        if (await el.isVisible({ timeout: 2000 })) {
+          await el.click();
+          createClicked = true;
+          console.log(`  ✓ Create clicked (${sel})`);
+          break;
+        }
+      } catch {}
+    }
+    if (!createClicked) {
+      await page.screenshot({ path: "/tmp/instagram-no-create.png" });
+      // Log all links for debugging
+      const links = await page.$$eval("a, [role='button']", els =>
+        els.slice(0, 20).map(e => ({ tag: e.tagName, href: e.href, aria: e.getAttribute("aria-label"), text: e.textContent?.trim().slice(0,30) }))
+      );
+      console.log("  Links found:", JSON.stringify(links));
+      throw new Error("Create button not found on Instagram");
+    }
 
-    // Click "Select from computer" / upload button
-    const [fileChooser] = await Promise.all([
-      page.waitForEvent("filechooser", { timeout: 15000 }),
-      page.locator('button:has-text("Select from computer"), button:has-text("Выбрать с компьютера"), input[type="file"]').first().click(),
-    ]);
-    await fileChooser.setFiles(videoPath);
+    await delay(2000);
+
+    // Click "Select from computer" or use hidden file input
+    let fileSet = false;
+    try {
+      const [fileChooser] = await Promise.all([
+        page.waitForEvent("filechooser", { timeout: 8000 }),
+        page.locator('button:has-text("Select from computer"), button:has-text("Выбрать с компьютера")').first().click(),
+      ]);
+      await fileChooser.setFiles(videoPath);
+      fileSet = true;
+    } catch {}
+
+    if (!fileSet) {
+      // Try hidden file input directly
+      const inp = page.locator('input[type="file"]').first();
+      await inp.waitFor({ state: "attached", timeout: 8000 });
+      await inp.setInputFiles(videoPath);
+      fileSet = true;
+    }
     console.log("  ✓ File selected");
 
-    // Handle crop/format step — click OK or Next
-    await delay(3000);
-    const nextBtn1 = page.locator('button:has-text("Next"), button:has-text("Далее")').first();
-    await nextBtn1.waitFor({ timeout: 30000 });
-    await nextBtn1.click();
+    // Click through crop/format/filter steps
+    for (let i = 0; i < 3; i++) {
+      await delay(2500);
+      try {
+        const nextBtn = page.locator('button:has-text("Next"), button:has-text("Далее"), div[role="button"]:has-text("Next")').first();
+        if (await nextBtn.isVisible({ timeout: 3000 })) {
+          await nextBtn.click();
+          console.log(`  ✓ Next step ${i+1}`);
+        }
+      } catch {}
+    }
 
-    // Trim step if present
-    await delay(2000);
-    const nextBtn2 = page.locator('button:has-text("Next"), button:has-text("Далее")').first();
-    if (await nextBtn2.isVisible({ timeout: 3000 }).catch(() => false)) await nextBtn2.click();
-
-    // Caption step
+    // Caption step — fill and use clipboard paste
     await delay(2000);
     const { caption } = getCaption(lang, "instagram");
-    const captionEl = page.locator('div[aria-label*="caption"], div[aria-label*="подпись"], textarea[placeholder*="caption"]').first();
+    const captionEl = page.locator([
+      'div[aria-label*="caption"]',
+      'div[aria-label*="подпись"]',
+      'div[aria-label*="Caption"]',
+      'textarea[placeholder*="caption"]',
+      'div[contenteditable="true"]',
+    ].join(", ")).first();
     await captionEl.waitFor({ timeout: 15000 });
     await captionEl.click();
-    await captionEl.type(caption, { delay: 10 });
+    await page.evaluate((text) => navigator.clipboard.writeText(text), caption);
+    await page.keyboard.press("Meta+V");
     console.log("  ✓ Caption filled");
 
     await delay(1500);
 
-    // Share / Publish
-    const shareBtn = page.locator('button:has-text("Share"), button:has-text("Поделиться")').first();
+    // Share
+    const shareBtn = page.locator([
+      'button:has-text("Share")',
+      'button:has-text("Поделиться")',
+      'div[role="button"]:has-text("Share")',
+    ].join(", ")).first();
     await shareBtn.waitFor({ timeout: 10000 });
     await shareBtn.click();
+    console.log("  ✓ Share clicked");
 
-    // Wait for "Your reel has been shared" or similar
-    await page.waitForSelector('span:has-text("Your reel"), span:has-text("Рилс опубликован"), div[role="dialog"] button:has-text("OK")', {
-      timeout: 60000,
-    }).catch(() => {});
+    // Wait for confirmation
+    await page.waitForSelector([
+      'span:has-text("Your reel")',
+      'span:has-text("Рилс опубликован")',
+      'span:has-text("Your post")',
+      'div[role="dialog"] button:has-text("OK")',
+    ].join(", "), { timeout: 60000 }).catch(() => {});
     console.log(`  ✅ Instagram [${lang.toUpperCase()}] published!`);
     notify("Skily Video Maker", `✅ Instagram ${lang.toUpperCase()} опубликован`);
   } catch(e) {
