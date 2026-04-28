@@ -191,6 +191,21 @@ async function uploadYouTube(context, videoPath, lang) {
     await descEl.type(description, { delay: 5 });
     console.log("  ✓ Description filled");
 
+    // Answer "Not made for kids" — required before Next
+    await delay(1000);
+    const notForKids = page.locator("tp-yt-paper-radio-button[name='VIDEO_MADE_FOR_KIDS_NOT_MFK'], ytcp-video-metadata-editor-basics #audience-no").first();
+    try {
+      await notForKids.waitFor({ timeout: 5000 });
+      await notForKids.click();
+      console.log("  ✓ Not made for kids selected");
+    } catch {
+      // Try by text
+      try {
+        await page.locator("tp-yt-paper-radio-button").filter({ hasText: /not made for kids|не для детей/i }).first().click();
+        console.log("  ✓ Not made for kids selected (text match)");
+      } catch { console.log("  ⚠️  Kids question not found"); }
+    }
+
     // Click Next through steps (Details → Video elements → Checks → Visibility)
     for (let step = 0; step < 3; step++) {
       await delay(2000);
