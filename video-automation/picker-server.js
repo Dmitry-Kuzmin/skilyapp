@@ -1374,7 +1374,7 @@ function updatePublishPanel() {
     html += '<div class="publish-file-row">'
       + '<span class="publish-file-lang" style="background:rgba(139,92,246,0.15);color:#8B5CF6">RU</span>'
       + '<span class="publish-file-name" title="' + r.outputRU + '">' + name + '</span>'
-      + '<button class="btn-finder" onclick="revealFile(' + JSON.stringify(r.outputRU) + ')">📂 Finder</button>'
+      + '<button class="btn-finder" onclick="revealFile(\'' + r.outputRU.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">📂 Finder</button>'
       + '</div>';
   }
   filesEl.innerHTML = html;
