@@ -398,20 +398,14 @@ async function uploadInstagram(context, videoPath, lang) {
     }
     console.log("  ✓ File selected");
 
-    // Helper: click "Далее"/"Next" using JS (works regardless of element type)
+    // Helper: click "Далее"/"Next" using native Playwright mouse events (React-compatible)
     const clickNext = async () => {
-      return page.evaluate(() => {
-        // Find any element containing exactly "Далее" or "Next" that's clickable
-        const all = document.querySelectorAll('div, span, button, a');
-        for (const el of all) {
-          const t = el.textContent?.trim();
-          if ((t === "Далее" || t === "Next") && el.offsetParent !== null) {
-            el.click();
-            return true;
-          }
-        }
-        return false;
-      });
+      const loc = page.locator('div[role="button"]:has-text("Далее"), div[role="button"]:has-text("Next")').first();
+      try {
+        await loc.waitFor({ state: "visible", timeout: 5000 });
+        await loc.click();
+        return true;
+      } catch { return false; }
     };
 
     // Wait for crop dialog to fully load
