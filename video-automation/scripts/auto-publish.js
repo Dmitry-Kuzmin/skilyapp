@@ -398,74 +398,80 @@ async function uploadInstagram(context, videoPath, lang) {
     }
     console.log("  ✓ File selected");
 
-    // Wait for crop dialog
-    await delay(3000);
-
-    // Dismiss any info popups (Reels info, etc.) — click OK/Понятно
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const okBtn = page.locator('button:has-text("OK"), button:has-text("Понятно"), button:has-text("ОК")').first();
-        if (await okBtn.isVisible({ timeout: 2000 })) {
-          await okBtn.click();
-          console.log("  ✓ Dismissed popup");
-          await delay(1000);
-        }
-      } catch {}
-    }
-
-    // Open format picker — click expand icon (bottom-left of preview)
-    try {
-      // The expand icon is usually a small square icon bottom-left
-      await page.locator('svg[aria-label*="crop"], svg[aria-label*="кадр"], svg[aria-label*="Select crop"]').first().click();
-      await delay(800);
-    } catch {
-      // Try clicking the bottom-left corner button
-      await page.evaluate(() => {
-        const btns = document.querySelectorAll('button, [role="button"]');
-        // find button with crop/select icon (near bottom left of dialog)
-        for (const b of btns) {
-          if (b.querySelector('svg') && b.getBoundingClientRect().left < 400) { b.click(); break; }
-        }
-      }).catch(() => {});
-      await delay(800);
-    }
-
-    // Select 9:16 format
-    try {
-      const found = await page.evaluate(() => {
-        const els = document.querySelectorAll("span, div, button");
-        for (const el of els) {
-          if (el.textContent.trim() === "9:16") { el.click(); return true; }
+    // Helper: click "Далее"/"Next" using JS (works regardless of element type)
+    const clickNext = async () => {
+      return page.evaluate(() => {
+        // Find any element containing exactly "Далее" or "Next" that's clickable
+        const all = document.querySelectorAll('div, span, button, a');
+        for (const el of all) {
+          const t = el.textContent?.trim();
+          if ((t === "Далее" || t === "Next") && el.offsetParent !== null) {
+            el.click();
+            return true;
+          }
         }
         return false;
       });
-      if (found) { console.log("  ✓ Selected 9:16"); await delay(800); }
+    };
+
+    // Wait for crop dialog to fully load
+    await delay(3000);
+
+    // Dismiss info popups (Reels info shows "OK" button only — safe to click)
+    try {
+      const okBtn = page.locator('button:has-text("OK"), button:has-text("ОК")').first();
+      if (await okBtn.isVisible({ timeout: 2000 })) {
+        await okBtn.click();
+        console.log("  ✓ Dismissed Reels info popup");
+        await delay(1000);
+      }
     } catch {}
 
-    // Click "Далее" / "Next" — it's a link in dialog header, not a button
-    // Instagram uses div[role="button"] with text for dialog navigation
-    const nextLocator = () => page.locator([
-      'div[role="button"]:has-text("Далее")',
-      'div[role="button"]:has-text("Next")',
-      'button:has-text("Далее")',
-      'button:has-text("Next")',
-    ].join(", ")).first();
+    // Select 9:16 format — click the expand icon (bottom-LEFT square icon)
+    // then pick 9:16 from the list
+    await page.evaluate(() => {
+      // Find the expand/select-ratio button (SVG icon, bottom-left area of dialog)
+      const btns = Array.from(document.querySelectorAll('button[aria-label], [role="button"][aria-label]'));
+      const expandBtn = btns.find(b =>
+        b.getAttribute('aria-label')?.toLowerCase().includes('crop') ||
+        b.getAttribute('aria-label')?.toLowerCase().includes('select') ||
+        b.getAttribute('aria-label')?.toLowerCase().includes('кадр')
+      );
+      if (expandBtn) expandBtn.click();
+    }).catch(() => {});
+    await delay(800);
 
-    // Step 1: Crop → Filters
-    await delay(1500);
-    try {
-      await nextLocator().waitFor({ timeout: 5000 });
-      await nextLocator().click();
-      console.log("  ✓ Next: crop → filters");
-    } catch { console.log("  ⚠️  No Next on crop step"); }
+    // Click 9:16 option (by exact text match)
+    const selected916 = await page.evaluate(() => {
+      const all = Array.from(document.querySelectorAll('span, div, button'));
+      const el = all.find(e => e.textContent.trim() === "9:16");
+      if (el) { el.click(); return true; }
+      return false;
+    });
+    if (selected916) {
+      console.log("  ✓ Selected 9:16");
+      await delay(800);
+      // Close the format picker by clicking it again
+      await page.evaluate(() => {
+        const btns = Array.from(document.querySelectorAll('button[aria-label], [role="button"][aria-label]'));
+        const expandBtn = btns.find(b =>
+          b.getAttribute('aria-label')?.toLowerCase().includes('crop') ||
+          b.getAttribute('aria-label')?.toLowerCase().includes('select') ||
+          b.getAttribute('aria-label')?.toLowerCase().includes('кадр')
+        );
+        if (expandBtn) expandBtn.click();
+      }).catch(() => {});
+      await delay(500);
+    }
 
-    // Step 2: Filters → Caption
+    // Click Далее: Crop → Filters
+    await delay(1000);
+    if (await clickNext()) { console.log("  ✓ Next: crop → filters"); }
     await delay(2000);
-    try {
-      await nextLocator().waitFor({ timeout: 5000 });
-      await nextLocator().click();
-      console.log("  ✓ Next: filters → caption");
-    } catch { console.log("  ⚠️  No Next on filters step"); }
+
+    // Click Далее: Filters → Caption
+    if (await clickNext()) { console.log("  ✓ Next: filters → caption"); }
+    await delay(2000);
 
     // Caption step
     await delay(2000);
