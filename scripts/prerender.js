@@ -421,8 +421,8 @@ async function prerender() {
 
           await waitForPageReadiness(page);
 
-          // Second settling pass — hydration can flash fallbacks, give it time to stabilize.
-          await new Promise((resolve) => setTimeout(resolve, 500));
+          // Settling pass — hydration can flash fallbacks, give it time to stabilize.
+          await new Promise((resolve) => setTimeout(resolve, 200));
 
           const hasContent = await page.evaluate(() => {
             const root = document.querySelector('#root');
