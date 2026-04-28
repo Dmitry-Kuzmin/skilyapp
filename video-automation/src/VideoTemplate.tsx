@@ -716,6 +716,120 @@ function CTAScene({ q, t }: { q: VideoQuestion; t: DynamicTiming }) {
   );
 }
 
+// ─── ThumbnailScene — frame 0 only ───────────────────────────────────────────
+// Соцсети (Instagram, TikTok, YouTube) берут первый кадр как обложку.
+// Этот кадр длится 33мс — зритель не заметит, но лента выглядит красиво.
+function ThumbnailScene({ q }: { q: VideoQuestion }) {
+  const isRu = q.language === "ru";
+  const diffColors = { easy: C.emerald, medium: "#F0883E", hard: C.red };
+  const diffLabel  = { ru: { easy:"ЛЁГКИЙ", medium:"СРЕДНИЙ", hard:"СЛОЖНЫЙ" },
+                        es: { easy:"FÁCIL",  medium:"MEDIO",   hard:"DIFÍCIL"  } };
+
+  return (
+    <div style={{ position:"absolute", inset:0, overflow:"hidden" }}>
+
+      {/* Картинка вопроса — верхние ~52% */}
+      {q.image_url ? (
+        <img src={q.image_url} alt="" style={{
+          position:"absolute", top:0, left:0, width:"100%", height:"52%",
+          objectFit:"cover",
+        }} />
+      ) : (
+        <div style={{
+          position:"absolute", top:0, left:0, right:0, height:"52%",
+          background:"linear-gradient(135deg, #0d2a4d 0%, #1a3a6b 100%)",
+        }} />
+      )}
+
+      {/* Затемнение поверх картинки снизу → плавный переход к тёмному блоку */}
+      <div style={{
+        position:"absolute", top:0, left:0, right:0, height:"52%",
+        background:"linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(13,17,23,0.85) 100%)",
+      }} />
+
+      {/* Нижний тёмный блок с текстом */}
+      <div style={{
+        position:"absolute", bottom:0, left:0, right:0, height:"52%",
+        background: C.bg,
+        display:"flex", flexDirection:"column",
+        justifyContent:"center", padding:"0 60px", gap:24,
+      }}>
+
+        {/* Полоска-акцент сверху блока */}
+        <div style={{
+          position:"absolute", top:0, left:0, right:0, height:4,
+          background:"linear-gradient(90deg, transparent, #2F81F7 30%, #7C3AED 70%, transparent)",
+        }} />
+
+        {/* Бейдж флаг + название */}
+        <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+          <div style={{
+            display:"flex", alignItems:"center", gap:10,
+            background:"rgba(47,129,247,0.15)", border:"1.5px solid rgba(47,129,247,0.4)",
+            borderRadius:100, padding:"8px 22px",
+          }}>
+            <span style={{ fontSize:28 }}>🇪🇸</span>
+            <span style={{ fontSize:22, fontWeight:800, color:"#fff", letterSpacing:2,
+              fontFamily:"system-ui,sans-serif" }}>
+              {isRu ? "ТЕСТ ПДД ИСПАНИИ" : "EXAMEN DGT"}
+            </span>
+          </div>
+          {/* Сложность */}
+          <div style={{
+            padding:"8px 20px", borderRadius:100,
+            background:`${diffColors[q.difficulty]}18`,
+            border:`1.5px solid ${diffColors[q.difficulty]}55`,
+            color: diffColors[q.difficulty],
+            fontSize:20, fontWeight:800, letterSpacing:2,
+            fontFamily:"system-ui,sans-serif",
+          }}>
+            {diffLabel[q.language][q.difficulty]}
+          </div>
+        </div>
+
+        {/* Hook title — главный текст обложки */}
+        <div style={{
+          fontSize: q.hook_title.length > 24 ? 68 : 80,
+          fontWeight:900, color:"#fff",
+          fontFamily:"system-ui,sans-serif",
+          lineHeight:1.15, letterSpacing:-1,
+          textShadow:[
+            "0 0 40px rgba(47,129,247,0.7)",
+            "0 4px 20px rgba(0,0,0,0.95)",
+          ].join(", "),
+        }}>
+          {q.hook_title}
+        </div>
+
+        {/* Вопрос (коротко) */}
+        <div style={{
+          fontSize:32, color:"rgba(255,255,255,0.65)",
+          fontFamily:"system-ui,sans-serif", lineHeight:1.4,
+        }}>
+          {cleanText(isRu && q.question_ru ? q.question_ru : q.question).slice(0, 90)}
+          {cleanText(isRu && q.question_ru ? q.question_ru : q.question).length > 90 ? "…" : ""}
+        </div>
+
+        {/* skilyapp.com */}
+        <div style={{
+          position:"absolute", bottom:36, right:60,
+          fontSize:22, color:"rgba(47,129,247,0.7)",
+          fontFamily:"system-ui,sans-serif", fontWeight:600, letterSpacing:1,
+        }}>
+          skilyapp.com
+        </div>
+      </div>
+
+      {/* Голубой glow-ореол на стыке фото и блока */}
+      <div style={{
+        position:"absolute", top:"44%", left:0, right:0, height:120,
+        background:"radial-gradient(ellipse at 50% 50%, rgba(47,129,247,0.18) 0%, transparent 70%)",
+        pointerEvents:"none",
+      }} />
+    </div>
+  );
+}
+
 // ─── Main composition ─────────────────────────────────────────────────────────
 interface VideoTemplateProps { question: VideoQuestion }
 
