@@ -507,42 +507,6 @@ async function uploadInstagram(context, videoPath, lang) {
     await delay(3000);
     await dismissPopups();
 
-    // Select 9:16 format:
-    // 1. Click the expand/ratio icon (bottom-left square icon in preview)
-    // 2. Pick 9:16 from the list that appears
-    const open916Picker = async () => {
-      // Try known aria-labels for the expand icon
-      const expandSelectors = [
-        '[aria-label*="crop" i]',
-        '[aria-label*="Select crop" i]',
-        '[aria-label*="кадр" i]',
-        '[aria-label*="Соотношение" i]',
-        // Fallback: SVG button at bottom-left of the dialog
-      ];
-      for (const sel of expandSelectors) {
-        try {
-          const el = page.locator(sel).first();
-          if (await el.isVisible({ timeout: 1000 })) { await el.click(); return true; }
-        } catch {}
-      }
-      // Last resort: click by position (bottom-left of dialog area)
-      await page.evaluate(() => {
-        // Find all SVG buttons inside the dialog/modal
-        const modal = document.querySelector('[role="dialog"]');
-        if (!modal) return;
-        const rect = modal.getBoundingClientRect();
-        const btns = modal.querySelectorAll('button, [role="button"]');
-        // Find button in bottom-left quadrant of modal
-        for (const b of btns) {
-          const br = b.getBoundingClientRect();
-          if (br.left < rect.left + rect.width * 0.4 && br.top > rect.top + rect.height * 0.6) {
-            b.click(); return;
-          }
-        }
-      });
-      return false;
-    };
-
     // Открываем пикер соотношения (кнопка внизу-слева превью)
     // Сначала пробуем aria-label, потом evaluate по позиции, потом фиксированная точка
     const openRatioPicker = async () => {
