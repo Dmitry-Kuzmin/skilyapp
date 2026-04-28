@@ -612,7 +612,7 @@ async function uploadInstagram(context, videoPath, lang) {
 
     // Guard: if Discard dialog appeared anyway (defensive), dismiss it with "Отмена"
     try {
-      const discardHeader = page.locator('text="Отменить публикацию?", text="Discard post?"').first();
+      const discardHeader = page.locator('text="Отменить публикацию?"').or(page.locator('text="Discard post?"')).first();
       if (await discardHeader.isVisible({ timeout: 800 })) {
         await page.locator('button:has-text("Отмена"), button:has-text("Cancel")').last().click();
         await delay(600);
