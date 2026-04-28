@@ -478,11 +478,14 @@ async function uploadInstagram(context, videoPath, lang) {
 
     await delay(1500);
 
-    // Share
+    // Share / Publish
     const shareBtn = page.locator([
+      'div[role="button"]:has-text("Share")',
+      'div[role="button"]:has-text("Поделиться")',
+      'div[role="button"]:has-text("Опубликовать")',
       'button:has-text("Share")',
       'button:has-text("Поделиться")',
-      'div[role="button"]:has-text("Share")',
+      'button:has-text("Опубликовать")',
     ].join(", ")).first();
     await shareBtn.waitFor({ timeout: 10000 });
     await shareBtn.click();
