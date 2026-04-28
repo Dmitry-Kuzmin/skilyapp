@@ -399,8 +399,12 @@ async function uploadInstagram(context, videoPath, lang) {
         await postItem.click();
         console.log("  ✓ Selected Публикация");
         await delay(3000);
+        console.log("  📍 URL after Публикация:", page.url());
         await page.screenshot({ path: `/tmp/ig-after-publik-${lang}.png` });
         console.log(`  📸 /tmp/ig-after-publik-${lang}.png`);
+        // Check if file input appeared or if we need to navigate further
+        const hasFileInput = await page.locator('input[type="file"]').count();
+        console.log("  file inputs found:", hasFileInput);
       }
     } catch {}
 
