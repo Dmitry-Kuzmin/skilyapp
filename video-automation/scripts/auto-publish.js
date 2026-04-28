@@ -377,36 +377,20 @@ async function uploadInstagram(context, videoPath, lang) {
       } catch {}
     }
 
-    // Click Create / "+" button using JS
-    const createClicked = await page.evaluate(() => {
-      const links = Array.from(document.querySelectorAll("a"));
-      const btn = links.find(a =>
-        a.textContent.includes("Создать") ||
-        a.textContent.includes("Create") ||
-        a.href?.includes("/create")
-      );
-      if (btn) { btn.click(); return btn.textContent.trim().slice(0, 30); }
-      return null;
-    });
-    if (!createClicked) throw new Error("Create button not found on Instagram");
-    console.log(`  ✓ Create clicked (${createClicked})`);
+    // Click Create — use native Playwright click (React-compatible)
+    const createBtn = page.locator('a:has-text("Создать"), a:has-text("Create"), a[href="/create/style/"]').first();
+    await createBtn.waitFor({ state: "visible", timeout: 10000 });
+    await createBtn.click();
+    console.log("  ✓ Create clicked");
     await delay(2000);
 
-    // Business/creator accounts: "Создать" expands sub-menu → click "Публикация"
-    try {
-      const postItem = page.locator('a:has-text("Публикация"), a:has-text("Post")').first();
-      if (await postItem.isVisible({ timeout: 2000 })) {
-        await postItem.click();
-        console.log("  ✓ Selected Публикация");
-        await delay(3000);
-        console.log("  📍 URL after Публикация:", page.url());
-        await page.screenshot({ path: `/tmp/ig-after-publik-${lang}.png` });
-        console.log(`  📸 /tmp/ig-after-publik-${lang}.png`);
-        // Check if file input appeared or if we need to navigate further
-        const hasFileInput = await page.locator('input[type="file"]').count();
-        console.log("  file inputs found:", hasFileInput);
-      }
-    } catch {}
+    // Business/creator accounts: sub-menu appears → click "Публикация"
+    const postItem = page.locator('a:has-text("Публикация"), a:has-text("Post")').first();
+    if (await postItem.isVisible({ timeout: 2000 })) {
+      await postItem.click();
+      console.log("  ✓ Selected Публикация");
+      await delay(3000);
+    }
 
     // Click "Select from computer" / use hidden file input
     let fileSet = false;
