@@ -398,11 +398,35 @@ async function uploadInstagram(context, videoPath, lang) {
     }
     console.log("  ✓ File selected");
 
-    // Click through crop/format/filter steps
+    // Wait for crop dialog to appear
+    await delay(3000);
+
+    // Open format picker (click the expand/crop icon bottom-left)
+    try {
+      const cropIcon = page.locator('button[aria-label*="crop"], button[aria-label*="кадр"], svg[aria-label*="Select crop"], div[role="button"] svg').first();
+      // Try clicking the expand icon if format options aren't visible
+      if (!await page.locator('span:has-text("9:16")').isVisible({ timeout: 1000 }).catch(() => false)) {
+        await page.locator('button').filter({ has: page.locator('svg') }).last().click().catch(() => {});
+        await delay(1000);
+      }
+    } catch {}
+
+    // Select 9:16 format for Reels
+    try {
+      // Try clicking the 9:16 option (visible as text in the format picker)
+      const format916 = page.locator('span:has-text("9:16"), button:has-text("9:16"), div:has-text("9:16")').first();
+      if (await format916.isVisible({ timeout: 3000 })) {
+        await format916.click();
+        console.log("  ✓ Selected 9:16 format");
+        await delay(1000);
+      }
+    } catch {}
+
+    // Click Next through crop → filter → caption steps
     for (let i = 0; i < 3; i++) {
-      await delay(2500);
+      await delay(2000);
       try {
-        const nextBtn = page.locator('button:has-text("Next"), button:has-text("Далее"), div[role="button"]:has-text("Next")').first();
+        const nextBtn = page.locator('div[role="button"]:has-text("Далее"), div[role="button"]:has-text("Next")').first();
         if (await nextBtn.isVisible({ timeout: 3000 })) {
           await nextBtn.click();
           console.log(`  ✓ Next step ${i+1}`);
