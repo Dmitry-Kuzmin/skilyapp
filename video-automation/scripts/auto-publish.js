@@ -296,30 +296,38 @@ async function uploadInstagram(context, videoPath, lang) {
   }
 }
 
-// ── Launch Chrome context for a given profile ─────────────────────────────────
-async function launchContext(profileDir) {
-  fs.mkdirSync(profileDir, { recursive: true });
-  return chromium.launchPersistentContext(profileDir, {
+// ── Launch Chrome context with saved auth state ────────────────────────────────
+async function launchContext(authFile) {
+  if (!fs.existsSync(authFile)) {
+    const lang = authFile.includes("-es.") ? "es" : "ru";
+    console.error(`\n❌ Нет файла сессии: ${authFile}`);
+    console.error(`   Сначала запусти: node scripts/setup-login.js ${lang}\n`);
+    process.exit(1);
+  }
+
+  const browser = await chromium.launch({
     executablePath: CHROME_PATH,
     headless: false,
-    viewport: { width: 1280, height: 900 },
     args: [
       "--disable-blink-features=AutomationControlled",
       "--no-sandbox",
       "--disable-dev-shm-usage",
-      "--password-store=keychain",  // use macOS keychain so Google tokens decrypt correctly
     ],
-    // Remove flags that break login session persistence:
-    // --disable-sync prevents Google from syncing/restoring login state
-    // --enable-automation triggers bot detection on TikTok/Instagram
-    // --password-store=basic stores passwords in plain text, breaking Google token decryption
-    ignoreDefaultArgs: [
-      "--enable-automation",
-      "--disable-sync",
-      "--password-store=basic",
-      "--use-mock-keychain",  // must allow real macOS Keychain so Google tokens decrypt
-    ],
+    ignoreDefaultArgs: ["--enable-automation"],
   });
+
+  const context = await browser.newContext({
+    storageState: authFile,
+    viewport: { width: 1280, height: 900 },
+    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  });
+
+  // Attach close to browser when context closes
+  context._browser = browser;
+  const origClose = context.close.bind(context);
+  context.close = async () => { await origClose(); await browser.close(); };
+
+  return context;
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
