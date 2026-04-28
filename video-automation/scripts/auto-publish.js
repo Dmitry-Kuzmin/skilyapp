@@ -398,7 +398,9 @@ async function uploadInstagram(context, videoPath, lang) {
       if (await postItem.isVisible({ timeout: 2000 })) {
         await postItem.click();
         console.log("  ✓ Selected Публикация");
-        await delay(2000);
+        await delay(3000);
+        await page.screenshot({ path: `/tmp/ig-after-publik-${lang}.png` });
+        console.log(`  📸 /tmp/ig-after-publik-${lang}.png`);
       }
     } catch {}
 
