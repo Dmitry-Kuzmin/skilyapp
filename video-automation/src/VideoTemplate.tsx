@@ -971,6 +971,13 @@ export const VideoTemplate: React.FC<VideoTemplateProps> = ({ question }) => {
       {/* Bottom brand line */}
       <div style={{ position:"absolute", bottom:0, left:0, right:0, height:5,
         background: C.gradient }} />
+
+      {/* Thumbnail cover — frame 0 only (33ms). Instagram/TikTok/YouTube used this as preview. */}
+      {frame === 0 && (
+        <div style={{ position:"absolute", inset:0 }}>
+          <ThumbnailScene q={question} />
+        </div>
+      )}
     </AbsoluteFill>
   );
 };
