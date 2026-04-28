@@ -373,13 +373,29 @@ async function uploadInstagram(context, videoPath, lang) {
       'a[role="link"]:has(svg[aria-label="New post"])',
       'div[role="button"]:has(svg[aria-label="New post"])',
     ];
-    // Instagram: find Create/Создать link and click via JS (bypasses visibility check)
+    // Dismiss any initial popups (notifications prompt, etc.)
+    await delay(2000);
+    for (const txt of ["Не сейчас", "Not Now", "Not now", "Dismiss"]) {
+      try {
+        const btn = page.locator(`button:has-text("${txt}")`).first();
+        if (await btn.isVisible({ timeout: 1500 })) { await btn.click(); await delay(500); break; }
+      } catch {}
+    }
+
+    // Check if still on login page — means session expired
+    if (page.url().includes("accounts") || page.url().includes("login")) {
+      throw new Error(`Instagram not logged in (URL: ${page.url()})`);
+    }
+
+    // Click Create — works for both account types:
+    // - Personal/test: "Создать" link opens upload dialog directly
+    // - Business/creator: "Создать" expands to sub-menu → click "Публикация"
     const createClicked = await page.evaluate(() => {
-      const links = Array.from(document.querySelectorAll("a"));
+      const links = Array.from(document.querySelectorAll("a, [role='link']"));
       const btn = links.find(a =>
         a.textContent.includes("Создать") ||
         a.textContent.includes("Create") ||
-        a.href.includes("/create")
+        a.href?.includes("/create")
       );
       if (btn) { btn.click(); return true; }
       return false;
@@ -391,12 +407,17 @@ async function uploadInstagram(context, videoPath, lang) {
     }
     console.log("  ✓ Create clicked");
 
-    await delay(3000);
+    await delay(2000);
 
-    // Check if still on login page — means session expired
-    if (page.url().includes("accounts") || page.url().includes("login")) {
-      throw new Error(`Instagram not logged in (URL: ${page.url()})`);
-    }
+    // If sub-menu appeared (business account) — click "Публикация" / "Post"
+    try {
+      const postItem = page.locator('a:has-text("Публикация"), a:has-text("Post"), [role="link"]:has-text("Публикация")').first();
+      if (await postItem.isVisible({ timeout: 2000 })) {
+        await postItem.click();
+        console.log("  ✓ Selected Публикация");
+        await delay(1500);
+      }
+    } catch {}
 
     // Click "Select from computer" / use hidden file input
     let fileSet = false;
