@@ -376,14 +376,15 @@ async function uploadInstagram(context, videoPath, lang) {
     }
     console.log("  ✓ Create clicked");
 
-    await delay(2000);
+    await delay(3000);
+    await page.screenshot({ path: `/tmp/instagram-after-create-${lang}.png` });
 
     // Click "Select from computer" or use hidden file input
     let fileSet = false;
     try {
       const [fileChooser] = await Promise.all([
         page.waitForEvent("filechooser", { timeout: 8000 }),
-        page.locator('button:has-text("Select from computer"), button:has-text("Выбрать с компьютера")').first().click(),
+        page.locator('button:has-text("Select from computer"), button:has-text("Выбрать с компьютера"), button:has-text("Выбрать на компьютере")').first().click(),
       ]);
       await fileChooser.setFiles(videoPath);
       fileSet = true;
