@@ -392,26 +392,41 @@ async function uploadInstagram(context, videoPath, lang) {
     console.log("  ✓ Create clicked");
 
     await delay(3000);
-    await page.screenshot({ path: `/tmp/instagram-after-create-${lang}.png` });
 
-    // Click "Select from computer" or use hidden file input
+    // Check if still on login page — means session expired
+    if (page.url().includes("accounts") || page.url().includes("login")) {
+      throw new Error(`Instagram not logged in (URL: ${page.url()})`);
+    }
+
+    // Click "Select from computer" / use hidden file input
     let fileSet = false;
+
+    // First try: "Select from computer" button (appears in upload dialog)
     try {
       const [fileChooser] = await Promise.all([
-        page.waitForEvent("filechooser", { timeout: 8000 }),
-        page.locator('button:has-text("Select from computer"), button:has-text("Выбрать с компьютера"), button:has-text("Выбрать на компьютере")').first().click(),
+        page.waitForEvent("filechooser", { timeout: 6000 }),
+        page.locator([
+          'button:has-text("Select from computer")',
+          'button:has-text("Выбрать с компьютера")',
+          'button:has-text("Выбрать на компьютере")',
+          'button:has-text("Выбрать файлы")',
+        ].join(", ")).first().click(),
       ]);
       await fileChooser.setFiles(videoPath);
       fileSet = true;
     } catch {}
 
+    // Second try: hidden file input directly
     if (!fileSet) {
-      // Try hidden file input directly
-      const inp = page.locator('input[type="file"]').first();
-      await inp.waitFor({ state: "attached", timeout: 8000 });
-      await inp.setInputFiles(videoPath);
-      fileSet = true;
+      try {
+        const inp = page.locator('input[type="file"]').first();
+        await inp.waitFor({ state: "attached", timeout: 10000 });
+        await inp.setInputFiles(videoPath);
+        fileSet = true;
+      } catch {}
     }
+
+    if (!fileSet) throw new Error("Could not set file on Instagram");
     console.log("  ✓ File selected");
 
     // Helper: click "Далее"/"Next" using native Playwright mouse events (React-compatible)
