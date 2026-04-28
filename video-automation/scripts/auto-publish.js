@@ -595,9 +595,31 @@ async function uploadInstagram(context, videoPath, lang) {
 
     await delay(1500);
 
-    // Dismiss hashtag autocomplete by pressing Escape
-    await page.keyboard.press("Escape");
-    await delay(500);
+    // Dismiss hashtag autocomplete by clicking on the video preview area (left side of dialog).
+    // Do NOT use Escape — on Russian Instagram Escape fires the "Discard post?" dialog
+    // even when autocomplete is open, breaking the publish flow.
+    try {
+      const videoEl = page.locator('[role="dialog"] video, [role="dialog"] canvas').first();
+      if (await videoEl.isVisible({ timeout: 1000 })) {
+        await videoEl.click({ position: { x: 10, y: 10 } });
+      } else {
+        await page.mouse.click(470, 465); // center of video preview area
+      }
+    } catch {
+      await page.mouse.click(470, 465);
+    }
+    await delay(600);
+
+    // Guard: if Discard dialog appeared anyway (defensive), dismiss it with "Отмена"
+    try {
+      const discardHeader = page.locator('text="Отменить публикацию?", text="Discard post?"').first();
+      if (await discardHeader.isVisible({ timeout: 800 })) {
+        await page.locator('button:has-text("Отмена"), button:has-text("Cancel")').last().click();
+        await delay(600);
+        console.log("  ✓ Dismissed Discard dialog (guard)");
+      }
+    } catch {}
+
     await page.screenshot({ path: "/tmp/instagram-before-share.png" });
 
     // "Поделиться" (Share) is in the dialog header top-right.
