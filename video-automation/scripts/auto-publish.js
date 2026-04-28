@@ -15,9 +15,9 @@ const path = require("path");
 const fs = require("fs");
 
 const CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-// Two separate profiles: ES accounts (Spanish audience) and RU accounts (expats)
-const PROFILE_ES  = path.join(__dirname, "../chrome-profile-es");
-const PROFILE_RU  = path.join(__dirname, "../chrome-profile-ru");
+// Auth state files saved by setup-login.js (storageState = cookies + localStorage)
+const AUTH_ES = path.join(__dirname, "../auth-state-es.json");
+const AUTH_RU = path.join(__dirname, "../auth-state-ru.json");
 const RENDERS_DIR = path.join(__dirname, "../renders");
 const PUBLISH_DATA_FILE = path.join(RENDERS_DIR, "publish-data.json");
 
