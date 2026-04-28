@@ -543,10 +543,49 @@ async function uploadInstagram(context, videoPath, lang) {
       return false;
     };
 
-    await open916Picker();
-    await delay(1000);
+    // Открываем пикер соотношения (кнопка внизу-слева превью)
+    // Сначала пробуем aria-label, потом evaluate по позиции, потом фиксированная точка
+    const openRatioPicker = async () => {
+      // Попытка 1: aria-label
+      for (const sel of ['[aria-label*="crop" i]', '[aria-label*="Select crop" i]',
+                          '[aria-label*="кадр" i]', '[aria-label*="Соотношение" i]',
+                          '[aria-label*="ratio" i]']) {
+        try {
+          const el = page.locator(sel).first();
+          if (await el.isVisible({ timeout: 800 })) {
+            const box = await el.boundingBox();
+            if (box) { await page.mouse.click(box.x + box.width/2, box.y + box.height/2); return; }
+          }
+        } catch {}
+      }
+      // Попытка 2: evaluate — ищем кнопки в нижней левой четверти диалога
+      const btnPos = await page.evaluate(() => {
+        const modal = document.querySelector('[role="dialog"]');
+        if (!modal) return null;
+        const mr = modal.getBoundingClientRect();
+        const btns = [...modal.querySelectorAll('button, [role="button"]')];
+        // Самая левая кнопка в нижней половине диалога
+        const candidates = btns.filter(b => {
+          const r = b.getBoundingClientRect();
+          return r.top > mr.top + mr.height * 0.55 && r.left < mr.left + mr.width * 0.35 && r.width > 10;
+        }).sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
+        if (!candidates[0]) return null;
+        const r = candidates[0].getBoundingClientRect();
+        return { x: r.left + r.width/2, y: r.top + r.height/2 };
+      });
+      if (btnPos) { await page.mouse.click(btnPos.x, btnPos.y); return; }
+      // Попытка 3: жёсткая позиция — иконка всегда нижний-левый угол превью
+      await page.screenshot({ path: "/tmp/instagram-before-ratio.png" });
+      console.log("  📸 /tmp/instagram-before-ratio.png (до клика пикера)");
+      await page.mouse.click(320, 800);
+    };
 
-    // Click 9:16 — через mouse.click по координатам (React не блокирует)
+    await openRatioPicker();
+    await delay(1200);
+    await page.screenshot({ path: "/tmp/instagram-ratio-picker.png" });
+    console.log("  📸 /tmp/instagram-ratio-picker.png");
+
+    // Кликаем 9:16 через mouse.click по координатам
     const pos916 = await page.evaluate(() => {
       const all = [...document.querySelectorAll("span, div, li")];
       const el = all.find(e => e.textContent?.trim() === "9:16" && e.children.length === 0);
@@ -556,11 +595,10 @@ async function uploadInstagram(context, videoPath, lang) {
     });
     if (pos916) {
       await page.mouse.click(pos916.x, pos916.y);
-      console.log(`  ✓ Selected 9:16 via mouse.click at (${Math.round(pos916.x)}, ${Math.round(pos916.y)})`);
+      console.log(`  ✓ Selected 9:16 at (${Math.round(pos916.x)}, ${Math.round(pos916.y)})`);
       await delay(800);
     } else {
-      await page.screenshot({ path: "/tmp/instagram-916-not-found.png" });
-      console.log("  ⚠️  9:16 option not found — скрин: /tmp/instagram-916-not-found.png");
+      console.log("  ⚠️  9:16 не найдено — продолжаем без смены формата");
     }
 
     // Click Далее: Crop → Filters
