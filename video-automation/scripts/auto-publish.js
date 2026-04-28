@@ -586,7 +586,7 @@ async function uploadInstagram(context, videoPath, lang) {
 
     await delay(1500);
 
-    // Share / Publish
+    // Share / Publish — use force:true because sidebar "Управление" button can intercept
     const shareBtn = page.locator([
       'div[role="button"]:has-text("Share")',
       'div[role="button"]:has-text("Поделиться")',
@@ -596,7 +596,10 @@ async function uploadInstagram(context, videoPath, lang) {
       'button:has-text("Опубликовать")',
     ].join(", ")).first();
     await shareBtn.waitFor({ timeout: 10000 });
-    await shareBtn.click();
+    // Use evaluate click to bypass pointer-event interception
+    await shareBtn.evaluate(el => el.click());
+    // Fallback with force if evaluate doesn't trigger React event
+    await shareBtn.click({ force: true }).catch(() => {});
     console.log("  ✓ Share clicked");
 
     // Wait for confirmation
