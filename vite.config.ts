@@ -101,10 +101,24 @@ export default defineConfig(({ mode }) => {
       // ВАЖНО: terser может быть более стабильным для React, но медленнее
       minify: 'esbuild',
       target: 'es2020', // Изменено с es2015 на es2020 для поддержки BigInt (TON AppKit)
-      // modulePreload включён — Vite генерирует <link rel="modulepreload"> для статических чанков.
-      // Это позволяет react-core, supabase-vendor и entry bundle грузиться ПАРАЛЛЕЛЬНО.
-      // Lazy-чанки (Duel, Index, Landing) НЕ попадают в preload лендинга — они React.lazy().
-      // modulePreload: false было причиной последовательной загрузки (5-15s LCP на мобиле).
+      // modulePreload: выборочный preload только для инфраструктурных чанков.
+      // resolveDependencies фильтрует: в HTML-head идут только react-core и supabase-vendor.
+      // Страничные чанки (ton-vendor 950KB, charts 388KB, Index 553KB) НЕ попадают в preload лендинга.
+      // Без фильтрации Vite через prerender тянет ВСЕ чанки (~5MB) на лендинг → хуже.
+      modulePreload: {
+        polyfill: false, // полифилл не нужен — современные браузеры поддерживают modulepreload
+        resolveDependencies: (filename, deps, { hostType }) => {
+          if (hostType === 'html') {
+            // В HTML-head preload только инфраструктура, нужная для первого рендера
+            return deps.filter(dep =>
+              dep.includes('react-core') ||
+              dep.includes('supabase-vendor')
+            );
+          }
+          // Для JS-triggered preloads (при lazy-загрузке страниц) — все зависимости
+          return deps;
+        },
+      },
       // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации для стабильности
       minifyWhitespace: true,
       // КРИТИЧНО: Отключаем некоторые агрессивные оптимизации
