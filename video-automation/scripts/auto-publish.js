@@ -253,8 +253,11 @@ async function uploadYouTube(context, videoPath, lang) {
     await fileInput.setInputFiles(videoPath);
     console.log("  ✓ File selected, uploading...");
 
-    // Wait for title field
+    // Wait for title field — also wait for any loading scrim to disappear
     await page.waitForSelector("#textbox", { timeout: 120000 });
+    // Wait until dialog-scrim is gone (upload dialog loading overlay)
+    await page.waitForSelector(".dialog-scrim", { state: "hidden", timeout: 30000 }).catch(() => {});
+    await delay(2000);
     console.log("  ✓ Upload started");
 
     const { title, description } = getCaption(lang, "youtube");
