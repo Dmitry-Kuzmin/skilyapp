@@ -525,24 +525,28 @@ async function uploadInstagram(context, videoPath, lang) {
     };
 
     await open916Picker();
-    await delay(800);
+    await delay(1000);
 
-    // Click 9:16
+    // Click 9:16 — use simple text= selector (matches any element with that text)
     try {
-      const btn916 = page.locator([
-        'div[role="button"]:has-text("9:16")',
-        'span:has-text("9:16")',
-        'button:has-text("9:16")',
-      ].join(", ")).first();
-      if (await btn916.isVisible({ timeout: 2000 })) {
+      const btn916 = page.locator('text="9:16"').first();
+      if (await btn916.isVisible({ timeout: 3000 })) {
         await btn916.click();
         console.log("  ✓ Selected 9:16");
-        await delay(600);
-        // Close picker by clicking expand icon again
-        await open916Picker().catch(() => {});
-        await delay(400);
+        await delay(800);
+      } else {
+        // Try clicking by evaluate — find element containing exactly "9:16"
+        await page.evaluate(() => {
+          const all = [...document.querySelectorAll("span, div, li")];
+          const el = all.find(e => e.textContent?.trim() === "9:16" && e.children.length === 0);
+          if (el) el.click();
+        });
+        console.log("  ✓ Selected 9:16 (evaluate)");
+        await delay(800);
       }
-    } catch {}
+    } catch {
+      console.log("  ⚠️  9:16 picker not found");
+    }
 
     // Click Далее: Crop → Filters
     await delay(1000);
