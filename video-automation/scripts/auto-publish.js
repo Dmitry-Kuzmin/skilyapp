@@ -196,12 +196,21 @@ async function uploadYouTube(context, videoPath, lang) {
       waitUntil: "domcontentloaded", timeout: 30000,
     });
 
-    await delay(3000);
+    await delay(5000);
     console.log("  📍 Current URL:", page.url());
+    await page.screenshot({ path: "/tmp/youtube-upload-btn.png" });
 
-    // Click Upload button
-    await page.waitForSelector("#upload-button, ytcp-button#upload-icon", { timeout: 20000 });
-    await page.click("#upload-button, ytcp-button#upload-icon");
+    // Click Upload button — try multiple selectors
+    const uploadBtnSel = [
+      "#upload-button",
+      "ytcp-button#upload-icon",
+      "button#upload-icon",
+      "ytcp-topbar-menu-button",
+      "button[aria-label='Upload videos']",
+      "a[href*='upload']",
+    ].join(", ");
+    await page.waitForSelector(uploadBtnSel, { timeout: 20000 });
+    await page.click(uploadBtnSel);
 
     // Select file
     const [fileChooser] = await Promise.all([
