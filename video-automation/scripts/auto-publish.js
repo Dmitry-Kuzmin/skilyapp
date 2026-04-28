@@ -69,8 +69,8 @@ function getCaption(lang, platform) {
   }
 
   const tags = lang === "ru"
-    ? `#ПДД #Вождение #Права #Вопрос${num} #Skily #ЗнаниеСила`
-    : `#DGT #Conducir #Carnet #Pregunta${num} #Skily #ExamenDGT`;
+    ? `#ПДДИспании #ИспанскиеПрава #DGT #РусскиевИспании #ЖизньвИспании #Skily #ЭкзаменDGT #ВодительскиеПрава`
+    : `#DGT #ExamenDGT #CarnetDeConducir #Autoescuela #PreguntaDGT #Conducir #Skily #ExamenConducir`;
 
   const caption = lang === "ru"
     ? `${hookTitle}\n\n📚 Объяснение: ${explanation}\n\n${tags}`
