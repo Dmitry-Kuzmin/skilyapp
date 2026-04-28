@@ -1,0 +1,6 @@
+2026/04/27-11:51:49.702 37d4c Creating DB /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/IndexedDB/https_studio.youtube.com_0.indexeddb.leveldb since it was missing.
+2026/04/27-11:51:49.705 37d4c Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/IndexedDB/https_studio.youtube.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/04/27-12:20:57.832 37d30 Level-0 table #5: started
+2026/04/27-12:20:57.834 37d30 Level-0 table #5: 2537 bytes OK
+2026/04/27-12:20:57.842 37d30 Delete type=0 #3
+2026/04/27-12:20:57.842 37d30 Manual compaction at level-0 from (begin) .. (end); will stop at (end)

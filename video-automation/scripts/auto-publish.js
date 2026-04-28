@@ -100,6 +100,12 @@ async function uploadTikTok(context, videoPath, lang) {
       waitUntil: "domcontentloaded", timeout: 30000,
     });
 
+    // Screenshot: check what page looks like after navigation
+    await delay(3000);
+    await page.screenshot({ path: "/tmp/tiktok-debug.png", fullPage: false });
+    console.log("  📸 Screenshot saved: /tmp/tiktok-debug.png");
+    console.log("  📍 Current URL:", page.url());
+
     // Wait for upload area
     await page.waitForSelector('input[type="file"]', { timeout: 20000 });
 

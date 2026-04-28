@@ -1,3 +1,2 @@
-2026/04/27-13:12:21.286 55db3 Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-ru/Default/Storage/ext/nmmhkkegccagdldgiimedpiccmgmieda/def/Local Storage/leveldb/MANIFEST-000001
-2026/04/27-13:12:21.288 55db3 Recovering log #3
-2026/04/27-13:12:21.289 55db3 Reusing old log /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-ru/Default/Storage/ext/nmmhkkegccagdldgiimedpiccmgmieda/def/Local Storage/leveldb/000003.log 
+2026/04/28-15:23:12.002 d5ce Creating DB /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-ru/Default/Storage/ext/nmmhkkegccagdldgiimedpiccmgmieda/def/Local Storage/leveldb since it was missing.
+2026/04/28-15:23:12.009 d5ce Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-ru/Default/Storage/ext/nmmhkkegccagdldgiimedpiccmgmieda/def/Local Storage/leveldb/MANIFEST-000001

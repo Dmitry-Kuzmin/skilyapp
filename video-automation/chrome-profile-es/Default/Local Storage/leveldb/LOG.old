@@ -1,14 +1,5 @@
-2026/04/27-11:20:31.451 37d94 Creating DB /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/Local Storage/leveldb since it was missing.
-2026/04/27-11:20:31.458 37d94 Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/Local Storage/leveldb/MANIFEST-000001
-2026/04/27-11:21:14.025 37d97 Level-0 table #5: started
-2026/04/27-11:21:14.032 37d97 Level-0 table #5: 91516 bytes OK
-2026/04/27-11:21:14.035 37d97 Delete type=0 #3
-2026/04/27-11:22:15.192 37d97 Level-0 table #7: started
-2026/04/27-11:22:15.198 37d97 Level-0 table #7: 132550 bytes OK
-2026/04/27-11:22:15.202 37d97 Delete type=0 #4
-2026/04/27-11:29:50.169 37d97 Level-0 table #9: started
-2026/04/27-11:29:50.177 37d97 Level-0 table #9: 39395 bytes OK
-2026/04/27-11:29:50.181 37d97 Delete type=0 #6
-2026/04/27-12:17:04.216 37d97 Level-0 table #11: started
-2026/04/27-12:17:04.222 37d97 Level-0 table #11: 17740 bytes OK
-2026/04/27-12:17:04.229 37d97 Delete type=0 #8
+2026/04/28-15:25:43.844 e3e8 Reusing MANIFEST /Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/chrome-profile-es/Default/Local Storage/leveldb/MANIFEST-000001
+2026/04/28-15:25:43.850 e3e8 Recovering log #10
+2026/04/28-15:25:43.853 e3e8 Level-0 table #13: started
+2026/04/28-15:25:43.856 e3e8 Level-0 table #13: 30595 bytes OK
+2026/04/28-15:25:43.859 e3e8 Delete type=0 #10
