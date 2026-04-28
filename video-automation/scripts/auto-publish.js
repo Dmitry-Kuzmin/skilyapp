@@ -467,20 +467,28 @@ async function uploadInstagram(context, videoPath, lang) {
       console.log("  ✓ Next: filters → caption");
     } catch { console.log("  ⚠️  No Next on filters step"); }
 
-    // Caption step — take screenshot to see current state
+    // Caption step
     await delay(2000);
-    await page.screenshot({ path: "/tmp/instagram-caption-step.png" });
-    console.log("  📸 /tmp/instagram-caption-step.png");
-
     const { caption } = getCaption(lang, "instagram");
+
+    // Find caption textarea — Instagram uses various aria-labels in different languages
     const captionEl = page.locator([
-      'div[aria-label*="caption"]',
-      'div[aria-label*="подпись"]',
-      'div[aria-label*="Caption"]',
-      'textarea[placeholder*="caption"]',
+      'div[aria-label*="caption" i]',
+      'div[aria-label*="подпись" i]',
+      'div[aria-label*="Caption" i]',
+      'div[aria-label*="Write" i]',
+      'div[aria-label*="Напишите" i]',
+      'textarea[placeholder*="caption" i]',
       'div[contenteditable="true"]',
     ].join(", ")).first();
-    await captionEl.waitFor({ timeout: 15000 });
+
+    try {
+      await captionEl.waitFor({ timeout: 12000 });
+    } catch {
+      await page.screenshot({ path: "/tmp/instagram-caption-step.png" });
+      console.log("  📸 /tmp/instagram-caption-step.png");
+      throw new Error("Caption field not found");
+    }
     await captionEl.click();
     await page.evaluate((text) => navigator.clipboard.writeText(text), caption);
     await page.keyboard.press("Meta+V");
