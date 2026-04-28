@@ -106,7 +106,7 @@ if (!isPrerenderMode && !isMarketingRoute) {
     }).catch(err => {
       console.warn('[Main] Failed to init Sentry:', err);
     });
-  }, 0);
+  }, 4000);
 }
 
 if (!isMarketingRoute) {
