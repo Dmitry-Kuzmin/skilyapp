@@ -62,8 +62,8 @@ function getCaption(lang, platform) {
     const title = d.youtubeTitle || hookTitle;
     const desc = d.youtubeDescription || (
       lang === "ru"
-        ? `📖 Объяснение: ${explanation}\n\n🚗 Готовишься к экзамену ПДД Испании? Тренируйся на Skily!\n👉 https://skilyapp.com\n\n#ПДД #ВодительскиеПрава #DGT #Skily`
-        : `📖 Explicación: ${explanation}\n\n🚗 ¿Preparando el DGT? ¡Practica en Skily!\n👉 https://skilyapp.com\n\n#DGT #ExamenConducir #CarnetDeConducir #Skily`
+        ? `📖 Объяснение: ${explanation}\n\n🚗 Готовишься к экзамену ПДД Испании? Тренируйся на Skily!\n👉 https://skilyapp.com\n\n#ПДД #ВодительскиеПрава #DGT #Skily\n\nMusic: Impact Moderato by Kevin MacLeod (incompetech.com) — Licensed under CC BY 3.0: http://creativecommons.org/licenses/by/3.0/`
+        : `📖 Explicación: ${explanation}\n\n🚗 ¿Preparando el DGT? ¡Practica en Skily!\n👉 https://skilyapp.com\n\n#DGT #ExamenConducir #CarnetDeConducir #Skily\n\nMusic: Impact Moderato by Kevin MacLeod (incompetech.com) — Licensed under CC BY 3.0: http://creativecommons.org/licenses/by/3.0/`
     );
     return { title, description: desc };
   }

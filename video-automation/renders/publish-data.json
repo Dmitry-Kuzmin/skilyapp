@@ -1,17 +1,17 @@
 {
   "es": {
     "hookTitle": "¡Falla el 40% en DGT!",
-    "question": "¿Está permitido circular con un Vehículo de Movilidad Personal (VMP) que dispone de un sillín?",
-    "explanation": "Según la definición oficial de la DGT y el Reglamento General de Vehículos, un Vehículo de Movilidad Personal (VMP) es un vehículo de una o más ruedas dotado de una única plaza y propulsado exclusivamente por motores eléctricos. La normativa establece una condición técnica específica respecto al asiento: los VMP solo pueden estar equipados con un asiento o sillín si están dotados de un sistema de autoequilibrado. Si un patinete eléctrico dispone de sillín sin tener sistema de autoequilibrado, deja de clasificarse como VMP y pasa a considerarse, a efectos legales, un ciclomotor (L1e-B), requiriendo autorización administrativa para circular, seguro y permiso de conducción.",
-    "seriesNumber": 16,
-    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-es.mp4"
+    "question": "En una autopista que transcurre por zona urbana, ¿a qué velocidad máxima puede circular un turismo si no existe señalización?",
+    "explanation": "Según el Reglamento General de Circulación, las autopistas y autovías que transcurren dentro de poblado (zona urbana) tienen un límite de velocidad genérico de 80 km/h. Aunque este límite puede ser ampliado mediante señalización específica, en ausencia de señales, la norma establece el máximo en 80 km/h para todos los vehículos, incluidos los turismos.",
+    "seriesNumber": 18,
+    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-1575be20-d4ee-4047-85a1-1c2fceadac2a-es.mp4"
   },
   "ru": {
     "hookTitle": "40% не знают это!",
-    "question": "Разрешено ли движение на Средстве индивидуальной мобильности (VMP/СИМ), оборудованном сиденьем?",
-    "explanation": "🎓 Как водитель легкового автомобиля, ты должен понимать, что такое VMP (СИМ) в Испании, чтобы предсказывать их поведение. Согласно ПДД Испании, VMP — это устройство с одним или несколькими колесами, исключительно на электротяге, со скоростью от 6 до 25 км/ч. Главное техническое ограничение: **сиденье (седло) разрешено устанавливать ТОЛЬКО если устройство имеет систему самобалансировки** (например, как у Segway). Если на обычный электросамокат установлено сиденье, он юридически перестает быть СИМ и считается мопедом, что требует от водителя прав, шлема, страховки и номерного знака.\n\n🇷🇺 Это критическое отличие. В РФ многие электросамокаты с сиденьем все еще могут попадать под категорию СИМ (в зависимости от мощности и веса), и их использование на тротуарах или обочинах привычно. В Испании жесткое правило: **есть сиденье, но нет гироскопа/самобалансировки = это мопед**. Езда на таком устройстве без прав и страховки влечет огромные штрафы и эвакуацию ТС.\n\n💡 Запомни принцип «Стул для эквилибриста»:\nСидеть можно только на том, что **САМО** держит равновесие.\nНет баланса — стой на ногах.",
-    "seriesNumber": 16,
-    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-6b3b3969-d95f-40e2-b3f5-ea74eede5bdf-ru.mp4"
+    "question": "С какой максимальной скоростью может двигаться легковой автомобиль по автомагистрали, проходящей через населенный пункт, если нет знаков?",
+    "explanation": "🎓 Для водителя **легкового автомобиля** (Turismo) действует особое исключение. Обычно на автомагистралях (Autopista) разрешено 120 км/ч, но как только такая дорога заходит в черту города (населенный пункт), лимит автоматически снижается.\n\nЕсли нет знаков, указывающих иную скорость, максимальная скорость на автомагистрали внутри города составляет **80 км/ч**. Это сделано для снижения шума и повышения безопасности в густонаселенных районах.\n\n🇷🇺 В РФ на автомагистрали (знак 5.1) лимит 110 км/ч сохраняется, даже если дорога проходит через город, пока знаки не потребуют иного. В Испании же сам факт нахождения автомагистрали «в городе» (poblado) автоматически режет скорость до 80 км/ч. Не разгоняйся по привычке до 110-120!\n\n💡 Автобан заехал в город? Сбрось 40 (120 - 40 = 80).\nВижу дома вокруг автобана — еду **80**, а не как баран.",
+    "seriesNumber": 18,
+    "videoPath": "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/renders/question-1575be20-d4ee-4047-85a1-1c2fceadac2a-ru.mp4"
   },
-  "renderedAt": "2026-04-28T18:52:41.391Z"
+  "renderedAt": "2026-04-29T07:13:07.933Z"
 }
