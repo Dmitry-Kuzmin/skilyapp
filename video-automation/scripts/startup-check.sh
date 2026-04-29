@@ -8,11 +8,27 @@ export PATH="/Users/dimka/.nvm/versions/node/v24.11.0/bin:/opt/homebrew/bin:/usr
 LOG="/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/morning-pipeline.log"
 PIPELINE="/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation/scripts/morning-pipeline.js"
 NODE="/Users/dimka/.nvm/versions/node/v24.11.0/bin/node"
+LOCKFILE="/tmp/skily-pipeline.lock"
 
 TODAY=$(date +%Y-%m-%d)
 
-# Check if pipeline already ran today
-if grep -q "$TODAY" "$LOG" 2>/dev/null; then
+# Wait 90 seconds after login so macOS has time to fully init
+# (network, display server, Chrome automation permissions all need to be ready)
+sleep 90
+
+# Lockfile: prevent two instances running simultaneously
+# (startup-check + scheduled 9am job could both fire)
+if [ -f "$LOCKFILE" ]; then
+  PID=$(cat "$LOCKFILE" 2>/dev/null)
+  if kill -0 "$PID" 2>/dev/null; then
+    echo "[$TODAY] startup-check: pipeline already running (pid $PID), skipping." >> "$LOG"
+    exit 0
+  fi
+  rm -f "$LOCKFILE"
+fi
+
+# Check if pipeline already ran today (look for pipeline start marker)
+if grep -q "Morning pipeline started" "$LOG" 2>/dev/null && grep -q "$TODAY" "$LOG" 2>/dev/null; then
   echo "[$TODAY] startup-check: pipeline already ran today, skipping." >> "$LOG"
   exit 0
 fi
@@ -25,5 +41,10 @@ if [ "$HOUR" -lt 7 ] || [ "$HOUR" -gt 22 ]; then
 fi
 
 echo "[$TODAY] startup-check: pipeline not run today, starting now..." >> "$LOG"
+
+# Write lockfile with our PID
+echo $$ > "$LOCKFILE"
+trap "rm -f $LOCKFILE" EXIT
+
 cd "/Users/dimka/Desktop/Skily/sdadim-dgt-prep/video-automation"
 exec "$NODE" "$PIPELINE"
