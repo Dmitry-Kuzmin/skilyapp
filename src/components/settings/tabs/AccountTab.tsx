@@ -483,11 +483,11 @@ export const AccountTab: React.FC = () => {
                         )}
                     </SettingRow>
 
-                    {PASSKEY_ENABLED && (
+                    {PASSKEY_ENABLED && PasskeyManager && (
                         <>
                             <Separator className="my-4 bg-slate-200 dark:bg-slate-700/50" />
                             <div className="pt-2">
-                                {React.createElement(require('@/components/auth/PasskeyManager').PasskeyManager, { hideHeader: true })}
+                                <PasskeyManager hideHeader={true} />
                             </div>
                         </>
                     )}
