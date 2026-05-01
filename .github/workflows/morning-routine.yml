@@ -46,9 +46,9 @@ jobs:
           echo "⏳ Waiting 30 min before morning quiz..."
           sleep 1800
 
-      - name: Trigger morning-routine Edge Function (quiz)
+      - name: Trigger morning-routine Edge Function (Telegram quiz)
         run: |
-          echo "☀️ Sending morning quiz at $(date -u)"
+          echo "☀️ Sending Telegram morning quiz at $(date -u)"
 
           response=$(curl -s -w "\n%{http_code}" -X POST \
             "${{ secrets.SUPABASE_URL }}/functions/v1/morning-routine" \
@@ -64,8 +64,32 @@ jobs:
           echo "HTTP Code: $http_code"
 
           if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-            echo "✅ Morning quiz sent successfully"
+            echo "✅ Telegram morning quiz sent successfully"
           else
-            echo "❌ Morning quiz failed with code $http_code"
+            echo "❌ Telegram morning quiz failed with code $http_code"
             exit 1
+          fi
+
+      - name: Trigger email-morning-routine (Email quiz for non-Telegram users)
+        run: |
+          echo "📧 Sending email daily quiz at $(date -u)"
+
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.SUPABASE_URL }}/functions/v1/email-morning-routine" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"source": "github_actions"}' \
+            --max-time 600)
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | sed '$d')
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Email quiz sent successfully"
+          else
+            echo "⚠️ Email quiz failed with code $http_code (non-blocking)"
+            # Не завершаем pipeline — email не критичен
           fi
