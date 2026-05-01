@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect, lazy, Suspense, useCallback, useContext, memo, useMemo } from "react";
 import { UserContext, useUserContext } from "@/contexts/UserContext";
 // ОПТИМИЗАЦИЯ: Index.tsx lazy loaded, но делаем динамический импорт для чистоты
