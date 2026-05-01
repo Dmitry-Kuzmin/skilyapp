@@ -199,64 +199,78 @@ export default function RoadSigns() {
     return <PageLoader />;
   }
 
+  const openSearch = () => {
+    setSearchOpen(true);
+    setTimeout(() => searchInputRef.current?.focus(), 50);
+  };
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    handleSearchChange("");
+  };
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/5">
-        <div className="container mx-auto px-4 py-12">
-          {/* Premium Header */}
-          <div className="text-center mb-12 space-y-4">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl gradient-primary shadow-primary mb-4 animate-pulse-slow">
-              <Search className="w-10 h-10 text-primary-foreground" />
+        <div className="container mx-auto px-4 py-8">
+
+          {/* Header */}
+          <div className="flex items-end justify-between mb-6 gap-4">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
+                Señales de Tráfico
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                <span className="text-primary font-medium">{filteredSigns.length}</span>
+                {" "}{deferredSearchTerm || selectedType !== "all" ? "encontradas" : "señales"}
+                {(deferredSearchTerm || selectedType !== "all") && (
+                  <span className="text-muted-foreground/60"> de {signs.length}</span>
+                )}
+                {isPending && <span className="ml-1 opacity-50">·· </span>}
+              </p>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Señales de Tráfico
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Aprende todas las señales de tráfico en España con explicaciones en español y ruso
-            </p>
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <span className="px-3 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                {filteredSigns.length} {deferredSearchTerm || selectedType !== "all" ? "señales encontradas" : "señales disponibles"}
-                {isPending && <span className="ml-2 text-xs opacity-70">(buscando...)</span>}
-              </span>
-              {(deferredSearchTerm || selectedType !== "all") && (
-                <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground font-medium">
-                  de {signs.length} total
-                </span>
+
+            {/* Search icon → expanding input */}
+            <div className={`flex items-center gap-2 transition-all duration-300 ease-in-out ${searchOpen ? "flex-1 max-w-sm" : "flex-none"}`}>
+              {searchOpen ? (
+                <div className="relative w-full flex items-center">
+                  <Search className="absolute left-3 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    ref={searchInputRef}
+                    placeholder="Nombre, número..."
+                    value={searchTerm}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    className="pl-9 pr-9 h-10 text-sm rounded-xl border-border/60 focus:border-primary/50 bg-card/60 backdrop-blur-sm"
+                  />
+                  <button
+                    onClick={closeSearch}
+                    className="absolute right-2 p-1 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={openSearch}
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-card/60 border border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-card backdrop-blur-sm transition-all duration-200 hover:scale-105 active:scale-95"
+                  aria-label="Buscar"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
               )}
             </div>
           </div>
 
-          {/* Search and Filters */}
-          <div className="mb-8 space-y-6 max-w-4xl mx-auto">
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors" />
-              <Input
-                placeholder="Buscar por nombre, número o descripción..."
-                value={searchTerm}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-12 pr-12 h-14 text-lg border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
-              />
-              {searchTerm && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 rounded-lg hover:bg-muted"
-                  onClick={() => handleSearchChange("")}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-
+          {/* Filters */}
+          <div className="mb-6">
             <Tabs value={selectedType} onValueChange={(value) => {
               startTransition(() => { handleTypeChange(value); });
             }} className="w-full">
               <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
-                <TabsList className="w-full md:w-auto h-auto p-2 bg-card/50 backdrop-blur-sm border-2 border-border/50 rounded-xl shadow-sm inline-flex min-w-max md:min-w-0">
+                <TabsList className="h-auto p-1.5 bg-card/50 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm inline-flex min-w-max gap-0.5">
                   <TabsTrigger
                     value="all"
-                    className="rounded-lg px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-all duration-300 bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:!bg-gradient-primary data-[state=active]:!text-foreground data-[state=active]:!shadow-primary data-[state=active]:!font-bold whitespace-nowrap flex-shrink-0"
+                    className="rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 bg-transparent text-muted-foreground hover:text-foreground data-[state=active]:!bg-primary data-[state=active]:!text-primary-foreground data-[state=active]:!font-semibold whitespace-nowrap flex-shrink-0"
                   >
                     Todas
                   </TabsTrigger>
@@ -264,7 +278,7 @@ export default function RoadSigns() {
                     <TabsTrigger
                       key={type}
                       value={type}
-                      className="capitalize rounded-lg px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium transition-all duration-300 bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50 data-[state=active]:!bg-gradient-primary data-[state=active]:!text-foreground data-[state=active]:!shadow-primary data-[state=active]:!font-bold whitespace-nowrap flex-shrink-0"
+                      className="capitalize rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 bg-transparent text-muted-foreground hover:text-foreground data-[state=active]:!bg-primary data-[state=active]:!text-primary-foreground data-[state=active]:!font-semibold whitespace-nowrap flex-shrink-0"
                     >
                       {type}
                     </TabsTrigger>
