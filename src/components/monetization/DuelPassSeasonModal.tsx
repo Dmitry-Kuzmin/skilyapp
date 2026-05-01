@@ -1990,7 +1990,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         )}
       </AnimatePresence>
     );
-  }, [showUpcoming, loading, upcomingSeasonContent, currentView]);
+  }, [showUpcoming, loading, upcomingSeasonContent, currentView, activeTab]);
 
   return (
     <>
