@@ -619,18 +619,22 @@ serve(async (req) => {
     if (testEmail) {
       console.log(`[EmailQuiz] Test mode → ${testEmail}`);
       const lang = forceLang ?? 'es';
-      const questions = await loadDailyQuestions(supabase, lang);
+      const [questions, quests, season] = await Promise.all([
+        loadDailyQuestions(supabase, lang),
+        loadDailyQuests(supabase, lang),
+        loadSeasonInfo(supabase, lang),
+      ]);
 
       if (questions.length === 0) {
         return new Response(JSON.stringify({ ok: false, error: 'No questions found' }), { status: 500 });
       }
 
       if (dryRun) {
-        return new Response(JSON.stringify({ ok: true, dry_run: true, questions: questions.length, lang }));
+        return new Response(JSON.stringify({ ok: true, dry_run: true, questions: questions.length, quests: quests.length, season: !!season, lang }));
       }
 
-      const result = await sendQuizEmail(testEmail, lang, 'Test User', questions);
-      return new Response(JSON.stringify({ ok: result.ok, error: result.error, questions: questions.length, lang }));
+      const result = await sendQuizEmail(testEmail, lang, 'Test User', questions, quests, season);
+      return new Response(JSON.stringify({ ok: result.ok, error: result.error, questions: questions.length, quests: quests.length, season: !!season, lang }));
     }
 
     // ── BULK-РЕЖИМ ──────────────────────────────────────────────────────────
