@@ -704,7 +704,11 @@ serve(async (req) => {
       }
 
       const lang = forceLang ?? getUserLang(profile ?? {});
-      const questions = await getQuestions(lang);
+      const [questions, quests, season] = await Promise.all([
+        getQuestions(lang),
+        getQuests(lang),
+        getSeason(lang),
+      ]);
 
       if (questions.length === 0) {
         console.error(`[EmailQuiz] No questions for lang=${lang}`);
@@ -718,7 +722,7 @@ serve(async (req) => {
         continue;
       }
 
-      const result = await sendQuizEmail(email, lang, profile?.first_name ?? null, questions);
+      const result = await sendQuizEmail(email, lang, profile?.first_name ?? null, questions, quests, season);
 
       if (result.ok) {
         sent++;
