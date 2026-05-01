@@ -8,6 +8,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '@/contexts/UserContext';
 import { isPasskeySupported, isPlatformAuthenticatorAvailable, listPasskeys } from '@/lib/passkey';
+import { PASSKEY_ENABLED } from '@/lib/feature-flags';
 
 const ONBOARDING_KEY = 'passkey_onboarding_shown';
 
