@@ -32,6 +32,8 @@ export default function RoadSigns() {
   const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [selectedType, setSelectedType] = useState("all");
   const [visibleCount, setVisibleCount] = useState(60);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // ОПТИМИЗАЦИЯ: useTransition для неблокирующих обновлений UI
   const [isPending, startTransition] = useTransition();
