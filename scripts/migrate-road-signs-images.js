@@ -21,8 +21,9 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 const BUCKET = 'dgt-images';
 const FOLDER = 'road-signs';
-const CONCURRENCY = 5;
-const MAX_RETRIES = 3;
+const CONCURRENCY = 2;
+const MAX_RETRIES = 4;
+const BATCH_DELAY_MS = 800;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error('❌ Missing VITE_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env');
