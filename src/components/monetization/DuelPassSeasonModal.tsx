@@ -938,15 +938,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
       if (error) {
         if (error.status === 409 || error.statusCode === 409) {
-          if (isPremiumReward) {
-            setClaimedPremiumRewards((prev) => new Set([...prev, level]));
-            if (isPremium) {
-              setClaimedRewards((prev) => new Set([...prev, level]));
-            }
-          } else {
-            setClaimedFreeRewards((prev) => new Set([...prev, level]));
-            setClaimedRewards((prev) => new Set([...prev, level]));
-          }
+          // Already claimed — refresh from server
           invalidateSeasonData();
           return;
         }
