@@ -349,7 +349,34 @@ export function DuelPassLeaderboardView({
         {loading ? (
           renderLoadingState()
         ) : (
-          <div className="space-y-6 py-4 px-4 sm:px-6">
+          <div className="space-y-6 py-4 px-4 sm:px-6 relative">
+            {/* Оверлей "не участник сезона" — показываем если SP = 0 */}
+            {userSeasonPoints === 0 && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-2xl overflow-hidden">
+                {/* Размытый фон */}
+                <div className="absolute inset-0 backdrop-blur-[6px] bg-background/60" />
+                {/* Контент */}
+                <div className="relative z-10 flex flex-col items-center gap-4 px-6 text-center max-w-xs">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
+                    <Trophy className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold">Войди в сезон</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Реши хотя бы один тест или победи в дуэли, чтобы получить SP и попасть в рейтинг
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-center text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-muted">
+                      <Flame className="w-3 h-3 text-orange-400" /> За дуэль: +10 SP
+                    </span>
+                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-muted">
+                      <TrendingUp className="w-3 h-3 text-green-400" /> За тест: +5 SP
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
             {!embedded && (
               <header className="space-y-4 text-left relative flex flex-col pt-2">
                 {/* Кнопка Назад и Плашка на одном уровне */}
