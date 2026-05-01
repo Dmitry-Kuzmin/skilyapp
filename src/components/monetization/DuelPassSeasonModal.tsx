@@ -1,10 +1,18 @@
 import React, { memo, useEffect, useMemo, useState, useCallback } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  useSeasonModalData,
+  buildClaimedSets,
+  SEASON_MODAL_QUERY_KEY,
+  useQueryClient,
+  type ActiveSeason,
+  type SeasonProgress,
+  type SeasonReward,
+} from "@/hooks/useSeasonModalData";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { usePremium } from "@/hooks/usePremium";
