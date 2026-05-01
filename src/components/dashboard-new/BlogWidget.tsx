@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, BookOpen, Clock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "next-themes";
 
 const LATEST_ARTICLE = {
   slug: "ekzamen-dgt-2026",
