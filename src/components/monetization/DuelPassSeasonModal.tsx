@@ -716,195 +716,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     };
   }, [rewards, language]);
 
-  const loadSeasonData = async (silent = false) => {
-    try {
-      if (!silent) {
-        setLoading(true);
-      }
-
-      // Получаем активный сезон
-      const { data: seasonData, error: seasonError } = await supabase
-        .rpc("get_active_season");
-
-      if (seasonError) {
-        console.error("[DuelPassSeasonModal] Error loading season", seasonError);
-        // Если функция не найдена (404), значит миграция не применена
-        if (seasonError.code === 'PGRST116' || seasonError.message?.includes('404')) {
-          console.error("[DuelPassSeasonModal] ⚠️ Миграция не применена! Примените файл APPLY_SEASON_MIGRATION_NOW.sql в Supabase SQL Editor");
-        }
-        if (!silent) {
-          setLoading(false);
-        }
-        return;
-      }
-
-      if (!seasonData || seasonData.length === 0) {
-        console.warn("[DuelPassSeasonModal] No active season found");
-        if (!silent) {
-          setLoading(false);
-        }
-        return;
-      }
-
-      const season = seasonData[0];
-      setActiveSeason(season);
-
-      const progressPromise = supabase
-        .rpc("get_or_create_season_progress", {
-          p_user_id: profileId,
-          p_season_id: season.id,
-        });
-      const premiumPromise = supabaseClient.rpc("has_premium_forever", { p_user_id: profileId });
-      const rewardsPromise = supabase
-        .from("duel_pass_season_rewards")
-        .select("*")
-        .eq("season_id", season.id)
-        .order("level", { ascending: true });
-      const claimedPromise = supabase
-        .from("user_claimed_rewards")
-        .select("level, is_premium")
-        .eq("user_id", profileId)
-        .eq("season", season.season_number);
-
-      const [progressResult, premiumResult, rewardsResult, claimedResult] = await Promise.allSettled([
-        progressPromise,
-        premiumPromise,
-        rewardsPromise,
-        claimedPromise,
-      ]);
-
-      if (progressResult.status === "fulfilled") {
-        const { data: progressData, error: progressError } = progressResult.value;
-        if (progressError) {
-          console.error("[DuelPassSeasonModal] Progress error", progressError);
-        } else if (progressData && progressData.length > 0) {
-          setSeasonProgress(progressData[0]);
-          setHasPremiumPass(progressData[0].premium_pass_purchased || false);
-        }
-      } else {
-        console.error("[DuelPassSeasonModal] Progress request failed", progressResult.reason);
-      }
-
-      const resolvePremiumFromProfile = async () => {
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("subscription_type, subscription_status, premium_forever_purchased_at")
-          .eq("id", profileId)
-          .single();
-
-        if (profileError) {
-          console.error("[DuelPassSeasonModal] Profile fallback error:", profileError);
-          setHasPremiumForever(false);
-          return;
-        }
-
-        // console.log("[DuelPassSeasonModal] Profile data for Premium Forever check:", {
-        //   subscription_type: profileData?.subscription_type,
-        //   subscription_status: profileData?.subscription_status,
-        //   premium_forever_purchased_at: profileData?.premium_forever_purchased_at,
-        //   profileId,
-        // });
-
-        const isLifetime =
-          !!profileData?.premium_forever_purchased_at &&
-          profileData?.subscription_type === "lifetime" &&
-          profileData?.subscription_status === "pro";
-
-        // console.log("[DuelPassSeasonModal] Premium Forever result (fallback):", isLifetime);
-        setHasPremiumForever(isLifetime);
-      };
-
-      let premiumResolvedViaRpc = false;
-      if (premiumResult.status === "fulfilled") {
-        const { data: hasPremiumForeverData, error: premiumForeverError } = premiumResult.value;
-        // console.log("[DuelPassSeasonModal] Premium Forever check:", {
-        //   hasPremiumForeverData,
-        //   premiumForeverError,
-        //   profileId,
-        // });
-
-        if (!premiumForeverError && hasPremiumForeverData !== null && hasPremiumForeverData !== undefined) {
-          // console.log("[DuelPassSeasonModal] Premium Forever result (RPC):", hasPremiumForeverData === true);
-          setHasPremiumForever(hasPremiumForeverData === true);
-          premiumResolvedViaRpc = true;
-        }
-      } else {
-        console.error("[DuelPassSeasonModal] Premium Forever RPC failed:", premiumResult.reason);
-      }
-
-      if (!premiumResolvedViaRpc) {
-        await resolvePremiumFromProfile();
-      }
-
-      if (rewardsResult.status === "fulfilled") {
-        const { data: rewardsData, error: rewardsError } = rewardsResult.value;
-        if (rewardsError) {
-          console.error("[DuelPassSeasonModal] Rewards error", rewardsError);
-        } else if (rewardsData) {
-          // console.log("[DuelPassSeasonModal] Rewards loaded:", rewardsData.length, rewardsData[0]);
-          setRewards(rewardsData);
-        }
-      } else {
-        console.error("[DuelPassSeasonModal] Rewards request failed", rewardsResult.reason);
-      }
-
-      console.log("[DuelPassSeasonModal] Debug State:", {
-        currentLevel,
-        currentSP,
-        isPremium,
-        activeSeasonId: activeSeason?.id,
-        rewardFilter
-      });
-
-      if (claimedResult.status === "fulfilled") {
-        const { data: claimedData, error: claimedError } = claimedResult.value;
-        if (claimedError) {
-          console.error("[DuelPassSeasonModal] Ошибка загрузки полученных наград:", claimedError);
-        }
-
-        if (claimedData) {
-          // console.log("[DuelPassSeasonModal] Загружено полученных наград из БД:", claimedData);
-          const claimed = new Set<number>();
-          const claimedFree = new Set<number>();
-          const claimedPremium = new Set<number>();
-
-          claimedData.forEach((item: { level: number; is_premium: boolean }) => {
-            if (!item.is_premium) {
-              // Бесплатная награда получена
-              claimedFree.add(item.level);
-              claimed.add(item.level);
-              // console.log(`[DuelPassSeasonModal] Бесплатная награда уровня ${item.level} помечена как полученная`);
-            } else {
-              // Premium награда получена
-              claimedPremium.add(item.level);
-              if (isPremium) {
-                claimed.add(item.level);
-              }
-              // console.log(`[DuelPassSeasonModal] Premium награда уровня ${item.level} помечена как полученная`);
-            }
-          });
-
-          // console.log("[DuelPassSeasonModal] Итоговые множества:", {
-          //   claimedFree: Array.from(claimedFree),
-          //   claimedPremium: Array.from(claimedPremium),
-          //   claimed: Array.from(claimed)
-          // });
-
-          setClaimedRewards(claimed);
-          setClaimedFreeRewards(claimedFree);
-          setClaimedPremiumRewards(claimedPremium);
-        }
-      } else {
-        console.error("[DuelPassSeasonModal] Claimed rewards request failed", claimedResult.reason);
-      }
-    } catch (error) {
-      console.error("[DuelPassSeasonModal] Load error", error);
-    } finally {
-      if (!silent) {
-        setLoading(false);
-      }
-    }
-  };
+  const invalidateSeasonData = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: SEASON_MODAL_QUERY_KEY(profileId) });
+  }, [queryClient, profileId]);
 
   const queueCosmeticReward = useCallback(
     async (rewardPayload: any) => {
@@ -1133,7 +947,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             setClaimedFreeRewards((prev) => new Set([...prev, level]));
             setClaimedRewards((prev) => new Set([...prev, level]));
           }
-          loadSeasonData(true);
+          invalidateSeasonData();
           return;
         }
         toast.error(dp("toasts.rewardError"), {
@@ -1166,7 +980,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         await queueCosmeticReward(entry.reward);
       }
 
-      loadSeasonData(true);
+      invalidateSeasonData();
     } catch (err: any) {
       console.error("[DuelPassSeasonModal] Claim error", err);
       toast.error(dp("toasts.rewardError"));
@@ -1869,7 +1683,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              onClick={() => !hasPremiumForever && setShowPremiumSelector(true)}
+              onClick={() => !hasPremiumForever && setShowPaywall(true)}
               className={cn(
                 "group relative overflow-hidden rounded-2xl transition-all duration-300",
                 "bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent backdrop-blur-sm",
@@ -2193,7 +2007,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         onOpenChange={(open) => {
           setShowPaywall(open);
           if (!open) {
-            loadSeasonData(true);
+            invalidateSeasonData();
           }
         }} 
       />
