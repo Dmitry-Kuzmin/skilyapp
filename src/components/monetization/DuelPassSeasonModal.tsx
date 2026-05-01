@@ -567,27 +567,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   //   }
   // }, [open, profileId, isPremiumFromHook, hasPremiumForever, hasPremiumPass, isPremium]);
 
-  const hasLoadedRef = React.useRef(false);
-
-  useEffect(() => {
-    if (open && profileId && !hasLoadedRef.current) {
-      hasLoadedRef.current = true;
-      loadSeasonData();
-    } else if (!open) {
-      // Сбрасываем флаг при закрытии для свежих данных при следующем открытии
-      hasLoadedRef.current = false;
-    }
-  }, [open, profileId]);
-
-  // Автообновление данных каждые 30 секунд когда модалка открыта (тихое обновление без показа loading)
-  useEffect(() => {
-    if (open && profileId && activeSeason) {
-      const interval = setInterval(() => {
-        loadSeasonData(true); // true = тихое обновление
-      }, 30000); // Увеличено до 30 секунд
-      return () => clearInterval(interval);
-    }
-  }, [open, profileId, activeSeason]);
 
 
   useEffect(() => {
