@@ -2221,7 +2221,10 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
 
   const showUpcoming = !activeSeason || !seasonProgress;
 
-  // ИСПРАВЛЕНИЕ МЕРЦАНИЯ: Модалка больше не прыгает при переключении стейтов + Плавные анимации
+  // ИСПРАВЛЕНИЕ МЕРЦАНИЯ: вызываем ModalContent() как функцию, а не <ModalContent />.
+  // Если использовать JSX-компонент (<ModalContent />), React видит новый тип компонента
+  // при каждом ре-рендере (функция пересоздаётся) → unmount + remount → мелькание.
+  // Вызов как функция инлайнит JSX в дерево без компонентного граничника.
   const modalContent = useMemo(() => {
     return (
       <AnimatePresence mode="wait">
@@ -2236,8 +2239,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             exit={{ opacity: 0, x: 20 }}
             className="flex-1 w-full"
           >
-            {loading ? <SkeletonContent /> : (showUpcoming ? upcomingSeasonContent : (
-              DUEL_PASS_NEW_LAYOUT ? <ModalContentV2 /> : <ModalContent />
+            {loading ? SkeletonContent() : (showUpcoming ? upcomingSeasonContent : (
+              DUEL_PASS_NEW_LAYOUT ? ModalContentV2() : ModalContent()
             ))}
           </motion.div>
         )}
