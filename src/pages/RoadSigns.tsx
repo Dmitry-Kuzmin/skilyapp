@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useTransition, useDeferredValue } from "react";
+import { useState, useEffect, useMemo, useTransition, useDeferredValue, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { RoadSignCard } from "@/components/RoadSignCard";
 import { Input } from "@/components/ui/input";
