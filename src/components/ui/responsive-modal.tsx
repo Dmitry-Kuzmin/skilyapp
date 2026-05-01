@@ -93,7 +93,7 @@ export function ResponsiveModal({
         open={open}
         onOpenChange={onOpenChange}
         dismissible={dismissible !== undefined ? dismissible : !preventClose}
-        dismissibleThreshold={0.15}
+        dismissibleThreshold={0.4}
         snapPoints={snapPoints}
         activeSnapPoint={activeSnapPoint}
         setActiveSnapPoint={onSnapPointChange}
