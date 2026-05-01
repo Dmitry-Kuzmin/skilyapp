@@ -59,65 +59,36 @@ export const LazyImage = memo(function LazyImage({
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    if (!src) return;
+    if (!encodedSrc) return;
 
-    // Если изображение критическое (priority), загружаем сразу
     if (priority) {
       const img = new Image();
       img.decoding = 'async';
-      img.src = src;
-
-      img.onload = () => {
-        setIsLoaded(true);
-        onLoad?.();
-      };
-
-      img.onerror = () => {
-        setHasError(true);
-        onError?.();
-      };
+      img.src = encodedSrc;
+      img.onload = () => { setIsLoaded(true); onLoad?.(); };
+      img.onerror = () => { setHasError(true); setImageSrc(SIGN_PLACEHOLDER); onError?.(); };
       return;
     }
 
-    // Используем Intersection Observer для lazy loading
     observerRef.current = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Изображение в viewport - начинаем загрузку
             const img = new Image();
-            img.decoding = 'async'; // Асинхронное декодирование для неблокирующей загрузки
-            img.src = src;
-
-            img.onload = () => {
-              setImageSrc(src);
-              setIsLoaded(true);
-              onLoad?.();
-            };
-
-            img.onerror = () => {
-              setHasError(true);
-              onError?.();
-            };
-
+            img.decoding = 'async';
+            img.src = encodedSrc;
+            img.onload = () => { setImageSrc(encodedSrc); setIsLoaded(true); onLoad?.(); };
+            img.onerror = () => { setHasError(true); setImageSrc(SIGN_PLACEHOLDER); onError?.(); };
             observerRef.current?.disconnect();
           }
         });
       },
-      {
-        rootMargin: '50px', // Начинаем загрузку за 50px до появления в viewport
-        threshold: 0.01, // Минимальный порог видимости
-      }
+      { rootMargin: '50px', threshold: 0.01 }
     );
 
-    if (imgRef.current) {
-      observerRef.current.observe(imgRef.current);
-    }
-
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [src, onLoad, onError, priority]);
+    if (imgRef.current) observerRef.current.observe(imgRef.current);
+    return () => { observerRef.current?.disconnect(); };
+  }, [encodedSrc, onLoad, onError, priority]);
 
   return (
     <img
