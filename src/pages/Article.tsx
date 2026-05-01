@@ -9,12 +9,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { switchInlineQuery, canSwitchInlineQuery, isTelegramMiniApp } from "@/lib/telegram";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { Dgt2026ArticleContent } from "./articles/Dgt2026Article";
 
 interface ArticleData {
   slug: string;
   title: string;
   description: string;
   content: string;
+  customContent?: React.ReactNode;
   publishedAt: string;
   readTime: number;
   category: string;
