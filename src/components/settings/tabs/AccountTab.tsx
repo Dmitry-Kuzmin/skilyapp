@@ -19,8 +19,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useProfileData } from '@/hooks/useProfileData';
 import { useAvatarUpload } from '@/hooks/useAvatarUpload';
 import { cn } from "@/lib/utils";
-import { PasskeyManager } from '@/components/auth/PasskeyManager';
 import { useQueryClient } from "@tanstack/react-query";
+import { PASSKEY_ENABLED } from '@/lib/feature-flags';
 
 // Google icon
 const GoogleIcon = () => (
