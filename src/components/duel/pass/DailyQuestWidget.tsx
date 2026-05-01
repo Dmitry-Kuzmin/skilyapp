@@ -1,10 +1,28 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Check, Flame, Trophy, Target, Zap, Gift, Clock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+const QUEST_TRANSLATIONS: Record<string, Record<string, string>> = {
+  warmup:          { ru: "Ответь на 10 вопросов",            es: "Responde 10 preguntas",            en: "Answer 10 questions" },
+  early_bird:      { ru: "Пройди 5 вопросов в практике",     es: "Practica 5 preguntas",             en: "Practice 5 questions" },
+  marathon:        { ru: "Ответь на 50 вопросов",            es: "Responde 50 preguntas",            en: "Answer 50 questions" },
+  centurion:       { ru: "Ответь на 100 вопросов за день",   es: "Responde 100 preguntas en un día", en: "Answer 100 questions" },
+  duelist_1:       { ru: "Сыграй 1 дуэль",                  es: "Juega 1 duelo",                    en: "Play 1 duel" },
+  duel_master:     { ru: "Выиграй 5 дуэлей",                es: "Gana 5 duelos",                    en: "Win 5 duels" },
+  duel_streak:     { ru: "Выиграй 3 дуэли подряд",          es: "Gana 3 duelos seguidos",           en: "Win 3 duels in a row" },
+  winner:          { ru: "Одержи 1 победу в дуэли",         es: "Consigue 1 victoria en duelo",     en: "Get 1 duel win" },
+  sniper:          { ru: "15 вопросов без ошибок подряд",    es: "15 preguntas seguidas sin errores",en: "15 questions in a row without mistakes" },
+  question_master: { ru: "30 вопросов без ошибок",           es: "30 preguntas sin errores",         en: "30 questions without mistakes" },
+  ultra_accuracy:  { ru: "50 вопросов без ошибок",           es: "50 preguntas sin errores",         en: "50 questions without mistakes" },
+  exam_pass:       { ru: "Пройти 1 экзамен",                 es: "Completa 1 examen",                en: "Complete 1 exam" },
+  two_exams:       { ru: "Пройди 2 экзамена за день",        es: "Completa 2 exámenes en un día",    en: "Complete 2 exams today" },
+  perfect_exam:    { ru: "Сдай экзамен на 100%",             es: "Aprueba un examen con 100%",       en: "Pass an exam with 100%" },
+};
 
 export type DailyQuest = {
   id: string;
