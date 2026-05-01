@@ -377,30 +377,30 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     (path: string, params?: Record<string, string | number>) => t(`wallet.${path}`, params),
     [t]
   );
-  const [loading, setLoading] = useState(true);
   const [rewardFilter, setRewardFilter] = useState<'all' | 'available'>('all');
-  const [applyingBoostId, setApplyingBoostId] = useState<string | null>(null);
-
-  const queryClient = useQueryClient();
-
-  // --- Reset/Init State ---
-  const [activeSeason, setActiveSeason] = useState<any>(null);
-  const [seasonProgress, setSeasonProgress] = useState<any>(null);
-  const [rewards, setRewards] = useState<any[]>([]);
-  const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set());
-  const [claimedFreeRewards, setClaimedFreeRewards] = useState<Set<number>>(new Set());
-  const [claimedPremiumRewards, setClaimedPremiumRewards] = useState<Set<number>>(new Set());
-  // ОПТИМИЗАЦИЯ: Отслеживаем уровни, которые сейчас получаются для предотвращения повторных кликов
   const [claimingRewards, setClaimingRewards] = useState<Set<string>>(new Set());
-  const showOnboarding = false;
   const [showPaywall, setShowPaywall] = useState(false);
   const [premiumRewardPreview, setPremiumRewardPreview] = useState<{ level: number; premium_reward: any } | null>(null);
   const [cosmeticQueue, setCosmeticQueue] = useState<any[]>([]);
   const [activeCosmeticReward, setActiveCosmeticReward] = useState<any | null>(null);
   const [isApplyingAppearance, setIsApplyingAppearance] = useState(false);
-  const [hasPremiumForever, setHasPremiumForever] = useState(false);
-  const [hasPremiumPass, setHasPremiumPass] = useState(false);
   const [rewardDetails, setRewardDetails] = useState<Record<string, RewardDefinitionDetails>>({});
+
+  const queryClient = useQueryClient();
+
+  // ─── Season data via React Query (single source of truth) ──────────────────
+  const { data: seasonData, isLoading: loading } = useSeasonModalData(profileId, open);
+
+  const activeSeason: ActiveSeason | null = seasonData?.activeSeason ?? null;
+  const seasonProgress: SeasonProgress | null = seasonData?.seasonProgress ?? null;
+  const rewards: SeasonReward[] = seasonData?.rewards ?? [];
+  const hasPremiumForever = seasonData?.hasPremiumForever ?? false;
+  const hasPremiumPass = seasonData?.hasPremiumPass ?? false;
+
+  const { claimedFreeRewards, claimedPremiumRewards } = useMemo(
+    () => buildClaimedSets(seasonData?.claimedRecords ?? []),
+    [seasonData?.claimedRecords]
+  );
 
   useEffect(() => {
     if (!activeCosmeticReward && cosmeticQueue.length > 0) {
