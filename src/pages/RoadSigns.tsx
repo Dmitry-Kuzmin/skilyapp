@@ -240,7 +240,7 @@ export default function RoadSigns() {
                   variant="ghost"
                   size="icon"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 w-10 rounded-lg hover:bg-muted"
-                  onClick={() => setSearchTerm("")}
+                  onClick={() => handleSearchChange("")}
                 >
                   <X className="w-4 h-4" />
                 </Button>
