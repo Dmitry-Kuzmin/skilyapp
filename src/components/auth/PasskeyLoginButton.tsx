@@ -23,6 +23,8 @@ interface PasskeyLoginButtonProps {
 }
 
 export function PasskeyLoginButton({ onSuccess, variant = 'default', className, label }: PasskeyLoginButtonProps) {
+  if (!PASSKEY_ENABLED) return null;
+
   const [isLoading, setIsLoading] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [isAvailable, setIsAvailable] = useState(false);
