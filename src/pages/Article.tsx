@@ -3354,7 +3354,7 @@ const Article = () => {
                 prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold
                 prose-ul:my-6 prose-ul:space-y-2 prose-li:text-gray-700 dark:prose-li:text-gray-300
                 prose-ol:my-6 prose-ol:space-y-2">
-                {renderContent(article.content)}
+                {article.customContent ?? renderContent(article.content)}
               </div>
 
               {/* Share Section */}
