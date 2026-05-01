@@ -121,7 +121,7 @@ class PerformanceMonitor {
       const result = fn();
       const duration = performance.now() - start;
       this.recordMetric(name, duration);
-      if (duration > 100) {
+      if (import.meta.env.DEV && duration > 100) {
         console.warn(`[Performance] Slow function "${name}": ${duration.toFixed(2)}ms`);
       }
       return result;
