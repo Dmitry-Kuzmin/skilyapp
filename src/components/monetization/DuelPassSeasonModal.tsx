@@ -1969,6 +1969,246 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     );
   };
 
+  // ─────────────────────────────────────────────────────────────
+  // V2 LAYOUT — single scroll page: compact header + leaderboard + horizontal rewards track
+  // Toggle: DUEL_PASS_NEW_LAYOUT in feature-flags.ts
+  // ─────────────────────────────────────────────────────────────
+
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll rewards track to current level on open
+  useEffect(() => {
+    if (!DUEL_PASS_NEW_LAYOUT || !trackRef.current || !currentLevel) return;
+    const CELL_W = 80;
+    const scrollTo = Math.max(0, (currentLevel - 3) * CELL_W);
+    trackRef.current.scrollLeft = scrollTo;
+  }, [currentLevel, open]);
+
+  const ModalContentV2 = () => {
+    if (loading) return <SkeletonContent />;
+    if (!activeSeason || !seasonProgress) return <>{upcomingSeasonContent}</>;
+
+    const totalSPNeeded = rewards[rewards.length - 1]?.sp_required || 3000;
+
+    return (
+      <>
+        {/* ── Compact header ───────────────────────────────────────── */}
+        <div className={cn("flex items-center gap-3 border-b border-border/40", isMobile ? "px-4 py-3" : "px-6 py-3")}>
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-md shrink-0">
+            <Trophy className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-bold truncate">{activeSeasonName}</span>
+              {timeLeft && (
+                <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full shrink-0 tabular-nums">
+                  {timeLeft.days > 0 ? `${timeLeft.days}д ` : ''}
+                  {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
+              <span className="font-semibold text-foreground">Lv {currentLevel}</span>
+              <span className="opacity-40">·</span>
+              <span>{currentSP.toLocaleString()} / {totalSPNeeded.toLocaleString()} SP</span>
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentView('hall_of_fame')}
+            className="gap-1.5 text-xs shrink-0 h-8 px-2.5"
+          >
+            <Trophy className="w-3.5 h-3.5 text-yellow-500" />
+            <span className="hidden sm:inline">{dp("hallOfFame.title") || "Зал"}</span>
+          </Button>
+        </div>
+
+        {/* ── Leaderboard (embedded — top-3 + list) ─────────────────── */}
+        <DuelPassLeaderboardView
+          embedded
+          onOpenHallOfFame={() => setCurrentView('hall_of_fame')}
+        />
+
+        {/* ── Horizontal rewards track ──────────────────────────────── */}
+        <div className={cn("space-y-3 pb-4", isMobile ? "px-4" : "px-6")}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-5 bg-primary rounded-full" />
+              <h3 className="text-sm font-bold">{dp("table.title") || "Трек наград"}</h3>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              Lv {currentLevel} / {rewards.length}
+            </span>
+          </div>
+
+          <div className="rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
+            <div className="flex">
+              {/* Fixed left labels column */}
+              <div className="w-11 shrink-0 border-r border-border/40 flex flex-col">
+                <div className="h-9 border-b border-border/40 flex items-center justify-center">
+                  <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Ур.</span>
+                </div>
+                <div className="h-[72px] flex items-center justify-center border-b border-border/40">
+                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider rotate-[-90deg] whitespace-nowrap">Free</span>
+                </div>
+                <div className="h-[72px] flex items-center justify-center bg-amber-500/5">
+                  <Crown className="w-3 h-3 text-amber-500" />
+                </div>
+              </div>
+
+              {/* Scrollable cells */}
+              <div ref={trackRef} className="flex-1 overflow-x-auto" style={{ scrollBehavior: 'smooth' }}>
+                <div className="flex" style={{ minWidth: `${rewards.length * 80}px` }}>
+                  {rewards.map((reward) => {
+                    const isCurrent = reward.level === currentLevel;
+                    const isPast = reward.level < currentLevel;
+                    const isFreeClaimed = claimedFreeRewards.has(reward.level);
+                    const isPremClaimed = claimedPremiumRewards.has(reward.level);
+                    const canClaimFree = (isPast || isCurrent) && !isFreeClaimed;
+                    const canClaimPrem = (isPast || isCurrent) && !isPremClaimed && hasPremiumPass;
+                    const freeMeta = getRewardVisualMeta(reward.free_reward);
+                    const premMeta = getRewardVisualMeta(reward.premium_reward);
+                    const FreeIcon = freeMeta?.Icon;
+                    const PremIcon = premMeta?.Icon;
+
+                    return (
+                      <div
+                        key={reward.level}
+                        className={cn(
+                          "w-20 shrink-0 border-r border-border/30 last:border-r-0",
+                          isCurrent && "bg-primary/5 ring-1 ring-inset ring-primary/30"
+                        )}
+                      >
+                        {/* Level number */}
+                        <div className={cn(
+                          "h-9 flex items-center justify-center border-b border-border/40 relative",
+                          isCurrent ? "bg-primary/10" : ""
+                        )}>
+                          <span className={cn(
+                            "text-xs font-black tabular-nums",
+                            isCurrent ? "text-primary" : isPast ? "text-muted-foreground/60" : "text-muted-foreground/40"
+                          )}>
+                            {reward.level}
+                          </span>
+                          {isCurrent && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+                          )}
+                        </div>
+
+                        {/* Free reward cell */}
+                        <div
+                          onClick={() => canClaimFree && !claimingRewards.has(`${reward.level}-free`)
+                            ? claimReward(reward.level, 'free', reward.free_reward)
+                            : undefined
+                          }
+                          className={cn(
+                            "h-[72px] flex flex-col items-center justify-center gap-0.5 border-b border-border/30 relative transition-colors",
+                            canClaimFree && "cursor-pointer hover:bg-primary/10",
+                            isFreeClaimed && "bg-green-500/5",
+                            !isPast && !isCurrent && "opacity-40"
+                          )}
+                        >
+                          {isFreeClaimed ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          ) : freeMeta?.iconEmoji ? (
+                            <span className="text-xl leading-none">{freeMeta.iconEmoji}</span>
+                          ) : FreeIcon ? (
+                            <FreeIcon className={cn("w-5 h-5", freeMeta?.color ? `text-${freeMeta.color}-500` : "text-primary")} />
+                          ) : (
+                            <span className="text-lg">🎁</span>
+                          )}
+                          {!isFreeClaimed && freeMeta?.title && (
+                            <span className="text-[8px] text-muted-foreground text-center leading-tight px-0.5 line-clamp-2 max-w-full">
+                              {freeMeta.title}
+                            </span>
+                          )}
+                          {canClaimFree && !isFreeClaimed && (
+                            <span className="text-[7px] font-black text-primary uppercase tracking-wider">Claim</span>
+                          )}
+                        </div>
+
+                        {/* Premium reward cell */}
+                        <div
+                          onClick={() => canClaimPrem && !claimingRewards.has(`${reward.level}-premium`)
+                            ? claimReward(reward.level, 'premium', reward.premium_reward)
+                            : undefined
+                          }
+                          className={cn(
+                            "h-[72px] flex flex-col items-center justify-center gap-0.5 bg-amber-500/5 relative transition-colors",
+                            canClaimPrem && "cursor-pointer hover:bg-amber-500/10",
+                            isPremClaimed && "bg-green-500/5",
+                            !hasPremiumPass && "opacity-40",
+                            !isPast && !isCurrent && "opacity-40"
+                          )}
+                        >
+                          {!hasPremiumPass ? (
+                            <Lock className="w-3.5 h-3.5 text-amber-500/50" />
+                          ) : isPremClaimed ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          ) : premMeta?.iconEmoji ? (
+                            <span className="text-xl leading-none">{premMeta.iconEmoji}</span>
+                          ) : PremIcon ? (
+                            <PremIcon className="w-5 h-5 text-amber-500" />
+                          ) : (
+                            <span className="text-lg">🔒</span>
+                          )}
+                          {hasPremiumPass && !isPremClaimed && premMeta?.title && (
+                            <span className="text-[8px] text-muted-foreground text-center leading-tight px-0.5 line-clamp-2 max-w-full">
+                              {premMeta.title}
+                            </span>
+                          )}
+                          {canClaimPrem && !isPremClaimed && (
+                            <span className="text-[7px] font-black text-amber-500 uppercase tracking-wider">Claim</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Elite Pass CTA */}
+          {!hasPremiumPass && (
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => !hasPremiumForever && setShowPaywall(true)}
+              className={cn(
+                "group flex items-center gap-3 p-3 rounded-2xl border transition-all duration-200",
+                "bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent",
+                "border-amber-500/20 hover:border-amber-500/40",
+                !hasPremiumForever && "cursor-pointer"
+              )}
+            >
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-300 to-amber-600 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
+                <Crown className="w-5 h-5 text-amber-950" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-foreground">Elite Pass</span>
+                  <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full uppercase tracking-wider">{uiText.elitePassXp}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-snug truncate">{uiText.elitePassDescription}</p>
+              </div>
+              {!hasPremiumForever && (
+                <Button
+                  size="sm"
+                  onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}
+                  className="bg-amber-500 text-amber-950 hover:bg-amber-400 font-bold rounded-xl shrink-0 text-xs h-8"
+                >
+                  {uiText.activate}
+                </Button>
+              )}
+            </motion.div>
+          )}
+        </div>
+      </>
+    );
+  };
+
   const showUpcoming = !activeSeason || !seasonProgress;
 
   // ИСПРАВЛЕНИЕ МЕРЦАНИЯ: Модалка больше не прыгает при переключении стейтов + Плавные анимации
