@@ -18,52 +18,61 @@ const LATEST_ARTICLE = {
 export function BlogWidget() {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { resolvedTheme } = useTheme();
+  const isDark = (resolvedTheme ?? "dark") !== "light";
 
   const title = language === "es" ? LATEST_ARTICLE.titleEs : language === "en" ? LATEST_ARTICLE.titleEn : LATEST_ARTICLE.title;
   const description = language === "es" ? LATEST_ARTICLE.descriptionEs : language === "en" ? LATEST_ARTICLE.descriptionEn : LATEST_ARTICLE.description;
+  const readLabel = language === "es" ? "Leer" : language === "en" ? "Read" : "Читать";
+  const blogLabel = language === "es" ? "Blog" : language === "en" ? "Blog" : "Блог";
+  const minLabel = language === "es" ? "min" : language === "en" ? "min" : "мин";
 
   return (
     <div
       onClick={() => navigate(`/article/${LATEST_ARTICLE.slug}`)}
-      className="group h-full min-h-[140px] relative rounded-2xl border border-border/60 bg-gradient-to-br from-blue-500/8 via-indigo-500/5 to-transparent overflow-hidden cursor-pointer hover:border-blue-500/30 hover:shadow-lg transition-all duration-300"
+      className={`group relative rounded-3xl xl:rounded-[2rem] p-4 md:p-5 overflow-hidden cursor-pointer border transition-all duration-300 shadow-lg ${
+        isDark
+          ? "bg-slate-800/60 border-slate-700/60 hover:border-blue-500/30"
+          : "bg-white/95 border-slate-200/80 hover:border-blue-400/40 shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+      }`}
     >
-      {/* Accent glow */}
-      <div className="absolute top-0 right-0 w-28 h-28 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+      {/* Subtle glow */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/8 rounded-full blur-2xl pointer-events-none" />
 
-      <div className="relative z-10 p-4 flex flex-col h-full gap-3">
+      <div className="relative z-10 flex flex-col gap-2.5">
         {/* Header */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
-              <BookOpen className="w-3.5 h-3.5 text-blue-500" />
+            <div className={`w-7 h-7 rounded-xl flex items-center justify-center ${isDark ? "bg-blue-500/15 border border-blue-500/20" : "bg-blue-50 border border-blue-200/60"}`}>
+              <BookOpen className={`w-3.5 h-3.5 ${isDark ? "text-blue-400" : "text-blue-600"}`} />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-blue-500/80">
-              {language === "es" ? "Blog" : language === "en" ? "Blog" : "Блог"}
+            <span className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+              {blogLabel}
             </span>
           </div>
-          <span className="text-[9px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full">
+          <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${isDark ? "text-blue-400 bg-blue-500/10" : "text-blue-600 bg-blue-50 border border-blue-200/60"}`}>
             {LATEST_ARTICLE.category}
           </span>
         </div>
 
-        {/* Article title */}
-        <div className="flex-1">
-          <p className="text-sm font-bold text-foreground leading-snug line-clamp-2 group-hover:text-blue-500 transition-colors">
+        {/* Article title + desc */}
+        <div>
+          <p className={`text-sm font-bold leading-snug line-clamp-2 transition-colors ${isDark ? "text-white group-hover:text-blue-400" : "text-slate-900 group-hover:text-blue-600"}`}>
             {title}
           </p>
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+          <p className={`text-xs mt-1 line-clamp-2 leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
             {description}
           </p>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-muted-foreground">
+        <div className="flex items-center justify-between pt-0.5">
+          <div className={`flex items-center gap-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}>
             <Clock className="w-3 h-3" />
-            <span className="text-[11px]">{LATEST_ARTICLE.readTime} мин</span>
+            <span className="text-[11px]">{LATEST_ARTICLE.readTime} {minLabel}</span>
           </div>
-          <div className="flex items-center gap-1 text-blue-500 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-            {language === "es" ? "Leer" : language === "en" ? "Read" : "Читать"}
+          <div className={`flex items-center gap-1 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+            {readLabel}
             <ArrowRight className="w-3 h-3" />
           </div>
         </div>
