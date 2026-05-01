@@ -2226,7 +2226,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             exit={{ opacity: 0, x: 20 }}
             className="flex-1 w-full"
           >
-            {loading ? <SkeletonContent /> : (showUpcoming ? upcomingSeasonContent : <ModalContent />)}
+            {loading ? <SkeletonContent /> : (showUpcoming ? upcomingSeasonContent : (
+              DUEL_PASS_NEW_LAYOUT ? <ModalContentV2 /> : <ModalContent />
+            ))}
           </motion.div>
         )}
       </AnimatePresence>

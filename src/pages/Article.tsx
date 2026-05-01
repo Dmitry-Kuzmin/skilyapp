@@ -12,6 +12,11 @@ import { SeoHead } from "@/components/seo/SeoHead";
 import { Dgt2026ArticleContent } from "./articles/Dgt2026Article";
 
 type LocalizedArticleFields = Pick<ArticleData, "title" | "description" | "category" | "author">;
+const ARTICLE_LANGUAGE_MAP: Record<Language, string> = {
+  ru: "ru-RU",
+  en: "en-US",
+  es: "es-ES",
+};
 
 interface ArticleData {
   slug: string;
@@ -2757,13 +2762,13 @@ const Article = () => {
         about: {
           "@type": "Thing",
           name: "Road Safety Education",
-          description: "Интерактивное изучение правил дорожного движения в Испании"
+          description: "Interactive learning for Spanish traffic rules and DGT exam preparation",
         },
-        keywords: `DGT, экзамен, Испания, ${article.category}, водительские права`,
-        inLanguage: "ru-RU",
+        keywords: `DGT, Spain, driving theory exam, ${article.category}, driver's license`,
+        inLanguage: ARTICLE_LANGUAGE_MAP[language],
         audience: {
           "@type": "Audience",
-          audienceType: "Russian speakers learning Spanish",
+          audienceType: "Learners preparing for the Spanish DGT theory exam",
           geographicArea: {
             "@type": "Country",
             name: "Spain"
