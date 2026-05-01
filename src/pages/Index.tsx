@@ -29,12 +29,45 @@ const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOver
 const DashboardContent = memo(function DashboardContent() {
   const { profileId } = useUserContext();
 
-
   const { isPremium, isTrial, daysRemaining } = usePremium();
   const { balance } = useCoins();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [claimingBonus, setClaimingBonus] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+
+  // ── Morning Quiz Answer Modal (открывается по ссылке из email) ──
+  const [morningQuizAnswer, setMorningQuizAnswer] = useState<{
+    text: string; image_url: string | null;
+    options: { text: string; is_correct: boolean }[];
+    explanation: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    const qid = searchParams.get('morning_q');
+    if (!qid) return;
+    // Убираем param из URL сразу
+    setSearchParams(p => { p.delete('morning_q'); return p; }, { replace: true });
+
+    (async () => {
+      const supabase = await getSupabaseClient();
+      const [{ data: q }, { data: opts }] = await Promise.all([
+        supabase.from('questions_new').select('question_ru, question_es, explanation_ru, explanation_es, image_url').eq('id', qid).single(),
+        supabase.from('answer_options').select('text_ru, text_es, is_correct').eq('question_id', qid).order('position'),
+      ]);
+      if (!q || !opts) return;
+      const lang = (typeof window !== 'undefined' ? localStorage.getItem('app_language') : null) || 'es';
+      setMorningQuizAnswer({
+        text: (lang === 'ru' ? q.question_ru : q.question_es) || q.question_ru || '',
+        image_url: q.image_url || null,
+        options: opts.map((o: any) => ({
+          text: (lang === 'ru' ? o.text_ru : o.text_es) || o.text_ru || '',
+          is_correct: o.is_correct,
+        })),
+        explanation: (lang === 'ru' ? q.explanation_ru : q.explanation_es) || q.explanation_ru || null,
+      });
+    })();
+  }, []);
 
   // Показываем прелоадер при первом входе каждый день
   const [showWelcome, setShowWelcome] = useState(() => {
