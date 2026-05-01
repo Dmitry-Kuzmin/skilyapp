@@ -191,54 +191,39 @@ export function useDashboardData() {
       // SUPER ОПТИМИЗАЦИЯ: Пробуем новый Super RPC
 
       try {
-        console.log('[useDashboardData] 🚀 Calling get_dashboard_super_v2 for:', profileId);
         const promise = (supabase as any).rpc('get_dashboard_super_v2', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
         const response: any = await Promise.race([promise, timeoutPromise]);
 
-        if (response.error) {
-          console.warn('[useDashboardData] ⚠️ get_dashboard_super_v2 not available yet, falling back...');
-        } else if (response.data?.error) {
-          console.warn('[useDashboardData] ⚠️ get_dashboard_super_v2 returned error:', response.data.error);
-        }
-
         if (!response.error && response.data && !response.data.error) {
-          console.log('[useDashboardData] ✅ get_dashboard_super_v2 success');
           return response.data as DashboardData;
         }
 
         // Fallback to v1 if v2 is not yet deployed or fails
-        console.log('[useDashboardData] 🔄 Falling back to get_dashboard_super...');
         const promiseV1 = (supabase as any).rpc('get_dashboard_super', { p_user_id: profileId });
         const responseV1: any = await Promise.race([promiseV1, timeoutPromise]);
 
         if (!responseV1.error && responseV1.data && !responseV1.data.error) {
-          console.log('[useDashboardData] ✅ get_dashboard_super success');
           return responseV1.data as DashboardData;
         }
       } catch (e: any) {
-        console.error('[useDashboardData] ❌ RPC Exception:', e.message);
       }
 
       // Fallback на обычный RPC
       try {
-        console.log('[useDashboardData] 🔄 Falling back to get_dashboard_complete...');
         const promise = (supabase as any).rpc('get_dashboard_complete', { p_user_id: profileId });
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('TIMEOUT')), 10000));
 
         const response: any = await Promise.race([promise, timeoutPromise]);
 
         if (!response.error && response.data && !response.data.error) {
-          console.log('[useDashboardData] ✅ get_dashboard_complete success');
           return response.data as DashboardData;
         }
       } catch (e: any) {
-        console.error('[useDashboardData] ❌ get_dashboard_complete exception:', e.message);
       }
 
       // Окончательный fallback
-      console.log('[useDashboardData] ⚠️ All RPCs failed, using fetchDashboardFallback');
       return await fetchDashboardFallback(profileId);
     },
     enabled: !!profileId,
@@ -352,7 +337,6 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
 
     const profile = (profileRes.value as any).data;
     if (!profile) {
-      console.warn('[useDashboardData] ⚠️ Profile not found in fallback');
       return null;
     }
 
@@ -412,7 +396,6 @@ async function fetchDashboardFallback(profileId: string): Promise<DashboardData 
       daily_bonus_definitions: definitions,
     };
   } catch (error) {
-    console.error('[fetchDashboardFallback] ❌ Error in fallback:', error);
     return null;
   }
 }
