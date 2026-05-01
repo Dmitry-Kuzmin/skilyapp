@@ -275,31 +275,31 @@ export default function RoadSigns() {
           </div>
 
           {/* Signs Grid */}
-          {/* ОПТИМИЗАЦИЯ: Ограничиваем рендеринг для больших списков (> 50 элементов) */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {filteredSigns.length > 50 ? (
-              // Для больших списков рендерим только первые 50 + видимые элементы
-              filteredSigns.slice(0, 50).map((sign, index) => (
-                <div
-                  key={sign.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
-                >
-                  <RoadSignCard sign={sign} />
-                </div>
-              ))
-            ) : (
-              filteredSigns.map((sign, index) => (
-                <div
-                  key={sign.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s`, willChange: 'opacity, transform' }}
-                >
-                  <RoadSignCard sign={sign} />
-                </div>
-              ))
-            )}
+            {filteredSigns.slice(0, visibleCount).map((sign, index) => (
+              <div
+                key={sign.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${Math.min(index, 20) * 0.03}s`, willChange: 'opacity, transform' }}
+              >
+                <RoadSignCard sign={sign} />
+              </div>
+            ))}
           </div>
+
+          {/* Load More */}
+          {filteredSigns.length > visibleCount && (
+            <div className="flex flex-col items-center gap-2 mt-10">
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setVisibleCount(v => v + 60)}
+                className="px-8"
+              >
+                Mostrar más ({filteredSigns.length - visibleCount} restantes)
+              </Button>
+            </div>
+          )}
 
           {/* Empty State */}
           {filteredSigns.length === 0 && (
