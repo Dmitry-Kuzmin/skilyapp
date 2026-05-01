@@ -360,11 +360,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { t, language } = useLanguage();
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
-  const [currentView, setCurrentView] = useState<'main' | 'leaderboard' | 'hall_of_fame'>('main');
+  const [currentView, setCurrentView] = useState<'main' | 'hall_of_fame'>('main');
+  const [activeTab, setActiveTab] = useState<'pass' | 'leaders'>('pass');
 
   useEffect(() => {
     if (!open) {
-      setTimeout(() => setCurrentView('main'), 300); // Сбрасываем после анимации закрытия
+      setTimeout(() => { setCurrentView('main'); setActiveTab('pass'); }, 300);
     }
   }, [open]);
 
