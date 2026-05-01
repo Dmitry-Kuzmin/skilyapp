@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -13,9 +13,19 @@ const getGradientColors = (points: number) => {
     }
 };
 
+// Spring-easing: overshoot как у кольца [0.34, 1.56, 0.64, 1]
+function easeOutSpring(t: number): number {
+    // Аппроксимация cubic-bezier(0.34, 1.56, 0.64, 1) — перелёт и отскок
+    if (t >= 1) return 1;
+    const c4 = (2 * Math.PI) / 3.2;
+    return Math.pow(2, -8 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+}
+
 const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = true, isStatic = false }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [displayPoints, setDisplayPoints] = useState(isStatic ? currentPoints : 0);
+    const rafRef = useRef<number | null>(null);
     const radius = 85;
     const circumference = 2 * Math.PI * radius;
     const segmentUnit = circumference / maxPoints;
@@ -23,7 +33,8 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
     const fillPercentage = currentPoints / maxPoints;
     const targetOffset = circumference - (circumference * fillPercentage);
 
-    const colors = getGradientColors(currentPoints);
+    // Цвет базируется на displayPoints для синхронной смены цвета с кольцом
+    const colors = getGradientColors(displayPoints);
 
     // Динамический цвет пустых сегментов
     const emptySegmentColor = isDarkTheme ? "rgba(2, 6, 23, 0.6)" : "rgba(0, 0, 0, 0.08)";
@@ -32,6 +43,39 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
         const timer = setTimeout(() => setIsLoaded(true), 300);
         return () => clearTimeout(timer);
     }, []);
+
+    // Анимация счётчика цифр синхронно с кольцом
+    useEffect(() => {
+        if (isStatic) {
+            setDisplayPoints(currentPoints);
+            return;
+        }
+        if (!isLoaded) return;
+
+        const DURATION = 2200; // мс — идентично длительности кольца
+        const startTime = performance.now();
+        const startVal = 0;
+        const endVal = currentPoints;
+
+        const tick = (now: number) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(elapsed / DURATION, 1);
+            const eased = easeOutSpring(progress);
+            // clamp чтобы не уходить ниже 0 при перелёте spring
+            const raw = startVal + (endVal - startVal) * eased;
+            const clamped = Math.max(0, Math.min(Math.round(raw), maxPoints));
+            setDisplayPoints(clamped);
+
+            if (progress < 1) {
+                rafRef.current = requestAnimationFrame(tick);
+            } else {
+                setDisplayPoints(endVal);
+            }
+        };
+
+        rafRef.current = requestAnimationFrame(tick);
+        return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    }, [isLoaded, currentPoints, isStatic, maxPoints]);
 
     // Генерируем больше углов для частиц, чтобы облако было плотнее
     const particleAngles = Array.from({ length: 16 }, (_, i) => (i * 360) / 16);
