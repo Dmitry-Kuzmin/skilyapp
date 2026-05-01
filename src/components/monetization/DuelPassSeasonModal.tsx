@@ -1515,28 +1515,32 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 </span>
               </p>
             </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 shrink-0 gap-2 border-primary/20 hover:border-primary/40 hover:bg-primary/5 cursor-pointer"
-                    onClick={() => {
-                      setCurrentView('leaderboard');
-                    }}
-                  >
-                    <BarChart3 className="w-4 h-4" />
-                    <span className="text-xs font-medium">
-                      {isMobile ? uiText.leaderboardShort : uiText.leaderboardTitle}
-                    </span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{isMobile ? uiText.leaderboardSeason : uiText.leaderboardTooltip}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="flex items-center rounded-xl border border-border overflow-hidden shrink-0">
+              <button
+                onClick={() => setActiveTab('pass')}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all",
+                  activeTab === 'pass'
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
+              >
+                <Trophy className="w-3 h-3" />
+                Pass
+              </button>
+              <button
+                onClick={() => setActiveTab('leaders')}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-all",
+                  activeTab === 'leaders'
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
+              >
+                <BarChart3 className="w-3 h-3" />
+                {uiText.leaderboardShort}
+              </button>
+            </div>
           </div>
         </div>
 
