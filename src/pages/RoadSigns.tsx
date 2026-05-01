@@ -195,10 +195,6 @@ export default function RoadSigns() {
     setVisibleCount(60);
   };
 
-  if (loading) {
-    return <PageLoader />;
-  }
-
   const openSearch = () => {
     setSearchOpen(true);
     setTimeout(() => searchInputRef.current?.focus(), 50);
@@ -208,6 +204,10 @@ export default function RoadSigns() {
     setSearchOpen(false);
     handleSearchChange("");
   };
+
+  if (loading) {
+    return <PageLoader />;
+  }
 
   return (
     <Layout>
