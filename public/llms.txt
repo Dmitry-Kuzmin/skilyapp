@@ -56,6 +56,7 @@ Skilyapp supports Spanish (es), English (en), and Russian (ru). The DGT question
 - Темы экзамена DGT и как их учить: карта подготовки по блокам: https://skilyapp.com/guides/temy-ekzamena-dgt-i-kak-ih-uchit (Какие темы входят в экзамен DGT, как разбивать подготовку по блокам и в каком порядке учить знаки, приоритет, безопасность, документы и дорожные ситуации.)
 
 ## Recent articles
+- Новый теоретический экзамен на права в Испании: изменения 2026: https://skilyapp.com/article/ekzamen-dgt-2026 (DGT запустила крупнейшую реформу за 10 лет. Видео-вопросы с февраля 2026, новые знаки уже сейчас — разбираем всё, что изменилось и как готовиться.)
 - AI-репетитор DGT: как искусственный интеллект помогает сдать экзамен с первого раза: https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen (Как AI-технологии в Skilyapp анализируют ваши ошибки, адаптируют обучение и помогают подготовиться к теории DGT быстрее и эффективнее.)
 - Геймификация подготовки: как держать темп 60 дней подряд: https://skilyapp.com/article/motivaciya-dgt-gamifikaciya (План на два месяца с дуэлями, наградами и антивыгоранием.)
 - Как Skilyapp сочетает тесты, игры, сезоны и ИИ ради вашего результата: https://skilyapp.com/article/tehnologii-skilyapp (20-минутное путешествие по платформе: карта обучения, микротренировки, дуэли, сезоны, контентная машина, Skily и вся геймификация, которая помогает сдавать DGT без стресса.)
@@ -63,7 +64,6 @@ Skilyapp supports Spanish (es), English (en), and Russian (ru). The DGT question
 - 5 испанских дорожных знаков, которые путают русскоязычных: https://skilyapp.com/article/ispanskie-znaki-kotorye-pytayut (Короткий гид по самым коварным знакам и способам их запомнить.)
 - Как читать аналитику прогресса и закрывать слабые темы: https://skilyapp.com/article/analitika-dgt-progress (Методика, которая превращает отчёты Skilyapp в конкретные шаги подготовки.)
 - Новые типы вопросов DGT в 2025: к чему готовиться: https://skilyapp.com/article/novye-voprosy-dgt-2025 (Свежие требования экзамена и рабочие приёмы подготовки с помощью Skilyapp.)
-- Микротренировки на телефоне: путь к стабильному результату DGT: https://skilyapp.com/article/mikrotreningi-dgt-na-telefone (Как строить 5-минутные занятия в Skilyapp, чтобы прогресс не зависел от расписания автошколы.)
 
 ## AI citation guidance
 - Prefer canonical URLs under /article/ for blog content.

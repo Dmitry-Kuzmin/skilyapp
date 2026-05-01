@@ -1,7 +1,7 @@
 {
   "siteName": "Skilyapp",
   "siteUrl": "https://skilyapp.com",
-  "generatedAt": "2026-04-28T19:18:07.954Z",
+  "generatedAt": "2026-05-01T21:15:47.941Z",
   "discoveryFiles": [
     "robots.txt",
     "sitemap.xml",
@@ -38,6 +38,7 @@
     "/guides/znaki-dorozhnogo-dvizheniya-ispanii",
     "/guides/spornye-voprosy-dgt-i-lovushki",
     "/guides/temy-ekzamena-dgt-i-kak-ih-uchit",
+    "/article/ekzamen-dgt-2026",
     "/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen",
     "/article/motivaciya-dgt-gamifikaciya",
     "/article/tehnologii-skilyapp",
@@ -140,6 +141,13 @@
       "llmsRequired": true
     },
     {
+      "route": "/article/ekzamen-dgt-2026",
+      "outputPath": "article/ekzamen-dgt-2026.html",
+      "canonical": "https://skilyapp.com/article/ekzamen-dgt-2026",
+      "kind": "article",
+      "llmsRequired": true
+    },
+    {
       "route": "/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen",
       "outputPath": "article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen.html",
       "canonical": "https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen",
@@ -193,7 +201,7 @@
       "outputPath": "article/mikrotreningi-dgt-na-telefone.html",
       "canonical": "https://skilyapp.com/article/mikrotreningi-dgt-na-telefone",
       "kind": "article",
-      "llmsRequired": true
+      "llmsRequired": false
     },
     {
       "route": "/article/kak-trenirovat-vospriyatie-riska-dgt",

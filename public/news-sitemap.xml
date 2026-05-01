@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+
+  <url>
+    <loc>https://skilyapp.com/article/ekzamen-dgt-2026</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Skilyapp Blog</news:name>
+        <news:language>ru</news:language>
+      </news:publication>
+      <news:publication_date>2026-05-01T00:00:00.000Z</news:publication_date>
+      <news:title>Новый теоретический экзамен на права в Испании: изменения 2026</news:title>
+      <news:keywords>новый, теоретический, экзамен, права, испании, изменения, 2026, запустила, крупнейшую, реформу, видео, вопросы</news:keywords>
+    </news:news>
+    <lastmod>2026-05-01</lastmod>
+  </url>
 </urlset>

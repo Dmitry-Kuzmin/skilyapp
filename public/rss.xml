@@ -5,13 +5,23 @@
     <link>https://skilyapp.com/blog</link>
     <description>Полезные статьи о подготовке к теоретическому экзамену DGT в Испании, обучении на русском языке и использовании Skilyapp.</description>
     <language>ru-RU</language>
-    <lastBuildDate>Tue, 28 Apr 2026 19:18:07 GMT</lastBuildDate>
+    <lastBuildDate>Fri, 01 May 2026 21:15:47 GMT</lastBuildDate>
     <atom:link href="https://skilyapp.com/rss.xml" rel="self" type="application/rss+xml"/>
     <image>
       <url>https://skilyapp.com/og-image.png</url>
       <title>Skilyapp Blog</title>
       <link>https://skilyapp.com/blog</link>
     </image>
+
+    <item>
+      <title>Новый теоретический экзамен на права в Испании: изменения 2026</title>
+      <link>https://skilyapp.com/article/ekzamen-dgt-2026</link>
+      <guid isPermaLink="true">https://skilyapp.com/article/ekzamen-dgt-2026</guid>
+      <description>DGT запустила крупнейшую реформу за 10 лет. Видео-вопросы с февраля 2026, новые знаки уже сейчас — разбираем всё, что изменилось и как готовиться.</description>
+      <pubDate>Fri, 01 May 2026 00:00:00 GMT</pubDate>
+      <category>DGT 2026</category>
+      <author>Дмитрий, основатель Skilyapp</author>
+    </item>
 
     <item>
       <title>AI-репетитор DGT: как искусственный интеллект помогает сдать экзамен с первого раза</title>

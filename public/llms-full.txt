@@ -31,6 +31,12 @@ URL: https://skilyapp.com/guides/temy-ekzamena-dgt-i-kak-ih-uchit
 Summary: Какие темы входят в экзамен DGT, как разбивать подготовку по блокам и в каком порядке учить знаки, приоритет, безопасность, документы и дорожные ситуации.
 
 ## Editorial content
+### Новый теоретический экзамен на права в Испании: изменения 2026
+URL: https://skilyapp.com/article/ekzamen-dgt-2026
+Published: 2026-05-01
+Category: DGT 2026
+Summary: DGT запустила крупнейшую реформу за 10 лет. Видео-вопросы с февраля 2026, новые знаки уже сейчас — разбираем всё, что изменилось и как готовиться.
+
 ### AI-репетитор DGT: как искусственный интеллект помогает сдать экзамен с первого раза
 URL: https://skilyapp.com/article/ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen
 Published: 2026-03-28
