@@ -283,6 +283,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           )}
 
+          {/* 5¾. BLOG WIDGET */}
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
+            <Suspense fallback={<ComponentSkeleton />}>
+              <BlogWidget />
+            </Suspense>
+          </div>
+
           {/* 6. EXAM READINESS */}
           <div className={cn(
             "transition-all duration-500 ease-in-out",
