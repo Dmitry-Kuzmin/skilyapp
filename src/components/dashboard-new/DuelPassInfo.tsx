@@ -18,8 +18,19 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
   const { openModal } = useModalRoute('duel-pass-season');
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
+  const { language } = useLanguage();
 
   const { data: duelPassData, loading } = useDuelPassInfo();
+
+  const ui = {
+    level:     language === 'es' ? 'Nivel'    : language === 'en' ? 'Level'     : 'Уровень',
+    toNext:    language === 'es' ? 'Al sig. nivel:' : language === 'en' ? 'To next level:' : 'До след. уровня:',
+    remaining: language === 'es' ? 'Quedan'   : language === 'en' ? 'Remaining' : 'Осталось',
+    duels:     language === 'es' ? 'Duelos'   : language === 'en' ? 'Duels'     : 'Дуэли',
+    days: (n: number) => language === 'es' ? `${n} día${n !== 1 ? 's' : ''}`
+      : language === 'en' ? `${n} day${n !== 1 ? 's' : ''}`
+      : `${n} ${n === 1 ? 'день' : n < 5 ? 'дня' : 'дней'}`,
+  };
 
   const handleClick = useCallback(() => {
     playClickSound();
