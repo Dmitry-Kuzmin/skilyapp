@@ -8,6 +8,7 @@ import { ExternalLink, MessageSquare, ChevronRight, BookOpen, Users, Building, C
 import { Separator } from '@/components/ui/separator';
 import { triggerHaptic } from '@/lib/haptics';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const SectionTitle: React.FC<{ title: string }> = ({ title }) => (
     <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">
@@ -51,6 +52,7 @@ const SettingRow: React.FC<{
 export const AboutTab: React.FC = () => {
     const navigate = useNavigate();
     const { closeSettings } = useSettingsStore();
+    const { t } = useLanguage();
 
     // Динамическая версия из глобальной переменной (обновляется при каждом деплое)
     const appVersion = (window as unknown as Record<string, string>)['APP_VERSION'] ?? '—';
@@ -64,36 +66,36 @@ export const AboutTab: React.FC = () => {
         <div className="space-y-6">
             {/* Ресурсы */}
             <div>
-                <SectionTitle title="Меню" />
+                <SectionTitle title={t('unifiedSettings.aboutKeys.menu')} />
                 <div className="space-y-1">
                     <SettingRow
                         icon={<BookOpen className="w-4 h-4 text-purple-500" />}
-                        label="Блог"
-                        description="Новости и статьи"
+                        label={t('unifiedSettings.aboutKeys.blog')}
+                        description={t('unifiedSettings.aboutKeys.blogDesc')}
                         onClick={() => handleNavigate('/blog')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
                     <SettingRow
                         icon={<Users className="w-4 h-4 text-blue-500" />}
-                        label="Партнеры"
-                        description="Стать партнером"
+                        label={t('unifiedSettings.aboutKeys.partners')}
+                        description={t('unifiedSettings.aboutKeys.partnersDesc')}
                         onClick={() => handleNavigate('/partners')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
                     <SettingRow
                         icon={<Building className="w-4 h-4 text-emerald-500" />}
-                        label="О нас"
-                        description="Наша миссия"
+                        label={t('unifiedSettings.aboutKeys.aboutProject')}
+                        description={t('unifiedSettings.aboutKeys.aboutProjectDesc')}
                         onClick={() => handleNavigate('/about')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
                     <SettingRow
                         icon={<Coins className="w-4 h-4 text-amber-500" />}
-                        label="Цены"
-                        description="Тарифы и планы"
+                        label={t('unifiedSettings.aboutKeys.pricing')}
+                        description={t('unifiedSettings.aboutKeys.pricingDesc')}
                         onClick={() => handleNavigate('/pricing')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -105,28 +107,28 @@ export const AboutTab: React.FC = () => {
 
             {/* Юридическая информация */}
             <div>
-                <SectionTitle title="Правовая информация" />
+                <SectionTitle title={t('unifiedSettings.aboutKeys.legal')} />
                 <div className="space-y-1">
                     <SettingRow
                         icon={<FileText className="w-4 h-4 text-slate-400" />}
-                        label="Конфиденциальность"
-                        description="Privacy Policy"
+                        label={t('unifiedSettings.aboutKeys.privacy')}
+                        description={t('unifiedSettings.aboutKeys.privacyDesc')}
                         onClick={() => handleNavigate('/legal/privacy')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
                     <SettingRow
                         icon={<FileText className="w-4 h-4 text-slate-400" />}
-                        label="Правила"
-                        description="Terms of Service"
+                        label={t('unifiedSettings.aboutKeys.terms')}
+                        description={t('unifiedSettings.aboutKeys.termsDesc')}
                         onClick={() => handleNavigate('/legal/terms')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
                     <SettingRow
                         icon={<FileText className="w-4 h-4 text-slate-400" />}
-                        label="Cookies"
-                        description="Cookie Settings"
+                        label={t('unifiedSettings.aboutKeys.cookies')}
+                        description={t('unifiedSettings.aboutKeys.cookiesDesc')}
                         onClick={() => handleNavigate('/legal/cookies')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -138,18 +140,18 @@ export const AboutTab: React.FC = () => {
 
             {/* Помощь */}
             <div>
-                <SectionTitle title="Помощь" />
+                <SectionTitle title={t('unifiedSettings.aboutKeys.help')} />
                 <div className="space-y-1">
                     <SettingRow
                         icon={<ExternalLink className="w-4 h-4 text-slate-400" />}
-                        label="Центр помощи"
+                        label={t('unifiedSettings.aboutKeys.helpCenter')}
                         onClick={() => handleNavigate('/help')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
                     </SettingRow>
                     <SettingRow
                         icon={<MessageSquare className="w-4 h-4 text-slate-400" />}
-                        label="Связаться с поддержкой"
+                        label={t('unifiedSettings.aboutKeys.contactSupport')}
                         onClick={() => window.open('https://t.me/skilyapp_bot', '_blank')}
                     >
                         <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -161,28 +163,28 @@ export const AboutTab: React.FC = () => {
 
             {/* Версия и обновления */}
             <div>
-                <SectionTitle title="Приложение" />
+                <SectionTitle title={t('unifiedSettings.aboutKeys.app')} />
                 <div className="space-y-1">
                     {/* Что нового */}
                     <SettingRow
                         icon={
                             <span className="text-base" role="img" aria-label="spark">✨</span>
                         }
-                        label="Что нового"
-                        description="История обновлений"
+                        label={t('unifiedSettings.aboutKeys.whatsNew')}
+                        description={t('unifiedSettings.aboutKeys.whatsNewDesc')}
                         onClick={() => handleNavigate('/help/changelog')}
                     >
                         <div className="flex items-center gap-2">
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-bold">
-                                NEW
+                                {t('unifiedSettings.aboutKeys.newBadge')}
                             </span>
                             <ChevronRight className="w-4 h-4 text-slate-400" />
                         </div>
                     </SettingRow>
 
                     {/* Текущая версия */}
-                    <SettingRow label="Версия" description={appVersion || '1.0.0-beta'}>
-                        <span className="text-xs text-slate-400">актуальная</span>
+                    <SettingRow label={t('unifiedSettings.aboutKeys.version')} description={appVersion || '1.0.0-beta'}>
+                        <span className="text-xs text-slate-400">{t('unifiedSettings.aboutKeys.versionCurrent')}</span>
                     </SettingRow>
                 </div>
             </div>

@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { CyberSwitch } from '../ui/CyberSwitch';
 import { Button } from '@/components/ui/button';
 import { useUserContext } from '@/contexts/UserContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
     isPushSupported,
     isPWAInstalled,
@@ -54,6 +55,7 @@ const SettingRow: React.FC<{
 export const NotificationsTab: React.FC = () => {
     const { duelNotifications, toggleDuelNotifications } = useSettingsStore();
     const { supabaseUser } = useUserContext();
+    const { t } = useLanguage();
     const userId = supabaseUser?.id;
 
     const [pushEnabled, setPushEnabled] = useState(false);
@@ -77,18 +79,23 @@ export const NotificationsTab: React.FC = () => {
     const handleDuelNotifications = () => {
         triggerHaptic('medium');
         toggleDuelNotifications();
-        toast.success(duelNotifications ? 'Уведомления о дуэлях выключены' : 'Уведомления о дуэлях включены', { duration: 1500 });
+        toast.success(
+            duelNotifications
+                ? t('unifiedSettings.notificationsKeys.duelNotificationsOff')
+                : t('unifiedSettings.notificationsKeys.duelNotificationsOn'),
+            { duration: 1500 }
+        );
     };
 
     const handlePushToggle = async () => {
         if (!userId) {
             console.error('Push toggle failed: No Supabase user ID found');
-            toast.error('Необходима авторизация');
+            toast.error(t('unifiedSettings.notificationsKeys.authRequired'));
             return;
         }
 
         if (!pushSupported) {
-            toast.error('Push-уведомления не поддерживаются');
+            toast.error(t('unifiedSettings.notificationsKeys.pushNotSupported'));
             return;
         }
 
@@ -100,7 +107,7 @@ export const NotificationsTab: React.FC = () => {
                 // Отключаем
                 await unsubscribeFromPush(userId);
                 setPushEnabled(false);
-                toast.success('Push-уведомления отключены');
+                toast.success(t('unifiedSettings.notificationsKeys.pushDisabled'));
             } else {
                 // Включаем
                 if (permission !== 'granted') {
@@ -108,14 +115,14 @@ export const NotificationsTab: React.FC = () => {
                     setPermission(newPermission);
 
                     if (newPermission !== 'granted') {
-                        toast.error('Разрешение на уведомления отклонено');
+                        toast.error(t('unifiedSettings.notificationsKeys.permissionDenied'));
                         return;
                     }
                 }
 
                 await subscribeToPush(userId);
                 setPushEnabled(true);
-                toast.success('Push-уведомления включены! 🎉');
+                toast.success(t('unifiedSettings.notificationsKeys.pushEnabled'));
 
                 // Отправляем тестовое уведомление
                 setTimeout(() => {
@@ -124,7 +131,7 @@ export const NotificationsTab: React.FC = () => {
             }
         } catch (error: any) {
             console.error('[NotificationsTab] Push toggle error:', error);
-            toast.error(error.message || 'Не удалось изменить настройки');
+            toast.error(error.message || t('unifiedSettings.notificationsKeys.settingsChangeFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -134,9 +141,9 @@ export const NotificationsTab: React.FC = () => {
         triggerHaptic('light');
         try {
             await sendTestNotification();
-            toast.success('Тестовое уведомление отправлено!');
+            toast.success(t('unifiedSettings.notificationsKeys.testSent'));
         } catch (error: any) {
-            toast.error(error.message || 'Не удалось отправить уведомление');
+            toast.error(error.message || t('unifiedSettings.notificationsKeys.testFailed'));
         }
     };
 
@@ -151,7 +158,7 @@ export const NotificationsTab: React.FC = () => {
             {/* Web Push (iOS/Android PWA) */}
             {pushSupported && (
                 <div>
-                    <SectionTitle title="Web Push (iOS/Android/Desktop)" />
+                    <SectionTitle title={t('unifiedSettings.notificationsKeys.webPushTitle')} />
 
                     {/* Статус PWA - показываем предупреждение ТОЛЬКО на iOS, если не установлено */}
                     {!pwaInstalled && isIOS && (
@@ -159,9 +166,9 @@ export const NotificationsTab: React.FC = () => {
                             <div className="flex items-start gap-2">
                                 <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                                 <div className="text-xs text-amber-700 dark:text-amber-400">
-                                    <p className="font-semibold mb-1">Добавьте приложение на экран «Домой»</p>
+                                    <p className="font-semibold mb-1">{t('unifiedSettings.notificationsKeys.pwaInstallTitle')}</p>
                                     <p className="text-amber-600 dark:text-amber-500">
-                                        Для получения уведомлений на iOS нажмите <strong>Поделиться</strong> → <strong>На экран «Домой»</strong>
+                                        {t('unifiedSettings.notificationsKeys.pwaInstallDesc')}
                                     </p>
                                 </div>
                             </div>
@@ -171,13 +178,13 @@ export const NotificationsTab: React.FC = () => {
                     <div className="space-y-1">
                         <SettingRow
                             icon={pushEnabled ? <Smartphone className="w-4 h-4 text-emerald-500" /> : <Smartphone className="w-4 h-4 text-slate-400" />}
-                            label="Push-уведомления"
+                            label={t('unifiedSettings.notificationsKeys.pushLabel')}
                             description={
                                 pushEnabled
-                                    ? "Активно • Вы получаете уведомления"
+                                    ? t('unifiedSettings.notificationsKeys.pushActiveDesc')
                                     : (isIOS && !pwaInstalled)
-                                        ? "Требуется установка PWA (iOS)"
-                                        : "Включите для получения уведомлений"
+                                        ? t('unifiedSettings.notificationsKeys.pushPwaRequired')
+                                        : t('unifiedSettings.notificationsKeys.pushEnableDesc')
                             }
                         >
                             <CyberSwitch
@@ -195,7 +202,7 @@ export const NotificationsTab: React.FC = () => {
                                     onClick={handleTestNotification}
                                     className="h-8 text-xs"
                                 >
-                                    🧪 Отправить тестовое уведомление
+                                    {t('unifiedSettings.notificationsKeys.testButton')}
                                 </Button>
                             </div>
                         )}
@@ -205,12 +212,12 @@ export const NotificationsTab: React.FC = () => {
 
             {/* Настройки уведомлений */}
             <div>
-                <SectionTitle title="Настройки уведомлений" />
+                <SectionTitle title={t('unifiedSettings.notificationsKeys.settingsTitle')} />
                 <div className="space-y-1">
                     <SettingRow
                         icon={duelNotifications ? <Bell className="w-4 h-4 text-amber-500" /> : <BellOff className="w-4 h-4 text-slate-400" />}
-                        label="Уведомления о дуэлях"
-                        description="Вызовы, результаты, награды"
+                        label={t('unifiedSettings.notificationsKeys.duelLabel')}
+                        description={t('unifiedSettings.notificationsKeys.duelDesc')}
                     >
                         <CyberSwitch
                             checked={duelNotifications}
@@ -220,28 +227,28 @@ export const NotificationsTab: React.FC = () => {
 
                     <SettingRow
                         icon={<Bell className="w-4 h-4 text-slate-400" />}
-                        label="Напоминания об обучении"
-                        description="Ежедневные напоминания"
+                        label={t('unifiedSettings.notificationsKeys.remindersLabel')}
+                        description={t('unifiedSettings.notificationsKeys.remindersDesc')}
                     >
                         <CyberSwitch
                             checked={false}
                             onCheckedChange={() => {
                                 triggerHaptic('warning');
-                                toast.info('Скоро!');
+                                toast.info(t('unifiedSettings.notificationsKeys.comingSoon'));
                             }}
                         />
                     </SettingRow>
 
                     <SettingRow
                         icon={<Mail className="w-4 h-4 text-slate-400" />}
-                        label="Email-рассылка"
-                        description="Новости и обновления"
+                        label={t('unifiedSettings.notificationsKeys.emailLabel')}
+                        description={t('unifiedSettings.notificationsKeys.emailDesc')}
                     >
                         <CyberSwitch
                             checked={false}
                             onCheckedChange={() => {
                                 triggerHaptic('warning');
-                                toast.info('Скоро!');
+                                toast.info(t('unifiedSettings.notificationsKeys.comingSoon'));
                             }}
                         />
                     </SettingRow>
