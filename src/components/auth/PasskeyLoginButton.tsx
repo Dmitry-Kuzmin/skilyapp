@@ -13,6 +13,7 @@ import { loginWithPasskey, isPasskeySupported, isPlatformAuthenticatorAvailable 
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { PASSKEY_ENABLED } from '@/lib/feature-flags';
 
 interface PasskeyLoginButtonProps {
   onSuccess?: () => void;
