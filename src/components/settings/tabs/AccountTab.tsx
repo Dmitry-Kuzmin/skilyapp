@@ -22,6 +22,10 @@ import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { PASSKEY_ENABLED } from '@/lib/feature-flags';
 
+const PasskeyManager = PASSKEY_ENABLED
+  ? require('@/components/auth/PasskeyManager').PasskeyManager
+  : null;
+
 // Google icon
 const GoogleIcon = () => (
     <svg className="w-4 h-4" viewBox="0 0 24 24">
