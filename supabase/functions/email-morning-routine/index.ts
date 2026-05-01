@@ -77,6 +77,15 @@ const i18n: Record<Lang, {
   unsubText: string;
   greeting: (name?: string) => string;
   intro: string;
+  questsTitle: string;
+  questsSubtitle: string;
+  seasonTitle: string;
+  seasonSubtitle: (name: string, days: number) => string;
+  seasonCta: string;
+  seasonPrize1: string;
+  seasonPrize2: string;
+  seasonPrize3: string;
+  questTargets: Record<string, (val: number) => string>;
 }> = {
   es: {
     subject: '🚗 Tu quiz DGT del día — 3 preguntas nuevas',
@@ -89,6 +98,22 @@ const i18n: Record<Lang, {
     unsubText: 'No quieres recibir estos emails',
     greeting: (name) => name ? `¡Hola, ${name}!` : '¡Hola!',
     intro: 'Aquí tienes tus 3 preguntas de hoy. Piénsalas y luego comprueba las respuestas en la app.',
+    questsTitle: '🎯 Misiones de hoy',
+    questsSubtitle: 'Completa las misiones y gana SP para el ranking de la temporada',
+    seasonTitle: '🏆 Temporada activa',
+    seasonSubtitle: (name, days) => `${name} · Quedan ${days} días`,
+    seasonCta: 'Ver mis recompensas →',
+    seasonPrize1: '1er lugar: Premium gratis',
+    seasonPrize2: '2do lugar: 500 monedas',
+    seasonPrize3: '3er lugar: 250 monedas',
+    questTargets: {
+      tests_completed: (v) => `Completa ${v} tests hoy`,
+      tests_perfect:   (v) => `${v} tests sin errores`,
+      questions_answered: (v) => `Responde ${v} preguntas`,
+      sp_earned:       (v) => `Gana ${v} SP hoy`,
+      duels_won:       (v) => `Gana ${v} duelos`,
+      duels_played:    (v) => `Juega ${v} duelos`,
+    },
   },
   ru: {
     subject: '🚗 Твои 3 вопроса DGT на сегодня',
@@ -101,6 +126,22 @@ const i18n: Record<Lang, {
     unsubText: 'Отписаться от рассылки',
     greeting: (name) => name ? `Привет, ${name}!` : 'Привет!',
     intro: 'Вот твои 3 вопроса на сегодня. Подумай — потом проверь ответы в приложении.',
+    questsTitle: '🎯 Задачи на сегодня',
+    questsSubtitle: 'Выполни задачи и заработай SP для рейтинга сезона',
+    seasonTitle: '🏆 Активный сезон',
+    seasonSubtitle: (name, days) => `${name} · Осталось ${days} дней`,
+    seasonCta: 'Посмотреть награды →',
+    seasonPrize1: '1 место: Premium бесплатно',
+    seasonPrize2: '2 место: 500 монет',
+    seasonPrize3: '3 место: 250 монет',
+    questTargets: {
+      tests_completed: (v) => `Пройди ${v} тестов`,
+      tests_perfect:   (v) => `${v} тестов без ошибок`,
+      questions_answered: (v) => `Ответь на ${v} вопросов`,
+      sp_earned:       (v) => `Набери ${v} SP за день`,
+      duels_won:       (v) => `Выиграй ${v} дуэлей`,
+      duels_played:    (v) => `Сыграй ${v} дуэлей`,
+    },
   },
   en: {
     subject: '🚗 Your 3 DGT questions for today',
@@ -113,14 +154,44 @@ const i18n: Record<Lang, {
     unsubText: 'Unsubscribe from these emails',
     greeting: (name) => name ? `Hi, ${name}!` : 'Hi!',
     intro: 'Here are your 3 questions for today. Think them through, then check answers in the app.',
+    questsTitle: '🎯 Today\'s missions',
+    questsSubtitle: 'Complete missions to earn SP and climb the season leaderboard',
+    seasonTitle: '🏆 Active season',
+    seasonSubtitle: (name, days) => `${name} · ${days} days left`,
+    seasonCta: 'View rewards →',
+    seasonPrize1: '1st place: Premium free',
+    seasonPrize2: '2nd place: 500 coins',
+    seasonPrize3: '3rd place: 250 coins',
+    questTargets: {
+      tests_completed: (v) => `Complete ${v} tests`,
+      tests_perfect:   (v) => `${v} perfect tests`,
+      questions_answered: (v) => `Answer ${v} questions`,
+      sp_earned:       (v) => `Earn ${v} SP today`,
+      duels_won:       (v) => `Win ${v} duels`,
+      duels_played:    (v) => `Play ${v} duels`,
+    },
   },
 };
 
 // ── HTML Email Builder ──────────────────────────────────────────────────────
 interface Question {
+  id: string;
   text: string;
   image_url: string | null;
   options: string[];
+}
+
+interface DailyQuest {
+  title: string;
+  reward_sp: number;
+  reward_coins: number;
+  target_type: string;
+  target_value: number;
+}
+
+interface SeasonInfo {
+  name: string;
+  days_remaining: number;
 }
 
 function buildEmailHtml(
