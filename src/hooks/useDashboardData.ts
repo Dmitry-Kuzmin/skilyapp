@@ -137,6 +137,17 @@ interface DashboardStats {
     event_type: string;
     created_at: string;
   }>;
+  // DuelPass modal data (added in v2.2 — eliminates 3 extra queries on modal open)
+  season_rewards?: Array<{
+    id: string;
+    season_id: number;
+    level: number;
+    sp_required: number;
+    free_reward: { type: string; amount?: number; id?: string } | null;
+    premium_reward: { type: string; amount?: number; id?: string } | null;
+  }>;
+  claimed_season_records?: Array<{ level: number; is_premium: boolean }>;
+  has_premium_forever?: boolean;
 }
 
 interface DashboardData extends DashboardStats {
