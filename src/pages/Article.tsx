@@ -26,6 +26,18 @@ interface ArticleData {
 }
 
 const articles: Record<string, ArticleData> = {
+  "ekzamen-dgt-2026": {
+    slug: "ekzamen-dgt-2026",
+    title: "Новый теоретический экзамен на права в Испании: изменения 2026",
+    description: "DGT запустила крупнейшую реформу за 10 лет. Видео-вопросы с февраля 2026, новые знаки уже сейчас — разбираем всё, что изменилось и как готовиться.",
+    category: "DGT 2026",
+    categorySlug: "dgt-2026",
+    author: "Дмитрий, основатель Skilyapp",
+    publishedAt: "2026-05-01",
+    readTime: 18,
+    content: "",
+    customContent: <Dgt2026ArticleContent />,
+  },
   "novye-voprosy-dgt-2025": {
     slug: "novye-voprosy-dgt-2025",
     title: "Новые типы вопросов DGT в 2025: к чему готовиться",
