@@ -56,26 +56,30 @@ class PerformanceMonitor {
       // Fallback для старых браузеров
     }
 
-    // Мониторинг Resource Timing
-    try {
-      const resourceObserver = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (entry.entryType === 'resource') {
-            const resourceEntry = entry as PerformanceResourceTiming;
-            if (resourceEntry.duration > 1000) {
-              console.warn('[Performance] Slow resource:', {
-                name: resourceEntry.name,
-                duration: resourceEntry.duration,
-                type: resourceEntry.initiatorType,
-              });
+    // Мониторинг Resource Timing (только в dev, только реальные ресурсы)
+    if (import.meta.env.DEV) {
+      try {
+        const resourceObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.entryType === 'resource') {
+              const resourceEntry = entry as PerformanceResourceTiming;
+              // Пропускаем source maps — они загружаются только DevTools и не влияют на UX
+              if (resourceEntry.name.endsWith('.map')) continue;
+              if (resourceEntry.duration > 3000) {
+                console.warn('[Performance] Slow resource:', {
+                  name: resourceEntry.name,
+                  duration: Math.round(resourceEntry.duration),
+                  type: resourceEntry.initiatorType,
+                });
+              }
             }
           }
-        }
-      });
-      resourceObserver.observe({ entryTypes: ['resource'] });
-      this.observers.push(resourceObserver);
-    } catch (e) {
-      // Fallback
+        });
+        resourceObserver.observe({ entryTypes: ['resource'] });
+        this.observers.push(resourceObserver);
+      } catch (e) {
+        // Fallback
+      }
     }
   }
 
