@@ -472,92 +472,92 @@ serve(async (req) => {
 
     const seasonId = activeSeason?.id;
 
-    // Получаем профили (без JOIN, чтобы избежать проблем с сортировкой)
-    let profilesQuery = supabase
-      .from("profiles")
-      .select(`
-        id,
-        first_name,
-        username,
-        photo_url,
-        duel_pass_level,
-        duel_pass_xp
-      `, { count: "exact" })
-      .not("duel_pass_level", "is", null);
-
-    // Применяем фильтр по пользователям, если есть
-    if (filteredUserIds) {
-      profilesQuery = profilesQuery.in("id", filteredUserIds);
-    }
-
-    // Сначала получаем все профили для сортировки по SP
-    // Временное решение: сортируем по уровню и XP, затем загрузим SP и пересортируем
-    const { data: allProfiles, error: allProfilesError } = await profilesQuery
-      .order("duel_pass_level", { ascending: false })
-      .order("duel_pass_xp", { ascending: false });
-
-    if (allProfilesError) {
-      console.error("[duel-pass-leaderboard] Error loading all profiles:", allProfilesError);
+    // ПРАВИЛЬНАЯ ЛОГИКА СЕЗОННОГО ЛИДЕРБОРДА:
+    // Базовая таблица — user_season_progress (только реальные участники текущего сезона),
+    // а не profiles (все зарегистрированные пользователи).
+    // Участник сезона = тот, у кого есть запись для текущего season_id с season_points > 0.
+    if (!seasonId) {
+      console.log("[duel-pass-leaderboard] No active season found");
       return new Response(
-        JSON.stringify({
-          error: "Failed to load leaderboard",
-          details: allProfilesError.message || String(allProfilesError)
-        }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!allProfiles || allProfiles.length === 0) {
-      console.log("[duel-pass-leaderboard] No profiles found");
-      return new Response(
-        JSON.stringify({ leaderboard: [] }),
+        JSON.stringify({ leaderboard: [], pagination: { page, page_size: pageSize, total: 0, total_pages: 0 } }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Загружаем SP для всех пользователей
-    const seasonProgressMap = new Map<string, { season_points: number; level: number }>();
-    if (seasonId) {
-      const userIds = allProfiles.map((p) => p.id);
-      const { data: seasonProgress, error: spError } = await supabase
-        .from("user_season_progress")
-        .select("user_id, season_points, level")
-        .eq("season_id", seasonId)
-        .in("user_id", userIds);
+    // Загружаем прогресс участников текущего сезона (только те, кто реально играл)
+    let spQuery = supabase
+      .from("user_season_progress")
+      .select("user_id, season_points, level", { count: "exact" })
+      .eq("season_id", seasonId)
+      .gt("season_points", 0); // только активные участники (SP > 0)
 
-      if (!spError && seasonProgress) {
-        seasonProgress.forEach((sp: any) => {
-          seasonProgressMap.set(sp.user_id, {
-            season_points: sp.season_points || 0,
-            level: sp.level || 1
-          });
-        });
-      }
+    // Применяем фильтр по пользователям, если есть (friends/country)
+    if (filteredUserIds) {
+      spQuery = spQuery.in("user_id", filteredUserIds);
     }
 
-    // Сортируем исключительно по SP текущего сезона (season_points, затем season level)
-    allProfiles.sort((a, b) => {
-      const aSP = seasonProgressMap.get(a.id);
-      const bSP = seasonProgressMap.get(b.id);
+    const { data: allSeasonProgress, count: spCount, error: spError } = await spQuery
+      .order("season_points", { ascending: false })
+      .order("level", { ascending: false });
 
-      const aPoints = aSP?.season_points ?? 0;
-      const bPoints = bSP?.season_points ?? 0;
+    if (spError) {
+      console.error("[duel-pass-leaderboard] Error loading season progress:", spError);
+      return new Response(
+        JSON.stringify({ error: "Failed to load leaderboard", details: spError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-      if (bPoints !== aPoints) {
-        return bPoints - aPoints;
-      }
+    if (!allSeasonProgress || allSeasonProgress.length === 0) {
+      console.log("[duel-pass-leaderboard] No season participants found");
+      return new Response(
+        JSON.stringify({ leaderboard: [], pagination: { page, page_size: pageSize, total: 0, total_pages: 0 } }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-      // Тайbreaker: season level, then eternal level
-      const aLevel = aSP?.level ?? a.duel_pass_level ?? 1;
-      const bLevel = bSP?.level ?? b.duel_pass_level ?? 1;
-      return bLevel - aLevel;
+    // Строим seasonProgressMap из уже загруженных данных
+    const seasonProgressMap = new Map<string, { season_points: number; level: number }>();
+    allSeasonProgress.forEach((sp: any) => {
+      seasonProgressMap.set(sp.user_id, { season_points: sp.season_points || 0, level: sp.level || 1 });
     });
 
-    // Применяем пагинацию
+    // Применяем пагинацию к отсортированному списку участников
     const from = (page - 1) * pageSize;
     const to = from + pageSize;
-    const profiles = allProfiles.slice(from, to);
-    const count = allProfiles.length;
+    const pageSeasonProgress = allSeasonProgress.slice(from, to);
+    const count = spCount ?? allSeasonProgress.length;
+
+    // Загружаем профили только для участников текущей страницы
+    const pageUserIds = pageSeasonProgress.map((sp: any) => sp.user_id);
+    const { data: profilesData, error: profilesError } = await supabase
+      .from("profiles")
+      .select("id, first_name, username, photo_url, duel_pass_level, duel_pass_xp")
+      .in("id", pageUserIds);
+
+    if (profilesError) {
+      console.error("[duel-pass-leaderboard] Error loading profiles:", profilesError);
+      return new Response(
+        JSON.stringify({ error: "Failed to load profiles", details: profilesError.message }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Маппинг профилей по user_id
+    const profilesMap = new Map((profilesData || []).map((p: any) => [p.id, p]));
+
+    // Собираем итоговый список профилей в правильном порядке (SP desc)
+    const profiles = pageSeasonProgress.map((sp: any) => {
+      const profile = profilesMap.get(sp.user_id);
+      return {
+        id: sp.user_id,
+        first_name: profile?.first_name ?? null,
+        username: profile?.username ?? null,
+        photo_url: profile?.photo_url ?? null,
+        duel_pass_level: profile?.duel_pass_level ?? 1,
+        duel_pass_xp: profile?.duel_pass_xp ?? 0,
+      };
+    });
 
     console.log("[duel-pass-leaderboard] Found", profiles.length, "profiles (page", page, "of", Math.ceil(count / pageSize), ")");
     const userIds = profiles.map((p) => p.id);
