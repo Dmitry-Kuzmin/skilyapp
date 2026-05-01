@@ -21,17 +21,38 @@ interface LazyImageProps extends ImgHTMLAttributes<HTMLImageElement> {
   height?: number;
 }
 
+// Encode special chars in wikimedia URLs (ñ, á, etc.) that cause 400 errors
+function encodeWikimediaUrl(url: string): string {
+  if (!url.includes('wikimedia.org')) return url;
+  try {
+    const u = new URL(url);
+    // Re-encode each path segment individually, preserving slashes
+    u.pathname = u.pathname.split('/').map((seg) => {
+      // Already encoded segments won't double-encode
+      try { decodeURIComponent(seg); } catch { return seg; }
+      return encodeURIComponent(decodeURIComponent(seg));
+    }).join('/');
+    return u.toString();
+  } catch {
+    return url;
+  }
+}
+
+// SVG placeholder shown when image fails to load
+const SIGN_PLACEHOLDER = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="8" fill="%23334155" opacity="0.4"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="32" fill="%2394a3b8">🚧</text></svg>')}`;
+
 export const LazyImage = memo(function LazyImage({
   src,
   alt,
-  placeholder = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"%3E%3C/svg%3E',
+  placeholder = SIGN_PLACEHOLDER,
   className,
   onLoad,
   onError,
   priority = false,
   ...props
 }: LazyImageProps) {
-  const [imageSrc, setImageSrc] = useState<string>(priority ? src : placeholder);
+  const encodedSrc = encodeWikimediaUrl(src);
+  const [imageSrc, setImageSrc] = useState<string>(priority ? encodedSrc : placeholder);
   const [isLoaded, setIsLoaded] = useState(priority);
   const [hasError, setHasError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);

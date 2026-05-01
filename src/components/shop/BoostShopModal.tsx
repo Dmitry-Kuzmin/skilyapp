@@ -112,6 +112,10 @@ const PLAN_TO_CATALOG: Record<string, string> = {
   lifetime: "premium_lifetime",
 };
 
+const BOOST_GRID_STYLE = {
+  gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr))",
+};
+
 interface BoostShopModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -1615,6 +1619,14 @@ export function BoostShopModal({
     return [];
   }, [premiumBoosts, categoryFilter]);
 
+  const visibleBoosts = useMemo(() => {
+    if (categoryFilter === "premium") {
+      return filteredPremiumBoosts;
+    }
+
+    return filteredRegularBoosts;
+  }, [categoryFilter, filteredPremiumBoosts, filteredRegularBoosts]);
+
   // Контент модалки
   const ModalContent = () => {
     return (
@@ -1704,7 +1716,7 @@ export function BoostShopModal({
               className="flex-1 overflow-y-auto p-3 md:p-4 space-y-4 m-0 data-[state=inactive]:hidden outline-none scrollbar-hide min-h-0"
             >
               {/* Фильтры категорий */}
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide sm:flex-wrap sm:overflow-visible">
                 {[
                   { value: "all", label: "ALL SOFTWARE", icon: Zap },
                   {
@@ -1761,20 +1773,18 @@ export function BoostShopModal({
               </div>
 
               {/* Grid Layout для бустов */}
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:gap-4 gap-2.5 md:gap-3">
-                {boosts
-                  .filter((b: any) =>
-                    categoryFilter === "all"
-                      ? true
-                      : getBoostCategory(b.type) === categoryFilter,
-                  )
-                  .map((boost: any) => (
+              <div
+                className="grid auto-rows-fr items-stretch gap-2.5 md:gap-3 xl:gap-4"
+                style={BOOST_GRID_STYLE}
+              >
+                {visibleBoosts.map((boost: any) => (
                     <BoostCard
                       key={boost.id}
                       boost={boost}
                       onPurchase={() => handlePurchase(boost)}
                       coins={coins}
                       inventoryCount={getInventoryCount(boost.type)}
+                      isPremium={boost.is_premium}
                     />
                   ))}
               </div>
@@ -2640,4 +2650,3 @@ export function BoostShopModal({
     </>
   );
 }
-

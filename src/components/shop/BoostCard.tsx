@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Coins, Lock, Zap, Timer, Lightbulb, SkipForward, Globe } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { cn } from '@/lib/utils';
 
 interface Boost {
   type: string;
@@ -52,61 +53,71 @@ export function BoostCard({ boost, inventoryCount, coins, onPurchase, isPremium 
   const displayDescription = getTranslatedValue('description', boost.description_ru);
 
   return (
-    <div className={`
-      flex items-center gap-3 p-3 rounded-lg border transition-all
-      ${isPremium ? 'bg-gold/5 border-gold/30' : 'bg-card border-border/50 hover:border-border'}
-      hover:shadow-sm
-    `}>
-      {/* Icon */}
-      <div className={`
-        w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
-        ${isPremium ? 'bg-gold/20' : colorClass}
-      `}>
-        <Icon className={`w-5 h-5 ${isPremium ? 'text-gold' : ''}`} />
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
-          <h4 className="font-semibold text-sm truncate">{displayName}</h4>
-          {/* Индикатор количества - всегда показываем, даже если 0, для консистентности */}
-          <Badge 
-            variant="outline" 
-            className={`text-xs px-1.5 py-0 min-w-[20px] text-center ${
-              inventoryCount > 0 
-                ? 'border-success/50 text-success bg-success/10' 
-                : 'border-muted-foreground/30 text-muted-foreground bg-muted/30'
-            }`}
-          >
-            {inventoryCount}
-          </Badge>
-          {isPremium && (
-            <Badge className="gradient-gold border-none text-xs px-1.5 py-0">
-              {t('boostShop.sections.premiumBadge')}
-            </Badge>
+    <div
+      className={cn(
+        "h-full min-w-0 rounded-xl border p-3 transition-all duration-200",
+        "flex flex-col gap-3",
+        "hover:-translate-y-0.5 hover:shadow-md",
+        isPremium
+          ? "bg-gold/5 border-gold/30 shadow-[0_8px_24px_-18px_rgba(250,204,21,0.45)]"
+          : "bg-card border-border/50 hover:border-border",
+      )}
+    >
+      <div className="flex items-start gap-3 min-w-0">
+        <div
+          className={cn(
+            "w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border",
+            isPremium ? "bg-gold/20 border-gold/30" : colorClass,
           )}
+        >
+          <Icon className={cn("w-5 h-5", isPremium && "text-gold")} />
         </div>
-        <p className="text-xs text-muted-foreground line-clamp-1">{displayDescription}</p>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-start gap-1.5 mb-1.5">
+            <h4 className="min-w-0 flex-1 text-sm font-semibold leading-tight line-clamp-2">
+              {displayName}
+            </h4>
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-[11px] px-1.5 py-0 min-w-[22px] justify-center shrink-0",
+                inventoryCount > 0
+                  ? "border-success/50 text-success bg-success/10"
+                  : "border-muted-foreground/30 text-muted-foreground bg-muted/30",
+              )}
+            >
+              {inventoryCount}
+            </Badge>
+            {isPremium && (
+              <Badge className="gradient-gold border-none text-[10px] px-1.5 py-0 shrink-0">
+                {t('boostShop.sections.premiumBadge')}
+              </Badge>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 min-h-[2.5rem]">
+            {displayDescription}
+          </p>
+        </div>
       </div>
 
-      {/* Price & Buy Button */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <div className="flex items-center gap-1">
-          <Coins className={`w-4 h-4 ${canAfford ? 'text-gold' : 'text-muted-foreground'}`} />
-          <span className={`text-sm font-semibold ${canAfford ? '' : 'text-muted-foreground'}`}>
+      <div className="mt-auto flex items-center justify-between gap-3 border-t border-border/40 pt-3">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <Coins className={cn("w-4 h-4 shrink-0", canAfford ? 'text-gold' : 'text-muted-foreground')} />
+          <span className={cn("text-sm font-semibold", !canAfford && 'text-muted-foreground')}>
             {boost.cost_coins}
           </span>
         </div>
-        
+
         <Button
           size="sm"
           onClick={onPurchase}
           disabled={!canAfford || isPremium}
-          className={`
-            h-8 px-3 text-xs
-            ${isPremium ? 'bg-gold/10 hover:bg-gold/20 text-gold border-gold/30' : ''}
-            ${!canAfford && !isPremium ? 'opacity-50' : ''}
-          `}
+          className={cn(
+            "h-9 min-w-[88px] px-3 text-xs font-semibold shrink-0",
+            isPremium && "bg-gold/10 hover:bg-gold/20 text-gold border-gold/30",
+            !canAfford && !isPremium && "opacity-50",
+          )}
           variant={isPremium ? 'outline' : 'default'}
         >
           {isPremium ? (
