@@ -140,6 +140,8 @@ export function DuelPassLeaderboardView({
     total_pages: 0,
   });
   const [showMyPosition, setShowMyPosition] = useState(false);
+  // null = ещё не загружено, 0 = не участвовал в сезоне, >0 = участник
+  const [userSeasonPoints, setUserSeasonPoints] = useState<number | null>(null);
 
   // Кэшируем ID и дату активного сезона, чтобы не дергать базу при каждой смене вкладки/страницы
   // ОПТИМИЗАЦИЯ СКОРОСТИ
@@ -157,10 +159,23 @@ export function DuelPassLeaderboardView({
         setActiveSeasonId(activeSeason.id);
         setSeasonEndDate(activeSeason.end_date);
         setTimeLeft(calculateTimeLeft(activeSeason.end_date));
+
+        // Параллельно грузим SP текущего пользователя для этого сезона
+        if (profileId) {
+          const { data: spData } = await supabase
+            .from("user_season_progress")
+            .select("season_points")
+            .eq("season_id", activeSeason.id)
+            .eq("user_id", profileId)
+            .single();
+          setUserSeasonPoints(spData?.season_points ?? 0);
+        } else {
+          setUserSeasonPoints(0);
+        }
       }
     };
     fetchActiveSeason();
-  }, []);
+  }, [profileId]);
 
   // Загрузка топ-10
   const loadTopLeaderboard = async (page: number = 1) => {
