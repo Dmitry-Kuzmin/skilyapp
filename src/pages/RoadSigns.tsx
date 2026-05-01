@@ -232,7 +232,7 @@ export default function RoadSigns() {
               <Input
                 placeholder="Buscar por nombre, número o descripción..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-12 pr-12 h-14 text-lg border-2 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
               />
               {searchTerm && (
