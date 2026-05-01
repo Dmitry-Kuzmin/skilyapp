@@ -423,9 +423,58 @@ const DashboardContent = memo(function DashboardContent() {
           {/* Поднимаем шторку только когда данные загружены или показан скелетон */}
           {!loading && <StartupCurtain />}
 
-
         </Layout>
       </Suspense>
+
+      {/* ── Morning Quiz Answer Modal (из email) ── */}
+      {morningQuizAnswer && (
+        <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMorningQuizAnswer(null)} />
+          <div className="relative w-full sm:max-w-lg bg-card border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+            {/* Handle */}
+            <div className="sticky top-0 bg-card z-10 pt-3 pb-2 flex justify-center border-b border-border/50">
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+            </div>
+            <div className="p-5 space-y-4">
+              {/* Image */}
+              {morningQuizAnswer.image_url && (
+                <img src={morningQuizAnswer.image_url} alt="" className="w-full rounded-xl object-cover max-h-48" />
+              )}
+              {/* Question */}
+              <p className="font-semibold text-base leading-snug">{morningQuizAnswer.text}</p>
+              {/* Options */}
+              <div className="space-y-2">
+                {morningQuizAnswer.options.map((opt, i) => (
+                  <div key={i} className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-sm transition-colors ${
+                    opt.is_correct
+                      ? 'bg-green-500/15 border-green-500/40 text-green-400 font-semibold'
+                      : 'bg-muted/40 border-border text-muted-foreground'
+                  }`}>
+                    <span className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold shrink-0 ${
+                      opt.is_correct ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {String.fromCharCode(65 + i)}
+                    </span>
+                    {opt.text}
+                  </div>
+                ))}
+              </div>
+              {/* Explanation */}
+              {morningQuizAnswer.explanation && (
+                <div className="p-3 rounded-xl bg-primary/8 border border-primary/20 text-sm text-muted-foreground leading-relaxed">
+                  💡 {morningQuizAnswer.explanation}
+                </div>
+              )}
+              <button
+                onClick={() => setMorningQuizAnswer(null)}
+                className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold text-sm"
+              >
+                Понятно
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 });
