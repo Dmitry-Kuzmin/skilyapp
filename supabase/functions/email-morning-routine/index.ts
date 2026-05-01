@@ -664,14 +664,30 @@ serve(async (req) => {
 
     const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
 
-    // Кэшируем вопросы по языку — не генерируем заново для каждого пользователя
+    // Кэшируем вопросы/квесты/сезон по языку — не генерируем заново для каждого пользователя
     const questionsCache = new Map<Lang, Question[]>();
+    const questsCache    = new Map<Lang, DailyQuest[]>();
+    const seasonCache    = new Map<Lang, SeasonInfo | null>();
 
     const getQuestions = async (lang: Lang): Promise<Question[]> => {
       if (questionsCache.has(lang)) return questionsCache.get(lang)!;
       const qs = await loadDailyQuestions(supabase, lang);
       questionsCache.set(lang, qs);
       return qs;
+    };
+
+    const getQuests = async (lang: Lang): Promise<DailyQuest[]> => {
+      if (questsCache.has(lang)) return questsCache.get(lang)!;
+      const qs = await loadDailyQuests(supabase, lang);
+      questsCache.set(lang, qs);
+      return qs;
+    };
+
+    const getSeason = async (lang: Lang): Promise<SeasonInfo | null> => {
+      if (seasonCache.has(lang)) return seasonCache.get(lang)!;
+      const s = await loadSeasonInfo(supabase, lang);
+      seasonCache.set(lang, s);
+      return s;
     };
 
     let sent = 0, skipped = 0, failed = 0;
