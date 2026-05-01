@@ -102,18 +102,9 @@ export const LazyImage = memo(function LazyImage({
       // Если не указаны в props, используем aspect-ratio через CSS
       width={props.width}
       height={props.height}
-      referrerPolicy="no-referrer"
-      onError={(e) => {
-        const target = e.target as HTMLImageElement;
-        if (target.src.includes('wikimedia') && !hasError) {
-          // Try to use original SVG instead of thumb if thumb fails
-          const original = target.src.replace(/\/thumb\//, '/').replace(/\/[^/]+$/, '');
-          if (original !== target.src) {
-            target.src = original;
-            return;
-          }
-        }
+      onError={() => {
         setHasError(true);
+        setImageSrc(SIGN_PLACEHOLDER);
         onError?.();
       }}
       style={{
