@@ -101,7 +101,7 @@ export default function RoadSigns() {
         setSigns(signsData || []);
       }
     } catch (error: any) {
-      if (error?.name === 'AbortError') return; // Игнорируем отмененные запросы
+      if (error?.name === 'AbortError' || error?.code === '20' || error?.message?.includes('AbortError')) return;
       if (import.meta.env.DEV) {
         console.error('Error fetching road signs:', error);
       }
