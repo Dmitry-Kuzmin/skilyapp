@@ -114,7 +114,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
           />
         </div>
         <p className={`text-[10px] ${textSecondaryClass} leading-tight`}>
-          До след. уровня: <span className={`${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'} font-semibold`}>{duelPassData.nextLevelSP} SP</span>
+          {ui.toNext} <span className={`${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'} font-semibold`}>{duelPassData.nextLevelSP} SP</span>
         </p>
       </div>
 
