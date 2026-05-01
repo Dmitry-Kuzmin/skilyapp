@@ -269,11 +269,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
           {/* 4+5. PREMIUM + BLOG stacked in one column */}
           <div className="md:col-span-1 lg:col-span-1 xl:col-span-1 flex flex-col gap-4">
-            <div className="flex-1 min-h-0">
-              <Suspense fallback={<ComponentSkeleton />}>
-                <PremiumCard onGetPremium={onGetPremium} />
-              </Suspense>
-            </div>
+            <Suspense fallback={<ComponentSkeleton />}>
+              <PremiumCard onGetPremium={onGetPremium} />
+            </Suspense>
             <Suspense fallback={<div className="h-24 bg-muted/50 rounded-2xl animate-pulse" />}>
               <BlogWidget />
             </Suspense>
