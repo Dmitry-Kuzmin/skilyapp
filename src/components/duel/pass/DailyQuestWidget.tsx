@@ -192,7 +192,7 @@ export function DailyQuestWidget() {
     <div className="py-1">
       <div className="flex items-center justify-between mb-2 px-1">
         <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/20 dark:text-white/20">
-          Daily Quests
+          {language === 'es' ? 'Misiones del día' : language === 'en' ? 'Daily Quests' : 'Задания дня'}
         </h4>
         <div className="flex items-center gap-1 text-[9px] font-bold text-foreground/15 dark:text-white/15 uppercase tracking-tight">
           <Clock className="w-2.5 h-2.5" />
