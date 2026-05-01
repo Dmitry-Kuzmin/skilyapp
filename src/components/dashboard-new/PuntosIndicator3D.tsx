@@ -183,31 +183,32 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
                 )}
             </svg>
 
-            {/* 4. ЦЕНТРАЛЬНЫЙ ТЕКСТ */}
-            <div className="absolute flex flex-col items-center justify-center z-10">
-                <AnimatePresence mode="wait">
-                    <motion.span
-                        key={currentPoints}
-                        initial={{ opacity: 0, scale: 0.5, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className={cn(
-                            "text-6xl sm:text-7xl md:text-8xl font-black leading-none tracking-tighter",
-                            isDarkTheme ? "text-white" : "text-black"
-                        )}
-                        style={{
-                            textShadow: isDarkTheme
-                                ? '0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.1)'
-                                : '0 4px 10px rgba(0,0,0,0.05)'
-                        }}
-                    >
-                        {currentPoints}
-                    </motion.span>
-                </AnimatePresence>
+            {/* 4. ЦЕНТРАЛЬНЫЙ ТЕКСТ — счётчик синхронизирован с кольцом */}
+            <div className="absolute flex flex-col items-center justify-center z-10 select-none">
+                <motion.span
+                    key="counter"
+                    initial={{ opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.15, duration: 0.4, ease: "backOut" }}
+                    className={cn(
+                        "text-6xl sm:text-7xl md:text-8xl font-black leading-none tracking-tighter tabular-nums",
+                        isDarkTheme ? "text-white" : "text-black"
+                    )}
+                    style={{
+                        textShadow: isDarkTheme
+                            ? `0 10px 30px rgba(0,0,0,0.8), 0 0 ${isLoaded ? '30px' : '0px'} ${colors.stop1}55`
+                            : '0 4px 10px rgba(0,0,0,0.05)',
+                        transition: 'text-shadow 0.3s ease'
+                    }}
+                >
+                    {displayPoints}
+                </motion.span>
 
                 <div className="relative flex flex-col items-center">
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 0.5 }}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 0.5, y: 0 }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
                         className="flex items-center gap-2 mt-4"
                     >
                         <div className={cn("h-[1px] w-4", isDarkTheme ? "bg-slate-500" : "bg-slate-300")} />
