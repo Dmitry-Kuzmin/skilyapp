@@ -163,7 +163,7 @@ const PuntosIndicator3D = ({ currentPoints = 10, maxPoints = 15, isDarkTheme = t
                         strokeDasharray="1 1000"
                         initial={{ strokeDashoffset: circumference }}
                         animate={{ strokeDashoffset: targetOffset }}
-                        transition={{ duration: isStatic ? 0 : 2.2, ease: [0.34, 1.56, 0.64, 1] }}
+                        transition={{ duration: isStatic ? 0 : ANIM_DURATION, ease: ANIM_EASE }}
                         mask="url(#capsulesMask3D)"
                         className="opacity-80"
                     />
