@@ -29,6 +29,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useModalRoute } from "@/hooks/useModalRoute";
 import { DuelPassLeaderboardView } from "@/components/leaderboard/DuelPassLeaderboardModal";
 import { HallOfFameView } from "@/components/HallOfFameModal";
+import { DUEL_PASS_NEW_LAYOUT } from "@/lib/feature-flags";
 
 const supabaseClient = supabase as any;
 
