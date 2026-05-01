@@ -1105,6 +1105,14 @@ export const en = {
       title: "Premium Forever active",
       description: "Duel Pass unlocked for every season",
     },
+    upcomingSeason: {
+      title: "The new season is coming soon",
+      descriptionLine1: "We are already preparing legendary skins, unique badges and piles of coins.",
+      descriptionLine2: "Everything starts very soon.",
+      rewards: "New season rewards",
+      secret: "Secret content",
+      button: "Got it",
+    },
     toasts: {
       rewardError: "Failed to claim the reward",
       rewardErrorDescription: "Please try again later",

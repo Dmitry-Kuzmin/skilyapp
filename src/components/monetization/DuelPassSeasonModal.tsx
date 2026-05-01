@@ -1138,9 +1138,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </h2>
 
         <p className="text-base text-muted-foreground/80 leading-relaxed max-w-xs mb-8">
-          Мы уже готовим легендарные скины, уникальные бейджи и горы монет.
+          {dp("upcomingSeason.descriptionLine1")}
           <br className="hidden sm:block" />
-          Всё начнётся совсем скоро!
+          {dp("upcomingSeason.descriptionLine2")}
         </p>
 
         {/* Mystery Rewards Teaser */}

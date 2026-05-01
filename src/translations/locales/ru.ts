@@ -1113,6 +1113,14 @@ export const ru = {
       title: "Premium Forever активен",
       description: "Duel Pass открыт для всех сезонов",
     },
+    upcomingSeason: {
+      title: "Новый сезон уже скоро",
+      descriptionLine1: "Мы уже готовим легендарные скины, уникальные бейджи и горы монет.",
+      descriptionLine2: "Всё начнётся совсем скоро!",
+      rewards: "Награды нового сезона",
+      secret: "Секретный контент",
+      button: "Понятно",
+    },
     toasts: {
       rewardError: "Ошибка при получении награды",
       rewardErrorDescription: "Попробуйте позже",
