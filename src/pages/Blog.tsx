@@ -14,7 +14,8 @@ import {
   GraduationCap,
   Lightbulb,
   ChevronRight,
-  Crown
+  Crown,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
