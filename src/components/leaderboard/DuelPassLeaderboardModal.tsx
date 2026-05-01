@@ -644,10 +644,12 @@ export function DuelPassLeaderboardView({
                     <div
                       key={leader.user_id}
                       className={cn(
-                        "flex items-center p-4 rounded-2xl transition-all border border-white/[0.02] backdrop-blur-md",
+                        "flex items-center p-4 rounded-2xl transition-all backdrop-blur-md",
                         isCurrentUser
                           ? highlightedRowClass
-                          : "bg-white/[0.02] hover:bg-white/[0.05] border-white/[0.01]"
+                          : isLightTheme
+                            ? "bg-slate-50 hover:bg-slate-100 border border-slate-200/60"
+                            : "bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.02]"
                       )}
                     >
                       {/* Ранг # */}
