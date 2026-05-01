@@ -5,6 +5,7 @@ import { playClickSound } from '@/services/audioService';
 import { useTheme } from 'next-themes';
 import { useDuelPassInfo } from '@/hooks/useDuelPassInfo';
 import { DailyQuestWidget } from '@/components/duel/pass/DailyQuestWidget';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DuelPassInfoProps {
   className?: string;
