@@ -142,18 +142,19 @@ export function DailyQuestWidget() {
       if (error) throw error;
 
       if (data?.success) {
-        toast.success(`Награда получена! +${quest.reward_sp} SP`, {
-          icon: <Sparkles className="w-4 h-4 text-amber-400" />
-        });
+        const rewardMsg = language === 'es' ? `¡Recompensa obtenida! +${quest.reward_sp} SP`
+          : language === 'en' ? `Reward collected! +${quest.reward_sp} SP`
+          : `Награда получена! +${quest.reward_sp} SP`;
+        toast.success(rewardMsg, { icon: <Sparkles className="w-4 h-4 text-amber-400" /> });
         setQuests(prev => prev.map(q =>
           q.id === quest.id ? { ...q, is_claimed: true } : q
         ));
       } else {
-        toast.error(data?.error || "Ошибка получения награды");
+        toast.error(data?.error || (language === 'es' ? "Error al obtener recompensa" : language === 'en' ? "Failed to claim reward" : "Ошибка получения награды"));
       }
     } catch (err: any) {
       console.error("[DailyQuestWidget] Claim error:", err);
-      toast.error("Не удалось получить награду");
+      toast.error(language === 'es' ? "Error al obtener recompensa" : language === 'en' ? "Failed to claim reward" : "Не удалось получить награду");
     } finally {
       setClaimingId(null);
     }
