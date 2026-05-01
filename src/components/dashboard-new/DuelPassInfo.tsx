@@ -97,7 +97,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-1.5">
-            <span className={`text-xl font-bold ${textPrimaryClass}`}>Уровень {duelPassData.level}</span>
+            <span className={`text-xl font-bold ${textPrimaryClass}`}>{ui.level} {duelPassData.level}</span>
             <span className={`text-[11px] ${textSecondaryClass}`}>/ 30</span>
           </div>
           <div className={`flex items-center gap-1 text-[11px] ${textSecondaryClass}`}>
