@@ -470,12 +470,62 @@ function buildEmailHtml(
 </html>`;
 }
 
+// ── Загрузка квестов дня ────────────────────────────────────────────────────
+async function loadDailyQuests(supabase: any, lang: Lang): Promise<DailyQuest[]> {
+  const today = new Date().toISOString().split('T')[0];
+  const titleField = lang === 'es' ? 'title_es' : lang === 'ru' ? 'title_ru' : 'title_en';
+
+  const { data } = await supabase
+    .from('season_challenges')
+    .select('title_ru, title_es, title_en, reward_sp, reward_coins, target_type, target_value')
+    .eq('challenge_type', 'daily')
+    .eq('is_active', true)
+    .gte('start_date', today)
+    .order('reward_sp', { ascending: false })
+    .limit(3);
+
+  return (data || []).map((q: any) => ({
+    title: q[titleField] || q.title_ru || '',
+    reward_sp: q.reward_sp || 0,
+    reward_coins: q.reward_coins || 0,
+    target_type: q.target_type || '',
+    target_value: q.target_value || 0,
+  }));
+}
+
+// ── Загрузка активного сезона ───────────────────────────────────────────────
+async function loadSeasonInfo(supabase: any, lang: Lang): Promise<SeasonInfo | null> {
+  const nameField = lang === 'es' ? 'name_es' : lang === 'ru' ? 'name_ru' : 'name_en';
+
+  const { data } = await supabase
+    .from('duel_pass_seasons')
+    .select('name_ru, name_es, name_en, end_date')
+    .eq('is_active', true)
+    .order('season_number', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (!data) return null;
+
+  const daysRemaining = Math.max(
+    0,
+    Math.ceil((new Date(data.end_date).getTime() - Date.now()) / 86400000),
+  );
+
+  return {
+    name: data[nameField] || data.name_ru || 'Season',
+    days_remaining: daysRemaining,
+  };
+}
+
 // ── Отправка письма через Resend ────────────────────────────────────────────
 async function sendQuizEmail(
   to: string,
   lang: Lang,
   firstName: string | null,
   questions: Question[],
+  quests: DailyQuest[],
+  season: SeasonInfo | null,
 ): Promise<{ ok: boolean; error?: string }> {
   const t = i18n[lang];
 
