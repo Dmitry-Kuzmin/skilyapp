@@ -248,9 +248,7 @@ export default function RoadSigns() {
             </div>
 
             <Tabs value={selectedType} onValueChange={(value) => {
-              startTransition(() => {
-                setSelectedType(value);
-              });
+              startTransition(() => { handleTypeChange(value); });
             }} className="w-full">
               <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 scrollbar-hide">
                 <TabsList className="w-full md:w-auto h-auto p-2 bg-card/50 backdrop-blur-sm border-2 border-border/50 rounded-xl shadow-sm inline-flex min-w-max md:min-w-0">
