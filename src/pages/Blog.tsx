@@ -36,6 +36,7 @@ interface Article {
 
 const categories = [
   { id: "all", name: "Все статьи", icon: Newspaper },
+  { id: "dgt-2026", name: "DGT 2026", icon: Zap },
   { id: "news", name: "Актуально", icon: BookOpen },
   { id: "preparation", name: "Подготовка", icon: GraduationCap },
   { id: "tips", name: "Советы", icon: Lightbulb },
