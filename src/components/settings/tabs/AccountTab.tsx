@@ -479,12 +479,14 @@ export const AccountTab: React.FC = () => {
                         )}
                     </SettingRow>
 
-                    <Separator className="my-4 bg-slate-200 dark:bg-slate-700/50" />
-
-                    {/* Passkeys */}
-                    <div className="pt-2">
-                        <PasskeyManager hideHeader={true} />
-                    </div>
+                    {PASSKEY_ENABLED && (
+                        <>
+                            <Separator className="my-4 bg-slate-200 dark:bg-slate-700/50" />
+                            <div className="pt-2">
+                                {React.createElement(require('@/components/auth/PasskeyManager').PasskeyManager, { hideHeader: true })}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
 
