@@ -113,8 +113,7 @@ export const LazyImage = memo(function LazyImage({
       }}
       className={cn(
         'transition-opacity duration-300',
-        isLoaded ? 'opacity-100' : 'opacity-0',
-        hasError && 'opacity-50',
+        (isLoaded || hasError) ? 'opacity-100' : 'opacity-0',
         className
       )}
       {...props}
