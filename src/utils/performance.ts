@@ -138,7 +138,7 @@ class PerformanceMonitor {
       const result = await fn();
       const duration = performance.now() - start;
       this.recordMetric(name, duration);
-      if (duration > 500) {
+      if (import.meta.env.DEV && duration > 500) {
         console.warn(`[Performance] Slow async function "${name}": ${duration.toFixed(2)}ms`);
       }
       return result;
