@@ -26,6 +26,7 @@ const DuelPassInfo = lazy(() => import('./DuelPassInfo').then(m => ({ default: m
 const DuelPassSeasonModal = lazy(() => import('../monetization/DuelPassSeasonModal').then(m => ({ default: m.DuelPassSeasonModal })));
 const TelemetryOverlay = lazy(() => import('../telemetry/TelemetryOverlay').then(m => ({ default: m.TelemetryOverlay })));
 const CourseBanner = lazy(() => import('./CourseBanner').then(m => ({ default: m.CourseBanner })));
+const BlogWidget = lazy(() => import('./BlogWidget').then(m => ({ default: m.BlogWidget })));
 
 // Fallback component for lazy loading
 const ComponentSkeleton = () => (
