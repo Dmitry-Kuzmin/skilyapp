@@ -425,12 +425,18 @@ function buildEmailHtml(
 
                 <!-- Questions -->
                 <tr>
-                  <td style="padding:28px 32px 32px;">
+                  <td style="padding:28px 32px 28px;">
                     <table border="0" cellpadding="0" cellspacing="0" width="100%">
                       ${questionBlocks}
                     </table>
                   </td>
                 </tr>
+
+                <!-- Quests section -->
+                ${questsBlock}
+
+                <!-- Season section -->
+                ${seasonBlock}
 
                 <!-- Card footer -->
                 <tr>
