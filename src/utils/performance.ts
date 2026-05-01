@@ -21,23 +21,25 @@ class PerformanceMonitor {
   }
 
   private initObservers() {
-    // Мониторинг Long Tasks (блокирующие задачи)
-    try {
-      const longTaskObserver = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          if (entry.duration > 50) {
-            console.warn('[Performance] Long Task detected:', {
-              duration: entry.duration,
-              startTime: entry.startTime,
-            });
-            this.recordMetric('long-task', entry.duration);
+    // Мониторинг Long Tasks (только в dev)
+    if (import.meta.env.DEV) {
+      try {
+        const longTaskObserver = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.duration > 50) {
+              console.warn('[Performance] Long Task detected:', {
+                duration: Math.round(entry.duration),
+                startTime: Math.round(entry.startTime),
+              });
+              this.recordMetric('long-task', entry.duration);
+            }
           }
-        }
-      });
-      longTaskObserver.observe({ entryTypes: ['longtask'] });
-      this.observers.push(longTaskObserver);
-    } catch (e) {
-      // Long Task API может быть недоступен
+        });
+        longTaskObserver.observe({ entryTypes: ['longtask'] });
+        this.observers.push(longTaskObserver);
+      } catch (e) {
+        // Long Task API может быть недоступен
+      }
     }
 
     // Мониторинг Navigation Timing
