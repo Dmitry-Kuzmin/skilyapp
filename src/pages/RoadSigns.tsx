@@ -289,9 +289,9 @@ export default function RoadSigns() {
                     <TabsTrigger
                       key={type}
                       value={type}
-                      className="capitalize rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 bg-transparent text-muted-foreground hover:text-foreground data-[state=active]:!bg-primary data-[state=active]:!text-primary-foreground data-[state=active]:!font-semibold whitespace-nowrap flex-shrink-0"
+                      className="rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 bg-transparent text-muted-foreground hover:text-foreground data-[state=active]:!bg-primary data-[state=active]:!text-primary-foreground data-[state=active]:!font-semibold whitespace-nowrap flex-shrink-0"
                     >
-                      {type}
+                      {TYPE_LABELS[type] ?? type}
                     </TabsTrigger>
                   ))}
                 </TabsList>
