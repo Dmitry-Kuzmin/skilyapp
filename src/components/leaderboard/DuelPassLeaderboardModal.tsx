@@ -94,10 +94,12 @@ const calculateTimeLeft = (endDate?: string | null) => {
 
 export function DuelPassLeaderboardView({
   onBack,
-  onOpenHallOfFame
+  onOpenHallOfFame,
+  embedded = false,
 }: {
-  onBack: () => void;
+  onBack?: () => void;
   onOpenHallOfFame: () => void;
+  embedded?: boolean;
 }) {
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
