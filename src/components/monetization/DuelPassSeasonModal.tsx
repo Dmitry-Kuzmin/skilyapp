@@ -1963,6 +1963,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             <DailyQuestWidget />
           </div>
         </div>
+        )}
       </>
     );
   };
