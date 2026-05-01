@@ -183,6 +183,16 @@ export default function RoadSigns() {
 
   const signTypes = [...new Set(signs.map(s => s.sign_type))];
 
+  const handleTypeChange = (type: string) => {
+    setSelectedType(type);
+    setVisibleCount(60);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setVisibleCount(60);
+  };
+
   if (loading) {
     return <PageLoader />;
   }
