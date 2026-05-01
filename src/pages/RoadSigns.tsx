@@ -183,7 +183,18 @@ export default function RoadSigns() {
     return filtered;
   }, [signs, deferredSearchTerm, selectedType]);
 
-  const signTypes = [...new Set(signs.map(s => s.sign_type))];
+  const TYPE_ORDER = ["warning", "prohibition", "mandatory", "priority", "information", "señales_de_obras", "additional"];
+  const TYPE_LABELS: Record<string, string> = {
+    warning: "Peligro",
+    prohibition: "Prohibición",
+    mandatory: "Obligación",
+    priority: "Prioridad",
+    information: "Información",
+    señales_de_obras: "Obras",
+    additional: "Adicionales",
+  };
+
+  const signTypes = TYPE_ORDER.filter(t => signs.some(s => s.sign_type === t));
 
   const handleTypeChange = (type: string) => {
     setSelectedType(type);
