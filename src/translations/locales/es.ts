@@ -1098,8 +1098,8 @@ export const es = {
     },
     upcomingSeason: {
       title: "La nueva temporada llega pronto",
-      descriptionLine1: "Ya estamos preparando skins legendarias, insignias unicas y montones de monedas.",
-      descriptionLine2: "Todo empezara muy pronto.",
+      descriptionLine1: "Ya estamos preparando skins legendarias, insignias únicas y montones de monedas.",
+      descriptionLine2: "Todo empezará muy pronto.",
       rewards: "Recompensas de la nueva temporada",
       secret: "Contenido secreto",
       button: "Entendido",

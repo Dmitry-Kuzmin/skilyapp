@@ -137,7 +137,7 @@ export function PasskeyLoginButton({ onSuccess, variant = 'default', className, 
   // 1. Браузер не поддерживает WebAuthn
   // 2. Биометрия недоступна (нет Face ID, Touch ID, Windows Hello)
   // Это улучшает UX - не показываем опцию, которую нельзя использовать
-  if (!isSupported || !isAvailable) {
+  if (!PASSKEY_ENABLED || !isSupported || !isAvailable) {
     return null;
   }
 
