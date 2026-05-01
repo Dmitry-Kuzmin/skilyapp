@@ -31,6 +31,11 @@ import { DuelPassLeaderboardView } from "@/components/leaderboard/DuelPassLeader
 import { HallOfFameView } from "@/components/HallOfFameModal";
 
 const supabaseClient = supabase as any;
+
+// Season-end leaderboard prize amounts (TODO: move to duel_pass_seasons table columns)
+const SEASON_PRIZE_2ND = 500;
+const SEASON_PRIZE_3RD = 250;
+
 const localeMap: Record<Language, string> = {
   en: "en-US",
   es: "es-ES",
