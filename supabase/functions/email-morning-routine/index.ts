@@ -198,6 +198,8 @@ function buildEmailHtml(
   lang: Lang,
   firstName: string | null,
   questions: Question[],
+  quests: DailyQuest[],
+  season: SeasonInfo | null,
   appUrl: string,
 ): string {
   const t = i18n[lang];
@@ -206,15 +208,14 @@ function buildEmailHtml(
     { day: 'numeric', month: 'long' },
   );
 
-  // Строим блок каждого вопроса
+  // ── Блок каждого вопроса ─────────────────────────────────────────────────
   const questionBlocks = questions.map((q, idx) => {
     const label = t.questionOf(idx + 1, questions.length);
     const imageBlock = q.image_url
       ? `<tr>
            <td style="padding:0 0 20px;">
              <img src="${escapeHtml(q.image_url)}"
-               alt="Imagen de la pregunta"
-               width="100%"
+               alt="Imagen de la pregunta" width="100%"
                style="display:block;border-radius:12px;max-height:220px;object-fit:cover;border:1px solid rgba(255,255,255,0.08);" />
            </td>
          </tr>`
@@ -224,61 +225,128 @@ function buildEmailHtml(
       const letter = t.optionLabels[i] ?? String.fromCharCode(65 + i);
       return `<tr>
         <td style="padding:0 0 10px;">
-          <table border="0" cellpadding="0" cellspacing="0" width="100%">
-            <tr>
-              <td width="36" valign="top" style="padding-right:12px;">
-                <div style="width:28px;height:28px;border-radius:8px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);text-align:center;line-height:28px;font-size:13px;font-weight:700;color:#818cf8;">${letter}</div>
-              </td>
-              <td valign="middle" style="font-size:14px;color:#cbd5e1;line-height:1.5;padding-top:4px;">${escapeHtml(opt)}</td>
-            </tr>
-          </table>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+            <td width="36" valign="top" style="padding-right:12px;">
+              <div style="width:28px;height:28px;border-radius:8px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);text-align:center;line-height:28px;font-size:13px;font-weight:700;color:#818cf8;">${letter}</div>
+            </td>
+            <td valign="middle" style="font-size:14px;color:#cbd5e1;line-height:1.5;padding-top:4px;">${escapeHtml(opt)}</td>
+          </tr></table>
         </td>
       </tr>`;
     }).join('');
 
-    // Разделитель между вопросами (не после последнего)
     const divider = idx < questions.length - 1
-      ? `<tr><td style="height:1px;background:rgba(255,255,255,0.07);padding:0;margin:0;" colspan="1">&nbsp;</td></tr>
-         <tr><td style="height:32px;"></td></tr>`
+      ? `<tr><td style="height:1px;background:rgba(255,255,255,0.07);" colspan="1">&nbsp;</td></tr><tr><td style="height:28px;"></td></tr>`
       : '';
 
+    // CTA со ссылкой на конкретный вопрос
+    const answerUrl = `${appUrl}/dashboard?morning_q=${encodeURIComponent(q.id)}&utm_source=email&utm_medium=daily_quiz`;
+
     return `
-      <!-- Question ${idx + 1} -->
-      <tr>
-        <td>
-          <table border="0" cellpadding="0" cellspacing="0" width="100%">
-            <!-- Label -->
-            <tr>
-              <td style="padding:0 0 14px;">
-                <span style="display:inline-block;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#818cf8;letter-spacing:0.06em;text-transform:uppercase;">${escapeHtml(label)}</span>
+      <tr><td>
+        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+          <tr><td style="padding:0 0 14px;">
+            <span style="display:inline-block;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#818cf8;letter-spacing:0.06em;text-transform:uppercase;">${escapeHtml(label)}</span>
+          </td></tr>
+          ${imageBlock}
+          <tr><td style="font-size:16px;font-weight:700;color:#f1f5f9;line-height:1.5;padding:0 0 18px;">${escapeHtml(q.text)}</td></tr>
+          ${optionRows}
+          <tr><td style="padding:16px 0 0;">
+            <table border="0" cellpadding="0" cellspacing="0"><tr>
+              <td style="border-radius:10px;background:linear-gradient(135deg,#4f46e5,#7c3aed);">
+                <a href="${answerUrl}" style="display:inline-block;padding:11px 24px;font-size:13px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.02em;">${escapeHtml(t.ctaText)}</a>
               </td>
-            </tr>
-            ${imageBlock}
-            <!-- Question text -->
-            <tr>
-              <td style="font-size:16px;font-weight:700;color:#f1f5f9;line-height:1.5;padding:0 0 18px;">${escapeHtml(q.text)}</td>
-            </tr>
-            <!-- Options -->
-            ${optionRows}
-            <!-- CTA -->
-            <tr>
-              <td style="padding:16px 0 0;">
-                <table border="0" cellpadding="0" cellspacing="0">
-                  <tr>
-                    <td style="border-radius:10px;background:linear-gradient(135deg,#4f46e5,#7c3aed);">
-                      <a href="${appUrl}/dashboard?utm_source=email&utm_medium=daily_quiz&utm_campaign=q${idx + 1}"
-                        style="display:inline-block;padding:11px 24px;font-size:13px;font-weight:700;color:#ffffff;text-decoration:none;letter-spacing:0.02em;">${escapeHtml(t.ctaText)}</a>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
+            </tr></table>
+          </td></tr>
+        </table>
+      </td></tr>
       ${divider}
     `;
   }).join('');
+
+  // ── Блок квестов ─────────────────────────────────────────────────────────
+  const questRows = quests.slice(0, 3).map(q => {
+    const desc = t.questTargets[q.target_type]?.(q.target_value) || q.title;
+    return `<tr>
+      <td style="padding:0 0 10px;">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+          <td valign="middle" style="font-size:13px;color:#cbd5e1;line-height:1.4;">${escapeHtml(desc)}</td>
+          <td valign="middle" align="right" style="white-space:nowrap;padding-left:12px;">
+            <span style="display:inline-block;background:rgba(234,179,8,0.12);border:1px solid rgba(234,179,8,0.3);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#fbbf24;">+${q.reward_sp} SP</span>
+          </td>
+        </tr></table>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const questsBlock = quests.length > 0 ? `
+    <!-- QUESTS SECTION -->
+    <tr><td style="padding:0 32px 28px;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);border-radius:16px;">
+        <tr><td style="padding:20px 20px 16px;">
+          <p style="margin:0 0 4px;font-size:15px;font-weight:800;color:#f1f5f9;">${escapeHtml(t.questsTitle)}</p>
+          <p style="margin:0 0 16px;font-size:12px;color:#64748b;">${escapeHtml(t.questsSubtitle)}</p>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            ${questRows}
+          </table>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+            <td style="padding-top:8px;">
+              <a href="${appUrl}/dashboard?utm_source=email&utm_medium=quests"
+                style="display:inline-block;font-size:12px;color:#818cf8;text-decoration:none;font-weight:600;">
+                Ir a la app →
+              </a>
+            </td>
+          </tr></table>
+        </td></tr>
+      </table>
+    </td></tr>
+  ` : '';
+
+  // ── Блок сезона ──────────────────────────────────────────────────────────
+  const seasonBlock = season ? `
+    <!-- SEASON SECTION -->
+    <tr><td style="padding:0 32px 32px;">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background:linear-gradient(135deg,rgba(234,179,8,0.08),rgba(249,115,22,0.06));border:1px solid rgba(234,179,8,0.2);border-radius:16px;overflow:hidden;">
+        <tr><td style="height:2px;background:linear-gradient(90deg,#f59e0b,#ef4444);" colspan="1">&nbsp;</td></tr>
+        <tr><td style="padding:18px 20px 20px;">
+          <p style="margin:0 0 2px;font-size:15px;font-weight:800;color:#f1f5f9;">${escapeHtml(t.seasonTitle)}</p>
+          <p style="margin:0 0 16px;font-size:12px;color:#94a3b8;">${escapeHtml(t.seasonSubtitle(season.name, season.days_remaining))}</p>
+          <table border="0" cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td style="padding:0 0 8px;">
+                <table border="0" cellpadding="0" cellspacing="0"><tr>
+                  <td style="width:20px;font-size:14px;padding-right:8px;">🥇</td>
+                  <td style="font-size:13px;color:#fbbf24;font-weight:600;">${escapeHtml(t.seasonPrize1)}</td>
+                </tr></table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 0 8px;">
+                <table border="0" cellpadding="0" cellspacing="0"><tr>
+                  <td style="width:20px;font-size:14px;padding-right:8px;">🥈</td>
+                  <td style="font-size:13px;color:#94a3b8;">${escapeHtml(t.seasonPrize2)}</td>
+                </tr></table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 0 16px;">
+                <table border="0" cellpadding="0" cellspacing="0"><tr>
+                  <td style="width:20px;font-size:14px;padding-right:8px;">🥉</td>
+                  <td style="font-size:13px;color:#94a3b8;">${escapeHtml(t.seasonPrize3)}</td>
+                </tr></table>
+              </td>
+            </tr>
+          </table>
+          <table border="0" cellpadding="0" cellspacing="0"><tr>
+            <td style="border-radius:8px;background:rgba(234,179,8,0.15);border:1px solid rgba(234,179,8,0.3);">
+              <a href="${appUrl}/dashboard?open=duel_pass&utm_source=email&utm_medium=season"
+                style="display:inline-block;padding:9px 18px;font-size:12px;font-weight:700;color:#fbbf24;text-decoration:none;">${escapeHtml(t.seasonCta)}</a>
+            </td>
+          </tr></table>
+        </td></tr>
+      </table>
+    </td></tr>
+  ` : '';
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
