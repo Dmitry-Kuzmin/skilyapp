@@ -2239,8 +2239,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     <>
       {renderModalShell(modalContent, undefined, showUpcoming ? dp("migration.description") : undefined, {
         showHandle: true,
-        contentClassName: showUpcoming ? "px-4 sm:px-6 py-4" : "px-0 sm:px-6",
-        loading: false, // Управляем лоадингом сами через modalContent для стабильности
+        contentClassName: showUpcoming ? "px-4 sm:px-6 py-4" : "px-0",
+        loading: false,
       })}
       <PaywallModal 
         open={showPaywall} 
