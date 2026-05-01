@@ -138,7 +138,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
           <div className="flex items-center gap-1.5 flex-1">
             <TrendingUp className={`w-3.5 h-3.5 ${statIconClass}`} />
             <div>
-              <p className={`text-[10px] ${textSecondaryClass} leading-none mb-0.5`}>Дуэли</p>
+              <p className={`text-[10px] ${textSecondaryClass} leading-none mb-0.5`}>{ui.duels}</p>
               <p className={`text-xs font-semibold ${textPrimaryClass}`}>
                 {duelPassData.wins} / {duelPassData.totalDuels}
               </p>
