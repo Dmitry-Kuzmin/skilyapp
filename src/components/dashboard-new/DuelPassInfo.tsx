@@ -128,9 +128,9 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
         <div className="flex items-center gap-1.5 flex-1">
           <Clock className={`w-3.5 h-3.5 ${statIconClass}`} />
           <div>
-            <p className={`text-[10px] ${textSecondaryClass} leading-none mb-0.5`}>Осталось</p>
+            <p className={`text-[10px] ${textSecondaryClass} leading-none mb-0.5`}>{ui.remaining}</p>
             <p className={`text-xs font-semibold ${textPrimaryClass}`}>
-              {duelPassData.daysRemaining} {duelPassData.daysRemaining === 1 ? 'день' : duelPassData.daysRemaining < 5 ? 'дня' : 'дней'}
+              {ui.days(duelPassData.daysRemaining)}
             </p>
           </div>
         </div>
