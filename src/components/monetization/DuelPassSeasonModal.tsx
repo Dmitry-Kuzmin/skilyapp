@@ -1603,6 +1603,12 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
           </div>
         </motion.div>
 
+        {activeTab === 'leaders' ? (
+          <DuelPassLeaderboardView
+            embedded
+            onOpenHallOfFame={() => setCurrentView('hall_of_fame')}
+          />
+        ) : (
         <div className="flex flex-col gap-6 px-4 sm:px-0 pb-4">
           {/* Прогресс по уровням */}
           <div className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4 shadow-sm">
