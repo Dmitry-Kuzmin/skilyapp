@@ -539,7 +539,7 @@ async function sendQuizEmail(
       from: FROM_EMAIL,
       to: [to],
       subject: t.subject,
-      html: buildEmailHtml(lang, firstName, questions, APP_URL),
+      html: buildEmailHtml(lang, firstName, questions, quests, season, APP_URL),
     }),
   });
 
