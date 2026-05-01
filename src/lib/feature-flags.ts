@@ -8,3 +8,7 @@
 // and our user base is predominantly Telegram where passkeys are irrelevant.
 // Re-enable when: we invest in web acquisition and passkey UX polish.
 export const PASSKEY_ENABLED = false;
+
+// Duel Pass modal new layout: compact header + leaderboard inline + horizontal rewards track.
+// Flip to false to instantly restore the old tabbed layout.
+export const DUEL_PASS_NEW_LAYOUT = true;
