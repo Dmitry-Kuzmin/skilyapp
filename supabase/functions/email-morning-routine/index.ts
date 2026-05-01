@@ -592,6 +592,7 @@ async function loadDailyQuestions(supabase: any, lang: Lang): Promise<Question[]
     if (!opts.some((o: any) => o.is_correct)) continue;
 
     result.push({
+      id: q.id,
       text: stripHtml(q[textField] || q.question_ru || ''),
       image_url: q.image_url || null,
       options: opts.map((o: any) => stripHtml(o[optField] || o.text_ru || '')).filter(Boolean),
