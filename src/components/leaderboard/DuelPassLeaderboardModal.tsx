@@ -698,7 +698,9 @@ export function DuelPassLeaderboardView({
                       <div className="w-24 text-right shrink-0">
                         <p className={cn(
                           "font-mono font-black tabular-nums tracking-tighter",
-                          isCurrentUser ? "text-white text-lg" : "text-white/90 text-sm md:text-base"
+                          isCurrentUser
+                            ? (isLightTheme ? "text-foreground text-lg" : "text-white text-lg")
+                            : (isLightTheme ? "text-foreground text-sm md:text-base" : "text-white/90 text-sm md:text-base")
                         )}>
                           {(leader.season_points ?? 0).toLocaleString("ru-RU")}
                           <span className="text-[9px] ml-1 opacity-50 uppercase font-black">SP</span>
