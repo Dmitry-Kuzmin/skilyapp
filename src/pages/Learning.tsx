@@ -88,6 +88,16 @@ const Learning = () => {
         gradient: "from-yellow-500/10 to-amber-500/10",
         iconBg: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
       },
+      {
+        id: "blog",
+        title: t('learningPage.quickActions.blog'),
+        description: t('learningPage.quickActions.blogDesc'),
+        icon: Newspaper,
+        badge: "NEW",
+        path: "/blog",
+        gradient: "from-blue-500/10 to-indigo-500/10",
+        iconBg: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      },
     ];
 
     const isRussia = selectedCountry === 'russia';
