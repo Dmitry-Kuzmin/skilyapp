@@ -1974,11 +1974,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const modalContent = useMemo(() => {
     return (
       <AnimatePresence mode="wait">
-        {currentView === 'leaderboard' && (
-          <DuelPassLeaderboardView key="leaderboard" onBack={() => setCurrentView('main')} onOpenHallOfFame={() => setCurrentView('hall_of_fame')} />
-        )}
         {currentView === 'hall_of_fame' && (
-          <HallOfFameView key="hall_of_fame" onBack={() => setCurrentView('leaderboard')} />
+          <HallOfFameView key="hall_of_fame" onBack={() => setCurrentView('main')} />
         )}
         {currentView === 'main' && (
           <motion.div
