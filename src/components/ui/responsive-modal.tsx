@@ -135,6 +135,9 @@ export function ResponsiveModal({
               // Собираем все признаки элемента в одну строку
               const elString = `${tagName} ${id} ${className}`;
               
+              // TonConnect CSS-in-JS classes are purely numeric after 'go', e.g. .go12345
+              const hasTonConnectCssClass = /\bgo\d+/.test(className);
+
               return (
                 elString.includes('tc-') ||
                 elString.includes('ton-') ||
@@ -142,7 +145,7 @@ export function ResponsiveModal({
                 elString.includes('appkit') ||
                 elString.includes('sonner') ||
                 elString.includes('paddle') ||
-                elString.includes('go') // CSS-in-JS классы от TonConnect (напр. .go12345)
+                hasTonConnectCssClass
               );
             });
             
