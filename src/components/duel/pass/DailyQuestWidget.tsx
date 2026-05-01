@@ -225,7 +225,7 @@ export function DailyQuestWidget() {
                   "text-[13.5px] font-medium leading-none truncate transition-colors",
                   quest.is_completed ? "text-amber-600 dark:text-amber-400/80" : "text-foreground/80 dark:text-slate-400"
                 )}>
-                  {quest.description}
+                  {getQuestLabel(quest)}
                 </span>
                 {!quest.is_completed && quest.target_value > 1 && (
                   <span className="text-[9px] font-bold text-muted-foreground tabular-nums shrink-0">
