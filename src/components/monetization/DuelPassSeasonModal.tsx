@@ -1810,11 +1810,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       const unlocked = currentLevel >= reward.level;
                       const isCurrent = currentLevel === reward.level;
 
-                      // Проверяем наличие наград
-                      const hasFreeReward = !!reward.free_reward; // Есть ли бесплатная награда вообще
-                      const hasFreeCoins = reward.free_reward?.type === 'coins' && reward.free_reward?.amount;
-                      const hasPremiumCoins = reward.premium_reward?.type === 'coins' && reward.premium_reward?.amount;
-                      const hasPremiumOther = reward.premium_reward && reward.premium_reward.type !== 'coins';
+                      const hasFreeReward = !!reward.free_reward;
 
                       // Проверяем, какие награды получены
                       const freeClaimed = claimedFreeRewards.has(reward.level);
