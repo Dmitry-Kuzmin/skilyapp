@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState, useCallback } from "react";
+import React, { memo, useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Badge } from "@/components/ui/badge";
