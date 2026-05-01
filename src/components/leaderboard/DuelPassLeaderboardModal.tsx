@@ -326,64 +326,84 @@ export function DuelPassLeaderboardView({
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
+        initial={{ opacity: 0, x: embedded ? 0 : 20 }}
         animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: -20 }}
+        exit={{ opacity: 0, x: embedded ? 0 : -20 }}
         className="flex-1 overflow-y-auto w-full"
       >
         {loading ? (
           renderLoadingState()
         ) : (
           <div className="space-y-6 py-4 px-4 sm:px-6">
-            <header className="space-y-4 text-left relative flex flex-col pt-2">
-              {/* Кнопка Назад и Плашка на одном уровне */}
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="w-10 h-10 rounded-full bg-slate-900/50 hover:bg-slate-800 text-white border border-white/5 backdrop-blur-md shrink-0"
-                  onClick={onBack}
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </Button>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
-                  <Trophy className="w-3 h-3" />
-                  Соревновательный сезон
-                </div>
-              </div>
-
-              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 pt-4 md:pt-2">
-                <div className="space-y-2 flex-1 min-w-0">
-                  <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent">
-                    Топ игроков
-                  </h1>
-                  <p className="text-sm text-muted-foreground max-w-xl">
-                    Бейся в дуэлях, копи XP и забирай <span className="text-yellow-500 font-bold">Premium</span> или <span className="text-yellow-500 font-bold">1000 монет</span> в конце сезона!
-                  </p>
-                </div>
-                <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-3 shrink-0 flex-wrap sm:flex-nowrap">
-                  {timeLeft && (
-                    <div className="flex flex-col justify-center px-4 py-2 rounded-2xl bg-slate-900/50 border border-white/5 backdrop-blur-md shrink-0 flex-1 sm:flex-none">
-                      <p className="text-[10px] text-muted-foreground uppercase font-bold whitespace-nowrap">До конца сезона</p>
-                      <p className="text-sm font-mono font-bold text-primary whitespace-nowrap">
-                        {timeLeft.days > 0 && `${timeLeft.days}д `}
-                        {String(timeLeft.hours).padStart(2, '0')}:
-                        {String(timeLeft.minutes).padStart(2, '0')}:
-                        {String(timeLeft.seconds).padStart(2, '0')}
-                      </p>
-                    </div>
-                  )}
+            {!embedded && (
+              <header className="space-y-4 text-left relative flex flex-col pt-2">
+                {/* Кнопка Назад и Плашка на одном уровне */}
+                <div className="flex items-center gap-3">
                   <Button
-                    variant="outline"
-                    onClick={onOpenHallOfFame}
-                    className="h-auto py-2.5 px-4 gap-2 bg-white/5 border-white/10 hover:bg-white/10 rounded-2xl shrink-0 flex-1 sm:flex-none"
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "w-10 h-10 rounded-full border backdrop-blur-md shrink-0",
+                      isLightTheme
+                        ? "bg-slate-100 hover:bg-slate-200 text-foreground border-slate-200"
+                        : "bg-slate-900/50 hover:bg-slate-800 text-white border-white/5"
+                    )}
+                    onClick={onBack}
                   >
-                    <Trophy className="w-5 h-5 text-yellow-500 shrink-0" />
-                    <span className="font-semibold whitespace-nowrap">Зал славы</span>
+                    <ChevronLeft className="w-6 h-6" />
                   </Button>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
+                    <Trophy className="w-3 h-3" />
+                    Соревновательный сезон
+                  </div>
                 </div>
-              </div>
-            </header>
+
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5 pt-4 md:pt-2">
+                  <div className="space-y-2 flex-1 min-w-0">
+                    <h1 className={cn(
+                      "text-3xl md:text-4xl font-black tracking-tight leading-none",
+                      isLightTheme
+                        ? "text-foreground"
+                        : "bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent"
+                    )}>
+                      Топ игроков
+                    </h1>
+                    <p className="text-sm text-muted-foreground max-w-xl">
+                      Бейся в дуэлях, копи XP и забирай <span className="text-yellow-500 font-bold">Premium</span> или <span className="text-yellow-500 font-bold">1000 монет</span> в конце сезона!
+                    </p>
+                  </div>
+                  <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+                    {timeLeft && (
+                      <div className={cn(
+                        "flex flex-col justify-center px-4 py-2 rounded-2xl border backdrop-blur-md shrink-0 flex-1 sm:flex-none",
+                        isLightTheme ? "bg-slate-100 border-slate-200" : "bg-slate-900/50 border-white/5"
+                      )}>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold whitespace-nowrap">До конца сезона</p>
+                        <p className="text-sm font-mono font-bold text-primary whitespace-nowrap">
+                          {timeLeft.days > 0 && `${timeLeft.days}д `}
+                          {String(timeLeft.hours).padStart(2, '0')}:
+                          {String(timeLeft.minutes).padStart(2, '0')}:
+                          {String(timeLeft.seconds).padStart(2, '0')}
+                        </p>
+                      </div>
+                    )}
+                    <Button
+                      variant="outline"
+                      onClick={onOpenHallOfFame}
+                      className={cn(
+                        "h-auto py-2.5 px-4 gap-2 rounded-2xl shrink-0 flex-1 sm:flex-none",
+                        isLightTheme
+                          ? "bg-slate-50 border-slate-200 hover:bg-slate-100 text-foreground"
+                          : "bg-white/5 border-white/10 hover:bg-white/10"
+                      )}
+                    >
+                      <Trophy className="w-5 h-5 text-yellow-500 shrink-0" />
+                      <span className="font-semibold whitespace-nowrap">Зал славы</span>
+                    </Button>
+                  </div>
+                </div>
+              </header>
+            )}
 
             {/* Фильтры и поиск */}
             <Card className="p-4 space-y-4">
@@ -656,8 +676,8 @@ export function DuelPassLeaderboardView({
                         />
                         <div className="min-w-0 flex-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                           <p className={cn(
-                            "font-bold text-sm md:text-base truncate text-white max-w-[120px] md:max-w-[200px]",
-                            isCurrentUser && "text-white"
+                            "font-bold text-sm md:text-base truncate max-w-[120px] md:max-w-[200px]",
+                            isLightTheme ? "text-foreground" : "text-white"
                           )}>
                             {name}
                           </p>
