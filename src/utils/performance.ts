@@ -209,7 +209,7 @@ export function measureRenderTime(componentName: string) {
     const duration = performance.now() - start;
     if (performanceMonitor) {
       performanceMonitor.recordMetric(`render-${componentName}`, duration);
-      if (duration > 16) { // Больше одного кадра (60fps = 16.67ms)
+      if (import.meta.env.DEV && duration > 16) {
         console.warn(`[Performance] Slow render for "${componentName}": ${duration.toFixed(2)}ms`);
       }
     }
