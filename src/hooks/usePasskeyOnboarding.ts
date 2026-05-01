@@ -22,6 +22,12 @@ export function usePasskeyOnboarding() {
 
   useEffect(() => {
     const checkShouldShow = async () => {
+      // Feature flag — disabled until web acquisition strategy is ready
+      if (!PASSKEY_ENABLED) {
+        setShouldShow(false);
+        return;
+      }
+
       // Не показываем если:
       // 1. Не авторизован
       if (!isAuthenticated || !supabaseUser) {
