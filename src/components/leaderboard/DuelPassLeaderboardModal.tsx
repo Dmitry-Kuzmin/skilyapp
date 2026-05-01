@@ -348,35 +348,105 @@ export function DuelPassLeaderboardView({
       >
         {loading ? (
           renderLoadingState()
-        ) : (
-          <div className="space-y-6 py-4 px-4 sm:px-6 relative">
-            {/* Оверлей "не участник сезона" — показываем если SP = 0 */}
-            {userSeasonPoints === 0 && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-2xl overflow-hidden">
-                {/* Размытый фон */}
-                <div className="absolute inset-0 backdrop-blur-[6px] bg-background/60" />
-                {/* Контент */}
-                <div className="relative z-10 flex flex-col items-center gap-4 px-6 text-center max-w-xs">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
-                    <Trophy className="w-8 h-8 text-white" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-bold">Войди в сезон</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Реши хотя бы один тест или победи в дуэли, чтобы получить SP и попасть в рейтинг
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 justify-center text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-muted">
-                      <Flame className="w-3 h-3 text-orange-400" /> За дуэль: +10 SP
-                    </span>
-                    <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-muted">
-                      <TrendingUp className="w-3 h-3 text-green-400" /> За тест: +5 SP
-                    </span>
+        ) : userSeasonPoints === 0 ? (
+          /* ── Locked state: пользователь не участник сезона ── */
+          <div className="flex flex-col py-4 px-4 sm:px-6 gap-0">
+            {/* Шапка (та же что у полного вида, чтобы не было рывка) */}
+            {!embedded && (
+              <header className="space-y-4 text-left relative flex flex-col pt-2 mb-4">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "w-10 h-10 rounded-full border backdrop-blur-md shrink-0",
+                      isLightTheme
+                        ? "bg-slate-100 hover:bg-slate-200 text-foreground border-slate-200"
+                        : "bg-slate-900/50 hover:bg-slate-800 text-white border-white/5"
+                    )}
+                    onClick={onBack}
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </Button>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
+                    <Trophy className="w-3 h-3" />
+                    Соревновательный сезон
                   </div>
                 </div>
+              </header>
+            )}
+
+            {/* Топ-3 — приглушённый превью для FOMO */}
+            {absoluteTop3.length >= 3 && (
+              <div className="relative mb-0">
+                <div className="flex items-end justify-center gap-3 pb-6 pt-6 px-4 opacity-40 blur-[2px] pointer-events-none select-none">
+                  {/* 2-е место */}
+                  <div className="flex-1 max-w-[130px] flex flex-col items-center gap-2 p-3 rounded-[2rem] border border-white/10 bg-gradient-to-b from-slate-400/10 to-slate-900/90">
+                    <div className="w-12 h-12 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold text-lg">
+                      {absoluteTop3[1]?.profile?.first_name?.[0] ?? "?"}
+                    </div>
+                    <p className="text-xs font-bold text-white/70 truncate max-w-full px-1">
+                      {absoluteTop3[1]?.profile?.first_name ?? "—"}
+                    </p>
+                  </div>
+                  {/* 1-е место */}
+                  <div className="flex-1 max-w-[160px] flex flex-col items-center gap-3 p-4 rounded-[2.5rem] border-2 border-yellow-500/30 bg-gradient-to-b from-yellow-500/10 via-slate-900/95 to-slate-900 -mt-4">
+                    <Crown className="w-5 h-5 text-yellow-400" />
+                    <div className="w-14 h-14 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold text-xl">
+                      {absoluteTop3[0]?.profile?.first_name?.[0] ?? "?"}
+                    </div>
+                    <p className="text-sm font-black text-white/80 truncate max-w-full px-1 uppercase">
+                      {absoluteTop3[0]?.profile?.first_name ?? "—"}
+                    </p>
+                  </div>
+                  {/* 3-е место */}
+                  <div className="flex-1 max-w-[130px] flex flex-col items-center gap-2 p-3 rounded-[2rem] border border-white/10 bg-gradient-to-b from-orange-400/10 to-slate-900/90">
+                    <div className="w-12 h-12 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold text-lg">
+                      {absoluteTop3[2]?.profile?.first_name?.[0] ?? "?"}
+                    </div>
+                    <p className="text-xs font-bold text-white/70 truncate max-w-full px-1">
+                      {absoluteTop3[2]?.profile?.first_name ?? "—"}
+                    </p>
+                  </div>
+                </div>
+                {/* Градиент снизу, плавно перетекающий в CTA */}
+                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none" />
               </div>
             )}
+
+            {/* CTA карточка */}
+            <div className={cn(
+              "rounded-2xl border p-6 flex flex-col items-center gap-4 text-center",
+              isLightTheme
+                ? "bg-white border-slate-200 shadow-sm"
+                : "bg-slate-900/60 border-white/10"
+            )}>
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                <Trophy className="w-7 h-7 text-white" />
+              </div>
+              <div className="space-y-1.5">
+                <h3 className="text-lg font-bold">Ты ещё не в сезоне</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-[260px]">
+                  Заработай первые SP чтобы попасть в рейтинг и побороться за призы
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2 justify-center">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold">
+                  <Flame className="w-3.5 h-3.5" /> Дуэль: +10 SP
+                </span>
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold">
+                  <TrendingUp className="w-3.5 h-3.5" /> Тест: +5 SP
+                </span>
+              </div>
+              {pagination.total > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Уже {pagination.total} {pagination.total === 1 ? "участник" : pagination.total < 5 ? "участника" : "участников"} в этом сезоне
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6 py-4 px-4 sm:px-6">
             {!embedded && (
               <header className="space-y-4 text-left relative flex flex-col pt-2">
                 {/* Кнопка Назад и Плашка на одном уровне */}
