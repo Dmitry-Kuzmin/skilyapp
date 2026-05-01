@@ -267,10 +267,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Suspense>
           </div>
 
-          {/* 4. PREMIUM CARD */}
-          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
+          {/* 4+5. PREMIUM + BLOG stacked in one column */}
+          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1 flex flex-col gap-4">
             <Suspense fallback={<ComponentSkeleton />}>
               <PremiumCard onGetPremium={onGetPremium} />
+            </Suspense>
+            <Suspense fallback={<div className="h-24 bg-muted/50 rounded-2xl animate-pulse" />}>
+              <BlogWidget />
             </Suspense>
           </div>
 
@@ -282,13 +285,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </Suspense>
             </div>
           )}
-
-          {/* 5¾. BLOG WIDGET */}
-          <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
-            <Suspense fallback={<ComponentSkeleton />}>
-              <BlogWidget />
-            </Suspense>
-          </div>
 
           {/* 6. EXAM READINESS */}
           <div className={cn(
