@@ -6,10 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, Share2, Twitter, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import { switchInlineQuery, canSwitchInlineQuery, isTelegramMiniApp } from "@/lib/telegram";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { Dgt2026ArticleContent } from "./articles/Dgt2026Article";
+
+type LocalizedArticleFields = Pick<ArticleData, "title" | "description" | "category" | "author">;
 
 interface ArticleData {
   slug: string;
@@ -23,6 +25,7 @@ interface ArticleData {
   categorySlug: string;
   author: string;
   image?: string;
+  translations?: Partial<Record<Language, LocalizedArticleFields>>;
 }
 
 const articles: Record<string, ArticleData> = {
@@ -37,6 +40,22 @@ const articles: Record<string, ArticleData> = {
     readTime: 18,
     content: "",
     customContent: <Dgt2026ArticleContent />,
+    translations: {
+      en: {
+        title: "New Theory Driving Exam in Spain: 2026 Changes",
+        description:
+          "DGT has launched its biggest reform in 10 years. Video questions arrive in February 2026, while new road signs are already in place — here is what changed and how to prepare.",
+        category: "DGT 2026",
+        author: "Dmitry, founder of Skilyapp",
+      },
+      es: {
+        title: "Nuevo examen teórico de conducir en España: cambios de 2026",
+        description:
+          "La DGT ha lanzado su mayor reforma en 10 años. Las preguntas en vídeo llegan en febrero de 2026 y las nuevas señales ya están en vigor: te explicamos qué cambia y cómo prepararte.",
+        category: "DGT 2026",
+        author: "Dmitry, fundador de Skilyapp",
+      },
+    },
   },
   "novye-voprosy-dgt-2025": {
     slug: "novye-voprosy-dgt-2025",
@@ -2657,11 +2676,22 @@ AI-помощник Skilyapp доступен в приложении. Начн�
   },
 };
 
+const getLocalizedArticle = (
+  article: ArticleData | undefined,
+  language: Language,
+): ArticleData | null => {
+  if (!article) return null;
+  return {
+    ...article,
+    ...(article.translations?.[language] ?? {}),
+  };
+};
+
 const Article = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
-  const article = slug ? articles[slug] : null;
+  const article = getLocalizedArticle(slug ? articles[slug] : undefined, language);
 
   useEffect(() => {
     if (!article) {
@@ -2763,7 +2793,7 @@ const Article = () => {
         }
       };
     }
-  }, [article]);
+  }, [article, language]);
 
   if (!article) {
     return null;

@@ -71,7 +71,7 @@ export const PremiumCard: React.FC<PremiumCardProps> = React.memo(({ onGetPremiu
     <div
       onClick={handleClick}
       className={cn(
-        "h-full rounded-3xl xl:rounded-[2.5rem] p-5 md:p-6 xl:p-8 relative overflow-hidden group cursor-pointer shadow-xl border transition-all duration-500",
+        "min-h-[200px] rounded-3xl xl:rounded-[2.5rem] p-5 md:p-6 xl:p-8 relative overflow-hidden group cursor-pointer shadow-xl border transition-all duration-500",
         isDarkTheme
           ? "bg-slate-950 border-slate-800"
           : "bg-white border-slate-200 shadow-[0_20px_45px_rgba(0,0,0,0.06)] hover:border-yellow-400/30"
