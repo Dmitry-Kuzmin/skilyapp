@@ -90,9 +90,15 @@ const CircularProgress = ({ progress, size = 32, strokeWidth = 2.5, completed = 
 
 export function DailyQuestWidget() {
   const { profileId } = useUserContext();
+  const { language } = useLanguage();
   const [quests, setQuests] = useState<DailyQuest[]>([]);
   const [loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState<string | null>(null);
+
+  const getQuestLabel = (quest: DailyQuest) =>
+    QUEST_TRANSLATIONS[quest.quest_id]?.[language] ??
+    QUEST_TRANSLATIONS[quest.quest_id]?.['ru'] ??
+    quest.description;
 
   const fetchQuests = useCallback(async () => {
     if (!profileId) return;
