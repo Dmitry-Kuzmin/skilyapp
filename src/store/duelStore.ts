@@ -186,6 +186,8 @@ const initialState = {
     hasFinishedMyQuestions: false,
     translationLanguage: null,
 
+    answerHistory: [],
+
     activeExploits: new Map(),
     screenShake: false,
     lastAttackTimestamp: 0,

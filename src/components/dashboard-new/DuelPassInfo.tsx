@@ -19,19 +19,24 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
   const { openModal } = useModalRoute('duel-pass-season');
   const { resolvedTheme } = useTheme();
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
 
   const { data: duelPassData, loading } = useDuelPassInfo();
 
-  const ui = {
-    level:     language === 'es' ? 'Nivel'    : language === 'en' ? 'Level'     : 'Уровень',
-    toNext:    language === 'es' ? 'Al sig. nivel:' : language === 'en' ? 'To next level:' : 'До след. уровня:',
-    remaining: language === 'es' ? 'Quedan'   : language === 'en' ? 'Remaining' : 'Осталось',
-    duels:     language === 'es' ? 'Duelos'   : language === 'en' ? 'Duels'     : 'Дуэли',
-    days: (n: number) => language === 'es' ? `${n} día${n !== 1 ? 's' : ''}`
-      : language === 'en' ? `${n} day${n !== 1 ? 's' : ''}`
-      : `${n} ${n === 1 ? 'день' : n < 5 ? 'дня' : 'дней'}`,
+  const dp = (path: string, params?: Record<string, string | number>) => t(`duelPass.${path}`, params);
+  const getDaysVariant = (count: number) => {
+    if (language === 'ru') {
+      const mod10 = count % 10;
+      const mod100 = count % 100;
+      if (mod10 === 1 && mod100 !== 11) return 'one';
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'few';
+      return 'many';
+    }
+
+    return count === 1 ? 'one' : 'other';
   };
+  const formatDaysLabel = (count: number) =>
+    dp(`widget.days.${getDaysVariant(count)}`, { count });
 
   const handleClick = useCallback(() => {
     playClickSound();
@@ -128,7 +133,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
             <Trophy className={`w-5 h-5 ${iconColorClass}`} />
           </div>
           <div>
-            <h3 className={`font-bold ${textPrimaryClass} text-base leading-none mb-0.5`}>Duel Pass</h3>
+            <h3 className={`font-bold ${textPrimaryClass} text-base leading-none mb-0.5`}>{dp('title')}</h3>
             <p className={`text-[12px] mt-0.5 ${textSecondaryClass}`}>{duelPassData.seasonName}</p>
           </div>
         </div>
@@ -141,7 +146,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           <div className="flex items-baseline gap-1.5">
-            <span className={`text-xl font-bold ${textPrimaryClass}`}>{ui.level} {duelPassData.level}</span>
+            <span className={`text-xl font-bold ${textPrimaryClass}`}>{dp('widget.level')} {duelPassData.level}</span>
             <span className={`text-[11px] ${textSecondaryClass}`}>/ 30</span>
           </div>
           <div className={`flex items-center gap-1 text-[11px] ${textSecondaryClass} relative`}>
@@ -182,7 +187,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
           )}
         </div>
         <p className={`text-[10px] ${textSecondaryClass} leading-tight`}>
-          {ui.toNext} <span className={`${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'} font-semibold`}>{duelPassData.nextLevelSP} SP</span>
+          {dp('widget.toNext')} <span className={`${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'} font-semibold`}>{duelPassData.nextLevelSP} SP</span>
         </p>
       </div>
 
@@ -196,9 +201,9 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
         <div className="flex items-center gap-1.5 flex-1">
           <Clock className={`w-3.5 h-3.5 ${statIconClass}`} />
           <div>
-            <p className={`text-[10px] ${textSecondaryClass} leading-none mb-0.5`}>{ui.remaining}</p>
+            <p className={`text-[10px] ${textSecondaryClass} leading-none mb-0.5`}>{dp('widget.remaining')}</p>
             <p className={`text-xs font-semibold ${textPrimaryClass}`}>
-              {ui.days(duelPassData.daysRemaining)}
+              {formatDaysLabel(duelPassData.daysRemaining)}
             </p>
           </div>
         </div>
@@ -206,7 +211,7 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
           <div className="flex items-center gap-1.5 flex-1">
             <TrendingUp className={`w-3.5 h-3.5 ${statIconClass}`} />
             <div>
-              <p className={`text-[10px] ${textSecondaryClass} leading-none mb-0.5`}>{ui.duels}</p>
+              <p className={`text-[10px] ${textSecondaryClass} leading-none mb-0.5`}>{dp('widget.duels')}</p>
               <p className={`text-xs font-semibold ${textPrimaryClass}`}>
                 {duelPassData.wins} / {duelPassData.totalDuels}
               </p>
