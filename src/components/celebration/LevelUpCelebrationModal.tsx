@@ -148,7 +148,7 @@ export const LevelUpCelebrationModal: React.FC = () => {
   const handleClaim = async () => {
     if (!pending || !profileId || claiming || claimed) return;
     setClaiming(true);
-    haptics.impact('medium').catch(() => {});
+    try { haptics.medium(); } catch {}
 
     try {
       const supabase = await getSupabaseClient();
