@@ -10,9 +10,13 @@ import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import { switchInlineQuery, canSwitchInlineQuery, isTelegramMiniApp } from "@/lib/telegram";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { Dgt2026ArticleContent } from "./articles/Dgt2026Article";
+import { BLOG_ARTICLE_TRANSLATIONS } from "@/content/blogArticleTranslations";
 
-type LocalizedArticleFields = Pick<ArticleData, "title" | "description" | "category" | "author">;
-const ARTICLE_LANGUAGE_MAP: Record<Language, string> = {
+type LocalizedArticleFields = Pick<ArticleData, "title" | "description" | "category" | "author"> & {
+  excerpt?: string;
+  content?: string;
+};
+export const ARTICLE_LANGUAGE_MAP: Record<Language, string> = {
   ru: "ru-RU",
   en: "en-US",
   es: "es-ES",
@@ -23,6 +27,7 @@ interface ArticleData {
   title: string;
   description: string;
   content: string;
+  excerpt?: string;
   customContent?: React.ReactNode;
   publishedAt: string;
   readTime: number;
@@ -33,7 +38,7 @@ interface ArticleData {
   translations?: Partial<Record<Language, LocalizedArticleFields>>;
 }
 
-const articles: Record<string, ArticleData> = {
+export const articles: Record<string, ArticleData> = {
   "ekzamen-dgt-2026": {
     slug: "ekzamen-dgt-2026",
     title: "Новый теоретический экзамен на права в Испании: изменения 2026",
