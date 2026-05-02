@@ -2686,13 +2686,15 @@ AI-помощник Skilyapp доступен в приложении. Начн�
   },
 };
 
-const getLocalizedArticle = (
+export const getLocalizedArticle = (
   article: ArticleData | undefined,
   language: Language,
 ): ArticleData | null => {
   if (!article) return null;
+  const externalTranslation = BLOG_ARTICLE_TRANSLATIONS[article.slug]?.[language] ?? {};
   return {
     ...article,
+    ...externalTranslation,
     ...(article.translations?.[language] ?? {}),
   };
 };
@@ -2824,7 +2826,7 @@ const Article = () => {
       {
         "@type": "ListItem",
         position: 2,
-        name: "Blog",
+        name: t("blogPage.title"),
         item: "https://skilyapp.com/blog",
       },
       {
@@ -3255,7 +3257,11 @@ const Article = () => {
   };
 
   const headings = extractHeadings(article.content);
-  const otherArticles = Object.values(articles).filter(a => a.slug !== article.slug).slice(0, 2);
+  const otherArticles = Object.values(articles)
+    .filter((a) => a.slug !== article.slug)
+    .map((relatedArticle) => getLocalizedArticle(relatedArticle, language))
+    .filter(Boolean)
+    .slice(0, 2) as ArticleData[];
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
@@ -3345,7 +3351,7 @@ const Article = () => {
                         className="h-9 px-3 bg-[#2AABEE] hover:bg-[#229ED9] text-white gap-1.5"
                       >
                         <Send className="w-4 h-4" />
-                        <span className="text-xs font-medium">Telegram</span>
+                        <span className="text-xs font-medium">{t("article.share.telegram")}</span>
                       </Button>
                     ) : (
                       <Button
@@ -3420,7 +3426,7 @@ const Article = () => {
                       className="flex items-center gap-2 bg-[#2AABEE] hover:bg-[#229ED9] text-white"
                     >
                       <Send className="w-4 h-4" />
-                      Поделиться в Telegram
+                      {t("article.share.telegram")}
                     </Button>
                   ) : (
                     <Button
@@ -3521,7 +3527,7 @@ const Article = () => {
                           className="h-9 px-3 bg-[#2AABEE] hover:bg-[#229ED9] text-white gap-1.5"
                         >
                           <Send className="w-4 h-4" />
-                          <span className="text-xs font-medium">Telegram</span>
+                          <span className="text-xs font-medium">{t("article.share.telegram")}</span>
                         </Button>
                       ) : (
                         <Button

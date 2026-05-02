@@ -34,6 +34,7 @@ const PerformanceMonitor = lazy(() => import("@/components/PerformanceMonitor").
 const GlobalModalManager = lazy(() => import("@/components/GlobalModalManager").then(m => ({ default: m.GlobalModalManager })));
 const PasskeyOnboardingWrapper = lazy(() => import("@/components/PasskeyOnboardingWrapper").then(m => ({ default: m.PasskeyOnboardingWrapper })));
 const AIChatWidget = lazy(() => import("@/components/ai/AIChatWidget").then(m => ({ default: m.AIChatWidget })));
+const LevelUpCelebrationModal = lazy(() => import("@/components/celebration/LevelUpCelebrationModal").then(m => ({ default: m.LevelUpCelebrationModal })));
 
 
 // ОПТИМИЗАЦИЯ: AppProviders lazy - НЕ попадает в initial bundle для лендинга
