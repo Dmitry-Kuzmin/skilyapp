@@ -229,16 +229,31 @@ const TestResults = () => {
     if (!rewardResult || hasShownRewardsRef.current) return;
     try {
       if (rewardResult.coins_awarded || rewardResult.xp_awarded || rewardResult.sp_awarded || rewardResult.level_up) {
-        toast.success(t("testResults.rewardToast.title"), {
-          description: t("testResults.rewardToast.description", {
-            coins: rewardResult.coins_awarded || 0,
-            xp: rewardResult.xp_awarded ?? rewardResult.sp_awarded ?? 0,
-          }),
-        });
+        // ── Level-up celebration popup (festival design) ───────────────
+        // Триггерим с небольшой задержкой чтобы юзер сначала увидел экран результатов
+        if (rewardResult.level_up && rewardResult.new_level) {
+          setTimeout(() => {
+            maybeTriggerLevelUp(
+              { level_up: rewardResult.level_up, new_level: rewardResult.new_level },
+              mode === 'exam' || mode === 'exam-russia' ? 'exam' : 'test',
+              isPremium ?? false,
+            );
+          }, 1500);
+        }
+
+        // Toast как раньше — для обычных наград без level-up
+        if (!rewardResult.level_up) {
+          toast.success(t("testResults.rewardToast.title"), {
+            description: t("testResults.rewardToast.description", {
+              coins: rewardResult.coins_awarded || 0,
+              xp: rewardResult.xp_awarded ?? rewardResult.sp_awarded ?? 0,
+            }),
+          });
+        }
         hasShownRewardsRef.current = true;
       }
     } catch (e) { console.error(e); }
-  }, [rewardResult, t]);
+  }, [rewardResult, t, mode, isPremium]);
 
   // Sync Duel Pass XP (только если есть награды)
   useEffect(() => {
