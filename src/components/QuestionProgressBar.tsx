@@ -203,16 +203,16 @@ export function QuestionProgressBar({
                       ? "h-[3px] sm:h-[7px]"
                       : "h-[7px] sm:h-[9px]",
 
-                    // ── ВЕРНО: emerald → teal градиент + лёгкое свечение
+                    // ── ВЕРНО: глубокий, благородный teal/emerald
                     isCorrect && [
-                      "bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400",
-                      "shadow-[0_0_10px_rgba(16,185,129,0.55),inset_0_-1px_2px_rgba(0,0,0,0.15)]",
+                      "bg-gradient-to-r from-teal-500 via-emerald-600 to-teal-500",
+                      "shadow-[0_0_8px_rgba(16,185,129,0.35),inset_0_-1px_2px_rgba(0,0,0,0.2)]",
                     ],
 
-                    // ── ОШИБКА: rose → red градиент + горячее свечение
+                    // ── ОШИБКА: приглушённый rose, не кричащий
                     isWrong && [
-                      "bg-gradient-to-r from-rose-500 via-red-500 to-rose-500",
-                      "shadow-[0_0_10px_rgba(239,68,68,0.55),inset_0_-1px_2px_rgba(0,0,0,0.2)]",
+                      "bg-gradient-to-r from-rose-500/80 via-rose-500 to-rose-500/80",
+                      "shadow-[0_0_8px_rgba(244,63,94,0.3),inset_0_-1px_2px_rgba(0,0,0,0.25)]",
                     ],
 
                     // ── ТЕКУЩИЙ: indigo → cyan, пульсация
