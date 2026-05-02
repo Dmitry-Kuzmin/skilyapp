@@ -6,16 +6,7 @@ export default defineConfig({
   site: 'https://skilyapp.com',
   integrations: [
     tailwind(),
-    sitemap({
-      i18n: {
-        defaultLocale: 'es',
-        locales: {
-          es: 'es-ES',
-          ru: 'ru-RU',
-          en: 'en-US',
-        },
-      },
-    }),
+    sitemap(),
   ],
   output: 'static',
 });
