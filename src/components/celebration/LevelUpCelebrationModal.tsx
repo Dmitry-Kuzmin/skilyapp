@@ -131,8 +131,8 @@ export const LevelUpCelebrationModal: React.FC = () => {
     })();
 
     // Звук + хаптика на открытие
-    haptics.notification('success').catch(() => {});
-    sounds.play('levelUp').catch(() => {});
+    try { haptics.success(); } catch {}
+    try { sounds.victory(); } catch {}
 
     return () => { cancelled = true; };
   }, [pending]);
