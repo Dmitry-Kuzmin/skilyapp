@@ -131,14 +131,9 @@ export function DailyQuestWidget() {
   }, [fetchQuests]);
 
   useEffect(() => {
-    const onFocus = () => fetchQuests();
-    window.addEventListener('focus', onFocus);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') fetchQuests();
-    });
-    return () => {
-      window.removeEventListener('focus', onFocus);
-    };
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchQuests(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, [fetchQuests]);
 
   const handleClaimReward = useCallback(async (quest: DailyQuest) => {
