@@ -195,13 +195,14 @@ export function BoostShopModal({
   const platform = userContext?.platform ?? 'web';
   const dateLocale = localeMap[language] || 'en-US';
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
-  // Супер-надежная проверка Telegram (включая Desktop MacOS) из telegram.ts
+  // Единственный источник правды: isTelegramMiniApp() из telegram.ts
+  // !! НЕ использовать getTelegramWebApp() как fallback — он возвращает мок в dev-окружении
   const webApp = getTelegramWebApp();
-  const isTWA = isTelegramMiniApp() || !!webApp;
-  const currentPlatform: 'telegram' | 'web' | 'mobile' = isTWA ? 'telegram' : (platform === 'telegram' ? 'telegram' : 'web');
-  
-  // Принудительно показываем звезды в среде Telegram
-  const showStarsPayment = isTWA || isPaymentMethodAvailable('telegram_stars', currentPlatform);
+  const isTWA = isTelegramMiniApp(); // только реальный Telegram, без мока
+  const currentPlatform: 'telegram' | 'web' | 'mobile' = isTWA ? 'telegram' : 'web';
+
+  // Stars только внутри реального Telegram — никаких других условий
+  const showStarsPayment = isTWA;
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showTonPayment = false; // TON_DISABLED: isPaymentMethodAvailable('ton', currentPlatform);
