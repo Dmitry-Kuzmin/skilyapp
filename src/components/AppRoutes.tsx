@@ -155,7 +155,12 @@ export function AppRoutes() {
           <LearningMap />
         </Suspense>
       } />
-      <Route path="/ai-assistant" element={<Navigate to="/" replace />} />
+      <Route path="/ai-assistant" element={<Navigate to="/chat" replace />} />
+      <Route path="/chat" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <SkilyChatPage />
+        </Suspense>
+      } />
       <Route path="/achievements" element={<Navigate to="/" replace />} />
       {/* Handbook Routes */}
       <Route path="/learn/russia/handbook" element={
