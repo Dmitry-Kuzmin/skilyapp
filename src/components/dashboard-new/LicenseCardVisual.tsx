@@ -222,7 +222,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                 {/* Left Side: Photo Area */}
                 <div className="flex flex-col gap-2 shrink-0">
                     <div className={cn(
-                        "w-16 h-24 sm:w-20 sm:h-28 md:w-24 md:h-[128px] lg:w-[100px] lg:h-[136px] rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
+                        "w-[76px] h-[108px] sm:w-20 sm:h-28 md:w-24 md:h-[128px] lg:w-[100px] lg:h-[136px] rounded-xl md:rounded-2xl overflow-hidden border-2 shadow-inner relative group/photo",
                         isDarkTheme ? "border-white/10 bg-black/40" : "border-slate-200/80 bg-slate-50",
                         !isStatic && "cursor-pointer active:scale-[0.98] transition-all",
                         isUploading && "opacity-50"
