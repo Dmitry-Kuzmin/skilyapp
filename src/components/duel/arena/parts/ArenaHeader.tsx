@@ -157,6 +157,8 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
                         isBookmarked={isQuestionBookmarked}
                         bookmarkLoading={bookmarkLoading}
                         betInfo={betInfo}
+                        answers={answers}
+                        hideScoreIndicators
                         SettingsMenuComponent={
                             <DuelSettingsMenu
                                 open={showDuelSettings}

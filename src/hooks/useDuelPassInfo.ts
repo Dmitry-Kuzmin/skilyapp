@@ -54,9 +54,9 @@ export function useDuelPassInfo() {
       const nextLevelSP = 100 - spInCurrentLevel;
       const localizedSeasonName =
         language === 'es'
-          ? season.name_es || season.name_en || season.name_ru || `Temporada ${season.season_number || 1}`
+          ? season.name_es || season.name_en || `Temporada ${season.season_number || 1}`
           : language === 'en'
-            ? season.name_en || season.name_es || season.name_ru || `Season ${season.season_number || 1}`
+            ? season.name_en || season.name_es || `Season ${season.season_number || 1}`
             : season.name_ru || season.name_es || season.name_en || `Сезон ${season.season_number || 1}`;
 
       return {
