@@ -64,8 +64,8 @@ serve(async (req) => {
       );
     }
 
-    // Anti-speed-cheat: минимум 2 сек на вопрос
-    const MIN_SECONDS_PER_QUESTION = 2;
+    // Anti-speed-cheat: минимум 5 сек на вопрос (реальное чтение ~10-20 сек)
+    const MIN_SECONDS_PER_QUESTION = 5;
     const minExpectedDuration = questions_count * MIN_SECONDS_PER_QUESTION;
     const isTooFast = test_duration_seconds > 0 && test_duration_seconds < minExpectedDuration;
     if (isTooFast) {
