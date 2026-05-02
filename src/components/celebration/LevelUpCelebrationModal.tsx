@@ -189,7 +189,7 @@ export const LevelUpCelebrationModal: React.FC = () => {
   };
 
   const handleSkip = () => {
-    haptics.selection().catch(() => {});
+    try { haptics.selectionChanged(); } catch {}
     dismiss();
   };
 
