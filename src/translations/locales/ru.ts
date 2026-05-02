@@ -372,6 +372,59 @@ export const ru = {
       foreverBadge: "Forever",
       passBadge: "Premium Pass",
     },
+    rewardedAds: {
+      hint: "Посмотри короткую презентацию Premium и получи награду",
+      premiumActive: {
+        title: "Premium активен",
+        description: "Награды без рекламы",
+      },
+      rewards: {
+        coins: {
+          title: "Получить монеты",
+          description: "Посмотри короткую рекламу и получай монеты бесплатно.",
+          rewardText: "+{{amount}} монет",
+          actionText: "Смотреть и получить +{{amount}}",
+        },
+        restoreStreak: {
+          title: "Восстановить серию",
+          description: "Посмотри видео и восстанови свою серию ежедневных бонусов.",
+          rewardText: "Серия восстановлена!",
+          actionText: "Смотреть и восстановить",
+        },
+        testAttempt: {
+          title: "Дополнительная попытка",
+          description: "Посмотри видео и получи ещё одну попытку.",
+          rewardText: "Попытка восстановлена!",
+          actionText: "Смотреть и получить попытку",
+        },
+        slotUnlock: {
+          title: "Открыть слот",
+          description: "Смотри короткую рекламу и открой боевой слот на одну дуэль.",
+          rewardText: "+1 слот на игру",
+          actionText: "Смотреть и открыть слот",
+        },
+        generic: {
+          title: "Получить награду",
+          description: "Посмотри короткое видео и получи награду.",
+          rewardText: "Награда получена!",
+          actionText: "Смотреть и получить",
+        },
+      },
+      placements: {
+        cryptoMiner: {
+          title: "⚡ CRYPTO MINER",
+          description: "Добывай криптомонеты. Смотри рекламу и получай награду.",
+        },
+        overclocking: {
+          title: "OVERCLOCKING",
+          description: "Посмотри видео и разблокируй слот на эту дуэль. Временный root-доступ...",
+        },
+        dataLaundering: {
+          title: "DATA LAUNDERING",
+          description: "Посмотри видео и удвой свой выигрыш: +{{amount}} монет",
+        },
+      },
+    },
     duelPass: {
       level: "Уровень {{level}}",
       nextLevel: "До след. уровня: {{points}} SP",

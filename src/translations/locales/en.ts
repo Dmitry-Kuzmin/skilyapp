@@ -371,6 +371,59 @@ export const en = {
       foreverBadge: "Forever",
       passBadge: "Premium Pass",
     },
+    rewardedAds: {
+      hint: "Watch a short Premium presentation and get your reward",
+      premiumActive: {
+        title: "Premium active",
+        description: "Rewards without ads",
+      },
+      rewards: {
+        coins: {
+          title: "Get coins",
+          description: "Watch a short ad and get coins for free.",
+          rewardText: "+{{amount}} coins",
+          actionText: "Watch and get +{{amount}}",
+        },
+        restoreStreak: {
+          title: "Restore streak",
+          description: "Watch a video and restore your daily rewards streak.",
+          rewardText: "Streak restored!",
+          actionText: "Watch and restore",
+        },
+        testAttempt: {
+          title: "Extra attempt",
+          description: "Watch a video and get one more attempt.",
+          rewardText: "Attempt restored!",
+          actionText: "Watch and get attempt",
+        },
+        slotUnlock: {
+          title: "Unlock slot",
+          description: "Watch a short ad and unlock a battle slot for one duel.",
+          rewardText: "+1 slot for a match",
+          actionText: "Watch and unlock slot",
+        },
+        generic: {
+          title: "Get reward",
+          description: "Watch a short video and claim a reward.",
+          rewardText: "Reward received!",
+          actionText: "Watch and get",
+        },
+      },
+      placements: {
+        cryptoMiner: {
+          title: "⚡ CRYPTO MINER",
+          description: "Mine crypto coins. Watch an ad and get a reward.",
+        },
+        overclocking: {
+          title: "OVERCLOCKING",
+          description: "Watch a video and unlock this slot for the current duel. Temporary root access...",
+        },
+        dataLaundering: {
+          title: "DATA LAUNDERING",
+          description: "Watch a video and double your winnings: +{{amount}} coins",
+        },
+      },
+    },
     duelPass: {
       level: "Level {{level}}",
       nextLevel: "Next level in: {{points}} SP",

@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NumberTicker } from '@/components/ui/NumberTicker';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useOnlinePlayers } from '@/hooks/useGamesData';
 
 interface OnlinePlayer {
     id: string;
@@ -22,12 +23,16 @@ interface OnlinePlayersProps {
 
 export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
     baseCount = 1240,
-    players = [],
+    players: playersProp,
     currentUserPhoto,
     currentUserId,
     className
 }) => {
     const [count, setCount] = useState(baseCount);
+
+    // Если players не переданы снаружи — загружаем сами
+    const { data: fetchedData } = useOnlinePlayers();
+    const players = playersProp ?? fetchedData?.players ?? [];
 
     useEffect(() => {
         const updateCount = () => {

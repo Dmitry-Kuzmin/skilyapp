@@ -368,6 +368,59 @@ export const es = {
       foreverBadge: "Forever",
       passBadge: "Premium Pass",
     },
+    rewardedAds: {
+      hint: "Mira una breve presentación de Premium y consigue tu recompensa",
+      premiumActive: {
+        title: "Premium activo",
+        description: "Recompensas sin anuncios",
+      },
+      rewards: {
+        coins: {
+          title: "Conseguir monedas",
+          description: "Mira un anuncio corto y consigue monedas gratis.",
+          rewardText: "+{{amount}} monedas",
+          actionText: "Ver y conseguir +{{amount}}",
+        },
+        restoreStreak: {
+          title: "Restaurar racha",
+          description: "Mira un vídeo y restaura tu racha de recompensas diarias.",
+          rewardText: "¡Racha restaurada!",
+          actionText: "Ver y restaurar",
+        },
+        testAttempt: {
+          title: "Intento extra",
+          description: "Mira un vídeo y consigue un intento más.",
+          rewardText: "¡Intento restaurado!",
+          actionText: "Ver y conseguir intento",
+        },
+        slotUnlock: {
+          title: "Abrir slot",
+          description: "Mira un anuncio corto y abre un slot de combate para un duelo.",
+          rewardText: "+1 slot para la partida",
+          actionText: "Ver y abrir slot",
+        },
+        generic: {
+          title: "Conseguir recompensa",
+          description: "Mira un vídeo corto y consigue una recompensa.",
+          rewardText: "¡Recompensa conseguida!",
+          actionText: "Ver y conseguir",
+        },
+      },
+      placements: {
+        cryptoMiner: {
+          title: "⚡ CRYPTO MINER",
+          description: "Mina criptomonedas. Mira un anuncio y consigue una recompensa.",
+        },
+        overclocking: {
+          title: "OVERCLOCKING",
+          description: "Mira un vídeo y desbloquea este slot para este duelo. Acceso root temporal...",
+        },
+        dataLaundering: {
+          title: "DATA LAUNDERING",
+          description: "Mira un vídeo y duplica tu premio: +{{amount}} monedas",
+        },
+      },
+    },
   },
   licenseCard: {
     ranks: {
