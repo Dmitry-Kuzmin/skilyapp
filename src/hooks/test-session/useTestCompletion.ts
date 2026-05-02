@@ -356,6 +356,11 @@ export const useTestCompletion = ({
             }
         }
 
+        // Persist rewards so they survive a page reload
+        if (rewardResult) {
+            try { sessionStorage.setItem('last_test_reward', JSON.stringify(rewardResult)); } catch {}
+        }
+
         navigate("/test/results", {
             state: {
                 score,
