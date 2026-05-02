@@ -146,14 +146,6 @@ export function ContextSettingsSheet({
         'flex flex-col gap-6 px-6 pb-6',
         isDarkTheme ? 'text-zinc-100' : 'text-zinc-900'
       )}>
-        {/* Иконка + заголовок (внутри контента для мобильного) */}
-        <div className="flex items-center gap-2 -mb-2 sm:hidden">
-          <SlidersHorizontal className={cn('w-5 h-5', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')} />
-          <span className={cn('text-sm font-semibold uppercase tracking-wider', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')}>
-            {getTitle()}
-          </span>
-        </div>
-
         {/* Секция 1: Выбор страны */}
         <div>
           <h3 className={cn(
