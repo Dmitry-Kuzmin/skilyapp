@@ -652,16 +652,7 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
                                   return <SignWidget key={partIndex} code={param1.trim()} description={param2} />;
                                 }
 
-                                if (upperType === 'TON' || upperType === 'WTON') {
-                                    if (upperParam1 === 'CONNECT' || upperParam1 === 'WALLET:LOGIN' || upperType === 'WTON') {
-                                        return <TonPaymentWidget key={partIndex} mode="compact" className="my-2 border border-blue-500/20 shadow-sm" />;
-                                    } else if (upperParam1.startsWith('PAY:')) {
-                                        const parts = param1.split(':');
-                                        const amount = parts[1] || '1.5';
-                                        const comment = [parts[2], param2].filter(Boolean).join(':') || 'Skily Premium';
-                                        return <TonPaymentWidget key={partIndex} mode="compact" defaultAmount={amount} defaultComment={comment} className="my-2 border border-blue-500/20 shadow-sm" />;
-                                    }
-                                }
+                                // TON_DISABLED: TON widget removed
 
                                 if (upperType === 'CTA' && upperParam1 === 'PREMIUM') {
                                   return (
