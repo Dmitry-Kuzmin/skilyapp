@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useUserContext } from '@/contexts/UserContext';
 import { useDashboardData } from './useDashboardData';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface DuelPassInfo {
   level: number;
@@ -18,6 +19,7 @@ const DUEL_PASS_INFO_KEY = 'duel-pass-info';
 export function useDuelPassInfo() {
   const { profileId } = useUserContext();
   const { data: dashboardData } = useDashboardData();
+  const { language } = useLanguage();
 
   // ID сезона в queryKey гарантирует инвалидацию кэша при смене/истечении сезона
   const activeSeasonId = dashboardData?.active_season?.id ?? null;
@@ -30,7 +32,7 @@ export function useDuelPassInfo() {
     error,
     refetch,
   } = useQuery<DuelPassInfo | null>({
-    queryKey: [DUEL_PASS_INFO_KEY, profileId, activeSeasonId, seasonPoints],
+    queryKey: [DUEL_PASS_INFO_KEY, profileId, activeSeasonId, seasonPoints, language],
     queryFn: async () => {
       if (!profileId) return null;
 
@@ -50,13 +52,19 @@ export function useDuelPassInfo() {
       const currentLevel = progress.level || 0;
       const spInCurrentLevel = currentSP % 100;
       const nextLevelSP = 100 - spInCurrentLevel;
+      const localizedSeasonName =
+        language === 'es'
+          ? season.name_es || season.name_en || season.name_ru || `Temporada ${season.season_number || 1}`
+          : language === 'en'
+            ? season.name_en || season.name_es || season.name_ru || `Season ${season.season_number || 1}`
+            : season.name_ru || season.name_es || season.name_en || `Сезон ${season.season_number || 1}`;
 
       return {
         level: currentLevel,
         seasonPoints: currentSP,
         nextLevelSP,
         daysRemaining: season.days_remaining || 0,
-        seasonName: season.name_ru || `Сезон ${season.season_number || 1}`,
+        seasonName: localizedSeasonName,
         totalDuels: stats?.total_duels || 0,
         wins: stats?.wins || 0,
       };

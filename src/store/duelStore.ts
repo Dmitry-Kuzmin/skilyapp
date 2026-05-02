@@ -74,6 +74,9 @@ interface DuelState {
     lastAttackTimestamp: number; // To trigger effects
 
 
+    // --- Answer History ---
+    answerHistory: Array<{ isCorrect: boolean }>;
+
     // --- Status Flags ---
     isLoading: boolean;
     isProcessingAnswer: boolean; // Shows loading animation after answer selection
