@@ -164,8 +164,8 @@ export const LevelUpCelebrationModal: React.FC = () => {
       if (data?.error) throw new Error(data.error);
 
       setClaimed(true);
-      haptics.notification('success').catch(() => {});
-      sounds.play('coinDrop').catch(() => {});
+      try { haptics.success(); } catch {}
+      try { sounds.confetti(); } catch {}
 
       // Обновляем кэши
       queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
