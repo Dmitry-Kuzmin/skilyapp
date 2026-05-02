@@ -106,53 +106,56 @@ export const useOnlinePlayers = () => {
     queryKey: ['online-players'],
     queryFn: async () => {
       try {
-        // Получаем текущее время минус 15 минут
         const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
 
-        // ОПТИМИЗАЦИЯ: Делаем только один запрос
-        const { data, error } = await supabase
+        // Онлайн-игроки с фото за последние 15 мин
+        const { data: onlineData, error: onlineError } = await supabase
           .from('profiles')
           .select('id, first_name, username, photo_url, last_login')
           .gte('last_login', fifteenMinutesAgo)
+          .not('photo_url', 'is', null)
           .order('last_login', { ascending: false })
           .limit(100) as any;
 
-        if (error) throw error;
+        if (onlineError) throw onlineError;
 
-        const actualCount = (data as any[])?.length || 0;
+        const onlineWithPhotos: OnlinePlayer[] = ((onlineData as any[]) || []).map(formatPlayer);
 
-        // Форматируем первых 3 для отображения
-        const formatted = ((data as any[]) || [])
-          .slice(0, 3)
-          .map((profile: any) => {
-            const displayName = profile.first_name || profile.username || 'Player';
-            return {
-              id: profile.id,
-              name: displayName,
-              photoUrl: profile.photo_url,
-              initials: displayName
-                .split(' ')
-                .map((part: string) => part.charAt(0))
-                .join('')
-                .slice(0, 2)
-                .toUpperCase() || 'PL',
-            };
-          });
+        // Если онлайн-игроков с фото меньше 3 — добираем рандомных из БД
+        let playersToShow = onlineWithPhotos.slice(0, 3);
+        if (playersToShow.length < 3) {
+          const needed = 3 - playersToShow.length;
+          const existingIds = playersToShow.map(p => p.id);
+
+          const { data: randomData } = await supabase
+            .from('profiles')
+            .select('id, first_name, username, photo_url')
+            .not('photo_url', 'is', null)
+            .not('id', 'in', `(${existingIds.join(',') || '00000000-0000-0000-0000-000000000000'})`)
+            .limit(50) as any;
+
+          const shuffled = ((randomData as any[]) || [])
+            .sort(() => Math.random() - 0.5)
+            .slice(0, needed)
+            .map(formatPlayer);
+
+          playersToShow = [...playersToShow, ...shuffled];
+        }
 
         return {
-          players: formatted.length > 0 ? formatted : fallbackPlayers,
-          count: 1240 + Math.floor(Math.sin(Date.now() / 100000) * 15), // Стабильно высокое число с небольшой флуктуацией
+          players: playersToShow,
+          count: 1240 + Math.floor(Math.sin(Date.now() / 100000) * 15),
         };
       } catch (error) {
         console.error('Error loading online players:', error);
         return {
-          players: fallbackPlayers,
+          players: [],
           count: 1242,
         };
       }
     },
-    staleTime: 60 * 1000, // 1 минута - онлайн игроки обновляются редко
-    gcTime: 5 * 60 * 1000, // 5 минут
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
