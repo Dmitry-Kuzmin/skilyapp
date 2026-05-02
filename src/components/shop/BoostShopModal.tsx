@@ -1669,7 +1669,7 @@ export function BoostShopModal({
                           ...pack,
                           catalogKey: pack.id,
                           packageKey: pack.id,
-                          title: `${pack.coins} монет`,
+                          title: t("boostShop.coins.packLabel", { amount: pack.coins }),
                           priceValue: pack.priceValue,
                           priceCoins: pack.coins
                         })}

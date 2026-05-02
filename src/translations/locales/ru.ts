@@ -769,9 +769,13 @@ export const ru = {
     },
     payment: {
       selectorTitle: "Выбери способ оплаты",
+      starsTitle: "Telegram Stars",
       starsSubtitle: "Мгновенно через Telegram Stars",
+      tonTitle: "TON-кошелек",
       tonSubtitle: "Через Tonkeeper или Wallet",
+      cryptoTitle: "Криптовалюта",
       cryptoSubtitle: "BTC, USDT, ETH и другие",
+      cryptoPaymentTitle: "Оплата криптовалютой",
       cardTitle: "Банковская карта",
       cardSubtitle: "Visa, Mastercard, Stripe",
     },

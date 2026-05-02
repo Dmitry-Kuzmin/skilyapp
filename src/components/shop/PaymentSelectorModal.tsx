@@ -57,6 +57,12 @@ export function PaymentSelectorModal({
 }: PaymentSelectorModalProps) {
   const { t } = useLanguage();
   const { profileId } = useUserContext();
+  const selectorDescription =
+    pack?.priceCoins
+      ? `${t('boostShop.coins.packLabel', { amount: pack.priceCoins })} — ${pack.price}`
+      : pack?.title
+        ? `${pack.title} — ${pack.price}`
+        : undefined;
 
   // Step state
   const [step, setStep] = useState<'select' | 'cryptomus'>('select');
@@ -229,7 +235,7 @@ export function PaymentSelectorModal({
         open={open && step === 'select'}
         onOpenChange={onOpenChange}
         title={t('boostShop.payment.selectorTitle') || "Выберите способ оплаты"}
-        description={pack.title ? `${pack.title} — ${pack.price}` : undefined}
+        description={selectorDescription}
         className="max-w-md"
       >
         <div className="flex flex-col gap-3 px-2 pb-4 pt-1">
@@ -249,7 +255,7 @@ export function PaymentSelectorModal({
               />
               <PaymentItem
                 icon={Sparkles}
-                title="Telegram Stars"
+                title={t('boostShop.payment.starsTitle') || 'Telegram Stars'}
                 subtitle={t('boostShop.payment.starsSubtitle') || "Мгновенно через Telegram"}
                 color="gold"
                 loading={starsLoading}
@@ -266,7 +272,7 @@ export function PaymentSelectorModal({
           {availability.ton && (
             <PaymentItem
               icon={Wallet}
-              title="TON Wallet"
+              title={t('boostShop.payment.tonTitle') || 'TON Wallet'}
               subtitle={t('boostShop.payment.tonSubtitle') || "Через Tonkeeper или Wallet"}
               color="blue"
               onClick={onTonClick}
@@ -281,7 +287,7 @@ export function PaymentSelectorModal({
           {availability.crypto && (
             <PaymentItem
               icon={Bitcoin}
-              title="Cryptocurrency"
+              title={t('boostShop.payment.cryptoTitle') || 'Cryptocurrency'}
               subtitle={t('boostShop.payment.cryptoSubtitle') || "BTC, USDT, ETH и другие"}
               color="orange"
               onClick={handleCryptoClick}
@@ -313,7 +319,7 @@ export function PaymentSelectorModal({
             setPaymentStatus('pending');
           }
         }}
-        title="Cryptocurrency Payment"
+        title={t('boostShop.payment.cryptoPaymentTitle') || 'Cryptocurrency Payment'}
         description={cryptomusData?.itemName}
         className="max-w-2xl"
       >
@@ -323,7 +329,7 @@ export function PaymentSelectorModal({
               src={cryptomusData.paymentUrl}
               className="absolute inset-0 w-full h-full border-0 rounded-lg"
               allow="payment; clipboard-write"
-              title="Cryptomus Payment"
+              title={t('boostShop.payment.cryptoPaymentTitle') || 'Cryptocurrency Payment'}
             />
           )}
 

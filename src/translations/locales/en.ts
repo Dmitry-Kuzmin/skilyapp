@@ -761,9 +761,13 @@ export const en = {
     },
     payment: {
       selectorTitle: "Choose Payment Method",
+      starsTitle: "Telegram Stars",
       starsSubtitle: "Instant via Telegram Stars",
+      tonTitle: "TON Wallet",
       tonSubtitle: "Via Tonkeeper or Wallet",
+      cryptoTitle: "Cryptocurrency",
       cryptoSubtitle: "BTC, USDT, ETH and more",
+      cryptoPaymentTitle: "Cryptocurrency Payment",
       cardTitle: "Bank Card",
       cardSubtitle: "Visa, Mastercard, Stripe",
     },

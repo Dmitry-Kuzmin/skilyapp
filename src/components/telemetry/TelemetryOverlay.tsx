@@ -68,10 +68,10 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: any) {
 
 function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: (key: string, params?: Record<string, string | number>) => string }) {
     const levels = [
-        { id: 'start', name: t('dashboard.examReadiness.overlay.flightLevels.start'), range: '0-30%', color: '#94a3b8' },
-        { id: 'progress', name: t('dashboard.examReadiness.overlay.flightLevels.progress'), range: '31-70%', color: '#f59e0b' },
-        { id: 'near', name: t('dashboard.examReadiness.overlay.flightLevels.near'), range: '71-85%', color: '#eab308' },
-        { id: 'ready', name: t('dashboard.examReadiness.overlay.flightLevels.ready'), range: '86-100%', color: '#10b981' }
+        { id: 'start', name: t('flightLevels.start'), range: '0-30%', color: '#94a3b8' },
+        { id: 'progress', name: t('flightLevels.progress'), range: '31-70%', color: '#f59e0b' },
+        { id: 'near', name: t('flightLevels.near'), range: '71-85%', color: '#eab308' },
+        { id: 'ready', name: t('flightLevels.ready'), range: '86-100%', color: '#10b981' }
     ];
 
     const currentIndex = levels.findIndex(l => l.id === (currentStatus === 'legend' ? 'ready' : currentStatus));
@@ -125,6 +125,9 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
     const score = readiness?.percent ?? (dashData?.stats?.accuracy || 0);
     const overlay = useCallback((path: string, params?: Record<string, string | number>) => t(`dashboard.examReadiness.overlay.${path}`, params), [t]);
+    const readinessStatus = readiness?.status || 'start';
+    const verdictTitle = t(`dashboard.examReadiness.levels.${readinessStatus}.title`);
+    const verdictDescription = t(`dashboard.examReadiness.levels.${readinessStatus}.desc`);
 
     // Analytics data (for radar, trend, etc.)
     const { analytics, loading: analyticsLoading } = useAnalytics(
@@ -188,7 +191,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
         );
     }
 
-    const status = getStatusColor(readiness?.status || 'start');
+    const status = getStatusColor(readinessStatus);
 
     return (
         <div className="flex flex-col space-y-8 pb-10 px-1 md:px-0">
@@ -248,11 +251,11 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                         </span>
                                     </div>
                                     <h2 className="text-4xl font-black text-foreground dark:text-white uppercase tracking-tight leading-none drop-shadow-sm">
-                                        {readiness?.shortText || overlay('analyzing')}
+                                        {verdictTitle || overlay('analyzing')}
                                     </h2>
                                     <div className="bg-muted/50 dark:bg-white/5 rounded-2xl p-4 border border-border dark:border-white/5 backdrop-blur-sm relative">
                                         <p className="text-sm text-foreground/80 dark:text-slate-300 font-medium leading-relaxed italic opacity-90 relative z-10">
-                                            "{readiness?.statusText}"
+                                            "{verdictDescription}"
                                         </p>
                                         <Sparkles className="absolute -top-1 -right-1 w-8 h-8 text-indigo-500/10 pointer-events-none" />
                                     </div>
@@ -280,7 +283,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
                     {/* Bottom Compact Navigation Path */}
                     <div className="px-10 py-6 bg-muted/30 dark:bg-slate-950/40 border-t border-border dark:border-white/5">
-                        <FlightNavigation currentStatus={readiness?.status || 'start'} t={overlay} />
+                        <FlightNavigation currentStatus={readinessStatus} t={overlay} />
                     </div>
                 </div>
             </div>
