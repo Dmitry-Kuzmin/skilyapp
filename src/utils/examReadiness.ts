@@ -198,40 +198,45 @@ export function calculateReadiness(metrics: ReadinessMetrics): ReadinessResult {
   const basePerformance = (accuracyScore * 0.8) + (metrics.topicsCovered * 0.2);
 
   // 3. CONFIDENCE FACTOR (Experience balance)
-  // Насколько мы доверяем результату на основе объема практики.
-  // Мы увеличили требования для того, чтобы прогресс не шел слишком быстро (как просил Дим)
   let confidenceFactor = 0;
 
-  if (metrics.testsCompleted < 5) {
-    // 1-4 тестов: Экстремально низкая уверенность.
-    // Max 5% уверенности.
-    confidenceFactor = 0.05;
-  } else if (metrics.testsCompleted < 20) {
-    // 5-19 тестов: Начало пути. 
-    // Требуется больше тестов для роста.
-    // 0.1 при 5 тестах -> 0.3 при 19 тестах.
-    const progress = (metrics.testsCompleted - 5) / 15;
-    confidenceFactor = 0.1 + (progress * 0.2);
-  } else if (metrics.testsCompleted < 50) {
-    // 20-49 тестов: Средняя уверенность.
-    // 0.3 при 20 тестах -> 0.7 при 49 тестах.
-    const progress = (metrics.testsCompleted - 20) / 30;
-    confidenceFactor = 0.3 + (progress * 0.4);
-  } else if (metrics.testsCompleted < 80) {
-    // 50-79 тестов: Высокая уверенность.
-    // 0.7 при 50 тестах -> 0.9 при 79 тестах.
-    const progress = (metrics.testsCompleted - 50) / 30;
-    confidenceFactor = 0.7 + (progress * 0.2);
+  if (metrics.country === 'russia') {
+    // Россия: 40 билетов × 20 вопросов. Полное покрытие = 40 билетов.
+    const t = metrics.testsCompleted;
+    if (t < 3) {
+      confidenceFactor = 0.05;
+    } else if (t < 10) {
+      confidenceFactor = 0.1 + ((t - 3) / 7) * 0.25; // 0.10 → 0.35
+    } else if (t < 30) {
+      confidenceFactor = 0.35 + ((t - 10) / 20) * 0.40; // 0.35 → 0.75
+    } else if (t < 40) {
+      confidenceFactor = 0.75 + ((t - 30) / 10) * 0.20; // 0.75 → 0.95
+    } else {
+      confidenceFactor = 1.0; // все 40 билетов пройдены
+    }
   } else {
-    // 80+ тестов: Полная уверенность.
-    confidenceFactor = 1.0;
+    // Испания: много практических тестов, порог выше (как просил Дим)
+    if (metrics.testsCompleted < 5) {
+      confidenceFactor = 0.05;
+    } else if (metrics.testsCompleted < 20) {
+      const progress = (metrics.testsCompleted - 5) / 15;
+      confidenceFactor = 0.1 + (progress * 0.2);
+    } else if (metrics.testsCompleted < 50) {
+      const progress = (metrics.testsCompleted - 20) / 30;
+      confidenceFactor = 0.3 + (progress * 0.4);
+    } else if (metrics.testsCompleted < 80) {
+      const progress = (metrics.testsCompleted - 50) / 30;
+      confidenceFactor = 0.7 + (progress * 0.2);
+    } else {
+      confidenceFactor = 1.0;
+    }
   }
 
-  // 4. UNIQUE QUESTIONS BONUS (Если пройдено много уникальных вопросов, повышаем уверенность)
+  // 4. UNIQUE QUESTIONS BONUS
   if (metrics.uniqueQuestions && metrics.uniqueQuestions > 0) {
-    // Для DGT Spain база ~3000 вопросов. 1500 уникальных = 50% базы.
-    // Добавляем до +0.1 к confidenceFactor если пройдено много уникальных вопросов
-    const questionBonus = Math.min(metrics.uniqueQuestions / 1500, 1) * 0.1;
+    // Россия: база 800 вопросов (40 × 20). Испания: ~3000, эффективно считаем от 1500.
+    const questionBase = metrics.country === 'russia' ? 800 : 1500;
+    const questionBonus = Math.min(metrics.uniqueQuestions / questionBase, 1) * 0.1;
     confidenceFactor = Math.min(1.0, confidenceFactor + questionBonus);
   }
 
