@@ -78,11 +78,20 @@ serve(async (req) => {
 
     if (existingResult) {
       console.log('[complete-test-and-award] ⚠️ Already processed');
+      // sp_awarded in test_results is always 0 (SP goes to season-sp separately).
+      // Recalculate SP/XP for the display so the client gets the correct values.
+      const baseSp = body.correct_count * 2;
+      const bonusSp = body.score === 100 ? 50 : body.score >= 90 ? 30 : 0;
+      const xpAwarded = (body.mode === 'exam' || body.mode === 'exam-russia') && body.score >= 90 ? 100
+        : body.score === 100 ? 30 : 10;
       return new Response(
         JSON.stringify({
           success: true,
-          coins_awarded: existingResult.coins_awarded,
-          sp_awarded: existingResult.sp_awarded,
+          coins_awarded: 0,
+          sp_awarded: baseSp + bonusSp,
+          sp_base: baseSp,
+          sp_bonus: bonusSp,
+          xp_awarded: xpAwarded,
           message: "Test already processed"
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
