@@ -153,6 +153,7 @@ const TestSession = () => {
     return "practice";
   }, [rawMode, location.pathname, searchParams, ticketIdParam]);
   const isGuest = !authLoading && (!isAuthenticated || !profileId);
+  const openModal = useModalStore((state) => state.openModal);
 
   useEffect(() => {
     if (!isGuest) return;
