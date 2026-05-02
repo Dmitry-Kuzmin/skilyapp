@@ -32,10 +32,13 @@ const LABELS = {
     premium: "PREMIUM",
     getPremium: "ПОЛУЧИТЬ",
     add: "ДОБАВИТЬ",
-    locked: "ЗАКРЫТО",
-    unequip: "СНЯТЬ",
-    inventoryEmpty: "Инвентарь пуст",
-    goShop: "Перейти в Магазин"
+  locked: "ЗАКРЫТО",
+  unequip: "СНЯТЬ",
+  inventoryEmpty: "Инвентарь пуст",
+  goShop: "Перейти в Магазин",
+  unlockForever: "Открыть навсегда за {{amount}}",
+  unlockForeverSubtext: "Слот останется открытым для всех будущих игр",
+  overclockingDescription: "Посмотри рекламу и разблокируй слот на эту дуэль. Временный root-доступ...",
   },
   en: {
     title: "BATTLE MODULES",
@@ -52,7 +55,10 @@ const LABELS = {
     locked: "LOCKED",
     unequip: "UNEQUIP",
     inventoryEmpty: "Inventory is empty",
-    goShop: "Go to Black Market"
+    goShop: "Go to Black Market",
+    unlockForever: "Unlock forever for {{amount}}",
+    unlockForeverSubtext: "The slot will stay open for all future matches",
+    overclockingDescription: "Watch an ad and unlock this slot for the current duel. Temporary root access...",
   },
   es: {
     title: "MÓDULOS DE COMBATE",
@@ -69,7 +75,10 @@ const LABELS = {
     locked: "BLOQUEADO",
     unequip: "QUITAR",
     inventoryEmpty: "Inventario vacío",
-    goShop: "Ir al Mercado Negro"
+    goShop: "Ir al Mercado Negro",
+    unlockForever: "Abrir para siempre por {{amount}}",
+    unlockForeverSubtext: "El slot quedará abierto para todas las partidas futuras",
+    overclockingDescription: "Mira un anuncio y desbloquea este slot para este duelo. Acceso root temporal...",
   }
 };
 
@@ -626,8 +635,8 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           rewardType="slot_unlock"
           inlineOverlay={false}
           secondaryAction={{
-            text: `Открыть навсегда за ${SLOT_UNLOCK_COST}`,
-            subtext: "Слот останется открытым для всех будущих игр",
+            text: l.unlockForever.replace('{{amount}}', String(SLOT_UNLOCK_COST)),
+            subtext: l.unlockForeverSubtext,
             icon: <Coins className="w-4 h-4 text-amber-500" />,
             onClick: () => {
               setShowOverclockModal(false);
@@ -667,6 +676,8 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
               toast.error(errorMessage);
             }
           }}
+          title="OVERCLOCKING"
+          description={l.overclockingDescription}
           title="OVERCLOCKING"
           description="Посмотри рекламу и разблокируй слот на эту дуэль. Временный root-доступ..."
         />

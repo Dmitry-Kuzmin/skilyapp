@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { useAdRewardStatus } from '@/hooks/useAdRewardStatus';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface OverclockingAdButtonProps {
   slotNumber: 2 | 3;
@@ -23,6 +24,7 @@ interface OverclockingAdButtonProps {
  */
 export function OverclockingAdButton({ slotNumber, onSlotUnlocked, className }: OverclockingAdButtonProps) {
   const { profileId } = useUserContext();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [showAdModal, setShowAdModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -170,10 +172,9 @@ export function OverclockingAdButton({ slotNumber, onSlotUnlocked, className }: 
         rewardType="coins"
         rewardAmount={0}
         onRewardClaimed={handleRewardClaimed}
-        title="OVERCLOCKING"
-        description="Посмотри видео и разблокируй слот на эту дуэль. Временный root-доступ..."
+        title={t('rewardedAds.placements.overclocking.title')}
+        description={t('rewardedAds.placements.overclocking.description')}
       />
     </>
   );
 }
-

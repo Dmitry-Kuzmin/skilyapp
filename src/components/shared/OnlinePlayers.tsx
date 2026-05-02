@@ -75,16 +75,7 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
             list.push(...bots);
         }
 
-        // 4. PLACEHOLDERS (только если совсем пусто)
-        if (list.length < 4) {
-            const placeholders = [
-                { id: 'p1', name: 'A', photoUrl: 'https://i.pravatar.cc/100?u=1', initials: 'A' },
-                { id: 'p2', name: 'B', photoUrl: 'https://i.pravatar.cc/100?u=2', initials: 'B' },
-                { id: 'p3', name: 'C', photoUrl: 'https://i.pravatar.cc/100?u=3', initials: 'C' },
-                { id: 'p4', name: 'D', photoUrl: 'https://i.pravatar.cc/100?u=4', initials: 'D' },
-            ].slice(0, 4 - list.length);
-            list.push(...placeholders);
-        }
+        // No fake placeholders — show only real users
 
         return list.slice(0, 4);
     }, [players, currentUserPhoto, currentUserId]);

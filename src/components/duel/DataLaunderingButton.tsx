@@ -11,6 +11,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { useAdRewardStatus } from '@/hooks/useAdRewardStatus';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DataLaunderingButtonProps {
   winnings: number;
@@ -24,6 +25,7 @@ interface DataLaunderingButtonProps {
  */
 export function DataLaunderingButton({ winnings, duelId, className }: DataLaunderingButtonProps) {
   const { profileId } = useUserContext();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [showAdModal, setShowAdModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -253,10 +255,9 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
         rewardType="coins"
         rewardAmount={winnings}
         onRewardClaimed={handleRewardClaimed}
-        title="DATA LAUNDERING"
-        description={`Посмотри видео и удвой свой выигрыш: +${winnings} монет`}
+        title={t('rewardedAds.placements.dataLaundering.title')}
+        description={t('rewardedAds.placements.dataLaundering.description', { amount: winnings })}
       />
     </>
   );
 }
-

@@ -10,6 +10,7 @@ import { sounds } from '@/lib/sounds';
 import { haptics } from '@/lib/haptics';
 import { useAdRewardStatus } from '@/hooks/useAdRewardStatus';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CryptoMinerAdvancedProps {
     className?: string;
@@ -22,6 +23,7 @@ interface CryptoMinerAdvancedProps {
  */
 export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerAdvancedProps) {
     const { profileId } = useUserContext();
+    const { t } = useLanguage();
     const queryClient = useQueryClient();
     const [showAdModal, setShowAdModal] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -312,8 +314,8 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                 rewardType="coins"
                 rewardAmount={25}
                 onRewardClaimed={handleRewardClaimed}
-                title="⚡ CRYPTO MINER"
-                description="Добывай криптомонеты! Смотри рекламу и получай награду."
+                title={t('rewardedAds.placements.cryptoMiner.title')}
+                description={t('rewardedAds.placements.cryptoMiner.description')}
                 allowForPremium
             />
         </>
