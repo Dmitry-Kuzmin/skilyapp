@@ -988,6 +988,16 @@ export const es = {
   },
   duelPass: {
     title: "Duel Pass",
+    widget: {
+      level: "Nivel",
+      toNext: "Al sig. nivel:",
+      remaining: "Quedan",
+      duels: "Duelos",
+      days: {
+        one: "{{count}} día",
+        other: "{{count}} días",
+      },
+    },
     rarity: {
       common: "Común",
       rare: "Raro",

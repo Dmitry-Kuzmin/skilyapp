@@ -1005,6 +1005,17 @@ export const ru = {
   },
   duelPass: {
     title: "Duel Pass",
+    widget: {
+      level: "Уровень",
+      toNext: "До след. уровня:",
+      remaining: "Осталось",
+      duels: "Дуэли",
+      days: {
+        one: "{{count}} день",
+        few: "{{count}} дня",
+        many: "{{count}} дней",
+      },
+    },
     rarity: {
       common: "Обычный",
       rare: "Редкий",

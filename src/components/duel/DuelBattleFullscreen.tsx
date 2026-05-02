@@ -101,7 +101,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
     combo, usedBoosts, eliminatedOptions, translationLanguage,
     isLoading: loading, isProcessingAnswer, isWaitingForOpponent, hasFinishedMyQuestions,
     activeExploits, screenShake, opponentIsConnected, opponentLastSeen,
-    lastAttackTimestamp, betInfo, opponentActivityStatus, players,
+    lastAttackTimestamp, betInfo, opponentActivityStatus, players, answerHistory,
     setMyPlayerId, setPlayers, setQuestions, setCurrentIndex, setTimeLeft,
     setMyScore, setOpponentScore, setCombo, setEliminatedOptions,
     setFinishedMyQuestions, nextQuestion, setLoading,
