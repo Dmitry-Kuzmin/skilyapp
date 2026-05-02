@@ -1,154 +1,154 @@
 {
   "questions": [
     {
-      "id": "demo-01",
-      "topic": "Señales de obligación",
-      "topicIcon": "🛑",
-      "text": "¿Qué debes hacer al llegar a esta señal?",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Spain_road_sign_R-2.svg/400px-Spain_road_sign_R-2.svg.png",
-      "imageBg": "#1a1f2e",
+      "id": "0511494b-9259-4ed3-a2ca-3986894c5100",
+      "topic": "Maniobras",
+      "topicIcon": "🔄",
+      "text": "Cuando un vehículo se va a incorporar a la circulación, ¿cómo le advertiremos nuestra presencia en caso de que sea necesario?",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-010/0511494b-9259-4ed3-a2ca-3986894c5100_1769719123619_pro.webp",
+      "imageBg": "#0d1a2e",
       "options": [
-        { "id": "a", "text": "Detenerte completamente y ceder el paso" },
-        { "id": "b", "text": "Reducir la velocidad y ceder el paso" },
-        { "id": "c", "text": "Continuar si no hay otros vehículos" }
+        { "id": "3af82e1b-5e0e-da1d-812b-9d3ed32ba4ad", "text": "Sólo usando las ráfagas de luz." },
+        { "id": "89e35312-d480-abc1-b92c-8bae701c6ae5", "text": "Sólo accionando el claxon." },
+        { "id": "35237f82-aaaa-b30b-eabb-b0e2cfd2188c", "text": "Usando ráfagas de luz o el claxon." }
       ],
-      "correctId": "a",
-      "explanation": "La señal STOP (R-2) obliga a detener completamente el vehículo antes de la línea de parada, aunque no haya otros vehículos. Una reducción de velocidad no es suficiente."
+      "correctId": "35237f82-aaaa-b30b-eabb-b0e2cfd2188c",
+      "explanation": "Puedes usar ráfagas de luz (destellos) o el claxon para advertir tu presencia al incorporarte a la vía. El claxon está prohibido en poblado para advertir un adelantamiento, pero sí para evitar un peligro real."
     },
     {
-      "id": "demo-02",
+      "id": "b097bcaf-033e-4a1f-927a-ea30fb362eeb",
+      "topic": "Los accidentes",
+      "topicIcon": "⚠️",
+      "text": "Al aumentar la velocidad, la distancia de detención...",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-027/b097bcaf-033e-4a1f-927a-ea30fb362eeb_1768874078563_pro.webp",
+      "imageBg": "#0f0f18",
+      "options": [
+        { "id": "67478ce4-39ef-e44b-a5c6-89eb5bdd9cd8", "text": "Disminuye." },
+        { "id": "d3bfad60-8e98-9c78-b597-c2d0af48f43c", "text": "Aumenta." },
+        { "id": "54deea03-f49d-87fa-a44d-01dda4a7e8b2", "text": "No varía." }
+      ],
+      "correctId": "d3bfad60-8e98-9c78-b597-c2d0af48f43c",
+      "explanation": "La distancia de detención total es la suma de la distancia de reacción y la de frenado. Al aumentar la velocidad, ambas aumentan: la de reacción linealmente y la de frenado de forma cuadrática."
+    },
+    {
+      "id": "9f096b8e-588f-4e8d-9bc6-2a160f393b4b",
+      "topic": "Uso de las vías",
+      "topicIcon": "🛣️",
+      "text": "A un turismo, ¿cuándo le está permitido circular por el arcén?",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-013/9f096b8e-588f-4e8d-9bc6-2a160f393b4b_1769007364797_pro.webp",
+      "imageBg": "#0a1520",
+      "options": [
+        { "id": "630534b4-f4ef-cd81-aad2-84b2f641b427", "text": "En ningún caso." },
+        { "id": "094fc817-5718-75ad-a291-6a208755a112", "text": "Cuando por razones de emergencia, circule a velocidad anormalmente reducida." },
+        { "id": "2d5adc16-596b-9acc-d720-c568fec615ab", "text": "Por razones de fluidez, siempre que el tráfico esté congestionado." }
+      ],
+      "correctId": "094fc817-5718-75ad-a291-6a208755a112",
+      "explanation": "Un turismo solo puede circular por el arcén cuando por razones de emergencia lo haga a velocidad anormalmente reducida y sin perturbar gravemente la circulación."
+    },
+    {
+      "id": "3cc3c615-0045-412f-9ffd-ac3ff995833d",
+      "topic": "Uso del vehículo",
+      "topicIcon": "🏍️",
+      "text": "¿Puede un menor de edad viajar como pasajero en una motocicleta?",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-05_test-003/3cc3c615-0045-412f-9ffd-ac3ff995833d_1769003640247_pro.webp",
+      "imageBg": "#12100a",
+      "options": [
+        { "id": "c4b16dbb-cbd3-4801-5101-3eea2661a8ae", "text": "Sí, siempre que el conductor sea mayor de edad." },
+        { "id": "66563103-1db7-bbe4-3165-10b7fbfd7e4a", "text": "No, está prohibido." },
+        { "id": "028e5367-c116-f70f-e8bd-f19e2761f720", "text": "Solo si es mayor de 12 años o, excepcionalmente, de 7 años." }
+      ],
+      "correctId": "028e5367-c116-f70f-e8bd-f19e2761f720",
+      "explanation": "El pasajero de una motocicleta debe ser mayor de 12 años. Excepcionalmente, los mayores de 7 años pueden circular si el conductor es su padre, madre, tutor o persona autorizada por ellos."
+    },
+    {
+      "id": "662f6f82-b357-4bb1-9315-a94e7d56ba61",
+      "topic": "Prioridad de paso",
+      "topicIcon": "🚦",
+      "text": "Un ciclomotor y un turismo llegan al mismo tiempo a un estrechamiento sin señalizar la prioridad. ¿Qué vehículo pasará primero?",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-001/662f6f82-b357-4bb1-9315-a94e7d56ba61.webp",
+      "imageBg": "#0e1822",
+      "options": [
+        { "id": "92c39587-2d31-c774-793d-b0c7ce1458cd", "text": "El ciclomotor." },
+        { "id": "816d13ae-8f5b-8cc5-5746-0f19e9888790", "text": "El que tenga una menor masa máxima autorizada." },
+        { "id": "285acaef-d39a-519b-7f30-453ab02e77f8", "text": "El turismo." }
+      ],
+      "correctId": "285acaef-d39a-519b-7f30-453ab02e77f8",
+      "explanation": "En estrechamientos sin señalizar, la preferencia la tiene el vehículo con mayor dificultad de maniobra. El turismo tiene preferencia sobre el ciclomotor, ya que este tiene mayor facilidad para retroceder o maniobrar."
+    },
+    {
+      "id": "6edf45e0-fcd4-4144-8a14-701669f53c23",
+      "topic": "Los accidentes",
+      "topicIcon": "🚶",
+      "text": "¿Dónde sufren los peatones más accidentes?",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-002/6edf45e0-fcd4-4144-8a14-701669f53c23_1768956753813_pro.webp",
+      "imageBg": "#0f1520",
+      "options": [
+        { "id": "e995516b-62f9-950a-0757-64fbc8c34ab4", "text": "En las ciudades." },
+        { "id": "7be61a1f-435f-22d7-4aa3-f0040b31f730", "text": "En las vías interurbanas." },
+        { "id": "624208e2-e8cb-ae99-e643-2cf8a8b2379d", "text": "Tanto en poblado como fuera de poblado la cantidad es igual." }
+      ],
+      "correctId": "e995516b-62f9-950a-0757-64fbc8c34ab4",
+      "explanation": "La mayor frecuencia de atropellos ocurre en zonas urbanas por la alta densidad de tráfico y la constante coexistencia de vehículos y peatones. Aunque en carretera los accidentes son más graves por la velocidad."
+    },
+    {
+      "id": "05dc152c-2561-4882-b8c2-4d9f2c71a4ff",
       "topic": "Velocidad",
       "topicIcon": "⚡",
-      "text": "¿Cuál es la velocidad máxima permitida en autopista para un turismo sin remolque?",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Spain_road_sign_R-301_120.svg/400px-Spain_road_sign_R-301_120.svg.png",
-      "imageBg": "#0f172a",
+      "text": "A 100 km/h por esta vía, ¿circula a una velocidad adecuada?",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-012/05dc152c-2561-4882-b8c2-4d9f2c71a4ff_1768753161516.webp",
+      "imageBg": "#0a1020",
       "options": [
-        { "id": "a", "text": "100 km/h" },
-        { "id": "b", "text": "120 km/h" },
-        { "id": "c", "text": "130 km/h" }
+        { "id": "af459574-f7ba-336f-b4be-8036f55226d7", "text": "Sí, siempre que no entorpezca la circulación." },
+        { "id": "3d3c9e74-4a30-2b16-0bd0-706fcca456db", "text": "No, porque lo aconsejado es circular a 120 km/h." },
+        { "id": "25d826f5-e853-9218-af7e-a50e76a27d27", "text": "Sí, siempre que lo permitan las circunstancias del tráfico y la vía." }
       ],
-      "correctId": "b",
-      "explanation": "En autopistas y autovías, la velocidad máxima para turismos sin remolque es 120 km/h. Superar este límite es una infracción grave y puede provocar accidentes."
+      "correctId": "25d826f5-e853-9218-af7e-a50e76a27d27",
+      "explanation": "La velocidad adecuada es aquella que permite mantener el control y reaccionar ante imprevistos. En autopistas el máximo es 120 km/h, pero circular a 100 km/h es correcto si las circunstancias lo permiten."
     },
     {
-      "id": "demo-03",
-      "topic": "Señales de advertencia",
-      "topicIcon": "⚠️",
-      "text": "¿Qué indica esta señal triangular?",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Spain_road_sign_P-1a.svg/400px-Spain_road_sign_P-1a.svg.png",
-      "imageBg": "#1c1400",
+      "id": "41290314-adbd-4192-a7b6-36d09c27327a",
+      "topic": "Señales",
+      "topicIcon": "🚧",
+      "text": "¿Es obligatorio obedecer esta señal con fondo amarillo?",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-03_test-003-enriched/41290314-adbd-4192-a7b6-36d09c27327a_1769467256864_pro.webp",
+      "imageBg": "#1a1200",
       "options": [
-        { "id": "a", "text": "Curva peligrosa hacia la derecha" },
-        { "id": "b", "text": "Curva peligrosa hacia la izquierda" },
-        { "id": "c", "text": "Intersección con curva" }
+        { "id": "813c55d0-1af2-a5cf-5b75-236a79168114", "text": "Sí, haya o no obreros trabajando." },
+        { "id": "ee9b9af3-bc68-0516-8f23-3233a5db412b", "text": "No." },
+        { "id": "61497bf8-0ff1-fc1c-b615-4e3264aaec6a", "text": "Sí, pero sólo cuando haya obreros trabajando." }
       ],
-      "correctId": "a",
-      "explanation": "Las señales triangulares de fondo blanco y borde rojo son de peligro. Esta indica una curva peligrosa a la derecha — debes reducir la velocidad anticipadamente."
+      "correctId": "813c55d0-1af2-a5cf-5b75-236a79168114",
+      "explanation": "La señalización de obras (fondo amarillo) tiene el mismo valor que las señales permanentes y es de obligado cumplimiento siempre, haya o no obreros trabajando, ya que la vía sigue estando alterada."
     },
     {
-      "id": "demo-04",
-      "topic": "Prioridad de paso",
-      "topicIcon": "🔺",
-      "text": "¿Qué significa esta señal en una intersección?",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Spain_road_sign_R-1.svg/400px-Spain_road_sign_R-1.svg.png",
-      "imageBg": "#1a0000",
+      "id": "2eb98dd5-2c43-4dc7-a494-0382cfe6fe18",
+      "topic": "Documentación",
+      "topicIcon": "📋",
+      "text": "El permiso de la clase B con más de tres años de antigüedad, ¿permite conducir por territorio nacional una motocicleta con sidecar?",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-06_test-001/2eb98dd5-2c43-4dc7-a494-0382cfe6fe18_1768936972792_pro.webp",
+      "imageBg": "#0d0d18",
       "options": [
-        { "id": "a", "text": "Tienes prioridad de paso" },
-        { "id": "b", "text": "Debes ceder el paso a todos los vehículos" },
-        { "id": "c", "text": "Solo ceden el paso los vehículos de la derecha" }
+        { "id": "2526fad2-393c-9c23-feee-8649878eda97", "text": "Sí, siempre que la motocicleta se pueda conducir con el permiso de la clase A1." },
+        { "id": "cf08fff8-6b5e-e116-e9a9-40a441554bae", "text": "No, en ningún caso." },
+        { "id": "0476f3d0-1604-8ff8-7454-ebac2f551d9d", "text": "Sí, siempre que la cilindrada no sea superior a 250 c.c." }
       ],
-      "correctId": "b",
-      "explanation": "La señal 'Ceda el Paso' (R-1) obliga a dejar paso a todos los vehículos que circulan por la vía a la que se accede, sin necesidad de detenerse si la visibilidad es suficiente."
+      "correctId": "2526fad2-393c-9c23-feee-8649878eda97",
+      "explanation": "El permiso B con más de 3 años permite conducir en España las motocicletas que autoriza el permiso A1 (hasta 125 cc, 11 kW), con o sin sidecar, según el Reglamento General de Conductores."
     },
     {
-      "id": "demo-05",
-      "topic": "Marcas viales",
-      "topicIcon": "🛣️",
-      "text": "¿Está permitido adelantar cruzando una línea continua en el centro de la calzada?",
-      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Spain_road_sign_R-301_90.svg/400px-Spain_road_sign_R-301_90.svg.png",
-      "imageBg": "#111827",
+      "id": "42879cf8-a395-47a7-8090-80e4ca16bca8",
+      "topic": "Los accidentes",
+      "topicIcon": "🚛",
+      "text": "Si se circula con un vehículo de grandes dimensiones, al adelantar a un ciclista es importante...",
+      "image": "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-018/42879cf8-a395-47a7-8090-80e4ca16bca8.webp",
+      "imageBg": "#0a1418",
       "options": [
-        { "id": "a", "text": "Sí, si hay visibilidad suficiente" },
-        { "id": "b", "text": "No, está terminantemente prohibido" },
-        { "id": "c", "text": "Solo si el adelantamiento es rápido" }
+        { "id": "64290278-4114-6d8b-aa86-2f70a8dbf49b", "text": "Al estar cerca de ellos hacer señales acústicas para indicar nuestra presencia." },
+        { "id": "58c97766-5caa-1bf4-96a4-e72da5be0cba", "text": "Mantener la velocidad y estar atento al cumplimiento de la señalización vertical." },
+        { "id": "2a461e92-23ec-765e-9e6f-72789e1e27f9", "text": "Dejar una separación lateral suficiente, por los golpes de aire que podemos provocar." }
       ],
-      "correctId": "b",
-      "explanation": "La línea continua longitudinal en el centro NO puede ser cruzada ni invadida bajo ninguna circunstancia. Hacerlo es una infracción muy grave, sancionada con pérdida de puntos."
-    },
-    {
-      "id": "demo-06",
-      "topic": "Alcohol y drogas",
-      "topicIcon": "🍺",
-      "text": "¿Cuál es la tasa máxima de alcoholemia para conductores con más de 2 años de antigüedad del permiso?",
-      "image": "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=500&q=80&auto=format&fit=crop",
-      "imageBg": "#0c1628",
-      "options": [
-        { "id": "a", "text": "0,25 mg/l en aire espirado (0,5 g/l en sangre)" },
-        { "id": "b", "text": "0,15 mg/l en aire espirado (0,3 g/l en sangre)" },
-        { "id": "c", "text": "0,50 mg/l en aire espirado (1,0 g/l en sangre)" }
-      ],
-      "correctId": "a",
-      "explanation": "El límite general es 0,25 mg/l en aire espirado o 0,5 g/l en sangre. Para conductores noveles (menos de 2 años) y profesionales el límite es más estricto: 0,15 mg/l."
-    },
-    {
-      "id": "demo-07",
-      "topic": "Cinturón y seguridad",
-      "topicIcon": "🪢",
-      "text": "¿Cuándo es obligatorio el uso del cinturón de seguridad?",
-      "image": "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500&q=80&auto=format&fit=crop",
-      "imageBg": "#0a1628",
-      "options": [
-        { "id": "a", "text": "Solo en carretera y autopista" },
-        { "id": "b", "text": "Siempre que el vehículo esté en movimiento" },
-        { "id": "c", "text": "Solo el conductor, los pasajeros pueden decidir" }
-      ],
-      "correctId": "b",
-      "explanation": "El cinturón es obligatorio para todos los ocupantes del vehículo (conductor y pasajeros) en cualquier tipo de vía, incluso en ciudad. No llevarlo puede costar hasta 3 puntos del carnet."
-    },
-    {
-      "id": "demo-08",
-      "topic": "Rotondas",
-      "topicIcon": "🔄",
-      "text": "Dentro de una rotonda, ¿quién tiene prioridad de paso?",
-      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format&fit=crop",
-      "imageBg": "#071520",
-      "options": [
-        { "id": "a", "text": "Los vehículos que entran en la rotonda" },
-        { "id": "b", "text": "Los vehículos que ya circulan dentro de la rotonda" },
-        { "id": "c", "text": "El vehículo que va por la derecha" }
-      ],
-      "correctId": "b",
-      "explanation": "En las rotondas, los vehículos que ya están circulando dentro tienen prioridad sobre los que intentan entrar. Al acceder a una rotonda siempre debes ceder el paso."
-    },
-    {
-      "id": "demo-09",
-      "topic": "Distancia de seguridad",
-      "topicIcon": "📏",
-      "text": "¿Cuál es la distancia de seguridad mínima que debes mantener con el vehículo de delante?",
-      "image": "https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=500&q=80&auto=format&fit=crop",
-      "imageBg": "#050e1a",
-      "options": [
-        { "id": "a", "text": "La suficiente para detenerte en caso de frenada brusca" },
-        { "id": "b", "text": "Exactamente 50 metros en cualquier situación" },
-        { "id": "c", "text": "10 metros por cada 10 km/h de velocidad" }
-      ],
-      "correctId": "a",
-      "explanation": "La distancia de seguridad debe ser suficiente para frenar sin colisionar si el vehículo de delante para de repente. Depende de la velocidad, el estado del vehículo y la calzada. No hay un número fijo."
-    },
-    {
-      "id": "demo-10",
-      "topic": "Luces del vehículo",
-      "topicIcon": "💡",
-      "text": "¿Cuándo es obligatorio usar las luces de cruce (cortas) durante el día?",
-      "image": "https://images.unsplash.com/photo-1573950940509-d924ee3fd345?w=500&q=80&auto=format&fit=crop",
-      "imageBg": "#050a14",
-      "options": [
-        { "id": "a", "text": "Solo cuando hay niebla o lluvia intensa" },
-        { "id": "b", "text": "En túneles, pasos inferiores y vías con iluminación insuficiente" },
-        { "id": "c", "text": "Nunca, las luces diurnas (DRL) son suficientes" }
-      ],
-      "correctId": "b",
-      "explanation": "Las luces de cruce son obligatorias en túneles, pasos inferiores, tramos con visibilidad reducida y cuando las condiciones lo requieran. En carretera convencional de día también son recomendadas y obligatorias en muchos países."
+      "correctId": "2a461e92-23ec-765e-9e6f-72789e1e27f9",
+      "explanation": "Los vehículos de grandes dimensiones generan turbulencias (efecto de empuje y succión) que pueden desestabilizar a un ciclista. Por ello hay que aumentar la separación lateral al adelantarlos."
     }
   ]
 }
