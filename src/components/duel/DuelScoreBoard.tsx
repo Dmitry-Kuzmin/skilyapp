@@ -48,24 +48,6 @@ const getInitials = (name: string): string => {
   return initials || '?';
 };
 
-const getFallbackAvatar = (name: string) => {
-  if (!name) return `https://i.pravatar.cc/150?u=fallback`;
-  const lowerName = name.toLowerCase().trim();
-
-  const isFemale = lowerName.endsWith('a') || lowerName.endsWith('я') || lowerName.endsWith('и') || lowerName.endsWith('ah') || lowerName === 'chloe' || lowerName === 'zoe';
-
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const femaleIds = [1, 5, 9, 10, 16, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 34, 35, 36, 38, 39, 40, 41, 42, 43, 44, 45, 47, 48, 49];
-  const maleIds = [3, 4, 6, 7, 8, 11, 12, 13, 14, 15, 17, 18, 33, 37, 46, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67];
-
-  const ids = isFemale ? femaleIds : maleIds;
-  const index = Math.abs(hash) % ids.length;
-  return `https://i.pravatar.cc/150?img=${ids[index]}`;
-};
 
 interface DuelScoreBoardProps {
   myScore: number;
