@@ -654,7 +654,7 @@
       // НЕ загружаем по домену — иначе Safari/Chrome определяются как Telegram
       var hasTgHash = window.location.hash.includes('tgWebAppData');
       var hasTgParam = window.location.search.includes('tgWebAppPlatform');
-      var isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      var isLocalhost = !window.__PRERENDER__ && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
       if (hasTgHash || hasTgParam || isLocalhost) {
         // Есть реальные признаки Telegram или это localhost для разработки
