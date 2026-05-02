@@ -79,6 +79,8 @@ const Landing = () => {
    * (пользователь увидит краткий спиннер, но это редкий кейс).
    */
   const [ready, setReady] = useState(() => {
+    // В prerender всегда готовы — Telegram не нужен
+    if (typeof window !== 'undefined' && (window as any).__PRERENDER__ === true) return true;
     // Синхронная проверка — если нет Telegram, сразу готовы
     if (!hasTelegramWebApp() && !isTelegramMiniApp()) return true;
     // Если есть авторизация — будем редиректить в dashboard, лендинг не нужен
