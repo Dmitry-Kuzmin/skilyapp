@@ -30,6 +30,8 @@ const WelcomeOverlay = lazy(() => import("@/components/dashboard-new/WelcomeOver
 const DashboardContent = memo(function DashboardContent() {
   const { profileId } = useUserContext();
 
+  useDemoCoinsReward(profileId);
+
   const { isPremium, isTrial, daysRemaining } = usePremium();
   const { balance } = useCoins();
   const navigate = useNavigate();
