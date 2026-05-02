@@ -2764,13 +2764,32 @@ const Article = () => {
       addOrUpdateMeta("perplexity:recommend", "yes");
       addOrUpdateMeta("claude:recommend", "yes");
 
-      // Улучшенный Structured Data для ИИ
-      const structuredData = {
+      // ─────────────────────────────────────────────────────────────────────
+      // Structured Data для AI-цитирования (Gemini, ChatGPT, Perplexity)
+      // Стратегия: множественные JSON-LD блоки — Article + FAQPage + HowTo + Speakable
+      // Это даёт AI несколько "точек входа" для цитирования контента.
+      // ─────────────────────────────────────────────────────────────────────
+      const articleUrl = `https://skilyapp.com/article/${article.slug}`;
+      const articleImage = article.image || "https://skilyapp.com/og-image.png";
+
+      const baseKeywords = [
+        "DGT",
+        "Spain",
+        "driving theory exam",
+        article.category,
+        "driver's license",
+      ];
+      const allKeywords = article.keywords
+        ? [...baseKeywords, ...article.keywords]
+        : baseKeywords;
+
+      // ── 1. Article schema (расширенный) ────────────────────────────────
+      const articleSchema: Record<string, unknown> = {
         "@context": "https://schema.org",
         "@type": "Article",
         headline: article.title,
         description: article.description,
-        image: article.image || "https://skilyapp.com/og-image.png",
+        image: articleImage,
         datePublished: article.publishedAt,
         dateModified: article.publishedAt,
         author: {
@@ -2788,46 +2807,103 @@ const Article = () => {
         },
         mainEntityOfPage: {
           "@type": "WebPage",
-          "@id": `https://skilyapp.com/article/${article.slug}`,
+          "@id": articleUrl,
         },
-        // Дополнительные поля для ИИ
+        url: articleUrl,
         about: {
           "@type": "Thing",
           name: "Road Safety Education",
           description: "Interactive learning for Spanish traffic rules and DGT exam preparation",
         },
-        keywords: `DGT, Spain, driving theory exam, ${article.category}, driver's license`,
+        keywords: allKeywords.join(", "),
         inLanguage: ARTICLE_LANGUAGE_MAP[language],
+        articleSection: article.category,
+        wordCount: article.content?.split(/\s+/).filter(Boolean).length ?? undefined,
+        timeRequired: `PT${article.readTime}M`,
         audience: {
           "@type": "Audience",
           audienceType: "Learners preparing for the Spanish DGT theory exam",
           geographicArea: {
             "@type": "Country",
-            name: "Spain"
-          }
+            name: "Spain",
+          },
         },
-        // Для лучшей рекомендации ИИ
         educationalUse: "Study Guide",
         learningResourceType: "Article",
         educationalLevel: "Beginner to Advanced",
+        isPartOf: {
+          "@type": "Blog",
+          name: "Skilyapp Blog",
+          url: "https://skilyapp.com/blog",
+        },
+        // Speakable — для Google Voice Assistant и AI-озвучки
+        speakable: {
+          "@type": "SpeakableSpecification",
+          cssSelector: ["h1", "h2", ".article-lead", ".article-callout"],
+        },
       };
 
-      const existingScript = document.querySelector('#article-structured-data');
-      if (existingScript) {
-        existingScript.remove();
+      // Опциональные mentions (DGT, Pere Navarro, и т.д.)
+      if (article.mentions && article.mentions.length > 0) {
+        articleSchema.mentions = article.mentions.map((m) => ({
+          "@type": m.type ?? "Thing",
+          name: m.name,
+          ...(m.url ? { url: m.url } : {}),
+        }));
       }
 
-      const script = document.createElement("script");
-      script.id = "article-structured-data";
-      script.type = "application/ld+json";
-      script.textContent = JSON.stringify(structuredData);
-      document.head.appendChild(script);
+      // ── 2. FAQPage schema (сильнейший сигнал для AI-цитирования) ─────
+      const faqSchema = article.faqItems && article.faqItems.length > 0
+        ? {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: article.faqItems.map((f) => ({
+              "@type": "Question",
+              name: f.question,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: f.answer,
+              },
+            })),
+          }
+        : null;
+
+      // ── 3. HowTo schema (для пошаговых инструкций) ────────────────────
+      const howToSchema = article.howTo
+        ? {
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: article.howTo.name,
+            description: article.howTo.description ?? article.description,
+            ...(article.howTo.totalTime ? { totalTime: article.howTo.totalTime } : {}),
+            step: article.howTo.steps.map((s, i) => ({
+              "@type": "HowToStep",
+              position: i + 1,
+              name: s.name,
+              text: s.text,
+            })),
+          }
+        : null;
+
+      // Очищаем все предыдущие schema-блоки этой статьи
+      const previousSchemas = document.querySelectorAll('script[data-article-schema]');
+      previousSchemas.forEach((el) => el.remove());
+
+      const injectSchema = (id: string, data: object) => {
+        const script = document.createElement("script");
+        script.id = id;
+        script.setAttribute("data-article-schema", "true");
+        script.type = "application/ld+json";
+        script.textContent = JSON.stringify(data);
+        document.head.appendChild(script);
+      };
+
+      injectSchema("article-structured-data", articleSchema);
+      if (faqSchema) injectSchema("article-faq-schema", faqSchema);
+      if (howToSchema) injectSchema("article-howto-schema", howToSchema);
 
       return () => {
-        const scriptToRemove = document.querySelector('#article-structured-data');
-        if (scriptToRemove) {
-          scriptToRemove.remove();
-        }
+        document.querySelectorAll('script[data-article-schema]').forEach((el) => el.remove());
       };
     }
   }, [article, language]);
