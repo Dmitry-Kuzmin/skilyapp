@@ -389,33 +389,33 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                         </div>
 
                         {/* Points Indicator & Signature */}
-                        <div className="flex flex-col items-center gap-1 shrink-0 z-20 pr-0 sm:pr-2 lg:pr-4">
+                        <div className="flex flex-col items-center gap-0 shrink-0 z-20 pr-0 sm:pr-2 lg:pr-4">
                             <div
                                 onClick={!isStatic ? onPointsClick : undefined}
                                 className={cn(
-                                    "w-[50px] h-[50px] sm:w-[65px] sm:h-[65px] md:w-[85px] md:h-[85px] lg:w-[110px] lg:h-[110px] flex items-center justify-center overflow-visible",
+                                    "w-[58px] h-[58px] sm:w-[65px] sm:h-[65px] md:w-[85px] md:h-[85px] lg:w-[110px] lg:h-[110px] flex items-center justify-center overflow-visible mt-3 sm:mt-4 md:mt-2",
                                     !isStatic && "cursor-pointer transition-transform active:scale-95"
                                 )}
                             >
-                                <div className="scale-[0.25] sm:scale-[0.32] md:scale-[0.42] lg:scale-[0.55] origin-center shrink-0 overflow-visible">
-                                    <PuntosIndicator 
-                                        currentPoints={points} 
-                                        isDarkTheme={isDarkTheme} 
+                                <div className="scale-[0.29] sm:scale-[0.32] md:scale-[0.42] lg:scale-[0.55] origin-center shrink-0 overflow-visible">
+                                    <PuntosIndicator
+                                        currentPoints={points}
+                                        isDarkTheme={isDarkTheme}
                                         isStatic={isStatic}
                                     />
                                 </div>
                             </div>
 
-                            {/* Signature Area (Firma) - Now under the Points circle */}
-                            <div className="flex flex-col items-center mt-1 sm:mt-2 md:mt-3 scale-[0.7] sm:scale-[0.85] md:scale-100">
+                            {/* Signature Area (Firma) */}
+                            <div className="flex flex-col items-center mt-1 sm:mt-1 md:mt-2 scale-[0.65] sm:scale-[0.75] md:scale-90 origin-top">
                                 <span className={cn(
-                                    "text-[6px] font-bold uppercase tracking-widest opacity-40 mb-1",
+                                    "text-[6px] font-bold uppercase tracking-widest opacity-40 mb-0.5",
                                     isDarkTheme ? "text-white" : "text-black"
                                 )}>7. Firma</span>
-                                <div className="relative w-24 h-10 md:w-32 md:h-12 flex items-center justify-center">
-                                    <img 
-                                        src="/skily-signature.png" 
-                                        alt="Signature" 
+                                <div className="relative w-20 h-7 md:w-28 md:h-10 flex items-center justify-center">
+                                    <img
+                                        src="/skily-signature.png"
+                                        alt="Signature"
                                         className={cn(
                                             "w-full h-full object-contain filter",
                                             isDarkTheme ? "invert opacity-95 contrast-[2.5]" : "contrast-[2.0] brightness-50"
