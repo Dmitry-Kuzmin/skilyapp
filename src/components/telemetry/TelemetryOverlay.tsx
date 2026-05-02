@@ -66,12 +66,12 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: any) {
     );
 }
 
-function FlightNavigation({ currentStatus, language }: { currentStatus: string, language: string }) {
+function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: (key: string, params?: Record<string, string | number>) => string }) {
     const levels = [
-        { id: 'start', name: language === 'ru' ? 'СТАРТ' : 'INI', range: '0-30%', color: '#94a3b8' },
-        { id: 'progress', name: language === 'ru' ? 'КУРС' : 'CRS', range: '31-70%', color: '#f59e0b' },
-        { id: 'near', name: language === 'ru' ? 'ПОДЛЕТ' : 'APP', range: '71-85%', color: '#eab308' },
-        { id: 'ready', name: language === 'ru' ? 'ГОТОВ' : 'RDY', range: '86-100%', color: '#10b981' }
+        { id: 'start', name: t('dashboard.examReadiness.overlay.flightLevels.start'), range: '0-30%', color: '#94a3b8' },
+        { id: 'progress', name: t('dashboard.examReadiness.overlay.flightLevels.progress'), range: '31-70%', color: '#f59e0b' },
+        { id: 'near', name: t('dashboard.examReadiness.overlay.flightLevels.near'), range: '71-85%', color: '#eab308' },
+        { id: 'ready', name: t('dashboard.examReadiness.overlay.flightLevels.ready'), range: '86-100%', color: '#10b981' }
     ];
 
     const currentIndex = levels.findIndex(l => l.id === (currentStatus === 'legend' ? 'ready' : currentStatus));
@@ -121,9 +121,10 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     const { readiness, loading: readinessLoading } = useExamReadiness(profileId);
     const isMobile = useIsMobile();
     const { selectedCountry } = usePDDContext();
-    const { language } = useLanguage();
+    const { t } = useLanguage();
 
     const score = readiness?.percent ?? (dashData?.stats?.accuracy || 0);
+    const overlay = useCallback((path: string, params?: Record<string, string | number>) => t(`dashboard.examReadiness.overlay.${path}`, params), [t]);
 
     // Analytics data (for radar, trend, etc.)
     const { analytics, loading: analyticsLoading } = useAnalytics(
@@ -182,7 +183,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
         return (
             <div className="h-[60vh] flex flex-col items-center justify-center space-y-4">
                 <Loader2 className="w-10 h-10 text-violet-500 animate-spin" />
-                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">Telemetry Syncing...</p>
+                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em]">{overlay('syncing')}</p>
             </div>
         );
     }
@@ -230,7 +231,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                     </motion.span>
                                     <div className="mt-1 flex items-center gap-1.5 opacity-40">
                                         <ActivityIcon className="w-3 h-3 text-indigo-400" />
-                                        <span className="text-[8px] font-black uppercase tracking-[0.4em] text-foreground dark:text-white">PROBABILITY</span>
+                                        <span className="text-[8px] font-black uppercase tracking-[0.4em] text-foreground dark:text-white">{overlay('probability')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -243,11 +244,11 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                     <div className="flex items-center gap-2 mb-2">
                                         <div className="w-6 h-[1px] bg-indigo-500/40" />
                                         <span className="text-[9px] font-black uppercase tracking-[0.4em] text-indigo-600 dark:text-indigo-400/80">
-                                            {language === 'ru' ? 'СИСТЕМНЫЙ ВЕРДИКТ' : 'SYSTEM VERDICT'}
+                                            {overlay('systemVerdict')}
                                         </span>
                                     </div>
                                     <h2 className="text-4xl font-black text-foreground dark:text-white uppercase tracking-tight leading-none drop-shadow-sm">
-                                        {readiness?.shortText || 'Анализ...'}
+                                        {readiness?.shortText || overlay('analyzing')}
                                     </h2>
                                     <div className="bg-muted/50 dark:bg-white/5 rounded-2xl p-4 border border-border dark:border-white/5 backdrop-blur-sm relative">
                                         <p className="text-sm text-foreground/80 dark:text-slate-300 font-medium leading-relaxed italic opacity-90 relative z-10">
@@ -259,17 +260,17 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
                                 <div className="flex items-center gap-8 pt-2">
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{language === 'ru' ? 'УВЕРЕННОСТЬ' : 'CONFIDENCE'}</span>
+                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{overlay('confidence')}</span>
                                         <span className="text-2xl font-black text-foreground dark:text-white tabular-nums drop-shadow-sm">
                                             {readiness?.confidenceFactor ? Math.round(readiness.confidenceFactor * 100) : 0}%
                                         </span>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{language === 'ru' ? 'ЦЕЛЬ' : 'TARGET'}</span>
+                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{overlay('target')}</span>
                                         <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums">75%</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">RANK</span>
+                                        <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{overlay('rank')}</span>
                                         <span className="text-2xl font-black text-amber-600 dark:text-amber-500 tabular-nums">#420</span>
                                     </div>
                                 </div>
@@ -279,17 +280,17 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
                     {/* Bottom Compact Navigation Path */}
                     <div className="px-10 py-6 bg-muted/30 dark:bg-slate-950/40 border-t border-border dark:border-white/5">
-                        <FlightNavigation currentStatus={readiness?.status || 'start'} language={language} />
+                        <FlightNavigation currentStatus={readiness?.status || 'start'} t={overlay} />
                     </div>
                 </div>
             </div>
 
             {/* ── KPI Grid ── */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <KpiCard icon={BookOpen} label={language === 'ru' ? "Учебный пробег" : "Kilometraje"} value={dashData?.stats?.total_questions || 0} sub={language === 'ru' ? "всего ответов" : "total respuestas"} />
-                <KpiCard icon={Target} label={language === 'ru' ? "Точность" : "Precisión"} value={`${dashData?.stats?.accuracy || 0}%`} sub={language === 'ru' ? `${dashData?.stats?.correct_answers || 0} правильных` : `${dashData?.stats?.correct_answers || 0} correctas`} accent />
-                <KpiCard icon={Swords} label={language === 'ru' ? "Winrate дуэлей" : "Winrate duelos"} value={`${duelStats?.winrate || 0}%`} sub={language === 'ru' ? `${duelStats?.wins || 0} побед` : `${duelStats?.wins || 0} victorias`} />
-                <KpiCard icon={Flame} label={language === 'ru' ? "Daily Streak" : "Daily Streak"} value={dashData?.profile?.streak_days || 0} sub={language === 'ru' ? "дней подряд" : "días seguidos"} />
+                <KpiCard icon={BookOpen} label={overlay('kpis.mileage')} value={dashData?.stats?.total_questions || 0} sub={overlay('kpis.totalAnswers')} />
+                <KpiCard icon={Target} label={overlay('kpis.accuracy')} value={`${dashData?.stats?.accuracy || 0}%`} sub={overlay('kpis.correctAnswers', { count: dashData?.stats?.correct_answers || 0 })} accent />
+                <KpiCard icon={Swords} label={overlay('kpis.duelWinrate')} value={`${duelStats?.winrate || 0}%`} sub={overlay('kpis.victories', { count: duelStats?.wins || 0 })} />
+                <KpiCard icon={Flame} label={overlay('kpis.dailyStreak')} value={dashData?.profile?.streak_days || 0} sub={overlay('kpis.daysInRow')} />
             </div>
 
             {/* ── Advanced Analytics ── */}
@@ -297,7 +298,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                 <div className="flex items-center gap-2 mb-2">
                     <TrendingUp className="w-4 h-4 text-violet-400" />
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        {language === 'ru' ? 'Расширенная аналитика' : 'Telemetría extendida'}
+                        {overlay('extendedTelemetry')}
                     </span>
                 </div>
 
@@ -320,7 +321,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                     <div className="flex items-center gap-2 mb-4">
                         <TrendingUp className="w-4 h-4 text-violet-400" />
                         <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                            {language === 'ru' ? 'Радар знаний' : 'Radar de temas'}
+                            {overlay('knowledgeRadar')}
                         </span>
                     </div>
                     <div className="h-48">
@@ -343,26 +344,26 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 dark:text-red-400">Diagnostic Result</span>
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 dark:text-red-400">{overlay('diagnostic.result')}</span>
                                         <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-red-500/20 text-red-500 border border-red-500/20">
-                                            {mistakesCount} ERRORS FOUND
+                                            {overlay('diagnostic.errorsFound', { count: mistakesCount })}
                                         </span>
                                     </div>
-                                    <h3 className="text-lg font-bold text-foreground dark:text-white uppercase tracking-tight">Критические зоны риска</h3>
+                                    <h3 className="text-lg font-bold text-foreground dark:text-white uppercase tracking-tight">{overlay('diagnostic.criticalRisk')}</h3>
                                 </div>
                             </div>
                             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-                                Мы обнаружили {mistakesCount} критических пробелов в твоих знаниях. Рекомендуем проработать их в Банке Сложных Вопросов перед сдачей.
+                                {overlay('diagnostic.description', { count: mistakesCount })}
                             </p>
                             <Button variant="outline" className="w-full border-red-500/30 text-red-500 dark:text-red-400 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-300">
-                                Исправить ошибки сейчас
+                                {overlay('diagnostic.fixNow')}
                             </Button>
                         </div>
                     ) : (
                         <div className="h-full rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 flex flex-col items-center justify-center text-center">
                             <CheckCircle className="w-12 h-12 text-emerald-500 dark:text-emerald-400 mb-4" />
-                            <h3 className="text-lg font-bold text-foreground dark:text-white uppercase tracking-tight">Все системы в норме</h3>
-                            <p className="text-sm text-muted-foreground">Ошибок в критических темах не обнаружено. Ты отлично справляешься!</p>
+                            <h3 className="text-lg font-bold text-foreground dark:text-white uppercase tracking-tight">{overlay('systemsNominal.title')}</h3>
+                            <p className="text-sm text-muted-foreground">{overlay('systemsNominal.description')}</p>
                         </div>
                     )}
                 </div>
@@ -373,6 +374,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
 
 export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
     const isMobile = useIsMobile();
+    const { t } = useLanguage();
 
     if (isMobile) {
         return (
@@ -381,7 +383,7 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
                     <DrawerHeader className="border-b border-border dark:border-white/5 shrink-0 bg-transparent z-10 py-4 px-6 relative">
                         <DrawerTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-2 text-foreground">
                             <Gauge className="w-5 h-5 text-violet-500" />
-                            Skily Telemetry
+                            {t('dashboard.examReadiness.telemetryTitle')}
                         </DrawerTitle>
                     </DrawerHeader>
                     <div className="flex-1 overflow-y-auto px-4 pb-6 mt-2 scrollbar-none">
@@ -400,7 +402,7 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
                         <div className="w-10 h-10 rounded-2xl bg-violet-500/10 flex items-center justify-center">
                             <Gauge className="w-6 h-6 text-violet-500" />
                         </div>
-                        Skily Telemetry Dashboard
+                        {t('dashboard.examReadiness.overlay.dashboardTitle')}
                     </DialogTitle>
                 </DialogHeader>
                 <div className="flex-1 p-8 pb-12 pt-4 overflow-y-auto scrollbar-none">

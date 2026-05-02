@@ -160,6 +160,11 @@ export function DailyQuestWidget() {
           q.id === quest.id ? { ...q, is_claimed: true } : q
         ));
 
+        // Award season points to user_season_progress (with premium multiplier)
+        supabase.functions.invoke('season-sp', {
+          body: { user_id: profileId, source_type: 'challenge_reward', metadata: { sp_earned: quest.reward_sp } }
+        }).catch(err => console.warn('[DailyQuestWidget] season-sp error', err));
+
         // ── Level-up celebration popup ─────────────────────────────────
         try {
           const { data: progressAfter } = await (supabase as any)
