@@ -72,6 +72,9 @@ interface ArenaHeaderProps {
     onToggleBookmark?: () => void;
     isQuestionBookmarked: boolean;
     bookmarkLoading: boolean;
+
+    // Answer history for progress bar coloring
+    answers?: Array<{ isCorrect: boolean }>;
 }
 
 export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
@@ -118,7 +121,8 @@ export const ArenaHeader: React.FC<ArenaHeaderProps> = ({
     formatTime,
     onToggleBookmark,
     isQuestionBookmarked,
-    bookmarkLoading
+    bookmarkLoading,
+    answers = [],
 }) => {
     const { t } = useLanguage();
     const isMobile = useIsMobile();
