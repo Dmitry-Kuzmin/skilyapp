@@ -264,9 +264,11 @@ export const useDuelPassData = (profileId?: string | null) => {
 
   // ID сезона в queryKey гарантирует инвалидацию кэша при смене/истечении сезона
   const activeSeasonId = dashboardData?.active_season?.id ?? null;
+  // season_points в queryKey гарантирует инвалидацию кэша при изменении SP
+  const seasonPoints = dashboardData?.season_progress?.season_points ?? null;
 
   const query = useQuery<DuelPassQueryResult>({
-    queryKey: ["duelPass", profileId, activeSeasonId],
+    queryKey: ["duelPass", profileId, activeSeasonId, seasonPoints],
     queryFn: () => fetchDuelPass(profileId as string, dashboardData),
     enabled: enabled && !!dashboardData,
     staleTime: 2 * 60 * 1000,
