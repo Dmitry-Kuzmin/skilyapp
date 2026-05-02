@@ -24,6 +24,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 type TestRewardPayload = {
   coins_awarded?: number;
   sp_awarded?: number;
+  sp_base?: number;
+  sp_bonus?: number;
   xp_awarded?: number;
   base_coins?: number;
   base_sp?: number;
