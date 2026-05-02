@@ -24,39 +24,34 @@ const SP_RULES: Record<string, number> = {
 /**
  * Расчёт SP за тест/экзамен по результату.
  *
- *  ПРАКТИКА (test_completed / test_perfect):
- *    accuracy < 80%   →  0 SP   (учишься плохо — не качаешь сезон)
- *    accuracy ≥ 80%   →  correct_count × 1   (макс 20 SP)
- *    accuracy = 100%  →  +10 SP бонус
+ *  Универсальная формула (тесты + экзамены):
+ *    base   = correct_count × 2   (всегда — поощряем каждый верный ответ)
+ *    bonus  = +50 SP если score = 100%   (perfect)
+ *           = +30 SP если score ≥ 90%    (отличный результат)
+ *           = 0  иначе
  *
- *  ЭКЗАМЕН (exam_completed):
- *    score < 90       →  0 SP   (не сдан)
- *    score 90-99      →  30 SP  (сдан)
- *    score = 100      →  50 SP  (идеально)
+ *  Примеры:
+ *    10/10 (100%) →  20 + 50 = 70 SP
+ *    9/10  (90%)  →  18 + 30 = 48 SP
+ *    6/10  (60%)  →  12 SP
+ *    2/10  (20%)  →   4 SP
+ *    30/30 (100%) →  60 + 50 = 110 SP   (экзамен идеальный)
+ *    27/30 (90%)  →  54 + 30 = 84 SP    (экзамен сдан)
+ *    20/30 (66%)  →  40 SP              (экзамен не сдан, но не пусто)
  */
 function computeTestSP(
-  sourceType: string,
+  _sourceType: string,
   score: number,
-  questionsCount: number,
+  _questionsCount: number,
   correctCount: number,
 ): number {
-  // Экзамен — отдельная логика (большие награды только за реальный успех)
-  if (sourceType === 'exam_completed') {
-    if (score < 90)  return 0;
-    if (score === 100) return 50;
-    return 30;
-  }
+  const base = correctCount * 2;
 
-  // Практика
-  if (sourceType === 'test_completed' || sourceType === 'test_perfect') {
-    if (score < 80) return 0;
+  let bonus = 0;
+  if (score === 100)      bonus = 50;
+  else if (score >= 90)   bonus = 30;
 
-    let sp = Math.min(correctCount, 20);  // макс 20 SP
-    if (score === 100) sp += 10;          // perfect-бонус
-    return sp;
-  }
-
-  return 0;
+  return base + bonus;
 }
 
 const BASE_WIN_NO_BET_SP = 15;
