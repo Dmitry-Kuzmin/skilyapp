@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { SignWidget } from '@/components/chat/SignWidget';
-import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
+// TON_DISABLED: import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
 
 // Типизация для markdown рендеринга
 type MarkdownProps = {
