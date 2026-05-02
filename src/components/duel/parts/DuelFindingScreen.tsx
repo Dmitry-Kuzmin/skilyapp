@@ -3,6 +3,7 @@ import { Swords, Coins, Shield, Clock, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getImageUrl } from '@/utils/imageUtils';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DuelFindingScreenProps {
     userName: string | null;
@@ -23,6 +24,8 @@ export function DuelFindingScreen({
     onCancel,
     rematchOpponent
 }: DuelFindingScreenProps) {
+    const { t } = useLanguage();
+
     return (
         <div className="fixed inset-0 z-[9999] bg-[#06080F] flex flex-col items-center justify-center overflow-hidden font-sans">
             {/* Ambient Background Glow */}
@@ -120,7 +123,7 @@ export function DuelFindingScreen({
                             className="absolute -bottom-4 bg-slate-900/80 backdrop-blur-md border border-emerald-500/30 px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg shadow-emerald-500/10"
                         >
                             <Shield className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-[10px] font-black text-white uppercase tracking-wider">Страховка</span>
+                            <span className="text-[10px] font-black text-white uppercase tracking-wider">{t('duelMenu.finding.insurance')}</span>
                         </motion.div>
                     )}
                 </div>
@@ -133,7 +136,7 @@ export function DuelFindingScreen({
                             transition={{ duration: 2, repeat: Infinity }}
                             className="text-2xl font-black text-white uppercase tracking-[0.2em]"
                         >
-                            {rematchOpponent ? 'Вызов на реванш' : 'Поиск соперника'}
+                            {rematchOpponent ? t('duelMenu.finding.rematchTitle') : t('duelMenu.finding.searchTitle')}
                         </motion.h3>
 
                         <div className="space-y-2">
@@ -144,8 +147,8 @@ export function DuelFindingScreen({
                             )}
                             <p className="text-slate-400 text-sm font-medium max-w-[280px] mx-auto leading-relaxed h-10 flex items-center justify-center">
                                 {rematchOpponent
-                                    ? `Ждем ответа от ${rematchOpponent.name || 'соперника'}...`
-                                    : 'Подбираем достойного оппонента в реальном времени...'}
+                                    ? t('duelMenu.finding.waitingForResponse', { name: rematchOpponent.name || t('duelMenu.finding.opponentFallback') })
+                                    : t('duelMenu.finding.searchSubtitle')}
                             </p>
                         </div>
                     </div>
@@ -180,7 +183,7 @@ export function DuelFindingScreen({
                         className="bg-red-500/5 border-red-500/20 hover:bg-red-500/10 text-red-400 rounded-2xl px-8 h-12 uppercase tracking-widest text-xs font-black transition-all active:scale-95 group"
                     >
                         <X className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform" />
-                        Отменить поиск
+                        {t('duelMenu.finding.cancel')}
                     </Button>
                 </motion.div>
             </div>

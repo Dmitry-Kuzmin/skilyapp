@@ -33,7 +33,7 @@ export const PAYMENT_CONFIG: PaymentConfig = {
   telegramStarsEnabled: true,
   cryptomusEnabled: true,
   paddleEnabled: true,
-  tonEnabled: true, // Включаем TON по умолчанию
+  tonEnabled: false, // TON_DISABLED: временно отключен (восстановить: true)
 };
 
 /**

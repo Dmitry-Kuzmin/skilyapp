@@ -12,6 +12,7 @@ import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePDDContext } from "@/contexts/PDDContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { QuestionImage } from "@/components/test/QuestionImage";
@@ -62,24 +63,37 @@ const calculateBattery = (lastInteractionDate: string, streak: number): number =
 };
 
 // 2. Smart Tags Detector
-const getSmartTags = (q: FavoriteQuestion) => {
+type FavoritesGymLabels = {
+    tags: {
+        kryptonite: string;
+        numbers: string;
+        trap: string;
+    };
+    batteryCharge: string;
+    correctAnswer: string;
+    answerNotFound: string;
+    conciseExplanation: string;
+    tapToFlipBack: string;
+};
+
+const getSmartTags = (q: FavoriteQuestion, labels: FavoritesGymLabels["tags"]) => {
     const tags = [];
 
     // "Kryptonite" - User fails a lot
     if (q.times_wrong >= 3 && !q.mastered) {
-        tags.push({ id: 'kryptonite', label: 'Криптонит', icon: <AlertTriangle className="w-3 h-3 text-rose-500" />, color: 'rose' });
+        tags.push({ id: 'kryptonite', label: labels.kryptonite, icon: <AlertTriangle className="w-3 h-3 text-rose-500" />, color: 'rose' });
     }
 
     // "Numbers" - Regex detection for speed, distance, alcohol
     const text = (q.question_ru + q.question_es).toLowerCase();
     const numberRegex = /(\d+\s*(km\/h|км\/ч|m|м|%|mg|мг|kg|кг|año|год|mes|мес|dia|дней))/i;
     if (numberRegex.test(text)) {
-        tags.push({ id: 'numbers', label: 'Цифры', icon: <Hash className="w-3 h-3 text-blue-400" />, color: 'blue' });
+        tags.push({ id: 'numbers', label: labels.numbers, icon: <Hash className="w-3 h-3 text-blue-400" />, color: 'blue' });
     }
 
     // "Trap" - Hard difficulty
     if (q.difficulty === 'hard') {
-        tags.push({ id: 'trap', label: 'Ловушка', icon: <BrainCircuit className="w-3 h-3 text-purple-400" />, color: 'purple' });
+        tags.push({ id: 'trap', label: labels.trap, icon: <BrainCircuit className="w-3 h-3 text-purple-400" />, color: 'purple' });
     }
 
     return tags;
@@ -89,12 +103,25 @@ const Favorites = () => {
     const navigate = useNavigate();
     const { profileId, isAuthenticated } = useUserContext();
     const { selectedCountry } = usePDDContext();
+    const { t } = useLanguage();
     const [questions, setQuestions] = useState<FavoriteQuestion[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
     // Filter State
     const [activeFilter, setActiveFilter] = useState<'all' | 'battery_low' | 'kryptonite' | 'numbers'>('all');
+    const labels: FavoritesGymLabels = {
+        tags: {
+            kryptonite: t("favoritesGym.tags.kryptonite"),
+            numbers: t("favoritesGym.tags.numbers"),
+            trap: t("favoritesGym.tags.trap"),
+        },
+        batteryCharge: t("favoritesGym.batteryCharge"),
+        correctAnswer: t("favoritesGym.correctAnswer"),
+        answerNotFound: t("favoritesGym.answerNotFound"),
+        conciseExplanation: t("favoritesGym.conciseExplanation"),
+        tapToFlipBack: t("favoritesGym.tapToFlipBack"),
+    };
 
     useEffect(() => {
         if (isAuthenticated && profileId) {
@@ -226,7 +253,7 @@ const Favorites = () => {
 
         } catch (error) {
             console.error('Error loading Favorites:', error);
-            toast.error("Не удалось загрузить данные");
+            toast.error(t("favoritesGym.toasts.loadError"));
         } finally {
             setLoading(false);
         }
@@ -242,7 +269,7 @@ const Favorites = () => {
 
         if (!error) {
             setQuestions(prev => prev.filter(q => q.id !== questionId));
-            toast.success("Удалено из коллекции");
+            toast.success(t("favoritesGym.toasts.removed"));
         }
     };
 
@@ -284,14 +311,14 @@ const Favorites = () => {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
                     <div className="space-y-1">
                         <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-muted-foreground -ml-2 hover:text-foreground">
-                            <ArrowLeft className="w-4 h-4 mr-2" /> Назад
+                            <ArrowLeft className="w-4 h-4 mr-2" /> {t("common.back")}
                         </Button>
                         <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
                             <BrainCircuit className="w-10 h-10 text-primary" />
-                            Тренажерный Зал
+                            {t("favoritesGym.title")}
                         </h1>
                         <p className="text-muted-foreground max-w-md">
-                            Умная система повторений. Тренируй только то, что мозг начинает забывать.
+                            {t("favoritesGym.subtitle")}
                         </p>
                     </div>
 
@@ -306,8 +333,8 @@ const Favorites = () => {
                                 <Play className="w-4 h-4 fill-current text-current ml-0.5" />
                             </div>
                             <div className="text-left">
-                                <div className="text-[10px] font-bold opacity-80 uppercase tracking-wider">Тренировка</div>
-                                <div className="text-sm font-black leading-none">Зарядить Память</div>
+                                <div className="text-[10px] font-bold opacity-80 uppercase tracking-wider">{t("favoritesGym.trainingLabel")}</div>
+                                <div className="text-sm font-black leading-none">{t("favoritesGym.chargeMemory")}</div>
                             </div>
                         </Button>
 
@@ -327,14 +354,14 @@ const Favorites = () => {
 
                         <div className="text-right hidden md:block">
                             <div className="text-2xl font-black text-foreground">{questions.length}</div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Всего карт</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{t("favoritesGym.totalCards")}</div>
                         </div>
                         <div className="h-8 w-[1px] bg-border hidden md:block" />
                         <div className="text-right">
                             <div className={cn("text-2xl font-black", lowBatteryCount > 0 ? "text-rose-500" : "text-emerald-500")}>
                                 {lowBatteryCount}
                             </div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">Требуют заряда</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{t("favoritesGym.requireCharge")}</div>
                         </div>
                     </div>
                 </div>
@@ -345,7 +372,7 @@ const Favorites = () => {
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
-                                placeholder="Найти вопрос..."
+                                placeholder={t("favoritesGym.searchPlaceholder")}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="bg-muted/50 border-transparent pl-10 h-10 rounded-xl focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all text-sm"
@@ -356,13 +383,13 @@ const Favorites = () => {
                                 active={activeFilter === 'all'}
                                 onClick={() => setActiveFilter('all')}
                                 icon={<Bookmark className="w-3.5 h-3.5" />}
-                                label="Все"
+                                label={t("favoritesGym.filters.all")}
                             />
                             <FilterBubble
                                 active={activeFilter === 'battery_low'}
                                 onClick={() => setActiveFilter('battery_low')}
                                 icon={<BatteryLow className="w-3.5 h-3.5" />}
-                                label="Слабый заряд"
+                                label={t("favoritesGym.filters.lowBattery")}
                                 count={lowBatteryCount}
                                 alert={lowBatteryCount > 0}
                             />
@@ -370,13 +397,13 @@ const Favorites = () => {
                                 active={activeFilter === 'kryptonite'}
                                 onClick={() => setActiveFilter('kryptonite')}
                                 icon={<AlertTriangle className="w-3.5 h-3.5" />}
-                                label="Криптонит"
+                                label={t("favoritesGym.filters.kryptonite")}
                             />
                             <FilterBubble
                                 active={activeFilter === 'numbers'}
                                 onClick={() => setActiveFilter('numbers')}
                                 icon={<Hash className="w-3.5 h-3.5" />}
-                                label="Цифры"
+                                label={t("favoritesGym.filters.numbers")}
                             />
                         </div>
                     </div>
@@ -398,6 +425,7 @@ const Favorites = () => {
                                 index={i}
                                 country={selectedCountry || 'spain'}
                                 onRemove={handleRemoveFavorite}
+                                labels={labels}
                             />
                         ))}
                     </div>
@@ -406,9 +434,9 @@ const Favorites = () => {
                         <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                             <Search className="w-8 h-8 text-muted-foreground" />
                         </div>
-                        <h3 className="text-xl font-bold text-foreground mb-2">Пусто</h3>
+                        <h3 className="text-xl font-bold text-foreground mb-2">{t("favoritesGym.empty.title")}</h3>
                         <p className="text-muted-foreground max-w-xs mx-auto">
-                            Попробуйте изменить фильтры или добавьте новые вопросы в избранное
+                            {t("favoritesGym.empty.description")}
                         </p>
                         {(activeFilter !== 'all' || searchQuery) && (
                             <Button
@@ -416,7 +444,7 @@ const Favorites = () => {
                                 onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
                                 className="mt-4 text-primary"
                             >
-                                Сбросить фильтры
+                                {t("favoritesGym.empty.resetFilters")}
                             </Button>
                         )}
                     </div>
@@ -455,12 +483,12 @@ const FilterBubble = ({ active, onClick, icon, label, count, alert }: any) => (
     </button>
 );
 
-const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQuestion, index: number, country: string, onRemove: (id: string) => void }) => {
+const Flashcard = ({ question, index, country, onRemove, labels }: { question: FavoriteQuestion, index: number, country: string, onRemove: (id: string) => void, labels: FavoritesGymLabels }) => {
     const [isFlipped, setIsFlipped] = useState(false);
 
     // Logic
     const battery = calculateBattery(question.updated_at, question.correct_streak);
-    const tags = getSmartTags(question);
+    const tags = getSmartTags(question, labels.tags);
     const isRus = country === 'russia';
     const text = isRus ? question.question_ru : question.question_es;
     const answer = isRus ? question.correct_answer_ru : question.correct_answer_es;
@@ -541,7 +569,7 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
                                 <span className="flex items-center gap-1.5">
                                     <Battery className={cn("w-3 h-3", battery > 40 ? "text-emerald-500" : "text-rose-500")} />
-                                    Заряд памяти
+                                    {labels.batteryCharge}
                                 </span>
                                 <span className={cn(
                                     battery > 70 ? "text-emerald-500" : battery > 40 ? "text-amber-500" : "text-rose-500"
@@ -583,10 +611,10 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                         <div className="flex flex-col items-center mb-4">
                             <div className="flex items-center gap-2 mb-2 p-1.5 px-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
                                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">ПРАВИЛЬНЫЙ ОТВЕТ</span>
+                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">{labels.correctAnswer}</span>
                             </div>
                             <p className="text-sm font-black text-foreground text-center line-clamp-3 px-2">
-                                {answer || "Ответ не найден"}
+                                {answer || labels.answerNotFound}
                             </p>
                         </div>
 
@@ -595,7 +623,7 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                             <div className="flex-1 flex flex-col bg-muted/30 border border-border/50 rounded-2xl overflow-hidden mb-3">
                                 <div className="px-3 py-2 bg-muted/50 border-b border-border/10 flex items-center gap-2 shrink-0">
                                     <BrainCircuit className="w-3.5 h-3.5 text-primary" />
-                                    <span className="text-[9px] font-black text-primary uppercase tracking-widest">Суть кратко</span>
+                                    <span className="text-[9px] font-black text-primary uppercase tracking-widest">{labels.conciseExplanation}</span>
                                 </div>
                                 <div className="p-3 overflow-y-auto text-xs text-muted-foreground leading-relaxed custom-scrollbar">
                                     {explanation}
@@ -606,7 +634,7 @@ const Flashcard = ({ question, index, country, onRemove }: { question: FavoriteQ
                         <div className="mt-auto pt-3 flex justify-center border-t border-border/50 opacity-60">
                             <div className="text-[9px] text-muted-foreground font-black uppercase tracking-widest flex items-center gap-2">
                                 <RotateCcw className="w-3 h-3" />
-                                Нажми, чтобы вернуть
+                                {labels.tapToFlipBack}
                             </div>
                         </div>
                     </div>

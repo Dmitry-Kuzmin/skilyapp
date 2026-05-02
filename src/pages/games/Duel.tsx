@@ -1067,13 +1067,23 @@ export default function Duel() {
             if ((data as any).auto_started) {
                 if (activeRematchOpponent && (data as any).opponent_type === 'bot') {
                     // Премиальная задержка для ощущения "вызова"
-                    toast.loading(`Вызываем ${activeRematchOpponent.name || (data as any).bot_name || 'соперника'} на реванш...`, { id: 'rematch-bot-loading' });
+                    toast.loading(
+                        t('duelMenu.finding.toasts.callingRematch', {
+                            name: activeRematchOpponent.name || (data as any).bot_name || t('duelMenu.finding.opponentFallback'),
+                        }),
+                        { id: 'rematch-bot-loading' }
+                    );
 
                     setTimeout(() => {
-                        toast.success(`${activeRematchOpponent.name || (data as any).bot_name || 'Соперник'} принял ваш вызов!`, {
+                        toast.success(
+                            t('duelMenu.finding.toasts.acceptedChallenge', {
+                                name: activeRematchOpponent.name || (data as any).bot_name || t('duelMenu.finding.opponentFallback'),
+                            }),
+                            {
                             id: 'rematch-bot-loading',
                             icon: '⚔️'
-                        });
+                            }
+                        );
 
                         setTimeout(() => {
                             handleDuelStarted((data as any).duel.id);
@@ -1081,7 +1091,13 @@ export default function Duel() {
                     }, 1800);
                 } else {
                     handleDuelStarted((data as any).duel.id);
-                    toast.success((data as any).opponent_type === 'bot' ? `Соперник ${(data as any).bot_name || 'найден'}!` : 'Соперник найден!');
+                    toast.success(
+                        (data as any).opponent_type === 'bot'
+                            ? t('duelMenu.finding.toasts.opponentFoundNamed', {
+                                name: (data as any).bot_name || t('duelMenu.finding.opponentFallback'),
+                            })
+                            : t('duelMenu.finding.toasts.opponentFound')
+                    );
                 }
             } else {
                 // FALLBACK: Если не автозапуск (реванш с другом — ждём его присоединения)
@@ -1096,9 +1112,19 @@ export default function Duel() {
                         setConnectionStatus('checking');
                         setWaitTime(0);
                         if ((data as any).rematch_notification_sent) {
-                            toast.success(`⚔️ Вызов отправлен ${activeRematchOpponent?.name || 'другу'}! Ждём его в лобби...`, { duration: 5000 });
+                            toast.success(
+                                t('duelMenu.finding.toasts.challengeSent', {
+                                    name: activeRematchOpponent?.name || t('duelMenu.finding.friendFallback'),
+                                }),
+                                { duration: 5000 }
+                            );
                         } else {
-                            toast.info(`⚔️ Дуэль создана! Отправь другу код: ${(data as any).duel.code || (data as any).code}`, { duration: 8000 });
+                            toast.info(
+                                t('duelMenu.finding.toasts.duelCreated', {
+                                    code: (data as any).duel.code || (data as any).code,
+                                }),
+                                { duration: 8000 }
+                            );
                         }
                     }
                 } else {
@@ -1106,7 +1132,7 @@ export default function Duel() {
                     setMode('create');
                     setConnectionStatus('checking');
                     setWaitTime(0);
-                    toast.success('Соперник найден!');
+                    toast.success(t('duelMenu.finding.toasts.opponentFound'));
                 }
             }
         } catch (error: any) {
