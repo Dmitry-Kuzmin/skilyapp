@@ -314,6 +314,7 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                 onRewardClaimed={handleRewardClaimed}
                 title="⚡ CRYPTO MINER"
                 description="Добывай криптомонеты! Смотри рекламу и получай награду."
+                allowForPremium
             />
         </>
     );
