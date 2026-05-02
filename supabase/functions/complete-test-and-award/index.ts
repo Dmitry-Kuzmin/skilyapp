@@ -151,30 +151,36 @@ serve(async (req) => {
     // СЕЗОН: Season Points для лидерборда + трекинг челленджей
     // ============================================
     const spAwarded = (rewardData as any)?.sp_awarded ?? 0;
-    const sourceType = score === 100 ? 'test_perfect' : 'test_completed';
+
+    // Различаем экзамен и обычный тест — у них разная экономика SP
+    const isExam = mode === 'exam' || mode === 'exam-russia';
+    const sourceType = isExam
+      ? 'exam_completed'
+      : score === 100
+        ? 'test_perfect'
+        : 'test_completed';
+
+    // Метадата для динамического расчёта SP в season-sp
+    const spMetadata = {
+      questions_count,
+      score,
+      correct_count,
+      mode,
+      sp_earned: spAwarded,
+    };
 
     // Обновляем user_season_progress.season_points (лидерборд)
+    // SP начисляются по правилам: <80% → 0, ≥80% → correct×1, 100% → +10 бонус
+    // Экзамен: <90% → 0, ≥90% → 30, 100% → 50
     supabase.functions.invoke('season-sp', {
-      body: {
-        user_id,
-        source_type: sourceType,
-        metadata: { questions_count, score, sp_earned: spAwarded },
-      },
+      body: { user_id, source_type: sourceType, metadata: spMetadata },
     }).catch((err: unknown) => {
       console.error('[complete-test-and-award] ⚠️ season-sp error:', err);
     });
 
     // Трекинг season_challenges прогресса
     supabase.functions.invoke('season-challenges-track', {
-      body: {
-        user_id,
-        source_type: sourceType,
-        metadata: {
-          questions_count,
-          score,
-          sp_earned: spAwarded,
-        },
-      },
+      body: { user_id, source_type: sourceType, metadata: spMetadata },
     }).catch((err: unknown) => {
       console.error('[complete-test-and-award] ⚠️ challenges-track error:', err);
     });
