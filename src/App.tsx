@@ -640,6 +640,7 @@ const App = () => {
                           <PerformanceMonitor />
                           <PasskeyOnboardingWrapper />
                           <AIChatWidget />
+                          <LevelUpCelebrationModal />
                           {/* UnifiedSettingsDrawer рендерится в AppProviders через GlobalSettingsManager */}
                         </Suspense>
                       </CosmeticsPreviewProvider>
