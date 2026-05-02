@@ -53,7 +53,6 @@ const PartnerInviteBanner = lazy(() =>
   import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner }))
 );
 
-
 const Landing = () => {
   const navigate = useNavigate();
   const location = useLocation();
