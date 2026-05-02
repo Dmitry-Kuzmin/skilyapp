@@ -68,6 +68,7 @@ interface DashboardStats {
     topics_covered_percent: number;
     unique_questions_answered: number;
     topics_with_answers: number;
+    country?: string;
   };
   daily_bonus: {
     id: string | null;
