@@ -527,6 +527,11 @@ export function AppRoutes() {
           <InviteLanding />
         </Suspense>
       } />
+      <Route path="/demo" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <DemoTest />
+        </Suspense>
+      } />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={
         <Suspense fallback={<PageSkeleton />}>
