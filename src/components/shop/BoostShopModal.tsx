@@ -2010,7 +2010,7 @@ export function BoostShopModal({
         onCardClick={handleCardPurchase}
         availability={{
           stars: showStarsPayment,
-          ton: isPaymentMethodAvailable('ton', currentPlatform),
+          ton: false, // TON_DISABLED: isPaymentMethodAvailable('ton', currentPlatform),
           crypto: isPaymentMethodAvailable('cryptomus', currentPlatform),
           card: isPaymentMethodAvailable('paddle', currentPlatform)
         }}
