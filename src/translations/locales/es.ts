@@ -2193,7 +2193,19 @@ export const es = {
     backToTests: "Volver a tests",
     rewardToast: {
       title: "Recompensas recibidas",
-      description: "+{{coins}} monedas, +{{xp}} XP",
+      description: "+{{sp}} SP, +{{xp}} XP",
+    },
+    bonusHint: {
+      title: "Alcanza <b>90%</b> — consigue <b>+30 SP de bono</b>",
+      subtitle: "Por resultado perfecto (100%) — <b>+50 SP</b>!",
+    },
+    perfectBonus: {
+      title: "¡Resultado perfecto! 🔥",
+      subtitle: "+50 SP de bono por pasar sin errores",
+    },
+    greatBonus: {
+      title: "¡Gran resultado! +30 SP de bono ⚡",
+      subtitle: "100% da aún más — <b>+50 SP</b>",
     },
     redemption: {
       title: "¡Habilidad recuperada!",
