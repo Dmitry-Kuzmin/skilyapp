@@ -146,8 +146,14 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unsupported source_type" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Если SP=0 — нет смысла дальше вызывать БД, просто возвращаем
+    // Если SP=0 — всё равно нужно вызвать challenges-track (для квестов)
+    // но не пишем в БД season_points, просто возвращаем
     if (spGain === 0) {
+      try {
+        await supabase.functions.invoke("season-challenges-track", { body: { user_id, source_type, metadata: metadata || {} } });
+      } catch (err) {
+        console.warn("[season-sp] challenge tracking error", err);
+      }
       return new Response(JSON.stringify({ success: true, sp_added: 0, total_sp: 0, level: 0, level_up: false, reason: 'no_sp_earned' }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
