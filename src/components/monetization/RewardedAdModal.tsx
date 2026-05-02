@@ -18,6 +18,7 @@ interface RewardedAdModalProps {
   description?: string;
   placement?: string;
   inlineOverlay?: boolean;
+  allowForPremium?: boolean;
   secondaryAction?: {
     text: string;
     subtext?: string;
