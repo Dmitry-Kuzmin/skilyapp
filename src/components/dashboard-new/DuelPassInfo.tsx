@@ -145,18 +145,42 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
             <span className={`text-xl font-bold ${textPrimaryClass}`}>{ui.level} {duelPassData.level}</span>
             <span className={`text-[11px] ${textSecondaryClass}`}>/ 30</span>
           </div>
-          <div className={`flex items-center gap-1 text-[11px] ${textSecondaryClass}`}>
-            <Zap className="w-2.5 h-2.5" />
-            <span>{duelPassData.seasonPoints} SP</span>
+          <div className={`flex items-center gap-1 text-[11px] ${textSecondaryClass} relative`}>
+            <Zap className={`w-2.5 h-2.5 ${spDelta ? 'text-yellow-400' : ''} transition-colors`} />
+            <span className={`${spDelta ? 'text-yellow-400 font-bold' : ''} transition-colors tabular-nums`}>
+              {animatedSp} SP
+            </span>
+            {/* Floating "+N SP" при апдейте */}
+            {spDelta !== null && spDelta > 0 && (
+              <motion.span
+                key={spDelta}
+                initial={{ opacity: 0, y: 0, scale: 0.7 }}
+                animate={{ opacity: [0, 1, 1, 0], y: [-2, -18, -22, -28], scale: [0.7, 1.1, 1, 0.95] }}
+                transition={{ duration: 2.2, times: [0, 0.15, 0.7, 1] }}
+                className="absolute -top-3 right-0 text-xs font-black text-yellow-400 pointer-events-none drop-shadow-[0_0_6px_rgba(250,204,21,0.6)]"
+              >
+                +{spDelta}
+              </motion.span>
+            )}
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className={`relative h-1.5 ${progressBgClass} rounded-full overflow-hidden`}>
-          <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full transition-all duration-500 shadow-sm"
-            style={{ width: `${progressPercent}%` }}
+        <div className={`relative h-1.5 ${progressBgClass} rounded-full overflow-hidden ${highlightProgress ? 'ring-2 ring-yellow-400/40 ring-offset-1 ring-offset-transparent' : ''} transition-all duration-300`}>
+          <motion.div
+            className="absolute inset-y-0 left-0 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full shadow-sm"
+            initial={false}
+            animate={{ width: `${progressPercent}%` }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
           />
+          {highlightProgress && (
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: '200%' }}
+              transition={{ duration: 1.2, ease: 'easeInOut' }}
+              className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent"
+            />
+          )}
         </div>
         <p className={`text-[10px] ${textSecondaryClass} leading-tight`}>
           {ui.toNext} <span className={`${isDarkTheme ? 'text-yellow-400' : 'text-yellow-600'} font-semibold`}>{duelPassData.nextLevelSP} SP</span>
