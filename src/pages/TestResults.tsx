@@ -657,8 +657,8 @@ const TestResults = () => {
             <div className="absolute inset-0 bg-emerald-400/10 blur-2xl" />
             <Sparkles className="w-6 h-6 text-emerald-400 relative z-10" />
             <div className="flex-1 relative z-10">
-              <p className="text-sm font-bold text-emerald-200">Идеальный результат! 🔥</p>
-              <p className="text-xs text-emerald-300/70 mt-0.5">+50 SP бонус за безошибочное прохождение</p>
+              <p className="text-sm font-bold text-emerald-200">{t("testResults.perfectBonus.title")}</p>
+              <p className="text-xs text-emerald-300/70 mt-0.5">{t("testResults.perfectBonus.subtitle")}</p>
             </div>
           </motion.div>
         )}
