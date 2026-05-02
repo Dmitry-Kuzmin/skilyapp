@@ -23,8 +23,7 @@ export function useRewardedAd(options?: { allowForPremium?: boolean }) {
 
   const isAvailable = useCallback(() => {
     if (isPremium && !options?.allowForPremium) return false;
-    if (isTelegramMiniApp()) return true;
-    return false;
+    return true;
   }, [isPremium, options?.allowForPremium]);
 
   useEffect(() => {
