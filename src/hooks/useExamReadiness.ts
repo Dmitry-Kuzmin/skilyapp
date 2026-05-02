@@ -102,12 +102,13 @@ export function useExamReadiness(profileId: string | null): UseExamReadinessResu
     }
 
     const calculatedMetrics: ReadinessMetrics = {
-      accuracy: stats.accuracy / 100, // Конвертируем из процентов в 0-1
+      accuracy: stats.accuracy / 100,
       testsCompleted: stats.tests_completed,
       topicsCovered: readinessData ? readinessData.topics_covered_percent / 100 : 0,
       recentPerformance: stats.recent_performance ? stats.recent_performance / 100 : 0,
       activityScore,
       uniqueQuestions: readinessData ? readinessData.unique_questions_answered : 0,
+      country,
     };
 
     return {
