@@ -5,7 +5,7 @@ import { CheckCircle2, XCircle, ChevronRight, Sparkles, Trophy, Target, ArrowRig
 import { cn } from "@/lib/utils";
 import { useUserContext } from "@/contexts/UserContext";
 import { useModalStore } from "@/store/modalStore";
-import { supabase } from "@/integrations/supabase/lazyClient";
+import { supabase } from "@/integrations/supabase/client";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
