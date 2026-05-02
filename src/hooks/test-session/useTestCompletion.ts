@@ -366,13 +366,14 @@ export const useTestCompletion = ({
                 score,
                 total: currentQuestions.length,
                 correctCount,
-                wrongAnswers: currentAnswers.filter((a: any) => !a.isCorrect).map((a: any) => a.questionId), // ID неправильных
-                answers: currentAnswers, // Полный список с questionId и selectedAnswerId
+                wrongAnswers: currentAnswers.filter((a: any) => !a.isCorrect).map((a: any) => a.questionId),
+                answers: currentAnswers,
                 questions: currentQuestions,
                 timeSpent,
                 mode,
                 rewardResult,
-                masteryRound
+                masteryRound,
+                country: pddCountry,
             },
         });
     };
