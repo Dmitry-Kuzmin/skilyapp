@@ -92,7 +92,7 @@ export function useAIDebriefAnalysis() {
 
             // 1. Check cache first
             const questionIds = failedQuestions.map(q => q.questionId);
-            const cached = findAnalysisByQuestions(questionIds);
+            const cached = findAnalysisByQuestions(questionIds, country, language);
 
             if (cached) {
                 console.log('[useAIDebriefAnalysis] ✅ Using cached analysis');
@@ -213,6 +213,7 @@ export function useAIDebriefAnalysis() {
 
             saveAnalysis({
                 country,
+                responseLanguage: language,
                 questionIds,
                 diagnosis,
                 studentName: studentStats?.name,
@@ -234,8 +235,8 @@ export function useAIDebriefAnalysis() {
     /**
      * 🔍 Get cached analysis by question IDs
      */
-    const getCachedAnalysis = useCallback((questionIds: string[]) => {
-        return findAnalysisByQuestions(questionIds);
+    const getCachedAnalysis = useCallback((questionIds: string[], country?: string, language?: string) => {
+        return findAnalysisByQuestions(questionIds, country, language);
     }, [findAnalysisByQuestions]);
 
     return {

@@ -33,6 +33,89 @@ export interface AIQuestionContext {
 import { getRussiaChatPrompt, getRussiaDebriefPrompt } from './prompts/russia';
 import { getSpainChatPrompt, getSpainDebriefPrompt } from './prompts/spain';
 
+const buildDebriefStudentContext = (
+    studentStats: AIStudentStats | undefined,
+    targetLang: string,
+    prevWeaknessFixed: boolean,
+    experienceLevel: 'veteran' | 'intermediate' | 'beginner' | 'unknown'
+) => {
+    if (!studentStats) return '';
+
+    if (targetLang === 'Spanish') {
+        return `
+# STUDENT PROFILE:
+- Name: ${studentStats.name}
+- XP: ${studentStats.xp}
+- Level: ${experienceLevel === 'veteran' ? 'Advanced (5000+ XP)' : experienceLevel === 'intermediate' ? 'Intermediate (1500+ XP)' : 'Beginner'}
+- Streak: ${studentStats.streak} days
+- Previous weakness: ${studentStats.prevWeakness || 'No data'}
+- Progress: ${prevWeaknessFixed ? 'Fixed the previous weak area' : 'Still working on it'}
+
+# PERSONALIZATION:
+${experienceLevel === 'beginner'
+                ? '- Tone: warm, supportive and simple. Explain the logic clearly and avoid overload.'
+                : experienceLevel === 'intermediate'
+                    ? '- Tone: coaching and practical. Point out repeat patterns and next actions.'
+                    : '- Tone: expert and analytical. Go deeper into why the pattern happens.'}
+${studentStats.streak > 3 ? `- Praise the student for maintaining a ${studentStats.streak}-day streak.` : ''}
+${prevWeaknessFixed ? `- Explicitly mention progress on the previous weak area: ${studentStats.prevWeakness}.` : ''}
+`;
+    }
+
+    if (targetLang === 'English') {
+        return `
+# STUDENT PROFILE:
+- Name: ${studentStats.name}
+- XP: ${studentStats.xp}
+- Level: ${experienceLevel === 'veteran' ? 'Advanced (5000+ XP)' : experienceLevel === 'intermediate' ? 'Intermediate (1500+ XP)' : 'Beginner'}
+- Streak: ${studentStats.streak} days
+- Previous weakness: ${studentStats.prevWeakness || 'No data'}
+- Progress: ${prevWeaknessFixed ? 'Fixed the previous weak area' : 'Still working on it'}
+
+# PERSONALIZATION:
+${experienceLevel === 'beginner'
+                ? '- Tone: warm, supportive and simple. Explain the logic clearly and avoid overload.'
+                : experienceLevel === 'intermediate'
+                    ? '- Tone: coaching and practical. Point out repeat patterns and next actions.'
+                    : '- Tone: expert and analytical. Go deeper into why the pattern happens.'}
+${studentStats.streak > 3 ? `- Praise the student for maintaining a ${studentStats.streak}-day streak.` : ''}
+${prevWeaknessFixed ? `- Explicitly mention progress on the previous weak area: ${studentStats.prevWeakness}.` : ''}
+`;
+    }
+
+    return `
+# 🧠 AI MEMORY — STUDENT PROFILE:
+| Параметр | Значение |
+|----------|----------|
+| Имя | ${studentStats.name} |
+| XP | ${studentStats.xp} |
+| Уровень | ${experienceLevel === 'veteran' ? 'Опытный (5000+ XP)' : experienceLevel === 'intermediate' ? 'Продвинутый (1500+ XP)' : 'Новичок'} |
+| Streak | ${studentStats.streak} дней |
+| Прошлая слабость | ${studentStats.prevWeakness || 'Нет данных'} |
+| Прогресс | ${prevWeaknessFixed ? '✅ Исправил прошлую проблему!' : 'Работает над ней'} |
+
+# 🎭 ПЕРСОНАЛИЗАЦИЯ ПО УРОВНЮ:
+${experienceLevel === 'beginner' ? `
+- Стиль: ПОДДЕРЖИВАЮЩИЙ и ОБОДРЯЮЩИЙ
+- Приветствие: "${studentStats.name}, добро пожаловать на борт!" или "Отличное начало, ${studentStats.name}!"
+- Не пугай сложными терминами сразу
+- Объясняй ПОЧЕМУ правило такое (логику)
+` : experienceLevel === 'intermediate' ? `
+- Стиль: КОУЧИНГОВЫЙ и ДЕЛОВОЙ
+- Приветствие: "${studentStats.name}, давай разберём детали" или "Хорошая практика!"
+- Можешь использовать термины с пояснениями
+- Указывай на паттерны ошибок
+` : `
+- Стиль: ЭКСПЕРТНЫЙ и АНАЛИТИЧЕСКИЙ
+- Приветствие: "${studentStats.name}, интересный кейс!" или "Давай покопаемся глубже"
+- Используй профессиональные термины
+- Анализируй глубинные причины
+`}
+${studentStats.streak > 3 ? `🔥 ОБЯЗАТЕЛЬНО похвали за ${studentStats.streak} дней подряд!` : ''}
+${prevWeaknessFixed ? `🎉 ОБЯЗАТЕЛЬНО отметь прогресс: "${studentStats.name} справился с проблемой [${studentStats.prevWeakness}]!"` : ''}
+`;
+};
+
 /**
  * ГЕНЕРАТОР УЛЬТИМАТИВНЫХ ПРОМПТОВ (V9 - SPLIT CORE)
  * Создает изолированные личности для каждой страны.
@@ -75,10 +158,6 @@ export function generateDebriefPrompt(
     const isSpain = country === 'spain';
     const isRussianUserInSpain = isSpain && targetLang === 'Russian';
 
-    const legalContext = isSpain
-        ? 'Юридическая база: Reglamento General de Circulación (RGC), статьи DGT.'
-        : 'Юридическая база: ПДД РФ, разделы и пункты.';
-
     // ✂️ TRUNCATE: Функция обрезки для экономии токенов
     const truncate = (str: string, limit: number) =>
         str && str.length > limit ? str.substring(0, limit) + '...' : str;
@@ -92,7 +171,7 @@ export function generateDebriefPrompt(
             question: truncate(q.questionText, 200),
             user_choice: truncate(q.userAnswer || 'NO_ANSWER', 100),
             correct_answer: truncate(q.correctAnswer, 100),
-            topic: q.topic || 'General',
+            topic: q.topic || (targetLang === 'Spanish' ? 'General' : targetLang === 'Russian' ? 'Общее' : 'General'),
             is_skipped: isSkipped
         };
     });
@@ -110,37 +189,12 @@ export function generateDebriefPrompt(
         : 'unknown';
 
     // Контекст студента
-    const studentContext = studentStats ? `
-# 🧠 AI MEMORY — STUDENT PROFILE:
-| Параметр | Значение |
-|----------|----------|
-| Имя | ${studentStats.name} |
-| XP | ${studentStats.xp} |
-| Уровень | ${experienceLevel === 'veteran' ? 'Опытный (5000+ XP)' : experienceLevel === 'intermediate' ? 'Продвинутый (1500+ XP)' : 'Новичок'} |
-| Streak | ${studentStats.streak} дней |
-| Прошлая слабость | ${studentStats.prevWeakness || 'Нет данных'} |
-| Прогресс | ${prevWeaknessFixed ? '✅ Исправил прошлую проблему!' : 'Работает над ней'} |
-
-# 🎭 ПЕРСОНАЛИЗАЦИЯ ПО УРОВНЮ:
-${experienceLevel === 'beginner' ? `
-- Стиль: ПОДДЕРЖИВАЮЩИЙ и ОБОДРЯЮЩИЙ
-- Приветствие: "${studentStats.name}, добро пожаловать на борт!" или "Отличное начало, ${studentStats.name}!"
-- Не пугай сложными терминами сразу
-- Объясняй ПОЧЕМУ правило такое (логику)
-` : experienceLevel === 'intermediate' ? `
-- Стиль: КОУЧИНГОВЫЙ и ДЕЛОВОЙ
-- Приветствие: "${studentStats.name}, давай разберём детали" или "Хорошая практика!"
-- Можешь использовать термины с пояснениями
-- Указывай на паттерны ошибок
-` : `
-- Стиль: ЭКСПЕРТНЫЙ и АНАЛИТИЧЕСКИЙ
-- Приветствие: "${studentStats.name}, интересный кейс!" или "Давай покопаемся глубже"
-- Используй профессиональные термины
-- Анализируй глубинные причины
-`}
-${studentStats.streak > 3 ? `🔥 ОБЯЗАТЕЛЬНО похвали за ${studentStats.streak} дней подряд!` : ''}
-${prevWeaknessFixed ? `🎉 ОБЯЗАТЕЛЬНО отметь прогресс: "${studentStats.name} справился с проблемой [${studentStats.prevWeakness}]!"` : ''}
-` : '';
+    const studentContext = buildDebriefStudentContext(
+        studentStats,
+        targetLang,
+        prevWeaknessFixed,
+        experienceLevel
+    );
 
     if (country === 'spain') {
         return getSpainDebriefPrompt(structuredErrors, studentContext, languageInstruction, targetLang);

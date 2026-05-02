@@ -516,13 +516,13 @@ const SmartDebriefCard = memo(({
   useEffect(() => {
     const questionIds = failedQuestions.map(q => q.questionId);
 
-    const cached = getCachedAnalysis(questionIds);
+    const cached = getCachedAnalysis(questionIds, country, uiLanguage);
 
     if (cached) {
       console.log('[SmartDebrief] ✅ Loaded cached analysis from Zustand');
       setAnalysisData(cached.diagnosis);
     }
-  }, [failedQuestions, getCachedAnalysis]);
+  }, [failedQuestions, getCachedAnalysis, country, uiLanguage]);
 
   const remaining = limitStatus?.remaining ?? FREE_DAILY_LIMIT;
   const canUseFree = limitStatus?.can_use ?? true;

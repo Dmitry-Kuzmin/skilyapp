@@ -21,6 +21,8 @@ export function useDuelPassInfo() {
 
   // ID сезона в queryKey гарантирует инвалидацию кэша при смене/истечении сезона
   const activeSeasonId = dashboardData?.active_season?.id ?? null;
+  // season_points в queryKey гарантирует инвалидацию кэша при изменении SP
+  const seasonPoints = dashboardData?.season_progress?.season_points ?? null;
 
   const {
     data,
@@ -28,7 +30,7 @@ export function useDuelPassInfo() {
     error,
     refetch,
   } = useQuery<DuelPassInfo | null>({
-    queryKey: [DUEL_PASS_INFO_KEY, profileId, activeSeasonId],
+    queryKey: [DUEL_PASS_INFO_KEY, profileId, activeSeasonId, seasonPoints],
     queryFn: async () => {
       if (!profileId) return null;
 

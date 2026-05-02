@@ -28,6 +28,7 @@ export interface AnalysisRecord {
     id: string; // Уникальный ID анализа (хеш от questionIds)
     timestamp: number;
     country: string;
+    responseLanguage?: string;
     questionIds: string[]; // ID вопросов для проверки кэша
     diagnosis: AIDiagnosis;
     studentName?: string;
@@ -44,7 +45,7 @@ interface AnalysisHistoryState {
     // Actions
     saveAnalysis: (analysis: Omit<AnalysisRecord, 'id' | 'timestamp'>) => string;
     getAnalysis: (id: string) => AnalysisRecord | undefined;
-    findAnalysisByQuestions: (questionIds: string[]) => AnalysisRecord | undefined;
+    findAnalysisByQuestions: (questionIds: string[], country?: string, responseLanguage?: string) => AnalysisRecord | undefined;
     clearHistory: () => void;
     removeAnalysis: (id: string) => void;
 
@@ -56,8 +57,12 @@ interface AnalysisHistoryState {
 /**
  * Generate unique ID from question IDs
  */
-const generateAnalysisId = (questionIds: string[]): string => {
-    return questionIds.sort().join('-').substring(0, 50); // Сокращаем для читаемости
+const generateAnalysisId = (
+    questionIds: string[],
+    country: string = 'default',
+    responseLanguage: string = 'default'
+): string => {
+    return `${country}:${responseLanguage}:${questionIds.sort().join('-')}`.substring(0, 120);
 };
 
 /**
@@ -72,7 +77,11 @@ export const useAnalysisHistoryStore = create<AnalysisHistoryState>()(
              * 💾 Save new analysis to history
              */
             saveAnalysis: (analysis) => {
-                const id = generateAnalysisId(analysis.questionIds);
+                const id = generateAnalysisId(
+                    analysis.questionIds,
+                    analysis.country,
+                    analysis.responseLanguage
+                );
                 const record: AnalysisRecord = {
                     ...analysis,
                     id,
@@ -105,8 +114,8 @@ export const useAnalysisHistoryStore = create<AnalysisHistoryState>()(
             /**
              * 🔎 Find analysis by question IDs
              */
-            findAnalysisByQuestions: (questionIds) => {
-                const id = generateAnalysisId(questionIds);
+            findAnalysisByQuestions: (questionIds, country = 'default', responseLanguage = 'default') => {
+                const id = generateAnalysisId(questionIds, country, responseLanguage);
                 return get().getAnalysis(id);
             },
 
@@ -148,7 +157,7 @@ export const useAnalysisHistoryStore = create<AnalysisHistoryState>()(
         }),
         {
             name: 'skily-analysis-history', // LocalStorage key
-            version: 1,
+            version: 2,
         }
     )
 );
