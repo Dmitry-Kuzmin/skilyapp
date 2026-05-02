@@ -130,6 +130,17 @@ export function DailyQuestWidget() {
     fetchQuests();
   }, [fetchQuests]);
 
+  useEffect(() => {
+    const onFocus = () => fetchQuests();
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') fetchQuests();
+    });
+    return () => {
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [fetchQuests]);
+
   const handleClaimReward = useCallback(async (quest: DailyQuest) => {
     if (!profileId || claimingId) return;
     setClaimingId(quest.id);
