@@ -265,17 +265,16 @@ const TestResults = () => {
   // Sync Duel Pass XP (только если есть награды)
   useEffect(() => {
     const syncDuelPassXP = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.id || !rewardResult || duelPassSyncRef.current) return;
+      if (!contextProfileId || !rewardResult || duelPassSyncRef.current) return;
       duelPassSyncRef.current = true;
       try {
         await supabase.functions.invoke("duel-pass-xp", {
-          body: { user_id: user.id, source_type: "test" },
+          body: { user_id: contextProfileId, source_type: "test" },
         });
       } catch (e) { console.error('[TestResults] duel-pass-xp error:', e); }
     };
     syncDuelPassXP();
-  }, [rewardResult]);
+  }, [rewardResult, contextProfileId]);
 
   // Sync Daily Quests — ВСЕГДА при показе результатов (не зависит от rewardResult)
   useEffect(() => {
