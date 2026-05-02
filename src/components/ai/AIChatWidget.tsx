@@ -12,7 +12,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap } from 'lucide-react';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
-import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
+// TON_DISABLED: import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
