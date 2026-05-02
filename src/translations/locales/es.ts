@@ -1591,7 +1591,7 @@ export const es = {
   contextSettings: {
     selectContext: "Seleccionar contexto",
     readyToStart: "¡Listo para empezar: Categoría {{category}}!",
-    countrySection: "1. País PDD",
+    countrySection: "1. País del examen",
     categorySection: "2. Categoría de licencia",
     apply: "Aplicar",
     title: "Configuración de contexto",
