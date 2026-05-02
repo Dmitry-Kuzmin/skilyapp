@@ -71,8 +71,9 @@ export function UnifiedModal({
 
   const modalId = React.useMemo(() => modalRouteKey || `modal-${Date.now()}-${Math.random()}`, [modalRouteKey]);
 
+  const titleString = typeof title === 'string' ? title : undefined;
   // Регистрация в стеке модалок
-  const { isTopModal } = useModalStack(modalId, resolvedOpen, title || modalRouteKey);
+  const { isTopModal } = useModalStack(modalId, resolvedOpen, titleString || modalRouteKey);
 
   const handleOpenChange = React.useCallback(
     (nextOpen: boolean) => {
