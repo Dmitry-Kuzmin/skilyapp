@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Trophy, Zap, Clock, TrendingUp, ChevronRight } from 'lucide-react';
 import { useModalRoute } from '@/hooks/useModalRoute';
 import { playClickSound } from '@/services/audioService';
