@@ -14,6 +14,7 @@ import { getSupabaseClient } from "@/integrations/supabase/lazyClient";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { useDailyBonusDefinitions } from "@/hooks/useStaticData";
 import { useSettingsSync } from "@/hooks/useSettingsSync";
+import { useDemoCoinsReward } from "@/hooks/useDemoCoinsReward";
 // ОПТИМИЗАЦИЯ: Layout lazy-loaded - содержит UserContext, SettingsDrawer, NotificationsPanel, UserProfilePopover
 // Все эти компоненты тянут Supabase/Radix, поэтому Layout не должен быть в initial bundle
 import { Dashboard } from "@/components/dashboard-new/Dashboard";
