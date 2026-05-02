@@ -114,34 +114,9 @@ const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
             const upperType = type.toUpperCase();
             const upperParam = param.trim().toUpperCase();
 
-            if (upperType === 'TON' || upperType === 'WTON') {
-                if (upperParam === 'CONNECT' || upperParam === 'WALLET:LOGIN' || upperType === 'WTON') {
-                    // Compact-виджет с подключением кошелька и оплатой
-                    elements.push(
-                        <TonPaymentWidget
-                            key={key}
-                            mode="full"
-                            packageKey="ton_connect"
-                            amountTon={1.5}
-                            description="Connecting Wallet"
-                            className="my-3 border border-[#0088cc]/20"
-                        />
-                    );
-                } else if (upperParam.startsWith('PAY:')) {
-                    const parts = param.split(':');
-                    const amount = parts[1] || '1.5';
-                    const comment = parts.slice(2).join(':') || 'Skily Premium';
-                    elements.push(
-                        <TonPaymentWidget
-                            key={key}
-                            mode="full"
-                            packageKey="ai_premium"
-                            amountTon={Number(amount)}
-                            description={comment}
-                            className="my-3 border border-[#0088cc]/20"
-                        />
-                    );
-                }
+            // TON_DISABLED: if (upperType === 'TON' || upperType === 'WTON') { ... }
+            if (false as boolean) {
+                // TON_DISABLED: TonPaymentWidget widgets removed
             } else if (upperType === 'MEME' && param.toUpperCase().startsWith('BADGE:')) {
                 const badgeName = param.split(':')[1] || 'Новичок';
                 elements.push(
