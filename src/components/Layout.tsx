@@ -392,7 +392,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                         }}
                       >
                         <item.icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="hidden lg:inline font-medium truncate text-sm xl:text-base">{item.name}</span>
+                        <span className="hidden md:inline font-medium truncate text-sm xl:text-base">{item.name}</span>
                       </NavLink>
                     );
                   })}
