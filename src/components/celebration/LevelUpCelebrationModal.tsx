@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useLevelUpStore } from '@/store/levelUpStore';
 import { useUserContext } from '@/contexts/UserContext';
+import { usePremium } from '@/hooks/usePremium';
 import { getSupabaseClient } from '@/integrations/supabase/lazyClient';
 import { haptics } from '@/lib/haptics';
 import { sounds } from '@/lib/sounds';
