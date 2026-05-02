@@ -3,6 +3,7 @@ import { StartupCurtain } from "@/components/StartupCurtain";
 import { loadingPhrasesByLang, LoadingPhrase } from "@/data/loadingPhrases";
 import { motion, AnimatePresence, Motion } from '@/components/optimized/Motion';
 import { Sparkles, Zap, Shield, Trophy, Clock, Target } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const IconMap = {
   Sparkles: <Sparkles className="w-5 h-5 text-cyan-400" />,
@@ -14,12 +15,7 @@ const IconMap = {
 };
 
 export const PageLoader = () => {
-  const [language, setLanguage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('app_language') || 'en';
-    }
-    return 'en';
-  });
+  const { language, t } = useLanguage();
 
   const list: LoadingPhrase[] = loadingPhrasesByLang[language as keyof typeof loadingPhrasesByLang] || loadingPhrasesByLang['en'];
 
@@ -84,7 +80,7 @@ export const PageLoader = () => {
               }}></div>
 
               <span className="text-white/40 text-[10px] md:text-xs font-bold tracking-[0.3em] uppercase mb-2">
-                Skily System
+                {t('pageLoader.system')}
               </span>
               <div className="h-px w-12 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent mb-2" />
               <span className="text-white font-black text-2xl tracking-[0.2em] uppercase drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
@@ -107,7 +103,7 @@ export const PageLoader = () => {
                 <div className="flex items-center gap-3 mb-3 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.5)]">
                   {IconMap[currentPhrase.icon as keyof typeof IconMap] || IconMap.Sparkles}
                   <span className="text-xs font-bold tracking-widest text-white/50 uppercase">
-                    {language === 'ru' ? 'Секрет Skily' : (language === 'en' ? 'Skily Secret' : 'Secreto Skily')}
+                    {t('pageLoader.secret')}
                   </span>
                 </div>
                 <p className="text-sm md:text-base text-white/80 max-w-md font-medium leading-relaxed drop-shadow-md">

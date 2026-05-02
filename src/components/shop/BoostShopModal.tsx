@@ -204,8 +204,8 @@ export function BoostShopModal({
   const showStarsPayment = isTWA || isPaymentMethodAvailable('telegram_stars', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
-  const showTonPayment = isPaymentMethodAvailable('ton', currentPlatform);
-  const tonAddress = useTonAddress();
+  const showTonPayment = false; // TON_DISABLED: isPaymentMethodAvailable('ton', currentPlatform);
+  const tonAddress: string | null = null; // TON_DISABLED: useTonAddress();
 
   const handleBuyClick = useCallback((pack: any) => {
     setSelectedPack(pack);

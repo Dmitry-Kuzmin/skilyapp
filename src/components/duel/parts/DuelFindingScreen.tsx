@@ -78,7 +78,7 @@ export function DuelFindingScreen({
                         ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
                                 <User className="w-12 h-12 text-slate-500 mb-1" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{userName || 'Player'}</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">{userName || t('duelMenu.finding.player')}</span>
                             </div>
                         )}
 
