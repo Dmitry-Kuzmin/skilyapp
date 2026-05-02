@@ -1299,6 +1299,7 @@ export const es = {
     share: {
       title: "Compartir",
       button: "Compartir",
+      telegram: "Telegram",
       copied: "Enlace copiado al portapapeles",
     },
     relatedTitle: "Artículos relacionados",
@@ -1309,6 +1310,33 @@ export const es = {
       title: "Prepárate para el examen DGT con Skilyapp",
       description: "Activa entrenamientos, pruebas y duelos en una sola app.",
       button: "Comenzar gratis",
+    },
+  },
+  blogPage: {
+    title: "Blog",
+    home: "Inicio",
+    description: "Artículos útiles sobre normas de tráfico y preparación para el examen DGT",
+    searchPlaceholder: "Buscar artículos...",
+    read: "Leer",
+    categories: {
+      all: "Todos los artículos",
+      "dgt-2026": "DGT 2026",
+      news: "Actualidad",
+      preparation: "Preparación",
+      tips: "Consejos",
+    },
+    empty: {
+      title: "No se encontraron artículos",
+      description: "Prueba a cambiar la búsqueda o la categoría",
+    },
+    cta: {
+      title: "¿Listo para empezar a prepararte?",
+      description: "Únete a miles de estudiantes que ya preparan el examen DGT con Skilyapp",
+      button: "Empezar a estudiar",
+    },
+    seo: {
+      title: "Blog de Skilyapp | Guías y consejos para el examen DGT",
+      description: "Lee artículos de Skilyapp sobre preparación para la DGT: nuevos tipos de preguntas, consejos de teoría, analítica de progreso y aprendizaje bilingüe.",
     },
   },
   contextSettings: {

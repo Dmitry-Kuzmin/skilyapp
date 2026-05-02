@@ -1308,6 +1308,7 @@ export const en = {
     share: {
       title: "Share",
       button: "Share",
+      telegram: "Telegram",
       copied: "Link copied to clipboard",
     },
     relatedTitle: "Related articles",
@@ -1318,6 +1319,33 @@ export const en = {
       title: "Get ready for the DGT exam with Skilyapp",
       description: "Launch adaptive tests, duels and analytics in one app.",
       button: "Start for free",
+    },
+  },
+  blogPage: {
+    title: "Blog",
+    home: "Home",
+    description: "Useful articles about studying road rules and passing the DGT exam",
+    searchPlaceholder: "Search articles...",
+    read: "Read",
+    categories: {
+      all: "All articles",
+      "dgt-2026": "DGT 2026",
+      news: "News",
+      preparation: "Preparation",
+      tips: "Tips",
+    },
+    empty: {
+      title: "No articles found",
+      description: "Try changing the query or category",
+    },
+    cta: {
+      title: "Ready to start preparing?",
+      description: "Join thousands of students already preparing for the DGT exam with Skilyapp",
+      button: "Start learning",
+    },
+    seo: {
+      title: "Skilyapp Blog | DGT exam guides and study tips",
+      description: "Read Skilyapp articles about preparing for the DGT exam: new question types, theory tips, progress analytics and bilingual learning.",
     },
   },
   contextSettings: {

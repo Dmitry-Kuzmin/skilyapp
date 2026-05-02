@@ -134,6 +134,16 @@ export function DailyQuestWidget() {
     if (!profileId || claimingId) return;
     setClaimingId(quest.id);
     try {
+      // Уровень ДО claim — для детекта level-up
+      const { data: progressBefore } = await (supabase as any)
+        .from('user_season_progress')
+        .select('level')
+        .eq('user_id', profileId)
+        .order('season_id', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const levelBefore = progressBefore?.level ?? 1;
+
       const { data, error } = await (supabase as any).rpc('claim_daily_quest_reward', {
         p_user_id: profileId,
         p_user_quest_id: quest.id
@@ -149,6 +159,26 @@ export function DailyQuestWidget() {
         setQuests(prev => prev.map(q =>
           q.id === quest.id ? { ...q, is_claimed: true } : q
         ));
+
+        // ── Level-up celebration popup ─────────────────────────────────
+        try {
+          const { data: progressAfter } = await (supabase as any)
+            .from('user_season_progress')
+            .select('level')
+            .eq('user_id', profileId)
+            .order('season_id', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          const levelAfter = progressAfter?.level ?? levelBefore;
+          if (levelAfter > levelBefore) {
+            const { maybeTriggerLevelUp } = await import('@/store/levelUpStore');
+            setTimeout(() => {
+              maybeTriggerLevelUp({ level_up: true, new_level: levelAfter }, 'quest', false);
+            }, 800);
+          }
+        } catch (lvlErr) {
+          console.warn('[DailyQuestWidget] level-up check failed', lvlErr);
+        }
       } else {
         toast.error(data?.error || (language === 'es' ? "Error al obtener recompensa" : language === 'en' ? "Failed to claim reward" : "Ошибка получения награды"));
       }
@@ -158,7 +188,7 @@ export function DailyQuestWidget() {
     } finally {
       setClaimingId(null);
     }
-  }, [profileId, claimingId]);
+  }, [profileId, claimingId, language]);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
