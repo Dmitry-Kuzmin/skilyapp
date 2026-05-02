@@ -201,12 +201,16 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
           await supabase.functions.invoke('season-challenges-track', {
             body: { user_id: profileId, source_type: spSource, metadata },
           });
-          if (xpData?.level_up) {
-            const { data: suggestion } = await supabase.functions.invoke('assistant-suggest', {
-              body: { trigger: 'duel_pass_level_up' },
-            });
-            const message = suggestion?.suggestion?.message;
-            if (message) toast.info(message);
+          // ── Level-up celebration popup (festival design) ──────────────
+          // spData приоритетнее — это уровень Duel Pass season
+          const newLevel = spData?.level || xpData?.new_level;
+          const didLevelUp = spData?.level_up === true || xpData?.level_up === true;
+          if (didLevelUp && newLevel) {
+            const { maybeTriggerLevelUp } = await import('@/store/levelUpStore');
+            // Чуть задержим — пусть юзер увидит "Победа!" сначала
+            setTimeout(() => {
+              maybeTriggerLevelUp({ level_up: true, new_level: newLevel }, 'duel', isPremium ?? false);
+            }, 1800);
           }
         } catch (err) {
           console.error('[DuelResult] Error applying rewards:', err);

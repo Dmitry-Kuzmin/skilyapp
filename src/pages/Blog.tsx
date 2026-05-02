@@ -46,8 +46,37 @@ const categoryDefinitions = [
 
 const Blog = () => {
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
+
+  const categories = categoryDefinitions.map((category) => ({
+    ...category,
+    name: t(`blogPage.categories.${category.id}`),
+  }));
+
+  const articles: Article[] = Object.values(articleRegistry)
+    .map((article) => {
+      const localizedArticle = getLocalizedArticle(article, language);
+      if (!localizedArticle) return null;
+
+      const excerpt =
+        BLOG_ARTICLE_TRANSLATIONS[article.slug]?.[language]?.excerpt ??
+        BLOG_ARTICLE_TRANSLATIONS[article.slug]?.ru?.excerpt ??
+        localizedArticle.description;
+
+      return {
+        slug: localizedArticle.slug,
+        title: localizedArticle.title,
+        description: localizedArticle.description,
+        excerpt,
+        publishedAt: localizedArticle.publishedAt,
+        readTime: localizedArticle.readTime,
+        category: localizedArticle.category,
+        categorySlug: localizedArticle.categorySlug,
+      };
+    })
+    .filter(Boolean) as Article[];
 
   // Добавляем RSS feed в head
   useEffect(() => {
@@ -97,7 +126,7 @@ const Blog = () => {
         {
           "@type": "ListItem",
           position: 2,
-          name: "Blog",
+          name: t("blogPage.title"),
           item: "https://skilyapp.com/blog",
         },
       ],
@@ -105,10 +134,10 @@ const Blog = () => {
     {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      name: "Skilyapp Blog",
+      name: t("blogPage.seo.title"),
       url: "https://skilyapp.com/blog",
-      description: "Статьи и гайды Skilyapp о подготовке к экзамену DGT в Испании.",
-      inLanguage: "ru",
+      description: t("blogPage.seo.description"),
+      inLanguage: ARTICLE_LANGUAGE_MAP[language],
       isPartOf: {
         "@type": "WebSite",
         name: "Skilyapp",
@@ -132,8 +161,8 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       <SeoHead
-        title="Блог Skilyapp | Гайды и советы по экзамену DGT"
-        description="Читайте статьи Skilyapp о подготовке к экзамену DGT: новые вопросы, советы по теории, аналитика прогресса и обучение на русском."
+        title={t("blogPage.seo.title")}
+        description={t("blogPage.seo.description")}
         canonicalUrl="https://skilyapp.com/blog"
         structuredData={blogStructuredData}
       />
@@ -152,7 +181,7 @@ const Blog = () => {
               <div className="relative group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 transition-colors" />
                 <Input
-                  placeholder="Поиск статей..."
+                  placeholder={t("blogPage.searchPlaceholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-20 bg-gray-50/80 dark:bg-gray-900/80 border-gray-200 dark:border-gray-800 focus:bg-white dark:focus:bg-gray-900 focus:border-blue-500 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all duration-200"
@@ -166,7 +195,7 @@ const Blog = () => {
             {/* Right Links */}
             <div className="flex items-center gap-3">
               <Link to="/dashboard" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hidden sm:block transition-colors font-medium">
-                Главная
+                {t("blogPage.home")}
               </Link>
               <ThemeToggle />
             </div>
@@ -181,9 +210,9 @@ const Blog = () => {
             <div className="sticky top-24">
               {/* Blog Title */}
               <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Блог</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t("blogPage.title")}</h1>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Полезные статьи об изучении правил дорожного движения
+                  {t("blogPage.description")}
                 </p>
               </div>
 
@@ -235,10 +264,10 @@ const Blog = () => {
               <div className="text-center py-12">
                 <BookOpen className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                  Статьи не найдены
+                  {t("blogPage.empty.title")}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Попробуйте изменить запрос или категорию
+                  {t("blogPage.empty.description")}
                 </p>
               </div>
             ) : (
@@ -262,7 +291,7 @@ const Blog = () => {
                           </Badge>
                           <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                             <Clock className="w-3 h-3" />
-                            {article.readTime} мин
+                            {t("article.meta.readTime", { minutes: article.readTime })}
                           </div>
                         </div>
 
@@ -280,7 +309,7 @@ const Blog = () => {
                         <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
                           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                             <Calendar className="w-3 h-3" />
-                            {new Date(article.publishedAt).toLocaleDateString("ru-RU", {
+                            {new Date(article.publishedAt).toLocaleDateString(ARTICLE_LANGUAGE_MAP[language], {
                               year: "numeric",
                               month: "long",
                               day: "numeric",
@@ -291,7 +320,7 @@ const Blog = () => {
                             size="sm"
                             className="h-8 text-xs group-hover:text-blue-600 dark:group-hover:text-blue-400"
                           >
-                            Читать
+                            {t("blogPage.read")}
                             <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform" />
                           </Button>
                         </div>
@@ -304,17 +333,17 @@ const Blog = () => {
                 <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800/40 mt-12">
                   <div className="p-8 text-center">
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                      Готовы начать подготовку?
+                      {t("blogPage.cta.title")}
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
-                      Присоединяйтесь к тысячам студентов, которые уже готовятся к экзамену DGT с помощью Skilyapp
+                      {t("blogPage.cta.description")}
                     </p>
                     <Button
                       size="lg"
                       onClick={() => navigate("/tests")}
                       className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/50"
                     >
-                      Начать обучение
+                      {t("blogPage.cta.button")}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </div>
