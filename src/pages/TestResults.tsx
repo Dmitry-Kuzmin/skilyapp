@@ -172,6 +172,7 @@ const TestResults = () => {
   const { isPremium } = usePremium();
   const { completedQuests, updateProgress, clearCompleted } = useQuestProgress();
   const { language, t } = useLanguage();
+  const { profileId: contextProfileId } = useUserContext();
 
   // State for toggles
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
