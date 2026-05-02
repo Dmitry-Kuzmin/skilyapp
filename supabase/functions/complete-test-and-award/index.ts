@@ -177,10 +177,12 @@ serve(async (req) => {
 
     // ── Расчёт SP по той же формуле что в season-sp/computeTestSP ─────────
     // Дублируем расчёт здесь чтобы вернуть клиенту сразу (не ждать фоновый вызов)
-    const baseSp = correct_count * 2;
+    const baseSp = isTooFast ? 0 : correct_count * 2;
     let bonusSp = 0;
-    if (score === 100)      bonusSp = 50;
-    else if (score >= 90)   bonusSp = 30;
+    if (!isTooFast) {
+      if (score === 100)    bonusSp = 50;
+      else if (score >= 90) bonusSp = 30;
+    }
     const spAwarded = baseSp + bonusSp;
 
     const spMetadata = {
