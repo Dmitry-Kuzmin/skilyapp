@@ -37,9 +37,10 @@ export function RewardedAdModal({
   description,
   placement,
   inlineOverlay = false,
+  allowForPremium = false,
   secondaryAction,
 }: RewardedAdModalProps) {
-  const { loading, error, isAvailable, showAd, preload, reset } = useRewardedAd();
+  const { loading, error, isAvailable, showAd, preload, reset } = useRewardedAd({ allowForPremium });
   const [showReward, setShowReward] = useState(false);
   const [showPromo, setShowPromo] = useState(false);
 
