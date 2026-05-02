@@ -1,0 +1,80 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  lang: string;
+  ogImage?: string;
+  jsonLd?: object | object[];
+  hreflang?: { lang: string; href: string }[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  lang,
+  ogImage = 'https://skilyapp.com/og-ru.jpg',
+  jsonLd,
+  hreflang = [],
+} = Astro.props;
+
+const jsonLdArray = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
+---
+
+<!doctype html>
+<html lang={lang} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#09090b" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Hreflang -->
+    {hreflang.map(h => (
+      <link rel="alternate" hreflang={h.lang} href={h.href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href="https://skilyapp.com" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="Skily" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Fonts: Inter via Google (subset) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    />
+
+    <!-- JSON-LD Structured Data (GEO) -->
+    {jsonLdArray.map(schema => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
+  </head>
+
+  <body class="bg-surface text-white font-sans antialiased">
+    <slot />
+  </body>
+</html>
