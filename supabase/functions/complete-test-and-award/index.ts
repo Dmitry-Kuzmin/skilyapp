@@ -150,9 +150,7 @@ serve(async (req) => {
     // ============================================
     // СЕЗОН: Season Points для лидерборда + трекинг челленджей
     // ============================================
-    const spAwarded = (rewardData as any)?.sp_awarded ?? 0;
-
-    // Различаем экзамен и обычный тест — у них разная экономика SP
+    // Различаем экзамен и обычный тест
     const isExam = mode === 'exam' || mode === 'exam-russia';
     const sourceType = isExam
       ? 'exam_completed'
@@ -160,7 +158,14 @@ serve(async (req) => {
         ? 'test_perfect'
         : 'test_completed';
 
-    // Метадата для динамического расчёта SP в season-sp
+    // ── Расчёт SP по той же формуле что в season-sp/computeTestSP ─────────
+    // Дублируем расчёт здесь чтобы вернуть клиенту сразу (не ждать фоновый вызов)
+    const baseSp = correct_count * 2;
+    let bonusSp = 0;
+    if (score === 100)      bonusSp = 50;
+    else if (score >= 90)   bonusSp = 30;
+    const spAwarded = baseSp + bonusSp;
+
     const spMetadata = {
       questions_count,
       score,
@@ -169,9 +174,7 @@ serve(async (req) => {
       sp_earned: spAwarded,
     };
 
-    // Обновляем user_season_progress.season_points (лидерборд)
-    // SP начисляются по правилам: <80% → 0, ≥80% → correct×1, 100% → +10 бонус
-    // Экзамен: <90% → 0, ≥90% → 30, 100% → 50
+    // Применяем SP в БД (фоном — клиент уже получит число для UI)
     supabase.functions.invoke('season-sp', {
       body: { user_id, source_type: sourceType, metadata: spMetadata },
     }).catch((err: unknown) => {
@@ -185,12 +188,17 @@ serve(async (req) => {
       console.error('[complete-test-and-award] ⚠️ challenges-track error:', err);
     });
 
-    console.log('[complete-test-and-award] ✅ SUCCESS:', rewardData);
+    console.log(`[complete-test-and-award] ✅ SP: ${spAwarded} (base ${baseSp} + bonus ${bonusSp})`);
 
+    // Возвращаем sp_awarded клиенту (перетираем 0 из RPC)
     return new Response(
       JSON.stringify({
         success: true,
-        ...rewardData
+        ...rewardData,
+        sp_awarded: spAwarded,
+        sp_base: baseSp,
+        sp_bonus: bonusSp,
+        coins_awarded: 0,  // явно: монеты больше не даются за тесты
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
