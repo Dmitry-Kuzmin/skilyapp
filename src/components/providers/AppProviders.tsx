@@ -25,9 +25,9 @@ import { useAuthEventListener } from "@/hooks/useAuthEventListener.ts";
 import { preloadPaddle } from "@/lib/paddle";
 import { useIdleInitialization } from "@/hooks/useIdleInitialization";
 import { GlobalSettingsManager } from "@/components/settings";
-import { AppKitProvider } from "@ton/appkit-react";
-import { appKit } from "@/lib/ton-appkit";
-import { TonAddressProvider } from '@/contexts/TonAddressContext';
+// TON_DISABLED: import { AppKitProvider } from "@ton/appkit-react";
+// TON_DISABLED: import { appKit } from "@/lib/ton-appkit";
+// TON_DISABLED: import { TonAddressProvider } from '@/contexts/TonAddressContext';
 import { useSessionManager } from "@/hooks/useSessionManager";
 
 import { SmartOnboardingFlow } from "@/components/onboarding/SmartOnboardingFlow";
