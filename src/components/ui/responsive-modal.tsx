@@ -223,10 +223,10 @@ export function ResponsiveModal({
       >
         {title && (
           <DialogHeader className={cn(
-            "shrink-0 px-8 pt-6 relative",
+            "shrink-0 px-8 pt-6 pr-16 relative flex flex-row items-center",
             !headerContent && "pb-4 border-b border-white/10"
           )}>
-            <DialogTitle className="text-xl font-bold text-foreground">{title}</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-foreground flex-1">{title}</DialogTitle>
             {description && (
               <DialogDescription className="text-muted-foreground">
                 {description}
