@@ -10,7 +10,7 @@ interface UnifiedModalProps {
   open?: boolean; // Опционально, если используется modalRouteKey
   onOpenChange?: (open: boolean) => void;
   children: React.ReactNode;
-  title?: string;
+  title?: React.ReactNode;
   description?: string;
   modalType?: ModalType;
   hideCloseButton?: boolean;
