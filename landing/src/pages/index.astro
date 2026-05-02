@@ -1,0 +1,22 @@
+---
+// Root: serve Spanish landing by default (primary market).
+// Russian and English have their own canonical pages.
+import { redirect } from 'astro:server';
+---
+
+<!-- Static default: redirect at CDN level via vercel.json rewrites.
+     This file serves as a fallback — Vercel rewrites / → /es for Spanish
+     and /ru → ru.astro, /en → en.astro. -->
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0; url=/es" />
+    <link rel="canonical" href="https://skilyapp.com/es" />
+    <title>Skily — Examen DGT Teórico</title>
+  </head>
+  <body>
+    <p>Redirigiendo… / Redirecting… <a href="/es">Ir a la página</a></p>
+  </body>
+</html>
