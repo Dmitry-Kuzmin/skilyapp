@@ -64,6 +64,14 @@ serve(async (req) => {
       );
     }
 
+    // Anti-speed-cheat: минимум 2 сек на вопрос
+    const MIN_SECONDS_PER_QUESTION = 2;
+    const minExpectedDuration = questions_count * MIN_SECONDS_PER_QUESTION;
+    const isTooFast = test_duration_seconds > 0 && test_duration_seconds < minExpectedDuration;
+    if (isTooFast) {
+      console.warn(`[complete-test-and-award] 🚨 Speed cheat detected: ${test_duration_seconds}s for ${questions_count} questions (min ${minExpectedDuration}s). user=${user_id}`);
+    }
+
     // Проверка idempotency
     const { data: existingResult, error: checkError } = await supabase
       .from('test_results')
