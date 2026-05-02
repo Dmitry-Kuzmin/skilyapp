@@ -974,6 +974,7 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
         onToggleBookmark={profileId ? toggleBookmark : undefined}
         isQuestionBookmarked={isQuestionBookmarked}
         bookmarkLoading={bookmarkLoading}
+        answers={answerHistory}
       />
 
       {/* Question Card */}
