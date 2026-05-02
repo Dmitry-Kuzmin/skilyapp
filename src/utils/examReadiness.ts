@@ -9,6 +9,7 @@ export interface ReadinessMetrics {
   recentPerformance: number; // 0-1
   activityScore: number; // 0-1
   uniqueQuestions?: number; // количество уникальных отвеченных вопросов
+  country?: 'spain' | 'russia'; // страна для расчёта
 }
 
 export interface ReadinessResult {
