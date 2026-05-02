@@ -10,11 +10,8 @@ import { useTelegram } from "@/contexts/TelegramContext";
 import { useCountry } from "@/contexts/CountryContext";
 import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import { examYear } from "@/utils/dateUtils";
-// Synchronous imports — no lazy() — prevents the Suspense blank-screen flash on mobile.
-// createRoot replaces prerendered HTML immediately; if the component is lazy the user sees
-// LandingFallback (dark screen) for several seconds while the chunk downloads. Keeping these
-// synchronous means the component renders in the same JS tick React mounts, matching
-// the prerendered HTML with zero delay.
+// Synchronous imports — no lazy() — component renders in the same JS tick React mounts,
+// matching prerendered HTML with zero delay and avoiding any blank-screen flash.
 import { LandingSpain } from "@/components/landing/LandingSpain";
 import { LandingRussia } from "@/components/landing/LandingRussia";
 
