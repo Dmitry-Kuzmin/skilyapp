@@ -75,6 +75,8 @@ export const SkilyChat = React.memo(() => {
   const [input, setInput] = useState('');
   const { messages, isLoading, sendMessage, clearMessages } = useSkilyAIChat(selectedCountry);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
 
   // Блокировка скролла body при открытом попапе
   useEffect(() => {
