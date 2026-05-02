@@ -1600,7 +1600,7 @@ export const en = {
   contextSettings: {
     selectContext: "Select context",
     readyToStart: "Ready to start: Category {{category}}!",
-    countrySection: "1. PDD Country",
+    countrySection: "1. Exam Country",
     categorySection: "2. License Category",
     apply: "Apply",
     title: "Context Settings",
