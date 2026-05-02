@@ -53,10 +53,6 @@ const PartnerInviteBanner = lazy(() =>
   import("@/components/landing/PartnerInviteBanner").then(m => ({ default: m.PartnerInviteBanner }))
 );
 
-// Used when ready=false (Telegram auth check in progress)
-const LandingFallback = () => (
-  <div style={{ minHeight: '100dvh', width: '100%', background: '#0f172a' }} />
-);
 
 const Landing = () => {
   const navigate = useNavigate();
