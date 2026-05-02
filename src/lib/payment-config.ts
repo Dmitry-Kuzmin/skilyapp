@@ -46,7 +46,13 @@ export function getAvailablePaymentMethods(platform: 'telegram' | 'web' | 'mobil
   // Проверяем initData — он непустой только в реальном Telegram (мок оставляет его пустым)
   if (PAYMENT_CONFIG.telegramStarsEnabled) {
     const twa = typeof window !== 'undefined' ? (window as any).Telegram?.WebApp : null;
-    const hasRealInitData = typeof twa?.initData === 'string' && twa.initData.length > 0;
+    // Реальный Telegram initData ВСЕГДА содержит auth_date= и hash=
+    // Мок и пустые строки не содержат этих полей
+    const isMockInitData = !twa?.initData ||
+      twa.initData === 'mock_init_data' ||
+      twa.initData.startsWith('mock_') ||
+      !twa.initData.includes('hash=');
+    const hasRealInitData = !isMockInitData;
     if (platform === 'telegram' || hasRealInitData) {
       methods.push('telegram_stars');
     }
