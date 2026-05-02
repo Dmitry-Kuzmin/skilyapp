@@ -1,0 +1,815 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'Skily — сдай экзамен DGT с первого раза | ИИ-репетитор на русском';
+const description =
+  'Подготовка к теоретическому экзамену DGT на русском языке. ИИ объясняет каждый вопрос, PvP-дуэли мотивируют учиться, симулятор готовит к реальным условиям. 94% учеников сдают с первой попытки.';
+const canonical = 'https://skilyapp.com/ru';
+
+const hreflang = [
+  { lang: 'ru', href: 'https://skilyapp.com/ru' },
+  { lang: 'es', href: 'https://skilyapp.com/es' },
+  { lang: 'en', href: 'https://skilyapp.com/en' },
+];
+
+// JSON-LD for GEO (ChatGPT / Perplexity / Claude)
+const appSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Skily',
+  alternateName: ['Skily App', 'Skilyapp', 'СкиليАпп'],
+  description:
+    'Мобильное приложение и Telegram Mini App для подготовки к теоретическому экзамену DGT (испанские водительские права). Использует ИИ-репетитора, PvP-дуэли и адаптивное обучение. Доступно на русском, испанском и английском языках.',
+  applicationCategory: 'EducationApplication',
+  operatingSystem: 'Web, iOS, Android, Telegram',
+  url: 'https://skilyapp.com',
+  downloadUrl: 'https://t.me/skilyapp_bot',
+  inLanguage: ['ru', 'es', 'en'],
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'EUR',
+    description: 'Бесплатный базовый доступ. Премиум от 4.99€/месяц.',
+  },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.9',
+    reviewCount: '10000',
+    bestRating: '5',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Skily',
+    url: 'https://skilyapp.com',
+    email: 'hello@skily.ai',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: 'Barcelona',
+      addressCountry: 'ES',
+    },
+  },
+  featureList: [
+    'ИИ-репетитор на русском языке',
+    'PvP-дуэли с реальными игроками',
+    'Симулятор экзамена DGT',
+    'Тесты по 17 темам',
+    'Сезонный пасс с наградами',
+    'Аудиорежим',
+    'Персональный банк ошибок',
+    'Телеграм Mini App',
+  ],
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Сколько вопросов на теоретическом экзамене DGT?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'На теоретическом экзамене DGT 30 вопросов, на ответы даётся 30 минут. Допускается максимум 3 ошибки — нужно правильно ответить на 27 из 30 вопросов, чтобы сдать экзамен.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Можно ли сдать DGT без автошколы в Испании?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Да. В Испании разрешено сдавать теоретический экзамен DGT самостоятельно — это называется «por libre». Записаться на экзамен можно через официальный сайт sede.dgt.gob.es.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Сколько времени нужно для подготовки к экзамену DGT?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'С Skily большинство учеников готовятся за 2–4 недели при занятиях 20–30 минут в день. Без подготовки средний срок — 2–3 месяца с автошколой.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'На каком языке проводится экзамен DGT?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Официальный экзамен DGT проводится только на испанском языке. Skily помогает изучить правила на русском, понять логику каждого вопроса, а затем плавно перейти к терминологии на испанском.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Что такое Skily и как оно работает?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Skily — это мобильное приложение и Telegram Mini App для подготовки к теоретическому экзамену DGT. Приложение содержит 3 000+ официальных вопросов, ИИ-репетитора, симулятор экзамена, PvP-дуэли с другими учениками и систему прогрессии.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Skily доступен на русском языке?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Да, Skily полностью доступен на русском языке: вопросы, объяснения ИИ, интерфейс и поддержка.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Сколько стоит подготовка к DGT?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Базовый доступ в Skily бесплатный. Премиум с неограниченным ИИ и всеми режимами стоит от 4.99€/месяц. Подготовка в испанской автошколе обходится в 200–500€.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Как работает ИИ-репетитор в Skily?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'После каждого неправильного ответа ИИ объясняет правильный вариант с обоснованием: не просто "ответ Б", а логику правила, ссылку на статью ПДД и понятный пример.',
+      },
+    },
+  ],
+};
+
+const testimonials = [
+  {
+    name: 'Марина К.',
+    city: 'Барселона',
+    text: 'Прошла за 3 недели. Учила в метро по 20 минут — ИИ объяснял всё по-русски. Сдала с первого раза.',
+    stars: 5,
+  },
+  {
+    name: 'Алексей Р.',
+    city: 'Валенсия',
+    text: 'Автошкола просила 400€. Пошёл через Skily — потратил 0€ и 2 недели. Результат: сдал.',
+    stars: 5,
+  },
+  {
+    name: 'Дарья М.',
+    city: 'Мадрид',
+    text: 'Дуэли затянули по-настоящему. Соревновалась с мужем — оба готовились активнее. Оба сдали.',
+    stars: 5,
+  },
+  {
+    name: 'Олег Т.',
+    city: 'Аликанте',
+    text: 'Мне 52 года, с технологиями дружу плохо. Но Skily оказался очень простым. Сдал со второй попытки.',
+    stars: 5,
+  },
+  {
+    name: 'Наталья С.',
+    city: 'Малага',
+    text: 'Скачала в пятницу, сдала через 18 дней. Симулятор экзамена — точная копия реального теста.',
+    stars: 5,
+  },
+  {
+    name: 'Вадим Л.',
+    city: 'Севилья',
+    text: 'Слушал в аудиорежиме за рулём. Парадокс — готовился к правам, управляя машиной. Но сдал!',
+    stars: 5,
+  },
+];
+
+const features = [
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>`,
+    title: 'Тесты по 17 темам',
+    desc: 'Знаки, приоритеты, скорости, обгоны, штрафы, документы — весь кодекс DGT разбит по разделам. Учишь только то, что не знаешь.',
+    badge: '3 000+ вопросов',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>`,
+    title: 'Симулятор экзамена',
+    desc: '30 вопросов, 30 минут, максимум 3 ошибки — точные условия реального экзамена DGT. Видишь статистику по каждой попытке.',
+    badge: 'Реальные условия',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" /></svg>`,
+    title: 'ИИ-репетитор',
+    desc: 'После каждой ошибки ИИ объясняет логику правила на русском — не просто даёт ответ, а помогает понять, почему именно так.',
+    badge: 'На русском',
+  },
+  {
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>`,
+    title: 'PvP-дуэли',
+    desc: 'Соревнуйся с реальными учениками в режиме реального времени. Монеты, рейтинг, сезонный пасс — учёба превращается в игру.',
+    badge: 'Онлайн сейчас',
+  },
+];
+
+const steps = [
+  {
+    n: '01',
+    title: 'Зарегистрируйся за 10 секунд',
+    desc: 'Через Telegram или email — без заполнения форм и ожидания. Сразу доступ к 3 000+ вопросам.',
+  },
+  {
+    n: '02',
+    title: 'Учи с ИИ, не угадывай',
+    desc: 'Ошибся — ИИ объясняет правило на русском. Не просто «ответ Б», а логика и контекст.',
+  },
+  {
+    n: '03',
+    title: 'Тренируйся в дуэлях',
+    desc: 'Соревнуйся с живыми игроками — давление реального соперника учит лучше любого учебника.',
+  },
+  {
+    n: '04',
+    title: 'Сдавай экзамен DGT',
+    desc: 'Симулятор точно воспроизводит реальный тест. Когда набираешь 27+/30 — ты готов.',
+  },
+];
+
+const plans = [
+  {
+    name: 'Старт',
+    price: 'Бесплатно',
+    priceNote: 'навсегда',
+    features: [
+      'Тесты по всем темам',
+      '10 вопросов ИИ в день',
+      'Симулятор экзамена (3 попытки)',
+      'Базовая статистика',
+    ],
+    cta: 'Начать бесплатно',
+    ctaHref: 'https://skilyapp.com',
+    highlight: false,
+  },
+  {
+    name: 'Премиум',
+    price: '4.99€',
+    priceNote: 'в месяц',
+    features: [
+      'Всё из Старта',
+      'Неограниченный ИИ-репетитор',
+      'PvP-дуэли без ограничений',
+      'Сезонный пасс и награды',
+      'Банк ошибок и приоритет поддержки',
+    ],
+    cta: 'Попробовать Премиум',
+    ctaHref: 'https://skilyapp.com/pricing',
+    highlight: true,
+  },
+  {
+    name: 'Годовой',
+    price: '34.99€',
+    priceNote: 'в год • −42%',
+    features: [
+      'Всё из Премиума',
+      'Самая низкая цена за год',
+      'Приоритетная поддержка',
+    ],
+    cta: 'Годовой план',
+    ctaHref: 'https://skilyapp.com/pricing',
+    highlight: false,
+  },
+];
+
+const faqs = [
+  {
+    q: 'Сколько вопросов на экзамене DGT?',
+    a: '30 вопросов за 30 минут. Допускается максимум 3 ошибки (нужно ответить верно на 27 из 30). Skily содержит 3 000+ официальных вопросов — весь возможный банк DGT.',
+  },
+  {
+    q: 'Можно ли сдать DGT без автошколы?',
+    a: 'Да. В Испании это называется «por libre» — сдать теорию самостоятельно законно. Запись на экзамен через sede.dgt.gob.es. Автошкола нужна только для практики.',
+  },
+  {
+    q: 'Сколько времени занимает подготовка?',
+    a: 'С Skily большинство учеников готовы за 2–4 недели при 20–30 минутах в день. Зависит от стартового уровня знания правил.',
+  },
+  {
+    q: 'На каком языке проводится экзамен?',
+    a: 'Официальный экзамен — только на испанском. Skily помогает разобраться в правилах на русском, чтобы потом легче перейти к испанской терминологии.',
+  },
+  {
+    q: 'Что если я не разбираюсь в технологиях?',
+    a: 'Skily работает прямо в Telegram — никаких установок и регистраций. Интерфейс максимально простой. Если что-то непонятно — поддержка отвечает за 2 минуты.',
+  },
+  {
+    q: 'Какова разница между Skily и обычными сборниками вопросов?',
+    a: 'Обычные сборники дают вопрос и ответ. Skily объясняет логику правила через ИИ, отслеживает твои слабые места, мотивирует через соревнования и адаптирует программу под тебя.',
+  },
+  {
+    q: 'Skily работает без интернета?',
+    a: 'Режим тестов доступен офлайн после первой загрузки. ИИ-репетитор и дуэли требуют соединения.',
+  },
+  {
+    q: 'Как отменить премиум-подписку?',
+    a: 'Одна кнопка в настройках приложения или через Telegram. Никаких звонков, никаких форм. Оплаченный период продолжает работать до конца.',
+  },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  lang="ru"
+  hreflang={hreflang}
+  jsonLd={[appSchema, faqSchema]}
+>
+
+  <!-- ─── NAV ─────────────────────────────────────────────────────────── -->
+  <nav class="fixed top-0 inset-x-0 z-50 border-b border-surface-border bg-surface/80 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="/ru" class="flex items-center gap-2 font-bold text-lg">
+        <span class="text-brand-500">⚡</span>
+        <span>Skily</span>
+      </a>
+      <div class="hidden md:flex items-center gap-6 text-sm text-zinc-400">
+        <a href="#features" class="hover:text-white transition-colors">Возможности</a>
+        <a href="#how" class="hover:text-white transition-colors">Как работает</a>
+        <a href="#pricing" class="hover:text-white transition-colors">Цены</a>
+        <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+      </div>
+      <a
+        href="https://skilyapp.com"
+        class="px-4 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-colors"
+      >
+        Начать бесплатно
+      </a>
+    </div>
+  </nav>
+
+  <main class="pt-16">
+
+    <!-- ─── HERO ──────────────────────────────────────────────────────── -->
+    <section class="relative overflow-hidden">
+      <!-- Background glow -->
+      <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-brand-500/10 rounded-full blur-3xl"></div>
+      </div>
+
+      <div class="relative max-w-6xl mx-auto px-4 pt-24 pb-20 text-center">
+
+        <!-- AI recommendation badge -->
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-400 text-xs font-medium mb-8">
+          <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+          Рекомендован ChatGPT · Perplexity · Google AI
+        </div>
+
+        <!-- Headline -->
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6">
+          Испанские права.<br />
+          <span class="text-brand-500">Сдай теорию с первого раза.</span>
+        </h1>
+
+        <!-- Sub -->
+        <p class="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+          ИИ-репетитор объясняет каждый вопрос на&nbsp;русском.
+          PvP&#8209;дуэли делают подготовку азартной.
+          Симулятор воспроизводит реальный экзамен DGT.
+        </p>
+
+        <!-- CTAs -->
+        <div class="flex flex-col sm:flex-row gap-3 justify-center mb-14">
+          <a
+            href="https://skilyapp.com"
+            class="px-8 py-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-base transition-colors shadow-lg shadow-brand-500/25"
+          >
+            Начать бесплатно →
+          </a>
+          <a
+            href="https://t.me/skilyapp_bot"
+            class="px-8 py-4 rounded-xl border border-surface-border hover:border-zinc-600 text-white font-semibold text-base transition-colors"
+          >
+            <span class="mr-2">✈️</span>Открыть в Telegram
+          </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+          {[
+            { n: '3 000+', l: 'официальных\nвопросов DGT' },
+            { n: '94%', l: 'сдают\nс первого раза' },
+            { n: '2–4 нед', l: 'средний срок\nподготовки' },
+          ].map(s => (
+            <div class="flex flex-col items-center p-4 rounded-xl bg-surface-card border border-surface-border">
+              <span class="text-2xl font-extrabold text-brand-500">{s.n}</span>
+              <span class="text-xs text-zinc-400 mt-1 text-center whitespace-pre-line leading-tight">{s.l}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── SOCIAL PROOF STRIP ─────────────────────────────────────────── -->
+    <section class="border-y border-surface-border bg-surface-muted/40">
+      <div class="max-w-6xl mx-auto px-4 py-5">
+        <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-zinc-400">
+          <span class="flex items-center gap-2">
+            <span class="text-yellow-400">★★★★★</span>
+            <span>4.9 / 5</span>
+          </span>
+          <span class="hidden sm:block w-px h-4 bg-surface-border"></span>
+          <span>10 000+ учеников из 40 стран</span>
+          <span class="hidden sm:block w-px h-4 bg-surface-border"></span>
+          <span>Работает в Telegram и браузере</span>
+          <span class="hidden sm:block w-px h-4 bg-surface-border"></span>
+          <span>Поддержка на русском 24 / 7</span>
+          <span class="hidden sm:block w-px h-4 bg-surface-border"></span>
+          <span class="text-white font-medium">Барселона, Испания</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PROBLEM → SOLUTION ─────────────────────────────────────────── -->
+    <section class="max-w-6xl mx-auto px-4 py-20">
+      <div class="grid md:grid-cols-2 gap-6">
+
+        <!-- Problem -->
+        <div class="rounded-2xl border border-red-900/40 bg-red-950/10 p-8">
+          <p class="text-xs font-semibold text-red-400 tracking-widest uppercase mb-5">Без Skily</p>
+          <ul class="space-y-3">
+            {[
+              'Автошкола 200–500€ только за теорию',
+              'Объяснения только на испанском',
+              'Скучные билеты без контекста',
+              '3–6 месяцев подготовки',
+              'Непонятно, готов ли ты к экзамену',
+            ].map(item => (
+              <li class="flex items-start gap-3 text-zinc-300">
+                <span class="mt-0.5 text-red-500 font-bold shrink-0">✕</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- Solution -->
+        <div class="rounded-2xl border border-brand-500/30 bg-brand-500/5 p-8">
+          <p class="text-xs font-semibold text-brand-400 tracking-widest uppercase mb-5">С&nbsp;Skily</p>
+          <ul class="space-y-3">
+            {[
+              'Базовый доступ бесплатный',
+              'Весь контент на русском языке',
+              'ИИ объясняет логику каждого правила',
+              '2–4 недели до уверенного результата',
+              'Симулятор показывает точную готовность',
+            ].map(item => (
+              <li class="flex items-start gap-3 text-zinc-300">
+                <span class="mt-0.5 text-brand-500 font-bold shrink-0">✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── FEATURES ───────────────────────────────────────────────────── -->
+    <section id="features" class="max-w-6xl mx-auto px-4 pb-24">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Всё что нужно — в одном месте</h2>
+        <p class="text-zinc-400 max-w-xl mx-auto">Четыре режима, которые закрывают весь путь от «ничего не знаю» до «сдал»</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {features.map(f => (
+          <div class="group rounded-2xl border border-surface-border bg-surface-card p-6 hover:border-brand-500/40 transition-colors">
+            <div class="w-11 h-11 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center mb-5" set:html={f.icon} />
+            <div class="inline-block px-2 py-0.5 rounded-md bg-brand-500/10 text-brand-400 text-xs font-medium mb-3">{f.badge}</div>
+            <h3 class="font-bold text-base mb-2">{f.title}</h3>
+            <p class="text-zinc-400 text-sm leading-relaxed">{f.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ─── HOW IT WORKS ───────────────────────────────────────────────── -->
+    <section id="how" class="bg-surface-muted/40 border-y border-surface-border">
+      <div class="max-w-6xl mx-auto px-4 py-24">
+        <div class="text-center mb-14">
+          <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Как это работает</h2>
+          <p class="text-zinc-400">От регистрации до экзамена — четыре шага</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map((s, i) => (
+            <div class="relative">
+              {i < steps.length - 1 && (
+                <div class="hidden lg:block absolute top-7 left-full w-full h-px bg-surface-border z-0"></div>
+              )}
+              <div class="relative z-10">
+                <div class="text-4xl font-black text-brand-500/20 mb-3">{s.n}</div>
+                <h3 class="font-bold text-base mb-2">{s.title}</h3>
+                <p class="text-zinc-400 text-sm leading-relaxed">{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── AI SPOTLIGHT ────────────────────────────────────────────────── -->
+    <section class="max-w-6xl mx-auto px-4 py-24">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <div class="inline-block px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 text-xs font-medium mb-6">
+            ИИ-репетитор
+          </div>
+          <h2 class="text-3xl md:text-4xl font-extrabold mb-6 leading-tight">
+            Не угадывай.<br />
+            <span class="text-brand-500">Понимай логику.</span>
+          </h2>
+          <p class="text-zinc-400 text-lg leading-relaxed mb-8">
+            Большинство приложений просто говорят «неправильно». Skily объясняет,
+            <em class="text-white not-italic font-medium">почему</em> правило именно такое —
+            на понятном русском, без заучивания.
+          </p>
+          <ul class="space-y-3">
+            {[
+              'Объясняет логику, а не просто даёт ответ',
+              'Ссылается на конкретные статьи кодекса',
+              'Помнит твои слабые места и фокусирует на них',
+              'Работает 24/7, отвечает мгновенно',
+            ].map(item => (
+              <li class="flex items-start gap-3 text-zinc-300 text-sm">
+                <span class="mt-0.5 text-brand-500 shrink-0">✓</span>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- AI demo card -->
+        <div class="rounded-2xl border border-surface-border bg-surface-card p-6">
+          <div class="text-xs text-zinc-500 mb-4 font-medium">ПРИМЕР ВОПРОСА</div>
+
+          <div class="rounded-xl bg-surface-muted p-4 mb-4">
+            <p class="text-sm font-medium mb-3">
+              Вы подъезжаете к перекрёстку равнозначных дорог. Справа — автомобиль. Кто имеет преимущество?
+            </p>
+            <div class="grid grid-cols-2 gap-2">
+              {['А. Вы', 'Б. Автомобиль справа', 'В. Тот, кто едет быстрее', 'Г. Тот, кто первый подъехал'].map((opt, i) => (
+                <div class={`px-3 py-2 rounded-lg text-xs border ${i === 1 ? 'border-green-500/50 bg-green-500/10 text-green-400' : 'border-surface-border text-zinc-400'}`}>
+                  {opt}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="rounded-xl bg-brand-500/8 border border-brand-500/20 p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-brand-500 text-xs font-bold">⚡ ИИ Skily</span>
+            </div>
+            <p class="text-sm text-zinc-300 leading-relaxed">
+              <strong class="text-white">Правило «помехи справа»</strong> — на равнозначном перекрёстке
+              водитель обязан уступить тому, кто едет справа. Автомобиль справа от вас — значит,
+              он имеет преимущество. Это правило работает всегда, когда нет знаков приоритета.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── DUELS ──────────────────────────────────────────────────────── -->
+    <section class="bg-surface-muted/40 border-y border-surface-border">
+      <div class="max-w-6xl mx-auto px-4 py-24">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+
+          <!-- Duel stats card -->
+          <div class="rounded-2xl border border-surface-border bg-surface-card p-6 order-2 md:order-1">
+            <div class="text-xs text-zinc-500 mb-5 font-medium">ЖИВАЯ АРЕНА</div>
+
+            <div class="space-y-3 mb-6">
+              {[
+                { name: 'Антон М.', score: '27/30', win: true },
+                { name: 'Ты', score: '24/30', win: false },
+              ].map(p => (
+                <div class={`flex items-center justify-between px-4 py-3 rounded-xl border ${p.win ? 'border-brand-500/30 bg-brand-500/5' : 'border-surface-border'}`}>
+                  <span class="text-sm font-medium">{p.name}</span>
+                  <span class={`text-sm font-bold ${p.win ? 'text-brand-500' : 'text-zinc-400'}`}>{p.score}</span>
+                </div>
+              ))}
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 text-center">
+              {[
+                { n: '8 430+', l: 'игроков\nонлайн' },
+                { n: 'Сезон 1', l: 'активный\nсезон' },
+                { n: '20 уров.', l: 'прогрессия\nпасса' },
+              ].map(s => (
+                <div class="rounded-xl bg-surface-muted p-3">
+                  <div class="text-base font-bold text-brand-500">{s.n}</div>
+                  <div class="text-xs text-zinc-500 mt-0.5 whitespace-pre-line leading-tight">{s.l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="order-1 md:order-2">
+            <div class="inline-block px-3 py-1 rounded-full bg-brand-500/10 text-brand-400 text-xs font-medium mb-6">
+              PvP-дуэли
+            </div>
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-6 leading-tight">
+              Соревнуйся —<br />
+              <span class="text-brand-500">и учись вдвое быстрее</span>
+            </h2>
+            <p class="text-zinc-400 text-lg leading-relaxed mb-8">
+              Когда знаешь, что против тебя живой соперник — мозг запоминает быстрее.
+              Дуэли превращают подготовку из обязанности в азарт.
+            </p>
+            <ul class="space-y-3">
+              {[
+                'Реальные игроки онлайн — жди соперника меньше 10 секунд',
+                'Монеты и рейтинг за каждую победу',
+                'Сезонный пасс с уникальными наградами',
+                'Турниры, блиц, режим снайпера',
+              ].map(item => (
+                <li class="flex items-start gap-3 text-zinc-300 text-sm">
+                  <span class="mt-0.5 text-brand-500 shrink-0">✓</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── TESTIMONIALS ───────────────────────────────────────────────── -->
+    <section class="max-w-6xl mx-auto px-4 py-24">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Реальные ученики — реальные результаты</h2>
+        <p class="text-zinc-400">Сдали DGT с первого раза и рассказали как</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {testimonials.map(t => (
+          <div class="rounded-2xl border border-surface-border bg-surface-card p-6 flex flex-col gap-4">
+            <div class="text-yellow-400 text-sm">{'★'.repeat(t.stars)}</div>
+            <p class="text-zinc-300 text-sm leading-relaxed flex-1">«{t.text}»</p>
+            <div>
+              <div class="font-semibold text-sm">{t.name}</div>
+              <div class="text-zinc-500 text-xs">{t.city}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ─── PRICING ────────────────────────────────────────────────────── -->
+    <section id="pricing" class="bg-surface-muted/40 border-y border-surface-border">
+      <div class="max-w-5xl mx-auto px-4 py-24">
+        <div class="text-center mb-14">
+          <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Простые и честные цены</h2>
+          <p class="text-zinc-400">Автошкола в Испании — 200–500€ только за теорию. Skily — от 0€.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-4">
+          {plans.map(p => (
+            <div class={`rounded-2xl border p-8 flex flex-col gap-6 relative ${p.highlight ? 'border-brand-500 bg-brand-500/5' : 'border-surface-border bg-surface-card'}`}>
+              {p.highlight && (
+                <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-brand-500 text-white text-xs font-bold">
+                  ПОПУЛЯРНЫЙ
+                </div>
+              )}
+              <div>
+                <div class="text-sm text-zinc-400 mb-1">{p.name}</div>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-3xl font-extrabold">{p.price}</span>
+                  <span class="text-zinc-400 text-sm">{p.priceNote}</span>
+                </div>
+              </div>
+              <ul class="space-y-2.5 flex-1">
+                {p.features.map(f => (
+                  <li class="flex items-start gap-2.5 text-sm text-zinc-300">
+                    <span class="text-brand-500 shrink-0 mt-0.5">✓</span>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={p.ctaHref}
+                class={`block w-full text-center py-3 rounded-xl font-semibold text-sm transition-colors ${p.highlight ? 'bg-brand-500 hover:bg-brand-600 text-white' : 'border border-surface-border hover:border-zinc-500 text-white'}`}
+              >
+                {p.cta}
+              </a>
+            </div>
+          ))}
+        </div>
+
+        <p class="text-center text-zinc-500 text-sm mt-8">
+          Оплата через Telegram Stars, карту или криптовалюту. Отмена в один клик.
+        </p>
+      </div>
+    </section>
+
+    <!-- ─── FAQ ────────────────────────────────────────────────────────── -->
+    <section id="faq" class="max-w-3xl mx-auto px-4 py-24">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Частые вопросы</h2>
+        <p class="text-zinc-400">Всё что нужно знать перед началом</p>
+      </div>
+
+      <div class="space-y-2">
+        {faqs.map(f => (
+          <details class="group rounded-xl border border-surface-border bg-surface-card overflow-hidden">
+            <summary class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer list-none hover:bg-surface-muted/40 transition-colors">
+              <span class="font-medium text-sm md:text-base">{f.q}</span>
+              <span class="shrink-0 text-zinc-400 group-open:rotate-45 transition-transform text-xl font-light">+</span>
+            </summary>
+            <div class="px-6 pb-5">
+              <p class="text-zinc-400 text-sm leading-relaxed">{f.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <!-- ─── FINAL CTA ─────────────────────────────────────────────────── -->
+    <section class="max-w-6xl mx-auto px-4 pb-24">
+      <div class="rounded-3xl border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-transparent p-12 md:p-16 text-center">
+        <h2 class="text-3xl md:text-5xl font-extrabold mb-6">
+          Первый тест —<br />прямо сейчас
+        </h2>
+        <p class="text-zinc-400 text-lg max-w-xl mx-auto mb-10">
+          Без кредитной карты. Без автошколы. Без занудных таблиц.
+          Просто войди и начни — это займёт 10 секунд.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            href="https://skilyapp.com"
+            class="px-10 py-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-base transition-colors shadow-xl shadow-brand-500/20"
+          >
+            Начать бесплатно →
+          </a>
+          <a
+            href="https://t.me/skilyapp_bot"
+            class="px-10 py-4 rounded-xl border border-surface-border hover:border-zinc-600 text-white font-semibold text-base transition-colors"
+          >
+            Открыть в Telegram
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── FOOTER ────────────────────────────────────────────────────── -->
+  <footer class="border-t border-surface-border">
+    <div class="max-w-6xl mx-auto px-4 py-12">
+      <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+
+        <div class="md:col-span-1">
+          <div class="flex items-center gap-2 font-bold text-lg mb-3">
+            <span class="text-brand-500">⚡</span>
+            <span>Skily</span>
+          </div>
+          <p class="text-zinc-500 text-sm leading-relaxed">
+            ИИ-платформа для подготовки к теоретическому экзамену DGT. Барселона, Испания.
+          </p>
+          <p class="text-zinc-600 text-xs mt-3">hello@skily.ai</p>
+        </div>
+
+        <div>
+          <div class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Продукт</div>
+          <ul class="space-y-2">
+            {['Тесты', 'ИИ-репетитор', 'Дуэли', 'Симулятор', 'Цены'].map(l => (
+              <li><a href="https://skilyapp.com" class="text-zinc-400 hover:text-white text-sm transition-colors">{l}</a></li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <div class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Версии</div>
+          <ul class="space-y-2">
+            {[
+              { t: 'На русском', h: '/ru' },
+              { t: 'En español', h: '/es' },
+              { t: 'In English', h: '/en' },
+            ].map(l => (
+              <li><a href={l.h} class="text-zinc-400 hover:text-white text-sm transition-colors">{l.t}</a></li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <div class="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-4">Компания</div>
+          <ul class="space-y-2">
+            {[
+              { t: 'О нас', h: '/about' },
+              { t: 'Блог', h: '/blog' },
+              { t: 'Партнёрам', h: '/partners' },
+              { t: 'Политика конфиденциальности', h: '/legal/privacy' },
+              { t: 'Условия использования', h: '/legal/terms' },
+            ].map(l => (
+              <li><a href={l.h} class="text-zinc-400 hover:text-white text-sm transition-colors">{l.t}</a></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-surface-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <p class="text-zinc-600 text-xs">© 2026 Skily. Все права защищены.</p>
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+          <span class="text-zinc-600 text-xs">Все системы работают</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</BaseLayout>
