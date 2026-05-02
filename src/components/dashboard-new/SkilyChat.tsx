@@ -177,41 +177,36 @@ export const SkilyChat = React.memo(() => {
       <div
         onClick={handleExpand}
         className={cn(
-          "h-full rounded-3xl xl:rounded-[2.5rem] p-5 md:p-6 xl:p-8 shadow-lg border flex flex-col justify-between group transition-all cursor-pointer relative overflow-hidden",
+          "rounded-3xl p-5 shadow-lg border flex flex-col justify-between group transition-all cursor-pointer relative overflow-hidden",
           isDarkTheme
             ? "bg-slate-800/80 backdrop-blur-md border-slate-700 hover:border-slate-600"
             : "bg-white border-slate-200/80 hover:border-slate-300 shadow-[0_20px_45px_rgba(0,0,0,0.06)]",
           isExpanded ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-        <div className="flex flex-col items-center justify-center flex-1 relative z-10">
-          <div className="mb-8">
-            <AISphere size="lg" />
+        <div className="flex flex-col items-center justify-center flex-1 relative z-10 py-4">
+          <div className="mb-4">
+            <AISphere size="md" />
           </div>
 
           <div className="text-center">
-            <h3 className={cn(
-              "font-bold text-xl tracking-tight",
-              isDarkTheme ? "text-white" : "text-slate-900"
-            )}>{t('skilyChat.title')}</h3>
-            <p className={cn(
-              "text-xs mt-2 font-medium",
-              isDarkTheme ? "text-slate-400" : "text-slate-500"
-            )}>{t('skilyChat.subtitle')}</p>
+            <h3 className={cn("font-bold text-lg tracking-tight", isDarkTheme ? "text-white" : "text-slate-900")}>
+              {t('skilyChat.title')}
+            </h3>
+            <p className={cn("text-xs mt-1 font-medium", isDarkTheme ? "text-slate-400" : "text-slate-500")}>
+              {t('skilyChat.subtitle')}
+            </p>
           </div>
         </div>
 
-        <div className="relative z-10 w-full mt-4">
+        <div className="relative z-10 w-full mt-3">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleExpand();
-            }}
+            onClick={(e) => { e.stopPropagation(); handleExpand(); }}
             className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
-            <span>{t('skilyChat.title') || 'Спросить Skily'}</span>
+            <span>{t('skilyChat.title') || 'AI Assistant'}</span>
             <ArrowRight size={16} />
           </button>
         </div>
