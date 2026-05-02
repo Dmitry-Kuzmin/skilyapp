@@ -570,38 +570,93 @@ const TestResults = () => {
             <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">{t("testResults.stats.accuracy")}</span>
           </div>
 
-          {/* Coins Card */}
-          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden">
-            <div className="absolute inset-0 bg-amber-500/10 blur-xl" />
-            <Sparkles className="w-5 h-5 text-amber-400 mb-1 relative z-10" />
-            <span className="text-xl sm:text-2xl font-bold text-amber-400 relative z-10">
-              +{rewardResult?.coins_awarded ?? 0}
+          {/* Season Points Card — главная награда за тест */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+            className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/15 to-purple-500/10 border border-indigo-500/30 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-indigo-500/20 blur-2xl" />
+            <Trophy className="w-6 h-6 text-indigo-400 mb-1 relative z-10 drop-shadow-[0_0_8px_rgba(129,140,248,0.6)]" />
+            <span className="text-xl sm:text-2xl font-black text-indigo-300 relative z-10 drop-shadow-sm tabular-nums">
+              +{rewardResult?.sp_awarded ?? 0}
             </span>
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">{t("testResults.stats.coins")}</span>
-          </div>
+            <span className="text-[10px] sm:text-xs uppercase font-black tracking-[0.15em] text-indigo-400/80 relative z-10">SP</span>
+            {/* Маркер бонуса если был */}
+            {(rewardResult?.sp_bonus ?? 0) > 0 && (
+              <motion.div
+                initial={{ scale: 0, rotate: -10 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.8, type: 'spring' }}
+                className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-amber-500/90 text-amber-950 text-[9px] font-black tracking-tight z-20"
+              >
+                +{rewardResult?.sp_bonus} bonus
+              </motion.div>
+            )}
+          </motion.div>
 
-          {/* Season Points Card for Marathon, XP Card for others */}
-          {mode === 'marathon' || mode === 'mastery' ? (
-            <div className="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-indigo-500/20 blur-2xl group-hover:bg-indigo-500/30 transition-colors" />
-              <Trophy className="w-6 h-6 text-indigo-400 mb-1 relative z-10 animate-bounce-slow" />
-              <span className="text-xl sm:text-2xl font-black text-indigo-400 relative z-10 drop-shadow-sm">
-                +{rewardResult?.xp_awarded ?? rewardResult?.sp_awarded ?? 0}
-              </span>
-              <span className="text-[10px] sm:text-xs uppercase font-black tracking-[0.15em] text-indigo-500/70 relative z-10">{t("testResults.stats.seasonPoints")}</span>
-            </div>
-          ) : (
-            /* Standard XP Card */
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden">
-              <div className="absolute inset-0 bg-yellow-500/10 blur-xl" />
-              <Zap className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
-              <span className="text-xl sm:text-2xl font-bold text-yellow-400 relative z-10">
-                +{rewardResult?.xp_awarded ?? rewardResult?.sp_awarded ?? 0}
-              </span>
-              <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">{t("testResults.stats.xpEarned")}</span>
-            </div>
-          )}
+          {/* XP Card */}
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1 relative overflow-hidden">
+            <div className="absolute inset-0 bg-yellow-500/10 blur-xl" />
+            <Zap className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
+            <span className="text-xl sm:text-2xl font-bold text-yellow-400 relative z-10 tabular-nums">
+              +{rewardResult?.xp_awarded ?? 0}
+            </span>
+            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">XP</span>
+          </div>
         </motion.div>
+
+        {/* ── Плашка-подсказка о бонусах ─────────────────────────────────── */}
+        {rewardResult && getAccuracy() < 90 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mb-6 p-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 flex items-center gap-3"
+          >
+            <div className="shrink-0 w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-amber-400" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-200">
+                Достигни <span className="text-amber-400">90%</span> — получи <span className="text-amber-400">+30 SP бонус</span>
+              </p>
+              <p className="text-xs text-amber-300/60 mt-0.5">
+                А за идеальный результат (100%) — <span className="text-amber-400 font-bold">+50 SP</span>!
+              </p>
+            </div>
+          </motion.div>
+        )}
+        {rewardResult && getAccuracy() === 100 && (rewardResult.sp_bonus ?? 0) >= 50 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6, type: 'spring' }}
+            className="mb-6 p-4 rounded-xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 border border-emerald-500/30 flex items-center gap-3 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-emerald-400/10 blur-2xl" />
+            <Sparkles className="w-6 h-6 text-emerald-400 relative z-10" />
+            <div className="flex-1 relative z-10">
+              <p className="text-sm font-bold text-emerald-200">Идеальный результат! 🔥</p>
+              <p className="text-xs text-emerald-300/70 mt-0.5">+50 SP бонус за безошибочное прохождение</p>
+            </div>
+          </motion.div>
+        )}
+        {rewardResult && getAccuracy() >= 90 && getAccuracy() < 100 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6, type: 'spring' }}
+            className="mb-6 p-3 rounded-xl bg-gradient-to-r from-indigo-500/10 to-blue-500/10 border border-indigo-500/30 flex items-center gap-3"
+          >
+            <Trophy className="w-5 h-5 text-indigo-400 shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-indigo-200">Отличный результат! +30 SP бонус ⚡</p>
+              <p className="text-xs text-indigo-300/60 mt-0.5">100% даст ещё больше — <span className="text-emerald-400 font-bold">+50 SP</span></p>
+            </div>
+          </motion.div>
+        )}
 
         {/* AI Insights Library (PRO only) */}
         {isPremium && (
