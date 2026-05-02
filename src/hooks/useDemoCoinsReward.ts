@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { supabase } from "@/integrations/supabase/lazyClient";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const DEMO_COINS_KEY = "skily_demo_coins_pending";
