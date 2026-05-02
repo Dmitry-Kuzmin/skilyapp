@@ -21,6 +21,10 @@ export const es = {
     privacyTitle: "Política de Privacidad",
     close: "Cerrar",
   },
+  pageLoader: {
+    system: "Sistema Skily",
+    secret: "Secreto Skily",
+  },
 
   // Profile
   editProfile: "Editar perfil",
@@ -1858,6 +1862,7 @@ export const es = {
     },
     finding: {
       insurance: "Seguro",
+      player: "Jugador",
       searchTitle: "Buscando oponente",
       rematchTitle: "Desafío de revancha",
       opponentFallback: "oponente",

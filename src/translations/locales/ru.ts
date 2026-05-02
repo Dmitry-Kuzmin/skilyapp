@@ -21,6 +21,10 @@ export const ru = {
     privacyTitle: "Политика конфиденциальности",
     close: "Закрыть",
   },
+  pageLoader: {
+    system: "Система Skily",
+    secret: "Секрет Skily",
+  },
 
   // Profile
   editProfile: "Редактировать профиль",
@@ -1878,6 +1882,7 @@ export const ru = {
     },
     finding: {
       insurance: "Страховка",
+      player: "Игрок",
       searchTitle: "Поиск соперника",
       rematchTitle: "Вызов на реванш",
       opponentFallback: "соперника",

@@ -21,6 +21,10 @@ export const en = {
     privacyTitle: "Privacy Policy",
     close: "Close",
   },
+  pageLoader: {
+    system: "Skily System",
+    secret: "Skily Secret",
+  },
 
   // Profile
   editProfile: "Edit profile",
@@ -1853,6 +1857,7 @@ export const en = {
     },
     finding: {
       insurance: "Insurance",
+      player: "Player",
       searchTitle: "Searching for opponent",
       rematchTitle: "Rematch challenge",
       opponentFallback: "opponent",
