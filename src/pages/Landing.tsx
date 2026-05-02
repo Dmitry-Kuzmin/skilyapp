@@ -70,23 +70,11 @@ const Landing = () => {
 
   useCrispChat();
 
-  /**
-   * КЛЮЧЕВОЕ РЕШЕНИЕ: определяем начальное состояние синхронно.
-   * Если Telegram WebApp не обнаружен — мы в обычном браузере.
-   * Показываем лендинг НЕМЕДЛЕННО без какого-либо ожидания.
-   *
-   * Только если WebApp присутствует — запускаем проверку авторизации
-   * (пользователь увидит краткий спиннер, но это редкий кейс).
-   */
-  const [ready, setReady] = useState(() => {
-    // В prerender всегда готовы — Telegram не нужен
-    if (typeof window !== 'undefined' && (window as any).__PRERENDER__ === true) return true;
-    // Синхронная проверка — если нет Telegram, сразу готовы
-    if (!hasTelegramWebApp() && !isTelegramMiniApp()) return true;
-    // Если есть авторизация — будем редиректить в dashboard, лендинг не нужен
-    if (checkTelegramAuth()) return false;
-    return false;
-  });
+  // Track whether Telegram SDK was present at mount time so we know to run the redirect check.
+  // Landing always renders immediately — redirect is purely async in useEffect.
+  const hasTelegramAtMount = useRef(
+    typeof window !== 'undefined' && (hasTelegramWebApp() || isTelegramMiniApp())
+  );
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [referrerInfo, setReferrerInfo] = useState<ReferrerInfo | null>(null);
@@ -111,14 +99,15 @@ const Landing = () => {
     }
   }, []);
 
-  // Проверка Telegram — только если WebApp был обнаружен при монтировании
+  // Telegram redirect check — runs only if SDK was present at mount.
+  // Landing is always rendered; redirect happens async so prerender always captures full content.
   useEffect(() => {
-    if (ready) return; // Уже готовы — не нужна проверка
+    if (!hasTelegramAtMount.current) return;
 
     let cancelled = false;
     let timerId: ReturnType<typeof setTimeout> | null = null;
     let attempts = 0;
-    const MAX_ATTEMPTS = 12; // 3 секунды максимум
+    const MAX_ATTEMPTS = 12; // 3 seconds max
 
     const check = () => {
       if (cancelled) return;
@@ -135,20 +124,19 @@ const Landing = () => {
       })();
       const hasAuth = checkTelegramAuth();
 
-      // Это Telegram Mini App с авторизацией — редиректим в dashboard
+      // Confirmed Telegram Mini App with auth → redirect to dashboard
       if (isMiniApp && (hasTgUser || hasAuth || hasRealInitData)) {
         navigate('/dashboard', { replace: true });
         return;
       }
 
-      // WebApp есть, но initData ещё не готов — ждём ещё немного
+      // SDK present but initData not ready yet → retry
       if (hasTelegramWebApp() && !hasRealInitData && attempts < MAX_ATTEMPTS) {
         timerId = setTimeout(check, 250);
         return;
       }
 
-      // Таймаут или нет Telegram — показываем лендинг
-      if (!cancelled) setReady(true);
+      // Timeout or not a Mini App — stay on landing (already rendered)
     };
 
     check();
@@ -158,7 +146,7 @@ const Landing = () => {
       if (timerId) clearTimeout(timerId);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Один раз при монтировании
+  }, []); // Once on mount
 
   // Загрузка реферальных/партнёрских данных
   useEffect(() => {
@@ -187,8 +175,6 @@ const Landing = () => {
       .finally(() => setLoadingReferrer(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  if (!ready) return <LandingFallback />;
 
   // pathLang gives synchronous path-based forcing (/ru → RU). Fallback to selectedCountry
   // for the unauthenticated landing (/) where country comes from localStorage/navigator.
