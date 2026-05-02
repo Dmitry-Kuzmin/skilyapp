@@ -526,11 +526,7 @@ export function AppRoutes() {
           <InviteLanding />
         </Suspense>
       } />
-      <Route path="/demo" element={
-        <Suspense fallback={<PageSkeleton />}>
-          <DemoTest />
-        </Suspense>
-      } />
+      <Route path="/demo" element={<Navigate to="/test/practice?count=10&demo=1" replace />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={
         <Suspense fallback={<PageSkeleton />}>
