@@ -281,6 +281,8 @@ const TestSession = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [showTestSettings, setShowTestSettings] = useState(false);
+  const [showGuestPaywall, setShowGuestPaywall] = useState(false);
+  const guestPaywallShownRef = useRef(false);
   const hasLoadedProgressRef = useRef<string | null>(null);
   const previousTestIdRef = useRef<string | null>(null); // Для отслеживания изменения testId
 
