@@ -7,9 +7,12 @@ const corsHeaders = {
 };
 
 // Правила начисления SP (Season Points)
+// ВАЖНО: test_* источники теперь рассчитываются динамически на основе результата
+// (см. computeTestSP ниже). Жёсткие 25/35 убраны — это давало SP за любой тест.
 const SP_RULES: Record<string, number> = {
-  test_completed: 25,
-  test_perfect: 35,
+  test_completed: 0,   // динамический расчёт через computeTestSP
+  test_perfect:   0,   // динамический расчёт через computeTestSP
+  exam_completed: 0,   // динамический расчёт через computeTestSP
   duel_win: 30,
   duel_lose: 10,
   duel_draw: 15,
@@ -17,6 +20,44 @@ const SP_RULES: Record<string, number> = {
   streak_bonus: 5,
   challenge_reward: 0,
 };
+
+/**
+ * Расчёт SP за тест/экзамен по результату.
+ *
+ *  ПРАКТИКА (test_completed / test_perfect):
+ *    accuracy < 80%   →  0 SP   (учишься плохо — не качаешь сезон)
+ *    accuracy ≥ 80%   →  correct_count × 1   (макс 20 SP)
+ *    accuracy = 100%  →  +10 SP бонус
+ *
+ *  ЭКЗАМЕН (exam_completed):
+ *    score < 90       →  0 SP   (не сдан)
+ *    score 90-99      →  30 SP  (сдан)
+ *    score = 100      →  50 SP  (идеально)
+ */
+function computeTestSP(
+  sourceType: string,
+  score: number,
+  questionsCount: number,
+  correctCount: number,
+): number {
+  // Экзамен — отдельная логика (большие награды только за реальный успех)
+  if (sourceType === 'exam_completed') {
+    if (score < 90)  return 0;
+    if (score === 100) return 50;
+    return 30;
+  }
+
+  // Практика
+  if (sourceType === 'test_completed' || sourceType === 'test_perfect') {
+    if (score < 80) return 0;
+
+    let sp = Math.min(correctCount, 20);  // макс 20 SP
+    if (score === 100) sp += 10;          // perfect-бонус
+    return sp;
+  }
+
+  return 0;
+}
 
 const BASE_WIN_NO_BET_SP = 15;
 const BASE_LOSE_SP = 10;

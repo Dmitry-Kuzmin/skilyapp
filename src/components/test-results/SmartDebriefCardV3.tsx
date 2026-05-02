@@ -43,6 +43,8 @@ import { generateDebriefPrompt } from '@/lib/aiPrompts';
 
 // Константы для лимитов
 const FREE_DAILY_LIMIT = 1;
+const AUTH_REQUIRED_ERROR = 'AUTH_REQUIRED';
+const EMPTY_RESULT_ERROR = 'EMPTY_RESULT';
 
 // Типы
 export interface FailedQuestion {
@@ -125,6 +127,20 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
   allFailedQuestions
 }) => {
   const isCritical = data.severity === 'high' || data.severity === 'critical';
+  const { t } = useLanguage();
+
+  const countryLabel = country === 'spain'
+    ? t('testResults.smartDebrief.countries.spain')
+    : t('testResults.smartDebrief.countries.russia');
+
+  const riskLabel =
+    data.severity === 'critical'
+      ? t('testResults.smartDebrief.riskLevels.critical')
+      : data.severity === 'high'
+        ? t('testResults.smartDebrief.riskLevels.high')
+        : data.severity === 'medium'
+          ? t('testResults.smartDebrief.riskLevels.medium')
+          : t('testResults.smartDebrief.riskLevels.low');
 
   return (
     <div className="relative h-full max-h-[90vh] bg-white dark:bg-[#0f172a] text-slate-900 dark:text-slate-100">
@@ -143,7 +159,9 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
             )}></span>
           </div>
           <span className="text-[10px] font-bold tracking-widest uppercase text-gray-500 dark:text-gray-400">
-            {data.diagnosis ? `Analysis: ${country === 'spain' ? 'DGT Spain' : 'ПДД РФ'} ` : 'System Analysis'} • {failedCount} Errors
+            {(data.diagnosis
+              ? t('testResults.smartDebrief.header.analysisWithCountry', { country: countryLabel })
+              : t('testResults.smartDebrief.header.systemAnalysis'))} • {failedCount} {t('testResults.smartDebrief.header.errors')}
           </span>
         </div>
         <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition p-2">
@@ -171,7 +189,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
                 )
               }}
             >
-              {data.summary || data.greeting || 'Анализ завершён'}
+              {data.summary || data.greeting || t('testResults.smartDebrief.analysisCompleted')}
             </ReactMarkdown>
           </div>
         </div>
@@ -179,24 +197,22 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
         {/* 2. TELEMETRY BAR - Монолитная панель метрик */}
         <div className="grid grid-cols-3 divide-x divide-gray-200 dark:divide-white/10 border-y border-gray-200 dark:border-white/10 py-4">
           <div className="text-center px-2">
-            <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Ошибок</div>
+            <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">{t('testResults.smartDebrief.telemetry.errors')}</div>
             <div className="text-2xl font-bold text-gray-900 dark:text-white font-mono">{failedCount}</div>
           </div>
           <div className="text-center px-2">
-            <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Доминирует</div>
+            <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">{t('testResults.smartDebrief.telemetry.dominant')}</div>
             <div className="text-sm font-bold text-gray-900 dark:text-white truncate px-1">
-              {data.tags[0] || 'Общее'}
+              {data.tags[0] || t('testResults.smartDebrief.telemetry.general')}
             </div>
           </div>
           <div className="text-center px-2">
-            <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Риск</div>
+            <div className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">{t('testResults.smartDebrief.telemetry.risk')}</div>
             <div className={cn(
               "text-sm font-bold uppercase",
               isCritical ? "text-orange-500" : "text-emerald-500"
             )}>
-              {data.severity === 'critical' ? 'ВАЖНО' :
-                data.severity === 'high' ? 'ВНИМАНИЕ' :
-                  data.severity === 'medium' ? 'СРЕДНИЙ' : 'ОТЛИЧНО'}
+              {riskLabel}
             </div>
           </div>
         </div>
@@ -206,7 +222,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-amber-500" />
             <h3 className="text-xs font-bold text-amber-500 uppercase tracking-widest">
-              Точка роста
+              {t('testResults.smartDebrief.growthPoint')}
             </h3>
           </div>
 
@@ -220,7 +236,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
                   p: ({ children }) => <>{children}</>
                 }}
               >
-                {data.diagnosisTitle || data.diagnosis || 'Анализ ошибок'}
+                {data.diagnosisTitle || data.diagnosis || t('testResults.smartDebrief.analysisFallbackTitle')}
               </ReactMarkdown>
             </h4>
             <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
@@ -234,7 +250,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
                   )
                 }}
               >
-                {data.diagnosisBody || data.diagnosis || 'Данные анализа недоступны'}
+                {data.diagnosisBody || data.diagnosis || t('testResults.smartDebrief.analysisFallbackBody')}
               </ReactMarkdown>
             </div>
           </div>
@@ -261,7 +277,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
           <div className="flex items-center gap-2">
             <Target className="w-5 h-5 text-emerald-500" />
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-              Логика решений
+              {t('testResults.smartDebrief.decisionLogic')}
             </h3>
           </div>
 
@@ -299,7 +315,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
                       <div className="flex items-center justify-center h-full">
                         <div className="text-gray-400 dark:text-gray-500 text-center p-2">
                           <Image className="w-6 h-6 mx-auto mb-1 opacity-50" />
-                          <span className="text-[10px] opacity-60">Нет изображения</span>
+                          <span className="text-[10px] opacity-60">{t('testResults.smartDebrief.noImage')}</span>
                         </div>
                       </div>
                     )}
@@ -318,7 +334,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
                         {/* Текст вопроса для контекста */}
                         {originalQuestion && (
                           <p className="text-[10px] text-gray-400 dark:text-gray-500 line-clamp-1 mb-1.5 font-medium uppercase tracking-wider">
-                            Вопрос: {originalQuestion.questionText}
+                            {t('testResults.smartDebrief.questionLabel')}: {originalQuestion.questionText}
                           </p>
                         )}
 
@@ -332,7 +348,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
                               {isRussiaComparison && (
                                 <div className="mb-2 inline-flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/30 rounded-md">
                                   <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
-                                    🇷🇺 vs 🇪🇸 ОТЛИЧИЕ ОТ РОССИИ
+                                    {t('testResults.smartDebrief.russiaDifference')}
                                   </span>
                                 </div>
                               )}
@@ -378,7 +394,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
               <Lightbulb className="w-5 h-5" />
             </div>
             <div>
-              <h5 className="font-bold text-gray-900 dark:text-white text-sm mb-1">Лайфхак запоминания</h5>
+              <h5 className="font-bold text-gray-900 dark:text-white text-sm mb-1">{t('testResults.smartDebrief.memoryHack')}</h5>
               <div className="text-sm text-gray-600 dark:text-gray-300 italic">
                 <ReactMarkdown
                   components={{
@@ -404,7 +420,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
             onClick={onClose}
             className="text-sm text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors shrink-0"
           >
-            Позже
+            {t('testResults.smartDebrief.later')}
           </button>
 
           {/* Основная кнопка — растянута */}
@@ -414,7 +430,7 @@ const AnalysisContent: React.FC<AnalysisContentProps> = ({
               bg-gray-900 text-white hover:bg-black
               dark:bg-indigo-600 dark:hover:bg-indigo-500"
           >
-            <span>Отработать ошибку</span>
+            <span>{t('testResults.smartDebrief.practiceError')}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
@@ -444,7 +460,7 @@ const SmartDebriefCard = memo(({
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { profileData } = useProfileData();
-  const { language: uiLanguage } = useLanguage();
+  const { language: uiLanguage, t } = useLanguage();
 
   // 🎣 NEW: AI Debrief Hook with Zustand
   const { performAnalysis: performAIAnalysis, getCachedAnalysis } = useAIDebriefAnalysis();
@@ -528,7 +544,7 @@ const SmartDebriefCard = memo(({
       if (user) {
         userId = user.id;
       } else if (!isTelegram) {
-        throw new Error('Требуется авторизация');
+        throw new Error(AUTH_REQUIRED_ERROR);
       }
 
       // 2. Limit check (only for non-premium users)
@@ -585,7 +601,7 @@ const SmartDebriefCard = memo(({
       );
 
       if (!result) {
-        throw new Error('AI вернул пустой результат');
+        throw new Error(EMPTY_RESULT_ERROR);
       }
 
       // 4. Set result and open modal
@@ -597,8 +613,14 @@ const SmartDebriefCard = memo(({
     } catch (err) {
       console.error(`[SmartDebrief] Attempt ${attempt} failed:`, err);
 
-      const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
-      const isFatal = errorMessage.includes('авторизация');
+      const rawErrorMessage = err instanceof Error ? err.message : EMPTY_RESULT_ERROR;
+      const isFatal = rawErrorMessage === AUTH_REQUIRED_ERROR;
+      const errorMessage =
+        rawErrorMessage === AUTH_REQUIRED_ERROR
+          ? t('testResults.smartDebrief.errors.authRequired')
+          : rawErrorMessage === EMPTY_RESULT_ERROR
+            ? t('testResults.smartDebrief.errors.emptyResult')
+            : rawErrorMessage;
 
       if (attempt === 1 && !isFatal) {
         console.log('[SmartDebrief] Retrying in 1 second...');
@@ -606,11 +628,11 @@ const SmartDebriefCard = memo(({
         return performAnalysisV2(2);
       }
 
-      setError(`Анализ не удался: ${errorMessage}`);
+      setError(t('testResults.smartDebrief.errors.analysisFailed', { message: errorMessage }));
       setIsLoading(false);
       triggerHapticFeedback('error');
 
-      toast.error(`ИИ не смог разобрать ошибки: ${errorMessage}`, { duration: 4000 });
+      toast.error(t('testResults.smartDebrief.errors.toast', { message: errorMessage }), { duration: 4000 });
     }
   };
 
@@ -668,16 +690,16 @@ const SmartDebriefCard = memo(({
             {/* Текст */}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-base font-bold text-white">Neural Analysis</h3>
+                <h3 className="text-base font-bold text-white">{t('testResults.smartDebrief.title')}</h3>
                 <span className="px-2 py-0.5 rounded-full bg-indigo-500/20 text-[10px] font-bold uppercase tracking-wider text-indigo-300">Pro</span>
               </div>
-              <p className="text-sm text-slate-400">Войдите, чтобы получить AI-разбор ошибок</p>
+              <p className="text-sm text-slate-400">{t('testResults.smartDebrief.signInDescription')}</p>
             </div>
 
             {/* Кнопка */}
             <div className="shrink-0">
               <div className="px-4 py-2 rounded-lg bg-indigo-500 text-white text-sm font-semibold group-hover:bg-indigo-400 transition-colors">
-                Войти
+                {t('testResults.smartDebrief.signIn')}
               </div>
             </div>
           </div>
@@ -716,13 +738,13 @@ const SmartDebriefCard = memo(({
                 <div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-black uppercase tracking-[0.15em] text-cyan-200 mb-3">
                     <Sparkles className="w-3 h-3 animate-pulse" />
-                    Анализ завершен
+                    {t('testResults.smartDebrief.readyBadge')}
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight">
-                    Инсайты сформированы
+                    {t('testResults.smartDebrief.readyTitle')}
                   </h3>
                   <p className="text-sm text-indigo-100 mt-1.5 opacity-70 font-medium max-w-sm leading-relaxed">
-                    Skily нашел глубинные причины твоих ошибок. Раскрой их прямо сейчас.
+                    {t('testResults.smartDebrief.readyDescription')}
                   </p>
                 </div>
               </div>
@@ -775,7 +797,7 @@ const SmartDebriefCard = memo(({
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <h3 className="text-[15px] font-bold tracking-tight text-white">
-                      Neural Analysis
+                      {t('testResults.smartDebrief.title')}
                     </h3>
                     {/* Бейдж PRO (Metallic) */}
                     <div className="flex items-center gap-1 rounded border border-indigo-500/30 bg-indigo-500/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-indigo-300">
@@ -784,7 +806,7 @@ const SmartDebriefCard = memo(({
                   </div>
 
                   <p className="text-xs font-medium text-zinc-400 group-hover:text-zinc-300 transition-colors">
-                    Обнаружен критический паттерн ошибок
+                    {t('testResults.smartDebrief.criticalPattern')}
                   </p>
                 </div>
               </div>
@@ -803,7 +825,7 @@ const SmartDebriefCard = memo(({
       {isMobile ? (
         <Drawer open={resultModalOpen && !!analysisData} onOpenChange={setResultModalOpen}>
           <DrawerContent className="bg-white dark:bg-[#0f172a] border-t border-gray-200 dark:border-white/10 h-full max-h-[90vh] flex flex-col p-0 outline-none overflow-hidden">
-            <DrawerTitle className="sr-only">AI Analysis</DrawerTitle>
+            <DrawerTitle className="sr-only">{t('testResults.smartDebrief.drawerTitle')}</DrawerTitle>
             {analysisData && (
               <AnalysisContent
                 data={analysisData}
@@ -844,7 +866,7 @@ const SmartDebriefCard = memo(({
         onClose={() => setLimitModalOpen(false)}
         currentCount={FREE_DAILY_LIMIT}
         limit={FREE_DAILY_LIMIT}
-        message="Лимит на сегодня исчерпан. Скоро ты сможешь разбирать каждую ошибку!"
+        message={t('testResults.smartDebrief.limitMessage')}
       />
     </>
   );

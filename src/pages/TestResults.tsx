@@ -19,6 +19,7 @@ import { haptics } from "@/lib/haptics";
 import { useQuestProgress } from "@/hooks/useQuestProgress";
 import type { QuestUpdateParams } from "@/hooks/useQuestProgress";
 import { QuestCompletionOverlay } from "@/components/quests/QuestCompletionOverlay";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -61,7 +62,15 @@ type Answer = {
 };
 
 // Компонент для отображения изображения вопроса
-const QuestionImageComponent = ({ imageUrl }: { imageUrl: string }) => {
+const QuestionImageComponent = ({
+  imageUrl,
+  loadingLabel,
+  altLabel,
+}: {
+  imageUrl: string;
+  loadingLabel: string;
+  altLabel: string;
+}) => {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -85,7 +94,7 @@ const QuestionImageComponent = ({ imageUrl }: { imageUrl: string }) => {
   if (isLoading) {
     return (
       <div className="mb-4 rounded-lg overflow-hidden border border-border/50 bg-muted/20 animate-pulse aspect-video max-h-[250px] flex items-center justify-center">
-        <span className="text-muted-foreground text-xs opacity-50 uppercase tracking-widest">Cargando...</span>
+        <span className="text-muted-foreground text-xs opacity-50 uppercase tracking-widest">{loadingLabel}</span>
       </div>
     );
   }
@@ -94,7 +103,7 @@ const QuestionImageComponent = ({ imageUrl }: { imageUrl: string }) => {
 
   return (
     <div className="mb-4 rounded-lg overflow-hidden border border-border/50 bg-black/5">
-      <img src={imageSrc} alt="Question" className="w-full h-auto max-h-[300px] object-contain" />
+      <img src={imageSrc} alt={altLabel} className="w-full h-auto max-h-[300px] object-contain" />
     </div>
   );
 };
@@ -159,6 +168,7 @@ const TestResults = () => {
   const queryClient = useQueryClient();
   const { isPremium } = usePremium();
   const { completedQuests, updateProgress, clearCompleted } = useQuestProgress();
+  const { language, t } = useLanguage();
 
   // State for toggles
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
@@ -216,13 +226,16 @@ const TestResults = () => {
     if (!rewardResult || hasShownRewardsRef.current) return;
     try {
       if (rewardResult.coins_awarded || rewardResult.xp_awarded || rewardResult.sp_awarded || rewardResult.level_up) {
-        toast.success("Награды получены!", {
-          description: `+${rewardResult.coins_awarded || 0} монет, +${rewardResult.xp_awarded ?? rewardResult.sp_awarded ?? 0} XP`,
+        toast.success(t("testResults.rewardToast.title"), {
+          description: t("testResults.rewardToast.description", {
+            coins: rewardResult.coins_awarded || 0,
+            xp: rewardResult.xp_awarded ?? rewardResult.sp_awarded ?? 0,
+          }),
         });
         hasShownRewardsRef.current = true;
       }
     } catch (e) { console.error(e); }
-  }, [rewardResult]);
+  }, [rewardResult, t]);
 
   // Sync Duel Pass XP (только если есть награды)
   useEffect(() => {
@@ -345,6 +358,52 @@ const TestResults = () => {
     return totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
   };
 
+  const getLocalizedCopy = (values: { ru?: string | null; es?: string | null; en?: string | null }) => {
+    if (language === "es") return values.es || values.en || values.ru || "";
+    if (language === "en") return values.en || values.es || values.ru || "";
+    return values.ru || values.es || values.en || "";
+  };
+
+  const getErrorWord = (count: number) => {
+    if (language === "ru") {
+      if (count % 10 === 1 && count % 100 !== 11) return t("testResults.errorWords.one");
+      if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) {
+        return t("testResults.errorWords.few");
+      }
+      return t("testResults.errorWords.many");
+    }
+
+    return count === 1 ? t("testResults.errorWords.one") : t("testResults.errorWords.many");
+  };
+
+  const getLocalizedQuestionText = (q: QuestionData) =>
+    getLocalizedCopy({
+      ru: q.question_ru,
+      es: q.question_es,
+      en: q.question_en,
+    });
+
+  const getLocalizedExplanation = (q: QuestionData) =>
+    getLocalizedCopy({
+      ru: q.explanation_ru,
+      es: q.explanation_es,
+      en: q.explanation_en,
+    });
+
+  const getLocalizedTopicTitle = (topic?: QuestionData["topics"] | null) =>
+    getLocalizedCopy({
+      ru: topic?.title_ru,
+      es: topic?.title_es,
+      en: topic?.title_es,
+    });
+
+  const getLocalizedOptionText = (opt: QuestionData["answer_options"][number]) =>
+    getLocalizedCopy({
+      ru: opt.text_ru,
+      es: opt.text_es,
+      en: opt.text_en,
+    });
+
   // Identify weak topic (most incorrects)
   const weakTopic = useMemo(() => {
     if (incorrectCount === 0) return undefined;
@@ -424,8 +483,8 @@ const TestResults = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground mb-4">Нет данных о результатах</p>
-          <Button onClick={() => navigate("/tests")}>Вернуться к тестам</Button>
+          <p className="text-muted-foreground mb-4">{t("testResults.noData")}</p>
+          <Button onClick={() => navigate("/tests")}>{t("testResults.backToTests")}</Button>
         </div>
       </Layout>
     );
@@ -445,8 +504,8 @@ const TestResults = () => {
           >
             <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] bg-[size:20px_20px]" />
             <Sparkles className="mx-auto w-16 h-16 mb-4 text-amber-200" />
-            <h1 className="text-3xl font-black tracking-tight mb-2 uppercase">Навык Восстановлен!</h1>
-            <p className="text-amber-50 font-medium">Безупречное закрепление. Потерянный рейтинг возвращен на 50%.</p>
+            <h1 className="text-3xl font-black tracking-tight mb-2 uppercase">{t("testResults.redemption.title")}</h1>
+            <p className="text-amber-50 font-medium">{t("testResults.redemption.description")}</p>
           </motion.div>
         )}
 
@@ -457,28 +516,31 @@ const TestResults = () => {
 
           <h1 className={cn("text-2xl sm:text-3xl font-bold mb-2", passed ? "text-emerald-500" : "text-red-500")}>
             {mode === 'marathon' ? (
-              passed ? "🏆 Марафон: Цель достигнута!" : `🏃 Марафон: Раунд ${masteryRound || 1} завершен`
+              passed
+                ? t("testResults.marathonGoalAchieved")
+                : t("testResults.marathonRoundCompleted", { round: masteryRound || 1 })
             ) : (
-              passed ? "🎉 Экзамен сдан!" : "Экзамен не сдан"
+              passed ? t("testResults.examPassed") : t("testResults.examFailed")
             )}
           </h1>
 
           {!passed && (mode === 'exam' || mode === 'exam-russia') && (
             <p className="text-red-400 font-medium bg-red-500/10 inline-block px-4 py-1.5 rounded-full text-sm border border-red-500/20">
-              Допущено {incorrectCount} {(() => {
-                const n = incorrectCount;
-                if (n % 10 === 1 && n % 100 !== 11) return 'ошибка';
-                if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return 'ошибки';
-                return 'ошибок';
-              })()}. Это критично для экзамена {mode === 'exam-russia' || country === 'russia' ? 'РФ' : 'DGT'}.
+              {t("testResults.failNotice", {
+                count: incorrectCount,
+                errorWord: getErrorWord(incorrectCount),
+                exam: mode === 'exam-russia' || country === 'russia'
+                  ? t("testResults.examLabels.russia")
+                  : t("testResults.examLabels.dgt"),
+              })}
             </p>
           )}
 
           {passed && (
             <p className="text-muted-foreground">
               {mode === 'marathon'
-                ? "Вы успешно отработали ошибки этого раунда. Марафон продолжается до полного успеха!"
-                : "Отличный результат! Продолжайте в том же духе."}
+                ? t("testResults.passMessages.marathon")
+                : t("testResults.passMessages.exam")}
             </p>
           )}
         </motion.div>
@@ -494,7 +556,7 @@ const TestResults = () => {
           <div className="p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex flex-col items-center justify-center gap-1">
             <Clock className="w-5 h-5 text-blue-400 mb-1" />
             <span className="text-xl sm:text-2xl font-bold text-foreground">{formatTime(timeSpent)}</span>
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">Время</span>
+            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">{t("testResults.stats.time")}</span>
           </div>
 
           {/* Accuracy Card */}
@@ -503,7 +565,7 @@ const TestResults = () => {
             <span className={cn("text-xl sm:text-2xl font-bold", passed ? "text-emerald-400" : "text-orange-400")}>
               {getAccuracy()}%
             </span>
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">Точность</span>
+            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium">{t("testResults.stats.accuracy")}</span>
           </div>
 
           {/* Coins Card */}
@@ -513,7 +575,7 @@ const TestResults = () => {
             <span className="text-xl sm:text-2xl font-bold text-amber-400 relative z-10">
               +{rewardResult?.coins_awarded ?? 0}
             </span>
-            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">Монеты</span>
+            <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">{t("testResults.stats.coins")}</span>
           </div>
 
           {/* Season Points Card for Marathon, XP Card for others */}
@@ -524,7 +586,7 @@ const TestResults = () => {
               <span className="text-xl sm:text-2xl font-black text-indigo-400 relative z-10 drop-shadow-sm">
                 +{rewardResult?.xp_awarded ?? rewardResult?.sp_awarded ?? 0}
               </span>
-              <span className="text-[10px] sm:text-xs uppercase font-black tracking-[0.15em] text-indigo-500/70 relative z-10">Season Points</span>
+              <span className="text-[10px] sm:text-xs uppercase font-black tracking-[0.15em] text-indigo-500/70 relative z-10">{t("testResults.stats.seasonPoints")}</span>
             </div>
           ) : (
             /* Standard XP Card */
@@ -534,7 +596,7 @@ const TestResults = () => {
               <span className="text-xl sm:text-2xl font-bold text-yellow-400 relative z-10">
                 +{rewardResult?.xp_awarded ?? rewardResult?.sp_awarded ?? 0}
               </span>
-              <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">XP получен</span>
+              <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">{t("testResults.stats.xpEarned")}</span>
             </div>
           )}
         </motion.div>
@@ -559,7 +621,6 @@ const TestResults = () => {
                     const q: any = questions.find(q => q.id === ans.questionId);
                     if (!q) return null;
 
-                    const isSpain = country === 'spain';
                     const isUniversal = 'text' in q && 'answers' in q;
 
                     let qText = '';
@@ -578,7 +639,7 @@ const TestResults = () => {
                       qCorrect = correctOpt?.text || '';
                       qUser = userOpt?.text || 'NO_ANSWER_GIVEN';
                       qExp = q.explanation || '';
-                      qTopic = q.topics?.[0] || 'ПДД РФ';
+                      qTopic = q.topics?.[0] || t("testResults.defaultTopic");
                       qImg = q.image || null;
                     } else {
                       // DGT format (QuestionData)
@@ -586,14 +647,14 @@ const TestResults = () => {
                       const correctOption = q.answer_options?.find((opt: any) => opt.is_correct);
 
                       const userAnswerText = selectedOption
-                        ? (isSpain ? selectedOption.text_es : selectedOption.text_ru) || selectedOption.text_ru
+                        ? getLocalizedOptionText(selectedOption)
                         : null;
 
-                      qText = (isSpain ? q.question_es : q.question_ru) || q.question_ru || '';
+                      qText = getLocalizedQuestionText(q);
                       qUser = userAnswerText || 'NO_ANSWER_GIVEN';
-                      qCorrect = (isSpain ? correctOption?.text_es : correctOption?.text_ru) || correctOption?.text_ru || '';
-                      qTopic = isSpain ? q.topics?.title_es : q.topics?.title_ru;
-                      qExp = (isSpain ? q.explanation_es : q.explanation_ru) || q.explanation_ru || '';
+                      qCorrect = correctOption ? getLocalizedOptionText(correctOption) : '';
+                      qTopic = getLocalizedTopicTitle(q.topics);
+                      qExp = getLocalizedExplanation(q);
                       qImg = q.image_url || null;
                     }
 
@@ -602,13 +663,12 @@ const TestResults = () => {
                       questionText: qText,
                       userAnswer: qUser,
                       correctAnswer: qCorrect,
-                      topic: qTopic || 'ПДД РФ',
+                      topic: qTopic || t("testResults.defaultTopic"),
                       explanation: qExp,
                       imageUrl: qImg,
                     };
                   }).filter(Boolean) as any[]
                 : questions.map((q: any) => {
-                  const isSpain = country === 'spain';
                   const isUniversal = 'text' in q && 'answers' in q;
 
                   if (isUniversal) {
@@ -618,7 +678,7 @@ const TestResults = () => {
                       questionText: q.text || '',
                       userAnswer: 'NO_ANSWER_GIVEN',
                       correctAnswer: correctOpt?.text || '',
-                      topic: q.topics?.[0] || 'ПДД РФ',
+                      topic: q.topics?.[0] || t("testResults.defaultTopic"),
                       explanation: q.explanation || '',
                       imageUrl: q.image || null,
                     };
@@ -626,11 +686,11 @@ const TestResults = () => {
                     const correctOption = q.answer_options?.find((opt: any) => opt.is_correct);
                     return {
                       questionId: q.id,
-                      questionText: (isSpain ? q.question_es : q.question_ru) || q.question_ru || '',
+                      questionText: getLocalizedQuestionText(q),
                       userAnswer: 'NO_ANSWER_GIVEN',
-                      correctAnswer: (isSpain ? correctOption?.text_es : correctOption?.text_ru) || correctOption?.text_ru || '',
-                      topic: isSpain ? q.topics?.title_es : q.topics?.title_ru,
-                      explanation: (isSpain ? q.explanation_es : q.explanation_ru) || q.explanation_ru || '',
+                      correctAnswer: correctOption ? getLocalizedOptionText(correctOption) : '',
+                      topic: getLocalizedTopicTitle(q.topics) || t("testResults.defaultTopic"),
+                      explanation: getLocalizedExplanation(q),
                       imageUrl: q.image_url || null,
                     };
                   }
@@ -650,10 +710,10 @@ const TestResults = () => {
           <div className="flex items-center justify-between mb-4 px-2">
             <h2 className="text-lg font-bold flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-muted-foreground" />
-              Детальный отчет
+              {t("testResults.detailedReport")}
             </h2>
             <span className="text-xs font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-md">
-              {questions.length} вопросов
+              {t("testResults.questionsCount", { count: questions.length })}
             </span>
           </div>
 
@@ -687,12 +747,12 @@ const TestResults = () => {
                     {/* Text */}
                     <div className="flex-1 min-w-0">
                       <p className={cn("text-sm font-semibold pr-2 leading-relaxed text-slate-700 dark:text-slate-200")}>
-                        {q.question_ru}
+                        {getLocalizedQuestionText(q)}
                       </p>
                       {answer && !isCorrect && (
                         <div className="flex items-center gap-1.5 mt-1 text-[10px] font-black uppercase tracking-wider text-red-500">
                           <AlertTriangle className="w-3 h-3" />
-                          <span>Ошибка</span>
+                          <span>{t("testResults.errorBadge")}</span>
                         </div>
                       )}
                     </div>
@@ -716,13 +776,17 @@ const TestResults = () => {
                           {/* Image */}
                           {q.image_url && (
                             <div className="w-full flex justify-center">
-                              <QuestionImageComponent imageUrl={q.image_url} />
+                              <QuestionImageComponent
+                                imageUrl={q.image_url}
+                                loadingLabel={t("testResults.loadingImage")}
+                                altLabel={t("testResults.questionImageAlt")}
+                              />
                             </div>
                           )}
 
                           {/* Question Text */}
                           <div className="space-y-4">
-                            <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">Детали вопроса</h4>
+                            <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">{t("testResults.questionDetails")}</h4>
                             <div className="grid gap-2.5">
                               {q.answer_options.map(opt => {
                                 const isSelected = answer?.selectedAnswerId === opt.id;
@@ -737,7 +801,7 @@ const TestResults = () => {
                                         ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-900 dark:text-red-100"
                                         : "bg-white dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-500"
                                   )}>
-                                    <span className="flex-1 pr-4">{opt.text_ru}</span>
+                                    <span className="flex-1 pr-4">{getLocalizedOptionText(opt)}</span>
                                     {isOptCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
                                     {isSelected && !isOptCorrect && <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
                                   </div>
@@ -747,7 +811,7 @@ const TestResults = () => {
                           </div>
 
                           {/* Premium AI Explanation */}
-                          {q.explanation_ru && (
+                          {getLocalizedExplanation(q) && (
                             <div className="relative group/ai">
                               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 rounded-2xl blur-md opacity-0 group-hover/ai:opacity-100 transition duration-500" />
                               <div className="relative p-5 rounded-2xl bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-100 dark:border-blue-500/20 shadow-sm">
@@ -756,11 +820,11 @@ const TestResults = () => {
                                     <Sparkles className="w-4 h-4" />
                                   </div>
                                   <span className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-400">
-                                    Объяснение AI
+                                    {t("testResults.aiExplanation")}
                                   </span>
                                 </div>
                                 <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
-                                  {q.explanation_ru}
+                                  {getLocalizedExplanation(q)}
                                 </p>
                               </div>
                             </div>
@@ -785,7 +849,7 @@ const TestResults = () => {
 
             }}
           >
-            Вернуться к тестам
+            {t("testResults.backToTests")}
           </Button>
         </div>
       </div>
