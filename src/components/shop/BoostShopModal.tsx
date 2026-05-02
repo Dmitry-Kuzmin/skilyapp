@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { PRICING_PLANS, COIN_PACKS, DUEL_PASS_PRICE } from "@/lib/pricing-config";
-import { useTonAddress } from "@/contexts/TonAddressContext";
-import { beginCell } from "@ton/core";
+// TON_DISABLED: import { useTonAddress } from "@/contexts/TonAddressContext";
+// TON_DISABLED: import { beginCell } from "@ton/core";
 import {
   useState,
   useEffect,
