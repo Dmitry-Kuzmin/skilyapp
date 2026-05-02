@@ -128,7 +128,7 @@ const TestSession = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { profileId } = useUserContext();
+  const { profileId, isAuthenticated, isLoading: authLoading } = useUserContext();
   const { isPremium } = usePremium();
   const { enqueue: enqueueOfflineAction } = useOfflineQueue(profileId || undefined);
   const { selectedCountry, selectedCategory } = usePDDContext();
@@ -151,6 +151,24 @@ const TestSession = () => {
     if (location.pathname.includes("/test/nonstop")) return "nonstop";
     return "practice";
   }, [rawMode, location.pathname, searchParams, ticketIdParam]);
+  const isGuest = !authLoading && (!isAuthenticated || !profileId);
+
+  useEffect(() => {
+    if (!isGuest) return;
+    const guestAllowedModes = new Set([
+      "practice",
+      "exam",
+      "blitz",
+      "mastery",
+      "hardest",
+      "marathon",
+      "challenge-bank",
+      "favorites",
+      "by-topic",
+    ]);
+    if (guestAllowedModes.has(mode)) return;
+    navigate(`/test/practice?count=30&category=${searchParams.get("category") || selectedCategory}&guest=1`, { replace: true });
+  }, [isGuest, mode, navigate, searchParams, selectedCategory]);
 
   // Определяем страну для ПДД билета
   const pddCountry = useMemo(() => {
@@ -178,13 +196,14 @@ const TestSession = () => {
 
   // Получаем количество вопросов из URL
   const countParam = searchParams.get('count');
-  const questionCount = countParam ? parseInt(countParam) : (
+  const requestedQuestionCount = countParam ? parseInt(countParam) : (
     mode === 'blitz' ? 20 :
       mode === 'nonstop' && pddCountry === 'russia' ? 800 :
         mode === 'challenge-bank' ? 20 :
           mode === 'marathon' && pddCountry === 'russia' ? 20 :
             30
   );
+  const questionCount = isGuest ? Math.min(requestedQuestionCount || 30, 30) : requestedQuestionCount;
   const blitzDuration = parseInt(searchParams.get('timer') || (mode === 'blitz' ? '300' : '300')) || (mode === 'blitz' ? 300 : 300);
   const initialTimeBudget = mode === "exam" ? 30 * 60 : mode === "blitz" ? blitzDuration : 0;
   const [showTranslation, setShowTranslation] = useState(false);

@@ -188,7 +188,7 @@ const TicketCore = ({
 
 const Tests = () => {
   const navigate = useNavigate();
-  const { profileId } = useUserContext();
+  const { profileId, isAuthenticated, isLoading: authLoading } = useUserContext();
   const { isPremium } = usePremium();
   const { language, t } = useLanguage();
   const { selectedCountry, selectedCategory } = usePDDContext();
@@ -224,6 +224,8 @@ const Tests = () => {
   const [randomQuestionCount, setRandomQuestionCount] = useState(20);
   const [hasSelectedCount, setHasSelectedCount] = useState(false);
   const [nonstopProgress, setNonstopProgress] = useState<{ answered: number; total: number } | null>(null);
+  const isGuest = !authLoading && (!isAuthenticated || !profileId);
+  const guestRandomQuestionCount = 30;
   const localeText = useCallback((ru: string, es: string, en: string = es) => {
     if (language === "ru") return ru;
     if (language === "es") return es;
@@ -305,7 +307,19 @@ const Tests = () => {
   const safeStats = stats || { accuracy: 0, totalAnswered: 0, errors: 0 };
 
   const handleStartTest = (path: string) => {
-    navigate(path);
+    if (!isGuest || !path.startsWith('/test/')) {
+      navigate(path);
+      return;
+    }
+
+    const [pathname, query = ''] = path.split('?');
+    const params = new URLSearchParams(query);
+    if (!params.has('count')) {
+      params.set('count', String(guestRandomQuestionCount));
+    }
+    params.set('category', params.get('category') || selectedCategory);
+    params.set('guest', '1');
+    navigate(`${pathname}?${params.toString()}`);
   };
 
   const handleTopicClick = (topicId: string) => {
@@ -318,7 +332,8 @@ const Tests = () => {
   };
 
   const handleRandomTestStart = () => {
-    handleStartTest(`/test/practice?count=${randomQuestionCount}${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`);
+    const count = isGuest ? guestRandomQuestionCount : randomQuestionCount;
+    handleStartTest(`/test/practice?count=${count}${selectedCountry === 'russia' ? '&country=russia' : ''}&category=${selectedCategory}`);
   };
 
   const handleBannerClick = () => {
@@ -465,8 +480,72 @@ const Tests = () => {
       ] : []),
     ];
 
-    return baseModes;
-  }, [selectedCountry, randomQuestionCount, selectedCategory, challengeStats, t, licensePoints, localeText]);
+    if (!isGuest) return baseModes;
+
+    return baseModes.map((mode) => {
+      if (mode.id === 2) {
+        return {
+          ...mode,
+          isLocked: false,
+          description: localeText(
+            'Демо-экзамен на базе 30 вопросов. Полная база и история откроются после регистрации.',
+            'Simulacro demo con base limitada a 30 preguntas. La base completa y el historial se abren al registrarte.',
+            'Demo exam with a 30-question limited base. Full bank and history unlock after sign-in.'
+          ),
+        };
+      }
+
+      if (mode.id === 5) {
+        return {
+          ...mode,
+          title: selectedCountry === 'russia' ? 'Ошибки' : t('testsPage.challengeBank'),
+          isLocked: false,
+          route: `/test/challenge-bank?category=${selectedCategory}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
+          description: localeText(
+            'Демо режима ошибок на 30 вопросах. После регистрации Skily будет сохранять твои реальные промахи.',
+            'Demo del banco de errores con 30 preguntas. Al registrarte Skily guardará tus fallos reales.',
+            'Mistake-bank demo with 30 questions. Sign in to save your real mistakes.'
+          ),
+        };
+      }
+
+      if (mode.id === 9) {
+        return {
+          ...mode,
+          isLocked: false,
+          route: `/test/favorites?category=${selectedCategory}${selectedCountry === 'russia' ? '&country=russia' : ''}`,
+          description: localeText(
+            'Демо избранного на той же базе. Сохранять личные вопросы можно после регистрации.',
+            'Demo de favoritos sobre la misma base. Guardar preguntas personales requiere registro.',
+            'Favorites demo on the same base. Personal saved questions require sign-in.'
+          ),
+        };
+      }
+
+      if (mode.id === 7) {
+        return {
+          ...mode,
+          isLocked: false,
+          route: `/test/practice?count=30&category=${selectedCategory}`,
+          description: localeText(
+            'Демо тематической тренировки из 30 вопросов. Темы и прогресс откроются после регистрации.',
+            'Demo de práctica temática con 30 preguntas. Temas y progreso se desbloquean al registrarte.',
+            'Topic-practice demo with 30 questions. Topics and progress unlock after sign-in.'
+          ),
+        };
+      }
+
+      return {
+        ...mode,
+        isLocked: false,
+        description: `${mode.description} ${localeText(
+          'Демо ограничено 30 вопросами.',
+          'Demo limitado a 30 preguntas.',
+          'Demo limited to 30 questions.'
+        )}`,
+      };
+    });
+  }, [selectedCountry, randomQuestionCount, selectedCategory, challengeStats, t, licensePoints, localeText, isGuest]);
 
   if (topicsLoading || ticketsLoading) {
     return (
@@ -618,7 +697,14 @@ const Tests = () => {
                           {t('testsPage.randomTest').toUpperCase()}
                         </h2>
                         <p className="text-lg md:text-xl text-white/90 font-medium max-w-md leading-relaxed drop-shadow-md">
-                          {t('testsPage.randomTestDesc')}
+                          {isGuest
+                            ? localeText(
+                              'Гости могут попробовать режимы на демо-базе из 30 вопросов.',
+                              'Como invitado puedes probar los modos con una base demo de 30 preguntas.',
+                              'As a guest you can try the modes with a 30-question demo base.'
+                            )
+                            : t('testsPage.randomTestDesc')
+                          }
                         </p>
 
                         <div className="space-y-4">
@@ -647,10 +733,19 @@ const Tests = () => {
                                 </motion.button>
                               ))}
                             </div>
+                            {isGuest && (
+                              <p className="mt-3 text-xs font-semibold text-white/70">
+                                {localeText(
+                                  'После регистрации откроются полная база, сохранение ошибок, избранное и личная статистика.',
+                                  'Al registrarte se desbloquean la base completa, errores guardados, favoritos y estadísticas personales.',
+                                  'Sign in to unlock the full bank, saved mistakes, favorites and personal stats.'
+                                )}
+                              </p>
+                            )}
                           </div>
                         </div>
 
-                        {hasSelectedCount && (
+                        {(hasSelectedCount || isGuest) && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -854,7 +949,6 @@ const Tests = () => {
                         e.stopPropagation();
 
                         if (mode.isLocked) {
-                          // Locked by gating system
                           return;
                         }
 
@@ -936,11 +1030,17 @@ const Tests = () => {
                           </h3>
                           <p className="text-slate-600 dark:text-slate-400 font-medium text-sm leading-relaxed line-clamp-2 text-left">
                             {mode.isLocked
-                              ? localeText(
-                                `Набери 10 баллов, чтобы открыть доступ к экзамену. У тебя ${licensePoints}/10.`,
-                                `Consigue 10 puntos para desbloquear el examen. Tienes ${licensePoints}/10.`,
-                                `Reach 10 points to unlock the exam. You have ${licensePoints}/10.`
-                              )
+                              ? (isGuest
+                                ? localeText(
+                                  'Доступно после регистрации. Гостям открыт только случайный тест на 30 вопросов.',
+                                  'Disponible después del registro. Para invitados solo está abierta la prueba aleatoria de 30 preguntas.',
+                                  'Available after registration. Guests can only use the random 30-question test.'
+                                )
+                                : localeText(
+                                  `Набери 10 баллов, чтобы открыть доступ к экзамену. У тебя ${licensePoints}/10.`,
+                                  `Consigue 10 puntos para desbloquear el examen. Tienes ${licensePoints}/10.`,
+                                  `Reach 10 points to unlock the exam. You have ${licensePoints}/10.`
+                                ))
                               : mode.description
                             }
                           </p>

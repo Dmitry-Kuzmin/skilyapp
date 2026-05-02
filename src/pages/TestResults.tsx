@@ -22,6 +22,7 @@ import { QuestCompletionOverlay } from "@/components/quests/QuestCompletionOverl
 import { useLanguage } from "@/contexts/LanguageContext";
 import { maybeTriggerLevelUp } from "@/store/levelUpStore";
 import { useUserContext } from "@/contexts/UserContext";
+import { useModalStore } from "@/store/modalStore";
 
 type TestRewardPayload = {
   coins_awarded?: number;
@@ -173,7 +174,8 @@ const TestResults = () => {
   const { isPremium } = usePremium();
   const { completedQuests, updateProgress, clearCompleted } = useQuestProgress();
   const { language, t } = useLanguage();
-  const { profileId: contextProfileId } = useUserContext();
+  const { profileId: contextProfileId, isAuthenticated } = useUserContext();
+  const openModal = useModalStore((state) => state.openModal);
 
   // State for toggles
   const [showTranslation, setShowTranslation] = useState<Record<string, boolean>>({});
@@ -218,6 +220,7 @@ const TestResults = () => {
   const masteryRound = state?.masteryRound;
 
   const profileId = contextProfileId;
+  const isGuest = !isAuthenticated || !profileId;
 
   // 🔍 DEBUG: Что приходит из TestSession
   console.log('🔍 [TestResults] answers from state:', {
@@ -382,6 +385,12 @@ const TestResults = () => {
     return totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
   };
 
+  const guestPlanText = (values: { ru: string; es: string; en?: string }) => {
+    if (language === "ru") return values.ru;
+    if (language === "es") return values.es;
+    return values.en || values.es;
+  };
+
   const getLocalizedCopy = (values: { ru?: string | null; es?: string | null; en?: string | null }) => {
     if (language === "es") return values.es || values.en || values.ru || "";
     if (language === "en") return values.en || values.es || values.ru || "";
@@ -445,6 +454,25 @@ const TestResults = () => {
     const sorted = Object.entries(topicsCount).sort((a, b) => b[1] - a[1]);
     return sorted[0]?.[0];
   }, [incorrectCount, answers, questions, country]);
+
+  const aiPlanPreview = useMemo(() => {
+    const accuracy = getAccuracy();
+    const level = accuracy >= 85
+      ? guestPlanText({ ru: "почти готов", es: "casi listo", en: "almost ready" })
+      : accuracy >= 65
+        ? guestPlanText({ ru: "средний уровень", es: "nivel intermedio", en: "intermediate level" })
+        : guestPlanText({ ru: "нужна база", es: "base en construcción", en: "foundation needed" });
+
+    const focus = weakTopic || guestPlanText({
+      ru: "смешанная тренировка по ключевым темам",
+      es: "práctica mixta de temas clave",
+      en: "mixed practice on key topics",
+    });
+
+    const duration = accuracy >= 85 ? "7" : accuracy >= 65 ? "14" : "21";
+
+    return { level, focus, duration };
+  }, [getAccuracy, guestPlanText, weakTopic]);
 
   // 🧠 AI Memory: Загружаем контекст студента ПОСЛЕ объявления weakTopic
   useEffect(() => {
@@ -620,6 +648,85 @@ const TestResults = () => {
             <span className="text-[10px] sm:text-xs uppercase tracking-wider text-muted-foreground font-medium relative z-10">XP</span>
           </div>
         </motion.div>
+
+        {isGuest && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="mb-6 overflow-hidden rounded-[2rem] border border-indigo-400/30 bg-gradient-to-br from-indigo-500/15 via-sky-500/10 to-emerald-500/10 shadow-2xl shadow-indigo-500/10"
+          >
+            <div className="p-5 sm:p-6">
+              <div className="flex items-start gap-4">
+                <div className="shrink-0 w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-indigo-200" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-300 mb-2">
+                    {guestPlanText({
+                      ru: "Skily AI диагностика",
+                      es: "Diagnóstico Skily AI",
+                      en: "Skily AI diagnosis",
+                    })}
+                  </p>
+                  <h2 className="text-xl sm:text-2xl font-black text-foreground leading-tight">
+                    {guestPlanText({
+                      ru: "Твоя персональная программа почти готова",
+                      es: "Tu programa personalizado está casi listo",
+                      en: "Your personal plan is almost ready",
+                    })}
+                  </h2>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                    {guestPlanText({
+                      ru: `По тесту Skily AI определил уровень: ${aiPlanPreview.level}. Главный фокус: ${aiPlanPreview.focus}.`,
+                      es: `Según tu prueba, Skily AI detectó tu nivel: ${aiPlanPreview.level}. Enfoque principal: ${aiPlanPreview.focus}.`,
+                      en: `Based on your test, Skily AI detected your level: ${aiPlanPreview.level}. Main focus: ${aiPlanPreview.focus}.`,
+                    })}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl bg-background/50 border border-white/10 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.16em] font-black text-muted-foreground">
+                    {guestPlanText({ ru: "План", es: "Plan", en: "Plan" })}
+                  </p>
+                  <p className="mt-1 text-lg font-black">{aiPlanPreview.duration} días</p>
+                </div>
+                <div className="rounded-2xl bg-background/50 border border-white/10 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.16em] font-black text-muted-foreground">
+                    {guestPlanText({ ru: "Ошибки", es: "Errores", en: "Mistakes" })}
+                  </p>
+                  <p className="mt-1 text-lg font-black">{incorrectCount}</p>
+                </div>
+                <div className="rounded-2xl bg-background/50 border border-white/10 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.16em] font-black text-muted-foreground">
+                    {guestPlanText({ ru: "Бонус", es: "Bonus", en: "Bonus" })}
+                  </p>
+                  <p className="mt-1 text-lg font-black">+300</p>
+                </div>
+              </div>
+
+              <Button
+                className="mt-5 w-full h-12 text-base font-black bg-white text-slate-950 hover:bg-indigo-50"
+                onClick={() => openModal('AUTH', { initialStep: 'email' })}
+              >
+                {guestPlanText({
+                  ru: "Сохранить программу и забрать 300 монет",
+                  es: "Guardar mi programa y reclamar 300 monedas",
+                  en: "Save my plan and claim 300 coins",
+                })}
+              </Button>
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                {guestPlanText({
+                  ru: "Регистрация бесплатная. Мы сохраним ошибки, уровень и следующий шаг.",
+                  es: "Registro gratis. Guardamos tus errores, nivel y siguiente paso.",
+                  en: "Free sign-up. We save your mistakes, level and next step.",
+                })}
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* ── Плашка-подсказка о бонусах ─────────────────────────────────── */}
         {rewardResult && getAccuracy() < 90 && (

@@ -1,0 +1,154 @@
+{
+  "questions": [
+    {
+      "id": "demo-01",
+      "topic": "Señales de obligación",
+      "topicIcon": "🛑",
+      "text": "¿Qué debes hacer al llegar a esta señal?",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Spain_road_sign_R-2.svg/400px-Spain_road_sign_R-2.svg.png",
+      "imageBg": "#1a1f2e",
+      "options": [
+        { "id": "a", "text": "Detenerte completamente y ceder el paso" },
+        { "id": "b", "text": "Reducir la velocidad y ceder el paso" },
+        { "id": "c", "text": "Continuar si no hay otros vehículos" }
+      ],
+      "correctId": "a",
+      "explanation": "La señal STOP (R-2) obliga a detener completamente el vehículo antes de la línea de parada, aunque no haya otros vehículos. Una reducción de velocidad no es suficiente."
+    },
+    {
+      "id": "demo-02",
+      "topic": "Velocidad",
+      "topicIcon": "⚡",
+      "text": "¿Cuál es la velocidad máxima permitida en autopista para un turismo sin remolque?",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Spain_road_sign_R-301_120.svg/400px-Spain_road_sign_R-301_120.svg.png",
+      "imageBg": "#0f172a",
+      "options": [
+        { "id": "a", "text": "100 km/h" },
+        { "id": "b", "text": "120 km/h" },
+        { "id": "c", "text": "130 km/h" }
+      ],
+      "correctId": "b",
+      "explanation": "En autopistas y autovías, la velocidad máxima para turismos sin remolque es 120 km/h. Superar este límite es una infracción grave y puede provocar accidentes."
+    },
+    {
+      "id": "demo-03",
+      "topic": "Señales de advertencia",
+      "topicIcon": "⚠️",
+      "text": "¿Qué indica esta señal triangular?",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Spain_road_sign_P-1a.svg/400px-Spain_road_sign_P-1a.svg.png",
+      "imageBg": "#1c1400",
+      "options": [
+        { "id": "a", "text": "Curva peligrosa hacia la derecha" },
+        { "id": "b", "text": "Curva peligrosa hacia la izquierda" },
+        { "id": "c", "text": "Intersección con curva" }
+      ],
+      "correctId": "a",
+      "explanation": "Las señales triangulares de fondo blanco y borde rojo son de peligro. Esta indica una curva peligrosa a la derecha — debes reducir la velocidad anticipadamente."
+    },
+    {
+      "id": "demo-04",
+      "topic": "Prioridad de paso",
+      "topicIcon": "🔺",
+      "text": "¿Qué significa esta señal en una intersección?",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Spain_road_sign_R-1.svg/400px-Spain_road_sign_R-1.svg.png",
+      "imageBg": "#1a0000",
+      "options": [
+        { "id": "a", "text": "Tienes prioridad de paso" },
+        { "id": "b", "text": "Debes ceder el paso a todos los vehículos" },
+        { "id": "c", "text": "Solo ceden el paso los vehículos de la derecha" }
+      ],
+      "correctId": "b",
+      "explanation": "La señal 'Ceda el Paso' (R-1) obliga a dejar paso a todos los vehículos que circulan por la vía a la que se accede, sin necesidad de detenerse si la visibilidad es suficiente."
+    },
+    {
+      "id": "demo-05",
+      "topic": "Marcas viales",
+      "topicIcon": "🛣️",
+      "text": "¿Está permitido adelantar cruzando una línea continua en el centro de la calzada?",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Spain_road_sign_R-301_90.svg/400px-Spain_road_sign_R-301_90.svg.png",
+      "imageBg": "#111827",
+      "options": [
+        { "id": "a", "text": "Sí, si hay visibilidad suficiente" },
+        { "id": "b", "text": "No, está terminantemente prohibido" },
+        { "id": "c", "text": "Solo si el adelantamiento es rápido" }
+      ],
+      "correctId": "b",
+      "explanation": "La línea continua longitudinal en el centro NO puede ser cruzada ni invadida bajo ninguna circunstancia. Hacerlo es una infracción muy grave, sancionada con pérdida de puntos."
+    },
+    {
+      "id": "demo-06",
+      "topic": "Alcohol y drogas",
+      "topicIcon": "🍺",
+      "text": "¿Cuál es la tasa máxima de alcoholemia para conductores con más de 2 años de antigüedad del permiso?",
+      "image": "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=500&q=80&auto=format&fit=crop",
+      "imageBg": "#0c1628",
+      "options": [
+        { "id": "a", "text": "0,25 mg/l en aire espirado (0,5 g/l en sangre)" },
+        { "id": "b", "text": "0,15 mg/l en aire espirado (0,3 g/l en sangre)" },
+        { "id": "c", "text": "0,50 mg/l en aire espirado (1,0 g/l en sangre)" }
+      ],
+      "correctId": "a",
+      "explanation": "El límite general es 0,25 mg/l en aire espirado o 0,5 g/l en sangre. Para conductores noveles (menos de 2 años) y profesionales el límite es más estricto: 0,15 mg/l."
+    },
+    {
+      "id": "demo-07",
+      "topic": "Cinturón y seguridad",
+      "topicIcon": "🪢",
+      "text": "¿Cuándo es obligatorio el uso del cinturón de seguridad?",
+      "image": "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=500&q=80&auto=format&fit=crop",
+      "imageBg": "#0a1628",
+      "options": [
+        { "id": "a", "text": "Solo en carretera y autopista" },
+        { "id": "b", "text": "Siempre que el vehículo esté en movimiento" },
+        { "id": "c", "text": "Solo el conductor, los pasajeros pueden decidir" }
+      ],
+      "correctId": "b",
+      "explanation": "El cinturón es obligatorio para todos los ocupantes del vehículo (conductor y pasajeros) en cualquier tipo de vía, incluso en ciudad. No llevarlo puede costar hasta 3 puntos del carnet."
+    },
+    {
+      "id": "demo-08",
+      "topic": "Rotondas",
+      "topicIcon": "🔄",
+      "text": "Dentro de una rotonda, ¿quién tiene prioridad de paso?",
+      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80&auto=format&fit=crop",
+      "imageBg": "#071520",
+      "options": [
+        { "id": "a", "text": "Los vehículos que entran en la rotonda" },
+        { "id": "b", "text": "Los vehículos que ya circulan dentro de la rotonda" },
+        { "id": "c", "text": "El vehículo que va por la derecha" }
+      ],
+      "correctId": "b",
+      "explanation": "En las rotondas, los vehículos que ya están circulando dentro tienen prioridad sobre los que intentan entrar. Al acceder a una rotonda siempre debes ceder el paso."
+    },
+    {
+      "id": "demo-09",
+      "topic": "Distancia de seguridad",
+      "topicIcon": "📏",
+      "text": "¿Cuál es la distancia de seguridad mínima que debes mantener con el vehículo de delante?",
+      "image": "https://images.unsplash.com/photo-1494522855154-9297ac14b55f?w=500&q=80&auto=format&fit=crop",
+      "imageBg": "#050e1a",
+      "options": [
+        { "id": "a", "text": "La suficiente para detenerte en caso de frenada brusca" },
+        { "id": "b", "text": "Exactamente 50 metros en cualquier situación" },
+        { "id": "c", "text": "10 metros por cada 10 km/h de velocidad" }
+      ],
+      "correctId": "a",
+      "explanation": "La distancia de seguridad debe ser suficiente para frenar sin colisionar si el vehículo de delante para de repente. Depende de la velocidad, el estado del vehículo y la calzada. No hay un número fijo."
+    },
+    {
+      "id": "demo-10",
+      "topic": "Luces del vehículo",
+      "topicIcon": "💡",
+      "text": "¿Cuándo es obligatorio usar las luces de cruce (cortas) durante el día?",
+      "image": "https://images.unsplash.com/photo-1573950940509-d924ee3fd345?w=500&q=80&auto=format&fit=crop",
+      "imageBg": "#050a14",
+      "options": [
+        { "id": "a", "text": "Solo cuando hay niebla o lluvia intensa" },
+        { "id": "b", "text": "En túneles, pasos inferiores y vías con iluminación insuficiente" },
+        { "id": "c", "text": "Nunca, las luces diurnas (DRL) son suficientes" }
+      ],
+      "correctId": "b",
+      "explanation": "Las luces de cruce son obligatorias en túneles, pasos inferiores, tramos con visibilidad reducida y cuando las condiciones lo requieran. En carretera convencional de día también son recomendadas y obligatorias en muchos países."
+    }
+  ]
+}

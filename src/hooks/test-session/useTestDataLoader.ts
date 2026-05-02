@@ -79,9 +79,7 @@ export const useTestDataLoader = ({
     category,
     redemptionData,
 }: UseTestDataLoaderProps): UseTestDataLoaderResult => {
-
-
-
+    const isGuestMode = !profileId;
 
 
     // Sequential test questions
@@ -168,7 +166,8 @@ export const useTestDataLoader = ({
     // Random questions — практика, блиц, экзамен, мастерство, МАРАФОН (раунды из случайных)
     const isRandomRequired = !isSequentialRequired && (
         mode === 'practice' || mode === 'blitz' || mode === 'exam' ||
-        mode === 'mastery' || (mode as string) === 'hardest' || mode === 'marathon'
+        mode === 'mastery' || (mode as string) === 'hardest' || mode === 'marathon' ||
+        (isGuestMode && (mode === 'challenge-bank' || mode === 'favorites'))
     );
     const pddRandomQuestions = usePDDRandomQuestions(
         pddCountry || 'russia',
@@ -273,6 +272,14 @@ export const useTestDataLoader = ({
                 };
 
             case 'challenge-bank':
+                if (isGuestMode && (pddCountry === 'russia' || pddCountry === 'spain')) {
+                    return {
+                        questions: pddRandomQuestions.data || [],
+                        isLoading: pddRandomQuestions.isLoading,
+                        error: pddRandomQuestions.error as Error | null,
+                        testInfo: { id: 'challenge-bank-demo', title: '🏆 Demo banco de errores' },
+                    };
+                }
                 return {
                     questions: challengeBankQuestions.data || [],
                     isLoading: challengeBankQuestions.isLoading,
@@ -281,6 +288,14 @@ export const useTestDataLoader = ({
                 };
 
             case 'favorites':
+                if (isGuestMode && (pddCountry === 'russia' || pddCountry === 'spain')) {
+                    return {
+                        questions: pddRandomQuestions.data || [],
+                        isLoading: pddRandomQuestions.isLoading,
+                        error: pddRandomQuestions.error as Error | null,
+                        testInfo: { id: 'favorites-demo', title: '⭐ Demo favoritos' },
+                    };
+                }
                 return {
                     questions: favoritesQuestions.data || [],
                     isLoading: favoritesQuestions.isLoading,
