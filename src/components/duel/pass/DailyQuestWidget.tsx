@@ -160,29 +160,20 @@ export function DailyQuestWidget() {
           q.id === quest.id ? { ...q, is_claimed: true } : q
         ));
 
-        // Award season points to user_season_progress (with premium multiplier)
-        supabase.functions.invoke('season-sp', {
-          body: { user_id: profileId, source_type: 'challenge_reward', metadata: { sp_earned: quest.reward_sp } }
-        }).catch(err => console.warn('[DailyQuestWidget] season-sp error', err));
-
-        // ── Level-up celebration popup ─────────────────────────────────
+        // Award season points to user_season_progress (with premium multiplier), then check level-up
         try {
-          const { data: progressAfter } = await (supabase as any)
-            .from('user_season_progress')
-            .select('level')
-            .eq('user_id', profileId)
-            .order('season_id', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          const levelAfter = progressAfter?.level ?? levelBefore;
-          if (levelAfter > levelBefore) {
+          const spResult = await supabase.functions.invoke('season-sp', {
+            body: { user_id: profileId, source_type: 'challenge_reward', metadata: { sp_earned: quest.reward_sp } }
+          });
+          const newLevel = spResult.data?.level;
+          if (newLevel && newLevel > levelBefore) {
             const { maybeTriggerLevelUp } = await import('@/store/levelUpStore');
             setTimeout(() => {
-              maybeTriggerLevelUp({ level_up: true, new_level: levelAfter }, 'quest', false);
+              maybeTriggerLevelUp({ level_up: true, new_level: newLevel }, 'quest', false);
             }, 800);
           }
         } catch (lvlErr) {
-          console.warn('[DailyQuestWidget] level-up check failed', lvlErr);
+          console.warn('[DailyQuestWidget] season-sp/level-up error', lvlErr);
         }
       } else {
         toast.error(data?.error || (language === 'es' ? "Error al obtener recompensa" : language === 'en' ? "Failed to claim reward" : "Ошибка получения награды"));
