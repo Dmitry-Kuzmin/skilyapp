@@ -174,23 +174,32 @@ serve(async (req) => {
       sp_earned: spAwarded,
     };
 
-    // Применяем SP в БД (фоном — клиент уже получит число для UI)
-    supabase.functions.invoke('season-sp', {
-      body: { user_id, source_type: sourceType, metadata: spMetadata },
-    }).catch((err: unknown) => {
+    // ── СИНХРОННО ждём season-sp чтобы получить level_up для celebration popup
+    let levelUp = false;
+    let newLevel = 0;
+    let totalSp = 0;
+    try {
+      const { data: spResult } = await supabase.functions.invoke('season-sp', {
+        body: { user_id, source_type: sourceType, metadata: spMetadata },
+      });
+      if (spResult) {
+        levelUp = spResult.level_up === true;
+        newLevel = spResult.level ?? 0;
+        totalSp = spResult.total_sp ?? 0;
+      }
+    } catch (err) {
       console.error('[complete-test-and-award] ⚠️ season-sp error:', err);
-    });
+    }
 
-    // Трекинг season_challenges прогресса
+    // Трекинг season_challenges (фоном — не блокирует ответ)
     supabase.functions.invoke('season-challenges-track', {
       body: { user_id, source_type: sourceType, metadata: spMetadata },
     }).catch((err: unknown) => {
       console.error('[complete-test-and-award] ⚠️ challenges-track error:', err);
     });
 
-    console.log(`[complete-test-and-award] ✅ SP: ${spAwarded} (base ${baseSp} + bonus ${bonusSp})`);
+    console.log(`[complete-test-and-award] ✅ SP: ${spAwarded} (base ${baseSp} + bonus ${bonusSp}), level_up=${levelUp}, newLevel=${newLevel}`);
 
-    // Возвращаем sp_awarded клиенту (перетираем 0 из RPC)
     return new Response(
       JSON.stringify({
         success: true,
@@ -198,7 +207,10 @@ serve(async (req) => {
         sp_awarded: spAwarded,
         sp_base: baseSp,
         sp_bonus: bonusSp,
-        coins_awarded: 0,  // явно: монеты больше не даются за тесты
+        coins_awarded: 0,
+        level_up: levelUp,
+        new_level: newLevel,
+        total_sp: totalSp,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
