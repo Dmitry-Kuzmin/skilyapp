@@ -167,7 +167,7 @@ export const DuelScoreBoard = memo(({
               </>
             )}
             <Avatar className="h-12 w-12 md:h-14 md:w-14 rounded-xl border border-white/10 shadow-sm relative z-10 bg-background">
-              <AvatarImage src={(myPhotoUrl && !myImgError) ? myPhotoUrl : getFallbackAvatar(myName)} alt={myName || ''} onError={() => setMyImgError(true)} />
+              <AvatarImage src={(myPhotoUrl && !myImgError) ? myPhotoUrl : undefined} alt={myName || ''} onError={() => setMyImgError(true)} />
               <AvatarFallback className="bg-slate-800 text-slate-400 font-bold uppercase">
                 {getInitials(myName)}
               </AvatarFallback>
