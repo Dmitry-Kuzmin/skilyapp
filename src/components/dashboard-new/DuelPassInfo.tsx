@@ -73,6 +73,50 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
 
   const progressPercent = Math.min(100, ((100 - duelPassData.nextLevelSP) / 100) * 100);
 
+  // ── Анимация роста SP при изменении ─────────────────────────────────────
+  const prevSpRef = useRef<number | null>(null);
+  const [animatedSp, setAnimatedSp] = useState(duelPassData.seasonPoints);
+  const [spDelta, setSpDelta] = useState<number | null>(null);
+  const [highlightProgress, setHighlightProgress] = useState(false);
+
+  useEffect(() => {
+    const prev = prevSpRef.current;
+    const curr = duelPassData.seasonPoints;
+
+    if (prev !== null && curr > prev) {
+      // SP вырос! Анимируем
+      const delta = curr - prev;
+      setSpDelta(delta);
+      setHighlightProgress(true);
+
+      // Плавный count-up за 1.2с
+      const start = performance.now();
+      const duration = 1200;
+      let raf = 0;
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+        setAnimatedSp(Math.round(prev + (curr - prev) * eased));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+
+      // Скрываем дельту через 2.5с
+      const timer = setTimeout(() => {
+        setSpDelta(null);
+        setHighlightProgress(false);
+      }, 2500);
+
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
+    } else {
+      setAnimatedSp(curr);
+    }
+    prevSpRef.current = curr;
+  }, [duelPassData.seasonPoints]);
+
   return (
     <div
       onClick={handleClick}
