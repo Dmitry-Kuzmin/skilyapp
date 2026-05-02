@@ -93,7 +93,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useModalStore } from "@/store/modalStore";
 import { UnifiedPricingCard } from "./UnifiedPricingCard";
 import { PaymentSelectorModal } from "./PaymentSelectorModal";
-import { useTonStreaming } from "@/hooks/useTonStreaming";
+// TON_DISABLED: import { useTonStreaming } from "@/hooks/useTonStreaming";
 
 
 const supabaseClient = supabase as any;
