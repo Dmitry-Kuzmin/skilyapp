@@ -533,28 +533,17 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                         <div className="mt-auto">
                           {isTelegramMiniApp() ? (
                             <div className="space-y-2">
-                              {paymentMethod === 'ton' ? (
-                                <TonPaymentWidget
-                                  mode="compact"
-                                  defaultAmount={
-                                    plan.id === 'yearly' ? '9.9' :
-                                      plan.id === 'quarterly' ? '3.9' :
-                                        plan.id === 'lifetime' ? '25' : '1.5'
-                                  }
-                                  defaultComment={`${plan.title} Subscription`}
-                                />
-                              ) : (
-                                <StarsPaymentButton
-                                  packageKey={PLAN_TO_CATALOG[plan.id]}
-                                  priceCoins={0}
-                                  className={cn(
-                                    "w-full font-bold h-12 rounded-xl transition-all duration-300 shadow-lg",
-                                    isPopular
-                                      ? "bg-white text-slate-900 hover:bg-slate-100 shadow-black/20"
-                                      : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white"
-                                  )}
-                                />
-                              )}
+                              {/* TON_DISABLED: TonPaymentWidget removed */}
+                              <StarsPaymentButton
+                                packageKey={PLAN_TO_CATALOG[plan.id]}
+                                priceCoins={0}
+                                className={cn(
+                                  "w-full font-bold h-12 rounded-xl transition-all duration-300 shadow-lg",
+                                  isPopular
+                                    ? "bg-white text-slate-900 hover:bg-slate-100 shadow-black/20"
+                                    : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white"
+                                )}
+                              />
                               <button
                                 onClick={(e) => { e.stopPropagation(); handlePurchase(plan.id); }}
                                 className="w-full text-[10px] text-muted-foreground hover:text-violet-500 transition-colors uppercase tracking-widest font-bold text-center"
@@ -562,16 +551,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                                 Оплатить картой / Криптой
                               </button>
                             </div>
-                          ) : paymentMethod === 'ton' ? (
-                            <TonPaymentWidget
-                              mode="compact"
-                              defaultAmount={
-                                plan.id === 'yearly' ? '9.9' :
-                                  plan.id === 'quarterly' ? '3.9' :
-                                    plan.id === 'lifetime' ? '25' : '1.5'
-                              }
-                              defaultComment={`${plan.title} Subscription`}
-                            />
                           ) : (
                             <Button
                               variant="ghost"
