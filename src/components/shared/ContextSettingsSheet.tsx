@@ -125,31 +125,45 @@ export function ContextSettingsSheet({
     return t('contextSettings.title');
   };
 
+  const titleWithIcon = (
+    <span className="flex items-center gap-2">
+      <SlidersHorizontal className="w-5 h-5 shrink-0" />
+      {getTitle()}
+    </span>
+  );
+
   return (
     <UnifiedModal
       open={open}
       onOpenChange={onOpenChange}
       title={getTitle()}
-      mobileFullscreen
       className={cn(
-        'max-w-2xl',
+        'w-full max-w-lg',
         isDarkTheme ? 'bg-zinc-950' : 'bg-white'
       )}
     >
       <div className={cn(
-        'space-y-6 px-6 pb-2',
+        'flex flex-col gap-6 px-6 pb-6',
         isDarkTheme ? 'text-zinc-100' : 'text-zinc-900'
       )}>
+        {/* Иконка + заголовок (внутри контента для мобильного) */}
+        <div className="flex items-center gap-2 -mb-2 sm:hidden">
+          <SlidersHorizontal className={cn('w-5 h-5', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')} />
+          <span className={cn('text-sm font-semibold uppercase tracking-wider', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')}>
+            {getTitle()}
+          </span>
+        </div>
+
         {/* Секция 1: Выбор страны */}
         <div>
           <h3 className={cn(
-            'text-xs font-semibold uppercase tracking-wider mb-4',
+            'text-xs font-semibold uppercase tracking-wider mb-3',
             isDarkTheme ? 'text-zinc-400' : 'text-zinc-500'
           )}>
             {t('contextSettings.countrySection')}
           </h3>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             {availableCountries.map((country) => {
               const isSelected = country.code === selectedCountry;
               const flagUrl = getCountryFlagUrl(country.code);
@@ -159,31 +173,30 @@ export function ContextSettingsSheet({
                   key={country.code}
                   onClick={() => setSelectedCountry(country.code)}
                   className={cn(
-                    'relative rounded-lg border-2 p-3 transition-all duration-200',
+                    'relative rounded-xl border-2 p-3 transition-all duration-200',
                     'flex flex-col items-center justify-center gap-2',
-                    'hover:scale-[1.02] active:scale-[0.98]',
+                    'active:scale-[0.98]',
                     isSelected
                       ? isDarkTheme
-                        ? 'border-indigo-500 bg-indigo-500/20 shadow-lg shadow-indigo-500/30'
-                        : 'border-indigo-500 bg-indigo-50 shadow-lg shadow-indigo-500/20'
+                        ? 'border-white bg-white/10 shadow-lg shadow-black/40'
+                        : 'border-zinc-900 bg-zinc-900/5 shadow-lg shadow-zinc-900/10'
                       : isDarkTheme
-                        ? 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
-                        : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'
+                        ? 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-600'
+                        : 'border-zinc-200 bg-zinc-50 hover:border-zinc-400'
                   )}
-                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   {isSelected && (
                     <motion.div
                       className={cn(
                         'absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center',
-                        isDarkTheme ? 'bg-indigo-500' : 'bg-indigo-600'
+                        isDarkTheme ? 'bg-white text-black' : 'bg-zinc-900 text-white'
                       )}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     >
-                      <Check className="w-3 h-3 text-white" />
+                      <Check className="w-3 h-3" />
                     </motion.div>
                   )}
 
@@ -191,7 +204,7 @@ export function ContextSettingsSheet({
                     <img
                       src={flagUrl}
                       alt=""
-                      className="h-8 w-8 rounded-full object-cover ring-1 ring-white/10"
+                      className="h-8 w-8 rounded-full object-cover"
                       aria-hidden="true"
                     />
                   ) : (
@@ -207,17 +220,13 @@ export function ContextSettingsSheet({
                   <div className="text-center">
                     <div className={cn(
                       'text-sm font-semibold',
-                      isSelected
-                        ? isDarkTheme ? 'text-indigo-300' : 'text-indigo-700'
-                        : isDarkTheme ? 'text-zinc-300' : 'text-zinc-700'
+                      isDarkTheme ? 'text-zinc-100' : 'text-zinc-900'
                     )}>
                       {country.data.name}
                     </div>
                     <div className={cn(
                       'text-xs mt-0.5',
-                      isSelected
-                        ? isDarkTheme ? 'text-indigo-400/80' : 'text-indigo-600/80'
-                        : isDarkTheme ? 'text-zinc-500' : 'text-zinc-500'
+                      isDarkTheme ? 'text-zinc-500' : 'text-zinc-500'
                     )}>
                       {getCountryCode(country.code)}
                     </div>
@@ -231,13 +240,13 @@ export function ContextSettingsSheet({
         {/* Секция 2: Выбор категории */}
         <div>
           <h3 className={cn(
-            'text-xs font-semibold uppercase tracking-wider mb-4',
+            'text-xs font-semibold uppercase tracking-wider mb-3',
             isDarkTheme ? 'text-zinc-400' : 'text-zinc-500'
           )}>
             {t('contextSettings.categorySection')}
           </h3>
 
-          <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {availableCategories.map((category, index) => {
               const isSelected = category.code === selectedCategory;
               const CategoryIcon = getCategoryIcon(category.code);
@@ -250,55 +259,50 @@ export function ContextSettingsSheet({
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.03, duration: 0.2 }}
                   className={cn(
-                    'relative h-[5.5rem] rounded-lg border-2 transition-all duration-200',
+                    'relative h-[5.5rem] rounded-xl border-2 transition-all duration-200',
                     'flex flex-col items-center justify-center p-2 gap-1',
-                    'hover:scale-[1.02] active:scale-[0.98]',
+                    'active:scale-[0.98]',
                     isSelected
                       ? isDarkTheme
-                        ? 'border-indigo-500 bg-indigo-500/20 shadow-lg shadow-indigo-500/30'
-                        : 'border-indigo-500 bg-indigo-50 shadow-lg shadow-indigo-500/20'
+                        ? 'border-white bg-white/10 shadow-md shadow-black/40'
+                        : 'border-zinc-900 bg-zinc-900/5 shadow-md shadow-zinc-900/10'
                       : isDarkTheme
-                        ? 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'
-                        : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'
+                        ? 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-600'
+                        : 'border-zinc-200 bg-zinc-50 hover:border-zinc-400'
                   )}
-                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   {isSelected && (
                     <motion.div
                       className={cn(
                         'absolute top-1 right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center',
-                        isDarkTheme ? 'bg-indigo-500' : 'bg-indigo-600'
+                        isDarkTheme ? 'bg-white text-black' : 'bg-zinc-900 text-white'
                       )}
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     >
-                      <Check className="w-2 h-2 text-white" />
+                      <Check className="w-2 h-2" />
                     </motion.div>
                   )}
 
                   <CategoryIcon className={cn(
                     'w-4 h-4',
                     isSelected
-                      ? isDarkTheme ? 'text-indigo-400' : 'text-indigo-600'
+                      ? isDarkTheme ? 'text-white' : 'text-zinc-900'
                       : isDarkTheme ? 'text-zinc-500' : 'text-zinc-400'
                   )} />
 
                   <div className={cn(
                     'text-base font-bold',
-                    isSelected
-                      ? isDarkTheme ? 'text-indigo-300' : 'text-indigo-700'
-                      : isDarkTheme ? 'text-zinc-300' : 'text-zinc-700'
+                    isDarkTheme ? 'text-zinc-100' : 'text-zinc-900'
                   )}>
                     {category.code}
                   </div>
 
                   <div className={cn(
                     'text-[9px] text-center leading-tight line-clamp-1 px-1',
-                    isSelected
-                      ? isDarkTheme ? 'text-indigo-400/80' : 'text-indigo-600/80'
-                      : isDarkTheme ? 'text-zinc-500' : 'text-zinc-500'
+                    isDarkTheme ? 'text-zinc-500' : 'text-zinc-500'
                   )}>
                     {category.nameFull}
                   </div>
@@ -309,15 +313,15 @@ export function ContextSettingsSheet({
         </div>
 
         {/* Кнопка применения */}
-        <div className="pt-4 border-t border-zinc-800">
+        <div className={cn('pt-2 border-t', isDarkTheme ? 'border-zinc-800' : 'border-zinc-200')}>
           <motion.button
             onClick={handleApply}
             className={cn(
-              'w-full h-12 rounded-lg font-semibold transition-all duration-200',
+              'w-full h-12 rounded-xl font-semibold transition-all duration-200',
               'flex items-center justify-center gap-2',
               isDarkTheme
-                ? 'bg-white text-black hover:bg-zinc-100 shadow-lg shadow-white/20'
-                : 'bg-black text-white hover:bg-zinc-900 shadow-lg shadow-black/20'
+                ? 'bg-white text-black hover:bg-zinc-100 shadow-lg shadow-white/10'
+                : 'bg-zinc-900 text-white hover:bg-black shadow-lg shadow-zinc-900/20'
             )}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
