@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { StartupCurtain } from "@/components/StartupCurtain";
 import { SeoHead } from "@/components/seo/SeoHead";
