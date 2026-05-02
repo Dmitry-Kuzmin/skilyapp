@@ -20,6 +20,7 @@ import { useQuestProgress } from "@/hooks/useQuestProgress";
 import type { QuestUpdateParams } from "@/hooks/useQuestProgress";
 import { QuestCompletionOverlay } from "@/components/quests/QuestCompletionOverlay";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { maybeTriggerLevelUp } from "@/store/levelUpStore";
 
 type TestRewardPayload = {
   coins_awarded?: number;

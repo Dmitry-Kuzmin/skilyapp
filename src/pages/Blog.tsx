@@ -21,7 +21,9 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LandingLogo } from "@/components/landing/LandingLogo";
 import { SeoHead } from "@/components/seo/SeoHead";
-
+import { useLanguage, type Language } from "@/contexts/LanguageContext";
+import { articles as articleRegistry, getLocalizedArticle, ARTICLE_LANGUAGE_MAP } from "./Article";
+import { BLOG_ARTICLE_TRANSLATIONS } from "@/content/blogArticleTranslations";
 
 interface Article {
   slug: string;
@@ -34,146 +36,13 @@ interface Article {
   categorySlug: string;
 }
 
-const categories = [
-  { id: "all", name: "Все статьи", icon: Newspaper },
-  { id: "dgt-2026", name: "DGT 2026", icon: Zap },
-  { id: "news", name: "Актуально", icon: BookOpen },
-  { id: "preparation", name: "Подготовка", icon: GraduationCap },
-  { id: "tips", name: "Советы", icon: Lightbulb },
-];
-
-const articles: Article[] = [
-  {
-    slug: "ekzamen-dgt-2026",
-    title: "Новый теоретический экзамен на права в Испании: изменения 2026",
-    description: "DGT запустила крупнейшую реформу за 10 лет. Видео-вопросы с февраля 2026, новые знаки уже сейчас — разбираем всё, что изменилось и как готовиться.",
-    excerpt: "Видео-вопросы, новые знаки ZBE и VMP, интервью с директором автошколы и 7 советов по подготовке — полный разбор реформы DGT 2026.",
-    publishedAt: "2026-05-01",
-    readTime: 18,
-    category: "DGT 2026",
-    categorySlug: "dgt-2026",
-  },
-  {
-    slug: "novye-voprosy-dgt-2025",
-    title: "Новые типы вопросов DGT в 2025: к чему готовиться",
-    description: "Что меняется в теоретическом экзамене: сценарии восприятия риска, мультимедийные вопросы и как готовиться к ним по-новому.",
-    excerpt: "Разбираем обновлённый формат вопросов DGT 2025 и показываем, как тренироваться на примерах Skilyapp.",
-    publishedAt: "2025-03-02",
-    readTime: 11,
-    category: "Актуально",
-    categorySlug: "tips",
-  },
-  {
-    slug: "analitika-dgt-progress",
-    title: "Как читать аналитику прогресса и закрывать слабые темы",
-    description: "Методика работы с отчётами Skilyapp: что значат графики, как определить приоритетные темы и не тратить часы на то, что уже выучено.",
-    excerpt: "Если вы теряетесь в цифрах статистики, эта статья покажет, как превратить аналитику в конкретные шаги.",
-    publishedAt: "2025-03-04",
-    readTime: 9,
-    category: "Подготовка",
-    categorySlug: "preparation",
-  },
-  {
-    slug: "ispanskie-znaki-kotorye-pytayut",
-    title: "5 испанских дорожных знаков, которые путают русскоязычных",
-    description: "Быстрый гид по символам, которые выглядят знакомо, но означают совсем другое. С примерами из игр Skilyapp.",
-    excerpt: "Собрали пять знаков, на которых чаще всего ошибаются наши пользователи, и подсказали, как их запомнить за вечер.",
-    publishedAt: "2025-03-06",
-    readTime: 8,
-    category: "Советы",
-    categorySlug: "tips",
-  },
-  {
-    slug: "podgotovka-na-russkom-i-ispanskom",
-    title: "Как готовиться к DGT, если думаете на русском, а сдаёте на испанском",
-    description: "Переходим от родного языка к испанскому: словарь Skilyapp, двуязычные пояснения и упражнения на перевод формулировок.",
-    excerpt: "Стратегия для тех, кто читает вопросы на испанском, но объяснять себе правила хочет на русском.",
-    publishedAt: "2025-03-08",
-    readTime: 10,
-    category: "Подготовка",
-    categorySlug: "preparation",
-  },
-  {
-    slug: "motivaciya-dgt-gamifikaciya",
-    title: "Геймификация подготовки: как держать темп 60 дней подряд",
-    description: "Используем streak, дуэли и сезонные челленджи, чтобы не бросить подготовку на середине пути.",
-    excerpt: "Показываем, как превращать подготовку в игру: рейтинги, награды и напоминания Skilyapp.",
-    publishedAt: "2025-03-10",
-    readTime: 9,
-    category: "Советы",
-    categorySlug: "tips",
-  },
-  {
-    slug: "tehnologii-skilyapp",
-    title: "Как Skilyapp сочетает тесты, игры, сезоны и ИИ",
-    description: "Большая 20-минутная статья о том, как карта обучения, Skily, дуэли, игры и микротренировки работают вместе ради вашего результата.",
-    excerpt: "Погружаемся в экосистему Skilyapp: карта обучения, микротренировки, игры, сезоны, Telegram-бот и AI-компаньон Skily — всё в одной заботливой связке.",
-    publishedAt: "2025-03-08",
-    readTime: 20,
-    category: "Актуально",
-    categorySlug: "news",
-  },
-  {
-    slug: "kak-gotovitsya-dgt-pri-plotnom-grafike",
-    title: "Как эффективно изучать ПДД DGT при плотном графике",
-    description: "Пошаговая стратегия для тех, у кого обучение совмещается с работой и семьёй. Микросессии, умные напоминания и фокус только на том, что приносит результат.",
-    excerpt: "Узнайте, как вписать изучение теории DGT в плотный график: короткие тренировки, адаптивные тесты и использование Skilyapp с ИИ-подсказками.",
-    publishedAt: "2025-02-15",
-    readTime: 10,
-    category: "Подготовка",
-    categorySlug: "preparation",
-  },
-  {
-    slug: "kak-trenirovat-vospriyatie-riska-dgt",
-    title: "Как тренировать восприятие риска перед экзаменом DGT",
-    description: "Практические приёмы, чтобы замечать опасные ситуации ещё до того, как об этом спросит экзаменатор. Ментальные карты, игровые сценарии и статистика ошибок.",
-    excerpt: "Разбираем, почему восприятие риска стало ключевой частью экзамена DGT и как Skilyapp помогает натренировать реакцию через сценарии и дуэли.",
-    publishedAt: "2025-02-18",
-    readTime: 9,
-    category: "Советы",
-    categorySlug: "tips",
-  },
-  {
-    slug: "mikrotreningi-dgt-na-telefone",
-    title: "Микротренировки на телефоне: путь к стабильному результату DGT",
-    description: "Как превратить свободные 5 минут в полноценную подготовку: офлайн-вопросы, streak-система и push-напоминания Skilyapp.",
-    excerpt: "Рассказываем, как строить микротренировки на телефоне, чтобы прогресс не зависел от расписания автошколы. Везде с вами — Skilyapp.",
-    publishedAt: "2025-02-20",
-    readTime: 8,
-    category: "Подготовка",
-    categorySlug: "preparation",
-  },
-  {
-    slug: "kak-sdat-ekzamen-dgt-s-pervogo-raza",
-    title: "Как эффективно освоить теорию DGT",
-    description: "Полное руководство по изучению теории DGT в Испании. Практические советы, типичные ошибки и секреты эффективного обучения.",
-    excerpt: "Теория DGT может показаться сложной, но с правильным подходом вы можете освоить её быстро. Узнайте, как эффективно учиться и избежать распространенных ошибок.",
-    publishedAt: "2024-12-19",
-    readTime: 12,
-    category: "Подготовка",
-    categorySlug: "preparation",
-  },
-  {
-    slug: "ai-repetitor-dgt-kak-iskusstvennyj-intellekt-pomogaet-sdat-ekzamen",
-    title: "AI-репетитор DGT: как искусственный интеллект помогает сдать экзамен с первого раза",
-    description: "Как AI-технологии в Skilyapp анализируют ваши ошибки, адаптируют обучение и помогают подготовиться к теории DGT быстрее и эффективнее.",
-    excerpt: "Искусственный интеллект в Skilyapp — это не просто чат-бот. Он анализирует ваши слабые места, объясняет сложные вопросы на русском и создаёт персональный план подготовки к экзамену DGT.",
-    publishedAt: "2026-03-28",
-    readTime: 10,
-    category: "Актуально",
-    categorySlug: "news",
-  },
-  {
-    slug: "top-10-oshibok-na-ekzamene-dgt",
-    title: "Топ-10 ошибок при изучении теории DGT",
-    description: "Самые распространенные ошибки при изучении правил дорожного движения DGT. Узнайте, как их избежать и эффективнее освоить материал.",
-    excerpt: "Многие кандидаты повторяют одни и те же ошибки. Мы собрали топ-10 самых частых промахов и рассказали, как их избежать.",
-    publishedAt: "2024-12-19",
-    readTime: 8,
-    category: "Советы",
-    categorySlug: "tips",
-  },
-];
+const categoryDefinitions = [
+  { id: "all", icon: Newspaper },
+  { id: "dgt-2026", icon: Zap },
+  { id: "news", icon: BookOpen },
+  { id: "preparation", icon: GraduationCap },
+  { id: "tips", icon: Lightbulb },
+] as const;
 
 const Blog = () => {
   const navigate = useNavigate();
