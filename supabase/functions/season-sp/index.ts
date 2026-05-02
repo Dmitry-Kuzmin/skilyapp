@@ -135,8 +135,25 @@ serve(async (req) => {
       spGain = metadata.sp_earned;
     }
 
+    // ── Динамический расчёт SP за тесты/экзамены ───────────────────────────
+    // SP теперь начисляются ТОЛЬКО за качественные результаты, а не за факт прохождения
+    if (source_type === 'test_completed' || source_type === 'test_perfect' || source_type === 'exam_completed') {
+      const score = typeof metadata?.score === 'number' ? metadata.score : 0;
+      const qc    = typeof metadata?.questions_count === 'number' ? metadata.questions_count : 0;
+      const cc    = typeof metadata?.correct_count === 'number'
+        ? metadata.correct_count
+        : Math.round((score / 100) * qc);
+      spGain = computeTestSP(source_type, score, qc, cc);
+      console.log(`[season-sp] test SP calculated: source=${source_type} score=${score} correct=${cc}/${qc} → ${spGain} SP`);
+    }
+
     if (spGain === undefined || spGain < 0) {
       return new Response(JSON.stringify({ error: "Unsupported source_type" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Если SP=0 — нет смысла дальше вызывать БД, просто возвращаем
+    if (spGain === 0) {
+      return new Response(JSON.stringify({ success: true, sp_added: 0, total_sp: 0, level: 0, level_up: false, reason: 'no_sp_earned' }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Soft-cap
