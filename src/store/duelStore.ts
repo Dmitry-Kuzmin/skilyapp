@@ -149,6 +149,7 @@ interface DuelState {
 
     setExploitPassed: (type: string) => void;
 
+    addAnswerToHistory: (isCorrect: boolean) => void;
 
     // Reset logic
     resetGame: () => void;
