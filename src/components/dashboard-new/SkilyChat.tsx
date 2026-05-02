@@ -138,7 +138,11 @@ export const SkilyChat = React.memo(() => {
 
   const handleExpand = () => {
     playClickSound();
-    setIsExpanded(true);
+    if (isMobile) {
+      navigate('/chat');
+    } else {
+      setIsExpanded(true);
+    }
   };
 
   const handleCollapse = () => {
