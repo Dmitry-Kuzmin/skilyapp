@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { SignWidget } from '@/components/chat/SignWidget';
+import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 // TON_DISABLED: import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
 
 // Типизация для markdown рендеринга
