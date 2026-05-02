@@ -449,27 +449,19 @@ const TestResults = () => {
   // 🧠 AI Memory: Загружаем контекст студента ПОСЛЕ объявления weakTopic
   useEffect(() => {
     const loadStudentContext = async () => {
+      if (!contextProfileId) return;
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user?.id) return;
-
         // Получаем профиль пользователя
         const { data: profile } = await supabase
           .from('profiles')
           .select('first_name, username, xp, streak_days')
-          .eq('id', user.id)
+          .eq('id', contextProfileId)
           .single();
 
         if (profile) {
           const p = profile as any;
-          console.log('[TestResults] 🔍 Profile data from DB:', {
-            first_name: p.first_name,
-            username: p.username,
-            user_metadata_first_name: user.user_metadata?.first_name
-          });
-
           setStudentStats({
-            name: p.first_name || p.username || user.user_metadata?.first_name || 'Студент',
+            name: p.first_name || p.username || 'Студент',
             xp: p.xp || 0,
             streak: p.streak_days || 1,
             prevWeakness: weakTopic || null,
@@ -477,7 +469,7 @@ const TestResults = () => {
           });
         } else {
           setStudentStats({
-            name: user.user_metadata?.first_name || user.email?.split('@')[0] || 'Driver',
+            name: 'Driver',
             xp: 0,
             streak: 1,
             prevWeakness: null,
