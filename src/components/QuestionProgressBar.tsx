@@ -171,34 +171,52 @@ export function QuestionProgressBar({
             <QuestionCountBlock />
           </div>
 
-          {/* Horizontal Progress Bar */}
-          <div className={cn(
-            "flex-1 rounded-full shadow-inner border min-w-[30px] relative overflow-hidden transition-all duration-300 h-2 sm:h-3",
-            layout === 'focus'
-              ? "bg-muted/20 border-border/10"
-              : (isRussia ? "bg-slate-200/50 dark:bg-slate-800/50 border-slate-300/50 dark:border-slate-700/50" : "bg-muted/20 border-border/10")
-          )}>
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className={cn(
-                "h-full rounded-full relative",
-                isRussia
-                  ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.4)]"
-                  : "bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500"
-              )}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-            </motion.div>
+          {/* ── Capsule / Line Progress ───────────────────────────────── */}
+          <div className="flex-1 flex items-center gap-[2px] sm:gap-[3px] min-w-0">
+            {Array.from({ length: totalQuestions }, (_, i) => {
+              const answered = i < answers.length;
+              const isCurrent = i === currentIndex;
+              const isCorrect = answered && answers[i].isCorrect;
+              const isWrong   = answered && !answers[i].isCorrect;
+
+              // На мобилке при >20 вопросов — тонкие линии, иначе — капсулы
+              const isMobileLines = totalQuestions > 20;
+
+              return (
+                <motion.div
+                  key={i}
+                  initial={answered ? { scaleY: 0.5, opacity: 0 } : false}
+                  animate={{ scaleY: 1, opacity: 1 }}
+                  transition={{ duration: 0.25, ease: 'backOut' }}
+                  className={cn(
+                    "flex-1 min-w-0 rounded-full transition-colors duration-300 origin-center",
+                    // Высота: тонкие линии на мобилке если вопросов много
+                    isMobileLines
+                      ? "h-[3px] sm:h-[7px]"
+                      : "h-[6px] sm:h-[8px]",
+                    // Цвет по состоянию
+                    isCorrect  && "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]",
+                    isWrong    && "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]",
+                    isCurrent  && !answered && "bg-blue-400/70",
+                    !answered  && !isCurrent && "bg-white/10 dark:bg-white/8",
+                  )}
+                  style={
+                    // Пульсация на текущем
+                    isCurrent && !answered
+                      ? { animation: 'pulse 1.4s ease-in-out infinite' }
+                      : undefined
+                  }
+                />
+              );
+            })}
           </div>
 
-          {/* 💰 Bank / Pot - NOW AFTER THE LINE */}
+          {/* 💰 Bank / Pot */}
           <BankBlock />
 
-          {/* Score indicators */}
+          {/* Score indicators — только на десктопе, только если hideScoreIndicators=false */}
           {answers.length > 0 && !hideScoreIndicators && (
-            <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+            <div className="hidden md:flex items-center gap-1.5 shrink-0">
               <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20">
                 <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                 <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">{correctCount}</span>
