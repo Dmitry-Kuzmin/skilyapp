@@ -25,26 +25,39 @@ export function useExamReadiness(profileId: string | null): UseExamReadinessResu
   // Получаем данные из dashboard (уже закэшированные)
   const { data: dashboardData, loading: dashboardLoading } = useDashboardData();
 
+  const country = (dashboardData?.readiness?.country ?? 'spain') as 'spain' | 'russia';
+
   // Дополнительно запрашиваем только данные для активности (легкий запрос)
   const { data: activityData, isLoading: activityLoading } = useQuery<Array<{ last_attempt_at: string | null }> | null>({
-    queryKey: ['exam-readiness-activity', profileId],
+    queryKey: ['exam-readiness-activity', profileId, country],
     queryFn: async () => {
       if (!profileId) return null;
 
-      // Легкий запрос: только даты последних попыток
+      if (country === 'russia') {
+        const { data, error } = await supabase
+          .from('user_pdd_ticket_progress')
+          .select('updated_at')
+          .eq('user_id', profileId)
+          .eq('country', 'ru')
+          .order('updated_at', { ascending: false })
+          .limit(20);
+        if (error) throw error;
+        return (data ?? []).map(r => ({ last_attempt_at: r.updated_at }));
+      }
+
       const { data, error } = await supabase
         .from('user_progress')
         .select('last_attempt_at')
         .eq('user_id', profileId)
         .eq('is_answered', true)
         .order('last_attempt_at', { ascending: false })
-        .limit(50); // Ограничиваем для производительности
+        .limit(50);
 
       if (error) throw error;
       return data;
     },
-    enabled: !!profileId,
-    staleTime: 5 * 60 * 1000, // 5 минут
+    enabled: !!profileId && !!dashboardData,
+    staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
