@@ -4,19 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50:  '#fff7ed',
-          100: '#ffedd5',
-          400: '#fb923c',
-          500: '#f97316',
-          600: '#ea580c',
-          700: '#c2410c',
-        },
         surface: {
-          DEFAULT: '#09090b',
-          card:    '#111115',
-          muted:   '#18181b',
-          border:  '#27272a',
+          DEFAULT: '#0f172a',
+          card:    '#1e293b',
+          muted:   '#0f172a',
+          border:  '#1e293b',
         },
       },
       fontFamily: {
