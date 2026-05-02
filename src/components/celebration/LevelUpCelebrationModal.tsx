@@ -75,7 +75,8 @@ function rewardLabel(r: RewardData): string {
 export const LevelUpCelebrationModal: React.FC = () => {
   const pending = useLevelUpStore((s) => s.pending);
   const dismiss = useLevelUpStore((s) => s.dismiss);
-  const { profileId, isPremium } = useUserContext();
+  const { profileId } = useUserContext();
+  const { isPremium } = usePremium();
   const queryClient = useQueryClient();
 
   const [rewards, setRewards] = useState<LevelRewards | null>(null);
