@@ -121,7 +121,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
     const { readiness, loading: readinessLoading } = useExamReadiness(profileId);
     const isMobile = useIsMobile();
     const { selectedCountry } = usePDDContext();
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const score = readiness?.percent ?? (dashData?.stats?.accuracy || 0);
     const overlay = useCallback((path: string, params?: Record<string, string | number>) => t(`dashboard.examReadiness.overlay.${path}`, params), [t]);
@@ -134,7 +134,8 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
         profileId || null,
         score,
         85, // Target level
-        selectedCountry === 'spain' ? 'es' : selectedCountry === 'russia' ? 'ru' : 'sk'
+        selectedCountry === 'spain' ? 'es' : selectedCountry === 'russia' ? 'ru' : 'sk',
+        language
     );
 
     // Duel statistics

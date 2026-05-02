@@ -38,7 +38,8 @@ export function useAnalytics(
   profileId: string | null,
   currentScore: number,
   targetScore: number = 85,
-  country: string = 'ru'
+  country: string = 'ru',
+  language: 'ru' | 'es' | 'en' = 'ru'
 ) {
   // Получаем список тем из кэша (статические данные)
   const { data: topicsList = [] } = useTopicsList();
@@ -137,7 +138,16 @@ export function useAnalytics(
 
     // Создаем карту тем из кэшированного списка
     const topicMap = new Map(
-      countryTopics.map(t => [t.id, { id: t.id, title: t.title_ru || 'Неизвестная тема' }])
+      countryTopics.map(t => {
+        const localizedTitle =
+          language === 'en'
+            ? t.title_en || t.title_es || t.title_ru
+            : language === 'es'
+              ? t.title_es || t.title_ru || t.title_en
+              : t.title_ru || t.title_es || t.title_en;
+
+        return [t.id, { id: t.id, title: localizedTitle || 'Unknown topic' }];
+      })
     );
 
     // Подсчитываем ошибки по темам
@@ -181,7 +191,7 @@ export function useAnalytics(
           const topicInfo = topicMap.get(topicId);
           return {
             topic_id: topicId,
-            topic_title: topicInfo?.title || 'Неизвестная тема',
+            topic_title: topicInfo?.title || 'Unknown topic',
             error_count: stats.errors,
             error_rate: errorRate,
             attempts: stats.attempts,
@@ -213,7 +223,7 @@ export function useAnalytics(
       topicStats: calculatedTopicsWithErrors.map(t => ({ ...t, accuracy: 100 - t.error_rate })),
       averageScore: filteredAverageScore, // Возвращаем отфильтрованный средний балл
     };
-  }, [rawData, countryTopics, currentScore, targetScore, country]);
+  }, [rawData, countryTopics, currentScore, targetScore, country, language]);
 
   return {
     analytics,

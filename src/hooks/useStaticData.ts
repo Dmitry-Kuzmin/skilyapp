@@ -65,6 +65,7 @@ export interface TopicBasic {
   number: number;
   title_ru: string;
   title_es?: string;
+  title_en?: string;
   order_index: number;
 }
 
@@ -91,7 +92,7 @@ export function useTopicsList() {
       console.warn('[useStaticData] ⚠️ Topics not in Super RPC, fetching separately');
       const { data, error } = await supabase
         .from('topics')
-        .select('id, number, title_ru, title_es, order_index')
+        .select('id, number, title_ru, title_es, title_en, order_index')
         .order('order_index', { ascending: true });
 
       if (error) throw error;
@@ -162,4 +163,3 @@ export function useSeasonRewards() {
  * Эти хуки кэшируются глобально для всего приложения
  * Первый вызов загрузит данные, все последующие будут брать из кэша
  */
-

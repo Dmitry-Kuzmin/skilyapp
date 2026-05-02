@@ -172,8 +172,8 @@ export function OverclockingAdButton({ slotNumber, onSlotUnlocked, className }: 
         rewardType="coins"
         rewardAmount={0}
         onRewardClaimed={handleRewardClaimed}
-        title={t('rewardedAds.placements.overclocking.title')}
-        description={t('rewardedAds.placements.overclocking.description')}
+        title={t('dashboard.rewardedAds.placements.overclocking.title')}
+        description={t('dashboard.rewardedAds.placements.overclocking.description')}
       />
     </>
   );

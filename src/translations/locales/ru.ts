@@ -11,6 +11,7 @@ export const ru = {
   common: {
     next: "Далее",
     back: "Назад",
+    month: "месяц",
     loading: "Загрузка...",
     register: "Регистрация",
     login: "Войти",
@@ -388,6 +389,11 @@ export const ru = {
       },
       focusBattery: {
         title: "Запас концентрации",
+        messages: {
+          high: "Отличная концентрация! Продолжай в том же духе.",
+          medium: "Внимание слегка снижено. Сделай короткий перерыв.",
+          low: "Внимание падает. Рекомендуется сделать перерыв и вернуться позже.",
+        },
       },
       activity: {
         title: "НЕЙРОННАЯ АКТИВНОСТЬ",
@@ -880,12 +886,47 @@ export const ru = {
       title: "Premium подписка",
       subtitle: "Получите максимум от обучения",
       pricePerDay: "всего {{price}} в день",
+      pricePerMonth: "{{price}} / {{period}}",
       activeBadge: "Активна",
       benefits: {
         unlimitedTests: "Безлимитный доступ ко всем тестам",
         bonusCoins: "+50% монет за обучение",
         duelPassRewards: "Duel Pass Premium награды",
         instantHints: "Без рекламы и мгновенные подсказки",
+      },
+      plans: {
+        monthly: {
+          title: "1 месяц",
+          features: {
+            unlimited: "Все функции Premium",
+            noAds: "Без рекламы",
+            aiAssistant: "AI-помощник",
+          },
+        },
+        quarterly: {
+          title: "3 месяца",
+          features: {
+            allMonthly: "Всё из тарифа 1 месяц",
+            save: "Экономия 17%",
+            theory: "Хватит на полную подготовку по теории",
+          },
+        },
+        biannual: {
+          title: "6 месяцев",
+          features: {
+            allQuarterly: "Всё из тарифа 3 месяца",
+            save: "Экономия 33%",
+            retakes: "Подстраховка на случай пересдачи",
+          },
+        },
+        yearly: {
+          title: "1 год",
+          features: {
+            fullYear: "Всё включено на 1 год",
+            save: "Максимальная выгода 50%",
+            updates: "Обновления в течение всего года",
+          },
+        },
       },
       monthlyLabel: "Месяц",
       yearlyLabel: "Год",
@@ -977,6 +1018,8 @@ export const ru = {
       premiumPurchase: "Premium подписка ({{type}})",
       premiumType: {
         monthly: "месяц",
+        quarterly: "3 месяца",
+        biannual: "6 месяцев",
         yearly: "год",
         forever: "навсегда",
       },

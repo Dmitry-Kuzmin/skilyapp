@@ -322,6 +322,39 @@ export function BoostShopModal({
     return price ? `${description} - €${price}` : description;
   };
 
+  const getPremiumPlanTitle = useCallback((planId: string) => {
+    const key = `boostShop.premium.plans.${planId}.title`;
+    const label = t(key);
+    return label === key ? planId : label;
+  }, [t]);
+
+  const getPremiumPlanBenefits = useCallback((planId: string) => {
+    const benefitKeys: Record<string, string[]> = {
+      monthly: [
+        "boostShop.premium.plans.monthly.features.unlimited",
+        "boostShop.premium.plans.monthly.features.noAds",
+        "boostShop.premium.plans.monthly.features.aiAssistant",
+      ],
+      quarterly: [
+        "boostShop.premium.plans.quarterly.features.allMonthly",
+        "boostShop.premium.plans.quarterly.features.save",
+        "boostShop.premium.plans.quarterly.features.theory",
+      ],
+      biannual: [
+        "boostShop.premium.plans.biannual.features.allQuarterly",
+        "boostShop.premium.plans.biannual.features.save",
+        "boostShop.premium.plans.biannual.features.retakes",
+      ],
+      yearly: [
+        "boostShop.premium.plans.yearly.features.fullYear",
+        "boostShop.premium.plans.yearly.features.save",
+        "boostShop.premium.plans.yearly.features.updates",
+      ],
+    };
+
+    return (benefitKeys[planId] || []).map((key) => t(key));
+  }, [t]);
+
   const coinPacks = [
     {
       amount: 100,
@@ -1699,6 +1732,8 @@ export function BoostShopModal({
                     const isPopular = plan.popular;
                     const isBestValue = plan.savings === "50%";
                     const catalogKey = PLAN_TO_CATALOG[plan.id];
+                    const localizedTitle = getPremiumPlanTitle(plan.id);
+                    const localizedBenefits = getPremiumPlanBenefits(plan.id);
                     
                     // Расчет цены в день
                     let perDayPrice = "";
@@ -1710,12 +1745,12 @@ export function BoostShopModal({
                     return (
                       <UnifiedPricingCard
                         key={plan.id}
-                        title={plan.title}
+                        title={localizedTitle}
                         price={plan.price}
                         pricePerDay={perDayPrice ? t('boostShop.premium.pricePerDay', { price: perDayPrice }) : undefined}
-                        pricePerMonth={plan.pricePerMonth ? `${plan.pricePerMonth} / ${t('common.month') || 'мес'}` : undefined}
-                        benefits={plan.features.slice(0, 3)} // Берем только самое важное
-                        badge={isPopular ? '🔥 ПОПУЛЯРНО' : isBestValue ? '⭐ ВЫГОДНО' : undefined}
+                        pricePerMonth={plan.pricePerMonth ? t('boostShop.premium.pricePerMonth', { price: plan.pricePerMonth, period: t('common.month') }) : undefined}
+                        benefits={localizedBenefits}
+                        badge={isPopular ? `🔥 ${t('boostShop.premium.popularBadge')}` : isBestValue ? `⭐ ${t('boostShop.premium.bestBadge')}` : undefined}
                         isPopular={isPopular}
                         isVip={isBestValue}
                         accentColor={isPopular ? 'violet' : isBestValue ? 'emerald' : 'blue'}
@@ -1723,7 +1758,7 @@ export function BoostShopModal({
                           ...plan,
                           catalogKey,
                           packageKey: catalogKey,
-                          title: `Premium ${plan.title}`,
+                          title: `${t('boostShop.buttons.premium')} ${localizedTitle}`,
                           priceValue: plan.priceValue
                         })}
                         icon="premium"

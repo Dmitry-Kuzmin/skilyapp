@@ -314,8 +314,8 @@ export function CryptoMinerAdvanced({ className, onRewardClaimed }: CryptoMinerA
                 rewardType="coins"
                 rewardAmount={25}
                 onRewardClaimed={handleRewardClaimed}
-                title={t('rewardedAds.placements.cryptoMiner.title')}
-                description={t('rewardedAds.placements.cryptoMiner.description')}
+                title={t('dashboard.rewardedAds.placements.cryptoMiner.title')}
+                description={t('dashboard.rewardedAds.placements.cryptoMiner.description')}
                 allowForPremium
             />
         </>

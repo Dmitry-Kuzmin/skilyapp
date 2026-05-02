@@ -315,7 +315,9 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
                 isDarkTheme ? "text-white" : "text-slate-900"
               )}>{focusBattery.charge}%</span>
             </div>
-            <div className="text-[10px] text-slate-400">{focusBattery.message}</div>
+            <div className="text-[10px] text-slate-400">
+              {t(`dashboard.analytics.focusBattery.messages.${focusBattery.level}`)}
+            </div>
           </motion.div>
         )}
 
@@ -367,6 +369,5 @@ export const AnalyticsPanel: React.FC<AnalyticsPanelProps> = ({
     </div>
   );
 };
-
 
 

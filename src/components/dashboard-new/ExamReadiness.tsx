@@ -111,7 +111,8 @@ export const ExamReadiness = React.memo<ExamReadinessProps>(({
     profileId || null,
     averageScore,
     TARGET_READINESS_SCORE, // Целевой уровень 85%
-    selectedCountry
+    selectedCountry,
+    language
   );
 
   const { score, statusInfo, gaugeColor, textColor, bgColor, fullDescription, currentLevelIndex } = useMemo(() => {

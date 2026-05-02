@@ -142,7 +142,7 @@ export function UnifiedPricingCard({
                 <h3 className="text-sm font-black text-foreground leading-tight tracking-tight uppercase">{title}</h3>
                 {bonusCoins && (
                   <Badge variant="outline" className="h-4 px-1.5 py-0 border-amber-500/50 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase tracking-tighter shrink-0">
-                    +{bonusCoins} БОНУС
+                    {t('boostShop.coins.bonusLabel', { bonus: bonusCoins })}
                   </Badge>
                 )}
               </div>
@@ -210,7 +210,7 @@ export function UnifiedPricingCard({
                 getButtonClasses()
               )}
             >
-              Выбрать
+              {t('boostShop.buttons.select')}
             </motion.button>
           </div>
         </div>

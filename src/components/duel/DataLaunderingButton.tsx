@@ -255,8 +255,8 @@ export function DataLaunderingButton({ winnings, duelId, className }: DataLaunde
         rewardType="coins"
         rewardAmount={winnings}
         onRewardClaimed={handleRewardClaimed}
-        title={t('rewardedAds.placements.dataLaundering.title')}
-        description={t('rewardedAds.placements.dataLaundering.description', { amount: winnings })}
+        title={t('dashboard.rewardedAds.placements.dataLaundering.title')}
+        description={t('dashboard.rewardedAds.placements.dataLaundering.description', { amount: winnings })}
       />
     </>
   );

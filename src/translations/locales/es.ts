@@ -11,6 +11,7 @@ export const es = {
   common: {
     next: "Siguiente",
     back: "Atrás",
+    month: "mes",
     loading: "Cargando...",
     register: "Registrarse",
     login: "Iniciar sesión",
@@ -384,6 +385,11 @@ export const es = {
       },
       focusBattery: {
         title: "Batería de enfoque",
+        messages: {
+          high: "Excelente concentración. Sigue así.",
+          medium: "La atención ha bajado un poco. Haz una pausa corta.",
+          low: "La atención está cayendo. Mejor descansa y vuelve más tarde.",
+        },
       },
       activity: {
         title: "ACTIVIDAD NEURONAL",
@@ -862,12 +868,47 @@ export const es = {
       title: "Suscripción Premium",
       subtitle: "Obtén el máximo de tu aprendizaje",
       pricePerDay: "solo {{price}} al día",
+      pricePerMonth: "{{price}} / {{period}}",
       activeBadge: "Activa",
       benefits: {
         unlimitedTests: "Acceso ilimitado a todos los tests",
         bonusCoins: "+50% de monedas al estudiar",
         duelPassRewards: "Recompensas Premium de Duel Pass",
         instantHints: "Sin anuncios y pistas instantáneas",
+      },
+      plans: {
+        monthly: {
+          title: "1 mes",
+          features: {
+            unlimited: "Todas las funciones Premium",
+            noAds: "Sin anuncios",
+            aiAssistant: "Asistente IA",
+          },
+        },
+        quarterly: {
+          title: "3 meses",
+          features: {
+            allMonthly: "Todo lo del plan de 1 mes",
+            save: "Ahorra 17%",
+            theory: "Suficiente para preparar toda la teoría",
+          },
+        },
+        biannual: {
+          title: "6 meses",
+          features: {
+            allQuarterly: "Todo lo del plan de 3 meses",
+            save: "Ahorra 33%",
+            retakes: "Red de seguridad para un posible reexamen",
+          },
+        },
+        yearly: {
+          title: "1 año",
+          features: {
+            fullYear: "Todo incluido durante 1 año",
+            save: "Máximo ahorro del 50%",
+            updates: "Actualizaciones durante todo el año",
+          },
+        },
       },
       monthlyLabel: "Mes",
       yearlyLabel: "Año",
@@ -961,6 +1002,8 @@ export const es = {
       premiumPurchase: "Suscripción Premium ({{type}})",
       premiumType: {
         monthly: "mes",
+        quarterly: "3 meses",
+        biannual: "6 meses",
         yearly: "año",
         forever: "para siempre",
       },

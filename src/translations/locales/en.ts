@@ -11,6 +11,7 @@ export const en = {
   common: {
     next: "Next",
     back: "Back",
+    month: "month",
     loading: "Loading...",
     register: "Register",
     login: "Login",
@@ -387,6 +388,11 @@ export const en = {
       },
       focusBattery: {
         title: "Focus Battery",
+        messages: {
+          high: "Excellent focus. Keep it going.",
+          medium: "Focus dipped a bit. Take a short break.",
+          low: "Focus is dropping. Better pause and come back later.",
+        },
       },
       activity: {
         title: "NEURONAL ACTIVITY",
@@ -871,12 +877,47 @@ export const en = {
       title: "Premium subscription",
       subtitle: "Get the most out of your learning",
       pricePerDay: "only {{price}} per day",
+      pricePerMonth: "{{price}} / {{period}}",
       activeBadge: "Active",
       benefits: {
         unlimitedTests: "Unlimited access to every test",
         bonusCoins: "+50% coins for studying",
         duelPassRewards: "Premium Duel Pass rewards",
         instantHints: "No ads and instant hints",
+      },
+      plans: {
+        monthly: {
+          title: "1 month",
+          features: {
+            unlimited: "All Premium features",
+            noAds: "No ads",
+            aiAssistant: "AI assistant",
+          },
+        },
+        quarterly: {
+          title: "3 months",
+          features: {
+            allMonthly: "Everything from the 1-month plan",
+            save: "Save 17%",
+            theory: "Enough to cover the full theory track",
+          },
+        },
+        biannual: {
+          title: "6 months",
+          features: {
+            allQuarterly: "Everything from the 3-month plan",
+            save: "Save 33%",
+            retakes: "Safety net for a possible retake",
+          },
+        },
+        yearly: {
+          title: "1 year",
+          features: {
+            fullYear: "Everything included for 1 year",
+            save: "Maximum 50% savings",
+            updates: "Updates throughout the whole year",
+          },
+        },
       },
       monthlyLabel: "Month",
       yearlyLabel: "Year",
@@ -970,6 +1011,8 @@ export const en = {
       premiumPurchase: "Premium subscription ({{type}})",
       premiumType: {
         monthly: "month",
+        quarterly: "3 months",
+        biannual: "6 months",
         yearly: "year",
         forever: "forever",
       },

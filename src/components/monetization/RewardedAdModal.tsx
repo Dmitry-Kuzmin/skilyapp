@@ -45,7 +45,7 @@ export function RewardedAdModal({
   const [showReward, setShowReward] = useState(false);
   const [showPromo, setShowPromo] = useState(false);
   const { t } = useLanguage();
-  const ra = (path: string, params?: Record<string, string | number>) => t(`rewardedAds.${path}`, params);
+  const ra = (path: string, params?: Record<string, string | number>) => t(`dashboard.rewardedAds.${path}`, params);
 
   useEffect(() => {
     if (open) {
