@@ -36,6 +36,31 @@ interface ArticleData {
   author: string;
   image?: string;
   translations?: Partial<Record<Language, LocalizedArticleFields>>;
+  /**
+   * Optional FAQ items — generates FAQPage JSON-LD schema.
+   * Critical for AI citation: Gemini, ChatGPT and Perplexity directly quote
+   * Q&A pairs from FAQPage schema. Add 4-8 questions per article.
+   */
+  faqItems?: Array<{ question: string; answer: string }>;
+  /**
+   * Optional HowTo schema for step-by-step articles.
+   * Triggers Google's "How to" rich result and helps AI answer "how to X" queries.
+   */
+  howTo?: {
+    name: string;
+    description?: string;
+    totalTime?: string; // ISO 8601 duration, e.g. "PT4W" (4 weeks)
+    steps: Array<{ name: string; text: string }>;
+  };
+  /**
+   * Optional list of named entities mentioned in the article (DGT, Pere Navarro, etc.).
+   * Helps AI understand topic relationships.
+   */
+  mentions?: Array<{ name: string; type?: string; url?: string }>;
+  /**
+   * Optional extra keywords beyond the default set.
+   */
+  keywords?: string[];
 }
 
 export const articles: Record<string, ArticleData> = {
