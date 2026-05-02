@@ -204,7 +204,13 @@ const TestResults = () => {
   const answers = state?.answers || [];
   const mode = state?.mode || 'practice';
   const timeSpent = state?.timeSpent || 0;
-  const rewardResult = state?.rewardResult;
+  const rewardResult: TestRewardPayload | null | undefined = state?.rewardResult ?? (() => {
+    try {
+      const stored = sessionStorage.getItem('last_test_reward');
+      if (stored) { sessionStorage.removeItem('last_test_reward'); return JSON.parse(stored); }
+    } catch {}
+    return undefined;
+  })();
   const russiaExamStats = state?.russiaExamStats;
   const country = state?.country;
   const masteryRound = state?.masteryRound;
