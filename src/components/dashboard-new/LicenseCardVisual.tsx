@@ -431,7 +431,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
 
             {/* MRZ Zone / Machine Readable Zone - Raised Up */}
             <div className={cn(
-                "mt-auto px-6 py-2 pb-6 font-mono text-[7px] md:text-[8px] tracking-[0.4em] opacity-40 select-none overflow-hidden whitespace-nowrap border-none text-left",
+                "mt-auto px-6 py-1 pb-3 font-mono text-[7px] md:text-[8px] tracking-[0.4em] opacity-40 select-none overflow-hidden whitespace-nowrap border-none text-left",
                 isDarkTheme ? "text-zinc-400" : "text-slate-900"
             )}>
                 {(() => {
