@@ -135,7 +135,6 @@ const PaymentSuccess = lazy(() => import("../pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("../pages/PaymentCancel"));
 // Purchase обрабатывается в App.tsx (без AppProviders)
 const InviteLanding = lazy(() => import("../pages/InviteLanding"));
-const DemoTest = lazy(() => import("../pages/DemoTest"));
 // УДАЛЕНО: LearnCountrySelector и LearnCountryHome - больше не используются, Dashboard автоматически перестраивается
 
 export function AppRoutes() {
