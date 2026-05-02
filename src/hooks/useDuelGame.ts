@@ -411,6 +411,7 @@ export function useDuelGame({
               ?.map((opt: any) => opt.id) || []
         });
 
+        addAnswerToHistory(serverIsCorrect);
         log('[useDuelGame] Server response:', { serverIsCorrect, serverCombo, points: data.points_awarded });
 
         if (serverIsCorrect) {
