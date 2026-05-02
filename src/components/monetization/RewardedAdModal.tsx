@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { PremiumPromoAd } from './PremiumPromoAd';
 import { isTelegramMiniApp, getTelegramWebApp, isTelegramMobilePlatformName } from '@/lib/telegram';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface RewardedAdModalProps {
   open: boolean;
@@ -43,6 +44,8 @@ export function RewardedAdModal({
   const { loading, error, isAvailable, showAd, preload, reset } = useRewardedAd({ allowForPremium });
   const [showReward, setShowReward] = useState(false);
   const [showPromo, setShowPromo] = useState(false);
+  const { t } = useLanguage();
+  const ra = (path: string, params?: Record<string, string | number>) => t(`rewardedAds.${path}`, params);
 
   useEffect(() => {
     if (open) {
@@ -60,71 +63,71 @@ export function RewardedAdModal({
         return {
           icon: Coins,
           emoji: '🪙',
-          defaultTitle: title || 'Получить монеты',
-          defaultDescription: description || 'Посмотри короткую рекламу и получай монеты бесплатно.',
-          rewardText: `+${rewardAmount} монет`,
+          defaultTitle: title || ra('rewards.coins.title'),
+          defaultDescription: description || ra('rewards.coins.description'),
+          rewardText: ra('rewards.coins.rewardText', { amount: rewardAmount }),
           gradient: 'from-amber-500 to-yellow-500',
           glow: 'shadow-amber-500/40',
           bg: 'from-amber-950 via-[#1a1608] to-[#0b0d14]',
           ring: 'ring-amber-500/30',
           iconBg: 'from-amber-500 to-yellow-500',
-          actionText: `Смотреть и получить +${rewardAmount}`,
+          actionText: ra('rewards.coins.actionText', { amount: rewardAmount }),
         };
       case 'restore_streak':
         return {
           icon: Calendar,
           emoji: '🔥',
-          defaultTitle: title || 'Восстановить серию',
-          defaultDescription: description || 'Посмотри видео и восстанови свою серию ежедневных бонусов.',
-          rewardText: 'Серия восстановлена!',
+          defaultTitle: title || ra('rewards.restoreStreak.title'),
+          defaultDescription: description || ra('rewards.restoreStreak.description'),
+          rewardText: ra('rewards.restoreStreak.rewardText'),
           gradient: 'from-orange-500 to-red-500',
           glow: 'shadow-orange-500/40',
           bg: 'from-orange-950 via-[#1a0f08] to-[#0b0d14]',
           ring: 'ring-orange-500/30',
           iconBg: 'from-orange-500 to-red-500',
-          actionText: 'Смотреть и восстановить',
+          actionText: ra('rewards.restoreStreak.actionText'),
         };
       case 'test_attempt':
         return {
           icon: Zap,
           emoji: '⚡',
-          defaultTitle: title || 'Дополнительная попытка',
-          defaultDescription: description || 'Посмотри видео и получи ещё одну попытку.',
-          rewardText: 'Попытка восстановлена!',
+          defaultTitle: title || ra('rewards.testAttempt.title'),
+          defaultDescription: description || ra('rewards.testAttempt.description'),
+          rewardText: ra('rewards.testAttempt.rewardText'),
           gradient: 'from-violet-500 to-purple-500',
           glow: 'shadow-violet-500/40',
           bg: 'from-violet-950 via-[#14081c] to-[#0b0d14]',
           ring: 'ring-violet-500/30',
           iconBg: 'from-violet-500 to-purple-500',
-          actionText: 'Смотреть и получить попытку',
+          actionText: ra('rewards.testAttempt.actionText'),
         };
       case 'slot_unlock':
         return {
           icon: Zap,
           emoji: '🔓',
-          defaultTitle: title || 'Открыть слот',
-          defaultDescription: description || 'Смотри короткую рекламу и открой боевой слот на одну дуэль.',
-          rewardText: '+1 Слот на игру',
+          defaultTitle: title || ra('rewards.slotUnlock.title'),
+          defaultDescription: description || ra('rewards.slotUnlock.description'),
+          rewardText: ra('rewards.slotUnlock.rewardText'),
           gradient: 'from-orange-500 to-amber-500',
           glow: 'shadow-orange-500/40',
           bg: 'from-orange-950 via-[#1c1208] to-[#0b0d14]',
           ring: 'ring-orange-500/30',
           iconBg: 'from-orange-500 to-amber-500',
-          actionText: 'Смотреть и открыть слот',
+          actionText: ra('rewards.slotUnlock.actionText'),
         };
       default:
         return {
           icon: Gift,
           emoji: '🎁',
-          defaultTitle: title || 'Получить награду',
-          defaultDescription: description || 'Посмотри короткое видео и получи награду.',
-          rewardText: 'Награда получена!',
+          defaultTitle: title || ra('rewards.generic.title'),
+          defaultDescription: description || ra('rewards.generic.description'),
+          rewardText: ra('rewards.generic.rewardText'),
           gradient: 'from-indigo-500 to-blue-500',
           glow: 'shadow-indigo-500/40',
           bg: 'from-indigo-950 via-[#0a081c] to-[#0b0d14]',
           ring: 'ring-indigo-500/30',
           iconBg: 'from-indigo-500 to-blue-500',
-          actionText: 'Смотреть и получить',
+          actionText: ra('rewards.generic.actionText'),
         };
     }
   };
@@ -340,7 +343,7 @@ export function RewardedAdModal({
 
                     {/* Hint */}
                     <p className="text-[10px] text-white/30 text-center leading-tight">
-                      Посмотри короткую презентацию Premium и получи награду
+                      {ra('hint')}
                     </p>
 
                     {/* Buttons */}
@@ -352,15 +355,15 @@ export function RewardedAdModal({
                             <Sparkles className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-white">Premium активен</p>
-                            <p className="text-xs text-white/50">Награды без рекламы</p>
+                            <p className="text-sm font-bold text-white">{ra('premiumActive.title')}</p>
+                            <p className="text-xs text-white/50">{ra('premiumActive.description')}</p>
                           </div>
                         </div>
                         <Button
                           onClick={() => onOpenChange(false)}
                           className="w-full h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-black shadow-xl"
                         >
-                          Закрыть
+                          {t('common.close')}
                         </Button>
                       </div>
                     ) : (

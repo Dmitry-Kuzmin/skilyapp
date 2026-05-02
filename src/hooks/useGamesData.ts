@@ -14,11 +14,20 @@ interface OnlinePlayer {
   initials: string;
 }
 
-const fallbackPlayers: OnlinePlayer[] = [
-  { id: "fallback-1", name: "Lola", photoUrl: null, initials: "LO" },
-  { id: "fallback-2", name: "David", photoUrl: null, initials: "DA" },
-  { id: "fallback-3", name: "Inés", photoUrl: null, initials: "IN" },
-];
+const formatPlayer = (profile: any): OnlinePlayer => {
+  const displayName = profile.first_name || profile.username || 'Player';
+  return {
+    id: profile.id,
+    name: displayName,
+    photoUrl: profile.photo_url,
+    initials: displayName
+      .split(' ')
+      .map((part: string) => part.charAt(0))
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || 'PL',
+  };
+};
 
 // ОПТИМИЗАЦИЯ: React Query hook для статистики игр
 export const useGamesStats = (profileId: string | null) => {
