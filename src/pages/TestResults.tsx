@@ -217,7 +217,7 @@ const TestResults = () => {
   const country = state?.country;
   const masteryRound = state?.masteryRound;
 
-  const profileId = (supabase.auth.getUser() as any)?.data?.user?.id; // Safe access
+  const profileId = contextProfileId;
 
   // 🔍 DEBUG: Что приходит из TestSession
   console.log('🔍 [TestResults] answers from state:', {
