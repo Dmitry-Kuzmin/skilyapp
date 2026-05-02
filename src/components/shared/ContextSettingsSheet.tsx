@@ -9,10 +9,11 @@ import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, LicenseC
 import { UnifiedModal } from '@/components/ui/unified-modal';
 import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { cn } from '@/lib/utils';
-import { Globe, Car, Truck, Bus, Bike, Check, type LucideIcon } from 'lucide-react';
+import { Car, Truck, Bus, Bike, Check, SlidersHorizontal, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfileData } from '@/hooks/useProfileData';
+import { getCountryFlagUrl } from '@/lib/countryFlags';
 
 interface ContextSettingsSheetProps {
   open: boolean;
@@ -129,6 +130,7 @@ export function ContextSettingsSheet({
       open={open}
       onOpenChange={onOpenChange}
       title={getTitle()}
+      mobileFullscreen
       className={cn(
         'max-w-2xl',
         isDarkTheme ? 'bg-zinc-950' : 'bg-white'
@@ -150,6 +152,7 @@ export function ContextSettingsSheet({
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {availableCountries.map((country) => {
               const isSelected = country.code === selectedCountry;
+              const flagUrl = getCountryFlagUrl(country.code);
 
               return (
                 <motion.button
@@ -184,12 +187,22 @@ export function ContextSettingsSheet({
                     </motion.div>
                   )}
 
-                  <Globe className={cn(
-                    'w-6 h-6',
-                    isSelected
-                      ? isDarkTheme ? 'text-indigo-400' : 'text-indigo-600'
-                      : isDarkTheme ? 'text-zinc-500' : 'text-zinc-400'
-                  )} />
+                  {flagUrl ? (
+                    <img
+                      src={flagUrl}
+                      alt=""
+                      className="h-8 w-8 rounded-full object-cover ring-1 ring-white/10"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <span
+                      className={cn(
+                        'h-8 w-8 rounded-full',
+                        isDarkTheme ? 'bg-zinc-700' : 'bg-zinc-200'
+                      )}
+                      aria-hidden="true"
+                    />
+                  )}
 
                   <div className="text-center">
                     <div className={cn(

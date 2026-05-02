@@ -27,6 +27,7 @@ import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { PageLoader } from "@/components/PageLoader";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { ContextSwitcher } from "@/components/shared/ContextSwitcher";
 
 // --- Types ---
 type Topic = {
@@ -494,7 +495,10 @@ const Tests = () => {
 
             {/* Page Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
-              <div>
+              <div className="w-full md:w-auto">
+                <div className="mb-4 flex md:hidden">
+                  <ContextSwitcher className="h-9 rounded-xl bg-background/75 border-border/60 shadow-sm" />
+                </div>
                 <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-2">
                   {selectedCountry === 'russia' ? 'Билеты ПДД' : t('testsPage.title')}
                 </h1>

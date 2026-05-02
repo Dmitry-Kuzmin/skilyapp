@@ -5,17 +5,19 @@
 
 import { useState, useMemo } from 'react';
 import { useTheme } from 'next-themes';
-import { CountryCode, COUNTRIES_CONFIG, getLicenseCategoriesForCountry, getLicenseCategory, LicenseCategoryConfig, LicenseCategory } from '@/types/pdd';
-import { ChevronDown, Car, Truck, Bus, Bike, Globe, type LucideIcon } from 'lucide-react';
+import { CountryCode, getLicenseCategoriesForCountry, getLicenseCategory, LicenseCategory } from '@/types/pdd';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ContextSettingsSheet } from './ContextSettingsSheet';
 import { usePDDContext } from '@/contexts/PDDContext';
+import { getCountryFlagUrl } from '@/lib/countryFlags';
 
 interface ContextSwitcherProps {
   className?: string;
+  embedded?: boolean;
 }
 
-export function ContextSwitcher({ className }: ContextSwitcherProps) {
+export function ContextSwitcher({ className, embedded = false }: ContextSwitcherProps) {
   const { resolvedTheme } = useTheme();
   const { selectedCountry, selectedCategory, setSelectedCountry, setSelectedCategory } = usePDDContext();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -27,24 +29,11 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
   const currentCountry = selectedCountry;
   const currentCategory = selectedCategory;
   
-  const countryData = COUNTRIES_CONFIG[currentCountry];
   const categoryData = getLicenseCategory(currentCountry, currentCategory);
   
   // Если категория не найдена, используем первую доступную
   const availableCategories = getLicenseCategoriesForCountry(currentCountry);
   const displayCategory = categoryData || availableCategories[0] || { code: 'B', name: 'B', nameFull: 'Легковая', icon: '🚗' };
-
-  // Маппинг категорий на иконки из lucide-react
-  const getCategoryIcon = (categoryCode: string): LucideIcon => {
-    const code = categoryCode.toUpperCase();
-    if (code.startsWith('A') || code === 'AM' || code === 'M') return Bike;
-    if (code === 'B' || code === 'B1' || code === 'BE') return Car;
-    if (code.startsWith('C') || code === 'CE' || code === 'C1') return Truck;
-    if (code.startsWith('D') || code === 'DE' || code === 'D1') return Bus;
-    return Car; // по умолчанию
-  };
-
-  const CategoryIcon = getCategoryIcon(displayCategory.code);
 
   // Короткие коды стран для отображения
   const getCountryCode = (country: CountryCode): string => {
@@ -56,6 +45,9 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
     };
     return codes[country] || country.toUpperCase().slice(0, 2);
   };
+
+  const countryCode = getCountryCode(currentCountry);
+  const countryFlagUrl = getCountryFlagUrl(currentCountry);
 
   const handleApply = (country: CountryCode, category: LicenseCategory) => {
     // Обновляем контекст (он сам сохранит в localStorage)
@@ -71,9 +63,9 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
   const buttonClass = useMemo(() => {
     if (isDarkTheme) {
       return cn(
-        'h-10 px-3 sm:px-4 py-2 rounded-lg',
-        'bg-zinc-900 border border-white/5',
-        'hover:border-white/10 hover:bg-zinc-800/50',
+        embedded
+          ? 'h-9 px-2 py-1.5 rounded-xl bg-transparent border border-transparent hover:bg-white/[0.03]'
+          : 'h-10 px-3 sm:px-4 py-2 rounded-lg bg-zinc-900 border border-white/5 hover:border-white/10 hover:bg-zinc-800/50',
         'flex items-center gap-2 text-xs font-medium',
         'transition-all duration-200',
         'text-zinc-200',
@@ -82,9 +74,9 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
       );
     } else {
       return cn(
-        'h-10 px-3 sm:px-4 py-2 rounded-lg',
-        'bg-white border border-zinc-200',
-        'hover:border-zinc-300 hover:bg-zinc-50',
+        embedded
+          ? 'h-9 px-2 py-1.5 rounded-xl bg-transparent border border-transparent hover:bg-black/[0.04]'
+          : 'h-10 px-3 sm:px-4 py-2 rounded-lg bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50',
         'flex items-center gap-2 text-xs font-medium',
         'transition-all duration-200',
         'text-zinc-700',
@@ -92,21 +84,44 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
         className
       );
     }
-  }, [isDarkTheme, className]);
+  }, [embedded, isDarkTheme, className]);
 
   return (
     <>
       <button
         onClick={() => setSheetOpen(true)}
         className={buttonClass}
+        aria-label={`Change test context: ${countryCode}, category ${displayCategory.code}`}
       >
-        <Globe className={cn('w-3.5 h-3.5', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')} />
-        <span className="whitespace-nowrap text-xs font-semibold uppercase tracking-tight">
-          {getCountryCode(currentCountry)}
+        {countryFlagUrl ? (
+          <img
+            src={countryFlagUrl}
+            alt=""
+            className="h-5 w-5 rounded-full object-cover ring-1 ring-white/10"
+            aria-hidden="true"
+          />
+        ) : (
+          <span
+            className={cn(
+              'h-5 w-5 rounded-full',
+              isDarkTheme ? 'bg-zinc-700' : 'bg-zinc-200'
+            )}
+            aria-hidden="true"
+          />
+        )}
+        <span className="whitespace-nowrap text-xs font-bold uppercase tracking-tight">
+          {countryCode}
         </span>
         <span className={isDarkTheme ? 'text-white/10' : 'text-zinc-300'}>•</span>
-        <CategoryIcon className={cn('w-3.5 h-3.5', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')} />
-        <span className="whitespace-nowrap text-xs font-semibold">
+        <span
+          className={cn(
+            'inline-flex h-5 min-w-[1.7rem] items-center justify-center rounded-lg px-1.5 text-[10px] font-bold leading-none',
+            isDarkTheme
+              ? 'bg-white/[0.05] text-zinc-200'
+              : 'bg-zinc-100 text-zinc-700'
+          )}
+          aria-hidden="true"
+        >
           {displayCategory.code}
         </span>
         <ChevronDown className={cn('w-3.5 h-3.5 ml-0.5', isDarkTheme ? 'text-zinc-400' : 'text-zinc-500')} />
@@ -122,4 +137,3 @@ export function ContextSwitcher({ className }: ContextSwitcherProps) {
     </>
   );
 }
-

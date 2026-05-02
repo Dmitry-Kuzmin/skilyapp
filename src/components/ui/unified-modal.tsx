@@ -25,6 +25,7 @@ interface UnifiedModalProps {
   showHandle?: boolean;
   modalRouteKey?: string;
   fullscreen?: boolean;
+  mobileFullscreen?: boolean;
   preventClose?: boolean;
 }
 
@@ -55,6 +56,7 @@ export function UnifiedModal({
   showHandle = true,
   modalRouteKey,
   fullscreen = false,
+  mobileFullscreen = false,
   preventClose = false,
 }: UnifiedModalProps) {
   const isMobile = useIsMobile();
@@ -105,6 +107,7 @@ export function UnifiedModal({
       activeSnapPoint={initialSnap}
       hideHandle={!showHandle}
       fullscreen={fullscreen}
+      mobileFullscreen={mobileFullscreen}
     >
       {renderContent}
     </ResponsiveModal>

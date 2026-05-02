@@ -32,6 +32,7 @@ import { liftStartupCurtain } from "@/utils/startup";
 import { GlobalDuelWatcher } from "./duel/GlobalDuelWatcher";
 import { HeaderSkeleton } from "./HeaderSkeleton";
 import { PWAInstallPrompt } from "./PWAInstallPrompt";
+import { ContextSwitcher } from "./shared/ContextSwitcher";
 
 interface LayoutProps {
   children: ReactNode;
@@ -340,15 +341,36 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
           )} style={{ overflow: 'visible' }}>
             <div className="container mx-auto px-4 max-w-[1370px]" style={{ overflow: 'visible', position: 'relative' }}>
               <div className="flex items-center justify-between h-16 min-w-0" style={{ overflow: 'visible', position: 'relative' }}>
-                <NavLink
-                  to={isAuthenticated ? "/dashboard" : "/"}
-                  className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
-                  style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
-                >
-                  <LandingLogo variant="bold" showText={true} />
-                </NavLink>
+                <div className="flex items-center min-w-0 flex-shrink-0">
+                  {isAuthenticated ? (
+                    <div className="flex items-center gap-2">
+                      <NavLink
+                        to={isAuthenticated ? "/dashboard" : "/"}
+                        className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-[24px] px-1 py-1 transition-colors hover:opacity-90"
+                        style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
+                      >
+                        <LandingLogo variant="bold" showText={true} />
+                      </NavLink>
 
-                <nav className="flex gap-1 min-w-0 flex-shrink">
+                      <div className="h-7 w-px bg-white/10" aria-hidden="true" />
+
+                      <ContextSwitcher
+                        embedded
+                        className="px-1.5 shadow-none"
+                      />
+                    </div>
+                  ) : (
+                    <NavLink
+                      to={isAuthenticated ? "/dashboard" : "/"}
+                      className="min-w-0 flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl px-1 py-1 transition-colors hover:opacity-90"
+                      style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}
+                    >
+                      <LandingLogo variant="bold" showText={true} />
+                    </NavLink>
+                  )}
+                </div>
+
+                <nav className="flex flex-1 justify-center gap-0.5 xl:gap-1 min-w-0 px-2 lg:px-4">
                   {navigation.map((item) => {
                     const desktopActive = isNavigationItemActive(item, location.pathname);
                     return (
@@ -356,7 +378,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                         key={item.name}
                         to={item.href}
                         className={cn(
-                          "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap flex-shrink-0",
+                          "flex items-center gap-2 px-2.5 lg:px-3 xl:px-4 py-2 rounded-lg transition-all duration-200 whitespace-nowrap flex-shrink min-w-0",
                           desktopActive
                             ? "text-foreground font-semibold"
                             : "text-muted-foreground/60 hover:text-foreground/80",
@@ -370,7 +392,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                         }}
                       >
                         <item.icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="font-medium">{item.name}</span>
+                        <span className="hidden lg:inline font-medium truncate text-sm xl:text-base">{item.name}</span>
                       </NavLink>
                     );
                   })}
@@ -380,7 +402,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                   {isAuthenticated && (
                     <>
                       {/* Wallet + Achievements widgets в header на больших экранах */}
-                      <div className="hidden lg:flex items-center gap-2 min-w-0 flex-shrink-0 mr-1">
+                      <div className="hidden xl:flex items-center gap-2 min-w-0 flex-shrink-0 mr-1">
                         <WalletWidget />
                         <AchievementsWidget />
                       </div>
@@ -445,7 +467,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
 
       {/* Wallet Widget Bar - отдельная строка под header на средних экранах (планшеты) */}
       {!hideNavigation && isAuthenticated && !isTelegramApp && (
-        <div className="hidden md:flex lg:hidden border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-16 z-40">
+        <div className="hidden md:flex xl:hidden border-b border-border/50 backdrop-blur-xl bg-background/95 sticky top-16 z-40">
           <div className="container mx-auto px-4 py-2">
             <div className="flex items-center justify-end w-full gap-2">
               <WalletWidget />

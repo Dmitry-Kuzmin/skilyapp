@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback, useState, lazy, Suspense } from 'react';
-import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Target, BarChart2, Settings } from 'lucide-react';
+import { Power, Volume2, Play, Bell, CheckCircle, Star, Circle, Zap, FileText, Coins, BookOpen, ArrowRight, Target, BarChart2 } from 'lucide-react';
 import { ContextSwitcher } from '@/components/shared';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { useUserContext } from '@/contexts/UserContext';
@@ -37,7 +37,6 @@ import { playClickSound, playHoverSound, playAlertSound, playSuccessSound } from
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from 'next-themes';
 import { useModalRoute } from '@/hooks/useModalRoute';
-import { useSettingsStore } from '@/store/settingsStore';
 import { toast } from '@/lib/toast';
 import { supabase } from '@/integrations/supabase/client';
 import { RehabilitationTest } from './RehabilitationTest';
@@ -118,7 +117,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   const { selectedCountry } = usePDDContext();
   const navigate = useNavigate();
-  const { openSettings } = useSettingsStore();
   const { theme, systemTheme } = useTheme();
 
   // Helper to check if dark mode is active
@@ -203,27 +201,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         {/* Header */}
         <div className="mb-6 animate-fade-in">
-          <div className="flex items-center justify-between gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
+          <div className="flex items-center justify-start gap-1.5 sm:gap-3 flex-nowrap min-w-0 max-w-full">
             {/* Context Switcher (Country | Category) */}
-            <ContextSwitcher className="shrink-0" />
-
-            {/* Settings Button - Icon Only */}
-            <button
-              onClick={() => {
-                playClickSound();
-                openSettings();
-              }}
-              className={cn(
-                'w-9 h-9 flex items-center justify-center rounded-xl transition-all',
-                'backdrop-blur-sm hover:scale-105 active:scale-95',
-                isDarkTheme
-                  ? 'bg-transparent hover:bg-white/10 text-muted-foreground hover:text-white'
-                  : 'bg-transparent hover:bg-black/5 text-muted-foreground hover:text-black'
-              )}
-              aria-label="Settings"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
+            <ContextSwitcher className="shrink-0 md:hidden" />
           </div>
         </div>
 

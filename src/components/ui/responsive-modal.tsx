@@ -27,6 +27,8 @@ interface ResponsiveModalProps {
   fadeFromIndex?: number;
   /** Fullscreen режим */
   fullscreen?: boolean;
+  /** Fullscreen только на мобильных */
+  mobileFullscreen?: boolean;
   dismissible?: boolean;
 }
 
@@ -62,6 +64,7 @@ export function ResponsiveModal({
   hideHandle = false,
   fadeFromIndex,
   fullscreen = false,
+  mobileFullscreen = false,
   dismissible,
 }: ResponsiveModalProps) {
   const isMobile = useIsMobile();
@@ -104,8 +107,10 @@ export function ResponsiveModal({
       >
         <DrawerContent
           className={cn(
-            "flex flex-col fixed bottom-0 left-0 right-0 z-[99999] outline-none transition-transform duration-200",
-            "max-h-[97vh] h-auto",
+            "flex flex-col fixed left-0 right-0 z-[99999] outline-none transition-transform duration-200",
+            mobileFullscreen
+              ? "inset-x-0 bottom-0 top-0 h-[100dvh] max-h-[100dvh] rounded-none"
+              : "bottom-0 max-h-[97vh] h-auto",
             className
           )}
           hideHandle={hideHandle}
@@ -181,7 +186,8 @@ export function ResponsiveModal({
             {/* Scrollable content */}
             <div
               className={cn(
-                "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none w-full px-3",
+                "flex-1 overflow-y-auto min-h-0 overscroll-contain outline-none w-full",
+                mobileFullscreen ? "px-4 pb-4" : "px-3",
                 contentClassName
               )}
               style={{
@@ -189,7 +195,7 @@ export function ResponsiveModal({
                 scrollbarWidth: 'none',
               }}
             >
-              <div className="flex flex-col min-h-full justify-start pt-2 pb-10">
+              <div className={cn("flex flex-col min-h-full justify-start", mobileFullscreen ? "pt-2 pb-6" : "pt-2 pb-10")}>
                 {children}
               </div>
             </div>
