@@ -197,25 +197,29 @@ serve(async (req) => {
     let levelUp = false;
     let newLevel = 0;
     let totalSp = 0;
-    try {
-      const { data: spResult } = await supabase.functions.invoke('season-sp', {
-        body: { user_id, source_type: sourceType, metadata: spMetadata },
-      });
-      if (spResult) {
-        levelUp = spResult.level_up === true;
-        newLevel = spResult.level ?? 0;
-        totalSp = spResult.total_sp ?? 0;
+    if (!isTooFast) {
+      try {
+        const { data: spResult } = await supabase.functions.invoke('season-sp', {
+          body: { user_id, source_type: sourceType, metadata: spMetadata },
+        });
+        if (spResult) {
+          levelUp = spResult.level_up === true;
+          newLevel = spResult.level ?? 0;
+          totalSp = spResult.total_sp ?? 0;
+        }
+      } catch (err) {
+        console.error('[complete-test-and-award] ⚠️ season-sp error:', err);
       }
-    } catch (err) {
-      console.error('[complete-test-and-award] ⚠️ season-sp error:', err);
-    }
 
-    // Трекинг season_challenges (фоном — не блокирует ответ)
-    supabase.functions.invoke('season-challenges-track', {
-      body: { user_id, source_type: sourceType, metadata: spMetadata },
-    }).catch((err: unknown) => {
-      console.error('[complete-test-and-award] ⚠️ challenges-track error:', err);
-    });
+      // Трекинг season_challenges (фоном — не блокирует ответ)
+      supabase.functions.invoke('season-challenges-track', {
+        body: { user_id, source_type: sourceType, metadata: spMetadata },
+      }).catch((err: unknown) => {
+        console.error('[complete-test-and-award] ⚠️ challenges-track error:', err);
+      });
+    } else {
+      console.warn('[complete-test-and-award] 🚨 Skipping season-sp and challenges-track due to speed cheat.');
+    }
 
     console.log(`[complete-test-and-award] ✅ SP: ${spAwarded} (base ${baseSp} + bonus ${bonusSp}), level_up=${levelUp}, newLevel=${newLevel}`);
 
