@@ -351,6 +351,10 @@ export const useDuelStore = create<DuelState>()(
 
             setReconnectionState: (newState) => set((state) => ({ ...state, ...newState })),
 
+            addAnswerToHistory: (isCorrect) => set((state) => ({
+                answerHistory: [...state.answerHistory, { isCorrect }],
+            })),
+
             resetGame: () => set(initialState),
         }),
         { name: 'duel-store' }
