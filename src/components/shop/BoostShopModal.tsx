@@ -69,9 +69,9 @@ import { PaywallModal } from "@/components/monetization/PaywallModal";
 import { usePremium } from "@/hooks/usePremium";
 import { RewardedAdModal } from "@/components/monetization/RewardedAdModal";
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
-import { TonWalletHeader } from "@/components/monetization/TonWalletHeader";
+// TON_DISABLED: import { TonWalletHeader } from "@/components/monetization/TonWalletHeader";
 // CryptomusPaymentPreview merged into PaymentSelectorModal
-import { useAddress } from "@ton/appkit-react";
+// TON_DISABLED: import { useAddress } from "@ton/appkit-react";
 import {
   getTelegramWebApp,
   isTelegramMiniApp,
