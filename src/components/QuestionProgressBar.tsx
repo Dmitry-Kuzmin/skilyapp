@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { X, Grid3x3, Bookmark, BookmarkCheck, MoreVertical, CheckCircle2, XCircle, Clock, Sparkles, Flag, Coins, Languages } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { usePDDContext } from '@/contexts/PDDContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CompactStreakJewel } from './shared/CompactStreakJewel';
