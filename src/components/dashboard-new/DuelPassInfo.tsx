@@ -58,6 +58,49 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
     : 'text-slate-500 group-hover:text-yellow-600';
   const statIconClass = isDarkTheme ? 'text-slate-400' : 'text-slate-500';
 
+  // ── Анимация роста SP — хуки ОБЯЗАТЕЛЬНО до early return ─────────────────
+  const currentSp = duelPassData?.seasonPoints ?? 0;
+  const prevSpRef = useRef<number | null>(null);
+  const [animatedSp, setAnimatedSp] = useState(currentSp);
+  const [spDelta, setSpDelta] = useState<number | null>(null);
+  const [highlightProgress, setHighlightProgress] = useState(false);
+
+  useEffect(() => {
+    const prev = prevSpRef.current;
+    const curr = currentSp;
+
+    if (prev !== null && curr > prev) {
+      const delta = curr - prev;
+      setSpDelta(delta);
+      setHighlightProgress(true);
+
+      const start = performance.now();
+      const duration = 1200;
+      let raf = 0;
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+        setAnimatedSp(Math.round(prev + (curr - prev) * eased));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+
+      const timer = setTimeout(() => {
+        setSpDelta(null);
+        setHighlightProgress(false);
+      }, 2500);
+
+      prevSpRef.current = curr;
+      return () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timer);
+      };
+    } else {
+      setAnimatedSp(curr);
+    }
+    prevSpRef.current = curr;
+  }, [currentSp]);
+
   if (loading) {
     return (
       <div className={`${className} ${containerClass} rounded-3xl p-4 md:p-5 shadow-lg border backdrop-blur-sm animate-pulse`}>
@@ -72,50 +115,6 @@ export const DuelPassInfo: React.FC<DuelPassInfoProps> = React.memo(({ className
   if (!duelPassData) return null;
 
   const progressPercent = Math.min(100, ((100 - duelPassData.nextLevelSP) / 100) * 100);
-
-  // ── Анимация роста SP при изменении ─────────────────────────────────────
-  const prevSpRef = useRef<number | null>(null);
-  const [animatedSp, setAnimatedSp] = useState(duelPassData.seasonPoints);
-  const [spDelta, setSpDelta] = useState<number | null>(null);
-  const [highlightProgress, setHighlightProgress] = useState(false);
-
-  useEffect(() => {
-    const prev = prevSpRef.current;
-    const curr = duelPassData.seasonPoints;
-
-    if (prev !== null && curr > prev) {
-      // SP вырос! Анимируем
-      const delta = curr - prev;
-      setSpDelta(delta);
-      setHighlightProgress(true);
-
-      // Плавный count-up за 1.2с
-      const start = performance.now();
-      const duration = 1200;
-      let raf = 0;
-      const tick = (now: number) => {
-        const t = Math.min(1, (now - start) / duration);
-        const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-        setAnimatedSp(Math.round(prev + (curr - prev) * eased));
-        if (t < 1) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-
-      // Скрываем дельту через 2.5с
-      const timer = setTimeout(() => {
-        setSpDelta(null);
-        setHighlightProgress(false);
-      }, 2500);
-
-      return () => {
-        cancelAnimationFrame(raf);
-        clearTimeout(timer);
-      };
-    } else {
-      setAnimatedSp(curr);
-    }
-    prevSpRef.current = curr;
-  }, [duelPassData.seasonPoints]);
 
   return (
     <div
