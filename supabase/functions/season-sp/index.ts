@@ -82,6 +82,9 @@ const calculateWinSP = (betAmount: number): number => {
 interface EventMetadata {
   duel_id?: string;
   sp_earned?: number;
+  score?: number;
+  questions_count?: number;
+  correct_count?: number;
   [key: string]: unknown;
 }
 
