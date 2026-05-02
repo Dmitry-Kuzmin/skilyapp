@@ -115,7 +115,7 @@ export function useExamReadiness(profileId: string | null): UseExamReadinessResu
       metrics: calculatedMetrics,
       readiness: calculateReadiness(calculatedMetrics),
     };
-  }, [dashboardData, activityData]);
+  }, [dashboardData, activityData, country]);
 
   return {
     readiness,
