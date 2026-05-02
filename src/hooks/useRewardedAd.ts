@@ -15,17 +15,17 @@ export interface RewardConfig {
   amount?: number;
 }
 
-export function useRewardedAd() {
+export function useRewardedAd(options?: { allowForPremium?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { isPremium } = usePremium();
   const { profileId } = useUserContext();
 
   const isAvailable = useCallback(() => {
-    if (isPremium) return false;
+    if (isPremium && !options?.allowForPremium) return false;
     if (isTelegramMiniApp()) return true;
     return false;
-  }, [isPremium]);
+  }, [isPremium, options?.allowForPremium]);
 
   useEffect(() => {
     if (!isAvailable()) return;

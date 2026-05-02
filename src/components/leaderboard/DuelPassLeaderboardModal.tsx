@@ -18,6 +18,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UnifiedModal } from "@/components/ui/unified-modal";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage, type Language } from "@/contexts/LanguageContext";
 import { useTheme } from "next-themes";
 
 interface LeaderboardEntry {
@@ -80,6 +81,12 @@ const rarityColors = {
 
 type FilterType = "global" | "friends" | "country";
 
+const localeMap: Record<Language, string> = {
+  en: "en-US",
+  es: "es-ES",
+  ru: "ru-RU",
+};
+
 // Вспомогательная функция для расчета времени
 const calculateTimeLeft = (endDate?: string | null) => {
   if (!endDate) return null;
@@ -104,9 +111,27 @@ export function DuelPassLeaderboardView({
   const userContext = useContext(UserContext);
   const profileId = userContext?.profileId ?? null;
   const user = userContext?.user ?? null;
+  const { t, language } = useLanguage();
   const { resolvedTheme } = useTheme();
   const theme = resolvedTheme ?? "dark";
   const isLightTheme = theme === "light";
+  const numberLocale = localeMap[language] ?? "en-US";
+  const lp = (path: string, params?: Record<string, string | number>) =>
+    t(`duelPass.leaderboard.${path}`, params);
+  const formatNumber = (value: number) => value.toLocaleString(numberLocale);
+  const getPluralVariant = (count: number) => {
+    if (language === "ru") {
+      const mod10 = count % 10;
+      const mod100 = count % 100;
+      if (mod10 === 1 && mod100 !== 11) return "one";
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "few";
+      return "many";
+    }
+
+    return count === 1 ? "one" : "other";
+  };
+  const getPluralizedLabel = (path: string, count: number) =>
+    lp(`${path}.${getPluralVariant(count)}`, { count: formatNumber(count) });
   const rowBaseClass = useMemo(
     () =>
       isLightTheme
@@ -214,7 +239,7 @@ export function DuelPassLeaderboardView({
       }
     } catch (err: any) {
       console.error("[DuelPassLeaderboard] Error:", err);
-      setError("Не удалось загрузить рейтинг. Попробуйте позже.");
+      setError(lp("errors.load"));
     } finally {
       setLoading(false);
     }
@@ -260,7 +285,7 @@ export function DuelPassLeaderboardView({
       setShowMyPosition(true);
     } catch (err: any) {
       console.error("[DuelPassLeaderboard] Error loading user position:", err);
-      setError("Не удалось загрузить вашу позицию. Попробуйте позже.");
+      setError(lp("errors.position"));
     } finally {
       setLoading(false);
     }
@@ -370,7 +395,7 @@ export function DuelPassLeaderboardView({
                   </Button>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
                     <Trophy className="w-3 h-3" />
-                    Соревновательный сезон
+                    {lp("seasonBadge")}
                   </div>
                 </div>
               </header>
@@ -425,22 +450,22 @@ export function DuelPassLeaderboardView({
                 <Trophy className="w-7 h-7 text-white" />
               </div>
               <div className="space-y-1.5">
-                <h3 className="text-lg font-bold">Ты ещё не в сезоне</h3>
+                <h3 className="text-lg font-bold">{lp("lockedTitle")}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-[260px]">
-                  Заработай первые SP чтобы попасть в рейтинг и побороться за призы
+                  {lp("lockedDescription")}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 justify-center">
                 <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold">
-                  <Flame className="w-3.5 h-3.5" /> Дуэль: +10 SP
+                  <Flame className="w-3.5 h-3.5" /> {lp("duelRewardHint")}
                 </span>
                 <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold">
-                  <TrendingUp className="w-3.5 h-3.5" /> Тест: +5 SP
+                  <TrendingUp className="w-3.5 h-3.5" /> {lp("testRewardHint")}
                 </span>
               </div>
               {pagination.total > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Уже {pagination.total} {pagination.total === 1 ? "участник" : pagination.total < 5 ? "участника" : "участников"} в этом сезоне
+                  {getPluralizedLabel("participants", pagination.total)}
                 </p>
               )}
             </div>
@@ -466,7 +491,7 @@ export function DuelPassLeaderboardView({
                   </Button>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-wider font-bold">
                     <Trophy className="w-3 h-3" />
-                    Соревновательный сезон
+                    {lp("seasonBadge")}
                   </div>
                 </div>
 
@@ -478,10 +503,10 @@ export function DuelPassLeaderboardView({
                         ? "text-foreground"
                         : "bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent"
                     )}>
-                      Топ игроков
+                      {lp("title")}
                     </h1>
                     <p className="text-sm text-muted-foreground max-w-xl">
-                      Бейся в дуэлях, копи XP и забирай <span className="text-yellow-500 font-bold">Premium</span> или <span className="text-yellow-500 font-bold">1000 монет</span> в конце сезона!
+                      {lp("subtitle")}
                     </p>
                   </div>
                   <div className="flex flex-row items-stretch sm:items-center gap-2 sm:gap-3 shrink-0 flex-wrap sm:flex-nowrap">
@@ -490,9 +515,9 @@ export function DuelPassLeaderboardView({
                         "flex flex-col justify-center px-4 py-2 rounded-2xl border backdrop-blur-md shrink-0 flex-1 sm:flex-none",
                         isLightTheme ? "bg-slate-100 border-slate-200" : "bg-slate-900/50 border-white/5"
                       )}>
-                        <p className="text-[10px] text-muted-foreground uppercase font-bold whitespace-nowrap">До конца сезона</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold whitespace-nowrap">{lp("seasonEndsIn")}</p>
                         <p className="text-sm font-mono font-bold text-primary whitespace-nowrap">
-                          {timeLeft.days > 0 && `${timeLeft.days}д `}
+                          {timeLeft.days > 0 && `${timeLeft.days}${lp("countdown.dayShort")} `}
                           {String(timeLeft.hours).padStart(2, '0')}:
                           {String(timeLeft.minutes).padStart(2, '0')}:
                           {String(timeLeft.seconds).padStart(2, '0')}
@@ -510,7 +535,7 @@ export function DuelPassLeaderboardView({
                       )}
                     >
                       <Trophy className="w-5 h-5 text-yellow-500 shrink-0" />
-                      <span className="font-semibold whitespace-nowrap">Зал славы</span>
+                      <span className="font-semibold whitespace-nowrap">{lp("hallOfFame")}</span>
                     </Button>
                   </div>
                 </div>
@@ -525,15 +550,15 @@ export function DuelPassLeaderboardView({
                   <TabsList className="grid w-full sm:w-auto grid-cols-3">
                     <TabsTrigger value="global" className="gap-2">
                       <Globe className="w-4 h-4" />
-                      Глобальный
+                      {lp("filters.global")}
                     </TabsTrigger>
                     <TabsTrigger value="friends" className="gap-2" disabled={!profileId}>
                       <Users className="w-4 h-4" />
-                      Друзья
+                      {lp("filters.friends")}
                     </TabsTrigger>
                     <TabsTrigger value="country" className="gap-2" disabled={!user?.language_code}>
                       <MapPin className="w-4 h-4" />
-                      Страна
+                      {lp("filters.country")}
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
@@ -542,7 +567,7 @@ export function DuelPassLeaderboardView({
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Поиск по имени..."
+                    placeholder={lp("searchPlaceholder")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-9"
@@ -558,7 +583,7 @@ export function DuelPassLeaderboardView({
                     disabled={loading}
                   >
                     <TrendingUp className="w-4 h-4" />
-                    Моё место
+                    {lp("myPlace")}
                   </Button>
                 )}
               </div>
@@ -571,10 +596,13 @@ export function DuelPassLeaderboardView({
                   <div>
                     <h2 className="text-2xl font-bold flex items-center gap-2">
                       <TrendingUp className="w-6 h-6 text-primary" />
-                      Моё место
+                      {lp("myPlace")}
                     </h2>
                     <p className="text-muted-foreground mt-1">
-                      Позиция {userPositionData.position} из {userPositionData.total_players}
+                      {lp("positionOf", {
+                        position: formatNumber(userPositionData.position),
+                        total: formatNumber(userPositionData.total_players),
+                      })}
                     </p>
                   </div>
                   <Button
@@ -582,17 +610,17 @@ export function DuelPassLeaderboardView({
                     size="sm"
                     onClick={() => setShowMyPosition(false)}
                   >
-                    Скрыть
+                    {lp("hide")}
                   </Button>
                 </div>
 
                 {/* Соседи */}
                 {userPositionData.neighbors && userPositionData.neighbors.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-semibold text-muted-foreground">Соседи</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground">{lp("neighbors")}</h3>
                     <div className="space-y-1">
                       {userPositionData.neighbors.map((neighbor) => {
-                        const name = neighbor.profile?.first_name || neighbor.profile?.username || "Игрок";
+                        const name = neighbor.profile?.first_name || neighbor.profile?.username || lp("player");
                         const isCurrentUser = neighbor.user_id === profileId;
                         const rank = (neighbor.rank || getRankFromLevel(neighbor.duel_pass_level)) as RankType;
 
@@ -619,15 +647,15 @@ export function DuelPassLeaderboardView({
                                 {name}
                                 {isCurrentUser && (
                                   <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
-                                    Вы
+                                    {lp("you")}
                                   </Badge>
                                 )}
                               </p>
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <RankBadge rank={rank} size="xs" variant="pill" />
-                                <span>Уровень {neighbor.duel_pass_level}</span>
+                                <span>{lp("level", { level: neighbor.duel_pass_level })}</span>
                                 <span>•</span>
-                                <span>{(neighbor.season_points ?? neighbor.duel_pass_xp).toLocaleString("ru-RU")} {neighbor.season_points !== undefined ? 'SP' : 'XP'}</span>
+                                <span>{formatNumber(neighbor.season_points ?? neighbor.duel_pass_xp)} {neighbor.season_points !== undefined ? 'SP' : 'XP'}</span>
                               </div>
                             </div>
                           </div>
@@ -659,9 +687,9 @@ export function DuelPassLeaderboardView({
                     <div className="absolute inset-0 bg-slate-400/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="text-center min-w-0 w-full">
-                    <p className="font-bold text-sm truncate text-white uppercase tracking-tight">{absoluteTop3[1]?.profile?.first_name || 'Гонщик'}</p>
+                    <p className="font-bold text-sm truncate text-white uppercase tracking-tight">{absoluteTop3[1]?.profile?.first_name || lp("podium.racer")}</p>
                     <div className="mt-2 flex flex-col items-center gap-1">
-                      <span className="text-[10px] font-black text-slate-400/80 uppercase tracking-widest leading-none">Приз</span>
+                      <span className="text-[10px] font-black text-slate-400/80 uppercase tracking-widest leading-none">{lp("podium.prize")}</span>
                       <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-200 font-bold shadow-inner">
                         <Coins className="w-3 h-3 text-slate-400" />
                         500
@@ -687,12 +715,12 @@ export function DuelPassLeaderboardView({
                     <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full animate-pulse" />
                   </div>
                   <div className="text-center min-w-0 w-full">
-                    <p className="font-black text-base md:text-lg truncate bg-gradient-to-r from-yellow-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent uppercase tracking-tighter">{absoluteTop3[0]?.profile?.first_name || 'Чемпион'}</p>
+                    <p className="font-black text-base md:text-lg truncate bg-gradient-to-r from-yellow-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent uppercase tracking-tighter">{absoluteTop3[0]?.profile?.first_name || lp("podium.champion")}</p>
                     <div className="mt-2 flex flex-col items-center gap-1">
-                      <span className="text-[11px] font-black text-yellow-500 uppercase tracking-[0.2em] leading-none">Награда</span>
+                      <span className="text-[11px] font-black text-yellow-500 uppercase tracking-[0.2em] leading-none">{lp("podium.reward")}</span>
                       <div className="mt-1 flex items-center gap-2 px-4 py-2 rounded-2xl bg-yellow-400 text-yellow-950 text-[11px] font-black uppercase tracking-wider shadow-[0_4px_15px_rgba(234,179,8,0.4)] transition-transform group-hover:scale-105">
                         <Star className="w-4 h-4 fill-yellow-950" />
-                        Premium
+                        {lp("podium.premium")}
                       </div>
                     </div>
                   </div>
@@ -712,9 +740,9 @@ export function DuelPassLeaderboardView({
                     <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="text-center min-w-0 w-full">
-                    <p className="font-bold text-sm truncate text-white uppercase tracking-tight">{absoluteTop3[2]?.profile?.first_name || 'Гонщик'}</p>
+                    <p className="font-bold text-sm truncate text-white uppercase tracking-tight">{absoluteTop3[2]?.profile?.first_name || lp("podium.racer")}</p>
                     <div className="mt-2 flex flex-col items-center gap-1">
-                      <span className="text-[10px] font-black text-orange-400/80 uppercase tracking-widest leading-none">Приз</span>
+                      <span className="text-[10px] font-black text-orange-400/80 uppercase tracking-widest leading-none">{lp("podium.prize")}</span>
                       <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-orange-200 font-bold shadow-inner">
                         <Coins className="w-3 h-3 text-orange-400" />
                         250
@@ -728,11 +756,11 @@ export function DuelPassLeaderboardView({
             <div className="flex items-center justify-between px-2 pt-4">
               <div className="flex items-center gap-2">
                 <div className="w-1 h-6 bg-primary rounded-full" />
-                <h2 className="text-xl font-bold tracking-tight">Полный рейтинг</h2>
+                <h2 className="text-xl font-bold tracking-tight">{lp("fullRanking")}</h2>
               </div>
               <Badge variant="secondary" className="bg-white/5 text-muted-foreground border-white/10 flex items-center gap-1.5 px-3 py-1 rounded-full">
                 <Sparkles className="w-3 h-3 text-yellow-500" />
-                <span>{pagination.total || filteredLeaders.length} игроков</span>
+                <span>{getPluralizedLabel("players", pagination.total || filteredLeaders.length)}</span>
               </Badge>
             </div>
 
@@ -740,14 +768,14 @@ export function DuelPassLeaderboardView({
               {/* Шапка "таблицы" */}
               <div className="flex items-center px-6 py-2 text-[10px] uppercase font-black text-muted-foreground tracking-widest">
                 <div className="w-10">#</div>
-                <div className="flex-1 ml-4">Гонщик</div>
-                <div className="hidden sm:block w-24 text-center">Уровень</div>
+                <div className="flex-1 ml-4">{lp("table.racer")}</div>
+                <div className="hidden sm:block w-24 text-center">{lp("table.level")}</div>
                 <div className="w-24 text-right">SP</div>
               </div>
 
               <div className="space-y-2">
                 {filteredLeaders.map((leader, index) => {
-                  const name = leader.profile?.first_name || leader.profile?.username || "Гонщик";
+                  const name = leader.profile?.first_name || leader.profile?.username || lp("podium.racer");
                   const isCurrentUser = leader.user_id === profileId;
                   const rank = (leader.rank || getRankFromLevel(leader.duel_pass_level)) as RankType;
                   const position = leader.position || (pagination.page - 1) * pagination.page_size + index + 1;
@@ -804,7 +832,7 @@ export function DuelPassLeaderboardView({
                       {/* Уровень (LVL) - Скрываем на мобилках */}
                       <div className="hidden sm:flex w-24 flex-col items-center shrink-0">
                         <div className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold text-muted-foreground uppercase">
-                          Ур. {leader.duel_pass_level}
+                          {lp("levelShort", { level: leader.duel_pass_level })}
                         </div>
                       </div>
 
@@ -816,7 +844,7 @@ export function DuelPassLeaderboardView({
                             ? (isLightTheme ? "text-foreground text-lg" : "text-white text-lg")
                             : (isLightTheme ? "text-foreground text-sm md:text-base" : "text-white/90 text-sm md:text-base")
                         )}>
-                          {(leader.season_points ?? 0).toLocaleString("ru-RU")}
+                          {formatNumber(leader.season_points ?? 0)}
                           <span className="text-[9px] ml-1 opacity-50 uppercase font-black">SP</span>
                         </p>
                       </div>
@@ -837,23 +865,23 @@ export function DuelPassLeaderboardView({
                     <UserAvatar profileId={profileId} size="lg" className="ring-4 ring-white/30 shadow-2xl" />
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-lg font-black text-white leading-none">Ты</p>
+                        <p className="text-lg font-black text-white leading-none">{lp("sticky.you")}</p>
                         <Badge className="bg-white/20 hover:bg-white/30 text-[9px] uppercase font-black text-white border-0 py-0 px-1.5 h-4">
                           LVL {userPositionData?.user_data?.duel_pass_level || 1}
                         </Badge>
                       </div>
                       <p className="text-[10px] text-white/80 font-bold mt-1.5 uppercase tracking-wider flex items-center gap-1">
                         <Flame className="w-3 h-3 text-orange-400" />
-                        До топ-10: <span className="text-white font-black">1.2k XP</span>
+                        {lp("sticky.toTop10")} <span className="text-white font-black">1.2k XP</span>
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-black text-white font-mono tabular-nums leading-none">
-                      {(userPositionData?.user_data?.season_points ?? userPositionData?.user_data?.duel_pass_xp ?? 0).toLocaleString()}
+                      {formatNumber(userPositionData?.user_data?.season_points ?? userPositionData?.user_data?.duel_pass_xp ?? 0)}
                       <span className="text-[10px] ml-1 text-white/60">SP</span>
                     </p>
-                    <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em] mt-1">Твой прогресс</p>
+                    <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.2em] mt-1">{lp("sticky.progress")}</p>
                   </div>
                 </div>
               </div>
@@ -863,7 +891,10 @@ export function DuelPassLeaderboardView({
             {pagination.total_pages > 1 && (
               <div className="flex items-center justify-between px-6 py-4 border-t">
                 <div className="text-sm text-muted-foreground">
-                  Страница {pagination.page} из {pagination.total_pages}
+                  {lp("pagination.pageOf", {
+                    page: pagination.page,
+                    total: pagination.total_pages,
+                  })}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -873,7 +904,7 @@ export function DuelPassLeaderboardView({
                     disabled={pagination.page <= 1 || loading}
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Назад
+                    {lp("pagination.previous")}
                   </Button>
                   <Button
                     variant="outline"
@@ -881,7 +912,7 @@ export function DuelPassLeaderboardView({
                     onClick={() => loadTopLeaderboard(pagination.page + 1)}
                     disabled={pagination.page >= pagination.total_pages || loading}
                   >
-                    Вперёд
+                    {lp("pagination.next")}
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </div>
@@ -902,4 +933,3 @@ export function DuelPassLeaderboardView({
     </>
   );
 }
-
