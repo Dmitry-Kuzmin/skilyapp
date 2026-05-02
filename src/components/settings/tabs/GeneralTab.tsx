@@ -374,24 +374,7 @@ export const GeneralTab: React.FC = () => {
             <Separator className="bg-slate-200 dark:bg-slate-700" />
 
 
-            {/* TON Smart Pay — через AppKit Alpha */}
-            <div className="pt-2">
-                <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#0088CC]/10 flex items-center justify-center shrink-0">
-                        <img
-                            src={resolvedTheme === 'dark'
-                                ? "/TON%20Logo%20/svg/icon/icon_TON_white.svg"
-                                : "/TON%20Logo%20/svg/icon/icon_TON_color.svg"}
-                            className="w-5 h-5 drop-shadow-sm transition-all duration-300"
-                            alt="TON"
-                        />
-                    </div>
-                    <h3 className="text-xs font-bold text-[#0088CC] uppercase tracking-widest leading-none">
-                        {t('unifiedSettings.tonTitle')}
-                    </h3>
-                </div>
-                <TonPaymentWidget mode="full" />
-            </div>
+            {/* TON_DISABLED: TON Smart Pay section hidden */}
         </div>
     );
 };
