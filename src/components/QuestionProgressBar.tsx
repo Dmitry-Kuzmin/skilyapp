@@ -178,35 +178,87 @@ export function QuestionProgressBar({
               const isCurrent = i === currentIndex;
               const isCorrect = answered && answers[i].isCorrect;
               const isWrong   = answered && !answers[i].isCorrect;
-
-              // На мобилке при >20 вопросов — тонкие линии, иначе — капсулы
+              const isLast    = i === answers.length - 1;
               const isMobileLines = totalQuestions > 20;
 
               return (
                 <motion.div
                   key={i}
-                  initial={answered ? { scaleY: 0.5, opacity: 0 } : false}
-                  animate={{ scaleY: 1, opacity: 1 }}
-                  transition={{ duration: 0.25, ease: 'backOut' }}
+                  initial={answered ? { scale: 0.4, opacity: 0 } : false}
+                  animate={
+                    isWrong && isLast
+                      ? { scale: [0.4, 1.15, 0.95, 1.05, 1], x: [0, -2, 2, -1, 0], opacity: 1 }
+                      : isCorrect && isLast
+                      ? { scale: [0.4, 1.25, 0.95, 1], opacity: 1 }
+                      : { scale: 1, opacity: 1 }
+                  }
+                  transition={{
+                    duration: isLast && answered ? 0.5 : 0.25,
+                    ease: isLast && answered ? 'easeOut' : 'backOut',
+                  }}
                   className={cn(
-                    "flex-1 min-w-0 rounded-full transition-colors duration-300 origin-center",
-                    // Высота: тонкие линии на мобилке если вопросов много
+                    "flex-1 min-w-0 rounded-full origin-center relative overflow-hidden",
+                    "transition-[background,box-shadow] duration-500",
                     isMobileLines
                       ? "h-[3px] sm:h-[7px]"
-                      : "h-[6px] sm:h-[8px]",
-                    // Цвет по состоянию
-                    isCorrect  && "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]",
-                    isWrong    && "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]",
-                    isCurrent  && !answered && "bg-blue-400/70",
-                    !answered  && !isCurrent && "bg-white/10 dark:bg-white/8",
+                      : "h-[7px] sm:h-[9px]",
+
+                    // ── ВЕРНО: emerald → teal градиент + лёгкое свечение
+                    isCorrect && [
+                      "bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400",
+                      "shadow-[0_0_10px_rgba(16,185,129,0.55),inset_0_-1px_2px_rgba(0,0,0,0.15)]",
+                    ],
+
+                    // ── ОШИБКА: rose → red градиент + горячее свечение
+                    isWrong && [
+                      "bg-gradient-to-r from-rose-500 via-red-500 to-rose-500",
+                      "shadow-[0_0_10px_rgba(239,68,68,0.55),inset_0_-1px_2px_rgba(0,0,0,0.2)]",
+                    ],
+
+                    // ── ТЕКУЩИЙ: indigo → cyan, пульсация
+                    isCurrent && !answered && [
+                      "bg-gradient-to-r from-indigo-500 via-blue-400 to-cyan-400",
+                      "shadow-[0_0_12px_rgba(99,102,241,0.6)]",
+                    ],
+
+                    // ── ПУСТОЙ
+                    !answered && !isCurrent && "bg-white/[0.07] dark:bg-white/[0.06]",
                   )}
                   style={
-                    // Пульсация на текущем
                     isCurrent && !answered
-                      ? { animation: 'pulse 1.4s ease-in-out infinite' }
+                      ? { animation: 'pulse 1.6s ease-in-out infinite' }
                       : undefined
                   }
-                />
+                >
+                  {/* Бегущий блик на текущем (показывает что юзер ЗДЕСЬ) */}
+                  {isCurrent && !answered && (
+                    <motion.div
+                      initial={{ x: '-100%' }}
+                      animate={{ x: '200%' }}
+                      transition={{
+                        duration: 1.8,
+                        repeat: Infinity,
+                        ease: 'easeInOut',
+                      }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent"
+                      style={{ width: '40%' }}
+                    />
+                  )}
+
+                  {/* Glossy блик-shine на правильных ответах */}
+                  {isCorrect && (
+                    <div
+                      className="absolute inset-x-0 top-0 h-[40%] rounded-t-full bg-gradient-to-b from-white/35 to-transparent pointer-events-none"
+                    />
+                  )}
+
+                  {/* Glossy на ошибочных */}
+                  {isWrong && (
+                    <div
+                      className="absolute inset-x-0 top-0 h-[40%] rounded-t-full bg-gradient-to-b from-white/25 to-transparent pointer-events-none"
+                    />
+                  )}
+                </motion.div>
               );
             })}
           </div>
