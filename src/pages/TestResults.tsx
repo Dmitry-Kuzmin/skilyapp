@@ -280,8 +280,8 @@ const TestResults = () => {
   // Sync Daily Quests — ВСЕГДА при показе результатов (не зависит от rewardResult)
   useEffect(() => {
     const syncQuests = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.id || questSyncRef.current || !state) return;
+      const userId = contextProfileId;
+      if (!userId || questSyncRef.current || !state) return;
       questSyncRef.current = true;
 
       try {
@@ -289,15 +289,15 @@ const TestResults = () => {
         const updates: QuestUpdateParams[] = [];
 
         if (answers.length > 0) {
-          updates.push({ userId: user.id, category: 'questions', delta: answers.length });
+          updates.push({ userId, category: 'questions', delta: answers.length });
         }
         if (hasNoErrors) {
-          updates.push({ userId: user.id, category: 'accuracy', delta: answers.length });
+          updates.push({ userId, category: 'accuracy', delta: answers.length });
         }
         if (mode === 'exam' || mode === 'exam-russia') {
-          updates.push({ userId: user.id, category: 'exams', delta: 1 });
+          updates.push({ userId, category: 'exams', delta: 1 });
           if (passed && hasNoErrors) {
-            updates.push({ userId: user.id, category: 'perfect_exams', delta: 1 });
+            updates.push({ userId, category: 'perfect_exams', delta: 1 });
           }
         }
 
