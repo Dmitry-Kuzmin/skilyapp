@@ -247,12 +247,11 @@ const TestResults = () => {
           }, 1500);
         }
 
-        // Toast как раньше — для обычных наград без level-up
         if (!rewardResult.level_up) {
           toast.success(t("testResults.rewardToast.title"), {
             description: t("testResults.rewardToast.description", {
-              coins: rewardResult.coins_awarded || 0,
-              xp: rewardResult.xp_awarded ?? rewardResult.sp_awarded ?? 0,
+              sp: rewardResult.sp_awarded ?? 0,
+              xp: rewardResult.xp_awarded ?? 0,
             }),
           });
         }
