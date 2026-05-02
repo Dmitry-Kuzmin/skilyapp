@@ -651,77 +651,110 @@ const TestResults = () => {
 
         {isGuest && (
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-            className="mb-6 overflow-hidden rounded-[2rem] border border-indigo-400/30 bg-gradient-to-br from-indigo-500/15 via-sky-500/10 to-emerald-500/10 shadow-2xl shadow-indigo-500/10"
+            transition={{ delay: 0.45, type: "spring", stiffness: 260, damping: 24 }}
+            className="mb-6 relative overflow-hidden rounded-[2rem]"
           >
-            <div className="p-5 sm:p-6">
-              <div className="flex items-start gap-4">
-                <div className="shrink-0 w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-indigo-200" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-300 mb-2">
-                    {guestPlanText({
-                      ru: "Skily AI диагностика",
-                      es: "Diagnóstico Skily AI",
-                      en: "Skily AI diagnosis",
-                    })}
-                  </p>
-                  <h2 className="text-xl sm:text-2xl font-black text-foreground leading-tight">
-                    {guestPlanText({
-                      ru: "Твоя персональная программа почти готова",
-                      es: "Tu programa personalizado está casi listo",
-                      en: "Your personal plan is almost ready",
-                    })}
-                  </h2>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                    {guestPlanText({
-                      ru: `По тесту Skily AI определил уровень: ${aiPlanPreview.level}. Главный фокус: ${aiPlanPreview.focus}.`,
-                      es: `Según tu prueba, Skily AI detectó tu nivel: ${aiPlanPreview.level}. Enfoque principal: ${aiPlanPreview.focus}.`,
-                      en: `Based on your test, Skily AI detected your level: ${aiPlanPreview.level}. Main focus: ${aiPlanPreview.focus}.`,
-                    })}
-                  </p>
+            {/* Multi-layer background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1040] via-[#0f1a30] to-[#0a1520]" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-violet-600/25 via-indigo-500/15 to-emerald-500/10" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-400/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent" />
+            {/* Glow orbs */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-violet-500/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-indigo-500/15 blur-2xl pointer-events-none" />
+
+            <div className="relative p-6 sm:p-8">
+              {/* Header */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/20 border border-violet-400/30">
+                  <Sparkles className="w-3 h-3 text-violet-300" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">
+                    {guestPlanText({ ru: "Skily AI · Диагностика", es: "Skily AI · Diagnóstico", en: "Skily AI · Diagnosis" })}
+                  </span>
                 </div>
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl bg-background/50 border border-white/10 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.16em] font-black text-muted-foreground">
-                    {guestPlanText({ ru: "План", es: "Plan", en: "Plan" })}
-                  </p>
-                  <p className="mt-1 text-lg font-black">{aiPlanPreview.duration} días</p>
-                </div>
-                <div className="rounded-2xl bg-background/50 border border-white/10 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.16em] font-black text-muted-foreground">
-                    {guestPlanText({ ru: "Ошибки", es: "Errores", en: "Mistakes" })}
-                  </p>
-                  <p className="mt-1 text-lg font-black">{incorrectCount}</p>
-                </div>
-                <div className="rounded-2xl bg-background/50 border border-white/10 p-4">
-                  <p className="text-[10px] uppercase tracking-[0.16em] font-black text-muted-foreground">
-                    {guestPlanText({ ru: "Бонус", es: "Bonus", en: "Bonus" })}
-                  </p>
-                  <p className="mt-1 text-lg font-black">+300</p>
-                </div>
-              </div>
-
-              <Button
-                className="mt-5 w-full h-12 text-base font-black bg-white text-slate-950 hover:bg-indigo-50"
-                onClick={() => openModal('AUTH', { initialStep: 'email' })}
-              >
+              <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-2">
                 {guestPlanText({
-                  ru: "Сохранить программу и забрать 300 монет",
-                  es: "Guardar mi programa y reclamar 300 monedas",
-                  en: "Save my plan and claim 300 coins",
+                  ru: "Твоя программа готова",
+                  es: "Tu plan está listo",
+                  en: "Your plan is ready",
                 })}
-              </Button>
-              <p className="mt-3 text-center text-xs text-muted-foreground">
+              </h2>
+              <p className="text-sm text-slate-400 leading-relaxed mb-6">
                 {guestPlanText({
-                  ru: "Регистрация бесплатная. Мы сохраним ошибки, уровень и следующий шаг.",
-                  es: "Registro gratis. Guardamos tus errores, nivel y siguiente paso.",
-                  en: "Free sign-up. We save your mistakes, level and next step.",
+                  ru: `ИИ определил уровень: ${aiPlanPreview.level}. Фокус: ${aiPlanPreview.focus}.`,
+                  es: `IA detectó tu nivel: ${aiPlanPreview.level}. Enfoque: ${aiPlanPreview.focus}.`,
+                  en: `AI detected your level: ${aiPlanPreview.level}. Focus: ${aiPlanPreview.focus}.`,
+                })}
+              </p>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {[
+                  { label: guestPlanText({ ru: "ПЛАН", es: "PLAN", en: "PLAN" }), value: `${aiPlanPreview.duration} días`, color: "text-indigo-300" },
+                  { label: guestPlanText({ ru: "ОШИБКИ", es: "ERRORES", en: "MISTAKES" }), value: String(incorrectCount), color: "text-rose-300" },
+                  { label: guestPlanText({ ru: "БОНУС", es: "BONUS", en: "BONUS" }), value: "+100 🪙", color: "text-amber-300" },
+                ].map((stat) => (
+                  <div key={stat.label} className="rounded-2xl bg-white/5 border border-white/8 p-3.5 text-center">
+                    <p className="text-[9px] uppercase tracking-[0.18em] font-black text-slate-500 mb-1">{stat.label}</p>
+                    <p className={`text-base font-black ${stat.color}`}>{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Coin reward highlight */}
+              <div className="relative mb-5 p-4 rounded-2xl overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-orange-500/10 border border-amber-400/25 rounded-2xl" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(251,191,36,0.08),transparent_70%)]" />
+                <div className="relative flex items-center gap-4">
+                  <div className="shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400/30 to-orange-500/20 border border-amber-400/40 flex items-center justify-center">
+                    <span className="text-3xl">🪙</span>
+                  </div>
+                  <div>
+                    <p className="text-lg font-black text-white">
+                      {guestPlanText({ ru: "+100 монет при регистрации", es: "+100 monedas al registrarte", en: "+100 coins on sign-up" })}
+                    </p>
+                    <p className="text-xs text-amber-300/70 mt-0.5">
+                      {guestPlanText({
+                        ru: "Потрать на дуэли, AI-буcтеры и бонусы XP",
+                        es: "Úsalas en duelos, boosters de IA y XP",
+                        en: "Use them in duels, AI boosters and XP",
+                      })}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA Button */}
+              <button
+                className="relative w-full h-14 rounded-2xl overflow-hidden group"
+                onClick={() => {
+                  localStorage.setItem("skily_demo_coins_pending", "100");
+                  localStorage.setItem("skily_demo_completed", "completed");
+                  openModal('AUTH', { initialStep: 'email' });
+                }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-indigo-500 to-violet-600 bg-[length:200%_100%] group-hover:bg-[position:100%_0] transition-[background-position] duration-500" />
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-indigo-500 to-violet-600" />
+                <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                <span className="relative z-10 text-base font-black text-white tracking-wide flex items-center justify-center gap-2">
+                  <span>🎯</span>
+                  {guestPlanText({
+                    ru: "Сохранить план и забрать 100 монет",
+                    es: "Guardar mi plan y reclamar 100 monedas",
+                    en: "Save my plan and claim 100 coins",
+                  })}
+                </span>
+              </button>
+
+              <p className="mt-3 text-center text-xs text-slate-500">
+                {guestPlanText({
+                  ru: "Бесплатно · Сохраним ошибки, уровень и следующий шаг",
+                  es: "Gratis · Guardamos errores, nivel y siguiente paso",
+                  en: "Free · We save your mistakes, level and next step",
                 })}
               </p>
             </div>
