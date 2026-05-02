@@ -136,7 +136,7 @@ export function ContextSettingsSheet({
     <UnifiedModal
       open={open}
       onOpenChange={onOpenChange}
-      title={getTitle()}
+      title={titleWithIcon}
       className={cn(
         'w-full max-w-lg',
         isDarkTheme ? 'bg-zinc-950' : 'bg-white'
