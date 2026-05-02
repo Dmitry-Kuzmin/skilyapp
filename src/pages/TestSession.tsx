@@ -1000,10 +1000,18 @@ const TestSession = () => {
 
   // Wrapper that handles UI cleanup (AI, Translation) + Navigation
   const nextQuestion = () => {
-    // Используем актуальное количество вопросов для текущего раунда (для Марафона/Мастерства)
     const currentTotal = questionsState.length > 0 ? questionsState.length : questions.length;
 
-    // === PHASE 2: selectedOption и isAnswerLocked теперь сбрасываются в examStore.nextQuestion() ===
+    // Show guest paywall after 3rd answered question (demo mode)
+    if (isGuest && !guestPaywallShownRef.current && answers.length === 2) {
+      guestPaywallShownRef.current = true;
+      engineNextQuestion();
+      setShowTranslation(false);
+      closeAIChat();
+      setTimeout(() => setShowGuestPaywall(true), 400);
+      return;
+    }
+
     if (currentIndex < currentTotal - 1) {
       engineNextQuestion();
       setShowTranslation(false);
