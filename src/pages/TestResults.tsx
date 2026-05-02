@@ -671,8 +671,9 @@ const TestResults = () => {
           >
             <Trophy className="w-5 h-5 text-indigo-400 shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-indigo-200">Отличный результат! +30 SP бонус ⚡</p>
-              <p className="text-xs text-indigo-300/60 mt-0.5">100% даст ещё больше — <span className="text-emerald-400 font-bold">+50 SP</span></p>
+              <p className="text-sm font-semibold text-indigo-200">{t("testResults.greatBonus.title")}</p>
+              <p className="text-xs text-indigo-300/60 mt-0.5"
+                dangerouslySetInnerHTML={{ __html: t("testResults.greatBonus.subtitle").replace(/<b>/g, '<span class="text-emerald-400 font-bold">').replace(/<\/b>/g, '</span>') }} />
             </div>
           </motion.div>
         )}
