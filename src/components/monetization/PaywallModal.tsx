@@ -98,10 +98,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
-  const showTonPayment = isPaymentMethodAvailable('ton', currentPlatform);
+  const showTonPayment = false; // TON_DISABLED: isPaymentMethodAvailable('ton', currentPlatform);
 
-  const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus' | 'ton'>(
-    showPaddlePayment ? 'paddle' : (showCryptomusPayment ? 'cryptomus' : 'ton')
+  const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus'>(
+    showPaddlePayment ? 'paddle' : 'cryptomus'
   );
 
   useEffect(() => {
