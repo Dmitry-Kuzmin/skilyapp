@@ -111,6 +111,7 @@ const LingoPage = lazy(() => import("../pages/LingoPage"));
 const LingoLessonPage = lazy(() => import("../pages/LingoLessonPage"));
 
 const DailyBonus = lazy(() => import("../pages/DailyBonus"));
+const SkilyChatPage = lazy(() => import("../pages/SkilyChatPage"));
 const DGTTestsSimple = lazy(() => import("../pages/DGTTestsSimple"));
 // Terms, Privacy, SubscriptionTerms, RefundPolicy moved to Legal.tsx or redirects
 const About = lazy(() => import("../pages/About"));
