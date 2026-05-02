@@ -31,7 +31,7 @@ import { GlobalSettingsManager } from "@/components/settings";
 import { useSessionManager } from "@/hooks/useSessionManager";
 
 import { SmartOnboardingFlow } from "@/components/onboarding/SmartOnboardingFlow";
-import { useTonWalletSync } from "@/hooks/useTonWalletSync";
+// TON_DISABLED: import { useTonWalletSync } from "@/hooks/useTonWalletSync";
 
 /**
  * Глобальный обработчик сессий.
