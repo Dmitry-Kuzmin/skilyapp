@@ -1931,11 +1931,7 @@ export function BoostShopModal({
 
           {/* Right: Balance + Close button */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            {showTonPayment && (
-              <div className="mr-0.5 sm:mr-1">
-                <TonWalletHeader />
-              </div>
-            )}
+            {/* TON_DISABLED: {showTonPayment && <div className="mr-0.5 sm:mr-1"><TonWalletHeader /></div>} */}
             <button
               onClick={async () => {
                 setActiveTab("history");
