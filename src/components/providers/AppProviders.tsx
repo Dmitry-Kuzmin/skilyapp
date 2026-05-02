@@ -41,11 +41,7 @@ const SessionHandler = () => {
   return <SmartOnboardingFlow />;
 };
 
-/** Syncs TON wallet address to Supabase (inside AppKitProvider) */
-const TonWalletSyncHandler = () => {
-  useTonWalletSync();
-  return null;
-};
+// TON_DISABLED: const TonWalletSyncHandler = () => { useTonWalletSync(); return null; };
 
 interface AppProvidersProps {
   children: ReactNode;
