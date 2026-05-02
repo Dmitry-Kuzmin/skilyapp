@@ -231,9 +231,11 @@ serve(async (req) => {
         sp_base: baseSp,
         sp_bonus: bonusSp,
         coins_awarded: 0,
+        xp_awarded: isTooFast ? 0 : (rewardData as any)?.xp_awarded,
         level_up: levelUp,
         new_level: newLevel,
         total_sp: totalSp,
+        speed_cheat_detected: isTooFast ? true : undefined,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
