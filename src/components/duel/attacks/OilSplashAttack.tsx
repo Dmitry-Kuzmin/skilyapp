@@ -87,9 +87,8 @@ export const OilSplashAttack: React.FC<OilSplashAttackProps> = ({ isActive, onCl
   }, [cleanPercent]);
 
   // --- Configuration ---
-  // КРИТИЧНО: Адаптивный размер губки - больше на desktop для экстремально быстрой очистки
-  const SPONGE_SIZE = isDesktop ? 650 : 200; // Увеличено для десктопа (было 420) и мобилок (было 180)
-  const REQUIRED_CLEAN_PERCENTAGE = 80; // Снижено с 85 для более быстрого завершения
+  const SPONGE_SIZE = isDesktop ? 90 : 70; // Размер губки в px — должен требовать реальной очистки
+  const REQUIRED_CLEAN_PERCENTAGE = 85; // % очищенных пикселей для завершения
   
   // Fluid Physics Config - оптимизировано для desktop
   // КРИТИЧНО: Адаптивный COLUMN_WIDTH - больше на desktop = меньше колонок = быстрее
