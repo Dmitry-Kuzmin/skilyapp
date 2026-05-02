@@ -772,7 +772,13 @@ export function DuelBattleFullscreen({ duelId, onExit, onDuelFinished, onHide, o
                 className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-48 md:h-48 rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border-4 border-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.5)] group flex-shrink-0"
               >
                 <div className="absolute inset-0 bg-blue-500/10 mix-blend-overlay opacity-0 transition-opacity duration-500 z-10" />
-                <img src={myPhotoUrl || getFallbackAvatar(myName)} className="w-full h-full object-cover transform scale-[1.02] transition-transform duration-700" alt={myName || 'Player 1'} />
+                {myPhotoUrl ? (
+                  <img src={myPhotoUrl} className="w-full h-full object-cover transform scale-[1.02] transition-transform duration-700" alt={myName || 'Player 1'} />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-800 text-white font-black text-3xl sm:text-5xl md:text-7xl uppercase">
+                    {(myName || 'P').charAt(0)}
+                  </div>
+                )}
               </motion.div>
               <motion.span
                 initial={{ opacity: 0, y: 10 }}

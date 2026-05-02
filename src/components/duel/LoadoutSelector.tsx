@@ -678,8 +678,6 @@ export const LoadoutSelector: React.FC<LoadoutSelectorProps> = ({ onLoadoutChang
           }}
           title="OVERCLOCKING"
           description={l.overclockingDescription}
-          title="OVERCLOCKING"
-          description="Посмотри рекламу и разблокируй слот на эту дуэль. Временный root-доступ..."
         />
 
         {showConfetti && (
