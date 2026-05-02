@@ -415,7 +415,7 @@ const Layout = memo(({ children, hideNavigation = false }: LayoutProps) => {
                           import('@/store/modalStore').then(m => m.useModalStore.getState().openModal('REFERRAL'));
                         }}
                         className={cn(
-                          "relative hidden sm:flex flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
+                          "relative hidden flex-shrink-0 -mr-1 h-10 w-10 items-center justify-center rounded-lg transition-all",
                           "text-muted-foreground hover:text-primary hover:border-[0.5px] hover:border-white/80 hover:bg-primary/10 hover:h-9 hover:w-9"
                         )}
                         title="Реферальная программа"
