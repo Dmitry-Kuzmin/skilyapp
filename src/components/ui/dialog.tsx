@@ -243,11 +243,10 @@ const DialogContent = React.forwardRef<
         {children}
         {!hideCloseButton && (
           <DialogPrimitive.Close
-            className="absolute right-6 top-6 z-50 flex items-center justify-center h-10 w-10 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-300 hover:opacity-100 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-95 shadow-[0_4px_15px_rgba(0,0,0,0.3)] group backdrop-blur-md focus:outline-none"
+            className="absolute right-6 top-[22px] z-50 flex items-center justify-center h-9 w-9 bg-white/5 border border-white/10 rounded-full text-zinc-400 opacity-60 transition-all duration-200 hover:opacity-100 hover:bg-white/10 hover:text-white active:scale-95 focus:outline-none"
             aria-label="Закрыть модальное окно"
           >
-            <X className="h-5 w-5 transition-transform duration-500 group-hover:rotate-180" />
-            <div className="absolute inset-0 rounded-full border border-white/0 group-hover:border-white/20 transition-all duration-300 scale-125 group-hover:scale-100" />
+            <X className="h-4 w-4" />
             <span className="sr-only">Закрыть</span>
           </DialogPrimitive.Close>
         )}
