@@ -558,7 +558,13 @@ export function DuelResult({ duelId, onRematch, onBackToMenu, initialSnapshot }:
             <motion.div initial={{ y: -100, opacity: 0, scale: 0.8 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -100, opacity: 0, scale: 0.9 }} className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] w-[360px] max-w-[calc(100vw-32px)]">
               <div className="bg-slate-900/90 dark:bg-slate-950/95 backdrop-blur-3xl rounded-[2rem] p-5 shadow-2xl relative overflow-hidden">
                 <div className="flex items-start gap-4">
-                  <img src={results.opponentAvatar || getFallbackAvatar(results.opponentName)} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/20" alt="" />
+                  {results.opponentAvatar ? (
+                    <img src={results.opponentAvatar} className="w-14 h-14 rounded-2xl object-cover border-2 border-white/20" alt="" />
+                  ) : (
+                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-slate-700 border-2 border-white/20 text-white font-black text-2xl uppercase">
+                      {(results.opponentName || 'B').charAt(0)}
+                    </div>
+                  )}
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-white font-black text-xs uppercase tracking-widest opacity-60">{t('duelResult.rematch.title')}</span>
