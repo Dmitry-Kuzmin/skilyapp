@@ -74,6 +74,7 @@ import { useRussiaExamAdapter } from "@/hooks/test-session/useRussiaExamAdapter"
 import { useTestInteraction } from "@/hooks/test-session/useTestInteraction";
 import { useTestCompletion } from "@/hooks/test-session/useTestCompletion";
 import { GameBackground } from "@/components/test-session/GameBackground";
+import { useModalStore } from "@/store/modalStore";
 
 type QuestionData = {
   id: string;
