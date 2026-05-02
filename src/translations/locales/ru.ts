@@ -2211,7 +2211,19 @@ export const ru = {
     backToTests: "Вернуться к тестам",
     rewardToast: {
       title: "Награды получены!",
-      description: "+{{coins}} монет, +{{xp}} XP",
+      description: "+{{sp}} SP, +{{xp}} XP",
+    },
+    bonusHint: {
+      title: "Достигни <b>90%</b> — получи <b>+30 SP бонус</b>",
+      subtitle: "За идеальный результат (100%) — <b>+50 SP</b>!",
+    },
+    perfectBonus: {
+      title: "Идеальный результат! 🔥",
+      subtitle: "+50 SP бонус за безошибочное прохождение",
+    },
+    greatBonus: {
+      title: "Отличный результат! +30 SP бонус ⚡",
+      subtitle: "100% даст ещё больше — <b>+50 SP</b>",
     },
     redemption: {
       title: "Навык восстановлен!",
