@@ -53,11 +53,6 @@
   ],
   "assertPages": [
     {
-      "route": "/",
-      "outputPath": "index.html",
-      "canonical": "https://skilyapp.com"
-    },
-    {
       "route": "/ru",
       "outputPath": "ru.html",
       "canonical": "https://skilyapp.com/ru",
@@ -68,12 +63,6 @@
       "outputPath": "es.html",
       "canonical": "https://skilyapp.com/es",
       "langAssert": "es"
-    },
-    {
-      "route": "/en",
-      "outputPath": "en.html",
-      "canonical": "https://skilyapp.com/en",
-      "langAssert": "en"
     },
     {
       "route": "/about",
