@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect, useMemo } from "react";
 import { X } from "lucide-react";
-import { SkilyBrandLogo } from "../SkilyBrandLogo";
 import { getImageUrl } from "@/utils/imageUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
