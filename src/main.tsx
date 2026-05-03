@@ -30,6 +30,12 @@ const isMarketingRoute = pathname === "/" || pathname === "/curso";
 // КРИТИЧНО: Помечаем, что main.tsx загрузился (как можно раньше!)
 if (typeof window !== 'undefined') {
   window._mainLoaded = true;
+  // Successful boot — reset module-error reload counter so a past stale session
+  // doesn't trigger the recovery screen on the next reload.
+  try {
+    localStorage.removeItem('module_reload_count');
+    localStorage.removeItem('module_reload_time');
+  } catch (_) {}
 
   // Инициализация TON Analytics (максимально рано)
   const tonAnalyticsKey = import.meta.env.VITE_TON_ANALYTICS_KEY;
