@@ -232,10 +232,10 @@ function getDefaultRoutesToRender() {
   const guideRoutes = ['/guides', ...seoGuidePages.map((guide) => `/guides/${guide.slug}`)];
 
   return [
-    '/',
-    '/ru',
-    '/es',
-    '/en',
+    // '/',    // served by Astro landing (scripts/copy-landing.js)
+    // '/ru',  // served by Astro landing
+    // '/es',  // served by Astro landing
+    // '/en',  // served by Astro landing
     '/about',
     '/pricing',
     '/help',
