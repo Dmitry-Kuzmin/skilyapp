@@ -38,7 +38,8 @@ export async function setupMenuButton(): Promise<void> {
         menu_button: {
           type: 'web_app',
           text: '🚀 В БОЙ',
-          web_app: { url: MINI_APP_URL }
+          // /dashboard: / отдаёт Astro-лендинг, Mini App открываем сразу в авторизованной зоне.
+          web_app: { url: `${MINI_APP_URL}/dashboard` }
         }
       })
     });
