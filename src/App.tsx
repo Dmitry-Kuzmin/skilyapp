@@ -287,7 +287,9 @@ const LandingRedirect = () => {
       }
     } catch (error) {
       console.warn("[LandingRedirect] Failed to parse supabase auth token", error);
-      window.location.replace("/es");
+      if (window.location.pathname !== "/es") {
+        window.location.replace("/es");
+      }
     }
   }, [authStorageKey, isPrerenderMode, navigate]);
 
