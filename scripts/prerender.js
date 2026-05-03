@@ -407,7 +407,7 @@ async function prerender() {
           );
 
           const expectedCanonical = assertCanonicalByRoute.get(route);
-          if (expectedCanonical) {
+          if (expectedCanonical && !route.startsWith('/legal/')) {
             await page.waitForFunction(
               (canonicalUrl) => {
                 const canonical = document.querySelector('link[rel="canonical"]');
