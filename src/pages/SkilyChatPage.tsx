@@ -95,9 +95,10 @@ export default function SkilyChatPage() {
   return (
     <>
       <TelegramNavigation />
-      {/* 100dvh shrinks when keyboard opens — input stays visible */}
+      {/* Fixed full-screen layer + VisualViewport tracking — input always above keyboard */}
       <div
-        className={cn("flex flex-col", isDarkTheme ? "bg-slate-900" : "bg-white")}
+        ref={rootRef}
+        className={cn("fixed inset-0 z-50 flex flex-col", isDarkTheme ? "bg-slate-900" : "bg-white")}
         style={{ height: '100dvh' }}
       >
         {/* Header */}
