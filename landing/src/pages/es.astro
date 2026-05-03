@@ -837,20 +837,14 @@ const faqSchema = {
       // Stop hint pulse
       var hb = document.getElementById('ai-hint-btn');
       if (hb) hb.style.animation = 'none';
-      // Hide chips and auto-send to AI
-      var chips = document.getElementById('ai-chips');
-      if (chips) chips.style.display = 'none';
-      var hintLabel = chips && chips.previousElementSibling;
-      if (hintLabel) hintLabel.style.display = 'none';
-      var msg = n === correct ? '¡Acerté! ¿Por qué tienen prioridad los peatones aquí?' : 'Me equivoqué... ¿puedes explicarme la regla?';
-      aiAddMessage('user', msg);
+      // Switch widget to analyzing state immediately
+      aiWidgetSetAnalyzing();
+      var isRight = n === correct;
       setTimeout(function() {
-        aiShowTypingIndicator();
-        setTimeout(function() {
-          aiRemoveTyping();
-          aiAddMessage('assistant', AI_REPLIES.explicar);
-        }, 1000);
-      }, 350);
+        aiWidgetSetIdle();
+        var prefix = isRight ? '¡Magnífico! Respuesta correcta. ' : '';
+        aiWidgetShowMsg(prefix + AI_REPLIES.explicar, isRight);
+      }, 1050);
     }
 
     var aiTypingTimer = null;
