@@ -276,7 +276,9 @@ const LandingRedirect = () => {
     }
   }, [authStorageKey, isPrerenderMode, navigate]);
 
-  return <Landing />;
+  // In production Vercel serves the Astro landing for /, /es, /ru, /en before React loads.
+  // Client-side: just redirect authenticated users; unauthenticated users see nothing (expected).
+  return null;
 };
 
 const App = () => {
