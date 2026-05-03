@@ -779,11 +779,56 @@ const faqSchema = {
 
     // ─── AI CHAT DEMO ────────────────────────────────────────────────────────
     var AI_REPLIES = {
-      pista:   "Fíjate en la palabra clave de la respuesta correcta: **«sin demoras»**.\n\nPiénsalo: un paso a nivel es una zona de máximo peligro. ¿Qué pasa si te quedas parado entre las vías? Antes de cruzar siempre debes asegurarte de que puedes completar el cruce sin detenerte. 🚦",
-      explicar:"Según el **art. 120 del Reglamento General de Circulación**, al cruzar un paso a nivel debes:\n\n1️⃣ Cerciorarte de que no hay tren próximo\n2️⃣ Cruzar **sin demorarte** — nada de paradas dentro de las vías\n3️⃣ Asegurarte de que **no quedarás inmovilizado** en el cruce\n\nLa clave es: si empiezas a cruzar, tienes que poder terminarlo. ¿Tienes más dudas? 🚗",
-      rapido:  "Ir **muy rápido** en un paso a nivel es tan peligroso como quedarse parado. Si aceleras al máximo:\n\n• Pierdes el control del vehículo\n• No puedes frenar si aparece el tren de improviso\n• En caso de barrera bajando, no reaccionas a tiempo\n\nEl reglamento pide cruzar **con fluidez y sin demora** — no a máxima velocidad. ¡La seguridad es lo primero! 🛑",
-      default: "Buena pregunta 🤔 Todo lo que tiene que ver con pasos a nivel se rige por el principio de **«cruzar sin demora y sin riesgo de quedarse parado»**. Si tienes una duda más concreta sobre el reglamento DGT, ¡escríbeme y te explico paso a paso!"
+      pista:   "Fíjate bien en la señal de la imagen — es la **S-28** (zona de estancia y juego).\n\nPiénsalo: ¿quién es más vulnerable en esa zona? En estas zonas los vehículos son los «invitados», no los dueños de la vía. 🚸",
+      explicar:"La señal **S-28** indica una zona de estancia y juego.\n\nSegún el Reglamento General de Circulación:\n\n1️⃣ Los **peatones** tienen prioridad y pueden usar toda la calzada\n2️⃣ Los vehículos circulan a **paso de hombre** (máx. 20 km/h)\n3️⃣ El conductor debe detenerse si un peatón lo necesita\n\nOjo: aquí los peatones mandan en toda la calzada, no solo en los pasos señalizados. ¿Tienes más dudas? 🚗",
+      default: "Buena pregunta 🤔 En esta zona con señal S-28, la clave es que los **peatones tienen prioridad absoluta** en toda la calzada. Si quieres profundizar, pulsa «Explícame el tema» o escríbeme directamente."
     };
+
+    // ─── AI DEMO — Interactive answer handler ─────────────────────────────────
+    var aiDemoAnswered = false;
+    function aiDemoAnswer(n) {
+      if (aiDemoAnswered) return;
+      aiDemoAnswered = true;
+      var correct = 1;
+      [1, 2, 3].forEach(function(i) {
+        var btn = document.getElementById('ai-opt-' + i);
+        if (!btn) return;
+        btn.style.cursor = 'default';
+        btn.onclick = null;
+        var key = btn.querySelector('.ai-opt-key');
+        var txt = btn.querySelector('.ai-opt-txt');
+        if (i === correct) {
+          btn.style.background = 'rgba(34,197,94,0.1)';
+          btn.style.border = '1px solid rgba(34,197,94,0.5)';
+          if (key) { key.style.background = '#22c55e'; key.style.border = '1px solid #16a34a'; key.style.color = 'white'; key.innerHTML = ICON_CHECK; }
+          if (txt) txt.style.color = '#86efac';
+        } else if (i === n) {
+          btn.style.background = 'rgba(239,68,68,0.08)';
+          btn.style.border = '1px solid rgba(239,68,68,0.45)';
+          if (key) { key.style.background = '#ef4444'; key.style.border = '1px solid #dc2626'; key.style.color = 'white'; key.innerHTML = ICON_X; }
+          if (txt) txt.style.color = '#fca5a5';
+        } else {
+          btn.style.opacity = '0.35';
+        }
+      });
+      // Stop hint pulse
+      var hb = document.getElementById('ai-hint-btn');
+      if (hb) hb.style.animation = 'none';
+      // Hide chips and auto-send to AI
+      var chips = document.getElementById('ai-chips');
+      if (chips) chips.style.display = 'none';
+      var hintLabel = chips && chips.previousElementSibling;
+      if (hintLabel) hintLabel.style.display = 'none';
+      var msg = n === correct ? '¡Acerté! ¿Por qué tienen prioridad los peatones aquí?' : 'Me equivoqué... ¿puedes explicarme la regla?';
+      aiAddMessage('user', msg);
+      setTimeout(function() {
+        aiShowTypingIndicator();
+        setTimeout(function() {
+          aiRemoveTyping();
+          aiAddMessage('assistant', AI_REPLIES.explicar);
+        }, 1000);
+      }, 350);
+    }
 
     var aiTypingTimer = null;
 
