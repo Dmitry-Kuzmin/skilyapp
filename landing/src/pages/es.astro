@@ -407,57 +407,64 @@ const faqSchema = {
                 </div>
               </div>
 
-              <!-- RIGHT: AI Widget (exact card design) -->
-              <div style="border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;background:rgba(15,23,42,0.4);">
-                <!-- Widget header -->
-                <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px;background:rgba(15,23,42,0.5);flex-shrink:0;">
-                  <button style="width:28px;height:28px;border-radius:8px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;color:#64748b;cursor:pointer;flex-shrink:0;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-                  </button>
-                  <!-- Logo avatar -->
-                  <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 10px rgba(37,99,235,0.45);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/></svg>
+              <!-- RIGHT: Skily AI Copilot Widget -->
+              <div style="border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;background:rgba(15,23,42,0.4);position:relative;overflow:hidden;">
+                <!-- Subtle grid bg -->
+                <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(128,128,128,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(128,128,128,0.025) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;"></div>
+
+                <!-- Header -->
+                <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:14px;background:rgba(15,23,42,0.2);flex-shrink:0;position:relative;z-index:1;">
+                  <!-- AI Sphere -->
+                  <div style="width:42px;height:42px;position:relative;flex-shrink:0;">
+                    <div class="ai-ring-outer"></div>
+                    <div class="ai-ring-mid"></div>
+                    <div class="ai-ring-inner"></div>
+                    <div class="ai-core"></div>
                   </div>
-                  <div style="min-width:0;flex:1;">
-                    <p style="color:#f1f5f9;font-size:13px;font-weight:700;margin:0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">¡Hola! Soy Skily 💡</p>
+                  <div>
+                    <div style="display:flex;align-items:center;gap:7px;">
+                      <span style="color:#f1f5f9;font-size:13px;font-weight:700;">Skily AI Copilot</span>
+                      <span style="position:relative;width:8px;height:8px;display:inline-flex;align-items:center;justify-content:center;">
+                        <span id="ai-ping-ring" class="ai-ping-ring"></span>
+                        <span class="ai-ping-dot"></span>
+                      </span>
+                    </div>
+                    <p style="font-size:10px;color:#475569;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">v2.4 Online</p>
                   </div>
                 </div>
 
                 <!-- Messages area -->
-                <div id="ai-messages" style="flex:1;overflow-y:auto;padding:14px 12px 8px;display:flex;flex-direction:column;gap:10px;background:rgba(15,23,42,0.3);">
-                  <!-- Welcome message -->
-                  <div style="display:flex;gap:8px;align-items:flex-start;">
-                    <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#2563eb,#1d4ed8);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 6px rgba(37,99,235,0.4);">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/></svg>
+                <div id="ai-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;min-height:0;">
+                  <!-- Idle state -->
+                  <div id="ai-idle-state" style="text-align:center;opacity:0.4;pointer-events:none;">
+                    <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.9)" stroke-width="1.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                     </div>
-                    <div style="background:rgba(30,41,59,0.95);border:1px solid rgba(255,255,255,0.07);border-radius:14px;border-top-left-radius:4px;padding:10px 12px;max-width:90%;">
-                      <p style="color:#e2e8f0;font-size:12px;line-height:1.6;margin:0;">¡Hola! Soy Skily — tu instructor experto en el reglamento de la DGT de España. Mi misión no es solo darte la respuesta, sino enseñarte a pensar como un conductor seguro. ¡Pregúntame lo que necesites!</p>
+                    <p style="font-size:13px;color:#64748b;margin:0 0 6px;">Esperando respuesta...</p>
+                    <!-- Chips shown in idle state -->
+                    <div id="ai-chips" style="display:flex;flex-direction:column;gap:6px;margin-top:16px;text-align:left;">
+                      <p style="font-size:10px;font-weight:700;color:#334155;letter-spacing:0.06em;text-transform:uppercase;margin:0 0 4px;opacity:1;">← Prueba antes de responder</p>
+                      <button id="ai-hint-btn" onclick="aiAsk('pista')" class="hint-pulse" style="padding:9px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;font-size:12px;font-weight:700;cursor:pointer;text-align:left;width:100%;">💡 Dame una pista</button>
+                      <button onclick="aiAsk('explicar')" style="padding:9px 14px;border-radius:10px;background:transparent;border:1px solid rgba(99,102,241,0.2);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;text-align:left;width:100%;">📖 Explícame el tema</button>
                     </div>
                   </div>
-                  <!-- User journey hint label -->
-                  <div style="padding-left:36px;margin-bottom:2px;">
-                    <span style="font-size:10px;font-weight:700;color:#475569;letter-spacing:0.04em;text-transform:uppercase;">← Prueba antes de responder</span>
-                  </div>
-                  <!-- Quick action buttons (2 columns, like real app) -->
-                  <div id="ai-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-left:36px;">
-                    <button id="ai-hint-btn" onclick="aiAsk('pista')" class="hint-pulse" style="padding:8px 10px;border-radius:10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.5);color:#93c5fd;font-size:11px;font-weight:700;cursor:pointer;text-align:center;line-height:1.3;">💡 Dame una pista</button>
-                    <button onclick="aiAsk('explicar')" style="padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(59,130,246,0.25);color:#60a5fa;font-size:11px;font-weight:600;cursor:pointer;text-align:center;line-height:1.3;">📖 Explícame el tema</button>
-                  </div>
+                  <!-- Active message (shown after interaction) -->
+                  <div id="ai-widget-msg" style="display:none;width:100%;"></div>
                 </div>
 
-                <!-- Input area -->
-                <div style="padding:10px 12px;border-top:1px solid rgba(255,255,255,0.06);flex-shrink:0;">
-                  <div style="display:flex;align-items:center;gap:6px;background:rgba(15,23,42,0.6);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:6px 10px 6px 12px;">
-                    <input id="ai-input" type="text" placeholder="Zadaj swój vopros zdes'..." onkeydown="if(event.key==='Enter')aiSend()" style="flex:1;background:transparent;border:none;color:#e2e8f0;font-size:12px;outline:none;min-width:0;" placeholder="Escribe tu pregunta..."/>
-                    <button style="width:28px;height:28px;border-radius:8px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;color:#475569;cursor:pointer;flex-shrink:0;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-                    </button>
-                    <button style="width:28px;height:28px;border-radius:8px;background:transparent;border:none;display:flex;align-items:center;justify-content:center;color:#475569;cursor:pointer;flex-shrink:0;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-                    </button>
-                    <button onclick="aiSend()" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                    </button>
+                <!-- Status bar -->
+                <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;background:rgba(15,23,42,0.4);position:relative;z-index:1;">
+                  <div style="height:36px;border-radius:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;padding:0 14px;justify-content:space-between;">
+                    <div id="ai-status-left" style="display:flex;align-items:center;gap:10px;">
+                      <span id="ai-status-dot" style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:ai-pulse-dot 1.5s ease-in-out infinite;flex-shrink:0;"></span>
+                      <span id="ai-status-bars" style="display:none;gap:2px;align-items:flex-end;height:14px;">
+                        <span class="eq-bar" style="animation-delay:0s;"></span>
+                        <span class="eq-bar" style="animation-delay:0.15s;"></span>
+                        <span class="eq-bar" style="animation-delay:0.3s;"></span>
+                      </span>
+                      <span id="ai-status-text" style="font-size:11px;font-family:monospace;color:#475569;">Esperando tu respuesta...</span>
+                    </div>
+                    <span style="font-size:10px;font-family:monospace;color:#1e293b;">TOKEN_MODE: <span style="color:#22c55e;">FREE</span></span>
                   </div>
                 </div>
               </div>
