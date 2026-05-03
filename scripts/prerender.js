@@ -517,12 +517,19 @@ async function prerender() {
         // Сохраняем HTML
         writeFileSync(filePath, html);
         console.log(`[Prerender] ✅ Saved ${filePath}`);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        renderFailures.push(`${route}: ${message}`);
-        console.error(`[Prerender] ❌ Error rendering ${route}:`, message);
+          } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            renderFailures.push(`${route}: ${message}`);
+            console.error(`[Prerender] ❌ Error rendering ${route}:`, message);
+          }
+        }
+      } finally {
+        await page.close().catch(() => {});
       }
     }
+
+    console.log(`[Prerender] 🚀 Spawning ${CONCURRENCY} workers for ${routesToRender.length} routes...`);
+    await Promise.all(Array.from({ length: CONCURRENCY }, () => renderWorker()));
 
     if (renderFailures.length > 0) {
       throw new Error(`Failed to prerender ${renderFailures.length} route(s): ${renderFailures.join(' | ')}`);
