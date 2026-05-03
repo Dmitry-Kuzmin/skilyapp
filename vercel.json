@@ -116,10 +116,6 @@
   ],
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/es.html"
-    },
-    {
       "source": "/ru",
       "destination": "/ru.html"
     },
