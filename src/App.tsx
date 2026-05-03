@@ -266,10 +266,14 @@ const LandingRedirect = () => {
       const raw = localStorage.getItem(authStorageKey);
       if (!raw || raw === "null") {
         // Not authenticated — redirect to Astro landing.
-        // Guard: don't replace() to the same URL — same-URL replace() causes a reload loop in dev.
         const path = window.location.pathname;
         const target = path === "/ru" ? "/ru" : "/es";
-        if (path !== target) {
+        // In dev, Astro landing runs on a different port (4321). Redirect there directly.
+        if (import.meta.env.DEV) {
+          const astroBase = `${window.location.protocol}//${window.location.hostname}:4321`;
+          window.location.replace(`${astroBase}${target}`);
+        } else if (path !== target) {
+          // In prod, guard against same-URL replace() which causes a reload loop.
           window.location.replace(target);
         }
         return;
