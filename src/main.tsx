@@ -323,17 +323,14 @@ window.addEventListener('unhandledrejection', (event) => {
   ) {
     console.error('[CRITICAL] Chunk load error detected in promise. Reloading...');
 
+    // Use sessionStorage: persists across reloads of the same tab, resets on new session.
+    // localStorage with epoch-based reset was broken: (now - 0) > 60000 is always true,
+    // so currentCount was always reset to 0, making the 3-reload limit never trigger.
     const storageKey = 'module_reload_count';
-    const timeKey = 'module_reload_time';
-    const count = parseInt(localStorage.getItem(storageKey) || '0');
-    const lastTime = parseInt(localStorage.getItem(timeKey) || '0');
-    const now = Date.now();
-
-    const currentCount = (now - lastTime > 60000) ? 0 : count;
+    const currentCount = parseInt(sessionStorage.getItem(storageKey) || '0');
 
     if (!isPrerenderMode && currentCount < 3) {
-      localStorage.setItem(storageKey, (currentCount + 1).toString());
-      localStorage.setItem(timeKey, now.toString());
+      sessionStorage.setItem(storageKey, (currentCount + 1).toString());
       console.log(`[Main] Reloading page (Attempt ${currentCount + 1}/3)...`);
       window.location.reload();
       return;
