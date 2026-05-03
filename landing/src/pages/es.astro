@@ -501,6 +501,178 @@ const faqSchema = {
     </style>
 
     <script is:inline>
+    // ─── INTERACTIVE TRAINING DEMO ───────────────────────────────────────────
+    var DEMO_Q = [
+      {
+        q: "El cruce de un paso a nivel debe realizarse...",
+        img: "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-002/0076ed23-9cc0-4dc9-af50-5b1ea4d7abb0.webp",
+        exp: "Según el Reglamento, el cruce debe realizarse sin demora y tras comprobar que no hay riesgo de quedar inmovilizado dentro del paso.",
+        opts: [
+          { id:"a", t:"sin demoras y tras comprobar que no hay riesgo de quedarse detenido en la vía del tren.", ok:true },
+          { id:"b", t:"muy rápidamente para no coincidir con el tren.", ok:false },
+          { id:"c", t:"muy despacio y con la luz de cruce encendida para que nos vea el conductor del tren.", ok:false }
+        ]
+      },
+      {
+        q: "¿Quién tiene prioridad en una zona de circulación que tiene esta señal?",
+        img: "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-03_test-004/008eac5e-9c20-482d-8b46-1df4adc3e2c2_1769470209354_pro.webp",
+        exp: "La señal S-28 indica zona de estancia y juego. Los peatones tienen prioridad y pueden usar toda la zona de circulación.",
+        opts: [
+          { id:"a", t:"Los peatones.", ok:true },
+          { id:"b", t:"Los peatones, los ciclos y los vehículos de movilidad personal.", ok:false },
+          { id:"c", t:"Los vehículos a motor, salvo en los pasos para peatones.", ok:false }
+        ]
+      },
+      {
+        q: "Está prohibido parar...",
+        img: "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-02_test-005/00a030fc-85c2-4598-870d-87a5bfaf349c.webp",
+        exp: "Está prohibido tanto parar como estacionar en zonas señalizadas para personas de movilidad reducida, para garantizar su disponibilidad permanente.",
+        opts: [
+          { id:"a", t:"cerca de los pasos señalizados para peatones.", ok:false },
+          { id:"b", t:"delante de los vados señalizados correctamente.", ok:false },
+          { id:"c", t:"en las zonas señalizadas para uso exclusivo de personas de movilidad reducida.", ok:true }
+        ]
+      },
+      {
+        q: "La velocidad máxima para un turismo en una carretera de doble sentido con arcén pavimentado de más de 1,50 metros de ancho...",
+        img: "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-01_test-008/004183bb-9525-4d8f-a3e8-59641b5808ae_1768735367088.webp",
+        exp: "En una carretera convencional de doble sentido con arcén pavimentado de más de 1,50 m, la velocidad máxima para un turismo es 90 km/h.",
+        opts: [
+          { id:"a", t:"es de 100 km/h.", ok:false },
+          { id:"b", t:"es de 90 km/h.", ok:true },
+          { id:"c", t:"dependerá del número de carriles.", ok:false }
+        ]
+      },
+      {
+        q: "Para que el vehículo se agarre bien a la calzada, ¿qué debe hacer?",
+        img: "https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-07_test-006/00321e19-4ba8-4f09-afbf-f1ba6d628833.webp",
+        exp: "Los neumáticos deben mantener una profundidad mínima de 1,6 mm en las ranuras principales. Por debajo de eso aumenta el riesgo de aquaplaning.",
+        opts: [
+          { id:"a", t:"Utilizar neumáticos radiales en las ruedas delanteras y diagonales en las traseras.", ok:false },
+          { id:"b", t:"Cuidar que la profundidad del dibujo del neumático nunca sea inferior a 1.6 mm.", ok:true },
+          { id:"c", t:"Inflar más los neumáticos.", ok:false }
+        ]
+      }
+    ];
+
+    var DS = { idx: 0, correct: 0, wrong: 0, answered: false };
+
+    function demoRender() {
+      var q = DEMO_Q[DS.idx];
+      var total = DEMO_Q.length;
+      document.getElementById('demo-counter').textContent = (DS.idx + 1) + ' / ' + total;
+      document.getElementById('demo-bar').style.width = (DS.idx / total * 100) + '%';
+      document.getElementById('demo-correct').textContent = DS.correct;
+      document.getElementById('demo-wrong').textContent = DS.wrong;
+
+      var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">'
+        // Left: image
+        + '<div><img src="' + q.img + '" alt="" style="width:100%;border-radius:20px;border:1px solid rgba(255,255,255,0.08);object-fit:cover;max-height:280px;" loading="lazy" onerror="this.style.display=\'none\'"/></div>'
+        // Right: question + options
+        + '<div style="display:flex;flex-direction:column;gap:12px;">'
+        + '<p style="color:#f1f5f9;font-size:15px;font-weight:600;line-height:1.5;margin:0 0 4px;">' + q.q + '</p>';
+
+      q.opts.forEach(function(o, i) {
+        html += '<button onclick="demoAnswer(\'' + o.id + '\')" id="demo-opt-' + o.id + '" style="'
+          + 'display:flex;align-items:center;gap:12px;width:100%;text-align:left;'
+          + 'padding:12px 14px;border-radius:14px;cursor:pointer;transition:all 0.2s;'
+          + 'background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);color:#e2e8f0;font-size:13px;font-weight:500;line-height:1.4;">'
+          + '<span style="flex-shrink:0;width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,0.07);'
+          + 'border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;'
+          + 'font-size:11px;font-weight:800;color:#94a3b8;">' + (i+1) + '</span>'
+          + o.t + '</button>';
+      });
+
+      // Explanation placeholder (shown after answer)
+      html += '<div id="demo-exp" style="display:none;padding:12px 14px;border-radius:14px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);color:#93c5fd;font-size:12px;line-height:1.5;">'
+        + '<span style="font-weight:700;display:block;margin-bottom:4px;">💡 Explicación</span>' + q.exp + '</div>';
+
+      // Next button (shown after answer)
+      html += '<button id="demo-next-btn" onclick="demoNext()" style="display:none;width:100%;padding:14px;border-radius:14px;'
+        + 'background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;color:white;font-size:15px;font-weight:700;'
+        + 'cursor:pointer;display:none;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;">'
+        + 'Siguiente <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>';
+
+      html += '</div></div>';
+      document.getElementById('demo-body').innerHTML = html;
+      DS.answered = false;
+    }
+
+    function demoAnswer(id) {
+      if (DS.answered) return;
+      DS.answered = true;
+      var q = DEMO_Q[DS.idx];
+      var picked = q.opts.find(function(o){ return o.id === id; });
+      var isCorrect = picked && picked.ok;
+      if (isCorrect) DS.correct++; else DS.wrong++;
+      document.getElementById('demo-correct').textContent = DS.correct;
+      document.getElementById('demo-wrong').textContent = DS.wrong;
+
+      q.opts.forEach(function(o) {
+        var btn = document.getElementById('demo-opt-' + o.id);
+        if (!btn) return;
+        btn.style.cursor = 'default';
+        if (o.ok) {
+          btn.style.background = 'rgba(34,197,94,0.12)';
+          btn.style.border = '1px solid rgba(34,197,94,0.5)';
+          btn.style.color = '#86efac';
+          btn.querySelector('span').style.background = 'rgba(34,197,94,0.2)';
+          btn.querySelector('span').style.color = '#22c55e';
+        } else if (o.id === id) {
+          btn.style.background = 'rgba(239,68,68,0.1)';
+          btn.style.border = '1px solid rgba(239,68,68,0.45)';
+          btn.style.color = '#fca5a5';
+          btn.querySelector('span').style.background = 'rgba(239,68,68,0.15)';
+          btn.querySelector('span').style.color = '#ef4444';
+        } else {
+          btn.style.opacity = '0.35';
+        }
+      });
+
+      document.getElementById('demo-exp').style.display = 'block';
+      var nb = document.getElementById('demo-next-btn');
+      nb.style.display = 'flex';
+
+      // Last question — change button text
+      if (DS.idx === DEMO_Q.length - 1) {
+        nb.innerHTML = 'Ver resultado <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+      }
+    }
+
+    function demoNext() {
+      DS.idx++;
+      if (DS.idx >= DEMO_Q.length) {
+        demoShowResult();
+      } else {
+        demoRender();
+      }
+    }
+
+    function demoShowResult() {
+      var pct = Math.round(DS.correct / DEMO_Q.length * 100);
+      var color = pct >= 70 ? '#22c55e' : pct >= 40 ? '#f59e0b' : '#ef4444';
+      document.getElementById('demo-body').innerHTML =
+        '<div style="text-align:center;padding:32px 20px;">'
+        + '<div style="font-size:56px;font-weight:900;color:' + color + ';margin-bottom:8px;">' + pct + '%</div>'
+        + '<p style="color:#94a3b8;font-size:14px;margin:0 0 4px;">' + DS.correct + ' correctas · ' + DS.wrong + ' incorrectas de ' + DEMO_Q.length + '</p>'
+        + '<p style="color:#64748b;font-size:12px;margin:0 0 28px;">Esto es solo una muestra — la app tiene 3 000+ preguntas reales</p>'
+        + '<a href="https://t.me/skilyapp_bot" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;font-size:15px;font-weight:700;text-decoration:none;margin-bottom:12px;">'
+        + 'Empezar gratis — 3 000+ preguntas'
+        + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></a>'
+        + '<br><button onclick="demoReset()" style="background:none;border:none;color:#475569;font-size:13px;cursor:pointer;margin-top:8px;">↺ Repetir demo</button>'
+        + '</div>';
+      document.getElementById('demo-bar').style.width = '100%';
+      document.getElementById('demo-counter').textContent = DEMO_Q.length + ' / ' + DEMO_Q.length;
+    }
+
+    function demoReset() {
+      DS.idx = 0; DS.correct = 0; DS.wrong = 0; DS.answered = false;
+      demoRender();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() { demoRender(); });
+    // ─────────────────────────────────────────────────────────────────────────
+
       function switchTab(name) {
         document.querySelectorAll('.feat-tab').forEach(btn => {
           btn.classList.toggle('active-tab', btn.getAttribute('data-tab') === name);
