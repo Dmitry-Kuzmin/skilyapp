@@ -316,17 +316,17 @@ window.addEventListener('unhandledrejection', (event) => {
   ) {
     console.error('[CRITICAL] Chunk load error detected in promise. Reloading...');
 
-    // Use sessionStorage: persists across reloads of the same tab, resets on new session.
-    // localStorage with epoch-based reset was broken: (now - 0) > 60000 is always true,
-    // so currentCount was always reset to 0, making the 3-reload limit never trigger.
-    const storageKey = 'module_reload_count';
-    const currentCount = parseInt(sessionStorage.getItem(storageKey) || '0');
-
-    if (!isPrerenderMode && currentCount < 3) {
-      sessionStorage.setItem(storageKey, (currentCount + 1).toString());
-      console.log(`[Main] Reloading page (Attempt ${currentCount + 1}/3)...`);
-      window.location.reload();
-      return;
+    // In dev, Vite manages HMR — auto-reload on module errors just causes infinite loops.
+    // Only reload in production where stale chunk hashes can cause import failures.
+    if (!isPrerenderMode && import.meta.env.PROD) {
+      const storageKey = 'module_reload_count';
+      const currentCount = parseInt(sessionStorage.getItem(storageKey) || '0');
+      if (currentCount < 3) {
+        sessionStorage.setItem(storageKey, (currentCount + 1).toString());
+        console.log(`[Main] Reloading page (Attempt ${currentCount + 1}/3)...`);
+        window.location.reload();
+        return;
+      }
     }
   }
 
