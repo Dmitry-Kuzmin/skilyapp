@@ -99,7 +99,12 @@ export default function SkilyChatPage() {
       <div
         ref={rootRef}
         className={cn("fixed inset-0 z-50 flex flex-col", isDarkTheme ? "bg-slate-900" : "bg-white")}
-        style={{ height: '100dvh' }}
+        style={{
+          height: '100dvh',
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)',
+        }}
       >
         {/* Header */}
         <div className={cn(
