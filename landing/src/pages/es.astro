@@ -580,6 +580,12 @@ const faqSchema = {
         #ai-demo-shell > div:last-child { min-height: 320px; border-left: none !important; }
       }
 
+      @keyframes hint-pulse {
+        0%, 100% { border-color: rgba(59,130,246,0.5); box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+        50% { border-color: rgba(99,163,255,0.9); box-shadow: 0 0 10px 3px rgba(59,130,246,0.3); }
+      }
+      .hint-pulse { animation: hint-pulse 1.8s ease-in-out infinite; }
+
       .feat-tab {
         background: rgba(15,23,42,0.6);
         border-color: rgba(255,255,255,0.08);
