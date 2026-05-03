@@ -989,10 +989,10 @@ const TestResults = () => {
                       >
                         <div className="p-5 mx-0 sm:mx-2 border border-t-0 border-border/50 rounded-b-2xl bg-slate-50/50 dark:bg-black/20 space-y-6 shadow-inner">
                           {/* Image */}
-                          {q.image_url && (
+                          {qImageUrl && (
                             <div className="w-full flex justify-center">
                               <QuestionImageComponent
-                                imageUrl={q.image_url}
+                                imageUrl={qImageUrl}
                                 loadingLabel={t("testResults.loadingImage")}
                                 altLabel={t("testResults.questionImageAlt")}
                               />
@@ -1003,9 +1003,9 @@ const TestResults = () => {
                           <div className="space-y-4">
                             <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">{t("testResults.questionDetails")}</h4>
                             <div className="grid gap-2.5">
-                              {q.answer_options.map(opt => {
+                              {qOptions.map(opt => {
                                 const isSelected = answer?.selectedAnswerId === opt.id;
-                                const isOptCorrect = opt.is_correct;
+                                const isOptCorrect = opt.isCorrect;
 
                                 return (
                                   <div key={opt.id} className={cn(
@@ -1016,7 +1016,7 @@ const TestResults = () => {
                                         ? "bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-900 dark:text-red-100"
                                         : "bg-white dark:bg-white/5 border-slate-100 dark:border-white/5 text-slate-500"
                                   )}>
-                                    <span className="flex-1 pr-4">{getLocalizedOptionText(opt)}</span>
+                                    <span className="flex-1 pr-4">{opt.text}</span>
                                     {isOptCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />}
                                     {isSelected && !isOptCorrect && <XCircle className="w-5 h-5 text-red-500 shrink-0" />}
                                   </div>
