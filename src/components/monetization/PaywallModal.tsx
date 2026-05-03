@@ -255,27 +255,12 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         sessionStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
         localStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
 
-        const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${parsedData.transaction_id}`;
+        setSelectedPlanId(null);
         if (paddleInstance) {
-          try {
-            paddleInstance.Checkout.open({
-              transactionId: parsedData.transaction_id,
-              settings: {
-                displayMode: "inline",
-                theme: "light",
-                frameTarget: "paddle-checkout-container",
-                frameInitialHeight: 450,
-                frameStyle: "width:100%; min-width:312px; background-color: transparent; border: none;",
-              },
-            });
-            setSelectedPlanId(null);
-          } catch {
-            setSelectedPlanId(null);
-            window.location.href = paddleCheckoutUrl;
-          }
-        } else {
-          setSelectedPlanId(null);
-          window.location.href = paddleCheckoutUrl;
+          paddleInstance.Checkout.open({
+            transactionId: parsedData.transaction_id,
+            settings: { displayMode: "overlay", theme: "dark" },
+          });
         }
       } else if (paymentMethod === 'cryptomus') {
         const { data, error } = await supabase.functions.invoke("cryptomus-payment", {
