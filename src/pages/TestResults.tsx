@@ -932,6 +932,11 @@ const TestResults = () => {
               const answer = answers.find(a => a.questionId === q.id);
               const isCorrect = answer?.isCorrect;
               const isExpanded = expandedExplanations[q.id];
+              const isUniversalQ = 'answers' in q && !('answer_options' in q);
+              const qImageUrl: string | null = isUniversalQ ? ((q as any).image ?? null) : (q.image_url ?? null);
+              const qOptions: Array<{ id: string; text: string; isCorrect: boolean }> = isUniversalQ
+                ? ((q as any).answers ?? []).map((a: any) => ({ id: a.id, text: a.text ?? '', isCorrect: Boolean(a.isCorrect) }))
+                : (q.answer_options ?? []).map((o: any) => ({ id: o.id, text: getLocalizedOptionText(o), isCorrect: Boolean(o.is_correct) }));
 
               return (
                 <div key={q.id} className="group">
