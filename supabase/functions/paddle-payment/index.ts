@@ -213,9 +213,7 @@ serve(async (req) => {
       },
     });
 
-    // Используем официальный checkout URL из ответа Paddle API
-    const checkoutUrl = transactionData.checkout?.url
-      ?? `https://buy.paddle.com/checkout/${transactionData.id}`;
+    const checkoutUrl = `https://buy.paddle.com/checkout/${transactionData.id}`;
     console.log(`[paddle-payment] Transaction created: ${transactionData.id}, checkout_url: ${checkoutUrl}`);
 
     return new Response(JSON.stringify({
