@@ -265,10 +265,13 @@ const LandingRedirect = () => {
     try {
       const raw = localStorage.getItem(authStorageKey);
       if (!raw || raw === "null") {
-        // Not authenticated — redirect to Astro landing (handles service worker cache bypass)
+        // Not authenticated — redirect to Astro landing.
+        // Guard: don't replace() to the same URL — same-URL replace() causes a reload loop in dev.
         const path = window.location.pathname;
         const target = path === "/ru" ? "/ru" : "/es";
-        window.location.replace(target);
+        if (path !== target) {
+          window.location.replace(target);
+        }
         return;
       }
       const parsed = JSON.parse(raw);
@@ -277,7 +280,10 @@ const LandingRedirect = () => {
       if (hasToken) {
         navigate("/dashboard" + window.location.search, { replace: true });
       } else {
-        window.location.replace(window.location.pathname === "/ru" ? "/ru" : "/es");
+        const fallbackTarget = window.location.pathname === "/ru" ? "/ru" : "/es";
+        if (window.location.pathname !== fallbackTarget) {
+          window.location.replace(fallbackTarget);
+        }
       }
     } catch (error) {
       console.warn("[LandingRedirect] Failed to parse supabase auth token", error);
