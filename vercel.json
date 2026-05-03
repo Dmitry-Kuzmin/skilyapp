@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "destination": "/es",
+      "permanent": false
+    },
+    {
       "source": "/admin/editor",
       "destination": "/admin/mission-control",
       "permanent": false

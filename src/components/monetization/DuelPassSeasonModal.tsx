@@ -1984,238 +1984,161 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   // Toggle: DUEL_PASS_NEW_LAYOUT in feature-flags.ts
   // ─────────────────────────────────────────────────────────────
 
-  const trackRef = useRef<HTMLDivElement>(null);
+  const verticalTrackRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll rewards track to current level on open
+  // Auto-scroll rewards track to current level on open (V3 Vertical)
   useEffect(() => {
-    if (!DUEL_PASS_NEW_LAYOUT || !trackRef.current || !currentLevel) return;
-    const CELL_W = 80;
-    const scrollTo = Math.max(0, (currentLevel - 3) * CELL_W);
-    trackRef.current.scrollLeft = scrollTo;
+    if (!DUEL_PASS_NEW_LAYOUT || !verticalTrackRef.current || !currentLevel || !open) return;
+    
+    // Эффект "Зала славы": сначала видим лидеров, через 1.5с скроллим к уровню
+    const timer = setTimeout(() => {
+      const row = verticalTrackRef.current?.querySelector(`[data-level="${currentLevel}"]`);
+      if (row) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 1500);
+    
+    return () => clearTimeout(timer);
   }, [currentLevel, open]);
 
-  const ModalContentV2 = () => {
+  const ModalContentV3 = () => {
     if (loading) return <SkeletonContent />;
     if (!activeSeason || !seasonProgress) return <>{upcomingSeasonContent}</>;
-
+ 
     const totalSPNeeded = rewards[rewards.length - 1]?.sp_required || 3000;
-
+    const progressPercent = Math.min((currentSP / totalSPNeeded) * 100, 100);
+ 
     return (
-      <>
-        {/* ── Compact header ───────────────────────────────────────── */}
-        <div className={cn("flex items-center gap-3 border-b border-border/40", isMobile ? "px-4 py-3" : "px-6 py-3")}>
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-md shrink-0">
-            <Trophy className="w-4 h-4 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-bold truncate">{activeSeasonName}</span>
+      <div className="flex flex-col h-full bg-background relative overflow-hidden">
+        {/* ── 1. Sticky Header ───────────────────────────────────────── */}
+        <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 px-5 py-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-col">
+              <h2 className="text-lg font-black tracking-tight">{activeSeasonName}</h2>
               {timeLeft && (
-                <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full shrink-0 tabular-nums">
-                  {timeLeft.days > 0 ? `${timeLeft.days}д ` : ''}
-                  {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
-                </span>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-wider">
+                  Quedan: {timeLeft.days}д {String(timeLeft.hours).padStart(2, '0')}:{String(timeLeft.minutes).padStart(2, '0')}:{String(timeLeft.seconds).padStart(2, '0')}
+                </p>
               )}
             </div>
-            <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
-              <span className="font-semibold text-foreground">Lv {currentLevel}</span>
-              <span className="opacity-40">·</span>
-              <span>{currentSP.toLocaleString()} / {totalSPNeeded.toLocaleString()} SP</span>
-            </p>
+            <div className="flex flex-col items-end">
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-black text-foreground">Lv {currentLevel}</span>
+                <div className="w-6 h-6 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+                </div>
+              </div>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setCurrentView('hall_of_fame')}
-            className="gap-1.5 text-xs shrink-0 h-8 px-2.5"
-          >
-            <Trophy className="w-3.5 h-3.5 text-yellow-500" />
-            <span className="hidden sm:inline">{dp("hallOfFame.title") || "Зал"}</span>
-          </Button>
+          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${progressPercent}%` }}
+              className="h-full bg-gradient-to-r from-primary to-blue-400"
+            />
+          </div>
         </div>
-
-        {/* ── Leaderboard (embedded — top-3 + list) ─────────────────── */}
-        <DuelPassLeaderboardView
-          embedded
-          onOpenHallOfFame={() => setCurrentView('hall_of_fame')}
-        />
-
-        {/* ── Horizontal rewards track ──────────────────────────────── */}
-        <div className={cn("space-y-3 pb-4", isMobile ? "px-4" : "px-6")}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-5 bg-primary rounded-full" />
-              <h3 className="text-sm font-bold">{dp("table.title") || "Трек наград"}</h3>
+ 
+        <div ref={verticalTrackRef} className="flex-1 overflow-y-auto custom-scrollbar">
+          {/* ── 2. Salón de la Fama (Mini Podium) ────────────────────────── */}
+          <section className="px-5 py-6 bg-gradient-to-b from-primary/5 to-transparent">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Salón de la Fama</h3>
+              <button 
+                onClick={() => setCurrentView('hall_of_fame')}
+                className="text-[10px] font-bold text-primary hover:underline"
+              >
+                Ver ranking completo
+              </button>
             </div>
-            <span className="text-xs text-muted-foreground">
-              Lv {currentLevel} / {rewards.length}
-            </span>
-          </div>
-
-          <div className="rounded-2xl border border-border/60 bg-card/40 overflow-hidden">
-            <div className="flex">
-              {/* Fixed left labels column */}
-              <div className="w-11 shrink-0 border-r border-border/40 flex flex-col">
-                <div className="h-9 border-b border-border/40 flex items-center justify-center">
-                  <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest">Ур.</span>
-                </div>
-                <div className="h-[72px] flex items-center justify-center border-b border-border/40">
-                  <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider rotate-[-90deg] whitespace-nowrap">Free</span>
-                </div>
-                <div className="h-[72px] flex items-center justify-center bg-amber-500/5">
-                  <Crown className="w-3 h-3 text-amber-500" />
-                </div>
-              </div>
-
-              {/* Scrollable cells */}
-              <div ref={trackRef} className="flex-1 overflow-x-auto" style={{ scrollBehavior: 'smooth' }}>
-                <div className="flex" style={{ minWidth: `${rewards.length * 80}px` }}>
-                  {rewards.map((reward) => {
-                    const isCurrent = reward.level === currentLevel;
-                    const isPast = reward.level < currentLevel;
-                    const isFreeClaimed = claimedFreeRewards.has(reward.level);
-                    const isPremClaimed = claimedPremiumRewards.has(reward.level);
-                    const canClaimFree = (isPast || isCurrent) && !isFreeClaimed;
-                    const canClaimPrem = (isPast || isCurrent) && !isPremClaimed && hasPremiumPass;
-                    const freeMeta = getRewardVisualMeta(reward.free_reward);
-                    const premMeta = getRewardVisualMeta(reward.premium_reward);
-                    const FreeIcon = freeMeta?.Icon;
-                    const PremIcon = premMeta?.Icon;
-
-                    return (
-                      <div
-                        key={reward.level}
-                        className={cn(
-                          "w-20 shrink-0 border-r border-border/30 last:border-r-0",
-                          isCurrent && "bg-primary/5 ring-1 ring-inset ring-primary/30"
-                        )}
-                      >
-                        {/* Level number */}
-                        <div className={cn(
-                          "h-9 flex items-center justify-center border-b border-border/40 relative",
-                          isCurrent ? "bg-primary/10" : ""
-                        )}>
-                          <span className={cn(
-                            "text-xs font-black tabular-nums",
-                            isCurrent ? "text-primary" : isPast ? "text-muted-foreground/60" : "text-muted-foreground/40"
-                          )}>
-                            {reward.level}
-                          </span>
-                          {isCurrent && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-                          )}
-                        </div>
-
-                        {/* Free reward cell */}
-                        <div
-                          onClick={() => canClaimFree && !claimingRewards.has(`${reward.level}-free`)
-                            ? claimReward(reward.level, 'free', reward.free_reward)
-                            : undefined
-                          }
-                          className={cn(
-                            "h-[72px] flex flex-col items-center justify-center gap-0.5 border-b border-border/30 relative transition-colors",
-                            canClaimFree && "cursor-pointer hover:bg-primary/10",
-                            isFreeClaimed && "bg-green-500/5",
-                            !isPast && !isCurrent && "opacity-40"
-                          )}
-                        >
-                          {isFreeClaimed ? (
-                            <Check className="w-4 h-4 text-green-500" />
-                          ) : freeMeta?.iconEmoji ? (
-                            <span className="text-xl leading-none">{freeMeta.iconEmoji}</span>
-                          ) : FreeIcon ? (
-                            <FreeIcon className={cn("w-5 h-5", freeMeta?.color ? `text-${freeMeta.color}-500` : "text-primary")} />
-                          ) : (
-                            <span className="text-lg">🎁</span>
-                          )}
-                          {!isFreeClaimed && freeMeta?.title && (
-                            <span className="text-[8px] text-muted-foreground text-center leading-tight px-0.5 line-clamp-2 max-w-full">
-                              {freeMeta.title}
-                            </span>
-                          )}
-                          {canClaimFree && !isFreeClaimed && (
-                            <span className="text-[7px] font-black text-primary uppercase tracking-wider">Claim</span>
-                          )}
-                        </div>
-
-                        {/* Premium reward cell */}
-                        <div
-                          onClick={() => canClaimPrem && !claimingRewards.has(`${reward.level}-premium`)
-                            ? claimReward(reward.level, 'premium', reward.premium_reward)
-                            : undefined
-                          }
-                          className={cn(
-                            "h-[72px] flex flex-col items-center justify-center gap-0.5 bg-amber-500/5 relative transition-colors",
-                            canClaimPrem && "cursor-pointer hover:bg-amber-500/10",
-                            isPremClaimed && "bg-green-500/5",
-                            !hasPremiumPass && "opacity-40",
-                            !isPast && !isCurrent && "opacity-40"
-                          )}
-                        >
-                          {!hasPremiumPass ? (
-                            <Lock className="w-3.5 h-3.5 text-amber-500/50" />
-                          ) : isPremClaimed ? (
-                            <Check className="w-4 h-4 text-green-500" />
-                          ) : premMeta?.iconEmoji ? (
-                            <span className="text-xl leading-none">{premMeta.iconEmoji}</span>
-                          ) : PremIcon ? (
-                            <PremIcon className="w-5 h-5 text-amber-500" />
-                          ) : (
-                            <span className="text-lg">🔒</span>
-                          )}
-                          {hasPremiumPass && !isPremClaimed && premMeta?.title && (
-                            <span className="text-[8px] text-muted-foreground text-center leading-tight px-0.5 line-clamp-2 max-w-full">
-                              {premMeta.title}
-                            </span>
-                          )}
-                          {canClaimPrem && !isPremClaimed && (
-                            <span className="text-[7px] font-black text-amber-500 uppercase tracking-wider">Claim</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+            
+            <DuelPassLeaderboardView 
+              embedded 
+              onOpenHallOfFame={() => setCurrentView('hall_of_fame')} 
+            />
+          </section>
+ 
+          {/* ── 3. Reward Track (Vertical) ─────────────────────────────── */}
+          <div className="px-5 space-y-4 pb-24">
+            <div className="flex items-center justify-between sticky top-0 z-30 bg-background/60 backdrop-blur-md py-2 border-b border-border/20">
+               <div className="grid grid-cols-[1fr_1fr] w-full gap-4 px-12">
+                 <span className="text-[10px] font-black text-center text-muted-foreground uppercase tracking-widest">GRATIS</span>
+                 <span className="text-[10px] font-black text-center text-amber-500 uppercase tracking-widest flex items-center justify-center gap-1">
+                   <Crown className="w-3 h-3" /> ELITE
+                 </span>
+               </div>
             </div>
-          </div>
-
-          {/* Elite Pass CTA */}
-          {!hasPremiumPass && (
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              onClick={() => !hasPremiumForever && setShowPaywall(true)}
-              className={cn(
-                "group flex items-center gap-3 p-3 rounded-2xl border transition-all duration-200",
-                "bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent",
-                "border-amber-500/20 hover:border-amber-500/40",
-                !hasPremiumForever && "cursor-pointer"
-              )}
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-300 to-amber-600 flex items-center justify-center shrink-0 shadow-md shadow-amber-500/20">
-                <Crown className="w-5 h-5 text-amber-950" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-foreground">Elite Pass</span>
-                  <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full uppercase tracking-wider">{uiText.elitePassXp}</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-snug truncate">{uiText.elitePassDescription}</p>
-              </div>
-              {!hasPremiumForever && (
-                <Button
-                  size="sm"
-                  onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}
-                  className="bg-amber-500 text-amber-950 hover:bg-amber-400 font-bold rounded-xl shrink-0 text-xs h-8"
+ 
+            {rewards.map((reward) => {
+              const isCurrent = reward.level === currentLevel;
+              const isPast = reward.level < currentLevel;
+              const isFreeClaimed = claimedFreeRewards.has(reward.level);
+              const isPremClaimed = claimedPremiumRewards.has(reward.level);
+              
+              return (
+                <div 
+                  key={reward.level} 
+                  data-level={reward.level}
+                  className={cn(
+                    "grid grid-cols-[40px_1fr_1fr] gap-3 items-center relative py-2 transition-all duration-300",
+                    isCurrent && "scale-[1.02] z-10"
+                  )}
                 >
-                  {uiText.activate}
-                </Button>
-              )}
-            </motion.div>
-          )}
+                  {/* Level Circle */}
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-xs font-black border-2 z-10 bg-background",
+                    isCurrent ? "border-primary text-primary shadow-lg shadow-primary/20" : 
+                    isPast ? "border-muted text-muted-foreground" : "border-muted/40 text-muted-foreground/40"
+                  )}>
+                    {reward.level}
+                  </div>
+ 
+                  {/* Connector line */}
+                  <div className="absolute left-[19px] top-0 bottom-0 w-0.5 bg-muted/30 -z-10" />
+ 
+                  {/* Free Reward */}
+                  <div className="flex-1">
+                    {renderTableRewardCell(reward.free_reward, 'free', {
+                      claimed: isFreeClaimed,
+                      unlocked: isPast || isCurrent,
+                      level: reward.level,
+                      onClick: () => claimReward(reward.level, false, reward.free_reward)
+                    })}
+                  </div>
+ 
+                  {/* Elite Reward */}
+                  <div className="flex-1">
+                    {renderTableRewardCell(reward.premium_reward, 'premium', {
+                      claimed: isPremClaimed,
+                      unlocked: isPast || isCurrent,
+                      level: reward.level,
+                      onClick: () => claimReward(reward.level, true, reward.premium_reward)
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </>
+ 
+        {/* ── 4. Missions (Sticky Bottom) ────────────────────────────── */}
+        <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border/40 p-4 shadow-[0_-10px_30px_rgba(0,0,0,0.2)]">
+          <div className="max-w-xl mx-auto">
+             <div className="flex items-center justify-between mb-3 px-1">
+               <h3 className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                 <Target className="w-4 h-4 text-primary" />
+                 Misiones del día
+               </h3>
+               <span className="text-[10px] text-muted-foreground font-mono">08:51:32</span>
+             </div>
+             <div className="overflow-x-auto pb-1 scrollbar-none">
+               <div className="flex gap-3 min-w-max">
+                 <DailyQuestWidget embedded compact />
+               </div>
+             </div>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -2240,7 +2163,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
             className="flex-1 w-full"
           >
             {loading ? SkeletonContent() : (showUpcoming ? upcomingSeasonContent : (
-              DUEL_PASS_NEW_LAYOUT ? ModalContentV2() : ModalContent()
+              DUEL_PASS_NEW_LAYOUT ? ModalContentV3() : ModalContent()
             ))}
           </motion.div>
         )}

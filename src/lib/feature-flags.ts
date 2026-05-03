@@ -11,4 +11,4 @@ export const PASSKEY_ENABLED = false;
 
 // Duel Pass modal new layout: compact header + leaderboard inline + horizontal rewards track.
 // Flip to true to try V2 again (needs design polish — disabled due to flickering).
-export const DUEL_PASS_NEW_LAYOUT = false;
+export const DUEL_PASS_NEW_LAYOUT = true;
