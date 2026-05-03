@@ -735,6 +735,119 @@ const faqSchema = {
     document.addEventListener('DOMContentLoaded', function() { demoRender(); });
     // ─────────────────────────────────────────────────────────────────────────
 
+    // ─── AI CHAT DEMO ────────────────────────────────────────────────────────
+    var AI_REPLIES = {
+      pista:   "Fíjate en la palabra clave de la respuesta correcta: **«sin demoras»**.\n\nPiénsalo: un paso a nivel es una zona de máximo peligro. ¿Qué pasa si te quedas parado entre las vías? Antes de cruzar siempre debes asegurarte de que puedes completar el cruce sin detenerte. 🚦",
+      explicar:"Según el **art. 120 del Reglamento General de Circulación**, al cruzar un paso a nivel debes:\n\n1️⃣ Cerciorarte de que no hay tren próximo\n2️⃣ Cruzar **sin demorarte** — nada de paradas dentro de las vías\n3️⃣ Asegurarte de que **no quedarás inmovilizado** en el cruce\n\nLa clave es: si empiezas a cruzar, tienes que poder terminarlo. ¿Tienes más dudas? 🚗",
+      rapido:  "Ir **muy rápido** en un paso a nivel es tan peligroso como quedarse parado. Si aceleras al máximo:\n\n• Pierdes el control del vehículo\n• No puedes frenar si aparece el tren de improviso\n• En caso de barrera bajando, no reaccionas a tiempo\n\nEl reglamento pide cruzar **con fluidez y sin demora** — no a máxima velocidad. ¡La seguridad es lo primero! 🛑",
+      default: "Buena pregunta 🤔 Todo lo que tiene que ver con pasos a nivel se rige por el principio de **«cruzar sin demora y sin riesgo de quedarse parado»**. Si tienes una duda más concreta sobre el reglamento DGT, ¡escríbeme y te explico paso a paso!"
+    };
+
+    var aiTypingTimer = null;
+
+    function aiAddMessage(role, text, instant) {
+      var box = document.getElementById('ai-messages');
+      if (!box) return;
+      var div = document.createElement('div');
+      div.style.cssText = 'display:flex;gap:8px;align-items:flex-start;' + (role==='user' ? 'justify-content:flex-end;' : '');
+
+      if (role === 'user') {
+        div.innerHTML = '<div style="background:#2563eb;border-radius:14px;border-top-right-radius:4px;padding:9px 12px;max-width:85%;">'
+          + '<p style="color:white;font-size:12px;line-height:1.5;margin:0;">' + text + '</p></div>';
+      } else {
+        var msgId = 'ai-msg-' + Date.now();
+        div.innerHTML = '<div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;">🚗</div>'
+          + '<div style="background:rgba(30,41,59,0.9);border:1px solid rgba(255,255,255,0.07);border-radius:14px;border-top-left-radius:4px;padding:10px 12px;max-width:88%;">'
+          + '<p id="' + msgId + '" style="color:#e2e8f0;font-size:12px;line-height:1.6;margin:0;white-space:pre-line;"></p></div>';
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+        if (instant) {
+          document.getElementById(msgId).textContent = text;
+        } else {
+          aiTypeText(msgId, text);
+        }
+        return;
+      }
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function aiTypeText(id, text) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      // Convert **bold** markers to visual emphasis inline
+      var plain = text.replace(/\*\*([^*]+)\*\*/g, '$1');
+      var i = 0;
+      var speed = plain.length > 200 ? 12 : 18;
+      function tick() {
+        if (!document.getElementById(id)) return;
+        el.textContent = plain.slice(0, i);
+        el.closest('[style*="overflow-y"]') && (el.closest('[style*="overflow-y"]').scrollTop = 9999);
+        var box = document.getElementById('ai-messages');
+        if (box) box.scrollTop = box.scrollHeight;
+        i++;
+        if (i <= plain.length) aiTypingTimer = setTimeout(tick, speed);
+      }
+      tick();
+    }
+
+    function aiShowTypingIndicator() {
+      var box = document.getElementById('ai-messages');
+      if (!box) return;
+      var div = document.createElement('div');
+      div.id = 'ai-typing';
+      div.style.cssText = 'display:flex;gap:8px;align-items:center;';
+      div.innerHTML = '<div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;">🚗</div>'
+        + '<div style="background:rgba(30,41,59,0.9);border:1px solid rgba(255,255,255,0.07);border-radius:14px;border-top-left-radius:4px;padding:10px 14px;">'
+        + '<div style="display:flex;gap:4px;align-items:center;">'
+        + '<span style="width:6px;height:6px;border-radius:50%;background:#60a5fa;animation:aidot 1.2s ease-in-out infinite 0s;"></span>'
+        + '<span style="width:6px;height:6px;border-radius:50%;background:#60a5fa;animation:aidot 1.2s ease-in-out infinite 0.2s;"></span>'
+        + '<span style="width:6px;height:6px;border-radius:50%;background:#60a5fa;animation:aidot 1.2s ease-in-out infinite 0.4s;"></span>'
+        + '</div></div>';
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function aiRemoveTyping() {
+      var t = document.getElementById('ai-typing');
+      if (t) t.remove();
+    }
+
+    function aiAsk(key) {
+      // Hide chips
+      var chips = document.getElementById('ai-chips');
+      if (chips) chips.style.display = 'none';
+
+      var labels = { pista:'Dame una pista', explicar:'Explícame la regla completa', rapido:'¿Por qué ir rápido es peligroso?' };
+      aiAddMessage('user', labels[key] || key);
+
+      setTimeout(function() {
+        aiShowTypingIndicator();
+        setTimeout(function() {
+          aiRemoveTyping();
+          aiAddMessage('assistant', AI_REPLIES[key] || AI_REPLIES.default);
+        }, 900);
+      }, 200);
+    }
+
+    function aiSend() {
+      var inp = document.getElementById('ai-input');
+      if (!inp || !inp.value.trim()) return;
+      var chips = document.getElementById('ai-chips');
+      if (chips) chips.style.display = 'none';
+      var msg = inp.value.trim();
+      inp.value = '';
+      aiAddMessage('user', msg);
+      setTimeout(function() {
+        aiShowTypingIndicator();
+        setTimeout(function() {
+          aiRemoveTyping();
+          aiAddMessage('assistant', AI_REPLIES.default);
+        }, 1100);
+      }, 200);
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
       function switchTab(name) {
         document.querySelectorAll('.feat-tab').forEach(btn => {
           btn.classList.toggle('active-tab', btn.getAttribute('data-tab') === name);
