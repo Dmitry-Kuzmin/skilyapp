@@ -172,7 +172,7 @@ serve(async (req) => {
         }]
       : [{ price_id: PADDLE_PRICE_IDS[catalog_key], quantity: 1 }];
 
-    const transactionResponse = await fetch("https://api.paddle.com/transactions?include=checkout", {
+    const transactionResponse = await fetch("https://api.paddle.com/transactions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${paddleApiKey}`,
