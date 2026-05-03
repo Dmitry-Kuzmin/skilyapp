@@ -434,10 +434,14 @@ const faqSchema = {
                       <p style="color:#e2e8f0;font-size:12px;line-height:1.6;margin:0;">¡Hola! Soy Skily — tu instructor experto en el reglamento de la DGT de España. Mi misión no es solo darte la respuesta, sino enseñarte a pensar como un conductor seguro. ¡Pregúntame lo que necesites!</p>
                     </div>
                   </div>
+                  <!-- User journey hint label -->
+                  <div style="padding-left:36px;margin-bottom:2px;">
+                    <span style="font-size:10px;font-weight:700;color:#475569;letter-spacing:0.04em;text-transform:uppercase;">← Prueba antes de responder</span>
+                  </div>
                   <!-- Quick action buttons (2 columns, like real app) -->
                   <div id="ai-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-left:36px;">
-                    <button onclick="aiAsk('pista')" style="padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(59,130,246,0.35);color:#60a5fa;font-size:11px;font-weight:600;cursor:pointer;text-align:center;line-height:1.3;">💡 Dame una pista</button>
-                    <button onclick="aiAsk('explicar')" style="padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(59,130,246,0.35);color:#60a5fa;font-size:11px;font-weight:600;cursor:pointer;text-align:center;line-height:1.3;">📖 Explícame el tema</button>
+                    <button id="ai-hint-btn" onclick="aiAsk('pista')" class="hint-pulse" style="padding:8px 10px;border-radius:10px;background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.5);color:#93c5fd;font-size:11px;font-weight:700;cursor:pointer;text-align:center;line-height:1.3;">💡 Dame una pista</button>
+                    <button onclick="aiAsk('explicar')" style="padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(59,130,246,0.25);color:#60a5fa;font-size:11px;font-weight:600;cursor:pointer;text-align:center;line-height:1.3;">📖 Explícame el tema</button>
                   </div>
                 </div>
 
