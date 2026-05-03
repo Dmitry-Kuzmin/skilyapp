@@ -905,7 +905,9 @@ const faqSchema = {
     }
 
     function aiAsk(key) {
-      // Hide chips
+      // Stop hint pulse and hide chips
+      var hb = document.getElementById('ai-hint-btn');
+      if (hb) hb.style.animation = 'none';
       var chips = document.getElementById('ai-chips');
       if (chips) chips.style.display = 'none';
 
