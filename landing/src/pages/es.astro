@@ -481,8 +481,21 @@ const faqSchema = {
         document.querySelectorAll('.feat-panel').forEach(panel => {
           const isActive = panel.id === 'panel-' + name;
           panel.classList.toggle('hidden', !isActive);
+          if (isActive) {
+            const video = panel.querySelector('video');
+            if (video) {
+              video.currentTime = 0;
+              video.play().catch(() => {});
+            }
+          }
         });
       }
+      // Autoplay all visible videos on load
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.feat-panel:not(.hidden) video').forEach(v => {
+          v.play().catch(() => {});
+        });
+      });
     </script>
 
     <!-- ═══════════════════════════════════════ STATS STRIP ══════════════════════════════ -->
