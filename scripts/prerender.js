@@ -388,7 +388,7 @@ async function prerender() {
                 const text = root.textContent?.trim() || '';
                 return text.length > 600;
               },
-              { timeout: 45000, polling: 200 }
+              { timeout: 15000, polling: 200 }
             );
             console.log('[Prerender] ✅ React content detected in #root (>600 chars)');
           } catch (error) {
