@@ -1053,9 +1053,19 @@ export function BoostShopModal({
         sessionStorage.setItem("paddle_transaction_id", data.transaction_id);
         localStorage.setItem("paddle_transaction_id", data.transaction_id);
 
-        // Open Paddle checkout as fullscreen iframe portal
-        const checkoutUrl = data.checkout_url || `https://checkout.paddle.com/transaction/${data.transaction_id}`;
-        setPaddleCheckoutUrl(checkoutUrl);
+        // Open Paddle checkout via Paddle.js overlay (buy.paddle.com/checkout/{txn} URLs are invalid)
+        let paddleForCheckout = paddle || getPaddleInstanceSync();
+        if (!paddleForCheckout) paddleForCheckout = await getPaddleInstance();
+        if (paddleForCheckout) {
+          const locale = language === "ru" ? "ru" : language === "es" ? "es" : "en";
+          paddleForCheckout.Checkout.open({
+            transactionId: data.transaction_id,
+            settings: { displayMode: "overlay", theme: "dark", locale },
+          });
+        } else {
+          console.warn("[BoostShop] Paddle SDK unavailable, falling back to iframe");
+          setPaddleCheckoutUrl(`https://checkout.paddle.com/transaction/${data.transaction_id}`);
+        }
       } catch (err: any) {
         console.error("[BoostShop] Purchase error:", err);
         toast({
