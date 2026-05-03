@@ -475,6 +475,13 @@ const faqSchema = {
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+      /* Demo grid — mobile stacks, desktop side-by-side */
+      #demo-body > div { grid-template-columns: 1fr 1fr; }
+      @media (max-width: 640px) {
+        #demo-body > div { grid-template-columns: 1fr !important; }
+        #demo-body > div > div:first-child img { max-height: 180px; }
+      }
+
       .feat-tab {
         background: rgba(15,23,42,0.6);
         border-color: rgba(255,255,255,0.08);
