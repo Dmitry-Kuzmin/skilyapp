@@ -124,14 +124,17 @@ const faqSchema = {
 
     <!-- ═══════════════════════════════════════ NAV ══════════════════════════════════════ -->
     <nav class="relative z-[100] px-4 md:px-10 pt-5 pb-4 md:pb-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4">
-      <a href="/es" class="flex items-center gap-2 select-none" aria-label="Skily inicio">
-        <svg width="36" height="36" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0 drop-shadow-sm">
-          <path d="M45 25C45 15 55 10 65 10C75 10 85 15 85 30C85 45 70 50 55 50C40 50 30 55 30 70C30 85 40 90 50 90C65 90 75 80 75 70"
-            stroke="#00D1FF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.9"/>
-          <path d="M25 30C25 20 35 10 50 10C65 10 75 15 75 30C75 45 60 50 45 50C30 50 15 55 15 70C15 85 25 90 35 90C45 90 55 80 55 70"
-            stroke="#0057FF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        </svg>
-        <span class="font-black text-lg tracking-tight text-white" style="font-family:'Outfit',sans-serif;letter-spacing:-0.02em;">Skily</span>
+      <a href="/es" class="flex items-center gap-2.5 select-none" aria-label="Skily inicio">
+        <!-- Настоящий логотип Skily: синий квадрат + машинка Lucide car-front -->
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0" style="background:linear-gradient(135deg,#3b82f6,#2563eb,#1d4ed8);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/>
+            <path d="M7 14h.01"/><path d="M17 14h.01"/>
+            <rect width="18" height="8" x="3" y="10" rx="2"/>
+            <path d="M5 18v2"/><path d="M19 18v2"/>
+          </svg>
+        </div>
+        <span class="font-black text-lg tracking-tight text-white" style="letter-spacing:-0.02em;">Skily</span>
       </a>
 
       <div class="flex items-center gap-2 md:gap-3 ml-auto">
