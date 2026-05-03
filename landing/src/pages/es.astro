@@ -473,7 +473,7 @@ const faqSchema = {
       }
     </style>
 
-    <script>
+    <script is:inline>
       function switchTab(name) {
         document.querySelectorAll('.feat-tab').forEach(btn => {
           btn.classList.toggle('active-tab', btn.getAttribute('data-tab') === name);
