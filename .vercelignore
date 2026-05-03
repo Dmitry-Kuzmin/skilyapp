@@ -7,6 +7,8 @@
 /logs/
 /supabase/
 /.git/
+# Video pipeline: 2.3GB of MP3/MP4/Chrome profiles — has nothing to do with the web app.
+/video-automation/
 
 # Development artifacts
 node_modules/
