@@ -319,7 +319,7 @@ const faqSchema = {
 
         <!-- DUEL — Interactive Demo -->
         <div id="panel-duel" class="feat-panel hidden">
-          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-rose-500/10 mb-6" style="background:#0a0f1e;">
+          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-rose-500/10 mb-6" style="background:#080f1e;">
             <!-- Browser chrome -->
             <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,0.05);background:#0f172a;">
               <div style="display:flex;gap:5px;"><div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div><div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div><div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div></div>
@@ -328,51 +328,8 @@ const faqSchema = {
                 <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Duelos PvP</span>
               </div>
             </div>
-
-            <!-- Main duel layout -->
-            <div style="padding:32px 28px;display:flex;align-items:flex-start;justify-content:center;gap:28px;min-height:520px;flex-wrap:wrap;">
-
-              <!-- LEFT: WIN POT + copy -->
-              <div style="display:flex;flex-direction:column;gap:18px;padding-top:28px;min-width:150px;flex:0 1 160px;">
-                <!-- WIN POT badge -->
-                <div id="duel-win-pot-card" style="background:rgba(217,119,6,0.12);border:1px solid rgba(217,119,6,0.3);border-radius:16px;padding:14px 18px;">
-                  <div style="font-size:9px;font-weight:800;color:#d97706;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;">WIN POT</div>
-                  <div id="duel-pot-display" style="font-size:26px;font-weight:900;color:#fbbf24;line-height:1;">+200 🪙</div>
-                </div>
-                <!-- Copy -->
-                <div>
-                  <div style="font-size:9px;font-weight:800;color:#f97316;letter-spacing:0.15em;text-transform:uppercase;border:1px solid rgba(249,115,22,0.3);border-radius:20px;display:inline-block;padding:2px 10px;margin-bottom:10px;">MULTIJUGADOR</div>
-                  <h3 style="font-size:26px;font-weight:900;color:#f97316;line-height:1.1;margin:0 0 8px;">PvP Arena</h3>
-                  <p style="font-size:12px;color:#64748b;line-height:1.5;margin:0 0 14px;">Reta a un rival. El más rápido y preciso se lleva el banco.</p>
-                  <div style="height:3px;width:80px;background:linear-gradient(90deg,#f97316,rgba(249,115,22,0));border-radius:9999px;"></div>
-                </div>
-              </div>
-
-              <!-- CENTER: Phone mockup -->
-              <div style="width:290px;flex-shrink:0;background:#0f172a;border-radius:38px;border:5px solid rgba(255,255,255,0.09);box-shadow:0 0 60px rgba(249,115,22,0.12),0 30px 80px rgba(0,0,0,0.5);overflow:hidden;position:relative;min-height:540px;">
-                <!-- Notch -->
-                <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:20px;background:#000;border-radius:0 0 14px 14px;z-index:10;"></div>
-                <!-- Game screen -->
-                <div id="duel-screen" style="position:absolute;inset:0;overflow:hidden;"></div>
-              </div>
-
-              <!-- RIGHT: Blitz + Season Rank -->
-              <div style="display:flex;flex-direction:column;gap:16px;padding-top:100px;min-width:140px;flex:0 1 150px;">
-                <!-- Blitz Mode -->
-                <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:16px;padding:16px;opacity:0.7;">
-                  <div style="font-size:18px;font-weight:900;color:#818cf8;margin-bottom:4px;">Blitz Mode</div>
-                  <div style="font-size:11px;color:#475569;line-height:1.4;">Duelos de 60 seg. Adrenalina pura.</div>
-                </div>
-                <!-- Season Rank -->
-                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.25);border-radius:16px;padding:14px;">
-                  <div style="font-size:9px;font-weight:800;color:#a855f7;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;">SEASON RANK</div>
-                  <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="font-size:20px;">🏆</span>
-                    <span style="font-size:15px;font-weight:900;color:white;">#1 Champion</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Game screen — full width desktop -->
+            <div id="duel-screen" style="min-height:480px;"></div>
           </div>
 
           <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
