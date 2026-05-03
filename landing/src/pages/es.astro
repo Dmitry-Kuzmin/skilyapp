@@ -927,23 +927,53 @@ const faqSchema = {
       if (t) t.remove();
     }
 
+    function aiWidgetSetAnalyzing() {
+      var dot = document.getElementById('ai-status-dot');
+      var bars = document.getElementById('ai-status-bars');
+      var txt = document.getElementById('ai-status-text');
+      var pingRing = document.getElementById('ai-ping-ring');
+      if (dot) dot.style.display = 'none';
+      if (bars) bars.style.display = 'flex';
+      if (txt) { txt.textContent = 'Analizando situación...'; txt.style.color = '#818cf8'; }
+      if (pingRing) pingRing.style.background = '#6366f1';
+    }
+
+    function aiWidgetSetIdle() {
+      var dot = document.getElementById('ai-status-dot');
+      var bars = document.getElementById('ai-status-bars');
+      var txt = document.getElementById('ai-status-text');
+      var pingRing = document.getElementById('ai-ping-ring');
+      if (dot) dot.style.display = '';
+      if (bars) bars.style.display = 'none';
+      if (txt) { txt.textContent = 'Esperando tu respuesta...'; txt.style.color = '#475569'; }
+      if (pingRing) pingRing.style.background = '#10b981';
+    }
+
+    function aiWidgetShowMsg(text, isCorrect) {
+      var idle = document.getElementById('ai-idle-state');
+      var msgBox = document.getElementById('ai-widget-msg');
+      if (idle) idle.style.display = 'none';
+      if (!msgBox) return;
+      msgBox.style.display = 'block';
+      var borderColor = isCorrect === true ? 'rgba(34,197,94,0.4)' : isCorrect === false ? 'rgba(239,68,68,0.35)' : 'rgba(99,102,241,0.35)';
+      var bgColor = isCorrect === true ? 'rgba(34,197,94,0.07)' : isCorrect === false ? 'rgba(239,68,68,0.07)' : 'rgba(99,102,241,0.08)';
+      var msgId = 'ai-widget-text-' + Date.now();
+      msgBox.innerHTML = '<div style="background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:18px;border-top-left-radius:6px;padding:14px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.2);">'
+        + '<p id="' + msgId + '" style="color:#e2e8f0;font-size:13px;line-height:1.65;margin:0;white-space:pre-line;"></p></div>'
+        + '<div style="margin-top:6px;padding-left:4px;font-size:10px;color:#334155;font-family:monospace;text-transform:uppercase;letter-spacing:0.06em;">AI Analysis · Just now</div>';
+      aiTypeText(msgId, text);
+    }
+
     function aiAsk(key) {
-      // Stop hint pulse and hide chips
+      // Stop hint pulse
       var hb = document.getElementById('ai-hint-btn');
       if (hb) hb.style.animation = 'none';
-      var chips = document.getElementById('ai-chips');
-      if (chips) chips.style.display = 'none';
-
-      var labels = { pista:'Dame una pista', explicar:'Explícame la regla completa', rapido:'¿Por qué ir rápido es peligroso?' };
-      aiAddMessage('user', labels[key] || key);
-
+      // Switch widget to analyzing
+      aiWidgetSetAnalyzing();
       setTimeout(function() {
-        aiShowTypingIndicator();
-        setTimeout(function() {
-          aiRemoveTyping();
-          aiAddMessage('assistant', AI_REPLIES[key] || AI_REPLIES.default);
-        }, 900);
-      }, 200);
+        aiWidgetSetIdle();
+        aiWidgetShowMsg(AI_REPLIES[key] || AI_REPLIES.default, null);
+      }, 950);
     }
 
     function aiSend() {
@@ -953,7 +983,6 @@ const faqSchema = {
       if (chips) chips.style.display = 'none';
       var msg = inp.value.trim();
       inp.value = '';
-      aiAddMessage('user', msg);
       setTimeout(function() {
         aiShowTypingIndicator();
         setTimeout(function() {
