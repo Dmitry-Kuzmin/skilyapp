@@ -1151,9 +1151,9 @@ const faqSchema = {
           + '</div>'
           + '</div>'
           // ── Main: image left + question right
-          + '<div style="display:grid;grid-template-columns:1.1fr 1fr;flex:1;min-height:0;">'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0;overflow:hidden;">'
           + '<div style="overflow:hidden;border-right:1px solid rgba(255,255,255,0.04);">' + mediaHtml + '</div>'
-          + '<div style="padding:28px 32px;display:flex;flex-direction:column;gap:14px;justify-content:center;">'
+          + '<div style="padding:24px 28px;display:flex;flex-direction:column;gap:12px;justify-content:center;overflow-y:auto;">'
           + '<p style="font-size:15px;font-weight:600;color:#f1f5f9;line-height:1.55;margin:0;">' + q.t + '</p>'
           + q.opts.map(function(opt, i) {
               var s = 'display:block;width:100%;padding:13px 18px;border-radius:14px;font-size:13px;font-weight:600;text-align:left;cursor:pointer;transition:all 0.15s;margin:0;';
