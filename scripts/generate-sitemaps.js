@@ -50,10 +50,9 @@ const CORE_PAGES = [
 ];
 
 const PRERENDER_ROUTES = [
-  "/",
-  "/ru",
-  "/es",
-  "/en",
+  // /, /ru, /es, /en are served by the Astro landing (see scripts/copy-landing.js)
+  // and must NOT be prerendered through Puppeteer — that wastes ~3 min on timeouts
+  // and the output is overwritten anyway.
   "/about",
   "/pricing",
   "/help",
