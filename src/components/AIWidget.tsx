@@ -80,10 +80,15 @@ const AIWidgetContent = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<HTMLDivElement>(null);
 
-  const { t } = useLanguage();
+  const { t, language: profileLanguage } = useLanguage();
 
-  // Определяем язык интерфейса на основе языка теста и страны
-  const interfaceLanguage = (country === 'russia' || testLanguage === 'ru' || showTranslation) ? 'ru' : testLanguage;
+  // Язык AI: приоритет → страна Russia / showTranslation → язык профиля пользователя → язык теста
+  // Логика: если пользователь говорит по-русски — AI объясняет по-русски, даже если вопросы на испанском
+  const interfaceLanguage: 'ru' | 'es' | 'en' = (country === 'russia' || testLanguage === 'ru' || showTranslation)
+    ? 'ru'
+    : (profileLanguage === 'ru' || profileLanguage === 'en')
+      ? profileLanguage as 'ru' | 'en'
+      : (testLanguage ?? 'es');
 
   const toggleVoiceInput = () => {
     if (isListening) {
