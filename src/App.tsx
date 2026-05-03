@@ -43,8 +43,8 @@ const AppProviders = lazy(() => import("@/components/providers/AppProviders").th
 const AppRoutes = lazy(() => import("@/components/AppRoutes").then(m => ({ default: m.AppRoutes })));
 const AppRuntime = lazy(() => import("@/components/app/AppRuntime").then(m => ({ default: m.AppRuntime })));
 
-// ОПТИМИЗАЦИЯ: Landing теперь синхронный для ускорения первого рендера (избавляет от водопада lazy)
-import Landing from "./pages/Landing";
+// OLD LANDING: скрыт, заменён Astro лендингом (landing/). Файл сохранён.
+// import Landing from "./pages/Landing";
 // AuthCallback - страница для обработки OAuth callback
 // Должна быть доступна без AppProviders, так как обрабатывает сессию сама
 import { AuthCallback } from "./pages/AuthCallback";
