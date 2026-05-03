@@ -306,7 +306,7 @@ export async function handleBroadcast(
           reply_markup: {
             inline_keyboard: [[{
               text: '🚀 Открыть Skilyapp',
-              web_app: { url: Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com' }
+              web_app: { url: `${Deno.env.get('MINI_APP_URL') || 'https://skilyapp.com'}/dashboard` }
             }]]
           }
         })
