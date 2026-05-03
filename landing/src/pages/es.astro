@@ -968,25 +968,30 @@ const faqSchema = {
     // DUEL DEMO
     // ─────────────────────────────────────────────────────────────────────────
     var DUEL_Q = [
-      { t:'¿Está permitido adelantar en un paso de peatones?', icon:'🚶', opts:['Sí, si no hay nadie','No, está prohibido'], ok:1 },
-      { t:'Velocidad máxima permitida en ciudad:', icon:'🏙️', opts:['50 km/h','60 km/h'], ok:0 },
-      { t:'El cinturón de seguridad es obligatorio:', icon:'🔒', opts:['Solo en autopistas','Siempre al circular'], ok:1 }
+      {
+        t: '¿Quién tiene prioridad en una zona de circulación señalizada con esta señal?',
+        img: 'https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-03_test-004/008eac5e-9c20-482d-8b46-1df4adc3e2c2_1769470209354_pro.webp',
+        opts: ['Los peatones.', 'Los peatones, los ciclos y los VMP.', 'Los vehículos a motor.'],
+        ok: 1
+      },
+      {
+        t: '¿Está permitido adelantar en un paso de peatones señalizado?',
+        icon: '🚶',
+        opts: ['Sí, si no hay ningún peatón.', 'No, está prohibido en todo caso.', 'Solo si la velocidad es inferior a 30 km/h.'],
+        ok: 1
+      },
+      {
+        t: '¿Cuál es la velocidad máxima permitida en vías urbanas?',
+        icon: '🏙️',
+        opts: ['40 km/h', '50 km/h', '60 km/h'],
+        ok: 1
+      }
     ];
 
-    var DD = { phase:'betting', qIdx:0, playerScore:0, botScore:0, coins:340, bet:100, boost:false };
-
-    function duelPotLabel() {
-      return '+' + (DD.bet * 2) + ' 🪙';
-    }
-
-    function duelUpdatePot() {
-      var el = document.getElementById('duel-pot-display');
-      if (el) el.textContent = duelPotLabel();
-    }
+    var DD = { phase:'betting', qIdx:0, playerScore:0, botScore:0, coins:340, bet:100 };
 
     function duelSelectBet(n) {
       DD.bet = n;
-      duelUpdatePot();
       duelRender();
     }
 
