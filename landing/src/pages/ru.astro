@@ -5,6 +5,7 @@ const title = 'Skily — сдай экзамен DGT с первого раза 
 const description =
   'Подготовка к теоретическому экзамену DGT на русском языке. ИИ объясняет каждый вопрос, PvP-дуэли мотивируют учиться, симулятор готовит к реальным условиям. 94% учеников сдают с первой попытки.';
 const canonical = 'https://skilyapp.com/ru';
+const currentYear = new Date().getFullYear();
 
 const hreflang = [
   { lang: 'ru', href: 'https://skilyapp.com/ru' },
@@ -803,7 +804,7 @@ const faqs = [
       </div>
 
       <div class="border-t border-surface-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p class="text-zinc-600 text-xs">© 2026 Skily. Все права защищены.</p>
+        <p class="text-zinc-600 text-xs">© {currentYear} Skily. Все права защищены.</p>
         <div class="flex items-center gap-2">
           <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
           <span class="text-zinc-600 text-xs">Все системы работают</span>

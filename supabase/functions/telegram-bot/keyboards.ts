@@ -32,9 +32,10 @@ export function getMainMenuKeyboard(
 ): InlineKeyboardMarkup {
   const rows = [
     // Row 1: Главная кнопка — запуск приложения
+    // /dashboard напрямую: на / живёт Astro-лендинг, а Mini App юзеры всегда уже авторизованы.
     [{
       text: t('keyboard.openApp', lang),
-      web_app: { url: MINI_APP_URL },
+      web_app: { url: `${MINI_APP_URL}/dashboard` },
       icon_custom_emoji_id: '5188481279963715781'
     }],
     // Row 2: Профиль + Дуэли

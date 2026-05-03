@@ -372,7 +372,8 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
   const { t, language } = useLanguage();
   const { isPremium: isPremiumFromHook } = usePremium();
   const isMobile = useIsMobile();
-  const [currentView, setCurrentView] = useState<'main' | 'hall_of_fame'>('main');
+  const [currentView, setCurrentView] = useState<'main' | 'hall_of_fame' | 'onboarding'>('main');
+  const [onboardingStep, setOnboardingStep] = useState(0);
   const [showFullLeaderboard, setShowFullLeaderboard] = useState(false);
   const [top3Leaders, setTop3Leaders] = useState<any[]>([]);
   const [userLeaderboardPos, setUserLeaderboardPos] = useState<{ position: number; total: number } | null>(null);
@@ -413,6 +414,13 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       }
     };
     loadTop3();
+
+    // Onboarding check
+    const hasSeenOnboarding = localStorage.getItem('duel_pass_onboarding_v1');
+    if (!hasSeenOnboarding) {
+      setCurrentView('onboarding');
+    }
+
     return () => { cancelled = true; };
   }, [open, profileId]);
 
@@ -1543,6 +1551,128 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
     );
   };
 
+  const OnboardingView = () => {
+    const slides = [
+      {
+        icon: Trophy,
+        title: language === 'ru' ? 'Твой сезонный путь' : language === 'es' ? 'Tu viaje de temporada' : 'Your Seasonal Journey',
+        description: language === 'ru' ? 'Duel Pass — это серия уровней с наградами, доступная только в этом сезоне. Успей собрать всё, пока время не истекло!' : language === 'es' ? 'Duel Pass es una serie de niveles con recompensas, disponible solo esta temporada. ¡Consíguelo todo antes de que se acabe el tiempo!' : 'Duel Pass is a series of reward levels available only this season. Get everything before time runs out!',
+        color: 'from-blue-500 to-indigo-600',
+        bg: 'bg-blue-500/15'
+      },
+      {
+        icon: Zap,
+        title: language === 'ru' ? 'Играй и прогрессируй' : language === 'es' ? 'Juega и progresa' : 'Play & Progress',
+        description: language === 'ru' ? 'За каждую дуэль и ежедневные задания ты получаешь SP. Больше очков — выше уровень и круче награды!' : language === 'es' ? 'Por cada duelo и tarea diaria recibes SP. ¡Más puntos significan niveles más altos и mejores recompensas!' : 'For every duel and daily task you receive SP. More points mean higher levels and cooler rewards!',
+        color: 'from-amber-400 to-orange-500',
+        bg: 'bg-amber-500/15'
+      },
+      {
+        icon: Crown,
+        title: 'Elite Pass',
+        description: language === 'ru' ? 'Удвой свой прогресс! Elite Pass дает доступ к эксклюзивным скинам и в 2 раза больше опыта в каждой игре.' : language === 'es' ? '¡Duplica tu progreso! Elite Pass da acceso a aspectos exclusivos и el doble de experiencia en cada juego.' : 'Double your progress! Elite Pass gives access to exclusive skins and 2x XP in every game.',
+        color: 'from-purple-500 to-fuchsia-600',
+        bg: 'bg-purple-500/15'
+      },
+      {
+        icon: Swords,
+        title: language === 'ru' ? 'Зал Славы' : language === 'es' ? 'Salón de la Fama' : 'Hall of Fame',
+        description: language === 'ru' ? 'Попадай в Топ-3 лучших игроков сезона и забирай огромные призы в монетах в конце сезона.' : language === 'es' ? 'Entra en el Top-3 de los mejores jugadores de la temporada и llévate grandes premios en monedas al final de la temporada.' : 'Get into the Top-3 best players of the season and take huge coin prizes at the end of the season.',
+        color: 'from-emerald-400 to-teal-500',
+        bg: 'bg-emerald-500/15'
+      }
+    ];
+
+    const currentSlide = slides[onboardingStep];
+    const isLastStep = onboardingStep === slides.length - 1;
+
+    const handleNext = () => {
+      if (isLastStep) {
+        localStorage.setItem('duel_pass_onboarding_v1', 'true');
+        setCurrentView('main');
+      } else {
+        setOnboardingStep(prev => prev + 1);
+      }
+    };
+
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[520px] px-8 py-10 text-center relative overflow-hidden">
+        {/* Animated Background Orbs */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+            transition={{ duration: 8, repeat: Infinity }}
+            className={cn("absolute -top-20 -left-20 w-64 h-64 blur-[80px] rounded-full", currentSlide.bg.replace('/15', '/40'))} 
+          />
+          <motion.div 
+            animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.15, 0.05] }}
+            transition={{ duration: 10, repeat: Infinity, delay: 1 }}
+            className={cn("absolute -bottom-20 -right-20 w-80 h-80 blur-[100px] rounded-full", currentSlide.bg.replace('/15', '/30'))} 
+          />
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={onboardingStep}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 1.05, y: -15 }}
+            transition={{ type: "spring", damping: 30, stiffness: 250 }}
+            className="flex flex-col items-center"
+          >
+            <div className={cn(
+              "w-36 h-36 rounded-[3.5rem] flex items-center justify-center mb-12 relative shadow-2xl transition-all duration-500",
+              currentSlide.bg
+            )}>
+              <div className={cn(
+                "absolute inset-0 blur-3xl opacity-50 rounded-full",
+                currentSlide.bg.replace('/15', '/60')
+              )} />
+              <currentSlide.icon className={cn(
+                "w-16 h-16 relative z-10 filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]",
+                currentSlide.color.includes('amber') ? 'text-amber-500' : 
+                currentSlide.color.includes('blue') ? 'text-blue-400' : 
+                currentSlide.color.includes('emerald') ? 'text-emerald-400' : 'text-purple-400'
+              )} />
+            </div>
+
+            <h2 className="text-3xl font-black text-foreground mb-4 tracking-tight leading-tight">
+              {currentSlide.title}
+            </h2>
+            <p className="text-muted-foreground text-base leading-relaxed max-w-[300px] mb-14 font-medium">
+              {currentSlide.description}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="flex gap-2.5 mb-10">
+          {slides.map((_, i) => (
+            <motion.div
+              key={i}
+              initial={false}
+              animate={{ 
+                width: i === onboardingStep ? 32 : 10,
+                backgroundColor: i === onboardingStep ? 'var(--primary)' : 'rgba(var(--muted-foreground-rgb), 0.2)' 
+              }}
+              className="h-2 rounded-full cursor-pointer"
+              onClick={() => setOnboardingStep(i)}
+            />
+          ))}
+        </div>
+
+        <Button
+          size="lg"
+          onClick={handleNext}
+          className="w-full max-w-[260px] h-14 rounded-2xl font-black text-lg shadow-2xl shadow-primary/25 transition-all hover:scale-[1.03] active:scale-[0.97] bg-primary hover:bg-primary/90"
+        >
+          {isLastStep 
+            ? (language === 'ru' ? 'Вперед!' : language === 'es' ? '¡Adelante!' : 'Let\'s Go!') 
+            : (language === 'ru' ? 'Далее' : language === 'es' ? 'Siguiente' : 'Next')}
+        </Button>
+      </div>
+    );
+  };
+
 
   // Общий контент модалки
   const ModalContent = () => {
@@ -1551,108 +1681,223 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       return <SkeletonContent />;
     }
 
+    if (currentView === 'onboarding') {
+      return OnboardingView();
+    }
+
 
 
     return (
       <>
-        {/* ── 1. Compact Sticky Header ──────────────────────────────── */}
+        {/* ── 1. Premium Hero Section (Clean & Iconic) ────────────────── */}
         <div className={cn(
-          "sticky top-0 z-20 backdrop-blur-xl border-b border-border/40",
-          isMobile ? "px-4 py-3" : "px-6 py-3"
+          "relative overflow-hidden pt-14 pb-16 px-6 sm:px-10",
+          seasonTheme.gradient,
+          "rounded-b-[4rem] shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
         )}>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-md shrink-0">
-              <Trophy className="w-4 h-4 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-bold truncate">{activeSeasonName}</span>
-                <CountdownTicker endDate={activeSeason.end_date} labels={countdownLabels} compact />
-              </div>
-              <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                <span className="font-semibold text-foreground">Lv {currentLevel}</span>
-                <span className="opacity-40">·</span>
-                <span>{currentSP.toLocaleString()} / {totalSPNeeded.toLocaleString()} SP</span>
-              </p>
-            </div>
-            <button
-              onClick={() => setCurrentView('hall_of_fame')}
-              className="flex items-center gap-1.5 text-xs shrink-0 h-8 px-2.5 rounded-lg text-muted-foreground hover:bg-muted transition-colors"
+          {/* Subtle Ambient Light */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,rgba(255,255,255,0.1),transparent_70%)] pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col items-center text-center space-y-10">
+            {/* Minimal Season Identity */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
             >
-              <Trophy className="w-3.5 h-3.5 text-yellow-500" />
-              <span className="hidden sm:inline font-semibold">{dp("hallOfFame.title") || "Hall"}</span>
-            </button>
+              <div className="relative inline-block">
+                <div className="absolute inset-0 bg-white/20 blur-3xl rounded-full opacity-50" />
+                <div className="w-24 h-24 rounded-[2.5rem] bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center justify-center relative group overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Trophy className="w-12 h-12 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]" />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-none drop-shadow-lg">
+                  {activeSeasonName}
+                </h1>
+                <div className="flex items-center justify-center gap-3 py-1 px-4 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mx-auto w-fit">
+                  <Clock className="w-3.5 h-3.5 text-white/40" />
+                  <span className="text-[10px] font-bold text-white/60 uppercase tracking-[0.1em]">
+                    {dp("hero.countdownLabel") || "Temporada finaliza en"}
+                  </span>
+                  <CountdownTicker endDate={activeSeason.end_date} labels={countdownLabels} compact />
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Clean Progress Gauge (Duolingo Style) */}
+            <div className="w-full max-w-md bg-white/10 backdrop-blur-3xl rounded-[2.5rem] p-6 border border-white/10 shadow-2xl space-y-4">
+              <div className="flex justify-between items-center px-1">
+                <div className="text-left">
+                  <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] mb-1">Nivel actual</p>
+                  <p className="text-4xl font-black text-white leading-none tracking-tighter">Lv {currentLevel}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] mb-1">Tu progreso</p>
+                  <div className="flex items-baseline justify-end gap-1.5">
+                    <span className="text-xl font-black text-white tabular-nums tracking-tighter">{currentSP.toLocaleString()}</span>
+                    <span className="text-xs font-bold text-white/20 uppercase tracking-tighter">/ {totalSPNeeded.toLocaleString()} SP</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="relative h-6 bg-black/40 rounded-full border border-white/10 p-1 overflow-hidden shadow-inner">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 1.2, ease: [0.34, 1.56, 0.64, 1] }}
+                  className={cn("h-full rounded-full bg-gradient-to-r shadow-[0_0_20px_rgba(255,255,255,0.2)]", seasonTheme.progressGradient)}
+                />
+              </div>
+
+              {currentLevel < maxLevel && spToNextLevel > 0 && (
+                <div className="flex items-center justify-center gap-2 text-white/40">
+                  <Rocket className="w-3 h-3" />
+                  <p className="text-[10px] font-bold uppercase tracking-wider">
+                    {dp("progress.toNext", { sp: spToNextLevel, level: currentLevel + 1 })}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Premium Podium (Clean Bento Style) */}
+            <div className="w-full relative">
+              {leaderboardLoading ? (
+                <div className="flex items-end justify-center gap-4 py-10">
+                  {[1, 2, 3].map(i => <Skeleton key={i} className="w-24 h-32 rounded-[2rem] bg-white/5" />)}
+                </div>
+              ) : top3Leaders.length >= 3 ? (
+                <div className="space-y-10 pt-4">
+                  <div className="flex items-end justify-center gap-3 sm:gap-6 relative">
+                    {/* Visual Pedestal Shadow */}
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-8 bg-black/40 blur-3xl opacity-50" />
+                    
+                    {/* 2nd Place */}
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="flex-1 max-w-[105px] flex flex-col items-center gap-3 p-4 rounded-[2.2rem] bg-white/5 backdrop-blur-2xl border border-white/10 shadow-xl group hover:bg-white/10 transition-all duration-300"
+                    >
+                      <div className="relative">
+                        <UserAvatar profileId={top3Leaders[1]?.user_id} size="lg" avatarClassName="rounded-full ring-2 ring-white/10 shadow-2xl" />
+                        <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-slate-200 text-slate-900 flex items-center justify-center font-black text-xs shadow-lg border-2 border-white/20">2</div>
+                      </div>
+                      <div className="text-center w-full min-w-0">
+                        <p className="text-[11px] font-black text-white/90 truncate uppercase leading-none mb-1">{top3Leaders[1]?.profile?.first_name || "???"}</p>
+                        <p className="text-[10px] font-bold text-white/30 tabular-nums">{(top3Leaders[1]?.season_points || 0).toLocaleString()} SP</p>
+                      </div>
+                    </motion.div>
+
+                    {/* 1st Place */}
+                    <motion.div 
+                      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: -16 }}
+                      transition={{ delay: 0.3, type: "spring", damping: 15 }}
+                      className="flex-1 max-w-[135px] flex flex-col items-center gap-4 p-6 rounded-[2.8rem] bg-white/10 backdrop-blur-3xl border-2 border-white/20 shadow-[0_30px_70px_rgba(0,0,0,0.5)] z-10 relative group"
+                    >
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2">
+                        <motion.div
+                          animate={{ y: [0, -5, 0] }}
+                          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          <Crown className="w-10 h-10 text-yellow-400 drop-shadow-[0_0_20px_rgba(234,179,8,0.8)] fill-yellow-400/20" />
+                        </motion.div>
+                      </div>
+                      <div className="relative">
+                        <UserAvatar profileId={top3Leaders[0]?.user_id} size="xl" avatarClassName="rounded-full ring-4 ring-yellow-400/30 shadow-2xl transition-transform group-hover:scale-105" />
+                        <div className="absolute -top-1 -right-1 w-9 h-9 rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 text-amber-950 flex items-center justify-center font-black text-sm shadow-2xl border-4 border-black/10">1</div>
+                      </div>
+                      <div className="text-center w-full min-w-0">
+                        <p className="text-[13px] font-black text-yellow-400 truncate uppercase leading-none mb-1 tracking-tighter">{top3Leaders[0]?.profile?.first_name || "???"}</p>
+                        <p className="text-[11px] font-black text-yellow-500/60 tabular-nums italic">{(top3Leaders[0]?.season_points || 0).toLocaleString()} SP</p>
+                      </div>
+                    </motion.div>
+
+                    {/* 3rd Place */}
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="flex-1 max-w-[105px] flex flex-col items-center gap-3 p-4 rounded-[2.2rem] bg-white/5 backdrop-blur-2xl border border-white/10 shadow-xl group hover:bg-white/10 transition-all duration-300"
+                    >
+                      <div className="relative">
+                        <UserAvatar profileId={top3Leaders[2]?.user_id} size="lg" avatarClassName="rounded-full ring-2 ring-white/10 shadow-2xl" />
+                        <div className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-orange-600 text-orange-50 flex items-center justify-center font-black text-xs shadow-lg border-2 border-white/20">3</div>
+                      </div>
+                      <div className="text-center w-full min-w-0">
+                        <p className="text-[11px] font-black text-white/90 truncate uppercase leading-none mb-1">{top3Leaders[2]?.profile?.first_name || "???"}</p>
+                        <p className="text-[10px] font-bold text-white/30 tabular-nums">{(top3Leaders[2]?.season_points || 0).toLocaleString()} SP</p>
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* User Stats & Action (Clean Center Alignment) */}
+                  <div className="flex flex-col items-center gap-6">
+                    {userLeaderboardPos && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="flex items-center gap-6 px-10 py-4 rounded-full bg-black/40 backdrop-blur-3xl border border-white/10 shadow-2xl"
+                      >
+                        <div className="flex flex-col items-center">
+                          <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Clasificación</span>
+                          <span className="text-2xl font-black text-white tracking-tighter italic">#{userLeaderboardPos.position}</span>
+                        </div>
+                        <div className="w-px h-8 bg-white/10" />
+                        <div className="flex flex-col items-center">
+                          <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">Total jugadores</span>
+                          <span className="text-lg font-bold text-white/60 tabular-nums">{userLeaderboardPos.total.toLocaleString()}</span>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    <button
+                      onClick={() => setCurrentView('hall_of_fame')}
+                      className="flex items-center gap-3 px-8 py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-300 active:scale-95"
+                    >
+                      <Trophy className="w-4 h-4 text-yellow-500" />
+                      <span className="text-[11px] font-black text-white/40 uppercase tracking-widest">
+                        {dp("hallOfFame.title") === "duelPass.hallOfFame.title" ? "Salón de la Fama" : dp("hallOfFame.title")}
+                      </span>
+                      <ChevronRight className="w-4 h-4 text-white/20" />
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
 
-        {/* ── 2. Salón de la Fama — Inline Подиум ТОП-3 ────────────── */}
-        <div className={cn("py-5", isMobile ? "px-4" : "px-6")}>
-          {leaderboardLoading ? (
-            <div className="flex items-end justify-center gap-3 py-6">
-              {[1, 2, 3].map(i => <Skeleton key={i} className="w-24 h-28 rounded-2xl" />)}
-            </div>
-          ) : top3Leaders.length >= 3 ? (
-            <>
-              <div className="flex items-end justify-center gap-3 md:gap-5 pb-4 pt-2 relative">
-                {/* Фоновое свечение */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-md bg-yellow-500/5 blur-[80px] -z-10" />
-
-                {/* 2nd place */}
-                <div className="flex-1 max-w-[110px] flex flex-col items-center gap-2 p-3 rounded-[1.5rem] border border-white/10 bg-gradient-to-b from-slate-400/10 to-slate-900/80 backdrop-blur-sm shadow-lg">
-                  <div className="absolute -top-2 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-slate-200 to-slate-400 flex items-center justify-center text-slate-900 font-black text-[10px] shadow-md z-20 relative">2</div>
-                  <UserAvatar profileId={top3Leaders[1]?.user_id} size="lg" showPremiumGlow={false} avatarClassName="rounded-full" className="rounded-full ring-2 ring-slate-300/30 shadow-md" />
-                  <p className="font-bold text-xs truncate text-white/90 uppercase tracking-tight max-w-full text-center">{top3Leaders[1]?.profile?.first_name || "—"}</p>
-                  <span className="text-[10px] font-bold text-slate-400 tabular-nums">{(top3Leaders[1]?.season_points ?? top3Leaders[1]?.duel_pass_xp ?? 0).toLocaleString()} SP</span>
-                </div>
-
-                {/* 1st place */}
-                <div className="flex-1 max-w-[130px] flex flex-col items-center gap-3 p-4 rounded-[2rem] border-2 border-yellow-500/30 bg-gradient-to-b from-yellow-500/10 via-slate-900/95 to-slate-900 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-10 -mt-3">
-                  <Crown className="w-6 h-6 text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.7)] animate-pulse" />
-                  <UserAvatar profileId={top3Leaders[0]?.user_id} size="xl" showPremiumGlow={false} avatarClassName="rounded-full" className="rounded-full ring-3 ring-yellow-400/40 shadow-[0_0_20px_rgba(234,179,8,0.3)]" />
-                  <p className="font-black text-sm truncate bg-gradient-to-r from-yellow-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent uppercase tracking-tighter max-w-full text-center">{top3Leaders[0]?.profile?.first_name || "—"}</p>
-                  <span className="text-[11px] font-black text-yellow-400 tabular-nums">{(top3Leaders[0]?.season_points ?? top3Leaders[0]?.duel_pass_xp ?? 0).toLocaleString()} SP</span>
-                </div>
-
-                {/* 3rd place */}
-                <div className="flex-1 max-w-[110px] flex flex-col items-center gap-2 p-3 rounded-[1.5rem] border border-white/10 bg-gradient-to-b from-orange-400/10 to-slate-900/80 backdrop-blur-sm shadow-lg">
-                  <div className="absolute -top-2 -right-1 w-6 h-6 rounded-full bg-gradient-to-br from-orange-400 to-orange-700 flex items-center justify-center text-orange-50 font-black text-[10px] shadow-md z-20 relative">3</div>
-                  <UserAvatar profileId={top3Leaders[2]?.user_id} size="lg" showPremiumGlow={false} avatarClassName="rounded-full" className="rounded-full ring-2 ring-orange-500/30 shadow-md" />
-                  <p className="font-bold text-xs truncate text-white/90 uppercase tracking-tight max-w-full text-center">{top3Leaders[2]?.profile?.first_name || "—"}</p>
-                  <span className="text-[10px] font-bold text-orange-400 tabular-nums">{(top3Leaders[2]?.season_points ?? top3Leaders[2]?.duel_pass_xp ?? 0).toLocaleString()} SP</span>
-                </div>
-              </div>
-
-              {/* Позиция юзера */}
-              {userLeaderboardPos && (
-                <div className="flex items-center justify-center gap-2 py-2 mt-1">
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-                    <TrendingUp className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-xs font-bold text-foreground">#{userLeaderboardPos.position}</span>
-                    <span className="text-[10px] text-muted-foreground">/ {userLeaderboardPos.total.toLocaleString()}</span>
-                  </div>
-                </div>
-              )}
-            </>
-          ) : null}
-
-          {/* Кнопка раскрытия полного лидерборда */}
+        {/* ── 2. Sequential Interaction (Clean Transition) ─────────── */}
+        <div className={cn("py-6", isMobile ? "px-4" : "px-8")}>
           <button
             onClick={() => setShowFullLeaderboard(!showFullLeaderboard)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+            className="w-full group flex flex-col items-center gap-2 py-4 rounded-[2.5rem] bg-muted/30 hover:bg-muted/50 border border-border/40 transition-all duration-300"
           >
-            <BarChart3 className="w-3.5 h-3.5" />
-            <span>{showFullLeaderboard ? (uiText.hideRanking || 'Ocultar ranking') : (uiText.showRanking || 'Ver ranking completo')}</span>
-            <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showFullLeaderboard && "rotate-180")} />
+            <div className="flex items-center gap-3">
+              <BarChart3 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="text-xs font-black text-muted-foreground group-hover:text-foreground uppercase tracking-tight transition-colors">
+                {showFullLeaderboard ? (uiText.hideRanking || 'Ocultar clasificación completa') : (uiText.showRanking || 'Ver clasificación completa')}
+              </span>
+              <ChevronDown className={cn("w-4 h-4 text-muted-foreground/40 transition-transform duration-500", showFullLeaderboard && "rotate-180")} />
+            </div>
           </button>
 
-          {/* Полный лидерборд (accordion) */}
           {showFullLeaderboard && (
-            <div className="border-t border-border/40 mt-2">
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mt-6 border-t border-border/20"
+            >
               <DuelPassLeaderboardView
                 embedded
                 onOpenHallOfFame={() => setCurrentView('hall_of_fame')}
               />
-            </div>
+            </motion.div>
           )}
         </div>
 
@@ -1717,34 +1962,28 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
               </div>
             </div>
 
-            {/* Улучшенная таблица */}
-            <div className="border rounded-xl overflow-hidden bg-card shadow-sm">
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse min-w-full">
-                  <colgroup>
-                    <col className="w-12 sm:w-16" />
-                    <col style={{ width: '45%', minWidth: isMobile ? '70px' : '100px' }} />
-                    <col style={{ width: '45%', minWidth: isMobile ? '70px' : '100px' }} />
-                  </colgroup>
-                  <thead>
-                    <tr className="bg-muted/30 border-b border-border">
-                      <th className="text-center px-1 py-2 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted/20">
-                        {isMobile ? "LVL" : dp("table.columns.level")}
-                      </th>
-                      <th className="text-left px-2 py-2 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest border-l border-border/50">
-                        <div className="flex items-center gap-1.5">
-                          <Coins className="w-3 h-3 text-yellow-500" />
-                          <span>{isMobile ? uiText.mobileFree : dp("table.columns.free")}</span>
-                        </div>
-                      </th>
-                      <th className="text-left px-2 py-2 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest border-l border-border/50">
-                        <div className="flex items-center gap-1.5">
-                          <Crown className="w-3 h-3 text-yellow-600" />
-                          <span>PREM</span>
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
+                {/* Clean Reward Track (Vertical Path Style) */}
+                <div className="px-4 sm:px-6">
+                  <table className="w-full border-separate border-spacing-y-4">
+                    <thead>
+                      <tr className="text-muted-foreground/30">
+                        <th className="w-14 text-center pb-2">
+                          <span className="text-[9px] font-black uppercase tracking-[0.2em]">{dp("table.headers.level") || "LV"}</span>
+                        </th>
+                        <th className="text-left px-4 pb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em]">{dp("table.headers.free") || "Gratis"}</span>
+                          </div>
+                        </th>
+                        <th className="text-left px-4 pb-2">
+                          <div className="flex items-center gap-2">
+                            <Crown className="w-3.5 h-3.5 text-yellow-500" />
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em]">{dp("table.headers.premium") || "Premium"}</span>
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
                   <tbody>
                     {filteredRewards.map((reward) => {
                       const unlocked = currentLevel >= reward.level;
@@ -1810,14 +2049,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                         <tr
                           key={reward.level}
                           className={cn(
-                            "border-b border-border/50 transition-all cursor-pointer group",
-                            isCurrent && "border-l-4 border-l-primary scale-[1.005] origin-left",
-                            isCurrent && "bg-primary/8 shadow-[inset_0_0_20px_rgba(var(--primary-rgb,59,130,246),0.08)]",
-                            allClaimed
-                              ? "bg-green-500/5 hover:bg-green-500/10"
-                              : unlocked
-                                ? "hover:bg-muted/40"
-                                : "opacity-45"
+                            "group transition-all duration-300",
+                            isCurrent && "scale-[1.02] z-10",
+                            !unlocked && "opacity-40 grayscale-[0.5]"
                           )}
                           onClick={() => {
                             if (unlocked && !allClaimed) {
@@ -1825,66 +2059,76 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                             }
                           }}
                         >
-                          {/* Уровень */}
-                          <td className="px-1 py-2 text-center bg-muted/10 border-r border-border/50">
+                          {/* Level Badge Column with Vertical Connector */}
+                          <td className="relative py-2 text-center">
                             <div className={cn(
-                              "flex flex-col items-center justify-center min-h-[44px]",
-                              isCurrent && "font-bold"
+                              "w-10 h-10 mx-auto rounded-full flex items-center justify-center text-[10px] font-black transition-all shadow-sm relative z-10",
+                              isCurrent
+                                ? "bg-primary text-white ring-4 ring-primary/20 shadow-lg"
+                                : allClaimed
+                                  ? "bg-green-500/10 text-green-600 border border-green-500/20"
+                                  : "bg-muted/50 text-muted-foreground/60 border border-border/40"
                             )}>
-                              <div className={cn(
-                                "flex items-center justify-center w-7 h-7 rounded-lg text-xs font-black transition-all shadow-sm",
-                                isCurrent
-                                  ? "bg-primary text-white scale-110 shadow-primary/30"
-                                  : allClaimed
-                                    ? "bg-green-500/20 text-green-600"
-                                    : unlocked
-                                      ? "bg-muted text-foreground"
-                                      : "bg-muted/50 text-muted-foreground"
-                              )}>
-                                {reward.level}
-                              </div>
-                              <div className="mt-1 flex flex-col items-center">
-                                <span className="text-[8px] font-bold text-muted-foreground/60 whitespace-nowrap">
-                                  {reward.sp_required} SP
-                                </span>
-                                {isCurrent && !allClaimed && (
-                                  <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1 shadow-[0_0_8px_rgba(59,130,246,0.6)] animate-pulse" />
-                                )}
-                              </div>
+                              {reward.level}
+                            </div>
+                            {/* Vertical Line Connector */}
+                            {reward.level < rewards.length && (
+                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-0.5 h-full bg-border/20 -z-0" />
+                            )}
+                          </td>
+
+                          {/* Free Reward Preview */}
+                          <td className="px-2 py-1">
+                            <div className={cn(
+                              "h-20 flex items-center justify-center p-2 rounded-3xl border transition-all",
+                              freeClaimed
+                                ? "bg-green-500/5 border-green-500/20"
+                                : isCurrent
+                                  ? "bg-background border-primary/30 shadow-md"
+                                  : "bg-background/40 border-border/40 group-hover:bg-background/60"
+                            )}>
+                              {renderTableRewardCell(reward.free_reward, 'free', {
+                                claimed: freeClaimed,
+                                unlocked,
+                                level: reward.level,
+                                onClick: () => {
+                                  if (unlocked && !freeClaimed) {
+                                    claimReward(reward.level, false);
+                                  }
+                                }
+                              })}
                             </div>
                           </td>
 
-                          {/* Free reward preview */}
-                          <td className="px-1.5 py-2 align-middle">
-                            {renderTableRewardCell(reward.free_reward, 'free', {
-                              claimed: freeClaimed,
-                              unlocked,
-                              level: reward.level,
-                              onClick: () => {
-                                if (unlocked && !freeClaimed) {
-                                  claimReward(reward.level, false);
+                          {/* Premium Reward Preview */}
+                          <td className="px-2 py-1">
+                            <div className={cn(
+                              "h-20 flex items-center justify-center p-2 rounded-3xl border transition-all relative overflow-hidden",
+                              premiumClaimed
+                                ? "bg-green-500/5 border-green-500/20"
+                                : isPremium
+                                  ? isCurrent ? "bg-amber-500/5 border-amber-500/30 shadow-md" : "bg-amber-500/5 border-amber-500/10"
+                                  : "bg-black/40 border-white/5"
+                            )}>
+                              {/* Background Glow for Premium */}
+                              {isPremium && <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none" />}
+                              
+                              {renderTableRewardCell(reward.premium_reward, 'premium', {
+                                claimed: premiumClaimed,
+                                unlocked,
+                                level: reward.level,
+                                onClick: () => {
+                                  if (!isPremium) {
+                                    setPremiumRewardPreview({
+                                      level: reward.level,
+                                      premium_reward: reward.premium_reward,
+                                    });
+                                  } else if (unlocked && !premiumClaimed) {
+                                    claimReward(reward.level, true);
+                                  }
                                 }
-                              }
-                            })}
-                          </td>
-
-                          {/* Premium reward preview */}
-                          <td className="px-1.5 py-2 align-middle">
-                            {renderTableRewardCell(reward.premium_reward, 'premium', {
-                              claimed: premiumClaimed,
-                              unlocked,
-                              level: reward.level,
-                              onClick: () => {
-                                if (!isPremium) {
-                                  setPremiumRewardPreview({
-                                    level: reward.level,
-                                    premium_reward: reward.premium_reward,
-                                  });
-                                } else if (unlocked && !premiumClaimed) {
-                                  claimReward(reward.level, true);
-                                }
-                              }
-                            })}
+                              })}
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1893,7 +2137,6 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                 </table>
               </div>
             </div>
-          </div>
 
           {/* Elite Pass CTA (Floating / Sticky Bottom) */}
           {!hasPremiumPass && (
@@ -1954,9 +2197,9 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         {currentView === 'hall_of_fame' && (
           <HallOfFameView key="hall_of_fame" onBack={() => setCurrentView('main')} />
         )}
-        {currentView === 'main' && (
+        {(currentView === 'main' || currentView === 'onboarding') && (
           <motion.div
-            key="main"
+            key="main_content"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
