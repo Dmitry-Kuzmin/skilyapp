@@ -1042,7 +1042,12 @@
       const CACHE_KEY = 'skilyapp_version';
 
       // 🛡️ ЗАЩИТА ОТ МОДУЛЬНЫХ ОШИБОК (Version Mismatch Handler)
+      // Цель: после деплоя чанки на CDN меняются — старый кэш в браузере перестаёт работать.
+      // Здесь мы 3 раза тихо перезагружаемся; если не помогло — показываем fallback экран.
+      // В dev-режиме (localhost) логика отключена: там reload не лечит Vite HMR-ошибки.
+      const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       window.addEventListener('error', function (e) {
+        if (isDev) return;
         const msg = (e.message || '').toLowerCase();
         const isModuleError =
           msg.indexOf('importing a module script failed') !== -1 ||
@@ -1053,7 +1058,6 @@
         if (isModuleError) {
           console.error('[CRITICAL] Module loading failed (Deployment mismatch). Attempting recovery...', e);
 
-          // Проверяем счетчик перезагрузок для защиты от бесконечного цикла
           const storageKey = 'module_reload_count';
           const timeKey = 'module_reload_time';
 
@@ -1075,24 +1079,31 @@
             }, 500);
           } else {
             console.error('[CRITICAL] Reload limit exceeded. Showing manual recovery prompt.');
-            // Показываем сообщение пользователю, вместо бесконечного цикла
             const root = document.getElementById('root') || document.body;
             root.innerHTML = `
                <div style="
                  position: fixed; inset: 0; background: #0f172a; color: white;
                  display: flex; flex-direction: column; align-items: center; justify-content: center;
-                 font-family: sans-serif; text-align: center; padding: 20px; z-index: 9999;
+                 font-family: -apple-system, BlinkMacSystemFont, sans-serif; text-align: center; padding: 24px; z-index: 9999; gap: 16px;
                ">
-                 <h2 style="color: #ef4444; margin-bottom: 10px;">Обновление приложения</h2>
-                 <p style="color: #a1a1aa; margin-bottom: 20px; max-width: 400px;">
-                   Мы выпустили важное обновление. Пожалуйста, нажмите кнопку ниже, чтобы загрузить новую версию.
+                 <h2 style="color: #f4f4f5; margin: 0; font-size: 20px;">Обновление приложения</h2>
+                 <p style="color: #a1a1aa; margin: 0; max-width: 360px; line-height: 1.5;">
+                   Доступна новая версия. Перезагрузите, чтобы продолжить.
                  </p>
-                 <button onclick="localStorage.removeItem('module_reload_count'); window.location.reload(true);" style="
-                   background: #2563eb; color: white; border: none; padding: 12px 24px;
-                   border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
-                 ">
-                   Обновить сейчас
-                 </button>
+                 <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 8px;">
+                   <button onclick="(function(){try{caches&&caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k)})})}catch(_){};localStorage.removeItem('module_reload_count');localStorage.removeItem('module_reload_time');window.location.reload(true)})()" style="
+                     background: #2563eb; color: white; border: none; padding: 12px 24px;
+                     border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;
+                   ">
+                     Обновить сейчас
+                   </button>
+                   <button onclick="localStorage.removeItem('module_reload_count');localStorage.removeItem('module_reload_time');window.location.href='/'" style="
+                     background: transparent; color: #a1a1aa; border: 1px solid #3f3f46; padding: 12px 24px;
+                     border-radius: 8px; font-weight: 500; cursor: pointer; font-size: 16px;
+                   ">
+                     На главную
+                   </button>
+                 </div>
                </div>
              `;
           }
