@@ -271,17 +271,10 @@ window.addEventListener('error', (event) => {
   if (isChunkError) {
     console.error('[CRITICAL] Chunk load error detected in Global Error. Reloading...', errorMsg);
     const storageKey = 'module_reload_count';
-    const timeKey = 'module_reload_time';
-    const count = parseInt(localStorage.getItem(storageKey) || '0');
-    const lastTime = parseInt(localStorage.getItem(timeKey) || '0');
-    const now = Date.now();
-
-    // Сбрасываем счетчик, если прошло больше 60 секунд
-    const currentCount = (now - lastTime > 60000) ? 0 : count;
+    const currentCount = parseInt(sessionStorage.getItem(storageKey) || '0');
 
     if (!isPrerenderMode && currentCount < 3) {
-      localStorage.setItem(storageKey, (currentCount + 1).toString());
-      localStorage.setItem(timeKey, now.toString());
+      sessionStorage.setItem(storageKey, (currentCount + 1).toString());
       window.location.reload();
       return;
     }
