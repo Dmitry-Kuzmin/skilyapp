@@ -111,6 +111,10 @@
   ],
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/landing.html"
+    },
+    {
       "source": "/ru",
       "destination": "/ru.html"
     },
