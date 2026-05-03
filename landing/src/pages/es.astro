@@ -389,28 +389,21 @@ const faqSchema = {
                 <!-- Question + options -->
                 <div style="display:flex;flex-direction:column;gap:10px;">
                   <p style="color:#f1f5f9;font-size:15px;font-weight:600;line-height:1.55;margin:0 0 4px;">¿Quién tiene prioridad en una zona de circulación que tiene esta señal?</p>
-                  <!-- Option 1 — not selected -->
-                  <div style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);">
-                    <span style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;">1</span>
-                    <span style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los peatones.</span>
-                  </div>
-                  <!-- Option 2 — not selected -->
-                  <div style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);">
-                    <span style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;">2</span>
-                    <span style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los peatones, los ciclos y los vehículos de movilidad personal.</span>
-                  </div>
-                  <!-- Option 3 — not selected -->
-                  <div style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);">
-                    <span style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;">3</span>
-                    <span style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los vehículos a motor, salvo en los pasos para peatones.</span>
-                  </div>
-                  <!-- Responder button -->
-                  <div style="display:flex;gap:10px;margin-top:4px;">
-                    <button style="width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;cursor:default;flex-shrink:0;">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-                    </button>
-                    <button style="flex:1;height:42px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;color:white;font-size:14px;font-weight:700;cursor:default;opacity:0.5;">Responder</button>
-                  </div>
+                  <!-- Option 1 -->
+                  <button id="ai-opt-1" onclick="aiDemoAnswer(1)" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
+                    <span class="ai-opt-key" style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;transition:all 0.2s;">1</span>
+                    <span class="ai-opt-txt" style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los peatones.</span>
+                  </button>
+                  <!-- Option 2 -->
+                  <button id="ai-opt-2" onclick="aiDemoAnswer(2)" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
+                    <span class="ai-opt-key" style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;transition:all 0.2s;">2</span>
+                    <span class="ai-opt-txt" style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los peatones, los ciclos y los vehículos de movilidad personal.</span>
+                  </button>
+                  <!-- Option 3 -->
+                  <button id="ai-opt-3" onclick="aiDemoAnswer(3)" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
+                    <span class="ai-opt-key" style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;transition:all 0.2s;">3</span>
+                    <span class="ai-opt-txt" style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los vehículos a motor, salvo en los pasos para peatones.</span>
+                  </button>
                 </div>
               </div>
 
