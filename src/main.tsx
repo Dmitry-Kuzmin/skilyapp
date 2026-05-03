@@ -270,13 +270,14 @@ window.addEventListener('error', (event) => {
   // КРИТИЧНО: Автоматическая перезагрузка при ошибке загрузки чанка (MIME type mismatch или 404)
   if (isChunkError) {
     console.error('[CRITICAL] Chunk load error detected in Global Error. Reloading...', errorMsg);
-    const storageKey = 'module_reload_count';
-    const currentCount = parseInt(sessionStorage.getItem(storageKey) || '0');
-
-    if (!isPrerenderMode && currentCount < 3) {
-      sessionStorage.setItem(storageKey, (currentCount + 1).toString());
-      window.location.reload();
-      return;
+    if (!isPrerenderMode && import.meta.env.PROD) {
+      const storageKey = 'module_reload_count';
+      const currentCount = parseInt(sessionStorage.getItem(storageKey) || '0');
+      if (currentCount < 3) {
+        sessionStorage.setItem(storageKey, (currentCount + 1).toString());
+        window.location.reload();
+        return;
+      }
     }
   }
 
