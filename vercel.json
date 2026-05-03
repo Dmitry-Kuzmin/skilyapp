@@ -112,7 +112,7 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/landing.html"
+      "destination": "/es.html"
     },
     {
       "source": "/ru",
