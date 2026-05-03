@@ -317,49 +317,69 @@ const faqSchema = {
           </div>
         </div>
 
-        <!-- DUEL -->
+        <!-- DUEL — Interactive Demo -->
         <div id="panel-duel" class="feat-panel hidden">
-          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-rose-500/10 mb-6" style="background:#161c2c;">
-            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50">
-              <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
-              <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
-                <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
-                <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Duelo en curso</span>
+          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-rose-500/10 mb-6" style="background:#0a0f1e;">
+            <!-- Browser chrome -->
+            <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,0.05);background:#0f172a;">
+              <div style="display:flex;gap:5px;"><div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div><div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div><div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div></div>
+              <div style="flex:1;margin:0 12px;height:24px;border-radius:7px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:rgba(34,197,94,0.7);"></div>
+                <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Duelos PvP</span>
               </div>
             </div>
-            <!-- Duel mock fullwidth -->
-            <div class="p-10 flex flex-col items-center justify-center min-h-[340px] bg-gradient-to-br from-slate-900 to-slate-950">
-              <div class="w-full max-w-lg">
-                <div class="flex items-center justify-between mb-6">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-sm font-black text-white shadow-lg">TÚ</div>
-                    <div><p class="font-black text-white text-sm">Tú</p><p class="text-emerald-400 text-xs font-bold">🔥 x3 combo</p></div>
-                  </div>
-                  <div class="px-4 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-300 font-black text-sm">VS</div>
-                  <div class="flex items-center gap-3">
-                    <div><p class="font-black text-white text-sm text-right">Rival</p><p class="text-slate-500 text-xs font-bold text-right">sin combo</p></div>
-                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-sm font-black text-white">R</div>
-                  </div>
+
+            <!-- Main duel layout -->
+            <div style="padding:32px 28px;display:flex;align-items:flex-start;justify-content:center;gap:28px;min-height:520px;flex-wrap:wrap;">
+
+              <!-- LEFT: WIN POT + copy -->
+              <div style="display:flex;flex-direction:column;gap:18px;padding-top:28px;min-width:150px;flex:0 1 160px;">
+                <!-- WIN POT badge -->
+                <div id="duel-win-pot-card" style="background:rgba(217,119,6,0.12);border:1px solid rgba(217,119,6,0.3);border-radius:16px;padding:14px 18px;">
+                  <div style="font-size:9px;font-weight:800;color:#d97706;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;">WIN POT</div>
+                  <div id="duel-pot-display" style="font-size:26px;font-weight:900;color:#fbbf24;line-height:1;">+200 🪙</div>
                 </div>
-                <div class="h-3 rounded-full bg-slate-800 overflow-hidden mb-2">
-                  <div class="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style="width:70%;transition:width 1s ease"></div>
+                <!-- Copy -->
+                <div>
+                  <div style="font-size:9px;font-weight:800;color:#f97316;letter-spacing:0.15em;text-transform:uppercase;border:1px solid rgba(249,115,22,0.3);border-radius:20px;display:inline-block;padding:2px 10px;margin-bottom:10px;">MULTIJUGADOR</div>
+                  <h3 style="font-size:26px;font-weight:900;color:#f97316;line-height:1.1;margin:0 0 8px;">PvP Arena</h3>
+                  <p style="font-size:12px;color:#64748b;line-height:1.5;margin:0 0 14px;">Reta a un rival. El más rápido y preciso se lleva el banco.</p>
+                  <div style="height:3px;width:80px;background:linear-gradient(90deg,#f97316,rgba(249,115,22,0));border-radius:9999px;"></div>
                 </div>
-                <div class="flex justify-between text-sm font-black mb-6"><span class="text-blue-300">420 pts</span><span class="text-slate-600">180 pts</span></div>
-                <div class="bg-slate-800/60 border border-slate-700/40 rounded-2xl p-5">
-                  <p class="text-white font-semibold text-sm mb-4">¿A qué distancia mínima debes seguir a otro vehículo a 120 km/h?</p>
-                  <div class="space-y-2">
-                    <div class="px-4 py-3 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-sm font-semibold flex items-center gap-2"><span class="text-xs">✓</span> Al menos 100 metros</div>
-                    <div class="px-4 py-3 rounded-xl bg-slate-700/50 border border-slate-600/30 text-slate-400 text-sm">50 metros exactos</div>
+              </div>
+
+              <!-- CENTER: Phone mockup -->
+              <div style="width:290px;flex-shrink:0;background:#0f172a;border-radius:38px;border:5px solid rgba(255,255,255,0.09);box-shadow:0 0 60px rgba(249,115,22,0.12),0 30px 80px rgba(0,0,0,0.5);overflow:hidden;position:relative;min-height:540px;">
+                <!-- Notch -->
+                <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:72px;height:20px;background:#000;border-radius:0 0 14px 14px;z-index:10;"></div>
+                <!-- Game screen -->
+                <div id="duel-screen" style="position:absolute;inset:0;overflow:hidden;"></div>
+              </div>
+
+              <!-- RIGHT: Blitz + Season Rank -->
+              <div style="display:flex;flex-direction:column;gap:16px;padding-top:100px;min-width:140px;flex:0 1 150px;">
+                <!-- Blitz Mode -->
+                <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:16px;padding:16px;opacity:0.7;">
+                  <div style="font-size:18px;font-weight:900;color:#818cf8;margin-bottom:4px;">Blitz Mode</div>
+                  <div style="font-size:11px;color:#475569;line-height:1.4;">Duelos de 60 seg. Adrenalina pura.</div>
+                </div>
+                <!-- Season Rank -->
+                <div style="background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.25);border-radius:16px;padding:14px;">
+                  <div style="font-size:9px;font-weight:800;color:#a855f7;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;">SEASON RANK</div>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:20px;">🏆</span>
+                    <span style="font-size:15px;font-weight:900;color:white;">#1 Champion</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
           <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">PvP real</p><p class="text-white/70 text-xs">Matchmaking instantáneo contra otro alumno</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Combos</p><p class="text-white/70 text-xs">Rachas de aciertos = más puntos y monedas</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Apuestas de monedas</p><p class="text-white/70 text-xs">Pon algo en juego — el ganador se lo lleva</p></div>
             <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Duel Pass</p><p class="text-white/70 text-xs">Temporadas con recompensas exclusivas</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Ranking</p><p class="text-white/70 text-xs">Leaderboard semanal entre todos los alumnos</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Boost & poderes</p><p class="text-white/70 text-xs">Úsalos estratégicamente para ganar</p></div>
           </div>
         </div>
 
