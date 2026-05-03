@@ -221,331 +221,226 @@ const faqSchema = {
     </section>
 
     <!-- ═══════════════════════════════════════ FEATURES ═══════════════════════════════════ -->
-    <section class="relative z-10 px-6 pt-20 pb-6 max-w-[1400px] mx-auto" id="features">
+    <section class="relative z-10 px-6 pt-24 pb-6 max-w-[1200px] mx-auto" id="features">
+
       <!-- Header -->
-      <div class="text-center mb-14">
+      <div class="text-center mb-10">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-bold tracking-[0.25em] uppercase mb-5">
           ✦ Plataforma completa
         </div>
         <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
           Todo lo que necesitas<br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-blue-400">para aprobar el DGT</span>
         </h2>
-        <p class="text-slate-400 text-base max-w-xl mx-auto">Más de 40 000 alumnos ya preparan su carnet con Skily. Esto es lo que te da ventaja.</p>
+        <p class="text-slate-400 text-base max-w-xl mx-auto">Más de 40 000 alumnos ya preparan su carnet con Skily.</p>
       </div>
 
-      <!-- Feature tabs container -->
-      <div class="flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
+      <!-- Horizontal tab pills -->
+      <div class="flex items-center justify-center gap-2 flex-wrap mb-8 no-scrollbar">
+        <button data-tab="training" class="feat-tab active-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('training')">
+          <span>🎯</span> Entrenamiento
+        </button>
+        <button data-tab="duel" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('duel')">
+          <span>⚔️</span> Duelos PvP
+        </button>
+        <button data-tab="ai" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('ai')">
+          <span>🧠</span> Tutor IA
+        </button>
+        <button data-tab="progress" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('progress')">
+          <span>📊</span> Progreso
+        </button>
+        <button data-tab="game" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('game')">
+          <span>🎮</span> Gamificación
+        </button>
+        <button data-tab="app" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('app')">
+          <span>🌍</span> Multiidioma
+        </button>
+      </div>
 
-        <!-- Left: Tab list -->
-        <div class="w-full lg:w-[280px] shrink-0">
-          <!-- Mobile: horizontal scroll -->
-          <div class="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar" id="feat-tabs">
-            <button data-tab="training" class="feat-tab active-tab group flex-shrink-0 w-full text-left px-4 py-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-3" onclick="switchTab('training')">
-              <span class="text-xl">🎯</span>
-              <span class="font-bold text-sm whitespace-nowrap">Entrenamiento IA</span>
-            </button>
-            <button data-tab="duel" class="feat-tab group flex-shrink-0 w-full text-left px-4 py-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-3" onclick="switchTab('duel')">
-              <span class="text-xl">⚔️</span>
-              <span class="font-bold text-sm whitespace-nowrap">Duelos PvP</span>
-            </button>
-            <button data-tab="ai" class="feat-tab group flex-shrink-0 w-full text-left px-4 py-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-3" onclick="switchTab('ai')">
-              <span class="text-xl">🧠</span>
-              <span class="font-bold text-sm whitespace-nowrap">Tutor IA</span>
-            </button>
-            <button data-tab="progress" class="feat-tab group flex-shrink-0 w-full text-left px-4 py-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-3" onclick="switchTab('progress')">
-              <span class="text-xl">📊</span>
-              <span class="font-bold text-sm whitespace-nowrap">Tu Progreso</span>
-            </button>
-            <button data-tab="game" class="feat-tab group flex-shrink-0 w-full text-left px-4 py-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-3" onclick="switchTab('game')">
-              <span class="text-xl">🎮</span>
-              <span class="font-bold text-sm whitespace-nowrap">Gamificación</span>
-            </button>
-            <button data-tab="app" class="feat-tab group flex-shrink-0 w-full text-left px-4 py-3.5 rounded-2xl border transition-all duration-200 flex items-center gap-3" onclick="switchTab('app')">
-              <span class="text-xl">📱</span>
-              <span class="font-bold text-sm whitespace-nowrap">Siempre contigo</span>
-            </button>
+      <!-- Panels -->
+      <div class="relative">
+
+        <!-- TRAINING -->
+        <div id="panel-training" class="feat-panel">
+          <!-- Browser frame — full width -->
+          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-indigo-500/10 mb-6" style="background:#161c2c;">
+            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50">
+              <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
+              <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
+                <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Práctica DGT</span>
+              </div>
+            </div>
+            <video src="/videos/feat-training-cut.webm" autoplay loop muted playsinline class="w-full block" style="max-height:480px;object-fit:cover;object-position:top;"></video>
+          </div>
+          <!-- Text below -->
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+              <p class="text-indigo-400 font-black text-sm mb-1">6 modos</p>
+              <p class="text-slate-400 text-xs leading-relaxed">Práctica, Examen, Blitz, Marathon, Mastery y más</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+              <p class="text-indigo-400 font-black text-sm mb-1">3 000+ preguntas</p>
+              <p class="text-slate-400 text-xs leading-relaxed">Base oficial DGT actualizada en tiempo real</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+              <p class="text-indigo-400 font-black text-sm mb-1">Imágenes reales</p>
+              <p class="text-slate-400 text-xs leading-relaxed">Señales, situaciones de tráfico y más</p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+              <p class="text-indigo-400 font-black text-sm mb-1">IA adaptativa</p>
+              <p class="text-slate-400 text-xs leading-relaxed">Ajusta la dificultad según tus errores</p>
+            </div>
           </div>
         </div>
 
-        <!-- Right: Content panels -->
-        <div class="flex-1 relative min-h-[420px] lg:min-h-[460px]">
-
-          <!-- TRAINING -->
-          <div id="panel-training" class="feat-panel">
-            <div class="bg-slate-900/80 border border-slate-700/60 rounded-[2rem] overflow-hidden h-full">
-              <div class="grid lg:grid-cols-2 gap-0 h-full">
-                <div class="p-8 flex flex-col justify-center">
-                  <p class="text-xs font-black uppercase tracking-[0.2em] text-indigo-400 mb-3">6 modos de práctica</p>
-                  <h3 class="text-2xl sm:text-3xl font-black text-white mb-4 leading-tight">Entrena como<br/>un profesional</h3>
-                  <p class="text-slate-400 text-sm leading-relaxed mb-6">Desde práctica libre hasta examen oficial simulado. La IA ajusta la dificultad según tus errores.</p>
-                  <ul class="space-y-2.5">
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">✓</span> Examen DGT con tiempo real</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">✓</span> Modo Blitz — 20 preguntas, 5 min</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">✓</span> Marathon — sin errores hasta el final</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">✓</span> 3 000+ preguntas oficiales DGT</li>
-                  </ul>
+        <!-- DUEL -->
+        <div id="panel-duel" class="feat-panel hidden">
+          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-rose-500/10 mb-6" style="background:#161c2c;">
+            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50">
+              <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
+              <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
+                <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Duelo en curso</span>
+              </div>
+            </div>
+            <!-- Duel mock fullwidth -->
+            <div class="p-10 flex flex-col items-center justify-center min-h-[340px] bg-gradient-to-br from-slate-900 to-slate-950">
+              <div class="w-full max-w-lg">
+                <div class="flex items-center justify-between mb-6">
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-sm font-black text-white shadow-lg">TÚ</div>
+                    <div><p class="font-black text-white text-sm">Tú</p><p class="text-emerald-400 text-xs font-bold">🔥 x3 combo</p></div>
+                  </div>
+                  <div class="px-4 py-1.5 rounded-full bg-rose-500/20 border border-rose-400/30 text-rose-300 font-black text-sm">VS</div>
+                  <div class="flex items-center gap-3">
+                    <div><p class="font-black text-white text-sm text-right">Rival</p><p class="text-slate-500 text-xs font-bold text-right">sin combo</p></div>
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-sm font-black text-white">R</div>
+                  </div>
                 </div>
-                <div class="hidden lg:flex items-center justify-center bg-gradient-to-br from-indigo-500/5 to-violet-500/5 border-l border-slate-700/40 p-8 overflow-hidden">
-                  <!-- Browser frame -->
-                  <div class="w-full max-w-[380px] rounded-2xl overflow-hidden shadow-2xl border border-slate-600/50" style="background:#1e2433;">
-                    <!-- Browser chrome bar -->
-                    <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-700/60" style="background:#161c2c;">
-                      <!-- Traffic lights -->
-                      <div class="flex items-center gap-1.5 shrink-0">
-                        <div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#febc2e]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#28c840]"></div>
-                      </div>
-                      <!-- URL bar -->
-                      <div class="flex-1 mx-3 h-6 rounded-md bg-slate-800/80 border border-slate-700/50 flex items-center px-3 gap-2">
-                        <div class="w-2 h-2 rounded-full bg-emerald-400/60 shrink-0"></div>
-                        <span class="text-[10px] text-slate-400 font-medium truncate">skilyapp.com · Práctica DGT</span>
-                      </div>
-                    </div>
-                    <!-- Video content -->
-                    <video
-                      src="/videos/feat-training-cut.webm"
-                      autoplay loop muted playsinline
-                      class="w-full block"
-                      style="max-height: 300px; object-fit: cover; object-position: top;"
-                    ></video>
+                <div class="h-3 rounded-full bg-slate-800 overflow-hidden mb-2">
+                  <div class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full" style="width:70%;transition:width 1s ease"></div>
+                </div>
+                <div class="flex justify-between text-sm font-black mb-6"><span class="text-indigo-300">420 pts</span><span class="text-slate-600">180 pts</span></div>
+                <div class="bg-slate-800/60 border border-slate-700/40 rounded-2xl p-5">
+                  <p class="text-white font-semibold text-sm mb-4">¿A qué distancia mínima debes seguir a otro vehículo a 120 km/h?</p>
+                  <div class="space-y-2">
+                    <div class="px-4 py-3 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-200 text-sm font-semibold flex items-center gap-2"><span class="text-xs">✓</span> Al menos 100 metros</div>
+                    <div class="px-4 py-3 rounded-xl bg-slate-700/50 border border-slate-600/30 text-slate-400 text-sm">50 metros exactos</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- DUEL -->
-          <div id="panel-duel" class="feat-panel hidden">
-            <div class="bg-slate-900/80 border border-slate-700/60 rounded-[2rem] overflow-hidden h-full">
-              <div class="grid lg:grid-cols-2 gap-0 h-full">
-                <div class="p-8 flex flex-col justify-center">
-                  <p class="text-xs font-black uppercase tracking-[0.2em] text-rose-400 mb-3">PvP en tiempo real</p>
-                  <h3 class="text-2xl sm:text-3xl font-black text-white mb-4 leading-tight">Reta a otro<br/>alumno ahora</h3>
-                  <p class="text-slate-400 text-sm leading-relaxed mb-6">Responde más rápido que tu rival. Cada acierto suma combo. El más rápido y exacto gana monedas y XP.</p>
-                  <ul class="space-y-2.5">
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center text-xs">✓</span> Matchmaking instantáneo</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center text-xs">✓</span> Sistema de combos y rachas</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center text-xs">✓</span> Temporadas con Duel Pass</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-rose-500/20 flex items-center justify-center text-xs">✓</span> Recompensas exclusivas por ranking</li>
-                  </ul>
-                </div>
-                <div class="hidden lg:flex items-center justify-center bg-gradient-to-br from-rose-500/5 to-orange-500/5 border-l border-slate-700/40 p-8">
-                  <!-- Duel mock -->
-                  <div class="w-full max-w-[240px] space-y-3">
-                    <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-4 space-y-3">
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 flex items-center justify-center text-xs font-black text-white">TÚ</div>
-                          <div>
-                            <div class="text-xs font-black text-white">Tú</div>
-                            <div class="text-[10px] text-emerald-400 font-bold">🔥 x3 combo</div>
-                          </div>
-                        </div>
-                        <div class="text-xl font-black text-white">VS</div>
-                        <div class="flex items-center gap-2">
-                          <div>
-                            <div class="text-xs font-black text-white text-right">Rival</div>
-                            <div class="text-[10px] text-slate-400 font-bold text-right">sin combo</div>
-                          </div>
-                          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center text-xs font-black text-white">R</div>
-                        </div>
-                      </div>
-                      <div class="flex gap-1.5">
-                        <div class="flex-1 h-3 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500" style="width:70%"></div>
-                        <div class="h-3 rounded-full bg-slate-700" style="width:30%"></div>
-                      </div>
-                      <div class="flex justify-between text-xs font-black">
-                        <span class="text-indigo-300">420 pts</span>
-                        <span class="text-slate-500">180 pts</span>
-                      </div>
-                    </div>
-                    <div class="bg-rose-500/10 border border-rose-400/20 rounded-xl p-3 text-center">
-                      <p class="text-xs font-black text-rose-300">¡Ganaste el duelo!</p>
-                      <p class="text-[10px] text-slate-400 mt-0.5">+50 🪙 · +120 XP</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">PvP real</p><p class="text-slate-400 text-xs">Matchmaking instantáneo contra otro alumno</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Combos</p><p class="text-slate-400 text-xs">Rachas de aciertos = más puntos y monedas</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Duel Pass</p><p class="text-slate-400 text-xs">Temporadas con recompensas exclusivas</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Ranking</p><p class="text-slate-400 text-xs">Leaderboard semanal entre todos los alumnos</p></div>
           </div>
-
-          <!-- AI TUTOR -->
-          <div id="panel-ai" class="feat-panel hidden">
-            <div class="bg-slate-900/80 border border-slate-700/60 rounded-[2rem] overflow-hidden h-full">
-              <div class="grid lg:grid-cols-2 gap-0 h-full">
-                <div class="p-8 flex flex-col justify-center">
-                  <p class="text-xs font-black uppercase tracking-[0.2em] text-violet-400 mb-3">GPT-4o integrado</p>
-                  <h3 class="text-2xl sm:text-3xl font-black text-white mb-4 leading-tight">Tutor IA en<br/>cada pregunta</h3>
-                  <p class="text-slate-400 text-sm leading-relaxed mb-6">¿No entiendes por qué fallaste? Pregúntale a la IA. Explica la norma, la señal y el contexto en segundos.</p>
-                  <ul class="space-y-2.5">
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center text-xs">✓</span> Explicación de cada respuesta</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center text-xs">✓</span> Chat libre — pregunta lo que quieras</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center text-xs">✓</span> Disponible en ES · RU · EN</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center text-xs">✓</span> Flashcards generadas al instante</li>
-                  </ul>
-                </div>
-                <div class="hidden lg:flex items-center justify-center bg-gradient-to-br from-violet-500/5 to-purple-500/5 border-l border-slate-700/40 p-6 overflow-hidden">
-                  <div class="w-full max-w-[380px] rounded-2xl overflow-hidden shadow-2xl border border-slate-600/50" style="background:#1e2433;">
-                    <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-700/60" style="background:#161c2c;">
-                      <div class="flex items-center gap-1.5 shrink-0">
-                        <div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#febc2e]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#28c840]"></div>
-                      </div>
-                      <div class="flex-1 mx-3 h-6 rounded-md bg-slate-800/80 border border-slate-700/50 flex items-center px-3 gap-2">
-                        <div class="w-2 h-2 rounded-full bg-emerald-400/60 shrink-0"></div>
-                        <span class="text-[10px] text-slate-400 font-medium truncate">skilyapp.com · Tutor IA</span>
-                      </div>
-                    </div>
-                    <video src="/videos/feat-ai.webm" autoplay loop muted playsinline
-                      class="w-full block" style="max-height:300px;object-fit:cover;object-position:top;"></video>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- PROGRESS -->
-          <div id="panel-progress" class="feat-panel hidden">
-            <div class="bg-slate-900/80 border border-slate-700/60 rounded-[2rem] overflow-hidden h-full">
-              <div class="grid lg:grid-cols-2 gap-0 h-full">
-                <div class="p-8 flex flex-col justify-center">
-                  <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-400 mb-3">Análisis inteligente</p>
-                  <h3 class="text-2xl sm:text-3xl font-black text-white mb-4 leading-tight">Sabe exactamente<br/>dónde fallas</h3>
-                  <p class="text-slate-400 text-sm leading-relaxed mb-6">Skily rastrea cada error, construye tu banco de preguntas difíciles y te muestra el camino más corto al aprobado.</p>
-                  <ul class="space-y-2.5">
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">✓</span> Challenge Bank automático</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">✓</span> Mapa de temas débiles</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">✓</span> Historial completo de errores</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">✓</span> Plan personalizado por IA</li>
-                  </ul>
-                </div>
-                <div class="hidden lg:flex items-center justify-center bg-gradient-to-br from-emerald-500/5 to-teal-500/5 border-l border-slate-700/40 p-8">
-                  <!-- Progress mock -->
-                  <div class="w-full max-w-[240px] space-y-3">
-                    <div class="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Tus temas</div>
-                    <div class="space-y-2.5">
-                      <div>
-                        <div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 font-semibold">Señales de tráfico</span><span class="text-emerald-400 font-black">91%</span></div>
-                        <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden"><div class="h-full bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full" style="width:91%"></div></div>
-                      </div>
-                      <div>
-                        <div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 font-semibold">Prioridad de paso</span><span class="text-amber-400 font-black">64%</span></div>
-                        <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden"><div class="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full" style="width:64%"></div></div>
-                      </div>
-                      <div>
-                        <div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 font-semibold">Velocidad</span><span class="text-amber-400 font-black">72%</span></div>
-                        <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden"><div class="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full" style="width:72%"></div></div>
-                      </div>
-                      <div>
-                        <div class="flex justify-between text-[10px] mb-1"><span class="text-slate-300 font-semibold">Los accidentes</span><span class="text-rose-400 font-black">43%</span></div>
-                        <div class="h-1.5 rounded-full bg-slate-700 overflow-hidden"><div class="h-full bg-gradient-to-r from-rose-400 to-red-400 rounded-full" style="width:43%"></div></div>
-                      </div>
-                    </div>
-                    <div class="mt-2 p-2.5 rounded-xl bg-rose-500/10 border border-rose-400/20 text-[10px] text-rose-300 font-semibold">
-                      ⚡ IA añadió 8 preguntas de accidentes a tu Challenge Bank
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- GAMIFICATION -->
-          <div id="panel-game" class="feat-panel hidden">
-            <div class="bg-slate-900/80 border border-slate-700/60 rounded-[2rem] overflow-hidden h-full">
-              <div class="grid lg:grid-cols-2 gap-0 h-full">
-                <div class="p-8 flex flex-col justify-center">
-                  <p class="text-xs font-black uppercase tracking-[0.2em] text-amber-400 mb-3">Sistema de recompensas</p>
-                  <h3 class="text-2xl sm:text-3xl font-black text-white mb-4 leading-tight">Aprender da<br/>recompensas reales</h3>
-                  <p class="text-slate-400 text-sm leading-relaxed mb-6">XP, monedas, niveles, rachas diarias y un Duel Pass de temporada. Cuanto más estudias, más desbloqueas.</p>
-                  <ul class="space-y-2.5">
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center text-xs">✓</span> Monedas para boosters y tienda</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center text-xs">✓</span> XP → Subida de nivel</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center text-xs">✓</span> Duel Pass con recompensas de temporada</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-amber-500/20 flex items-center justify-center text-xs">✓</span> Racha diaria · Leaderboard</li>
-                  </ul>
-                </div>
-                <div class="hidden lg:flex items-center justify-center bg-gradient-to-br from-amber-500/5 to-orange-500/5 border-l border-slate-700/40 p-8">
-                  <!-- Gamification mock -->
-                  <div class="w-full max-w-[240px] space-y-3">
-                    <div class="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-400/30 rounded-xl p-4">
-                      <div class="flex justify-between items-start mb-3">
-                        <div>
-                          <p class="text-[10px] text-amber-300/70 font-bold uppercase tracking-wider">Nivel</p>
-                          <p class="text-2xl font-black text-white">12</p>
-                        </div>
-                        <div class="text-right">
-                          <p class="text-[10px] text-amber-300/70 font-bold uppercase tracking-wider">Monedas</p>
-                          <p class="text-2xl font-black text-amber-300">🪙 340</p>
-                        </div>
-                      </div>
-                      <div class="h-2 rounded-full bg-black/20 overflow-hidden mb-1.5">
-                        <div class="h-full w-[68%] bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"></div>
-                      </div>
-                      <p class="text-[10px] text-amber-300/60">680 / 1000 XP para nivel 13</p>
-                    </div>
-                    <div class="flex gap-2">
-                      <div class="flex-1 bg-slate-800/80 border border-slate-700/50 rounded-xl p-2.5 text-center">
-                        <p class="text-base">🔥</p>
-                        <p class="text-xs font-black text-white">14</p>
-                        <p class="text-[9px] text-slate-500">Racha</p>
-                      </div>
-                      <div class="flex-1 bg-slate-800/80 border border-slate-700/50 rounded-xl p-2.5 text-center">
-                        <p class="text-base">⚔️</p>
-                        <p class="text-xs font-black text-white">23</p>
-                        <p class="text-[9px] text-slate-500">Duelos</p>
-                      </div>
-                      <div class="flex-1 bg-slate-800/80 border border-slate-700/50 rounded-xl p-2.5 text-center">
-                        <p class="text-base">🏆</p>
-                        <p class="text-xs font-black text-white">#4</p>
-                        <p class="text-[9px] text-slate-500">Rank</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- APP -->
-          <div id="panel-app" class="feat-panel hidden">
-            <div class="bg-slate-900/80 border border-slate-700/60 rounded-[2rem] overflow-hidden h-full">
-              <div class="grid lg:grid-cols-2 gap-0 h-full">
-                <div class="p-8 flex flex-col justify-center">
-                  <p class="text-xs font-black uppercase tracking-[0.2em] text-sky-400 mb-3">Telegram · Web · Offline</p>
-                  <h3 class="text-2xl sm:text-3xl font-black text-white mb-4 leading-tight">Siempre en<br/>tu bolsillo</h3>
-                  <p class="text-slate-400 text-sm leading-relaxed mb-6">Abre Skily en Telegram sin instalar nada. Funciona offline. Cambia el idioma al instante entre ES, RU y EN.</p>
-                  <ul class="space-y-2.5">
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs">✓</span> Mini App nativa en Telegram</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs">✓</span> Funciona sin conexión a internet</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs">✓</span> Español · Ruso · Inglés</li>
-                    <li class="flex items-center gap-2.5 text-sm text-slate-300"><span class="w-5 h-5 rounded-full bg-sky-500/20 flex items-center justify-center text-xs">✓</span> Sincronización automática en la nube</li>
-                  </ul>
-                </div>
-                <div class="hidden lg:flex items-center justify-center bg-gradient-to-br from-sky-500/5 to-cyan-500/5 border-l border-slate-700/40 p-6 overflow-hidden">
-                  <div class="w-full max-w-[380px] rounded-2xl overflow-hidden shadow-2xl border border-slate-600/50" style="background:#1e2433;">
-                    <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-700/60" style="background:#161c2c;">
-                      <div class="flex items-center gap-1.5 shrink-0">
-                        <div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#febc2e]"></div>
-                        <div class="w-3 h-3 rounded-full bg-[#28c840]"></div>
-                      </div>
-                      <div class="flex-1 mx-3 h-6 rounded-md bg-slate-800/80 border border-slate-700/50 flex items-center px-3 gap-2">
-                        <div class="w-2 h-2 rounded-full bg-emerald-400/60 shrink-0"></div>
-                        <span class="text-[10px] text-slate-400 font-medium truncate">skilyapp.com · Traducción RU</span>
-                      </div>
-                    </div>
-                    <video src="/videos/feat-translate.webm" autoplay loop muted playsinline
-                      class="w-full block" style="max-height:300px;object-fit:cover;object-position:top;"></video>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        <!-- AI TUTOR -->
+        <div id="panel-ai" class="feat-panel hidden">
+          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-violet-500/10 mb-6" style="background:#161c2c;">
+            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50">
+              <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
+              <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
+                <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Tutor IA</span>
+              </div>
+            </div>
+            <video src="/videos/feat-ai.webm" autoplay loop muted playsinline class="w-full block" style="max-height:480px;object-fit:cover;object-position:top;"></video>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-violet-400 font-black text-sm mb-1">GPT-4o</p><p class="text-slate-400 text-xs">Modelo más avanzado de OpenAI integrado</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-violet-400 font-black text-sm mb-1">Chat libre</p><p class="text-slate-400 text-xs">Pregunta cualquier cosa sobre el reglamento</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-violet-400 font-black text-sm mb-1">ES · RU · EN</p><p class="text-slate-400 text-xs">Responde en el idioma de tu perfil</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-violet-400 font-black text-sm mb-1">Flashcards</p><p class="text-slate-400 text-xs">Genera tarjetas de memoria al instante</p></div>
+          </div>
+        </div>
+
+        <!-- PROGRESS -->
+        <div id="panel-progress" class="feat-panel hidden">
+          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-emerald-500/10 mb-6 p-10" style="background:#0f1a14;">
+            <div class="max-w-xl mx-auto space-y-4">
+              <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-400 mb-6">Tu progreso por temas</p>
+              {[['Señales de tráfico','91','emerald'],['Velocidad','72','amber'],['Prioridad de paso','64','amber'],['Los accidentes','43','rose'],['Documentación','88','emerald']].map(([tema, pct, color]) => (
+                <div>
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-slate-300 font-semibold">{tema}</span>
+                    <span class={`font-black text-${color}-400`}>{pct}%</span>
+                  </div>
+                  <div class="h-2.5 rounded-full bg-slate-800 overflow-hidden">
+                    <div class={`h-full bg-gradient-to-r from-${color}-400 to-${color}-500 rounded-full`} style={`width:${pct}%`}></div>
+                  </div>
+                </div>
+              ))}
+              <div class="mt-4 p-4 rounded-2xl bg-rose-500/10 border border-rose-400/20 flex items-center gap-3">
+                <span class="text-xl">⚡</span>
+                <p class="text-sm text-rose-300 font-semibold">IA añadió 8 preguntas de accidentes a tu Challenge Bank</p>
+              </div>
+            </div>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-emerald-400 font-black text-sm mb-1">Challenge Bank</p><p class="text-slate-400 text-xs">Tus errores se guardan para repasarlos</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-emerald-400 font-black text-sm mb-1">Mapa de temas</p><p class="text-slate-400 text-xs">Visualiza dónde estás más débil</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-emerald-400 font-black text-sm mb-1">Historial</p><p class="text-slate-400 text-xs">Registro completo de todos tus tests</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-emerald-400 font-black text-sm mb-1">Plan IA</p><p class="text-slate-400 text-xs">Ruta personalizada al aprobado</p></div>
+          </div>
+        </div>
+
+        <!-- GAMIFICATION -->
+        <div id="panel-game" class="feat-panel hidden">
+          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-amber-500/10 mb-6 p-10" style="background:#18120a;">
+            <div class="max-w-lg mx-auto">
+              <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-400/30 rounded-2xl p-6 text-center">
+                  <p class="text-4xl font-black text-white mb-1">12</p>
+                  <p class="text-xs font-black uppercase tracking-wider text-amber-300/70">Nivel</p>
+                  <div class="mt-3 h-2 rounded-full bg-black/20 overflow-hidden"><div class="h-full w-[68%] bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"></div></div>
+                  <p class="text-[10px] text-amber-300/50 mt-1.5">680 / 1000 XP</p>
+                </div>
+                <div class="bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-400/30 rounded-2xl p-6 text-center">
+                  <p class="text-4xl font-black text-amber-300 mb-1">🪙 340</p>
+                  <p class="text-xs font-black uppercase tracking-wider text-amber-300/70">Monedas</p>
+                  <p class="text-[10px] text-amber-300/50 mt-4">Para boosters, duelos y tienda</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-3">
+                <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-center"><p class="text-2xl">🔥</p><p class="font-black text-white text-lg">14</p><p class="text-[10px] text-slate-500 uppercase tracking-wider">Racha</p></div>
+                <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-center"><p class="text-2xl">⚔️</p><p class="font-black text-white text-lg">23</p><p class="text-[10px] text-slate-500 uppercase tracking-wider">Duelos</p></div>
+                <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-center"><p class="text-2xl">🏆</p><p class="font-black text-white text-lg">#4</p><p class="text-[10px] text-slate-500 uppercase tracking-wider">Ranking</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-amber-400 font-black text-sm mb-1">XP + Niveles</p><p class="text-slate-400 text-xs">Cada test suma experiencia y sube tu nivel</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-amber-400 font-black text-sm mb-1">Monedas</p><p class="text-slate-400 text-xs">Gana y gasta en boosters, duelos y tienda</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-amber-400 font-black text-sm mb-1">Duel Pass</p><p class="text-slate-400 text-xs">Temporadas con recompensas exclusivas</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-amber-400 font-black text-sm mb-1">Racha diaria</p><p class="text-slate-400 text-xs">Estudia cada día y multiplica tus premios</p></div>
+          </div>
+        </div>
+
+        <!-- APP / MULTIIDIOMA -->
+        <div id="panel-app" class="feat-panel hidden">
+          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-sky-500/10 mb-6" style="background:#161c2c;">
+            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50">
+              <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
+              <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
+                <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
+                <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Traducción al ruso</span>
+              </div>
+            </div>
+            <video src="/videos/feat-translate.webm" autoplay loop muted playsinline class="w-full block" style="max-height:480px;object-fit:cover;object-position:top;"></video>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-sky-400 font-black text-sm mb-1">ES · RU · EN</p><p class="text-slate-400 text-xs">Cambia idioma en cualquier momento</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-sky-400 font-black text-sm mb-1">Telegram</p><p class="text-slate-400 text-xs">Mini App nativa, sin instalar nada</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-sky-400 font-black text-sm mb-1">Offline</p><p class="text-slate-400 text-xs">Funciona sin conexión, sincroniza después</p></div>
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-sky-400 font-black text-sm mb-1">Nube</p><p class="text-slate-400 text-xs">Tu progreso siempre sincronizado</p></div>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -554,37 +449,35 @@ const faqSchema = {
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
       .feat-tab {
-        background: rgba(15,23,42,0.5);
-        border-color: rgba(255,255,255,0.06);
+        background: rgba(15,23,42,0.6);
+        border-color: rgba(255,255,255,0.08);
         color: rgba(148,163,184,1);
       }
       .feat-tab:hover {
-        background: rgba(99,102,241,0.08);
-        border-color: rgba(99,102,241,0.2);
+        background: rgba(99,102,241,0.1);
+        border-color: rgba(99,102,241,0.3);
         color: white;
       }
       .feat-tab.active-tab {
-        background: rgba(99,102,241,0.15);
-        border-color: rgba(99,102,241,0.4);
+        background: rgba(99,102,241,0.18);
+        border-color: rgba(99,102,241,0.5);
         color: white;
-        box-shadow: 0 0 0 1px rgba(99,102,241,0.15) inset;
+        box-shadow: 0 0 20px rgba(99,102,241,0.15);
       }
       .feat-panel {
-        animation: fadeSlide 0.25s ease forwards;
+        animation: fadeUp 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
       }
-      @keyframes fadeSlide {
-        from { opacity: 0; transform: translateY(8px); }
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
         to   { opacity: 1; transform: translateY(0); }
       }
     </style>
 
     <script>
       function switchTab(name) {
-        // Update tabs
         document.querySelectorAll('.feat-tab').forEach(btn => {
           btn.classList.toggle('active-tab', btn.getAttribute('data-tab') === name);
         });
-        // Update panels
         document.querySelectorAll('.feat-panel').forEach(panel => {
           const isActive = panel.id === 'panel-' + name;
           panel.classList.toggle('hidden', !isActive);
