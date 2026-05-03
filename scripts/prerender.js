@@ -374,23 +374,21 @@ async function prerender() {
           });
 
           // Wait for meaningful React content (not just fallback/skeleton).
-          // LandingSpain/LandingRussia are now synchronous imports — they render immediately
-          // without a lazy-chunk round-trip, so we don't need as large a threshold.
-          // Threshold 600 > SEO assert minimum 800? — No: SEO assert uses htmlToComparableText
-          // (strips tags/entities) while waitForFunction uses raw textContent. Skeleton HTML
-          // has ~500 textContent chars but only ~150 real-text chars. 600 textContent reliably
-          // means real content is present while letting legal/guide pages qualify faster.
+          // Legal pages are short by nature and never exceed 600 chars — use 300 for them
+          // to avoid wasting a 15s timeout on every /legal/* route.
+          const minChars = route.startsWith('/legal/') ? 300 : 600;
           try {
             await page.waitForFunction(
-              () => {
+              (min) => {
                 const root = window.document.querySelector('#root');
                 if (!root) return false;
                 const text = root.textContent?.trim() || '';
-                return text.length > 600;
+                return text.length > min;
               },
-              { timeout: 15000, polling: 200 }
+              { timeout: 15000, polling: 200 },
+              minChars
             );
-            console.log('[Prerender] ✅ React content detected in #root (>600 chars)');
+            console.log(`[Prerender] ✅ React content detected in #root (>${minChars} chars)`);
           } catch (error) {
             console.warn('[Prerender] ⚠️ Timeout waiting for substantial React content, fallback to basic check');
             await page.waitForFunction(
