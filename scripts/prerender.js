@@ -342,15 +342,24 @@ async function prerender() {
       throw new Error('Neither puppeteer nor puppeteer-core is available');
     }
 
-    const page = await browser.newPage();
-    await preparePage(page);
-
     const renderFailures = [];
 
-    // Prerender каждую страницу
-    for (const route of routesToRender) {
+    // Worker-pool prerender: each worker owns its own Chrome page and pulls
+    // routes off a shared queue. With concurrency=4 we cut total wall-time
+    // ~3-4× compared to the previous serial loop without exhausting RAM
+    // (each page is ~30-60MB; well within Vercel's 8GB build machine).
+    const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY) || 4;
+    const routeQueue = [...routesToRender];
+
+    async function renderWorker() {
+      const page = await browser.newPage();
+      await preparePage(page);
       try {
-        const html = await withRouteRetry(page, route, async (attempt) => {
+        while (routeQueue.length > 0) {
+          const route = routeQueue.shift();
+          if (!route) break;
+          try {
+            const html = await withRouteRetry(page, route, async (attempt) => {
           console.log(
             `[Prerender] 📄 Rendering ${route}${attempt > 1 ? ` (retry ${attempt})` : ''}...`
           );
