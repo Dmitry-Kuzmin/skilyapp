@@ -267,8 +267,8 @@ const LandingRedirect = () => {
       if (!raw || raw === "null") {
         // Not authenticated — redirect to Astro landing (handles service worker cache bypass)
         const path = window.location.pathname;
-        const target = path === "/ru" ? "/ru" : path === "/en" ? "/es" : "/es";
-        window.location.replace(target + "?v=1");
+        const target = path === "/ru" ? "/ru" : "/es";
+        window.location.replace(target);
         return;
       }
       const parsed = JSON.parse(raw);
@@ -277,13 +277,11 @@ const LandingRedirect = () => {
       if (hasToken) {
         navigate("/dashboard" + window.location.search, { replace: true });
       } else {
-        const path = window.location.pathname;
-        const target = path === "/ru" ? "/ru" : "/es";
-        window.location.replace(target + "?v=1");
+        window.location.replace(window.location.pathname === "/ru" ? "/ru" : "/es");
       }
     } catch (error) {
       console.warn("[LandingRedirect] Failed to parse supabase auth token", error);
-      window.location.replace("/es?v=1");
+      window.location.replace("/es");
     }
   }, [authStorageKey, isPrerenderMode, navigate]);
 
