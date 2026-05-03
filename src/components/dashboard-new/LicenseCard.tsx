@@ -55,8 +55,8 @@ interface LicenseCardProps {
 
 const T_MAP = {
     es: {
-        bg: "from-pink-500/10 via-purple-500/10 to-indigo-500/10 bg-[length:200%_200%] animate-gradient-x",
-        lightBg: "bg-gradient-to-br from-pink-200 via-purple-100 to-indigo-100",
+        bg: "from-slate-500/5 via-zinc-500/5 to-slate-500/5 bg-[length:200%_200%] animate-gradient-x",
+        lightBg: "bg-gradient-to-br from-white via-slate-50 to-zinc-100",
         header: "ESPAÑA",
         docType: "PERMISO DE CONDUCCIÓN",
         fields: {
@@ -72,8 +72,8 @@ const T_MAP = {
         }
     },
     ru: {
-        bg: "from-blue-500/10 via-red-500/10 to-white/5",
-        lightBg: "bg-gradient-to-br from-blue-100 via-white to-red-100",
+        bg: "from-slate-500/5 via-zinc-500/5 to-slate-500/5",
+        lightBg: "bg-gradient-to-br from-white via-slate-50 to-zinc-100",
         header: "РОССИЯ",
         docType: "ВОДИТЕЛЬСКОЕ УДОСТОВЕРЕНИЕ",
         fields: {
@@ -89,8 +89,8 @@ const T_MAP = {
         }
     },
     en: {
-        bg: "from-blue-500/10 via-indigo-500/10 to-white/5",
-        lightBg: "bg-gradient-to-br from-blue-100 via-white to-indigo-100",
+        bg: "from-slate-500/5 via-zinc-500/5 to-slate-500/5",
+        lightBg: "bg-gradient-to-br from-white via-slate-50 to-zinc-100",
         header: "UNITED KINGDOM",
         docType: "DRIVING LICENCE",
         fields: {
@@ -370,7 +370,7 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                         <h3 className="text-xs md:text-sm font-black text-white uppercase tracking-tight leading-none mb-1">
                                             {t('licenseCard.pointsModal.title')}
                                         </h3>
-                                        <span className="text-[7px] md:text-[9px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-fuchsia-400">
+                                        <span className="text-[7px] md:text-[9px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-slate-400 to-zinc-400">
                                             AUTHENTICATED BLOCKCHAIN RECORD
                                         </span>
                                     </div>
@@ -446,8 +446,8 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
 
                                     {/* Right: Rules Information */}
                                     <div className="md:col-span-2 flex flex-col gap-4">
-                                        <div className="p-4 rounded-2xl border bg-indigo-500/[0.03] border-indigo-500/10 flex flex-col gap-4">
-                                            <span className="text-[8px] md:text-[10px] font-black text-indigo-500/60 uppercase tracking-widest text-left">{t('licenseCard.pointsModal.systemTitle')}</span>
+                                        <div className="p-4 rounded-2xl border bg-slate-500/[0.03] border-slate-500/10 flex flex-col gap-4">
+                                            <span className="text-[8px] md:text-[10px] font-black text-slate-500/60 uppercase tracking-widest text-left">{t('licenseCard.pointsModal.systemTitle')}</span>
                                             <div className="space-y-4">
                                                 <div className="flex items-start gap-3">
                                                     <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
@@ -467,8 +467,8 @@ export const LicenseCard: React.FC<LicenseCardProps> = ({
                                                         <p className="text-[8px] text-zinc-500 font-medium leading-tight">{t('licenseCard.pointsModal.penaltiesDesc')}</p>
                                                     </div>
                                                 </div>
-                                                <div className="mt-2 pt-3 border-t border-indigo-500/10 text-left">
-                                                    <div className="flex items-center gap-2 text-indigo-500/60">
+                                                <div className="mt-2 pt-3 border-t border-slate-500/10 text-left">
+                                                    <div className="flex items-center gap-2 text-slate-500/60">
                                                         <HelpCircle size={10} />
                                                         <span className="text-[8px] font-black uppercase tracking-tighter">{t('licenseCard.pointsModal.examRequirement')}</span>
                                                     </div>

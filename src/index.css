@@ -625,13 +625,13 @@ All colors MUST be HSL.
   /* Глобальный padding снизу для мобильных устройств, чтобы контент не перекрывался таббаром */
   @media (max-width: 767px) {
     .telegram-main-content.has-bottom-nav {
-      /* Базовый отступ (таббар ~60px) + запас (16px) = 76px + системный safe-area bottom */
-      padding-bottom: calc(76px + var(--app-safe-bottom, 0px)) !important;
+      /* Базовый отступ (таббар ~60px) + запас (10px) = 70px + системный safe-area bottom */
+      padding-bottom: calc(70px + var(--app-safe-bottom, 0px)) !important;
     }
-
+ 
     .telegram-main-content.has-bottom-widgets {
-      /* С виджетами (~120px + запас 16px = 136px) + системный safe-area bottom */
-      padding-bottom: calc(136px + var(--app-safe-bottom, 0px)) !important;
+      /* С виджетами (~110px) + системный safe-area bottom */
+      padding-bottom: calc(110px + var(--app-safe-bottom, 0px)) !important;
     }
 
     /* В полноэкранных режимах отступ не нужен */

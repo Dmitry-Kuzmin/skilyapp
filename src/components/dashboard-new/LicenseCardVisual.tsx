@@ -76,7 +76,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
             <span className={cn(
                 "text-xs sm:text-[13px] md:text-sm font-black truncate leading-tight tracking-tight",
                 isDarkTheme ? "text-white" : "text-slate-900",
-                highlight && (isDarkTheme ? "text-indigo-400 group-hover/field:text-indigo-300 transition-colors" : "text-indigo-600"),
+                highlight && (isDarkTheme ? "text-slate-300 group-hover/field:text-white transition-colors" : "text-slate-700"),
                 valueClassName
             )}>
                 {value}
@@ -100,7 +100,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
             <div className={cn(
                 "absolute inset-0 z-0 opacity-40 pointer-events-none",
                 !isStatic && "mix-blend-overlay",
-                isDarkTheme ? "bg-gradient-to-br from-indigo-500/20 via-fuchsia-500/10 to-cyan-500/20" : localeConfig.lightBg
+                isDarkTheme ? "bg-gradient-to-br from-slate-500/10 via-zinc-500/5 to-slate-500/10" : localeConfig.lightBg
             )} />
 
             {/* DGT Security Grid - Pure Reference Based Pattern (Subtle tilt effect) */}
@@ -142,7 +142,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
             {/* Official Header */}
             <div className={cn(
                 "relative z-10 flex flex-row items-center px-4 md:px-6 py-2 md:py-3 border-b",
-                isDarkTheme ? "border-slate-700/50 bg-slate-700/20" : "border-indigo-900/10 bg-indigo-50/50"
+                isDarkTheme ? "border-slate-700/50 bg-slate-700/20" : "border-slate-900/5 bg-slate-50/50"
             )}>
                 {/* EU Flag Hologram Icon - Rectangular and Sharp */}
                 <div 
@@ -193,13 +193,13 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                 <div className="flex flex-col flex-1 truncate">
                     <span className={cn(
                         "text-[8px] md:text-[9px] font-black tracking-widest uppercase mb-[1px]",
-                        isDarkTheme ? "text-indigo-300/80" : "text-indigo-600/80"
+                        isDarkTheme ? "text-slate-400/80" : "text-slate-500/80"
                     )}>
                         {localeConfig.header}
                     </span>
                     <h2 className={cn(
                         "text-xs md:text-sm font-black uppercase tracking-tight truncate",
-                        isDarkTheme ? "text-zinc-100" : "text-indigo-950"
+                        isDarkTheme ? "text-zinc-100" : "text-slate-900"
                     )}>
                         {localeConfig.docType}
                     </h2>
@@ -210,8 +210,8 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                     {!isStatic && shareActionControl ? (
                         shareActionControl
                     ) : (
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-cyan-400/20 via-fuchsia-500/20 to-yellow-400/20 backdrop-blur-md border border-white/20 flex items-center justify-center overflow-hidden group/holo">
-                            <ShieldCheck size={18} className={isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-indigo-500"} />
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-tr from-slate-400/10 via-zinc-500/10 to-slate-400/10 backdrop-blur-md border border-white/20 flex items-center justify-center overflow-hidden group/holo">
+                            <ShieldCheck size={18} className={isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-slate-500"} />
                         </div>
                     )}
                 </div>
@@ -308,7 +308,9 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                                                 </span>
                                             ) : (
                                                 <span className="flex items-center gap-1.5 text-[10px] md:text-xs">
-                                                    <span className="opacity-50">--.--.--</span>
+                                                    <span className="text-slate-500">
+                                                        {selectedCountry === 'ru' ? '[ВЫБРАТЬ]' : '[ELEGIR]'}
+                                                    </span>
                                                 </span>
                                             )}
                                         </button>
@@ -343,7 +345,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                                         }}
                                         className={cn(
                                             "w-fit px-2 py-0.5 rounded-md border text-[10px] font-black leading-none transition-all active:scale-95 hover:brightness-110",
-                                            isDarkTheme ? "bg-indigo-500/20 border-indigo-500/40 text-indigo-300" : "bg-indigo-100 border-indigo-300 text-indigo-700"
+                                            isDarkTheme ? "bg-slate-500/20 border-slate-500/40 text-slate-300" : "bg-slate-100 border-slate-300 text-slate-700"
                                         )}
                                     >
                                         B
@@ -397,9 +399,9 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                             </div>
 
                             {/* Signature Area (Firma) */}
-                            <div className="flex flex-col items-center mt-1 sm:mt-1 md:mt-2 scale-[0.65] sm:scale-[0.75] md:scale-90 origin-top">
+                            <div className="flex flex-col items-center mt-3 sm:mt-3 md:mt-4 scale-[0.65] sm:scale-[0.75] md:scale-90 origin-top">
                                 <span className={cn(
-                                    "text-[6px] font-bold uppercase tracking-widest opacity-40 mb-0.5",
+                                    "text-[6px] font-bold uppercase tracking-widest opacity-40 mb-1",
                                     isDarkTheme ? "text-white" : "text-black"
                                 )}>7. Firma</span>
                                 <div className="relative w-20 h-7 md:w-28 md:h-10 flex items-center justify-center">

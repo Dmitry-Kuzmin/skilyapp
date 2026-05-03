@@ -264,20 +264,29 @@ const LandingRedirect = () => {
     if (isPrerenderMode) return;
     try {
       const raw = localStorage.getItem(authStorageKey);
-      if (!raw || raw === "null") return;
+      if (!raw || raw === "null") {
+        // Not authenticated — redirect to Astro landing (handles service worker cache bypass)
+        const path = window.location.pathname;
+        const target = path === "/ru" ? "/ru" : path === "/en" ? "/es" : "/es";
+        window.location.replace(target + "?v=1");
+        return;
+      }
       const parsed = JSON.parse(raw);
       const session = parsed?.currentSession ?? parsed?.currentSession?.user ? parsed.currentSession : parsed?.session ?? parsed;
       const hasToken = session?.access_token || session?.currentSession?.access_token;
       if (hasToken) {
         navigate("/dashboard" + window.location.search, { replace: true });
+      } else {
+        const path = window.location.pathname;
+        const target = path === "/ru" ? "/ru" : "/es";
+        window.location.replace(target + "?v=1");
       }
     } catch (error) {
       console.warn("[LandingRedirect] Failed to parse supabase auth token", error);
+      window.location.replace("/es?v=1");
     }
   }, [authStorageKey, isPrerenderMode, navigate]);
 
-  // In production Vercel serves the Astro landing for /, /es, /ru, /en before React loads.
-  // Client-side: just redirect authenticated users; unauthenticated users see nothing (expected).
   return null;
 };
 
