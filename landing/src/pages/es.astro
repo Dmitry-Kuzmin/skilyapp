@@ -1179,7 +1179,7 @@ const faqSchema = {
         var won = DD.playerScore > DD.botScore;
         var draw = DD.playerScore === DD.botScore;
         var earned = won ? DD.bet * 2 : (draw ? DD.bet : 0);
-        sc.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:480px;background:linear-gradient(160deg,#080f1e,#13092a);padding:40px;text-align:center;gap:20px;">'
+        sc.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:linear-gradient(160deg,#080f1e,#13092a);padding:40px;text-align:center;gap:20px;">'
           + '<div style="font-size:72px;line-height:1;">' + (won ? '🏆' : draw ? '🤝' : '😔') + '</div>'
           + '<div>'
           + '<div style="font-size:32px;font-weight:900;color:' + (won ? '#fbbf24' : draw ? '#94a3b8' : '#f87171') + ';margin-bottom:6px;">'
