@@ -52,12 +52,37 @@ export default function SkilyChatPage() {
   const { messages, isLoading, sendMessage } = useSkilyAIChat(selectedCountry);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  // VisualViewport API: tracks the keyboard precisely on mobile (iOS/Android/Telegram WebView)
+  // Sets the chat container height = visible viewport height, so the input never goes off-screen.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv || !rootRef.current) return;
+    const update = () => {
+      if (!rootRef.current) return;
+      rootRef.current.style.height = `${vv.height}px`;
+      // Pin to top of visible viewport (iOS scrolls the layout viewport when keyboard opens).
+      rootRef.current.style.transform = `translateY(${vv.offsetTop}px)`;
+      // Keep the latest message in view.
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      }
+    };
+    update();
+    vv.addEventListener('resize', update);
+    vv.addEventListener('scroll', update);
+    return () => {
+      vv.removeEventListener('resize', update);
+      vv.removeEventListener('scroll', update);
+    };
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;

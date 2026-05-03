@@ -88,13 +88,7 @@ const CircularProgress = ({ progress, size = 32, strokeWidth = 2.5, completed = 
   );
 };
 
-export function DailyQuestWidget({ 
-  embedded = false, 
-  compact = false 
-}: { 
-  embedded?: boolean; 
-  compact?: boolean;
-}) {
+export function DailyQuestWidget() {
   const { profileId } = useUserContext();
   const { language } = useLanguage();
   const [quests, setQuests] = useState<DailyQuest[]>([]);
@@ -212,16 +206,12 @@ export function DailyQuestWidget({
 
   if (loading && quests.length === 0) {
     return (
-      <div className={cn("space-y-4 py-2 px-1", compact && "flex gap-3 space-y-0 overflow-hidden")}>
+      <div className="space-y-4 py-2 px-1">
         {[1, 2, 3].map(i => (
-          <div key={i} className={cn("flex items-center gap-4 animate-pulse", compact && "w-32 h-20 bg-muted/50 rounded-2xl shrink-0")}>
-            {!compact && (
-              <>
-                <div className="w-8 h-8 rounded-full bg-muted dark:bg-white/5" />
-                <div className="flex-1 h-4 bg-muted dark:bg-white/5 rounded" />
-                <div className="w-12 h-4 bg-muted dark:bg-white/5 rounded" />
-              </>
-            )}
+          <div key={i} className="flex items-center gap-4 animate-pulse">
+            <div className="w-8 h-8 rounded-full bg-muted dark:bg-white/5" />
+            <div className="flex-1 h-4 bg-muted dark:bg-white/5 rounded" />
+            <div className="w-12 h-4 bg-muted dark:bg-white/5 rounded" />
           </div>
         ))}
       </div>
@@ -230,53 +220,17 @@ export function DailyQuestWidget({
 
   if (!loading && quests.length === 0) return null;
 
-  if (compact) {
-    return (
-      <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none w-full">
-        {quests.map((quest) => (
-          <div
-            key={quest.id}
-            onClick={() => quest.is_completed && !quest.is_claimed && handleClaimReward(quest)}
-            className={cn(
-              "flex flex-col justify-between w-32 shrink-0 p-3 rounded-2xl border transition-all duration-300",
-              quest.is_claimed ? "bg-muted/30 border-muted/20 opacity-50" : 
-              quest.is_completed ? "bg-amber-500/10 border-amber-500/30 cursor-pointer shadow-lg shadow-amber-500/5" : "bg-card border-border/50"
-            )}
-          >
-            <div className="flex items-center justify-between mb-2">
-               <CircularProgress
-                progress={quest.current_progress / quest.target_value}
-                completed={quest.is_completed}
-                icon={getCategoryIcon(quest.category)}
-                size={18}
-                strokeWidth={1.5}
-              />
-              <span className="text-[10px] font-black text-amber-600 dark:text-amber-500">
-                +{quest.reward_sp}
-              </span>
-            </div>
-            <p className="text-[10px] font-bold leading-tight line-clamp-2 min-h-[24px]">
-              {getQuestLabel(quest)}
-            </p>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <div className={cn("py-1", embedded && "p-0")}>
-      {!embedded && (
-        <div className="flex items-center justify-between mb-2 px-1">
-          <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/20 dark:text-white/20">
-            {language === 'es' ? 'Misiones del día' : language === 'en' ? 'Daily Quests' : 'Задания дня'}
-          </h4>
-          <div className="flex items-center gap-1 text-[9px] font-bold text-foreground/15 dark:text-white/15 uppercase tracking-tight">
-            <Clock className="w-2.5 h-2.5" />
-            00:00
-          </div>
+    <div className="py-1">
+      <div className="flex items-center justify-between mb-2 px-1">
+        <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-foreground/20 dark:text-white/20">
+          {language === 'es' ? 'Misiones del día' : language === 'en' ? 'Daily Quests' : 'Задания дня'}
+        </h4>
+        <div className="flex items-center gap-1 text-[9px] font-bold text-foreground/15 dark:text-white/15 uppercase tracking-tight">
+          <Clock className="w-2.5 h-2.5" />
+          00:00
         </div>
-      )}
+      </div>
 
       <div className="flex flex-col">
         {quests.map((quest) => (
