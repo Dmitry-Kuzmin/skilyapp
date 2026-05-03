@@ -404,7 +404,7 @@ export function getConfirmationKeyboard(actionData: string): InlineKeyboardMarku
 // Кнопка "Открыть в приложении" (локализовано)
 // =====================================================
 export function getOpenAppKeyboard(lang: SupportedLanguage = 'ru', deeplink?: string): InlineKeyboardMarkup {
-  const url = deeplink ? `${MINI_APP_URL}${deeplink.startsWith('/') ? '' : '/'}${deeplink}` : MINI_APP_URL;
+  const url = deeplink ? `${MINI_APP_URL}${deeplink.startsWith('/') ? '' : '/'}${deeplink}` : `${MINI_APP_URL}/dashboard`;
 
   return {
     inline_keyboard: [
