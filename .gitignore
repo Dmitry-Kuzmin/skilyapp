@@ -31,6 +31,16 @@ dist-ssr
 .env.production.local
 .env.development.local
 video-automation/.env*
+# Runtime artefacts of the video pipeline — must NEVER be committed.
+# Chrome profiles include cookies/auth tokens; renders are huge MP4s.
+video-automation/node_modules/
+video-automation/renders/
+video-automation/public/audio/
+video-automation/chrome-profile/
+video-automation/chrome-profile-*/
+video-automation/chrome-login-*/
+video-automation/auth-state-*.json
+video-automation/morning-pipeline.log
 
 # Cloudflare Tunnel logs
 /tmp/cloudflared-tunnel.log

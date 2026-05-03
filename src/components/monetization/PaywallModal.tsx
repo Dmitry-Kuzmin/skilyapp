@@ -18,16 +18,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
 
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
-// TON_DISABLED: import { TonPaymentWidget } from "@/components/monetization/LazyTonPaymentWidget";
 
 interface PaywallModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-/**
- * Маппинг planId (из pricing-config) → catalog_key (для Paddle Edge Function)
- */
 const PLAN_TO_CATALOG: Record<string, string> = {
   monthly: 'premium_monthly',
   quarterly: 'premium_quarterly',
@@ -36,7 +32,6 @@ const PLAN_TO_CATALOG: Record<string, string> = {
   lifetime: 'premium_lifetime',
 };
 
-// Компонент живого фона (Lava Lamp Bubbles)
 const AnimatedBackground = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     <motion.div
@@ -70,7 +65,6 @@ const AnimatedBackground = () => (
   </div>
 );
 
-// Анимированный список преимуществ
 const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: string, color: string, delay: number }) => (
   <motion.div
     initial={{ opacity: 0, x: -20 }}
@@ -80,7 +74,7 @@ const BenefitItem = ({ icon: Icon, text, color, delay }: { icon: any, text: stri
   >
     <div className={cn(
       "p-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all duration-300 group-hover:bg-white/10 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]",
-      color.replace('text-', 'text-')
+      color
     )}>
       <Icon className={cn("w-5 h-5 transition-colors", color)} />
     </div>
@@ -98,7 +92,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
-  const showTonPayment = false; // TON_DISABLED: isPaymentMethodAvailable('ton', currentPlatform);
 
   const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus'>(
     showPaddlePayment ? 'paddle' : 'cryptomus'
@@ -111,22 +104,110 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     getPaddleInstance().then(inst => inst && setPaddle(inst)).catch(() => { });
   }, [open, showPaddlePayment]);
 
-  // Handle outside click close for CheckoutModal
-  useEffect(() => {
-    if (!!selectedPlanId && paymentMethod === 'paddle') {
-      // logic handled in modal backdrop click
+  const TRANSLATIONS: Record<string, any> = {
+    ru: {
+      premiumAccess: "Premium Access",
+      headline: "Сдай экзамен",
+      headlineSub: "с первого раза",
+      description: "Разблокируй AI-технологии обучения и получи unfair advantage перед другими кандидатами.",
+      benefit1: "AI-Помощник с мгновенными объяснениями",
+      benefit2: "Гарантия сдачи (Smart Score)",
+      benefit3: "Premium-турниры и x2 опыт",
+      benefit4: "Без рекламы, полная концентрация",
+      trustText: "Доверяют 50,000+ учеников",
+      selectPlan: "Выберите план",
+      investmentText: "Инвестиция в ваши водительские права",
+      card: "Карта",
+      crypto: "Крипта",
+      mostPopular: "MOST POPULAR",
+      bestValue: "BEST VALUE",
+      save: "SAVE",
+      select: "Выбрать",
+      securePayment: "Безопасная оплата",
+      securityGuarantee: "Гарантия безопасности",
+      instantAccess: "Мгновенный доступ",
+      cancelAnytime: "Отмена в любой момент",
+      perMonth: "в месяц",
+      payWithCard: "Оплатить картой / Криптой",
+      sessionExpired: "Сессия истекла",
+      refreshPage: "Пожалуйста, обновите страницу",
+      unknownPlan: "Неизвестный план",
+      loginRequired: "Необходимо войти в аккаунт",
+      unknownError: "Непредвиденная ошибка. Попробуйте позже."
+    },
+    en: {
+      premiumAccess: "Premium Access",
+      headline: "Pass the exam",
+      headlineSub: "on the first try",
+      description: "Unlock AI learning technologies and gain an unfair advantage over other candidates.",
+      benefit1: "AI Assistant with instant explanations",
+      benefit2: "Passing Guarantee (Smart Score)",
+      benefit3: "Premium tournaments and x2 experience",
+      benefit4: "No ads, full concentration",
+      trustText: "Trusted by 50,000+ students",
+      selectPlan: "Select a plan",
+      investmentText: "An investment in your driving license",
+      card: "Card",
+      crypto: "Crypto",
+      mostPopular: "MOST POPULAR",
+      bestValue: "BEST VALUE",
+      save: "SAVE",
+      select: "Select",
+      securePayment: "Secure Payment",
+      securityGuarantee: "Security Guarantee",
+      instantAccess: "Instant Access",
+      cancelAnytime: "Cancel anytime",
+      perMonth: "per month",
+      payWithCard: "Pay with Card / Crypto",
+      sessionExpired: "Session expired",
+      refreshPage: "Please refresh the page",
+      unknownPlan: "Unknown plan",
+      loginRequired: "Please log in first",
+      unknownError: "An unexpected error occurred. Please try again later."
+    },
+    es: {
+      premiumAccess: "Premium Access",
+      headline: "Aprueba el examen",
+      headlineSub: "a la primera",
+      description: "Desbloquea tecnologías de IA y obtén una ventaja competitiva frente a otros candidatos.",
+      benefit1: "Asistente IA con explicaciones al instante",
+      benefit2: "Garantía de aprobado (Smart Score)",
+      benefit3: "Torneos Premium y x2 de experiencia",
+      benefit4: "Sin anuncios, concentración total",
+      trustText: "Más de 50,000 alumnos confían en nosotros",
+      selectPlan: "Elige tu plan",
+      investmentText: "Una inversión en tu carnet de conducir",
+      card: "Tarjeta",
+      crypto: "Cripto",
+      mostPopular: "MÁS POPULAR",
+      bestValue: "MEJOR PRECIO",
+      save: "AHORRA",
+      select: "Seleccionar",
+      securePayment: "Pago Seguro",
+      securityGuarantee: "Seguridad garantizada",
+      instantAccess: "Acceso instantáneo",
+      cancelAnytime: "Cancela cuando quieras",
+      perMonth: "al mes",
+      payWithCard: "Pagar con Tarjeta / Cripto",
+      sessionExpired: "Sesión caducada",
+      refreshPage: "Por favor, actualiza la página",
+      unknownPlan: "Plan desconocido",
+      loginRequired: "Es necesario iniciar sesión",
+      unknownError: "Error inesperado. Inténtalo de nuevo más tarde."
     }
-  }, [selectedPlanId]);
+  };
+
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
   const handlePurchase = async (planId: string) => {
     if (!profileId) {
-      toast({ title: "Ошибка", description: "Необходимо войти в аккаунт. Если вы вошли, попробуйте перезайти.", variant: "destructive" });
+      toast({ title: "Error", description: t.loginRequired, variant: "destructive" });
       return;
     }
 
     const catalogKey = PLAN_TO_CATALOG[planId];
     if (!catalogKey) {
-      toast({ title: "Ошибка", description: "Неизвестный план", variant: "destructive" });
+      toast({ title: "Error", description: t.unknownPlan, variant: "destructive" });
       return;
     }
 
@@ -141,7 +222,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         }
 
         const partnerCode = localStorage.getItem('partner_code');
-        console.log("[PaywallModal] Invoking paddle-payment...", { catalogKey });
         const { data, error } = await supabase.functions.invoke("paddle-payment", {
           body: {
             user_id: profileId,
@@ -150,14 +230,10 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           },
         });
 
-        console.log("[PaywallModal] Function response (raw):", { data, error });
-
-        // ФИКС: Если Supabase вернул строку вместо объекта, парсим её
         let parsedData = data;
         if (typeof data === 'string') {
           try {
             parsedData = JSON.parse(data);
-            console.log("[PaywallModal] Parsed function data:", parsedData);
           } catch (e) {
             console.error("[PaywallModal] Failed to parse data string:", e);
           }
@@ -165,14 +241,12 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
 
         if (error || parsedData?.error || !parsedData?.transaction_id) {
           const rawError = error?.message || parsedData?.error || (error ? JSON.stringify(error) : null);
-          const errMsg = rawError && rawError !== "null" ? rawError : "Paddle API Error (Check Console)";
-
-          console.error("[PaywallModal] Paddle purchase failure:", { error, data: parsedData, errMsg });
+          const errMsg = rawError && rawError !== "null" ? rawError : "Paddle API Error";
 
           if (errMsg.includes('Refresh Token')) {
-            toast({ title: "Сессия истекла", description: "Пожалуйста, обновите страницу", variant: "destructive" });
+            toast({ title: t.sessionExpired, description: t.refreshPage, variant: "destructive" });
           } else {
-            toast({ title: "Ошибка оплаты (Paddle)", description: errMsg, variant: "destructive" });
+            toast({ title: "Error", description: errMsg, variant: "destructive" });
           }
           setSelectedPlanId(null);
           return;
@@ -182,22 +256,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         localStorage.setItem('paddle_transaction_id', parsedData.transaction_id);
 
         const paddleCheckoutUrl = `https://checkout.paddle.com/transaction/${parsedData.transaction_id}`;
-        const isTelegram = isTelegramMiniApp();
-        const webApp = getTelegramWebApp();
-
-
         if (paddleInstance) {
           try {
-            console.log("[PaywallModal] Opening Paddle Checkout (Overlay)...", parsedData.transaction_id);
             paddleInstance.Checkout.open({
               transactionId: parsedData.transaction_id,
               settings: {
                 displayMode: "inline",
-                theme: "light", // Inline mode works best with light theme inside our custom dark modal
-                frameTarget: "paddle-checkout-container", // Target our custom container
+                theme: "light",
+                frameTarget: "paddle-checkout-container",
                 frameInitialHeight: 450,
                 frameStyle: "width:100%; min-width:312px; background-color: transparent; border: none;",
-                // No successUrl — handle via eventCallback to avoid page navigation
               },
             });
             setSelectedPlanId(null);
@@ -220,28 +288,23 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
 
         if (error || parsed?.error || !parsed?.url) {
-          console.error("[PaywallModal] Cryptomus purchase error:", error || parsed?.error);
           toast({
-            title: "Ошибка оплаты (Cryptomus)",
-            description: (error?.message || parsed?.error || "Попробуйте позже"),
+            title: "Error (Cryptomus)",
+            description: (error?.message || parsed?.error || t.unknownError),
             variant: "destructive"
           });
           setSelectedPlanId(null);
           return;
         }
 
-        // Открываем страницу оплаты Cryptomus — window.open opens
-        // Telegram's internal browser without confirmation dialog
         window.open(parsed.url, '_blank');
       }
     } catch (err: any) {
-      console.error("[PaywallModal] Global error:", err);
-      toast({ title: "Ошибка", description: err?.message || "Непредвиденная ошибка. Попробуйте позже.", variant: "destructive" });
+      toast({ title: "Error", description: err?.message || t.unknownError, variant: "destructive" });
       setSelectedPlanId(null);
     }
   };
 
-  // Варианты анимации для контейнера
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -285,13 +348,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
             "min-h-[85vh] md:min-h-[650px] md:max-h-[85vh]"
           )}
         >
-
           {/* LEFTSIDE (PREMIUM DARK) */}
           <div className="relative w-full md:w-[42%] bg-[#080B16] text-white p-6 md:p-10 flex flex-col justify-between overflow-hidden z-10">
-            {/* Animated BG */}
             <AnimatedBackground />
-
-            {/* Content with Delay */}
             <div className="relative z-10">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -300,7 +359,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 className="inline-flex items-center gap-2 mb-8 bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg shadow-violet-900/20"
               >
                 <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-pulse" />
-                <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-amber-100">Premium Access</span>
+                <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-amber-100">{t.premiumAccess}</span>
               </motion.div>
 
               <motion.h2
@@ -309,9 +368,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 transition={{ delay: 0.3, duration: 0.6 }}
                 className="text-4xl md:text-5xl font-black mb-6 leading-[0.95] tracking-tight"
               >
-                Сдай экзамен <br />
+                {t.headline} <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-300 to-indigo-400 animate-gradient-x">
-                  с первого раза
+                  {t.headlineSub}
                 </span>
               </motion.h2>
 
@@ -321,18 +380,17 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 transition={{ delay: 0.4 }}
                 className="text-slate-400 text-sm md:text-base mb-10 leading-relaxed max-w-[90%]"
               >
-                Разблокируй <span className="text-white font-semibold">AI-технологии</span> обучения и получи unfair advantage перед другими кандидатами.
+                {t.description}
               </motion.p>
 
               <div className="space-y-5 mb-8">
-                <BenefitItem icon={Zap} text="AI-Помощник с мгновенными объяснениями" color="text-amber-400" delay={0.5} />
-                <BenefitItem icon={ShieldCheck} text="Гарантия сдачи (Smart Score)" color="text-emerald-400" delay={0.6} />
-                <BenefitItem icon={Trophy} text="Premium-турниры и x2 опыт" color="text-violet-400" delay={0.7} />
-                <BenefitItem icon={Sparkles} text="Без рекламы, полная концентрация" color="text-sky-400" delay={0.8} />
+                <BenefitItem icon={Zap} text={t.benefit1} color="text-amber-400" delay={0.5} />
+                <BenefitItem icon={ShieldCheck} text={t.benefit2} color="text-emerald-400" delay={0.6} />
+                <BenefitItem icon={Trophy} text={t.benefit3} color="text-violet-400" delay={0.7} />
+                <BenefitItem icon={Sparkles} text={t.benefit4} color="text-sky-400" delay={0.8} />
               </div>
             </div>
 
-            {/* Social Proof */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -357,7 +415,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                   <Star className="w-3 h-3 fill-current" />
                   <Star className="w-3 h-3 fill-current" />
                 </div>
-                <p className="text-[11px] font-medium text-slate-400">Доверяют 50,000+ учеников</p>
+                <p className="text-[11px] font-medium text-slate-400">{t.trustText}</p>
               </div>
             </motion.div>
           </div>
@@ -365,7 +423,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           {/* RIGHTSIDE (PLANS) */}
           <div className="flex-1 bg-[#F8FAFC] dark:bg-[#0F121E] p-4 md:p-8 md:pl-10 flex flex-col overflow-y-auto relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/5 rounded-full blur-[80px] pointer-events-none" />
-
             <div className="flex-1 relative z-10">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -374,11 +431,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4"
               >
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white">Выберите план</h3>
-                  <p className="text-sm text-slate-500 font-medium">Инвестиция в ваши водительские права</p>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white">{t.selectPlan}</h3>
+                  <p className="text-sm text-slate-500 font-medium">{t.investmentText}</p>
                 </div>
-
-                {/* Payment Method Selector */}
                 <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
                   {showPaddlePayment && (
                     <button
@@ -391,7 +446,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                       )}
                     >
                       <CreditCard className="w-3.5 h-3.5" />
-                      <span>Карта</span>
+                      <span>{t.card}</span>
                     </button>
                   )}
                   {showCryptomusPayment && (
@@ -405,21 +460,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                       )}
                     >
                       <Bitcoin className="w-3.5 h-3.5" />
-                      <span>Крипта</span>
-                    </button>
-                  )}
-                  {showTonPayment && (
-                    <button
-                      onClick={() => setPaymentMethod('ton')}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all",
-                        paymentMethod === 'ton'
-                          ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm"
-                          : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                      )}
-                    >
-                      <Wallet className="w-3.5 h-3.5" />
-                      <span>TON</span>
+                      <span>{t.crypto}</span>
                     </button>
                   )}
                 </div>
@@ -434,36 +475,26 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 {PRICING_PLANS.map((plan) => {
                   const isPopular = plan.popular;
                   const isBestValue = plan.savings === '50%';
-
                   return (
                     <motion.div
                       key={plan.id}
                       variants={itemVariants}
                       whileHover={{ y: -8, scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className={cn(
-                        "relative group rounded-[24px] transition-all duration-500 isolate",
-                        "z-0 hover:z-10" // Lift up on hover
-                      )}
+                      className="relative group rounded-[24px] transition-all duration-500 isolate z-0 hover:z-10"
                     >
-                      {/* Intense Glow Shadow for Popular */}
                       {isPopular && (
                         <div className="absolute inset-0 -z-10 rounded-[24px] bg-violet-600/0 group-hover:bg-violet-600/40 blur-2xl transition-all duration-500 opacity-0 group-hover:opacity-100" />
                       )}
-
-                      {/* Standard Shadow for others */}
                       {!isPopular && (
                         <div className="absolute inset-0 -z-10 rounded-[24px] bg-black/5 group-hover:bg-black/10 blur-xl transition-all duration-300 opacity-0 group-hover:opacity-100" />
                       )}
-
                       <div className={cn(
                         "relative h-full p-6 rounded-[24px] border flex flex-col transition-all duration-300 overflow-hidden",
                         isPopular
                           ? "border-transparent bg-[#1E1B2E] text-white shadow-2xl shadow-violet-900/20 group-hover:shadow-[0_0_60px_-15px_rgba(139,92,246,0.5)]"
                           : "bg-white dark:bg-[#151926] border-slate-200 dark:border-slate-800 hover:border-violet-300 dark:hover:border-violet-700 shadow-sm group-hover:shadow-xl dark:shadow-black/50"
                       )}>
-
-                        {/* Softher, Sleeker Shimmer (Блик) */}
                         {isPopular && (
                           <div className="absolute inset-0 overflow-hidden rounded-[24px] pointer-events-none mix-blend-overlay">
                             <motion.div
@@ -473,21 +504,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                             />
                           </div>
                         )}
-
-                        {/* Header Row: Badges */}
                         <div className="flex flex-wrap justify-between items-start gap-2 mb-5 min-h-[28px]">
                           {isPopular ? (
                             <Badge className="bg-gradient-to-r from-violet-600 to-fuchsia-600 border-0 shadow-[0_4px_12px_rgba(124,58,237,0.3)] text-[10px] py-1 px-3 tracking-wider font-bold animate-pulse hover:scale-105 transition-transform">
-                              🔥 MOST POPULAR
+                              {t.mostPopular}
                             </Badge>
                           ) : isBestValue ? (
                             <Badge variant="secondary" className="bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border-0 font-bold text-[10px] py-1 px-3 hover:scale-105 transition-transform">
-                              👑 BEST VALUE
+                              {t.bestValue}
                             </Badge>
-                          ) : (
-                            <div /> // spacer
-                          )}
-
+                          ) : <div />}
                           {plan.savings && (
                             <div className={cn(
                               "text-[10px] font-bold px-3 py-1 rounded-full border transform transition-transform group-hover:scale-110",
@@ -495,61 +521,46 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                                 ? "bg-white/10 text-white border-white/10 backdrop-blur-sm"
                                 : "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
                             )}>
-                              SAVE {plan.savings}
+                              {t.save} {plan.savings}
                             </div>
                           )}
                         </div>
-
-                        {/* Plan Title & Price */}
                         <div className="mb-6 relative">
                           <h4 className={cn(
                             "text-xs font-bold uppercase tracking-widest mb-2 transition-colors",
                             isPopular ? "text-violet-200 opacity-80 group-hover:text-white group-hover:opacity-100" : "text-slate-400 group-hover:text-violet-500"
-                          )}>
-                            {plan.title}
-                          </h4>
+                          )}>{plan.title}</h4>
                           <div className="flex items-baseline gap-1.5">
                             <span className={cn(
                               "text-4xl font-black tracking-tighter transition-all duration-300",
                               isPopular ? "text-white group-hover:scale-105 origin-left shadow-black drop-shadow-lg" : "text-slate-900 dark:text-white group-hover:scale-105 origin-left"
-                            )}>
-                              {plan.price}
-                            </span>
+                            )}>{plan.price}</span>
                           </div>
                           {plan.pricePerMonth && (
                             <p className={cn("text-[11px] font-semibold mt-1.5 transition-colors", isPopular ? "text-violet-200" : "text-slate-500 dark:text-slate-400")}>
-                              {plan.pricePerMonth} / месяц
+                              {plan.pricePerMonth} {t.perMonth}
                             </p>
                           )}
                         </div>
-
-                        {/* Visual Divider */}
                         <div className={cn(
                           "h-px w-full mb-5 transition-colors duration-300",
                           isPopular ? "bg-white/10 group-hover:bg-white/20" : "bg-slate-100 dark:bg-slate-800 group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30"
                         )} />
-
-                        {/* Action Button */}
                         <div className="mt-auto">
                           {isTelegramMiniApp() ? (
                             <div className="space-y-2">
-                              {/* TON_DISABLED: TonPaymentWidget removed */}
                               <StarsPaymentButton
                                 packageKey={PLAN_TO_CATALOG[plan.id]}
                                 priceCoins={0}
                                 className={cn(
                                   "w-full font-bold h-12 rounded-xl transition-all duration-300 shadow-lg",
-                                  isPopular
-                                    ? "bg-white text-slate-900 hover:bg-slate-100 shadow-black/20"
-                                    : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white"
+                                  isPopular ? "bg-white text-slate-900 hover:bg-slate-100 shadow-black/20" : "bg-slate-50 text-slate-900 border border-slate-200 hover:bg-white"
                                 )}
                               />
                               <button
                                 onClick={(e) => { e.stopPropagation(); handlePurchase(plan.id); }}
                                 className="w-full text-[10px] text-muted-foreground hover:text-violet-500 transition-colors uppercase tracking-widest font-bold text-center"
-                              >
-                                Оплатить картой / Криптой
-                              </button>
+                              >{t.payWithCard}</button>
                             </div>
                           ) : (
                             <Button
@@ -569,11 +580,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                                 </svg>
                               ) : (
                                 <span className="relative z-10 flex items-center justify-center gap-2">
-                                  Выбрать
-                                  <motion.div
-                                    animate={{ x: [0, 4, 0] }}
-                                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }}
-                                  >
+                                  {t.select}
+                                  <motion.div animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }}>
                                     {isPopular ? <Sparkles className="w-4 h-4" /> : <span className="text-lg leading-none">→</span>}
                                   </motion.div>
                                 </span>
@@ -588,7 +596,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               </motion.div>
             </div>
 
-            {/* Footer Trust */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -596,9 +603,9 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800/50 text-center"
             >
               <p className="text-[10px] font-medium text-slate-400 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3 text-emerald-500" /> Гарантия безопасности</span>
-                <span className="flex items-center gap-1.5"><Check className="w-3 h-3 text-violet-500" /> Мгновенный доступ</span>
-                <span className="flex items-center gap-1.5"><Lock className="w-3 h-3 text-slate-500" /> Отмена в любой момент</span>
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3 h-3 text-emerald-500" /> {t.securityGuarantee}</span>
+                <span className="flex items-center gap-1.5"><Check className="w-3 h-3 text-violet-500" /> {t.instantAccess}</span>
+                <span className="flex items-center gap-1.5"><Lock className="w-3 h-3 text-slate-500" /> {t.cancelAnytime}</span>
               </p>
             </motion.div>
           </div>
@@ -617,12 +624,19 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     </>
   );
 }
-// Компонент кастомного модального окна для чекаута
+
 function CheckoutModal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+  const { language } = useLanguage();
+  const TRANSLATIONS: Record<string, any> = {
+    ru: { securePayment: "Безопасная оплата" },
+    en: { securePayment: "Secure Payment" },
+    es: { securePayment: "Pago Seguro" }
+  };
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -630,7 +644,6 @@ function CheckoutModal({ open, onClose, children }: { open: boolean; onClose: ()
         className="absolute inset-0 bg-black/95"
         onClick={onClose}
       />
-      {/* Modal Content */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -640,7 +653,7 @@ function CheckoutModal({ open, onClose, children }: { open: boolean; onClose: ()
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800 bg-slate-900/50 pt-[calc(0.75rem+env(safe-area-inset-top))] md:pt-3">
           <h3 className="text-sm font-medium text-slate-200 flex items-center gap-2">
             <Lock className="w-4 h-4 text-emerald-500" />
-            Безопасная оплата
+            {t.securePayment}
           </h3>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-400 hover:text-white">
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.1929 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.1929 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
