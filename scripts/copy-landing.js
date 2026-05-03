@@ -27,6 +27,8 @@ if (existsSync(astroAssets)) {
 
 // Copy each language landing as a flat .html file
 const pages = [
+  // Root landing saved as landing.html to avoid conflicting with React SPA's index.html
+  { src: join(ASTRO_DIST, 'index.html'), dest: join(MAIN_DIST, 'landing.html') },
   { src: join(ASTRO_DIST, 'es', 'index.html'), dest: join(MAIN_DIST, 'es.html') },
   { src: join(ASTRO_DIST, 'ru', 'index.html'), dest: join(MAIN_DIST, 'ru.html') },
   { src: join(ASTRO_DIST, 'en', 'index.html'), dest: join(MAIN_DIST, 'en.html') },
