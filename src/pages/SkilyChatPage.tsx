@@ -223,10 +223,8 @@ export default function SkilyChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder={t('skilyChat.inputPlaceholder')}
-              // 16px font-size prevents iOS Safari auto-zoom on focus.
-              style={{ fontSize: '16px' }}
               className={cn(
-                "w-full h-12 pl-4 pr-14 border rounded-xl font-medium outline-none transition-all",
+                "w-full h-12 pl-4 pr-14 border rounded-xl font-medium text-sm outline-none transition-all",
                 isDarkTheme
                   ? "bg-slate-800 border-slate-700 focus:border-indigo-500 text-white placeholder:text-slate-500"
                   : "bg-slate-50 border-slate-200 focus:border-indigo-400 text-slate-900 placeholder:text-slate-400"
