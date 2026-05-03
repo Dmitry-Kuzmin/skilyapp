@@ -202,7 +202,7 @@ export function getQuickMenuKeyboard(lang: SupportedLanguage = 'ru'): InlineKeyb
       [
         {
           text: t('keyboard.openApp', lang),
-          web_app: { url: MINI_APP_URL }
+          web_app: { url: `${MINI_APP_URL}/dashboard` }
         }
       ]
     ]
