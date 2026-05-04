@@ -216,7 +216,6 @@ export default defineConfig(({ mode }) => {
         'react/jsx-runtime',
         'react-dom/client',
         'react-router-dom',
-        'next-themes',
         '@tanstack/react-query',
         'framer-motion',
         '@fingerprintjs/fingerprintjs', // Добавляем FingerprintJS для правильной обработки
