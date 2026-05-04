@@ -564,16 +564,20 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
 
           {messages.length === 0 ? (
             <div className="space-y-4 xl:space-y-5">
-              {/* Welcome Message */}
+              {/* Welcome Message — personalized */}
               <div className="text-foreground dark:text-slate-200 text-xs xl:text-sm leading-relaxed whitespace-pre-line">
                 <p>
-                  {interfaceLanguage === 'ru'
-                    ? (country === 'russia'
-                      ? 'Привет! Я Скили — твой эксперт по ПДД РФ 🚗\n\nМоя задача не просто дать ответ, а научить тебя думать как водитель. Задавай вопросы, и я помогу разобраться в логике правил!'
-                      : 'Привет! Я Скили — твой эксперт по правилам вождения в Испании (DGT) 🚗\n\nМоя задача не просто дать ответ, а научить тебя думать как водитель. Задавай вопросы, и я помогу разобраться в логике правил!')
-                    : interfaceLanguage === 'en'
-                      ? 'Hello! I am Skily — your driving instructor expert for Spain (DGT). My goal is not just to give you an answer, but to teach you how to think like a safe driver. Ask me anything about the rules!'
-                      : '¡Hola! Soy Skily: tu instructor experto en el reglamento de la DGT de España. Mi misión no es solo darte la respuesta, sino enseñarte a pensar como un conductor seguro. ¡Pregúntame lo que necesites!'}
+                  {buildPersonalizedGreeting({
+                    interfaceLanguage,
+                    country,
+                    questionIndex,
+                    totalQuestions,
+                    topic,
+                    seasonName: duelPassResult?.seasonData?.name_ru ?? null,
+                    seasonPoints: dashboardData?.season_progress?.season_points ?? null,
+                    errorsCount: dashboardData?.challenge_stats?.errors ?? null,
+                    totalAnswered: dashboardData?.stats?.total_answered ?? null,
+                  })}
                 </p>
               </div>
 
