@@ -89,8 +89,8 @@ const TopicsMode = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-transparent p-6 md:p-10 font-sans pb-6 text-foreground">
-        <div className="max-w-[1370px] mx-auto space-y-8">
+      <div className="min-h-screen bg-transparent font-sans pb-12 text-foreground">
+        <div className="container mx-auto px-4 max-w-[1370px] space-y-8 pt-8 md:pt-12">
 
           {/* Header */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
@@ -109,25 +109,7 @@ const TopicsMode = () => {
                 )}
               </p>
             </div>
-
-            {/* Header */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
-              <div className="w-full md:w-auto space-y-2">
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  {country === 'spain' ? 'DGT España' : 'ПДД Россия'}
-                </p>
-                <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
-                  {t('По темам', 'Por temas', 'By Topics')}
-                </h1>
-                <p className="text-muted-foreground font-medium text-base md:text-lg">
-                  {t(
-                    'Выберите тему для изучения',
-                    'Elige un tema para estudiar',
-                    'Choose a topic to study'
-                  )}
-                </p>
-              </div>
-            </div>
+          </div>
 
           {/* Grid */}
           {isLoading ? (
@@ -181,14 +163,14 @@ const TopicsMode = () => {
                         </h3>
                       </div>
 
-                      {/* Bottom row - Progress styled like Non-stop */}
-                      <div className="flex flex-col gap-3 w-full">
+                      {/* Bottom row - Combined Progress and Action */}
+                      <div className="flex items-end gap-4 w-full">
                         {(() => {
                           const answeredCount = progressByTopic[topic.id] || 0;
                           const progressPct = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
                           
                           return (
-                            <div className="space-y-2 animate-fade-in flex-1">
+                            <div className="flex-1 space-y-2 animate-fade-in">
                               <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-amber-600/80 dark:text-amber-500/80">
                                 <span className="flex items-center gap-1.5">
                                   {t('Пройдено', 'Completado', 'Progress')}: {answeredCount} / {totalCount}
@@ -210,23 +192,12 @@ const TopicsMode = () => {
                           );
                         })()}
                         
-                        <div className="flex items-center justify-between mt-1">
-                          {!isFree ? (
-                            <div className="flex items-center gap-1.5 text-muted-foreground">
-                              <Layers className="w-3.5 h-3.5 shrink-0" />
-                              <span className="text-[10px] font-black uppercase tracking-widest">
-                                {ticketCount} {t('билета', 'tests', 'tickets')}
-                              </span>
-                            </div>
-                          ) : <div />}
-                          
-                          <div className={cn(
-                            "w-9 h-9 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300",
-                            "bg-blue-500/10 border-blue-500/20",
-                            "group-hover:bg-blue-500 group-hover:border-blue-500 group-hover:scale-110"
-                          )}>
-                            <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
-                          </div>
+                        <div className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300",
+                          "bg-blue-500/10 border-blue-500/20",
+                          "group-hover:bg-blue-500 group-hover:border-blue-500 group-hover:scale-110"
+                        )}>
+                          <ChevronRight className="w-5 h-5 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                         </div>
                       </div>
                     </div>
