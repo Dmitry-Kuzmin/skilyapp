@@ -127,7 +127,7 @@ const AILimitContent: React.FC<{
                 <motion.div
                     animate={{ x: ['-100%', '200%'] }}
                     transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 pointer-events-none"
                 />
                 <div className="relative flex items-center justify-center gap-2">
                     <Crown className="w-5 h-5" />
