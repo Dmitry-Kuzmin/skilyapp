@@ -53,6 +53,7 @@ const MODAL_COMPONENTS: Record<ModalType, React.ComponentType<any> | null> = {
   CONTEXT_SETTINGS: ContextSettingsSheet,
   TON_PAY: TonPaymentModal,
   PREMIUM: PaywallModal,
+  TEST_LIMIT_REACHED: TestLimitReachedModal,
 };
 
 /**
