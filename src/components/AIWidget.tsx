@@ -75,6 +75,7 @@ const AIWidgetContent = ({
   const [isListening, setIsListening] = useState(false);
   const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [limitData, setLimitData] = useState({ currentCount: 0, limit: 10, message: '' });
+  const openModal = useModalStore((s) => s.openModal);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
