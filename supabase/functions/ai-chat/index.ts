@@ -71,134 +71,80 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
 async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null, weakTopicsContext?: string | null): Promise<Response | null> {
   const apiKey = Deno.env.get('GEMINI_API_KEY');
   if (!apiKey) { console.warn('[AI Chat] GEMINI_API_KEY not set'); return null; }
-  console.log('[AI Chat] Gemini start, msgs:', messages.length, 'weakTopics:', !!weakTopicsContext);
 
   try {
     const basePrompt = getSystemPrompt(country, showComparison, language);
     const systemPrompt = weakTopicsContext ? basePrompt + weakTopicsContext : basePrompt;
 
-    // Filter out system messages — they are handled via system_instruction.
-    // Gemini rejects a conversation that starts with role 'model', which is
-    // what system messages get mapped to.
-    let currentContents: any[] = messages
+    // Filter system messages — handled via system_instruction
+    // Drop leading model turns so first turn is always 'user'
+    let contents: any[] = messages
       .filter(m => m.role !== 'system')
-      .map(m => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.content }]
-      }));
+      .map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] }));
+    while (contents.length > 0 && contents[0].role !== 'user') contents.shift();
 
-    // Guard: Gemini requires the first turn to be 'user'
-    if (currentContents.length === 0 || currentContents[0].role !== 'user') {
-      console.warn('[AI Chat] Gemini: no valid user message to start conversation');
+    if (contents.length === 0) return null;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:streamGenerateContent?alt=sse&key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents,
+        generationConfig: { temperature: 0.3, maxOutputTokens: 1024 }
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[AI Chat] Gemini error (${response.status}):`, errorText);
       return null;
     }
 
-    for (let iteration = 0; iteration < 2; iteration++) {
-      console.log(`[AI Chat] Gemini iteration ${iteration}, contents: ${currentContents.length}`);
-      const tools = (supabaseClient && userId) ? [{
-        functionDeclarations: [{
-          name: "get_user_stats",
-          description: "Returns user statistics (XP, level, coins, pass) and recent test results. MUST be called if asked about progress/coins.",
-        }]
-      }] : undefined;
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:streamGenerateContent?alt=sse&key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined,
-          contents: currentContents,
-          tools,
-          generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
-        }),
-      });
+    // Transform Gemini SSE → OpenAI-compatible SSE on-the-fly (no buffering)
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    let buffer = '';
 
-      console.log(`[AI Chat] Gemini HTTP ${response.status}`);
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`[AI Chat] Gemini error:`, errorText);
-        return null;
-      }
-
-      const reader = response.body!.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      const allParsedChunks: any[] = [];
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const dataStr = line.slice(6);
-            if (dataStr === '[DONE]') continue;
-            try {
-              allParsedChunks.push(JSON.parse(dataStr));
-            } catch (e) { }
+    const transformedStream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body!.getReader();
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() ?? '';
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              const dataStr = line.slice(6).trim();
+              if (dataStr === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(dataStr);
+                const parts = parsed?.candidates?.[0]?.content?.parts;
+                if (!parts) continue;
+                for (const part of parts) {
+                  if (part.text) {
+                    controller.enqueue(encoder.encode(
+                      `data: ${JSON.stringify({ choices: [{ delta: { content: part.text } }] })}\n\n`
+                    ));
+                  }
+                }
+              } catch { /* skip malformed chunks */ }
+            }
           }
+        } finally {
+          reader.releaseLock();
         }
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
       }
+    });
 
-      const allModelParts: any[] = [];
-      for (const chunk of allParsedChunks) {
-        const chunkParts = chunk?.candidates?.[0]?.content?.parts;
-        if (chunkParts) allModelParts.push(...chunkParts);
-      }
-
-      const functionCallPart = allModelParts.find((p: any) => p.functionCall);
-
-      if (functionCallPart) {
-        const functionCallData = functionCallPart.functionCall;
-        if (functionCallData.name === 'get_user_stats') {
-          console.log('[AI Chat] ⚙️ TOOL CALLED: get_user_stats');
-          let toolResult: any = {};
-          try {
-            const { data: profile } = await supabaseClient.from('profiles').select('id, xp, coins, duel_pass_level, ton_wallet_address').or(`id.eq.${userId},user_id.eq.${userId}`).single();
-            const { data: sessions } = await supabaseClient.from('game_sessions').select('score, total_questions, game_type, created_at').eq('user_id', profile?.id || userId).order('created_at', { ascending: false }).limit(5);
-            toolResult = { user_stats: profile || null, latest_tests: sessions || [] };
-          } catch (e) { toolResult = { error: "Database unavailable" }; }
-
-          currentContents.push({ role: "model", parts: allModelParts });
-          currentContents.push({
-            role: "function",
-            parts: [{
-              functionResponse: {
-                name: "get_user_stats",
-                response: { name: "get_user_stats", content: toolResult }
-              }
-            }]
-          });
-          continue;
-        }
-      }
-
-      const sseLines: string[] = [];
-      for (const chunk of allParsedChunks) {
-        const chunkParts = chunk?.candidates?.[0]?.content?.parts;
-        if (!chunkParts) continue;
-        for (const part of chunkParts) {
-          if (part.text) {
-            sseLines.push(`data: ${JSON.stringify({ choices: [{ delta: { content: part.text } }] })}\n\n`);
-          }
-        }
-      }
-      sseLines.push('data: [DONE]\n\n');
-
-      const encoder = new TextEncoder();
-      const textStream = new ReadableStream({
-        start(controller) {
-          for (const line of sseLines) { controller.enqueue(encoder.encode(line)); }
-          controller.close();
-        }
-      });
-
-      return new Response(textStream, {
-        headers: { ...corsHeaders, 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' }
-      });
-    }
-    return null;
+    return new Response(transformedStream, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' }
+    });
   } catch (err) {
     console.error('[AI Chat] Gemini exception:', err);
     return null;
