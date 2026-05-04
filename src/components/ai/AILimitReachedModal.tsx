@@ -172,7 +172,7 @@ export const AILimitReachedModal: React.FC<AILimitReachedModalProps> = ({
     limit,
     message
 }) => {
-    const navigate = useNavigate();
+    const openModal = useModalStore((s) => s.openModal);
     const [timeUntilReset, setTimeUntilReset] = useState<string>('');
     const isMobile = useIsMobile();
 
