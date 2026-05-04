@@ -156,6 +156,7 @@ export const SkilyAIChatWidget = ({
   };
 
   return (
+    <>
     <Card
       className={cn(
         "flex flex-col overflow-hidden border-2 border-yellow-200/50 dark:border-yellow-800/50 shadow-xl bg-white dark:bg-gray-900",
