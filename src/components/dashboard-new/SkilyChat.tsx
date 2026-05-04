@@ -441,6 +441,14 @@ export const SkilyChat = React.memo(() => {
           </div>
         </div>
       </ResponsiveModal>
+
+      <AILimitReachedModal
+        isOpen={limitModalOpen}
+        onClose={() => { setLimitModalOpen(false); clearLimit(); }}
+        currentCount={limitReached?.currentCount ?? 0}
+        limit={limitReached?.limit ?? 5}
+        message={limitReached?.message}
+      />
     </>
   );
 });
