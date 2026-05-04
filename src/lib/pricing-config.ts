@@ -41,17 +41,19 @@ export const PRICING_PLANS: PricingPlan[] = [
     {
         id: 'monthly',
         title: '1 Месяц',
-        subtitle: 'Базовый старт',
+        subtitle: 'PRO подготовка',
         price: "€9.99",
         priceValue: 9.99,
         period: "мес",
         pricePerMonth: "€9.99",
-        description: "Полный доступ на 30 дней",
+        description: "Полный доступ ко всем функциям",
         features: [
-            "Все функции Premium",
-            "Без рекламы",
-            "AI-помощник",
-            "+50% монет"
+            "9,500+ актуальных вопросов",
+            "Безлимитные тесты и темы",
+            "AI-разбор каждой ошибки",
+            "0% комиссия в дуэлях",
+            "x2 опыт и Duel Pass PRO",
+            "Полное отсутствие рекламы"
         ],
         highlight: false,
         icon: Clock,
@@ -68,9 +70,10 @@ export const PRICING_PLANS: PricingPlan[] = [
         description: "Оптимально для подготовки",
         savings: "17%",
         features: [
-            "Всё из тарифа 1 Месяц",
+            "Все функции из тарифа PRO",
             "Экономия 17%",
-            "Хватит на всю теорию"
+            "Хватит времени на теорию",
+            "Приоритетная поддержка"
         ],
         highlight: false,
         icon: Calendar,
@@ -79,18 +82,20 @@ export const PRICING_PLANS: PricingPlan[] = [
     {
         id: 'biannual',
         title: '6 Месяцев',
-        subtitle: 'Максимум спокойствия',
+        subtitle: 'Гарантия сдачи',
         price: "€39.99",
         priceValue: 39.99,
         period: "6 мес",
         pricePerMonth: "€6.66",
         description: "Самый популярный выбор",
         savings: "33%",
-        popular: true, // Звезда продаж
+        popular: true, 
         features: [
-            "Всё из тарифа 3 Месяца",
-            "Экономия 33%",
-            "Страховка от пересдачи"
+            "Максимальная выгода 33%",
+            "Глубокая статистика тем",
+            "Прогноз готовности к экзамену",
+            "Доступ ко всем новым играм",
+            "Премиум статус в профиле"
         ],
         highlight: true,
         icon: Trophy,
@@ -99,17 +104,19 @@ export const PRICING_PLANS: PricingPlan[] = [
     {
         id: 'yearly',
         title: '1 Год',
-        subtitle: 'Полный безлимит',
+        subtitle: 'Инвестиция в права',
         price: "€59.99",
         priceValue: 59.99,
         period: "год",
         pricePerMonth: "€4.99",
-        description: "Выбор перфекционистов",
+        description: "Для тех, кто ценит выгоду",
         savings: "50%",
         features: [
-            "Всё включено на год",
-            "Максимальная выгода 50%",
-            "Пожизненное обновление" // Маркетинговый ход (в рамках года)
+            "Весь функционал на 365 дней",
+            "Экономия 50% vs Monthly",
+            "Доступ ко всем обновлениям",
+            "VIP роль в сообществе",
+            "Полный безлимит AI"
         ],
         highlight: false,
         icon: Crown,

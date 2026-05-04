@@ -114,6 +114,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       benefit2: "Гарантия сдачи (Smart Score)",
       benefit3: "Premium-турниры и x2 опыт",
       benefit4: "Без рекламы, полная концентрация",
+      feature: "Функция",
+      free: "Free",
+      pro: "Premium",
+      f_tests: "Тесты в день",
+      f_base: "База вопросов",
+      f_ai: "AI-Помощник",
+      f_stats: "Статистика",
+      f_duels: "Комиссия дуэлей",
+      f_xp: "Опыт (XP)",
+      unlimited: "Безлимит",
       trustText: "Доверяют 50,000+ учеников",
       selectPlan: "Выберите план",
       investmentText: "Инвестиция в ваши водительские права",
@@ -144,6 +154,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       benefit2: "Passing Guarantee (Smart Score)",
       benefit3: "Premium tournaments and x2 experience",
       benefit4: "No ads, full concentration",
+      feature: "Feature",
+      free: "Free",
+      pro: "Premium",
+      f_tests: "Tests per day",
+      f_base: "Question database",
+      f_ai: "AI Assistant",
+      f_stats: "Statistics",
+      f_duels: "Duel Fee",
+      f_xp: "Experience (XP)",
+      unlimited: "Unlimited",
       trustText: "Trusted by 50,000+ students",
       selectPlan: "Select a plan",
       investmentText: "An investment in your driving license",
@@ -174,6 +194,16 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       benefit2: "Garantía de aprobado (Smart Score)",
       benefit3: "Torneos Premium y x2 de experiencia",
       benefit4: "Sin anuncios, concentración total",
+      feature: "Función",
+      free: "Gratis",
+      pro: "Premium",
+      f_tests: "Tests por día",
+      f_base: "Base de preguntas",
+      f_ai: "Asistente IA",
+      f_stats: "Estadísticas",
+      f_duels: "Comisión de duelos",
+      f_xp: "Experiencia (XP)",
+      unlimited: "Ilimitado",
       trustText: "Más de 50,000 alumnos confían en nosotros",
       selectPlan: "Elige tu plan",
       investmentText: "Una inversión en tu carnet de conducir",
@@ -198,6 +228,37 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   };
 
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+
+  const ComparisonTable = () => (
+    <div className="mt-8 space-y-3 bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 shadow-inner">
+      <div className="grid grid-cols-[1fr_50px_70px] gap-2 pb-2 border-b border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <div>{t.feature}</div>
+        <div className="text-center">{t.free}</div>
+        <div className="text-center text-amber-400">{t.pro}</div>
+      </div>
+      <div className="space-y-3 pt-1">
+        {[
+          { label: t.f_tests, free: "5", pro: "∞", highlight: true },
+          { label: t.f_base, free: "~300", pro: "9500+" },
+          { label: t.f_ai, free: "5/day", pro: t.unlimited },
+          { label: t.f_stats, free: "Basic", pro: "Deep" },
+          { label: t.f_duels, free: "10%", pro: "0%", success: true },
+          { label: t.f_xp, free: "x1", pro: "x2", highlight: true },
+        ].map((row, i) => (
+          <div key={i} className="grid grid-cols-[1fr_50px_70px] gap-2 items-center">
+            <span className="text-[11px] font-medium text-slate-300">{row.label}</span>
+            <span className="text-[10px] text-center text-slate-500 font-mono">{row.free}</span>
+            <span className={cn(
+              "text-[11px] text-center font-bold font-mono px-2 py-0.5 rounded-full",
+              row.success ? "text-emerald-400 bg-emerald-500/10" : "text-amber-400 bg-amber-500/10"
+            )}>
+              {row.pro}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
   const handlePurchase = async (planId: string) => {
     if (!profileId) {
@@ -334,14 +395,14 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           )}
         >
           {/* LEFTSIDE (PREMIUM DARK) */}
-          <div className="relative w-full md:w-[42%] bg-[#0A0D1B] dark:bg-[#080B16] text-white p-6 md:p-10 flex flex-col justify-between overflow-hidden z-10 border-r border-white/5">
+          <div className="relative w-full md:w-[42%] bg-[#0A0D1B] dark:bg-[#080B16] text-white p-6 md:p-8 flex flex-col justify-between overflow-hidden z-10 border-r border-white/5">
             <AnimatedBackground />
             <div className="relative z-10">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 mb-8 bg-white/10 dark:bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 dark:border-white/10 shadow-lg shadow-violet-950/20"
+                className="inline-flex items-center gap-2 mb-6 bg-white/10 dark:bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 dark:border-white/10 shadow-lg shadow-violet-950/20"
               >
                 <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-pulse" />
                 <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-amber-100">{t.premiumAccess}</span>
@@ -351,7 +412,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
-                className="text-4xl md:text-5xl font-black mb-6 leading-[0.95] tracking-tight"
+                className="text-3xl md:text-4xl font-black mb-4 leading-[0.95] tracking-tight"
               >
                 {t.headline} <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-300 to-indigo-400 animate-gradient-x">
@@ -363,24 +424,19 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="text-slate-400 text-sm md:text-base mb-10 leading-relaxed max-w-[90%]"
+                className="text-slate-400 text-xs md:text-sm mb-6 leading-relaxed max-w-[90%]"
               >
                 {t.description}
               </motion.p>
 
-              <div className="space-y-5 mb-8">
-                <BenefitItem icon={Zap} text={t.benefit1} color="text-amber-400" delay={0.5} />
-                <BenefitItem icon={ShieldCheck} text={t.benefit2} color="text-emerald-400" delay={0.6} />
-                <BenefitItem icon={Trophy} text={t.benefit3} color="text-violet-400" delay={0.7} />
-                <BenefitItem icon={Sparkles} text={t.benefit4} color="text-sky-400" delay={0.8} />
-              </div>
+              <ComparisonTable />
             </div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 }}
-              className="relative z-10 hidden md:flex items-center gap-4 pt-8 border-t border-white/5"
+              className="relative z-10 hidden md:flex items-center gap-4 pt-6 border-t border-white/5 mt-6"
             >
               <div className="flex -space-x-3">
                 {[1, 2, 3].map(i => (
