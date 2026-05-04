@@ -1,18 +1,14 @@
 import { useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { CountryCode } from "@/types/pdd";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAIRequest, AILimitData, AIRequestMessage } from "@/hooks/useAIRequest";
 
 export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
 };
 
-export type AILimitData = {
-  currentCount: number;
-  limit: number;
-  message?: string;
-};
+export type { AILimitData };
 
 export const useSkilyAIChat = (country: CountryCode = 'spain') => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -20,121 +16,59 @@ export const useSkilyAIChat = (country: CountryCode = 'spain') => {
   const [error, setError] = useState<string | null>(null);
   const [limitReached, setLimitReached] = useState<AILimitData | null>(null);
   const { language } = useLanguage();
+  const { sendRequest } = useAIRequest();
 
   const sendMessage = useCallback(async (userMessage: string, context?: string) => {
     setIsLoading(true);
     setError(null);
 
-    // Добавляем сообщение пользователя
     const newUserMessage: ChatMessage = { role: "user", content: userMessage };
     setMessages(prev => [...prev, newUserMessage]);
 
-    try {
-      // Получаем токен сессии — гости не могут использовать AI
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        setError('auth_required');
-        setIsLoading(false);
-        return;
-      }
-      const authToken = session.access_token;
+    // Build message list with optional context prefix
+    let messagesToSend: AIRequestMessage[] = [
+      ...(context ? [{ role: 'user' as const, content: `Контекст: ${context}` }] : []),
+      ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+      { role: 'user', content: userMessage },
+    ];
 
-      // Формируем сообщения с контекстом если есть
-      let messagesToSend = [...messages, newUserMessage];
-      if (context) {
-        messagesToSend = [
-          { role: "user", content: `Контекст: ${context}` },
-          ...messagesToSend
-        ];
-      }
+    // Add empty assistant bubble for streaming
+    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({
-            messages: messagesToSend,
-            country: country, // Передаем страну для выбора правильного системного промпта
-            language: language // Передаем текущий язык интерфейса как подсказку
-          }),
-        }
-      );
+    let didReceiveContent = false;
 
-      // Handle 429 — daily limit reached → show modal
-      if (response.status === 429) {
-        const errorData = await response.json().catch(() => ({}));
-        if (errorData.error === 'daily_limit_reached') {
-          setLimitReached({
-            currentCount: errorData.current_count || 10,
-            limit: errorData.limit || 10,
-            message: errorData.message,
+    await sendRequest(
+      { messages: messagesToSend, country, language },
+      {
+        onChunk: (text) => {
+          didReceiveContent = true;
+          setMessages(prev => {
+            const updated = [...prev];
+            const last = updated[updated.length - 1];
+            updated[updated.length - 1] = { ...last, content: last.content + text };
+            return updated;
           });
-          setMessages(prev => prev.filter((_, idx) => idx !== prev.length - 1));
+        },
+        onDone: () => {
           setIsLoading(false);
-          return;
-        }
-      }
-
-      if (!response.ok || !response.body) {
-        throw new Error("Не удалось получить ответ от Skily");
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let assistantContent = "";
-
-      // Добавляем пустое сообщение ассистента
-      setMessages(prev => [...prev, { role: "assistant", content: "" }]);
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n");
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
-
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-
-              if (content) {
-                assistantContent += content;
-
-                // Обновляем последнее сообщение
-                setMessages(prev => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = {
-                    role: "assistant",
-                    content: assistantContent,
-                  };
-                  return updated;
-                });
-              }
-            } catch (e) {
-              // Игнорируем невалидный JSON
-            }
+        },
+        onLimitReached: (data) => {
+          setLimitReached(data);
+          // Remove empty assistant bubble
+          setMessages(prev => prev.filter((_, i) => i !== prev.length - 1));
+          setIsLoading(false);
+        },
+        onError: () => {
+          setError("Не удалось получить ответ. Попробуй ещё раз!");
+          // Remove empty assistant bubble if nothing was streamed
+          if (!didReceiveContent) {
+            setMessages(prev => prev.filter((_, i) => i !== prev.length - 1));
           }
-        }
-      }
-    } catch (err) {
-      console.error("Error in Skily chat:", err);
-      setError("Не удалось получить ответ. Попробуй еще раз!");
-
-      // Удаляем пустое сообщение ассистента при ошибке
-      setMessages(prev => prev.filter((_, idx) => idx !== prev.length - 1));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [messages, language, country]);
+          setIsLoading(false);
+        },
+      },
+    );
+  }, [messages, language, country, sendRequest]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
@@ -154,31 +88,3 @@ export const useSkilyAIChat = (country: CountryCode = 'spain') => {
     clearMessages,
   };
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
