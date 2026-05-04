@@ -50,6 +50,7 @@ import { OfflineStatusIndicator, AnswerOptionsList } from "@/components/test-ses
 import { TestContentLayout } from "@/components/test-session/TestContentLayout";
 import { TestSessionHeader } from "@/components/test-session/TestSessionHeader";
 import { QuestionCard } from "@/components/test-session/QuestionCard";
+import { MidTestAITeaser } from "@/components/test-session/MidTestAITeaser";
 import { useTestState } from "@/hooks/test-session/useTestState";
 import { TestSettingsMenu } from "@/components/TestSettingsMenu";
 
