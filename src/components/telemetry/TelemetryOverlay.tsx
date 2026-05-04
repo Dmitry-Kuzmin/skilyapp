@@ -341,28 +341,31 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
             </div>
 
             {/* ── Advanced Analytics ── */}
-            <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-4 h-4 text-violet-400" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        {overlay('extendedTelemetry')}
-                    </span>
-                </div>
+            <PremiumGatedSection label="Динамика — Premium">
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-violet-400" />
+                        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                            {overlay('extendedTelemetry')}
+                        </span>
+                    </div>
 
-                <AnalyticsPanel
-                    trend={analytics?.trend || null}
-                    consistency={analytics?.consistency || null}
-                    timeToPass={analytics?.timeToPass || null}
-                    criticalPoint={analytics?.criticalPoint || null}
-                    focusBattery={analytics?.focusBattery || null}
-                    activityHeatmap={analytics?.activityHeatmap || null}
-                    currentScore={score}
-                    loading={analyticsLoading}
-                    showHeader={false}
-                />
-            </div>
+                    <AnalyticsPanel
+                        trend={analytics?.trend || null}
+                        consistency={analytics?.consistency || null}
+                        timeToPass={analytics?.timeToPass || null}
+                        criticalPoint={analytics?.criticalPoint || null}
+                        focusBattery={analytics?.focusBattery || null}
+                        activityHeatmap={analytics?.activityHeatmap || null}
+                        currentScore={score}
+                        loading={analyticsLoading}
+                        showHeader={false}
+                    />
+                </div>
+            </PremiumGatedSection>
 
             {/* ── Diagnostic Grid ── */}
+            <PremiumGatedSection label="Слабые темы — Premium">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="rounded-2xl bg-muted/50 dark:bg-white/5 border border-border dark:border-white/5 p-5 md:col-span-1">
                     <div className="flex items-center gap-2 mb-4">
