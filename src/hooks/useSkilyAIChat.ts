@@ -8,10 +8,17 @@ export type ChatMessage = {
   content: string;
 };
 
+export type AILimitData = {
+  currentCount: number;
+  limit: number;
+  message?: string;
+};
+
 export const useSkilyAIChat = (country: CountryCode = 'spain') => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [limitReached, setLimitReached] = useState<AILimitData | null>(null);
   const { language } = useLanguage();
 
   const sendMessage = useCallback(async (userMessage: string, context?: string) => {
