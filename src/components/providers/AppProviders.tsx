@@ -185,6 +185,7 @@ export function AppProviders({ children }: AppProvidersProps) {
               <PDDProvider>
                 {/* TON_DISABLED: <AppKitProvider appKit={appKit}><TonAddressProvider> */}
                     <SessionHandler />
+                    <PremiumStateSync />
                     {/* TON_DISABLED: <TonWalletSyncHandler /> */}
                     <ReconnectHandler />
                     <GlobalSettingsManager />
