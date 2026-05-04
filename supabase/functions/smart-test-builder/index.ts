@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
 
   try {
     const body: SmartTestRequest = await req.json();
-    const { profile_id, count = 20, category = 'B', country = 'spain' } = body;
+    const { profile_id, count = 20, category = 'B', country = 'es' } = body;
 
     if (!profile_id) {
       return new Response(JSON.stringify({ error: 'profile_id required' }), {
@@ -43,6 +43,9 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createPooledSupabaseClient();
+
+    // Normalize country code: 'spain' → 'es'
+    const countryCode = country === 'spain' ? 'es' : country;
 
     // Fetch all questions for this country
     const { data: allQuestions, error: qErr } = await supabase
