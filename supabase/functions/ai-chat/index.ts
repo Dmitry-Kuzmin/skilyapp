@@ -39,7 +39,7 @@ const getSystemPrompt = (country: string = 'spain', showComparison: boolean = tr
 
 async function tryGroq(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, modelName: string = 'llama-3.1-8b-instant', language: string = 'es'): Promise<Response | null> {
   const apiKey = Deno.env.get('GROQ_API_KEY');
-  if (!apiKey) return null;
+  if (!apiKey) { console.warn('[AI Chat] GROQ_API_KEY not set'); return null; }
 
   try {
     const systemMessage = [{ role: 'system' as const, content: getSystemPrompt(country, showComparison, language) }];
