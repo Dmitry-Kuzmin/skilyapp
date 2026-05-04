@@ -1151,7 +1151,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
       loading={options?.loading ?? loading}
       skeletonVariant="default"
     >
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {description && (
           <div className="px-6 pt-4 pb-2 border-b border-border/40">
             <p className="text-sm text-muted-foreground">{description}</p>
