@@ -132,13 +132,13 @@ const TopicsMode = () => {
 
           {/* Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {[...Array(9)].map((_, i) => (
                 <div key={i} className="h-44 rounded-2xl bg-muted/40 animate-pulse" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {sortedTopics.map((topic, index) => {
                 const colors = ACCENT_COLORS[index % ACCENT_COLORS.length];
                 const totalCount = topic.questions_count || 0;
