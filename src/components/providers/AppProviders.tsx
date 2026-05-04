@@ -43,6 +43,13 @@ const SessionHandler = () => {
   return <SmartOnboardingFlow />;
 };
 
+/** Синхронизирует isPremium в module-level стейт для стратегий вопросов */
+const PremiumStateSync = () => {
+  const { isPremium } = usePremium();
+  useEffect(() => { setPremiumForStrategy(isPremium); }, [isPremium]);
+  return null;
+};
+
 // TON_DISABLED: const TonWalletSyncHandler = () => { useTonWalletSync(); return null; };
 
 interface AppProvidersProps {
