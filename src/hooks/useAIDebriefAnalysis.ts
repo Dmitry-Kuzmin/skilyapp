@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { isTelegramMiniApp } from '@/lib/telegram';
 import { useAnalysisHistoryStore, type AIDiagnosis } from '@/stores/useAnalysisHistoryStore';
 import type { FailedQuestion, StudentStats } from '@/components/test-results/SmartDebriefCard';
 import { useAIRequest } from '@/hooks/useAIRequest';
