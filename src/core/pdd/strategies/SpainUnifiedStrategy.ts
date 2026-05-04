@@ -186,9 +186,15 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
 
         if (allIds.length === 0) return [];
 
-        // 2. Shuffle IDs client-side (Fisher-Yates for perfect randomness)
+        // 2. For free users, restrict the visible pool to a deterministic subset.
+        //    This creates natural repetition pressure that drives premium conversion.
+        const questionPool = isPremiumForStrategy()
+            ? allIds
+            : allIds.slice(0, FREE_QUESTION_LIMIT);
+
+        // 3. Shuffle IDs client-side (Fisher-Yates for perfect randomness)
         // copy array
-        const shuffled = [...allIds];
+        const shuffled = [...questionPool];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
