@@ -421,7 +421,7 @@ const Tests = () => {
       },
       {
         id: 9,
-        title: selectedCountry === 'russia' ? 'Тренажёрный Зал' : localeText('Тренажёрный Зал', 'Gimnasio de Memoria', 'Memory Gym'),
+        title: selectedCountry === 'russia' ? 'Challenge Bank™' : localeText('Challenge Bank™', 'Challenge Bank™', 'Challenge Bank™'),
         description: selectedCountry === 'russia'
           ? `${challengeStats.favorites} сохраненных вопросов`
           : localeText(
