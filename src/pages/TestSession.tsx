@@ -1458,6 +1458,12 @@ const TestSession = () => {
           </div>
         )}
 
+        {/* Mid-test AI teaser — appears after first mistake, once per session */}
+        {mode !== 'blitz' && mode !== 'exam-russia' && (
+          <div className="mt-2 mb-1">
+            <MidTestAITeaser incorrectCount={errorCount} />
+          </div>
+        )}
 
         {/* Guest paywall popup — shows after 3rd answered question */}
         {showGuestPaywall && (
