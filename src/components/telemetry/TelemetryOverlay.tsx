@@ -41,10 +41,10 @@ function formatDate(date: Date): string {
 
 function getStatusColor(status: string) {
     switch (status) {
-        case 'legend': return { fill: '#a855f7', label: 'Легенда' };
+        case 'legend': return { fill: '#3b82f6', label: 'Легенда' };
         case 'ready': return { fill: '#10b981', label: 'Готов' };
-        case 'near': return { fill: '#eab308', label: 'Почти готов' };
-        case 'progress': return { fill: '#f59e0b', label: 'В процессе' };
+        case 'near': return { fill: '#f59e0b', label: 'Почти готов' };
+        case 'progress': return { fill: '#3b82f6', label: 'В процессе' };
         default: return { fill: '#94a3b8', label: 'Старт' };
     }
 }
@@ -56,9 +56,9 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: any) {
         <div className="relative overflow-hidden rounded-2xl bg-muted/50 dark:bg-white/5 border border-border dark:border-white/5 p-3 md:p-4 backdrop-blur-sm">
             <div className="flex items-start justify-between mb-1.5 md:mb-2">
                 <span className="text-[9px] md:text-xs text-muted-foreground uppercase tracking-widest font-semibold">{label}</span>
-                <Icon className={cn('w-3.5 h-3.5', accent ? 'text-violet-400' : 'text-slate-500')} />
+                <Icon className={cn('w-3.5 h-3.5', accent ? 'text-blue-400' : 'text-slate-500')} />
             </div>
-            <div className={cn('text-2xl md:text-3xl font-black tracking-tight', accent ? 'text-violet-600 dark:text-violet-300' : 'text-foreground')}>
+            <div className={cn('text-2xl md:text-3xl font-black tracking-tight', accent ? 'text-blue-600 dark:text-blue-300' : 'text-foreground')}>
                 {value}
             </div>
             {sub && <div className="mt-0.5 md:mt-1 text-[9px] md:text-xs text-muted-foreground truncate">{sub}</div>}
@@ -70,9 +70,9 @@ function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: any 
     const levels = [
         { id: 'start', title: t('dashboard.examReadiness.levels.start.title'), desc: t('dashboard.examReadiness.levels.start.desc'), range: '0-30%', color: '#ef4444', bgColor: 'bg-red-500/10' },
         { id: 'progress', title: t('dashboard.examReadiness.levels.progress.title'), desc: t('dashboard.examReadiness.levels.progress.desc'), range: '31-70%', color: '#f59e0b', bgColor: 'bg-orange-500/10' },
-        { id: 'near', title: t('dashboard.examReadiness.levels.near.title'), desc: t('dashboard.examReadiness.levels.near.desc'), range: '71-84%', color: '#eab308', bgColor: 'bg-yellow-500/10' },
+        { id: 'near', title: t('dashboard.examReadiness.levels.near.title'), desc: t('dashboard.examReadiness.levels.near.desc'), range: '71-84%', color: '#f59e0b', bgColor: 'bg-orange-500/10' },
         { id: 'ready', title: t('dashboard.examReadiness.levels.ready.title'), desc: t('dashboard.examReadiness.levels.ready.desc'), range: '85-95%', color: '#10b981', bgColor: 'bg-emerald-500/10' },
-        { id: 'legend', title: t('dashboard.examReadiness.levels.legend.title'), desc: t('dashboard.examReadiness.levels.legend.desc'), range: '96-100%', color: '#a855f7', bgColor: 'bg-violet-500/10' }
+        { id: 'legend', title: t('dashboard.examReadiness.levels.legend.title'), desc: t('dashboard.examReadiness.levels.legend.desc'), range: '96-100%', color: '#3b82f6', bgColor: 'bg-blue-500/10' }
     ];
 
     const currentIndex = levels.findIndex(l => l.id === currentStatus);
@@ -126,19 +126,22 @@ function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: any 
                             "flex-1 flex flex-col transition-all duration-300 md:text-center md:items-center mt-[-2px] md:mt-1",
                             isActive ? "opacity-100" : "opacity-50 hover:opacity-80"
                         )}>
-                            <div className="flex justify-between md:justify-center items-center gap-2 mb-1.5 w-full">
+                            <div className="flex flex-col md:items-center gap-1 mb-2 w-full">
                                 <span className={cn(
                                     "text-sm md:text-[13px] font-black uppercase tracking-tight transition-colors duration-500",
                                     isActive ? "" : "text-foreground dark:text-white"
                                 )} style={{ color: isActive ? lvl.color : undefined }}>
                                     {lvl.title}
                                 </span>
-                                <span className={cn(
-                                    "text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors duration-500 tabular-nums shrink-0",
-                                    isActive ? lvl.bgColor : "bg-muted/50 dark:bg-white/5 text-muted-foreground"
-                                )} style={{ color: isActive ? lvl.color : undefined }}>
-                                    {lvl.range}
-                                </span>
+                                <div className="flex items-center gap-1.5">
+                                    <div className="h-0.5 w-4 rounded-full bg-current opacity-20" style={{ color: lvl.color }} />
+                                    <span className={cn(
+                                        "text-[10px] font-bold transition-colors duration-500 tabular-nums shrink-0",
+                                        isActive ? "" : "text-muted-foreground"
+                                    )} style={{ color: isActive ? lvl.color : undefined }}>
+                                        {lvl.range}
+                                    </span>
+                                </div>
                             </div>
                             <p className="text-xs md:text-[11px] text-muted-foreground leading-snug">
                                 {lvl.desc}
@@ -425,7 +428,7 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
                 <DrawerContent className="max-h-[85vh] flex flex-col bg-background dark:bg-zinc-950/95 backdrop-blur-2xl border-t border-border dark:border-white/10 shadow-2xl overflow-hidden">
                     <DrawerHeader className="border-b border-border dark:border-white/5 shrink-0 bg-transparent z-10 py-4 px-6 relative">
                         <DrawerTitle className="text-xl font-black uppercase tracking-tighter flex items-center gap-2 text-foreground">
-                            <Gauge className="w-5 h-5 text-violet-500" />
+                            <Gauge className="w-5 h-5 text-blue-500" />
                             {t('dashboard.examReadiness.telemetryTitle')}
                         </DrawerTitle>
                     </DrawerHeader>
@@ -442,8 +445,8 @@ export function TelemetryOverlay({ open, onOpenChange }: { open: boolean; onOpen
             <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col bg-background dark:bg-zinc-950/95 backdrop-blur-2xl border border-border dark:border-white/10 p-0 shadow-2xl sm:rounded-2xl overflow-hidden">
                 <DialogHeader className="p-6 pb-4 border-b border-border dark:border-white/5 shrink-0 bg-transparent z-10 flex flex-row items-center justify-between relative">
                     <DialogTitle className="text-2xl font-black uppercase tracking-tighter flex items-center gap-3 text-foreground">
-                        <div className="w-10 h-10 rounded-2xl bg-violet-500/10 flex items-center justify-center">
-                            <Gauge className="w-6 h-6 text-violet-500" />
+                        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+                            <Gauge className="w-6 h-6 text-blue-500" />
                         </div>
                         {t('dashboard.examReadiness.overlay.dashboardTitle')}
                     </DialogTitle>

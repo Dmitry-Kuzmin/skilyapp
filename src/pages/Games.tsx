@@ -76,7 +76,7 @@ const Games = () => {
       difficulty: t('gamesPage.difficulties.medium'),
       route: "/games/duel",
       featured: true,
-      gradient: "from-blue-600 via-blue-500 to-indigo-600",
+      gradient: "from-blue-600 via-blue-500 to-blue-700",
     },
     {
       id: 2,
@@ -88,7 +88,7 @@ const Games = () => {
       difficulty: t('gamesPage.difficulties.easy'),
       route: "/games/race",
       featured: true,
-      gradient: "from-cyan-600 via-blue-600 to-indigo-600",
+      gradient: "from-cyan-600 via-blue-600 to-blue-700",
     },
     {
       id: 3,
@@ -122,7 +122,7 @@ const Games = () => {
       premium: false,
       difficulty: t('gamesPage.difficulties.medium'),
       route: "/games/four-variants",
-      gradient: "from-indigo-600 via-blue-600 to-cyan-600",
+      gradient: "from-blue-600 via-sky-600 to-cyan-600",
     },
     {
       id: 8,
@@ -203,14 +203,14 @@ const Games = () => {
               </div>
 
               {/* Stats Badges - Style from Dashboard - Always on one line */}
-              <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0">
-                {/* Games Played Badge */}
-                <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/10 backdrop-blur-sm shadow-lg shadow-blue-500/5 flex-shrink-0 whitespace-nowrap">
-                  <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <span className="text-xs xs:text-sm font-bold text-blue-700 dark:text-blue-100">
-                    {safeStats.gamesPlayed} <span className="text-blue-600/70 dark:text-blue-300/70 font-normal">{t('gamesPage.stats.played')}</span>
-                  </span>
-                </div>
+                <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 min-w-0">
+                  {/* Games Played Badge */}
+                  <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-blue-600/20 border border-blue-500/10 backdrop-blur-sm shadow-lg shadow-blue-500/5 flex-shrink-0 whitespace-nowrap">
+                    <Trophy className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <span className="text-xs xs:text-sm font-bold text-blue-700 dark:text-blue-100">
+                      {safeStats.gamesPlayed} <span className="text-blue-600/70 dark:text-blue-300/70 font-normal">{t('gamesPage.stats.played')}</span>
+                    </span>
+                  </div>
 
                 {/* Terms Badge */}
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/10 backdrop-blur-sm shadow-lg shadow-emerald-500/5 flex-shrink-0 whitespace-nowrap">
@@ -277,7 +277,7 @@ const Games = () => {
                 {/* Animated Background Gradients - только для активной карточки */}
                 {duelsEnabled && (
                   <>
-                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-500/30 to-indigo-600/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse" />
+                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-blue-500/30 to-blue-700/30 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 animate-pulse" />
                     <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-cyan-500/30 to-blue-600/30 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4" />
                   </>
                 )}
@@ -406,7 +406,7 @@ const Games = () => {
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-foreground flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-card border border-border">
-                  <Gamepad2 className="w-6 h-6 text-indigo-400" />
+                  <Gamepad2 className="w-6 h-6 text-blue-400" />
                 </div>
                 {t('gamesPage.otherModes')}
               </h3>
@@ -529,7 +529,7 @@ const Games = () => {
                       <div className="absolute top-4 right-4 z-20 flex gap-2">
                         {isLocked && (
                           <Badge className="bg-slate-900/80 text-slate-100 border-none font-black shadow-xl px-3 py-1.5 flex items-center gap-1.5 backdrop-blur-md ring-1 ring-white/10">
-                            <Lock className="w-3.5 h-3.5 text-indigo-400" />
+                            <Lock className="w-3.5 h-3.5 text-blue-400" />
                             <span>LVL 10</span>
                           </Badge>
                         )}

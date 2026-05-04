@@ -30,17 +30,17 @@ interface QuestionWithOptions {
  */
 export function useChallengeBankQuestions(
   profileId: string | null,
-  limit: number = 20, // Ограничиваем сессию 20 вопросами для Inbox Zero эффекта
-  country?: string
+  limit: number = 20,
+  country?: string,
+  sort: 'recent' | 'hardest' = 'recent'
 ) {
   return useQuery<QuestionWithOptions[]>({
-    queryKey: ["challenge-bank-questions", profileId, limit, country],
+    queryKey: ["challenge-bank-questions", profileId, limit, country, sort],
     queryFn: async () => {
       if (!profileId) return [];
 
       const dbCountry = country === 'russia' ? 'russia' : country === 'spain' ? 'es' : country;
 
-      // 1. Получаем ID вопросов из challenge bank с фильтром по стране (КРИТИЧНО: используем inner join для фильтрации в первом запросе)
       let query = supabase
         .from("user_challenge_questions")
         .select("question_id, questions_new!inner(country)")
@@ -51,8 +51,9 @@ export function useChallengeBankQuestions(
         query = query.eq("questions_new.country", dbCountry);
       }
 
+      const orderCol = sort === 'hardest' ? 'times_wrong' : 'last_wrong_at';
       const { data: challengeRelations, error: relError } = await query
-        .order("last_wrong_at", { ascending: false })
+        .order(orderCol, { ascending: false })
         .limit(limit);
 
       if (relError) throw relError;

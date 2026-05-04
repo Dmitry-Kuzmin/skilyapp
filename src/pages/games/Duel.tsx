@@ -1425,148 +1425,7 @@ export default function Duel() {
         return (
             <Layout>
                 <div className="flex items-center justify-center min-h-screen">
-                    <svg className="w-8 h-8 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </div>
-            </Layout>
-        );
-    }
-
-    // Убрали отдельный экран ошибки - теперь блокируем кнопку в Games.tsx
-
-    if (isInitialLoading || (!dataLoaded && !isTelegramUser) || isLoadingProfile) {
-        return <PageLoader />;
-    }
-
-    // Fullscreen modes - no Layout/Footer
-    // But if hidden, show menu with widget overlay
-    if (mode === 'battle' && duelId && !isBattleHidden) {
-        return (
-            <DuelBattleFullscreen
-                key={duelId} // 🔥 CRITICAL: Force remount on duelId change to reset all state
-                duelId={duelId}
-                onExit={handleBackToMenu}
-                onDuelFinished={handleDuelFinished}
-                onHide={() => {
-                    // When game is hidden, switch to menu mode
-                    // State is already saved via updateActiveDuel/saveActiveDuel in DuelBattleFullscreen
-                    // Force a small delay to ensure state is saved before switching modes
-                    setTimeout(() => {
-                        setIsBattleHidden(true);
-                        setMode('menu');
-                    }, 100);
-                }}
-                onWidgetExpand={handleWidgetExpand}
-            />
-        );
-    }
-
-    // Lobby also fullscreen without footer
-    return (
-        <>
-            <ToastContainer />
-            <Layout>
-                <DuelHelpHandler />
-                {/* Старый виджет убран - используем ActiveDuelWidget из Layout */}
-
-                <div className={cn(
-                    "container mx-auto px-3 sm:px-4 max-w-[1370px]",
-                    mode === 'result' ? "pt-0 pb-6" : "py-4 sm:py-6"
-                )}>
-                    {!isLoadingProfile && !isAuthenticated && !isTelegramUser && (
-                        <Card className="max-w-2xl mx-auto p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-                            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
-                                <LogIn className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                            </div>
-                            <div className="space-y-2">
-                                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                                    Войдите, чтобы играть
-                                </h2>
-                                <p className="text-muted-foreground text-base sm:text-lg">
-                                    Для участия в дуэлях необходимо авторизоваться
-                                </p>
-                            </div>
-                            <Button size="lg" onClick={() => setShowAuthModal(true)} className="px-6 sm:px-8">
-                                <LogIn className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                                Войти
-                            </Button>
-                        </Card>
-                    )}
-
-                    {!isLoadingProfile && (isAuthenticated || isTelegramUser) && mode === 'menu' && (
-                        <div className="max-w-5xl mx-auto space-y-8 sm:space-y-10 animate-fade-in pb-8">
-
-                            {/* 🏆 NEW PREMIUM UNIFIED HERO BLOCK (Stats + Quick Actions) */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                                className="relative overflow-hidden rounded-[40px] border border-border dark:border-white/[0.05] bg-white dark:bg-[#0b0d14] shadow-2xl mb-8"
-                            >
-                                {/* Abstract background elements */}
-                                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -z-10" />
-                                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-indigo-500/5 rounded-full blur-[100px] -z-10" />
-                                <div className="absolute inset-0 opacity-[0.02] bg-[url('/noise.svg')] pointer-events-none" />
-
-                                <div className="p-6 sm:p-10 md:p-12 space-y-10">
-                                    {/* HEADER ROW: Title & Description + Stats */}
-                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-                                        {/* Title & Desc */}
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-4">
-                                                <button
-                                                    onClick={() => {
-                                                        if (duelMode) {
-                                                            console.log('[Duel] 🔙 Back to menu from setup, clearing rematch data');
-                                                            setDuelMode(null);
-                                                            setRematchOpponent(null);
-                                                        } else {
-                                                            navigate('/games');
-                                                        }
-                                                    }}
-                                                    className="w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-2xl bg-muted/50 dark:bg-white/[0.03] border border-border dark:border-white/[0.05] hover:bg-muted/70 dark:hover:bg-white/[0.1] transition-all duration-300 shadow-sm"
-                                                >
-                                                    <ArrowLeft className="w-5 h-5 text-foreground dark:text-slate-300" />
-                                                </button>
-                                                <div className="w-14 h-14 flex-shrink-0 rounded-2xl bg-gradient-to-br from-primary/20 to-indigo-500/20 border border-primary/30 flex items-center justify-center shadow-lg backdrop-blur-xl hidden sm:flex">
-                                                    <Swords className="w-7 h-7 text-primary" />
-                                                </div>
-                                                <div>
-                                                    <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">{t('duelMenu.title')}</h1>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                        <span className="text-xs font-black uppercase tracking-widest text-emerald-500/80">Live Multiplayer</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <p className="text-muted-foreground text-base sm:text-lg max-w-md font-medium leading-relaxed">
-                                                {t('duelMenu.subtitle')}
-                                            </p>
-                                        </div>
-
-                                        {/* Stats Cards (Compact) */}
-                                        <div className="grid grid-cols-3 gap-3 sm:gap-4 lg:min-w-[450px]">
-                                            {[
-                                                { label: t('duelMenu.stats.total'), val: dataLoaded ? duelStats.totalDuels : '—', icon: Hash, color: 'text-slate-400' },
-                                                { label: t('duelMenu.stats.wins'), val: dataLoaded ? duelStats.wins : '—', icon: Trophy, color: 'text-yellow-500' },
-                                                { label: t('duelMenu.stats.coins'), val: userCoins, icon: Coins, color: 'text-amber-500' }
-                                            ].map((stat, i) => (
-                                                <div key={i} className="group relative flex flex-col p-4 rounded-3xl bg-muted/50 dark:bg-white/[0.03] border border-border dark:border-white/[0.05] hover:bg-muted/70 dark:hover:bg-white/[0.06] hover:border-border/80 dark:hover:border-white/[0.1] transition-all duration-300">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <stat.icon size={12} className={stat.color} />
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</span>
-                                                    </div>
-                                                    <div className="text-xl sm:text-2xl font-black text-foreground">
-                                                        {stat.val}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* SELECTION ROW: Big Buttons (only if no mode selected) */}
+                    <svg clas                                    {/* SELECTION ROW: Unified Premium Hub */}
                                     <AnimatePresence mode="wait">
                                         {duelMode === null && !createdCode && (
                                             <motion.div
@@ -1574,34 +1433,74 @@ export default function Duel() {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, scale: 0.95 }}
                                                 transition={{ duration: 0.4 }}
-                                                className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6"
+                                                className="relative p-1 rounded-[32px] bg-slate-100/50 dark:bg-white/[0.02] border border-border dark:border-white/[0.05]"
                                             >
-                                                {/* BUTTON: RANDOM BATTLE */}
-                                                <button
-                                                    onClick={() => handleActionClick(() => {
-                                                        setRematchOpponent(null);
-                                                        setDuelMode('random');
-                                                    })}
-                                                    className="group relative flex flex-col items-center justify-between p-6 sm:p-8 min-h-[220px] rounded-[32px] bg-card dark:bg-[#151921] border border-border dark:border-white/[0.05] hover:border-primary/40 hover:bg-primary/[0.02] transition-all duration-500 overflow-hidden text-center shadow-sm hover:shadow-md"
-                                                >
-                                                    {/* Flare */}
-                                                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                                                    <div className="absolute -top-6 -right-6 text-primary/5 group-hover:text-primary/10 transition-colors duration-500 pointer-events-none">
-                                                        <Search className="w-40 h-40 transform rotate-[15deg] group-hover:scale-110 transition-transform duration-500" strokeWidth={1.5} />
-                                                    </div>
-
-                                                    <div className="relative z-10 space-y-4 text-center">
-                                                        <div className="flex flex-col items-center gap-4">
-                                                            <div className="w-12 h-12 flex-shrink-0 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform duration-300">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                                                    {/* BUTTON: RANDOM BATTLE */}
+                                                    <button
+                                                        onClick={() => handleActionClick(() => {
+                                                            setRematchOpponent(null);
+                                                            setDuelMode('random');
+                                                        })}
+                                                        className="group relative flex flex-col items-start p-8 rounded-[28px] hover:bg-white dark:hover:bg-white/[0.03] transition-all duration-500 text-left overflow-hidden"
+                                                    >
+                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                                        
+                                                        <div className="relative z-10 w-full space-y-6">
+                                                            <div className="w-12 h-12 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform duration-300">
                                                                 <Search className="w-6 h-6 text-white" />
                                                             </div>
-                                                            <div className="space-y-1">
-                                                                <h3 className="text-2xl font-black text-foreground dark:text-white tracking-tight leading-none mb-2">{t('duelMenu.modes.random.title')}</h3>
-                                                                <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[200px] mx-auto">
+                                                            <div className="space-y-2">
+                                                                <h3 className="text-2xl font-black text-foreground tracking-tight">{t('duelMenu.modes.random.title')}</h3>
+                                                                <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[240px]">
                                                                     {t('duelMenu.modes.random.description')}
                                                                 </p>
                                                             </div>
+                                                            <div className="pt-2">
+                                                                <OnlinePlayers
+                                                                    baseCount={onlineCount}
+                                                                    players={onlinePlayers}
+                                                                    currentUserPhoto={currentUserPhoto}
+                                                                    currentUserId={profileId}
+                                                                    className="w-fit"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </button>
+
+                                                    {/* BUTTON: PLAY WITH FRIEND */}
+                                                    <button
+                                                        onClick={() => handleActionClick(() => {
+                                                            setRematchOpponent(null);
+                                                            setDuelMode('friend');
+                                                        })}
+                                                        className="group relative flex flex-col items-start p-8 rounded-[28px] hover:bg-white dark:hover:bg-white/[0.03] transition-all duration-500 text-left overflow-hidden border-t md:border-t-0 md:border-l border-border/50 dark:border-white/[0.05]"
+                                                    >
+                                                        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                                        
+                                                        <div className="relative z-10 w-full space-y-6">
+                                                            <div className="w-12 h-12 rounded-2xl bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform duration-300">
+                                                                <Users className="w-6 h-6 text-white" />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <h3 className="text-2xl font-black text-foreground tracking-tight">{t('duelMenu.modes.friend.title')}</h3>
+                                                                <p className="text-muted-foreground text-sm font-medium leading-relaxed max-w-[240px]">
+                                                                    {t('duelMenu.modes.friend.description')}
+                                                                </p>
+                                                            </div>
+                                                            <div className="pt-2">
+                                                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-muted/50 dark:bg-white/5 border border-border dark:border-white/10 group-hover:border-amber-500/30 group-hover:bg-amber-500/10 transition-all">
+                                                                    <span className="text-[11px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                                                                        {t('duelMenu.modes.friend.button')} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>/div>
                                                         </div>
                                                     </div>
 
