@@ -26,6 +26,7 @@ export type ModalType =
   | 'PADDLE_CHECKOUT'
   | 'TON_PAY'
   | 'PREMIUM'
+  | 'TEST_LIMIT_REACHED'
   | string; // Для кастомных модалок
 
 /**
