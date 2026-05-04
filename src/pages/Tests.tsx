@@ -659,65 +659,72 @@ const Tests = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group bg-white dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-white/5 transition-all duration-300 shadow-lg dark:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-2xl hover:border-blue-500/20 flex flex-col"
+                  className="relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group bg-gradient-to-b from-white to-slate-50 dark:from-[#1A1F2B] dark:to-[#11141D] backdrop-blur-xl border border-slate-200 dark:border-white/5 transition-all duration-500 shadow-lg dark:shadow-2xl hover:-translate-y-1 hover:border-blue-500/30 dark:hover:border-blue-400/20 flex flex-col min-h-[380px]"
                   onClick={handleBannerClick}
                 >
-                  {/* Color glow */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent pointer-events-none rounded-[2.5rem]" />
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 blur-3xl rounded-full translate-x-1/4 -translate-y-1/4 pointer-events-none" />
+                  {/* Subtle glows */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-60" />
+                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-400/5 blur-[60px] rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
 
-                  {/* Floating icon */}
-                  <motion.div
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute bottom-6 right-6 hidden lg:flex w-16 h-16 bg-blue-500/10 dark:bg-blue-500/10 backdrop-blur-md rounded-2xl border border-blue-500/20 items-center justify-center"
-                  >
-                    <Shuffle className="w-8 h-8 text-blue-400" />
-                  </motion.div>
+                  {/* Watermark icon */}
+                  <Shuffle className="absolute -bottom-6 -right-6 w-48 h-48 text-slate-900/[0.02] dark:text-white/[0.02] rotate-12 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-6 pointer-events-none" />
 
-                  <div className="relative z-10 flex flex-col gap-5 flex-1">
-                    {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 w-fit">
-                      <Crown className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-                      <span className="text-xs font-bold text-blue-600 dark:text-blue-300">{localeText('Рекомендуется', 'Recomendado', 'Recommended')}</span>
+                  <div className="relative z-10 flex flex-col h-full">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                        <Crown className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 fill-current" />
+                        <span className="text-xs font-bold text-blue-700 dark:text-blue-300 tracking-wide uppercase">{localeText('Рекомендуется', 'Recomendado', 'Recommended')}</span>
+                      </div>
+                      
+                      <div className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-center transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110">
+                        <Shuffle className="w-6 h-6 text-blue-500" />
+                      </div>
                     </div>
-                    {/* Title */}
-                    <div>
-                      <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter leading-none">
-                        {t('testsPage.randomTest').toUpperCase()}
+
+                    {/* Content */}
+                    <div className="flex-1">
+                      <h2 className="text-3xl sm:text-4xl font-black bg-gradient-to-br from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent tracking-tight mb-3">
+                        {t('testsPage.randomTest')}
                       </h2>
-                      <p className="text-sm text-muted-foreground font-medium mt-2 leading-relaxed">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-[90%]">
                         {t('testsPage.randomTestDesc')}
                       </p>
                     </div>
-                    {/* Count selector */}
-                    <div className="flex gap-2">
-                      {[10, 20, 30].map((count) => (
-                        <motion.button
-                          key={count}
-                          whileTap={{ scale: 0.92 }}
-                          onClick={(e) => { e.stopPropagation(); handleCountSelect(count); }}
-                          className={cn(
-                            "flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border",
-                            randomQuestionCount === count
-                              ? "bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/30"
-                              : "bg-blue-500/5 text-foreground border-blue-500/15 hover:bg-blue-500/10 hover:border-blue-500/30"
-                          )}
-                        >
-                          {count}
-                        </motion.button>
-                      ))}
+
+                    {/* Controls & CTA aligned at bottom */}
+                    <div className="mt-8 space-y-6">
+                      {/* Count selector as segmented control */}
+                      <div className="flex bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-2xl border border-slate-200/50 dark:border-white/5 w-fit backdrop-blur-sm">
+                        {[10, 20, 30].map((count) => (
+                          <motion.button
+                            key={count}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={(e) => { e.stopPropagation(); handleCountSelect(count); }}
+                            className={cn(
+                              "px-6 py-2.5 rounded-xl font-bold text-sm transition-all relative",
+                              randomQuestionCount === count
+                                ? "text-blue-600 dark:text-blue-400 shadow-sm bg-white dark:bg-slate-700/80 border border-slate-200/50 dark:border-white/10"
+                                : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                            )}
+                          >
+                            {count}
+                          </motion.button>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleBannerClick(); }}
+                        className="group/btn relative h-12 px-8 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 active:scale-95 transition-all duration-200 flex items-center justify-between gap-3 overflow-hidden w-full sm:w-fit"
+                      >
+                        <span className="flex items-center gap-2 z-10">
+                          <Play className="w-4 h-4 fill-white" />
+                          <span>{t('testsPage.startButton')}</span>
+                        </span>
+                        <ArrowRight className="w-4 h-4 z-10" />
+                        <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                      </button>
                     </div>
-                    {/* CTA */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleBannerClick(); }}
-                      className="group/btn relative h-12 px-7 rounded-full bg-blue-500 hover:bg-blue-600 text-white font-black text-sm shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-2.5 overflow-hidden w-fit"
-                    >
-                      <Play className="w-4 h-4 fill-white" />
-                      <span>{t('testsPage.startButton')}</span>
-                      <ArrowRight className="w-4 h-4" />
-                      <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                    </button>
                   </div>
                 </motion.div>
 
@@ -726,43 +733,43 @@ const Tests = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.07 }}
-                  className="relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group bg-white dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-white/5 transition-all duration-300 shadow-lg dark:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-2xl hover:border-violet-500/20 flex flex-col"
+                  className="relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group bg-gradient-to-b from-white to-slate-50 dark:from-[#1A1F2B] dark:to-[#11141D] backdrop-blur-xl border border-slate-200 dark:border-white/5 transition-all duration-500 shadow-lg dark:shadow-2xl hover:-translate-y-1 hover:border-indigo-500/30 dark:hover:border-indigo-400/20 flex flex-col min-h-[380px]"
                   onClick={handleSmartTestStart}
                 >
-                  {/* Color glow */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-transparent pointer-events-none rounded-[2.5rem]" />
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/10 blur-3xl rounded-full translate-x-1/4 -translate-y-1/4 pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/8 blur-2xl rounded-full pointer-events-none" />
+                  {/* Subtle glows */}
+                  <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full -translate-x-1/3 -translate-y-1/3 pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-60" />
+                  <div className="absolute bottom-0 right-0 w-48 h-48 bg-cyan-400/5 blur-[60px] rounded-full translate-x-1/3 translate-y-1/3 pointer-events-none" />
 
-                  {/* Floating icon */}
-                  <motion.div
-                    animate={{ y: [0, -6, 0], rotate: [0, 3, 0] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute bottom-6 right-6 hidden lg:flex w-16 h-16 bg-violet-500/10 backdrop-blur-md rounded-2xl border border-violet-500/20 items-center justify-center"
-                  >
-                    <Brain className="w-8 h-8 text-violet-400" />
-                  </motion.div>
+                  {/* Watermark icon */}
+                  <Brain className="absolute -bottom-6 -right-6 w-48 h-48 text-slate-900/[0.02] dark:text-white/[0.02] rotate-12 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-6 pointer-events-none" />
 
-                  <div className="relative z-10 flex flex-col gap-5 flex-1">
-                    {/* Badges */}
-                    <div className="flex items-center gap-2">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-500/10 border border-violet-500/20 w-fit">
-                        <Brain className="w-3.5 h-3.5 text-violet-500 dark:text-violet-300" />
-                        <span className="text-xs font-bold text-violet-600 dark:text-violet-300">{localeText('Умный тест', 'Test inteligente', 'Smart test')}</span>
-                      </div>
-                      {!isPremium && (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                          <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                          <span className="text-xs font-bold text-amber-600 dark:text-amber-300">Premium</span>
+                  <div className="relative z-10 flex flex-col h-full">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-2">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                          <Brain className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                          <span className="text-xs font-bold text-indigo-700 dark:text-indigo-300 tracking-wide uppercase">{localeText('Умный тест', 'Test inteligente', 'Smart test')}</span>
                         </div>
-                      )}
+                        {!isPremium && (
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                            <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                            <span className="text-xs font-bold text-amber-600 dark:text-amber-400 tracking-wide uppercase">Premium</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm flex items-center justify-center transition-transform duration-500 group-hover:-rotate-12 group-hover:scale-110">
+                        <Sparkles className="w-6 h-6 text-indigo-500" />
+                      </div>
                     </div>
-                    {/* Title */}
-                    <div>
-                      <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter leading-none">
+
+                    {/* Content */}
+                    <div className="flex-1">
+                      <h2 className="text-3xl sm:text-4xl font-black bg-gradient-to-br from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent tracking-tight mb-3">
                         {localeText('УМНЫЙ ТЕСТ', 'TEST INTELIGENTE', 'SMART TEST')}
                       </h2>
-                      <p className="text-sm text-muted-foreground font-medium mt-2 leading-relaxed">
+                      <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed max-w-[90%]">
                         {localeText(
                           'ИИ анализирует ошибки и строит тест под твои слабые места.',
                           'La IA analiza errores y construye el test según tus puntos débiles.',
@@ -770,41 +777,48 @@ const Tests = () => {
                         )}
                       </p>
                     </div>
-                    {/* Progress bars */}
-                    <div className="flex flex-col gap-2">
-                      {[
-                        { pct: '40%', w: 40, label: localeText('слабые темы', 'temas débiles', 'weak topics') },
-                        { pct: '30%', w: 30, label: localeText('давно не видел', 'repaso espaciado', 'spaced review') },
-                        { pct: '20%', w: 20, label: localeText('следующий уровень', 'siguiente nivel', 'next level') },
-                      ].map(({ pct, w, label }) => (
-                        <div key={pct} className="flex items-center gap-3">
-                          <span className="text-xs font-black text-muted-foreground w-7">{pct}</span>
-                          <div className="flex-1 h-1.5 bg-violet-500/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-violet-500/50 rounded-full" style={{ width: `${w}%` }} />
+
+                    {/* Progress bars & CTA aligned at bottom */}
+                    <div className="mt-8 space-y-6">
+                      <div className="flex flex-col gap-2.5 bg-slate-50/80 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200/50 dark:border-white/5 backdrop-blur-sm">
+                        {[
+                          { pct: '40%', w: 40, label: localeText('слабые темы', 'temas débiles', 'weak topics'), color: 'bg-indigo-500' },
+                          { pct: '30%', w: 30, label: localeText('давно не видел', 'repaso espaciado', 'spaced review'), color: 'bg-blue-500' },
+                          { pct: '20%', w: 20, label: localeText('следующий уровень', 'siguiente nivel', 'next level'), color: 'bg-cyan-500' },
+                        ].map(({ pct, w, label, color }) => (
+                          <div key={pct} className="flex items-center gap-3">
+                            <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 w-8 tabular-nums">{pct}</span>
+                            <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700/50 rounded-full overflow-hidden">
+                              <motion.div initial={{ width: 0 }} animate={{ width: `${w}%` }} transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }} className={cn("h-full rounded-full", color)} />
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 w-28 text-right uppercase tracking-wider">{label}</span>
                           </div>
-                          <span className="text-xs font-semibold text-muted-foreground w-28 text-right">{label}</span>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleSmartTestStart(); }}
+                        className="group/btn relative h-12 px-8 rounded-2xl font-bold text-sm shadow-lg hover:shadow-indigo-500/30 active:scale-95 transition-all duration-200 flex items-center justify-between gap-3 overflow-hidden w-full sm:w-fit bg-indigo-500 hover:bg-indigo-600 text-white shadow-indigo-500/20"
+                      >
+                        {!isPremium ? (
+                          <>
+                            <span className="flex items-center gap-2 z-10">
+                              <Lock className="w-4 h-4" />
+                              <span>{localeText('Открыть Premium', 'Desbloquear Premium', 'Unlock Premium')}</span>
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="flex items-center gap-2 z-10">
+                              <Zap className="w-4 h-4 fill-white" />
+                              <span>{localeText('Начать', 'Empezar', 'Start')}</span>
+                            </span>
+                            <ArrowRight className="w-4 h-4 z-10" />
+                          </>
+                        )}
+                        <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                      </button>
                     </div>
-                    {/* CTA */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleSmartTestStart(); }}
-                      className="group/btn relative h-12 px-7 rounded-full font-black text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-2.5 overflow-hidden w-fit bg-violet-500 hover:bg-violet-600 text-white shadow-violet-500/30 hover:shadow-violet-500/40"
-                    >
-                      {!isPremium ? (
-                        <>
-                          <Lock className="w-4 h-4" />
-                          <span>{localeText('Открыть Premium', 'Desbloquear Premium', 'Unlock Premium')}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="w-4 h-4 fill-white" />
-                          <span>{localeText('Начать', 'Empezar', 'Start')}</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                      <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                    </button>
                   </div>
                 </motion.div>
               </div>

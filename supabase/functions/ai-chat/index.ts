@@ -267,13 +267,14 @@ Deno.serve(async (req) => {
         } else {
           // Для premium всё равно записываем факт использования для статистики (без блокировки)
           await supabaseClient.rpc('increment_ai_usage', { p_user_id: userId }).catch(() => {});
-        }  
-          // Загружаем слабые темы для персонализации совета
-          try {
-            const { data: weakTopics } = await supabaseClient.rpc('get_weak_topics', {
-              p_profile_id: user.id,
-              p_limit: 5,
-            });
+        }
+
+        // Загружаем слабые темы для персонализации совета
+        try {
+          const { data: weakTopics } = await supabaseClient.rpc('get_weak_topics', {
+            p_profile_id: profile?.id || userId,
+            p_limit: 5,
+          });
             if (weakTopics && weakTopics.length > 0) {
               const topicLines = weakTopics
                 .map((t: { topic_title: string; accuracy: number; attempt_count: number }) =>
