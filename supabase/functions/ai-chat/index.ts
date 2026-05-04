@@ -94,6 +94,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
     }
 
     for (let iteration = 0; iteration < 2; iteration++) {
+      console.log(`[AI Chat] Gemini iteration ${iteration}, contents: ${currentContents.length}`);
       const tools = (supabaseClient && userId) ? [{
         functionDeclarations: [{
           name: "get_user_stats",
