@@ -212,8 +212,9 @@ export const AILimitReachedModal: React.FC<AILimitReachedModalProps> = ({
 
     const handleUpgrade = () => {
         triggerHapticFeedback('light');
-        onClose();
         openModal('PAYWALL', { trigger: 'ai_limit' });
+        // Close after a small delay so the paywall modal opens before this drawer unmounts
+        setTimeout(onClose, 100);
     };
 
     const progress = Math.min((currentCount / limit) * 100, 100);
