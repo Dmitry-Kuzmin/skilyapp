@@ -48,6 +48,7 @@ interface UseTestDataLoaderProps {
     ticketNumber?: number | null;
     questionCount?: number;
     category?: string;
+    challengeSort?: 'recent' | 'hardest';
     redemptionData?: {
         failedIds: string[];
     };
