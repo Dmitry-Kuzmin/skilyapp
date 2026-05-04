@@ -42,7 +42,7 @@ const AnimatedBackground = () => (
         x: [0, 20, 0],
         y: [0, -20, 0],
       }}
-      transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      transition={{ duration: 8, repeat: 999, ease: "easeInOut" }}
       className="absolute -top-24 -left-24 w-96 h-96 bg-violet-600 rounded-full blur-[120px] mix-blend-screen"
     />
     <motion.div
