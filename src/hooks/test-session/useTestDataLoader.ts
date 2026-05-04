@@ -84,6 +84,10 @@ export const useTestDataLoader = ({
 }: UseTestDataLoaderProps): UseTestDataLoaderResult => {
     const isGuestMode = !profileId;
 
+    // Static guest questions — no DB query, shuffle once per mount
+    const guestQuestions = useMemo(() =>
+        isGuestMode ? [...guestQuestionsRaw].sort(() => Math.random() - 0.5) : [],
+    [isGuestMode]);
 
     // Sequential test questions
     const sequentialQuestions = useSequentialTestQuestions(
@@ -168,10 +172,10 @@ export const useTestDataLoader = ({
     );
 
     // Random questions — практика, блиц, экзамен, мастерство, МАРАФОН (раунды из случайных)
-    const isRandomRequired = !isSequentialRequired && (
+    // For guests, questions come from static JSON — never query the DB
+    const isRandomRequired = !isGuestMode && !isSequentialRequired && (
         mode === 'practice' || mode === 'blitz' || mode === 'exam' ||
-        mode === 'mastery' || (mode as string) === 'hardest' || mode === 'marathon' ||
-        (isGuestMode && (mode === 'challenge-bank' || mode === 'favorites'))
+        mode === 'mastery' || (mode as string) === 'hardest' || mode === 'marathon'
     );
     const pddRandomQuestions = usePDDRandomQuestions(
         pddCountry || 'russia',
