@@ -1975,7 +1975,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                         <span className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">
-                          {dp("table.headers.free") || "Gratis"}
+                          {dp("table.columns.free") || "Gratis"}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5">
