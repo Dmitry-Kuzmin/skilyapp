@@ -205,6 +205,9 @@ Deno.serve(async (req) => {
     let supabaseClient: any = null;
     let userId: string | null = null;
 
+    let isPremiumUser = false;
+    let weakTopicsContext: string | null = null;
+
     if (authHeader) {
       supabaseClient = createPooledSupabaseClient();
       const { data: { user } } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''));
@@ -214,10 +217,36 @@ Deno.serve(async (req) => {
         if (usage?.[0]?.limit_reached) {
           return new Response(JSON.stringify({ error: 'daily_limit_reached', message: 'Дневной лимит Skily исчерпан. Активируй Premium!' }), { status: 429, headers: corsHeaders });
         }
+
+        // Загружаем слабые темы для premium пользователей
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('is_premium')
+          .eq('id', user.id)
+          .single();
+        isPremiumUser = profile?.is_premium === true;
+
+        if (isPremiumUser) {
+          try {
+            const { data: weakTopics } = await supabaseClient.rpc('get_weak_topics', {
+              p_profile_id: user.id,
+              p_limit: 5,
+            });
+            if (weakTopics && weakTopics.length > 0) {
+              const topicLines = weakTopics
+                .map((t: { topic_title: string; accuracy: number; attempt_count: number }) =>
+                  `- ${t.topic_title}: ${t.accuracy}% correct (${t.attempt_count} attempts)`)
+                .join('\n');
+              weakTopicsContext = `\n\n[USER WEAK TOPICS - use this to personalize advice]:\n${topicLines}`;
+            }
+          } catch (e) {
+            console.error('[AI Chat] Failed to load weak topics:', e);
+          }
+        }
       }
     }
 
-    const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId);
+    const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId, weakTopicsContext);
     if (gemini) return gemini;
 
     const groq = await tryGroq(messages, country, mode, showComparison, 'llama-3.1-8b-instant', language);
