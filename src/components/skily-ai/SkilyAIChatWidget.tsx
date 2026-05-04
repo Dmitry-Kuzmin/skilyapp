@@ -91,29 +91,48 @@ export const SkilyAIChatWidget = ({
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Ваш браузер не поддерживает голосовой ввод");
+      // Show in input placeholder area — no alert() popup
+      setInput("⚠️ Браузер не поддерживает голосовой ввод");
       return;
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = selectedCountry === 'russia' ? 'ru-RU' : 'es-ES';
+    // Use interface language, not country — user speaks in the language they read in
+    const langMap: Record<string, string> = { ru: 'ru-RU', es: 'es-ES', en: 'en-US' };
+    recognition.lang = langMap[language] ?? (selectedCountry === 'russia' ? 'ru-RU' : 'es-ES');
     recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.interimResults = true; // show partial results so user sees it's working
 
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
+
     recognition.onerror = (event: any) => {
       console.error("Speech recognition error", event.error);
       setIsListening(false);
+      if (event.error === 'not-allowed') {
+        setInput("🎤 Разреши доступ к микрофону в настройках браузера");
+      } else if (event.error === 'no-speech') {
+        // silent — just reset, no need to show anything
+      } else if (event.error === 'network') {
+        setInput("⚠️ Нет сети для распознавания речи");
+      }
     };
 
     recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInput((prev) => prev ? `${prev} ${transcript}` : transcript);
+      let transcript = '';
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setInput(transcript);
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error("Recognition start error", e);
+      setIsListening(false);
+    }
   };
 
   // Показываем приветственное сообщение
