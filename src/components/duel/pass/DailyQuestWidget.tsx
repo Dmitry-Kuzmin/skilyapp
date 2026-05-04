@@ -277,12 +277,23 @@ export function DailyQuestWidget() {
                 <Button
                   onClick={() => handleClaimReward(quest)}
                   disabled={!!claimingId}
-                  className="h-6 px-2.5 rounded-full bg-amber-500 text-black font-black text-[9px] uppercase tracking-wider hover:bg-amber-400 active:scale-95 transition-all shadow-lg shadow-amber-500/20"
+                  className={cn(
+                    "h-7 px-4 rounded-full font-black text-[10px] uppercase tracking-wider transition-all relative overflow-hidden group/claim shadow-xl",
+                    "bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-black border-none",
+                    "hover:scale-105 active:scale-95 hover:shadow-amber-500/40",
+                    claimingId === quest.id ? "opacity-80" : "animate-pulse-subtle"
+                  )}
                 >
+                  {/* Shining Shine Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[100%] group-hover/claim:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+                  
                   {claimingId === quest.id ? (
-                    <Sparkles className="w-3 h-3 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
-                    "CLAIM"
+                    <span className="flex items-center gap-1.5">
+                      CLAIM
+                      <Sparkles className="w-3 h-3 text-amber-900 group-hover/claim:rotate-12 transition-transform" />
+                    </span>
                   )}
                 </Button>
               ) : (

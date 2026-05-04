@@ -474,8 +474,8 @@ export function AIChatWidget() {
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-blue-500" />
+                    <div className="w-8 h-8 rounded-full bg-slate-500/10 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                     </div>
                     <span className="font-bold text-lg tracking-tight">AI Помощник</span>
                 </div>
@@ -485,7 +485,7 @@ export function AIChatWidget() {
                             variant="ghost"
                             size="sm"
                             onClick={toggleTranslation}
-                            className="h-9 px-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                            className="h-9 px-3 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400"
                         >
                             <Languages className="w-4 h-4 mr-2" />
                             <span className="text-xs font-bold">{showTranslation ? 'ES' : 'RU'}</span>
@@ -708,7 +708,7 @@ export function AIChatWidget() {
                             "h-12 w-12 shrink-0 rounded-full shadow-lg transition-all active:scale-90",
                             !input.trim()
                                 ? "bg-muted text-muted-foreground shadow-none opacity-50"
-                                : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20"
+                                : "bg-slate-900 dark:bg-white text-white dark:text-black hover:opacity-90 shadow-slate-500/20"
                         )}
                     >
                         {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}

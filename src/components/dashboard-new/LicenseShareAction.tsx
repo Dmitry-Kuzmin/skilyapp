@@ -338,7 +338,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
                         className={cn(
                             "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500 group/bot relative overflow-hidden active:scale-90",
                             isGenerating ? "opacity-70 pointer-events-none" : "hover:scale-110",
-                            "bg-gradient-to-tr from-green-400/20 via-emerald-500/20 to-teal-400/20 backdrop-blur-md border border-white/20 shadow-xl"
+                            "bg-gradient-to-tr from-slate-200/20 via-slate-400/20 to-slate-200/20 dark:from-white/10 dark:via-white/5 dark:to-white/10 backdrop-blur-md border border-white/20 shadow-xl"
                         )}
                         title={language === 'ru' ? "Отправить в бот" : "Send to bot"}
                     >
@@ -349,7 +349,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
                         ) : (
                             <MessageSquare size={18} className={cn(
                                 "transition-all group-hover/bot:scale-110",
-                                isDarkTheme ? "text-zinc-300" : "text-emerald-600"
+                                isDarkTheme ? "text-zinc-300" : "text-slate-900"
                             )} />
                         )}
                     </button>
@@ -361,7 +361,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
                     className={cn(
                         "w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-500 group/share relative overflow-hidden active:scale-90",
                         isGenerating ? "opacity-70 pointer-events-none" : "hover:scale-110",
-                        "bg-gradient-to-tr from-cyan-400/20 via-fuchsia-500/20 to-yellow-400/20 backdrop-blur-md border border-white/20 shadow-xl"
+                        "bg-gradient-to-tr from-slate-200/20 via-slate-400/20 to-slate-200/20 dark:from-white/10 dark:via-white/5 dark:to-white/10 backdrop-blur-md border border-white/20 shadow-xl"
                     )}
                     title={language === 'ru' ? "Поделиться" : "Compartir"}
                 >
@@ -372,7 +372,7 @@ export const LicenseShareAction: React.FC<LicenseShareActionProps> = ({
                     ) : (
                         <Share size={18} className={cn(
                             "transition-all group-hover/share:scale-110",
-                            isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-indigo-500"
+                            isDarkTheme ? "text-zinc-300 drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]" : "text-slate-900"
                         )} />
                     )}
                 </button>

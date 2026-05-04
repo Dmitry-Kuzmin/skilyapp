@@ -204,11 +204,17 @@ export const SkilyChat = React.memo(() => {
         <div className="relative z-10 w-full mt-3">
           <button
             onClick={(e) => { e.stopPropagation(); handleExpand(); }}
-            className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+            className={cn(
+              "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2 border shadow-sm group/btn",
+              isDarkTheme 
+                ? "bg-slate-700 hover:bg-slate-600 text-white border-slate-600" 
+                : "bg-white hover:bg-slate-50 text-slate-900 border-slate-200"
+            )}
           >
-            <span>{t('skilyChat.title') || 'AI Assistant'}</span>
-            <ArrowRight size={16} />
+            <span className="group-hover/btn:translate-x-[-2px] transition-transform">{t('skilyChat.title') || 'AI Assistant'}</span>
+            <ArrowRight size={16} className="group-hover/btn:translate-x-[2px] transition-transform" />
           </button>
+
         </div>
       </div>
 

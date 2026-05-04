@@ -84,7 +84,7 @@ const TopicsMode = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-background pb-24">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 md:pt-12 space-y-6">
+        <div className="max-w-[1370px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 space-y-6">
 
           {/* Header — same grid as cards so edges align perfectly */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
