@@ -592,11 +592,14 @@ const Flashcard = ({ question, country, onRemove, labels }: {
                 >
                     {/* Image with emerald success badge overlay */}
                     <div className="relative h-32 shrink-0 overflow-hidden bg-muted">
-                        <QuestionImage
-                            imageUrl={question.image_url}
-                            country={isRus ? 'russia' : 'spain'}
-                            className="w-full h-full object-cover"
-                        />
+                        {question.image_url && (
+                            <img
+                                src={getImageUrl(question.image_url) || ''}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover"
+                                loading="lazy"
+                            />
+                        )}
                         {/* Top gradient for badge readability */}
                         <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent" />
                         {/* Floating emerald success badge */}
