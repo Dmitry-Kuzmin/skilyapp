@@ -429,7 +429,7 @@ const Tests = () => {
             `${challengeStats.favorites} preguntas guardadas`,
             `${challengeStats.favorites} saved questions`
           ),
-        icon: BrainCircuit,
+        icon: Archive,
         color: "secondary",
         premium: false,
         difficulty: localeText("Личная", "Personal", "Personal"),
