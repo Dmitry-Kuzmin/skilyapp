@@ -1,11 +1,13 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Flame, Clock, BookOpen, Play, ChevronDown, Check } from "lucide-react";
+import { Flame, Clock, BookOpen, Play, ChevronDown, Check, Crown, Lock } from "lucide-react";
 import Layout from "@/components/Layout";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { usePremium } from "@/hooks/usePremium";
+import { useModalStore } from "@/store/modalStore";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { getImageUrl } from "@/utils/imageUtils";
@@ -26,7 +28,9 @@ type ErrorQuestion = {
 
 type Preset = "hardest" | "recent" | "topic";
 const STREAK_TO_MASTER = 2;
-const COUNT_OPTIONS = [10, 20, 50] as const;
+const FREE_SESSION_MAX = 10;
+const COUNT_OPTIONS_FREE = [10] as const;
+const COUNT_OPTIONS_PREMIUM = [10, 20, 50] as const;
 
 const heatLevel = (n: number) => (n >= 5 ? 3 : n >= 3 ? 2 : 1);
 
