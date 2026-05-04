@@ -16,6 +16,7 @@ import { useDGTExamQuestions } from "@/hooks/useDGTExamQuestions";
 import { usePDDTicketQuestions, usePDDRandomQuestions, usePDDSequentialQuestions } from "@/hooks/usePDDQuestions";
 import { usePDDTopicQuestions } from "@/hooks/usePDDTopics";
 import { useQuestionsByTopicId } from "@/hooks/useQuestionsByTopicId"; // Загрузка по UUID темы
+import { useSmartTestQuestions } from "@/hooks/useSmartTestQuestions";
 import { CountryCode } from "@/types/pdd";
 
 export type TestMode =
