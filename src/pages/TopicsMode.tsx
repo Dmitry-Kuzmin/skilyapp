@@ -246,8 +246,9 @@ const TopicsMode = () => {
           topicId={selectedTopic.id}
           topicName={selectedTopic.name}
           topicCount={selectedTopic.count}
-          allQuestionIds={topicQuestions.map(q => q.id)}
+          freeQuestionIds={topicQuestions.map(q => q.id)}
           country={country}
+          isPremium={isPremium}
         />
       )}
     </Layout>
