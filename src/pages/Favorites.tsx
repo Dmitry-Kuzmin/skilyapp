@@ -395,10 +395,10 @@ const Favorites = () => {
                                         </div>
                                         <div className="text-left">
                                             <div className="text-[10px] font-bold opacity-75 uppercase tracking-widest leading-none mb-0.5">
-                                                {t("language") === "ru" ? `${filteredQuestions.length - FREE_CARD_LIMIT} скрыто` : `${filteredQuestions.length - FREE_CARD_LIMIT} ocultas`}
+                                                {language === "ru" ? `${filteredQuestions.length - FREE_CARD_LIMIT} скрыто` : language === "es" ? `${filteredQuestions.length - FREE_CARD_LIMIT} ocultas` : `${filteredQuestions.length - FREE_CARD_LIMIT} hidden`}
                                             </div>
                                             <div className="text-sm leading-tight">
-                                                {t("language") === "ru" ? "Открыть весь банк" : "Desbloquear banco completo"}
+                                                {language === "ru" ? "Открыть весь банк" : language === "es" ? "Desbloquear banco completo" : "Unlock full bank"}
                                             </div>
                                         </div>
                                         <Lock className="w-4 h-4 opacity-60 shrink-0" />
