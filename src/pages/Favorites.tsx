@@ -587,31 +587,32 @@ const Flashcard = ({ question, country, onRemove, labels }: {
                         WebkitBackfaceVisibility: 'hidden',
                     }}
                 >
-                    {/* Image context — clean, no overlays bleeding into next block */}
-                    <div className="relative h-28 shrink-0 overflow-hidden bg-muted">
+                    {/* Image with emerald success badge overlay */}
+                    <div className="relative h-32 shrink-0 overflow-hidden bg-muted">
                         <QuestionImage
                             imageUrl={question.image_url}
                             country={isRus ? 'russia' : 'spain'}
                             className="w-full h-full object-cover"
                         />
-                    </div>
-
-                    {/* Hero answer block — solid card background, emerald only as accent */}
-                    <div className="relative shrink-0 px-6 pt-5 pb-4 bg-card border-b border-border/50">
-                        {/* Left emerald accent bar */}
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
-                        <div className="flex items-center gap-1.5 mb-2.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                            <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                        {/* Top gradient for badge readability */}
+                        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent" />
+                        {/* Floating emerald success badge */}
+                        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-widest">
                                 {labels.correctAnswer}
                             </span>
                         </div>
+                    </div>
+
+                    {/* Answer */}
+                    <div className="shrink-0 px-6 pt-5 pb-4 border-b border-border/50">
                         <p className="text-base md:text-[17px] font-black text-foreground leading-snug">
                             {answer || labels.answerNotFound}
                         </p>
                     </div>
 
-                    {/* Explanation — main content area */}
+                    {/* Explanation */}
                     {explanation ? (
                         <div className="flex-1 flex flex-col overflow-hidden px-6 py-4 min-h-0">
                             <div className="flex items-center gap-1.5 mb-2.5 shrink-0">
