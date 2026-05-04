@@ -91,6 +91,8 @@ const Favorites = () => {
     const { profileId, isAuthenticated } = useUserContext();
     const { selectedCountry } = usePDDContext();
     const { t } = useLanguage();
+    const { isPremium } = usePremium();
+    const openModal = useModalStore(s => s.openModal);
     const [questions, setQuestions] = useState<FavoriteQuestion[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
