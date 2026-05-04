@@ -57,6 +57,110 @@ export const AIWidget = (props: AIWidgetProps) => {
   return <AIWidgetContent {...props} />;
 };
 
+// ─── Personalized greeting builder ────────────────────────────────────────────
+
+interface GreetingContext {
+  interfaceLanguage: 'ru' | 'es' | 'en';
+  country: 'spain' | 'russia';
+  questionIndex?: number;
+  totalQuestions?: number;
+  topic?: string;
+  seasonName: string | null;
+  seasonPoints: number | null;
+  errorsCount: number | null;
+  totalAnswered: number | null;
+}
+
+function buildPersonalizedGreeting(ctx: GreetingContext): string {
+  const { interfaceLanguage: lang, country, questionIndex, totalQuestions, topic,
+    seasonName, seasonPoints, errorsCount, totalAnswered } = ctx;
+
+  const isRu = lang === 'ru';
+  const isEs = lang === 'es';
+
+  // ── Question position line ──────────────────────────────────────────────────
+  let questionLine = '';
+  if (questionIndex != null && totalQuestions != null) {
+    if (questionIndex === 0) {
+      questionLine = isRu
+        ? `Вижу, ты только начал — вопрос 1 из ${totalQuestions}.`
+        : isEs
+          ? `Veo que acabas de empezar — pregunta 1 de ${totalQuestions}.`
+          : `I see you're just starting — question 1 of ${totalQuestions}.`;
+    } else if (questionIndex < Math.floor(totalQuestions / 2)) {
+      questionLine = isRu
+        ? `Уже на вопросе ${questionIndex + 1} из ${totalQuestions}, хороший темп! 🔥`
+        : isEs
+          ? `Ya vas por la pregunta ${questionIndex + 1} de ${totalQuestions}, ¡buen ritmo! 🔥`
+          : `You're on question ${questionIndex + 1} of ${totalQuestions}, good pace! 🔥`;
+    } else {
+      questionLine = isRu
+        ? `Вопрос ${questionIndex + 1} из ${totalQuestions} — финишная прямая! 💪`
+        : isEs
+          ? `Pregunta ${questionIndex + 1} de ${totalQuestions} — ¡recta final! 💪`
+          : `Question ${questionIndex + 1} of ${totalQuestions} — final stretch! 💪`;
+    }
+  }
+
+  // ── Topic line ──────────────────────────────────────────────────────────────
+  const topicLine = topic
+    ? (isRu ? `Тема: «${topic}» — спроси если что-то непонятно.`
+      : isEs ? `Tema: «${topic}» — pregúntame si algo no queda claro.`
+        : `Topic: "${topic}" — ask me if anything's unclear.`)
+    : '';
+
+  // ── Season line (shown ~50% of the time to avoid repetition) ───────────────
+  let seasonLine = '';
+  // Use questionIndex as deterministic seed so same question = same greeting
+  const seed = (questionIndex ?? 0) + (totalAnswered ?? 0);
+  const showSeasonHint = (seed % 2 === 0) && !!seasonName;
+
+  if (showSeasonHint && seasonName) {
+    if (seasonPoints === 0 || seasonPoints === null) {
+      seasonLine = isRu
+        ? `Кстати, идёт сезон «${seasonName}» — зарабатывай SP в дуэлях и открывай награды! ⚔️`
+        : isEs
+          ? `Por cierto, la temporada «${seasonName}» está activa — ¡gana SP en duelos y desbloquea premios! ⚔️`
+          : `By the way, season "${seasonName}" is live — earn SP in duels and unlock rewards! ⚔️`;
+    } else {
+      seasonLine = isRu
+        ? `Сезон «${seasonName}»: у тебя уже ${seasonPoints} SP — продолжай в том же духе! 🏆`
+        : isEs
+          ? `Temporada «${seasonName}»: ya tienes ${seasonPoints} SP — ¡sigue así! 🏆`
+          : `Season "${seasonName}": you already have ${seasonPoints} SP — keep it up! 🏆`;
+    }
+  }
+
+  // ── Error bank nudge (only if >10 errors and shown on odd seed) ─────────────
+  let errorNudge = '';
+  if (!showSeasonHint && errorsCount != null && errorsCount > 10 && seed % 3 === 1) {
+    errorNudge = isRu
+      ? `У тебя ${errorsCount} ошибок в банке — разбери их с моей помощью после теста.`
+      : isEs
+        ? `Tienes ${errorsCount} errores en el banco — repásalos conmigo después del test.`
+        : `You have ${errorsCount} errors in the bank — review them with me after the test.`;
+  }
+
+  // ── Base greeting ───────────────────────────────────────────────────────────
+  const base = isRu
+    ? (country === 'russia'
+      ? 'Привет! Я Скили — твой эксперт по ПДД РФ 🚗'
+      : 'Привет! Я Скили — твой эксперт по правилам DGT 🚗')
+    : isEs
+      ? '¡Hola! Soy Skily, tu experto en el reglamento DGT 🚗'
+      : 'Hi! I\'m Skily — your DGT driving rules expert 🚗';
+
+  const closing = isRu
+    ? 'Задавай вопросы — объясню логику, а не просто дам ответ.'
+    : isEs
+      ? 'Pregúntame lo que necesites — te explico la lógica, no solo la respuesta.'
+      : 'Ask me anything — I\'ll explain the logic, not just the answer.';
+
+  return [base, questionLine, topicLine, seasonLine || errorNudge, closing]
+    .filter(Boolean)
+    .join('\n\n');
+}
+
 // Внутренний компонент: все хуки вызываются безусловно (правила React)
 const AIWidgetContent = ({
   id,
