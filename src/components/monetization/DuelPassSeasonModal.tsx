@@ -1902,7 +1902,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
         </div>
 
         {/* ── 3. Reward Track ──────────────────────────────────────── */}
-        <div className="flex flex-col gap-6 px-4 sm:px-0 pb-4">
+        <div className="flex flex-col gap-6 px-4 sm:px-6 pb-4 overflow-hidden">
 
 
 
