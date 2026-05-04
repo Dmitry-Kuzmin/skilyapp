@@ -231,7 +231,7 @@ Deno.serve(async (req) => {
         const { data: profile } = await supabaseClient
           .from('profiles')
           .select('is_premium, premium_until, trial_until, subscription_type, subscription_status, premium_forever_purchased_at')
-          .eq('id', userId)
+          .eq('user_id', userId)
           .maybeSingle();
         
         const now = new Date();
