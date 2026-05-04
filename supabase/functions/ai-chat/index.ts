@@ -213,8 +213,8 @@ Deno.serve(async (req) => {
     let isPremiumUser = false;
     let weakTopicsContext: string | null = null;
 
-    if (authHeader) {
-      supabaseClient = createPooledSupabaseClient();
+    supabaseClient = createPooledSupabaseClient();
+    {
       const { data: { user } } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''));
       if (user && mode !== 'debrief') {
         userId = user.id;
