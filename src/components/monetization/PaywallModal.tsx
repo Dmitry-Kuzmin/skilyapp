@@ -508,6 +508,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                 </div>
               </motion.div>
 
+              <TrialCTA onTrialStarted={() => onOpenChange(false)} />
+
               <motion.div
                 variants={containerVariants}
                 initial="hidden"
