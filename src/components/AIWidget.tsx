@@ -509,9 +509,14 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
     ];
     setMessages([...newMessages, { role: "assistant", content: "" }]);
 
+    // Strip leading assistant messages (e.g. greeting) — Gemini requires first turn to be 'user'
+    const apiMessages = newMessages[0]?.role === 'assistant'
+      ? newMessages.slice(1)
+      : newMessages;
+
     await sendRequest(
       {
-        messages: [{ role: 'system', content: context }, ...newMessages],
+        messages: [{ role: 'system', content: context }, ...apiMessages],
         country,
         language: interfaceLanguage,
       },
