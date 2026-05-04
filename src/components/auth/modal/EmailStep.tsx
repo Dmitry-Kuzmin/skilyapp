@@ -68,7 +68,7 @@ export function EmailStep({
                             variant="secondary"
                             disabled={telegramLoading}
                             onClick={onTelegramLogin}
-                            className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
+                            className="bg-muted/50 dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted dark:hover:bg-zinc-800 transition-all font-bold text-foreground"
                         >
                             {telegramLoading ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -89,7 +89,7 @@ export function EmailStep({
 
                         <Button
                             variant="secondary"
-                            className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
+                            className="bg-muted/50 dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted dark:hover:bg-zinc-800 transition-all font-bold text-foreground"
                             onClick={onGoogleLogin}
                         >
                             <GoogleIcon />
@@ -100,7 +100,7 @@ export function EmailStep({
                             variant="secondary"
                             disabled={telegramLoading}
                             onClick={onTelegramLogin}
-                            className="bg-muted dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted/80 dark:hover:bg-zinc-800 transition-all font-bold"
+                            className="bg-muted/50 dark:bg-zinc-900 h-11 border-border dark:border-zinc-800 hover:bg-muted dark:hover:bg-zinc-800 transition-all font-bold text-foreground"
                         >
                             {telegramLoading ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -130,7 +130,7 @@ export function EmailStep({
                     onChange={(e) => setEmail(e.target.value)}
                     error={emailError ?? undefined}
                     className={cn(
-                        'bg-muted/50 border-border h-14 text-lg transition-all duration-300',
+                        'bg-muted/30 dark:bg-muted/50 border-border h-14 text-lg transition-all duration-300',
                         isValidEmail ? 'border-blue-500/50 ring-2 ring-blue-500/10' : '',
                         isEmailShaking ? 'animate-shake border-red-500/50' : '',
                     )}
