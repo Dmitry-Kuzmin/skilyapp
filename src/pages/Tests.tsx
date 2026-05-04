@@ -659,33 +659,34 @@ const Tests = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative w-full overflow-hidden rounded-3xl shadow-xl group cursor-pointer border border-white/10 premium-mesh-primary flex flex-col"
+                  className="relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group bg-white dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-white/5 transition-all duration-300 shadow-lg dark:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-2xl hover:border-blue-500/20 flex flex-col"
                   onClick={handleBannerClick}
-                  style={{ minHeight: 280 }}
                 >
-                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }} />
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+                  {/* Color glow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent pointer-events-none rounded-[2.5rem]" />
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 blur-3xl rounded-full translate-x-1/4 -translate-y-1/4 pointer-events-none" />
+
                   {/* Floating icon */}
                   <motion.div
-                    animate={{ y: [0, -8, 0] }}
+                    animate={{ y: [0, -6, 0] }}
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute bottom-5 right-5 hidden lg:flex w-16 h-16 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 items-center justify-center shadow-lg"
+                    className="absolute bottom-6 right-6 hidden lg:flex w-16 h-16 bg-blue-500/10 dark:bg-blue-500/10 backdrop-blur-md rounded-2xl border border-blue-500/20 items-center justify-center"
                   >
-                    <Shuffle className="w-8 h-8 text-white/70" />
+                    <Shuffle className="w-8 h-8 text-blue-400" />
                   </motion.div>
 
-                  <div className="relative z-10 p-7 flex flex-col gap-5 flex-1">
+                  <div className="relative z-10 flex flex-col gap-5 flex-1">
                     {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 w-fit">
-                      <Crown className="w-3.5 h-3.5 text-yellow-300 fill-yellow-300" />
-                      <span className="text-xs font-bold text-white">{localeText('Рекомендуется', 'Recomendado', 'Recommended')}</span>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-500/10 border border-blue-500/20 w-fit">
+                      <Crown className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                      <span className="text-xs font-bold text-blue-600 dark:text-blue-300">{localeText('Рекомендуется', 'Recomendado', 'Recommended')}</span>
                     </div>
                     {/* Title */}
                     <div>
-                      <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tighter leading-none drop-shadow-xl">
+                      <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter leading-none">
                         {t('testsPage.randomTest').toUpperCase()}
                       </h2>
-                      <p className="text-sm text-white/75 font-medium mt-2 leading-relaxed">
+                      <p className="text-sm text-muted-foreground font-medium mt-2 leading-relaxed">
                         {t('testsPage.randomTestDesc')}
                       </p>
                     </div>
@@ -697,25 +698,25 @@ const Tests = () => {
                           whileTap={{ scale: 0.92 }}
                           onClick={(e) => { e.stopPropagation(); handleCountSelect(count); }}
                           className={cn(
-                            "flex-1 py-2.5 rounded-xl font-bold text-sm transition-all",
+                            "flex-1 py-2.5 rounded-xl font-bold text-sm transition-all border",
                             randomQuestionCount === count
-                              ? "bg-white text-blue-600 shadow-lg"
-                              : "bg-white/10 text-white hover:bg-white/20 border border-white/15"
+                              ? "bg-blue-500 text-white border-blue-500 shadow-lg shadow-blue-500/30"
+                              : "bg-blue-500/5 text-foreground border-blue-500/15 hover:bg-blue-500/10 hover:border-blue-500/30"
                           )}
                         >
                           {count}
                         </motion.button>
                       ))}
                     </div>
-                    {/* CTA — always visible */}
+                    {/* CTA */}
                     <button
                       onClick={(e) => { e.stopPropagation(); handleBannerClick(); }}
-                      className="group relative h-12 px-7 rounded-full bg-white text-blue-600 font-black text-sm shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)] hover:scale-[1.03] active:scale-95 transition-all duration-200 flex items-center gap-2.5 overflow-hidden w-fit"
+                      className="group/btn relative h-12 px-7 rounded-full bg-blue-500 hover:bg-blue-600 text-white font-black text-sm shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-2.5 overflow-hidden w-fit"
                     >
-                      <Play className="w-4 h-4 fill-blue-600" />
+                      <Play className="w-4 h-4 fill-white" />
                       <span>{t('testsPage.startButton')}</span>
                       <ArrowRight className="w-4 h-4" />
-                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-indigo-100/40 to-transparent" />
+                      <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                     </button>
                   </div>
                 </motion.div>
@@ -725,42 +726,43 @@ const Tests = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.07 }}
-                  className="relative w-full overflow-hidden rounded-3xl shadow-xl group cursor-pointer border border-white/10 premium-mesh-violet flex flex-col"
+                  className="relative overflow-hidden rounded-[2.5rem] p-6 md:p-8 cursor-pointer group bg-white dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-white/5 transition-all duration-300 shadow-lg dark:shadow-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-2xl hover:border-violet-500/20 flex flex-col"
                   onClick={handleSmartTestStart}
-                  style={{ minHeight: 280 }}
                 >
-                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }} />
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-violet-500/20 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
-                  <div className="absolute bottom-0 left-0 w-28 h-28 bg-purple-600/20 blur-2xl rounded-full -translate-x-1/4 translate-y-1/4" />
+                  {/* Color glow */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-transparent pointer-events-none rounded-[2.5rem]" />
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/10 blur-3xl rounded-full translate-x-1/4 -translate-y-1/4 pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/8 blur-2xl rounded-full pointer-events-none" />
+
                   {/* Floating icon */}
                   <motion.div
-                    animate={{ y: [0, -8, 0], rotate: [0, 4, 0] }}
+                    animate={{ y: [0, -6, 0], rotate: [0, 3, 0] }}
                     transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                    className="absolute bottom-5 right-5 hidden lg:flex w-16 h-16 bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 items-center justify-center shadow-lg"
+                    className="absolute bottom-6 right-6 hidden lg:flex w-16 h-16 bg-violet-500/10 backdrop-blur-md rounded-2xl border border-violet-500/20 items-center justify-center"
                   >
-                    <Brain className="w-8 h-8 text-white/70" />
+                    <Brain className="w-8 h-8 text-violet-400" />
                   </motion.div>
 
-                  <div className="relative z-10 p-7 flex flex-col gap-5 flex-1">
+                  <div className="relative z-10 flex flex-col gap-5 flex-1">
                     {/* Badges */}
                     <div className="flex items-center gap-2">
-                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 w-fit">
-                        <Brain className="w-3.5 h-3.5 text-violet-200" />
-                        <span className="text-xs font-bold text-white">{localeText('Умный тест', 'Test inteligente', 'Smart test')}</span>
+                      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-violet-500/10 border border-violet-500/20 w-fit">
+                        <Brain className="w-3.5 h-3.5 text-violet-500 dark:text-violet-300" />
+                        <span className="text-xs font-bold text-violet-600 dark:text-violet-300">{localeText('Умный тест', 'Test inteligente', 'Smart test')}</span>
                       </div>
                       {!isPremium && (
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400/20 border border-amber-400/30">
-                          <Crown className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
-                          <span className="text-xs font-bold text-amber-200">Premium</span>
+                        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                          <Crown className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                          <span className="text-xs font-bold text-amber-600 dark:text-amber-300">Premium</span>
                         </div>
                       )}
                     </div>
                     {/* Title */}
                     <div>
-                      <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tighter leading-none drop-shadow-xl">
+                      <h2 className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter leading-none">
                         {localeText('УМНЫЙ ТЕСТ', 'TEST INTELIGENTE', 'SMART TEST')}
                       </h2>
-                      <p className="text-sm text-white/75 font-medium mt-2 leading-relaxed">
+                      <p className="text-sm text-muted-foreground font-medium mt-2 leading-relaxed">
                         {localeText(
                           'ИИ анализирует ошибки и строит тест под твои слабые места.',
                           'La IA analiza errores y construye el test según tus puntos débiles.',
@@ -776,18 +778,18 @@ const Tests = () => {
                         { pct: '20%', w: 20, label: localeText('следующий уровень', 'siguiente nivel', 'next level') },
                       ].map(({ pct, w, label }) => (
                         <div key={pct} className="flex items-center gap-3">
-                          <span className="text-xs font-black text-white/50 w-7">{pct}</span>
-                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                            <div className="h-full bg-violet-300/70 rounded-full" style={{ width: `${w}%` }} />
+                          <span className="text-xs font-black text-muted-foreground w-7">{pct}</span>
+                          <div className="flex-1 h-1.5 bg-violet-500/10 rounded-full overflow-hidden">
+                            <div className="h-full bg-violet-500/50 rounded-full" style={{ width: `${w}%` }} />
                           </div>
-                          <span className="text-xs font-semibold text-white/60 w-28 text-right">{label}</span>
+                          <span className="text-xs font-semibold text-muted-foreground w-28 text-right">{label}</span>
                         </div>
                       ))}
                     </div>
                     {/* CTA */}
                     <button
                       onClick={(e) => { e.stopPropagation(); handleSmartTestStart(); }}
-                      className="group relative h-12 px-7 rounded-full bg-white text-violet-700 font-black text-sm shadow-[0_0_15px_-3px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.5)] hover:scale-[1.03] active:scale-95 transition-all duration-200 flex items-center gap-2.5 overflow-hidden w-fit"
+                      className="group/btn relative h-12 px-7 rounded-full font-black text-sm shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center gap-2.5 overflow-hidden w-fit bg-violet-500 hover:bg-violet-600 text-white shadow-violet-500/30 hover:shadow-violet-500/40"
                     >
                       {!isPremium ? (
                         <>
@@ -796,12 +798,12 @@ const Tests = () => {
                         </>
                       ) : (
                         <>
-                          <Zap className="w-4 h-4 fill-violet-700" />
+                          <Zap className="w-4 h-4 fill-white" />
                           <span>{localeText('Начать', 'Empezar', 'Start')}</span>
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}
-                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-violet-100/30 to-transparent" />
+                      <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                     </button>
                   </div>
                 </motion.div>
