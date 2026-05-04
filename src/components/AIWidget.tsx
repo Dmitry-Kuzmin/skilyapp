@@ -393,13 +393,19 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      if (!session?.access_token) {
+        // Guest — remove empty assistant message and show paywall
+        setMessages(prev => prev.slice(0, -1));
+        setIsLoading(false);
+        openModal('PAYWALL', { trigger: 'ai_guest' });
+        return;
+      }
 
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           messages: [
@@ -415,13 +421,15 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
       if (response.status === 429) {
         const errorData = await response.json();
         if (errorData.error === 'daily_limit_reached') {
-          triggerHapticFeedback('warning');
           setLimitData({
-            currentCount: errorData.current_count || 5,
-            limit: errorData.limit || 5,
+            currentCount: errorData.current_count || 10,
+            limit: errorData.limit || 10,
             message: errorData.message || ''
           });
           setLimitModalOpen(true);
+          // Удаляем пустое сообщение ассистента
+          setMessages(prev => prev.slice(0, -1));
+          setIsLoading(false);
           return;
         }
       }
@@ -558,28 +566,15 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
             {isExpanded ? <Minimize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Maximize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
           </Button>
           <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
-            <div className="w-9 h-9 xl:w-10 xl:h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
-              <Bot className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="w-8 h-8 xl:w-10 xl:h-10 flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-105">
+              <SkilyAICharacter size="sm" mood="happy" className="scale-75" />
             </div>
-            <div className="flex flex-col justify-center min-w-0">
-              <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate leading-tight">
-                {interfaceLanguage === 'ru' ? 'Skily AI' : 'Skily AI'}
+            <div className="min-w-0">
+              <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate">
+                {interfaceLanguage === 'ru' ? 'Привет! Я Скили 🚗💡' :
+                  interfaceLanguage === 'en' ? "Hello! I'm Skily 💡" :
+                    "¡Hola! Soy Skily 💡"}
               </h3>
-              {isPremium ? (
-                <div className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider mt-0.5">
-                  <Crown className="w-2.5 h-2.5 fill-current" />
-                  <span>Premium Ilimitado</span>
-                </div>
-              ) : aiUsage !== null ? (
-                <span className={cn(
-                  "text-[10px] font-bold mt-0.5 transition-colors",
-                  aiRemaining <= 1 ? "text-red-500 animate-pulse" : "text-slate-500 dark:text-slate-400"
-                )}>
-                  {aiRemaining} / {aiLimit} {interfaceLanguage === 'ru' ? 'запросов' : 'mensajes'}
-                </span>
-              ) : (
-                <p className="text-[10px] text-muted-foreground mt-0.5">AI Instructor</p>
-              )}
             </div>
           </div>
         </div>
@@ -801,6 +796,37 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
 
         {/* Input Area - стиль Officer Frank */}
         <div className="p-3 xl:p-4 border-t shrink-0 bg-background dark:bg-slate-900/60 dark:border-white/5">
+          {/* Индикатор сообщений */}
+          <div className="flex justify-center mb-3">
+            {isPremium ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-400/20 via-orange-500/10 to-amber-400/20 border border-amber-500/30 text-[11px] font-black text-amber-600 dark:text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.05)]"
+              >
+                <Crown className="w-3 h-3 fill-current animate-pulse" />
+                <span className="uppercase tracking-wider">{interfaceLanguage === 'ru' ? 'Безлимит Premium' : 'Premium Ilimitado'}</span>
+              </motion.div>
+            ) : aiUsage !== null ? (
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold transition-all border shadow-sm",
+                aiRemaining <= 1
+                  ? "bg-red-500/10 border-red-500/20 text-red-500 animate-pulse"
+                  : aiRemaining <= 2
+                    ? "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400"
+                    : "bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
+              )}>
+                <Zap className={cn("w-3 h-3", aiRemaining <= 1 ? "fill-current" : "")} />
+                <span>
+                  {aiRemaining === 0
+                    ? (interfaceLanguage === 'ru' ? 'Лимит исчерпан' : 'Límite agotado')
+                    : `${aiRemaining} / ${aiLimit} ${interfaceLanguage === 'ru' ? 'сообщений' : 'mensajes'}`}
+                </span>
+              </div>
+            ) : (
+              <div className="h-6" /> // Placeholder
+            )}
+          </div>
           <form onSubmit={handleSubmit} className="relative">
             <input
               value={input}

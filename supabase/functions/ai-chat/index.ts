@@ -198,41 +198,29 @@ Deno.serve(async (req) => {
   const rateLimit = await checkRateLimit({ identifier: clientIP, limit: 30, windowMs: 60000 });
   if (!rateLimit.allowed) return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: corsHeaders });
 
-  // Guests are not allowed to use AI — require a valid user JWT (not just the anon key)
-  const authHeader = req.headers.get('Authorization');
-  if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'auth_required' }), { status: 401, headers: corsHeaders });
-  }
-  {
-    const check = createPooledSupabaseClient();
-    const { data: { user: authUser } } = await check.auth.getUser(authHeader.replace('Bearer ', ''));
-    if (!authUser) {
-      return new Response(JSON.stringify({ error: 'auth_required' }), { status: 401, headers: corsHeaders });
-    }
-  }
-
   try {
     const body: ChatRequest = await req.json();
     const { messages, country = 'spain', mode = 'chat', showComparison = false, language = 'es' } = body;
+
+    const authHeader = req.headers.get('Authorization');
     let supabaseClient: any = null;
     let userId: string | null = null;
 
     let isPremiumUser = false;
     let weakTopicsContext: string | null = null;
 
-    supabaseClient = createPooledSupabaseClient();
-    {
+    if (authHeader) {
+      supabaseClient = createPooledSupabaseClient();
       const { data: { user } } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''));
       if (user && mode !== 'debrief') {
         userId = user.id;
         console.log(`[ai-chat] Checking access for user: ${userId}`);
 
         // 1. Проверяем Premium статус ПЕРЕД инкрементом (расширенная проверка)
-        // ВАЖНО: Проверяем и id, и user_id (для разных схем связки с auth.users)
         const { data: profile } = await supabaseClient
           .from('profiles')
           .select('is_premium, premium_until, trial_until, subscription_type, subscription_status, premium_forever_purchased_at')
-          .or(`id.eq.${userId},user_id.eq.${userId}`)
+          .eq('id', userId)
           .maybeSingle();
         
         const now = new Date();
