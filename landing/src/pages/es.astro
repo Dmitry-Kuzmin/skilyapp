@@ -4,7 +4,7 @@ const currentYear = new Date().getFullYear();
 const appBaseUrl = import.meta.env.DEV ? 'http://localhost:8080' : 'https://skilyapp.com';
 
 const url = new URL(Astro.request.url);
-const variant = url.searchParams.get('v') || '1'; // 1 = Side, 2 = Stacked
+const variant = url.searchParams.get('v') || '2'; // 1 = Side, 2 = Stacked
 const isDev = import.meta.env.DEV;
 
 const title = 'Skily — Aprueba el examen DGT a la primera | IA + Gamificación';
@@ -181,7 +181,7 @@ const faqSchema = {
     </nav>
 
     <!-- ═══════════════════════════════════════ HERO SECTION ═══════════════════════════════════ -->
-    <section class="relative pt-20 pb-10 md:pt-32 md:pb-32 overflow-hidden px-6">
+    <section class="relative pt-12 pb-10 md:pt-16 md:pb-32 overflow-hidden px-6">
       <div class="max-w-[1400px] mx-auto relative z-10">
         <!-- Variant 1 Container -->
         <div id="hero-v1" class="hidden">
@@ -221,14 +221,102 @@ const faqSchema = {
 
         <!-- Variant 2 Container -->
         <div id="hero-v2" class="hidden">
-          <div class="flex flex-col items-center text-center max-w-4xl mx-auto pt-10">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-8 reveal-on-scroll">
+          <div class="flex flex-col items-center text-center max-w-4xl mx-auto pt-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 reveal-on-scroll">
               🇪🇸 DGT Approved · {currentYear}
             </div>
-            <h1 class="text-[clamp(2.5rem,8vw,6rem)] font-black tracking-tighter leading-[1.05] mb-8 reveal-on-scroll">
+            <h1 class="text-[clamp(2rem,5vw,4rem)] md:whitespace-nowrap font-black tracking-tighter leading-[1.05] mb-6 reveal-on-scroll">
               <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-2">Tu teórico a la primera</span>
-              <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 block">Sin dramas</span>
+              <span class="block min-h-[1.2em]">
+                <span id="text-cycler" class="text-cycle-container">
+                  {["Sin dramas", "Con IA inteligente", "Jugando duelos PvP", "En tiempo récord", "Sin libros aburridos"].map((word, i) => (
+                    <span class={`text-cycle-word ${i === 0 ? 'active' : ''}`} style={i === 0 ? "position:relative;" : ""}>{word}</span>
+                  ))}
+                </span>
+              </span>
             </h1>
+            
+            <style>
+              .text-cycle-container {
+                display: inline-flex;
+                position: relative;
+                transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                white-space: nowrap;
+                height: 1.2em;
+              }
+              .text-cycle-word {
+                position: absolute;
+                left: 0;
+                top: 0;
+                opacity: 0;
+                transform: translateY(-20px);
+                filter: blur(8px);
+                pointer-events: none;
+                /* Gradient text */
+                background-image: linear-gradient(to right, #3b82f6, #38bdf8, #67e8f9);
+                -webkit-background-clip: text;
+                color: transparent;
+                padding-right: 0.1em; /* Prevent clip bug */
+              }
+              .text-cycle-word.active {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0px);
+                transition: opacity 0.4s ease-out, transform 0.4s ease-out, filter 0.4s ease-out;
+              }
+              .text-cycle-word.exit {
+                opacity: 0;
+                transform: translateY(20px);
+                filter: blur(8px);
+                transition: opacity 0.3s ease-in, transform 0.3s ease-in, filter 0.3s ease-in;
+              }
+            </style>
+
+            <script is:inline>
+              (function() {
+                requestAnimationFrame(() => {
+                  const container = document.getElementById('text-cycler');
+                  if(!container) return;
+
+                  // Get all pre-rendered words
+                  const wordEls = Array.from(container.querySelectorAll('.text-cycle-word'));
+                  if(wordEls.length === 0) return;
+
+                  let currentIndex = 0;
+
+                  // Set initial container width to match the first word
+                  container.style.width = wordEls[0].offsetWidth + 'px';
+                  wordEls[0].style.position = 'absolute'; // Remove relative so container relies on set width
+
+                  function cycle() {
+                    const prevIndex = currentIndex;
+                    currentIndex = (currentIndex + 1) % wordEls.length;
+                    
+                    const currentEl = wordEls[currentIndex];
+                    const prevEl = wordEls[prevIndex];
+
+                    // Measure next word
+                    currentEl.style.opacity = '0';
+                    currentEl.style.position = 'relative';
+                    const newWidth = currentEl.offsetWidth;
+                    currentEl.style.position = 'absolute';
+                    currentEl.style.opacity = '';
+
+                    // Update container width
+                    container.style.width = newWidth + 'px';
+
+                    // Animate classes
+                    prevEl.classList.remove('active');
+                    prevEl.classList.add('exit');
+
+                    currentEl.classList.remove('exit');
+                    currentEl.classList.add('active');
+                  }
+
+                  setInterval(cycle, 3000);
+                });
+              })();
+            </script>
             <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-12 font-medium reveal-on-scroll">
               <span class="text-white font-bold">Olvida los manuales aburridos</span>. Nuestra IA detectта tus fallos и personaliza el estudio. Gamificación, preguntas oficiales actualizadas и Tu 'L' esperando.
             </p>
@@ -255,7 +343,7 @@ const faqSchema = {
           // Immediate client-side visibility toggle
           (function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const v = urlParams.get('v') || '1';
+            const v = urlParams.get('v') || '2';
             const el = document.getElementById('hero-v' + v);
             if (el) el.classList.remove('hidden');
           })();
@@ -380,327 +468,278 @@ const faqSchema = {
       }
     </style>
 
-    <!-- ═══════════════════════════════════════ FEATURES ═══════════════════════════════════ -->
-    <section class="relative z-10 px-6 pt-12 pb-6 max-w-[1200px] mx-auto" id="features">
+    <!-- ═══════════════════════════════════════ FEATURES (ZIG-ZAG) ═══════════════════════════════════ -->
+    <section class="relative z-10 px-6 pt-20 pb-20 max-w-[1400px] mx-auto" id="features">
 
-      <!-- Header -->
-      <div class="text-center mb-10">
+      <!-- Section Header -->
+      <div class="text-center mb-24 reveal-on-scroll">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.25em] uppercase mb-5">
           ✦ Plataforma completa
         </div>
         <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
           Todo lo que necesitas<br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500">para aprobar el DGT</span>
         </h2>
-        <p class="text-slate-400 text-base max-w-xl mx-auto">Más de 40 000 alumnos ya preparan su carnet con Skily.</p>
+        <p class="text-slate-400 text-base md:text-lg max-w-xl mx-auto">Olvídate de los libros aburridos. Skily combina inteligencia artificial, práctica real y juegos para que aprender sea adictivo.</p>
       </div>
 
-      <!-- Horizontal tab pills -->
-      <div class="flex items-center justify-center gap-2 flex-wrap mb-8 no-scrollbar">
-        <button data-tab="ai" class="feat-tab active-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('ai')">
-          <span>🧠</span> Test + Tutor IA
-        </button>
-        <button data-tab="duel" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('duel')">
-          <span>⚔️</span> Duelos PvP
-        </button>
-        <button data-tab="progress" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('progress')">
-          <span>📊</span> Progreso
-        </button>
-        <button data-tab="game" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('game')">
-          <span>🎮</span> Gamificación
-        </button>
-        <button data-tab="app" class="feat-tab px-4 py-2 rounded-full border text-sm font-bold flex items-center gap-2 transition-all duration-200 whitespace-nowrap" onclick="switchTab('app')">
-          <span>🌍</span> Multiidioma
-        </button>
-      </div>
+      <div class="flex flex-col gap-32">
 
-      <!-- Panels -->
-      <div class="relative">
-
-        <!-- TRAINING — Interactive Demo (hidden, kept for switchTab) -->
-        <div id="panel-training" class="feat-panel hidden">
-          <!-- Browser chrome -->
-          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10 mb-6" style="background:#0f172a;">
-            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50" style="background:#161c2c;">
-              <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
-              <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
-                <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
-                <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Práctica DGT</span>
-              </div>
+        <!-- 1. AI TUTOR (Text Left, Demo Right) -->
+        <div class="grid lg:grid-cols-[1fr,1.3fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
+          <div class="order-2 lg:order-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+              🧠 El Cerebro de Skily
             </div>
-            <!-- Demo app shell -->
-            <div id="demo-shell" style="min-height:520px;padding:0;">
-              <!-- Session header -->
-              <div id="demo-header" style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.06);background:#0f172a;">
-                <button style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#94a3b8;cursor:pointer;flex-shrink:0;" onclick="demoReset()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                </button>
-                <div style="display:flex;align-items:center;gap:8px;flex:1;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                  <span id="demo-counter" style="color:#94a3b8;font-size:13px;font-weight:700;">1 / 5</span>
-                  <div style="flex:1;height:6px;background:#1e293b;border-radius:9999px;overflow:hidden;margin:0 4px;">
-                    <div id="demo-bar" style="height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:9999px;transition:width 0.4s ease;width:0%;"></div>
-                  </div>
-                </div>
-                <div style="display:flex;gap:6px;">
-                  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:9999px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span id="demo-correct" style="color:#22c55e;font-size:12px;font-weight:800;">0</span>
-                  </div>
-                  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:9999px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg>
-                    <span id="demo-wrong" style="color:#ef4444;font-size:12px;font-weight:800;">0</span>
-                  </div>
-                </div>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Tu profesor particular <br/><span class="text-blue-400">en tu bolsillo 24/7</span></h3>
+            <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+              La Inteligencia Artificial está integrada en lo más profundo de Skily. Memoriza cada respuesta, analiza tus estadísticas constantemente y crea un programa sistemático solo para ti. Te asigna misiones diarias basadas en tu nivel y te explica las reglas adaptándose a tu forma de aprender.
+            </p>
+            <div class="flex flex-col gap-4">
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">🧬</div>
+                <div><h4 class="text-white font-bold mb-1">Análisis profundo</h4><p class="text-sm text-slate-400">No es solo un chat. La IA vigila tu progreso global para saber exactamente qué necesitas repasar hoy.</p></div>
               </div>
-              <!-- Question body -->
-              <div id="demo-body" style="padding:20px 24px 24px;"></div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">🎯</div>
+                <div><h4 class="text-white font-bold mb-1">Explicaciones a tu medida</h4><p class="text-sm text-slate-400">¿No entiendes una regla? La IA te la explica de nuevo con palabras más sencillas, ajustándose a tu nivel.</p></div>
+              </div>
             </div>
           </div>
-          <!-- Info cards -->
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <p class="text-blue-400 font-black text-sm mb-1">6 modos</p>
-              <p class="text-white/70 text-xs leading-relaxed">Práctica, Examen, Blitz, Marathon, Mastery y más</p>
-            </div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <p class="text-blue-400 font-black text-sm mb-1">3 000+ preguntas</p>
-              <p class="text-white/70 text-xs leading-relaxed">Base oficial DGT actualizada en tiempo real</p>
-            </div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <p class="text-blue-400 font-black text-sm mb-1">Imágenes reales</p>
-              <p class="text-white/70 text-xs leading-relaxed">Señales, situaciones de tráfico y más</p>
-            </div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-              <p class="text-blue-400 font-black text-sm mb-1">IA adaptativa</p>
-              <p class="text-white/70 text-xs leading-relaxed">Ajusta la dificultad según tus errores</p>
-            </div>
-          </div>
-        </div>
 
-        <!-- DUEL — Interactive Demo -->
-        <div id="panel-duel" class="feat-panel hidden">
-          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-rose-500/10 mb-6" style="background:#080f1e;">
-            <!-- Browser chrome -->
-            <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,0.05);background:#0f172a;">
-              <div style="display:flex;gap:5px;"><div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div><div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div><div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div></div>
-              <div style="flex:1;margin:0 12px;height:24px;border-radius:7px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px;">
-                <div style="width:6px;height:6px;border-radius:50%;background:rgba(34,197,94,0.7);"></div>
-                <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Duelos PvP</span>
-              </div>
-            </div>
-            <!-- Game screen — full width desktop -->
-            <div id="duel-screen" style="height:480px;overflow:hidden;"></div>
-          </div>
-
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">PvP real</p><p class="text-white/70 text-xs">Matchmaking instantáneo contra otro alumno</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Apuestas de monedas</p><p class="text-white/70 text-xs">Pon algo en juego — el ganador se lo lleva</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Duel Pass</p><p class="text-white/70 text-xs">Temporadas con recompensas exclusivas</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-rose-400 font-black text-sm mb-1">Boost & poderes</p><p class="text-white/70 text-xs">Úsalos estratégicamente para ganar</p></div>
-          </div>
-        </div>
-
-        <!-- AI TUTOR — Interactive Demo -->
-        <div id="panel-ai" class="feat-panel">
-          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10 mb-6" style="background:#0f172a;">
-            <!-- Browser chrome -->
-            <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,0.06);background:#161c2c;">
-              <div style="display:flex;gap:5px;"><div style="width:12px;height:12px;border-radius:50%;background:#ff5f57;"></div><div style="width:12px;height:12px;border-radius:50%;background:#febc2e;"></div><div style="width:12px;height:12px;border-radius:50%;background:#28c840;"></div></div>
-              <div style="flex:1;margin:0 12px;height:26px;border-radius:8px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px;">
-                <div style="width:7px;height:7px;border-radius:50%;background:rgba(34,197,94,0.7);"></div>
-                <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Práctica DGT</span>
-              </div>
-            </div>
-
-            <!-- App shell -->
-            <div id="ai-demo-shell" style="display:grid;grid-template-columns:1fr 340px;min-height:500px;">
-
-              <!-- LEFT: Question card (exact app style) -->
-              <div style="padding:24px;display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:start;">
-                <!-- Image -->
-                <div>
-                  <img src="https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-03_test-004/008eac5e-9c20-482d-8b46-1df4adc3e2c2_1769470209354_pro.webp"
-                    alt="" loading="lazy"
-                    style="width:100%;border-radius:24px;border:1px solid rgba(255,255,255,0.07);object-fit:cover;display:block;"/>
-                </div>
-                <!-- Question + options -->
-                <div style="display:flex;flex-direction:column;gap:10px;">
-                  <p style="color:#f1f5f9;font-size:15px;font-weight:600;line-height:1.55;margin:0 0 4px;">¿Quién tiene prioridad en una zona de circulación que tiene esta señal?</p>
-                  <!-- Option 1 -->
-                  <button id="ai-opt-1" onclick="aiDemoAnswer(1)" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
-                    <span class="ai-opt-key" style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;transition:all 0.2s;">1</span>
-                    <span class="ai-opt-txt" style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los peatones.</span>
-                  </button>
-                  <!-- Option 2 -->
-                  <button id="ai-opt-2" onclick="aiDemoAnswer(2)" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
-                    <span class="ai-opt-key" style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;transition:all 0.2s;">2</span>
-                    <span class="ai-opt-txt" style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los peatones, los ciclos y los vehículos de movilidad personal.</span>
-                  </button>
-                  <!-- Option 3 -->
-                  <button id="ai-opt-3" onclick="aiDemoAnswer(3)" style="display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
-                    <span class="ai-opt-key" style="width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#64748b;flex-shrink:0;transition:all 0.2s;">3</span>
-                    <span class="ai-opt-txt" style="color:#cbd5e1;font-size:13px;line-height:1.4;">Los vehículos a motor, salvo en los pasos para peatones.</span>
-                  </button>
+          <div class="order-1 lg:order-2 w-full">
+            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10" style="background:#0f172a;">
+              <!-- Browser chrome -->
+              <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,0.06);background:#161c2c;">
+                <div style="display:flex;gap:5px;"><div style="width:12px;height:12px;border-radius:50%;background:#ff5f57;"></div><div style="width:12px;height:12px;border-radius:50%;background:#febc2e;"></div><div style="width:12px;height:12px;border-radius:50%;background:#28c840;"></div></div>
+                <div style="flex:1;margin:0 12px;height:26px;border-radius:8px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px;">
+                  <div style="width:7px;height:7px;border-radius:50%;background:rgba(34,197,94,0.7);"></div>
+                  <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Práctica DGT</span>
                 </div>
               </div>
-
-              <!-- RIGHT: Skily AI Copilot Widget -->
-              <div style="border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;background:rgba(15,23,42,0.4);position:relative;overflow:hidden;">
-                <!-- Subtle grid bg -->
-                <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(128,128,128,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(128,128,128,0.025) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;"></div>
-
-                <!-- Header -->
-                <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:14px;background:rgba(15,23,42,0.2);flex-shrink:0;position:relative;z-index:1;">
-                  <!-- AI Sphere -->
-                  <div style="width:42px;height:42px;position:relative;flex-shrink:0;">
-                    <div class="ai-ring-outer"></div>
-                    <div class="ai-ring-mid"></div>
-                    <div class="ai-ring-inner"></div>
-                    <div class="ai-core"></div>
-                  </div>
+              <!-- App shell -->
+              <div id="ai-demo-shell" style="display:grid;grid-template-columns:1fr 300px;min-height:500px;">
+                <!-- LEFT: Question card (exact app style) -->
+                <div style="padding:24px;display:grid;grid-template-rows:auto 1fr;gap:20px;">
                   <div>
-                    <div style="display:flex;align-items:center;gap:7px;">
-                      <span style="color:#f1f5f9;font-size:13px;font-weight:700;">Skily AI Copilot</span>
-                      <span style="position:relative;width:8px;height:8px;display:inline-flex;align-items:center;justify-content:center;">
-                        <span id="ai-ping-ring" class="ai-ping-ring"></span>
-                        <span class="ai-ping-dot"></span>
-                      </span>
-                    </div>
-                    <p style="font-size:10px;color:#475569;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">v2.4 Online</p>
+                    <img src="https://yffjnqegeiorunyvcxkn.supabase.co/storage/v1/object/public/dgt-images/generated/topic-03_test-004/008eac5e-9c20-482d-8b46-1df4adc3e2c2_1769470209354_pro.webp"
+                      alt="" loading="lazy"
+                      style="width:100%;max-height:180px;border-radius:20px;border:1px solid rgba(255,255,255,0.07);object-fit:cover;display:block;"/>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <p style="color:#f1f5f9;font-size:14px;font-weight:600;line-height:1.5;margin:0 0 4px;">¿Quién tiene prioridad en una zona de circulación que tiene esta señal?</p>
+                    <button id="ai-opt-1" onclick="aiDemoAnswer(1)" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
+                      <span class="ai-opt-key" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#64748b;flex-shrink:0;">1</span>
+                      <span class="ai-opt-txt" style="color:#cbd5e1;font-size:12px;line-height:1.4;">Los peatones.</span>
+                    </button>
+                    <button id="ai-opt-2" onclick="aiDemoAnswer(2)" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
+                      <span class="ai-opt-key" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#64748b;flex-shrink:0;">2</span>
+                      <span class="ai-opt-txt" style="color:#cbd5e1;font-size:12px;line-height:1.4;">Los peatones, los ciclos y los vehículos de movilidad personal.</span>
+                    </button>
+                    <button id="ai-opt-3" onclick="aiDemoAnswer(3)" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:background 0.15s,border 0.15s;">
+                      <span class="ai-opt-key" style="width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#64748b;flex-shrink:0;">3</span>
+                      <span class="ai-opt-txt" style="color:#cbd5e1;font-size:12px;line-height:1.4;">Los vehículos a motor, salvo en los pasos para peatones.</span>
+                    </button>
                   </div>
                 </div>
-
-                <!-- Messages area -->
-                <div id="ai-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;min-height:0;">
-                  <!-- Idle state -->
-                  <div id="ai-idle-state" style="text-align:center;width:100%;">
-                    <div style="opacity:0.4;pointer-events:none;">
-                      <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.9)" stroke-width="1.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                <!-- RIGHT: Skily AI Copilot Widget -->
+                <div style="border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;background:rgba(15,23,42,0.4);position:relative;overflow:hidden;">
+                  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(128,128,128,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(128,128,128,0.025) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;"></div>
+                  <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:14px;background:rgba(15,23,42,0.2);flex-shrink:0;position:relative;z-index:1;">
+                    <div style="width:42px;height:42px;position:relative;flex-shrink:0;">
+                      <div class="ai-ring-outer"></div>
+                      <div class="ai-ring-mid"></div>
+                      <div class="ai-ring-inner"></div>
+                      <div class="ai-core"></div>
+                    </div>
+                    <div>
+                      <div style="display:flex;align-items:center;gap:7px;">
+                        <span style="color:#f1f5f9;font-size:13px;font-weight:700;">Skily AI Copilot</span>
+                        <span style="position:relative;width:8px;height:8px;display:inline-flex;align-items:center;justify-content:center;"><span id="ai-ping-ring" class="ai-ping-ring"></span><span class="ai-ping-dot"></span></span>
                       </div>
-                      <p style="font-size:13px;color:#64748b;margin:0;">Esperando respuesta...</p>
-                    </div>
-                    <!-- Chips shown in idle state -->
-                    <div id="ai-chips" style="display:flex;flex-direction:column;gap:6px;margin-top:18px;text-align:left;">
-                      <p style="font-size:10px;font-weight:700;color:#334155;letter-spacing:0.06em;text-transform:uppercase;margin:0 0 4px;">← Prueba antes de responder</p>
-                      <button id="ai-hint-btn" onclick="aiAsk('pista')" class="hint-pulse" style="padding:9px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;font-size:12px;font-weight:700;cursor:pointer;text-align:left;width:100%;">💡 Dame una pista</button>
-                      <button onclick="aiAsk('explicar')" style="padding:9px 14px;border-radius:10px;background:transparent;border:1px solid rgba(99,102,241,0.2);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;text-align:left;width:100%;">📖 Explícame el tema</button>
+                      <p style="font-size:10px;color:#475569;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">v2.4 Online</p>
                     </div>
                   </div>
-                  <!-- Active message (shown after interaction) -->
-                  <div id="ai-widget-msg" style="display:none;width:100%;"></div>
-                </div>
-
-                <!-- Status bar -->
-                <div style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0;background:rgba(15,23,42,0.4);position:relative;z-index:1;">
-                  <div style="height:36px;border-radius:10px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;padding:0 14px;justify-content:space-between;">
-                    <div id="ai-status-left" style="display:flex;align-items:center;gap:10px;">
-                      <span id="ai-status-dot" style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:ai-pulse-dot 1.5s ease-in-out infinite;flex-shrink:0;"></span>
-                      <span id="ai-status-bars" style="display:none;gap:2px;align-items:flex-end;height:14px;">
-                        <span class="eq-bar" style="animation-delay:0s;"></span>
-                        <span class="eq-bar" style="animation-delay:0.15s;"></span>
-                        <span class="eq-bar" style="animation-delay:0.3s;"></span>
-                      </span>
-                      <span id="ai-status-text" style="font-size:11px;font-family:monospace;color:#475569;">Esperando tu respuesta...</span>
+                  <div id="ai-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;min-height:0;">
+                    <div id="ai-idle-state" style="text-align:center;width:100%;">
+                      <div style="opacity:0.4;pointer-events:none;">
+                        <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.9)" stroke-width="1.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                        </div>
+                        <p style="font-size:13px;color:#64748b;margin:0;">Esperando respuesta...</p>
+                      </div>
+                      <div id="ai-chips" style="display:flex;flex-direction:column;gap:6px;margin-top:18px;text-align:left;">
+                        <p style="font-size:10px;font-weight:700;color:#334155;letter-spacing:0.06em;text-transform:uppercase;margin:0 0 4px;">← Prueba antes de responder</p>
+                        <button id="ai-hint-btn" onclick="aiAsk('pista')" class="hint-pulse" style="padding:9px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;font-size:12px;font-weight:700;cursor:pointer;text-align:left;width:100%;">💡 Dame una pista</button>
+                        <button onclick="aiAsk('explicar')" style="padding:9px 14px;border-radius:10px;background:transparent;border:1px solid rgba(99,102,241,0.2);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;text-align:left;width:100%;">📖 Explícame el tema</button>
+                      </div>
                     </div>
-                    <span style="font-size:10px;font-family:monospace;color:#1e293b;">TOKEN_MODE: <span style="color:#22c55e;">FREE</span></span>
+                    <div id="ai-widget-msg" style="display:none;width:100%;"></div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-blue-400 font-black text-sm mb-1">GPT-4o</p><p class="text-white/70 text-xs">Modelo más avanzado de OpenAI integrado</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-blue-400 font-black text-sm mb-1">Chat libre</p><p class="text-white/70 text-xs">Pregunta cualquier cosa sobre el reglamento</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-blue-400 font-black text-sm mb-1">ES · RU · EN</p><p class="text-white/70 text-xs">Responde en el idioma de tu perfil</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-blue-400 font-black text-sm mb-1">Flashcards</p><p class="text-white/70 text-xs">Genera tarjetas de memoria al instante</p></div>
           </div>
         </div>
 
-        <!-- PROGRESS -->
-        <div id="panel-progress" class="feat-panel hidden">
-          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-emerald-500/10 mb-6 p-10" style="background:#0f1a14;">
-            <div class="max-w-xl mx-auto space-y-4">
-              <p class="text-xs font-black uppercase tracking-[0.2em] text-emerald-400 mb-6">Tu progreso por temas</p>
-              {[['Señales de tráfico','91','emerald'],['Velocidad','72','amber'],['Prioridad de paso','64','amber'],['Los accidentes','43','rose'],['Documentación','88','emerald']].map(([tema, pct, color]) => (
-                <div>
-                  <div class="flex justify-between text-sm mb-2">
-                    <span class="text-slate-300 font-semibold">{tema}</span>
-                    <span class={`font-black text-${color}-400`}>{pct}%</span>
-                  </div>
-                  <div class="h-2.5 rounded-full bg-slate-800 overflow-hidden">
-                    <div class={`h-full bg-gradient-to-r from-${color}-400 to-${color}-500 rounded-full`} style={`width:${pct}%`}></div>
-                  </div>
+        <!-- 2. DUELOS PVP (Demo Left, Text Right) -->
+        <div class="grid lg:grid-cols-[1.3fr,1fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
+          
+          <div class="order-1 lg:order-1 w-full">
+            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-rose-500/10" style="background:#080f1e;">
+              <!-- Browser chrome -->
+              <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,0.05);background:#0f172a;">
+                <div style="display:flex;gap:5px;"><div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div><div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div><div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div></div>
+                <div style="flex:1;margin:0 12px;height:24px;border-radius:7px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:rgba(34,197,94,0.7);"></div>
+                  <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Duelos PvP</span>
                 </div>
-              ))}
-              <div class="mt-4 p-4 rounded-2xl bg-rose-500/10 border border-rose-400/20 flex items-center gap-3">
-                <span class="text-xl">⚡</span>
-                <p class="text-sm text-rose-300 font-semibold">IA añadió 8 preguntas de accidentes a tu Challenge Bank</p>
+              </div>
+              <!-- Game screen -->
+              <div id="duel-screen" style="height:480px;overflow:hidden;"></div>
+            </div>
+          </div>
+
+          <div class="order-2 lg:order-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+              ⚔️ Competición PvP
+            </div>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Desafía a otros y <br/><span class="text-rose-400">aprende ganando</span></h3>
+            <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+              ¿Harto de tests solitarios? Compite en tiempo real contra otros alumnos. Responde rápido, usa poderes estratégicos y apuesta tus monedas. Quien domine el reglamento, se lleva el premio.
+            </p>
+            <div class="flex flex-col gap-4">
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0 border border-rose-500/20 text-xl">⚡</div>
+                <div><h4 class="text-white font-bold mb-1">Matchmaking instantáneo</h4><p class="text-sm text-slate-400">Encuentra oponentes de tu mismo nivel en segundos.</p></div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0 border border-rose-500/20 text-xl">🏆</div>
+                <div><h4 class="text-white font-bold mb-1">Duel Pass y Temporadas</h4><p class="text-sm text-slate-400">Sube en el ranking y desbloquea recompensas exclusivas.</p></div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0 border border-rose-500/20 text-xl">👥</div>
+                <div><h4 class="text-white font-bold mb-1">Juega con amigos</h4><p class="text-sm text-slate-400">Crea salas privadas, invita a tus amigos y demostrad quién está más preparado para aprobar el examen.</p></div>
               </div>
             </div>
           </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-emerald-400 font-black text-sm mb-1">Challenge Bank</p><p class="text-white/70 text-xs">Tus errores se guardan para repasarlos</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-emerald-400 font-black text-sm mb-1">Mapa de temas</p><p class="text-white/70 text-xs">Visualiza dónde estás más débil</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-emerald-400 font-black text-sm mb-1">Historial</p><p class="text-white/70 text-xs">Registro completo de todos tus tests</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-emerald-400 font-black text-sm mb-1">Plan IA</p><p class="text-white/70 text-xs">Ruta personalizada al aprobado</p></div>
+
+        </div>
+
+        <!-- 3. GAMIFICATION & PROGRESS (Text Left, Cards Right) -->
+        <div class="grid lg:grid-cols-[1fr,1.1fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
+          <div class="order-2 lg:order-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+              🎮 Gamificación total
+            </div>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Sube de nivel hasta <br/><span class="text-amber-400">tu apto oficial</span></h3>
+            <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+              Convierte el estudio en un juego. Gana experiencia con cada test, sube de nivel, mantén tu racha diaria y recolecta monedas. Skily hace un seguimiento visual de tu progreso por temas para que sepas exactamente cuándo estás listo.
+            </p>
+            <div class="flex flex-col gap-4">
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/20 text-xl">🪙</div>
+                <div><h4 class="text-white font-bold mb-1">Economía del juego</h4><p class="text-sm text-slate-400">Usa tus monedas para comprar boosters y avatares.</p></div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20 text-xl">📊</div>
+                <div><h4 class="text-white font-bold mb-1">Challenge Bank</h4><p class="text-sm text-slate-400">Tus errores se guardan para repasarlos automáticamente.</p></div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20 text-xl">🌌</div>
+                <div><h4 class="text-white font-bold mb-1">La España del Futuro</h4><p class="text-sm text-slate-400">Olvídate de las fotos grises de la DGT. Resuelve tests inmerso en paisajes increíbles del norte, ciudades inteligentes y estética Solarpunk. Aprender ahora es un placer visual.</p></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-1 lg:order-2 w-full">
+            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-amber-500/10 p-8 sm:p-10 relative" style="background:#18120a;">
+              <!-- Background glows -->
+              <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+              <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+              
+              <div class="relative z-10 max-w-lg mx-auto flex flex-col gap-6">
+                <!-- Level Card -->
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-400/30 rounded-2xl p-5 text-center shadow-lg">
+                    <p class="text-4xl font-black text-white mb-1">12</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Nivel Actual</p>
+                    <div class="mt-3 h-2.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full w-[68%] bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"></div></div>
+                    <p class="text-[10px] text-amber-300/60 mt-2 font-medium">680 / 1000 XP</p>
+                  </div>
+                  <div class="bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-400/30 rounded-2xl p-5 text-center shadow-lg flex flex-col justify-center">
+                    <p class="text-4xl font-black text-amber-300 mb-1">🪙 340</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Saldo</p>
+                  </div>
+                </div>
+
+                <!-- Stats Strip -->
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">🔥</p><p class="font-black text-white text-lg">14</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Racha</p></div>
+                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">⚔️</p><p class="font-black text-white text-lg">23</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Duelos</p></div>
+                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">🏆</p><p class="font-black text-white text-lg">#4</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Liga</p></div>
+                </div>
+
+                <!-- Topic Progress -->
+                <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-5 backdrop-blur-sm mt-2">
+                  <p class="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400 mb-4">Dominio de Temas</p>
+                  <div class="space-y-3">
+                    {[['Señales de tráfico','91','emerald'],['Velocidad','72','amber'],['Prioridad de paso','64','amber']].map(([tema, pct, color]) => (
+                      <div>
+                        <div class="flex justify-between text-xs mb-1.5">
+                          <span class="text-slate-300 font-medium">{tema}</span>
+                          <span class={`font-black text-${color}-400`}>{pct}%</span>
+                        </div>
+                        <div class="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                          <div class={`h-full bg-gradient-to-r from-${color}-400 to-${color}-500 rounded-full`} style={`width:${pct}%`}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- GAMIFICATION -->
-        <div id="panel-game" class="feat-panel hidden">
-          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-amber-500/10 mb-6 p-10" style="background:#18120a;">
-            <div class="max-w-lg mx-auto">
-              <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-400/30 rounded-2xl p-6 text-center">
-                  <p class="text-4xl font-black text-white mb-1">12</p>
-                  <p class="text-xs font-black uppercase tracking-wider text-amber-300/70">Nivel</p>
-                  <div class="mt-3 h-2 rounded-full bg-black/20 overflow-hidden"><div class="h-full w-[68%] bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"></div></div>
-                  <p class="text-[10px] text-amber-300/50 mt-1.5">680 / 1000 XP</p>
-                </div>
-                <div class="bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-400/30 rounded-2xl p-6 text-center">
-                  <p class="text-4xl font-black text-amber-300 mb-1">🪙 340</p>
-                  <p class="text-xs font-black uppercase tracking-wider text-amber-300/70">Monedas</p>
-                  <p class="text-[10px] text-amber-300/50 mt-4">Para boosters, duelos y tienda</p>
+        <!-- 4. MULTIPLATAFORMA (Video Left, Text Right) -->
+        <div class="grid lg:grid-cols-[1.3fr,1fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
+          <div class="order-1 lg:order-1 w-full">
+            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-sky-500/10 relative" style="background:#161c2c;">
+              <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50 absolute top-0 left-0 right-0 z-10 bg-slate-900/80 backdrop-blur-md">
+                <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
+                <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
+                  <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
+                  <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Multilenguaje</span>
                 </div>
               </div>
-              <div class="grid grid-cols-3 gap-3">
-                <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-center"><p class="text-2xl">🔥</p><p class="font-black text-white text-lg">14</p><p class="text-[10px] text-slate-500 uppercase tracking-wider">Racha</p></div>
-                <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-center"><p class="text-2xl">⚔️</p><p class="font-black text-white text-lg">23</p><p class="text-[10px] text-slate-500 uppercase tracking-wider">Duelos</p></div>
-                <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 text-center"><p class="text-2xl">🏆</p><p class="font-black text-white text-lg">#4</p><p class="text-[10px] text-slate-500 uppercase tracking-wider">Ranking</p></div>
-              </div>
+              <video src="/videos/feat-translate.webm" autoplay loop muted playsinline class="w-full block pt-14" style="max-height:480px;object-fit:cover;object-position:top;"></video>
             </div>
           </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-amber-400 font-black text-sm mb-1">XP + Niveles</p><p class="text-slate-400 text-xs">Cada test suma experiencia y sube tu nivel</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-amber-400 font-black text-sm mb-1">Monedas</p><p class="text-slate-400 text-xs">Gana y gasta en boosters, duelos y tienda</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-amber-400 font-black text-sm mb-1">Duel Pass</p><p class="text-slate-400 text-xs">Temporadas con recompensas exclusivas</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-amber-400 font-black text-sm mb-1">Racha diaria</p><p class="text-slate-400 text-xs">Estudia cada día y multiplica tus premios</p></div>
-          </div>
-        </div>
 
-        <!-- APP / MULTIIDIOMA -->
-        <div id="panel-app" class="feat-panel hidden">
-          <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-sky-500/10 mb-6" style="background:#161c2c;">
-            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-700/50">
-              <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
-              <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
-                <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
-                <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Traducción al ruso</span>
+          <div class="order-2 lg:order-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+              🌍 Sin barreras
+            </div>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Estudia en tu idioma, <br/><span class="text-sky-400">donde quieras</span></h3>
+            <p class="text-slate-400 text-lg mb-8 leading-relaxed">
+              ¿Tu español aún no es perfecto? Cambia entre Español, Inglés y Ruso al instante. Prepara el examen en tu idioma nativo y aprueba sin que el idioma sea un obstáculo.
+            </p>
+            <div class="flex flex-col gap-4">
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0 border border-sky-500/20 text-xl">📱</div>
+                <div><h4 class="text-white font-bold mb-1">Telegram Mini App</h4><p class="text-sm text-slate-400">Accede directamente desde Telegram sin instalar aplicaciones pesadas.</p></div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0 border border-sky-500/20 text-xl">☁️</div>
+                <div><h4 class="text-white font-bold mb-1">Sincronización en la nube</h4><p class="text-sm text-slate-400">Empieza en el móvil, continúa en el PC. Tu progreso siempre seguro.</p></div>
               </div>
             </div>
-            <video src="/videos/feat-translate.webm" autoplay loop muted playsinline class="w-full block" style="max-height:480px;object-fit:cover;object-position:top;"></video>
-          </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-sky-400 font-black text-sm mb-1">ES · RU · EN</p><p class="text-slate-400 text-xs">Cambia idioma en cualquier momento</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-sky-400 font-black text-sm mb-1">Telegram</p><p class="text-slate-400 text-xs">Mini App nativa, sin instalar nada</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-sky-400 font-black text-sm mb-1">Offline</p><p class="text-slate-400 text-xs">Funciona sin conexión, sincroniza después</p></div>
-            <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800"><p class="text-sky-400 font-black text-sm mb-1">Nube</p><p class="text-slate-400 text-xs">Tu progreso siempre sincronizado</p></div>
           </div>
         </div>
 
       </div>
     </section>
+
 
     <style>
       .no-scrollbar::-webkit-scrollbar { display: none; }

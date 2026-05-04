@@ -66,48 +66,86 @@ function KpiCard({ icon: Icon, label, value, sub, accent = false }: any) {
     );
 }
 
-function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: (key: string, params?: Record<string, string | number>) => string }) {
+function FlightNavigation({ currentStatus, t }: { currentStatus: string, t: any }) {
     const levels = [
-        { id: 'start', name: t('flightLevels.start'), range: '0-30%', color: '#94a3b8' },
-        { id: 'progress', name: t('flightLevels.progress'), range: '31-70%', color: '#f59e0b' },
-        { id: 'near', name: t('flightLevels.near'), range: '71-85%', color: '#eab308' },
-        { id: 'ready', name: t('flightLevels.ready'), range: '86-100%', color: '#10b981' }
+        { id: 'start', title: t('dashboard.examReadiness.levels.start.title'), desc: t('dashboard.examReadiness.levels.start.desc'), range: '0-30%', color: '#ef4444', bgColor: 'bg-red-500/10' },
+        { id: 'progress', title: t('dashboard.examReadiness.levels.progress.title'), desc: t('dashboard.examReadiness.levels.progress.desc'), range: '31-70%', color: '#f59e0b', bgColor: 'bg-orange-500/10' },
+        { id: 'near', title: t('dashboard.examReadiness.levels.near.title'), desc: t('dashboard.examReadiness.levels.near.desc'), range: '71-84%', color: '#eab308', bgColor: 'bg-yellow-500/10' },
+        { id: 'ready', title: t('dashboard.examReadiness.levels.ready.title'), desc: t('dashboard.examReadiness.levels.ready.desc'), range: '85-100%', color: '#10b981', bgColor: 'bg-emerald-500/10' }
     ];
 
     const currentIndex = levels.findIndex(l => l.id === (currentStatus === 'legend' ? 'ready' : currentStatus));
 
     return (
-        <div className="relative pt-1 pb-4">
-            <div className="absolute top-[13px] left-8 right-8 h-[1px] bg-white/5" />
-            <div className="relative flex justify-between items-center px-8 text-center">
-                {levels.map((lvl, idx) => {
-                    const isActive = currentStatus === lvl.id || (currentStatus === 'legend' && lvl.id === 'ready');
-                    const isPast = idx < currentIndex;
+        <div className="relative w-full flex flex-col md:grid md:grid-cols-4 gap-6 md:gap-4 py-2">
+            {levels.map((lvl, idx) => {
+                const isActive = idx === currentIndex || (currentStatus === 'legend' && lvl.id === 'ready');
+                const isPast = idx < currentIndex;
 
-                    return (
-                        <div key={lvl.id} className="flex flex-col items-center gap-1.5 transition-all duration-300">
+                return (
+                    <div key={lvl.id} className="relative flex flex-row md:flex-col items-start gap-4 md:gap-3">
+                        {/* Progress Line */}
+                        {idx < levels.length - 1 && (
+                            <>
+                                {/* Mobile Vertical Line */}
+                                <div className={cn(
+                                    "absolute left-3 top-8 bottom-[-24px] w-0.5 md:hidden",
+                                    isPast ? "bg-current opacity-30" : "bg-border dark:bg-white/5"
+                                )} style={{ color: isPast ? lvl.color : undefined }} />
+                                {/* Desktop Horizontal Line */}
+                                <div className={cn(
+                                    "absolute top-3 left-[50%] w-full h-0.5 hidden md:block",
+                                    isPast ? "bg-current opacity-30" : "bg-border dark:bg-white/5"
+                                )} style={{ color: isPast ? lvl.color : undefined }} />
+                            </>
+                        )}
+                        
+                        {/* Dot */}
+                        <div className="relative z-10 flex-shrink-0 md:mx-auto md:w-full md:flex md:justify-center">
                             <div className={cn(
-                                "relative w-2 h-2 rounded-full border-2 transition-all duration-700 z-10",
-                                isActive ? "bg-foreground dark:bg-white border-current scale-150 shadow-[0_0_12px_currentColor]" :
-                                    isPast ? "bg-current border-current border-0" : "bg-muted dark:bg-zinc-950 border-border dark:border-white/10"
-                            )} style={{ color: lvl.color }}>
+                                "w-6 h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center",
+                                isActive ? "bg-background scale-125 shadow-[0_0_15px_rgba(255,255,255,0.1)]" :
+                                isPast ? "bg-current border-current border-0" : "bg-muted dark:bg-zinc-950 border-border dark:border-white/10"
+                            )} style={{ 
+                                borderColor: isActive ? lvl.color : undefined,
+                                color: isPast ? lvl.color : undefined,
+                                backgroundColor: isPast ? lvl.color : undefined,
+                            }}>
                                 {isActive && (
-                                    <div className="absolute inset-[-3px] rounded-full border border-current opacity-30 animate-ping" />
+                                    <div className="absolute inset-[-4px] rounded-full border border-current opacity-30 animate-ping" style={{ borderColor: lvl.color }} />
+                                )}
+                                {isActive && (
+                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: lvl.color }} />
                                 )}
                             </div>
-                            <div className="flex flex-col items-center gap-0.5">
-                                <span className={cn(
-                                    "text-[7px] font-black tracking-[0.2em] uppercase transition-colors duration-500",
-                                    isActive ? "text-foreground dark:text-white" : "text-muted-foreground"
-                                )}>
-                                    {lvl.name}
-                                </span>
-                                <span className="text-[6px] font-bold text-muted-foreground tabular-nums">{lvl.range}</span>
-                            </div>
                         </div>
-                    );
-                })}
-            </div>
+
+                        {/* Content */}
+                        <div className={cn(
+                            "flex flex-col transition-all duration-300 md:text-center md:items-center mt-[-2px] md:mt-1",
+                            isActive ? "opacity-100" : "opacity-50 hover:opacity-80"
+                        )}>
+                            <div className="flex flex-wrap md:justify-center items-center gap-2 mb-1.5">
+                                <span className={cn(
+                                    "text-sm md:text-[13px] font-black uppercase tracking-tight transition-colors duration-500",
+                                    isActive ? "" : "text-foreground dark:text-white"
+                                )} style={{ color: isActive ? lvl.color : undefined }}>
+                                    {lvl.title}
+                                </span>
+                                <span className={cn(
+                                    "text-[10px] font-bold px-1.5 py-0.5 rounded transition-colors duration-500",
+                                    isActive ? lvl.bgColor : "bg-muted/50 dark:bg-white/5 text-muted-foreground"
+                                )} style={{ color: isActive ? lvl.color : undefined }}>
+                                    {lvl.range}
+                                </span>
+                            </div>
+                            <p className="text-xs md:text-[11px] text-muted-foreground leading-snug">
+                                {lvl.desc}
+                            </p>
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 }
@@ -283,8 +321,8 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                     </div>
 
                     {/* Bottom Compact Navigation Path */}
-                    <div className="px-10 py-6 bg-muted/30 dark:bg-slate-950/40 border-t border-border dark:border-white/5">
-                        <FlightNavigation currentStatus={readinessStatus} t={overlay} />
+                    <div className="px-6 py-6 md:px-10 md:py-8 bg-muted/30 dark:bg-slate-950/40 border-t border-border dark:border-white/5">
+                        <FlightNavigation currentStatus={readinessStatus} t={t} />
                     </div>
                 </div>
             </div>
