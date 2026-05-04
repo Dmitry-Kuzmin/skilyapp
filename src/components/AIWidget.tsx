@@ -73,6 +73,7 @@ const AIWidgetContent = ({
 }: AIWidgetProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { sendRequest } = useAIRequest();
   const [input, setInput] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
