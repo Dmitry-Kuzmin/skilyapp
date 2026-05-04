@@ -95,11 +95,13 @@ export default function ErrorBank() {
   const { profileId } = useUserContext();
   const { selectedCountry, selectedCategory } = usePDDContext();
   const { language } = useLanguage();
+  const { isPremium } = usePremium();
+  const openModal = useModalStore(s => s.openModal);
 
   const [questions, setQuestions] = useState<ErrorQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [preset, setPreset] = useState<Preset>("hardest");
-  const [count, setCount] = useState<number>(20);
+  const [count, setCount] = useState<number>(isPremium ? 20 : FREE_SESSION_MAX);
   const [topicFilter, setTopicFilter] = useState<string | null>(null);
   const [topicMenuOpen, setTopicMenuOpen] = useState(false);
 
