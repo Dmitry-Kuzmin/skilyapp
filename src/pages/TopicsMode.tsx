@@ -172,17 +172,6 @@ const TopicsMode = () => {
                             {index + 1}
                           </span>
                         </div>
-
-                        <div className="flex flex-col items-end gap-1.5">
-                          <span className="bg-transparent border-current text-blue-500 dark:text-blue-400 border border-blue-500/30 uppercase text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full">
-                            {totalCount.toLocaleString()} {t('вопр.', 'preg.', 'q.')}
-                          </span>
-                          {isFree && (
-                            <span className="bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">
-                              30 {t('бесплатно', 'gratis', 'free')}
-                            </span>
-                          )}
-                        </div>
                       </div>
 
                       {/* Title */}

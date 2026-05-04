@@ -421,7 +421,7 @@ const Tests = () => {
       },
       {
         id: 9,
-        title: selectedCountry === 'russia' ? 'Избранное' : localeText('Избранное', 'Favoritos', 'Favorites'),
+        title: selectedCountry === 'russia' ? 'Тренажёрный Зал' : localeText('Тренажёрный Зал', 'Gimnasio de Memoria', 'Memory Gym'),
         description: selectedCountry === 'russia'
           ? `${challengeStats.favorites} сохраненных вопросов`
           : localeText(
@@ -429,7 +429,7 @@ const Tests = () => {
             `${challengeStats.favorites} preguntas guardadas`,
             `${challengeStats.favorites} saved questions`
           ),
-        icon: Bookmark,
+        icon: BrainCircuit,
         color: "secondary",
         premium: false,
         difficulty: localeText("Личная", "Personal", "Personal"),
