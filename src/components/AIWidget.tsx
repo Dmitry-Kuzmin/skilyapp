@@ -44,6 +44,8 @@ interface AIWidgetProps {
   onToggleTranslation?: () => void;
   testLanguage?: 'es' | 'en' | 'ru';
   country?: 'spain' | 'russia';
+  questionIndex?: number;
+  totalQuestions?: number;
 }
 
 export const AIWidget = (props: AIWidgetProps) => {
