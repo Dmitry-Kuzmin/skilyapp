@@ -243,6 +243,7 @@ export function AIChatWidget() {
     const limitModalOpen = useAIChatStore((s) => s.limitModalOpen);
     const limitData = useAIChatStore((s) => s.limitData);
     const openModal = useModalStore(s => s.openModal);
+    const { sendRequest } = useAIRequest();
 
     // Счётчик оставшихся AI-сообщений (isOpen уже объявлен выше)
     const { data: aiUsage, refetch: refetchUsage } = useQuery({
