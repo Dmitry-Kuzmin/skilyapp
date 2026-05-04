@@ -361,6 +361,7 @@ const TestSession = () => {
     ticketNumber: ticketNumber || undefined,
     questionCount,
     category: searchParams.get('category') || selectedCategory || 'B',
+    challengeSort: (searchParams.get('sort') as 'recent' | 'hardest') || 'recent',
     redemptionData
   });
 
