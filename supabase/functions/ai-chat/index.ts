@@ -288,15 +288,12 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`[ai-chat] Calling Gemini (weakTopics: ${weakTopicsContext ? 'yes' : 'no'})`);
     const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId, weakTopicsContext);
-    if (gemini) { console.log('[ai-chat] Gemini OK'); return gemini; }
+    if (gemini) return gemini;
 
-    console.warn('[ai-chat] Gemini failed, trying Groq');
     const groq = await tryGroq(messages, country, mode, showComparison, 'llama-3.1-8b-instant', language);
-    if (groq) { console.log('[ai-chat] Groq OK'); return groq; }
+    if (groq) return groq;
 
-    console.error('[ai-chat] Both Gemini and Groq failed → 503');
     return new Response(JSON.stringify({ error: 'AI unavailable' }), { status: 503, headers: corsHeaders });
   } catch (e: unknown) {
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: corsHeaders });
