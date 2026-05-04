@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { X, Send, Lightbulb, Sparkles, ChevronDown, ChevronUp, ChevronRight, Mic, MicOff } from "lucide-react";
+import { X, Send, Lightbulb, Sparkles, ChevronDown, ChevronUp, ChevronRight, Mic, MicOff, Crown, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -8,6 +8,11 @@ import { SkilyAICharacter } from "./SkilyAICharacter";
 import { SkilyAIMessage } from "./SkilyAIMessage";
 import { useSkilyAIChat } from "@/hooks/useSkilyAIChat";
 import { usePDDContext } from "@/contexts/PDDContext";
+import { usePremium } from "@/hooks/usePremium";
+import { useUserContext } from "@/contexts/UserContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 declare global {
   interface Window {
@@ -46,11 +51,30 @@ export const SkilyAIChatWidget = ({
   showExplanation = false,
 }: SkilyAIChatWidgetProps) => {
   const { selectedCountry } = usePDDContext();
+  const { isPremium } = usePremium();
+  const { profileId } = useUserContext();
+  const { language } = useLanguage();
   const [input, setInput] = useState("");
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { messages, isLoading, error, sendMessage } = useSkilyAIChat(selectedCountry);
   const [hasShownExplanation, setHasShownExplanation] = useState(false);
+
+  // Счётчик лимитов
+  const { data: aiUsage, refetch: refetchUsage } = useQuery({
+    queryKey: ['ai-usage-limit', profileId],
+    queryFn: async () => {
+      if (!profileId) return null;
+      const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: profileId });
+      return data?.[0] ?? null;
+    },
+    enabled: !!profileId,
+    staleTime: 0,
+  });
+
+  const aiLimit = aiUsage?.limit || 5;
+  const aiUsed = aiUsage?.current_count ?? 0;
+  const aiRemaining = Math.max(aiLimit - aiUsed, 0);
 
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
@@ -115,10 +139,12 @@ export const SkilyAIChatWidget = ({
     const message = input.trim();
     setInput("");
     await sendMessage(message, context);
+    if (!isPremium) refetchUsage();
   };
 
   const handleQuickAction = async (message: string) => {
     await sendMessage(message, context);
+    if (!isPremium) refetchUsage();
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -140,12 +166,26 @@ export const SkilyAIChatWidget = ({
       {/* Header со Skily - как Officer Frank */}
       <div className="flex items-center justify-between px-4 py-3 bg-card border-b border-border/50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-105">
-            <SkilyAICharacter size="sm" mood="happy" animate className="scale-50" />
+          <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
+            <Bot className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
-          <div>
-            <h3 className="font-bold text-sm text-foreground">Привет! Я Skily 💡</h3>
-            <p className="text-xs text-muted-foreground">Твой AI помощник по DGT</p>
+          <div className="flex flex-col justify-center">
+            <h3 className="font-bold text-sm text-foreground leading-tight">Skily AI</h3>
+            {isPremium ? (
+              <div className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider mt-0.5">
+                <Crown className="w-2.5 h-2.5 fill-current" />
+                <span>Premium Ilimitado</span>
+              </div>
+            ) : aiUsage !== null ? (
+              <span className={cn(
+                "text-[10px] font-bold mt-0.5 transition-colors",
+                aiRemaining <= 1 ? "text-red-500 animate-pulse" : "text-slate-500 dark:text-slate-400"
+              )}>
+                {aiRemaining} / {aiLimit} {language === 'ru' ? 'запросов' : 'mensajes'}
+              </span>
+            ) : (
+              <p className="text-[10px] text-muted-foreground mt-0.5">Твой AI помощник</p>
+            )}
           </div>
         </div>
         {onClose && (

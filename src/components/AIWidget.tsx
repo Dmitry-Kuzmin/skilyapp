@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Sparkles, Maximize2, Minimize2, Languages, ThumbsUp, ThumbsDown, Mic, MicOff, Lightbulb } from "lucide-react";
+import { Send, Sparkles, Maximize2, Minimize2, Languages, ThumbsUp, ThumbsDown, Mic, MicOff, Lightbulb, Zap, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,10 @@ import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { AILimitReachedModal } from "@/components/ai/AILimitReachedModal";
 import { SignWidget } from "@/components/chat/SignWidget";
 import { useModalStore } from "@/store/modalStore";
+import { usePremium } from "@/hooks/usePremium";
+import { useQuery } from "@tanstack/react-query";
+import { useUserContext } from "@/contexts/UserContext";
+import { motion, AnimatePresence } from "framer-motion";
 // TON_DISABLED: import { TonPaymentWidget } from "@/components/monetization/LazyTonPaymentWidget";
 
 type Message = {
@@ -73,9 +77,27 @@ const AIWidgetContent = ({
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
   const [isListening, setIsListening] = useState(false);
-  const [limitModalOpen, setLimitModalOpen] = useState(false);
-  const [limitData, setLimitData] = useState({ currentCount: 0, limit: 10, message: '' });
+  const [limitReached, setLimitReached] = useState(false);
+  const [limitData, setLimitData] = useState({ currentCount: 0, limit: 5, message: '' });
   const openModal = useModalStore((s) => s.openModal);
+  const { isPremium } = usePremium();
+  const { profileId } = useUserContext();
+
+  // Message limit query
+  const { data: aiUsage, refetch: refetchUsage } = useQuery({
+    queryKey: ['ai-usage-limit', profileId],
+    queryFn: async () => {
+      if (!profileId) return null;
+      const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: profileId });
+      return data?.[0] ?? null;
+    },
+    enabled: !!profileId,
+    staleTime: 0,
+  });
+
+  const aiLimit = aiUsage?.limit || 5;
+  const aiUsed = aiUsage?.current_count ?? 0;
+  const aiRemaining = Math.max(aiLimit - aiUsed, 0);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
@@ -393,15 +415,13 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
       if (response.status === 429) {
         const errorData = await response.json();
         if (errorData.error === 'daily_limit_reached') {
+          triggerHapticFeedback('warning');
           setLimitData({
-            currentCount: errorData.current_count || 10,
-            limit: errorData.limit || 10,
+            currentCount: errorData.current_count || 5,
+            limit: errorData.limit || 5,
             message: errorData.message || ''
           });
-          setLimitModalOpen(true);
-          // Удаляем пустое сообщение ассистента
-          setMessages(prev => prev.slice(0, -1));
-          setIsLoading(false);
+          setLimitReached(true);
           return;
         }
       }
@@ -458,6 +478,7 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
       });
     } finally {
       setIsLoading(false);
+      if (!isPremium) refetchUsage();
     }
   };
 
@@ -537,15 +558,28 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
             {isExpanded ? <Minimize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" /> : <Maximize2 className="h-3.5 w-3.5 xl:h-4 xl:w-4" />}
           </Button>
           <div className="flex items-center gap-2 xl:gap-3 min-w-0 flex-1">
-            <div className="w-8 h-8 xl:w-10 xl:h-10 flex items-center justify-center shrink-0 transition-transform duration-500 group-hover:scale-105">
-              <SkilyAICharacter size="sm" mood="happy" className="scale-75" />
+            <div className="w-9 h-9 xl:w-10 xl:h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
+              <Bot className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             </div>
-            <div className="min-w-0">
-              <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate">
-                {interfaceLanguage === 'ru' ? 'Привет! Я Скили 🚗💡' :
-                  interfaceLanguage === 'en' ? "Hello! I'm Skily 💡" :
-                    "¡Hola! Soy Skily 💡"}
+            <div className="flex flex-col justify-center min-w-0">
+              <h3 className="font-bold text-sm xl:text-base text-foreground dark:text-slate-100 truncate leading-tight">
+                {interfaceLanguage === 'ru' ? 'Skily AI' : 'Skily AI'}
               </h3>
+              {isPremium ? (
+                <div className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider mt-0.5">
+                  <Crown className="w-2.5 h-2.5 fill-current" />
+                  <span>Premium Ilimitado</span>
+                </div>
+              ) : aiUsage !== null ? (
+                <span className={cn(
+                  "text-[10px] font-bold mt-0.5 transition-colors",
+                  aiRemaining <= 1 ? "text-red-500 animate-pulse" : "text-slate-500 dark:text-slate-400"
+                )}>
+                  {aiRemaining} / {aiLimit} {interfaceLanguage === 'ru' ? 'запросов' : 'mensajes'}
+                </span>
+              ) : (
+                <p className="text-[10px] text-muted-foreground mt-0.5">AI Instructor</p>
+              )}
             </div>
           </div>
         </div>

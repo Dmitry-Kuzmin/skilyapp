@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap, Crown } from 'lucide-react';
 import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
 // TON_DISABLED: import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
 import { Button } from '@/components/ui/button';
@@ -238,8 +238,7 @@ export function AIChatWidget() {
     const smartSuggestions = useAIChatStore(selectSmartSuggestions);
     const questionContext = useAIChatStore(selectQuestionContext);
     const showTranslation = useAIChatStore((s) => s.showTranslation);
-    const limitModalOpen = useAIChatStore((s) => s.limitModalOpen);
-    const limitData = useAIChatStore((s) => s.limitData);
+    const [limitReached, setLimitReached] = useState(false);
 
     // Счётчик оставшихся AI-сообщений (isOpen уже объявлен выше)
     const { data: aiUsage, refetch: refetchUsage } = useQuery({
@@ -253,7 +252,7 @@ export function AIChatWidget() {
         staleTime: 0,
     });
 
-    const aiLimit = 5;
+    const aiLimit = aiUsage?.limit || 5;
     const aiUsed = aiUsage?.current_count ?? 0;
     const aiRemaining = Math.max(aiLimit - aiUsed, 0);
 
@@ -266,7 +265,6 @@ export function AIChatWidget() {
         setLoading,
         setSmartSuggestions,
         setGeneratingSuggestions,
-        setLimitModal,
         conversationId,
     } = useAIChatStore();
 
@@ -431,12 +429,8 @@ export function AIChatWidget() {
             if (response.status === 429) {
                 const errorData = await response.json();
                 if (errorData.error === 'daily_limit_reached') {
-                    setLimitModal(true, {
-                        currentCount: errorData.current_count || 10,
-                        limit: errorData.limit || 10,
-                        message: errorData.message || '',
-                    });
-                    setLoading(false);
+                    triggerHapticFeedback('warning');
+                    setLimitReached(true);
                     return;
                 }
             }
@@ -496,10 +490,25 @@ export function AIChatWidget() {
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-slate-500/10 flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                    <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20">
+                        <Bot className="w-5 h-5 text-indigo-500" />
                     </div>
-                    <span className="font-bold text-lg tracking-tight">AI Помощник</span>
+                    <div className="flex flex-col justify-center">
+                        <span className="font-bold text-[15px] tracking-tight leading-tight">AI Помощник</span>
+                        {isPremium ? (
+                            <div className="flex items-center gap-1 text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-[0.05em] mt-0.5">
+                                <Crown className="w-2.5 h-2.5 fill-current" />
+                                <span>Premium Ilimitado</span>
+                            </div>
+                        ) : aiUsage !== null ? (
+                            <span className={cn(
+                                "text-[10px] font-bold mt-0.5 transition-colors",
+                                aiRemaining <= 1 ? "text-red-500 animate-pulse" : "text-slate-500 dark:text-slate-400"
+                            )}>
+                                {aiRemaining} / {aiLimit} {interfaceLanguage === 'ru' ? 'запросов' : 'mensajes'}
+                            </span>
+                        ) : null}
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {questionContext?.explanationRu && (
@@ -570,7 +579,28 @@ export function AIChatWidget() {
                                 className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium whitespace-normal"
                                 onClick={() => askAI(interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto')}
                             >
-                                {interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto'}
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className={cn(
+                                            "h-10 w-10 rounded-xl transition-colors",
+                                            isRecording ? "text-red-500 bg-red-50 dark:bg-red-500/10" : "text-slate-400 hover:text-blue-500"
+                                        )}
+                                        onClick={toggleVoiceInput}
+                                    >
+                                        {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        size="icon"
+                                        disabled={!input.trim() || isLoading}
+                                        className="h-10 w-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 border-0"
+                                    >
+                                        <Send className={cn("w-4.5 h-4.5", isLoading && "animate-pulse")} />
+                                    </Button>
+                                </div>
                             </Button>
                         </div>
                     </motion.div>
@@ -621,51 +651,29 @@ export function AIChatWidget() {
                                             <ThumbsUp className="w-3.5 h-3.5" />
                                         </Button>
                                         <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className={cn("h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10", message.rating === -1 && "text-red-500")}
-                                            onClick={() => setMessageRating(message.id, -1)}
-                                        >
-                                            <ThumbsDown className="w-3.5 h-3.5" />
-                                        </Button>
-                                    </div>
-                                )}
-                            </Card>
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-
-                {isLoading && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="flex justify-start w-full"
-                    >
-                        <Card className="p-3 bg-muted/80 backdrop-blur-sm rounded-2xl rounded-tl-sm">
-                            <div className="flex items-center gap-2">
-                                <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                                <span className="text-xs font-medium text-muted-foreground">
-                                    {interfaceLanguage === 'ru' ? 'Печатаю...' : 'Escribiendo...'}
-                                </span>
-                            </div>
-                        </Card>
-                    </motion.div>
-                )}
-
-                <div ref={messagesEndRef} />
+                {messages.map((message, index) => (
+                    <AIChatMessage
+                        key={index}
+                        message={message}
+                        isLast={index === messages.length - 1}
+                        onRating={(rating) => setMessageRating(index, rating)}
+                    />
+                ))}
+                {isLoading && <AIChatMessage message={{ role: 'assistant', content: '...' }} isLoading />}
+                <div ref={messagesEndRef} className="h-4" />
             </div>
 
             {/* Smart Suggestions */}
-            {smartSuggestions.length > 0 && !isLoading && (
-                <div className="px-4 pb-2 shrink-0">
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                        {smartSuggestions.map((suggestion, index) => (
+            {!limitReached && !isLoading && smartSuggestions.length > 0 && (
+                <div className="px-4 py-3 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm border-t border-border/5">
+                    <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
+                        {smartSuggestions.map((suggestion, i) => (
                             <Button
-                                key={index}
+                                key={i}
                                 variant="outline"
                                 size="sm"
                                 onClick={() => askAI(suggestion)}
-                                className="text-xs whitespace-nowrap shrink-0 rounded-full bg-background/50 backdrop-blur-sm"
+                                className="rounded-full text-[13px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all text-slate-700 dark:text-slate-300 h-9"
                             >
                                 {suggestion}
                             </Button>
@@ -681,75 +689,6 @@ export function AIChatWidget() {
                     paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 12px)',
                 }}
             >
-                {/* Индикатор сообщений */}
-                <div className="flex justify-center mb-2">
-                    {isPremium ? (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border border-violet-500/20 text-[11px] font-bold text-violet-600 dark:text-violet-400"
-                        >
-                            <motion.span
-                                animate={{ rotate: [0, 15, -10, 0] }}
-                                transition={{ duration: 2, repeat: 999, repeatDelay: 3 }}
-                            >✨</motion.span>
-                            <span>Безлимит · Premium</span>
-                        </motion.div>
-                    ) : aiUsage !== null && (
-                        <div className={cn(
-                            "flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold transition-colors",
-                            aiRemaining <= 1
-                                ? "bg-red-500/10 border border-red-500/20 text-red-500"
-                                : aiRemaining <= 2
-                                    ? "bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400"
-                                    : "bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400"
-                        )}>
-                            <Zap className="w-3 h-3" />
-                            <span>
-                                {aiRemaining === 0
-                                    ? 'Лимит исчерпан'
-                                    : `${aiRemaining} из ${aiLimit} сообщений`}
-                            </span>
-                        </div>
-                    )}
-                </div>
-                <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
-                    <div className="flex-1 relative">
-                        <input
-                            ref={inputRef}
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder={interfaceLanguage === 'ru' ? 'Напиши свой вопрос...' : 'Escribe tu pregunta...'}
-                            disabled={isLoading}
-                            className="w-full min-h-[48px] py-3 rounded-[24px] px-5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm text-base"
-                            style={{ fontSize: '16px' }} // предотвращает zoom на iOS
-                        />
-                    </div>
-
-                    <Button
-                        type="button"
-                        onClick={toggleVoiceInput}
-                        disabled={isLoading || isProcessingVoice}
-                        size="icon"
-                        variant="ghost"
-                        className={cn(
-                            "h-12 w-12 shrink-0 rounded-full transition-all active:scale-90 relative overflow-hidden",
-                            isRecording
-                                ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 ring-4 ring-red-500/20"
-                                : isProcessingVoice
-                                    ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 cursor-wait"
-                                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300"
-                        )}
-                        title="Голосовой ввод"
-                    >
-                        {isProcessingVoice ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : isRecording ? (
-                            <>
-                                <span className="absolute inset-0 rounded-full animate-ping bg-white/30 duration-1000" />
-                                <MicOff className="w-5 h-5 relative z-10" />
-                            </>
-                        ) : (
                             <Mic className="w-5 h-5" />
                         )}
                     </Button>
@@ -795,38 +734,9 @@ export function AIChatWidget() {
                     </DrawerContent>
                 </Drawer>
 
-                <AILimitReachedModal
-                    isOpen={limitModalOpen}
-                    onClose={() => setLimitModal(false)}
-                    currentCount={limitData.currentCount}
-                    limit={limitData.limit}
-                    message={limitData.message}
-                />
-            </>
-        );
-    }
-
-    // Desktop: Dialog
-    return (
-        <>
-            <Dialog open={isOpen} onOpenChange={(open) => !open && closeChat()}>
-                <DialogContent
-                    hideCloseButton
-                    className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col rounded-none border-none bg-white/95 dark:bg-zinc-950/98 backdrop-blur-2xl"
-                >
-                    <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full shadow-2xl bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md overflow-hidden my-0 sm:my-8 sm:rounded-2xl sm:border sm:border-border/10">
-                        {chatContent}
                     </div>
                 </DialogContent>
             </Dialog>
-
-            <AILimitReachedModal
-                isOpen={limitModalOpen}
-                onClose={() => setLimitModal(false)}
-                currentCount={limitData.currentCount}
-                limit={limitData.limit}
-                message={limitData.message}
-            />
         </>
     );
 }

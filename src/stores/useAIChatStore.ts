@@ -93,7 +93,7 @@ export const useAIChatStore = create<AIChatState>()(
             questionContext: null,
             conversationId: null,
             limitModalOpen: false,
-            limitData: { currentCount: 0, limit: 10, message: '' },
+            limitData: { currentCount: 0, limit: 5, message: '' },
 
             // Open chat with optional context (for "Help" button)
             openChat: (context) => {

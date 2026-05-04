@@ -214,20 +214,51 @@ Deno.serve(async (req) => {
       const { data: { user } } = await supabaseClient.auth.getUser(authHeader.replace('Bearer ', ''));
       if (user && mode !== 'debrief') {
         userId = user.id;
-        const { data: usage } = await supabaseClient.rpc('increment_ai_usage', { p_user_id: user.id }) as { data: UsageData[] | null };
-        if (usage?.[0]?.limit_reached) {
-          return new Response(JSON.stringify({ error: 'daily_limit_reached', message: 'Дневной лимит Skily исчерпан. Активируй Premium!' }), { status: 429, headers: corsHeaders });
-        }
+        console.log(`[ai-chat] Checking access for user: ${userId}`);
 
-        // Загружаем слабые темы для premium пользователей
+        // 1. Проверяем Premium статус ПЕРЕД инкрементом (расширенная проверка)
+        // ВАЖНО: Проверяем и id, и user_id (для разных схем связки с auth.users)
         const { data: profile } = await supabaseClient
           .from('profiles')
-          .select('is_premium')
-          .eq('id', user.id)
-          .single();
-        isPremiumUser = profile?.is_premium === true;
+          .select('is_premium, premium_until, trial_until, subscription_type, subscription_status, premium_forever_purchased_at')
+          .or(`id.eq.${userId},user_id.eq.${userId}`)
+          .maybeSingle();
+        
+        const now = new Date();
+        const hasPremiumForever = 
+          !!profile?.premium_forever_purchased_at && 
+          profile?.subscription_type === 'lifetime' && 
+          profile?.subscription_status === 'pro';
+        
+        const premiumUntilDate = profile?.premium_until ? new Date(profile.premium_until) : null;
+        const trialUntilDate = profile?.trial_until ? new Date(profile.trial_until) : null;
+
+        isPremiumUser = profile?.is_premium || 
+                        hasPremiumForever || 
+                        (premiumUntilDate && premiumUntilDate > now) || 
+                        (trialUntilDate && trialUntilDate > now);
 
         if (isPremiumUser) {
+          console.log(`[ai-chat] ✅ User ${userId} is Premium`);
+        }
+
+        // 2. Инкрементируем лимит только если НЕ premium
+        if (!isPremiumUser) {
+          const { data: usage } = await supabaseClient.rpc('increment_ai_usage', { p_user_id: userId }) as { data: UsageData[] | null };
+          if (usage?.[0]?.limit_reached) {
+            console.warn(`[ai-chat] 🚫 User ${userId} blocked: limit reached`);
+            return new Response(JSON.stringify({ 
+              error: 'daily_limit_reached', 
+              message: 'Дневной лимит Skily исчерпан. Активируй Premium!',
+              current_count: usage[0].current_count,
+              limit: 5
+            }), { status: 429, headers: corsHeaders });
+          }
+        } else {
+          // Для premium всё равно записываем факт использования для статистики (без блокировки)
+          await supabaseClient.rpc('increment_ai_usage', { p_user_id: userId }).catch(() => {});
+        }  
+          // Загружаем слабые темы для персонализации совета
           try {
             const { data: weakTopics } = await supabaseClient.rpc('get_weak_topics', {
               p_profile_id: user.id,
@@ -245,7 +276,6 @@ Deno.serve(async (req) => {
           }
         }
       }
-    }
 
     const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId, weakTopicsContext);
     if (gemini) return gemini;

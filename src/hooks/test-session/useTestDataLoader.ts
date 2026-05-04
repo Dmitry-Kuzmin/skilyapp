@@ -290,11 +290,11 @@ export const useTestDataLoader = ({
                 };
 
             case 'challenge-bank':
-                if (isGuestMode && (pddCountry === 'russia' || pddCountry === 'spain')) {
+                if (isGuestMode) {
                     return {
-                        questions: pddRandomQuestions.data || [],
-                        isLoading: pddRandomQuestions.isLoading,
-                        error: pddRandomQuestions.error as Error | null,
+                        questions: guestQuestions.slice(0, questionCount),
+                        isLoading: false,
+                        error: null,
                         testInfo: { id: 'challenge-bank-demo', title: '🏆 Demo banco de errores' },
                     };
                 }
