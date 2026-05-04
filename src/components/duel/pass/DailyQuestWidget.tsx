@@ -2,10 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Check, Flame, Trophy, Target, Zap, Gift, Clock, Sparkles } from "lucide-react";
+import { Check, Flame, Trophy, Target, Zap, Gift, Clock, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 
 const QUEST_TRANSLATIONS: Record<string, Record<string, string>> = {
   warmup:          { ru: "Ответь на 10 вопросов",            es: "Responde 10 preguntas",            en: "Answer 10 questions" },
@@ -23,6 +24,13 @@ const QUEST_TRANSLATIONS: Record<string, Record<string, string>> = {
   two_exams:       { ru: "Пройди 2 экзамена за день",        es: "Completa 2 exámenes en un día",    en: "Complete 2 exams today" },
   perfect_exam:    { ru: "Сдай экзамен на 100%",             es: "Aprueba un examen con 100%",       en: "Pass an exam with 100%" },
 };
+
+const CLAIM_LABEL: Record<string, string> = {
+  ru: "ЗАБРАТЬ",
+  es: "RECOGER",
+  en: "CLAIM"
+};
+
 
 export type DailyQuest = {
   id: string;
@@ -267,38 +275,61 @@ export function DailyQuestWidget() {
               </div>
             </div>
 
-            {/* Награда — Капсула (Pill Badge) */}
-            <div className="shrink-0 flex items-center h-full">
-              {quest.is_claimed ? (
-                <div className="flex items-center px-1.5 py-0.5 rounded-full bg-muted dark:bg-white/5">
-                  <span className="text-[9px] font-bold text-foreground/20 dark:text-white/20 uppercase">{quest.reward_sp} SP</span>
-                </div>
-              ) : quest.is_completed ? (
-                <Button
-                  onClick={() => handleClaimReward(quest)}
-                  disabled={!!claimingId}
-                  className={cn(
-                    "h-7 px-4 rounded-full font-black text-[10px] uppercase tracking-wider transition-all relative overflow-hidden group/claim shadow-xl",
-                    "bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-black border-none",
-                    "hover:scale-105 active:scale-95 hover:shadow-amber-500/40",
-                    claimingId === quest.id ? "opacity-80" : "animate-pulse-subtle"
-                  )}
-                >
-                  {/* Shining Shine Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[100%] group-hover/claim:translate-x-[100%] transition-transform duration-1000 ease-in-out" />
+            <div className="shrink-0 flex items-center justify-end">
+              {quest.is_completed && !quest.is_claimed ? (
+                <div className="relative">
+                  {/* Subtle Golden Aura */}
+                  <motion.div
+                    animate={{
+                      opacity: [0.3, 0.6, 0.3],
+                      scale: [1, 1.05, 1],
+                    }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 blur-[8px] bg-amber-400/20 rounded-full"
+                  />
                   
-                  {claimingId === quest.id ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <span className="flex items-center gap-1.5">
-                      CLAIM
-                      <Sparkles className="w-3 h-3 text-amber-900 group-hover/claim:rotate-12 transition-transform" />
-                    </span>
-                  )}
-                </Button>
+                  <motion.button
+                    whileHover={{ scale: 1.05, translateY: -0.5 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleClaimReward(quest)}
+                    disabled={!!claimingId}
+                    className={cn(
+                      "relative h-7 px-4 rounded-full font-black text-[9px] uppercase tracking-[0.15em] transition-all overflow-hidden",
+                      "bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 shadow-sm hover:shadow-md",
+                      "flex items-center justify-center gap-1.5 z-10",
+                      claimingId === quest.id && "opacity-50 pointer-events-none"
+                    )}
+                  >
+                    {/* Glassy Shine overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-white/40 via-transparent to-transparent opacity-60" />
+                    
+                    {/* Shimmer line */}
+                    <motion.div
+                      animate={{
+                        x: ["-100%", "200%"],
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "linear",
+                        repeatDelay: 1.5,
+                      }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/30 to-transparent -skew-x-12"
+                    />
+                    
+                    {claimingId === quest.id ? (
+                      <Loader2 className="w-3 h-3 animate-spin text-amber-500" />
+                    ) : (
+                      <>
+                        <span className="relative z-10">{CLAIM_LABEL[language] || "CLAIM"}</span>
+                        <Sparkles className="w-3 h-3 text-amber-500 animate-pulse relative z-10" />
+                      </>
+                    )}
+                  </motion.button>
+                </div>
               ) : (
-                <div className="flex items-center px-2 py-0.5 rounded-full bg-amber-500/15">
-                  <span className="text-[10px] font-black text-amber-600 dark:text-amber-500 tabular-nums">
+                <div className="flex items-center px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5">
+                  <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 tabular-nums">
                     +{quest.reward_sp} SP
                   </span>
                 </div>

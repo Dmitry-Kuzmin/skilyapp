@@ -10,25 +10,44 @@ import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
 import { useModalStore } from "@/store/modalStore";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useUserContext } from "@/contexts/UserContext";
+import { useUserProgress } from "@/hooks/useUserProgress";
+import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
 
 const FREE_QUESTIONS_PER_TOPIC = 30;
 
 const TopicsMode = () => {
   const { isPremium } = usePremium();
   const openModal = useModalStore((s) => s.openModal);
+  const { profileId } = useUserContext();
   const { language } = useLanguage();
 
   const [selectedTopic, setSelectedTopic] = useState<{ id: string; name: string; count: number } | null>(null);
 
   let selectedCountry: string = 'russia';
+  let selectedCategory: string = 'B';
   try {
     const context = usePDDContext();
     selectedCountry = context?.selectedCountry || 'russia';
+    selectedCategory = context?.selectedCategory || 'B';
   } catch {
     // fallback
   }
 
   const country = selectedCountry || 'russia';
+  const { data: userProgress = [] } = useUserProgress(profileId, country, selectedCategory);
+
+  const progressByTopic = useMemo(() => {
+    const counts: Record<string, number> = {};
+    userProgress.forEach(p => {
+      const topicId = p.questions_new?.topic_id;
+      if (topicId) {
+        counts[topicId] = (counts[topicId] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [userProgress]);
 
   const { data: topics = [], isLoading } = useQuery({
     queryKey: ['topics-with-counts', country],
@@ -91,33 +110,24 @@ const TopicsMode = () => {
               </p>
             </div>
 
-            {/* Stats badges — стиль из Tests.tsx */}
-            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <div className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30 backdrop-blur-sm shadow-lg shadow-blue-500/10">
-                <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-bold text-blue-700 dark:text-blue-100">
-                  {topics.length} <span className="text-blue-600/70 dark:text-blue-300/70 font-normal">{t('тем', 'temas', 'topics')}</span>
-                </span>
+            {/* Header */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
+              <div className="w-full md:w-auto space-y-2">
+                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                  {country === 'spain' ? 'DGT España' : 'ПДД Россия'}
+                </p>
+                <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
+                  {t('По темам', 'Por temas', 'By Topics')}
+                </h1>
+                <p className="text-muted-foreground font-medium text-base md:text-lg">
+                  {t(
+                    'Выберите тему для изучения',
+                    'Elige un tema para estudiar',
+                    'Choose a topic to study'
+                  )}
+                </p>
               </div>
-              <div className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
-                <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-sm font-bold text-emerald-700 dark:text-emerald-100">
-                  {totalQuestions.toLocaleString()} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">{t('вопр.', 'preg.', 'q.')}</span>
-                </span>
-              </div>
-              {isFree && (
-                <button
-                  onClick={() => openModal('PAYWALL')}
-                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 hover:from-amber-500/30 hover:to-orange-500/30 transition-colors"
-                >
-                  <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <span className="text-sm font-bold text-amber-700 dark:text-amber-100">
-                    {freeTotal}/{totalQuestions} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">free</span>
-                  </span>
-                </button>
-              )}
             </div>
-          </div>
 
           {/* Grid */}
           {isLoading ? (
@@ -131,7 +141,6 @@ const TopicsMode = () => {
               {sortedTopics.map((topic, index) => {
                 const totalCount = topic.questions_count || 0;
                 const ticketCount = Math.ceil(totalCount / FREE_QUESTIONS_PER_TOPIC);
-                const accessPct = totalCount > 0 ? Math.round((FREE_QUESTIONS_PER_TOPIC / totalCount) * 100) : 100;
 
                 return (
                   <button
@@ -183,39 +192,52 @@ const TopicsMode = () => {
                         </h3>
                       </div>
 
-                      {/* Bottom row */}
-                      <div className="flex items-center gap-3">
-                        {isFree ? (
-                          <div className="flex-1 space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                                {t('Доступ', 'Acceso', 'Access')}
-                              </span>
-                              <span className="text-[10px] font-black tabular-nums text-muted-foreground">
-                                {FREE_QUESTIONS_PER_TOPIC}/{totalCount}
+                      {/* Bottom row - Progress styled like Non-stop */}
+                      <div className="flex flex-col gap-3 w-full">
+                        {(() => {
+                          const answeredCount = progressByTopic[topic.id] || 0;
+                          const progressPct = totalCount > 0 ? Math.round((answeredCount / totalCount) * 100) : 0;
+                          
+                          return (
+                            <div className="space-y-2 animate-fade-in flex-1">
+                              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-amber-600/80 dark:text-amber-500/80">
+                                <span className="flex items-center gap-1.5">
+                                  {t('Пройдено', 'Completado', 'Progress')}: {answeredCount} / {totalCount}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  {progressPct}%
+                                  <CheckCircle className="w-3 h-3" />
+                                </span>
+                              </div>
+                              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full overflow-hidden border border-amber-500/20 shadow-inner">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${progressPct}%` }}
+                                  transition={{ duration: 1, ease: "easeOut" }}
+                                  className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 shadow-[0_0_15px_rgba(245,158,11,0.4)]"
+                                />
+                              </div>
+                            </div>
+                          );
+                        })()}
+                        
+                        <div className="flex items-center justify-between mt-1">
+                          {!isFree ? (
+                            <div className="flex items-center gap-1.5 text-muted-foreground">
+                              <Layers className="w-3.5 h-3.5 shrink-0" />
+                              <span className="text-[10px] font-black uppercase tracking-widest">
+                                {ticketCount} {t('билета', 'tests', 'tickets')}
                               </span>
                             </div>
-                            <div className="h-1.5 w-full bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
-                              <div
-                                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
-                                style={{ width: `${accessPct}%` }}
-                              />
-                            </div>
+                          ) : <div />}
+                          
+                          <div className={cn(
+                            "w-9 h-9 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300",
+                            "bg-blue-500/10 border-blue-500/20",
+                            "group-hover:bg-blue-500 group-hover:border-blue-500 group-hover:scale-110"
+                          )}>
+                            <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                           </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 text-muted-foreground flex-1">
-                            <Layers className="w-3.5 h-3.5 shrink-0" />
-                            <span className="text-xs font-bold uppercase tracking-widest">
-                              {ticketCount} {t('билета', 'tests', 'tickets')}
-                            </span>
-                          </div>
-                        )}
-                        <div className={cn(
-                          "w-9 h-9 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300",
-                          "bg-blue-500/10 border-blue-500/20",
-                          "group-hover:bg-blue-500 group-hover:border-blue-500 group-hover:scale-110"
-                        )}>
-                          <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
                         </div>
                       </div>
                     </div>

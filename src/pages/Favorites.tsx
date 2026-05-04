@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Bookmark, Play, Trash2, ArrowLeft,
-    Search, Zap, Battery, BatteryMedium, BatteryLow,
-    RotateCcw, BrainCircuit, Hash, AlertTriangle, Eye,
-    CheckCircle2, XCircle
+    Search, Battery, BatteryLow,
+    RotateCcw, BrainCircuit, Hash, AlertTriangle,
+    CheckCircle2, Zap, Flame, TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,8 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { QuestionImage } from "@/components/test/QuestionImage";
-import { Motion } from "@/components/optimized/Motion";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 // --- TYPES ---
 type FavoriteQuestion = {
@@ -25,8 +24,8 @@ type FavoriteQuestion = {
     question_ru: string;
     question_es: string;
     image_url: string | null;
-    added_at: string; // created_at or updated_at from relation
-    updated_at: string; // for battery calculation
+    added_at: string;
+    updated_at: string;
     topic_title_ru: string | null;
     mastered: boolean;
     times_wrong: number;
@@ -38,31 +37,6 @@ type FavoriteQuestion = {
     correct_answer_es: string | null;
 };
 
-// --- LOGIC HELPERS ---
-
-// 1. Battery Calculation (Ebbinghaus Curve Logic)
-const calculateBattery = (lastInteractionDate: string, streak: number): number => {
-    const now = new Date().getTime();
-    const last = new Date(lastInteractionDate).getTime();
-    const hoursPassed = (now - last) / (1000 * 60 * 60);
-
-    // Base decay: 100% -> 0% over 1 week (168 hours)
-    // Streak multiplier: Higher streak = slower decay
-    const decayFactor = 168 * (1 + (streak * 0.5));
-
-    let charge = 100 - (hoursPassed / decayFactor * 100);
-
-    // Limits
-    if (charge < 10) charge = 10; // Red zone
-    if (charge > 100) charge = 100;
-
-    // If just added (< 1 hour), full charge
-    if (hoursPassed < 1) charge = 100;
-
-    return Math.round(charge);
-};
-
-// 2. Smart Tags Detector
 type FavoritesGymLabels = {
     tags: {
         kryptonite: string;
@@ -76,28 +50,37 @@ type FavoritesGymLabels = {
     tapToFlipBack: string;
 };
 
+// --- LOGIC HELPERS ---
+
+const calculateBattery = (lastInteractionDate: string, streak: number): number => {
+    const now = new Date().getTime();
+    const last = new Date(lastInteractionDate).getTime();
+    const hoursPassed = (now - last) / (1000 * 60 * 60);
+    const decayFactor = 168 * (1 + (streak * 0.5));
+    let charge = 100 - (hoursPassed / decayFactor * 100);
+    if (charge < 10) charge = 10;
+    if (charge > 100) charge = 100;
+    if (hoursPassed < 1) charge = 100;
+    return Math.round(charge);
+};
+
 const getSmartTags = (q: FavoriteQuestion, labels: FavoritesGymLabels["tags"]) => {
     const tags = [];
-
-    // "Kryptonite" - User fails a lot
     if (q.times_wrong >= 3 && !q.mastered) {
-        tags.push({ id: 'kryptonite', label: labels.kryptonite, icon: <AlertTriangle className="w-3 h-3 text-rose-500" />, color: 'rose' });
+        tags.push({ id: 'kryptonite', label: labels.kryptonite, icon: <Flame className="w-3 h-3" />, color: 'rose' });
     }
-
-    // "Numbers" - Regex detection for speed, distance, alcohol
     const text = (q.question_ru + q.question_es).toLowerCase();
     const numberRegex = /(\d+\s*(km\/h|км\/ч|m|м|%|mg|мг|kg|кг|año|год|mes|мес|dia|дней))/i;
     if (numberRegex.test(text)) {
-        tags.push({ id: 'numbers', label: labels.numbers, icon: <Hash className="w-3 h-3 text-blue-400" />, color: 'blue' });
+        tags.push({ id: 'numbers', label: labels.numbers, icon: <Hash className="w-3 h-3" />, color: 'blue' });
     }
-
-    // "Trap" - Hard difficulty
     if (q.difficulty === 'hard') {
-        tags.push({ id: 'trap', label: labels.trap, icon: <BrainCircuit className="w-3 h-3 text-purple-400" />, color: 'purple' });
+        tags.push({ id: 'trap', label: labels.trap, icon: <AlertTriangle className="w-3 h-3" />, color: 'purple' });
     }
-
     return tags;
 };
+
+// --- MAIN PAGE ---
 
 const Favorites = () => {
     const navigate = useNavigate();
@@ -107,9 +90,8 @@ const Favorites = () => {
     const [questions, setQuestions] = useState<FavoriteQuestion[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-
-    // Filter State
     const [activeFilter, setActiveFilter] = useState<'all' | 'battery_low' | 'kryptonite' | 'numbers'>('all');
+
     const labels: FavoritesGymLabels = {
         tags: {
             kryptonite: t("favoritesGym.tags.kryptonite"),
@@ -124,9 +106,7 @@ const Favorites = () => {
     };
 
     useEffect(() => {
-        if (isAuthenticated && profileId) {
-            loadFavorites();
-        }
+        if (isAuthenticated && profileId) loadFavorites();
     }, [isAuthenticated, profileId, selectedCountry]);
 
     const dbCountry = selectedCountry === 'russia' ? 'ru' : selectedCountry === 'spain' ? 'es' : selectedCountry;
@@ -134,9 +114,7 @@ const Favorites = () => {
     const loadFavorites = async () => {
         if (!profileId) return;
         setLoading(true);
-
         try {
-            // 1. Get Relations
             const { data: relations, error: relError } = await supabase
                 .from('user_challenge_questions')
                 .select('question_id, created_at, updated_at, mastered, times_wrong, correct_streak')
@@ -145,112 +123,69 @@ const Favorites = () => {
                 .order('updated_at', { ascending: false });
 
             if (relError) throw relError;
-            if (!relations?.length) {
-                setQuestions([]);
-                return;
-            }
+            if (!relations?.length) { setQuestions([]); return; }
 
             const parsedRelations: any[] = relations || [];
             const relationMap = new Map(parsedRelations.map((r: any) => [r.question_id, r]));
             const questionIds = parsedRelations.map((r: any) => r.question_id);
-
-            // 2. Load Questions with Answers and Explanations
             let mappedData: FavoriteQuestion[] = [];
 
             if (selectedCountry === 'russia') {
                 const { data: russiaQuestions, error: qError } = await supabase
-                    .from('pdd_russia_questions')
-                    .select('*')
-                    .in('id', questionIds);
-
+                    .from('pdd_russia_questions').select('*').in('id', questionIds);
                 if (qError) throw qError;
-
-                if (russiaQuestions && russiaQuestions.length > 0) {
+                if (russiaQuestions?.length) {
                     const { data: russiaAnswers } = await supabase
-                        .from('pdd_russia_answers')
-                        .select('*')
-                        .in('question_id', russiaQuestions.map((q: any) => q.id));
-
+                        .from('pdd_russia_answers').select('*').in('question_id', russiaQuestions.map((q: any) => q.id));
                     mappedData = russiaQuestions.map((q: any) => {
                         const rel = relationMap.get(q.id);
                         const answers = ((russiaAnswers as any[]) || []).filter((a: any) => a.question_id === q.id);
                         const correctOption = answers.find((a: any) => a.is_correct);
-
-                        let difficulty: 'easy' | 'medium' | 'hard' = 'medium';
-                        if (q.difficulty === 'hard' || (rel?.times_wrong || 0) > 2) difficulty = 'hard';
-                        else if (q.difficulty === 'easy') difficulty = 'easy';
-
+                        const difficulty: 'easy' | 'medium' | 'hard' =
+                            q.difficulty === 'hard' || (rel?.times_wrong || 0) > 2 ? 'hard' :
+                            q.difficulty === 'easy' ? 'easy' : 'medium';
                         return {
-                            id: q.id,
-                            question_ru: q.question_text || q.text || '',
-                            question_es: '',
-                            image_url: q.image_url,
-                            added_at: rel?.created_at,
+                            id: q.id, question_ru: q.question_text || q.text || '', question_es: '',
+                            image_url: q.image_url, added_at: rel?.created_at,
                             updated_at: rel?.updated_at || rel?.created_at,
-                            topic_title_ru: (q.topics && q.topics.length > 0) ? q.topics[0] : null,
-                            mastered: rel?.mastered || false,
-                            times_wrong: rel?.times_wrong || 0,
-                            correct_streak: rel?.correct_streak || 0,
-                            difficulty,
-                            explanation_ru: q.explanation || null,
-                            explanation_es: null,
+                            topic_title_ru: q.topics?.[0] ?? null, mastered: rel?.mastered || false,
+                            times_wrong: rel?.times_wrong || 0, correct_streak: rel?.correct_streak || 0,
+                            difficulty, explanation_ru: q.explanation || null, explanation_es: null,
                             correct_answer_ru: correctOption?.answer_text || correctOption?.text || null,
-                            correct_answer_es: null
+                            correct_answer_es: null,
                         };
                     });
                 }
             } else {
-                let query = supabase
-                    .from('questions_new')
-                    .select(`
-                        id, question_ru, question_es, image_url, metadata, country, explanation_ru, explanation_es,
-                        topics(title_ru, title_es),
-                        answer_options(text_ru, text_es, is_correct)
-                    `)
-                    .in('id', questionIds);
-
+                let query = supabase.from('questions_new').select(`
+                    id, question_ru, question_es, image_url, metadata, country, explanation_ru, explanation_es,
+                    topics(title_ru, title_es), answer_options(text_ru, text_es, is_correct)
+                `).in('id', questionIds);
                 if (dbCountry) query = query.eq('country', dbCountry);
-
                 const { data: questionsData, error: qError } = await query;
                 if (qError) throw qError;
-
                 mappedData = (questionsData || []).map((q: any) => {
                     const rel = relationMap.get(q.id);
                     const correctOption = q.answer_options?.find((o: any) => o.is_correct);
-
-                    let difficulty: 'easy' | 'medium' | 'hard' = 'medium';
-                    if (q.metadata?.difficulty === 'hard' || (rel?.times_wrong || 0) > 2) difficulty = 'hard';
-                    else if (q.metadata?.difficulty === 'easy') difficulty = 'easy';
-
+                    const difficulty: 'easy' | 'medium' | 'hard' =
+                        q.metadata?.difficulty === 'hard' || (rel?.times_wrong || 0) > 2 ? 'hard' :
+                        q.metadata?.difficulty === 'easy' ? 'easy' : 'medium';
                     return {
-                        id: q.id,
-                        question_ru: q.question_ru,
-                        question_es: q.question_es,
-                        image_url: q.image_url,
-                        added_at: rel?.created_at,
+                        id: q.id, question_ru: q.question_ru, question_es: q.question_es,
+                        image_url: q.image_url, added_at: rel?.created_at,
                         updated_at: rel?.updated_at || rel?.created_at,
-                        topic_title_ru: q.topics?.title_ru,
-                        mastered: rel?.mastered || false,
-                        times_wrong: rel?.times_wrong || 0,
-                        correct_streak: rel?.correct_streak || 0,
-                        difficulty,
-                        explanation_ru: q.explanation_ru,
-                        explanation_es: q.explanation_es,
-                        correct_answer_ru: correctOption?.text_ru,
-                        correct_answer_es: correctOption?.text_es
+                        topic_title_ru: q.topics?.title_ru, mastered: rel?.mastered || false,
+                        times_wrong: rel?.times_wrong || 0, correct_streak: rel?.correct_streak || 0,
+                        difficulty, explanation_ru: q.explanation_ru, explanation_es: q.explanation_es,
+                        correct_answer_ru: correctOption?.text_ru, correct_answer_es: correctOption?.text_es,
                     };
                 });
             }
 
-            // Sort by Battery Charge (Lowest charge first)
-            mappedData.sort((a, b) => {
-                const battA = calculateBattery(a.updated_at, a.correct_streak);
-                const battB = calculateBattery(b.updated_at, b.correct_streak);
-                return battA - battB;
-            });
-
+            mappedData.sort((a, b) =>
+                calculateBattery(a.updated_at, a.correct_streak) - calculateBattery(b.updated_at, b.correct_streak)
+            );
             setQuestions(mappedData);
-
         } catch (error) {
             console.error('Error loading Favorites:', error);
             toast.error(t("favoritesGym.toasts.loadError"));
@@ -266,18 +201,14 @@ const Favorites = () => {
             .update({ is_favorite: false })
             .eq('user_id', profileId)
             .eq('question_id', questionId);
-
         if (!error) {
             setQuestions(prev => prev.filter(q => q.id !== questionId));
             toast.success(t("favoritesGym.toasts.removed"));
         }
     };
 
-    // Filter Logic
     const filteredQuestions = useMemo(() => {
         let result = questions;
-
-        // Search
         if (searchQuery) {
             const lower = searchQuery.toLowerCase();
             result = result.filter(q =>
@@ -285,208 +216,239 @@ const Favorites = () => {
                 q.question_es.toLowerCase().includes(lower)
             );
         }
-
-        // Bubbles
         if (activeFilter === 'battery_low') {
             result = result.filter(q => calculateBattery(q.updated_at, q.correct_streak) < 50);
         } else if (activeFilter === 'kryptonite') {
-            result = result.filter(q => getSmartTags(q).some(t => t.id === 'kryptonite'));
+            result = result.filter(q => getSmartTags(q, labels.tags).some(t => t.id === 'kryptonite'));
         } else if (activeFilter === 'numbers') {
-            result = result.filter(q => getSmartTags(q).some(t => t.id === 'numbers'));
+            result = result.filter(q => getSmartTags(q, labels.tags).some(t => t.id === 'numbers'));
         }
-
         return result;
-    }, [questions, searchQuery, activeFilter]);
+    }, [questions, searchQuery, activeFilter, labels.tags]);
 
-    // Derived Stats
-    const lowBatteryCount = questions.filter(q => calculateBattery(q.updated_at, q.correct_streak) < 50).length;
+    const lowBatteryCount = useMemo(() =>
+        questions.filter(q => calculateBattery(q.updated_at, q.correct_streak) < 50).length,
+    [questions]);
 
-    if (!isAuthenticated) return null; // Or redirect
+    const kryptoniteCount = useMemo(() =>
+        questions.filter(q => getSmartTags(q, labels.tags).some(t => t.id === 'kryptonite')).length,
+    [questions, labels.tags]);
+
+    const numbersCount = useMemo(() =>
+        questions.filter(q => getSmartTags(q, labels.tags).some(t => t.id === 'numbers')).length,
+    [questions, labels.tags]);
+
+    if (!isAuthenticated) return null;
 
     return (
         <Layout>
-            <div className="container mx-auto px-4 py-8 max-w-7xl min-h-screen pb-24">
+            <div className="container mx-auto px-4 py-8 max-w-7xl min-h-screen pb-28">
 
                 {/* HEADER */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-                    <div className="space-y-1">
-                        <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-muted-foreground -ml-2 hover:text-foreground">
-                            <ArrowLeft className="w-4 h-4 mr-2" /> {t("common.back")}
-                        </Button>
-                        <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight flex items-center gap-3">
-                            <BrainCircuit className="w-10 h-10 text-primary" />
-                            {t("favoritesGym.title")}
-                        </h1>
-                        <p className="text-muted-foreground max-w-md">
-                            {t("favoritesGym.subtitle")}
-                        </p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                    <div className="space-y-1.5">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors mb-2"
+                        >
+                            <ArrowLeft className="w-3.5 h-3.5" />
+                            {t("common.back")}
+                        </button>
+                        <div className="flex items-center gap-3">
+                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+                                <BrainCircuit className="w-5.5 h-5.5 text-white" style={{ width: 22, height: 22 }} />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight leading-none">
+                                    {t("favoritesGym.title")}
+                                </h1>
+                                <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+                                    {t("favoritesGym.subtitle")}
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        {/* START TRAINING BUTTON - MOVED HERE */}
+                    {/* STATS + CTA */}
+                    <div className="flex items-center gap-3">
+                        <StatPill
+                            value={questions.length}
+                            label={t("favoritesGym.totalCards")}
+                            icon={<Bookmark className="w-3.5 h-3.5" />}
+                        />
+                        <StatPill
+                            value={lowBatteryCount}
+                            label={t("favoritesGym.requireCharge")}
+                            icon={<BatteryLow className="w-3.5 h-3.5" />}
+                            alert={lowBatteryCount > 0}
+                        />
                         <Button
                             size="lg"
                             onClick={() => navigate('/test/favorites')}
-                            className="hidden md:flex h-12 pl-4 pr-6 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 border border-white/10 items-center gap-3 transition-transform hover:scale-105 active:scale-95"
+                            className="hidden md:flex h-11 pl-4 pr-5 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white shadow-lg shadow-violet-500/30 items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 border-0"
                         >
-                            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                                <Play className="w-4 h-4 fill-current text-current ml-0.5" />
+                            <div className="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center">
+                                <Play className="w-3 h-3 fill-current ml-0.5" />
                             </div>
                             <div className="text-left">
-                                <div className="text-[10px] font-bold opacity-80 uppercase tracking-wider">{t("favoritesGym.trainingLabel")}</div>
-                                <div className="text-sm font-black leading-none">{t("favoritesGym.chargeMemory")}</div>
+                                <div className="text-[9px] font-bold opacity-75 uppercase tracking-widest leading-none">{t("favoritesGym.trainingLabel")}</div>
+                                <div className="text-sm font-black leading-tight">{t("favoritesGym.chargeMemory")}</div>
                             </div>
                         </Button>
-
-                        {/* Mobile Floating Button (visible only on small screens) */}
-                        <div className="md:hidden fixed bottom-6 right-6 z-40">
-                            <Button
-                                size="lg"
-                                onClick={() => navigate('/test/favorites')}
-                                className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/40 flex items-center justify-center p-0"
-                            >
-                                <Play className="w-6 h-6 fill-current ml-1" />
-                            </Button>
-                        </div>
-
-
-                        <div className="h-8 w-[1px] bg-border hidden md:block" />
-
-                        <div className="text-right hidden md:block">
-                            <div className="text-2xl font-black text-foreground">{questions.length}</div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{t("favoritesGym.totalCards")}</div>
-                        </div>
-                        <div className="h-8 w-[1px] bg-border hidden md:block" />
-                        <div className="text-right">
-                            <div className={cn("text-2xl font-black", lowBatteryCount > 0 ? "text-rose-500" : "text-emerald-500")}>
-                                {lowBatteryCount}
-                            </div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{t("favoritesGym.requireCharge")}</div>
-                        </div>
                     </div>
                 </div>
 
                 {/* FILTERS & SEARCH */}
-                <div className="sticky top-20 z-30 bg-background/80 backdrop-blur-xl border border-border rounded-2xl p-2 mb-8 shadow-sm">
-                    <div className="flex flex-col sm:flex-row gap-2">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                                placeholder={t("favoritesGym.searchPlaceholder")}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="bg-muted/50 border-transparent pl-10 h-10 rounded-xl focus:bg-background focus:ring-2 focus:ring-primary/20 transition-all text-sm"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
-                            <FilterBubble
-                                active={activeFilter === 'all'}
-                                onClick={() => setActiveFilter('all')}
-                                icon={<Bookmark className="w-3.5 h-3.5" />}
-                                label={t("favoritesGym.filters.all")}
-                            />
-                            <FilterBubble
-                                active={activeFilter === 'battery_low'}
-                                onClick={() => setActiveFilter('battery_low')}
-                                icon={<BatteryLow className="w-3.5 h-3.5" />}
-                                label={t("favoritesGym.filters.lowBattery")}
-                                count={lowBatteryCount}
-                                alert={lowBatteryCount > 0}
-                            />
-                            <FilterBubble
-                                active={activeFilter === 'kryptonite'}
-                                onClick={() => setActiveFilter('kryptonite')}
-                                icon={<AlertTriangle className="w-3.5 h-3.5" />}
-                                label={t("favoritesGym.filters.kryptonite")}
-                            />
-                            <FilterBubble
-                                active={activeFilter === 'numbers'}
-                                onClick={() => setActiveFilter('numbers')}
-                                icon={<Hash className="w-3.5 h-3.5" />}
-                                label={t("favoritesGym.filters.numbers")}
-                            />
+                <div className="sticky top-16 z-30 mb-8">
+                    <div className="bg-background/80 backdrop-blur-xl border border-border/60 rounded-2xl p-2 shadow-sm">
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                                <Input
+                                    placeholder={t("favoritesGym.searchPlaceholder")}
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="bg-muted/40 border-transparent pl-10 h-10 rounded-xl focus-visible:ring-1 focus-visible:ring-primary/30 text-sm"
+                                />
+                            </div>
+                            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+                                <FilterChip active={activeFilter === 'all'} onClick={() => setActiveFilter('all')}
+                                    icon={<Bookmark className="w-3 h-3" />} label={t("favoritesGym.filters.all")} />
+                                <FilterChip active={activeFilter === 'battery_low'} onClick={() => setActiveFilter('battery_low')}
+                                    icon={<BatteryLow className="w-3 h-3" />} label={t("favoritesGym.filters.lowBattery")}
+                                    count={lowBatteryCount} alert={lowBatteryCount > 0} color="rose" />
+                                <FilterChip active={activeFilter === 'kryptonite'} onClick={() => setActiveFilter('kryptonite')}
+                                    icon={<Flame className="w-3 h-3" />} label={t("favoritesGym.filters.kryptonite")}
+                                    count={kryptoniteCount} color="orange" />
+                                <FilterChip active={activeFilter === 'numbers'} onClick={() => setActiveFilter('numbers')}
+                                    icon={<Hash className="w-3 h-3" />} label={t("favoritesGym.filters.numbers")}
+                                    count={numbersCount} color="blue" />
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* GRID AREA */}
+                {/* GRID */}
                 {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                         {[...Array(8)].map((_, i) => (
-                            <div key={i} className="aspect-[4/5] bg-muted/50 rounded-3xl animate-pulse border border-border" />
+                            <div key={i} className="h-[460px] bg-muted/40 rounded-[2rem] animate-pulse border border-border/40" />
                         ))}
                     </div>
                 ) : filteredQuestions.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filteredQuestions.map((q, i) => (
-                            <Flashcard
-                                key={q.id}
-                                question={q}
-                                index={i}
-                                country={selectedCountry || 'spain'}
-                                onRemove={handleRemoveFavorite}
-                                labels={labels}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-20">
-                        <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
-                            <Search className="w-8 h-8 text-muted-foreground" />
+                    <AnimatePresence mode="popLayout">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                            {filteredQuestions.map((q, i) => (
+                                <motion.div
+                                    key={q.id}
+                                    layout
+                                    initial={{ opacity: 0, y: 16 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ delay: i * 0.04, duration: 0.25 }}
+                                >
+                                    <Flashcard
+                                        question={q}
+                                        country={selectedCountry || 'spain'}
+                                        onRemove={handleRemoveFavorite}
+                                        labels={labels}
+                                    />
+                                </motion.div>
+                            ))}
                         </div>
-                        <h3 className="text-xl font-bold text-foreground mb-2">{t("favoritesGym.empty.title")}</h3>
-                        <p className="text-muted-foreground max-w-xs mx-auto">
-                            {t("favoritesGym.empty.description")}
-                        </p>
+                    </AnimatePresence>
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex flex-col items-center justify-center py-24 text-center"
+                    >
+                        <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <Search className="w-7 h-7 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-bold text-foreground mb-1">{t("favoritesGym.empty.title")}</h3>
+                        <p className="text-sm text-muted-foreground max-w-xs">{t("favoritesGym.empty.description")}</p>
                         {(activeFilter !== 'all' || searchQuery) && (
-                            <Button
-                                variant="link"
-                                onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
-                                className="mt-4 text-primary"
-                            >
+                            <Button variant="link" onClick={() => { setActiveFilter('all'); setSearchQuery(''); }}
+                                className="mt-3 text-primary text-sm">
                                 {t("favoritesGym.empty.resetFilters")}
                             </Button>
                         )}
-                    </div>
+                    </motion.div>
                 )}
+            </div>
 
-                {/* FAB REMOVED - BUTTON IS NOW IN HEADER */}
-
+            {/* Mobile FAB */}
+            <div className="md:hidden fixed bottom-24 right-5 z-40">
+                <Button
+                    size="icon"
+                    onClick={() => navigate('/test/favorites')}
+                    className="h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-600 text-white shadow-2xl shadow-violet-500/40 border-0"
+                >
+                    <Play className="w-6 h-6 fill-current ml-0.5" />
+                </Button>
             </div>
         </Layout>
     );
 };
 
-// --- COMPONENTS ---
+// --- SUB-COMPONENTS ---
 
-const FilterBubble = ({ active, onClick, icon, label, count, alert }: any) => (
-    <button
-        onClick={onClick}
-        className={cn(
-            "flex items-center gap-2 px-4 h-9 rounded-xl text-xs font-bold transition-all whitespace-nowrap border select-none",
-            active
-                ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20"
-                : "bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted hover:text-foreground"
-        )}
-    >
-        {icon}
-        {label}
-        {count !== undefined && (
-            <span className={cn(
-                "px-1.5 py-0.5 rounded-md text-[9px] min-w-[18px] text-center ml-1",
-                active ? "bg-white/20 text-white" : "bg-background text-muted-foreground shadow-sm",
-                alert && !active && "bg-rose-500/20 text-rose-500"
-            )}>
-                {count}
-            </span>
-        )}
-    </button>
+const StatPill = ({ value, label, icon, alert }: { value: number; label: string; icon: React.ReactNode; alert?: boolean }) => (
+    <div className={cn(
+        "flex items-center gap-2 px-3 py-2 rounded-xl border text-sm",
+        alert ? "bg-rose-500/5 border-rose-500/20" : "bg-muted/50 border-border/50"
+    )}>
+        <span className={cn("text-muted-foreground", alert && "text-rose-400")}>{icon}</span>
+        <div>
+            <div className={cn("text-xl font-black leading-none", alert ? "text-rose-500" : "text-foreground")}>{value}</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mt-0.5 whitespace-nowrap">{label}</div>
+        </div>
+    </div>
 );
 
-const Flashcard = ({ question, index, country, onRemove, labels }: { question: FavoriteQuestion, index: number, country: string, onRemove: (id: string) => void, labels: FavoritesGymLabels }) => {
+const FilterChip = ({ active, onClick, icon, label, count, alert, color }: {
+    active: boolean; onClick: () => void; icon: React.ReactNode; label: string;
+    count?: number; alert?: boolean; color?: 'rose' | 'orange' | 'blue';
+}) => {
+    const colorMap = {
+        rose: { chip: 'bg-rose-500/10 border-rose-500/20 text-rose-500', count: 'bg-rose-500/15 text-rose-500' },
+        orange: { chip: 'bg-orange-500/10 border-orange-500/20 text-orange-500', count: 'bg-orange-500/15 text-orange-500' },
+        blue: { chip: 'bg-blue-500/10 border-blue-500/20 text-blue-500', count: 'bg-blue-500/15 text-blue-500' },
+    };
+    const themed = color ? colorMap[color] : null;
+
+    return (
+        <button
+            onClick={onClick}
+            className={cn(
+                "flex items-center gap-1.5 px-3 h-9 rounded-xl text-xs font-bold transition-all whitespace-nowrap border select-none",
+                active
+                    ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
+                    : themed && count
+                        ? `${themed.chip} hover:opacity-80`
+                        : "bg-muted/40 text-muted-foreground border-border/40 hover:bg-muted hover:text-foreground"
+            )}
+        >
+            {icon}
+            {label}
+            {count !== undefined && count > 0 && (
+                <span className={cn(
+                    "px-1.5 py-0.5 rounded-md text-[10px] font-black min-w-[18px] text-center",
+                    active ? "bg-white/20 text-white" : themed ? themed.count : "bg-background text-muted-foreground"
+                )}>
+                    {count}
+                </span>
+            )}
+        </button>
+    );
+};
+
+const Flashcard = ({ question, country, onRemove, labels }: {
+    question: FavoriteQuestion; country: string; onRemove: (id: string) => void; labels: FavoritesGymLabels;
+}) => {
     const [isFlipped, setIsFlipped] = useState(false);
 
-    // Logic
     const battery = calculateBattery(question.updated_at, question.correct_streak);
     const tags = getSmartTags(question, labels.tags);
     const isRus = country === 'russia';
@@ -494,148 +456,161 @@ const Flashcard = ({ question, index, country, onRemove, labels }: { question: F
     const answer = isRus ? question.correct_answer_ru : question.correct_answer_es;
     const explanation = isRus ? question.explanation_ru : question.explanation_es;
 
-    // Battery Color
-    const batteryColor = battery > 70 ? 'bg-emerald-500' : battery > 40 ? 'bg-amber-500' : 'bg-rose-500';
-
-    const ImageHeader = (
-        <div className="relative h-44 shrink-0 bg-muted overflow-hidden">
-            <QuestionImage
-                imageUrl={question.image_url}
-                country={isRus ? 'russia' : 'spain'}
-                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
-            />
-            {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-            {/* Smart Tags */}
-            <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-                {tags.map(tag => (
-                    <div key={tag.id} className={cn("px-2 py-1 rounded-lg backdrop-blur-md bg-black/40 border border-white/10 flex items-center gap-1.5 text-[10px] font-bold text-white shadow-sm")}>
-                        {tag.icon} {tag.label}
-                    </div>
-                ))}
-            </div>
-
-            {/* Flip Hint - Moved to bottom right of image */}
-            <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                <RotateCcw className="w-4 h-4 text-white/70" />
-            </div>
-        </div>
-    );
+    const batteryColor = battery > 70 ? 'bg-emerald-500' : battery > 40 ? 'bg-amber-400' : 'bg-rose-500';
+    const batteryTextColor = battery > 70 ? 'text-emerald-500' : battery > 40 ? 'text-amber-500' : 'text-rose-500';
 
     return (
         <div
-            className="group relative h-[480px] w-full cursor-pointer perspective-1000"
-            onClick={() => setIsFlipped(!isFlipped)}
-            style={{ perspective: '1000px' }}
+            className="group relative h-[460px] w-full cursor-pointer select-none"
+            style={{ perspective: '1200px' }}
+            onClick={() => setIsFlipped(f => !f)}
         >
-            {/* --- TRASH CAN (FIXED OVERLAY) --- */}
-            <div className="absolute top-4 right-4 z-[60] opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 text-rose-500 hover:text-white hover:bg-rose-500 bg-background/90 backdrop-blur-md border border-border rounded-xl shadow-xl transition-all active:scale-90"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onRemove(question.id);
-                    }}
+            {/* Trash — fixed overlay */}
+            <div className="absolute top-3.5 right-3.5 z-50 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+                <button
+                    className="h-9 w-9 flex items-center justify-center rounded-xl bg-background/90 backdrop-blur-sm border border-border/60 text-muted-foreground hover:text-rose-500 hover:border-rose-500/30 hover:bg-rose-500/5 shadow-lg transition-all active:scale-90"
+                    onClick={(e) => { e.stopPropagation(); onRemove(question.id); }}
                 >
-                    <Trash2 className="w-4 h-4" />
-                </Button>
+                    <Trash2 className="w-3.5 h-3.5" />
+                </button>
             </div>
 
             <motion.div
-                className="w-full h-full relative preserve-3d transition-all duration-500 origin-center"
+                className="w-full h-full relative"
                 initial={false}
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                transition={{ type: "spring", stiffness: 300, damping: 28 }}
                 style={{ transformStyle: 'preserve-3d' }}
             >
-                {/* --- FRONT SIDE --- */}
+                {/* ===== FRONT ===== */}
                 <div
-                    className="absolute inset-0 backface-hidden w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col shadow-lg hover:shadow-xl hover:shadow-primary/5 transition-shadow"
+                    className="absolute inset-0 w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col shadow-sm hover:shadow-md hover:shadow-primary/5 transition-shadow"
                     style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                 >
-                    {ImageHeader}
+                    {/* Image */}
+                    <div className="relative h-44 shrink-0 bg-muted overflow-hidden">
+                        <QuestionImage
+                            imageUrl={question.image_url}
+                            country={isRus ? 'russia' : 'spain'}
+                            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-                    <div className="p-5 flex flex-col flex-1 gap-4 overflow-hidden">
-                        <div className="flex-1 overflow-hidden">
-                            <p className="text-sm md:text-base font-bold text-card-foreground line-clamp-6 leading-relaxed">
-                                {text}
-                            </p>
+                        {/* Tags */}
+                        {tags.length > 0 && (
+                            <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
+                                {tags.map(tag => (
+                                    <span key={tag.id} className={cn(
+                                        "flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold backdrop-blur-md border border-white/10",
+                                        tag.color === 'rose' && "bg-rose-500/80 text-white",
+                                        tag.color === 'blue' && "bg-blue-500/80 text-white",
+                                        tag.color === 'purple' && "bg-purple-500/80 text-white",
+                                    )}>
+                                        {tag.icon} {tag.label}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Flip hint */}
+                        <div className="absolute bottom-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-[10px] font-bold text-white/70">Ver respuesta</span>
+                            <div className="w-7 h-7 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
+                                <RotateCcw className="w-3.5 h-3.5 text-white/80" />
+                            </div>
                         </div>
+                    </div>
 
-                        <div className="mt-auto pt-4 border-t border-border/50 space-y-3">
-                            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                                <span className="flex items-center gap-1.5">
-                                    <Battery className={cn("w-3 h-3", battery > 40 ? "text-emerald-500" : "text-rose-500")} />
+                    {/* Content */}
+                    <div className="p-5 flex flex-col flex-1 gap-3 overflow-hidden">
+                        <p className="flex-1 text-sm font-semibold text-card-foreground leading-relaxed line-clamp-5">
+                            {text}
+                        </p>
+
+                        {/* Battery */}
+                        <div className="pt-3 border-t border-border/40 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                                    <Battery className={cn("w-3 h-3", batteryTextColor)} />
                                     {labels.batteryCharge}
                                 </span>
-                                <span className={cn(
-                                    battery > 70 ? "text-emerald-500" : battery > 40 ? "text-amber-500" : "text-rose-500"
-                                )}>{battery}%</span>
+                                <span className={cn("text-[11px] font-black tabular-nums", batteryTextColor)}>{battery}%</span>
                             </div>
                             <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${battery}%` }}
-                                    className={cn("h-full shadow-[0_0_10px_currentColor]", batteryColor)}
+                                    transition={{ duration: 0.6, ease: "easeOut" }}
+                                    className={cn("h-full rounded-full", batteryColor)}
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* --- BACK SIDE (ANSWER) --- */}
+                {/* ===== BACK ===== */}
                 <div
-                    className="absolute inset-0 backface-hidden w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col shadow-xl rotate-y-180"
+                    className="absolute inset-0 w-full h-full bg-card border border-border/50 rounded-[2rem] overflow-hidden flex flex-col shadow-sm"
                     style={{
-                        transform: "rotateY(180deg)",
+                        transform: 'rotateY(180deg)',
                         backfaceVisibility: 'hidden',
-                        WebkitBackfaceVisibility: 'hidden'
+                        WebkitBackfaceVisibility: 'hidden',
                     }}
                 >
-                    {/* Consistent Image Header on Back */}
-                    <div className="relative h-36 shrink-0 bg-muted overflow-hidden opacity-60 grayscale-[0.3]">
-                        <QuestionImage imageUrl={question.image_url} country={isRus ? 'russia' : 'spain'} className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
-
-                        {/* Question Text Context Snapshot */}
-                        <div className="absolute bottom-3 left-4 right-4 text-[10px] font-medium text-muted-foreground line-clamp-1 italic">
-                            {text}
+                    {/* Dimmed image context strip */}
+                    <div className="relative h-24 shrink-0 overflow-hidden">
+                        <QuestionImage
+                            imageUrl={question.image_url}
+                            country={isRus ? 'russia' : 'spain'}
+                            className="w-full h-full object-cover opacity-40 grayscale scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-b from-card/30 to-card" />
+                        <div className="absolute bottom-0 inset-x-0 px-4 pb-3">
+                            <p className="text-[10px] text-muted-foreground font-medium line-clamp-2 italic leading-tight">
+                                {text}
+                            </p>
                         </div>
                     </div>
 
-                    <div className="p-5 flex flex-col flex-1 overflow-hidden">
-                        {/* Status + Answer Section */}
-                        <div className="flex flex-col items-center mb-4">
-                            <div className="flex items-center gap-2 mb-2 p-1.5 px-3 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">{labels.correctAnswer}</span>
+                    {/* Answer block */}
+                    <div className="px-5 pt-4 pb-3 shrink-0">
+                        <div className="flex items-center gap-2 mb-3">
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">{labels.correctAnswer}</span>
                             </div>
-                            <p className="text-sm font-black text-foreground text-center line-clamp-3 px-2">
-                                {answer || labels.answerNotFound}
-                            </p>
                         </div>
+                        <p className="text-base font-black text-foreground leading-snug">
+                            {answer || labels.answerNotFound}
+                        </p>
+                    </div>
 
-                        {/* Explanation Section */}
-                        {explanation && (
-                            <div className="flex-1 flex flex-col bg-muted/30 border border-border/50 rounded-2xl overflow-hidden mb-3">
-                                <div className="px-3 py-2 bg-muted/50 border-b border-border/10 flex items-center gap-2 shrink-0">
-                                    <BrainCircuit className="w-3.5 h-3.5 text-primary" />
-                                    <span className="text-[9px] font-black text-primary uppercase tracking-widest">{labels.conciseExplanation}</span>
-                                </div>
-                                <div className="p-3 overflow-y-auto text-xs text-muted-foreground leading-relaxed custom-scrollbar">
+                    {/* Divider */}
+                    {explanation && <div className="mx-5 h-px bg-border/50" />}
+
+                    {/* Explanation */}
+                    {explanation && (
+                        <div className="flex-1 flex flex-col overflow-hidden px-5 py-3 min-h-0">
+                            <div className="flex items-center gap-1.5 mb-2 shrink-0">
+                                <TrendingUp className="w-3 h-3 text-primary" />
+                                <span className="text-[9px] font-black text-primary uppercase tracking-widest">{labels.conciseExplanation}</span>
+                            </div>
+                            <div className="flex-1 overflow-y-auto min-h-0 pr-1"
+                                style={{ scrollbarWidth: 'thin' }}
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <p className="text-xs text-muted-foreground leading-relaxed">
                                     {explanation}
-                                </div>
+                                </p>
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        <div className="mt-auto pt-3 flex justify-center border-t border-border/50 opacity-60">
-                            <div className="text-[9px] text-muted-foreground font-black uppercase tracking-widest flex items-center gap-2">
-                                <RotateCcw className="w-3 h-3" />
-                                {labels.tapToFlipBack}
-                            </div>
+                    {/* Flip back button */}
+                    <div className="shrink-0 px-5 py-4 border-t border-border/40">
+                        <div className="flex items-center justify-center gap-2 py-2 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
+                            <RotateCcw className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-xs font-bold text-muted-foreground">{labels.tapToFlipBack}</span>
                         </div>
                     </div>
                 </div>

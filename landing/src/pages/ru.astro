@@ -311,38 +311,98 @@ const faqSchema = {
     <section id="features" class="relative z-10 py-24 md:py-40 bg-[#0f172a]">
       <div class="max-w-[1400px] mx-auto px-6 space-y-32 md:space-y-64">
 
-        <!-- 1. SKILY AI BRAIN (Text Left, Image Right) -->
+        <!-- 1. IA TUTOR (Text Left, Demo Right) -->
         <div class="grid lg:grid-cols-[1fr,1.3fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
           <div class="order-2 lg:order-1">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              🧠 Ядро системы: Skily AI™
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+              🤖 Персональный ИИ-Тьютор
             </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Самообучающийся интеллект: <br/><span class="text-emerald-400">знает всё о DGT</span></h3>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Твой личный наставник <br/><span class="text-blue-400">в кармане 24/7</span></h3>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              Это не просто алгоритм. Это «мозг» Skily, которому скормили более 5000 страниц официальных правил и регламентов DGT. Он знает каждую тонкость и постоянно развивается, обучаясь на вопросах реальных студентов и автоматически обновляя базу знаний.
+              Skily — это больше, чем просто тесты. Наш ИИ знает абсолютно все тонкости, изучив 5000 страниц официальных правил DGT. Он постоянно развивается, анализируя вопросы студентов и новую информацию, чтобы работать на твой результат, делая обучение современным, гибким и полностью персонализированным.
             </p>
             <div class="flex flex-col gap-4">
               <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20 text-xl">📚</div>
-                <div><h4 class="text-white font-bold mb-1">5000+ страниц знаний</h4><p class="text-sm text-slate-400">Полный кодекс ПДД Испании, включая самые свежие обновления 2025 года.</p></div>
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">💡</div>
+                <div><h4 class="text-white font-bold mb-1">Умные подсказки</h4><p class="text-sm text-slate-400">ИИ не дает готовый ответ, а помогает тебе додуматься до него самостоятельно.</p></div>
               </div>
               <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20 text-xl">⚡</div>
-                <div><h4 class="text-white font-bold mb-1">Авто-эволюция</h4><p class="text-sm text-slate-400">Система обучается на 100 000+ сессий ежемесячно, становясь умнее с каждым вашим ответом.</p></div>
-              </div>
-              <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0 border border-emerald-500/20 text-xl">🎯</div>
-                <div><h4 class="text-white font-bold mb-1">Абсолютная точность</h4><p class="text-sm text-slate-400">ИИ понимает контекст вопроса и объясняет его так, чтобы вы больше не ошибались.</p></div>
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">🧠</div>
+                <div><h4 class="text-white font-bold mb-1">Адаптивный алгоритм</h4><p class="text-sm text-slate-400">Система самообучается и подбирает вопросы именно под твой уровень прогресса.</p></div>
               </div>
             </div>
           </div>
 
           <div class="order-1 lg:order-2 w-full">
-            <div class="rounded-[2.5rem] overflow-hidden border border-emerald-500/20 shadow-[0_0_50px_rgba(16,185,129,0.1)] relative group bg-slate-900">
-               <img src="/images/AI_Brain.png" alt="Skily AI Brain Core" class="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-1000" />
-               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
-                 <p class="text-emerald-400 font-mono text-[10px] tracking-widest uppercase">Neural Engine Active • v7.4</p>
-               </div>
+            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10" style="background:#080f1e;">
+              <!-- Browser chrome -->
+              <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,0.05);background:#0f172a;">
+                <div style="display:flex;gap:5px;"><div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div><div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div><div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div></div>
+                <div style="flex:1;margin:0 12px;height:24px;border-radius:7px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:rgba(34,197,94,0.7);"></div>
+                  <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Live AI Demo</span>
+                </div>
+              </div>
+              
+              <!-- AI Demo Interactive Shell -->
+              <div id="ai-demo-shell" class="demo-grid" style="display:grid;grid-template-columns:1fr 300px;min-height:500px;">
+                <!-- LEFT: Question area -->
+                <div style="padding:32px;display:flex;flex-direction:column;gap:24px;border-right:1px solid rgba(255,255,255,0.06);">
+                  <div style="width:100%;aspect-ratio:16/9;border-radius:16px;background:#1e293b;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,0.1);">
+                    <img src="/images/test-image-s28.jpg" alt="DGT Question" style="width:100%;height:100%;object-fit:cover;" />
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <p style="color:#f1f5f9;font-size:14px;font-weight:600;line-height:1.5;margin:0 0 4px;">Кто имеет приоритет в жилой зоне, обозначенной этим знаком?</p>
+                    <button id="ai-opt-1" onclick="aiDemoAnswer(1)" class="demo-btn">
+                      <span class="ai-opt-key">1</span>
+                      <span class="ai-opt-txt">Пешеходы.</span>
+                    </button>
+                    <button id="ai-opt-2" onclick="aiDemoAnswer(2)" class="demo-btn">
+                      <span class="ai-opt-key">2</span>
+                      <span class="ai-opt-txt">Пешеходы, велосипеды и средства индивидуальной мобильности.</span>
+                    </button>
+                    <button id="ai-opt-3" onclick="aiDemoAnswer(3)" class="demo-btn">
+                      <span class="ai-opt-key">3</span>
+                      <span class="ai-opt-txt">Механические транспортные средства, кроме пешеходных переходов.</span>
+                    </button>
+                  </div>
+                </div>
+                <!-- RIGHT: Skily AI Copilot Widget -->
+                <div style="border-left:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;background:rgba(15,23,42,0.4);position:relative;overflow:hidden;">
+                  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(128,128,128,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(128,128,128,0.025) 1px,transparent 1px);background-size:18px 18px;pointer-events:none;"></div>
+                  <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:14px;background:rgba(15,23,42,0.2);flex-shrink:0;position:relative;z-index:1;">
+                    <div style="width:42px;height:42px;position:relative;flex-shrink:0;">
+                      <div class="ai-ring-outer"></div>
+                      <div class="ai-ring-mid"></div>
+                      <div class="ai-ring-inner"></div>
+                      <div class="ai-core"></div>
+                    </div>
+                    <div>
+                      <div style="display:flex;align-items:center;gap:7px;">
+                        <span style="color:#f1f5f9;font-size:13px;font-weight:700;">Skily AI Copilot</span>
+                        <span style="position:relative;width:8px;height:8px;display:inline-flex;align-items:center;justify-content:center;"><span id="ai-ping-ring" class="ai-ping-ring"></span><span class="ai-ping-dot"></span></span>
+                      </div>
+                      <p style="font-size:10px;color:#475569;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin:2px 0 0;">v2.4 Online</p>
+                    </div>
+                  </div>
+                  <div id="ai-messages" style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1;min-height:0;">
+                    <div id="ai-idle-state" style="text-align:center;width:100%;">
+                      <div style="opacity:0.4;pointer-events:none;">
+                        <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.9)" stroke-width="1.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                        </div>
+                        <p style="font-size:13px;color:#64748b;margin:0;">Жду ответа...</p>
+                      </div>
+                      <div id="ai-chips" style="display:flex;flex-direction:column;gap:6px;margin-top:18px;text-align:left;">
+                        <p style="font-size:10px;font-weight:700;color:#334155;letter-spacing:0.06em;text-transform:uppercase;margin:0 0 4px;">← Попробуй перед ответом</p>
+                        <button id="ai-hint-btn" onclick="aiAsk('pista')" class="hint-pulse" style="padding:9px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;font-size:12px;font-weight:700;cursor:pointer;text-align:left;width:100%;">💡 Дай подсказку</button>
+                        <button onclick="aiAsk('explicar')" style="padding:9px 14px;border-radius:10px;background:transparent;border:1px solid rgba(99,102,241,0.2);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;text-align:left;width:100%;">📖 Объясни тему</button>
+                      </div>
+                    </div>
+                    <div id="ai-widget-msg" style="display:none;width:100%;"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -384,10 +444,6 @@ const faqSchema = {
                 <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0 border border-rose-500/20 text-xl">🔥</div>
                 <div><h4 class="text-white font-bold mb-1">Ставки и Бустеры</h4><p class="text-sm text-slate-400">Делай ставки монетами и используй предметы (например, залей экран соперника маслом!), чтобы вырвать победу.</p></div>
               </div>
-              <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0 border border-rose-500/20 text-xl">🏆</div>
-                <div><h4 class="text-white font-bold mb-1">Duel Pass и Лиги</h4><p class="text-sm text-slate-400">Поднимайся в глобальном рейтинге и открывай уникальные аватары и награды каждый сезон.</p></div>
-              </div>
             </div>
           </div>
         </div>
@@ -400,7 +456,7 @@ const faqSchema = {
             </div>
             <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Твое мастерство под <br/><span class="text-blue-400">контролем ИИ</span></h3>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              Skily — это современное, гибкое и персонализированное обучение. Система не просто хранит ваши ответы, а анализирует каждый шаг, помогая сфокусироваться на темах, которые даются сложнее всего.
+              Skily AI — это самообучающийся мозг системы. Он не просто хранит ответы, а анализирует твой прогресс в реальном времени. Это позволяет подстраивать программу под тебя, экономя время и фокусируясь на том, что действительно важно для успешной сдачи.
             </p>
             <div class="flex flex-col gap-4">
               <div class="flex items-start gap-4">
@@ -410,10 +466,6 @@ const faqSchema = {
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">📅</div>
                 <div><h4 class="text-white font-bold mb-1">Умные рекомендации</h4><p class="text-sm text-slate-400">Получайте персональный план занятий, который адаптируется под ваш темп жизни.</p></div>
-              </div>
-              <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">💡</div>
-                <div><h4 class="text-white font-bold mb-1">Разбор тонкостей</h4><p class="text-sm text-slate-400">ИИ объясняет самые сложные нюансы правил, которые часто упускают в обычных тестах.</p></div>
               </div>
             </div>
           </div>
@@ -675,7 +727,7 @@ const faqSchema = {
     <section class="relative z-10 py-32 md:py-48 px-6 overflow-hidden">
       <div class="absolute inset-0 bg-blue-600/5 pointer-events-none"></div>
       <div class="max-w-4xl mx-auto text-center reveal-on-scroll">
-        <h2 class="text-4xl md:text-7_7xl font-black mb-8 leading-[1.1]">Твои права начинаются <br/><span class="text-blue-500">здесь и сейчас</span></h2>
+        <h2 class="text-4xl md:text-7xl font-black mb-8 leading-[1.1]">Твои права начинаются <br/><span class="text-blue-500">здесь и сейчас</span></h2>
         <p class="text-slate-400 text-xl mb-12 max-w-2xl mx-auto">Присоединяйся к 10 000+ учеников, которые уже выбрали будущее обучения.</p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a href={`${appBaseUrl}/login`} class="w-full sm:w-auto px-12 py-5 rounded-2xl bg-white text-slate-900 font-black text-xl shadow-2xl hover:scale-[1.05] transition-all">Начать бесплатно</a>
@@ -810,6 +862,103 @@ const faqSchema = {
           });
         }, 500);
       });
+
+      // ─── AI CHAT DEMO ────────────────────────────────────────────────────────
+      const ICON_CHECK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      const ICON_X     = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+      var AI_REPLIES = {
+        pista:   "Присмотрись внимательнее к знаку на картинке — это **S-28** (жилая зона).\n\nПодумай: кто здесь самый уязвимый? В таких зонах автомобили — лишь «гости», а не хозяева дороги. 🚸",
+        explicar:"Знак **S-28** обозначает жилую зону.\n\nСогласно ПДД Испании:\n\n1️⃣ **Пешеходы** имеют приоритет и могут использовать всю ширину проезжей части.\n2️⃣ Транспортные средства должны двигаться со **скоростью пешехода** (макс. 20 км/ч).\n3️⃣ Водитель обязан остановиться, если пешеходу это необходимо.\n\nЗапомни: здесь пешеходы главные везде, а не только на «зебре». Есть еще вопросы? 🚗",
+        default: "Хороший вопрос 🤔 В зоне действия знака S-28 главное — это то, что **пешеходы имеют абсолютный приоритет** на всей дороге. Если хочешь узнать больше, нажми «Объясни тему»."
+      };
+
+      var aiDemoAnswered = false;
+      var aiTypingTimer = null;
+
+      window.aiDemoAnswer = function(n) {
+        if (aiDemoAnswered) return;
+        aiDemoAnswered = true;
+        var correct = 1;
+        [1, 2, 3].forEach(function(i) {
+          var btn = document.getElementById('ai-opt-' + i);
+          if (!btn) return;
+          btn.style.cursor = 'default';
+          btn.onclick = null;
+          var key = btn.querySelector('.ai-opt-key');
+          var txt = btn.querySelector('.ai-opt-txt');
+          if (i === correct) {
+            btn.style.background = 'rgba(34,197,94,0.1)';
+            btn.style.border = '1px solid rgba(34,197,94,0.5)';
+            if (key) { key.style.background = '#22c55e'; key.style.border = '1px solid #16a34a'; key.style.color = 'white'; key.innerHTML = ICON_CHECK; }
+            if (txt) txt.style.color = '#86efac';
+          } else if (i === n) {
+            btn.style.background = 'rgba(239,68,68,0.08)';
+            btn.style.border = '1px solid rgba(239,68,68,0.45)';
+            if (key) { key.style.background = '#ef4444'; key.style.border = '1px solid #dc2626'; key.style.color = 'white'; key.innerHTML = ICON_X; }
+            if (txt) txt.style.color = '#fca5a5';
+          } else {
+            btn.style.opacity = '0.35';
+          }
+        });
+
+        var hb = document.getElementById('ai-hint-btn');
+        if (hb) hb.style.animation = 'none';
+        
+        aiWidgetSetAnalyzing();
+        var isRight = n === correct;
+        setTimeout(function() {
+          aiWidgetSetIdle();
+          var prefix = isRight ? 'Великолепно! Правильный ответ. ' : 'Не совсем. ';
+          aiWidgetShowMsg(prefix + AI_REPLIES.explicar, isRight);
+        }, 1050);
+      };
+
+      window.aiAsk = function(type) {
+        if (aiDemoAnswered && type === 'pista') return;
+        aiWidgetSetAnalyzing();
+        setTimeout(function() {
+          aiWidgetSetIdle();
+          aiWidgetShowMsg(AI_REPLIES[type] || AI_REPLIES.default);
+        }, 800);
+      };
+
+      function aiWidgetSetAnalyzing() {
+        var idle = document.getElementById('ai-idle-state');
+        var msg  = document.getElementById('ai-widget-msg');
+        if(idle) idle.style.display = 'none';
+        if(msg) {
+          msg.style.display = 'block';
+          msg.innerHTML = '<div style="display:flex;gap:8px;align-items:center;padding:10px;"><span class="ai-dot-loading"></span><span style="font-size:12px;color:#64748b;">Skily AI думает...</span></div>';
+        }
+        document.getElementById('ai-ping-ring').style.borderColor = '#6366f1';
+      }
+
+      function aiWidgetSetIdle() {
+        var msg = document.getElementById('ai-widget-msg');
+        if(msg) msg.innerHTML = '';
+      }
+
+      function aiWidgetShowMsg(text, isSuccess) {
+        var msg = document.getElementById('ai-widget-msg');
+        if(!msg) return;
+        msg.style.display = 'block';
+        var color = isSuccess ? '#86efac' : '#e2e8f0';
+        msg.innerHTML = '<div style="background:rgba(30,41,59,0.7);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:10px;">'
+          + '<p id="ai-typing-text" style="color:'+color+';font-size:12px;line-height:1.6;margin:0;white-space:pre-line;"></p></div>'
+          + '<button onclick="location.reload()" style="font-size:10px;color:#475569;background:none;border:none;cursor:pointer;text-decoration:underline;">Сбросить демо</button>';
+        
+        var el = document.getElementById('ai-typing-text');
+        var i = 0;
+        var plain = text.replace(/\*\*([^*]+)\*\*/g, '$1');
+        function tick() {
+          if(!el) return;
+          el.textContent = plain.slice(0, i);
+          i++;
+          if(i <= plain.length) setTimeout(tick, 15);
+        }
+        tick();
+      }
     </script>
 
     <style is:global>
@@ -852,6 +1001,37 @@ const faqSchema = {
       
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      /* AI Demo Styles */
+      .demo-btn {
+        display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.07);width:100%;text-align:left;cursor:pointer;transition:all 0.2s;
+      }
+      .demo-btn:hover { background: rgba(51, 65, 85, 0.9); border-color: rgba(255,255,255,0.15); transform: translateX(4px); }
+      .ai-opt-key {
+        width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#64748b;flex-shrink:0;
+      }
+      .ai-opt-txt { color:#cbd5e1;font-size:12px;line-height:1.4; }
+      
+      .ai-ring-outer { position:absolute;inset:0;border-radius:50%;border:1px solid rgba(99,102,241,0.15);animation:spin 12s linear infinite; }
+      .ai-ring-mid { position:absolute;inset:4px;border-radius:50%;border:1px dashed rgba(99,102,241,0.3);animation:spin 8s linear infinite reverse; }
+      .ai-ring-inner { position:absolute;inset:8px;border-radius:50%;border:2px solid rgba(99,102,241,0.5);border-right-color:transparent;animation:spin 3s cubic-bezier(0.4,0,0.2,1) infinite; }
+      .ai-core { position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle at 30% 30%, #818cf8, #4f46e5);box-shadow:0 0 15px rgba(79,70,229,0.6); }
+      
+      @keyframes spin { from {transform:rotate(0deg)} to {transform:rotate(360deg)} }
+      .ai-ping-ring { position:absolute;width:100%;height:100%;border-radius:50%;border:2px solid #22c55e;animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite; }
+      .ai-ping-dot { width:4px;height:4px;border-radius:50%;background:#22c55e; }
+      @keyframes ping { 75%,100% {transform:scale(2.5);opacity:0} }
+
+      .hint-pulse { animation: hint-pulse 2s infinite; }
+      @keyframes hint-pulse { 0% {box-shadow:0 0 0 0 rgba(99,102,241,0.4)} 70% {box-shadow:0 0 0 10px rgba(99,102,241,0)} 100% {box-shadow:0 0 0 0 rgba(99,102,241,0)} }
+      
+      .ai-dot-loading { width:6px;height:6px;border-radius:50%;background:#6366f1;animation:aidot 1s infinite alternate; }
+      @keyframes aidot { from {opacity:0.3;transform:scale(0.8)} to {opacity:1;transform:scale(1.2)} }
+
+      @media (max-width: 900px) {
+        .demo-grid { grid-template-columns: 1fr !important; }
+        .demo-grid > div:first-child { border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      }
     </style>
   </div>
 </BaseLayout>

@@ -3,6 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface UserProgress {
   is_correct: boolean;
+  questions_new: {
+    country: string;
+    metadata: any;
+    topic_id: string | null;
+  };
 }
 
 /**
@@ -19,7 +24,7 @@ export function useUserProgress(profileId: string | null, country?: string, cate
 
       let query = supabase
         .from("user_progress")
-        .select("is_correct, questions_new!inner(country, metadata)")
+        .select("is_correct, questions_new!inner(country, metadata, topic_id)")
         .eq("user_id", profileId);
 
       if (dbCountry) {

@@ -7,10 +7,10 @@ const url = new URL(Astro.request.url);
 const variant = url.searchParams.get('v') || '2'; // 1 = Side, 2 = Stacked
 const isDev = import.meta.env.DEV;
 
-const title = 'Skily — Aprueba tu examen DGT a la primera | IA + Gamificación';
+const title = 'Skily — Pass your DGT exam the first time | AI + Gamification';
 const description =
-  'Prepara el teórico de la DGT con una IA que personaliza tu estudio. Tests oficiales, simulacros reales, duelos PvP y explicaciones instantáneas. 97% de aprobados.';
-const canonical = 'https://skilyapp.com/es';
+  'Prepare for the DGT theoretical exam with an AI that personalizes your learning. Official questions, real simulations, PvP duels, and instant explanations. 97% pass on the first attempt.';
+const canonical = 'https://skilyapp.com/en';
 
 const hreflang = [
   { lang: 'es', href: 'https://skilyapp.com/es' },
@@ -24,7 +24,7 @@ const appSchema = {
   name: 'Skily',
   alternateName: ['Skily App', 'Skilyapp', 'Skily DGT'],
   description:
-    'Aplicación móvil y Telegram Mini App para preparar el examen de la DGT. Utiliza tutoría por IA, duelos PvP y aprendizaje adaptativo. Disponible en español, inglés y ruso.',
+    'Mobile app and Telegram Mini App for DGT exam preparation. Uses AI Tutor, PvP duels, and adaptive learning. Available in Spanish, English, and Russian.',
   applicationCategory: 'EducationApplication',
   operatingSystem: 'Web, iOS, Android, Telegram',
   url: 'https://skilyapp.com',
@@ -34,7 +34,7 @@ const appSchema = {
     '@type': 'Offer',
     price: '0',
     priceCurrency: 'EUR',
-    description: 'Acceso básico gratuito. Premium desde 4,99€/mes.',
+    description: 'Basic access for free. Premium from 4.99€/month.',
   },
   aggregateRating: {
     '@type': 'AggregateRating',
@@ -61,26 +61,26 @@ const faqSchema = {
   mainEntity: [
     {
       '@type': 'Question',
-      name: '¿Es obligatorio ir a una autoescuela para el teórico?',
+      name: 'Is it mandatory to go to a driving school for DGT theory?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'No, es un mito. Tienes el derecho legal de presentarte por libre. Las autoescuelas suelen cobrar entre 250€ y 400€ solo por la teoría. Con Skily, obtienes la misma preparación sin sobrecostes.',
+        text: 'No, that is a myth. You have the legal right to take the theory exam on your own ("Por Libre"). Driving schools charge from 250€ to 400€ just for theory. With Skily, you get the same preparation without overpaying.',
       },
     },
     {
       '@type': 'Question',
-      name: '¿Cuánto tiempo necesito para preparar el examen con Skily?',
+      name: 'How much time do I need to prepare with Skily?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'La mayoría de nuestros alumnos aprueban tras 4-6 semanas de estudio diario (20 min/día). La IA detecta tus fallos y optimiza tu tiempo de estudio.',
+        text: 'Most of our students pass after 4-6 weeks of daily practice for 20 minutes. AI finds your weak spots and optimizes your study time.',
       },
     },
     {
       '@type': 'Question',
-      name: '¿Son las preguntas de Skily iguales a las del examen real?',
+      name: 'Are the questions in Skily the same as in the real exam?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'Sí. Utilizamos la base de datos oficial de la DGT, actualizada semanalmente. Si la DGT cambia una pregunta, Skily la actualiza el mismo día.',
+        text: 'Yes. We use the official DGT question database, updated weekly. If DGT changes a question, Skily updates it the same day.',
       },
     },
   ],
@@ -91,8 +91,8 @@ const faqSchema = {
   title={title}
   description={description}
   canonical={canonical}
-  lang="es"
-  ogImage="https://skilyapp.com/og-es.jpg"
+  lang="en"
+  ogImage="https://skilyapp.com/og-en.jpg"
   jsonLd={[appSchema, faqSchema]}
   hreflang={hreflang}
 >
@@ -102,7 +102,7 @@ const faqSchema = {
     {isDev && (
       <div class="fixed bottom-10 right-10 z-[9999] flex flex-col gap-3">
         <div class="bg-slate-900/90 backdrop-blur-xl border border-white/10 p-2 rounded-2xl shadow-2xl">
-          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-2 text-center">Diseño de Variante</div>
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-2 text-center">Вариант дизайна</div>
           <div class="flex flex-col gap-2">
             <a href="?v=1" class={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${variant === '1' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
               <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
@@ -124,7 +124,7 @@ const faqSchema = {
 
     <!-- ═══════════════════════════════════════ NAV ══════════════════════════════════════ -->
     <nav class="relative z-[100] px-4 md:px-10 pt-5 pb-4 md:pb-6 flex items-center justify-between max-w-[1400px] mx-auto gap-4">
-      <a href="/es" class="flex items-center gap-2.5 select-none" aria-label="Skily Inicio">
+      <a href="/ru" class="flex items-center gap-2.5 select-none" aria-label="Skily начало">
         <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0" style="background:linear-gradient(135deg,#3b82f6,#2563eb,#1d4ed8);">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/>
@@ -140,9 +140,9 @@ const faqSchema = {
         <div class="relative group hidden sm:flex items-center h-[40px] w-[40px]">
           <div class="absolute right-0 flex items-center bg-white/5 border border-white/10 backdrop-blur-xl rounded-full overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] w-[40px] group-hover:w-[120px] h-[40px] shadow-[0_0_15px_rgba(0,0,0,0.1)]">
             <div class="flex items-center min-w-[120px] px-1 gap-1 h-full">
-              <div class="w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white text-slate-900 font-black text-[10px] shadow-sm shrink-0 cursor-default">ES</div>
+              <div class="w-[32px] h-[32px] flex items-center justify-center rounded-full bg-white text-slate-900 font-black text-[10px] shadow-sm shrink-0 cursor-default">RU</div>
+              <a href="/es" class="w-[32px] h-[32px] flex items-center justify-center rounded-full hover:bg-white/10 text-slate-400 hover:text-white font-bold text-[10px] transition-colors shrink-0">ES</a>
               <a href="/en" class="w-[32px] h-[32px] flex items-center justify-center rounded-full hover:bg-white/10 text-slate-400 hover:text-white font-bold text-[10px] transition-colors shrink-0">EN</a>
-              <a href="/ru" class="w-[32px] h-[32px] flex items-center justify-center rounded-full hover:bg-white/10 text-slate-400 hover:text-white font-bold text-[10px] transition-colors shrink-0">RU</a>
             </div>
           </div>
         </div>
@@ -150,7 +150,7 @@ const faqSchema = {
           href={`${appBaseUrl}/login`}
           class="bg-white text-slate-900 px-6 py-2.5 rounded-xl font-bold text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-white/10 whitespace-nowrap"
         >
-          Entrar
+          Войти
         </a>
       </div>
     </nav>
@@ -166,15 +166,15 @@ const faqSchema = {
                 🇪🇸 DGT Approved · {currentYear}
               </div>
               <h1 class="text-[clamp(2.5rem,8vw,5rem)] lg:text-[clamp(3rem,5vw,5.5rem)] font-black tracking-tighter leading-[1.05] mb-6">
-                <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-2">Aprueba la DGT a la primera</span>
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 block">Sin estrés</span>
+                <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-2">Теория DGT с первого раза</span>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-sky-400 to-cyan-300 block">Без стресса</span>
               </h1>
               <p class="max-w-xl text-lg md:text-xl text-slate-300 leading-relaxed mb-10 font-medium">
-                <span class="text-white font-bold">Olvida los libros aburridos</span>. Nuestra IA detecta tus fallos y personaliza tu estudio. Gamificación, tests oficiales y tu 'L' te esperan.
+                <span class="text-white font-bold">Забудь о скучных учебниках</span>. Наш ИИ находит твои ошибки и персонализирует обучение. Геймификация, актуальные вопросы и твоя заветная 'L' уже ждут.
               </p>
               <div class="flex flex-col sm:flex-row items-center gap-6 w-full lg:justify-start">
                 <a href={`${appBaseUrl}/demo`} class="relative flex items-center justify-center gap-3 px-10 py-5 rounded-2xl bg-white text-slate-900 font-black text-lg shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
-                  <span>Prueba Gratis ahora</span>
+                  <span>Попробовать бесплатно</span>
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
                 </a>
               </div>
@@ -201,10 +201,10 @@ const faqSchema = {
               🇪🇸 DGT Approved · {currentYear}
             </div>
             <h1 class="text-[clamp(2rem,5vw,4rem)] md:whitespace-nowrap font-black tracking-tighter leading-[1.05] mb-6 reveal-on-scroll">
-              <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-2">Aprueba la DGT a la primera</span>
+              <span class="bg-clip-text text-transparent bg-gradient-to-b from-white via-slate-100 to-slate-300 block pb-2">Теория DGT с первого раза</span>
               <span class="block min-h-[1.2em]">
                 <span id="text-cycler" class="text-cycle-container">
-                  {["Sin estrés", "Con IA inteligente", "Jugando en PvP", "En tiempo récord", "Sin libros aburridos"].map((word, i) => (
+                  {["Без стресса", "С умным ИИ", "Играя в PvP-дуэли", "В рекордные сроки", "Без скучных учебников"].map((word, i) => (
                     <span class={`text-cycle-word ${i === 0 ? 'active' : ''}`} style={i === 0 ? "position:relative;" : ""}>{word}</span>
                   ))}
                 </span>
@@ -281,14 +281,14 @@ const faqSchema = {
             </script>
 
             <p class="max-w-2xl text-lg md:text-xl text-slate-300 leading-relaxed mb-10 font-medium reveal-on-scroll" style="transition-delay: 100ms">
-              <span class="text-white font-bold">Asegura tu éxito</span>. Nuestra IA explica la lógica de cada norma y los duelos PvP convierten el estudio en adicción.
+              <span class="text-white font-bold">Обеспечь себе успех</span>. Наш ИИ объясняет логику каждого правила, а PvP-дуэли превращают подготовку в азартную игру.
             </p>
             <div class="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto reveal-on-scroll" style="transition-delay: 200ms">
               <a href={`${appBaseUrl}/demo`} class="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white text-slate-900 font-black text-lg shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300">
-                Probar Gratis ahora
+                Попробовать бесплатно
               </a>
               <a href="https://t.me/skilyapp_bot" class="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-lg hover:bg-white/10 transition-all duration-300">
-                Abrir en Telegram
+                Открыть в Telegram
               </a>
             </div>
             
@@ -311,24 +311,24 @@ const faqSchema = {
     <section id="features" class="relative z-10 py-24 md:py-40 bg-[#0f172a]">
       <div class="max-w-[1400px] mx-auto px-6 space-y-32 md:space-y-64">
 
-        <!-- 1. AI TUTOR (Text Left, Demo Right) -->
+        <!-- 1. IA TUTOR (Text Left, Demo Right) -->
         <div class="grid lg:grid-cols-[1fr,1.3fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
           <div class="order-2 lg:order-1">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              🤖 Tutor IA Personalizado
+              🤖 Персональный ИИ-Тьютор
             </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Tu mentor personal <br/><span class="text-blue-400">en el bolsillo 24/7</span></h3>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Твой личный наставник <br/><span class="text-blue-400">в кармане 24/7</span></h3>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              Skily es más que simples tests. Nuestra IA conoce todos los detalles tras estudiar 5.000 páginas de reglamentos oficiales de la DGT. Evoluciona constantemente analizando las dudas de los alumnos para trabajar por tu resultado, haciendo que el aprendizaje sea moderno, flexible y 100% personalizado.
+              Skily — это больше, чем просто тесты. Наш ИИ знает абсолютно все тонкости, изучив 5000 страниц официальных правил DGT. Он постоянно развивается, анализируя вопросы студентов и новую информацию, чтобы работать на твой результат, делая обучение современным, гибким и полностью персонализированным.
             </p>
             <div class="flex flex-col gap-4">
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">💡</div>
-                <div><h4 class="text-white font-bold mb-1">Pistas inteligentes</h4><p class="text-sm text-slate-400">La IA no te da la respuesta, te ayuda a razonarla por ti mismo.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Умные подсказки</h4><p class="text-sm text-slate-400">ИИ не дает готовый ответ, а помогает тебе додуматься до него самостоятельно.</p></div>
               </div>
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">🧠</div>
-                <div><h4 class="text-white font-bold mb-1">Algoritmo adaptativo</h4><p class="text-sm text-slate-400">El sistema aprende y selecciona preguntas según tu nivel de progreso real.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Адаптивный алгоритм</h4><p class="text-sm text-slate-400">Система самообучается и подбирает вопросы именно под твой уровень прогресса.</p></div>
               </div>
             </div>
           </div>
@@ -349,21 +349,21 @@ const faqSchema = {
                 <!-- LEFT: Question area -->
                 <div style="padding:32px;display:flex;flex-direction:column;gap:24px;border-right:1px solid rgba(255,255,255,0.06);">
                   <div style="width:100%;aspect-ratio:16/9;border-radius:16px;background:#1e293b;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,0.1);">
-                    <img src="/images/test-image-s28.jpg" alt="Pregunta DGT" style="width:100%;height:100%;object-fit:cover;" />
+                    <img src="/images/test-image-s28.jpg" alt="DGT Question" style="width:100%;height:100%;object-fit:cover;" />
                   </div>
                   <div style="display:flex;flex-direction:column;gap:10px;">
-                    <p style="color:#f1f5f9;font-size:14px;font-weight:600;line-height:1.5;margin:0 0 4px;">¿Quién tiene prioridad en una zona de circulación que tiene esta señal?</p>
+                    <p style="color:#f1f5f9;font-size:14px;font-weight:600;line-height:1.5;margin:0 0 4px;">Кто имеет приоритет в жилой зоне, обозначенной этим знаком?</p>
                     <button id="ai-opt-1" onclick="aiDemoAnswer(1)" class="demo-btn">
                       <span class="ai-opt-key">1</span>
-                      <span class="ai-opt-txt">Los peatones.</span>
+                      <span class="ai-opt-txt">Пешеходы.</span>
                     </button>
                     <button id="ai-opt-2" onclick="aiDemoAnswer(2)" class="demo-btn">
                       <span class="ai-opt-key">2</span>
-                      <span class="ai-opt-txt">Los peatones, los ciclos и los vehículos de movilidad personal.</span>
+                      <span class="ai-opt-txt">Пешеходы, велосипеды и средства индивидуальной мобильности.</span>
                     </button>
                     <button id="ai-opt-3" onclick="aiDemoAnswer(3)" class="demo-btn">
                       <span class="ai-opt-key">3</span>
-                      <span class="ai-opt-txt">Los vehículos a motor, salvo en los pasos para peatones.</span>
+                      <span class="ai-opt-txt">Механические транспортные средства, кроме пешеходных переходов.</span>
                     </button>
                   </div>
                 </div>
@@ -391,12 +391,12 @@ const faqSchema = {
                         <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
                           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(165,180,252,0.9)" stroke-width="1.5"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                         </div>
-                        <p style="font-size:13px;color:#64748b;margin:0;">Esperando respuesta...</p>
+                        <p style="font-size:13px;color:#64748b;margin:0;">Жду ответа...</p>
                       </div>
                       <div id="ai-chips" style="display:flex;flex-direction:column;gap:6px;margin-top:18px;text-align:left;">
-                        <p style="font-size:10px;font-weight:700;color:#334155;letter-spacing:0.06em;text-transform:uppercase;margin:0 0 4px;">← Prueba antes de responder</p>
-                        <button id="ai-hint-btn" onclick="aiAsk('pista')" class="hint-pulse" style="padding:9px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;font-size:12px;font-weight:700;cursor:pointer;text-align:left;width:100%;">💡 Dame una pista</button>
-                        <button onclick="aiAsk('explicar')" style="padding:9px 14px;border-radius:10px;background:transparent;border:1px solid rgba(99,102,241,0.2);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;text-align:left;width:100%;">📖 Explícame el tema</button>
+                        <p style="font-size:10px;font-weight:700;color:#334155;letter-spacing:0.06em;text-transform:uppercase;margin:0 0 4px;">← Попробуй перед ответом</p>
+                        <button id="ai-hint-btn" onclick="aiAsk('pista')" class="hint-pulse" style="padding:9px 14px;border-radius:10px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.5);color:#a5b4fc;font-size:12px;font-weight:700;cursor:pointer;text-align:left;width:100%;">💡 Дай подсказку</button>
+                        <button onclick="aiAsk('explicar')" style="padding:9px 14px;border-radius:10px;background:transparent;border:1px solid rgba(99,102,241,0.2);color:#818cf8;font-size:12px;font-weight:600;cursor:pointer;text-align:left;width:100%;">📖 Объясни тему</button>
                       </div>
                     </div>
                     <div id="ai-widget-msg" style="display:none;width:100%;"></div>
@@ -417,32 +417,32 @@ const faqSchema = {
                 <div style="display:flex;gap:5px;"><div style="width:11px;height:11px;border-radius:50%;background:#ff5f57;"></div><div style="width:11px;height:11px;border-radius:50%;background:#febc2e;"></div><div style="width:11px;height:11px;border-radius:50%;background:#28c840;"></div></div>
                 <div style="flex:1;margin:0 12px;height:24px;border-radius:7px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px;">
                   <div style="width:6px;height:6px;border-radius:50%;background:rgba(34,197,94,0.7);"></div>
-                  <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Duelos PvP</span>
+                  <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · PvP Дуэли</span>
                 </div>
               </div>
               <!-- Screen image -->
               <div style="overflow:hidden; background:#080f1e; display: flex;">
-                <img src="/images/Duel_ES.png" alt="Skily PvP Duels" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-1000" />
+                <img src="/images/Duel_RU.png" alt="Skily PvP Duels" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-1000" />
               </div>
             </div>
           </div>
 
           <div class="order-2 lg:order-2">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              ⚔️ Arena PvP
+              ⚔️ PvP Арена
             </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Desafía y <br/><span class="text-rose-400">aprende ganando</span></h3>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Бросай вызов и <br/><span class="text-rose-400">учись побеждая</span></h3>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              ¿Cansado de tests solitarios? Compite en tiempo real con amigos o rivales aleatorios. Responde rápido, usa potenciadores estratégicos y apuesta monedas por tu victoria.
+              Надоели одиночные тесты? Соревнуйся в реальном времени с друзьями или случайными соперниками. Отвечай быстро, используй стратегические бустеры и ставь монеты на свою победу.
             </p>
             <div class="flex flex-col gap-4">
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0 border border-rose-500/20 text-xl">👥</div>
-                <div><h4 class="text-white font-bold mb-1">Amigos o Aleatorio</h4><p class="text-sm text-slate-400">Encuentra rivales de tu nivel en segundos o crea salas privadas para batallas con amigos.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Друзья или Рандом</h4><p class="text-sm text-slate-400">Находи соперников своего уровня за секунды или создавай приватные комнаты для баттлов с друзьями.</p></div>
               </div>
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0 border border-rose-500/20 text-xl">🔥</div>
-                <div><h4 class="text-white font-bold mb-1">Apuestas и Boosters</h4><p class="text-sm text-slate-400">Apuesta monedas и usa objetos (¡como tirar aceite en la pantalla del rival!) para arrebatar la victoria.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Ставки и Бустеры</h4><p class="text-sm text-slate-400">Делай ставки монетами и используй предметы (например, залей экран соперника маслом!), чтобы вырвать победу.</p></div>
               </div>
             </div>
           </div>
@@ -452,20 +452,20 @@ const faqSchema = {
         <div class="grid lg:grid-cols-[1fr,1.3fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
           <div class="order-2 lg:order-1">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              📊 Analítica y Progreso
+              📊 Аналитика и Прогресс
             </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Tu maestría bajo <br/><span class="text-blue-400">control de la IA</span></h3>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Твое мастерство под <br/><span class="text-blue-400">контролем ИИ</span></h3>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              Skily AI es el cerebro autoadaptativo del sistema. No solo guarda tus respuestas, sino que analiza tu progreso en tiempo real. Esto permite ajustar el programa a tus necesidades, ahorrando tiempo y enfocándote en lo que realmente importa para aprobar.
+              Skily AI — это самообучающийся мозг системы. Он не просто хранит ответы, а анализирует твой прогресс в реальном времени. Это позволяет подстраивать программу под тебя, экономя время и фокусируясь на том, что действительно важно для успешной сдачи.
             </p>
             <div class="flex flex-col gap-4">
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">🔍</div>
-                <div><h4 class="text-white font-bold mb-1">Análisis profundo</h4><p class="text-sm text-slate-400">La IA calcula tu probabilidad de aprobado basándose en tus estadísticas actuales.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Глубокий анализ</h4><p class="text-sm text-slate-400">ИИ вычисляет вероятность сдачи экзамена на основе вашей текущей статистики.</p></div>
               </div>
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">📅</div>
-                <div><h4 class="text-white font-bold mb-1">Recomendaciones</h4><p class="text-sm text-slate-400">Obtén un plan de estudio personal que se adapta a tu ritmo de vida.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Умные рекомендации</h4><p class="text-sm text-slate-400">Получайте персональный план занятий, который адаптируется под ваш темп жизни.</p></div>
               </div>
             </div>
           </div>
@@ -477,7 +477,7 @@ const faqSchema = {
                 <div style="display:flex;gap:5px;"><div style="width:12px;height:12px;border-radius:50%;background:#ff5f57;"></div><div style="width:12px;height:12px;border-radius:50%;background:#febc2e;"></div><div style="width:12px;height:12px;border-radius:50%;background:#28c840;"></div></div>
                 <div style="flex:1;margin:0 12px;height:26px;border-radius:8px;background:rgba(30,41,59,0.8);border:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px;">
                   <div style="width:7px;height:7px;border-radius:50%;background:rgba(34,197,94,0.7);"></div>
-                  <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Estadísticas</span>
+                  <span style="font-size:11px;color:#64748b;font-weight:500;">skilyapp.com · Статистика</span>
                 </div>
               </div>
               <!-- Screen image -->
@@ -500,28 +500,28 @@ const faqSchema = {
                 <div class="grid grid-cols-2 gap-4">
                   <div class="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-400/30 rounded-2xl p-5 text-center shadow-lg">
                     <p class="text-4xl font-black text-white mb-1">12</p>
-                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Nivel</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Уровень</p>
                     <div class="mt-3 h-2.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full w-[68%] bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"></div></div>
                     <p class="text-[10px] text-amber-300/60 mt-2 font-medium">680 / 1000 XP</p>
                   </div>
                   <div class="bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-400/30 rounded-2xl p-5 text-center shadow-lg flex flex-col justify-center">
                     <p class="text-4xl font-black text-amber-300 mb-1">🪙 340</p>
-                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Balance</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Баланс</p>
                   </div>
                 </div>
 
                 <!-- Stats Strip -->
                 <div class="grid grid-cols-3 gap-3">
-                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">🔥</p><p class="font-black text-white text-lg">14</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Racha</p></div>
-                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">⚔️</p><p class="font-black text-white text-lg">23</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Duelos</p></div>
-                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">🏆</p><p class="font-black text-white text-lg">#4</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Liga</p></div>
+                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">🔥</p><p class="font-black text-white text-lg">14</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Ударка</p></div>
+                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">⚔️</p><p class="font-black text-white text-lg">23</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Дуэли</p></div>
+                  <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-3 text-center backdrop-blur-sm"><p class="text-xl mb-1">🏆</p><p class="font-black text-white text-lg">#4</p><p class="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Лига</p></div>
                 </div>
 
                 <!-- Topic Progress -->
                 <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-5 backdrop-blur-sm mt-2">
-                  <p class="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400 mb-4">Progreso por Temas</p>
+                  <p class="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400 mb-4">Прогресс по темам</p>
                   <div class="space-y-3">
-                    {[['Señales','91','emerald'],['Velocidad','72','amber'],['Prioridades','64','amber']].map(([tema, pct, color]) => (
+                    {[['Дорожные знаки','91','emerald'],['Скорость','72','amber'],['Приоритеты','64','amber']].map(([tema, pct, color]) => (
                       <div>
                         <div class="flex justify-between text-xs mb-1.5">
                           <span class="text-slate-300 font-medium">{tema}</span>
@@ -539,20 +539,20 @@ const faqSchema = {
           </div>
           <div class="order-2 lg:order-2">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              🎮 Gamificación Total
+              🎮 Тотальная геймификация
             </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Sube de nivel hasta el <br/><span class="text-amber-400">«Apto» oficial</span></h3>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Прокачай уровень до <br/><span class="text-amber-400">официального «Apto»</span></h3>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              Convierte el estudio en un juego. Gana experiencia, subе de nivel и colecciona monedas. Skily visualiza tu progreso por cada tema para que sepas exactamente cuándo estás listo.
+              Преврати учебу в игру. Зарабатывай опыт, повышай уровень и собирай монеты. Skily визуализирует твой прогресс по каждой теме, чтобы ты точно знал, когда готов к экзаменам.
             </p>
             <div class="flex flex-col gap-4">
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/20 text-xl">🪙</div>
-                <div><h4 class="text-white font-bold mb-1">Economía del juego</h4><p class="text-sm text-slate-400">Usa tus monedas para comprar potenciadores и personalizar tu perfil.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Экономика игры</h4><p class="text-sm text-slate-400">Используй свои монеты для покупки бустеров и кастомизации профиля.</p></div>
               </div>
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20 text-xl">🌌</div>
-                <div><h4 class="text-white font-bold mb-1">España del Futuro</h4><p class="text-sm text-slate-400">Olvida las fotos grises de la DGT. Resuelve tests inmerso en paisajes Solarpunk increíbles.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Испания будущего</h4><p class="text-sm text-slate-400">Забудь о серых фото DGT. Решай тесты, погружаясь в невероятные пейзажи в стиле Solarpunk. Учиться теперь — визуальное удовольствие.</p></div>
               </div>
             </div>
           </div>
@@ -566,7 +566,7 @@ const faqSchema = {
                 <div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div><div class="w-3 h-3 rounded-full bg-[#febc2e]"></div><div class="w-3 h-3 rounded-full bg-[#28c840]"></div></div>
                 <div class="flex-1 mx-4 h-7 rounded-lg bg-slate-800/80 border border-slate-700/40 flex items-center px-3 gap-2">
                   <div class="w-2 h-2 rounded-full bg-emerald-400/70 shrink-0"></div>
-                  <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Multi-idioma</span>
+                  <span class="text-[11px] text-slate-400 font-medium">skilyapp.com · Мультиязычность</span>
                 </div>
               </div>
               <video src="/videos/feat-translate.webm" autoplay loop muted playsinline class="w-full block pt-14" style="max-height:480px;object-fit:cover;object-position:top;"></video>
@@ -575,20 +575,20 @@ const faqSchema = {
 
           <div class="order-2 lg:order-2">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
-              🌍 Sin barreras
+              🌍 Без границ
             </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Estudia en tu idioma, <br/><span class="text-sky-400">donde quieras</span></h3>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Учись на своем языке, <br/><span class="text-sky-400">где удобно</span></h3>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
-              ¿Tu español aún no es perfecto? Cambia entre español, inglés и ruso al instante. Prepárate en tu lengua materna и aprueba sin barreras idiomáticas.
+              Ваш испанский еще не идеален? Переключайтесь между испанским, английским и русским мгновенно. Готовьтесь к экзамену на родном языке и сдавайте без языковых барьеров.
             </p>
             <div class="flex flex-col gap-4">
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0 border border-sky-500/20 text-xl">📱</div>
-                <div><h4 class="text-white font-bold mb-1">Telegram Mini App</h4><p class="text-sm text-slate-400">Accede directamente desde Telegram sin instalar apps pesadas.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Telegram Mini App</h4><p class="text-sm text-slate-400">Заходи прямо из Telegram без установки тяжелых приложений.</p></div>
               </div>
               <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0 border border-sky-500/20 text-xl">☁️</div>
-                <div><h4 class="text-white font-bold mb-1">Sincronización total</h4><p class="text-sm text-slate-400">Empieza en el móvil, sigue en el PC. Tu progreso siempre contigo.</p></div>
+                <div><h4 class="text-white font-bold mb-1">Облачная синхронизация</h4><p class="text-sm text-slate-400">Начни на телефоне, продолжи на компьютере. Твой прогресс всегда с тобой.</p></div>
               </div>
             </div>
           </div>
@@ -603,18 +603,18 @@ const faqSchema = {
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-white/10">
           <div class="flex flex-col items-center justify-center text-center md:px-8 py-4 md:py-0">
             <div class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-2">97%</div>
-            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Aprobados</span>
-            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">Nuestros alumnos aprenden más rápido gracias a la personalización IA</p>
+            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Сдают сразу</span>
+            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">Наши ученики учатся быстрее благодаря персонализации обучения ИИ</p>
           </div>
           <div class="flex flex-col items-center justify-center text-center md:px-8 py-4 md:py-0">
             <div class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-2">3000+</div>
-            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Preguntas</span>
-            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">Base de datos oficial de la DGT, actualizada en tiempo real</p>
+            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Вопросов</span>
+            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">Официальная база DGT, обновляемая в реальном времени</p>
           </div>
           <div class="flex flex-col items-center justify-center text-center md:px-8 py-4 md:py-0">
             <div class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-2">24/7</div>
-            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Disponible</span>
-            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">Desde móvil, tablet o PC. Sin horarios ni esperas.</p>
+            <span class="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Доступно</span>
+            <p class="text-[10px] md:text-xs text-slate-500 font-medium max-w-[200px] mx-auto mt-1 leading-relaxed">С телефона, планшета или ПК. Без расписания и очередей.</p>
           </div>
         </div>
       </div>
@@ -623,8 +623,8 @@ const faqSchema = {
     <!-- ═══════════════════════════════════════ ECOSYSTEM ════════════════════════════════ -->
     <section class="relative z-10 px-6 pt-24 pb-6 max-w-[1400px] mx-auto">
       <div class="mb-10">
-        <h2 class="text-3xl md:text-5xl font-black mb-4">Ecosistema de aprendizaje</h2>
-        <p class="text-slate-400 max-w-xl">Una plataforma única para teoría, práctica и análisis profundo de tu progreso.</p>
+        <h2 class="text-3xl md:text-5xl font-black mb-4">Экосистема обучения</h2>
+        <p class="text-slate-400 max-w-xl">Единая платформа для теории, практики и глубокого анализа прогресса.</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -634,8 +634,8 @@ const faqSchema = {
             <svg class="w-[120px] h-[120px]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
           </div>
           <div class="relative z-10 pt-2">
-            <div class="font-black text-white mb-2 leading-snug text-[clamp(1.4rem,2vw,2rem)] max-w-[280px]">Base 2025</div>
-            <p class="text-slate-500 text-sm max-w-[200px]">100% coincidencia con el examen real. Actualizaciones automáticas.</p>
+            <div class="font-black text-white mb-2 leading-snug text-[clamp(1.4rem,2vw,2rem)] max-w-[280px]">База 2025</div>
+            <p class="text-slate-500 text-sm max-w-[200px]">100% совпадение с реальным экзаменом. Автоматические обновления.</p>
           </div>
         </div>
 
@@ -646,8 +646,8 @@ const faqSchema = {
             <svg class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25m-4.5 0a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm-7.5 0A4.5 4.5 0 0 0 4.5 9v.75m0 0v2.25m0-2.25h.75m-.75 0H3.375m1.125 2.25-.019.052a.5.5 0 0 1-.923-.013L3 11.25l.75-2.25m3 0h.75m-3.75 0h3.75M9 9.75v.75m3-3.75.75-.75m.75.75L15 6M15 6l-.75.75"/></svg>
             <svg class="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h8m-8 4h8m-8 4h8M3.75 4.5A.75.75 0 0 1 4.5 3.75h15a.75.75 0 0 1 .75.75v15a.75.75 0 0 1-.75.75h-15a.75.75 0 0 1-.75-.75v-15Z"/></svg>
           </div>
-          <h3 class="font-bold text-lg mb-1">Todas las categorías</h3>
-          <p class="text-slate-500 text-sm">Coche, moto и vehículos profesionales.</p>
+          <h3 class="font-bold text-lg mb-1">Все категории</h3>
+          <p class="text-slate-500 text-sm">Легковые, мотоциклы и профессиональный транспорт.</p>
         </div>
 
         <!-- Card 3+4: Simulation (span 2) -->
@@ -655,10 +655,10 @@ const faqSchema = {
           <div>
             <div class="flex items-center gap-2 mb-2 text-indigo-300 font-mono text-xs uppercase tracking-widest">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              30 min
+              30 мин
             </div>
-            <h3 class="font-bold text-2xl text-white mb-2">Simulacro Real</h3>
-            <p class="text-slate-400 text-sm max-w-xs">Interfaz, tiempo и presión idénticos al examen oficial. Practica en condiciones reales.</p>
+            <h3 class="font-bold text-2xl text-white mb-2">Реальная симуляция</h3>
+            <p class="text-slate-400 text-sm max-w-xs">Тот же интерфейс, время и стресс, что и на экзамене DGT. Тренируйся в боевых условиях.</p>
           </div>
           <div class="hidden md:block">
             <div class="w-20 h-20 rounded-full border-4 border-indigo-500 flex items-center justify-center text-xl font-black bg-indigo-900/20">PRO</div>
@@ -671,53 +671,53 @@ const faqSchema = {
     <section id="pricing" class="relative z-10 py-24 md:py-32">
       <div class="max-w-[1400px] mx-auto px-6">
         <div class="text-center mb-16">
-          <h2 class="text-3xl md:text-6xl font-black mb-6">Precios sencillos</h2>
-          <p class="text-slate-400 text-lg max-w-2xl mx-auto">La autoescuela cobra cientos de euros por la teórica. Con Skily, solo pagas por lo que usas.</p>
+          <h2 class="text-3xl md:text-6xl font-black mb-6">Простые цены</h2>
+          <p class="text-slate-400 text-lg max-w-2xl mx-auto">Автошкола берет 250-400€ за теорию. Со Skily ты платишь только за то, что реально используешь.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           <!-- Free Plan -->
           <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col group hover:border-slate-700 transition-all">
             <div class="mb-8">
-              <h4 class="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Básico</h4>
-              <div class="text-4xl font-black text-white">0€<span class="text-lg text-slate-500 font-medium ml-1">/siempre</span></div>
+              <h4 class="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Базовый</h4>
+              <div class="text-4xl font-black text-white">0€<span class="text-lg text-slate-500 font-medium ml-1">/всегда</span></div>
             </div>
             <ul class="space-y-4 mb-10 flex-1">
-              {['Preguntas oficiales','IA limitada (10/día)','Simulacros (3 intentos)','Estadísticas básicas'].map(f => (
+              {['Все официальные вопросы','Лимитированный ИИ (10/день)','Симулятор (3 попытки)','Базовая статистика'].map(f => (
                 <li class="flex items-center gap-3 text-sm text-slate-400"><svg class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5L20 7"/></svg>{f}</li>
               ))}
             </ul>
-            <a href={`${appBaseUrl}/login`} class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-center hover:bg-white/10 transition-all">Empezar gratis</a>
+            <a href={`${appBaseUrl}/login`} class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-center hover:bg-white/10 transition-all">Начать бесплатно</a>
           </div>
 
           <!-- Premium Plan -->
           <div class="bg-gradient-to-b from-blue-600 to-blue-800 p-8 rounded-[2.5rem] flex flex-col shadow-2xl shadow-blue-500/20 scale-105 relative z-10">
-            <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-white text-blue-600 text-[10px] font-black uppercase tracking-widest">Más Popular</div>
+            <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-white text-blue-600 text-[10px] font-black uppercase tracking-widest">Самый популярный</div>
             <div class="mb-8">
-              <h4 class="text-blue-100 font-bold uppercase tracking-widest text-xs mb-2">Premium</h4>
-              <div class="text-4xl font-black text-white">4.99€<span class="text-lg text-blue-200/60 font-medium ml-1">/mes</span></div>
+              <h4 class="text-blue-100 font-bold uppercase tracking-widest text-xs mb-2">Премиум</h4>
+              <div class="text-4xl font-black text-white">4.99€<span class="text-lg text-blue-200/60 font-medium ml-1">/мес</span></div>
             </div>
             <ul class="space-y-4 mb-10 flex-1">
-              {['IA ilimitada','Duelos sin límites','Challenge Bank completo','Pase de batalla и premios','Soporte prioritario'].map(f => (
+              {['Безлимитный ИИ-тьютор','Дуэли без ограничений','Полный Challenge Bank','Сезонный пасс и награды','Приоритетная поддержка'].map(f => (
                 <li class="flex items-center gap-3 text-sm text-white font-medium"><svg class="w-4 h-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5L20 7"/></svg>{f}</li>
               ))}
             </ul>
-            <a href={`${appBaseUrl}/pricing`} class="w-full py-4 rounded-2xl bg-white text-blue-600 font-black text-center shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">Hacerse Premium</a>
+            <a href={`${appBaseUrl}/pricing`} class="w-full py-4 rounded-2xl bg-white text-blue-600 font-black text-center shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">Купить Премиум</a>
           </div>
 
           <!-- Annual Plan -->
           <div class="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col group hover:border-slate-700 transition-all">
             <div class="mb-8">
-              <h4 class="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Anual</h4>
-              <div class="text-4xl font-black text-white">34.99€<span class="text-lg text-slate-500 font-medium ml-1">/año</span></div>
-              <div class="mt-2 inline-block px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-wider uppercase">Ahorra 40%</div>
+              <h4 class="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">Годовой</h4>
+              <div class="text-4xl font-black text-white">34.99€<span class="text-lg text-slate-500 font-medium ml-1">/год</span></div>
+              <div class="mt-2 inline-block px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-wider uppercase">Экономия 40%</div>
             </div>
             <ul class="space-y-4 mb-10 flex-1">
-              {['Todo lo del Premium','Precio mínimo asegurado','Acceso por 12 meses','Monedas de regalo'].map(f => (
+              {['Всё из Премиума','Самая низкая цена','Доступ на 12 месяцев','Подарочные монеты'].map(f => (
                 <li class="flex items-center gap-3 text-sm text-slate-400"><svg class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path d="m5 12 5 5L20 7"/></svg>{f}</li>
               ))}
             </ul>
-            <a href={`${appBaseUrl}/pricing`} class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-center hover:bg-white/10 transition-all">Elegir Anual</a>
+            <a href={`${appBaseUrl}/pricing`} class="w-full py-4 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-center hover:bg-white/10 transition-all">Выбрать год</a>
           </div>
         </div>
       </div>
@@ -727,11 +727,11 @@ const faqSchema = {
     <section class="relative z-10 py-32 md:py-48 px-6 overflow-hidden">
       <div class="absolute inset-0 bg-blue-600/5 pointer-events-none"></div>
       <div class="max-w-4xl mx-auto text-center reveal-on-scroll">
-        <h2 class="text-4xl md:text-7xl font-black mb-8 leading-[1.1]">Tu carnet empieza <br/><span class="text-blue-500">aquí и ahora</span></h2>
-        <p class="text-slate-400 text-xl mb-12 max-w-2xl mx-auto">Únete a +10.000 alumnos que ya han dado el paso hacia el futuro del aprendizaje.</p>
+        <h2 class="text-4xl md:text-7xl font-black mb-8 leading-[1.1]">Твои права начинаются <br/><span class="text-blue-500">здесь и сейчас</span></h2>
+        <p class="text-slate-400 text-xl mb-12 max-w-2xl mx-auto">Присоединяйся к 10 000+ учеников, которые уже выбрали будущее обучения.</p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href={`${appBaseUrl}/login`} class="w-full sm:w-auto px-12 py-5 rounded-2xl bg-white text-slate-900 font-black text-xl shadow-2xl hover:scale-[1.05] transition-all">Empezar gratis</a>
-          <a href="https://t.me/skilyapp_bot" class="w-full sm:w-auto px-12 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xl hover:bg-white/10 transition-all">Abrir en Telegram</a>
+          <a href={`${appBaseUrl}/login`} class="w-full sm:w-auto px-12 py-5 rounded-2xl bg-white text-slate-900 font-black text-xl shadow-2xl hover:scale-[1.05] transition-all">Начать бесплатно</a>
+          <a href="https://t.me/skilyapp_bot" class="w-full sm:w-auto px-12 py-5 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xl hover:bg-white/10 transition-all">Открыть в Telegram</a>
         </div>
       </div>
     </section>
@@ -741,13 +741,13 @@ const faqSchema = {
       <div class="max-w-[1400px] mx-auto">
         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
           <div class="col-span-2 lg:col-span-2">
-             <a href="/es" class="flex items-center gap-3 mb-6">
+             <a href="/ru" class="flex items-center gap-3 mb-6">
                 <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-blue-600 shadow-lg shadow-blue-500/20">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8"/><rect width="18" height="8" x="3" y="10" rx="2"/></svg>
                 </div>
                 <span class="font-black text-xl">Skily</span>
              </a>
-             <p class="text-slate-500 max-w-xs text-sm leading-relaxed mb-6">El futuro de la preparación de exámenes de la DGT. IA и gamificación para un aprobado sin esfuerzo.</p>
+             <p class="text-slate-500 max-w-xs text-sm leading-relaxed mb-6">Будущее подготовки к экзаменам DGT. Используем ИИ и геймификацию, чтобы сделать обучение легким и азартным.</p>
              <div class="flex gap-4">
                {['twitter','instagram','github'].map(s => (
                  <a href="#" class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all">
@@ -758,33 +758,33 @@ const faqSchema = {
              </div>
           </div>
           <div>
-            <h5 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Producto</h5>
+            <h5 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Продукт</h5>
             <ul class="space-y-4 text-slate-500 text-sm">
-              <li><a href="#features" class="hover:text-blue-400 transition-colors">Funciones</a></li>
-              <li><a href="#pricing" class="hover:text-blue-400 transition-colors">Precios</a></li>
-              <li><a href={`${appBaseUrl}/demo`} class="hover:text-blue-400 transition-colors">Demo Test</a></li>
-              <li><a href={`${appBaseUrl}/login`} class="hover:text-blue-400 transition-colors">Registro</a></li>
+              <li><a href="#features" class="hover:text-blue-400 transition-colors">Возможности</a></li>
+              <li><a href="#pricing" class="hover:text-blue-400 transition-colors">Цены</a></li>
+              <li><a href={`${appBaseUrl}/demo`} class="hover:text-blue-400 transition-colors">Демо-тест</a></li>
+              <li><a href={`${appBaseUrl}/login`} class="hover:text-blue-400 transition-colors">Регистрация</a></li>
             </ul>
           </div>
           <div>
-             <h5 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Idiomas</h5>
+             <h5 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Языки</h5>
              <ul class="space-y-4 text-slate-500 text-sm">
-               <li><a href="/es" class="text-blue-400 font-bold">Español</a></li>
+               <li><a href="/es" class="hover:text-blue-400 transition-colors">Español</a></li>
                <li><a href="/en" class="hover:text-blue-400 transition-colors">English</a></li>
-               <li><a href="/ru" class="hover:text-blue-400 transition-colors">Русский</a></li>
+               <li><a href="/ru" class="text-blue-400 font-bold">Русский</a></li>
              </ul>
           </div>
           <div>
-            <h5 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Legal</h5>
+            <h5 class="text-white font-bold mb-6 text-sm uppercase tracking-widest">Право</h5>
             <ul class="space-y-4 text-slate-500 text-sm">
-              <li><a href="/legal/terms" class="hover:text-blue-400 transition-colors">Términos</a></li>
-              <li><a href="/legal/privacy" class="hover:text-blue-400 transition-colors">Privacidad</a></li>
+              <li><a href="/legal/terms" class="hover:text-blue-400 transition-colors">Условия</a></li>
+              <li><a href="/legal/privacy" class="hover:text-blue-400 transition-colors">Приватность</a></li>
               <li><a href="/legal/cookies" class="hover:text-blue-400 transition-colors">Cookies</a></li>
             </ul>
           </div>
         </div>
         <div class="flex flex-col md:flex-row justify-between items-center pt-10 border-t border-white/5 gap-4">
-          <p class="text-slate-600 text-xs">© {currentYear} Skily AI. Hecho con ❤️ en Barcelona.</p>
+          <p class="text-slate-600 text-xs">© {currentYear} Skily AI. Сделано с ❤️ в Барселоне.</p>
           <div class="flex items-center gap-6 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">
             <span>DGT Approved Questions</span>
             <span class="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
@@ -868,9 +868,9 @@ const faqSchema = {
       const ICON_X     = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 
       var AI_REPLIES = {
-        pista:   "Fíjate bien en la señal de la imagen — es la **S-28** (zona de estancia y juego).\n\nPiénsalo: ¿quién es más vulnerable en esa zona? En estas zonas los vehículos son los «invitados», no los dueños de la vía. 🚸",
-        explicar:"La señal **S-28** indica una zona de estancia и juego.\n\nSegún el Reglamento General de Circulación:\n\n1️⃣ Los **peatones** tienen prioridad и pueden usar toda la calzada\n2️⃣ Los vehículos circulan a **paso de hombre** (máx. 20 km/h)\n3️⃣ El conductor debe detenerse si un peatón lo necesita\n\nOjo: aquí los peatones mandan en toda la calzada, no solo en los pasos señalizados. ¿Tienes más dudas? 🚗",
-        default: "Buena pregunta 🤔 En esta zona con señal S-28, la clave es que los **peatones tienen prioridad absoluta** en toda la calzada. Si quieres profundizar, pulsa «Explícame el tema» o escрібеme directamente."
+        pista:   "Присмотрись внимательнее к знаку на картинке — это **S-28** (жилая зона).\n\nПодумай: кто здесь самый уязвимый? В таких зонах автомобили — лишь «гости», а не хозяева дороги. 🚸",
+        explicar:"Знак **S-28** обозначает жилую зону.\n\nСогласно ПДД Испании:\n\n1️⃣ **Пешеходы** имеют приоритет и могут использовать всю ширину проезжей части.\n2️⃣ Транспортные средства должны двигаться со **скоростью пешехода** (макс. 20 км/ч).\n3️⃣ Водитель обязан остановиться, если пешеходу это необходимо.\n\nЗапомни: здесь пешеходы главные везде, а не только на «зебре». Есть еще вопросы? 🚗",
+        default: "Хороший вопрос 🤔 В зоне действия знака S-28 главное — это то, что **пешеходы имеют абсолютный приоритет** на всей дороге. Если хочешь узнать больше, нажми «Объясни тему»."
       };
 
       var aiDemoAnswered = false;
@@ -909,7 +909,7 @@ const faqSchema = {
         var isRight = n === correct;
         setTimeout(function() {
           aiWidgetSetIdle();
-          var prefix = isRight ? '¡Magnífico! Respuesta correcta. ' : 'No del todo. ';
+          var prefix = isRight ? 'Великолепно! Правильный ответ. ' : 'Не совсем. ';
           aiWidgetShowMsg(prefix + AI_REPLIES.explicar, isRight);
         }, 1050);
       };
@@ -929,7 +929,7 @@ const faqSchema = {
         if(idle) idle.style.display = 'none';
         if(msg) {
           msg.style.display = 'block';
-          msg.innerHTML = '<div style="display:flex;gap:8px;align-items:center;padding:10px;"><span class="ai-dot-loading"></span><span style="font-size:12px;color:#64748b;">Skily AI pensando...</span></div>';
+          msg.innerHTML = '<div style="display:flex;gap:8px;align-items:center;padding:10px;"><span class="ai-dot-loading"></span><span style="font-size:12px;color:#64748b;">Skily AI думает...</span></div>';
         }
         document.getElementById('ai-ping-ring').style.borderColor = '#6366f1';
       }
@@ -946,7 +946,7 @@ const faqSchema = {
         var color = isSuccess ? '#86efac' : '#e2e8f0';
         msg.innerHTML = '<div style="background:rgba(30,41,59,0.7);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;margin-bottom:10px;">'
           + '<p id="ai-typing-text" style="color:'+color+';font-size:12px;line-height:1.6;margin:0;white-space:pre-line;"></p></div>'
-          + '<button onclick="location.reload()" style="font-size:10px;color:#475569;background:none;border:none;cursor:pointer;text-decoration:underline;">Reiniciar demo</button>';
+          + '<button onclick="location.reload()" style="font-size:10px;color:#475569;background:none;border:none;cursor:pointer;text-decoration:underline;">Сбросить демо</button>';
         
         var el = document.getElementById('ai-typing-text');
         var i = 0;

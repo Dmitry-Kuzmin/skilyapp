@@ -10,6 +10,8 @@ import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
+
 import { SignWidget } from '@/components/chat/SignWidget';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -202,20 +204,22 @@ export const SkilyChat = React.memo(() => {
         </div>
 
         <div className="relative z-10 w-full mt-3">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={(e) => { e.stopPropagation(); handleExpand(); }}
             className={cn(
-              "w-full py-3 px-4 rounded-xl font-bold text-sm transition-all active:scale-95 flex items-center justify-center gap-2 border shadow-sm group/btn",
+              "w-full py-3.5 px-4 rounded-xl font-black text-xs uppercase tracking-[0.1em] transition-all flex items-center justify-center gap-2 border shadow-sm group/btn",
               isDarkTheme 
                 ? "bg-slate-700 hover:bg-slate-600 text-white border-slate-600" 
-                : "bg-white hover:bg-slate-50 text-slate-900 border-slate-200"
+                : "bg-white hover:bg-slate-50 text-slate-950 border-slate-200"
             )}
           >
             <span className="group-hover/btn:translate-x-[-2px] transition-transform">{t('skilyChat.title') || 'AI Assistant'}</span>
-            <ArrowRight size={16} className="group-hover/btn:translate-x-[2px] transition-transform" />
-          </button>
-
+            <ArrowRight size={14} className="group-hover/btn:translate-x-[2px] transition-transform opacity-70" />
+          </motion.button>
         </div>
+
       </div>
 
       {/* EXPANDED OVERLAY (RESPONSIVE MODAL) */}
