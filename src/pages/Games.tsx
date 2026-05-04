@@ -542,7 +542,12 @@ const Games = () => {
                       )}
 
                       {/* Top Badges */}
-                      <div className="absolute top-4 right-4 z-20 flex gap-2">
+                      <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+                        {!isLocked && (
+                          <Badge variant="outline" className="border-border text-muted-foreground bg-card/50 px-2.5 py-1">
+                            {game.difficulty}
+                          </Badge>
+                        )}
                         {isLocked && (
                           <Badge className="bg-slate-900/80 text-slate-100 border-none font-black shadow-xl px-3 py-1.5 flex items-center gap-1.5 backdrop-blur-md ring-1 ring-white/10">
                             <Lock className="w-3.5 h-3.5 text-blue-400" />
@@ -566,12 +571,6 @@ const Games = () => {
                            `}>
                             <Icon className="w-7 h-7" />
                           </div>
-
-                          {!isLocked && (
-                            <Badge variant="outline" className="border-border text-muted-foreground bg-card/50">
-                              {game.difficulty}
-                            </Badge>
-                          )}
                         </div>
 
                         <div>

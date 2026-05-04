@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import Layout from "@/components/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 interface Flashcard {
   id: string;
@@ -220,7 +221,7 @@ const RoadCardsGame = () => {
               {selectedTopic === 'all' ? 'Все темы' : `Тема ${selectedTopic}`}
             </Badge>
             <div className="text-xs text-zinc-500 font-medium">
-              Карточка {currentIndex + 1} из {flashcards.length}
+              Карточка {flashcards.length > 0 ? currentIndex + 1 : 0} из {flashcards.length}
             </div>
           </div>
 
@@ -343,9 +344,9 @@ const RoadCardsGame = () => {
           <div className="max-w-xl mx-auto w-full space-y-4">
             <div className="flex justify-between text-[10px] font-black text-zinc-500 uppercase tracking-widest">
               <span>Прогресс обучения</span>
-              <span className="text-blue-400">{Math.round(((currentIndex + 1) / flashcards.length) * 100)}%</span>
+              <span className="text-blue-400">{flashcards.length > 0 ? Math.round(((currentIndex + 1) / flashcards.length) * 100) : 0}%</span>
             </div>
-            <Progress value={((currentIndex + 1) / flashcards.length) * 100} className="h-1.5 bg-zinc-900" indicatorClassName="bg-gradient-to-r from-blue-600 to-indigo-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+            <Progress value={flashcards.length > 0 ? ((currentIndex + 1) / flashcards.length) * 100 : 0} className="h-1.5 bg-zinc-900" indicatorClassName="bg-gradient-to-r from-blue-600 to-indigo-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
           </div>
 
           <div className="flex items-center justify-center gap-4 lg:hidden">
