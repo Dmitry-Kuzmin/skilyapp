@@ -42,6 +42,12 @@ for (const { src, dest } of pages) {
 }
 
 // Copy Astro's public assets (videos, images referenced by the landing)
+const astroImages = join(ASTRO_DIST, 'images');
+if (existsSync(astroImages)) {
+  cpSync(astroImages, join(MAIN_DIST, 'images'), { recursive: true });
+  console.log('[copy-landing] ✅ Copied images/ assets');
+}
+
 const astroPublic = join(ASTRO_DIST);
 const videoFiles = ['AI.webm', 'PracticaTests.webm', 'TranslateRU.webm'];
 for (const f of videoFiles) {
