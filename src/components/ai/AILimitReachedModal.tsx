@@ -213,7 +213,7 @@ export const AILimitReachedModal: React.FC<AILimitReachedModalProps> = ({
     const handleUpgrade = () => {
         triggerHapticFeedback('light');
         onClose();
-        navigate('/shop?tab=premium');
+        openModal('PAYWALL', { trigger: 'ai_limit' });
     };
 
     const progress = Math.min((currentCount / limit) * 100, 100);
