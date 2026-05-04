@@ -477,6 +477,7 @@ export const useTestDataLoader = ({
         topic,
         ticketNumber,
         redemptionQuestions,
+        smartTestQuestions,
     ]);
 
     return result;
