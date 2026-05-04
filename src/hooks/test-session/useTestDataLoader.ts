@@ -226,6 +226,15 @@ export const useTestDataLoader = ({
         enabled: mode === 'redemption' && !!redemptionData?.failedIds?.length,
     });
 
+    // Smart adaptive test questions
+    const smartTestQuestions = useSmartTestQuestions({
+        profileId: mode === 'smart' ? profileId : null,
+        count: questionCount,
+        category: category || 'B',
+        country: pddCountry || 'spain',
+        enabled: mode === 'smart',
+    });
+
     // Aggregate results based on mode
     const result = useMemo((): UseTestDataLoaderResult => {
         switch (mode) {
