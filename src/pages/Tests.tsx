@@ -619,6 +619,9 @@ const Tests = () => {
                 </button>
               )}
               <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3">
+                {/* AI Insights shortcut */}
+                <AIInsightsLibrary isPremium={isPremium} />
+
                 {/* Accuracy Badge */}
                 <div className="flex items-center gap-1 xs:gap-1.5 px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30 backdrop-blur-sm shadow-lg shadow-blue-500/10 flex-shrink-0 whitespace-nowrap">
                   <Target className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
