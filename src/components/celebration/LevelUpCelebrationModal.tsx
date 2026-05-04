@@ -174,7 +174,8 @@ export const LevelUpCelebrationModal: React.FC = () => {
       // Обновляем кэши
       queryClient.invalidateQueries({ queryKey: ['profile-data', profileId] });
       queryClient.invalidateQueries({ queryKey: ['duel-pass-info', profileId] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-complete'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-data', profileId] });
+      queryClient.invalidateQueries({ queryKey: ['duelPass', profileId] });
 
       // Закрываем через 1.5с — чтобы юзер увидел "claimed" состояние
       setTimeout(() => dismiss(), 1500);
