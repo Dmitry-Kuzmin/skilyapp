@@ -206,6 +206,11 @@ export function AppRoutes() {
           <ChallengeBank />
         </Suspense>
       } />
+      <Route path="/tests/error-bank" element={
+        <Suspense fallback={<PageSkeleton />}>
+          <ErrorBank />
+        </Suspense>
+      } />
       <Route path="/tests/favorites" element={
         <Suspense fallback={<PageSkeleton />}>
           <Favorites />
