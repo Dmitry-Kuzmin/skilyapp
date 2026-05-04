@@ -232,6 +232,16 @@ export const useTestDataLoader = ({
             case 'blitz':
             case 'mastery':
             case 'hardest':
+                // Guests get static JSON, no DB query
+                if (isGuestMode) {
+                    return {
+                        questions: guestQuestions.slice(0, questionCount),
+                        isLoading: false,
+                        error: null,
+                        testInfo: { id: 'guest-demo', title: '🚗 Demo DGT' },
+                    };
+                }
+
                 // Russia/Spain with random questions (no specific topic)
                 if ((pddCountry === 'russia' || pddCountry === 'spain') && !topicId && !topic) {
                     return {
