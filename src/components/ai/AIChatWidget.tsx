@@ -241,6 +241,22 @@ export function AIChatWidget() {
     const limitModalOpen = useAIChatStore((s) => s.limitModalOpen);
     const limitData = useAIChatStore((s) => s.limitData);
 
+    // Счётчик оставшихся AI-сообщений (isOpen уже объявлен выше)
+    const { data: aiUsage, refetch: refetchUsage } = useQuery({
+        queryKey: ['ai-usage-limit', profileId],
+        queryFn: async () => {
+            if (!profileId) return null;
+            const { data } = await supabase.rpc('check_ai_usage_limit', { p_user_id: profileId });
+            return data?.[0] ?? null;
+        },
+        enabled: !!profileId && isOpen,
+        staleTime: 0,
+    });
+
+    const aiLimit = 5;
+    const aiUsed = aiUsage?.current_count ?? 0;
+    const aiRemaining = Math.max(aiLimit - aiUsed, 0);
+
     const {
         closeChat,
         toggleTranslation,
