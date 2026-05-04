@@ -406,90 +406,28 @@ export function AIChatWidget() {
             interfaceLanguage
         );
 
-        try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session?.access_token) {
-                setLoading(false);
-                openModal('PAYWALL', { trigger: 'ai_guest' });
-                return;
-            }
-            const authToken = session.access_token;
+        const allMessages = messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+        allMessages.push({
+            role: 'user' as const,
+            content: messages.length === 0 ? aiPrompt + '\n\n' + userMessage : userMessage,
+        });
 
-            const allMessages = messages.map(m => ({ role: m.role, content: m.content }));
-            allMessages.push({
-                role: 'user' as const,
-                content: messages.length === 0 ? aiPrompt + '\n\n' + userMessage : userMessage
-            });
+        addMessage({ role: 'assistant', content: '' });
 
-            const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}`,
+        await sendRequest(
+            { messages: allMessages, country: selectedCountry, language: interfaceLanguage, mode: 'chat', showComparison: false },
+            {
+                onChunk: (text) => updateLastMessage(text),
+                onDone: () => { if (isTelegram) triggerHapticFeedback('success'); },
+                onLimitReached: (data) => {
+                    setLimitModal(true, { currentCount: data.currentCount, limit: data.limit, message: data.message || '' });
                 },
-                body: JSON.stringify({
-                    messages: allMessages,
-                    imageUrl: context?.imageUrl || '',
-                    country: selectedCountry,
-                    language: interfaceLanguage,
-                    mode: 'chat',
-                    showComparison: false,
-                }),
-            });
+                onError: () => toast.error('Ошибка при получении ответа'),
+            },
+        );
 
-            if (response.status === 429) {
-                const errorData = await response.json();
-                if (errorData.error === 'daily_limit_reached') {
-                    setLimitModal(true, {
-                        currentCount: errorData.current_count || 10,
-                        limit: errorData.limit || 10,
-                        message: errorData.message || '',
-                    });
-                    setLoading(false);
-                    return;
-                }
-            }
-
-            if (!response.ok || !response.body) {
-                throw new Error('Failed to get response');
-            }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-
-            addMessage({ role: 'assistant', content: '' });
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value);
-                const lines = chunk.split('\n');
-
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
-                        if (data === '[DONE]') continue;
-
-                        try {
-                            const parsed = JSON.parse(data);
-                            const content = parsed.choices?.[0]?.delta?.content;
-                            if (content) updateLastMessage(content);
-                        } catch {
-                            // пропускаем невалидный JSON чанк
-                        }
-                    }
-                }
-            }
-
-            if (isTelegram) triggerHapticFeedback('success');
-
-        } catch (error) {
-            toast.error('Ошибка при получении ответа');
-        } finally {
-            setLoading(false);
-            if (!isPremium) refetchUsage();
-        }
+        setLoading(false);
+        if (!isPremium) refetchUsage();
     }, [messages, questionContext, interfaceLanguage, isLoading, isTelegram, isPremium, refetchUsage]);
 
     const handleSubmit = (e: React.FormEvent) => {
