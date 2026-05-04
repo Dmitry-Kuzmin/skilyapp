@@ -404,7 +404,12 @@ export function AIChatWidget() {
 
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            const authToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+            if (!session?.access_token) {
+                setLoading(false);
+                openPaywall?.();
+                return;
+            }
+            const authToken = session.access_token;
 
             const allMessages = messages.map(m => ({ role: m.role, content: m.content }));
             allMessages.push({
