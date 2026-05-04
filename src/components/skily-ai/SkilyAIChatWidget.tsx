@@ -400,16 +400,6 @@ export const SkilyAIChatWidget = ({
       )}
     </Card>
 
-    {/* Daily AI limit modal */}
-    {limitReached && (
-      <AILimitReachedModal
-        isOpen={!!limitReached}
-        onClose={clearLimit}
-        currentCount={limitReached.currentCount}
-        limit={limitReached.limit}
-        message={limitReached.message}
-      />
-    )}
   </>
   );
 };
