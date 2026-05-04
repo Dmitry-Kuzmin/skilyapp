@@ -242,46 +242,49 @@ const Favorites = () => {
 
     return (
         <Layout>
-            <div className="container mx-auto px-4 py-8 max-w-7xl min-h-screen pb-28">
+            <div className="container mx-auto px-4 py-8 max-w-[1370px] min-h-screen pb-28">
 
                 {/* HEADER */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-                    <div className="space-y-1.5">
+                <div className="flex items-start sm:items-center justify-between gap-3 sm:gap-6 mb-8">
+                    {/* Left: back button + icon + title */}
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                         <button
                             onClick={() => navigate(-1)}
-                            className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors mb-2"
+                            aria-label={t("common.back")}
+                            className="shrink-0 h-10 w-10 rounded-xl bg-muted/50 hover:bg-muted border border-border/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                         >
-                            <ArrowLeft className="w-3.5 h-3.5" />
-                            {t("common.back")}
+                            <ArrowLeft className="w-4 h-4" />
                         </button>
-                        <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
-                                <Archive className="w-5.5 h-5.5 text-white" style={{ width: 22, height: 22 }} />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight leading-none">
-                                    {t("favoritesGym.title")}
-                                </h1>
-                                <p className="text-xs text-muted-foreground mt-0.5 font-medium">
-                                    {t("favoritesGym.subtitle")}
-                                </p>
-                            </div>
+
+                        <div className="shrink-0 w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
+                            <Archive className="text-white" style={{ width: 22, height: 22 }} />
+                        </div>
+
+                        <div className="min-w-0">
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tight leading-none truncate">
+                                {t("favoritesGym.title")}
+                            </h1>
+                            <p className="hidden sm:block text-xs text-muted-foreground mt-1 font-medium truncate">
+                                {t("favoritesGym.subtitle")}
+                            </p>
                         </div>
                     </div>
 
-                    {/* STATS + CTA */}
-                    <div className="flex items-center gap-3">
-                        <StatPill
-                            value={questions.length}
-                            label={t("favoritesGym.totalCards")}
-                            icon={<Bookmark className="w-3.5 h-3.5" />}
-                        />
-                        <StatPill
-                            value={lowBatteryCount}
-                            label={t("favoritesGym.requireCharge")}
-                            icon={<BatteryLow className="w-3.5 h-3.5" />}
-                            alert={lowBatteryCount > 0}
-                        />
+                    {/* Right: stats + CTA */}
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <div className="hidden sm:flex items-center gap-2">
+                            <StatPill
+                                value={questions.length}
+                                label={t("favoritesGym.totalCards")}
+                                icon={<Bookmark className="w-3.5 h-3.5" />}
+                            />
+                            <StatPill
+                                value={lowBatteryCount}
+                                label={t("favoritesGym.requireCharge")}
+                                icon={<BatteryLow className="w-3.5 h-3.5" />}
+                                alert={lowBatteryCount > 0}
+                            />
+                        </div>
                         <Button
                             size="lg"
                             onClick={() => navigate('/test/favorites')}
@@ -296,6 +299,21 @@ const Favorites = () => {
                             </div>
                         </Button>
                     </div>
+                </div>
+
+                {/* Mobile-only stats row (under header) */}
+                <div className="sm:hidden flex items-center gap-2 mb-6">
+                    <StatPill
+                        value={questions.length}
+                        label={t("favoritesGym.totalCards")}
+                        icon={<Bookmark className="w-3.5 h-3.5" />}
+                    />
+                    <StatPill
+                        value={lowBatteryCount}
+                        label={t("favoritesGym.requireCharge")}
+                        icon={<BatteryLow className="w-3.5 h-3.5" />}
+                        alert={lowBatteryCount > 0}
+                    />
                 </div>
 
                 {/* FILTERS & SEARCH */}
