@@ -308,22 +308,24 @@ export default function ErrorBank() {
             {l("Недавние", "Recientes", "Recent")}
           </button>
 
-          {/* Topic dropdown */}
+          {/* Topic dropdown — Premium only */}
           <div className="relative">
             <button
-              onClick={() => setTopicMenuOpen(v => !v)}
+              onClick={() => isPremium ? setTopicMenuOpen(v => !v) : openModal('PAYWALL')}
               className={cn(
                 "flex items-center gap-1.5 px-3 h-9 rounded-xl text-xs font-bold border transition-all",
-                preset === "topic"
-                  ? "bg-violet-500/10 border-violet-500/30 text-violet-600"
-                  : "bg-muted/40 border-border/40 text-muted-foreground hover:bg-muted"
+                !isPremium
+                  ? "bg-muted/40 border-border/40 text-muted-foreground/50"
+                  : preset === "topic"
+                    ? "bg-violet-500/10 border-violet-500/30 text-violet-600"
+                    : "bg-muted/40 border-border/40 text-muted-foreground hover:bg-muted"
               )}
             >
               <BookOpen className="w-3.5 h-3.5" />
               {preset === "topic" && topicFilter
                 ? <span className="max-w-[120px] truncate">{topicFilter}</span>
                 : l("По теме", "Por tema", "By topic")}
-              <ChevronDown className="w-3 h-3" />
+              {isPremium ? <ChevronDown className="w-3 h-3" /> : <Crown className="w-3 h-3 text-amber-500" />}
             </button>
             <AnimatePresence>
               {topicMenuOpen && (
