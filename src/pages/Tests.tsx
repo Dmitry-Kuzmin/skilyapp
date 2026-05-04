@@ -903,6 +903,7 @@ const Tests = () => {
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
               <div className="absolute bottom-0 left-0 w-96 h-96 bg-black/10 blur-3xl rounded-full -translate-x-1/2 translate-y-1/2" />
             </motion.div>
+            )}
 
             {/* Other Test Modes Grid - Dashboard Style */}
             <div className="space-y-6">
