@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Flame, Clock, BookOpen, Play, ChevronDown, Check, Crown, Lock } from "lucide-react";
 import Layout from "@/components/Layout";
