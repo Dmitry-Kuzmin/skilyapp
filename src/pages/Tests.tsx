@@ -841,7 +841,7 @@ const Tests = () => {
               {/* Free question limit banner */}
               {!isPremium && !isGuest && selectedCountry === 'spain' && (
                 <button
-                  onClick={() => openModal(ModalType.PAYWALL)}
+                  onClick={() => openModal('PAYWALL')}
                   className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/15 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
@@ -978,7 +978,7 @@ const Tests = () => {
                         }
 
                         if (mode.premium && !isPremium) {
-                          openModal(ModalType.PAYWALL);
+                          openModal('PAYWALL');
                         } else if (mode.route) {
                           if (import.meta.env.DEV && mode.id === 2) {
                             console.log('[Tests] Клик по экзамену:', {

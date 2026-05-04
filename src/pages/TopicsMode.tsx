@@ -1,245 +1,249 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { BookOpen, ArrowRight, Play, Star, Clock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { BookOpen, Play, Lock, ChevronRight, Layers } from "lucide-react";
 import Layout from "@/components/Layout";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { usePDDTopicQuestions } from "@/hooks/usePDDTopics";
 import { TopicDetailDialog } from "@/components/topics/TopicDetailDialog";
-import { motion } from "@/components/optimized/Motion";
 import { cn } from "@/lib/utils";
+import { usePremium } from "@/hooks/usePremium";
+import { useModalStore } from "@/store/modalStore";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const PREMIUM_GRADIENTS = [
-  "from-blue-500/20 to-cyan-500/20",
-  "from-purple-500/20 to-pink-500/20",
-  "from-orange-500/20 to-red-500/20",
-  "from-emerald-500/20 to-teal-500/20",
-  "from-indigo-500/20 to-blue-500/20",
-  "from-rose-500/20 to-orange-500/20",
+const ACCENT_COLORS = [
+  { bg: "bg-blue-500/10", border: "border-blue-500/20", icon: "text-blue-400", bar: "bg-blue-500" },
+  { bg: "bg-violet-500/10", border: "border-violet-500/20", icon: "text-violet-400", bar: "bg-violet-500" },
+  { bg: "bg-amber-500/10", border: "border-amber-500/20", icon: "text-amber-400", bar: "bg-amber-500" },
+  { bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: "text-emerald-400", bar: "bg-emerald-500" },
+  { bg: "bg-rose-500/10", border: "border-rose-500/20", icon: "text-rose-400", bar: "bg-rose-500" },
+  { bg: "bg-cyan-500/10", border: "border-cyan-500/20", icon: "text-cyan-400", bar: "bg-cyan-500" },
+  { bg: "bg-orange-500/10", border: "border-orange-500/20", icon: "text-orange-400", bar: "bg-orange-500" },
+  { bg: "bg-pink-500/10", border: "border-pink-500/20", icon: "text-pink-400", bar: "bg-pink-500" },
+  { bg: "bg-teal-500/10", border: "border-teal-500/20", icon: "text-teal-400", bar: "bg-teal-500" },
+  { bg: "bg-indigo-500/10", border: "border-indigo-500/20", icon: "text-indigo-400", bar: "bg-indigo-500" },
 ];
 
-const ICON_COLORS = [
-  "text-blue-400",
-  "text-purple-400",
-  "text-orange-400",
-  "text-emerald-400",
-  "text-indigo-400",
-  "text-rose-400",
-];
+const FREE_QUESTIONS_PER_TOPIC = 30;
 
 const TopicsMode = () => {
   const navigate = useNavigate();
+  const { isPremium } = usePremium();
+  const openModal = useModalStore((s) => s.openModal);
+  const { language } = useLanguage();
+
   const [selectedTopic, setSelectedTopic] = useState<{ id: string; name: string; count: number } | null>(null);
 
-  // Безопасное получение контекста с fallback
   let selectedCountry: string = 'russia';
   try {
     const context = usePDDContext();
     selectedCountry = context?.selectedCountry || 'russia';
-  } catch (error) {
-    console.warn('[TopicsMode] PDDContext not available, using default:', error);
+  } catch {
+    // fallback
   }
 
   const country = selectedCountry || 'russia';
 
-  // Загружаем темы из таблицы topics с количеством вопросов через RPC
-  const { data: topics = [], isLoading, error } = useQuery({
+  const { data: topics = [], isLoading } = useQuery({
     queryKey: ['topics-with-counts', country],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .rpc('get_topics_with_counts');
-
+      const { data, error } = await supabase.rpc('get_topics_with_counts');
       if (error) throw error;
       return data || [];
     },
   });
 
-  // Загружаем вопросы для выбранной темы
   const { data: topicQuestions = [] } = usePDDTopicQuestions(
     country as any,
     selectedTopic?.name || '',
     selectedTopic?.count || 0
   );
 
-  const handleTopicSelect = (topicId: string, topicName: string, topicCount: number) => {
-    if (!topicId) return;
-    // Открываем попап с выбором билета вместо прямого перехода
-    setSelectedTopic({ id: topicId, name: topicName, count: topicCount });
+  const sortedTopics = useMemo(
+    () => [...topics].sort((a, b) => (a.number || 0) - (b.number || 0)),
+    [topics]
+  );
+
+  const totalQuestions = topics.reduce((acc, t) => acc + t.count, 0);
+
+  const getTitle = (topic: any) => {
+    if (language === 'es') return topic.title_es || topic.title_ru;
+    if (language === 'en') return topic.title_en || topic.title_es || topic.title_ru;
+    return topic.title_ru || topic.title_es;
   };
 
-  // Сортируем темы по number (возрастание)
-  const sortedTopics = useMemo(() => [...topics].sort((a, b) => (a.number || 0) - (b.number || 0)), [topics]);
+  const handleTopicClick = (topic: any) => {
+    const name = getTitle(topic);
+    if (!isPremium && country === 'spain') {
+      // Free users: start directly with 30 free questions, no dialog
+      navigate(`/test/practice?topic=${topic.id}&count=${FREE_QUESTIONS_PER_TOPIC}`);
+      return;
+    }
+    setSelectedTopic({ id: topic.id, name, count: topic.questions_count });
+  };
 
   return (
     <Layout>
-      <div className="min-h-screen bg-[#09090b] relative overflow-hidden font-sans pb-32">
-        {/* Background Mesh Gradients */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
-        </div>
+      <div className="min-h-screen bg-background pb-24">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-8 md:pt-12 space-y-8">
 
-        <div className="max-w-7xl mx-auto px-6 pt-12 md:pt-20 relative z-10 space-y-12">
-          {/* Header Section */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col md:flex-row md:items-end justify-between gap-6"
-          >
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold tracking-wider uppercase">
-                <Star className="w-3 h-3 fill-blue-400" />
-                <span>Обучение по темам</span>
-              </div>
-              <h1 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-none">
-                По <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Темам</span>
-              </h1>
-              <p className="text-zinc-400 text-lg md:text-xl max-w-2xl font-medium">
-                Фокусируйтесь на конкретных разделах ПДД. Прорешайте все вопросы темы, чтобы закрепить знания.
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                {country === 'spain' ? 'DGT España' : 'ПДД Россия'}
               </p>
+              <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
+                {language === 'ru' ? 'По темам' : language === 'es' ? 'Por temas' : 'By Topics'}
+              </h1>
             </div>
-
-            <div className="flex items-center gap-4 bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/50 p-4 rounded-2xl">
-              <div className="flex flex-col">
-                <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Всего тем</span>
-                <span className="text-2xl font-black text-white">{topics.length}</span>
+            <div className="flex items-center gap-6 px-5 py-3 rounded-2xl bg-card border border-border">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Тем</p>
+                <p className="text-xl font-black text-foreground">{topics.length}</p>
               </div>
-              <div className="w-px h-10 bg-zinc-800" />
-              <div className="flex flex-col">
-                <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">Вопросов</span>
-                <span className="text-2xl font-black text-white">
-                  {topics.reduce((acc, t) => acc + t.count, 0)}
-                </span>
+              <div className="w-px h-8 bg-border" />
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Вопросов</p>
+                <p className="text-xl font-black text-foreground">{totalQuestions.toLocaleString()}</p>
               </div>
+              {!isPremium && country === 'spain' && (
+                <>
+                  <div className="w-px h-8 bg-border" />
+                  <button
+                    onClick={() => openModal('PAYWALL')}
+                    className="flex items-center gap-1.5 text-amber-500 hover:text-amber-400 transition-colors"
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span className="text-xs font-bold">
+                      {FREE_QUESTIONS_PER_TOPIC * topics.length}/{totalQuestions} free
+                    </span>
+                  </button>
+                </>
+              )}
             </div>
-          </motion.div>
-
-          {/* Grid Section */}
-          <div className="relative">
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {[...Array(12)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-64 rounded-3xl bg-zinc-900/40 border border-zinc-800/50 animate-pulse"
-                  />
-                ))}
-              </div>
-            ) : error ? (
-              <div className="flex flex-col items-center justify-center py-24 space-y-4 bg-zinc-900/30 rounded-3xl border border-zinc-800/50 backdrop-blur-sm">
-                <div className="p-4 rounded-full bg-red-500/10 border border-red-500/20">
-                  <Clock className="w-8 h-8 text-red-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white">Ошибка загрузки</h3>
-                <p className="text-zinc-400 text-center max-w-xs">
-                  Не удалось загрузить список тем. Пожалуйста, попробуйте обновить страницу.
-                </p>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="px-6 py-2 bg-white text-black font-bold rounded-xl hover:scale-105 transition-transform"
-                >
-                  Обновить
-                </button>
-              </div>
-            ) : sortedTopics.length === 0 ? (
-              <div className="text-center py-24 bg-zinc-900/30 rounded-3xl border border-zinc-800/50">
-                <p className="text-zinc-400 text-lg">Темы не найдены</p>
-              </div>
-            ) : (
-              <motion.div
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                variants={{
-                  hidden: { opacity: 0 },
-                  show: {
-                    opacity: 1,
-                    transition: {
-                      staggerChildren: 0.05
-                    }
-                  }
-                }}
-                initial="hidden"
-                animate="show"
-              >
-                {sortedTopics.map((topic, index) => {
-                  const gradient = PREMIUM_GRADIENTS[index % PREMIUM_GRADIENTS.length];
-                  const iconColor = ICON_COLORS[index % ICON_COLORS.length];
-
-                  return (
-                    <motion.div
-                      key={topic.id}
-                      variants={{
-                        hidden: { opacity: 0, y: 20 },
-                        show: { opacity: 1, y: 0 }
-                      }}
-                      whileHover={{ y: -8 }}
-                      onClick={() => handleTopicSelect(topic.id, topic.title_es || topic.title_ru, topic.questions_count)}
-                      className="group relative flex flex-col h-full cursor-pointer"
-                    >
-                      {/* Card Body */}
-                      <div className="flex-1 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/50 rounded-[2rem] p-6 transition-all duration-300 group-hover:bg-zinc-800/60 group-hover:border-zinc-700/50 group-hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] flex flex-col justify-between overflow-hidden">
-                        {/* Hover Glow */}
-                        <div className={cn(
-                          "absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-br blur-[60px] opacity-0 group-hover:opacity-20 transition-opacity duration-500",
-                          gradient
-                        )} />
-
-                        <div className="relative z-10">
-                          <div className="flex items-start justify-between mb-6">
-                            <div className={cn(
-                              "p-4 rounded-2xl bg-gradient-to-br border transition-all duration-300 group-hover:scale-110",
-                              gradient,
-                              "border-white/5"
-                            )}>
-                              <BookOpen className={cn("w-6 h-6", iconColor)} />
-                            </div>
-                            <div className="flex flex-col items-end">
-                              <Badge className="bg-white/5 hover:bg-white/10 text-zinc-300 border-white/10 font-bold px-3 py-1 rounded-full text-[10px] tracking-widest uppercase">
-                                {topic.questions_count} вопросов
-                              </Badge>
-                            </div>
-                          </div>
-
-                          <h3 className="text-xl font-black text-white leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-zinc-400 transition-all duration-300">
-                            {topic.title_es || topic.title_ru}
-                          </h3>
-                        </div>
-
-                        <div className="relative z-10 mt-8 space-y-4">
-                          {/* Progress Placeholder */}
-                          <div className="space-y-1.5">
-                            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                              <span>Прогресс</span>
-                              <span>0%</span>
-                            </div>
-                            <div className="h-1 w-full bg-zinc-800/50 rounded-full overflow-hidden">
-                              <motion.div
-                                className={cn("h-full bg-gradient-to-r", gradient.replace('/20', ''))}
-                                initial={{ width: 0 }}
-                                whileInView={{ width: '0%' }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-between group/btn">
-                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest group-hover:text-white transition-colors">Начать тест</span>
-                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                              <Play className="w-4 h-4 fill-black text-black ml-0.5" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            )}
           </div>
+
+          {/* Grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(9)].map((_, i) => (
+                <div key={i} className="h-44 rounded-2xl bg-muted/40 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {sortedTopics.map((topic, index) => {
+                const colors = ACCENT_COLORS[index % ACCENT_COLORS.length];
+                const isFree = !isPremium && country === 'spain';
+                const freeCount = FREE_QUESTIONS_PER_TOPIC;
+                const totalCount = topic.questions_count;
+
+                return (
+                  <button
+                    key={topic.id}
+                    onClick={() => handleTopicClick(topic)}
+                    className={cn(
+                      "group text-left w-full rounded-2xl border bg-card p-5 flex flex-col gap-4",
+                      "transition-all duration-200 ease-out",
+                      "hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      colors.border
+                    )}
+                  >
+                    {/* Top row */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className={cn("p-2.5 rounded-xl", colors.bg)}>
+                        <BookOpen className={cn("w-5 h-5", colors.icon)} />
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {isFree && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                            {freeCount} free
+                          </span>
+                        )}
+                        <span className="text-[11px] font-bold text-muted-foreground">
+                          {totalCount} {language === 'es' ? 'preguntas' : 'вопр.'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <p className="font-bold text-foreground text-base leading-snug line-clamp-2 flex-1">
+                      {getTitle(topic)}
+                    </p>
+
+                    {/* Bottom row */}
+                    <div className="flex items-center justify-between">
+                      {isFree ? (
+                        <div className="flex-1 mr-3">
+                          <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
+                            <span>{language === 'es' ? 'Acceso' : 'Доступ'}</span>
+                            <span>{Math.round((freeCount / totalCount) * 100)}%</span>
+                          </div>
+                          <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+                            <div
+                              className={cn("h-full rounded-full", colors.bar)}
+                              style={{ width: `${Math.round((freeCount / totalCount) * 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                          <Layers className="w-3.5 h-3.5" />
+                          <span className="text-xs font-bold">
+                            {Math.ceil(totalCount / FREE_QUESTIONS_PER_TOPIC)} {language === 'es' ? 'partes' : 'части'}
+                          </span>
+                        </div>
+                      )}
+                      <div className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200",
+                        "bg-foreground/5 group-hover:bg-foreground group-hover:scale-110",
+                      )}>
+                        {isFree
+                          ? <Play className="w-3.5 h-3.5 fill-foreground text-foreground ml-0.5 group-hover:fill-background group-hover:text-background" />
+                          : <ChevronRight className="w-4 h-4 text-foreground group-hover:text-background" />
+                        }
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Premium upsell for free users */}
+          {!isPremium && !isLoading && country === 'spain' && topics.length > 0 && (
+            <button
+              onClick={() => openModal('PAYWALL')}
+              className="w-full flex items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/25 hover:from-amber-500/15 hover:to-orange-500/15 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-amber-500/15">
+                  <Lock className="w-4 h-4 text-amber-500" />
+                </div>
+                <div className="text-left">
+                  <p className="font-bold text-foreground text-sm">
+                    {language === 'es'
+                      ? `${totalQuestions - FREE_QUESTIONS_PER_TOPIC * topics.length} preguntas bloqueadas`
+                      : `${totalQuestions - FREE_QUESTIONS_PER_TOPIC * topics.length} вопросов заблокировано`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'es'
+                      ? `Tienes acceso a ${FREE_QUESTIONS_PER_TOPIC} por tema — desbloquea todo`
+                      : `Открыто ${FREE_QUESTIONS_PER_TOPIC} на тему — разблокируй всё`}
+                  </p>
+                </div>
+              </div>
+              <span className="text-sm font-bold text-amber-500 shrink-0">
+                {language === 'es' ? 'Premium →' : 'Премиум →'}
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Попап выбора билета */}
       {selectedTopic && (
         <TopicDetailDialog
           open={!!selectedTopic}
