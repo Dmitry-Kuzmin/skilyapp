@@ -575,19 +575,20 @@ const Flashcard = ({ question, country, onRemove, labels }: {
                         WebkitBackfaceVisibility: 'hidden',
                     }}
                 >
-                    {/* Image context — visible and vibrant */}
+                    {/* Image context — clean, no overlays bleeding into next block */}
                     <div className="relative h-28 shrink-0 overflow-hidden bg-muted">
                         <QuestionImage
                             imageUrl={question.image_url}
                             country={isRus ? 'russia' : 'spain'}
-                            className="w-full h-full object-cover opacity-70 group-hover:opacity-75 transition-opacity"
+                            className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-card/80" />
                     </div>
 
-                    {/* Hero answer block — vivid emerald */}
-                    <div className="relative shrink-0 px-6 pt-5 pb-4 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border-b border-emerald-500/10">
-                        <div className="flex items-center gap-1.5 mb-2.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/25 w-fit">
+                    {/* Hero answer block — solid card background, emerald only as accent */}
+                    <div className="relative shrink-0 px-6 pt-5 pb-4 bg-card border-b border-border/50">
+                        {/* Left emerald accent bar */}
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-500" />
+                        <div className="flex items-center gap-1.5 mb-2.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
                             <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                             <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
                                 {labels.correctAnswer}
