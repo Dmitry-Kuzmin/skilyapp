@@ -75,8 +75,8 @@ export const es = {
   duelHistory: "Historia de duelos",
   support: "Soporte",
   favoritesGym: {
-    title: "Gimnasio de Memoria",
-    subtitle: "Sistema inteligente de repaso. Entrena solo lo que tu cerebro empieza a olvidar.",
+    title: "Challenge Bank™",
+    subtitle: "Gimnasio de Memoria — entrena solo lo que tu cerebro empieza a olvidar.",
     trainingLabel: "Entrenamiento",
     chargeMemory: "Cargar Memoria",
     totalCards: "Total de tarjetas",
