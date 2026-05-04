@@ -75,10 +75,7 @@ const TopicsMode = () => {
 
   const handleTopicClick = (topic: any) => {
     const name = getTitle(topic);
-    const count = isPremium || country !== 'spain'
-      ? topic.questions_count
-      : FREE_QUESTIONS_PER_TOPIC;
-    setSelectedTopic({ id: topic.id, name, count });
+    setSelectedTopic({ id: topic.id, name, count: topic.questions_count });
   };
 
   return (
