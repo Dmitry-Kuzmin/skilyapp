@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Lock, ChevronRight, Layers } from "lucide-react";
+import { Lock, ChevronRight, Layers, BookOpen } from "lucide-react";
 import Layout from "@/components/Layout";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { useQuery } from "@tanstack/react-query";
@@ -10,19 +10,6 @@ import { cn } from "@/lib/utils";
 import { usePremium } from "@/hooks/usePremium";
 import { useModalStore } from "@/store/modalStore";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const ACCENT_COLORS = [
-  { bg: "bg-blue-500/10", border: "border-blue-500/30", num: "text-blue-500", bar: "bg-blue-500" },
-  { bg: "bg-violet-500/10", border: "border-violet-500/30", num: "text-violet-500", bar: "bg-violet-500" },
-  { bg: "bg-amber-500/10", border: "border-amber-500/30", num: "text-amber-500", bar: "bg-amber-500" },
-  { bg: "bg-emerald-500/10", border: "border-emerald-500/30", num: "text-emerald-500", bar: "bg-emerald-500" },
-  { bg: "bg-rose-500/10", border: "border-rose-500/30", num: "text-rose-500", bar: "bg-rose-500" },
-  { bg: "bg-cyan-500/10", border: "border-cyan-500/30", num: "text-cyan-500", bar: "bg-cyan-500" },
-  { bg: "bg-orange-500/10", border: "border-orange-500/30", num: "text-orange-500", bar: "bg-orange-500" },
-  { bg: "bg-pink-500/10", border: "border-pink-500/30", num: "text-pink-500", bar: "bg-pink-500" },
-  { bg: "bg-teal-500/10", border: "border-teal-500/30", num: "text-teal-500", bar: "bg-teal-500" },
-  { bg: "bg-indigo-500/10", border: "border-indigo-500/30", num: "text-indigo-500", bar: "bg-indigo-500" },
-];
 
 const FREE_QUESTIONS_PER_TOPIC = 30;
 
@@ -83,64 +70,65 @@ const TopicsMode = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-background pb-24">
-        <div className="max-w-[1370px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 space-y-6">
+      <div className="min-h-screen bg-transparent p-6 md:p-10 font-sans pb-6 text-foreground">
+        <div className="max-w-[1370px] mx-auto space-y-8">
 
-          {/* Header — same grid as cards so edges align perfectly */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">
-            {/* Title block spans 2 cols on lg, 3 cols on xl */}
-            <div className="lg:col-span-2 xl:col-span-3 space-y-1.5">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 animate-fade-in">
+            <div className="w-full md:w-auto space-y-2">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 {country === 'spain' ? 'DGT España' : 'ПДД Россия'}
               </p>
               <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tight">
                 {t('По темам', 'Por temas', 'By Topics')}
               </h1>
+              <p className="text-muted-foreground font-medium text-base md:text-lg">
+                {t(
+                  'Выберите тему для изучения',
+                  'Elige un tema para estudiar',
+                  'Choose a topic to study'
+                )}
+              </p>
             </div>
 
-            {/* Stats block in 3rd col — exactly 1 card wide */}
-            <div className="flex items-center gap-5 px-5 py-4 rounded-2xl bg-card border border-border h-full min-h-[72px]">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  {t('Тем', 'Temas', 'Topics')}
-                </p>
-                <p className="text-xl font-black text-foreground">{topics.length}</p>
+            {/* Stats badges — стиль из Tests.tsx */}
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30 backdrop-blur-sm shadow-lg shadow-blue-500/10">
+                <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-bold text-blue-700 dark:text-blue-100">
+                  {topics.length} <span className="text-blue-600/70 dark:text-blue-300/70 font-normal">{t('тем', 'temas', 'topics')}</span>
+                </span>
               </div>
-              <div className="w-px h-8 bg-border" />
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  {t('Вопросов', 'Preguntas', 'Questions')}
-                </p>
-                <p className="text-xl font-black text-foreground">{totalQuestions.toLocaleString()}</p>
+              <div className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 backdrop-blur-sm shadow-lg shadow-emerald-500/10">
+                <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-sm font-bold text-emerald-700 dark:text-emerald-100">
+                  {totalQuestions.toLocaleString()} <span className="text-emerald-600/70 dark:text-emerald-300/70 font-normal">{t('вопр.', 'preg.', 'q.')}</span>
+                </span>
               </div>
               {isFree && (
-                <>
-                  <div className="w-px h-8 bg-border" />
-                  <button
-                    onClick={() => openModal('PAYWALL')}
-                    className="flex flex-col items-start text-amber-500 hover:text-amber-400 transition-colors"
-                  >
-                    <Lock className="w-3.5 h-3.5 mb-0.5" />
-                    <span className="text-[10px] font-bold leading-none">
-                      {freeTotal}/{totalQuestions}
-                    </span>
-                  </button>
-                </>
+                <button
+                  onClick={() => openModal('PAYWALL')}
+                  className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 backdrop-blur-sm shadow-lg shadow-amber-500/10 hover:from-amber-500/30 hover:to-orange-500/30 transition-colors"
+                >
+                  <Lock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <span className="text-sm font-bold text-amber-700 dark:text-amber-100">
+                    {freeTotal}/{totalQuestions} <span className="text-amber-600/70 dark:text-amber-300/70 font-normal">free</span>
+                  </span>
+                </button>
               )}
             </div>
           </div>
 
           {/* Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {[...Array(9)].map((_, i) => (
-                <div key={i} className="h-44 rounded-2xl bg-muted/40 animate-pulse" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-48 rounded-[2rem] bg-slate-100 dark:bg-slate-800/40 animate-pulse" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {sortedTopics.map((topic, index) => {
-                const colors = ACCENT_COLORS[index % ACCENT_COLORS.length];
                 const totalCount = topic.questions_count || 0;
                 const ticketCount = Math.ceil(totalCount / FREE_QUESTIONS_PER_TOPIC);
                 const accessPct = totalCount > 0 ? Math.round((FREE_QUESTIONS_PER_TOPIC / totalCount) * 100) : 100;
@@ -150,63 +138,85 @@ const TopicsMode = () => {
                     key={topic.id}
                     onClick={() => handleTopicClick(topic)}
                     className={cn(
-                      "group text-left w-full rounded-2xl border bg-card p-5 flex flex-col gap-4",
-                      "transition-all duration-150 ease-out",
-                      "hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:shadow-none active:translate-y-0",
+                      "group relative overflow-hidden rounded-[2rem] p-6 cursor-pointer text-left",
+                      "bg-white dark:bg-slate-800/40 backdrop-blur-md border border-slate-200 dark:border-white/5",
+                      "transition-all duration-300 shadow-lg dark:shadow-xl",
+                      "hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-2xl",
+                      "hover:border-blue-500/30 hover:shadow-blue-500/10",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                      colors.border
                     )}
                   >
-                    {/* Top: number badge + count */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", colors.bg)}>
-                        <span className={cn("text-sm font-black tabular-nums", colors.num)}>
-                          {index + 1}
-                        </span>
-                      </div>
-                      <span className="text-[11px] font-semibold text-muted-foreground pt-1 text-right">
-                        {totalCount.toLocaleString()} {t('вопр.', 'preg.', 'q.')}
-                      </span>
-                    </div>
+                    {/* Ambient glow on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                    {/* Title */}
-                    <p className="font-bold text-foreground text-[15px] leading-snug line-clamp-2 flex-1">
-                      {getTitle(topic)}
-                    </p>
+                    {/* Watermark book icon */}
+                    <BookOpen className="absolute w-32 h-32 text-slate-200/40 dark:text-white/[0.03] group-hover:text-blue-500/10 dark:group-hover:text-blue-500/[0.08] -bottom-6 -right-6 rotate-12 transition-all duration-500" />
 
-                    {/* Bottom */}
-                    <div className="flex items-center gap-3">
-                      {isFree ? (
-                        <div className="flex-1 space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                              {t('Доступ', 'Acceso', 'Access')}
-                            </span>
-                            <span className="text-[10px] font-bold text-muted-foreground">
-                              {FREE_QUESTIONS_PER_TOPIC}/{totalCount}
-                            </span>
-                          </div>
-                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={cn("h-full rounded-full transition-all duration-300", colors.bar)}
-                              style={{ width: `${accessPct}%` }}
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-muted-foreground flex-1">
-                          <Layers className="w-3.5 h-3.5 shrink-0" />
-                          <span className="text-xs font-semibold">
-                            {ticketCount} {t('билета', 'tests', 'tickets')}
+                    <div className="relative z-10 flex flex-col h-full justify-between gap-5 min-h-[160px]">
+                      {/* Top: number badge + count */}
+                      <div className="flex justify-between items-start">
+                        <div className={cn(
+                          "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500",
+                          "bg-blue-500/10 border-blue-500/20 group-hover:bg-blue-500/20 group-hover:border-blue-500/30 group-hover:scale-110 group-hover:rotate-3"
+                        )}>
+                          <span className="text-base font-black tabular-nums text-blue-600 dark:text-blue-400">
+                            {index + 1}
                           </span>
                         </div>
-                      )}
-                      <div className={cn(
-                        "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-                        "bg-foreground/5 transition-all duration-150",
-                        "group-hover:bg-foreground group-hover:scale-110",
-                      )}>
-                        <ChevronRight className="w-4 h-4 text-foreground group-hover:text-background" />
+
+                        <div className="flex flex-col items-end gap-1.5">
+                          <span className="bg-transparent border-current text-blue-500 dark:text-blue-400 border border-blue-500/30 uppercase text-[10px] font-black tracking-widest px-2.5 py-0.5 rounded-full">
+                            {totalCount.toLocaleString()} {t('вопр.', 'preg.', 'q.')}
+                          </span>
+                          {isFree && (
+                            <span className="bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-full">
+                              30 {t('бесплатно', 'gratis', 'free')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <div className="space-y-1">
+                        <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight leading-snug line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          {getTitle(topic)}
+                        </h3>
+                      </div>
+
+                      {/* Bottom row */}
+                      <div className="flex items-center gap-3">
+                        {isFree ? (
+                          <div className="flex-1 space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                {t('Доступ', 'Acceso', 'Access')}
+                              </span>
+                              <span className="text-[10px] font-black tabular-nums text-muted-foreground">
+                                {FREE_QUESTIONS_PER_TOPIC}/{totalCount}
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
+                                style={{ width: `${accessPct}%` }}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-muted-foreground flex-1">
+                            <Layers className="w-3.5 h-3.5 shrink-0" />
+                            <span className="text-xs font-bold uppercase tracking-widest">
+                              {ticketCount} {t('билета', 'tests', 'tickets')}
+                            </span>
+                          </div>
+                        )}
+                        <div className={cn(
+                          "w-9 h-9 rounded-full flex items-center justify-center shrink-0 border transition-all duration-300",
+                          "bg-blue-500/10 border-blue-500/20",
+                          "group-hover:bg-blue-500 group-hover:border-blue-500 group-hover:scale-110"
+                        )}>
+                          <ChevronRight className="w-4 h-4 text-blue-600 dark:text-blue-400 group-hover:text-white transition-colors" />
+                        </div>
                       </div>
                     </div>
                   </button>
@@ -219,30 +229,30 @@ const TopicsMode = () => {
           {isFree && !isLoading && topics.length > 0 && (
             <button
               onClick={() => openModal('PAYWALL')}
-              className="w-full flex items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/25 hover:from-amber-500/15 hover:to-orange-500/15 transition-colors"
+              className="w-full flex items-center justify-between gap-4 p-6 rounded-[2rem] bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 backdrop-blur-md border border-amber-500/25 hover:border-amber-500/40 hover:shadow-xl hover:shadow-amber-500/10 transition-all"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-amber-500/15 shrink-0">
-                  <Lock className="w-4 h-4 text-amber-500" />
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
+                  <Lock className="w-5 h-5 text-amber-500" />
                 </div>
                 <div className="text-left">
-                  <p className="font-bold text-foreground text-sm">
+                  <p className="font-black text-slate-900 dark:text-white text-base tracking-tight">
                     {t(
-                      `${totalQuestions - freeTotal} вопросов заблокировано`,
-                      `${totalQuestions - freeTotal} preguntas bloqueadas`,
-                      `${totalQuestions - freeTotal} questions locked`
+                      `${(totalQuestions - freeTotal).toLocaleString()} вопросов заблокировано`,
+                      `${(totalQuestions - freeTotal).toLocaleString()} preguntas bloqueadas`,
+                      `${(totalQuestions - freeTotal).toLocaleString()} questions locked`
                     )}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground font-medium">
                     {t(
-                      `Открыто ${FREE_QUESTIONS_PER_TOPIC} на тему — разблокируй всё`,
-                      `${FREE_QUESTIONS_PER_TOPIC} por tema gratuitas — desbloquea todo`,
-                      `${FREE_QUESTIONS_PER_TOPIC} free per topic — unlock everything`
+                      `Открыто ${FREE_QUESTIONS_PER_TOPIC} на тему — разблокируй всё с Премиум`,
+                      `${FREE_QUESTIONS_PER_TOPIC} por tema — desbloquea todo con Premium`,
+                      `${FREE_QUESTIONS_PER_TOPIC} per topic — unlock everything with Premium`
                     )}
                   </p>
                 </div>
               </div>
-              <span className="text-sm font-bold text-amber-500 shrink-0">
+              <span className="text-sm font-black text-amber-500 shrink-0 uppercase tracking-widest">
                 {t('Премиум →', 'Premium →', 'Premium →')}
               </span>
             </button>
