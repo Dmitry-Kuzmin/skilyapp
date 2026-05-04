@@ -25,7 +25,7 @@ export function useSmartTestQuestions({
       // Step 1: get adaptive question IDs from edge function
       const { data: builderResult, error: builderError } = await supabase.functions.invoke(
         'smart-test-builder',
-        { body: { profile_id: profileId, count, category, country } }
+        { body: { profile_id: profileId, count, category, country: toQuestionsDbCountry(country) } }
       );
 
       if (builderError) throw builderError;
