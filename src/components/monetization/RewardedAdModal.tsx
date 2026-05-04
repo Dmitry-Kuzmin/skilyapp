@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "@/components/optimized/Motion";
 import { PremiumPromoAd } from './PremiumPromoAd';
 import { isTelegramMiniApp, getTelegramWebApp, isTelegramMobilePlatformName } from '@/lib/telegram';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { usePremium } from '@/hooks/usePremium';
 
 interface RewardedAdModalProps {
   open: boolean;
