@@ -961,6 +961,15 @@ All colors MUST be HSL.
       radial-gradient(at 0% 100%, #334155 0px, transparent 50%);
   }
 
+  .premium-mesh-violet {
+    background-color: #5b21b6;
+    background-image:
+      radial-gradient(at 0% 0%, #7c3aed 0px, transparent 50%),
+      radial-gradient(at 100% 0%, #6d28d9 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #4c1d95 0px, transparent 50%),
+      radial-gradient(at 0% 100%, #a78bfa 0px, transparent 50%);
+  }
+
   /* Cyber animations */
   @keyframes slideDown {
     from {
