@@ -36,7 +36,8 @@ export type TestMode =
     | 'redemption'
     | 'favorites'
     | 'hardest'
-    | 'mastery';
+    | 'mastery'
+    | 'smart';
 
 interface UseTestDataLoaderProps {
     mode: TestMode;
