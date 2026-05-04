@@ -230,7 +230,7 @@ Deno.serve(async (req) => {
         // 1. Проверяем Premium статус ПЕРЕД инкрементом (расширенная проверка)
         const { data: profile } = await supabaseClient
           .from('profiles')
-          .select('is_premium, premium_until, trial_until, subscription_type, subscription_status, premium_forever_purchased_at')
+          .select('id, is_premium, premium_until, trial_until, subscription_type, subscription_status, premium_forever_purchased_at')
           .eq('user_id', userId)
           .maybeSingle();
         
