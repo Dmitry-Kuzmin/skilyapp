@@ -112,6 +112,7 @@ async function tryGemini(messages: Message[], country: string = 'spain', mode: s
         }),
       });
 
+      console.log(`[AI Chat] Gemini HTTP ${response.status}`);
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`[AI Chat] Gemini error:`, errorText);
