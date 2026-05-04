@@ -44,8 +44,9 @@ Deno.serve(async (req) => {
 
     const supabase = createPooledSupabaseClient();
 
-    // Normalize country code: 'spain' → 'es'
-    const countryCode = country === 'spain' ? 'es' : country;
+    // country is expected to already be the DB value ('es' or 'russia')
+    // Normalize just in case: 'spain' → 'es', 'ru' → 'russia'
+    const countryCode = country === 'spain' ? 'es' : country === 'ru' ? 'russia' : country;
 
     // Fetch all questions for this country
     const { data: allQuestions, error: qErr } = await supabase
