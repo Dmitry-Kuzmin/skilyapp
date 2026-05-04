@@ -28,6 +28,7 @@ const ReminderConnectModal = lazy(() => import('@/components/notifications/Remin
 const CelebrationModal = lazy(() => import('@/components/dashboard-new/CelebrationModal').then(m => ({ default: m.CelebrationModal })));
 const ContextSettingsSheet = lazy(() => import('@/components/shared/ContextSettingsSheet').then(m => ({ default: m.ContextSettingsSheet })));
 const TonPaymentModal = lazy(() => import('@/components/monetization/TonPaymentModal').then(m => ({ default: m.TonPaymentModal })));
+const TestLimitReachedModal = lazy(() => import('@/components/monetization/TestLimitReachedModal').then(m => ({ default: m.TestLimitReachedModal })));
 
 /**
  * Маппинг типов модалок на компоненты
