@@ -192,6 +192,7 @@ const Tests = () => {
   const navigate = useNavigate();
   const { profileId, isAuthenticated, isLoading: authLoading } = useUserContext();
   const { isPremium } = usePremium();
+  const openModal = useModalStore((s) => s.openModal);
   const { language, t } = useLanguage();
   const { selectedCountry, selectedCategory } = usePDDContext();
   const { data: dashboardData } = useDashboardData();
