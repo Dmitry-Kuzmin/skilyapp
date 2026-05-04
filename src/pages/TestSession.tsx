@@ -1305,6 +1305,8 @@ const TestSession = () => {
                 onToggleTranslation={toggleTranslation}
                 testLanguage={effectiveLanguage}
                 country={isRussia ? 'russia' : 'spain'}
+                questionIndex={currentIndex}
+                totalQuestions={questionsState.questions.length}
               />
             </div>
 
