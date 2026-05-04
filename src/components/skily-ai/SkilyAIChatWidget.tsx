@@ -317,56 +317,85 @@ export const SkilyAIChatWidget = ({
             </div>
           )}
 
-          {/* Input Area - как у Officer Frank */}
-          <div className="p-4 border-t border-border/50">
-            <div className="relative">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Задай свой вопрос здесь..."
-                className="flex-1 bg-background pr-20 h-12 rounded-xl text-base"
-                disabled={isLoading}
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          {/* Input Area */}
+          {limitReached ? (
+            /* Limit reached — replace input with compact upgrade banner */
+            <div className="p-3 border-t border-border/50">
+              <div className="flex items-center gap-3 rounded-xl bg-slate-900/80 dark:bg-slate-950/80 border border-slate-700/60 px-3 py-2.5">
+                {/* Mini battery */}
+                <div className="relative w-6 h-9 rounded-md bg-slate-800 border-2 border-slate-600 overflow-hidden shrink-0">
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-1 rounded-t bg-slate-600" />
+                  <div className="absolute bottom-0 left-0 right-0 h-[15%] bg-red-500" />
+                </div>
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-white leading-tight">Skily устал 😴</p>
+                  <p className="text-[10px] text-slate-400 leading-tight truncate">
+                    {limitReached.currentCount}/{limitReached.limit} · Сброс в полночь
+                  </p>
+                </div>
+                {/* Upgrade button */}
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "h-8 w-8 transition-colors",
-                    isListening ? "text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-muted-foreground hover:text-blue-500"
-                  )}
-                  onClick={toggleVoiceInput}
-                  disabled={isLoading}
-                  title="Голосовой ввод"
+                  size="sm"
+                  onClick={() => openModal('PAYWALL', { trigger: 'ai_limit' })}
+                  className="shrink-0 h-7 px-3 text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white border-0 rounded-lg"
                 >
-                  {isListening ? <MicOff className="h-4 w-4 animate-pulse" /> : <Mic className="h-4 w-4" />}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-blue-500 transition-colors"
-                  disabled={isLoading}
-                  onClick={() => handleQuickAction("Дай мне подсказку, не раскрывая полный ответ")}
-                  title="Получить подсказку"
-                >
-                  <Lightbulb className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!input.trim() || isLoading}
-                  size="icon"
-                  className="h-8 w-8 bg-blue-500 hover:bg-blue-600 rounded-full"
-                >
-                  {isLoading ? (
-                    <Sparkles className="h-4 w-4 animate-spin text-white" />
-                  ) : (
-                    <Send className="h-4 w-4 text-white" />
-                  )}
+                  <Crown className="w-3 h-3 mr-1" />
+                  Безлимит
                 </Button>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="p-4 border-t border-border/50">
+              <div className="relative">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Задай свой вопрос здесь..."
+                  className="flex-1 bg-background pr-20 h-12 rounded-xl text-base"
+                  disabled={isLoading}
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-8 w-8 transition-colors",
+                      isListening ? "text-red-500 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30" : "text-muted-foreground hover:text-blue-500"
+                    )}
+                    onClick={toggleVoiceInput}
+                    disabled={isLoading}
+                    title="Голосовой ввод"
+                  >
+                    {isListening ? <MicOff className="h-4 w-4 animate-pulse" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-muted-foreground hover:text-blue-500 transition-colors"
+                    disabled={isLoading}
+                    onClick={() => handleQuickAction("Дай мне подсказку, не раскрывая полный ответ")}
+                    title="Получить подсказку"
+                  >
+                    <Lightbulb className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!input.trim() || isLoading}
+                    size="icon"
+                    className="h-8 w-8 bg-blue-500 hover:bg-blue-600 rounded-full"
+                  >
+                    {isLoading ? (
+                      <Sparkles className="h-4 w-4 animate-spin text-white" />
+                    ) : (
+                      <Send className="h-4 w-4 text-white" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </Card>
