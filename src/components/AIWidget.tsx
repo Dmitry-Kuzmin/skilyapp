@@ -417,6 +417,14 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
         }),
       });
 
+      // 🔒 Handle unauthorized (401) — shouldn't normally reach here, but as safety net
+      if (response.status === 401) {
+        setMessages(prev => prev.slice(0, -1));
+        setIsLoading(false);
+        openModal('PAYWALL', { trigger: 'ai_guest' });
+        return;
+      }
+
       // 🔒 Handle AI Limit Reached (429)
       if (response.status === 429) {
         const errorData = await response.json();
