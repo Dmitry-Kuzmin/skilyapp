@@ -45,8 +45,12 @@ const SessionHandler = () => {
 
 /** Синхронизирует isPremium в module-level стейт для стратегий вопросов */
 const PremiumStateSync = () => {
-  const { isPremium } = usePremium();
+  const { isPremium, isTrial } = usePremium();
   useEffect(() => { setPremiumForStrategy(isPremium); }, [isPremium]);
+  // Trial gets premium tools but pool stays at 300 questions
+  useEffect(() => {
+    setHasFullQuestionPoolForStrategy(isPremium && !isTrial);
+  }, [isPremium, isTrial]);
   return null;
 };
 
