@@ -254,7 +254,7 @@ export default function ErrorBank() {
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-muted-foreground font-medium">{l("Вопросов в сессии:", "Preguntas por sesión:", "Questions per session:")}</span>
             <div className="flex gap-1.5">
-              {COUNT_OPTIONS.map(n => (
+              {(isPremium ? COUNT_OPTIONS_PREMIUM : COUNT_OPTIONS_FREE).map(n => (
                 <button
                   key={n}
                   onClick={() => setCount(n)}
@@ -266,6 +266,16 @@ export default function ErrorBank() {
                   {n}
                 </button>
               ))}
+              {/* Premium upsell for larger sessions */}
+              {!isPremium && (
+                <button
+                  onClick={() => openModal('PAYWALL')}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/10 border border-amber-500/25 text-amber-600 hover:bg-amber-500/20 transition-all"
+                >
+                  <Crown className="w-3 h-3" />
+                  20 / 50
+                </button>
+              )}
             </div>
           </div>
         </div>
