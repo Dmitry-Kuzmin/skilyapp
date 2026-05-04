@@ -91,6 +91,10 @@ const AIWidgetContent = ({
   const { isPremium } = usePremium();
   const { profileId } = useUserContext();
 
+  // Personalization context — reads from already-loaded React Query cache, no extra requests
+  const { data: dashboardData } = useDashboardData();
+  const { data: duelPassResult } = useDuelPassData(profileId);
+
   // Message limit query
   const { data: aiUsage, refetch: refetchUsage } = useQuery({
     queryKey: ['ai-usage-limit', profileId],
