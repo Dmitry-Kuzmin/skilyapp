@@ -669,7 +669,7 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
                                         <h4 className="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5"><Sparkles className="w-4 h-4" />Skily PRO</h4>
                                         <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">{param2 || "Открой подробные разборы ошибок"}</p>
                                       </div>
-                                      <Button size="sm" className="relative z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => window.location.href = '/pricing'}>
+                                      <Button size="sm" className="relative z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white shrink-0 shadow-lg shadow-orange-500/20 hover:scale-105 transition-all text-xs h-8 px-4 font-bold" onClick={() => openModal('PAYWALL', { trigger: 'ai_cta' })}>
                                         Стать PRO
                                       </Button>
                                     </div>
