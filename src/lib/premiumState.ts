@@ -10,5 +10,5 @@ export const setPremiumForStrategy = (v: boolean): void => {
 
 export const isPremiumForStrategy = (): boolean => _isPremium;
 
-/** Number of free questions visible per topic for non-premium users (20 per topic × 10 topics) */
-export const FREE_QUESTION_LIMIT = 200;
+/** Number of free questions visible per topic for non-premium users (30 per topic × 10 topics) */
+export const FREE_QUESTION_LIMIT = 300;
