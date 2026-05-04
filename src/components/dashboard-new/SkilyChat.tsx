@@ -393,6 +393,19 @@ export const SkilyChat = React.memo(() => {
                 </div>
               </div>
             )}
+
+            {/* Error message */}
+            {error && !isLoading && (
+              <div className="flex justify-start">
+                <div className={cn(
+                  "px-4 py-3 rounded-2xl rounded-tl-none border shadow-sm flex items-center gap-2 text-xs sm:text-sm",
+                  isDarkTheme ? "bg-red-500/10 text-red-400 border-red-500/20" : "bg-red-50 text-red-500 border-red-100"
+                )}>
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{error}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Input */}
