@@ -77,7 +77,7 @@ const AIWidgetContent = ({
   const [messageRatings, setMessageRatings] = useState<Record<number, 1 | -1>>({});
   const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
   const [isListening, setIsListening] = useState(false);
-  const [limitReached, setLimitReached] = useState(false);
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
   const [limitData, setLimitData] = useState({ currentCount: 0, limit: 5, message: '' });
   const openModal = useModalStore((s) => s.openModal);
   const { isPremium } = usePremium();
@@ -421,7 +421,7 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
             limit: errorData.limit || 5,
             message: errorData.message || ''
           });
-          setLimitReached(true);
+          setLimitModalOpen(true);
           return;
         }
       }

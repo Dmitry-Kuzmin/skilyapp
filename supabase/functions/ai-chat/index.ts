@@ -198,11 +198,15 @@ Deno.serve(async (req) => {
   const rateLimit = await checkRateLimit({ identifier: clientIP, limit: 30, windowMs: 60000 });
   if (!rateLimit.allowed) return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: corsHeaders });
 
+  // Guests are not allowed to use AI — require valid auth token
+  const authHeader = req.headers.get('Authorization');
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: 'auth_required' }), { status: 401, headers: corsHeaders });
+  }
+
   try {
     const body: ChatRequest = await req.json();
     const { messages, country = 'spain', mode = 'chat', showComparison = false, language = 'es' } = body;
-
-    const authHeader = req.headers.get('Authorization');
     let supabaseClient: any = null;
     let userId: string | null = null;
 

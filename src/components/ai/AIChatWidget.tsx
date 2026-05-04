@@ -1,246 +1,58 @@
-
-/**
- * AIChatWidget — Глобальный AI чат виджет с Zustand + Vaul
- *
- * Использует:
- * - Zustand store для глобального состояния
- * - Vaul Drawer для мобильных (нативная физика свайпа)
- * - Dialog для десктопа
- * - Unified AI Prompts System для консистентности
- */
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bot, Loader2, Sparkles, Send, ThumbsUp, ThumbsDown, Languages, X, Mic, MicOff, Zap, Crown } from 'lucide-react';
-import { SkilyAICharacter } from '@/components/skily-ai/SkilyAICharacter';
-// TON_DISABLED: import { TonPaymentWidget } from '@/components/monetization/LazyTonPaymentWidget';
+import { motion, AnimatePresence } from '@/components/optimized/Motion';
+import {
+    Bot,
+    Send,
+    X,
+    MessageSquare,
+    Sparkles,
+    Loader2,
+    Mic,
+    MicOff,
+    Languages,
+    ThumbsUp,
+    ThumbsDown,
+    Zap,
+    Crown,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { supabase } from '@/integrations/supabase/client';
-import ReactMarkdown from 'react-markdown';
-import { toast } from 'sonner';
-import { isTelegramMiniApp, triggerHapticFeedback } from '@/lib/telegram';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { AILimitReachedModal } from '@/components/ai/AILimitReachedModal';
-import { useAIChatStore, selectIsOpen, selectMessages, selectIsLoading, selectSmartSuggestions, selectQuestionContext } from '@/stores/useAIChatStore';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { Drawer, DrawerContent } from '@/components/ui/drawer';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { motion, AnimatePresence } from "@/components/optimized/Motion";
-import { cn } from '@/lib/utils';
-import { generateAIChatPrompt } from '@/lib/aiPrompts';
+import { useAIChatStore } from '@/stores/useAIChatStore';
 import { useProfileData } from '@/hooks/useProfileData';
-import { usePDDContext } from '@/contexts/PDDContext';
-import { usePremium } from '@/hooks/usePremium';
-import { useQuery } from '@tanstack/react-query';
 import { useUserContext } from '@/contexts/UserContext';
-
-type MarkdownProps = {
-    children: string;
-    className?: string;
-};
-
-const MarkdownContent: React.FC<MarkdownProps> = ({ children, className }) => {
-    /**
-     * Парсинг виджетов из ответа ИИ.
-     *
-     * Регулярка ловит ВСЕ варианты которые пишет ИИ:
-     *   [WIDGET:SIGN:R-2]     ← правильно
-     *   [W:SIGN:R-2]          ← сокращение (ловим)
-     *   [WTON:CONNECT]        ← опечатка (ловим)
-     *   [WIDGET : TON : CONNECT] ← пробелы (ловим)
-     *
-     * Группы: 1=(type), 2=(param)
-     */
-    const WIDGET_REGEX = /\[\s*(?:WIDGET|W)\s*:\s*(SIGN|CTA|TON|MEME|WTON)\s*:\s*([^\]]+?)\s*\]/gi;
-
-    // Проверяем наличие виджета: ищем [WIDGET: или [W: (любой регистр)
-    const lc = children.toLowerCase();
-    const hasWidget = lc.includes('[widget:') || lc.includes('[w:') || lc.includes('wton:');
-    if (!children || !hasWidget) {
-        return (
-            <div className={cn("text-sm leading-relaxed", className)}>
-                <ReactMarkdown
-                    components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                        ul: ({ children }) => <ul className="list-disc pl-4 mb-2">{children}</ul>,
-                        ol: ({ children }) => <ol className="list-decimal pl-4 mb-2">{children}</ol>,
-                        li: ({ children }) => <li className="mb-1">{children}</li>,
-                        strong: ({ children }) => (
-                            <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>
-                        ),
-                        em: ({ children }) => (
-                            <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>
-                        ),
-                        code: ({ children }) => <code className="bg-muted px-1 rounded text-xs">{children}</code>,
-                    }}
-                >
-                    {children}
-                </ReactMarkdown>
-            </div>
-        );
-    }
-
-    // Разбиваем текст, сохраняя разделители (тип и параметр)
-    const elements: React.ReactNode[] = [];
-    let lastIndex = 0;
-    let match;
-
-    // Сбрасываем индекс регулярки (важно для /g)
-    WIDGET_REGEX.lastIndex = 0;
-
-    while ((match = WIDGET_REGEX.exec(children)) !== null) {
-        // 1. Добавляем текст ДО виджета
-        const textBefore = children.substring(lastIndex, match.index);
-        if (textBefore.trim()) {
-            elements.push(
-                <div key={`text-${lastIndex}`} className={cn("text-sm leading-relaxed", className)}>
-                    <ReactMarkdown
-                        components={{
-                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                            strong: ({ children }) => <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>,
-                            em: ({ children }) => <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>,
-                        }}
-                    >
-                        {textBefore}
-                    </ReactMarkdown>
-                </div>
-            );
-        }
-
-        // 2. Рендерим сам виджет
-        const [fullMatch, type, param] = match;
-        const key = `widget-${match.index}`;
-
-        try {
-            // TON: CONNECT / WTON:CONNECT (опечатка ИИ) / PAY:
-            const upperType = type.toUpperCase();
-            const upperParam = param.trim().toUpperCase();
-
-            // TON_DISABLED: if (upperType === 'TON' || upperType === 'WTON') { ... }
-            if (false as boolean) {
-                // TON_DISABLED: TonPaymentWidget widgets removed
-            } else if (upperType === 'MEME' && param.toUpperCase().startsWith('BADGE:')) {
-                const badgeName = param.split(':')[1] || 'Новичок';
-                elements.push(
-                    <div key={key} className="my-4 p-4 rounded-2xl bg-gradient-to-br from-yellow-400/20 via-orange-500/10 to-pink-500/20 border border-orange-200/50 shadow-inner overflow-hidden relative group">
-                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-all" />
-                        <div className="relative z-10 flex flex-col items-center text-center space-y-2">
-                            <div className="w-16 h-16 bg-white dark:bg-zinc-800 rounded-full flex items-center justify-center shadow-lg border-2 border-orange-400/30 mb-1 ring-4 ring-orange-400/10">
-                                <Sparkles className="w-8 h-8 text-orange-500 animate-pulse" />
-                            </div>
-                            <div className="space-y-1">
-                                <h4 className="text-sm font-black text-orange-600 dark:text-orange-400 tracking-tighter uppercase">Достижение разблокировано!</h4>
-                                <p className="text-xl font-extrabold text-slate-800 dark:text-white leading-tight">{badgeName}</p>
-                            </div>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-[200px]">Это достижение подтверждено в блокчейне Memelandia!</p>
-                            <Button size="sm" className="bg-slate-900 text-white rounded-full px-6 font-bold text-xs h-8 hover:scale-105 transition-transform active:scale-95" onClick={() => toast.success('Скопировано в буфер для Share!')}>
-                                <Languages className="w-3 h-3 mr-2" />
-                                Поделиться в Story
-                            </Button>
-                        </div>
-                    </div>
-                );
-            } else if (upperType === 'CTA' && param.toUpperCase().startsWith('PREMIUM')) {
-                const ctaText = param.split(':').slice(1).join(':') || 'Активировать Premium';
-                elements.push(
-                    <div key={key} className="my-4">
-                        <Button className="w-full h-12 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold rounded-xl shadow-lg border-none" onClick={() => window.location.hash = '#pricing'}>
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            {ctaText}
-                        </Button>
-                    </div>
-                );
-            }
-            // Неизвестный тип виджета — ничего не рендерим (не засоряем UI)
-        } catch (err) {
-            console.error('Error rendering widget:', err);
-        }
-
-        lastIndex = match.index + fullMatch.length;
-    }
-
-    // 3. Добавляем оставшийся текст ПОСЛЕ последнего виджета
-    const remainingText = children.substring(lastIndex);
-    if (remainingText.trim()) {
-        elements.push(
-            <div key={`text-end`} className={cn("text-sm leading-relaxed", className)}>
-                <ReactMarkdown
-                    components={{
-                        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                        strong: ({ children }) => <span className="font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 px-1 rounded">{children}</span>,
-                        em: ({ children }) => <span className="font-semibold text-gray-900 dark:text-white not-italic">{children}</span>,
-                    }}
-                >
-                    {remainingText}
-                </ReactMarkdown>
-            </div>
-        );
-    }
-
-    return <div className="space-y-2">{elements}</div>;
-};
-
-/**
- * Хук для стабильного отслеживания высоты viewport на iOS/Telegram.
- * Решает проблему «чёрной дыры» и прыжков высоты при открытии клавиатуры.
- */
-function useStableViewportHeight(isOpen: boolean) {
-    const [height, setHeight] = useState<number>(0);
-    const isTelegram = isTelegramMiniApp();
-
-    useEffect(() => {
-        if (!isOpen) return;
-
-        const update = () => {
-            if (isTelegram && window.Telegram?.WebApp?.viewportHeight) {
-                setHeight(window.Telegram.WebApp.viewportHeight);
-            } else {
-                // window.innerHeight — самый стабильный, не меняется при открытии клавиатуры на iOS
-                setHeight(window.visualViewport?.height ?? window.innerHeight);
-            }
-        };
-
-        update();
-
-        const tg = isTelegram ? window.Telegram?.WebApp : null;
-        if (tg) {
-            tg.onEvent('viewportChanged', update);
-            return () => tg.offEvent('viewportChanged', update);
-        }
-
-        const vv = window.visualViewport;
-        if (vv) {
-            vv.addEventListener('resize', update);
-            return () => vv.removeEventListener('resize', update);
-        }
-
-        window.addEventListener('resize', update);
-        return () => window.removeEventListener('resize', update);
-    }, [isOpen, isTelegram]);
-
-    return height;
-}
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { triggerHapticFeedback } from '@/lib/telegram';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useStableViewportHeight } from '@/hooks/useStableViewportHeight';
+import { cn } from '@/lib/utils';
+import { generateAIChatPrompt } from '@/lib/ai-prompts';
+import {
+    Drawer,
+    DrawerContent,
+} from '@/components/ui/drawer';
+import {
+    Dialog,
+    DialogContent,
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { useModalStore } from '@/store/modalStore';
+import SkilyAICharacter from './SkilyAICharacter';
+import AIChatMessage from './AIChatMessage';
 
 export function AIChatWidget() {
     const isMobile = useIsMobile();
-    const isTelegram = isTelegramMiniApp();
-    const { t } = useLanguage();
-    const { profileData } = useProfileData();
-    const { selectedCountry } = usePDDContext();
-    const { isPremium } = usePremium();
+    const isOpen = useAIChatStore((state) => state.isOpen);
+    const messages = useAIChatStore((state) => state.messages);
+    const isLoading = useAIChatStore((state) => state.isLoading);
+    const selectedCountry = useAIChatStore((state) => state.selectedCountry);
+    const profileData = useProfileData().profileData;
     const { profileId } = useUserContext();
+    const isPremium = profileData?.is_premium;
+    const openModal = useModalStore((s) => s.openModal);
 
-    // Zustand Store
-    const isOpen = useAIChatStore(selectIsOpen);
-    const messages = useAIChatStore(selectMessages);
-    const isLoading = useAIChatStore(selectIsLoading);
-    const smartSuggestions = useAIChatStore(selectSmartSuggestions);
-    const questionContext = useAIChatStore(selectQuestionContext);
-    const showTranslation = useAIChatStore((s) => s.showTranslation);
     const [limitReached, setLimitReached] = useState(false);
 
-    // Счётчик оставшихся AI-сообщений (isOpen уже объявлен выше)
     const { data: aiUsage, refetch: refetchUsage } = useQuery({
         queryKey: ['ai-usage-limit', profileId],
         queryFn: async () => {
@@ -263,9 +75,10 @@ export function AIChatWidget() {
         updateLastMessage,
         setMessageRating,
         setLoading,
-        setSmartSuggestions,
-        setGeneratingSuggestions,
         conversationId,
+        showTranslation,
+        smartSuggestions,
+        questionContext
     } = useAIChatStore();
 
     const [input, setInput] = useState('');
@@ -273,10 +86,8 @@ export function AIChatWidget() {
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    // Стабильная высота viewport (решает проблему iOS + Telegram)
     const viewportHeight = useStableViewportHeight(isOpen);
 
-    // Voice Input State (Whisper API)
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessingVoice, setIsProcessingVoice] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -290,15 +101,11 @@ export function AIChatWidget() {
             audioChunksRef.current = [];
 
             mediaRecorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    audioChunksRef.current.push(event.data);
-                }
+                if (event.data.size > 0) audioChunksRef.current.push(event.data);
             };
 
             mediaRecorder.onstop = async () => {
-                const mimeType = mediaRecorder.mimeType;
-                const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-
+                const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType });
                 setIsRecording(false);
                 setIsProcessingVoice(true);
 
@@ -312,14 +119,8 @@ export function AIChatWidget() {
                     });
 
                     if (error) throw error;
-
                     if (data?.text) {
-                        const newText = data.text.trim();
-                        setInput(prev => {
-                            const trimmed = prev.trim();
-                            if (!trimmed) return newText;
-                            return `${trimmed} ${newText}`;
-                        });
+                        setInput(prev => (prev.trim() ? `${prev.trim()} ${data.text.trim()}` : data.text.trim()));
                         triggerHapticFeedback('success');
                         setTimeout(() => inputRef.current?.focus(), 150);
                     }
@@ -341,7 +142,7 @@ export function AIChatWidget() {
     };
 
     const stopRecording = () => {
-        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        if (mediaRecorderRef.current?.state === 'recording') {
             mediaRecorderRef.current.stop();
             triggerHapticFeedback('medium');
         }
@@ -352,17 +153,14 @@ export function AIChatWidget() {
         else startRecording();
     };
 
-    // Фокус на input при открытии (с задержкой для анимации)
     useEffect(() => {
         if (isOpen && inputRef.current) {
             setTimeout(() => inputRef.current?.focus(), 400);
         }
     }, [isOpen]);
 
-    // Автоскролл к последнему сообщению
     useEffect(() => {
         if (!messagesEndRef.current) return;
-        // requestAnimationFrame гарантирует скролл после рендера
         requestAnimationFrame(() => {
             messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
         });
@@ -379,7 +177,6 @@ export function AIChatWidget() {
         addMessage({ role: 'user', content: userMessage });
 
         const context = questionContext;
-
         const aiPrompt = generateAIChatPrompt(
             context ? {
                 questionText: context.question || '',
@@ -418,11 +215,9 @@ export function AIChatWidget() {
                 },
                 body: JSON.stringify({
                     messages: allMessages,
-                    imageUrl: context?.imageUrl || '',
                     country: selectedCountry,
-                    language: interfaceLanguage,
                     mode: 'chat',
-                    showComparison: false,
+                    language: interfaceLanguage,
                 }),
             });
 
@@ -435,16 +230,13 @@ export function AIChatWidget() {
                 }
             }
 
-            if (!response.ok || !response.body) {
-                throw new Error('Failed to get response');
-            }
+            if (!response.ok) throw new Error('API Error');
 
-            const reader = response.body.getReader();
+            const reader = response.body?.getReader();
             const decoder = new TextDecoder();
-
             addMessage({ role: 'assistant', content: '' });
 
-            while (true) {
+            while (reader) {
                 const { done, value } = await reader.read();
                 if (done) break;
 
@@ -455,27 +247,22 @@ export function AIChatWidget() {
                     if (line.startsWith('data: ')) {
                         const data = line.slice(6);
                         if (data === '[DONE]') continue;
-
                         try {
                             const parsed = JSON.parse(data);
                             const content = parsed.choices?.[0]?.delta?.content;
                             if (content) updateLastMessage(content);
-                        } catch {
-                            // пропускаем невалидный JSON чанк
-                        }
+                        } catch {}
                     }
                 }
             }
-
-            if (isTelegram) triggerHapticFeedback('success');
-
+            triggerHapticFeedback('success');
         } catch (error) {
             toast.error('Ошибка при получении ответа');
         } finally {
             setLoading(false);
             if (!isPremium) refetchUsage();
         }
-    }, [messages, questionContext, interfaceLanguage, isLoading, isTelegram, isPremium, refetchUsage]);
+    }, [messages, questionContext, interfaceLanguage, isLoading, isPremium, refetchUsage, addMessage, updateLastMessage, setLoading, selectedCountry, profileData]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -486,12 +273,11 @@ export function AIChatWidget() {
     };
 
     const chatContent = (
-        <div className="flex flex-col" style={{ height: '100%' }}>
-            {/* Header */}
+        <div className="flex flex-col h-full bg-white dark:bg-slate-950">
             <div className="flex items-center justify-between px-5 py-3 border-b border-border/10 shrink-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md z-10">
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20">
-                        <Bot className="w-5 h-5 text-indigo-500" />
+                    <div className="w-9 h-9 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
+                        <Bot className="w-5 h-5 text-blue-500" />
                     </div>
                     <div className="flex flex-col justify-center">
                         <span className="font-bold text-[15px] tracking-tight leading-tight">AI Помощник</span>
@@ -512,169 +298,47 @@ export function AIChatWidget() {
                 </div>
                 <div className="flex items-center gap-2">
                     {questionContext?.explanationRu && (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={toggleTranslation}
-                            className="h-9 px-3 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400"
-                        >
+                        <Button variant="ghost" size="sm" onClick={toggleTranslation} className="h-9 px-3 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-600 dark:text-slate-400">
                             <Languages className="w-4 h-4 mr-2" />
                             <span className="text-xs font-bold">{showTranslation ? 'ES' : 'RU'}</span>
                         </Button>
                     )}
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={closeChat}
-                        className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted"
-                    >
+                    <Button variant="ghost" size="icon" onClick={closeChat} className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-muted">
                         <X className="w-5 h-5" />
                     </Button>
                 </div>
             </div>
 
-            {/* Messages — flex-1 + overflow-y-auto */}
-            <div
-                ref={scrollContainerRef}
-                className={cn(
-                    "flex-1 overflow-y-auto px-4 py-4 space-y-4 relative",
-                    "bg-[#F5F8FF]/80 dark:bg-slate-900/40"
-                )}
-                style={{ WebkitOverflowScrolling: 'touch' }}
-            >
-                <div
-                    className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-overlay"
-                    style={{
-                        backgroundImage:
-                            "radial-gradient(rgba(15,23,42,0.8) 0.8px, transparent 0.8px)",
-                        backgroundSize: "10px 10px",
-                    }}
-                />
-
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 relative bg-[#F5F8FF]/80 dark:bg-slate-900/40" style={{ WebkitOverflowScrolling: 'touch' }}>
                 {messages.length === 0 && questionContext && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex flex-col items-center text-center py-8 px-4"
-                    >
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center py-8 px-4">
                         <SkilyAICharacter size="lg" />
-                        <h3 className="text-xl font-bold mt-4 mb-2">
-                            {interfaceLanguage === 'ru' ? 'Привет! Я Skily 💡' : '¡Hola! Soy Skily 💡'}
-                        </h3>
+                        <h3 className="text-xl font-bold mt-4 mb-2">{interfaceLanguage === 'ru' ? 'Привет! Я Skily' : '¡Hola! Soy Skily'}</h3>
                         <p className="text-muted-foreground text-sm max-w-[85%] mb-6 px-2">
-                            {interfaceLanguage === 'ru'
-                                ? 'Нужна подсказка или объяснение? Просто нажми кнопку или задай свой вопрос!'
-                                : '¿Necesitas una pista o una explicación rápida? Simplemente presiona el botón o haz tu pregunta, ¡y te ayudaré al momento!'}
+                            {interfaceLanguage === 'ru' ? 'Нужна подсказка или объяснение?' : '¿Necesitas una pista o una explicación rápida?'}
                         </p>
                         <div className="flex flex-col w-full max-w-sm gap-3 px-2">
-                            <Button
-                                variant="outline"
-                                className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium whitespace-normal"
-                                onClick={() => askAI(interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista')}
-                            >
+                            <Button variant="outline" className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium" onClick={() => askAI(interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista')}>
                                 {interfaceLanguage === 'ru' ? 'Дай подсказку' : 'Dame una pista'}
                             </Button>
-                            <Button
-                                variant="outline"
-                                className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium whitespace-normal"
-                                onClick={() => askAI(interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto')}
-                            >
-                                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="icon"
-                                        className={cn(
-                                            "h-10 w-10 rounded-xl transition-colors",
-                                            isRecording ? "text-red-500 bg-red-50 dark:bg-red-500/10" : "text-slate-400 hover:text-blue-500"
-                                        )}
-                                        onClick={toggleVoiceInput}
-                                    >
-                                        {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        size="icon"
-                                        disabled={!input.trim() || isLoading}
-                                        className="h-10 w-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 border-0"
-                                    >
-                                        <Send className={cn("w-4.5 h-4.5", isLoading && "animate-pulse")} />
-                                    </Button>
-                                </div>
+                            <Button variant="outline" className="w-full h-auto py-3 text-primary border-primary/20 hover:bg-primary/5 text-sm font-medium" onClick={() => askAI(interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto')}>
+                                {interfaceLanguage === 'ru' ? 'Объясни это' : 'Ayúdame a entender esto'}
                             </Button>
                         </div>
                     </motion.div>
                 )}
-
-                {messages.length === 0 && !questionContext && (
-                    <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                        <SkilyAICharacter size="lg" />
-                        <p className="text-muted-foreground mt-4 max-w-[80%]">
-                            {interfaceLanguage === 'ru' ? 'Задай мне вопрос!' : '¡Pregúntame algo!'}
-                        </p>
-                    </div>
-                )}
-
-                <AnimatePresence mode="popLayout">
-                    {messages.map((message, index) => (
-                        <motion.div
-                            key={message.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className={cn(
-                                "flex w-full relative z-10",
-                                message.role === 'user' ? 'justify-end' : 'justify-start'
-                            )}
-                        >
-                            <Card className={cn(
-                                "max-w-[85%] p-4 shadow-md transition-all",
-                                message.role === 'user'
-                                    ? 'bg-indigo-600 text-white rounded-2xl rounded-tr-none border-transparent'
-                                    : 'bg-white/95 dark:bg-slate-800/90 backdrop-blur-md rounded-2xl rounded-tl-none border-indigo-100/50 dark:border-white/5 text-slate-800 dark:text-slate-200'
-                            )}>
-                                {message.role === 'assistant' ? (
-                                    <MarkdownContent>{message.content}</MarkdownContent>
-                                ) : (
-                                    <p className="text-sm font-medium tracking-tight leading-relaxed">{message.content}</p>
-                                )}
-
-                                {message.role === 'assistant' && message.content && (
-                                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-black/5 dark:border-white/5">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className={cn("h-6 w-6 hover:bg-black/5 dark:hover:bg-white/10", message.rating === 1 && "text-green-500")}
-                                            onClick={() => setMessageRating(message.id, 1)}
-                                        >
-                                            <ThumbsUp className="w-3.5 h-3.5" />
-                                        </Button>
-                                        <Button
                 {messages.map((message, index) => (
-                    <AIChatMessage
-                        key={index}
-                        message={message}
-                        isLast={index === messages.length - 1}
-                        onRating={(rating) => setMessageRating(index, rating)}
-                    />
+                    <AIChatMessage key={index} message={message} isLast={index === messages.length - 1} onRating={(rating) => setMessageRating(index, rating)} />
                 ))}
                 {isLoading && <AIChatMessage message={{ role: 'assistant', content: '...' }} isLoading />}
                 <div ref={messagesEndRef} className="h-4" />
             </div>
 
-            {/* Smart Suggestions */}
             {!limitReached && !isLoading && smartSuggestions.length > 0 && (
                 <div className="px-4 py-3 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm border-t border-border/5">
                     <div className="flex flex-wrap gap-2 max-w-2xl mx-auto">
                         {smartSuggestions.map((suggestion, i) => (
-                            <Button
-                                key={i}
-                                variant="outline"
-                                size="sm"
-                                onClick={() => askAI(suggestion)}
-                                className="rounded-full text-[13px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all text-slate-700 dark:text-slate-300 h-9"
-                            >
+                            <Button key={i} variant="outline" size="sm" onClick={() => askAI(suggestion)} className="rounded-full text-[13px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-blue-500/50 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all h-9">
                                 {suggestion}
                             </Button>
                         ))}
@@ -682,62 +346,60 @@ export function AIChatWidget() {
                 </div>
             )}
 
-            {/* Input — строго shrink-0, поднимается с клавиатурой через env() */}
-            <div
-                className="px-3 pt-3 border-t border-border/10 shrink-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl z-20"
-                style={{
-                    paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 12px)',
-                }}
-            >
-                            <Mic className="w-5 h-5" />
-                        )}
-                    </Button>
-
-                    <Button
-                        type="submit"
-                        disabled={!input.trim() || isLoading}
-                        size="icon"
-                        className={cn(
-                            "h-12 w-12 shrink-0 rounded-full shadow-lg transition-all active:scale-90",
-                            !input.trim()
-                                ? "bg-blue-500/50 text-white shadow-none"
-                                : "bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/30"
-                        )}
-                    >
-                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                    </Button>
-                </form>
+            <div className="px-3 pt-3 pb-6 border-t border-border/10 shrink-0 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl z-20" style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 8px), 16px)' }}>
+                <AnimatePresence mode="wait">
+                    {limitReached && !isPremium ? (
+                        <motion.div key="limit-cta" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-slate-50 dark:bg-slate-800/40 rounded-[24px] p-5 border border-slate-200 dark:border-slate-700 max-w-2xl mx-auto w-full mb-2">
+                            <div className="flex flex-col items-center text-center gap-3">
+                                <div className="flex items-center gap-2 text-red-500 dark:text-red-400 font-bold">
+                                    <Zap className="w-5 h-5 fill-current animate-pulse" />
+                                    <span>{interfaceLanguage === 'ru' ? 'Лимит сообщений исчерпан' : 'Límite agotado'}</span>
+                                </div>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                    {interfaceLanguage === 'ru' ? 'Для безлимитного общения со Skily перейди на Premium!' : '¡Para hablar con Skily sin límites, pásate a Premium!'}
+                                </p>
+                                <Button onClick={() => openModal('PAYWALL', { trigger: 'ai_chat_limit_inline' })} className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:via-orange-400 hover:to-amber-400 text-white font-black h-12 rounded-xl shadow-lg shadow-orange-500/20 border-0">
+                                    <Crown className="w-5 h-5 mr-2" />
+                                    {interfaceLanguage === 'ru' ? 'РАЗБЛОКИРОВАТЬ PREMIUM' : 'DESBLOQUEAR PREMIUM'}
+                                </Button>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.form key="chat-form" onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
+                            <div className="flex-1 relative">
+                                <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} placeholder={interfaceLanguage === 'ru' ? 'Напиши свой вопрос...' : 'Escribe tu pregunta...'} disabled={isLoading} className="w-full min-h-[48px] py-3 rounded-[24px] px-5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all text-base" style={{ fontSize: '16px' }} />
+                            </div>
+                            <Button type="button" onClick={toggleVoiceInput} disabled={isLoading || isProcessingVoice} size="icon" variant="ghost" className={cn("h-12 w-12 shrink-0 rounded-full transition-all active:scale-90 relative overflow-hidden", isRecording ? "bg-red-500 text-white shadow-lg shadow-red-500/30" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300")}>
+                                {isProcessingVoice ? <Loader2 className="w-5 h-5 animate-spin" /> : isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                            </Button>
+                            <Button type="submit" disabled={!input.trim() || isLoading} size="icon" className={cn("h-12 w-12 shrink-0 rounded-full shadow-lg transition-all active:scale-90", !input.trim() ? "bg-blue-500/50 text-white shadow-none" : "bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/30")}>
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                            </Button>
+                        </motion.form>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
 
-    // Mobile: Vaul Drawer
     if (isMobile) {
-        const drawerHeight = viewportHeight > 0 ? viewportHeight : undefined;
-
         return (
-            <>
-                <Drawer
-                    open={isOpen}
-                    onOpenChange={(open) => !open && closeChat()}
-                    shouldScaleBackground={false}
-                >
-                    <DrawerContent
-                        className="overflow-hidden flex flex-col focus:outline-none"
-                        style={{
-                            height: drawerHeight ? `${drawerHeight}px` : '92dvh',
-                            maxHeight: drawerHeight ? `${drawerHeight}px` : '92dvh',
-                            transition: 'height 0.2s ease',
-                        }}
-                    >
-                        {chatContent}
-                    </DrawerContent>
-                </Drawer>
+            <Drawer open={isOpen} onOpenChange={(open) => !open && closeChat()} shouldScaleBackground={false}>
+                <DrawerContent className="overflow-hidden flex flex-col focus:outline-none" style={{ height: viewportHeight > 0 ? `${viewportHeight}px` : '92dvh' }}>
+                    {chatContent}
+                </DrawerContent>
+            </Drawer>
+        );
+    }
 
-                    </div>
-                </DialogContent>
-            </Dialog>
-        </>
+    return (
+        <Dialog open={isOpen} onOpenChange={(open) => !open && closeChat()}>
+            <DialogContent hideCloseButton className="w-screen h-screen max-w-none max-h-none m-0 p-0 flex flex-col bg-white/95 dark:bg-zinc-950/98 backdrop-blur-2xl border-none rounded-none">
+                <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full shadow-2xl bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md overflow-hidden my-0 sm:my-8 sm:rounded-2xl sm:border border-border/10">
+                    {chatContent}
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 }
 
