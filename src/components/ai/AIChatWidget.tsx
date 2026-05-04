@@ -241,6 +241,7 @@ export function AIChatWidget() {
     const showTranslation = useAIChatStore((s) => s.showTranslation);
     const limitModalOpen = useAIChatStore((s) => s.limitModalOpen);
     const limitData = useAIChatStore((s) => s.limitData);
+    const openModal = useModalStore(s => s.openModal);
 
     // Счётчик оставшихся AI-сообщений (isOpen уже объявлен выше)
     const { data: aiUsage, refetch: refetchUsage } = useQuery({
