@@ -373,6 +373,21 @@ const TestResults = () => {
     }
   }, [passed, state?.isRedemptionSuccess, totalQuestions]);
 
+  // Paywall trigger: показывать после провала 1 раз в день для free-юзеров
+  useEffect(() => {
+    if (isPremium || !totalQuestions || passed) return;
+    const accuracy = totalQuestions > 0 ? correctCount / totalQuestions : 1;
+    if (accuracy >= 0.7) return; // провал < 70%
+    const todayKey = `paywall_fail_shown_${new Date().toISOString().slice(0, 10)}`;
+    if (localStorage.getItem(todayKey)) return;
+    const timer = setTimeout(() => {
+      localStorage.setItem(todayKey, '1');
+      openModal('PAYWALL');
+    }, 3000);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [passed, isPremium, totalQuestions, correctCount]);
+
   // Format Helpers
   const formatTime = (seconds: number) => {
     if (typeof seconds !== 'number' || isNaN(seconds)) return "00:00";
