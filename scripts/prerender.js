@@ -374,9 +374,9 @@ async function prerender() {
           });
 
           // Wait for meaningful React content (not just fallback/skeleton).
-          // Legal pages are short by nature and never exceed 600 chars — use 300 for them
-          // to avoid wasting a 15s timeout on every /legal/* route.
-          const minChars = route.startsWith('/legal/') ? 300 : 600;
+          // Legal pages embed full documents (Privacy, Terms, etc.) via lazy Suspense —
+          // they have thousands of chars when fully rendered. Use 600 for all routes.
+          const minChars = 600;
           try {
             await page.waitForFunction(
               (min) => {
