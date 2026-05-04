@@ -152,6 +152,7 @@ const TestSession = () => {
     if (location.pathname.includes("/test/by-topic") || searchParams.get('topic')) return "by-topic";
     if (location.pathname.includes("/test/marathon")) return "marathon";
     if (location.pathname.includes("/test/nonstop")) return "nonstop";
+    if (location.pathname.includes("/test/smart")) return "smart";
     return "practice";
   }, [rawMode, location.pathname, searchParams, ticketIdParam]);
   const isGuest = !authLoading && (!isAuthenticated || !profileId);
