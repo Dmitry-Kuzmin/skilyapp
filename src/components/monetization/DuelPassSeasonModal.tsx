@@ -1981,7 +1981,7 @@ export function DuelPassSeasonModal({ open, onOpenChange }: { open: boolean; onO
                       <div className="flex items-center gap-1.5">
                         <Crown className="w-3 h-3 text-yellow-500 shrink-0" />
                         <span className="text-[9px] font-black uppercase tracking-[0.15em] text-muted-foreground/40">
-                          {dp("table.headers.premium") || "Premium"}
+                          {dp("table.columns.premium") || "Premium"}
                         </span>
                       </div>
                     </div>
