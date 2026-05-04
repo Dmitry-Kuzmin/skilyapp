@@ -60,7 +60,7 @@ const AnimatedBackground = () => (
         scale: [1, 1.3, 1],
         opacity: [0.2, 0.3, 0.2],
       }}
-      transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+      transition={{ duration: 12, repeat: 999, ease: "easeInOut", delay: 2 }}
       className="absolute -bottom-32 left-1/4 w-[500px] h-[500px] bg-fuchsia-600/30 rounded-full blur-[140px] mix-blend-screen"
     />
   </div>
