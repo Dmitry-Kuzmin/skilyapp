@@ -19,11 +19,15 @@ const PDDContext = createContext<PDDContextType | undefined>(undefined);
 export function PDDProvider({ children }: { children: ReactNode }) {
   const { profileData } = useProfileData();
 
-  // Загружаем из localStorage при инициализации
+  // Загружаем из localStorage при инициализации (с нормализацией)
   const [selectedCountry, setSelectedCountryState] = useState<CountryCode>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('pdd_selected_country') as CountryCode | null;
-      return saved || 'spain';
+      const saved = localStorage.getItem('pdd_selected_country');
+      if (saved) {
+        let n = saved.toLowerCase();
+        if (n === 'ru' || n === 'russia') return 'russia';
+        if (n === 'es' || n === 'spain') return 'spain';
+      }
     }
     return 'spain';
   });
