@@ -23,6 +23,8 @@ import { motion } from "@/components/optimized/Motion";
 import { getImageUrl } from "@/utils/imageUtils";
 import { loadTestProgress } from "@/utils/testStorage";
 import { cn } from "@/lib/utils";
+import { useModalStore, ModalType } from "@/store/modalStore";
+import { FREE_QUESTION_LIMIT } from "@/lib/premiumState";
 import { AIInsightsLibrary } from "@/components/test-results/AIInsightsLibrary";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { PageLoader } from "@/components/PageLoader";
