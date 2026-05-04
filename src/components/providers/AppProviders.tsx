@@ -29,6 +29,8 @@ import { GlobalSettingsManager } from "@/components/settings";
 // TON_DISABLED: import { appKit } from "@/lib/ton-appkit";
 // TON_DISABLED: import { TonAddressProvider } from '@/contexts/TonAddressContext';
 import { useSessionManager } from "@/hooks/useSessionManager";
+import { usePremium } from "@/hooks/usePremium";
+import { setPremiumForStrategy } from "@/lib/premiumState";
 
 import { SmartOnboardingFlow } from "@/components/onboarding/SmartOnboardingFlow";
 // TON_DISABLED: import { useTonWalletSync } from "@/hooks/useTonWalletSync";
