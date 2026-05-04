@@ -447,6 +447,14 @@ export const useTestDataLoader = ({
                     testInfo: { id: 'redemption', title: '🛡️ Протокол Восстановления' },
                 };
 
+            case 'smart':
+                return {
+                    questions: smartTestQuestions.data || [],
+                    isLoading: smartTestQuestions.isLoading,
+                    error: smartTestQuestions.error as Error | null,
+                    testInfo: { id: 'smart', title: '🧠 Умный тест' },
+                };
+
             default:
                 return {
                     questions: [],
