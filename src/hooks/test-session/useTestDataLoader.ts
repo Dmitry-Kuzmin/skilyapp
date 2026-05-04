@@ -390,6 +390,15 @@ export const useTestDataLoader = ({
                 };
 
             case 'marathon':
+                // Гости — статический JSON
+                if (isGuestMode) {
+                    return {
+                        questions: guestQuestions.slice(0, questionCount),
+                        isLoading: false,
+                        error: null,
+                        testInfo: { id: 'marathon-demo', title: '🔥 Demo Maratón' },
+                    };
+                }
                 // Марафон = случайные вопросы для всех стран
                 // Логика раундов (повтор ошибок) управляется в useRoundRetryMode + useTestFinisher
                 if ((pddCountry === 'russia' || pddCountry === 'spain') && !topicId && !topic) {
