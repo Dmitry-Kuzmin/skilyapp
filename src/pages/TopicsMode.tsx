@@ -57,7 +57,7 @@ const TopicsMode = () => {
   const { data: topicQuestions = [] } = usePDDTopicQuestions(
     country as any,
     selectedTopic?.name || '',
-    selectedTopic?.count || 0
+    FREE_QUESTIONS_PER_TOPIC
   );
 
   const sortedTopics = useMemo(
