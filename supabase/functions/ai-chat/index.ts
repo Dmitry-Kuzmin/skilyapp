@@ -272,12 +272,15 @@ Deno.serve(async (req) => {
           await supabaseClient.rpc('increment_ai_usage', { p_user_id: userId }).catch(() => {});
         }
 
-        // Загружаем слабые темы для персонализации совета
+        // Загружаем слабые темы для персонализации совета (с таймаутом 3с)
         try {
-          const { data: weakTopics } = await supabaseClient.rpc('get_weak_topics', {
+          const weakTopicsPromise = supabaseClient.rpc('get_weak_topics', {
             p_profile_id: profile?.id || userId,
             p_limit: 5,
           });
+          const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+          const weakTopicsResult = await Promise.race([weakTopicsPromise, timeoutPromise]);
+          const weakTopics = weakTopicsResult?.data;
           if (weakTopics && weakTopics.length > 0) {
             const topicLines = weakTopics
               .map((t: { topic_title: string; accuracy: number; attempt_count: number }) =>
