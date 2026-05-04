@@ -57,10 +57,10 @@ export function SuccessScreen({
                 className="space-y-4 mt-6"
             >
                 <div className="space-y-2">
-                    <h3 className="text-2xl font-extrabold text-white tracking-tight">
+                    <h3 className="text-2xl font-extrabold text-foreground tracking-tight">
                         {step === 'check-email' ? t('auth.success.checkYourEmailGeneric') : t('auth.success.instructionsSent')}
                     </h3>
-                    <p className="text-zinc-400 font-medium">
+                    <p className="text-muted-foreground font-medium">
                         {step === 'check-email'
                             ? t('auth.success.magicLinkSentToEmail')
                             : (userName ? t('auth.success.checkYourEmailName', { name: userName.split(' ')[0] }) : t('auth.success.checkYourEmailGeneric'))
@@ -72,16 +72,16 @@ export function SuccessScreen({
                 <div className="pt-2 space-y-4 flex flex-col items-center">
                     <div
                         onClick={onChangeEmail}
-                        className="group flex items-center gap-2 bg-zinc-900/50 border border-white/10 rounded-full py-1.5 px-5 cursor-pointer hover:bg-zinc-800 hover:border-white/20 transition-all shadow-lg"
+                        className="group flex items-center gap-2 bg-muted/50 dark:bg-zinc-900/50 border border-border dark:border-white/10 rounded-full py-1.5 px-5 cursor-pointer hover:bg-muted dark:hover:bg-zinc-800 hover:border-border dark:hover:border-white/20 transition-all shadow-lg"
                     >
-                        <span className="text-blue-400 text-sm font-bold">{email}</span>
-                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest group-hover:text-sky-400">
+                        <span className="text-blue-600 dark:text-blue-400 text-sm font-bold">{email}</span>
+                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest group-hover:text-blue-500">
                             {t('auth.changeEmail')}
                         </span>
                     </div>
 
                     <div className="space-y-1">
-                        <p className="text-[11px] text-zinc-500 font-medium opacity-80">
+                        <p className="text-[11px] text-muted-foreground font-medium">
                             {t('auth.success.linkActive1Hour')}
                         </p>
 

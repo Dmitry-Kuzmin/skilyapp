@@ -34,10 +34,10 @@ export function MagicLinkStep({
             <div className="flex justify-center">
                 <div
                     onClick={onBackToEmail}
-                    className="group flex items-center justify-center gap-2 bg-zinc-900/50 border border-white/5 rounded-full py-1.5 px-4 cursor-pointer hover:bg-zinc-900 hover:border-white/10 transition-all"
+                    className="group flex items-center justify-center gap-2 bg-muted/50 dark:bg-zinc-900/50 border border-border dark:border-white/5 rounded-full py-1.5 px-4 cursor-pointer hover:bg-muted dark:hover:bg-zinc-900 hover:border-border dark:hover:border-white/10 transition-all"
                 >
-                    <span className="text-zinc-300 text-sm font-medium">{email}</span>
-                    <span className="text-[11px] text-sky-400 font-bold group-hover:text-sky-300 transition-colors uppercase tracking-wider">
+                    <span className="text-foreground dark:text-zinc-300 text-sm font-medium">{email}</span>
+                    <span className="text-[11px] text-sky-500 dark:text-sky-400 font-bold group-hover:text-sky-400 transition-colors uppercase tracking-wider">
                         {t('auth.changeEmail')}
                     </span>
                 </div>
@@ -70,7 +70,7 @@ export function MagicLinkStep({
                     </span>
                 </Button>
 
-                <p className="text-[10px] text-zinc-500 text-center mt-6 px-4">
+                <p className="text-[10px] text-muted-foreground text-center mt-6 px-4 font-medium uppercase tracking-tighter">
                     {t('auth.magicLinkDescPasswordless')}
                 </p>
             </div>

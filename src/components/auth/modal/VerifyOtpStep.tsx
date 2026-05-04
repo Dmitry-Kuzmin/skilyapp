@@ -105,20 +105,20 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
         >
             <div className="text-center space-y-4">
                 <div className="space-y-2">
-                    <h3 className="text-2xl font-bold text-white tracking-tight">
+                    <h3 className="text-2xl font-bold text-foreground tracking-tight">
                         {t('auth.enterOtpTitle') || 'Введите код'}
                     </h3>
-                    <p className="text-sm text-zinc-400 max-w-[280px] mx-auto leading-relaxed">
+                    <p className="text-sm text-muted-foreground max-w-[280px] mx-auto leading-relaxed font-medium">
                         {t('auth.otpSent')} <br/>
-                        <span className="text-blue-400/90 font-medium selection:bg-blue-500/30">{email}</span>
+                        <span className="text-blue-500 dark:text-blue-400 font-semibold selection:bg-blue-500/30">{email}</span>
                     </p>
                 </div>
 
                 <button 
                   onClick={onBackToEmail}
-                  className="text-[11px] text-zinc-500 hover:text-blue-400 font-bold uppercase tracking-widest transition-all pt-1 flex items-center justify-center gap-2 mx-auto group"
+                  className="text-[11px] text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 font-bold uppercase tracking-widest transition-all pt-1 flex items-center justify-center gap-2 mx-auto group"
                 >
-                  <span className="w-1.5 h-1.5 bg-zinc-700 rounded-full group-hover:bg-blue-500 group-hover:scale-125 transition-all" />
+                  <span className="w-1.5 h-1.5 bg-muted dark:bg-zinc-700 rounded-full group-hover:bg-blue-500 group-hover:scale-125 transition-all" />
                   {t('auth.changeEmail') || 'Изменить почту'}
                 </button>
             </div>
@@ -141,11 +141,11 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
                             disabled={isSubmitting}
                             className={cn(
                                 "w-11 h-14 sm:w-12 sm:h-16 text-center text-2xl font-bold transition-all duration-300 outline-none rounded-2xl",
-                                "bg-zinc-900/40 border-2",
+                                "bg-muted/30 dark:bg-zinc-900/40 border-2",
                                 activeIndex === index 
-                                    ? "border-blue-500 text-white shadow-[0_0_25px_rgba(59,130,246,0.25)] bg-blue-500/5 scale-105" 
-                                    : "border-white/5 text-zinc-300 hover:border-white/10",
-                                digit && activeIndex !== index ? "border-white/10 bg-white/[0.03] text-white" : ""
+                                    ? "border-blue-500 text-zinc-950 dark:text-white shadow-[0_0_25px_rgba(59,130,246,0.15)] bg-blue-500/5 scale-105" 
+                                    : "border-border dark:border-white/5 text-muted-foreground hover:border-border/80 dark:hover:border-white/10",
+                                digit && activeIndex !== index ? "border-border/50 dark:border-white/10 bg-muted/50 dark:bg-white/[0.03] text-zinc-900 dark:text-white" : ""
                             )}
                         />
                         {activeIndex === index && (
@@ -167,8 +167,8 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
                   className={cn(
                     "h-14 w-full text-lg font-bold rounded-2xl transition-all duration-500 border-2 relative overflow-hidden group/btn",
                     otp.every(d => d !== '') 
-                        ? "bg-white text-black border-white shadow-[0_20px_40px_rgba(255,255,255,0.15)] scale-[1.02] active:scale-[0.98]" 
-                        : "bg-white/5 text-zinc-600 border-white/5 grayscale"
+                        ? "bg-foreground text-background border-foreground shadow-[0_20px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_rgba(255,255,255,0.15)] scale-[1.02] active:scale-[0.98]" 
+                        : "bg-muted text-muted-foreground border-border grayscale"
                   )}
               >
                   {isSubmitting ? (
@@ -194,17 +194,17 @@ export const VerifyOtpStep = memo(function VerifyOtpStep({
 
               <div className="text-center">
                 {resendCooldown > 0 ? (
-                  <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white/5 rounded-full border border-white/5 backdrop-blur-sm">
+                  <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-muted/50 dark:bg-white/5 rounded-full border border-border dark:border-white/5 backdrop-blur-sm">
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
-                    <p className="text-[11px] text-zinc-500 font-semibold tracking-wide uppercase">
-                      {t('auth.resendIn')} <span className="text-blue-400 font-mono text-xs ml-1">{resendCooldown}s</span>
+                    <p className="text-[11px] text-muted-foreground font-semibold tracking-wide uppercase">
+                      {t('auth.resendIn')} <span className="text-blue-500 dark:text-blue-400 font-mono text-xs ml-1">{resendCooldown}s</span>
                     </p>
                   </div>
                 ) : (
                   <button
                     onClick={onResend}
                     disabled={isSubmitting}
-                    className="text-[11px] text-zinc-500 hover:text-blue-400 font-bold flex items-center justify-center gap-2 mx-auto transition-all hover:scale-105 active:scale-95"
+                    className="text-[11px] text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 font-bold flex items-center justify-center gap-2 mx-auto transition-all hover:scale-105 active:scale-95"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span className="uppercase tracking-widest">{t('auth.resendCode')}</span>

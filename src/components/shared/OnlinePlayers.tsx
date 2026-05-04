@@ -19,6 +19,7 @@ interface OnlinePlayersProps {
     currentUserPhoto?: string | null;
     currentUserId?: string | null;
     className?: string;
+    variant?: 'default' | 'white';
 }
 
 export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
@@ -26,7 +27,8 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
     players: playersProp,
     currentUserPhoto,
     currentUserId,
-    className
+    className,
+    variant = 'default'
 }) => {
     const [count, setCount] = useState(baseCount);
 
@@ -86,9 +88,15 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
     }, [players, currentUserPhoto, currentUserId]);
 
     return (
-        <div className={cn("flex flex-row items-center gap-3", className)}>
-            {/* Аватарки в один ряд с наложением */}
-            <div className="flex -space-x-2.5 items-center">
+        <div className={cn(
+            "inline-flex items-center gap-3 p-1.5 pr-4 rounded-full transition-all h-11 group",
+            variant === 'default' 
+                ? "bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 dark:border-blue-500/30 backdrop-blur-md shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:border-blue-500/40"
+                : "bg-white/10 border border-white/20 backdrop-blur-md hover:bg-white/20 hover:border-white/30 shadow-lg",
+            className
+        )}>
+            {/* Аватарки с наложением */}
+            <div className="flex -space-x-3 items-center pl-1">
                 {combinedPlayers.map((player, i) => (
                     <motion.div
                         key={player.id}
@@ -97,7 +105,10 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
                         transition={{ delay: i * 0.1 }}
                         className="relative"
                     >
-                        <Avatar className="h-8 w-8 ring-[1px] ring-white/5 border-none shadow-2xl transition-transform hover:scale-110">
+                        <Avatar className={cn(
+                            "h-8 w-8 border-none shadow-lg transition-transform group-hover:translate-x-1",
+                            variant === 'default' ? "ring-2 ring-background" : "ring-2 ring-blue-600"
+                        )}>
                             <AvatarImage src={player.photoUrl || undefined} className="object-cover" />
                             <AvatarFallback className="bg-slate-800 text-[10px] text-white font-bold">
                                 {player.initials}
@@ -107,24 +118,28 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
                 ))}
             </div>
 
-            {/* Счетчик в том же ряду */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 dark:border-blue-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.2)] h-9 relative group">
+            {/* Счетчик и индикатор Live */}
+            <div className="flex items-center gap-2.5">
                 {/* Анимированный индикатор "Live" */}
-                <div className="flex items-center gap-1.5">
-                    <div className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                    </div>
-                    <div className="flex items-baseline gap-1">
-                        <NumberTicker
-                            value={count}
-                            useSeparator={false}
-                            className="text-[14px] font-black text-blue-100 dark:text-white"
-                        />
-                        <span className="text-[9px] font-black text-blue-400/80 dark:text-blue-300/60 tracking-[0.1em] uppercase ml-1">
-                            В СЕТИ
-                        </span>
-                    </div>
+                <div className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                    <NumberTicker
+                        value={count}
+                        useSeparator={false}
+                        className={cn(
+                            "text-[15px] font-black tabular-nums",
+                            variant === 'default' ? "text-blue-700 dark:text-blue-100" : "text-white"
+                        )}
+                    />
+                    <span className={cn(
+                        "text-[10px] font-black tracking-wider uppercase",
+                        variant === 'default' ? "text-blue-600/70 dark:text-blue-300/50" : "text-white/70"
+                    )}>
+                        В СЕТИ
+                    </span>
                 </div>
             </div>
         </div>

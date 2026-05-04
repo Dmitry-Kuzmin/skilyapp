@@ -64,8 +64,8 @@ export function ResetPasswordScreen({
             className="space-y-6 pt-2"
         >
             <div className="text-center space-y-2">
-                <h3 className="text-2xl font-bold text-white">{t('auth.newPasswordTitle')}</h3>
-                <p className="text-sm text-zinc-400">{t('auth.newPasswordDesc')}</p>
+                <h3 className="text-2xl font-bold text-foreground">{t('auth.newPasswordTitle')}</h3>
+                <p className="text-sm text-muted-foreground font-medium">{t('auth.newPasswordDesc')}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -77,7 +77,7 @@ export function ResetPasswordScreen({
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         onFocus={() => setIsFocused(true)}
-                        className="bg-black/20 border-white/10 text-white placeholder:text-zinc-600 focus:border-blue-500/50 h-12"
+                        className="bg-muted/30 dark:bg-black/20 border-border dark:border-white/10 text-foreground dark:text-white placeholder:text-muted-foreground/50 focus:border-blue-500/50 h-12"
                     />
 
                     {/* Strength Indicator Line */}
@@ -100,8 +100,8 @@ export function ResetPasswordScreen({
                             className={cn(
                                 "text-[10px] uppercase font-bold tracking-wider px-2 py-1 rounded-md border transition-all duration-300",
                                 req.valid
-                                    ? "border-blue-500/30 bg-blue-500/10 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                                    : "border-transparent bg-zinc-900 text-zinc-600"
+                                    ? "border-blue-500/30 bg-blue-500/10 text-blue-500 dark:text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
+                                    : "border-transparent bg-muted dark:bg-zinc-900 text-muted-foreground"
                             )}
                         >
                             {req.label}
@@ -121,12 +121,12 @@ export function ResetPasswordScreen({
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className={cn(
-                                "bg-black/20 text-white placeholder:text-zinc-600 h-12 transition-all duration-300",
+                                "bg-muted/30 dark:bg-black/20 text-foreground dark:text-white placeholder:text-muted-foreground/50 h-12 transition-all duration-300",
                                 !passwordsMatch && confirmPassword
                                     ? "border-red-500/30 focus:border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
                                     : passwordsMatch
                                         ? "border-green-500/30 focus:border-green-500/50 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
-                                        : "border-white/10 focus:border-blue-500/50"
+                                        : "border-border dark:border-white/10 focus:border-blue-500/50"
                             )}
                         />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">

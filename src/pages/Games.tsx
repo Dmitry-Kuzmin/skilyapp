@@ -92,14 +92,26 @@ const Games = () => {
     },
     {
       id: 3,
-      title: t('gamesPage.gameTitles.flashcards'),
-      description: t('gamesPage.gameDescriptions.flashcards'),
+      title: t('gamesPage.gameTitles.lexicon'),
+      description: t('gamesPage.gameDescriptions.lexicon'),
       icon: CreditCard,
       color: "success",
       premium: false,
       difficulty: t('gamesPage.difficulties.easy'),
       route: "/games/flashcards",
       gradient: "from-emerald-600 to-teal-600",
+    },
+    {
+      id: 11,
+      title: t('gamesPage.gameTitles.roadRules'),
+      description: t('gamesPage.gameDescriptions.roadRules'),
+      icon: CreditCard,
+      color: "primary",
+      premium: true,
+      difficulty: t('gamesPage.difficulties.medium'),
+      route: "/games/road-cards",
+      featured: true,
+      gradient: "from-indigo-600 via-blue-600 to-violet-700",
     },
     {
       id: 4,
@@ -115,8 +127,8 @@ const Games = () => {
     },
     {
       id: 6,
-      title: t('gamesPage.gameTitles.lexicon'),
-      description: t('gamesPage.gameDescriptions.lexicon'),
+      title: t('gamesPage.gameTitles.lexicon_old'),
+      description: t('gamesPage.gameDescriptions.lexicon_old'),
       icon: Brain,
       color: "primary",
       premium: false,
@@ -170,6 +182,9 @@ const Games = () => {
     // ID 2: Race (Vocabulary Translation)
     // Logic: Only for SPAIN content, but NOT for Spanish interface users (natives)
     // They don't need to translate their own language.
+    // Hidden vocabulary cards for non-RU users (ID 3 is Lexicon: Cards, ID 6 is Lexicon)
+    if ((game.id === 3 || game.id === 6) && language !== 'ru') return false;
+
     if (game.id === 2) {
       const isSpain = countryCode === 'es';
       const isNotSpanishLang = language !== 'es';
@@ -331,7 +346,7 @@ const Games = () => {
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-6 items-center">
+                    <div className="flex flex-wrap gap-3 items-center">
                       {/* Single CTA Button → /games/duel */}
                       {duelsEnabled ? (
                         <button
@@ -364,6 +379,7 @@ const Games = () => {
                           players={onlinePlayers}
                           currentUserPhoto={currentUserPhoto}
                           currentUserId={profileId}
+                          variant="white"
                         />
                       )}
                     </div>

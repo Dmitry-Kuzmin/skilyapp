@@ -5,7 +5,7 @@ import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Copy, Check, Hash, Minus, Plus, ArrowLeft, ChevronRight, X, Coins, DollarSign, Gift, Users, Clock, Share2, Search, Shield } from 'lucide-react';
+import { Swords, Trophy, LogIn, Sparkles, Zap, Target, TrendingUp, Copy, Check, Hash, Minus, Plus, ArrowLeft, ChevronRight, X, Coins, DollarSign, Gift, Users, Clock, Share2, Search, Shield, Loader2 } from 'lucide-react';
 import { extractErrorFromResponse } from '@/utils/errorMessages';
 import { DuelCreateModal } from '@/components/duel/DuelCreateModal';
 import { DuelJoinModal } from '@/components/duel/DuelJoinModal';
@@ -1544,14 +1544,14 @@ export default function Duel() {
                                                 transition={{ duration: 0.4 }}
                                                 className="relative p-1 rounded-[32px] bg-slate-100/50 dark:bg-white/[0.02] border border-border dark:border-white/[0.05]"
                                             >
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                                                     {/* BUTTON: RANDOM BATTLE */}
                                                     <button
                                                         onClick={() => handleActionClick(() => {
                                                             setRematchOpponent(null);
                                                             setDuelMode('random');
                                                         })}
-                                                        className="group relative flex flex-col items-start p-8 rounded-[28px] hover:bg-white dark:hover:bg-white/[0.03] transition-all duration-500 text-left overflow-hidden"
+                                                        className="group relative flex flex-col items-start p-8 rounded-t-[28px] md:rounded-tr-none md:rounded-l-[28px] hover:bg-white dark:hover:bg-white/[0.03] transition-all duration-500 text-left overflow-hidden"
                                                     >
                                                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                                         
@@ -1583,7 +1583,7 @@ export default function Duel() {
                                                             setRematchOpponent(null);
                                                             setDuelMode('friend');
                                                         })}
-                                                        className="group relative flex flex-col items-start p-8 rounded-[28px] hover:bg-white dark:hover:bg-white/[0.03] transition-all duration-500 text-left overflow-hidden border-t md:border-t-0 md:border-l border-border/50 dark:border-white/[0.05]"
+                                                        className="group relative flex flex-col items-start p-8 rounded-b-[28px] md:rounded-bl-none md:rounded-r-[28px] hover:bg-white dark:hover:bg-white/[0.03] transition-all duration-500 text-left overflow-hidden border-t md:border-t-0 md:border-l border-border/50 dark:border-white/[0.05]"
                                                     >
                                                         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                                         
