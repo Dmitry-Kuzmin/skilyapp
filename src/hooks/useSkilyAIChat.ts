@@ -64,6 +64,21 @@ export const useSkilyAIChat = (country: CountryCode = 'spain') => {
         }
       );
 
+      // Handle 429 — daily limit reached → show modal
+      if (response.status === 429) {
+        const errorData = await response.json().catch(() => ({}));
+        if (errorData.error === 'daily_limit_reached') {
+          setLimitReached({
+            currentCount: errorData.current_count || 10,
+            limit: errorData.limit || 10,
+            message: errorData.message,
+          });
+          setMessages(prev => prev.filter((_, idx) => idx !== prev.length - 1));
+          setIsLoading(false);
+          return;
+        }
+      }
+
       if (!response.ok || !response.body) {
         throw new Error("Не удалось получить ответ от Skily");
       }
