@@ -68,12 +68,13 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
   }
 }
 
-async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null): Promise<Response | null> {
+async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null, weakTopicsContext?: string | null): Promise<Response | null> {
   const apiKey = Deno.env.get('GEMINI_API_KEY');
   if (!apiKey) return null;
 
   try {
-    const systemPrompt = getSystemPrompt(country, showComparison, language);
+    const basePrompt = getSystemPrompt(country, showComparison, language);
+    const systemPrompt = weakTopicsContext ? basePrompt + weakTopicsContext : basePrompt;
 
     let currentContents: any[] = messages.map(m => ({
       role: m.role === 'user' ? 'user' : 'model',
