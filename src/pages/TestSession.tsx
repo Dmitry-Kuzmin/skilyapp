@@ -1022,7 +1022,7 @@ const TestSession = () => {
   const practiceLikeModes = [
     "practice", "blitz", "mastery", "marathon", "sequential", "module",
     "challenge-bank", "dgt", "pdd-ticket", "redemption", "by-topic",
-    "traps", "hardest", "favorites", "nonstop"
+    "traps", "hardest", "favorites", "nonstop", "smart"
   ];
   const isPracticeLikeMode = practiceLikeModes.includes(mode);
 
