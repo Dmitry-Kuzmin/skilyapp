@@ -155,17 +155,26 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
         // 1. Get ALL IDs (cached or fresh)
         let allIds: string[] = [];
 
-        if (this.cachedIds) {
+        const premium = isPremiumForStrategy();
+        const cacheKey = premium ? 'all' : 'free';
+
+        if (this.cachedIds && this.cachedIdsTier === cacheKey) {
             allIds = this.cachedIds;
         } else {
             // Dedupe concurrent requests
             if (!this.idsFetchPromise) {
                 this.idsFetchPromise = (async () => {
-                    const { data, error } = await (supabase as any)
+                    let query = (supabase as any)
                         .from('questions_new')
                         .select('id')
                         .eq('country', this.COUNTRY);
 
+                    // Free users only see questions marked is_premium=false
+                    if (!premium) {
+                        query = query.eq('is_premium', false);
+                    }
+
+                    const { data, error } = await query;
                     if (error) {
                         console.error('[SpainUnifiedStrategy] Error fetching IDs:', error);
                         throw error;
@@ -177,6 +186,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
             try {
                 allIds = await this.idsFetchPromise;
                 this.cachedIds = allIds;
+                this.cachedIdsTier = cacheKey;
                 this.idsFetchPromise = null;
             } catch (err) {
                 this.idsFetchPromise = null;
@@ -186,15 +196,8 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
 
         if (allIds.length === 0) return [];
 
-        // 2. For free users, restrict the visible pool to a deterministic subset.
-        //    This creates natural repetition pressure that drives premium conversion.
-        const questionPool = isPremiumForStrategy()
-            ? allIds
-            : allIds.slice(0, FREE_QUESTION_LIMIT);
-
-        // 3. Shuffle IDs client-side (Fisher-Yates for perfect randomness)
-        // copy array
-        const shuffled = [...questionPool];
+        // 2. Shuffle IDs client-side (Fisher-Yates for perfect randomness)
+        const shuffled = [...allIds];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
