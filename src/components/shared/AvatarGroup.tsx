@@ -45,7 +45,6 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: i * 0.1 }}
             className="relative transition-transform duration-300 group-hover:translate-x-1"
-            className="relative transition-transform duration-300 group-hover:translate-x-1"
             style={{ zIndex: i + 1 }}
           >
             <Avatar className={cn(

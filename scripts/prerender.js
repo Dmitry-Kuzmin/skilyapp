@@ -382,7 +382,7 @@ async function prerender() {
               (min) => {
                 const root = window.document.querySelector('#root');
                 if (!root) return false;
-                const text = root.textContent?.trim() || '';
+                const text = root.textContent?.replace(/\s+/g, ' ').trim() || '';
                 return text.length > min;
               },
               { timeout: 15000, polling: 200 },
@@ -394,7 +394,7 @@ async function prerender() {
             await page.waitForFunction(
               () => {
                 const root = window.document.querySelector('#root');
-                return root && root.children.length > 0 && (root.textContent?.trim().length || 0) > 300;
+                return root && root.children.length > 0 && (root.textContent?.replace(/\s+/g, ' ').trim().length || 0) > 300;
               },
               { timeout: 15000 }
             );
