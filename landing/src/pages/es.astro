@@ -491,22 +491,22 @@ const faqSchema = {
         <!-- 4. GAMIFICATION & PROGRESS (Text Right, Cards Left) -->
         <div class="grid lg:grid-cols-[1.3fr,1fr] gap-12 lg:gap-20 items-center reveal-on-scroll">
            <div class="order-1 lg:order-1 w-full">
-            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-amber-500/10 p-8 sm:p-10 relative" style="background:#18120a;">
-              <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[80px] rounded-full pointer-events-none"></div>
-              <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+            <div class="rounded-[1.5rem] overflow-hidden border border-slate-700/60 shadow-2xl shadow-blue-500/10 p-8 sm:p-10 relative" style="background:#0f172a;">
+              <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none"></div>
+              <div class="absolute bottom-0 left-0 w-64 h-64 bg-slate-500/10 blur-[80px] rounded-full pointer-events-none"></div>
               
               <div class="relative z-10 max-w-lg mx-auto flex flex-col gap-6">
                 <!-- Level Card -->
                 <div class="grid grid-cols-2 gap-4">
-                  <div class="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-400/30 rounded-2xl p-5 text-center shadow-lg">
+                  <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-400/30 rounded-2xl p-5 text-center shadow-lg">
                     <p class="text-4xl font-black text-white mb-1">12</p>
-                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Nivel</p>
-                    <div class="mt-3 h-2.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full w-[68%] bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"></div></div>
-                    <p class="text-[10px] text-amber-300/60 mt-2 font-medium">680 / 1000 XP</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-blue-300/70">Nivel</p>
+                    <div class="mt-3 h-2.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full w-[68%] bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div></div>
+                    <p class="text-[10px] text-blue-300/60 mt-2 font-medium">680 / 1000 XP</p>
                   </div>
-                  <div class="bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-400/30 rounded-2xl p-5 text-center shadow-lg flex flex-col justify-center">
-                    <p class="text-4xl font-black text-amber-300 mb-1">🪙 340</p>
-                    <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Balance</p>
+                  <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-400/30 rounded-2xl p-5 text-center shadow-lg flex flex-col justify-center">
+                    <p class="text-4xl font-black text-blue-300 mb-1">🪙 340</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-blue-300/70">Balance</p>
                   </div>
                 </div>
 
@@ -519,16 +519,16 @@ const faqSchema = {
 
                 <!-- Topic Progress -->
                 <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-5 backdrop-blur-sm mt-2">
-                  <p class="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400 mb-4">Progreso por Temas</p>
+                  <p class="text-[10px] font-black uppercase tracking-[0.15em] text-blue-400 mb-4">Progreso por Temas</p>
                   <div class="space-y-3">
                     {[['Señales','91','emerald'],['Velocidad','72','amber'],['Prioridades','64','amber']].map(([tema, pct, color]) => (
                       <div>
                         <div class="flex justify-between text-xs mb-1.5">
                           <span class="text-slate-300 font-medium">{tema}</span>
-                          <span class={`font-black text-${color}-400`}>{pct}%</span>
+                          <span class={`font-black text-blue-400`}>{pct}%</span>
                         </div>
                         <div class="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                          <div class={`h-full bg-gradient-to-r from-${color}-500 to-${color}-600 rounded-full`} style={`width:${pct}%`}></div>
+                          <div class={`h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full`} style={`width:${pct}%`}></div>
                         </div>
                       </div>
                     ))}
