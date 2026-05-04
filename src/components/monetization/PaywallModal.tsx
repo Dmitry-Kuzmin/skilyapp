@@ -699,7 +699,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
         <div id="paddle-checkout-container" className="w-full h-full" />
       </CheckoutModal>
 
-      {/* Comparison popup — rendered via portal to escape framer-motion transform stacking context */}
+      {/* Comparison popup — portal escapes framer-motion transform stacking context */}
       {typeof document !== 'undefined' && createPortal(
         <AnimatePresence>
           {showComparison && (
@@ -707,71 +707,175 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 flex items-center justify-center p-4"
-              style={{ zIndex: 99999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(16px)' }}
+              className="fixed inset-0 flex items-end sm:items-center justify-center sm:p-4"
+              style={{ zIndex: 99999, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(20px)' }}
               onClick={() => setShowComparison(false)}
             >
               <motion.div
-                initial={{ scale: 0.92, y: 20, opacity: 0 }}
-                animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.92, y: 20, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                initial={{ y: 60, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 60, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 28 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-sm bg-[#0d1020] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+                className="relative w-full sm:max-w-[480px] bg-[#080c18] border border-white/8 rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl shadow-black/60 flex flex-col max-h-[92vh]"
               >
+                {/* Top accent line */}
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-violet-500 to-transparent" />
+
                 {/* Header */}
-                <div className="px-6 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">
+                <div className="flex items-center justify-between px-6 pt-6 pb-5 flex-shrink-0">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400 mb-0.5">
-                      {language === 'ru' ? 'Сравнение планов' : language === 'es' ? 'Comparación' : 'Plan comparison'}
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-400 mb-1">
+                      {isRu ? 'Детальное сравнение' : isEs ? 'Comparación detallada' : 'Detailed comparison'}
                     </p>
-                    <h3 className="text-lg font-black text-white">Free vs Premium</h3>
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-xl font-black text-white">Free</h3>
+                      <div className="flex items-center gap-1 text-slate-600">
+                        <span className="text-xs">vs</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Crown className="w-4 h-4 text-amber-400 fill-amber-400" />
+                        <h3 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-amber-400">Premium</h3>
+                      </div>
+                    </div>
                   </div>
                   <button
                     onClick={() => setShowComparison(false)}
-                    className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                    className="w-9 h-9 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/5"
                   >
                     <XIcon className="w-4 h-4 text-slate-400" />
                   </button>
                 </div>
 
-                {/* Column headers */}
-                <div className="grid grid-cols-[1fr_64px_80px] gap-2 px-6 py-3 bg-white/[0.02]">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">{t.feature}</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">{t.free}</span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 text-center">{t.pro}</span>
+                {/* Column header bar */}
+                <div className="grid grid-cols-[1fr_90px_108px] px-4 py-2 mx-4 mb-2 rounded-2xl bg-white/[0.03] border border-white/5 flex-shrink-0">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 pl-7">
+                    {isRu ? 'Функция' : isEs ? 'Función' : 'Feature'}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">Free</span>
+                  <div className="flex items-center justify-center gap-1">
+                    <Crown className="w-2.5 h-2.5 text-amber-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400">Premium</span>
+                  </div>
                 </div>
 
-                {/* Rows */}
-                <div className="px-4 pb-6 space-y-1">
-                  {FULL_TABLE.map((row, i) => (
-                    <div
-                      key={i}
-                      className="grid grid-cols-[1fr_64px_80px] gap-2 items-center py-2.5 px-2 rounded-xl hover:bg-white/3 transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <row.icon className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
-                        <span className="text-[12px] font-medium text-slate-300">{row.label}</span>
+                {/* Scrollable rows */}
+                <div className="overflow-y-auto flex-1 px-4 pb-4 space-y-4">
+                  {TABLE_SECTIONS.map((section, si) => (
+                    <div key={si}>
+                      {/* Section title */}
+                      <div className="flex items-center gap-2 mb-2 mt-1">
+                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{section.title}</span>
+                        <div className="flex-1 h-px bg-white/5" />
                       </div>
-                      <span className="text-[11px] text-center text-slate-600 font-mono">{row.free}</span>
-                      <span className={cn(
-                        "text-[12px] text-center font-black font-mono px-2 py-1 rounded-full",
-                        row.proColor,
-                        row.proColor.replace('text-', 'bg-').replace('-400', '-500/10')
-                      )}>
-                        {row.pro}
-                      </span>
+
+                      {/* Rows */}
+                      <div className="space-y-0.5">
+                        {section.rows.map((row, ri) => {
+                          const globalIdx = si * 10 + ri;
+
+                          // Render free cell
+                          const FreeCell = () => {
+                            if (row.type === 'bool') return (
+                              <div className="flex justify-center">
+                                <span className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center">
+                                  <XIcon className="w-3 h-3 text-red-500" />
+                                </span>
+                              </div>
+                            );
+                            if (row.type === 'bool-inv') return (
+                              <div className="flex justify-center">
+                                <span className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center">
+                                  <XIcon className="w-3 h-3 text-red-500" />
+                                </span>
+                              </div>
+                            );
+                            return <span className="text-[11px] text-center text-slate-600 font-medium block">{String(row.free)}</span>;
+                          };
+
+                          // Render pro cell
+                          const accentColors: Record<string, string> = {
+                            amber: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+                            violet: 'text-violet-400 bg-violet-500/10 border-violet-500/20',
+                            emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+                            indigo: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+                            rose: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
+                          };
+                          const accentCls = accentColors[row.accent] || accentColors.violet;
+
+                          const ProCell = () => {
+                            if (row.type === 'bool') return (
+                              <div className="flex justify-center">
+                                <span className={cn("w-6 h-6 rounded-full border flex items-center justify-center", accentCls)}>
+                                  <Check className="w-3 h-3" />
+                                </span>
+                              </div>
+                            );
+                            if (row.type === 'bool-inv') return (
+                              <div className="flex justify-center">
+                                <span className={cn("w-6 h-6 rounded-full border flex items-center justify-center", accentCls)}>
+                                  <Check className="w-3 h-3" />
+                                </span>
+                              </div>
+                            );
+                            return (
+                              <span className={cn(
+                                "text-[11px] text-center font-black block px-2 py-1 rounded-xl border leading-tight",
+                                accentCls
+                              )}>
+                                {String(row.pro)}
+                              </span>
+                            );
+                          };
+
+                          return (
+                            <motion.div
+                              key={ri}
+                              initial={{ opacity: 0, x: -8 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.05 + globalIdx * 0.025, duration: 0.3 }}
+                              className={cn(
+                                "grid grid-cols-[1fr_90px_108px] items-center py-2.5 px-2 rounded-xl transition-colors",
+                                row.highlight ? "bg-white/[0.025] hover:bg-white/[0.04]" : "hover:bg-white/[0.025]"
+                              )}
+                            >
+                              {/* Label */}
+                              <div className="flex items-center gap-2">
+                                <div className={cn(
+                                  "w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0",
+                                  `bg-${row.accent}-500/10`
+                                )}>
+                                  <row.icon className={cn("w-3 h-3", `text-${row.accent}-500`)} />
+                                </div>
+                                <span className={cn(
+                                  "text-[12px] font-medium leading-tight",
+                                  row.highlight ? "text-slate-200" : "text-slate-400"
+                                )}>
+                                  {row.label}
+                                </span>
+                              </div>
+                              {/* Free */}
+                              <FreeCell />
+                              {/* Pro */}
+                              <div className="flex justify-center items-center">
+                                <ProCell />
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
                     </div>
                   ))}
                 </div>
 
                 {/* CTA */}
-                <div className="px-6 pb-6">
+                <div className="px-5 pb-6 pt-3 border-t border-white/5 flex-shrink-0">
                   <button
                     onClick={() => setShowComparison(false)}
-                    className="w-full h-11 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-black hover:opacity-90 transition-opacity"
+                    className="w-full h-12 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-black hover:opacity-90 transition-opacity shadow-lg shadow-violet-900/30 flex items-center justify-center gap-2"
                   >
-                    {language === 'ru' ? '← Выбрать план' : language === 'es' ? '← Elegir plan' : '← Choose plan'}
+                    <span>←</span>
+                    <span>{isRu ? 'Выбрать план' : isEs ? 'Elegir plan' : 'Choose plan'}</span>
                   </button>
                 </div>
               </motion.div>
