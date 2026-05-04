@@ -101,6 +101,7 @@ const ReferralRedirect = lazy(() => import("../components/ReferralRedirect").the
 const PartnerRedirect = lazy(() => import("../components/PartnerRedirect").then(m => ({ default: m.PartnerRedirect })));
 const SequentialTests = lazy(() => import("../pages/SequentialTests"));
 const ChallengeBank = lazy(() => import("../pages/ChallengeBank"));
+const ErrorBank = lazy(() => import("../pages/ErrorBank"));
 const Favorites = lazy(() => import("../pages/Favorites"));
 const TestSession = lazy(() => import("../pages/TestSession"));
 const TestResults = lazy(() => import("../pages/TestResults"));
