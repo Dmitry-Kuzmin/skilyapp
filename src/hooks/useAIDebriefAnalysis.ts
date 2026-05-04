@@ -14,6 +14,7 @@ export function useAIDebriefAnalysis() {
 
     // Zustand store actions
     const { saveAnalysis, findAnalysisByQuestions } = useAnalysisHistoryStore();
+    const { sendRequest } = useAIRequest();
 
     /**
      * 🧪 Parse AI Response with aggressive repair
