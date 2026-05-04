@@ -75,12 +75,10 @@ const TopicsMode = () => {
 
   const handleTopicClick = (topic: any) => {
     const name = getTitle(topic);
-    if (!isPremium && country === 'spain') {
-      // Free users: start directly with 30 free questions, no dialog
-      navigate(`/test/practice?topic=${topic.id}&count=${FREE_QUESTIONS_PER_TOPIC}`);
-      return;
-    }
-    setSelectedTopic({ id: topic.id, name, count: topic.questions_count });
+    const count = isPremium || country !== 'spain'
+      ? topic.questions_count
+      : FREE_QUESTIONS_PER_TOPIC;
+    setSelectedTopic({ id: topic.id, name, count });
   };
 
   return (
