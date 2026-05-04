@@ -57,6 +57,22 @@ export const SkilyAIChatWidget = ({
   const { profileId } = useUserContext();
   const { language } = useLanguage();
   const openModal = useModalStore(s => s.openModal);
+  const [timeUntilReset, setTimeUntilReset] = useState('');
+
+  useEffect(() => {
+    const calc = () => {
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0);
+      const diff = midnight.getTime() - now.getTime();
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      setTimeUntilReset(h > 0 ? `${h}ч ${m}м` : `${m}м`);
+    };
+    calc();
+    const id = setInterval(calc, 60000);
+    return () => clearInterval(id);
+  }, []);
   const [input, setInput] = useState("");
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
