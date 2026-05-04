@@ -75,6 +75,7 @@ import { useTestInteraction } from "@/hooks/test-session/useTestInteraction";
 import { useTestCompletion } from "@/hooks/test-session/useTestCompletion";
 import { GameBackground } from "@/components/test-session/GameBackground";
 import { useModalStore } from "@/store/modalStore";
+import { useDailyTestLimit, isFullTestMode } from "@/hooks/useDailyTestLimit";
 
 type QuestionData = {
   id: string;
