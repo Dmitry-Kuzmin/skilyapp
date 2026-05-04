@@ -64,7 +64,7 @@ export function ContextSwitcher({ className, embedded = false }: ContextSwitcher
     if (isDarkTheme) {
       return cn(
         embedded
-          ? 'h-9 px-2 py-1.5 rounded-xl bg-transparent border border-transparent hover:bg-white/[0.03]'
+          ? 'h-8 px-2 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20'
           : 'h-10 px-3 sm:px-4 py-2 rounded-lg bg-zinc-900 border border-white/5 hover:border-white/10 hover:bg-zinc-800/50',
         'flex items-center gap-2 text-xs font-medium',
         'transition-all duration-200',
@@ -75,7 +75,7 @@ export function ContextSwitcher({ className, embedded = false }: ContextSwitcher
     } else {
       return cn(
         embedded
-          ? 'h-9 px-2 py-1.5 rounded-xl bg-transparent border border-transparent hover:bg-black/[0.04]'
+          ? 'h-8 px-2 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm hover:bg-slate-50 hover:border-slate-300'
           : 'h-10 px-3 sm:px-4 py-2 rounded-lg bg-white border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50',
         'flex items-center gap-2 text-xs font-medium',
         'transition-all duration-200',
@@ -112,12 +112,12 @@ export function ContextSwitcher({ className, embedded = false }: ContextSwitcher
         <span className="whitespace-nowrap text-xs font-bold uppercase tracking-tight">
           {countryCode}
         </span>
-        <span className={isDarkTheme ? 'text-white/10' : 'text-zinc-300'}>•</span>
+        <span className={isDarkTheme ? 'text-white/20' : 'text-zinc-400'}>•</span>
         <span
           className={cn(
             'inline-flex h-5 min-w-[1.7rem] items-center justify-center rounded-lg px-1.5 text-[10px] font-bold leading-none',
             isDarkTheme
-              ? 'bg-white/[0.05] text-zinc-200'
+              ? 'bg-white/[0.1] text-zinc-200'
               : 'bg-zinc-100 text-zinc-700'
           )}
           aria-hidden="true"

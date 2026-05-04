@@ -29,6 +29,7 @@ import { getSupabaseClient } from '@/integrations/supabase/lazyClient';
 import { haptics } from '@/lib/haptics';
 import { sounds } from '@/lib/sounds';
 import { useQueryClient } from '@tanstack/react-query';
+import { useModal } from '@/hooks/useModal';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 

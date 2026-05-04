@@ -62,7 +62,7 @@ export const WalletWidget = memo(function WalletWidget({ className }: WalletWidg
       extra,
       hasClaimableReward
         ? "bg-gradient-to-r from-amber-50/95 to-orange-50/85 text-foreground shadow-[0_8px_25px_rgba(251,191,36,0.35)] border-amber-200/80 dark:from-[#40320a] dark:via-[#2a1f08] dark:to-[#1f1606] dark:text-white dark:border-amber-400/40"
-        : "bg-muted/30 hover:bg-muted/50 border-transparent dark:bg-slate-800/60 dark:hover:bg-slate-700/60"
+        : "bg-white hover:bg-slate-50 border-slate-200 shadow-sm dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:shadow-none"
     ), [hasClaimableReward]);
 
   // ОПТИМИЗАЦИЯ: Мемоизируем обработчики для предотвращения лишних ре-рендеров
@@ -114,7 +114,7 @@ export const WalletWidget = memo(function WalletWidget({ className }: WalletWidg
           <Skeleton className="h-8 w-20 rounded-full" />
         ) : (
           <div
-            className="group relative h-8 flex items-center gap-1.5 px-3 rounded-full bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-300 hover:bg-white/10 hover:border-white/20 cursor-pointer overflow-visible coin-capsule"
+            className="group relative h-8 flex items-center gap-1.5 px-3 rounded-full bg-white dark:bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-none transition-all duration-300 hover:bg-slate-50 hover:border-slate-300 dark:hover:bg-white/10 dark:hover:border-white/20 cursor-pointer overflow-visible coin-capsule"
             onClick={handleCoinsClick}
             onTouchStart={(e) => {
               e.stopPropagation();
@@ -134,7 +134,7 @@ export const WalletWidget = memo(function WalletWidget({ className }: WalletWidg
             <span className="text-xs md:text-sm font-bold text-foreground coin-balance transition-all duration-300">{balance}</span>
 
             {/* Vertical Separator */}
-            <div className="w-px h-4 bg-white/10" />
+            <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
 
             {/* Plus Button - Integrated */}
             <div className="flex items-center justify-center w-5 h-5 rounded-full bg-yellow-500/10 border border-yellow-500/30 transition-all duration-200 hover:bg-yellow-500/20 hover:border-yellow-500/50 hover:scale-110 plus-zone">

@@ -388,7 +388,8 @@ function PaymentItem({
       onClick={onClick}
       disabled={loading}
       className={cn(
-        "flex items-center gap-4 w-full p-4 rounded-[20px] border border-white/5 bg-white/5 transition-all text-left group",
+        "flex items-center gap-4 w-full p-4 rounded-[20px] border transition-all text-left group",
+        "bg-slate-50 hover:bg-slate-100 border-slate-200 shadow-sm dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/5 dark:shadow-none",
         loading && "opacity-60",
         className
       )}
@@ -398,7 +399,7 @@ function PaymentItem({
         color === "gold" ? "bg-gradient-to-br from-amber-400 to-orange-500 text-black" :
         color === "blue" ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white" :
         color === "orange" ? "bg-gradient-to-br from-orange-500 to-red-600 text-white" :
-        "bg-white/10 text-white"
+        "bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-white"
       )}>
         {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Icon className="w-6 h-6" />}
       </div>

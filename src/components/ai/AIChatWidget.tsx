@@ -661,13 +661,13 @@ export function AIChatWidget() {
             >
                 <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-2xl mx-auto w-full">
                     <div className="flex-1 relative">
-                        <Input
+                        <input
                             ref={inputRef}
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder={interfaceLanguage === 'ru' ? 'Напиши свой вопрос...' : 'Escribe tu pregunta...'}
                             disabled={isLoading}
-                            className="w-full min-h-[48px] py-3 rounded-[24px] px-5 border-border/50 focus:ring-blue-500/20 bg-muted/50 focus:bg-background transition-all resize-none shadow-sm text-base"
+                            className="w-full min-h-[48px] py-3 rounded-[24px] px-5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50 transition-all shadow-sm text-base"
                             style={{ fontSize: '16px' }} // предотвращает zoom на iOS
                         />
                     </div>
@@ -683,8 +683,8 @@ export function AIChatWidget() {
                             isRecording
                                 ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/30 ring-4 ring-red-500/20"
                                 : isProcessingVoice
-                                    ? "bg-blue-500/10 text-blue-600 cursor-wait"
-                                    : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
+                                    ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 cursor-wait"
+                                    : "bg-slate-100 hover:bg-slate-200 text-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300"
                         )}
                         title="Голосовой ввод"
                     >
@@ -707,8 +707,8 @@ export function AIChatWidget() {
                         className={cn(
                             "h-12 w-12 shrink-0 rounded-full shadow-lg transition-all active:scale-90",
                             !input.trim()
-                                ? "bg-muted text-muted-foreground shadow-none opacity-50"
-                                : "bg-slate-900 dark:bg-white text-white dark:text-black hover:opacity-90 shadow-slate-500/20"
+                                ? "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 shadow-none"
+                                : "bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/30"
                         )}
                     >
                         {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}

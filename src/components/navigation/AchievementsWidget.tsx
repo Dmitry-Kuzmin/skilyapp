@@ -36,8 +36,8 @@ export const AchievementsWidget = memo(function AchievementsWidget({ className, 
 
   const baseClasses = useMemo(() =>
     variant === "mobile"
-      ? "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/30 hover:bg-muted/40 transition-colors flex-shrink-0"
-      : "hidden sm:inline-flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer flex-shrink-0", [variant]);
+      ? "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-muted/30 dark:border-transparent dark:shadow-none hover:bg-slate-50 dark:hover:bg-muted/40 transition-colors flex-shrink-0"
+      : "hidden sm:inline-flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2 py-1 rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-muted/30 dark:border-transparent dark:shadow-none hover:bg-slate-50 dark:hover:bg-muted/50 transition-colors cursor-pointer flex-shrink-0", [variant]);
 
   const trigger = useMemo(() => (
     <div className={cn(baseClasses, className)}>

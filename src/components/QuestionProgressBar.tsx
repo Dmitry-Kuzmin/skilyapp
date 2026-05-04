@@ -222,7 +222,7 @@ export function QuestionProgressBar({
                     ],
 
                     // ── ПУСТОЙ
-                    !answered && !isCurrent && "bg-white/[0.07] dark:bg-white/[0.06]",
+                    !answered && !isCurrent && "bg-black/[0.08] dark:bg-white/[0.06]",
                   )}
                   style={
                     isCurrent && !answered
