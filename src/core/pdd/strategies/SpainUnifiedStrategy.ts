@@ -143,6 +143,7 @@ export class SpainUnifiedStrategy implements PDDDataStrategy {
     }
 
     private cachedIds: string[] | null = null;
+    private cachedIdsTier: 'all' | 'free' | null = null;
     private idsFetchPromise: Promise<string[]> | null = null;
 
     async getRandomQuestions(
