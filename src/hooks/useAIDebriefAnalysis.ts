@@ -147,7 +147,7 @@ export function useAIDebriefAnalysis() {
             setIsLoading(false);
             return null;
         }
-    }, [findAnalysisByQuestions, parseAIResponse, saveAnalysis]);
+    }, [findAnalysisByQuestions, parseAIResponse, saveAnalysis, sendRequest]);
 
     /**
      * 🔍 Get cached analysis by question IDs
