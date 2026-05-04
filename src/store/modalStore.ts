@@ -53,6 +53,7 @@ const MODAL_URL_MAP: Record<string, string> = {
   CELEBRATION: 'celebration',
   TON_PAY: 'ton-pay',
   PREMIUM: 'premium',
+  TEST_LIMIT_REACHED: 'test-limit-reached',
 };
 
 /**
