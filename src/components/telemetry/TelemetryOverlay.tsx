@@ -418,6 +418,7 @@ export function TelemetryContent({ onClose }: { onClose: () => void }) {
                     )}
                 </div>
             </div>
+            </PremiumGatedSection>
         </div>
     );
 }
