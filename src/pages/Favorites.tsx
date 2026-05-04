@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
     Bookmark, Play, Trash2, ArrowLeft,
     Search, Battery, BatteryLow,
-    RotateCcw, BrainCircuit, Hash, AlertTriangle,
-    CheckCircle2, Zap, Flame, TrendingUp
+    RotateCcw, Archive, Hash, AlertTriangle,
+    CheckCircle2, Flame, TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
