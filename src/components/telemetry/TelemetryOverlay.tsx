@@ -32,6 +32,7 @@ import {
     DrawerTitle,
 } from "@/components/ui/drawer";
 import { useNavigate } from 'react-router-dom';
+import { PremiumGatedSection } from '@/components/monetization/PremiumGatedSection';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
