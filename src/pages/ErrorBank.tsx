@@ -370,17 +370,57 @@ export default function ErrorBank() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {sorted.map((q, i) => (
-            <motion.div
-              key={q.question_id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: Math.min(i, 8) * 0.04, duration: 0.2 }}
-            >
-              <ErrorCard q={q} language={language} />
-            </motion.div>
+          {sorted.slice(0, visibleCount).map((q, i) => {
+            // Cards in the last batch get a stagger entrance
+            const batchIndex = i % PAGE_SIZE;
+            const isNewBatch = i >= visibleCount - PAGE_SIZE;
+            return (
+              <motion.div
+                key={q.question_id}
+                initial={isNewBatch ? { opacity: 0, y: 20, scale: 0.97 } : false}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                  delay: isNewBatch ? batchIndex * 0.03 : 0,
+                  duration: 0.25,
+                  ease: [0.22, 1, 0.36, 1]
+                }}
+              >
+                <ErrorCard q={q} language={language} />
+              </motion.div>
+            );
+          })}
+
+          {/* Shimmer placeholders while next batch loads */}
+          {visibleCount < sorted.length && Array.from({ length: Math.min(4, sorted.length - visibleCount) }).map((_, i) => (
+            <div key={`shimmer-${i}`} className="rounded-[1.5rem] border border-border/40 overflow-hidden">
+              <div className="h-36 bg-muted animate-pulse" />
+              <div className="p-4 space-y-3">
+                <div className="h-3 w-16 bg-muted animate-pulse rounded-full" />
+                <div className="h-4 w-full bg-muted animate-pulse rounded-full" />
+                <div className="h-4 w-3/4 bg-muted animate-pulse rounded-full" />
+                <div className="h-3 w-1/2 bg-muted animate-pulse rounded-full mt-2" />
+              </div>
+            </div>
           ))}
         </div>
+
+        {/* Invisible sentinel — triggers next page load */}
+        {visibleCount < sorted.length && (
+          <div ref={loaderRef} className="h-1" />
+        )}
+
+        {/* All loaded indicator */}
+        {!loading && sorted.length > PAGE_SIZE && visibleCount >= sorted.length && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center justify-center gap-2 py-4 text-xs text-muted-foreground/50"
+          >
+            <div className="h-px flex-1 bg-border/30" />
+            <span>{l(`Все ${sorted.length} вопросов загружены`, `${sorted.length} preguntas cargadas`, `All ${sorted.length} loaded`)}</span>
+            <div className="h-px flex-1 bg-border/30" />
+          </motion.div>
+        )}
       </div>
 
       {/* Sticky CTA */}
