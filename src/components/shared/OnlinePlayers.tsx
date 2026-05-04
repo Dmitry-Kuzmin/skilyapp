@@ -108,20 +108,20 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
             </div>
 
             {/* Счетчик в том же ряду */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-500/20 dark:border-indigo-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(99,102,241,0.2)] h-9 relative group">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/20 dark:border-blue-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.2)] h-9 relative group">
                 {/* Анимированный индикатор "Live" */}
                 <div className="flex items-center gap-1.5">
                     <div className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                     </div>
                     <div className="flex items-baseline gap-1">
                         <NumberTicker
                             value={count}
                             useSeparator={false}
-                            className="text-[14px] font-black text-indigo-100 dark:text-white"
+                            className="text-[14px] font-black text-blue-100 dark:text-white"
                         />
-                        <span className="text-[9px] font-black text-indigo-400/80 dark:text-indigo-300/60 tracking-[0.1em] uppercase ml-1">
+                        <span className="text-[9px] font-black text-blue-400/80 dark:text-blue-300/60 tracking-[0.1em] uppercase ml-1">
                             В СЕТИ
                         </span>
                     </div>

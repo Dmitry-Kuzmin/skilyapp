@@ -361,48 +361,59 @@ const Favorites = () => {
                     </div>
                 ) : filteredQuestions.length > 0 ? (
                     <AnimatePresence mode="popLayout">
-                        <div className="relative">
+                        <div className="space-y-5">
+                            {/* Free cards */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                                {filteredQuestions.map((q, i) => {
-                                    const isLocked = !isPremium && i >= FREE_CARD_LIMIT;
-                                    return (
-                                        <motion.div
-                                            key={q.id}
-                                            layout
-                                            initial={{ opacity: 0, y: 16 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, scale: 0.95 }}
-                                            transition={{ delay: Math.min(i, FREE_CARD_LIMIT) * 0.04, duration: 0.25 }}
-                                            className={cn(isLocked && "blur-sm pointer-events-none select-none")}
-                                        >
-                                            <Flashcard
-                                                question={q}
-                                                country={selectedCountry || 'spain'}
-                                                onRemove={handleRemoveFavorite}
-                                                labels={labels}
-                                            />
-                                        </motion.div>
-                                    );
-                                })}
+                                {(isPremium ? filteredQuestions : filteredQuestions.slice(0, FREE_CARD_LIMIT)).map((q, i) => (
+                                    <motion.div
+                                        key={q.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 16 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ delay: i * 0.04, duration: 0.25 }}
+                                    >
+                                        <Flashcard
+                                            question={q}
+                                            country={selectedCountry || 'spain'}
+                                            onRemove={handleRemoveFavorite}
+                                            labels={labels}
+                                        />
+                                    </motion.div>
+                                ))}
                             </div>
 
-                            {/* Paywall: gradient + CTA over the blurred zone */}
+                            {/* Locked zone — blurred cards with inline CTA */}
                             {!isPremium && filteredQuestions.length > FREE_CARD_LIMIT && (
-                                <div className="absolute bottom-0 left-0 right-0 h-80 pointer-events-none flex flex-col items-center justify-end pb-8">
-                                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
-                                    <button
-                                        onClick={() => openModal('PAYWALL')}
-                                        className="relative pointer-events-auto flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-foreground text-background shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-150 font-semibold text-sm"
-                                    >
-                                        <Lock className="w-3.5 h-3.5 opacity-60 shrink-0" />
-                                        <span>
-                                            {language === "ru"
-                                                ? `Ещё ${filteredQuestions.length - FREE_CARD_LIMIT} карточек — разблокировать`
-                                                : language === "es"
-                                                ? `${filteredQuestions.length - FREE_CARD_LIMIT} tarjetas más — desbloquear`
-                                                : `${filteredQuestions.length - FREE_CARD_LIMIT} more cards — unlock`}
-                                        </span>
-                                    </button>
+                                <div className="relative overflow-hidden rounded-3xl">
+                                    {/* Blurred cards grid */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 blur-sm pointer-events-none select-none">
+                                        {filteredQuestions.slice(FREE_CARD_LIMIT).map((q, i) => (
+                                            <Flashcard
+                                                key={q.id}
+                                                question={q}
+                                                country={selectedCountry || 'spain'}
+                                                onRemove={() => {}}
+                                                labels={labels}
+                                            />
+                                        ))}
+                                    </div>
+                                    {/* Gradient + CTA centred over the blurred block */}
+                                    <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background flex items-center justify-center">
+                                        <button
+                                            onClick={() => openModal('PAYWALL')}
+                                            className="flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-foreground text-background shadow-lg hover:opacity-90 active:scale-[0.98] transition-all duration-150 font-semibold text-sm"
+                                        >
+                                            <Lock className="w-3.5 h-3.5 opacity-60 shrink-0" />
+                                            <span>
+                                                {language === "ru"
+                                                    ? `Ещё ${filteredQuestions.length - FREE_CARD_LIMIT} карточек — разблокировать`
+                                                    : language === "es"
+                                                    ? `${filteredQuestions.length - FREE_CARD_LIMIT} tarjetas más — desbloquear`
+                                                    : `${filteredQuestions.length - FREE_CARD_LIMIT} more cards — unlock`}
+                                            </span>
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>

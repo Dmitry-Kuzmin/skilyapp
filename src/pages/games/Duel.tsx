@@ -159,7 +159,7 @@ export default function Duel() {
     const { data: onlineData } = useOnlinePlayers();
     const { profileData } = useProfileData(profileId);
 
-    const onlinePlayers = onlineData?.players || [];
+    const onlinePlayers = (onlineData?.players || []).filter(p => p.photoUrl);
     const onlineCount = onlineData?.count || 1240;
     const currentUserPhoto = profileData?.photo_url || user?.photo_url || supabaseUser?.user_metadata?.avatar_url || null;
 

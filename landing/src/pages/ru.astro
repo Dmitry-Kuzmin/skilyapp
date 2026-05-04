@@ -507,6 +507,13 @@ const faqSchema = {
                   <div class="bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-400/30 rounded-2xl p-5 text-center shadow-lg flex flex-col justify-center">
                     <p class="text-4xl font-black text-amber-300 mb-1">🪙 340</p>
                     <p class="text-[10px] font-black uppercase tracking-wider text-amber-300/70">Баланс</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-blue-300/70">Уровень</p>
+                    <div class="mt-3 h-2.5 rounded-full bg-black/40 overflow-hidden"><div class="h-full w-[68%] bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div></div>
+                    <p class="text-[10px] text-blue-300/60 mt-2 font-medium">680 / 1000 XP</p>
+                  </div>
+                  <div class="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-400/30 rounded-2xl p-5 text-center shadow-lg flex flex-col justify-center">
+                    <p class="text-4xl font-black text-blue-300 mb-1">🪙 340</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider text-blue-300/70">Баланс</p>
                   </div>
                 </div>
 
@@ -519,9 +526,9 @@ const faqSchema = {
 
                 <!-- Topic Progress -->
                 <div class="bg-slate-900/80 border border-slate-700/50 rounded-xl p-5 backdrop-blur-sm mt-2">
-                  <p class="text-[10px] font-black uppercase tracking-[0.15em] text-emerald-400 mb-4">Прогресс по темам</p>
+                  <p class="text-[10px] font-black uppercase tracking-[0.15em] text-blue-400 mb-4">Прогресс по темам</p>
                   <div class="space-y-3">
-                    {[['Дорожные знаки','91','emerald'],['Скорость','72','amber'],['Приоритеты','64','amber']].map(([tema, pct, color]) => (
+                    {[['Дорожные знаки','91','blue'],['Скорость','72','blue'],['Приоритеты','64','blue']].map(([tema, pct, color]) => (
                       <div>
                         <div class="flex justify-between text-xs mb-1.5">
                           <span class="text-slate-300 font-medium">{tema}</span>
@@ -538,20 +545,20 @@ const faqSchema = {
             </div>
           </div>
           <div class="order-2 lg:order-2">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-[10px] font-bold tracking-[0.2em] uppercase mb-6">
               🎮 Тотальная геймификация
             </div>
-            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Прокачай уровень до <br/><span class="text-amber-400">официального «Apto»</span></h3>
+            <h3 class="text-3xl sm:text-4xl font-black text-white mb-6 leading-tight">Прокачай уровень до <br/><span class="text-blue-400">официального «Apto»</span></h3>
             <p class="text-slate-400 text-lg mb-8 leading-relaxed">
               Преврати учебу в игру. Зарабатывай опыт, повышай уровень и собирай монеты. Skily визуализирует твой прогресс по каждой теме, чтобы ты точно знал, когда готов к экзаменам.
             </p>
             <div class="flex flex-col gap-4">
               <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/20 text-xl">🪙</div>
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">🪙</div>
                 <div><h4 class="text-white font-bold mb-1">Экономика игры</h4><p class="text-sm text-slate-400">Используй свои монеты для покупки бустеров и кастомизации профиля.</p></div>
               </div>
               <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0 border border-indigo-500/20 text-xl">🌌</div>
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 text-xl">🌌</div>
                 <div><h4 class="text-white font-bold mb-1">Испания будущего</h4><p class="text-sm text-slate-400">Забудь о серых фото DGT. Решай тесты, погружаясь в невероятные пейзажи в стиле Solarpunk. Учиться теперь — визуальное удовольствие.</p></div>
               </div>
             </div>
