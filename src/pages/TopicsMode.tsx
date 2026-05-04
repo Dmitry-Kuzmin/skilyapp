@@ -65,7 +65,7 @@ const TopicsMode = () => {
     [topics]
   );
 
-  const totalQuestions = topics.reduce((acc, t) => acc + t.count, 0);
+  const totalQuestions = topics.reduce((acc, t) => acc + (t.questions_count || 0), 0);
 
   const getTitle = (topic: any) => {
     if (language === 'es') return topic.title_es || topic.title_ru;
