@@ -417,43 +417,69 @@ export const LevelUpCelebrationModal: React.FC = () => {
                 transition={{ delay: 0.9 }}
                 className="px-6 sm:px-8 pb-8 sm:pb-6 pt-2 space-y-3"
               >
-                <button
-                  onClick={handleClaim}
-                  disabled={claiming || !primaryReward}
-                  className={cn(
-                    "w-full h-14 rounded-2xl font-black text-base uppercase tracking-wider relative overflow-hidden group transition-all active:scale-[0.98]",
-                    claimed
-                      ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_8px_30px_rgba(16,185,129,0.4)]"
-                      : !primaryReward
-                        ? "bg-white/10 text-white/40 cursor-not-allowed"
-                        : "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-amber-950 shadow-[0_8px_30px_rgba(251,191,36,0.5)]"
-                  )}
-                >
-                  {!claimed && !claiming && primaryReward && (
-                    <motion.div
-                      animate={{ x: ['-100%', '200%'] }}
-                      transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                      className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none"
-                    />
-                  )}
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    {claiming ? (
-                      <><Loader2 className="w-5 h-5 animate-spin" /> Получаем...</>
-                    ) : claimed ? (
-                      <><CheckCircle2 className="w-5 h-5" /> Получено!</>
-                    ) : (
-                      <><Gift className="w-5 h-5" /> Забрать награду</>
-                    )}
-                  </span>
-                </button>
+                {isMissedOpportunity ? (
+                  <>
+                    <button
+                      onClick={() => { openBoostShop({ initialTab: 'premium' }); dismiss(); }}
+                      className="w-full h-14 rounded-2xl font-black text-base uppercase tracking-wider relative overflow-hidden group transition-all active:scale-[0.98] bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-amber-950 shadow-[0_8px_30px_rgba(251,191,36,0.5)]"
+                    >
+                      <motion.div
+                        animate={{ x: ['-100%', '200%'] }}
+                        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                        className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none"
+                      />
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        <Crown className="w-5 h-5" /> Получить Elite Pass
+                      </span>
+                    </button>
+                    <button
+                      onClick={handleSkip}
+                      className="w-full h-10 text-sm text-white/40 hover:text-white/70 font-semibold transition-colors"
+                    >
+                      Закрыть
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleClaim}
+                      disabled={claiming || !primaryReward}
+                      className={cn(
+                        "w-full h-14 rounded-2xl font-black text-base uppercase tracking-wider relative overflow-hidden group transition-all active:scale-[0.98]",
+                        claimed
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_8px_30px_rgba(16,185,129,0.4)]"
+                          : !primaryReward
+                            ? "bg-white/10 text-white/40 cursor-not-allowed"
+                            : "bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-amber-950 shadow-[0_8px_30px_rgba(251,191,36,0.5)]"
+                      )}
+                    >
+                      {!claimed && !claiming && primaryReward && (
+                        <motion.div
+                          animate={{ x: ['-100%', '200%'] }}
+                          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                          className="absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none"
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center justify-center gap-2">
+                        {claiming ? (
+                          <><Loader2 className="w-5 h-5 animate-spin" /> Получаем...</>
+                        ) : claimed ? (
+                          <><CheckCircle2 className="w-5 h-5" /> Получено!</>
+                        ) : (
+                          <><Gift className="w-5 h-5" /> Забрать награду</>
+                        )}
+                      </span>
+                    </button>
 
-                {!claimed && (
-                  <button
-                    onClick={handleSkip}
-                    className="w-full h-10 text-sm text-white/40 hover:text-white/70 font-semibold transition-colors"
-                  >
-                    Позже
-                  </button>
+                    {!claimed && (
+                      <button
+                        onClick={handleSkip}
+                        className="w-full h-10 text-sm text-white/40 hover:text-white/70 font-semibold transition-colors"
+                      >
+                        Позже
+                      </button>
+                    )}
+                  </>
                 )}
               </motion.div>
             </div>
