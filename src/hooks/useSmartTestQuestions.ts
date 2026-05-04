@@ -13,7 +13,7 @@ export function useSmartTestQuestions({
   profileId,
   count = 20,
   category = 'B',
-  country = 'spain',
+  country = 'es',
   enabled = true,
 }: UseSmartTestQuestionsParams) {
   return useQuery({
