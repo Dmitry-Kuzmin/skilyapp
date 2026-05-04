@@ -76,7 +76,13 @@ export const SkilyChat = React.memo(() => {
   const isDarkTheme = (resolvedTheme ?? 'dark') !== 'light';
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
-  const { messages, isLoading, sendMessage, clearMessages } = useSkilyAIChat(selectedCountry);
+  const { messages, isLoading, error, limitReached, clearLimit, sendMessage, clearMessages } = useSkilyAIChat(selectedCountry);
+  const [limitModalOpen, setLimitModalOpen] = useState(false);
+
+  // Show limit modal when limit is reached
+  useEffect(() => {
+    if (limitReached) setLimitModalOpen(true);
+  }, [limitReached]);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
