@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserContext } from "@/contexts/UserContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Check, Flame, Trophy, Target, Zap, Gift, Clock, Sparkles, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check, Flame, Trophy, Target, Zap, Clock, Sparkles, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 const QUEST_TRANSLATIONS: Record<string, Record<string, string>> = {
   warmup:          { ru: "Ответь на 10 вопросов",            es: "Responde 10 preguntas",            en: "Answer 10 questions" },
@@ -99,6 +99,7 @@ const CircularProgress = ({ progress, size = 32, strokeWidth = 2.5, completed = 
 export function DailyQuestWidget() {
   const { profileId } = useUserContext();
   const { language } = useLanguage();
+  const queryClient = useQueryClient();
   const [quests, setQuests] = useState<DailyQuest[]>([]);
   const [loading, setLoading] = useState(true);
   const [claimingId, setClaimingId] = useState<string | null>(null);
@@ -170,9 +171,23 @@ export function DailyQuestWidget() {
           : language === 'en' ? `Reward collected! +${quest.reward_sp} SP`
           : `Награда получена! +${quest.reward_sp} SP`;
         toast.success(rewardMsg, { icon: <Sparkles className="w-4 h-4 text-amber-400" /> });
+
+        // Локальное обновление для мгновенной реакции UI
         setQuests(prev => prev.map(q =>
           q.id === quest.id ? { ...q, is_claimed: true } : q
         ));
+
+        // Оптимистичное обновление кэша dashboard — SP сразу появится в хедере и виджете
+        queryClient.setQueryData(['dashboard-data', profileId], (old: any) => {
+          if (!old?.season_progress) return old;
+          return {
+            ...old,
+            season_progress: {
+              ...old.season_progress,
+              season_points: (old.season_progress.season_points ?? 0) + quest.reward_sp,
+            },
+          };
+        });
 
         // Award season points to user_season_progress (with premium multiplier), then check level-up
         try {
@@ -180,6 +195,10 @@ export function DailyQuestWidget() {
             body: { user_id: profileId, source_type: 'challenge_reward', metadata: { sp_earned: quest.reward_sp } }
           });
           const newLevel = spResult.data?.level;
+
+          // После получения реального ответа от сервера — обновляем кэш точными данными
+          queryClient.invalidateQueries({ queryKey: ['dashboard-data', profileId] });
+
           if (newLevel && newLevel > levelBefore) {
             const { maybeTriggerLevelUp } = await import('@/store/levelUpStore');
             setTimeout(() => {
@@ -188,6 +207,8 @@ export function DailyQuestWidget() {
           }
         } catch (lvlErr) {
           console.warn('[DailyQuestWidget] season-sp/level-up error', lvlErr);
+          // Даже при ошибке season-sp — инвалидируем кэш для корректного состояния
+          queryClient.invalidateQueries({ queryKey: ['dashboard-data', profileId] });
         }
       } else {
         toast.error(data?.error || (language === 'es' ? "Error al obtener recompensa" : language === 'en' ? "Failed to claim reward" : "Ошибка получения награды"));
