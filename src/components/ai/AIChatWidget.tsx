@@ -480,8 +480,9 @@ export function AIChatWidget() {
             toast.error('Ошибка при получении ответа');
         } finally {
             setLoading(false);
+            if (!isPremium) refetchUsage();
         }
-    }, [messages, questionContext, interfaceLanguage, isLoading, isTelegram]);
+    }, [messages, questionContext, interfaceLanguage, isLoading, isTelegram, isPremium, refetchUsage]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
