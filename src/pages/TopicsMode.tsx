@@ -87,7 +87,7 @@ const TopicsMode = () => {
         <div className="max-w-[1370px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 space-y-6">
 
           {/* Header — same grid as cards so edges align perfectly */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">
             {/* Title block spans 2 cols on lg */}
             <div className="lg:col-span-2 space-y-1.5">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
