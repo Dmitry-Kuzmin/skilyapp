@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     const { data: allQuestions, error: qErr } = await supabase
       .from('questions_new')
       .select('id, topic_id, difficulty, percent_correct')
-      .eq('country', country)
+      .eq('country', countryCode)
       .not('topic_id', 'is', null);
 
     if (qErr) throw qErr;
