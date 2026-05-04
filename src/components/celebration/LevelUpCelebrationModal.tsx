@@ -79,6 +79,7 @@ export const LevelUpCelebrationModal: React.FC = () => {
   const { profileId } = useUserContext();
   const { isPremium } = usePremium();
   const queryClient = useQueryClient();
+  const { openModal: openBoostShop } = useModal('BOOST_SHOP');
 
   const [rewards, setRewards] = useState<LevelRewards | null>(null);
   const [loading, setLoading] = useState(false);
