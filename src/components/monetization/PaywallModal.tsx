@@ -18,6 +18,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import type { Paddle } from "@paddle/paddle-js";
 
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
+import { TrialCTA } from "@/components/monetization/TrialCTA";
 
 interface PaywallModalProps {
   open: boolean;
