@@ -382,7 +382,7 @@ Deno.serve(async (req) => {
             if (isPremium) {
               console.log('[AI Chat] ✅ Premium user, skipping limit check');
               // fire-and-forget for stats
-              serviceClient.rpc('increment_ai_usage', { p_user_id: user.id }).catch(() => {});
+              serviceClient.rpc('increment_ai_usage', { p_user_id: user.id }).then(() => {}, () => {});
             } else {
               const { data: usageData, error: usageError } = await serviceClient
                 .rpc('increment_ai_usage', { p_user_id: user.id });
