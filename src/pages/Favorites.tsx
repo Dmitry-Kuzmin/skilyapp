@@ -17,6 +17,10 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getImageUrl } from "@/utils/imageUtils";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePremium } from "@/hooks/usePremium";
+import { useModalStore } from "@/store/modalStore";
+
+const FREE_CARD_LIMIT = 4;
 
 // --- TYPES ---
 type FavoriteQuestion = {
