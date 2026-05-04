@@ -723,7 +723,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
                               ) : (
                                 <span className="relative z-10 flex items-center justify-center gap-2">
                                   {t.select}
-                                  <motion.div animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }}>
+                                  <motion.div animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: 999, ease: "easeInOut", repeatDelay: 3 }}>
                                     {isPopular ? <Sparkles className="w-4 h-4" /> : <span className="text-lg leading-none">→</span>}
                                   </motion.div>
                                 </span>
