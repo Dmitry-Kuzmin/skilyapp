@@ -691,7 +691,7 @@ export function AIChatWidget() {
                         >
                             <motion.span
                                 animate={{ rotate: [0, 15, -10, 0] }}
-                                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                                transition={{ duration: 2, repeat: 999, repeatDelay: 3 }}
                             >✨</motion.span>
                             <span>Безлимит · Premium</span>
                         </motion.div>
