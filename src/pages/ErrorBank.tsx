@@ -33,34 +33,6 @@ const COUNT_OPTIONS_FREE = [10] as const;
 const COUNT_OPTIONS_PREMIUM = [10, 20, 50] as const;
 const PAGE_SIZE = 24; // 6 rows × 4 cols
 
-const heatLevel = (n: number) => (n >= 5 ? 3 : n >= 3 ? 2 : 1);
-
-const HeatBadge = ({ times }: { times: number }) => {
-  const level = heatLevel(times);
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: level }).map((_, i) => (
-        <Flame key={i} className="w-3 h-3 text-orange-500 fill-orange-400" />
-      ))}
-      {level < 3 && Array.from({ length: 3 - level }).map((_, i) => (
-        <Flame key={i} className="w-3 h-3 text-muted-foreground/20" />
-      ))}
-      <span className="text-[10px] font-bold text-orange-500 ml-1 tabular-nums">×{times}</span>
-    </div>
-  );
-};
-
-const StreakDots = ({ streak }: { streak: number }) => (
-  <div className="flex items-center gap-1">
-    {Array.from({ length: STREAK_TO_MASTER }).map((_, i) => (
-      <div key={i} className={cn(
-        "w-2 h-2 rounded-full transition-colors",
-        i < streak ? "bg-emerald-500" : "bg-muted-foreground/20"
-      )} />
-    ))}
-    <span className="text-[10px] text-muted-foreground ml-1">{streak}/{STREAK_TO_MASTER}</span>
-  </div>
-);
 
 const ErrorCard = ({ q, language }: { q: ErrorQuestion; language: string }) => {
   const text = language === "ru" ? q.question_ru : q.question_es;
