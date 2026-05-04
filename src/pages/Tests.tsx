@@ -646,20 +646,173 @@ const Tests = () => {
               </div>
             </div>
 
-            {/* КОМАНДНЫЙ ЦЕНТР (Умный Инструктор или Конфигуратор теста) */}
+            {/* КОМАНДНЫЙ ЦЕНТР */}
+            {selectedCountry !== 'russia' ? (
+              /* Spain: Two banners side by side — Random + Smart */
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* Banner 1: Random Test */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl group cursor-pointer border border-white/10 premium-mesh-primary"
+                  onClick={handleBannerClick}
+                >
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }} />
+                  <div className="relative z-10 p-8 md:p-10 space-y-6">
+                    <div className="space-y-4">
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+                        <Crown className="w-4 h-4 text-yellow-300 fill-yellow-300" />
+                        <span className="text-sm font-bold text-white">{localeText('Рекомендуется', 'Recomendado', 'Recommended')}</span>
+                      </div>
+                      <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tighter leading-[0.9] drop-shadow-2xl">
+                        {t('testsPage.randomTest').toUpperCase()}
+                      </h2>
+                      <p className="text-base text-white/90 font-medium max-w-sm leading-relaxed drop-shadow-md">
+                        {isGuest
+                          ? localeText(
+                            'Гости могут попробовать режимы на демо-базе из 30 вопросов.',
+                            'Como invitado puedes probar los modos con una base demo de 30 preguntas.',
+                            'As a guest you can try the modes with a 30-question demo base.'
+                          )
+                          : t('testsPage.randomTestDesc')
+                        }
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-white/80 font-semibold mb-3">{t('testsPage.questionCount')}</p>
+                      <div className="flex gap-3">
+                        {[10, 20, 30].map((count) => (
+                          <motion.button
+                            key={count}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={(e) => { e.stopPropagation(); handleCountSelect(count); }}
+                            className={cn(
+                              "flex-1 px-6 py-3 rounded-xl font-bold text-base transition-all",
+                              randomQuestionCount === count
+                                ? "bg-white text-blue-600 shadow-lg shadow-white/30"
+                                : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
+                            )}
+                          >
+                            {count}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                    {(hasSelectedCount || isGuest) && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleBannerClick(); }}
+                        className="group relative h-14 px-8 rounded-full bg-white text-blue-600 font-black text-base shadow-[0_0_15px_-3px_rgba(255,255,255,0.5)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.6)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden"
+                      >
+                        <Play className="w-5 h-5 fill-blue-600" />
+                        <span>{t('testsPage.startButton')}</span>
+                        <ArrowRight className="w-5 h-5" />
+                        <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-indigo-100/50 to-transparent" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+                </motion.div>
+
+                {/* Banner 2: Smart Test */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.08 }}
+                  className="relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl group cursor-pointer border border-white/10 premium-mesh-violet"
+                  onClick={handleSmartTestStart}
+                >
+                  <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'url("/noise.svg")' }} />
+                  <div className="relative z-10 p-8 md:p-10 space-y-6">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+                          <Brain className="w-4 h-4 text-violet-200" />
+                          <span className="text-sm font-bold text-white">{localeText('Умный тест', 'Test inteligente', 'Smart test')}</span>
+                        </div>
+                        {!isPremium && (
+                          <div className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-amber-400/20 border border-amber-400/30">
+                            <Crown className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                            <span className="text-xs font-bold text-amber-200">Premium</span>
+                          </div>
+                        )}
+                      </div>
+                      <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tighter leading-[0.9] drop-shadow-2xl">
+                        {localeText('УМНЫЙ', 'INTELIGENTE', 'SMART').toUpperCase()}
+                        <br />
+                        {localeText('ТЕСТ', 'TEST', 'TEST').toUpperCase()}
+                      </h2>
+                      <p className="text-base text-white/90 font-medium max-w-sm leading-relaxed drop-shadow-md">
+                        {localeText(
+                          'ИИ анализирует твои ошибки и строит тест именно под твои слабые места.',
+                          'La IA analiza tus errores y construye el test según tus puntos débiles.',
+                          'AI analyzes your mistakes and builds a test targeting your weak spots.'
+                        )}
+                      </p>
+                      <div className="flex flex-col gap-2">
+                        {[
+                          { pct: '40%', label: localeText('слабые темы', 'temas débiles', 'weak topics') },
+                          { pct: '30%', label: localeText('давно не видел', 'repaso espaciado', 'spaced review') },
+                          { pct: '20%', label: localeText('следующий уровень', 'siguiente nivel', 'next level') },
+                        ].map(({ pct, label }) => (
+                          <div key={pct} className="flex items-center gap-3">
+                            <span className="text-xs font-black text-white/60 w-8">{pct}</span>
+                            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                              <div className="h-full bg-violet-300/70 rounded-full" style={{ width: pct }} />
+                            </div>
+                            <span className="text-xs font-semibold text-white/70">{label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleSmartTestStart(); }}
+                      className="group relative h-14 px-8 rounded-full bg-white text-violet-700 font-black text-base shadow-[0_0_15px_-3px_rgba(255,255,255,0.4)] hover:shadow-[0_0_25px_-3px_rgba(255,255,255,0.5)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-3 overflow-hidden"
+                    >
+                      {!isPremium ? (
+                        <>
+                          <Lock className="w-5 h-5" />
+                          <span>{localeText('Открыть Premium', 'Desbloquear Premium', 'Unlock Premium')}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-5 h-5 fill-violet-700" />
+                          <span>{localeText('Начать', 'Empezar', 'Start')}</span>
+                          <ArrowRight className="w-5 h-5" />
+                        </>
+                      )}
+                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-violet-100/30 to-transparent" />
+                    </button>
+                  </div>
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-violet-500/20 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-600/20 blur-2xl rounded-full -translate-x-1/4 translate-y-1/4" />
+                  {/* Floating brain icon */}
+                  <motion.div
+                    animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute bottom-6 right-6 hidden lg:block"
+                  >
+                    <div className="w-20 h-20 bg-white/10 backdrop-blur-lg rounded-3xl border border-white/20 flex items-center justify-center shadow-xl">
+                      <Brain className="w-10 h-10 text-white/80" />
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </div>
+            ) : (
+            /* Russia: original single banner */
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               className={cn(
                 "relative w-full overflow-hidden rounded-[2.5rem] shadow-2xl group cursor-pointer border border-white/10",
-                selectedCountry === 'russia'
-                  ? (recommendation.theme === 'warning'
-                    ? 'premium-mesh-orange'
-                    : recommendation.theme === 'info'
-                      ? 'premium-mesh-info'
-                      : 'premium-mesh-primary')
-                  : 'premium-mesh-primary'
+                recommendation.theme === 'warning'
+                  ? 'premium-mesh-orange'
+                  : recommendation.theme === 'info'
+                    ? 'premium-mesh-info'
+                    : 'premium-mesh-primary'
               )}
               onClick={handleBannerClick}
             >
