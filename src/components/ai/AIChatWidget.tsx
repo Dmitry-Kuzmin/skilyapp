@@ -24,6 +24,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { AILimitReachedModal } from '@/components/ai/AILimitReachedModal';
 import { useAIChatStore, selectIsOpen, selectMessages, selectIsLoading, selectSmartSuggestions, selectQuestionContext } from '@/stores/useAIChatStore';
 import { useModalStore } from '@/store/modalStore';
+import { useAIRequest } from '@/hooks/useAIRequest';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
