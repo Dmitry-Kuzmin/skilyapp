@@ -4,7 +4,7 @@ import {
     Bookmark, Play, Trash2, ArrowLeft,
     Search, Battery, BatteryLow,
     RotateCcw, Archive, Hash, AlertTriangle,
-    CheckCircle2, Flame, TrendingUp
+    CheckCircle2, Flame, TrendingUp, Lock, Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
