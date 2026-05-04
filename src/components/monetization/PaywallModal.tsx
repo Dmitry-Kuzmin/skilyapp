@@ -685,6 +685,88 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
       >
         <div id="paddle-checkout-container" className="w-full h-full" />
       </CheckoutModal>
+
+      {/* Comparison popup — rendered via portal to escape framer-motion transform stacking context */}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {showComparison && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 flex items-center justify-center p-4"
+              style={{ zIndex: 99999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(16px)' }}
+              onClick={() => setShowComparison(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.92, y: 20, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.92, y: 20, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-w-sm bg-[#0d1020] border border-white/10 rounded-3xl overflow-hidden shadow-2xl"
+              >
+                {/* Header */}
+                <div className="px-6 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-violet-400 mb-0.5">
+                      {language === 'ru' ? 'Сравнение планов' : language === 'es' ? 'Comparación' : 'Plan comparison'}
+                    </p>
+                    <h3 className="text-lg font-black text-white">Free vs Premium</h3>
+                  </div>
+                  <button
+                    onClick={() => setShowComparison(false)}
+                    className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                  >
+                    <XIcon className="w-4 h-4 text-slate-400" />
+                  </button>
+                </div>
+
+                {/* Column headers */}
+                <div className="grid grid-cols-[1fr_64px_80px] gap-2 px-6 py-3 bg-white/[0.02]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">{t.feature}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 text-center">{t.free}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 text-center">{t.pro}</span>
+                </div>
+
+                {/* Rows */}
+                <div className="px-4 pb-6 space-y-1">
+                  {FULL_TABLE.map((row, i) => (
+                    <div
+                      key={i}
+                      className="grid grid-cols-[1fr_64px_80px] gap-2 items-center py-2.5 px-2 rounded-xl hover:bg-white/3 transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <row.icon className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+                        <span className="text-[12px] font-medium text-slate-300">{row.label}</span>
+                      </div>
+                      <span className="text-[11px] text-center text-slate-600 font-mono">{row.free}</span>
+                      <span className={cn(
+                        "text-[12px] text-center font-black font-mono px-2 py-1 rounded-full",
+                        row.proColor,
+                        row.proColor.replace('text-', 'bg-').replace('-400', '-500/10')
+                      )}>
+                        {row.pro}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA */}
+                <div className="px-6 pb-6">
+                  <button
+                    onClick={() => setShowComparison(false)}
+                    className="w-full h-11 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-black hover:opacity-90 transition-opacity"
+                  >
+                    {language === 'ru' ? '← Выбрать план' : language === 'es' ? '← Elegir plan' : '← Choose plan'}
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
