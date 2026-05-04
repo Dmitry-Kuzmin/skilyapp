@@ -54,9 +54,34 @@ const ErrorCard = ({ q, language }: { q: ErrorQuestion; language: string }) => {
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 truncate">{topic}</span>
         )}
         <p className="text-sm font-medium text-foreground leading-snug flex-1 line-clamp-4">{text}</p>
-        <div className="flex items-center justify-between mt-auto">
-          <HeatBadge times={q.times_wrong} />
-          <StreakDots streak={q.correct_streak} />
+        <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/40 gap-2">
+          <span className={cn(
+            "text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0",
+            q.times_wrong >= 5 ? "text-red-500 bg-red-500/10" :
+            q.times_wrong >= 3 ? "text-orange-500 bg-orange-500/10" :
+            "text-amber-500 bg-amber-500/10"
+          )}>
+            {q.times_wrong === 1
+              ? (language === "ru" ? "Ошибка 1 раз" : language === "es" ? "Fallado 1 vez" : "Failed 1×")
+              : (language === "ru" ? `Ошибок: ${q.times_wrong}` : language === "es" ? `Fallado ${q.times_wrong}×` : `Failed ${q.times_wrong}×`)
+            }
+          </span>
+          <div className="flex items-center gap-1 min-w-0">
+            {Array.from({ length: STREAK_TO_MASTER }).map((_, i) => (
+              <div key={i} className={cn(
+                "w-1.5 h-1.5 rounded-full shrink-0",
+                i < q.correct_streak ? "bg-emerald-500" : "bg-muted-foreground/20"
+              )} />
+            ))}
+            <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+              {language === "ru"
+                ? `${q.correct_streak}/${STREAK_TO_MASTER} к усвоению`
+                : language === "es"
+                  ? `${q.correct_streak}/${STREAK_TO_MASTER} para dominar`
+                  : `${q.correct_streak}/${STREAK_TO_MASTER} to master`
+              }
+            </span>
+          </div>
         </div>
       </div>
     </div>
