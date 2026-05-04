@@ -192,7 +192,8 @@ const TestSession = () => {
       onSuccess: (result) => {
         if (result?.limit_reached) {
           setTestLimitBlocked(true);
-          openModal('PAYWALL', { trigger: 'attempt_limit', testCap: result.daily_cap });
+          const retryPath = location.pathname + (location.search || '');
+          openModal('TEST_LIMIT_REACHED', { retryPath });
           navigate('/tests', { replace: true });
         }
       },
