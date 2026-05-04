@@ -198,10 +198,17 @@ Deno.serve(async (req) => {
   const rateLimit = await checkRateLimit({ identifier: clientIP, limit: 30, windowMs: 60000 });
   if (!rateLimit.allowed) return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), { status: 429, headers: corsHeaders });
 
-  // Guests are not allowed to use AI — require valid auth token
+  // Guests are not allowed to use AI — require a valid user JWT (not just the anon key)
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
     return new Response(JSON.stringify({ error: 'auth_required' }), { status: 401, headers: corsHeaders });
+  }
+  {
+    const check = createPooledSupabaseClient();
+    const { data: { user: authUser } } = await check.auth.getUser(authHeader.replace('Bearer ', ''));
+    if (!authUser) {
+      return new Response(JSON.stringify({ error: 'auth_required' }), { status: 401, headers: corsHeaders });
+    }
   }
 
   try {
