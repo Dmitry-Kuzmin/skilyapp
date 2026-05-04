@@ -74,6 +74,8 @@ const AIWidgetContent = ({
   onToggleTranslation,
   testLanguage = 'es',
   country = 'spain',
+  questionIndex,
+  totalQuestions,
 }: AIWidgetProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
