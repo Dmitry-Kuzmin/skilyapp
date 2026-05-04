@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { SkilyAICharacter } from "./SkilyAICharacter";
 import { SkilyAIMessage } from "./SkilyAIMessage";
 import { useSkilyAIChat } from "@/hooks/useSkilyAIChat";
+import { AILimitReachedModal } from "@/components/ai/AILimitReachedModal";
 import { usePDDContext } from "@/contexts/PDDContext";
 import { usePremium } from "@/hooks/usePremium";
 import { useUserContext } from "@/contexts/UserContext";
