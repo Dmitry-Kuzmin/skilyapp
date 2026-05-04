@@ -70,7 +70,8 @@ async function tryGroq(messages: Message[], country: string = 'spain', mode: str
 
 async function tryGemini(messages: Message[], country: string = 'spain', mode: string = 'chat', showComparison: boolean = true, language: string = 'es', supabaseClient?: any, userId?: string | null, weakTopicsContext?: string | null): Promise<Response | null> {
   const apiKey = Deno.env.get('GEMINI_API_KEY');
-  if (!apiKey) return null;
+  if (!apiKey) { console.warn('[AI Chat] GEMINI_API_KEY not set'); return null; }
+  console.log('[AI Chat] Gemini start, msgs:', messages.length, 'weakTopics:', !!weakTopicsContext);
 
   try {
     const basePrompt = getSystemPrompt(country, showComparison, language);
