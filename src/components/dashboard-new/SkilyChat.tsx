@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Maximize2, Minimize2, ArrowRight, Sparkles } from 'lucide-react';
+import { Maximize2, Minimize2, ArrowRight, Sparkles, AlertCircle, Zap, Crown } from 'lucide-react';
 import { ResponsiveModal } from '@/components/ui/responsive-modal';
 import { useSkilyAIChat } from '@/hooks/useSkilyAIChat';
+import { AILimitReachedModal } from '@/components/ai/AILimitReachedModal';
 import { playClickSound, playNotificationSound, playTabSwitchSound } from '@/services/audioService';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePDDContext } from '@/contexts/PDDContext';
