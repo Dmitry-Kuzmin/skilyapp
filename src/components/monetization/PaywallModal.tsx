@@ -334,14 +334,14 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           )}
         >
           {/* LEFTSIDE (PREMIUM DARK) */}
-          <div className="relative w-full md:w-[42%] bg-[#080B16] text-white p-6 md:p-10 flex flex-col justify-between overflow-hidden z-10">
+          <div className="relative w-full md:w-[42%] bg-[#0A0D1B] dark:bg-[#080B16] text-white p-6 md:p-10 flex flex-col justify-between overflow-hidden z-10 border-r border-white/5">
             <AnimatedBackground />
             <div className="relative z-10">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 mb-8 bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg shadow-violet-900/20"
+                className="inline-flex items-center gap-2 mb-8 bg-white/10 dark:bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 dark:border-white/10 shadow-lg shadow-violet-950/20"
               >
                 <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-pulse" />
                 <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-amber-100">{t.premiumAccess}</span>
@@ -406,8 +406,8 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
           </div>
 
           {/* RIGHTSIDE (PLANS) */}
-          <div className="flex-1 bg-[#F8FAFC] dark:bg-[#0F121E] p-4 md:p-8 md:pl-10 flex flex-col overflow-y-auto relative">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/5 rounded-full blur-[80px] pointer-events-none" />
+          <div className="flex-1 bg-[#FDFDFF] dark:bg-[#0F121E] p-4 md:p-8 md:pl-10 flex flex-col overflow-y-auto relative">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/[0.03] dark:bg-violet-500/5 rounded-full blur-[80px] pointer-events-none" />
             <div className="flex-1 relative z-10">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}

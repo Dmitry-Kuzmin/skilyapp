@@ -103,14 +103,13 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                 isDarkTheme ? "bg-gradient-to-br from-slate-500/10 via-zinc-500/5 to-slate-500/10" : localeConfig.lightBg
             )} />
 
-            {/* DGT Security Grid - Pure Reference Based Pattern (Subtle tilt effect) */}
-            <div className="absolute inset-0 z-0 opacity-[0.25] dark:opacity-[0.18] pointer-events-none overflow-hidden"
+            {/* DGT Security Grid - Pure Reference Based Pattern (Grayscale & Subtle) */}
+            <div className="absolute inset-0 z-0 opacity-[0.12] dark:opacity-[0.08] pointer-events-none overflow-hidden"
                 style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3E.c%7Bstroke-width:0.35;fill:none;opacity:0.5;%7D.i%7Bstroke-width:0.4;fill:none;opacity:0.6;%7D.f%7Bfill:currentcolor;opacity:0.4;%7D%3C/style%3E%3C!-- Grid 1 --%3E%3Cg stroke='%234facfe'%3E%3Ccircle cx='20' cy='20' r='14' class='c'/%3E%3Cpath d='M16 20 h8 M20 16 v8' class='i'/%3E%3C/g%3E%3Cg stroke='%2300f2fe'%3E%3Ccircle cx='60' cy='20' r='14' class='c'/%3E%3Cpath d='M56 16 l8 8 M64 16 l-8 8' class='i'/%3E%3C/g%3E%3Cg stroke='%23a8cffb'%3E%3Ccircle cx='100' cy='20' r='14' class='c'/%3E%3Ccircle cx='100' cy='20' r='4' class='f'/%3E%3C/g%3E%3C!-- Grid 2 --%3E%3Cg stroke='%23f093fb'%3E%3Ccircle cx='20' cy='60' r='14' class='c'/%3E%3Ctext x='13' y='63' style='font:bold 5px sans-serif;fill:currentcolor'%3EDGT%3C/text%3E%3C/g%3E%3Cg stroke='%23f5576c'%3E%3Ccircle cx='60' cy='60' r='14' class='c'/%3E%3Cpath d='M54 60 h12 M60 54 v12' class='i'/%3E%3C/g%3E%3Cg stroke='%234facfe'%3E%3Ccircle cx='100' cy='60' r='14' class='c'/%3E%3Cpath d='M95 55 h10 v10 h-10 Z' class='i'/%3E%3C/g%3E%3C!-- Grid 3 --%3E%3Cg stroke='%2389f7fe'%3E%3Ccircle cx='20' cy='100' r='14' class='c'/%3E%3Ccircle cx='20' cy='100' r='6' class='i'/%3E%3C/g%3E%3Cg stroke='%23667eea'%3E%3Ccircle cx='60' cy='100' r='14' class='c'/%3E%3Cpath d='M55 95 l10 10 M65 95 l-10 10' class='i'/%3E%3C/g%3E%3Cg stroke='%2348c6ef'%3E%3Ccircle cx='100' cy='100' r='14' class='c'/%3E%3Cpath d='M96 96 q4-4 8 0 t8 0' class='i'/%3E%3C/g%3E%3C/svg%3E")`,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3E.c%7Bstroke-width:0.35;fill:none;opacity:0.3;%7D.i%7Bstroke-width:0.4;fill:none;opacity:0.4;%7D.f%7Bfill:currentcolor;opacity:0.2;%7D%3C/style%3E%3C!-- Grid 1 --%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='20' cy='20' r='14' class='c'/%3E%3Cpath d='M16 20 h8 M20 16 v8' class='i'/%3E%3C/g%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='60' cy='20' r='14' class='c'/%3E%3Cpath d='M56 16 l8 8 M64 16 l-8 8' class='i'/%3E%3C/g%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='100' cy='20' r='14' class='c'/%3E%3Ccircle cx='100' cy='20' r='4' class='f'/%3E%3C/g%3E%3C!-- Grid 2 --%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='20' cy='60' r='14' class='c'/%3E%3Ctext x='13' y='63' style='font:bold 5px sans-serif;fill:currentcolor'%3EDGT%3C/text%3E%3C/g%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='60' cy='60' r='14' class='c'/%3E%3Cpath d='M54 60 h12 M60 54 v12' class='i'/%3E%3C/g%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='100' cy='60' r='14' class='c'/%3E%3Cpath d='M95 55 h10 v10 h-10 Z' class='i'/%3E%3C/g%3E%3C!-- Grid 3 --%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='20' cy='100' r='14' class='c'/%3E%3Ccircle cx='20' cy='100' r='6' class='i'/%3E%3C/g%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='60' cy='100' r='14' class='c'/%3E%3Cpath d='M55 95 l10 10 M65 95 l-10 10' class='i'/%3E%3C/g%3E%3Cg stroke='%2364748b'%3E%3Ccircle cx='100' cy='100' r='14' class='c'/%3E%3Cpath d='M96 96 q4-4 8 0 t8 0' class='i'/%3E%3C/g%3E%3C/svg%3E")`,
                     backgroundSize: '100px 100px',
                     backgroundPosition: `${gyro.x * 0.3}px ${gyro.y * 0.3}px`,
-                    filter: `hue-rotate(${gyro.x * 1.5}deg)`,
-                    maskImage: 'radial-gradient(circle at center, black 25%, transparent 95%)'
+                    maskImage: 'radial-gradient(circle at center, black 20%, transparent 90%)'
                 }}
             />
 
@@ -276,7 +275,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                                             className={cn(
                                                 "text-left transition-all group/loc focus:outline-none flex items-center gap-1",
                                                 !isStatic && "active:scale-95",
-                                                examCity ? "text-indigo-400 hover:text-indigo-300" : "text-slate-500 hover:text-indigo-400"
+                                                examCity ? (isDarkTheme ? "text-slate-200" : "text-slate-900") : "text-slate-500 hover:text-slate-900"
                                             )}
                                         >
                                             <span className="truncate">
@@ -295,7 +294,7 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                                             className={cn(
                                                 "text-left transition-all group/goal focus:outline-none",
                                                 !isStatic && "active:scale-95",
-                                                daysUntilExam !== null ? "text-indigo-400 hover:text-indigo-300" : "text-slate-500 hover:text-indigo-400"
+                                                daysUntilExam !== null ? (isDarkTheme ? "text-slate-200" : "text-slate-900") : "text-slate-500 hover:text-slate-900"
                                             )}
                                         >
                                             {daysUntilExam !== null ? (
@@ -323,7 +322,10 @@ export const LicenseCardVisual: React.FC<LicenseCardVisualProps> = ({
                                     label={localeConfig.fields.streak} 
                                     value={
                                         <span className="flex items-center gap-1.5">
-                                            <span className="text-amber-500 filter drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]">
+                                            <span className={cn(
+                                                "font-black",
+                                                isDarkTheme ? "text-slate-200" : "text-slate-900"
+                                            )}>
                                                 {stats.currentStreak} 
                                                 {language === 'ru' ? ' ДН.' : language === 'es' ? ' DÍAS' : ' DAYS'}
                                             </span>
