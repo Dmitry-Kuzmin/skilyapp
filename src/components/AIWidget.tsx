@@ -211,9 +211,11 @@ const AIWidgetContent = ({
     staleTime: 0,
   });
 
-  const aiLimit = aiUsage?.limit || 5;
+  // RPC returns: { current_count, remaining, limit_reached }
   const aiUsed = aiUsage?.current_count ?? 0;
-  const aiRemaining = Math.max(aiLimit - aiUsed, 0);
+  const aiRemaining = aiUsage?.remaining ?? (isPremium ? 999 : 5);
+  const aiLimit = isPremium ? 999 : Math.max(aiUsed, 5);
+  const aiLimitReached = aiUsage?.limit_reached ?? false;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
