@@ -1632,17 +1632,17 @@ export default function Duel() {
                                         <Card className="p-0 border border-border/40 shadow-xl rounded-3xl sm:rounded-[2rem] bg-card relative overflow-hidden">
                                             <div className={`grid ${(duelMode === 'friend' || createdCode) ? 'md:grid-cols-2' : 'md:grid-cols-1'} divide-y md:divide-y-0 ${(duelMode === 'friend' || createdCode) ? 'md:divide-x' : ''} divide-border/30`}>
                                                 {/* Create Duel Section - Premium */}
-                                                <div className="relative p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-br from-violet-50/80 via-purple-50/60 to-indigo-50/80 dark:from-violet-950/20 dark:via-purple-950/15 dark:to-indigo-950/20 rounded-3xl sm:rounded-[2rem]">
+                                                <div className="relative p-4 sm:p-6 md:p-8 lg:p-10 bg-gradient-to-br from-blue-50/80 via-sky-50/60 to-slate-50/80 dark:from-blue-950/20 dark:via-sky-950/15 dark:to-slate-950/20 rounded-3xl sm:rounded-[2rem]">
                                                     {/* Noise texture */}
                                                     <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("/noise.svg")' }} />
 
                                                     {/* Animated background pattern */}
                                                     <div className="absolute inset-0 opacity-5 dark:opacity-10 rounded-[inherit] overflow-hidden">
-                                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(139,92,246)_1px,transparent_0)] [background-size:24px_24px]" />
+                                                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgb(59,130,246)_1px,transparent_0)] [background-size:24px_24px]" />
                                                     </div>
 
                                                     {/* Gradient overlay */}
-                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-violet-400/20 to-purple-500/20 rounded-full blur-3xl -z-10" />
+                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-sky-500/20 rounded-full blur-3xl -z-10" />
 
                                                     <div className="relative space-y-6 sm:space-y-8">
 
