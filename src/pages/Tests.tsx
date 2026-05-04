@@ -956,7 +956,7 @@ const Tests = () => {
                         }
 
                         if (mode.premium && !isPremium) {
-                          // Handle premium
+                          openModal(ModalType.PAYWALL);
                         } else if (mode.route) {
                           if (import.meta.env.DEV && mode.id === 2) {
                             console.log('[Tests] Клик по экзамену:', {
