@@ -13,6 +13,7 @@ import { triggerHapticFeedback } from "@/lib/telegram";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { AILimitReachedModal } from "@/components/ai/AILimitReachedModal";
 import { SignWidget } from "@/components/chat/SignWidget";
+import { useModalStore } from "@/store/modalStore";
 // TON_DISABLED: import { TonPaymentWidget } from "@/components/monetization/LazyTonPaymentWidget";
 
 type Message = {
