@@ -361,24 +361,50 @@ const Favorites = () => {
                     </div>
                 ) : filteredQuestions.length > 0 ? (
                     <AnimatePresence mode="popLayout">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                            {filteredQuestions.map((q, i) => (
-                                <motion.div
-                                    key={q.id}
-                                    layout
-                                    initial={{ opacity: 0, y: 16 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95 }}
-                                    transition={{ delay: i * 0.04, duration: 0.25 }}
-                                >
-                                    <Flashcard
-                                        question={q}
-                                        country={selectedCountry || 'spain'}
-                                        onRemove={handleRemoveFavorite}
-                                        labels={labels}
-                                    />
-                                </motion.div>
-                            ))}
+                        <div className="relative">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                                {(isPremium ? filteredQuestions : filteredQuestions.slice(0, FREE_CARD_LIMIT)).map((q, i) => (
+                                    <motion.div
+                                        key={q.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 16 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ delay: i * 0.04, duration: 0.25 }}
+                                    >
+                                        <Flashcard
+                                            question={q}
+                                            country={selectedCountry || 'spain'}
+                                            onRemove={handleRemoveFavorite}
+                                            labels={labels}
+                                        />
+                                    </motion.div>
+                                ))}
+                            </div>
+
+                            {/* Paywall overlay for non-premium when more than FREE_CARD_LIMIT cards */}
+                            {!isPremium && filteredQuestions.length > FREE_CARD_LIMIT && (
+                                <div className="absolute bottom-0 left-0 right-0 h-64 flex flex-col items-center justify-end pb-6 pointer-events-none">
+                                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+                                    <button
+                                        onClick={() => openModal('PAYWALL')}
+                                        className="relative pointer-events-auto flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-primary text-primary-foreground shadow-xl shadow-primary/30 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 font-bold"
+                                    >
+                                        <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                                            <Crown className="w-4 h-4" />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="text-[10px] font-bold opacity-75 uppercase tracking-widest leading-none mb-0.5">
+                                                {t("language") === "ru" ? `${filteredQuestions.length - FREE_CARD_LIMIT} скрыто` : `${filteredQuestions.length - FREE_CARD_LIMIT} ocultas`}
+                                            </div>
+                                            <div className="text-sm leading-tight">
+                                                {t("language") === "ru" ? "Открыть весь банк" : "Desbloquear banco completo"}
+                                            </div>
+                                        </div>
+                                        <Lock className="w-4 h-4 opacity-60 shrink-0" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </AnimatePresence>
                 ) : (
