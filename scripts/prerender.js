@@ -348,7 +348,7 @@ async function prerender() {
     // routes off a shared queue. With concurrency=4 we cut total wall-time
     // ~3-4× compared to the previous serial loop without exhausting RAM
     // (each page is ~30-60MB; well within Vercel's 8GB build machine).
-    const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY) || 4;
+    const CONCURRENCY = Number(process.env.PRERENDER_CONCURRENCY) || 3;
     const routeQueue = [...routesToRender];
 
     async function renderWorker() {
@@ -369,8 +369,8 @@ async function prerender() {
           // Telegram JS). Реальная готовность контента определяется waitForFunction ниже.
           // networkidle2 добавлял 5-10с на маршрут × 37 маршрутов = +3-5 мин к сборке.
           await page.goto(url, {
-            waitUntil: 'load',
-            timeout: 30000,
+            waitUntil: 'domcontentloaded',
+            timeout: 60000,
           });
 
           // Wait for meaningful React content (not just fallback/skeleton).
