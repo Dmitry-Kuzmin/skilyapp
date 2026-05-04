@@ -256,7 +256,7 @@ const Favorites = () => {
                         </button>
                         <div className="flex items-center gap-3">
                             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
-                                <BrainCircuit className="w-5.5 h-5.5 text-white" style={{ width: 22, height: 22 }} />
+                                <Archive className="w-5.5 h-5.5 text-white" style={{ width: 22, height: 22 }} />
                             </div>
                             <div>
                                 <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight leading-none">
