@@ -20,6 +20,7 @@ import type { Paddle } from "@paddle/paddle-js";
 
 import { StarsPaymentButton } from "@/components/monetization/StarsPaymentButton";
 import { TrialCTA } from "@/components/monetization/TrialCTA";
+import { SocialTrustBadge } from "@/components/shared/SocialTrustBadge";
 
 interface PaywallModalProps {
   open: boolean;
@@ -94,7 +95,6 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
   const currentPlatform = platform === 'telegram' ? 'telegram' : 'web';
   const showPaddlePayment = isPaymentMethodAvailable('paddle', currentPlatform);
   const showCryptomusPayment = isPaymentMethodAvailable('cryptomus', currentPlatform);
-
   const [paymentMethod, setPaymentMethod] = useState<'paddle' | 'cryptomus'>(
     showPaddlePayment ? 'paddle' : 'cryptomus'
   );
@@ -241,14 +241,46 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
     { icon: Infinity, color: "text-indigo-400",  bg: "bg-indigo-500/10",  text: language === 'ru' ? "2157 вопросов вместо 300" : language === 'es' ? "2157 preguntas en lugar de 300" : "2157 questions instead of 300" },
   ];
 
-  const FULL_TABLE = [
-    { icon: Zap,       label: t.f_tests,  free: "5 / день", pro: "∞", proColor: "text-amber-400" },
-    { icon: Infinity,  label: t.f_base,   free: "300",       pro: "2 157", proColor: "text-violet-400" },
-    { icon: Brain,     label: t.f_ai,     free: "5 / день",  pro: t.unlimited, proColor: "text-emerald-400" },
-    { icon: BarChart3, label: t.f_stats,  free: "Basic",     pro: "Deep AI", proColor: "text-indigo-400" },
-    { icon: Swords,    label: t.f_duels,  free: "10%",       pro: "0%", proColor: "text-rose-400" },
-    { icon: ShieldCheck, label: language === 'ru' ? "Реклама" : language === 'es' ? "Anuncios" : "Ads", free: language === 'ru' ? "Есть" : "Sí", pro: language === 'ru' ? "Нет" : "No", proColor: "text-emerald-400" },
-    { icon: Star,      label: "Duel Pass", free: language === 'ru' ? "Free трек" : "Free track", pro: language === 'ru' ? "Premium трек" : "Premium track", proColor: "text-amber-400" },
+  const isRu = language === 'ru';
+  const isEs = language === 'es';
+
+  // type: 'value' = показывает текст; 'bool' = ✓/✗; 'bool-inv' = ✗ у premium (реклама)
+  const TABLE_SECTIONS: Array<{
+    title: string;
+    rows: Array<{ icon: any; label: string; free: string | boolean; pro: string | boolean; type: 'value' | 'bool' | 'bool-inv'; accent: string; highlight?: boolean }>;
+  }> = [
+    {
+      title: isRu ? '📚 Обучение' : isEs ? '📚 Aprendizaje' : '📚 Learning',
+      rows: [
+        { icon: Zap,       label: isRu ? 'Тестов в день' : isEs ? 'Tests por día' : 'Tests per day',          free: isRu ? '5 / день' : isEs ? '5 / día' : '5 / day',      pro: '∞ ' + (isRu ? 'Безлимит' : isEs ? 'Ilimitado' : 'Unlimited'), type: 'value', accent: 'amber',   highlight: true },
+        { icon: Infinity,  label: isRu ? 'База вопросов' : isEs ? 'Base de preguntas' : 'Question bank',       free: '300',                                                  pro: '2 157',                                                        type: 'value', accent: 'violet',  highlight: true },
+        { icon: Trophy,    label: isRu ? 'Вопросов за сессию' : isEs ? 'Preguntas por sesión' : 'Per session',  free: '20',                                                  pro: isRu ? 'Без лимита' : isEs ? 'Sin límite' : 'Unlimited',        type: 'value', accent: 'emerald' },
+      ],
+    },
+    {
+      title: isRu ? '🤖 AI & Аналитика' : isEs ? '🤖 IA & Análisis' : '🤖 AI & Analytics',
+      rows: [
+        { icon: Brain,     label: isRu ? 'AI-Помощник' : isEs ? 'Asistente IA' : 'AI Assistant',              free: isRu ? '5 / день' : isEs ? '5 / día' : '5 / day',      pro: isRu ? 'Безлимит' : isEs ? 'Ilimitado' : 'Unlimited',          type: 'value', accent: 'violet',  highlight: true },
+        { icon: Brain,     label: isRu ? 'AI помнит твои ошибки' : isEs ? 'IA recuerda tus errores' : 'AI remembers mistakes', free: false, pro: true,                       type: 'bool',  accent: 'emerald', highlight: true },
+        { icon: BarChart3, label: isRu ? 'Глубокая статистика' : isEs ? 'Estadísticas avanzadas' : 'Deep stats', free: isRu ? 'Базовая' : isEs ? 'Básica' : 'Basic',       pro: 'Deep AI',                                                      type: 'value', accent: 'indigo' },
+        { icon: BarChart3, label: isRu ? 'AI-прогноз сдачи' : isEs ? 'Pronóstico IA' : 'AI pass forecast',   free: false,                                                  pro: true,                                                           type: 'bool',  accent: 'indigo' },
+      ],
+    },
+    {
+      title: isRu ? '⚔️ Дуэли & Прогресс' : isEs ? '⚔️ Duelos & Progreso' : '⚔️ Duels & Progress',
+      rows: [
+        { icon: Swords,    label: isRu ? 'Комиссия дуэлей' : isEs ? 'Comisión de duelos' : 'Duel fee',        free: '10%',                                                  pro: '0%',                                                           type: 'value', accent: 'rose',    highlight: true },
+        { icon: Star,      label: isRu ? 'Опыт (XP)' : isEs ? 'Experiencia (XP)' : 'XP gain',                 free: '× 1',                                                 pro: '× 2',                                                          type: 'value', accent: 'amber' },
+        { icon: Star,      label: 'Duel Pass',                                                                  free: isRu ? 'Free трек' : 'Free track',                     pro: isRu ? 'Premium трек' : isEs ? 'Pista Premium' : 'Premium track', type: 'value', accent: 'amber' },
+      ],
+    },
+    {
+      title: isRu ? '✨ Комфорт' : isEs ? '✨ Comodidad' : '✨ Comfort',
+      rows: [
+        { icon: ShieldCheck, label: isRu ? 'Реклама' : isEs ? 'Anuncios' : 'Ads',                             free: true,                                                   pro: false,                                                          type: 'bool-inv', accent: 'emerald', highlight: true },
+        { icon: Crown,     label: isRu ? 'Приоритетная поддержка' : isEs ? 'Soporte prioritario' : 'Priority support', free: false,                                         pro: true,                                                           type: 'bool',  accent: 'violet' },
+      ],
+    },
   ];
 
   const ComparisonTable = () => (
@@ -459,26 +491,7 @@ export function PaywallModal({ open, onOpenChange }: PaywallModalProps) {
               transition={{ delay: 0.9 }}
               className="relative z-10 hidden md:flex items-center gap-4 pt-6 border-t border-white/5 mt-6"
             >
-              <div className="flex -space-x-3">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className={`w-9 h-9 rounded-full border-2 border-[#080B16] bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white shadow-lg z-${30 - i * 10}`}>
-                    <span className="opacity-50">👤</span>
-                  </div>
-                ))}
-                <div className="w-9 h-9 rounded-full border-2 border-[#080B16] bg-violet-600 flex items-center justify-center text-[10px] font-bold text-white shadow-lg z-0">
-                  +50k
-                </div>
-              </div>
-              <div>
-                <div className="flex text-amber-400 text-[10px] gap-0.5 mb-1">
-                  <Star className="w-3 h-3 fill-current" />
-                  <Star className="w-3 h-3 fill-current" />
-                  <Star className="w-3 h-3 fill-current" />
-                  <Star className="w-3 h-3 fill-current" />
-                  <Star className="w-3 h-3 fill-current" />
-                </div>
-                <p className="text-[11px] font-medium text-slate-400">{t.trustText}</p>
-              </div>
+              <SocialTrustBadge totalCount="50,000+" />
             </motion.div>
           </div>
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NumberTicker } from '@/components/ui/NumberTicker';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AvatarGroup } from './AvatarGroup';
 import { useOnlinePlayers } from '@/hooks/useGamesData';
 
 interface OnlinePlayer {
@@ -96,27 +96,13 @@ export const OnlinePlayers: React.FC<OnlinePlayersProps> = ({
             className
         )}>
             {/* Аватарки с наложением */}
-            <div className="flex -space-x-3 items-center pl-1">
-                {combinedPlayers.map((player, i) => (
-                    <motion.div
-                        key={player.id}
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ delay: i * 0.1 }}
-                        className="relative"
-                    >
-                        <Avatar className={cn(
-                            "h-8 w-8 border-none shadow-lg transition-transform group-hover:translate-x-1",
-                            variant === 'default' ? "ring-2 ring-background" : "ring-2 ring-blue-600"
-                        )}>
-                            <AvatarImage src={player.photoUrl || undefined} className="object-cover" />
-                            <AvatarFallback className="bg-slate-800 text-[10px] text-white font-bold">
-                                {player.initials}
-                            </AvatarFallback>
-                        </Avatar>
-                    </motion.div>
-                ))}
-            </div>
+            <AvatarGroup 
+                avatars={combinedPlayers}
+                ringColor={variant === 'default' ? "ring-background" : "ring-blue-600"}
+                size="md"
+                overlap={-12}
+                className="pl-1"
+            />
 
             {/* Счетчик и индикатор Live */}
             <div className="flex items-center gap-2.5">
