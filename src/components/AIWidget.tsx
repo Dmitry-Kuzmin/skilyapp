@@ -426,11 +426,8 @@ ${explanation ? `\n${interfaceLanguage === 'ru' ? 'Официальное объ
         },
       },
     );
-    // eslint-disable-next-line no-empty
-    try {} catch {} finally {
-      setIsLoading(false);
-      if (!isPremium) refetchUsage();
-    }
+    setIsLoading(false);
+    if (!isPremium) refetchUsage();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
