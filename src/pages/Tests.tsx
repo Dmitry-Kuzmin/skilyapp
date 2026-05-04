@@ -911,21 +911,8 @@ const Tests = () => {
             </motion.div>
             )}
 
-            {/* Other Test Modes Grid - Dashboard Style */}
-            <div className="space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <h3 className="text-xl font-bold text-foreground flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-card border border-border">
-                    <Gamepad2 className="w-6 h-6 text-indigo-400" />
-                  </div>
-                  {localeText('Другие режимы', 'Otros modos', 'Other modes')}
-                </h3>
-
-                {/* AI Insights Library (Always visible shortcut) */}
-                <AIInsightsLibrary isPremium={isPremium} />
-              </div>
-
-
+            {/* Other Test Modes Grid */}
+            <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {testModes.filter(m => m.id !== 1).map((mode, index) => {
                   // Логирование для отладки экзамена
