@@ -56,6 +56,7 @@ export const SkilyAIChatWidget = ({
   const { isPremium } = usePremium();
   const { profileId } = useUserContext();
   const { language } = useLanguage();
+  const openModal = useModalStore(s => s.openModal);
   const [input, setInput] = useState("");
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
