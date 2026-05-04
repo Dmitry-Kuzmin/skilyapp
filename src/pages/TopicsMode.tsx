@@ -88,8 +88,8 @@ const TopicsMode = () => {
 
           {/* Header — same grid as cards so edges align perfectly */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">
-            {/* Title block spans 2 cols on lg */}
-            <div className="lg:col-span-2 space-y-1.5">
+            {/* Title block spans 2 cols on lg, 3 cols on xl */}
+            <div className="lg:col-span-2 xl:col-span-3 space-y-1.5">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 {country === 'spain' ? 'DGT España' : 'ПДД Россия'}
               </p>
