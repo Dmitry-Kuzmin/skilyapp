@@ -276,17 +276,17 @@ Deno.serve(async (req) => {
             p_limit: 5,
           });
             if (weakTopics && weakTopics.length > 0) {
-              const topicLines = weakTopics
-                .map((t: { topic_title: string; accuracy: number; attempt_count: number }) =>
-                  `- ${t.topic_title}: ${t.accuracy}% correct (${t.attempt_count} attempts)`)
-                .join('\n');
-              weakTopicsContext = `\n\n[USER WEAK TOPICS - use this to personalize advice]:\n${topicLines}`;
-            }
-          } catch (e) {
-            console.error('[AI Chat] Failed to load weak topics:', e);
+            const topicLines = weakTopics
+              .map((t: { topic_title: string; accuracy: number; attempt_count: number }) =>
+                `- ${t.topic_title}: ${t.accuracy}% correct (${t.attempt_count} attempts)`)
+              .join('\n');
+            weakTopicsContext = `\n\n[USER WEAK TOPICS - use this to personalize advice]:\n${topicLines}`;
           }
+        } catch (e) {
+          console.error('[AI Chat] Failed to load weak topics:', e);
         }
       }
+    }
 
     const gemini = await tryGemini(messages, country, mode, showComparison, language, supabaseClient, userId, weakTopicsContext);
     if (gemini) return gemini;
